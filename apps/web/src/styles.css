@@ -2516,6 +2516,60 @@ ol {
   border-top: 1px solid var(--line);
   scroll-margin-top: 32px;
 }
+.installation-section {
+  row-gap: 55px;
+}
+.assistant-brandstrip {
+  grid-column: 1 / -1;
+  padding-bottom: 35px;
+  border-bottom: 1px solid var(--line);
+}
+.assistant-brandstrip > p {
+  color: var(--blue);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 26px;
+  text-align: center;
+  margin: 0 0 28px;
+}
+.assistant-brandstrip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.assistant-brandstrip li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 7px;
+}
+.assistant-official-mark {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  margin-bottom: 3px;
+}
+.assistant-official-mark img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+.assistant-official-mark img[src$="chatgpt.svg"] {
+  width: 66px;
+  height: 66px;
+}
+.assistant-brandstrip strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.assistant-brandstrip li > span:last-child {
+  font-size: 10px;
+  color: var(--muted);
+}
 .installation-heading h2,
 .pricing-heading h2,
 .faq-heading h2 {
@@ -2554,6 +2608,9 @@ ol {
   margin-bottom: 25px;
 }
 .host-selector button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -2561,6 +2618,14 @@ ol {
   font-weight: 500;
   color: var(--muted);
   font-size: 17px;
+}
+.host-selector button img {
+  object-fit: contain;
+}
+.host-selector button img[src$="chatgpt.svg"] {
+  width: 28px;
+  height: 28px;
+  margin: -4px;
 }
 .host-selector button[aria-pressed="true"] {
   color: var(--blue);
@@ -2692,6 +2757,7 @@ ol {
 .pricing-table th,
 .pricing-table td {
   padding: 18px 0;
+  white-space: normal;
 }
 .pricing-table thead th {
   padding: 13px 0;
@@ -2715,6 +2781,27 @@ ol {
   font-weight: 500;
   color: var(--blue);
   white-space: nowrap;
+}
+.customer-price {
+  margin: 0 0 7px;
+}
+.customer-price strong {
+  font-size: 22px;
+  display: block;
+}
+.customer-price > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.customer-supplement {
+  margin: 11px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.pricing-table th,
+.pricing-table td {
+  vertical-align: top;
 }
 .price-qualification {
   margin: 16px 0 25px;
@@ -2796,7 +2883,7 @@ ol {
 .luxembourg-panorama {
   width: 100%;
   height: auto;
-  mix-blend-mode: multiply;
+  mix-blend-mode: darken;
 }
 .luxembourg-birds {
   position: absolute;
@@ -2808,68 +2895,78 @@ ol {
   display: block;
   width: 65px;
   top: 7%;
-  left: 18%;
-  animation: swallow-flight 18s ease-in-out infinite alternate;
+  left: -12%;
+  --flight-distance: calc(100vw + 200px);
+  animation: swallow-flight 24s linear infinite;
+  animation-delay: -6s;
 }
-.footer-bird img {
+.swallow-wingbeat {
+  display: block;
   width: 100%;
-  height: auto;
-  animation: swallow-wing 3.2s ease-in-out infinite alternate;
+  aspect-ratio: 1;
+  background-image: url("/luxembourg-blue-swallow-sheet.webp");
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+  animation: swallow-wingbeat 0.8s steps(1, end) infinite;
 }
 .bird-two {
   width: 40px;
-  left: 66%;
   top: 10%;
-  animation-delay: -9s;
-  animation-duration: 23s;
+  animation-delay: -17s;
+  animation-duration: 30s;
 }
 .bird-three {
   width: 27px;
-  left: 76%;
   top: 18%;
-  animation-delay: -5s;
-  animation-duration: 20s;
+  animation-delay: -22s;
+  animation-duration: 26s;
 }
-.bird-two img {
-  animation-delay: -1s;
+.bird-two .swallow-wingbeat {
+  animation-delay: -0.25s;
+  animation-duration: 0.9s;
 }
-.bird-three img {
-  animation-delay: -2s;
+.bird-three .swallow-wingbeat {
+  animation-delay: -0.5s;
+  animation-duration: 0.7s;
 }
 @keyframes swallow-flight {
-  from {
-    transform: translate(-28px, 8px) rotate(-7deg);
+  0% {
+    transform: translate3d(0, 12px, 0) rotate(-3deg);
+    opacity: 0;
   }
-  to {
-    transform: translate(62px, -14px) rotate(3deg);
+  8% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate3d(calc(var(--flight-distance) * 0.35), -8px, 0)
+      rotate(1deg);
+  }
+  70% {
+    transform: translate3d(calc(var(--flight-distance) * 0.7), 4px, 0)
+      rotate(-2deg);
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--flight-distance), -12px, 0) rotate(1deg);
+    opacity: 0;
   }
 }
-@keyframes swallow-wing {
-  from {
-    transform: scaleY(0.86) rotate(-3deg);
+@keyframes swallow-wingbeat {
+  0%,
+  100% {
+    background-position: 0% 0%;
   }
-  to {
-    transform: scaleY(1) rotate(2deg);
+  25% {
+    background-position: 100% 0%;
   }
-}
-.birds-paused .footer-bird,
-.birds-paused .footer-bird img {
-  animation-play-state: paused;
-}
-.bird-motion-toggle {
-  position: absolute;
-  bottom: 10px;
-  right: 6%;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 10px;
-  min-height: 36px;
-  font-size: 10px;
-  color: var(--muted);
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  50% {
+    background-position: 0% 100%;
+  }
+  75% {
+    background-position: 100% 100%;
+  }
 }
 .footer-colophon {
   border-top: 1px solid var(--line);
@@ -2896,6 +2993,7 @@ ol {
 }
 .footer-colophon nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 22px;
   font-size: 11px;
 }
@@ -2937,6 +3035,21 @@ ol {
   .faq-heading {
     margin-bottom: 33px;
   }
+  .assistant-brandstrip {
+    margin-bottom: 38px;
+    padding-bottom: 28px;
+  }
+  .assistant-brandstrip > p {
+    font-size: 25px;
+  }
+  .assistant-brandstrip ul {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 12px;
+  }
+  .assistant-official-mark {
+    width: 60px;
+    height: 60px;
+  }
   .installation-heading h2,
   .pricing-heading h2,
   .faq-heading h2 {
@@ -2949,11 +3062,12 @@ ol {
     font-size: 14px;
   }
   .host-selector {
-    gap: 26px;
+    gap: 19px;
   }
   .host-selector button {
     min-height: 44px;
-    font-size: 16px;
+    font-size: 14px;
+    gap: 7px;
   }
   .endpoint-copy {
     padding: 15px;
@@ -2981,7 +3095,7 @@ ol {
     font-size: 13px;
   }
   .pricing-table tbody th {
-    width: 43%;
+    width: 33%;
     font-size: 14px;
     padding-right: 15px;
   }
@@ -3009,7 +3123,6 @@ ol {
   }
   .luxembourg-art {
     margin: 22px -22px 0;
-    padding-bottom: 35px;
   }
   .luxembourg-panorama {
     width: 165%;
@@ -3019,21 +3132,14 @@ ol {
   .footer-bird {
     width: 43px;
     top: 9%;
-    left: 17%;
   }
   .bird-two {
     width: 30px;
-    left: 61%;
     top: 5%;
   }
   .bird-three {
     width: 22px;
-    left: 77%;
     top: 13%;
-  }
-  .bird-motion-toggle {
-    bottom: 7px;
-    right: 22px;
   }
   .footer-colophon {
     flex-direction: column;
@@ -3053,7 +3159,15 @@ ol {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bird-motion-toggle {
-    display: none;
+  .footer-bird {
+    left: 18%;
+    opacity: 1;
+    transform: none;
+  }
+  .bird-two {
+    left: 66%;
+  }
+  .bird-three {
+    left: 80%;
   }
 }

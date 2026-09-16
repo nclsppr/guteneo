@@ -1,0 +1,21 @@
+{
+  "width": 2172,
+  "height": 724,
+  "originalWidth": 2172,
+  "originalHeight": 724,
+  "alpha": false,
+  "references": [
+    "assets/brand/source/luxembourg-panorama.png",
+    "apps/web/public/press-halftone.webp"
+  ],
+  "conversion": "cwebp -q 88 assets/brand/source/luxembourg-blue-panorama.png -o apps/web/public/luxembourg-blue-panorama.webp",
+  "prompt": "Use case: precise-object-edit. Asset type: Guteneo website footer panorama. Image 1 is the edit target: the existing wide Luxembourg City panorama. Image 2 is the exact visual style reference: the Guteneo blue letterpress engraving. Preserve image 1's whole landscape composition, all roof groups, stone bridge, Bock cliffs, church towers, framing, top and outer negative space; do not add or remove buildings, birds, words or logos. Transform its grayscale ink rendering into the exact refined cobalt-blue print language of image 2: only cobalt #2450DB ink on warm ivory #F6F5EF paper, bold crisp blue details plus visible tiny ordered halftone dots, stipple and fine technical engraved lines. Give architecture the same convincing graphic density, clear linework and crisp dither shading as the printing press. No black or gray ink, no gradients, no photographic blur. Keep the quiet blank top sky, edges fading through sparse blue ink dots into clean ivory paper, no border, no text. Result one wide 3:1 panorama, at least 2000 pixels wide. This is a stylized illustration, do not turn it into a photo.",
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-09-17",
+  "source": "assets/brand/source/luxembourg-blue-panorama.png",
+  "sourceSha256": "8b70874c89257e11e73b51a4642a0d96234b46e145ed9c925f098e4f73f78d34",
+  "sourceBytes": 3244494,
+  "web": "apps/web/public/luxembourg-blue-panorama.webp",
+  "webSha256": "b2753d4e023705e8187ca055c176e6558be59360ab6c774d7c67b539589754b8",
+  "webBytes": 675208
+}

@@ -41,4 +41,12 @@ Ce message ne peut pas installer un connecteur, accorder une permission ou rempl
 
 À l’ouverture du service, l’offre prévue est une dotation unique de 50 € à la création du compte, partagée entre les canaux, sans renouvellement mensuel. Un solde insuffisant bloque les nouveaux envois. Le rechargement Stripe est désactivé.
 
-Le principe tarifaire est deux fois le coût prestataire qualifié. Les montants commerciaux, leurs unités, leurs arrondis et les taxes restent à qualifier et seront présentés avant validation. Les chiffres de la démonstration ne sont pas des prix fournisseurs.
+Tarifs clients indicatifs, hors taxes, vérifiés le 17 septembre 2026 :
+
+- E-mail : environ 0,28 € pour 1 000 e-mails à un destinataire. Pièces jointes : environ 0,21 € par Go en supplément. Offre Essentials.
+- Fax : environ 0,03 à 0,12 € pour le scénario d’une page vers un numéro fixe luxembourgeois, depuis un numéro de l’EEE, pour 1 à 3 minutes de transmission. Le montant varie selon la route et les surcharges ; cette estimation n’est pas un plafond garanti. Autres destinations et durées sur devis.
+- Courrier postal : dès 2,50 € par lettre vers la France et dès 3,02 € vers le Luxembourg. Exemples pour une page en noir et blanc sur papier normal, port économique inclus, moins de 500 lettres par mois et grille locale du pays concerné. Autres routes, pages, couleur, papier et modes d’expédition sur devis.
+
+La conversion des montants en dollars utilise le cours BCE du 16 septembre 2026 : 1 € = 1,1537 $ US. Le devis final, ses éventuels suppléments, sa devise et les taxes seront présentés avant validation. Ces services sont en préparation ; l’aperçu n’effectue aucun envoi réel.
+
+Grok est présenté à titre informatif : son intégration n’est pas disponible. Les logos identifient leurs produits respectifs et n’indiquent ni partenariat ni validation des parcours Guteneo.

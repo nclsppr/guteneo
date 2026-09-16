@@ -96,6 +96,9 @@ export const fr = {
     copied: "Copié.",
     copyFallback: "Sélectionnez le texte ci-dessus pour le copier.",
     install: {
+      brandIntro: "Vos assistants, une même correspondance.",
+      brandPreparing: "Connexion en préparation",
+      brandUnavailable: "Intégration non disponible",
       title: "Votre assistant.",
       italic: "Votre correspondance.",
       intro:
@@ -157,28 +160,9 @@ export const fr = {
         "À l’ouverture du service, 50 € de crédit de bienvenue seront attribués une seule fois à votre compte. Un même solde pour vos e-mails, fax et courriers postaux.",
       welcomeTerms:
         "Aucun renouvellement mensuel. Les envois s’arrêtent lorsque le solde disponible ne couvre plus leur coût.",
-      rateLabel: "Principe de tarification des trois canaux",
+      rateLabel: "Tarifs clients indicatifs des trois canaux",
       channel: "Votre canal",
       price: "Votre tarif",
-      rates: [
-        {
-          channel: "E-mail",
-          unit: "Selon le volume et les pièces jointes",
-          cost: "le coût Amazon SES qualifié",
-        },
-        {
-          channel: "Fax",
-          unit: "Selon les pages et la destination",
-          cost: "le coût Telnyx qualifié",
-        },
-        {
-          channel: "Courrier postal",
-          unit: "Selon l’impression, le format et le pays",
-          cost: "le coût postal qualifié",
-        },
-      ],
-      qualification:
-        "Principe tarifaire : deux fois le coût prestataire qualifié. Le montant exact en euros, l’unité, l’arrondi et les taxes applicables seront précisés avant validation. Les barèmes fournisseurs sont encore en cours de qualification ; aucun prix unitaire commercial n’est annoncé ici.",
       topup: "Ajouter du crédit",
       topupNote:
         "Bientôt disponible avec Stripe. Le rechargement est désactivé ; aucun paiement n’est possible pour le moment.",
@@ -231,14 +215,13 @@ export const fr = {
       italic: "Les nôtres partent d’ici.",
       cta: "Entrer dans l’atelier",
       imageAlt:
-        "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en noir et blanc.",
+        "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en bleu et ivoire.",
       made: "Fait au Luxembourg",
       created: "Créé par",
       nav: "Liens de bas de page",
       installation: "Installation",
       atelier: "L’atelier",
-      pause: "Mettre les oiseaux en pause",
-      resume: "Animer les oiseaux",
+      legal: "Mentions légales",
     },
   },
   login: {

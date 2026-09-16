@@ -5,15 +5,20 @@ import {
   Check,
   Copy,
   DownloadSimple,
-  Pause,
-  Play,
   Plus,
 } from "@phosphor-icons/react";
 import { fr as t } from "./i18n";
+import { customerPricing } from "./customer-pricing";
 
 const copy = t.homepage;
 const endpoint = "https://guteneo.com/mcp";
 type Host = "chatgpt" | "claude" | "cursor";
+const assistants = [
+  { id: "chatgpt", name: "ChatGPT", available: true },
+  { id: "claude", name: "Claude", available: true },
+  { id: "grok", name: "Grok", available: false },
+  { id: "cursor", name: "Cursor", available: true },
+];
 
 export function scrollToSection(
   event: MouseEvent<HTMLAnchorElement>,
@@ -70,6 +75,30 @@ export function Installation() {
       tabIndex={-1}
       aria-labelledby="installation-title"
     >
+      <div className="assistant-brandstrip">
+        <p>{copy.install.brandIntro}</p>
+        <ul>
+          {assistants.map((assistant) => (
+            <li key={assistant.id}>
+              <span className="assistant-official-mark">
+                <img
+                  src={`/brands/${assistant.id}.svg`}
+                  alt=""
+                  width="44"
+                  height="44"
+                  loading="lazy"
+                />
+              </span>
+              <strong>{assistant.name}</strong>
+              <span>
+                {assistant.available
+                  ? copy.install.brandPreparing
+                  : copy.install.brandUnavailable}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="installation-heading">
         <h2 id="installation-title">
           {copy.install.title}
@@ -96,6 +125,7 @@ export function Installation() {
               aria-controls="host-instructions"
               onClick={() => setHost(item)}
             >
+              <img src={`/brands/${item}.svg`} alt="" width="20" height="20" />
               {copy.install.hosts[item].name}
             </button>
           ))}
@@ -188,21 +218,27 @@ export function WelcomePricing() {
               </tr>
             </thead>
             <tbody>
-              {copy.pricing.rates.map((rate) => (
-                <tr key={rate.channel}>
+              {customerPricing.rates.map((rate) => (
+                <tr key={rate.id}>
                   <th scope="row">
                     {rate.channel}
-                    <span>{rate.unit}</span>
+                    <span>{rate.scope}</span>
                   </th>
                   <td>
-                    <strong>2 ×</strong> {rate.cost}
+                    {rate.prices.map((price) => (
+                      <p className="customer-price" key={price.unit}>
+                        <strong>{price.amount}</strong>
+                        <span>{price.unit}</span>
+                      </p>
+                    ))}
+                    <p className="customer-supplement">{rate.supplement}</p>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="price-qualification">{copy.pricing.qualification}</p>
+        <p className="price-qualification">{customerPricing.note}</p>
         <div className="topup-unavailable">
           <button
             type="button"
@@ -252,7 +288,6 @@ export function FrequentlyAsked() {
 }
 
 export function LuxembourgFooter() {
-  const [paused, setPaused] = useState(false);
   return (
     <footer className="luxembourg-footer">
       <div className="footer-invitation">
@@ -266,10 +301,10 @@ export function LuxembourgFooter() {
           <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
-      <div className={`luxembourg-art${paused ? " birds-paused" : ""}`}>
+      <div className="luxembourg-art">
         <img
           className="luxembourg-panorama"
-          src="/luxembourg-panorama.webp"
+          src="/luxembourg-blue-panorama.webp"
           alt={copy.footer.imageAlt}
           width="2172"
           height="724"
@@ -278,46 +313,15 @@ export function LuxembourgFooter() {
         />
         <div className="luxembourg-birds" aria-hidden="true">
           <span className="footer-bird bird-one">
-            <img
-              src="/luxembourg-swallow.webp"
-              alt=""
-              width="300"
-              height="200"
-              loading="lazy"
-            />
+            <span className="swallow-wingbeat" />
           </span>
           <span className="footer-bird bird-two">
-            <img
-              src="/luxembourg-swallow.webp"
-              alt=""
-              width="300"
-              height="200"
-              loading="lazy"
-            />
+            <span className="swallow-wingbeat" />
           </span>
           <span className="footer-bird bird-three">
-            <img
-              src="/luxembourg-swallow.webp"
-              alt=""
-              width="300"
-              height="200"
-              loading="lazy"
-            />
+            <span className="swallow-wingbeat" />
           </span>
         </div>
-        <button
-          type="button"
-          className="bird-motion-toggle"
-          aria-label={paused ? copy.footer.resume : copy.footer.pause}
-          onClick={() => setPaused((value) => !value)}
-        >
-          {paused ? (
-            <Play size={14} aria-hidden="true" />
-          ) : (
-            <Pause size={14} aria-hidden="true" />
-          )}
-          <span>{paused ? copy.footer.resume : copy.footer.pause}</span>
-        </button>
       </div>
       <div className="footer-colophon">
         <p>
@@ -349,6 +353,7 @@ export function LuxembourgFooter() {
             {copy.footer.atelier}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
+          <a href="#/mentions-legales">{copy.footer.legal}</a>
         </nav>
       </div>
     </footer>

@@ -22,6 +22,19 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
     }),
   );
   await page.goto("/");
+  await expect(page.locator(".assistant-brandstrip li")).toHaveCount(4);
+  await expect(page.locator(".assistant-brandstrip")).toContainText("Grok");
+  await expect(
+    page.locator(".assistant-brandstrip li").filter({ hasText: "Grok" }),
+  ).toContainText("Intégration non disponible");
+  for (const logo of await page.locator(".assistant-brandstrip img").all()) {
+    await logo.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        logo.evaluate((img) => (img as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
+  }
   await expect(
     page.getByRole("heading", {
       name: "Votre assistant. Votre correspondance.",
@@ -48,9 +61,9 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   });
   const guide = await request.get("/guides/installer-guteneo.md");
   expect(guide.status()).toBe(200);
-  expect(await guide.text()).toContain(
-    "Ce message ne peut pas installer un connecteur",
-  );
+  const guideText = await guide.text();
+  expect(guideText).toContain("Ce message ne peut pas installer un connecteur");
+  expect(guideText).not.toMatch(/deux fois|2\s*[×x]|coût prestataire|marge/i);
   await page.getByRole("button", { name: "Copier ce premier message" }).click();
   await expect(page.locator("html")).toHaveAttribute(
     "data-copied",
@@ -65,7 +78,16 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   ).toBeDisabled();
   await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
   await expect(page.locator(".price-qualification")).toContainText(
-    "aucun prix unitaire commercial",
+    "Montants indicatifs hors taxes",
+  );
+  await expect(page.locator(".pricing-table")).toContainText("≈ 0,28 €");
+  await expect(page.locator(".pricing-table")).toContainText("≈ 0,03–0,12 €");
+  await expect(page.locator(".pricing-table")).toContainText("Dès 2,50 €");
+  await expect(page.locator(".pricing-table")).toContainText(
+    "pas un plafond garanti",
+  );
+  await expect(page.locator("body")).not.toContainText(
+    /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
   await page
     .getByText("Que se passe-t-il quand mon crédit est épuisé ?", {
@@ -77,6 +99,9 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   );
   const author = page.getByRole("link", { name: "Nicolas Pieper" });
   await expect(author).toHaveAttribute("href", "https://nicolaspieper.com");
+  await expect(
+    page.getByRole("link", { name: "Mentions légales" }),
+  ).toHaveAttribute("href", "#/mentions-legales");
   await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
   await expect
     .poll(() =>
@@ -97,29 +122,35 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   await expect
     .poll(() => bird.evaluate((element) => getComputedStyle(element).transform))
     .not.toBe(position);
-  await page
-    .getByRole("button", { name: "Mettre les oiseaux en pause" })
-    .click();
-  expect(
-    await page
-      .locator(".bird-one")
-      .evaluate((element) => getComputedStyle(element).animationPlayState),
-  ).toBe("paused");
-  await page.getByRole("button", { name: "Animer les oiseaux" }).click();
-  expect(
-    await bird.evaluate(
-      (element) => getComputedStyle(element).animationPlayState,
-    ),
-  ).toBe("running");
-  await page
-    .getByRole("button", { name: "Mettre les oiseaux en pause" })
-    .click();
+  const wings = page.locator(".bird-one .swallow-wingbeat");
+  const wingFrame = await wings.evaluate(
+    (element) => getComputedStyle(element).backgroundPosition,
+  );
+  await expect
+    .poll(() =>
+      wings.evaluate((element) => getComputedStyle(element).backgroundPosition),
+    )
+    .not.toBe(wingFrame);
+  await expect(
+    page.locator(".luxembourg-footer").getByRole("button"),
+  ).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
   await mkdir("reports/screenshots/homepage", { recursive: true });
+  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      page
+        .locator(".luxembourg-panorama")
+        .evaluate((img) => (img as HTMLImageElement).naturalWidth),
+    )
+    .toBe(2172);
+  await page
+    .locator(".luxembourg-panorama")
+    .evaluate((img) => (img as HTMLImageElement).decode());
   await page.locator(".luxembourg-footer").screenshot({
     path: `reports/screenshots/homepage/footer-${info.project.name}.png`,
   });
@@ -152,13 +183,32 @@ test("decorative birds stop when reduced motion is requested", async ({
     "none",
   );
   await expect(
-    page.getByRole("button", { name: "Mettre les oiseaux en pause" }),
-  ).toBeHidden();
+    page.locator(".luxembourg-footer").getByRole("button"),
+  ).toHaveCount(0);
   expect(
     await page
       .locator(".bird-one")
       .evaluate((element) => getComputedStyle(element).animationName),
   ).toBe("none");
+  expect(
+    await page
+      .locator(".bird-one .swallow-wingbeat")
+      .evaluate((element) => getComputedStyle(element).animationName),
+  ).toBe("none");
+  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      page
+        .locator(".luxembourg-panorama")
+        .evaluate((element: HTMLImageElement) => element.naturalWidth),
+    )
+    .toBe(2172);
+  await page
+    .locator(".luxembourg-panorama")
+    .evaluate((element: HTMLImageElement) => element.decode());
+  await page.locator(".luxembourg-footer").screenshot({
+    path: `reports/screenshots/homepage/footer-reduced-${isMobile ? "iphone" : "desktop"}.png`,
+  });
   await page
     .locator(".footer-colophon")
     .getByRole("link", { name: "FAQ", exact: true })
