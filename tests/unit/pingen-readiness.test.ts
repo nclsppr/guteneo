@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { inspectPingenReadiness } from "../../packages/providers/pingen-readiness";
+import {
+  inspectPingenReadiness,
+  inspectPingenUploadOrigin,
+} from "../../packages/providers/pingen-readiness";
 import type { Fetcher } from "../../packages/providers/types";
 
 // Fictional intercepted responses only; no real credentials or provider requests.
@@ -282,5 +285,163 @@ describe("private Pingen account inspection", () => {
     expect(
       new Headers(fetcher.mock.calls[3][1]?.headers).get("Authorization"),
     ).toBe("Bearer second-token");
+  });
+});
+
+function uploadResponse(
+  url = "https://files.fixture-storage.example.org/private-document.pdf?X-Signature=fixture-private-signature",
+) {
+  return {
+    data: {
+      id: "fixture-private-upload-id",
+      type: "file_uploads",
+      attributes: {
+        url,
+        url_signature: "fixture-private-signature",
+        expires_at: "2026-09-17T00:00:00Z",
+      },
+      links: { self: "https://unrelated.invalid/private-link" },
+    },
+  };
+}
+
+describe("private Pingen upload-origin inspection", () => {
+  it("uses only read-scoped OAuth and GET file-upload, returning only the validated origin", async () => {
+    const fetcher = mocked([token, uploadResponse()]);
+    const result = await inspectPingenUploadOrigin(config, fetcher);
+    expect(result).toEqual({
+      provider: "pingen",
+      mode: "read_only",
+      environment: "production",
+      status: "ok",
+      uploadOrigin: "https://files.fixture-storage.example.org",
+      errors: [],
+      liveSendingVerified: false,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(
+      fetcher.mock.calls.map(([url, init]) => [url, init?.method]),
+    ).toEqual([
+      ["https://identity.pingen.com/auth/access-tokens", "POST"],
+      ["https://api.pingen.com/file-upload", "GET"],
+    ]);
+    expect(
+      new URLSearchParams(String(fetcher.mock.calls[0][1]?.body)).get("scope"),
+    ).toBe("organisation_read");
+    const [, request] = fetcher.mock.calls[1];
+    expect(request?.body).toBeUndefined();
+    expect(new Headers(request?.headers).get("Authorization")).toBe(
+      `Bearer ${token.access_token}`,
+    );
+    for (const [, init] of fetcher.mock.calls) {
+      expect(init?.redirect).toBe("manual");
+      expect(init?.signal).toBeInstanceOf(AbortSignal);
+    }
+    expect(JSON.stringify(result)).not.toMatch(
+      /private|Signature|document|\.pdf|\?|expires_at|self/,
+    );
+  });
+
+  it("keeps production and staging separated and never performs a PUT or follows an upload link", async () => {
+    const fetcher = mocked([token, uploadResponse()]);
+    const result = await inspectPingenUploadOrigin(
+      { ...config, sandbox: true },
+      fetcher,
+    );
+    expect(result.environment).toBe("sandbox");
+    expect(
+      fetcher.mock.calls.map(([url]) => new URL(String(url)).hostname),
+    ).toEqual(["identity-staging.pingen.com", "api-staging.pingen.com"]);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects unsafe or local URLs without visiting or echoing any part", async () => {
+    for (const url of [
+      "http://files.example.org/fixture-private",
+      "https://user:fixture-private@files.example.org/doc",
+      "https://files.example.org:444/doc",
+      "https://files.example.org/doc#fixture-private",
+      "https://localhost/doc",
+      "https://files.local/doc",
+      "https://files.internal/doc",
+      "https://s3.example/doc",
+      "https://127.0.0.1/doc",
+      "https://2130706433/doc",
+      "https://0x7f000001/doc",
+      "https://[::1]/doc",
+      "https://files.example.org./doc",
+      "https://files.example.org/fixture\nprivate",
+      " https://files.example.org/doc",
+      "https://files.example.org/fixture private",
+      "https://files.example.org\\fixture-private",
+      "https://fílés.example.org/doc",
+      "https://-bad.example.org/doc",
+      "not-a-url",
+    ]) {
+      const fetcher = mocked([token, uploadResponse(url)]);
+      const result = await inspectPingenUploadOrigin(config, fetcher);
+      expect(result.uploadOrigin).toBeNull();
+      expect(result.errors).toEqual([
+        { stage: "upload_origin", code: "invalid_response" },
+      ]);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(JSON.stringify(result)).not.toMatch(
+        /fixture-private|files|localhost|127\.0|213070|https:/,
+      );
+    }
+  });
+
+  it("requires valid credentials and does not escalate rejected read scope", async () => {
+    const noNetwork = mocked([]);
+    expect(
+      (
+        await inspectPingenUploadOrigin(
+          { ...config, clientSecret: "" },
+          noNetwork,
+        )
+      ).errors,
+    ).toEqual([{ stage: "configuration", code: "configuration_invalid" }]);
+    expect(noNetwork).not.toHaveBeenCalled();
+    for (const response of [
+      { ...token, scope: "organisation_read letter" },
+      { ...token, access_token: "invalid\nprivate" },
+      new Response("fixture-private-secret", { status: 403 }),
+    ]) {
+      const fetcher = mocked([response]);
+      const result = await inspectPingenUploadOrigin(config, fetcher);
+      expect(result.status).toBe("error");
+      expect(result.errors[0].stage).toBe("authentication");
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(result)).not.toMatch(/fixture|private/);
+    }
+  });
+
+  it("rejects denied access, redirects, malformed payloads and excessive body sizes without fallback", async () => {
+    for (const response of [
+      new Response("fixture-private-secret", { status: 403 }),
+      new Response("fixture-private-url", {
+        status: 302,
+        headers: { Location: "https://files.example.org" },
+      }),
+      new Response(" ".repeat(64 * 1024 + 1)),
+      {
+        data: {
+          type: "letters",
+          attributes: { url: "https://files.example.org/doc" },
+        },
+      },
+      { data: { type: "file_uploads", attributes: {} } },
+      new Error("fixture-private-token"),
+    ]) {
+      const fetcher = mocked([token, response]);
+      const result = await inspectPingenUploadOrigin(config, fetcher);
+      expect(result.status).toBe("error");
+      expect(result.uploadOrigin).toBeNull();
+      expect(result.errors[0].stage).toBe("upload_origin");
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(JSON.stringify(result)).not.toMatch(
+        /fixture|private|Location|https:/,
+      );
+    }
   });
 });

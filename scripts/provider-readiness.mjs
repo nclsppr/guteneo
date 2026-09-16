@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 
 let proxy;
 const provider = process.argv[2] || "telnyx";
-if (!["telnyx", "ses", "pingen"].includes(provider)) {
+if (!["telnyx", "ses", "pingen", "pingen-upload-origin"].includes(provider)) {
   console.error(
-    "Usage : node scripts/provider-readiness.mjs [telnyx|ses|pingen]",
+    "Usage : node scripts/provider-readiness.mjs [telnyx|ses|pingen|pingen-upload-origin]",
   );
   process.exit(1);
 }
@@ -19,11 +19,13 @@ try {
     persist: false,
   });
   const result =
-    provider === "pingen"
-      ? await proxy.env.PROVIDERS.inspectPingen()
-      : provider === "ses"
-        ? await proxy.env.PROVIDERS.inspectSes()
-        : await proxy.env.PROVIDERS.inspectTelnyx();
+    provider === "pingen-upload-origin"
+      ? await proxy.env.PROVIDERS.inspectPingenUploadOrigin()
+      : provider === "pingen"
+        ? await proxy.env.PROVIDERS.inspectPingen()
+        : provider === "ses"
+          ? await proxy.env.PROVIDERS.inspectSes()
+          : await proxy.env.PROVIDERS.inspectTelnyx();
   console.log(JSON.stringify(result, null, 2));
 } catch {
   console.error(
