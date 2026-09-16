@@ -55,8 +55,12 @@ await Promise.all(
         configurationFiles.push(entry.path);
         continue;
       }
+      // Workers Static Assets canonicalizes /index.html to / with HTTP 307.
+      // Verify the same document bytes at the canonical route without following
+      // arbitrary redirects from a release manifest.
+      const publicPath = entry.path === "/index.html" ? "/" : entry.path;
       const bytes = new Uint8Array(
-        await (await fetchPublic(entry.path)).arrayBuffer(),
+        await (await fetchPublic(publicPath)).arrayBuffer(),
       );
       const digest = createHash("sha256").update(bytes).digest("hex");
       if (digest !== entry.sha256 || bytes.length !== entry.bytes)

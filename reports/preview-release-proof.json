@@ -1,0 +1,12 @@
+{
+  "origin": "https://guteneo.com",
+  "sourceCommit": "b3988da34c2d73765be7e74c6fda2af2e887b5ba",
+  "sourceDirty": false,
+  "sourceSnapshotSha256": "405b25eb5e75c43cf56d84d4c1efcb136680b1ce854fc635dfce9d763add7bd7",
+  "publicAssetsVerified": 25,
+  "configurationFiles": [
+    "/_headers"
+  ],
+  "securityHeadersVerified": true,
+  "verifiedAt": "2026-09-16T21:41:28.369Z"
+}

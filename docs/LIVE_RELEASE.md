@@ -2,9 +2,20 @@
 
 Guteneo has two separate hosted surfaces. `https://guteneo.com` is the public design preview, with fictional per-tab data. `https://guteneo-app.nclsppr.workers.dev` is the production-mode application backend. The root domain will move to that application after managed identity is configured and a real login is verified.
 
-## Deployed foundation
+## Published v0.2 code
 
-The backend bootstrap deployed as `guteneo-app`, version `83ac4676-395f-4738-8cad-9bb293f94374`, before the final v0.2 code was committed. That bootstrap is not evidence that every current repository change is already served. Secret updates create subsequent Worker versions. The final code release must be verified against its public `/release.json` and Cloudflare deployment identity.
+Both hosted surfaces were deployed from clean commit **`b3988da34c2d73765be7e74c6fda2af2e887b5ba`**. Final public verification at 21:41 UTC matched all **27 backend public assets** and all **25 preview public assets** to their local SHA-256 manifests, including the entry document served at Cloudflare's canonical `/` route. `_headers` is deployment configuration and is checked through the resulting response headers, not fetched as an asset.
+
+| Surface | Worker version | Public proof |
+| --- | --- | --- |
+| Production-mode beta | `740c3356-72a5-449d-9a0a-8cbaaab0951f` | [Release manifest](https://guteneo-app.nclsppr.workers.dev/release.json) |
+| Public design preview | `e0f61996-192e-4b59-8462-0a7c2d3d12d3` | [Release manifest](https://guteneo.com/release.json) |
+
+GitHub CI passed for that exact deployed commit: [verify and scanner run](https://github.com/nclsppr/guteneo/actions/runs/35153584742), with the full application/browser/migration/bundle checks successful. The PR remains open; this deployment does not claim a merge. A subsequent evidence-only commit records these results without changing deployed application source.
+
+Backend source snapshot: `d115c1ab6853399e5fdbff85ae1e2070ffb586f1439d1b52fab1f3d7785635d4`. Preview source snapshot: `405b25eb5e75c43cf56d84d4c1efcb136680b1ce854fc635dfce9d763add7bd7`. Machine-readable proof is under `reports/live-release-proof.json`, `reports/preview-release-proof.json` and `reports/live-runtime-proof.json`.
+
+The runtime reports `mode=production`, registration disabled, billing unconfigured, scanner connected, PDF rendering connected and live sending disabled. Anonymous account/billing/document/MCP routes fail closed while identity is missing. Signup returns the explicit identity-configuration state. These are intended activation boundaries, not successful account or fax tests. The earlier bootstrap `83ac4676-395f-4738-8cad-9bb293f94374` is superseded by this release.
 
 The backend has EU-jurisdiction D1/R2, interactive/bulk/dead-letter queues, and private scanning/rendering services. Resource identifiers, jurisdiction limits and setup evidence: [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md). Migrations 0001–0013 were applied remotely, with clean integrity and foreign-key checks: [D1_MIGRATION.md](D1_MIGRATION.md).
 

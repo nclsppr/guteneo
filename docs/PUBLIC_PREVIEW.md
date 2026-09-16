@@ -28,3 +28,7 @@ The build explicitly enables preview mode and uses `dist/preview`, leaving the a
 Desktop Chromium and iPhone WebKit tests cover all workspace routes, layout overflow, zero browser API requests, PDF canvas display, preparation/approval/simulation and remote route rejection. Captures are under `reports/screenshots/preview/`. Noindex prevents the unfinished preview from being advertised as a launched service.
 
 Official deployment references checked on 2026-09-16: [Worker static assets](https://developers.cloudflare.com/workers/static-assets/), [routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/), [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
+
+## v0.2 publication proof
+
+The updated preview deployed from clean commit `b3988da34c2d73765be7e74c6fda2af2e887b5ba`, Worker version `e0f61996-192e-4b59-8462-0a7c2d3d12d3`. At 21:41 UTC all 25 served asset hashes matched the local manifest; Cloudflare canonicalizes `/index.html` to `/`, whose exact bytes were verified. Response security headers were also checked. Account, billing and team surfaces remain clearly labelled fictional preview states; real account activation is tracked separately in LIVE_RELEASE.md.

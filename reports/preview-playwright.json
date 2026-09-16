@@ -79,12 +79,7 @@
     "updateSourceMethod": "patch",
     "version": "1.63.0",
     "workers": 5,
-    "webServer": {
-      "command": "npx wrangler dev --config wrangler.preview.jsonc --port 8790 --ip 127.0.0.1",
-      "url": "http://127.0.0.1:8790",
-      "reuseExistingServer": true,
-      "timeout": 60000
-    }
+    "webServer": null
   },
   "suites": [
     {
@@ -109,12 +104,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1910,
+                  "duration": 1668,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:20.528Z",
+                  "startTime": "2026-09-16T21:41:28.589Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -143,12 +138,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 1769,
+                  "duration": 1782,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:20.491Z",
+                  "startTime": "2026-09-16T21:41:28.587Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -177,12 +172,12 @@
                   "workerIndex": 2,
                   "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 2242,
+                  "duration": 1933,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:20.518Z",
+                  "startTime": "2026-09-16T21:41:28.570Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -211,12 +206,12 @@
                   "workerIndex": 3,
                   "parallelIndex": 3,
                   "status": "passed",
-                  "duration": 2319,
+                  "duration": 2452,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:20.484Z",
+                  "startTime": "2026-09-16T21:41:28.587Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -245,12 +240,12 @@
                   "workerIndex": 4,
                   "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 2364,
+                  "duration": 2286,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:20.497Z",
+                  "startTime": "2026-09-16T21:41:28.584Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -277,14 +272,14 @@
               "results": [
                 {
                   "workerIndex": 5,
-                  "parallelIndex": 1,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1618,
+                  "duration": 2076,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:33:23.258Z",
+                  "startTime": "2026-09-16T21:41:31.214Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -302,8 +297,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-16T21:33:18.222Z",
-    "duration": 7069.638,
+    "startTime": "2026-09-16T21:41:28.212Z",
+    "duration": 5812.092000000001,
     "expected": 6,
     "skipped": 0,
     "unexpected": 0,
