@@ -5,6 +5,7 @@ import type { Fetcher } from "./types";
 const id = z.string().regex(/^\d{1,30}$/);
 const optionalFlag = z.boolean().optional();
 const limit = z.number().int().nonnegative().nullable().optional();
+const decimal = z.string().regex(/^\d{1,15}(?:\.\d{1,8})?$/);
 const applicationSchema = z.object({
   id,
   active: z.boolean(),
@@ -50,10 +51,13 @@ const profileSchema = z.object({
     .max(300)
     .optional(),
   concurrent_call_limit: limit,
-  max_destination_rate: z.number().nonnegative().finite().optional(),
+  max_destination_rate: z
+    .union([z.number().nonnegative().finite(), decimal.transform(Number)])
+    .nullable()
+    .optional(),
   daily_spend_limit: z
-    .string()
-    .regex(/^\d{1,15}(?:\.\d{1,8})?$/)
+    .union([decimal, z.number().nonnegative().finite().transform(String)])
+    .nullable()
     .optional(),
   daily_spend_limit_enabled: optionalFlag,
 });

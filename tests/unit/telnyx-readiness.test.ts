@@ -59,6 +59,32 @@ function mocked(responses: unknown[]) {
 }
 
 describe("read-only Telnyx inspection", () => {
+  it.each([
+    { rate: null, spend: null, expectedRate: null, expectedSpend: null },
+    { rate: "0.0125", spend: 5, expectedRate: 0.0125, expectedSpend: "5" },
+  ])(
+    "accepts unset and decimal-string provider limits",
+    async ({ rate, spend, expectedRate, expectedSpend }) => {
+      const result = await inspectTelnyxReadiness(
+        config,
+        mocked([
+          app,
+          page(),
+          {
+            data: {
+              ...profile.data,
+              max_destination_rate: rate,
+              daily_spend_limit: spend,
+            },
+          },
+        ]),
+      );
+      expect(result.status).toBe("ok");
+      expect(result.outboundProfile?.maxDestinationRate).toBe(expectedRate);
+      expect(result.outboundProfile?.dailySpendLimitUsd).toBe(expectedSpend);
+    },
+  );
+
   it("reads only fixed GET routes and projects the configured application, assigned numbers and its profile", async () => {
     const fetcher = mocked([
       app,
