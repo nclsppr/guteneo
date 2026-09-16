@@ -112,7 +112,7 @@ async function stripeRequest(
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       ...(fields ? { body: fields.toString() } : {}),
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(10_000),
     });
   } catch {

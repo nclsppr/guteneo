@@ -188,7 +188,7 @@ describe("signed SNS callbacks during identity setup", () => {
     expect(rows.results[0].payload_json).not.toContain("SubscribeURL");
     expect(network).toHaveBeenCalledTimes(2);
     expect(
-      network.mock.calls.every((call) => call[1]?.redirect === "error"),
+      network.mock.calls.every((call) => call[1]?.redirect === "manual"),
     ).toBe(true);
   });
 

@@ -493,7 +493,7 @@ export class DocumentService {
       this.env.IMPORT_ALLOWED_HOSTS,
     );
     const response = await fetch(url, {
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(15000),
       headers: { Accept: "application/pdf" },
     });

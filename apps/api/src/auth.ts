@@ -637,7 +637,7 @@ export async function handleAuthRoute(
     const response = await fetch(new URL("oauth/token", config.issuer), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(10_000),
       body: JSON.stringify({
         grant_type: "authorization_code",

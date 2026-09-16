@@ -42,7 +42,7 @@ export function request(
 ): Promise<Response> {
   return fetcher(url, {
     ...init,
-    redirect: "error",
+    redirect: "manual",
     signal: init.signal ?? AbortSignal.timeout(20_000),
   });
 }

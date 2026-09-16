@@ -22,7 +22,7 @@ export async function inspectSesPrincipal(env: Env, fetcher: Fetcher = fetch) {
     });
     const signed = await signer.sign("https://sts.eu-west-3.amazonaws.com/", {
       method: "POST",
-      redirect: "error",
+      redirect: "manual",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "Action=GetCallerIdentity&Version=2011-06-15",
       signal: AbortSignal.timeout(15_000),

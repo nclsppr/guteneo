@@ -188,7 +188,7 @@ export class SesEmailProvider {
         },
       );
       const response = await this.fetcher(signed, {
-        redirect: "error",
+        redirect: "manual",
         signal: AbortSignal.timeout(20_000),
       });
       if (!response.ok) return rejection(response);

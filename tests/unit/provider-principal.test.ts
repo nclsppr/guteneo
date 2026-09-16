@@ -26,7 +26,7 @@ describe("private SES principal inspection", () => {
     const request = network.mock.calls[0][0] as unknown as Request;
     expect(request.url).toBe("https://sts.eu-west-3.amazonaws.com/");
     expect(request.method).toBe("POST");
-    expect(request.redirect).toBe("error");
+    expect(request.redirect).toBe("manual");
     expect(await request.text()).toBe(
       "Action=GetCallerIdentity&Version=2011-06-15",
     );

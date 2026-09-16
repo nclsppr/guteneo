@@ -502,7 +502,7 @@ describe("cryptographically verified callbacks", () => {
     await expect(
       verifySnsWebhook(body.replace("Complaint", "Delivery"), topic, fetcher),
     ).rejects.toThrow("invalid_signature");
-    expect(fetcher.mock.calls[0][1]?.redirect).toBe("error");
+    expect(fetcher.mock.calls[0][1]?.redirect).toBe("manual");
   });
   it("rejects SNS certificate SSRF, wrong topic, old signature before any fetch", async () => {
     const fetcher = vi.fn<Fetcher>();

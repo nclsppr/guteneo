@@ -98,7 +98,7 @@ describe("read-only Telnyx inspection", () => {
       const url = new URL(String(input));
       expect(url.origin).toBe("https://api.telnyx.com");
       expect(init?.method).toBe("GET");
-      expect(init?.redirect).toBe("error");
+      expect(init?.redirect).toBe("manual");
       expect(init?.signal).toBeInstanceOf(AbortSignal);
       expect(init?.body).toBeUndefined();
       expect(new Headers(init?.headers).get("Authorization")).toBe(
