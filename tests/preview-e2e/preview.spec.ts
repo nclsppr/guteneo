@@ -46,6 +46,23 @@ test("public design and every workspace page render without server data or overf
     await page.goto(`/#/app/${route}`);
     await expect(page.locator("#main-content h1")).toBeVisible();
     await expect(page.getByRole("alert")).toHaveCount(0);
+    if (route === "billing") {
+      const credit = page.getByRole("region", {
+        name: "Un solde pour toute votre correspondance.",
+      });
+      await expect(credit).toContainText("EXEMPLE FICTIF");
+      await expect(credit).toContainText(/50,00\s*€/);
+      await expect(
+        credit.getByRole("button", { name: "Ajouter du crédit" }),
+      ).toBeDisabled();
+      await expect(credit).toContainText(
+        "La recharge sera disponible avec Stripe",
+      );
+      await page.screenshot({
+        path: `reports/screenshots/preview/billing-${info.project.name}.png`,
+        fullPage: true,
+      });
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

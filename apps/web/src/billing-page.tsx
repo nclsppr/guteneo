@@ -21,6 +21,7 @@ import {
   useResource,
 } from "./components";
 import { fr as t } from "./i18n";
+import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 
 type Usage = {
   channel: Channel;
@@ -43,6 +44,8 @@ type Overview = {
   mode: "test" | "live" | "unconfigured";
   customerLinked: boolean;
   portalAvailable: boolean;
+  welcomeCredit: WelcomeCredit;
+  topUpAvailable: false;
   subscriptions: Subscription[];
   usageLedger: {
     kind: "simulation" | "production_reservations";
@@ -121,24 +124,7 @@ const stamp = (seconds: number) => date(new Date(seconds * 1000).toISOString());
 const state = (value: string) => labels[value] ?? value;
 
 export function Billing({ session }: { session: Session }) {
-  if (isPublicPreview)
-    return (
-      <>
-        <PageHeading
-          title="Facturation"
-          intro="Vos factures, vos paiements et le suivi de votre consommation."
-        />
-        <EmptyState
-          title="La facturation arrive avec votre vrai compte"
-          text="Vous explorez un espace de démonstration. Aucun paiement ni abonnement n’y est créé."
-          action={
-            <a className="button subtle" href="#/app/usage">
-              Voir la consommation de démonstration
-            </a>
-          }
-        />
-      </>
-    );
+  if (isPublicPreview) return <PreviewBilling key={session.organization.id} />;
   if (session.user.role !== "admin")
     return (
       <>
@@ -150,6 +136,30 @@ export function Billing({ session }: { session: Session }) {
       </>
     );
   return <BillingWorkspace key={session.organization.id} session={session} />;
+}
+
+function PreviewBilling() {
+  const overview = useResource<{ welcomeCredit: WelcomeCredit }>("/billing");
+  return (
+    <>
+      <PageHeading
+        title="Facturation"
+        intro="Explorez le crédit de bienvenue et le suivi des envois dans cet atelier fictif."
+      />
+      <ErrorNotice error={overview.error} retry={overview.refresh} />
+      {overview.loading && !overview.data && <Loading />}
+      {overview.data && <CreditBalance credit={overview.data.welcomeCredit} />}
+      <EmptyState
+        title="Aucune facture dans la démonstration"
+        text="Les factures et les paiements seront regroupés ici avec votre vrai compte. Aucun paiement ni abonnement n’est créé dans cet aperçu."
+        action={
+          <a className="button subtle" href="#/app/usage">
+            Voir la consommation de démonstration
+          </a>
+        }
+      />
+    </>
+  );
 }
 
 function BillingWorkspace({ session }: { session: Session }) {
@@ -212,6 +222,7 @@ function BillingWorkspace({ session }: { session: Session }) {
       {overview.loading && !data && <Loading />}
       {data && (
         <>
+          {data.welcomeCredit && <CreditBalance credit={data.welcomeCredit} />}
           <section
             className="form-panel"
             aria-labelledby="billing-account-title"

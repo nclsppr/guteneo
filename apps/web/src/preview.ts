@@ -7,6 +7,7 @@ import type {
   DocumentRecord,
   Session,
 } from "./api";
+import type { WelcomeCredit } from "./credit-balance";
 
 // This isolated design model has no transport or storage. It is never the
 // authenticated API, the domain simulator, or evidence of provider delivery.
@@ -47,6 +48,37 @@ const page = <T>(items: T[]) => ({ items, nextCursor: null });
 const fail = (code: string, message: string, status = 400): never => {
   throw new PreviewError(code, message, status);
 };
+
+function previewCredit(state: Workspace): WelcomeCredit {
+  const spentMinor = state.dispatches.reduce(
+    (total, { dispatch }) =>
+      total +
+      (["submitted", "delivered"].includes(dispatch.status)
+        ? dispatch.estimated_minor
+        : 0),
+    0,
+  );
+  const reservedMinor = state.dispatches.reduce(
+    (total, { dispatch }) =>
+      total +
+      (["queued", "submitting", "submission_unknown"].includes(dispatch.status)
+        ? dispatch.ceiling_minor
+        : 0),
+    0,
+  );
+  return {
+    kind: "simulation",
+    currency: "EUR",
+    grantedMinor: 5000,
+    reservedMinor,
+    spentMinor,
+    availableMinor: Math.max(0, 5000 - reservedMinor - spentMinor),
+    grantedAt: null,
+    status: "simulation",
+    renewal: "none",
+    topUpAvailable: false,
+  };
+}
 
 function recipient(channel: Channel, input: Record<string, unknown>) {
   const text = (key: string) => String(input[key] ?? "").trim();
@@ -454,6 +486,8 @@ export function createPreviewApi() {
       return copy(result);
     };
     if (method === "GET") {
+      if (route === "/billing")
+        return { welcomeCredit: previewCredit(state), topUpAvailable: false };
       if (route === "/documents") return copy(page(state.documents));
       if (route === "/dispatches")
         return copy(page(state.dispatches.map((detail) => detail.dispatch)));
@@ -494,38 +528,41 @@ export function createPreviewApi() {
           deadLetters: [],
         };
       if (route === "/usage")
-        return page(
-          channels.map((channel) => {
-            const consumed = state.dispatches.filter(
-              (detail) =>
-                detail.dispatch.channel === channel &&
-                ["delivered", "submitted"].includes(detail.dispatch.status),
-            );
-            const reserved = state.dispatches.filter(
-              (detail) =>
-                detail.dispatch.channel === channel &&
-                detail.dispatch.status === "submission_unknown",
-            );
-            return {
-              channel,
-              period: new Date().toISOString().slice(0, 7),
-              mode: "simulation",
-              limit_count: 100,
-              limit_minor: 50000,
-              reserved_count: reserved.length,
-              reserved_minor: reserved.reduce(
-                (total, detail) => total + detail.dispatch.estimated_minor,
-                0,
-              ),
-              confirmed_count: consumed.length,
-              confirmed_minor: consumed.reduce(
-                (total, detail) => total + detail.dispatch.estimated_minor,
-                0,
-              ),
-              currency: "EUR",
-            };
-          }),
-        );
+        return {
+          ...page(
+            channels.map((channel) => {
+              const consumed = state.dispatches.filter(
+                (detail) =>
+                  detail.dispatch.channel === channel &&
+                  ["delivered", "submitted"].includes(detail.dispatch.status),
+              );
+              const reserved = state.dispatches.filter(
+                (detail) =>
+                  detail.dispatch.channel === channel &&
+                  detail.dispatch.status === "submission_unknown",
+              );
+              return {
+                channel,
+                period: new Date().toISOString().slice(0, 7),
+                mode: "simulation",
+                limit_count: 100,
+                limit_minor: 50000,
+                reserved_count: reserved.length,
+                reserved_minor: reserved.reduce(
+                  (total, detail) => total + detail.dispatch.estimated_minor,
+                  0,
+                ),
+                confirmed_count: consumed.length,
+                confirmed_minor: consumed.reduce(
+                  (total, detail) => total + detail.dispatch.estimated_minor,
+                  0,
+                ),
+                currency: "EUR",
+              };
+            }),
+          ),
+          welcomeCredit: previewCredit(state),
+        };
       const detail = route.match(/^\/dispatches\/([^/]+)$/);
       if (detail)
         return copy(
@@ -723,6 +760,12 @@ export function createPreviewApi() {
           );
         if (!state.enabled[dispatch.channel])
           fail("CHANNEL_PAUSED", "Ce canal est en pause dans l’aperçu.", 409);
+        if (dispatch.ceiling_minor > previewCredit(state).availableMinor)
+          fail(
+            "CREDIT_EXHAUSTED",
+            "Le crédit disponible de cet exemple ne couvre pas le plafond de cet envoi.",
+            409,
+          );
         dispatch.status =
           dispatch.channel === "postal" ? "submitted" : "delivered";
         detail.attempts.push({

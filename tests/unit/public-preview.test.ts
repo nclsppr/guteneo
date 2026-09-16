@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PDFDocument } from "pdf-lib";
 import { createPreviewApi } from "../../apps/web/src/preview";
+import type { WelcomeCredit } from "../../apps/web/src/credit-balance";
 import type {
   Dispatch,
   DispatchDetail,
@@ -32,6 +33,69 @@ describe("public browser design preview", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
     vi.useRealTimers();
+  });
+
+  it("keeps one fictional credit balance across channels, holds uncertainty and blocks unaffordable ceilings", async () => {
+    const preview = createPreviewApi();
+    const balance = async () =>
+      ((await preview.request("/billing")) as { welcomeCredit: WelcomeCredit })
+        .welcomeCredit;
+    const initial = await balance();
+    expect(initial).toMatchObject({
+      kind: "simulation",
+      grantedMinor: 5000,
+      spentMinor: 158,
+      reservedMinor: 500,
+      availableMinor: 4342,
+      topUpAvailable: false,
+      renewal: "none",
+    });
+    expect(
+      ((await preview.request("/usage")) as { welcomeCredit: WelcomeCredit })
+        .welcomeCredit,
+    ).toEqual(initial);
+    const unaffordable = (await preview.request("/dispatches", {
+      method: "POST",
+      body: { ...email, ceilingMinor: 4343 },
+      key: "unaffordable",
+    })) as Dispatch;
+    await preview.request(`/dispatches/${unaffordable.id}/approve`, {
+      method: "POST",
+      body: { fingerprint: unaffordable.fingerprint },
+    });
+    await expect(
+      preview.request(`/dispatches/${unaffordable.id}/confirm`, {
+        method: "POST",
+        key: "reject-credit",
+      }),
+    ).rejects.toMatchObject({ code: "CREDIT_EXHAUSTED" });
+    expect(await balance()).toEqual(initial);
+    const affordable = (await preview.request("/dispatches", {
+      method: "POST",
+      body: email,
+      key: "affordable",
+    })) as Dispatch;
+    await preview.request(`/dispatches/${affordable.id}/approve`, {
+      method: "POST",
+      body: { fingerprint: affordable.fingerprint },
+    });
+    for (let attempt = 0; attempt < 2; attempt++)
+      await preview.request(`/dispatches/${affordable.id}/confirm`, {
+        method: "POST",
+        key: "consume-once",
+      });
+    expect(await balance()).toMatchObject({
+      spentMinor: 159,
+      reservedMinor: 500,
+      availableMinor: 4341,
+    });
+    expect(
+      (
+        (await createPreviewApi().request("/billing")) as {
+          welcomeCredit: WelcomeCredit;
+        }
+      ).welcomeCredit,
+    ).toEqual(initial);
   });
 
   it("starts with a fictional session, real fixture PDF bytes, and matching metadata", async () => {

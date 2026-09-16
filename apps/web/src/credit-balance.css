@@ -1,0 +1,99 @@
+.credit-balance {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  margin: 0 0 32px;
+}
+.credit-balance-main,
+.credit-balance-detail {
+  padding: clamp(24px, 4vw, 40px);
+}
+.credit-balance-main {
+  border-right: 1px solid var(--line);
+}
+.credit-balance-main > .mono {
+  color: var(--blue);
+}
+.credit-balance h2 {
+  font-family: "EB Garamond", serif;
+  font-size: clamp(30px, 3.4vw, 42px);
+  line-height: 1.1;
+  max-width: 440px;
+  margin: 16px 0;
+}
+.credit-balance p {
+  max-width: 48ch;
+}
+.credit-balance-amount {
+  margin: 32px 0 16px;
+}
+.credit-balance-amount dt {
+  font-size: 14px;
+  color: var(--muted);
+}
+.credit-balance-amount dd {
+  margin: 0;
+  font-family: "EB Garamond", serif;
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.credit-balance progress {
+  appearance: none;
+  border: none;
+  display: block;
+  width: 100%;
+  height: 5px;
+  background: var(--line);
+  color: var(--blue);
+}
+.credit-balance progress::-webkit-progress-bar {
+  background: var(--line);
+}
+.credit-balance progress::-webkit-progress-value {
+  background: var(--blue);
+}
+.credit-balance progress::-moz-progress-bar {
+  background: var(--blue);
+}
+.credit-balance-detail dl {
+  margin: 0 0 28px;
+}
+.credit-balance-detail dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.credit-balance-detail dt {
+  font-size: 14px;
+}
+.credit-balance-detail dd {
+  margin: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.credit-balance-detail .button {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.credit-balance-detail .field-hint {
+  margin: 0 0 12px;
+}
+.credit-balance-stop {
+  color: var(--error);
+  margin-top: 20px;
+}
+@media (max-width: 720px) {
+  .credit-balance {
+    grid-template-columns: 1fr;
+  }
+  .credit-balance-main {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}

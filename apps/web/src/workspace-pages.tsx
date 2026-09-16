@@ -20,6 +20,7 @@ import {
   type Sender,
 } from "./api";
 import { fr as t } from "./i18n";
+import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 import {
   ChannelLabel,
   Definition,
@@ -798,7 +799,10 @@ type UsageItem = {
   currency: string;
 };
 export function Usage() {
-  const resource = useResource<{ items: UsageItem[] }>("/usage");
+  const resource = useResource<{
+    items: UsageItem[];
+    welcomeCredit?: WelcomeCredit;
+  }>("/usage");
   return (
     <>
       <PageHeading
@@ -807,6 +811,9 @@ export function Usage() {
         action={<RefreshButton onClick={resource.refresh} />}
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
+      {resource.data?.welcomeCredit && (
+        <CreditBalance credit={resource.data.welcomeCredit} />
+      )}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : !resource.data?.items.length ? (
