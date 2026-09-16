@@ -43,6 +43,7 @@ import {
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
 import { Account, TeamAdmin } from "./account-page";
+import { LegalPage } from "./legal-page";
 import {
   Installation,
   WelcomePricing,
@@ -377,6 +378,7 @@ export function App() {
     };
   }, []);
   const page = route.split("?")[0] ?? "/";
+  if (page === "/mentions-legales") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
   if (!ready)
     return (

@@ -1,0 +1,140 @@
+.legal-page {
+  min-height: 100vh;
+}
+.legal-back,
+.legal-copy a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.legal-document {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 72px 40px 100px;
+  outline: none;
+}
+.legal-intro {
+  max-width: 720px;
+  margin-bottom: 64px;
+}
+.legal-intro h1 {
+  font-family: "EB Garamond", serif;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  margin-bottom: 24px;
+}
+.legal-intro h1 em {
+  color: var(--blue);
+  font-weight: 400;
+}
+.legal-intro > p {
+  max-width: 52ch;
+  font-size: 19px;
+}
+.legal-intro .legal-date {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 24px;
+}
+.legal-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 72px;
+  border-top: 1px solid var(--line);
+  padding-top: 40px;
+}
+.legal-index {
+  align-self: start;
+  position: sticky;
+  top: 32px;
+  display: grid;
+  gap: 18px;
+  font-size: 14px;
+}
+.legal-index a {
+  text-decoration: none;
+}
+.legal-index a:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
+.legal-copy {
+  max-width: 68ch;
+}
+.legal-copy section {
+  margin-bottom: 52px;
+  scroll-margin-top: 32px;
+  outline: none;
+}
+.legal-copy section:last-child {
+  margin-bottom: 0;
+}
+.legal-copy h2 {
+  font-family: "EB Garamond", serif;
+  font-size: 34px;
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+.legal-copy p,
+.legal-copy address {
+  font-size: 16px;
+  line-height: 1.75;
+}
+.legal-copy address {
+  margin-bottom: 18px;
+}
+.legal-copy a {
+  display: inline;
+  color: var(--blue-hover);
+  overflow-wrap: anywhere;
+}
+.legal-copy a svg {
+  display: inline;
+  vertical-align: middle;
+}
+.legal-colophon {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 40px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  .legal-page .site-header {
+    gap: 20px;
+    padding-inline: 22px;
+  }
+  .legal-back {
+    font-size: 13px;
+  }
+  .legal-document {
+    padding: 48px 22px 64px;
+  }
+  .legal-intro {
+    margin-bottom: 36px;
+  }
+  .legal-intro > p {
+    font-size: 17px;
+  }
+  .legal-layout {
+    grid-template-columns: 1fr;
+    gap: 38px;
+    padding-top: 26px;
+  }
+  .legal-index {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+  }
+  .legal-copy h2 {
+    font-size: 30px;
+  }
+  .legal-colophon {
+    margin-inline: 22px;
+    font-size: 12px;
+  }
+}
