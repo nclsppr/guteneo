@@ -80,16 +80,22 @@ export function Installation() {
         <ul>
           {assistants.map((assistant) => (
             <li key={assistant.id}>
-              <span className="assistant-official-mark">
-                <img
-                  src={`/brands/${assistant.id}.svg`}
-                  alt=""
-                  width="44"
-                  height="44"
-                  loading="lazy"
-                />
+              <span className="assistant-stamp">
+                <span className="assistant-stamp-paper" aria-hidden="true" />
+                <span className="assistant-official-mark">
+                  <img
+                    src={`/brands/${assistant.id}.svg`}
+                    alt=""
+                    width="44"
+                    height="44"
+                    loading="lazy"
+                  />
+                </span>
+                <strong>{assistant.name}</strong>
+                <span className="assistant-stamp-caption" aria-hidden="true">
+                  Correspondance
+                </span>
               </span>
-              <strong>{assistant.name}</strong>
               <span>
                 {assistant.available
                   ? copy.install.brandPreparing

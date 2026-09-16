@@ -2544,7 +2544,61 @@ ol {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 7px;
+  gap: 14px;
+}
+.assistant-stamp {
+  position: relative;
+  isolation: isolate;
+  width: 132px;
+  min-height: 164px;
+  padding: 17px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.assistant-stamp-paper {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #fffdf7;
+  mask-image:
+    radial-gradient(circle at 6px 0, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 6px 100%, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 0 6px, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 100% 6px, transparent 3px, #000 3.5px);
+  mask-size: 12px 100%, 12px 100%, 100% 12px, 100% 12px;
+  mask-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  mask-composite: intersect;
+}
+.assistant-stamp-paper::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid #244be02b;
+  background-image: radial-gradient(#244be029 0.55px, transparent 0.75px);
+  background-size: 3px 3px;
+}
+.assistant-stamp-paper::after {
+  content: "";
+  position: absolute;
+  inset: 17px;
+  background: #fffdf7;
+  border-block: 1px solid #244be025;
+}
+.assistant-stamp strong {
+  position: relative;
+  margin-top: 2px;
+}
+.assistant-stamp-caption {
+  position: relative;
+  margin-top: 9px;
+  color: var(--blue);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .assistant-official-mark {
   display: grid;
@@ -3045,10 +3099,6 @@ ol {
   .assistant-brandstrip ul {
     grid-template-columns: repeat(2, 1fr);
     gap: 22px 12px;
-  }
-  .assistant-official-mark {
-    width: 60px;
-    height: 60px;
   }
   .installation-heading h2,
   .pricing-heading h2,
