@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { join, relative } from "node:path";
 import { build } from "vite";
 import { buildIntegrationPackage } from "../integrations/build.mjs";
+import { buildPublicPages } from "./build-public-pages.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = join(root, "dist/web");
@@ -18,6 +19,8 @@ const scope = [
   "migrations",
   "integrations",
   "scripts/build-live.mjs",
+  "scripts/build-public-pages.mjs",
+  "scripts/verify-release.mjs",
   "wrangler.live.jsonc",
   "package.json",
   "package-lock.json",
@@ -77,7 +80,7 @@ await build({
   build: { outDir: output, emptyOutDir: true },
 });
 await buildIntegrationPackage(join(output, "integrations"));
-await writeFile(join(output, "robots.txt"), "User-agent: *\nDisallow: /\n");
+await buildPublicPages({ root, output, indexable: false });
 if ((await snapshot()) !== sourceSnapshotSha256)
   throw new Error(
     "Source changed during build. Build again before deployment.",

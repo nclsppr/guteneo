@@ -59,17 +59,88 @@ describe("public preview boundary", () => {
     },
   );
 
-  it("serves navigation with preview privacy headers", async () => {
+  it.each([
+    "/",
+    "/journal/",
+    "/journal/de-gutenberg-au-numerique/",
+    "/journal/histoire-imprimerie-luxembourg/",
+    "/mentions-legales/",
+  ])(
+    "serves canonical public HTML at %s without noindex on the primary domain",
+    async (path) => {
+      const { env, fetch } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://guteneo.com${path}`),
+        env,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("preview asset");
+      expect(fetch).toHaveBeenCalledOnce();
+      expect(response.headers.get("x-robots-tag")).toBeNull();
+      expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    },
+  );
+
+  it.each(["/", "/journal/", "/mentions-legales/", "/image.webp"])(
+    "keeps fallback workers.dev URL %s out of the index",
+    async (path) => {
+      const { env } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://guteneo-preview.nclsppr.workers.dev${path}`),
+        env,
+      );
+      expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    },
+  );
+
+  it("does not turn missing pages into the homepage", async () => {
     const { env, fetch } = assetsEnv();
+    fetch.mockResolvedValueOnce(new Response("Not found", { status: 404 }));
     const response = await worker.fetch(
-      new Request("https://guteneo.com/documents"),
+      new Request("https://guteneo.com/journal/not-an-article/"),
       env,
     );
-    expect(response.status).toBe(200);
-    expect(await response.text()).toBe("preview asset");
-    expect(fetch).toHaveBeenCalledOnce();
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe("Not found");
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
-    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it("keeps conditional 304 responses indexable on a public canonical page", async () => {
+    const { env, fetch } = assetsEnv();
+    fetch.mockResolvedValueOnce(new Response(null, { status: 304 }));
+    const response = await worker.fetch(
+      new Request("https://guteneo.com/journal/", {
+        headers: { "If-None-Match": '"fixture"' },
+      }),
+      env,
+    );
+    expect(response.status).toBe(304);
+    expect(response.headers.get("x-robots-tag")).toBeNull();
+  });
+
+  it.each(["auth", "code", "state", "access_token"])(
+    "keeps private %s query variants out of the index and cache",
+    async (key) => {
+      const { env } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://guteneo.com/?${key}=fixture`),
+        env,
+      );
+      expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+      expect(response.headers.get("cache-control")).toBe("no-store");
+    },
+  );
+
+  it("serves private-host robots without forwarding the public sitemap policy", async () => {
+    const { env, fetch } = assetsEnv();
+    const response = await worker.fetch(
+      new Request("https://guteneo-preview.nclsppr.workers.dev/robots.txt"),
+      env,
+    );
+    expect(await response.text()).toBe("User-agent: *\nDisallow: /\n");
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it.each(["/health", "/health.json", "/release.json"])(

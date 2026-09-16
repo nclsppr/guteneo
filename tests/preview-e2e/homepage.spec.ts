@@ -101,7 +101,7 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   await expect(author).toHaveAttribute("href", "https://nicolaspieper.com");
   await expect(
     page.getByRole("link", { name: "Mentions légales" }),
-  ).toHaveAttribute("href", "#/mentions-legales");
+  ).toHaveAttribute("href", "/mentions-legales/");
   await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
   await expect
     .poll(() =>

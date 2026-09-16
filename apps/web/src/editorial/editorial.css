@@ -1,0 +1,497 @@
+.editorial-kicker {
+  font:
+    400 11px/1.6 "IBM Plex Mono",
+    monospace;
+  color: var(--blue);
+  letter-spacing: 0.045em;
+}
+.journal-teaser {
+  padding: 74px 0 84px;
+  border-top: 1px solid var(--line);
+}
+.journal-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+.journal-section-heading h2,
+.journal-intro h1,
+.article-intro h1,
+.article-next h2,
+.article-sources h2 {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.journal-section-heading h2 {
+  font-size: clamp(36px, 4.2vw, 55px);
+  line-height: 1.1;
+  margin: 0;
+}
+.journal-section-heading em,
+.journal-intro em {
+  font-weight: 400;
+}
+.journal-stories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 46px;
+}
+.journal-story {
+  min-width: 0;
+  border-top: 1px solid var(--blue);
+  padding-top: 16px;
+}
+.journal-story-art {
+  display: block;
+  margin-bottom: 25px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.journal-story-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3/2;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  transition: transform 0.4s ease;
+}
+.journal-story-art:hover img {
+  transform: scale(1.025);
+}
+.journal-story .editorial-kicker {
+  margin-bottom: 11px;
+}
+.journal-story .editorial-kicker span {
+  padding: 0 7px;
+}
+.journal-story h3 {
+  font:
+    400 clamp(29px, 2.7vw, 38px)/1.15 "EB Garamond",
+    Georgia,
+    serif;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  margin-bottom: 14px;
+}
+.journal-story h3 a {
+  text-decoration: none;
+}
+.journal-story h3 a:hover {
+  text-decoration: underline;
+}
+.journal-story h3 svg {
+  vertical-align: baseline;
+  margin-left: 10px;
+  color: var(--blue);
+}
+.journal-story > p:last-child {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 60ch;
+  margin-bottom: 0;
+}
+.journal-intro {
+  padding: 70px 0 55px;
+  max-width: 770px;
+}
+.journal-intro h1 {
+  font-size: clamp(48px, 6.2vw, 82px);
+  line-height: 1.05;
+  margin: 22px 0;
+}
+.journal-intro > p:last-child {
+  max-width: 55ch;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.journal-note {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 46px;
+  border-top: 1px solid var(--line);
+  padding: 34px 0 60px;
+  margin-top: 60px;
+}
+.journal-note p {
+  font:
+    400 29px/1.2 "EB Garamond",
+    Georgia,
+    serif;
+  max-width: 28ch;
+}
+.journal-note span {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.editorial-breadcrumb {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 30px;
+  color: var(--muted);
+}
+.article-intro {
+  padding: 40px 0 36px;
+  max-width: 910px;
+}
+.article-intro h1 {
+  font-size: clamp(42px, 5.2vw, 72px);
+  line-height: 1.08;
+  margin: 20px 0 24px;
+}
+.article-dek {
+  font-size: clamp(17px, 1.8vw, 21px);
+  line-height: 1.6;
+  max-width: 64ch;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.article-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 25px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 28px 0 0;
+  color: var(--muted);
+}
+.article-hero {
+  margin: 0 0 65px;
+  border-top: 1px solid var(--line);
+}
+.article-hero img {
+  width: 100%;
+  height: auto;
+  display: block;
+  mix-blend-mode: multiply;
+  max-height: 650px;
+  object-fit: contain;
+}
+.article-hero figcaption {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 13px;
+  max-width: 95ch;
+}
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 3fr);
+  gap: 65px;
+  align-items: start;
+  margin-bottom: 65px;
+}
+.article-contents {
+  position: sticky;
+  top: 30px;
+  font-size: 12px;
+  line-height: 1.6;
+  max-width: 240px;
+}
+.article-contents ol {
+  padding: 0;
+  list-style: none;
+  counter-reset: chapter;
+  margin: 20px 0;
+}
+.article-contents li {
+  counter-increment: chapter;
+  display: flex;
+  gap: 10px;
+  margin: 0 0 13px;
+}
+.article-contents li:before {
+  content: counter(chapter, decimal-leading-zero);
+  font:
+    11px/1.8 "IBM Plex Mono",
+    monospace;
+  color: var(--blue);
+}
+.article-contents a {
+  text-decoration: none;
+}
+.article-contents a:hover {
+  text-decoration: underline;
+}
+.article-source-link {
+  color: var(--blue);
+  display: inline-block;
+  margin-top: 10px;
+}
+.article-copy {
+  max-width: 70ch;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.article-copy section {
+  position: relative;
+  margin-bottom: 60px;
+  scroll-margin-top: 30px;
+}
+.article-copy h2 {
+  font:
+    400 clamp(31px, 3.1vw, 42px)/1.15 "EB Garamond",
+    Georgia,
+    serif;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  margin: 12px 0 25px;
+}
+.article-copy p {
+  margin-bottom: 1.25em;
+}
+.chapter-number {
+  font:
+    12px/1 "IBM Plex Mono",
+    monospace;
+  color: var(--blue);
+}
+.article-copy .chapter-sources {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 22px;
+}
+.chapter-sources a {
+  text-decoration-style: dotted;
+  text-underline-position: from-font;
+}
+.article-sources {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 65px;
+  border-top: 1px solid var(--blue);
+  padding: 40px 0 50px;
+  scroll-margin-top: 25px;
+}
+.article-sources h2 {
+  font-size: 35px;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.article-sources p:not(.editorial-kicker) {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 35ch;
+}
+.article-sources ol {
+  padding: 0 0 0 22px;
+  margin: 0;
+  list-style-type: decimal-leading-zero;
+}
+.article-sources li {
+  padding: 0 0 15px 8px;
+  margin-bottom: 17px;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 25px;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+.article-sources li::marker {
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  color: var(--blue);
+}
+.article-sources li span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.article-sources a {
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+}
+.article-next {
+  border-top: 1px solid var(--line);
+  padding: 40px 0 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 35px;
+}
+.article-next h2 {
+  font-size: clamp(29px, 3vw, 40px);
+  line-height: 1.15;
+  max-width: 30ch;
+  margin-bottom: 0;
+}
+.article-next h2 a {
+  text-decoration: none;
+}
+.article-next h2 a:hover {
+  text-decoration: underline;
+}
+.article-next > .text-link {
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .journal-section-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .journal-stories {
+    gap: 36px;
+    grid-template-columns: 1fr;
+  }
+  .journal-teaser {
+    padding: 45px 0 55px;
+  }
+  .journal-story h3 {
+    font-size: 33px;
+  }
+  .journal-intro {
+    padding: 44px 0 30px;
+  }
+  .journal-note {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 40px;
+    padding-bottom: 40px;
+  }
+  .journal-note p {
+    max-width: none;
+  }
+  .editorial-header nav > a:first-child:not(.button) {
+    display: block;
+  }
+  .editorial-header nav {
+    gap: 12px;
+  }
+  .article-intro {
+    padding-top: 30px;
+  }
+  .article-intro h1 {
+    line-height: 1.12;
+    font-size: 44px;
+  }
+  .article-hero {
+    margin-bottom: 35px;
+  }
+  .article-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-bottom: 30px;
+  }
+  .article-contents {
+    position: static;
+    max-width: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 25px;
+  }
+  .article-contents ol {
+    columns: 2;
+    column-gap: 22px;
+  }
+  .article-contents li {
+    break-inside: avoid;
+  }
+  .article-copy {
+    font-size: 17px;
+  }
+  .article-copy section {
+    margin-bottom: 42px;
+  }
+  .article-sources {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding-top: 30px;
+  }
+  .article-sources p:not(.editorial-kicker) {
+    max-width: none;
+  }
+  .article-next {
+    align-items: start;
+    flex-direction: column;
+    padding-bottom: 45px;
+  }
+  .article-byline {
+    gap: 8px 15px;
+  }
+  .editorial-breadcrumb {
+    font-size: 11px;
+    gap: 9px;
+  }
+}
+@media (max-width: 420px) {
+  .editorial-header .brand {
+    font-size: 29px;
+  }
+  .editorial-header nav > .button {
+    font-size: 11px;
+    padding: 9px;
+  }
+  .editorial-header nav > a:first-child:not(.button) {
+    display: none;
+  }
+  .article-intro h1 {
+    font-size: 39px;
+  }
+  .article-contents ol {
+    columns: 1;
+  }
+  .article-byline {
+    flex-direction: column;
+  }
+  .journal-story h3 {
+    font-size: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journal-story-art img {
+    transition: none;
+  }
+  .journal-story-art:hover img {
+    transform: none;
+  }
+}
+@media print {
+  .editorial-header,
+  .article-contents,
+  .article-next,
+  .luxembourg-footer,
+  .skip-link {
+    display: none;
+  }
+  .landing {
+    max-width: none;
+    padding: 0;
+  }
+  .article-layout,
+  .article-sources {
+    display: block;
+  }
+  .article-copy {
+    max-width: none;
+    font-size: 11pt;
+  }
+  .article-intro h1 {
+    font-size: 30pt;
+  }
+  .article-hero img {
+    max-height: 250px;
+  }
+  .article-sources a:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    overflow-wrap: anywhere;
+  }
+  .article-copy section {
+    break-inside: avoid-page;
+  }
+}

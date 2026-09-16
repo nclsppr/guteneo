@@ -1,0 +1,35 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-09-17",
+  "prompt": "Create a refined editorial illustration for Guteneo, a French printing and correspondence atelier. Landscape 3:2, 1536 by 1024. Single ink cobalt blue #2450db on warm ivory #f6f5ef paper, precise antique copperplate engraving, fine stippling and ordered halftone dithering, no gradients, no photography, no border, absolutely no text or legible lettering. Art direction: airy premium museum publication. A wooden hand-operated fifteenth-century European screw printing press occupies the left half, typesetter metal blocks and a few loose sheets on its table; on the right an elegant flowing ribbon of blank paper becomes folded postal envelopes, then passes through a small recognizable 1980s fax machine with telephone handset and perforated paper, terminating beside a modest early desktop computer bearing only a tiny simple envelope symbol. The objects form one coherent gently diagonal visual path across an ivory ground with generous negative space, finely detailed mechanical construction and delicate shadows made exclusively of blue halftone dots. No portraits, no dates, no invented historical document facsimiles. A contemporary conceptual illustration of the journey of written communication, harmonizing with an existing blue engraved letterpress illustration.",
+  "source": "assets/editorial/source/gutenberg-to-digital.png",
+  "originalToolOutput": "/Users/nclsppr/.codex/generated_images/01a0abd2-021b-72a1-bd6c-41e42bd47c05/exec-100f141d-b939-4aba-831c-3da669f2ddef.png",
+  "web": "apps/web/public/editorial/gutenberg-to-digital.webp",
+  "width": 1536,
+  "height": 1024,
+  "conversion": "cwebp -q 84 -metadata all; responsive small version width 720 q80",
+  "historicalStatus": "Contemporary conceptual illustration generated with AI; not an archive, portrait, or exact historical reconstruction.",
+  "artifacts": [
+    {
+      "path": "assets/editorial/source/gutenberg-to-digital.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2368515,
+      "sha256": "de59a110f6788f5cc9bc4254f0881058922225c3b481754a6a88d3e708262b17"
+    },
+    {
+      "path": "apps/web/public/editorial/gutenberg-to-digital.webp",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 236524,
+      "sha256": "5343ad71f2291e97fec2b59f4b9bf57fa663b2c0c8582dea5778d7ec714a6264"
+    },
+    {
+      "path": "apps/web/public/editorial/gutenberg-to-digital-small.webp",
+      "width": 720,
+      "height": 480,
+      "bytes": 38666,
+      "sha256": "4da6613409c9c27c7bba539b578cec245e68840bb4f962b8820ef1ab19cc3702"
+    }
+  ]
+}

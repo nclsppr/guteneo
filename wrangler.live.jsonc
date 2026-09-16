@@ -12,7 +12,8 @@
   "assets": {
     "directory": "./dist/web",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
+    "not_found_handling": "none",
+    "html_handling": "force-trailing-slash",
     "run_worker_first": [
       "/api/*",
       "/mcp",
@@ -45,7 +46,7 @@
   ],
   "services": [
     { "binding": "SCANNER", "service": "guteneo-scanner" },
-    { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents" }
+    { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents" },
   ],
   "queues": {
     "producers": [

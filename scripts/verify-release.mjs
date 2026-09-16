@@ -58,7 +58,9 @@ await Promise.all(
       // Workers Static Assets canonicalizes /index.html to / with HTTP 307.
       // Verify the same document bytes at the canonical route without following
       // arbitrary redirects from a release manifest.
-      const publicPath = entry.path === "/index.html" ? "/" : entry.path;
+      const publicPath = entry.path.endsWith("/index.html")
+        ? entry.path.slice(0, -"index.html".length)
+        : entry.path;
       const bytes = new Uint8Array(
         await (await fetchPublic(publicPath)).arrayBuffer(),
       );
@@ -72,7 +74,9 @@ await Promise.all(
 const page = await fetchPublic("/");
 if (
   page.headers.get("x-content-type-options") !== "nosniff" ||
-  !page.headers.get("content-security-policy")?.includes("frame-ancestors 'none'")
+  !page.headers
+    .get("content-security-policy")
+    ?.includes("frame-ancestors 'none'")
 )
   throw new Error("Required public security headers are missing.");
 console.log(

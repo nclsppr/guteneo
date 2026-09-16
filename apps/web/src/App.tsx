@@ -44,6 +44,8 @@ import {
 import { Billing } from "./billing-page";
 import { Account, TeamAdmin } from "./account-page";
 import { LegalPage } from "./legal-page";
+import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
+import { articles, articlePath } from "./editorial/articles";
 import {
   Installation,
   WelcomePricing,
@@ -58,7 +60,7 @@ function Brand({ app = false }: { app?: boolean }) {
   return (
     <a
       className="brand"
-      href={app ? "#/app" : "#/"}
+      href={app ? "#/app" : "/"}
       aria-label="Guteneo, accueil"
     >
       <span className="brand-mark" aria-hidden="true">
@@ -69,7 +71,7 @@ function Brand({ app = false }: { app?: boolean }) {
   );
 }
 
-function Landing() {
+export function Landing() {
   return (
     <div className="landing">
       <a
@@ -188,6 +190,7 @@ function Landing() {
         </section>
         <WelcomePricing />
         <FrequentlyAsked />
+        <JournalTeaser />
         <aside className="landing-note">
           <WarningCircle size={21} aria-hidden="true" />
           <p>
@@ -378,6 +381,11 @@ export function App() {
     };
   }, []);
   const page = route.split("?")[0] ?? "/";
+  const pathname = window.location.pathname;
+  if (pathname === "/journal/") return <JournalPage />;
+  const article = articles.find((item) => articlePath(item.slug) === pathname);
+  if (article) return <ArticlePage article={article} />;
+  if (pathname === "/mentions-legales/") return <LegalPage />;
   if (page === "/mentions-legales") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
   if (!ready)

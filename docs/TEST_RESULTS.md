@@ -2,6 +2,8 @@
 
 ## Current continuation — 2026-09-17
 
+Editorial SEO candidate: typecheck and lint pass; the full local suite passed **328/328 unit/integration tests in 24 files** and **31/31 security/build tests**. A subsequent conditional-304 indexing regression brings the targeted preview Worker suite to **35/35**, without relabeling the earlier full-run count. All **20/20 preview browser cases** pass locally on desktop Chromium and iPhone WebKit, including raw HTML/canonical/schema/HTTP checks, journal navigation with JavaScript disabled, responsive generated images, source links and chapter anchors. The independently reviewed five SSR pages produce no CSP violations. Production preview/backend builds pass with separate index/noindex policies. These are local candidate results; published SHA and remote evidence are recorded separately after deployment.
+
 Both CI runs passed for the exact deployed backend source `ee64850691f9f50c3e7cee5cbbfea2afe46c448d`: [PR](https://github.com/nclsppr/guteneo/actions/runs/35162247327) and [push](https://github.com/nclsppr/guteneo/actions/runs/35162242683). The CI includes the complete updated unit suite, 25 security tests, 36 application browser cases and 12 preview cases, migration verification and deployment builds. The local runs below retain their separate dates and scope.
 
 - The complete `npm test` run started at 23:17 UTC on September 16 passed **295/295 unit/integration tests across 23 files**, followed by **25/25 secure-configuration tests**. This full run preceded the separate private Pingen inspection and Telnyx callback changes below; it is not presented as their full-suite qualification.

@@ -122,6 +122,7 @@ app.use("*", async (c, next) => {
   const correlationId = crypto.randomUUID();
   c.header("X-Correlation-ID", correlationId);
   c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Robots-Tag", "noindex, nofollow");
   c.header("Referrer-Policy", "no-referrer");
   c.header("Cache-Control", "no-store");
   c.header(

@@ -4,6 +4,7 @@ import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join, relative } from "node:path";
 import { build } from "vite";
+import { buildPublicPages } from "./build-public-pages.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = join(root, "dist/preview");
@@ -15,6 +16,8 @@ const sourcePaths = [
   "apps/preview",
   "packages",
   "scripts/build-preview.mjs",
+  "scripts/build-public-pages.mjs",
+  "scripts/verify-release.mjs",
   "wrangler.preview.jsonc",
   "package.json",
   "package-lock.json",
@@ -75,7 +78,7 @@ await build({
   configFile: join(root, "apps/web/vite.config.ts"),
   build: { outDir: output, emptyOutDir: true },
 });
-await writeFile(join(output, "robots.txt"), "User-agent: *\nDisallow: /\n");
+await buildPublicPages({ root, output, indexable: true });
 if (sourceSnapshotSha256 !== (await sourceSnapshot()))
   throw new Error(
     "Source changed during the preview build. Rebuild before deployment.",

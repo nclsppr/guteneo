@@ -302,7 +302,7 @@ export function LuxembourgFooter() {
           <br />
           <em>{copy.footer.italic}</em>
         </p>
-        <a className="button primary" href="#/app">
+        <a className="button primary" href="/#/app">
           {copy.footer.cta}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
@@ -347,19 +347,20 @@ export function LuxembourgFooter() {
         </p>
         <nav aria-label={copy.footer.nav}>
           <a
-            href="#installation"
+            href="/#installation"
             onClick={(event) => scrollToSection(event, "installation")}
           >
             {copy.footer.installation}
           </a>
-          <a href="#faq" onClick={(event) => scrollToSection(event, "faq")}>
+          <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
             FAQ
           </a>
-          <a href="#/app">
+          <a href="/#/app">
             {copy.footer.atelier}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
-          <a href="#/mentions-legales">{copy.footer.legal}</a>
+          <a href="/journal/">Le journal</a>
+          <a href="/mentions-legales/">{copy.footer.legal}</a>
         </nav>
       </div>
     </footer>

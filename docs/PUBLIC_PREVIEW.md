@@ -25,7 +25,9 @@ GUTENEO_PREVIEW_URL=https://guteneo.com npm run test:preview
 
 The build explicitly enables preview mode and uses `dist/preview`, leaving the application build in `dist/web`. It fails if deployment inputs change while building. Source and asset digests permit verification even for an early release from uncommitted changes; the final release should use a clean committed source. GitHub CI builds and tests this preview but does not deploy it.
 
-Desktop Chromium and iPhone WebKit tests cover all workspace routes, layout overflow, zero browser API requests, PDF canvas display, preparation/approval/simulation and remote route rejection. Captures are under `reports/screenshots/preview/`. Noindex prevents the unfinished preview from being advertised as a launched service.
+Desktop Chromium and iPhone WebKit tests cover all workspace routes, layout overflow, zero browser API requests, PDF canvas display, preparation/approval/simulation and remote route rejection. Captures are under `reports/screenshots/preview/`.
+
+Since the editorial SEO update of 17 September 2026, the five public documents on `guteneo.com` are eligible for indexing: the homepage, journal index, two history articles and legal notice. Their initial HTML contains the full content and metadata; journal and legal pages require no JavaScript. The hash-based fictional workspace remains excluded from the sitemap, while the alternate preview hostname and backend stay noindex. Missing paths return actual 404s. See [TECHNICAL_SEO.md](TECHNICAL_SEO.md). Indexing eligibility is not proof that a search engine has indexed or ranked the pages.
 
 Official deployment references checked on 2026-09-16: [Worker static assets](https://developers.cloudflare.com/workers/static-assets/), [routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/), [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
 
