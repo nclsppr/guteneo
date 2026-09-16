@@ -41,25 +41,14 @@ export interface Env {
   PINGEN_SANDBOX?: string;
   PINGEN_UPLOAD_ORIGINS?: string;
 }
-export function assertConfiguration(env: Env, request?: Request): void {
-  const readiness =
-    request &&
-    ["GET", "HEAD"].includes(request.method) &&
-    ["/api/health", "/api/capabilities"].includes(
-      new URL(request.url).pathname,
-    );
+/** Runtime safety applies to callbacks and scheduled reconciliation too. */
+export function assertBaseConfiguration(env: Env, request?: Request): void {
   if (!["local", "staging", "production"].includes(env.ENVIRONMENT))
     throw new Error("INVALID_ENVIRONMENT");
   if (!["simulation", "production"].includes(env.MODE))
     throw new Error("INVALID_MODE");
   if (env.ENVIRONMENT === "production" && env.MODE !== "production")
     throw new Error("PRODUCTION_SIMULATION_FORBIDDEN");
-  if (
-    env.ENVIRONMENT !== "local" &&
-    !readiness &&
-    (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
-  )
-    throw new Error("IDENTITY_NOT_CONFIGURED");
   if (
     env.ENVIRONMENT === "local" &&
     request &&
@@ -71,4 +60,26 @@ export function assertConfiguration(env: Env, request?: Request): void {
     new URL(env.APP_ORIGIN).protocol !== "https:"
   )
     throw new Error("HTTPS_REQUIRED");
+}
+
+export function assertConfiguration(env: Env, request?: Request): void {
+  assertBaseConfiguration(env, request);
+  const pathname = request ? new URL(request.url).pathname : undefined;
+  const readiness =
+    request &&
+    ["GET", "HEAD"].includes(request.method) &&
+    ["/api/health", "/api/capabilities"].includes(pathname!);
+  // SNS authenticates its own callback. This only reaches the verifier; it never
+  // authorizes a receipt, a browser session, or a send by itself.
+  const configuredSesCallback =
+    request?.method === "POST" &&
+    pathname === "/webhooks/ses" &&
+    Boolean(env.SES_SNS_TOPIC_ARN);
+  if (
+    env.ENVIRONMENT !== "local" &&
+    !readiness &&
+    !configuredSesCallback &&
+    (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
+  )
+    throw new Error("IDENTITY_NOT_CONFIGURED");
 }

@@ -1,4 +1,4 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { assertConfiguration, type Env } from "../../apps/api/src/env";
 import worker, { getCapabilities } from "../../apps/api/src/index";
 it("refuses simulation production, remote dev and unconfigured identity", () => {
@@ -21,8 +21,70 @@ it("refuses simulation production, remote dev and unconfigured identity", () => 
       ...base,
       ENVIRONMENT: "production",
       MODE: "production",
+      APP_ORIGIN: "https://guteneo.com",
     }),
   ).toThrow("IDENTITY");
+});
+
+it("allows only a configured SES POST to reach its independent signature verifier", () => {
+  const env = {
+    ENVIRONMENT: "production",
+    MODE: "production",
+    APP_ORIGIN: "https://guteneo.com",
+    SES_SNS_TOPIC_ARN: "arn:aws:sns:eu-west-1:123456789012:guteneo-test",
+  } as Env;
+  const callback = new Request("https://guteneo.com/webhooks/ses", {
+    method: "POST",
+  });
+  expect(() => assertConfiguration(env, callback)).not.toThrow();
+  expect(() =>
+    assertConfiguration({ ...env, SES_SNS_TOPIC_ARN: undefined }, callback),
+  ).toThrow("IDENTITY_NOT_CONFIGURED");
+  for (const [path, method] of [
+    ["/webhooks/ses", "GET"],
+    ["/webhooks/ses", "PUT"],
+    ["/webhooks/ses/", "POST"],
+    ["/webhooks/telnyx", "POST"],
+    ["/webhooks/stripe", "POST"],
+    ["/api/documents", "POST"],
+    ["/mcp", "POST"],
+  ])
+    expect(() =>
+      assertConfiguration(
+        env,
+        new Request(`https://guteneo.com${path}`, { method }),
+      ),
+    ).toThrow("IDENTITY_NOT_CONFIGURED");
+  expect(() =>
+    assertConfiguration({ ...env, MODE: "simulation" }, callback),
+  ).toThrow("PRODUCTION_SIMULATION_FORBIDDEN");
+  expect(() =>
+    assertConfiguration({ ...env, APP_ORIGIN: "http://guteneo.com" }, callback),
+  ).toThrow("HTTPS_REQUIRED");
+  expect(() =>
+    assertConfiguration({ ...env, ENVIRONMENT: "local" }, callback),
+  ).toThrow("LOCAL_HOST_REQUIRED");
+});
+
+it("rejects unsafe scheduled environments before reading receipts", async () => {
+  const prepare = vi.fn();
+  const env = {
+    DB: { prepare },
+    ENVIRONMENT: "production",
+    MODE: "simulation",
+    APP_ORIGIN: "https://guteneo.com",
+  } as unknown as Env;
+  await expect(
+    worker.scheduled({} as ScheduledController, env),
+  ).rejects.toThrow("PRODUCTION_SIMULATION_FORBIDDEN");
+  await expect(
+    worker.scheduled({} as ScheduledController, {
+      ...env,
+      MODE: "production",
+      APP_ORIGIN: "http://guteneo.com",
+    }),
+  ).rejects.toThrow("HTTPS_REQUIRED");
+  expect(prepare).not.toHaveBeenCalled();
 });
 it("allows only read-only readiness while identity is awaiting configuration", () => {
   const env = {

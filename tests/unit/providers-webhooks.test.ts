@@ -1,5 +1,8 @@
+import { createSign } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
@@ -13,7 +16,9 @@ import {
   reconcileWebhookReceipts,
 } from "../../apps/api/src/webhooks";
 import type { Env } from "../../apps/api/src/env";
-import type { DomainService } from "../../packages/domain/src/index";
+import worker from "../../apps/api/src/index";
+import { DomainService } from "../../packages/domain/src/index";
+import { canonicalSnsMessage } from "../../packages/providers";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -81,8 +86,198 @@ beforeAll(async () => {
 afterAll(async () => {
   await mf?.dispose();
 });
+afterEach(() => vi.restoreAllMocks());
 beforeEach(async () => {
   await db.prepare("DELETE FROM provider_receipts").run();
+});
+
+const sesTopic = "arn:aws:sns:eu-west-1:123456789012:guteneo-test";
+const sesCertificateUrl =
+  "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-test.pem";
+const sesEnvironment = () =>
+  ({
+    DB: db,
+    ENVIRONMENT: "production",
+    MODE: "production",
+    APP_ORIGIN: "https://guteneo.example",
+    SES_SNS_TOPIC_ARN: sesTopic,
+  }) as Env;
+function signedSns(
+  type: "Notification" | "SubscriptionConfirmation",
+  message: string,
+) {
+  const envelope = {
+    Type: type,
+    MessageId: "sns-signed-fixture-1",
+    TopicArn: sesTopic,
+    Timestamp: "2026-09-16T12:00:00Z",
+    SignatureVersion: "2",
+    SigningCertURL: sesCertificateUrl,
+    Message: message,
+    ...(type === "SubscriptionConfirmation"
+      ? {
+          Token: "public-test-confirmation-token",
+          SubscribeURL:
+            "https://sns.eu-west-1.amazonaws.com/?Action=ConfirmSubscription&Token=public-test-confirmation-token",
+        }
+      : {}),
+  };
+  const signer = createSign("RSA-SHA256");
+  signer.update(canonicalSnsMessage(envelope));
+  return {
+    ...envelope,
+    Signature: signer.sign(
+      readFileSync(
+        new URL(
+          "../../packages/providers/fixtures/sns-test-key.pem",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      "base64",
+    ),
+  };
+}
+function snsCertificates() {
+  return vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
+    expect(String(url)).toBe(sesCertificateUrl);
+    return new Response(
+      readFileSync(
+        new URL(
+          "../../packages/providers/fixtures/sns-test-cert.pem",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+  });
+}
+const sesRequest = (body: unknown) =>
+  new Request("https://guteneo.example/webhooks/ses", {
+    method: "POST",
+    headers: { "Content-Type": "text/plain; charset=UTF-8" },
+    body: JSON.stringify(body),
+  });
+
+describe("signed SNS callbacks during identity setup", () => {
+  it("stores signed confirmation once without exposing or following its URL", async () => {
+    const network = snsCertificates();
+    const message = signedSns("SubscriptionConfirmation", "Public fixture");
+    for (let index = 0; index < 2; index++) {
+      const response = await worker.fetch(
+        sesRequest(message),
+        sesEnvironment(),
+        {} as ExecutionContext,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ received: true });
+    }
+    const rows = await db
+      .prepare("SELECT payload_json,status FROM provider_receipts")
+      .all<{ payload_json: string; status: string }>();
+    expect(rows.results).toHaveLength(1);
+    expect(rows.results[0].status).toBe("unrecognized");
+    expect(JSON.parse(rows.results[0].payload_json)).toEqual({
+      metadata: {
+        type: "SubscriptionConfirmation",
+        topicArn: sesTopic,
+        occurredAt: "2026-09-16T12:00:00.000Z",
+        confirmationToken: "public-test-confirmation-token",
+      },
+    });
+    expect(rows.results[0].payload_json).not.toContain("SubscribeURL");
+    expect(network).toHaveBeenCalledTimes(2);
+    expect(
+      network.mock.calls.every((call) => call[1]?.redirect === "error"),
+    ).toBe(true);
+  });
+
+  it("rejects unsigned, wrong-topic, version-one and oversized callbacks before storage", async () => {
+    const network = snsCertificates();
+    const message = signedSns("SubscriptionConfirmation", "Public fixture");
+    for (const patch of [
+      { TopicArn: "arn:aws:sns:eu-west-1:999999999999:guteneo-test" },
+      { SignatureVersion: "1" },
+      { SigningCertURL: "https://evil.example/certificate.pem" },
+    ]) {
+      const response = await worker.fetch(
+        sesRequest({ ...message, ...patch }),
+        sesEnvironment(),
+        {} as ExecutionContext,
+      );
+      expect(response.status).toBe(401);
+    }
+    expect(network).not.toHaveBeenCalled();
+    const forged = await worker.fetch(
+      sesRequest({ ...message, Message: "Tampered after signing" }),
+      sesEnvironment(),
+      {} as ExecutionContext,
+    );
+    expect(forged.status).toBe(401);
+    expect(network).toHaveBeenCalledTimes(1);
+    const oversized = await worker.fetch(
+      sesRequest({ padding: "x".repeat(1_000_001) }),
+      sesEnvironment(),
+      {} as ExecutionContext,
+    );
+    expect(oversized.status).toBe(413);
+    expect(network).toHaveBeenCalledTimes(1);
+    expect(
+      (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
+    ).toBe(0);
+  });
+
+  it("recovers a verified rendering failure by cron without identity or outbox publication", async () => {
+    snsCertificates();
+    const ingest = vi
+      .spyOn(DomainService.prototype, "ingestEvent")
+      .mockRejectedValueOnce(new Error("Temporary projection outage"))
+      .mockResolvedValue({ applied: true, duplicate: false });
+    const publish = vi.spyOn(DomainService.prototype, "publishOutbox");
+    const leases = vi.spyOn(DomainService.prototype, "reconcileExpiredLeases");
+    const response = await worker.fetch(
+      sesRequest(
+        signedSns(
+          "Notification",
+          JSON.stringify({
+            eventType: "Rendering Failure",
+            mail: {
+              messageId: "ses-message-fixture",
+              tags: { "guteneo-dispatch": ["dispatch-fixture"] },
+            },
+            failure: { templateName: "fixture", errorMessage: "fixture" },
+          }),
+        ),
+      ),
+      sesEnvironment(),
+      {} as ExecutionContext,
+    );
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({
+      received: true,
+      projection: "pending",
+    });
+    expect(ingest).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        provider: "ses",
+        kind: "failed",
+        providerId: "ses-message-fixture",
+        dispatchId: "dispatch-fixture",
+      }),
+    );
+    expect(
+      (await db.prepare("SELECT status FROM provider_receipts").first())
+        ?.status,
+    ).toBe("pending");
+    await worker.scheduled({} as ScheduledController, sesEnvironment());
+    expect(
+      (await db.prepare("SELECT status FROM provider_receipts").first())
+        ?.status,
+    ).toBe("projected");
+    expect(ingest).toHaveBeenCalledTimes(2);
+    expect(publish).not.toHaveBeenCalled();
+    expect(leases).not.toHaveBeenCalled();
+  });
 });
 
 describe("webhook HTTP boundary with actual local D1", () => {

@@ -270,6 +270,7 @@ export function normalizeSesEvent(
     Bounce: "bounced",
     Complaint: "complained",
     Reject: "failed",
+    "Rendering Failure": "failed",
     RenderingFailure: "failed",
   };
   const kind = kinds[eventType];

@@ -14,7 +14,7 @@ import {
   LIMITS,
   validateCsv,
 } from "../../../packages/contracts/src/content";
-import { assertConfiguration, type Env } from "./env";
+import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
 import { maintainDocuments } from "./maintenance";
 import { handleWebhook, reconcileWebhookReceipts } from "./webhooks";
@@ -623,11 +623,15 @@ export default {
     }
   },
   async scheduled(_event: ScheduledController, env: Env) {
-    assertConfiguration(env);
+    assertBaseConfiguration(env);
     const service = domain(env);
+    // Already verified receipts must recover even during identity-provider setup.
+    // This bounded projection does not publish an outbox or submit communications.
+    await reconcileWebhookReceipts(env.DB, service);
+    if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) return;
+    assertConfiguration(env);
     await publishOutbox(env, service);
     await service.reconcileExpiredLeases();
-    await reconcileWebhookReceipts(env.DB, service);
     await maintainDocuments(env);
     await env.DB.prepare("DELETE FROM http_limits WHERE window_start<?")
       .bind(Math.floor(Date.now() / 60000) - 5)

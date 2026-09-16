@@ -4,6 +4,15 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 
+// EU SES API endpoints listed by AWS; do not infer support from a region name.
+// https://docs.aws.amazon.com/general/latest/gr/ses.html
+const sesRegions = new Set([
+  "eu-west-1",
+  "eu-west-3",
+  "eu-central-1",
+  "eu-north-1",
+  "eu-south-1",
+]);
 const profiles = {
   telnyx: {
     title: "Connecter le fax Telnyx",
@@ -27,6 +36,21 @@ const profiles = {
     fields: [
       ["STRIPE_API_KEY", "Clé API restreinte Stripe", true],
       ["STRIPE_WEBHOOK_SECRET", "Secret de signature du webhook", false],
+    ],
+  },
+  ses: {
+    title: "Connecter les emails Amazon SES",
+    description:
+      "Les identifiants seront enregistrés dans les secrets Guteneo sur Cloudflare, avec le statut sandbox. Cette connexion n’envoie aucun email et n’active pas les envois de production. Utilisez une clé IAM dédiée à Guteneo, jamais une clé du compte racine ni un mot de passe SMTP.",
+    note:
+      "Les champs facultatifs vides conservent la configuration existante, sauf le jeton temporaire AWS : une clé permanente efface l’ancien jeton. La sortie de sandbox doit être vérifiée séparément dans AWS.",
+    fields: [
+      ["AWS_ACCESS_KEY_ID", "Identifiant de la clé d’accès AWS", true],
+      ["AWS_SECRET_ACCESS_KEY", "Clé d’accès secrète AWS", true],
+      ["AWS_REGION", "Région SES dans l’Union européenne, par exemple eu-west-3", true],
+      ["SES_CONFIGURATION_SET", "Nom du jeu de configuration SES", true],
+      ["SES_SNS_TOPIC_ARN", "ARN du sujet SNS pour les notifications SES", false],
+      ["AWS_SESSION_TOKEN", "Jeton temporaire AWS, obligatoire pour une clé ASIA", false],
     ],
   },
 };
@@ -87,6 +111,7 @@ export async function startSecureSetup({
   writer = writeCloudflareSecrets,
   timeoutMs = 30 * 60_000,
 } = {}) {
+  if (profile === "aws") profile = "ses";
   const settings = Object.hasOwn(profiles, profile)
     ? profiles[profile]
     : undefined;
@@ -97,7 +122,7 @@ export async function startSecureSetup({
   let busy = false;
   let completed = false;
   const html = (message = "", success = false) =>
-    `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — connexion privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:590px;padding:48px 24px;margin:auto}h1{font:44px/1.08 Georgia,serif;letter-spacing:-1px}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;border-radius:4px;background:#fff;font:inherit}button{background:#284c3e;color:white;border:0;padding:15px 24px;margin-top:28px;font:inherit;cursor:pointer}small{display:block;margin-top:24px;color:#535a50}a{color:#284c3e}.message{padding:18px;background:#e0e8dc}</style><main><p>GUTENEO · CONNEXION PRIVÉE</p><h1>${settings.title}</h1><p>${settings.description}</p>${message ? `<p class="message" role="status">${message}</p>` : ""}${success ? "<p>Vous pouvez fermer cette fenêtre. Les valeurs ne seront pas affichées à l’assistant.</p>" : `<form method="post" action="${path}" autocomplete="off"><input type="hidden" name="csrf" value="${csrf}">${settings.fields.map(([key, label, required]) => `<label for="${key}">${escape(label)}${required ? "" : " (facultatif)"}</label><input id="${key}" name="${key}" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" maxlength="4096" ${required ? "required" : ""}>`).join("")}<button type="submit">Enregistrer dans Cloudflare</button></form><small>Ce formulaire fonctionne uniquement sur votre ordinateur. Les valeurs restent en mémoire le temps de la transmission chiffrée à Cloudflare. Aucun fichier de clés n’est créé. La page expire après 30 minutes ; les champs vides conservent la configuration existante.</small>`}</main></html>`;
+    `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — connexion privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:590px;padding:48px 24px;margin:auto}h1{font:44px/1.08 Georgia,serif;letter-spacing:-1px}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;border-radius:4px;background:#fff;font:inherit}button{background:#284c3e;color:white;border:0;padding:15px 24px;margin-top:28px;font:inherit;cursor:pointer}small{display:block;margin-top:24px;color:#535a50}a{color:#284c3e}.message{padding:18px;background:#e0e8dc}</style><main><p>GUTENEO · CONNEXION PRIVÉE</p><h1>${settings.title}</h1><p>${settings.description}</p>${message ? `<p class="message" role="status">${message}</p>` : ""}${success ? "<p>Vous pouvez fermer cette fenêtre. Les valeurs ne seront pas affichées à l’assistant.</p>" : `<form method="post" action="${path}" autocomplete="off"><input type="hidden" name="csrf" value="${csrf}">${settings.fields.map(([key, label, required]) => `<label for="${key}">${escape(label)}${required ? "" : " (facultatif)"}</label><input id="${key}" name="${key}" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" maxlength="4096" ${required ? "required" : ""}>`).join("")}<button type="submit">Enregistrer dans Cloudflare</button></form><small>Ce formulaire fonctionne uniquement sur votre ordinateur. Les valeurs restent en mémoire le temps de la transmission chiffrée à Cloudflare. Aucun fichier de clés n’est créé. La page expire après 30 minutes. ${settings.note ?? "Les champs facultatifs vides conservent la configuration existante."}</small>`}</main></html>`;
   const server = createServer(async (req, res) => {
     const send = (status, body, type = "text/plain; charset=utf-8") => {
       res.writeHead(status, {
@@ -179,6 +204,32 @@ export async function startSecureSetup({
             "Utilisez une clé restreinte de production (rk_live_) pour ce service.",
           );
         values.STRIPE_MODE = "live";
+      }
+      if (profile === "ses") {
+        if (
+          !/^(AKIA|ASIA)[A-Z0-9]{16}$/.test(values.AWS_ACCESS_KEY_ID) ||
+          !/^[A-Za-z0-9/+=]{40}$/.test(values.AWS_SECRET_ACCESS_KEY)
+        )
+          return send(400, "Identifiants AWS invalides. Utilisez une clé d’accès API IAM.");
+        if (!sesRegions.has(values.AWS_REGION))
+          return send(400, "Région SES non prise en charge. Utilisez une région SES vérifiée dans l’Union européenne.");
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(values.SES_CONFIGURATION_SET))
+          return send(400, "Nom du jeu de configuration SES invalide.");
+        if (values.SES_SNS_TOPIC_ARN) {
+          const topic = /^arn:aws:sns:([a-z0-9-]+):\d{12}:[A-Za-z0-9_-]{1,256}$/.exec(values.SES_SNS_TOPIC_ARN);
+          if (!topic || topic[1] !== values.AWS_REGION)
+            return send(400, "Le sujet SNS doit être un sujet standard dans la même région SES.");
+        }
+        const temporary = values.AWS_ACCESS_KEY_ID.startsWith("ASIA");
+        if (
+          (temporary && (!values.AWS_SESSION_TOKEN || /\s/.test(values.AWS_SESSION_TOKEN))) ||
+          (!temporary && values.AWS_SESSION_TOKEN)
+        )
+          return send(400, "Une clé temporaire ASIA exige son jeton AWS ; une clé permanente AKIA doit être utilisée sans jeton.");
+        // Prevent an old temporary credential from surviving an IAM-key replacement.
+        if (!temporary) values.AWS_SESSION_TOKEN = "";
+        // Installing credentials cannot attest to AWS production-access approval.
+        values.SES_SANDBOX = "true";
       }
       try {
         await writer(values);
