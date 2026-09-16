@@ -70,11 +70,17 @@ type ErrorCode =
   | "invalid_response"
   | "response_scope_mismatch"
   | "pagination_limit";
-type InspectionError = { stage: Stage; code: ErrorCode; httpStatus?: number };
+type InspectionError = {
+  stage: Stage;
+  code: ErrorCode;
+  httpStatus?: number;
+  invalidFields?: string[];
+};
 class InspectionFailure extends Error {
   constructor(
     readonly code: ErrorCode,
     readonly httpStatus?: number,
+    readonly invalidFields?: string[],
   ) {
     super(code);
   }
@@ -143,6 +149,7 @@ export async function inspectTelnyxReadiness(
       ...(safe?.httpStatus === undefined
         ? {}
         : { httpStatus: safe.httpStatus }),
+      ...(safe?.invalidFields ? { invalidFields: safe.invalidFields } : {}),
     });
   };
   if (
@@ -287,7 +294,21 @@ export async function inspectTelnyxReadiness(
     try {
       const response = await get(`/outbound_voice_profiles/${profileId}`);
       const parsed = profileSchema.safeParse(response.data);
-      if (!parsed.success) throw new InspectionFailure("invalid_response");
+      if (!parsed.success) {
+        const fields = Object.keys(profileSchema.shape);
+        const invalidFields = [
+          ...new Set(
+            parsed.error.issues
+              .map((issue) => String(issue.path[0]))
+              .filter((field) => fields.includes(field)),
+          ),
+        ];
+        throw new InspectionFailure(
+          "invalid_response",
+          undefined,
+          invalidFields,
+        );
+      }
       const profile = parsed.data;
       if (profile.id !== profileId)
         throw new InspectionFailure("response_scope_mismatch");
