@@ -375,13 +375,14 @@ describe("identity and authentication boundaries", () => {
     ])
       expect(safeReturnPath(path)).toBe("/#/app");
   });
-  it("completes a PKCE callback fixture, consumes state once and provisions no funded channel", async () => {
-    const response = await handleAuthRoute(request("/auth/login"), realEnv());
+  it("grants one shared welcome credit after verified PKCE signup without enabling any channel", async () => {
+    const configured = { ...realEnv(), MODE: "production" as const };
+    const response = await handleAuthRoute(request("/auth/login"), configured);
     const destination = new URL(response!.headers.get("Location")!);
     const state = destination.searchParams.get("state")!;
     const nonce = destination.searchParams.get("nonce")!;
     const callbackCookie = response!.headers.get("Set-Cookie")!.split(";")[0];
-    const idToken = await token("guteneo-browser", {
+    let idToken = await token("guteneo-browser", {
       nonce,
       name: "Fixture user",
       email: "fixture@example.test",
@@ -414,7 +415,7 @@ describe("identity and authentication boundaries", () => {
       undefined,
       { Cookie: callbackCookie },
     );
-    const callback = await handleAuthRoute(callbackRequest, realEnv());
+    const callback = await handleAuthRoute(callbackRequest, configured);
     expect(callback?.status).toBe(302);
     expect(callback!.headers.get("Location")).toBe(`${origin}/#/app`);
     expect(fetchSpy).toHaveBeenCalled();
@@ -430,10 +431,54 @@ describe("identity and authentication boundaries", () => {
       .all<{ limit_count: number; limit_minor: number }>();
     expect(budgets.results).toHaveLength(3);
     expect(
-      budgets.results.every((v) => v.limit_count === 0 && v.limit_minor === 0),
+      budgets.results.every(
+        (v) => v.limit_count === 10000 && v.limit_minor === 5000,
+      ),
     ).toBe(true);
+    const grants = () =>
+      env.DB.prepare(
+        "SELECT g.organization_id,g.amount_minor FROM welcome_credit_grants g JOIN memberships m ON m.organization_id=g.organization_id WHERE m.user_id=?",
+      )
+        .bind(user!.user_id)
+        .all<{ organization_id: string; amount_minor: number }>();
+    const firstGrant = await grants();
+    expect(firstGrant.results).toHaveLength(1);
+    expect(firstGrant.results[0].amount_minor).toBe(5000);
+    const channels = await env.DB.prepare(
+      "SELECT enabled FROM channel_controls WHERE organization_id=?",
+    )
+      .bind(firstGrant.results[0].organization_id)
+      .all<{ enabled: number }>();
+    expect(channels.results).toHaveLength(3);
+    expect(channels.results.every((channel) => channel.enabled === 0)).toBe(
+      true,
+    );
+
+    const again = await handleAuthRoute(request("/auth/login"), configured);
+    const next = new URL(again!.headers.get("Location")!);
+    idToken = await token("guteneo-browser", {
+      nonce: next.searchParams.get("nonce"),
+      name: "Fixture user",
+      email: "fixture@example.test",
+      email_verified: true,
+      amr: ["pwd", "mfa"],
+    });
+    expect(
+      (
+        await handleAuthRoute(
+          request(
+            `/auth/callback?state=${next.searchParams.get("state")}&code=second-fixture-code`,
+            "GET",
+            undefined,
+            { Cookie: again!.headers.get("Set-Cookie")!.split(";")[0] },
+          ),
+          configured,
+        )
+      )?.status,
+    ).toBe(302);
+    expect((await grants()).results).toEqual(firstGrant.results);
     await expect(
-      handleAuthRoute(callbackRequest, realEnv()),
+      handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
   it("requests real signup and fresh authentication using the same PKCE flow", async () => {
@@ -465,12 +510,16 @@ describe("identity and authentication boundaries", () => {
   ])(
     "never provisions $label or issues a session",
     async ({ subject, verified, amr, code }) => {
+      const configured = { ...realEnv(), MODE: "production" as const };
+      const grantCount = await env.DB.prepare(
+        "SELECT count(*) AS count FROM welcome_credit_grants",
+      ).first();
       const sessionCount = await env.DB.prepare(
         "SELECT count(*) AS count FROM browser_sessions",
       ).first<{ count: number }>();
       const response = await handleAuthRoute(
         request("/auth/signup"),
-        realEnv(),
+        configured,
       );
       const destination = new URL(response!.headers.get("Location")!);
       const sub = `auth0|${subject}-fixture`;
@@ -504,7 +553,7 @@ describe("identity and authentication boundaries", () => {
             undefined,
             { Cookie: response!.headers.get("Set-Cookie")!.split(";")[0] },
           ),
-          realEnv(),
+          configured,
         ),
       ).rejects.toMatchObject({ code });
       expect(
@@ -519,6 +568,11 @@ describe("identity and authentication boundaries", () => {
           "SELECT count(*) AS count FROM browser_sessions",
         ).first(),
       ).toEqual(sessionCount);
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) AS count FROM welcome_credit_grants",
+        ).first(),
+      ).toEqual(grantCount);
     },
   );
   it.each(["network", "invalid JSON", "null JSON"])(

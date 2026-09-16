@@ -5,6 +5,7 @@ import {
   validateLiveFaxQuote,
   type LiveFaxIdentity,
 } from "./live-fax-quotes";
+import { ensureCreditPeriod, readWelcomeCredit } from "./welcome-credit";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
   cleanHtml,
@@ -164,6 +165,12 @@ function writable(ctx: ActorContext) {
 function sqlError(error: unknown): never {
   const message = String(error);
   for (const [needle, code, label, status] of [
+    [
+      "credit_exhausted",
+      "CREDIT_EXHAUSTED",
+      "Le crédit de bienvenue disponible est insuffisant. La recharge n’est pas encore disponible.",
+      409,
+    ],
     [
       "live_quote_invalid",
       "LIVE_QUOTE_INVALID",
@@ -808,6 +815,12 @@ export class DomainService {
     );
     try {
       await this.db.batch([
+        ensureCreditPeriod(
+          this.db,
+          ctx.organizationId,
+          row.channel,
+          now.slice(0, 7),
+        ),
         this.db
           .prepare(
             "INSERT INTO idempotency_keys(organization_id,operation,key,request_hash,resource_id,created_at) VALUES(?,?,?,?,?,?) ON CONFLICT(organization_id,operation,key) DO NOTHING",
@@ -965,6 +978,7 @@ export class DomainService {
   async usage(ctx: ActorContext) {
     await this.organization(ctx);
     return {
+      welcomeCredit: await readWelcomeCredit(this.db, ctx.organizationId),
       items: (
         await this.db
           .prepare(
@@ -1419,9 +1433,9 @@ export class DomainService {
     const statements: D1PreparedStatement[] = [
       this.db
         .prepare(
-          "UPDATE dispatches SET status=CASE WHEN status IN ('submitting','submission_unknown') THEN 'accepted' ELSE status END,provider_id=COALESCE(provider_id,?),lease_until=NULL,updated_at=? WHERE id=? AND status NOT IN ('prepared','queued','cancelled') AND (provider_id IS NULL OR provider_id=?)",
+          "UPDATE dispatches SET status=CASE WHEN status IN ('submitting','submission_unknown') AND ?<>'failed' THEN 'accepted' ELSE status END,provider_id=COALESCE(provider_id,?),lease_until=NULL,updated_at=? WHERE id=? AND status NOT IN ('prepared','queued','cancelled') AND (provider_id IS NULL OR provider_id=?)",
         )
-        .bind(providerId ?? null, now, row.id, providerId ?? null),
+        .bind(kind, providerId ?? null, now, row.id, providerId ?? null),
       this.db
         .prepare(
           `UPDATE dispatches SET status=?,lease_until=NULL,updated_at=? WHERE id=? AND (provider_id IS NULL OR provider_id=?) AND status IN (${statuses.map(() => "?").join(",")})`,

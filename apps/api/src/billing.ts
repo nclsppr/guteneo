@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DomainError } from "../../../packages/domain/src/index";
+import { readWelcomeCredit } from "../../../packages/domain/src/welcome-credit";
 import {
   authenticateBrowser,
   hashSecret,
@@ -180,6 +181,8 @@ export class BillingService {
         .all(),
     ]);
     return {
+      welcomeCredit: await readWelcomeCredit(this.env.DB, actor.organizationId),
+      topUpAvailable: false,
       provider: "stripe",
       status: billingConfigured(this.env)
         ? customer?.customer_id

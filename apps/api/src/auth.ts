@@ -714,7 +714,8 @@ export async function handleAuthRoute(
           "Terminez la double authentification pour créer votre espace.",
           403,
         );
-      // A new account gets an isolated workspace, with every real-send budget and channel closed.
+      // The organization trigger grants one shared lifetime welcome credit.
+      // Per-channel quotas are safety ceilings; channels still need activation.
       const userId = `usr_${crypto.randomUUID()}`;
       const organizationId = `org_${crypto.randomUUID()}`;
       const createdAt = nowISO();
@@ -746,7 +747,7 @@ export async function handleAuthRoute(
           ).bind(organizationId),
           ...["fax", "email", "postal"].flatMap((channel) => [
             env.DB.prepare(
-              "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,0,0,'EUR')",
+              "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,10000,5000,'EUR')",
             ).bind(organizationId, channel, createdAt.slice(0, 7)),
             env.DB.prepare(
               "INSERT INTO channel_controls(organization_id,channel,enabled) VALUES(?,?,0)",
