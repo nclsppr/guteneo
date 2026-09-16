@@ -1,18 +1,24 @@
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 
 export type LiveFaxIdentity = { accountId: string; connectionId: string };
-type Tariff = {
+type SupplierCost = {
   id: string;
   account_id: string;
   connection_id: string;
-  base_minor: number;
-  per_page_minor: number;
+  supplier_base_numerator: number;
+  supplier_per_page_numerator: number;
+  supplier_denominator: number;
+  currency: "EUR";
+  cost_basis: "guaranteed_final_supplier_total";
+  fiscal_basis: "tax_inclusive_totals";
+  currency_basis: "same_currency_no_fx";
   max_pages: number;
   quote_ttl_seconds: number;
   source_reference: string;
   source_sha256: string;
   expires_at: string;
 };
+type Tariff = SupplierCost & { supplier_minor: number; customer_minor: number };
 export type LiveFaxQuote = {
   dispatch_id: string;
   organization_id: string;
@@ -23,6 +29,13 @@ export type LiveFaxQuote = {
   input_fingerprint: string;
   account_id: string;
   connection_id: string;
+  pricing_version: 2;
+  price_rule: "supplier_total_x2";
+  supplier_amount_minor: number;
+  supplier_currency: "EUR";
+  cost_basis: "guaranteed_final_supplier_total";
+  fiscal_basis: "tax_inclusive_totals";
+  currency_basis: "same_currency_no_fx";
   amount_minor: number;
   ceiling_minor: number;
   currency: string;
@@ -31,6 +44,53 @@ export type LiveFaxQuote = {
   created_at: string;
   expires_at: string;
 };
+/** Rational supplier rates are never rounded to manufacture a customer price. */
+export function exactFaxPrice(
+  cost: Pick<
+    SupplierCost,
+    | "supplier_base_numerator"
+    | "supplier_per_page_numerator"
+    | "supplier_denominator"
+  >,
+  pages: number,
+): { supplier_minor: number; customer_minor: number } {
+  if (
+    !Number.isSafeInteger(pages) ||
+    pages < 1 ||
+    pages > 350 ||
+    !Number.isSafeInteger(cost.supplier_denominator) ||
+    cost.supplier_denominator < 1 ||
+    cost.supplier_denominator > 1_000_000 ||
+    [cost.supplier_base_numerator, cost.supplier_per_page_numerator].some(
+      (value) =>
+        !Number.isSafeInteger(value) || value < 0 || value > 1_000_000_000,
+    )
+  )
+    throw new DomainError(
+      "LIVE_PRICING_REQUIRED",
+      "Coût fournisseur exact non qualifié.",
+      409,
+    );
+  const numerator =
+    BigInt(cost.supplier_base_numerator) +
+    BigInt(cost.supplier_per_page_numerator) * BigInt(pages);
+  const denominator = BigInt(cost.supplier_denominator);
+  if (numerator % denominator !== 0n)
+    throw new DomainError(
+      "FRACTIONAL_PRICING_UNSUPPORTED",
+      "Le coût fournisseur comporte une fraction de centime. Son agrégation avant facturation doit être raccordée ; aucun arrondi par envoi n’est appliqué.",
+      409,
+    );
+  const supplier = numerator / denominator;
+  const customer = supplier * 2n;
+  if (customer > 1_000_000n)
+    throw new DomainError(
+      "LIVE_PRICING_REQUIRED",
+      "Le coût qualifié dépasse la limite de cet envoi.",
+      409,
+    );
+  return { supplier_minor: Number(supplier), customer_minor: Number(customer) };
+}
 const invalid = () =>
   new DomainError(
     "LIVE_QUOTE_INVALID",
@@ -66,7 +126,7 @@ export async function resolveFaxTariff(
     );
   const tariff = await db
     .prepare(
-      "SELECT * FROM trusted_fax_tariffs WHERE organization_id=? AND sender_id=? AND provider='telnyx' AND account_id=? AND connection_id=? AND status='qualified' AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC LIMIT 1",
+      "SELECT * FROM trusted_fax_supplier_costs WHERE organization_id=? AND sender_id=? AND provider='telnyx' AND account_id=? AND connection_id=? AND status='qualified' AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC LIMIT 1",
     )
     .bind(
       organizationId,
@@ -76,20 +136,24 @@ export async function resolveFaxTariff(
       options,
       number,
     )
-    .first<Tariff & { valid_from: string }>();
+    .first<SupplierCost & { valid_from: string }>();
   if (
     !tariff ||
     tariff.valid_from > now ||
     tariff.expires_at <= now ||
     pages > tariff.max_pages ||
-    !/^[a-f0-9]{64}$/.test(tariff.source_sha256)
+    !/^[a-f0-9]{64}$/.test(tariff.source_sha256) ||
+    tariff.currency !== "EUR" ||
+    tariff.cost_basis !== "guaranteed_final_supplier_total" ||
+    tariff.fiscal_basis !== "tax_inclusive_totals" ||
+    tariff.currency_basis !== "same_currency_no_fx"
   )
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
       "Aucun tarif fax qualifié et actuel ne couvre cet envoi.",
       409,
     );
-  return tariff;
+  return { ...tariff, ...exactFaxPrice(tariff, pages) };
 }
 function quoteMaterial(quote: LiveFaxQuote) {
   return {
@@ -99,6 +163,13 @@ function quoteMaterial(quote: LiveFaxQuote) {
     provider: "telnyx",
     accountId: quote.account_id,
     connectionId: quote.connection_id,
+    pricingVersion: quote.pricing_version,
+    priceRule: quote.price_rule,
+    supplierAmountMinor: quote.supplier_amount_minor,
+    supplierCurrency: quote.supplier_currency,
+    costBasis: quote.cost_basis,
+    fiscalBasis: quote.fiscal_basis,
+    currencyBasis: quote.currency_basis,
     inputFingerprint: quote.input_fingerprint,
     amountMinor: quote.amount_minor,
     ceilingMinor: quote.ceiling_minor,
@@ -116,6 +187,7 @@ export async function makeFaxQuote(
   tariff: Tariff,
   now: string,
 ): Promise<LiveFaxQuote> {
+  if (frozen.estimatedMinor !== tariff.customer_minor) throw invalid();
   const input = canonicalJson(frozen);
   const quote: LiveFaxQuote = {
     dispatch_id: dispatchId,
@@ -127,6 +199,13 @@ export async function makeFaxQuote(
     input_fingerprint: await sha256(input),
     account_id: tariff.account_id,
     connection_id: tariff.connection_id,
+    pricing_version: 2,
+    price_rule: "supplier_total_x2",
+    supplier_amount_minor: tariff.supplier_minor,
+    supplier_currency: tariff.currency,
+    cost_basis: tariff.cost_basis,
+    fiscal_basis: tariff.fiscal_basis,
+    currency_basis: tariff.currency_basis,
     amount_minor: frozen.estimatedMinor as number,
     ceiling_minor: frozen.ceilingMinor as number,
     currency: "EUR",
@@ -147,7 +226,7 @@ export function insertFaxQuote(db: D1Database, quote: LiveFaxQuote) {
   const columns = Object.keys(quote) as (keyof LiveFaxQuote)[];
   return db
     .prepare(
-      `INSERT INTO live_fax_quotes(${columns.join(",")}) SELECT ${columns.map(() => "?").join(",")} WHERE EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND quote_fingerprint=?)`,
+      `INSERT INTO live_fax_quotes_v2(${columns.join(",")}) SELECT ${columns.map(() => "?").join(",")} WHERE EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND quote_fingerprint=?)`,
     )
     .bind(
       ...columns.map((column) => quote[column]),

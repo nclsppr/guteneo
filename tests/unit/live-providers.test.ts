@@ -113,7 +113,7 @@ beforeEach(async () => {
     "idempotency_keys",
     "audit_log",
     "dispatches",
-    "trusted_fax_tariffs",
+    "trusted_fax_supplier_costs",
     "campaigns",
     "documents",
     "suppressions",
@@ -217,7 +217,7 @@ async function queueFixture(
     const now = new Date().toISOString();
     await db
       .prepare(
-        "INSERT OR IGNORE INTO trusted_fax_tariffs(id,organization_id,sender_id,provider,account_id,connection_id,destination_prefix,options_json,currency,base_minor,per_page_minor,max_pages,quote_ttl_seconds,cost_basis,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES('fixture-tariff',?,'sender_fax','telnyx','account-fixture','connection-fixture','+33','{}','EUR',0,100,350,900,'qualified_upper_bound','isolated test fixture only',?,? ,?,'qualified',?)",
+        "INSERT OR IGNORE INTO trusted_fax_supplier_costs(id,organization_id,sender_id,provider,account_id,connection_id,destination_prefix,options_json,currency,supplier_base_numerator,supplier_per_page_numerator,supplier_denominator,fiscal_basis,currency_basis,max_pages,quote_ttl_seconds,cost_basis,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES('fixture-tariff',?,'sender_fax','telnyx','account-fixture','connection-fixture','+33','{}','EUR',0,50,1,'tax_inclusive_totals','same_currency_no_fx',350,900,'guaranteed_final_supplier_total','isolated test fixture only',?,? ,?,'qualified',?)",
       )
       .bind(
         ctx.organizationId,

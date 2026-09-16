@@ -548,7 +548,7 @@ export class DomainService {
           )
         : undefined;
     const estimatedMinor = tariff
-      ? tariff.base_minor + tariff.per_page_minor * document!.pages
+      ? tariff.customer_minor
       : { fax: 20, email: 1, postal: 150 }[input.channel] *
         (input.channel === "fax" ? (document?.pages ?? 1) : 1);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
@@ -672,7 +672,7 @@ export class DomainService {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_expires_at FROM dispatches d WHERE d.organization_id=? AND d.id=?",
+        "SELECT d.*,COALESCE((SELECT q.expires_at FROM live_fax_quotes_v2 q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id)) AS quote_expires_at FROM dispatches d WHERE d.organization_id=? AND d.id=?",
       )
       .bind(ctx.organizationId, id)
       .first<Dispatch>();
