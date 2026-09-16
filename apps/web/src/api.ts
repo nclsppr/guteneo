@@ -67,6 +67,35 @@ export type Sender = {
 };
 export type Page<T> = { items: T[]; nextCursor: string | null };
 
+export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+
+export async function getDocumentContent(
+  id: string,
+  signal?: AbortSignal,
+): Promise<Uint8Array> {
+  if (isPublicPreview) {
+    signal?.throwIfAborted();
+    const { publicPreview } = await import("./preview");
+    const bytes = await publicPreview.documentContent(id);
+    signal?.throwIfAborted();
+    return bytes;
+  }
+  const response = await fetch(
+    `/api/documents/${encodeURIComponent(id)}/content`,
+    {
+      credentials: "same-origin",
+      signal,
+    },
+  );
+  if (!response.ok)
+    throw new ApiError(
+      "DOCUMENT_UNAVAILABLE",
+      "Ce document ne peut pas être affiché.",
+      response.status,
+    );
+  return new Uint8Array(await response.arrayBuffer());
+}
+
 let csrfToken = "";
 export function setSession(session: Session | null) {
   csrfToken = session?.csrfToken ?? "";
@@ -89,6 +118,16 @@ export async function api<T>(
     signal?: AbortSignal;
   } = {},
 ): Promise<T> {
+  if (isPublicPreview) {
+    const { publicPreview, PreviewError } = await import("./preview");
+    try {
+      return (await publicPreview.request(path, init)) as T;
+    } catch (error) {
+      if (error instanceof PreviewError)
+        throw new ApiError(error.code, error.message, error.status);
+      throw error;
+    }
+  }
   const headers: Record<string, string> = { Accept: "application/json" };
   const method = init.method ?? "GET";
   const form = init.body instanceof FormData;

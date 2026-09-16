@@ -10,6 +10,7 @@ import {
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { PDFDocument, PDFName, PDFNumber, PDFStream } from "pdf-lib";
 import { fr as t } from "./i18n";
+import { getDocumentContent } from "./api";
 
 // Library and worker are bundled from the same pinned dependency; no CDN or
 // document-controlled URL enters the renderer. Canvas only: no PDF scripting,
@@ -79,12 +80,7 @@ export default function PdfViewer({ id }: { id: string }) {
     setError(undefined);
     setRendering(true);
     void (async () => {
-      const response = await fetch(
-        `/api/documents/${encodeURIComponent(id)}/content`,
-        { credentials: "same-origin", signal: controller.signal },
-      );
-      if (!response.ok) throw new Error(t.documents.previewUnavailable);
-      const bytes = new Uint8Array(await response.arrayBuffer());
+      const bytes = await getDocumentContent(id, controller.signal);
       await preflightImageDimensions(bytes);
       if (closed) return;
       loading = getDocument({

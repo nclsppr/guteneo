@@ -121,7 +121,9 @@ export class DocumentService {
       status = "ready";
     }
     // Production bytes are stored without parsing. Only an exact clean scan unlocks isolated validation.
-    const storageKey = `${ctx.organizationId}/documents/${sha256}.pdf`;
+    const documentId = `doc_${crypto.randomUUID()}`;
+    // Each version owns its object. A resumed purge of an older version cannot delete a re-import.
+    const storageKey = `${ctx.organizationId}/documents/${sha256}/${documentId}.pdf`;
     await this.env.DOCUMENTS.put(storageKey, input.bytes, {
       onlyIf: { etagDoesNotMatch: "*" },
       httpMetadata: { contentType: "application/pdf" },
@@ -173,7 +175,8 @@ export class DocumentService {
         /* Keep quarantine. A failed scan is never a clean verdict. */
       }
     }
-    return this.domain.registerDocument(ctx, {
+    const document = await this.domain.registerDocument(ctx, {
+      id: documentId,
       name,
       sha256,
       size: input.bytes.length,
@@ -183,6 +186,15 @@ export class DocumentService {
       storageKey,
       scanVerified,
     });
+    if (document.storage_key !== storageKey) {
+      // Only discard our known losing candidate. An uncertain registration is left for orphan cleanup.
+      try {
+        await this.env.DOCUMENTS.delete(storageKey);
+      } catch {
+        /* Orphan maintenance retries this cleanup without affecting the retained document. */
+      }
+    }
+    return document;
   }
   async importFile(
     ctx: DocumentContext,

@@ -1,4 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
 import { PDFDocument, StandardFonts } from "pdf-lib";
@@ -33,9 +41,10 @@ const studio: ActorContext = {
 };
 const oldDate = "2020-01-01T00:00:00.000Z";
 
-async function applySql(sql: string) {
+async function applySql(sql: string, database = db) {
   let statement = "";
   let trigger = false;
+  const statements: D1PreparedStatement[] = [];
   for (const raw of sql.split("\n")) {
     const line = raw.trim();
     if (!line || line.startsWith("--")) continue;
@@ -43,12 +52,13 @@ async function applySql(sql: string) {
       trigger = line.startsWith("CREATE TRIGGER") && !line.endsWith("END;");
     statement += `${line} `;
     if ((trigger && line === "END;") || (!trigger && line.endsWith(";"))) {
-      await db.prepare(statement).run();
+      statements.push(database.prepare(statement));
       statement = "";
       trigger = false;
     }
   }
   if (statement.trim()) throw new Error("Incomplete fixture SQL");
+  if (statements.length) await database.batch(statements);
 }
 async function pdf(label: string): Promise<Uint8Array<ArrayBuffer>> {
   const file = await PDFDocument.create();
@@ -171,6 +181,101 @@ beforeEach(async () => {
 });
 
 describe("Document lifecycle — actual Miniflare D1 and R2", () => {
+  it("upgrades retained documents without changing existing approvals, reservations or references", async () => {
+    const legacy = new Miniflare(
+      convertV4MiniflareOptions({
+        modules: true,
+        script: 'export default { fetch(){return new Response("ok")} }',
+        d1Databases: ["DB"],
+        compatibilityDate: "2026-09-16",
+      }),
+    );
+    try {
+      const legacyDb = (await legacy.getD1Database(
+        "DB",
+      )) as unknown as D1Database;
+      const migrations = new URL("../../migrations/", import.meta.url);
+      for (const filename of readdirSync(migrations)
+        .filter((name) => name.endsWith(".sql") && name < "0008")
+        .sort())
+        await applySql(
+          readFileSync(new URL(filename, migrations), "utf8"),
+          legacyDb,
+        );
+      await applySql(
+        readFileSync(
+          new URL("../../scripts/seed.sql", import.meta.url),
+          "utf8",
+        ),
+        legacyDb,
+      );
+      await legacyDb
+        .prepare(
+          "INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) VALUES('doc_legacy',?,'legacy.pdf',?,?,1,'ready','import','legacy-object',?)",
+        )
+        .bind(
+          atelier.organizationId,
+          await sha256(original),
+          original.length,
+          oldDate,
+        )
+        .run();
+      const legacyDomain = new DomainService(legacyDb, { mode: "simulation" });
+      const dispatch = await legacyDomain.prepareDispatch(
+        atelier,
+        {
+          channel: "email",
+          recipient: { email: "migration@example.invalid" },
+          subject: "Migration fixture",
+          html: "<p>Preserve approval</p>",
+          documentId: "doc_legacy",
+        },
+        "migration-fixture",
+      );
+      await legacyDomain.approveDispatch(
+        atelier,
+        dispatch.id,
+        dispatch.fingerprint,
+      );
+      await legacyDomain.confirmDispatch(
+        atelier,
+        dispatch.id,
+        "migration-confirm",
+      );
+      const before = await legacyDomain.getDispatch(atelier, dispatch.id);
+      await applySql(
+        readFileSync(new URL("0008_document_versions.sql", migrations), "utf8"),
+        legacyDb,
+      );
+      expect(await legacyDomain.getDispatch(atelier, dispatch.id)).toEqual(
+        before,
+      );
+      expect(
+        (await legacyDb.prepare("PRAGMA foreign_key_check").all()).results,
+      ).toEqual([]);
+      expect(
+        await legacyDb
+          .prepare("SELECT status FROM reservations WHERE dispatch_id=?")
+          .bind(dispatch.id)
+          .first(),
+      ).toEqual({ status: "reserved" });
+      expect(
+        await legacyDb
+          .prepare("SELECT status FROM outbox WHERE dispatch_id=?")
+          .bind(dispatch.id)
+          .first(),
+      ).toEqual({ status: "pending" });
+      await expect(
+        legacyDb
+          .prepare("UPDATE documents SET sha256=? WHERE id='doc_legacy'")
+          .bind("a".repeat(64))
+          .run(),
+      ).rejects.toThrow("immutable_document");
+    } finally {
+      await legacy.dispose();
+    }
+  }, 30_000);
+
   it("preserves every original byte, deduplicates only within an organization, and isolates preview access", async () => {
     const first = await documents.upload(atelier, {
       name: "original.pdf",
@@ -479,6 +584,153 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
         .bind(document.id)
         .first(),
     ).toEqual({ n: 1 });
+  });
+
+  it("reimports purged bytes as a new deduplicated version without reviving an approved reference", async () => {
+    const expired = await documents.upload(atelier, {
+      name: "expired.pdf",
+      bytes: original,
+    });
+    const dispatched = await acceptDispatch(expired.id, "old-approved");
+    await domain.processDispatch(dispatched.id, simulationProvider("email"));
+    const history = await domain.getDispatch(atelier, dispatched.id);
+    await db
+      .prepare("UPDATE documents SET created_at=? WHERE id=?")
+      .bind(oldDate, expired.id)
+      .run();
+    await maintainDocuments(env);
+    expect(await bucket.get(expired.storage_key)).toBeNull();
+
+    const [replacement, duplicate] = await Promise.all([
+      documents.upload(atelier, { name: "reimport.pdf", bytes: original }),
+      documents.upload(atelier, { name: "duplicate.pdf", bytes: original }),
+    ]);
+    const separate = await documents.upload(studio, {
+      name: "other-tenant.pdf",
+      bytes: original,
+    });
+    expect(replacement.id).not.toBe(expired.id);
+    expect(duplicate.id).toBe(replacement.id);
+    expect(separate.id).not.toBe(replacement.id);
+    expect(replacement.storage_key).not.toBe(expired.storage_key);
+    expect(replacement.status).toBe("ready");
+    expect((await bucket.list()).objects).toHaveLength(2);
+    await maintainDocuments(env);
+    await maintainDocuments(env);
+    expect(
+      new Uint8Array(
+        await (
+          await documents.getContent(atelier, replacement.id)
+        ).arrayBuffer(),
+      ),
+    ).toEqual(original);
+    expect(await domain.getDispatch(atelier, dispatched.id)).toEqual(history);
+    expect((await domain.getDocument(atelier, expired.id)).status).toBe(
+      "purged",
+    );
+    await expect(
+      documents.getContent(atelier, expired.id),
+    ).rejects.toMatchObject({ code: "DOCUMENT_QUARANTINED" });
+    await expect(
+      db
+        .prepare("UPDATE documents SET status='ready' WHERE id=?")
+        .bind(expired.id)
+        .run(),
+    ).rejects.toThrow("immutable_document");
+    expect(
+      (await db.prepare("PRAGMA foreign_key_check").all()).results,
+    ).toEqual([]);
+  });
+
+  it("resuming an interrupted old purge cannot delete newly imported bytes", async () => {
+    const expired = await documents.upload(atelier, {
+      name: "old.pdf",
+      bytes: original,
+    });
+    await db
+      .prepare("UPDATE documents SET status='purged',created_at=? WHERE id=?")
+      .bind(oldDate, expired.id)
+      .run();
+    const replacement = await documents.upload(atelier, {
+      name: "new.pdf",
+      bytes: original,
+    });
+    expect(await bucket.get(expired.storage_key)).not.toBeNull();
+    expect(replacement.id).not.toBe(expired.id);
+    await maintainDocuments(env);
+    expect(await bucket.get(expired.storage_key)).toBeNull();
+    expect(
+      new Uint8Array(
+        await (
+          await documents.getContent(atelier, replacement.id)
+        ).arrayBuffer(),
+      ),
+    ).toEqual(original);
+  });
+
+  it("leaves bytes intact when registration commits but its result is uncertain", async () => {
+    const register = domain.registerDocument.bind(domain);
+    const uncertain = vi
+      .spyOn(domain, "registerDocument")
+      .mockImplementation(async (...args) => {
+        await register(...args);
+        throw new Error("Lost database response");
+      });
+    try {
+      await expect(
+        documents.upload(atelier, { name: "uncertain.pdf", bytes: original }),
+      ).rejects.toThrow("Lost database response");
+    } finally {
+      uncertain.mockRestore();
+    }
+    const retained = (await domain.listDocuments(atelier)).items[0];
+    expect(
+      new Uint8Array(
+        await (await documents.getContent(atelier, retained.id)).arrayBuffer(),
+      ),
+    ).toEqual(original);
+  });
+
+  it("a failed duplicate cleanup preserves the retained version and remains recoverable", async () => {
+    const first = await documents.upload(atelier, {
+      name: "original.pdf",
+      bytes: original,
+    });
+    const failedCleanup = new DocumentService(
+      {
+        ...env,
+        DOCUMENTS: {
+          put: bucket.put.bind(bucket),
+          delete: async () => {
+            throw new Error("Cleanup unavailable");
+          },
+        } as unknown as R2Bucket,
+      },
+      domain,
+    );
+    const duplicate = await failedCleanup.upload(atelier, {
+      name: "duplicate.pdf",
+      bytes: original,
+    });
+    expect(duplicate.id).toBe(first.id);
+    expect((await bucket.list()).objects).toHaveLength(2);
+    const future = vi
+      .spyOn(Date, "now")
+      .mockReturnValue(Date.now() + 2 * 86400000);
+    try {
+      expect(await maintainDocuments(env)).toMatchObject({
+        purged: 0,
+        orphans: 1,
+      });
+    } finally {
+      future.mockRestore();
+    }
+    expect((await bucket.list()).objects).toHaveLength(1);
+    expect(
+      new Uint8Array(
+        await (await documents.getContent(atelier, first.id)).arrayBuffer(),
+      ),
+    ).toEqual(original);
   });
 
   it("advances bounded retention beyond the first 25 expired documents", async () => {

@@ -41,6 +41,8 @@ import {
   Admin,
 } from "./workspace-pages";
 
+const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+
 function Brand({ app = false }: { app?: boolean }) {
   return (
     <a
@@ -85,7 +87,7 @@ function Landing() {
             {t.landing.navHow}
           </a>
           <a className="button small" href="#/app">
-            {t.landing.navApp}
+            {publicPreview ? "Explorer la démo" : t.landing.navApp}
             <ArrowUpRight size={16} />
           </a>
         </nav>
@@ -101,9 +103,14 @@ function Landing() {
             </h1>
             <p className="hero-intro">{t.landing.intro}</p>
             <a className="button primary" href="#/app">
-              {t.landing.cta}
+              {publicPreview ? "Découvrir l’atelier" : t.landing.cta}
               <ArrowUpRight size={20} />
             </a>
+            {publicPreview && (
+              <p className="preview-caption">
+                Aperçu interactif · Sans inscription · Aucun envoi réel
+              </p>
+            )}
           </div>
           <div className="hero-art">
             <img
@@ -182,9 +189,9 @@ function Landing() {
 
 function Login({ onLogin }: { onLogin: (session: Session) => void }) {
   const action = useAction();
-  const local = ["localhost", "127.0.0.1", "[::1]"].includes(
-    window.location.hostname,
-  );
+  const local =
+    publicPreview ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
   async function login(organization: "atelier" | "studio") {
     await action.run(async () => {
       await api("/dev/login", { method: "POST", body: { organization } });
@@ -209,7 +216,13 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
           <img src="/press-halftone.webp" width="1200" height="1200" alt="" />
         </div>
         <div className="login-panel">
-          <h2>{local ? t.login.local : t.login.separator}</h2>
+          <h2>
+            {publicPreview
+              ? "Explorez la démonstration"
+              : local
+                ? t.login.local
+                : t.login.separator}
+          </h2>
           {local ? (
             <>
               <div className="notice info">
@@ -401,6 +414,12 @@ export function App() {
             <span className="simulation-stamp">{t.simulation}</span>
             <p>
               {t.simulationBody}
+              {publicPreview && (
+                <span className="scanner-warning">
+                  Aperçu dans cet onglet uniquement. Les données sont
+                  réinitialisées au rechargement.
+                </span>
+              )}
               {capabilities.data?.scanner ===
                 "disabled_in_local_simulation" && (
                 <span className="scanner-warning">{t.scanDisabled}</span>

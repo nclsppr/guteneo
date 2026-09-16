@@ -1,5 +1,23 @@
 # Executed verification — 2026-09-16
 
+## Cloudflare preview continuation — current evidence
+
+- **163/163 unit and integration tests pass across 13 files**, including browser-preview isolation, remote route rejection, Cursor quarantine receipts, populated-schema migration and document re-import after purge. Final report: `reports/vitest.json`.
+- **18/18 application browser tests pass** across desktop Chromium, mobile Chromium and iPhone WebKit; report: `reports/playwright.json`. These use the local D1/R2/Queue application, actual PDF import/render and simulated transport.
+- **6/6 public-preview browser tests pass locally and at https://guteneo.com**, across desktop Chromium and iPhone WebKit. All workspace routes render, PDFs paint, preparation/review/confirmation works in tab memory, and no application API request leaves the browser. Remote backend routes refuse requests. Report: `reports/preview-playwright.json`; captures: `reports/screenshots/preview/`.
+- Strict typecheck, ESLint, normal application build/Worker dry-run and dedicated preview dry-run pass. `npm audit` reports **zero known vulnerabilities across all dependencies** after removal of the unused Workers Vitest pool and its older transitive dependencies.
+- Cloudflare first preview deployment `71f30997-dfbd-4f70-a4ce-10cfa4367e81` returned HTTP 200 on both the custom domain and workers.dev address. All 25 served assets matched their local release manifest hashes. Current deployed identity is available from `/release.json` and `/health`; see `PUBLIC_PREVIEW.md`.
+
+The first macOS test run exposed fixture paths using `/var` aliases directly rather than the real Cursor startup configuration. Tests now use the real canonical-root loader, plus explicit alias and replaced-root coverage; symlink restrictions remain enforced. A real connector defect rejecting quarantined `pages: 0` receipts was fixed.
+
+The first WebKit keyboard test assumed ordinary Tab traverses links on macOS. An independent real-keyboard probe confirmed Tab leaves the body active while Option-Tab focuses the skip link. The test now uses the platform's link-navigation key and additionally activates the skip link and verifies main-content focus. No focus assertion was deleted or replaced with programmatic focus. [Apple keyboard behavior](https://support.apple.com/guide/safari/keyboard-shortcuts-and-gestures-cpsh003/mac).
+
+Migration 0008 is verified locally with populated tables, preserved approvals/reservations/outbox and clean foreign keys; no remote business database exists or was migrated. iPhone WebKit is browser emulation on this Mac, not a physical iPhone test. Auth0, assistant clients, scanner, remote PDF renderer, real tariffs and live providers remain unqualified and closed.
+
+## Original foundation report — historical evidence
+
+The remainder records the preceding environment's run. Its counts and environment limitations describe that earlier run; current evidence is above.
+
 Evidence is local unless explicitly stated otherwise. No real provider account, SES/Pingen sandbox, remote Auth0 tenant, hosted Cloudflare service or ChatGPT/Claude/Cursor client was exercised. A passing fixture is not a live integration result.
 
 ## Commands and results

@@ -1,6 +1,6 @@
 # Architecture
 
-One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. No infrastructure is provisioned yet.
+One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. Business-service infrastructure is not provisioned yet. The separate public design preview Worker serves browser-local examples at guteneo.com, with only static assets and no access to the application backend.
 
 ```mermaid
 flowchart TD

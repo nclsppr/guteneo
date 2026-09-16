@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import {
   afterAll,
   beforeAll,
@@ -87,20 +87,11 @@ beforeAll(async () => {
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
   bucket = (await mf.getR2Bucket("DOCUMENTS")) as unknown as R2Bucket;
-  for (const migration of [
-    "0001_core",
-    "0003_operations",
-    "0004_core_hardening",
-    "0005_content_limits",
-    "0006_maintenance",
-    "0007_live_drafts",
-  ])
-    await applySql(
-      readFileSync(
-        new URL(`../../migrations/${migration}.sql`, import.meta.url),
-        "utf8",
-      ),
-    );
+  const migrations = new URL("../../migrations/", import.meta.url);
+  for (const filename of readdirSync(migrations)
+    .filter((name) => name.endsWith(".sql"))
+    .sort())
+    await applySql(readFileSync(new URL(filename, migrations), "utf8"));
   const pdf = await PDFDocument.create();
   pdf.addPage();
   pdfBytes = new Uint8Array(await pdf.save());

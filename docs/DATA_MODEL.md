@@ -1,6 +1,6 @@
 # Business data, approval and reliability
 
-Implementation: `packages/domain/src/index.ts`, `migrations/0001_core.sql`, `migrations/0004_core_hardening.sql`. Authentication migrations are separate. All timestamps use ISO-8601 UTC. Transport results and simulation results belong to different organization modes; an organization cannot run through a domain service with another mode.
+Implementation: `packages/domain/src/index.ts`, `migrations/0001_core.sql`, `migrations/0004_core_hardening.sql`, `migrations/0008_document_versions.sql`. Authentication migrations are separate. All timestamps use ISO-8601 UTC. Transport results and simulation results belong to different organization modes; an organization cannot run through a domain service with another mode.
 
 ```mermaid
 flowchart TD
@@ -20,7 +20,7 @@ flowchart TD
 | Records                                 | Purpose and constraints                                                                                                                                                                                                                                                                      |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `organizations`, `users`, `memberships` | Membership resolves tenant and role. Domain checks membership and role against the database even when the caller provides a trusted context.                                                                                                                                                 |
-| `documents`                             | One immutable PDF version per organization/hash. Original R2 key, byte hash, size and source cannot change. No global deduplication/existence disclosure. A quarantined, unparsed upload has `pages=0`; production promotion requires a trusted scanner result plus isolated PDF validation. |
+| `documents`                             | One retained PDF version per organization/hash; purged historical versions remain separate immutable records. Original R2 key, byte hash, size and source cannot change. No global deduplication/existence disclosure. A quarantined, unparsed upload has `pages=0`; production promotion requires a trusted scanner result plus isolated PDF validation. |
 | `senders`                               | Verified channel-specific sender. Identity/address, tenant, mode and channel cannot change. Revocation changes status. Every dispatch also freezes `sender_address`.                                                                                                                         |
 | `campaigns`                             | Named draft group, maximum 500 dispatches. First human approval freezes membership. Its manifest hash binds the ordered dispatch IDs/fingerprints.                                                                                                                                           |
 | `dispatches`                            | One recipient, one channel, one immutable preparation. Composite tenant/document/sender/campaign foreign keys prevent cross-tenant relations. Content, recipients, options, ceiling, sender snapshot and mode are immutable in SQL.                                                          |
@@ -32,6 +32,14 @@ flowchart TD
 | `provider_events`                       | Unique provider/event ID, original normalized fact payload, occurrence/receipt times, optional eventual dispatch assignment. Orphans persist until correlation. The HTTP entry point verifies the original signed callback before invoking this service.                                     |
 | `suppressions`                          | Tenant/email block for unsubscribe, provider permanent bounce or complaint. A transient SES bounce is visible but does not permanently suppress the address.                                                                                                                                 |
 | `audit_log`, `channel_controls`         | Human approval/cancellation, scan promotions and provider-reference conflicts; tenant/channel emergency disable. This audit is separate from technical logging.                                                                                                                              |
+
+## Document versions and retention
+
+The partial unique index in migration 0008 deduplicates `(organization_id, sha256)` only while a document is not purged. Re-importing identical bytes after a purge creates a new document ID, creation date and R2 object key. The old record stays purged, and SQL forbids restoring its status. Historical dispatches and their approval fingerprints retain their original document reference; importing the same content never revives an old approval.
+
+Each new registration candidate has a distinct R2 key containing its version ID. Concurrent imports of the same retained content resolve to one database record. A losing candidate deletes only its own unused object. Cleanup failure leaves an orphan for the existing bounded maintenance pass after 24 hours. An uncertain database response leaves the object intact, because registration may already have committed. An interrupted purge can therefore resume deleting its old key without deleting a newer import.
+
+Migration 0008 preserves existing document IDs and composite tenant foreign keys, reinstates the document-readiness triggers, and checks foreign-key integrity before completing the table replacement. A populated migration fixture proves preserved dispatch, approval, reservation and outbox records in local Miniflare D1. This is not evidence of a remote migration execution.
 
 ## Acceptance and queue semantics
 
@@ -60,6 +68,8 @@ Bulk manifest acceptance and asynchronous materialization of campaigns above 500
 ## Tests and measured scope
 
 `npx vitest run tests/integration/domain-invariants.test.ts` runs the SQL in actual local Cloudflare Miniflare D1. The tests exercise concurrent quota/confirmation, duplicate queue delivery, failed outbox publish, unknown remote outcome, early/orphan/duplicate/reordered facts, provider-reference conflict, immutable fields, isolated organizations, suppression, sender/document revocation, quarantined upload promotion and approval expiry.
+
+`tests/integration/documents.test.ts` additionally verifies exact R2 bytes after completed and interrupted purges, concurrent tenant-scoped re-import, preservation of historical approvals, uncertain registration, failed candidate cleanup, and the populated 0007-to-0008 schema upgrade.
 
 No test here sends email, fax or physical post. Provider HTTP signatures and concrete connector contracts are tested in their own suites. No real client authorization flow, provider account or hosted D1 performance is inferred from local tests.
 

@@ -2,7 +2,9 @@
 
 An independent, MCP-first correspondence product: exact PDF → fax or physical post, HTML → PDF, and HTML/text → individual email. French editorial frontend inspired by printing craft. Telnyx, Amazon SES and Pingen connectors. No VBS dependency.
 
-**Current delivery:** usable local vertical through real Cloudflare emulation and deterministic, prominently labelled simulation. Provider adapters, managed Auth0 integration and stateless MCP are implemented and fixture-tested. No real provider send, remote OAuth client, Cloudflare deployment or paid resource has been authorized or executed. Live pricing qualification/snapshot integration still blocks production preparation. This is not a production-readiness claim.
+**Public design preview:** [guteneo.com](https://guteneo.com), with a directly accessible [sample workspace](https://guteneo.com/#/app). The dedicated Cloudflare preview runs entirely with fictional, per-tab browser data. No registration, upload, payment, assistant connection or real sending is active there. See [deployment evidence and preview commands](docs/PUBLIC_PREVIEW.md).
+
+**Application delivery:** usable local vertical through real Cloudflare emulation and deterministic, prominently labelled simulation. Provider adapters, managed Auth0 integration and stateless MCP are implemented and fixture-tested. No real provider send or remote OAuth client has been exercised. Live pricing qualification/snapshot integration still blocks production preparation. This is not a production-readiness claim.
 
 ## Run locally
 
@@ -60,4 +62,4 @@ Restricted environment verification used `GUTENEO_BUNDLED_CHROMIUM=1 npx playwri
 
 No local auth in hosted environments; no simulation production. R2 private, organizational isolation throughout. Missing production scanner means quarantine before PDF parsing; rendering runs in a separate Worker. New real organizations have zero credits. Marketing is blocked pending unsubscribe/reputation qualification. Accounts, sender identities, exact destinations, real tariffs and explicit real-send approval must be supplied; examples contain no production identifiers.
 
-Cloudflare configuration examples are separate for staging/production. The root Wrangler config is **local only**. No CI deployment or DNS action exists. `guteneo.com` is the intended domain, not evidence of a live deployment.
+Cloudflare configuration examples are separate for staging/production. The root Wrangler config is **local only**. The public design preview uses `wrangler.preview.jsonc`; it has no business-service bindings. CI verifies both the application and preview without deploying either.

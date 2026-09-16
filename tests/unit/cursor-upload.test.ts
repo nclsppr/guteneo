@@ -4,6 +4,8 @@ import {
   link,
   mkdir,
   mkdtemp,
+  realpath,
+  rename,
   rm,
   symlink,
   truncate,
@@ -33,11 +35,13 @@ beforeEach(async () => {
   pdf.addPage([210, 297]);
   bytes = new Uint8Array(await pdf.save());
   await writeFile(path.join(projectRoot, "documents", "original.pdf"), bytes);
-  config = {
-    projectRoot,
-    origin: "https://guteneo.example",
-    accessToken: "secret-test-token",
-  };
+  // Use the startup boundary: macOS /var temporary paths resolve through /private/var.
+  config = await loadUploadConfig({
+    GUTENEO_PROJECT_ROOT: projectRoot,
+    GUTENEO_URL: "https://guteneo.example",
+    GUTENEO_ACCESS_TOKEN: "secret-test-token",
+  });
+  projectRoot = config.projectRoot;
 });
 afterEach(async () => {
   await rm(temp, { recursive: true, force: true });
@@ -53,7 +57,7 @@ function goodResponse(overrides: Record<string, unknown> = {}) {
     id: "doc_test",
     sha256: createHash("sha256").update(bytes).digest("hex"),
     size: bytes.length,
-    pages: 1,
+    pages: 0,
     status: "quarantined",
     ...overrides,
   });
@@ -91,9 +95,36 @@ describe("Cursor project-scoped local upload", () => {
       document_id: "doc_test",
       sha256: createHash("sha256").update(bytes).digest("hex"),
       size: bytes.length,
-      pages: 1,
+      pages: 0,
       status: "quarantined",
     });
+  });
+
+  it("pins a configured directory alias to its canonical project before reading", async () => {
+    const alias = path.join(temp, "project-alias");
+    await symlink(projectRoot, alias);
+    const loaded = await loadUploadConfig(
+      envFor({ GUTENEO_PROJECT_ROOT: alias }),
+    );
+    expect(loaded.projectRoot).toBe(await realpath(projectRoot));
+    await rm(alias);
+    await symlink(path.join(temp, "other-project"), alias);
+    const result = await readProjectPdf(
+      loaded.projectRoot,
+      "documents/original.pdf",
+    );
+    expect(result.bytes).toEqual(bytes);
+  });
+
+  it("rejects replacement of the canonical project with a symlink before upload", async () => {
+    const moved = path.join(temp, "moved-project");
+    await rename(projectRoot, moved);
+    await symlink(moved, projectRoot);
+    const fetcher = vi.fn<typeof fetch>();
+    await expect(
+      new CursorUploader(config, fetcher).upload("documents/original.pdf"),
+    ).rejects.toMatchObject({ code: "PATH_CHANGED" });
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -237,6 +268,26 @@ describe("Cursor project-scoped local upload", () => {
         new CursorUploader(config, fetcher).upload("documents/original.pdf"),
       ).rejects.toMatchObject({ code: "INTEGRITY_MISMATCH" });
     }
+  });
+
+  it("accepts a scanned ready receipt with a positive page count", async () => {
+    const fetcher = vi.fn<typeof fetch>(async () =>
+      goodResponse({ status: "ready", pages: 1 }),
+    );
+    await expect(
+      new CursorUploader(config, fetcher).upload("documents/original.pdf"),
+    ).resolves.toMatchObject({ status: "ready", pages: 1 });
+  });
+
+  it.each([
+    { status: "ready", pages: 0 },
+    { status: "quarantined", pages: -1 },
+    { status: "quarantined", pages: 1.5 },
+  ])("rejects an invalid page count in %j", async (receipt) => {
+    const fetcher = vi.fn<typeof fetch>(async () => goodResponse(receipt));
+    await expect(
+      new CursorUploader(config, fetcher).upload("documents/original.pdf"),
+    ).rejects.toMatchObject({ code: "RESPONSE_INVALID" });
   });
 
   it("does not auto-retry or disclose a token after an uncertain upload response", async () => {

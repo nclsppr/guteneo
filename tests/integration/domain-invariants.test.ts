@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import {
   DomainService,
   type ActorContext,
@@ -29,10 +29,6 @@ const email = (overrides: Partial<PrepareInput> = {}): PrepareInput => ({
   html: "<p>Bonjour Camille.</p>",
   ...overrides,
 });
-const migration = readFileSync(
-  new URL("../../migrations/0001_core.sql", import.meta.url),
-  "utf8",
-);
 const seed = readFileSync(
   new URL("../../scripts/seed.sql", import.meta.url),
   "utf8",
@@ -79,13 +75,11 @@ beforeAll(async () => {
     }),
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
-  await applySql(migration);
-  await applySql(
-    readFileSync(
-      new URL("../../migrations/0004_core_hardening.sql", import.meta.url),
-      "utf8",
-    ),
-  );
+  const migrations = new URL("../../migrations/", import.meta.url);
+  for (const filename of readdirSync(migrations)
+    .filter((name) => name.endsWith(".sql"))
+    .sort())
+    await applySql(readFileSync(new URL(filename, migrations), "utf8"));
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();

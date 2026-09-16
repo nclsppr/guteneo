@@ -167,15 +167,24 @@ async function screenshot(page: Page, name: string) {
 
 test("landing and workspace fit desktop and iPhone widths, keyboard navigation remains visible", async ({
   page,
+  browserName,
 }, testInfo) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: "Vos mots méritent de parvenir." }),
   ).toBeVisible();
-  await page.keyboard.press("Tab");
+  // WebKit on macOS uses Option-Tab for links unless full keyboard navigation is enabled.
+  // Keep this a real keyboard traversal; do not replace it with programmatic focus.
+  await page.keyboard.press(
+    browserName === "webkit" && process.platform === "darwin"
+      ? "Alt+Tab"
+      : "Tab",
+  );
   await expect(
     page.getByRole("link", { name: "Aller au contenu" }),
   ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#landing-main")).toBeFocused();
   await page
     .getByRole("heading", { name: "Vos mots méritent de parvenir." })
     .click();

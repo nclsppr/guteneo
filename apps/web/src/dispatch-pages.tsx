@@ -14,6 +14,7 @@ import {
   bytes,
   date,
   money,
+  isPublicPreview,
   recipientOf,
   type Channel,
   type Dispatch,
@@ -155,6 +156,7 @@ export function Documents() {
           <div className="button-group">
             <button
               className="button"
+              disabled={isPublicPreview}
               onClick={() => {
                 setTab("render");
                 action.clear();
@@ -165,6 +167,7 @@ export function Documents() {
             </button>
             <button
               className="button primary"
+              disabled={isPublicPreview}
               onClick={() => {
                 setTab("import");
                 action.clear();
@@ -176,6 +179,12 @@ export function Documents() {
           </div>
         }
       />
+      {isPublicPreview && (
+        <p className="notice info">
+          Explorez les PDF d’exemple ci-dessous. L’import de fichiers et la
+          création de PDF seront disponibles dans votre espace privé.
+        </p>
+      )}
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       <ErrorNotice error={action.error} />
       {tab && (

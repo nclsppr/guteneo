@@ -301,9 +301,9 @@ export class DomainService {
         409,
       );
     const id = input.id ?? uid("doc");
-    await this.db
+    const registered = await this.db
       .prepare(
-        "INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,sha256) DO NOTHING",
+        "INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,sha256) WHERE status<>'purged' DO UPDATE SET status=documents.status RETURNING *",
       )
       .bind(
         id,
@@ -317,22 +317,28 @@ export class DomainService {
         input.storageKey,
         this.time(),
       )
-      .run();
+      .first<DocumentRecord>();
+    if (!registered)
+      throw new DomainError(
+        "DOCUMENT_UNAVAILABLE",
+        "Document indisponible.",
+        409,
+      );
     if (input.scanVerified && input.status === "ready") {
       await this.db.batch([
         this.db
           .prepare(
-            "UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND status='quarantined' AND pages=0",
+            "UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND id=? AND status='quarantined' AND pages=0",
           )
-          .bind(input.pages, ctx.organizationId, input.sha256),
+          .bind(input.pages, ctx.organizationId, registered.id),
         this.audit(ctx, "document.scan_verified", input.sha256, {
           pages: input.pages,
         }),
       ]);
     }
     return (await this.db
-      .prepare("SELECT * FROM documents WHERE organization_id=? AND sha256=?")
-      .bind(ctx.organizationId, input.sha256)
+      .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
+      .bind(ctx.organizationId, registered.id)
       .first<DocumentRecord>())!;
   }
   async getDocument(ctx: ActorContext, id: string): Promise<DocumentRecord> {

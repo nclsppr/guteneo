@@ -23,6 +23,8 @@ import {
   type Page,
   recipientLabel,
   date,
+  getDocumentContent,
+  isPublicPreview,
 } from "./api";
 import { fr as t } from "./i18n";
 
@@ -303,24 +305,53 @@ export function PdfPreview({
   id: string;
   title?: string;
 }) {
+  const download = useAction();
+  async function downloadSample() {
+    await download.run(async () => {
+      const bytes = await getDocumentContent(id);
+      const url = URL.createObjectURL(
+        new Blob([new Uint8Array(bytes)], { type: "application/pdf" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "guteneo-demonstration.pdf";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    });
+  }
   return (
     <div className="pdf-preview">
       <div className="preview-label">
         <FilePdf size={18} aria-hidden="true" />
         <span>{title}</span>
-        <a
-          href={`/api/documents/${encodeURIComponent(id)}/content`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {t.download}
-          <ArrowRight size={15} />
-        </a>
+        {isPublicPreview ? (
+          <button
+            className="icon-link"
+            onClick={() => void downloadSample()}
+            disabled={download.pending}
+          >
+            Télécharger le PDF d’exemple <ArrowRight size={15} />
+          </button>
+        ) : (
+          <a
+            href={`/api/documents/${encodeURIComponent(id)}/content`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t.download}
+            <ArrowRight size={15} />
+          </a>
+        )}
       </div>
       <Suspense fallback={<Loading />}>
         <LazyPdfViewer id={id} />
       </Suspense>
-      <p className="field-hint">{t.documents.pdfFallback}</p>
+      <ErrorNotice error={download.error} />
+      <p className="field-hint">
+        {isPublicPreview
+          ? "Document fictif fourni pour explorer la démonstration."
+          : t.documents.pdfFallback}
+      </p>
     </div>
   );
 }

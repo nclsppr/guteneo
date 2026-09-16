@@ -70,9 +70,15 @@ p {
 h1,
 h2 {
   font-weight: 400;
+  text-wrap: balance;
 }
 p {
   line-height: 1.65;
+}
+.preview-caption {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 16px 0 0;
 }
 h3 {
   font-size: 18px;

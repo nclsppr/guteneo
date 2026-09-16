@@ -12,6 +12,7 @@ import {
   api,
   date,
   money,
+  isPublicPreview,
   type Channel,
   type Dispatch,
   type DocumentRecord,
@@ -504,7 +505,9 @@ export function Connection() {
     });
   }
   const [copyStatus, setCopyStatus] = useState("");
-  const endpoint = `${window.location.origin}/mcp`;
+  const endpoint = isPublicPreview
+    ? "Connexion disponible à l’ouverture du service"
+    : `${window.location.origin}/mcp`;
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(
     window.location.hostname,
   );
@@ -531,11 +534,21 @@ export function Connection() {
               onFocus={(e) => e.target.select()}
             />
           </Field>
-          <button className="button" onClick={() => void copy()}>
+          <button
+            className="button"
+            disabled={isPublicPreview}
+            onClick={() => void copy()}
+          >
             <Copy size={18} />
             {t.connection.copy}
           </button>
           {copyStatus && <p role="status">{copyStatus}</p>}
+          {isPublicPreview && (
+            <p className="notice info">
+              Cette démonstration vous présente le parcours de connexion. Aucun
+              assistant n’est connecté et aucune autorisation n’est créée.
+            </p>
+          )}
           {local && (
             <div className="notice warning">
               <WarningCircle size={22} />
@@ -611,7 +624,10 @@ export function Connection() {
                 maxLength={200}
               />
             </Field>
-            <button className="button" disabled={connectionAction.pending}>
+            <button
+              className="button"
+              disabled={connectionAction.pending || isPublicPreview}
+            >
               {t.connection.bind}
             </button>
             {bindingNotice && (

@@ -33,6 +33,7 @@ function inside(root: string, filename: string): boolean {
 }
 
 export interface UploadConfig {
+  /** Canonical project path pinned at startup by loadUploadConfig. */
   projectRoot: string;
   origin: string;
   accessToken: string;
@@ -224,13 +225,16 @@ export async function readProjectPdf(
   }
 }
 
-const documentResponse = z.object({
-  id: z.string().min(1).max(200),
-  sha256: z.string().regex(/^[a-f0-9]{64}$/),
-  size: z.number().int().positive().max(MAX_PDF_BYTES),
-  pages: z.number().int().positive(),
-  status: z.enum(["ready", "quarantined"]),
-});
+const documentResponse = z
+  .object({
+    id: z.string().min(1).max(200),
+    sha256: z.string().regex(/^[a-f0-9]{64}$/),
+    size: z.number().int().positive().max(MAX_PDF_BYTES),
+    // Hosted uploads stay unparsed until a trusted scan, so quarantine has no page count yet.
+    pages: z.number().int().nonnegative(),
+    status: z.enum(["ready", "quarantined"]),
+  })
+  .refine((document) => document.status !== "ready" || document.pages > 0);
 export type UploadResult = {
   document_id: string;
   sha256: string;
