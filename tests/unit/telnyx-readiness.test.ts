@@ -59,6 +59,37 @@ function mocked(responses: unknown[]) {
 }
 
 describe("read-only Telnyx inspection", () => {
+  it("retains validated restrictions while an invalid monetary setting stays unknown", async () => {
+    const result = await inspectTelnyxReadiness(
+      config,
+      mocked([
+        app,
+        page(),
+        {
+          data: {
+            ...profile.data,
+            daily_spend_limit: "provider-invalid-private-value",
+          },
+        },
+      ]),
+    );
+    expect(result.status).toBe("partial");
+    expect(result.outboundProfile?.whitelistedDestinations).toEqual([
+      "LU",
+      "FR",
+    ]);
+    expect(result.outboundProfile?.maxDestinationRate).toBe(0.1);
+    expect(result.outboundProfile?.dailySpendLimitUsd).toBeNull();
+    expect(result.errors).toContainEqual({
+      stage: "outbound_profile",
+      code: "invalid_response",
+      invalidFields: ["daily_spend_limit"],
+    });
+    expect(JSON.stringify(result)).not.toContain(
+      "provider-invalid-private-value",
+    );
+  });
+
   it.each([
     { rate: null, spend: null, expectedRate: null, expectedSpend: null },
     { rate: "0.0125", spend: 5, expectedRate: 0.0125, expectedSpend: "5" },

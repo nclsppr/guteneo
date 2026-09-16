@@ -297,7 +297,9 @@ export async function inspectTelnyxReadiness(
   if (profileId) {
     try {
       const response = await get(`/outbound_voice_profiles/${profileId}`);
-      const parsed = profileSchema.safeParse(response.data);
+      const parsed = profileSchema
+        .omit({ max_destination_rate: true, daily_spend_limit: true })
+        .safeParse(response.data);
       if (!parsed.success) {
         const fields = Object.keys(profileSchema.shape);
         const invalidFields = [
@@ -316,6 +318,24 @@ export async function inspectTelnyxReadiness(
       const profile = parsed.data;
       if (profile.id !== profileId)
         throw new InspectionFailure("response_scope_mismatch");
+      // A malformed optional monetary setting must stay unknown without hiding
+      // independently validated country/concurrency restrictions.
+      const raw = response.data as Record<string, unknown>;
+      const rate = profileSchema.shape.max_destination_rate.safeParse(
+        raw.max_destination_rate,
+      );
+      const spend = profileSchema.shape.daily_spend_limit.safeParse(
+        raw.daily_spend_limit,
+      );
+      const invalidLimits = [
+        ...(!rate.success ? ["max_destination_rate"] : []),
+        ...(!spend.success ? ["daily_spend_limit"] : []),
+      ];
+      if (invalidLimits.length)
+        failed(
+          "outbound_profile",
+          new InspectionFailure("invalid_response", undefined, invalidLimits),
+        );
       result.outboundProfile = {
         id: profile.id,
         enabled: profile.enabled ?? null,
@@ -324,8 +344,8 @@ export async function inspectTelnyxReadiness(
           profile.concurrent_call_limit === undefined
             ? "unknown"
             : profile.concurrent_call_limit,
-        maxDestinationRate: profile.max_destination_rate ?? null,
-        dailySpendLimitUsd: profile.daily_spend_limit ?? null,
+        maxDestinationRate: rate.success ? (rate.data ?? null) : null,
+        dailySpendLimitUsd: spend.success ? (spend.data ?? null) : null,
         dailySpendLimitEnabled: profile.daily_spend_limit_enabled ?? null,
       };
     } catch (error) {
