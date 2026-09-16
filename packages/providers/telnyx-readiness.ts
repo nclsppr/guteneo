@@ -64,6 +64,8 @@ type Stage = "configuration" | "application" | "numbers" | "outbound_profile";
 type ErrorCode =
   | "configuration_invalid"
   | "request_failed"
+  | "request_timeout"
+  | "request_invalid_invocation"
   | "http_error"
   | "invalid_response"
   | "response_scope_mismatch"
@@ -154,18 +156,26 @@ export async function inspectTelnyxReadiness(
 
   async function get(path: string): Promise<Record<string, unknown>> {
     // Only locally constructed paths reach this helper; no provider-supplied links.
-    const response = await request(
-      fetcher,
-      `https://api.telnyx.com/v2${path}`,
-      {
+    let response: Response;
+    try {
+      response = await request(fetcher, `https://api.telnyx.com/v2${path}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${config.apiKey}`,
           Accept: "application/json",
         },
         signal: AbortSignal.timeout(8_000),
-      },
-    );
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const code = /illegal invocation|incorrect.*this/i.test(message)
+        ? "request_invalid_invocation"
+        : error instanceof Error &&
+            ["TimeoutError", "AbortError"].includes(error.name)
+          ? "request_timeout"
+          : "request_failed";
+      throw new InspectionFailure(code);
+    }
     if (!response.ok) {
       await response.body?.cancel().catch(() => undefined);
       throw new InspectionFailure("http_error", response.status);

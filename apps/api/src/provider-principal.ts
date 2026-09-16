@@ -49,7 +49,16 @@ export async function inspectSesPrincipal(env: Env, fetcher: Fetcher = fetch) {
       emailsSent: 0,
       transportQualified: false,
     };
-  } catch {
-    return { ok: false, code: "SES_PRINCIPAL_CHECK_FAILED" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    return {
+      ok: false,
+      code: /illegal invocation|incorrect.*this/i.test(message)
+        ? "SES_INSPECTION_INVALID_INVOCATION"
+        : error instanceof Error &&
+            ["TimeoutError", "AbortError"].includes(error.name)
+          ? "SES_INSPECTION_TIMEOUT"
+          : "SES_PRINCIPAL_CHECK_FAILED",
+    };
   }
 }
