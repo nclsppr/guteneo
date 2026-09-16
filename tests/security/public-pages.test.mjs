@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   PUBLIC_ORIGIN,
   PUBLIC_PATHS,
@@ -108,7 +109,7 @@ async function outputDirectory(t) {
   await writeFile(join(output, "index.html"), template);
   await writeFile(
     join(output, "_headers"),
-    "/*\n  X-Content-Type-Options: nosniff\n",
+    "/*\n  X-Content-Type-Options: nosniff\n  Content-Security-Policy: default-src 'self'; frame-ancestors 'none'\n",
   );
   return output;
 }
@@ -165,4 +166,40 @@ test("an absent article rejects the generation before replacing the built homepa
     /Incomplete public page/,
   );
   assert.equal(await readFile(join(output, "index.html"), "utf8"), template);
+});
+
+test("real Static Assets parsing retains noindex and security headers together", async (t) => {
+  const output = await outputDirectory(t);
+  await writePublicPages({ output, renderPublicPage: page, indexable: false });
+  const mf = new Miniflare(
+    convertV4MiniflareOptions({
+      modules: true,
+      script:
+        'export default {fetch(){return new Response("Not found",{status:404})}}',
+      compatibilityDate: "2026-09-16",
+      assets: {
+        directory: output,
+        assetConfig: {
+          html_handling: "force-trailing-slash",
+          not_found_handling: "none",
+        },
+      },
+    }),
+  );
+  try {
+    for (const path of ["/", "/journal/", "/mentions-legales/"]) {
+      const response = await mf.dispatchFetch(
+        `http://backend-fixture.invalid${path}`,
+      );
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get("x-robots-tag"), "noindex, nofollow");
+      assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+      assert.match(
+        response.headers.get("content-security-policy") ?? "",
+        /frame-ancestors 'none'/,
+      );
+    }
+  } finally {
+    await mf.dispose();
+  }
 });

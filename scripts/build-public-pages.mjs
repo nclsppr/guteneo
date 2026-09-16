@@ -137,9 +137,19 @@ export async function writePublicPages({
   if (!indexable) {
     const path = join(output, "_headers");
     const headers = await readFile(path, "utf8");
+    const globalRule = /^\/\*[ \t]*\r?\n/gm;
+    if ([...headers.matchAll(globalRule)].length !== 1)
+      throw new Error(
+        "The backend asset policy requires one global header rule.",
+      );
+    // Static Assets replaces duplicate path rules rather than merging them.
+    // Add noindex inside the existing rule so CSP/nosniff remain in force.
     await writeFile(
       path,
-      `${headers.trimEnd()}\n\n/*\n  X-Robots-Tag: noindex, nofollow\n`,
+      headers.replace(
+        globalRule,
+        (rule) => `${rule}  X-Robots-Tag: noindex, nofollow\n`,
+      ),
     );
   }
 }
