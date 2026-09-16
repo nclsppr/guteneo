@@ -69,16 +69,21 @@ export function assertConfiguration(env: Env, request?: Request): void {
     request &&
     ["GET", "HEAD"].includes(request.method) &&
     ["/api/health", "/api/capabilities"].includes(pathname!);
-  // SNS authenticates its own callback. This only reaches the verifier; it never
-  // authorizes a receipt, a browser session, or a send by itself.
+  // Providers authenticate their own callbacks. This only reaches the verifier;
+  // it never authorizes a receipt, a browser session, or a send by itself.
   const configuredSesCallback =
     request?.method === "POST" &&
     pathname === "/webhooks/ses" &&
     Boolean(env.SES_SNS_TOPIC_ARN);
+  const configuredTelnyxCallback =
+    request?.method === "POST" &&
+    pathname === "/webhooks/telnyx" &&
+    Boolean(env.TELNYX_PUBLIC_KEY);
   if (
     env.ENVIRONMENT !== "local" &&
     !readiness &&
     !configuredSesCallback &&
+    !configuredTelnyxCallback &&
     (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
   )
     throw new Error("IDENTITY_NOT_CONFIGURED");

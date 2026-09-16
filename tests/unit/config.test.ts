@@ -66,6 +66,56 @@ it("allows only a configured SES POST to reach its independent signature verifie
   ).toThrow("LOCAL_HOST_REQUIRED");
 });
 
+it("allows only a configured Telnyx POST to reach its independent signature verifier", () => {
+  const env = {
+    ENVIRONMENT: "production",
+    MODE: "production",
+    APP_ORIGIN: "https://guteneo.com",
+    TELNYX_PUBLIC_KEY: "fixture-public-key-verifier-still-required",
+  } as Env;
+  const callback = new Request("https://guteneo.com/webhooks/telnyx", {
+    method: "POST",
+  });
+  expect(() => assertConfiguration(env, callback)).not.toThrow();
+  for (const key of [undefined, ""])
+    expect(() =>
+      assertConfiguration({ ...env, TELNYX_PUBLIC_KEY: key }, callback),
+    ).toThrow("IDENTITY_NOT_CONFIGURED");
+  for (const [path, method] of [
+    ["/webhooks/telnyx", "GET"],
+    ["/webhooks/telnyx", "HEAD"],
+    ["/webhooks/telnyx", "PUT"],
+    ["/webhooks/telnyx", "OPTIONS"],
+    ["/webhooks/telnyx/", "POST"],
+    ["/webhooks/telnyx/other", "POST"],
+    ["/webhooks/telnyx-other", "POST"],
+    ["/webhooks/Telnyx", "POST"],
+    ["/webhooks/%74elnyx", "POST"],
+    ["/webhooks/ses", "POST"],
+    ["/webhooks/pingen", "POST"],
+    ["/webhooks/stripe", "POST"],
+    ["/api/session", "GET"],
+    ["/api/documents", "POST"],
+    ["/mcp", "POST"],
+  ])
+    expect(() =>
+      assertConfiguration(
+        env,
+        new Request(`https://guteneo.com${path}`, { method }),
+      ),
+    ).toThrow("IDENTITY_NOT_CONFIGURED");
+  expect(() => assertConfiguration(env)).toThrow("IDENTITY_NOT_CONFIGURED");
+  expect(() =>
+    assertConfiguration({ ...env, MODE: "simulation" }, callback),
+  ).toThrow("PRODUCTION_SIMULATION_FORBIDDEN");
+  expect(() =>
+    assertConfiguration({ ...env, APP_ORIGIN: "http://guteneo.com" }, callback),
+  ).toThrow("HTTPS_REQUIRED");
+  expect(() =>
+    assertConfiguration({ ...env, ENVIRONMENT: "local" }, callback),
+  ).toThrow("LOCAL_HOST_REQUIRED");
+});
+
 it("rejects unsafe scheduled environments before reading receipts", async () => {
   const prepare = vi.fn();
   const env = {

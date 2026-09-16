@@ -357,6 +357,163 @@ describe("signed SNS callbacks during identity setup", () => {
   });
 });
 
+describe("signed Telnyx callbacks during identity setup", () => {
+  let keys: CryptoKeyPair;
+  let publicKey: string;
+  const connectionId = "telnyx-application-fixture";
+  const environment = () =>
+    ({
+      DB: db,
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: "https://guteneo.example",
+      TELNYX_PUBLIC_KEY: publicKey,
+      TELNYX_CONNECTION_ID: connectionId,
+      LIVE_SENDS_ENABLED: "false",
+    }) as Env;
+  beforeAll(async () => {
+    keys = (await crypto.subtle.generateKey("Ed25519", true, [
+      "sign",
+      "verify",
+    ])) as CryptoKeyPair;
+    publicKey = Buffer.from(
+      await crypto.subtle.exportKey("raw", keys.publicKey),
+    ).toString("base64");
+  });
+  async function signedCallback(
+    options: {
+      connectionId?: string;
+      time?: number;
+    } = {},
+  ) {
+    const now = options.time ?? Date.now();
+    const timestamp = String(Math.floor(now / 1000));
+    const body = JSON.stringify({
+      data: {
+        id: "telnyx-event-fixture",
+        event_type: "fax.delivered",
+        occurred_at: new Date(now).toISOString(),
+        payload: {
+          connection_id: options.connectionId ?? connectionId,
+          fax_id: "fax-fixture",
+        },
+      },
+    });
+    const signature = await crypto.subtle.sign(
+      "Ed25519",
+      keys.privateKey,
+      new TextEncoder().encode(`${timestamp}|${body}`),
+    );
+    return new Request("https://guteneo.example/webhooks/telnyx", {
+      method: "POST",
+      body,
+      headers: {
+        "telnyx-timestamp": timestamp,
+        "telnyx-signature-ed25519": Buffer.from(signature).toString("base64"),
+      },
+    });
+  }
+  const receive = (request: Request, env = environment()) =>
+    worker.fetch(request, env, {} as ExecutionContext);
+
+  it("durably accepts a signed callback without Auth0 and projects it once", async () => {
+    const ingest = vi
+      .spyOn(DomainService.prototype, "ingestEvent")
+      .mockImplementation(async () => {
+        expect(
+          (await db.prepare("SELECT status FROM provider_receipts").first())
+            ?.status,
+        ).toBe("pending");
+        return { applied: true, duplicate: false };
+      });
+    const publish = vi.spyOn(DomainService.prototype, "publishOutbox");
+    for (let index = 0; index < 2; index++) {
+      const response = await receive(await signedCallback());
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ received: true });
+    }
+    expect(ingest).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        provider: "telnyx",
+        kind: "delivered",
+        eventId: "telnyx-event-fixture",
+        providerId: "fax-fixture",
+      }),
+    );
+    expect(publish).not.toHaveBeenCalled();
+    const rows = await db
+      .prepare("SELECT provider,status FROM provider_receipts")
+      .all();
+    expect(rows.results).toEqual([{ provider: "telnyx", status: "projected" }]);
+  });
+
+  it("rejects unsigned, tampered, expired and foreign-application callbacks before storage", async () => {
+    const ingest = vi.spyOn(DomainService.prototype, "ingestEvent");
+    const unsigned = await signedCallback();
+    unsigned.headers.delete("telnyx-signature-ed25519");
+    const original = await signedCallback();
+    const tampered = new Request(original.url, {
+      method: "POST",
+      headers: original.headers,
+      body: `${await original.text()} `,
+    });
+    for (const request of [
+      unsigned,
+      tampered,
+      await signedCallback({ time: Date.now() - 600_000 }),
+      await signedCallback({ connectionId: "foreign-application" }),
+    ]) {
+      const response = await receive(request);
+      expect(response.status).toBe(401);
+      expect(await response.json()).toEqual({
+        error: { code: "WEBHOOK_REJECTED" },
+      });
+    }
+    expect(ingest).not.toHaveBeenCalled();
+    expect(
+      (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
+    ).toBe(0);
+  });
+
+  it("keeps absent or invalid verification configuration closed", async () => {
+    for (const patch of [
+      { TELNYX_PUBLIC_KEY: undefined },
+      { TELNYX_PUBLIC_KEY: "" },
+    ]) {
+      const response = await receive(await signedCallback(), {
+        ...environment(),
+        ...patch,
+      });
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({
+        error: {
+          code: "CONFIGURATION_INVALID",
+          message: "Configuration du service invalide.",
+        },
+      });
+    }
+    const missingApplication = await receive(await signedCallback(), {
+      ...environment(),
+      TELNYX_CONNECTION_ID: undefined,
+    });
+    expect(missingApplication.status).toBe(503);
+    expect(await missingApplication.json()).toEqual({
+      error: { code: "WEBHOOK_UNAVAILABLE" },
+    });
+    const invalidKey = await receive(await signedCallback(), {
+      ...environment(),
+      TELNYX_PUBLIC_KEY: "invalid-public-key",
+    });
+    expect(invalidKey.status).toBe(401);
+    expect(await invalidKey.json()).toEqual({
+      error: { code: "WEBHOOK_REJECTED" },
+    });
+    expect(
+      (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
+    ).toBe(0);
+  });
+});
+
 describe("webhook HTTP boundary with actual local D1", () => {
   it("persists a verified receipt before ingestion/ACK and deduplicates repeated callbacks", async () => {
     const domain = sink(
