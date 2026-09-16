@@ -1,0 +1,62 @@
+export interface Env {
+  DB: D1Database;
+  DOCUMENTS: R2Bucket;
+  DISPATCH_QUEUE: Queue<{ dispatchId: string }>;
+  BULK_QUEUE: Queue<{ dispatchId: string }>;
+  ASSETS: Fetcher;
+  DOCUMENT_RENDERER?: Fetcher;
+  ENVIRONMENT: "local" | "staging" | "production";
+  MODE: "simulation" | "production";
+  APP_ORIGIN: string;
+  DOCUMENT_RENDERER_URL?: string;
+  IMPORT_ALLOWED_HOSTS?: string;
+  SCANNER?: Fetcher;
+  AUTH0_DOMAIN?: string;
+  AUTH0_CLIENT_ID?: string;
+  AUTH0_CLIENT_SECRET?: string;
+  AUTH0_AUDIENCE?: string;
+  LIVE_SENDS_ENABLED?: string;
+  TELNYX_API_KEY?: string;
+  TELNYX_PUBLIC_KEY?: string;
+  TELNYX_CONNECTION_ID?: string;
+  TELNYX_FROM?: string;
+  AWS_ACCESS_KEY_ID?: string;
+  AWS_SECRET_ACCESS_KEY?: string;
+  AWS_REGION?: string;
+  SES_CONFIGURATION_SET?: string;
+  SES_SNS_TOPIC_ARN?: string;
+  PINGEN_CLIENT_ID?: string;
+  PINGEN_CLIENT_SECRET?: string;
+  PINGEN_ORGANIZATION_ID?: string;
+  PINGEN_WEBHOOK_SECRET?: string;
+  PROVIDER_URL_SIGNING_SECRET?: string;
+  TELNYX_ALLOWED_PREFIXES?: string;
+  AWS_SESSION_TOKEN?: string;
+  SES_SANDBOX?: string;
+  PINGEN_SANDBOX?: string;
+  PINGEN_UPLOAD_ORIGINS?: string;
+}
+export function assertConfiguration(env: Env, request?: Request): void {
+  if (!["local", "staging", "production"].includes(env.ENVIRONMENT))
+    throw new Error("INVALID_ENVIRONMENT");
+  if (!["simulation", "production"].includes(env.MODE))
+    throw new Error("INVALID_MODE");
+  if (env.ENVIRONMENT === "production" && env.MODE !== "production")
+    throw new Error("PRODUCTION_SIMULATION_FORBIDDEN");
+  if (
+    env.ENVIRONMENT !== "local" &&
+    (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
+  )
+    throw new Error("IDENTITY_NOT_CONFIGURED");
+  if (
+    env.ENVIRONMENT === "local" &&
+    request &&
+    !["localhost", "127.0.0.1", "[::1]"].includes(new URL(request.url).hostname)
+  )
+    throw new Error("LOCAL_HOST_REQUIRED");
+  if (
+    env.ENVIRONMENT !== "local" &&
+    new URL(env.APP_ORIGIN).protocol !== "https:"
+  )
+    throw new Error("HTTPS_REQUIRED");
+}

@@ -1,0 +1,37 @@
+# Architecture
+
+One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. No infrastructure is provisioned yet.
+
+```mermaid
+flowchart TD
+  Human["Browser and human approval"] --> API["API / shared domain"]
+  Assistant["Assistant / OAuth MCP"] --> API
+  Identity["Auth0 identity"] --> API
+  API --> D1["D1: jobs, approvals, quota, outbox"]
+  API --> R2["Private R2 documents"]
+  API --> Renderer["Isolated document Worker"]
+  D1 --> Publisher["Outbox publisher / cron"]
+  Publisher --> Interactive["Interactive Queue"]
+  Publisher --> Bulk["Campaign Queue"]
+  Interactive --> Consumer["Conditional job claim"]
+  Bulk --> Consumer
+  Consumer --> Providers["Telnyx / SES / Pingen"]
+  Providers --> Webhooks["Verified durable callbacks"]
+  Webhooks --> D1
+```
+
+A queued transition is a D1 write whose SQL trigger verifies approval, reserves quota and writes outbox. Queue publication may duplicate and is repaired by cron. A conditional claim creates one attempt. Expired submitting leases become unknown, not queued. Successful supplier acceptance and delivery are separate facts. A complaint after delivery remains representable. Cancellation stops queued/prepared work only; already attempted sends require provider-specific reconciliation.
+
+Approvals bind fingerprint of normalized recipient, immutable document ID/hash, sanitized final HTML/text, sender, options, estimated cost and ceiling. No MCP approval tool exists. Content changes create a new command. Campaign membership freezes when approved; current bounded campaign import prepares individual recipients and requires individual approvals. Large asynchronous manifest materialization is a future extension, not claimed delivered.
+
+## Runtime and location
+
+D1 and R2 provisioning plans require EU **jurisdiction**, not merely a location hint. Binding R2 also declares `jurisdiction: eu`. This says nothing about all Workers execution, Browser Run processing, Auth0 tenant, email routing, Telnyx/Pingen subprocessors, logs or backups. Those locations and contracts require qualification before live data. Originals never become public assets.
+
+## Evolution threshold
+
+D1 paid database limit verified at 10GB; operational alert at 5GB, migration planning at 7GB. Monitor p95 persisted acceptance >2s for 15 minutes, D1 overloaded errors >0.1%, oldest outbox >60s, uncertainty count >0, and callback projection p95 >10s. These are initial engineering thresholds, not measured SLO claims. Bounded indexed scans, pagination and per-organization limits come first. PostgreSQL migration would preserve command IDs, immutable manifests and unique constraints, translating acceptance SQL triggers into transactions; no second backend is built now.
+
+## Deliberate first-release limitations
+
+Real sends remain gated by verified live estimates and external configuration. Deterministic simulation traverses actual D1/Queues/domain paths. The local PDF browser is a development substitute, not evidence of Browser Run parity. Marketing is disabled until real unsubscribe policy/event handling are qualified. Platform content-operator access is not implemented; there is no universal operator bypass. No Workflow, KV, custom OAuth server, LLM call or VBS dependency.

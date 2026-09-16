@@ -1,0 +1,73 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> guteneo@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/scratch/98a2c853fa66/guteneo
+
+ ✓ tests/integration/domain-invariants.test.ts (22 tests) 13999ms
+     ✓ isolates documents, dispatch detail, lists and campaigns between organizations  568ms
+     ✓ replays preparation exactly and rejects same key with a changed recipient  387ms
+     ✓ does not let MCP self-approve or assert approval through confirm  364ms
+     ✓ atomically confirms twice with a single reservation and durable outbox record  815ms
+     ✓ enforces quotas under concurrent confirmation and rolls back losing acceptance  594ms
+     ✓ repairs commit-before-publication and tolerates duplicated queue delivery  795ms
+     ✓ retains quota and prohibits blind retries after a lost provider response  674ms
+     ✓ stores orphan callbacks, reconciles early arrivals, deduplicates, and never regresses  1098ms
+     ✓ rejects invalid event shapes before storage and never assigns another provider callback  739ms
+     ✓ locks immutable approved fields in SQL and freezes campaign recipient membership  704ms
+     ✓ cancels only before submission and releases exactly one reservation  566ms
+     ✓ checks approval expiry and fingerprint before quota changes  449ms
+     ✓ checks suppression and emergency stop again immediately before submission  603ms
+     ✓ turns an expired processing lease into uncertainty without releasing or resubmitting  518ms
+     ✓ retains a known reference after uncertain submission and reconciles an earlier fact  664ms
+     ✓ never overwrites the reference bound by an early callback with a conflicting response  677ms
+     ✓ does not permanently suppress soft bounces; permanent bounces do suppress only their tenant  872ms
+     ✓ rechecks revoked senders and quarantined documents before any provider call  853ms
+     ✓ paginates deterministically and forbids production simulation pricing  556ms
+ ✓ tests/unit/live-providers.test.ts (14 tests) 12522ms
+     ✓ fails the activation gate without external calls: {"ENVIRONMENT":"local"}  613ms
+     ✓ fails the activation gate without external calls: {"MODE":"simulation"}  534ms
+     ✓ fails the activation gate without external calls: {"LIVE_SENDS_ENABLED":"false"}  541ms
+     ✓ fails the activation gate without external calls: {}  510ms
+     ✓ cannot send a queued row directly without the durable active approved attempt  537ms
+     ✓ submits Telnyx with the frozen sender and creates a hashed, scoped, expiring media capability  866ms
+     ✓ blocks missing scan evidence and changed R2 content before provider submission  1095ms
+     ✓ rejects a sender/config mismatch and a forged approval fingerprint without network  1021ms
+     ✓ allows only one invocation under concurrent bridge calls and retains unknown outcomes  705ms
+     ✓ sends SES one frozen recipient and unmodified HTML, text and optional PDF attachment  740ms
+     ✓ persists a Pingen non-sending draft and only submits a matching frozen, tenant-bound draft  1251ms
+     ✓ does not trust a supplied provider letter ID, changed recipient or missing persisted draft  2229ms
+     ✓ requires a human document-transfer request and never retries an uncertain draft automatically  613ms
+     ✓ keeps the production tariff gate closed even when all provider environment values are present  403ms
+ ✓ tests/integration/documents.test.ts (10 tests) 10347ms
+     ✓ preserves every original byte, deduplicates only within an organization, and isolates preview access  642ms
+     ✓ atomically caps concurrent uploads before writing the losing file  402ms
+     ✓ bounds concurrent rendering before invoking the external engine  391ms
+     ✓ quarantines unparsed remote bytes with unknown page count when the scanner is absent  351ms
+     ✓ promotes a quarantined immutable version only after matching clean scan and isolated validation  613ms
+     ✓ preserves expired content referenced by a prepared or uncertain dispatch  1097ms
+     ✓ purges expired terminal content once without changing dispatches or duplicating audit  1232ms
+     ✓ resumes a purge interrupted after the DB tombstone and before R2 deletion  570ms
+     ✓ advances bounded retention beyond the first 25 expired documents  3766ms
+ ✓ tests/integration/restore.test.ts (1 test) 3813ms
+   ✓ restores independent D1/R2 fixtures without resubmitting an uncertain physical command  3812ms
+ ✓ tests/integration/queue.test.ts (5 tests) 2627ms
+   ✓ captures dead letters durably and idempotently without starting a provider attempt  387ms
+   ✓ processes duplicate simulation delivery once through the real consumer and domain  600ms
+   ✓ keeps each organization administrator’s dead letters isolated  616ms
+ ✓ tests/unit/auth.test.ts (12 tests) 2336ms
+     ✓ requires recorded browser approval and double confirmation creates one reservation  715ms
+ ✓ tests/unit/providers-webhooks.test.ts (4 tests) 550ms
+ ✓ tests/unit/cursor-upload.test.ts (27 tests) 415ms
+ ✓ tests/unit/content.test.ts (8 tests) 34ms
+ ✓ tests/unit/providers.test.ts (20 tests) 38ms
+ ✓ tests/unit/config.test.ts (1 test) 4ms
+
+ Test Files  11 passed (11)
+      Tests  124 passed (124)
+   Start at  21:16:36
+   Duration  51.68s (transform 577ms, setup 0ms, import 3.61s, tests 46.69s, environment 1ms)
+
+JSON report written to /workspace/scratch/98a2c853fa66/guteneo/reports/vitest.json

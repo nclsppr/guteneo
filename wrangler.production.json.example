@@ -1,0 +1,99 @@
+{
+  "name": "guteneo-production",
+  "main": "apps/api/src/index.ts",
+  "compatibility_date": "2026-09-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "dist/web",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*",
+      "/auth/*",
+      "/mcp",
+      "/.well-known/*",
+      "/webhooks/*",
+      "/media/*"
+    ]
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "MODE": "production",
+    "APP_ORIGIN": "https://guteneo.com",
+    "LIVE_SENDS_ENABLED": "false",
+    "AUTH0_DOMAIN": "REPLACE_AUTH0_DOMAIN",
+    "AUTH0_CLIENT_ID": "REPLACE_AUTH0_CLIENT_ID",
+    "AUTH0_AUDIENCE": "https://guteneo.com/mcp"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "guteneo-production",
+      "database_id": "REPLACE_EU_JURISDICTION_D1_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS",
+      "bucket_name": "guteneo-production-documents",
+      "jurisdiction": "eu"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "DISPATCH_QUEUE",
+        "queue": "guteneo-production-interactive"
+      },
+      {
+        "binding": "BULK_QUEUE",
+        "queue": "guteneo-production-bulk"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "guteneo-production-interactive",
+        "max_batch_size": 5,
+        "max_batch_timeout": 1,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-production-dlq"
+      },
+      {
+        "queue": "guteneo-production-bulk",
+        "max_batch_size": 2,
+        "max_batch_timeout": 2,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-production-dlq"
+      },
+      {
+        "queue": "guteneo-production-dlq",
+        "max_batch_size": 5,
+        "max_batch_timeout": 2,
+        "max_retries": 3
+      }
+    ]
+  },
+  "services": [
+    {
+      "binding": "DOCUMENT_RENDERER",
+      "service": "guteneo-production-documents"
+    },
+    {
+      "binding": "SCANNER",
+      "service": "REPLACE_QUALIFIED_SCANNER_SERVICE"
+    }
+  ],
+  "triggers": {
+    "crons": ["* * * * *"]
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false
+    }
+  }
+}

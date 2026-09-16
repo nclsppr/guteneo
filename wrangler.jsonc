@@ -1,0 +1,88 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "guteneo-local",
+  "main": "apps/api/src/index.ts",
+  "compatibility_date": "2026-09-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist/web",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*",
+      "/mcp",
+      "/.well-known/*",
+      "/auth/*",
+      "/webhooks/*",
+      "/media/*",
+    ],
+  },
+  "vars": {
+    "ENVIRONMENT": "local",
+    "MODE": "simulation",
+    "APP_ORIGIN": "http://localhost:8787",
+    "DOCUMENT_RENDERER_URL": "http://127.0.0.1:8788",
+    "LIVE_SENDS_ENABLED": "false",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "guteneo-local",
+      "database_id": "local-only",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS",
+      "bucket_name": "guteneo-local-documents",
+      "jurisdiction": "eu",
+    },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "DISPATCH_QUEUE",
+        "queue": "guteneo-local-interactive",
+      },
+      {
+        "binding": "BULK_QUEUE",
+        "queue": "guteneo-local-bulk",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "guteneo-local-interactive",
+        "max_batch_size": 5,
+        "max_batch_timeout": 1,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-local-dlq",
+      },
+      {
+        "queue": "guteneo-local-bulk",
+        "max_batch_size": 2,
+        "max_batch_timeout": 2,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-local-dlq",
+      },
+      {
+        "queue": "guteneo-local-dlq",
+        "max_batch_size": 5,
+        "max_batch_timeout": 2,
+        "max_retries": 3,
+      },
+    ],
+  },
+  "triggers": {
+    "crons": ["* * * * *"],
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+    },
+  },
+}
