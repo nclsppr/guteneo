@@ -1,0 +1,16 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-09-17",
+  "prompt": "Use case: stylized-concept. Asset type: wide editorial website footer illustration for Guteneo, a French-language document correspondence service made in Luxembourg. Generate one horizontal panorama, aspect ratio 3:1. Subject: unmistakable Luxembourg City old town seen across the lush Alzette valley: clustered steep slate rooftops of the Grund at lower center, the limestone Bock cliffs and fortification walls, slender Gothic church spires and elegant elevated old city buildings, a beautiful stone arched bridge spanning the valley at left. The place should feel like Luxembourg, not Paris or a generic medieval town. Style: exquisite monochrome black-ink copperplate engraving translated into visible fine ordered dithering and halftone dots, a refined nineteenth-century travel-book plate with modern crisp detail. Flat ivory-white paper, grayscale ink only, no colors. Quiet, light open sky occupying upper 25%, city and valley occupying bottom 75%, all landscape fully visible, no vignette, no rectangular border, no lettering, no labels, no logo, no watermark, no birds (birds will be animated separately). Draw with convincing architectural scale and coherent topology. Contrast naturally fades into clean blank paper at top and outer edges, but strong ink details in center. Premium editorial artistry, restrained, not grungy, no photography, no glossy 3D. White/near-white background suitable for multiply blending on warm ivory #F6F5EF. Deliver a landscape image at least 1536 px wide.",
+  "original": "assets/brand/source/luxembourg-panorama.png",
+  "originalSha256": "fde097babb79ec3c875dd92b6262b78bd777f29fb02a166629e04428a0854760",
+  "originalBytes": 3143151,
+  "optimized": "apps/web/public/luxembourg-panorama.webp",
+  "optimizedSha256": "a0c56b1aef2df3db248b2ff55ca99b7f2d352cf229f6345f43097bff0e2cff01",
+  "optimizedBytes": 485334,
+  "width": 2172,
+  "height": 724,
+  "alpha": false,
+  "conversion": "cwebp -q 88 assets/brand/source/luxembourg-panorama.png -o apps/web/public/luxembourg-panorama.webp",
+  "usage": "Original decorative illustration for Guteneo. The panorama is an artistic impression, not documentary geographical evidence."
+}

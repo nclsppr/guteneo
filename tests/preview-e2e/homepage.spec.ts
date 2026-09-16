@@ -1,0 +1,174 @@
+import { test, expect } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+
+test("homepage explains installation, welcome credit, pricing and Luxembourg provenance", async ({
+  page,
+  request,
+}, info) => {
+  const calls: string[] = [];
+  const errors: string[] = [];
+  page.on("request", (r) => {
+    if (/^\/(api|mcp|auth)(\/|$)/.test(new URL(r.url()).pathname))
+      calls.push(r.url());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (value: string) => {
+          document.documentElement.dataset.copied = value;
+        },
+      },
+    }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", {
+      name: "Votre assistant. Votre correspondance.",
+    }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Claude", exact: true }).click();
+  await expect(page.locator("#host-instructions")).toContainText(
+    "propriétaire de l’espace",
+  );
+  await page
+    .getByRole("button", { name: "Copier l’adresse", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-copied",
+    "https://guteneo.com/mcp",
+  );
+  await page.getByRole("button", { name: "Cursor", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Télécharger la configuration Cursor" }),
+  ).toBeVisible();
+  const config = await request.get("/guides/cursor-mcp.json");
+  expect(await config.json()).toEqual({
+    mcpServers: { guteneo: { url: "https://guteneo.com/mcp" } },
+  });
+  const guide = await request.get("/guides/installer-guteneo.md");
+  expect(guide.status()).toBe(200);
+  expect(await guide.text()).toContain(
+    "Ce message ne peut pas installer un connecteur",
+  );
+  await page.getByRole("button", { name: "Copier ce premier message" }).click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-copied",
+    /N’effectue aucun envoi sans cette validation/,
+  );
+  await expect(page.locator(".welcome-amount")).toHaveText("50€");
+  await expect(page.locator(".welcome-copy")).toContainText(
+    "À l’ouverture du service",
+  );
+  await expect(
+    page.getByRole("button", { name: "Ajouter du crédit" }),
+  ).toBeDisabled();
+  await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
+  await expect(page.locator(".price-qualification")).toContainText(
+    "aucun prix unitaire commercial",
+  );
+  await page
+    .getByText("Que se passe-t-il quand mon crédit est épuisé ?", {
+      exact: true,
+    })
+    .click();
+  await expect(page.locator(".faq-questions details[open]")).toContainText(
+    "ni débit automatique ni solde négatif",
+  );
+  const author = page.getByRole("link", { name: "Nicolas Pieper" });
+  await expect(author).toHaveAttribute("href", "https://nicolaspieper.com");
+  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      page
+        .locator(".luxembourg-panorama")
+        .evaluate((img) => (img as HTMLImageElement).naturalWidth),
+    )
+    .toBe(2172);
+  const bird = page.locator(".bird-one");
+  expect(
+    await bird.evaluate(
+      (element) => getComputedStyle(element).animationPlayState,
+    ),
+  ).toBe("running");
+  const position = await bird.evaluate(
+    (element) => getComputedStyle(element).transform,
+  );
+  await expect
+    .poll(() => bird.evaluate((element) => getComputedStyle(element).transform))
+    .not.toBe(position);
+  await page
+    .getByRole("button", { name: "Mettre les oiseaux en pause" })
+    .click();
+  expect(
+    await page
+      .locator(".bird-one")
+      .evaluate((element) => getComputedStyle(element).animationPlayState),
+  ).toBe("paused");
+  await page.getByRole("button", { name: "Animer les oiseaux" }).click();
+  expect(
+    await bird.evaluate(
+      (element) => getComputedStyle(element).animationPlayState,
+    ),
+  ).toBe("running");
+  await page
+    .getByRole("button", { name: "Mettre les oiseaux en pause" })
+    .click();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await mkdir("reports/screenshots/homepage", { recursive: true });
+  await page.locator(".luxembourg-footer").screenshot({
+    path: `reports/screenshots/homepage/footer-${info.project.name}.png`,
+  });
+  await page.getByRole("button", { name: "ChatGPT", exact: true }).click();
+  await page.locator(".installation-section").screenshot({
+    path: `reports/screenshots/homepage/installation-${info.project.name}.png`,
+  });
+  await page.locator(".pricing-section").screenshot({
+    path: `reports/screenshots/homepage/pricing-${info.project.name}.png`,
+  });
+  expect(calls).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("decorative birds stop when reduced motion is requested", async ({
+  page,
+  isMobile,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  if (isMobile)
+    await page.getByRole("link", { name: "Aller au contenu" }).focus();
+  else await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Aller au contenu" }),
+  ).toBeFocused();
+  await expect(page.getByRole("link", { name: "Aller au contenu" })).toHaveCSS(
+    "clip-path",
+    "none",
+  );
+  await expect(
+    page.getByRole("button", { name: "Mettre les oiseaux en pause" }),
+  ).toBeHidden();
+  expect(
+    await page
+      .locator(".bird-one")
+      .evaluate((element) => getComputedStyle(element).animationName),
+  ).toBe("none");
+  await page
+    .locator(".footer-colophon")
+    .getByRole("link", { name: "FAQ", exact: true })
+    .click();
+  await expect(page.locator("#faq")).toBeFocused();
+  await expect
+    .poll(() =>
+      page
+        .locator("#faq")
+        .evaluate((element) => Math.abs(element.getBoundingClientRect().top)),
+    )
+    .toBeLessThan(100);
+});

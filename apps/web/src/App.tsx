@@ -43,6 +43,13 @@ import {
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
 import { Account, TeamAdmin } from "./account-page";
+import {
+  Installation,
+  WelcomePricing,
+  FrequentlyAsked,
+  LuxembourgFooter,
+  scrollToSection,
+} from "./landing-sections";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
@@ -78,16 +85,20 @@ function Landing() {
       <header className="site-header">
         <Brand />
         <nav aria-label="Navigation principale">
-          <a
-            href="#how"
-            onClick={(event) => {
-              event.preventDefault();
-              document
-                .getElementById("how")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
+          <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
             {t.landing.navHow}
+          </a>
+          <a
+            href="#installation"
+            onClick={(event) => scrollToSection(event, "installation")}
+          >
+            {t.homepage.navInstallation}
+          </a>
+          <a
+            href="#tarifs"
+            onClick={(event) => scrollToSection(event, "tarifs")}
+          >
+            {t.homepage.navPricing}
           </a>
           <a className="button small" href="#/app">
             {publicPreview ? "Explorer la démo" : t.landing.navApp}
@@ -126,7 +137,7 @@ function Landing() {
           </div>
         </section>
         <p className="hero-caption">{t.landing.caption}</p>
-        <section className="process" id="how">
+        <section className="process" id="how" tabIndex={-1}>
           <div className="section-heading">
             <h2>
               {t.landing.processTitle}
@@ -147,6 +158,7 @@ function Landing() {
             ))}
           </div>
         </section>
+        <Installation />
         <section className="channel-section" id="channels">
           <h2>
             {t.landing.channelsTitle}
@@ -173,6 +185,8 @@ function Landing() {
             })}
           </div>
         </section>
+        <WelcomePricing />
+        <FrequentlyAsked />
         <aside className="landing-note">
           <WarningCircle size={21} aria-hidden="true" />
           <p>
@@ -182,14 +196,7 @@ function Landing() {
           </p>
         </aside>
       </main>
-      <footer className="site-footer">
-        <Brand />
-        <p>{t.landing.footer}</p>
-        <a href="#/app">
-          {t.landing.footerLink}
-          <ArrowRight size={18} />
-        </a>
-      </footer>
+      <LuxembourgFooter />
     </div>
   );
 }
