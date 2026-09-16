@@ -5,8 +5,10 @@ import { fileURLToPath } from "node:url";
 
 let proxy;
 const provider = process.argv[2] || "telnyx";
-if (!["telnyx", "ses"].includes(provider)) {
-  console.error("Usage : node scripts/provider-readiness.mjs [telnyx|ses]");
+if (!["telnyx", "ses", "pingen"].includes(provider)) {
+  console.error(
+    "Usage : node scripts/provider-readiness.mjs [telnyx|ses|pingen]",
+  );
   process.exit(1);
 }
 try {
@@ -17,9 +19,11 @@ try {
     persist: false,
   });
   const result =
-    provider === "ses"
-      ? await proxy.env.PROVIDERS.inspectSes()
-      : await proxy.env.PROVIDERS.inspectTelnyx();
+    provider === "pingen"
+      ? await proxy.env.PROVIDERS.inspectPingen()
+      : provider === "ses"
+        ? await proxy.env.PROVIDERS.inspectSes()
+        : await proxy.env.PROVIDERS.inspectTelnyx();
   console.log(JSON.stringify(result, null, 2));
 } catch {
   console.error(
