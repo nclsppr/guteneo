@@ -7,6 +7,7 @@ import {
   canonicalJson,
   DomainError,
   sha256,
+  validateLiveFaxQuote,
   type ActorContext,
   type Channel,
   type Dispatch,
@@ -234,6 +235,9 @@ async function verifyFrozenContent(
       ceilingMinor: row.ceiling_minor,
       currency: row.currency,
       mode: row.mode,
+      ...(row.quote_fingerprint
+        ? { quoteFingerprint: row.quote_fingerprint }
+        : {}),
     }),
   );
   if (fingerprint !== row.fingerprint) blocked("APPROVED_CONTENT_MISMATCH");
@@ -287,7 +291,7 @@ async function grantFaxMedia(
   return { url: new URL(`/media/${token}`, env.APP_ORIGIN).href, expiresAt };
 }
 
-/** Adapts the real providers to the same durable domain attempt path. It never removes the pricing gate. */
+/** Adapts providers to the durable attempt path, preserving qualified quote checks. */
 export function createLiveProviderHook(
   env: LiveProviderEnv,
   channel: Channel,
@@ -296,8 +300,16 @@ export function createLiveProviderHook(
   const provider = providerNames[channel];
   const fetcher = dependencies.fetcher ?? fetch;
   const clock = dependencies.now ?? Date.now;
+  const liveFaxIdentity =
+    channel === "fax" && env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
+      ? {
+          accountId: env.TELNYX_ACCOUNT_ID,
+          connectionId: env.TELNYX_CONNECTION_ID,
+        }
+      : undefined;
   return {
     name: provider,
+    liveFaxIdentity,
     async submit(input) {
       let providerCallStarted = false;
       try {
@@ -347,6 +359,12 @@ export function createLiveProviderHook(
               row,
               loaded!.document,
               clock(),
+            );
+            await validateLiveFaxQuote(
+              env.DB,
+              row,
+              liveFaxIdentity,
+              new Date(clock()).toISOString(),
             );
             providerCallStarted = true;
             return connector.submit({
@@ -472,6 +490,13 @@ export function createLiveProviderHook(
             });
           };
         }
+        if (channel === "fax")
+          await validateLiveFaxQuote(
+            env.DB,
+            row,
+            liveFaxIdentity,
+            new Date(clock()).toISOString(),
+          );
         if (!(await claimAttempt(env, row, clock())))
           return {
             status: "submission_unknown",

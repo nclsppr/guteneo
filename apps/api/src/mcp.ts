@@ -17,6 +17,7 @@ import {
 } from "./auth";
 
 export interface McpDocuments {
+  rescan?(ctx: AuthContext, documentId: string): Promise<DocumentRecord>;
   importFile(
     ctx: AuthContext,
     file: {
@@ -96,6 +97,20 @@ const writeAnnotations = {
   idempotentHint: true,
   openWorldHint: false,
 };
+const oauthMetadata = (scope?: string) => ({
+  // The installed MCP v2 SDK preserves extension metadata, not arbitrary top-level fields.
+  securitySchemes: [{ type: "oauth2", scopes: scope ? [scope] : [] }],
+});
+
+export const FAX_WORKFLOW = [
+  "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages.",
+  "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un fichier autorisé, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant.",
+  "3. Attendre le statut ready du document. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
+  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl.",
+  "5. L’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ou l’autorisation d’un outil ne remplace pas cette approbation. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
+  "6. Après cette approbation, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
+  "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain.",
+].join("\n");
 
 export const openAIFileSchema = z
   .object({
@@ -181,7 +196,7 @@ export function createGuteneoMcpServer(
   env: AuthEnv,
   services: McpServices,
 ): McpServer {
-  const server = new McpServer({ name: "guteneo", version: "0.1.0" });
+  const server = new McpServer({ name: "guteneo", version: "0.2.0" });
   const run = async (
     scope: string | null,
     operation: () => Promise<unknown> | unknown,
@@ -190,7 +205,15 @@ export function createGuteneoMcpServer(
       if (scope) requireScope(identity, scope);
       return success(await operation());
     } catch (error) {
-      return failure(error);
+      const result = failure(error);
+      if (error instanceof AuthError && error.code === "INSUFFICIENT_SCOPE") {
+        result._meta = {
+          "mcp/www_authenticate": [
+            `Bearer resource_metadata="${env.APP_ORIGIN}/.well-known/oauth-protected-resource/mcp", error="insufficient_scope", error_description="Additional Guteneo permission required", scope="${scope}"`,
+          ],
+        };
+      }
+      return result;
     }
   };
   server.registerTool(
@@ -201,6 +224,7 @@ export function createGuteneoMcpServer(
       inputSchema: z.object({}).strict(),
       outputSchema: output(z.unknown()),
       annotations: readonlyAnnotations,
+      _meta: oauthMetadata(),
     },
     () => run(null, services.capabilities),
   );
@@ -212,7 +236,10 @@ export function createGuteneoMcpServer(
       inputSchema: z.object({ file: openAIFileSchema }).strict(),
       outputSchema: output(documentSchema),
       annotations: { ...writeAnnotations, openWorldHint: true },
-      _meta: { "openai/fileParams": ["file"] },
+      _meta: {
+        ...oauthMetadata("documents:write"),
+        "openai/fileParams": ["file"],
+      },
     },
     ({ file }) =>
       run("documents:write", async () =>
@@ -235,12 +262,131 @@ export function createGuteneoMcpServer(
         .strict(),
       outputSchema: output(documentSchema),
       annotations: { ...writeAnnotations, idempotentHint: false },
+      _meta: oauthMetadata("documents:write"),
     },
     (input) =>
       run("documents:write", async () =>
         documentSummary(
           await services.documents.render(identity.context, input),
           env,
+        ),
+      ),
+  );
+  server.registerTool(
+    "get_document",
+    {
+      title: "Vérifier un PDF Guteneo",
+      description:
+        "Vérifie l’identifiant, l’empreinte SHA-256, les pages et le statut d’un PDF de l’organisation connectée. Un document quarantined ne peut pas être faxé. L’aperçu nécessite une session navigateur Guteneo.",
+      inputSchema: z.object({ documentId: id }).strict(),
+      outputSchema: output(documentSchema),
+      annotations: readonlyAnnotations,
+      _meta: oauthMetadata("documents:read"),
+    },
+    ({ documentId }) =>
+      run("documents:read", async () =>
+        documentSummary(
+          await services.domain.getDocument(identity.context, documentId),
+          env,
+        ),
+      ),
+  );
+  if (services.documents.rescan)
+    server.registerTool(
+      "rescan_document",
+      {
+        title: "Relancer la vérification d’un PDF",
+        description:
+          "Relance une analyse du PDF original en quarantaine, sans modifier ses octets ni l’envoyer. Utile après le démarrage de l’antivirus. Maximum dix nouvelles tentatives par organisation et par jour ; ne pas appeler en boucle. Seul le statut ready permet de préparer un fax.",
+        inputSchema: z.object({ documentId: id }).strict(),
+        outputSchema: output(documentSchema),
+        annotations: { ...writeAnnotations, idempotentHint: false },
+        _meta: oauthMetadata("documents:write"),
+      },
+      ({ documentId }) =>
+        run("documents:write", async () =>
+          documentSummary(
+            await services.documents.rescan!(identity.context, documentId),
+            env,
+          ),
+        ),
+    );
+  server.registerTool(
+    "list_documents",
+    {
+      title: "Retrouver un PDF déposé",
+      description:
+        "Retrouve les PDF déjà déposés dans Guteneo, notamment après un dépôt navigateur depuis Claude ou Cursor. Retourne uniquement les métadonnées de l’organisation connectée, jamais les octets ni une URL publique.",
+      inputSchema: z
+        .object({
+          cursor: z.string().max(2048).optional(),
+          limit: z.number().int().min(1).max(50).default(20),
+        })
+        .strict(),
+      outputSchema: output(
+        z
+          .object({
+            items: z.array(documentSchema),
+            nextCursor: z.string().nullable(),
+          })
+          .strict(),
+      ),
+      annotations: readonlyAnnotations,
+      _meta: oauthMetadata("documents:read"),
+    },
+    ({ cursor, limit }) =>
+      run("documents:read", async () => {
+        const result = await services.domain.listDocuments(
+          identity.context,
+          cursor,
+          limit,
+        );
+        return {
+          ...result,
+          items: result.items.map((document) => documentSummary(document, env)),
+        };
+      }),
+  );
+  server.registerTool(
+    "prepare_fax",
+    {
+      title: "Préparer un fax PDF",
+      description:
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le prix et le lien d’approbation humaine. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
+      inputSchema: z
+        .object({
+          documentId: id,
+          phone: z
+            .string()
+            .regex(/^\+[1-9]\d{7,14}$/)
+            .describe(
+              "Numéro du destinataire en format international E.164, fourni par l’utilisateur.",
+            ),
+          ceilingMinor: z
+            .number()
+            .int()
+            .nonnegative()
+            .safe()
+            .describe(
+              "Plafond accepté en centimes EUR ; 100 = 1 EUR. Le devis réel provient du serveur.",
+            ),
+          senderId: id.optional(),
+          idempotencyKey: key,
+        })
+        .strict(),
+      outputSchema: output(dispatchSchema),
+      annotations: writeAnnotations,
+      _meta: oauthMetadata("dispatches:prepare"),
+    },
+    ({ idempotencyKey, phone, ...input }) =>
+      run("dispatches:prepare", async () =>
+        dispatchSummary(
+          await services.domain.prepareDispatch(
+            identity.context,
+            { ...input, channel: "fax", recipient: { phone } },
+            idempotencyKey,
+          ),
+          env.APP_ORIGIN,
         ),
       ),
   );
@@ -285,6 +431,7 @@ export function createGuteneoMcpServer(
         .strict(),
       outputSchema: output(dispatchSchema),
       annotations: writeAnnotations,
+      _meta: oauthMetadata("dispatches:prepare"),
     },
     ({ idempotencyKey, ...input }) =>
       run("dispatches:prepare", async () =>
@@ -306,6 +453,7 @@ export function createGuteneoMcpServer(
       inputSchema: z.object({ dispatchId: id, idempotencyKey: key }).strict(),
       outputSchema: output(dispatchSchema),
       annotations: { ...writeAnnotations, openWorldHint: true },
+      _meta: oauthMetadata("dispatches:send"),
     },
     ({ dispatchId, idempotencyKey }) =>
       run("dispatches:send", async () => {
@@ -331,6 +479,7 @@ export function createGuteneoMcpServer(
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(dispatchSchema),
       annotations: readonlyAnnotations,
+      _meta: oauthMetadata("dispatches:read"),
     },
     ({ dispatchId }) =>
       run("dispatches:read", async () =>
@@ -361,6 +510,7 @@ export function createGuteneoMcpServer(
           .strict(),
       ),
       annotations: readonlyAnnotations,
+      _meta: oauthMetadata("dispatches:read"),
     },
     ({ cursor, limit }) =>
       run("dispatches:read", async () => {
@@ -390,6 +540,7 @@ export function createGuteneoMcpServer(
         idempotentHint: true,
         openWorldHint: true,
       },
+      _meta: oauthMetadata("dispatches:send"),
     },
     ({ dispatchId }) =>
       run("dispatches:send", async () =>
@@ -398,6 +549,27 @@ export function createGuteneoMcpServer(
           env.APP_ORIGIN,
         ),
       ),
+  );
+  server.registerPrompt(
+    "fax_pdf",
+    {
+      title: "Faxer un PDF avec contrôle humain",
+      description:
+        "Parcours complet : PDF exact, devis, approbation dans Guteneo, envoi et suivi.",
+    },
+    () => ({
+      description:
+        "Préparer puis suivre un fax sans substituer le document ni l’approbation humaine.",
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: `${FAX_WORKFLOW}\nDépôt et revue authentifiés : ${env.APP_ORIGIN}/#/app/documents`,
+          },
+        },
+      ],
+    }),
   );
   return server;
 }

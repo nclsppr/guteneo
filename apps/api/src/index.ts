@@ -27,16 +27,39 @@ import {
 } from "./auth";
 import { handleMcp } from "./mcp";
 import { createLiveProviderHook, serveProviderMedia } from "./live-providers";
+import {
+  billingConfigured,
+  handleBillingRoute,
+  handleStripeWebhook,
+} from "./billing";
+import { handleAccountRoute } from "./account";
 
 type Variables = { actor: ActorContext };
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
+function identityConfigured(env: Env) {
+  return Boolean(
+    env.AUTH0_DOMAIN &&
+      env.AUTH0_CLIENT_ID &&
+      env.AUTH0_AUDIENCE &&
+      env.AUTH0_CLIENT_SECRET,
+  );
+}
 export function getCapabilities(env: Env) {
   return {
     name: "Guteneo",
-    version: "0.1.0",
+    version: "0.2.0",
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",
+    registration: {
+      enabled: identityConfigured(env),
+      verification: "verified_email_and_mfa",
+    },
+    billing: {
+      configured: billingConfigured(env),
+      mode: env.STRIPE_MODE ?? "unconfigured",
+      chargingEnabled: false,
+    },
     channels: [
       {
         id: "fax",
@@ -66,7 +89,7 @@ export function getCapabilities(env: Env) {
     limits: LIMITS,
     liveSending: false,
     scanner: env.SCANNER
-      ? "connected_not_validated"
+      ? "connected"
       : env.ENVIRONMENT === "local"
         ? "disabled_in_local_simulation"
         : "missing_quarantine",
@@ -76,15 +99,16 @@ export function getCapabilities(env: Env) {
       transport: "Streamable HTTP",
     })),
     mcpUrl: `${env.APP_ORIGIN}/mcp`,
-    identity: env.AUTH0_DOMAIN
+    identity: identityConfigured(env)
       ? "Auth0 configured, real login unverified"
       : "Auth0 not configured",
     productionBlockers: [
-      "identity_live_validation",
-      "malware_scanner_qualification",
+      ...(!identityConfigured(env) ? ["identity_configuration"] : []),
+      ...(!env.SCANNER ? ["malware_scanner_configuration"] : []),
       "verified_tariffs",
       "provider_live_tests",
-      "production_approval",
+      ...(!env.TELNYX_FROM ? ["verified_fax_sender"] : []),
+      "funded_sending_budget",
     ],
     documents: {
       import: true,
@@ -107,6 +131,14 @@ app.use("*", async (c, next) => {
   try {
     assertConfiguration(c.env, c.req.raw);
   } catch {
+    if (
+      c.req.method === "GET" &&
+      ["/auth/login", "/auth/signup"].includes(c.req.path)
+    )
+      return c.redirect(
+        `${c.env.APP_ORIGIN}/?auth=IDENTITY_NOT_CONFIGURED#/app`,
+        302,
+      );
     return c.json(
       {
         error: {
@@ -145,28 +177,36 @@ app.use(
       ),
   }),
 );
-app.get("/api/health", (c) => c.json({ status: "ok", mode: c.env.MODE }));
+app.get("/api/health", (c) =>
+  c.json({
+    status:
+      c.env.ENVIRONMENT === "local" || identityConfigured(c.env)
+        ? "ok"
+        : "configuration_required",
+    mode: c.env.MODE,
+    liveSending: false,
+  }),
+);
 app.get("/api/capabilities", (c) => c.json(getCapabilities(c.env)));
 app.get("/media/:token", (c) =>
   serveProviderMedia(c.env, c.req.raw, c.req.param("token")),
 );
 app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
-    domain: new DomainService(c.env.DB, { mode: c.env.MODE }),
-    documents: new DocumentService(
-      c.env,
-      new DomainService(c.env.DB, { mode: c.env.MODE }),
-    ),
+    domain: domain(c.env),
+    documents: new DocumentService(c.env, domain(c.env)),
     capabilities: () => getCapabilities(c.env),
     afterConfirmation: () =>
       publishOutbox(c.env, domain(c.env)).then(() => undefined),
   }),
 );
 app.use("*", async (c, next) => {
+  const stripe = await handleStripeWebhook(c.req.raw, c.env);
+  if (stripe) return stripe;
   const webhook = await handleWebhook(
     c.req.raw,
     c.env,
-    new DomainService(c.env.DB, { mode: c.env.MODE }),
+    domain(c.env),
   );
   if (webhook) return webhook;
   await next();
@@ -176,6 +216,20 @@ app.use("*", async (c, next) => {
   if (auth) return auth;
   return next();
 });
+app.use("/api/billing/*", async (c, next) => {
+  const billing = await handleBillingRoute(c.req.raw, c.env);
+  if (billing) return billing;
+  return next();
+});
+app.use("/api/*", async (c, next) => {
+  const account = await handleAccountRoute(c.req.raw, c.env);
+  if (account) return account;
+  return next();
+});
+app.all(
+  "/api/billing",
+  async (c) => (await handleBillingRoute(c.req.raw, c.env)) ?? c.notFound(),
+);
 app.use("/api/*", async (c, next) => {
   if (c.req.header("Authorization")) {
     const identity = await authenticateMcp(c.req.raw, c.env);
@@ -220,7 +274,17 @@ app.use("/api/*", async (c, next) => {
   }
   await next();
 });
-const domain = (env: Env) => new DomainService(env.DB, { mode: env.MODE });
+const domain = (env: Env) =>
+  new DomainService(env.DB, {
+    mode: env.MODE,
+    liveFaxIdentity:
+      env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
+        ? {
+            accountId: env.TELNYX_ACCOUNT_ID,
+            connectionId: env.TELNYX_CONNECTION_ID,
+          }
+        : undefined,
+  });
 const idempotency = (value: string | undefined) => {
   if (!value)
     throw new ContentError(
@@ -271,6 +335,19 @@ app.get("/api/documents/:id/content", async (c) =>
   new DocumentService(c.env, domain(c.env)).getContent(
     c.get("actor"),
     c.req.param("id"),
+  ),
+);
+app.post("/api/documents/:id/rescan", async (c) =>
+  c.json(
+    await new DocumentService(c.env, domain(c.env)).rescan(
+      c.get("actor"),
+      c.req.param("id"),
+    ),
+  ),
+);
+app.post("/api/admin/scanner/warm", async (c) =>
+  c.json(
+    await new DocumentService(c.env, domain(c.env)).warmScanner(c.get("actor")),
   ),
 );
 app.get("/api/dispatches", async (c) =>
@@ -415,6 +492,12 @@ app.all("/api/*", (c) =>
 );
 app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((error, c) => {
+  if (error instanceof AuthError && c.req.path.startsWith("/auth/")) {
+    return c.redirect(
+      `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
+      302,
+    );
+  }
   if (
     error instanceof DomainError ||
     error instanceof ContentError ||

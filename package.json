@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,17 +13,22 @@
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "vitest run && node --test tests/security/*.test.mjs",
     "test:e2e": "playwright test",
     "test:preview": "playwright test --config playwright.preview.config.ts",
-    "build:web": "vite build --config apps/web/vite.config.ts",
+    "build:web": "vite build --config apps/web/vite.config.ts && node integrations/build.mjs dist/web/integrations",
     "build:preview": "node scripts/build-preview.mjs",
     "deploy:preview": "npm run build:preview && wrangler deploy --config wrangler.preview.jsonc",
     "build": "npm run typecheck && npm run build:web && wrangler deploy --dry-run --outdir dist/worker",
     "demo": "npm run db:migrate && npm run db:seed && npm run dev",
     "costs": "node --import tsx scripts/costs.ts",
     "deploy:plan": "node scripts/provision.mjs",
-    "browser:prepare": "node scripts/prepare-browser.mjs"
+    "browser:prepare": "node scripts/prepare-browser.mjs",
+    "setup:fax": "node scripts/secure-setup.mjs telnyx",
+    "setup:billing": "node scripts/secure-setup.mjs stripe",
+    "build:integrations": "node integrations/build.mjs",
+    "build:live": "node scripts/build-live.mjs",
+    "deploy:live": "npm run build:live && wrangler deploy --config wrangler.live.jsonc"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

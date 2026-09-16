@@ -41,6 +41,8 @@ export const fr = {
     connection: "Connecter un assistant",
     senders: "Expéditeurs",
     usage: "Consommation",
+    billing: "Facturation",
+    account: "Mon compte",
     admin: "Administration",
   },
   landing: {

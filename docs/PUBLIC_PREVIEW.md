@@ -6,7 +6,7 @@ The separate `guteneo-preview` Worker serves the React application built with `V
 
 ## What is interactive
 
-- Landing and responsive dashboard, documents, sends, campaigns, sender profiles, usage and administration.
+- Landing and responsive dashboard, documents, sends, campaigns, sender profiles, usage, account settings, billing state and administration.
 - Real locally generated fictional PDF examples that can be displayed and downloaded.
 - Preparation, browser review, approval and deterministic simulated results for individual sends; CSV validation and campaign preparation.
 - Sample organizations isolated in one tab's memory. Reloading restores the examples; closing the page retains no application data. No document contents or form data are submitted to a backend.

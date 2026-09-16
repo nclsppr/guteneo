@@ -4,7 +4,7 @@ An independent, MCP-first correspondence product: exact PDF → fax or physical 
 
 **Public design preview:** [guteneo.com](https://guteneo.com), with a directly accessible [sample workspace](https://guteneo.com/#/app). The dedicated Cloudflare preview runs entirely with fictional, per-tab browser data. No registration, upload, payment, assistant connection or real sending is active there. See [deployment evidence and preview commands](docs/PUBLIC_PREVIEW.md).
 
-**Application delivery:** usable local vertical through real Cloudflare emulation and deterministic, prominently labelled simulation. Provider adapters, managed Auth0 integration and stateless MCP are implemented and fixture-tested. No real provider send or remote OAuth client has been exercised. Live pricing qualification/snapshot integration still blocks production preparation. This is not a production-readiness claim.
+**Hosted beta:** [guteneo-app.nclsppr.workers.dev](https://guteneo-app.nclsppr.workers.dev) runs the production-mode backend with private EU D1/R2 storage, queues and qualified private PDF services. Account/profile/session/team management, billing tracking and MCP/plugin packages are implemented. Auth0 activation and Stripe setup remain incomplete, and real assistant clients have not been qualified. Telnyx credentials are installed; verified account tariffs, an owned sender and funded budgets still gate live fax. See [release evidence](docs/LIVE_RELEASE.md).
 
 ## Run locally
 
@@ -56,10 +56,13 @@ Restricted environment verification used `GUTENEO_BUNDLED_CHROMIUM=1 npx playwri
 - [Threats and controls](docs/THREATS.md), [dated verification sources](docs/VERIFICATION.md)
 - [Costs](docs/COSTS.md), [operations/deployment/restore](docs/RUNBOOK.md), [restore proof](docs/RESTORE_PROOF.md)
 - [Demonstration](docs/DEMO.md), [test results](docs/TEST_RESULTS.md), [product improvements](docs/IMPROVEMENTS.md)
+- [Hosted release](docs/LIVE_RELEASE.md), [Cloudflare setup](docs/CLOUDFLARE_SETUP.md), [remote migrations](docs/D1_MIGRATION.md)
+- [Account and team administration](docs/ACCOUNT_ADMIN.md), [billing](docs/BILLING.md), [assistant installation](docs/LLM_SETUP.md)
+- [Secure credential setup](docs/SECURE_CONFIGURATION.md), [antivirus](docs/SCANNER.md), [PDF rescan](docs/SCANNER_RESCAN.md)
 - [Brand asset](docs/BRAND_ASSET.md)
 
 ## Deliberate gates
 
-No local auth in hosted environments; no simulation production. R2 private, organizational isolation throughout. Missing production scanner means quarantine before PDF parsing; rendering runs in a separate Worker. New real organizations have zero credits. Marketing is blocked pending unsubscribe/reputation qualification. Accounts, sender identities, exact destinations, real tariffs and explicit real-send approval must be supplied; examples contain no production identifiers.
+No local auth in hosted environments; no simulation production. R2 private, organizational isolation throughout. Missing production scanner means quarantine before PDF parsing; rendering runs in a separate Worker. New real organizations have zero sending credits and a bounded daily PDF allowance (10 imports / 20 MiB / 3 renders). Marketing is blocked pending unsubscribe/reputation qualification. Accounts, sender identities, exact destinations, real tariffs and explicit real-send approval must be supplied; examples contain no production identifiers.
 
-Cloudflare configuration examples are separate for staging/production. The root Wrangler config is **local only**. The public design preview uses `wrangler.preview.jsonc`; it has no business-service bindings. CI verifies both the application and preview without deploying either.
+Cloudflare configuration examples are separate for staging/production. The root Wrangler config is **local only**. The public design preview uses `wrangler.preview.jsonc`; it has no business-service bindings. The hosted backend uses `wrangler.live.jsonc`. CI verifies the application, isolated scanner and preview without deploying them. Use `npm run setup:fax` or `npm run setup:billing` for local secure credential transfer; never paste credentials into a task message.

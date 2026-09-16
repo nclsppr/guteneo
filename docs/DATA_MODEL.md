@@ -55,7 +55,7 @@ This is **at-most-one automatic submission attempt per business command**, with 
 
 ## Cost accounting semantics
 
-Simulation values (fax 20 test cents/page, email 1, post 150) are illustrative test credits, **not provider rates or commercial prices**. Production preparation fails closed with `LIVE_PRICING_REQUIRED` until a real account/destination quote resolver and spending authorization are connected. `known_minor` is independent and remains null when there is no verified provider cost.
+Simulation values (fax 20 test cents/page, email 1, post 150) are illustrative test credits, **not provider rates or commercial prices**. Production fax now uses immutable qualified account/destination quote snapshots; without actual verified account/tariff configuration it still fails closed with `LIVE_PRICING_REQUIRED`. Other production channels remain closed. `known_minor` is independent and remains null when there is no verified provider cost.
 
 The initial ledger conservatively confirms the reserved ceiling after provider acceptance; it does not bill the client or imply that the supplier charged that exact amount. Final known-cost settlement, currency conversion and charging/refunds are deferred. An unknown outcome never frees the ceiling. Production onboarding receives zero limits and disabled channels; there is no automatic monthly funded entitlement.
 
@@ -80,3 +80,7 @@ Indexes cover tenant pagination, campaign membership, expired submission leases,
 Operational review thresholds: investigate when database size reaches 60% of the verified D1 cap, callback/outbox lag exceeds its target, or measured acceptance p95 exceeds 2 seconds under the intended load. Approaching 80% is a migration/provisioning gate, not a promise that one database can absorb all tenants. The verified numerical D1 limits and account quotas belong in `VERIFICATION.md`; local tests do not establish production throughput.
 
 A PostgreSQL move can preserve tenant IDs, immutable fingerprints, outbox and reservation model, while porting SQLite trigger syntax and conditional updates. No second backend is maintained prematurely. Large event/audit payload retention, independent encrypted backups and restored-command reconciliation are operational requirements; restoring a database must pause consumers and compare restored pending commands with provider facts before any release.
+
+## v0.2 additions
+
+Migrations 0009–0013 add Stripe customer/event/payment/invoice/subscription projections, onboarding attempt counters, public session references and last-admin protection, leased PDF rescan budgets, and immutable trusted fax tariff/quote records. No migration seeds a real customer, communication budget, sender or tariff. `quote_fingerprint` binds a production fax dispatch to the quote; SQL views and triggers recheck that quote and its qualified tariff at preparation, approval, acceptance and attempt claim. See BILLING.md, ACCOUNT_ADMIN.md, SCANNER_RESCAN.md and LIVE_FAX_QUOTES.md.

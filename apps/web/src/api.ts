@@ -28,6 +28,7 @@ export type Dispatch = {
   mode: string;
   estimated_minor: number;
   ceiling_minor: number;
+  quote_expires_at?: string | null;
   currency: string;
   fingerprint: string;
   created_at: string;

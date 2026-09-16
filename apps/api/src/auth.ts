@@ -541,8 +541,37 @@ export async function handleAuthRoute(
     ].includes(url.pathname)
   )
     return protectedResourceMetadata(env);
-  if (request.method === "GET" && url.pathname === "/auth/login") {
+  if (
+    request.method === "GET" &&
+    ["/auth/login", "/auth/signup"].includes(url.pathname)
+  ) {
     const config = configuredIdentity(env);
+    if (env.ENVIRONMENT !== "local") {
+      const ip = request.headers.get("CF-Connecting-IP");
+      if (!ip)
+        throw new AuthError(
+          "LOGIN_UNAVAILABLE",
+          "Connexion indisponible.",
+          503,
+        );
+      const window = Math.floor(Date.now() / 3_600_000);
+      const key = await hashSecret(
+        `${env.AUTH0_CLIENT_SECRET}:${Math.floor(window / 24)}:${ip}`,
+      );
+      const limit = await env.DB.prepare(
+        `INSERT INTO auth_flow_limits(key,window_start,count) VALUES(?,?,1)
+        ON CONFLICT(key) DO UPDATE SET window_start=excluded.window_start,
+        count=CASE WHEN window_start=excluded.window_start THEN count+1 ELSE 1 END RETURNING count`,
+      )
+        .bind(key, window)
+        .first<{ count: number }>();
+      if (!limit || limit.count > 60)
+        throw new AuthError(
+          "LOGIN_RATE_LIMITED",
+          "Trop de tentatives. Réessayez dans une heure.",
+          429,
+        );
+    }
     const state = randomSecret();
     const browser = randomSecret();
     const verifier = randomSecret();
@@ -578,6 +607,14 @@ export async function handleAuthRoute(
       code_challenge: challenge,
       code_challenge_method: "S256",
     }).toString();
+    if (url.pathname === "/auth/signup")
+      destination.searchParams.set("screen_hint", "signup");
+    // A fresh login allows a newly verified email or MFA enrolment to be reflected
+    // in signed claims rather than reusing an old identity-provider session.
+    if (url.searchParams.get("fresh") === "1") {
+      destination.searchParams.set("prompt", "login");
+      destination.searchParams.set("max_age", "0");
+    }
     return redirect(destination.href, [cookie(env, "login", browser, 600)]);
   }
   if (request.method === "GET" && url.pathname === "/auth/callback") {
@@ -610,6 +647,11 @@ export async function handleAuthRoute(
         code_verifier: transaction.code_verifier,
         redirect_uri: `${env.APP_ORIGIN}/auth/callback`,
       }),
+    }).catch(() => {
+      throw new AuthError(
+        "LOGIN_EXCHANGE_FAILED",
+        "Le service de connexion est momentanément indisponible. Réessayez.",
+      );
     });
     if (!response.ok)
       throw new AuthError(
@@ -617,11 +659,23 @@ export async function handleAuthRoute(
         "La connexion n’a pas pu être terminée. Recommencez.",
         401,
       );
-    const tokens = (await response.json()) as {
+    const tokens = (await response.json().catch(() => {
+      throw new AuthError(
+        "LOGIN_EXCHANGE_FAILED",
+        "La connexion n’a pas pu être terminée. Recommencez.",
+      );
+    })) as {
       id_token?: string;
       access_token?: string;
-    };
-    if (!tokens.id_token || !tokens.access_token)
+    } | null;
+    if (
+      !tokens ||
+      typeof tokens !== "object" ||
+      typeof tokens.id_token !== "string" ||
+      typeof tokens.access_token !== "string" ||
+      !tokens.id_token ||
+      !tokens.access_token
+    )
       throw new AuthError(
         "LOGIN_EXCHANGE_FAILED",
         "Réponse d’identité incomplète.",
@@ -637,52 +691,83 @@ export async function handleAuthRoute(
         "LOGIN_STATE_INVALID",
         "Réponse d’identité non liée à cette connexion.",
       );
+    if (
+      claims.email_verified !== true ||
+      typeof claims.email !== "string" ||
+      !claims.email.trim() ||
+      claims.email.length > 320
+    )
+      throw new AuthError(
+        "EMAIL_VERIFICATION_REQUIRED",
+        "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+        403,
+      );
     let identity = await env.DB.prepare(
       "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
     )
       .bind(config.issuer, claims.sub)
       .first<{ user_id: string }>();
     if (!identity) {
+      if (!hasMfa(claims))
+        throw new AuthError(
+          "MFA_REQUIRED",
+          "Terminez la double authentification pour créer votre espace.",
+          403,
+        );
       // A new account gets an isolated workspace, with every real-send budget and channel closed.
       const userId = `usr_${crypto.randomUUID()}`;
       const organizationId = `org_${crypto.randomUUID()}`;
       const createdAt = nowISO();
-      await env.DB.batch([
-        env.DB.prepare(
-          "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
-        ).bind(
-          userId,
-          typeof claims.name === "string"
-            ? claims.name.slice(0, 200)
-            : "Utilisateur Guteneo",
-          typeof claims.email === "string" && claims.email_verified === true
-            ? claims.email.slice(0, 320)
-            : "",
-          createdAt,
-        ),
-        env.DB.prepare(
-          "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
-        ).bind(organizationId, "Mon espace", env.MODE, createdAt),
-        env.DB.prepare(
-          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
-        ).bind(organizationId, userId, createdAt),
-        env.DB.prepare(
-          "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
-        ).bind(config.issuer, claims.sub, userId, createdAt),
-        ...["fax", "email", "postal"].flatMap((channel) => [
+      try {
+        await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,0,0,'EUR')",
-          ).bind(organizationId, channel, createdAt.slice(0, 7)),
+            "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+          ).bind(
+            userId,
+            typeof claims.name === "string"
+              ? claims.name.slice(0, 200)
+              : "Utilisateur Guteneo",
+            typeof claims.email === "string" && claims.email_verified === true
+              ? claims.email.slice(0, 320)
+              : "",
+            createdAt,
+          ),
           env.DB.prepare(
-            "INSERT INTO channel_controls(organization_id,channel,enabled) VALUES(?,?,0)",
-          ).bind(organizationId, channel),
-        ]),
-      ]);
-      identity = { user_id: userId };
+            "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
+          ).bind(organizationId, "Mon espace", env.MODE, createdAt),
+          env.DB.prepare(
+            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+          ).bind(organizationId, userId, createdAt),
+          env.DB.prepare(
+            "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
+          ).bind(config.issuer, claims.sub, userId, createdAt),
+          env.DB.prepare(
+            "INSERT INTO content_limits(organization_id,uploads_per_day,bytes_per_day,renders_per_day) VALUES(?,10,20971520,3)",
+          ).bind(organizationId),
+          ...["fax", "email", "postal"].flatMap((channel) => [
+            env.DB.prepare(
+              "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,0,0,'EUR')",
+            ).bind(organizationId, channel, createdAt.slice(0, 7)),
+            env.DB.prepare(
+              "INSERT INTO channel_controls(organization_id,channel,enabled) VALUES(?,?,0)",
+            ).bind(organizationId, channel),
+          ]),
+        ]);
+        identity = { user_id: userId };
+      } catch (error) {
+        // Concurrent valid callbacks can race to create the same identity. The
+        // failed D1 batch rolls back, then we reuse only the exact signed subject.
+        identity = await env.DB.prepare(
+          "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
+        )
+          .bind(config.issuer, claims.sub)
+          .first<{ user_id: string }>();
+        if (!identity) throw error;
+      }
     }
     const memberRows = await memberships(env, identity.user_id);
     if (!memberRows.length)
-      return redirect(`${env.APP_ORIGIN}/?auth=invitation_required`, [
+      return redirect(`${env.APP_ORIGIN}/?auth=invitation_required#/app`, [
         cookie(env, "login", "", 0),
       ]);
     const member = memberRows[0];

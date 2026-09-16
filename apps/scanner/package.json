@@ -1,0 +1,23 @@
+{
+  "name": "guteneo-private-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types worker-configuration.d.ts --env-interface ScannerEnv --include-runtime false",
+    "check": "npm run typecheck && wrangler deploy --dry-run --outdir dist",
+    "test": "node --test tests/worker.test.mjs && python3 -m unittest discover -s tests -p 'test_*.py'",
+    "qualify:docker": "python3 tests/qualify_docker.py",
+    "refresh:definitions": "node scripts/refresh-definitions.mjs"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7",
+    "jsonc-parser": "3.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260916.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.132.0"
+  }
+}

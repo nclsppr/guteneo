@@ -1,4 +1,12 @@
 import {
+  resolveFaxTariff,
+  makeFaxQuote,
+  insertFaxQuote,
+  validateLiveFaxQuote,
+  type LiveFaxIdentity,
+} from "./live-fax-quotes";
+export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
+import {
   cleanHtml,
   htmlToText,
   safeHeader,
@@ -41,6 +49,8 @@ export type DispatchStatus =
   | "printed"
   | "handed_to_post";
 export type Dispatch = {
+  quote_fingerprint?: string | null;
+  quote_expires_at?: string | null;
   id: string;
   organization_id: string;
   campaign_id: string | null;
@@ -99,9 +109,8 @@ export type ProviderEventInput = {
 };
 export type ProviderHook = {
   name: string;
-  submit: (
-    dispatch: Dispatch,
-  ) => Promise<{
+  liveFaxIdentity?: LiveFaxIdentity;
+  submit: (dispatch: Dispatch) => Promise<{
     status: "accepted" | "submission_unknown" | "rejected";
     providerId?: string;
     errorCode?: string;
@@ -155,6 +164,12 @@ function writable(ctx: ActorContext) {
 function sqlError(error: unknown): never {
   const message = String(error);
   for (const [needle, code, label, status] of [
+    [
+      "live_quote_invalid",
+      "LIVE_QUOTE_INVALID",
+      "Le devis fax a expiré ou sa configuration a changé.",
+      409,
+    ],
     [
       "quota_exceeded",
       "QUOTA_EXCEEDED",
@@ -211,7 +226,11 @@ export class DomainService {
   private now: () => number;
   constructor(
     public readonly db: D1Database,
-    public readonly config: { mode: Mode; now?: () => number },
+    public readonly config: {
+      mode: Mode;
+      now?: () => number;
+      liveFaxIdentity?: LiveFaxIdentity;
+    },
   ) {
     this.now = config.now ?? Date.now;
   }
@@ -508,17 +527,30 @@ export class DomainService {
         "Configurez et vérifiez un expéditeur pour ce canal.",
         409,
       );
-    // Real tariff quotes are account/destination-dependent. Until a verified quote resolver is wired,
-    // physical acceptance fails closed rather than treating illustrative simulation credits as money.
-    if (this.config.mode === "production")
+    // Only fax has an operator-qualified live quote resolver. Other channels remain closed.
+    if (this.config.mode === "production" && input.channel !== "fax")
       throw new DomainError(
         "LIVE_PRICING_REQUIRED",
         "Tarification réelle et activation du transport requises.",
         409,
       );
-    const estimatedMinor =
-      { fax: 20, email: 1, postal: 150 }[input.channel] *
-      (input.channel === "fax" ? (document?.pages ?? 1) : 1);
+    const tariff =
+      this.config.mode === "production"
+        ? await resolveFaxTariff(
+            this.db,
+            ctx.organizationId,
+            sender.id,
+            recipient.phone,
+            canonicalJson(options),
+            document!.pages,
+            this.config.liveFaxIdentity,
+            this.time(),
+          )
+        : undefined;
+    const estimatedMinor = tariff
+      ? tariff.base_minor + tariff.per_page_minor * document!.pages
+      : { fax: 20, email: 1, postal: 150 }[input.channel] *
+        (input.channel === "fax" ? (document?.pages ?? 1) : 1);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
     if (
       !Number.isSafeInteger(ceilingMinor) ||
@@ -573,13 +605,22 @@ export class DomainService {
       currency: "EUR",
       mode: this.config.mode,
     };
-    const fingerprint = await sha256(canonicalJson(frozen));
     const id = uid("dsp"),
       now = this.time();
+    const quote = tariff
+      ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, now)
+      : undefined;
+    const fingerprint = await sha256(
+      canonicalJson({
+        ...frozen,
+        ...(quote ? { quoteFingerprint: quote.fingerprint } : {}),
+      }),
+    );
+    if (quote) quote.dispatch_fingerprint = fingerprint;
     try {
-      await this.db
+      const insert = this.db
         .prepare(
-          "INSERT INTO dispatches(id,organization_id,campaign_id,channel,recipient_json,document_id,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,prepare_key) DO NOTHING",
+          "INSERT INTO dispatches(id,organization_id,campaign_id,channel,recipient_json,document_id,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at,quote_fingerprint) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,prepare_key) DO NOTHING",
         )
         .bind(
           id,
@@ -604,8 +645,12 @@ export class DomainService {
           requestHash,
           now,
           now,
-        )
-        .run();
+          quote?.fingerprint ?? null,
+        );
+      await this.db.batch([
+        insert,
+        ...(quote ? [insertFaxQuote(this.db, quote)] : []),
+      ]);
     } catch (e) {
       sqlError(e);
     }
@@ -626,7 +671,9 @@ export class DomainService {
   private async dispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
     await this.organization(ctx);
     const row = await this.db
-      .prepare("SELECT * FROM dispatches WHERE organization_id=? AND id=?")
+      .prepare(
+        "SELECT d.*,(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_expires_at FROM dispatches d WHERE d.organization_id=? AND d.id=?",
+      )
       .bind(ctx.organizationId, id)
       .first<Dispatch>();
     if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
@@ -658,6 +705,21 @@ export class DomainService {
         409,
       );
     const now = this.time();
+    const quote =
+      row.mode === "production" && row.channel === "fax"
+        ? await validateLiveFaxQuote(
+            this.db,
+            row,
+            this.config.liveFaxIdentity,
+            now,
+          )
+        : undefined;
+    const approvalExpiresAt = new Date(
+      Math.min(
+        this.now() + 15 * 60_000,
+        quote ? Date.parse(quote.expires_at) : Infinity,
+      ),
+    ).toISOString();
     const statements: D1PreparedStatement[] = [];
     if (row.campaign_id)
       statements.push(
@@ -678,12 +740,16 @@ export class DomainService {
           id,
           ctx.userId,
           fingerprint,
-          new Date(this.now() + 15 * 60_000).toISOString(),
+          approvalExpiresAt,
           now,
         ),
       this.audit(ctx, "dispatch.approved", id, { fingerprint }),
     );
-    await this.db.batch(statements);
+    try {
+      await this.db.batch(statements);
+    } catch (error) {
+      sqlError(error);
+    }
     if (row.campaign_id) {
       const members = await this.db
         .prepare(
@@ -710,6 +776,17 @@ export class DomainService {
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
     const now = this.time();
+    if (
+      row.mode === "production" &&
+      row.channel === "fax" &&
+      row.status === "prepared"
+    )
+      await validateLiveFaxQuote(
+        this.db,
+        row,
+        this.config.liveFaxIdentity,
+        now,
+      );
     if (row.channel === "email" && row.status === "prepared") {
       const recipient = JSON.parse(row.recipient_json) as { email: string };
       if (
@@ -996,18 +1073,29 @@ export class DomainService {
     const now = this.time(),
       attemptId = uid("att"),
       lease = new Date(this.now() + 120_000).toISOString();
-    await this.db.batch([
-      this.db
+    try {
+      await this.db.batch([
+        this.db
+          .prepare(
+            "UPDATE dispatches SET status='submitting',provider=?,active_attempt_id=?,lease_until=?,updated_at=? WHERE id=? AND status='queued' AND mode=?",
+          )
+          .bind(provider.name, attemptId, lease, now, id, this.config.mode),
+        this.db
+          .prepare(
+            "INSERT INTO attempts(id,dispatch_id,organization_id,provider,status,created_at,updated_at) SELECT ?,id,organization_id,?,'started',?,? FROM dispatches WHERE id=? AND active_attempt_id=? AND status='submitting'",
+          )
+          .bind(attemptId, provider.name, now, now, id, attemptId),
+      ]);
+    } catch (error) {
+      if (!String(error).includes("live_quote_invalid")) throw error;
+      await this.db
         .prepare(
-          "UPDATE dispatches SET status='submitting',provider=?,active_attempt_id=?,lease_until=?,updated_at=? WHERE id=? AND status='queued' AND mode=?",
+          "UPDATE dispatches SET status='failed',updated_at=? WHERE id=? AND mode='production' AND channel='fax' AND status='queued'",
         )
-        .bind(provider.name, attemptId, lease, now, id, this.config.mode),
-      this.db
-        .prepare(
-          "INSERT INTO attempts(id,dispatch_id,organization_id,provider,status,created_at,updated_at) SELECT ?,id,organization_id,?,'started',?,? FROM dispatches WHERE id=? AND active_attempt_id=? AND status='submitting'",
-        )
-        .bind(attemptId, provider.name, now, now, id, attemptId),
-    ]);
+        .bind(now, id)
+        .run();
+      return { processed: true, status: "failed" };
+    }
     const row = await this.db
       .prepare("SELECT * FROM dispatches WHERE id=?")
       .bind(id)
@@ -1056,6 +1144,25 @@ export class DomainService {
               : "CHANNEL_DISABLED",
       );
       return { processed: true, status: "failed" };
+    }
+    if (row.mode === "production" && row.channel === "fax") {
+      try {
+        if (provider.name !== "telnyx")
+          throw new DomainError(
+            "LIVE_QUOTE_INVALID",
+            "Fournisseur incompatible.",
+            409,
+          );
+        await validateLiveFaxQuote(
+          this.db,
+          row,
+          provider.liveFaxIdentity,
+          this.time(),
+        );
+      } catch {
+        await this.rejectAttempt(row, attemptId, "LIVE_QUOTE_INVALID");
+        return { processed: true, status: "failed" };
+      }
     }
     let result: Awaited<ReturnType<ProviderHook["submit"]>>;
     try {

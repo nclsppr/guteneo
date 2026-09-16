@@ -15,8 +15,9 @@ import {
   Plus,
   SignOut,
   WarningCircle,
+  Receipt,
 } from "@phosphor-icons/react";
-import { api, setSession, type Session } from "./api";
+import { api, ApiError, setSession, type Session } from "./api";
 import { fr as t } from "./i18n";
 import {
   ErrorNotice,
@@ -40,6 +41,8 @@ import {
   Usage,
   Admin,
 } from "./workspace-pages";
+import { Billing } from "./billing-page";
+import { Account, TeamAdmin } from "./account-page";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
@@ -172,7 +175,11 @@ function Landing() {
         </section>
         <aside className="landing-note">
           <WarningCircle size={21} aria-hidden="true" />
-          <p>{t.landing.note}</p>
+          <p>
+            {publicPreview
+              ? t.landing.note
+              : "Guteneo ouvre progressivement ses services. Les envois payants seront disponibles après la vérification des expéditeurs, des tarifs et de votre accord."}
+          </p>
         </aside>
       </main>
       <footer className="site-footer">
@@ -187,11 +194,32 @@ function Landing() {
   );
 }
 
-function Login({ onLogin }: { onLogin: (session: Session) => void }) {
+function Login({
+  onLogin,
+  registrationAvailable,
+}: {
+  onLogin: (session: Session) => void;
+  registrationAvailable: boolean;
+}) {
   const action = useAction();
   const local =
     publicPreview ||
     ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+  const authCode = new URLSearchParams(window.location.search).get("auth");
+  const authMessages: Record<string, string> = {
+    EMAIL_VERIFICATION_REQUIRED:
+      "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+    MFA_REQUIRED:
+      "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.",
+    IDENTITY_NOT_CONFIGURED:
+      "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
+    LOGIN_STATE_INVALID:
+      "Votre connexion a expiré. Recommencez pour ouvrir votre espace.",
+    LOGIN_EXCHANGE_FAILED:
+      "La connexion n’a pas abouti. Vous pouvez réessayer.",
+    LOGIN_RATE_LIMITED:
+      "Trop de tentatives de connexion. Réessayez dans une heure.",
+  };
   async function login(organization: "atelier" | "studio") {
     await action.run(async () => {
       await api("/dev/login", { method: "POST", body: { organization } });
@@ -212,7 +240,11 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
       <main className="login-layout">
         <div className="login-intro">
           <h1>{t.login.title}</h1>
-          <p>{t.login.body}</p>
+          <p>
+            {local
+              ? t.login.body
+              : "Vos documents, vos envois et votre facturation réunis dans un espace personnel et protégé."}
+          </p>
           <img src="/press-halftone.webp" width="1200" height="1200" alt="" />
         </div>
         <div className="login-panel">
@@ -250,14 +282,44 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
             </>
           ) : (
             <>
-              <p>{t.login.managedBody}</p>
+              <p>
+                Un compte personnel, vos documents et le suivi de vos envois
+                dans un espace privé.
+              </p>
+              {authCode && (
+                <div className="notice warning" role="status">
+                  <p>
+                    {authMessages[authCode] ??
+                      "La connexion n’a pas abouti. Recommencez pour accéder à votre espace."}
+                  </p>
+                </div>
+              )}
+              {registrationAvailable ? (
+                <a
+                  href={`/auth/signup?returnTo=${encodeURIComponent("/#/app")}`}
+                  className="button primary"
+                >
+                  Créer mon compte
+                  <ArrowRight size={18} />
+                </a>
+              ) : (
+                <p className="notice info" role="status">
+                  L’inscription sera disponible dès que le service de connexion
+                  sera raccordé.
+                </p>
+              )}
+              <p>Vous avez déjà un compte ?</p>
               <a
-                href={`/auth/login?returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
-                className="button primary"
+                href={`/auth/login?${authCode ? "fresh=1&" : ""}returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
+                className="button"
               >
                 {t.login.managed}
                 <ArrowRight size={18} />
               </a>
+              <p className="field-hint">
+                Adresse e-mail vérifiée et double authentification. Aucun envoi
+                payant sans votre accord.
+              </p>
             </>
           )}
           <ErrorNotice error={action.error} />
@@ -276,12 +338,17 @@ const navigation = [
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "senders", path: "/app/senders", Icon: UserCircle },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
+  { id: "billing", path: "/app/billing", Icon: Receipt },
+  { id: "account", path: "/app/account", Icon: UserCircle },
   { id: "admin", path: "/app/admin", Icon: Wrench },
 ] as const;
 
 export function App() {
   const route = useRoute();
-  const capabilities = useResource<{ scanner: string }>("/capabilities");
+  const capabilities = useResource<{
+    scanner: string;
+    registration?: { enabled: boolean };
+  }>("/capabilities");
   const [session, updateSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const [logoutError, setLogoutError] = useState<Error>();
@@ -310,7 +377,27 @@ export function App() {
         <Loading />
       </div>
     );
-  if (!session) return <Login onLogin={updateSession} />;
+  if (!session)
+    return (
+      <Login
+        onLogin={updateSession}
+        registrationAvailable={
+          capabilities.data?.registration?.enabled === true
+        }
+      />
+    );
+  const refreshSession = async () => {
+    try {
+      const updated = await api<Session>("/session");
+      setSession(updated);
+      updateSession(updated);
+    } catch (error) {
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        setSession(null);
+        updateSession(null);
+      } else throw error;
+    }
+  };
   let content;
   if (page === "/app/documents") content = <Documents />;
   else if (page === "/app/prepare")
@@ -335,7 +422,15 @@ export function App() {
   else if (page === "/app/connection") content = <Connection />;
   else if (page === "/app/senders") content = <Senders />;
   else if (page === "/app/usage") content = <Usage />;
-  else if (page === "/app/admin") content = <Admin />;
+  else if (page === "/app/billing") content = <Billing session={session} />;
+  else if (page === "/app/account")
+    content = <Account session={session} onUpdated={refreshSession} />;
+  else if (page === "/app/admin")
+    content = (
+      <Admin>
+        <TeamAdmin session={session} onUpdated={refreshSession} />
+      </Admin>
+    );
   else content = <Overview />;
   const logout = async () => {
     setLogoutError(undefined);
@@ -377,7 +472,7 @@ export function App() {
           {navigation
             .filter(
               (n) =>
-                n.id !== "admin" ||
+                !["admin", "billing"].includes(n.id) ||
                 ["admin", "owner", "platform_operator"].includes(
                   session.user.role,
                 ),

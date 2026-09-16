@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -640,6 +640,40 @@ export function Connection() {
       </section>
       <section className="client-matrix">
         <h2>{t.connection.clients}</h2>
+        {!isPublicPreview && (
+          <div className="notice info">
+            <div>
+              <p>
+                Téléchargez le paquet Guteneo pour installer les outils PDF et
+                fax dans votre assistant. La connexion à votre compte et votre
+                validation restent nécessaires.
+              </p>
+              <p>
+                <a
+                  className="text-link"
+                  href="/integrations/guteneo-plugin.zip"
+                  download
+                >
+                  Télécharger le plugin Guteneo
+                </a>
+              </p>
+              <p>
+                <a href="/integrations/cursor-mcp.json" download>
+                  Configuration Cursor
+                </a>{" "}
+                ·{" "}
+                <a href="/integrations/claude-static-oauth.json" download>
+                  Configuration Claude
+                </a>
+              </p>
+              <p className="field-hint">
+                La connexion effective à chaque assistant reste à vérifier. Les
+                fichiers OAuth personnalisés demandent l’identifiant d’une
+                application enregistrée.
+              </p>
+            </div>
+          </div>
+        )}
         <div className="table-scroll">
           <table>
             <thead>
@@ -811,7 +845,23 @@ export function Usage() {
   );
 }
 
-export function Admin() {
+export function Admin({ children }: { children?: ReactNode }) {
+  const scannerAction = useAction();
+  const [scannerMessage, setScannerMessage] = useState("");
+  async function warmScanner() {
+    setScannerMessage("");
+    await scannerAction.run(async () => {
+      const response = await api<{ status: string }>("/admin/scanner/warm", {
+        method: "POST",
+        body: {},
+      });
+      setScannerMessage(
+        response.status === "ready"
+          ? "L’analyse des PDF est prête."
+          : "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+      );
+    });
+  }
   const diagnostics = useResource<
     Record<string, unknown> & {
       controls?: { channel: Channel; enabled: number }[];
@@ -861,6 +911,7 @@ export function Admin() {
         error={diagnostics.error ?? dispatches.error ?? controlAction.error}
         retry={diagnostics.refresh}
       />
+      {children}
       {diagnostics.data?.controls && (
         <section className="channel-controls">
           <h2>{t.admin.channelControls}</h2>
@@ -884,6 +935,24 @@ export function Admin() {
               </button>
             </div>
           ))}
+        </section>
+      )}
+      {!isPublicPreview && (
+        <section className="form-panel">
+          <h2>Analyse des documents</h2>
+          <p>
+            Préparez le service avant d’importer vos PDF. Les documents en
+            attente restent privés jusqu’à la fin de leur vérification.
+          </p>
+          <button
+            className="button"
+            onClick={() => void warmScanner()}
+            disabled={scannerAction.pending}
+          >
+            {scannerAction.pending ? "Préparation…" : "Préparer l’analyse PDF"}
+          </button>
+          <ErrorNotice error={scannerAction.error} />
+          {scannerMessage && <p role="status">{scannerMessage}</p>}
         </section>
       )}
       <h2 className="section-title">{t.admin.uncertain}</h2>

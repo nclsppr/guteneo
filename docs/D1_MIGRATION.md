@@ -1,0 +1,81 @@
+# Remote D1 migration proof
+
+Verified 2026-09-16 at 20:52–20:56 UTC on `guteneo-production`. The initial 11 migrations through `0011_account.sql` were applied in that window; subsequent migrations 0012 and 0013 are recorded below. The database was empty of application data before migration; no fixture users, organizations, documents or dispatches were seeded remotely.
+
+## Failure and exact workaround
+
+Wrangler 4.132.0 remote migration execution and the direct Cloudflare D1 `/query` API both rejected a trigger containing `SELECT CASE WHEN ... THEN RAISE(ABORT,...) END; END;` with `7500: incomplete input: SQLITE_ERROR`. The same temporary trigger with multiple plain SELECT statements, including multiline formatting, succeeded. Adding a trailing semicolon did not solve the CASE form.
+
+A guard expressed as `SELECT RAISE(ABORT,'reason') WHERE predicate;` succeeded remotely. It has the same trigger behavior: both forms raise only when the predicate is true; false and NULL do not raise. This changes no approval, sender, quota, document-readiness, suppression or outbox condition.
+
+`scripts/migrate-remote.mjs` transforms only that exact guard-only CASE pattern for transport. It rejects nested/otherwise unsupported CASE expressions for review. Nine guards are normalized across migrations 0001, 0004 and 0008. **The source migration files are unchanged.** Existing applied migrations were not edited.
+
+## Atomicity and verification
+
+A temporary remote batch created a checked table, then attempted a row that violated its CHECK constraint. The API rejected the batch and the table was absent afterward. This directly verified rollback of schema and data writes in a failed batch.
+
+Each real migration was submitted as a single D1 API `{ batch: [{ sql }, ...] }` request. Its `INSERT INTO d1_migrations(name)` was the final statement in the same batch. Execution stopped on any failure; every migration returned success for every statement. No manual BEGIN/COMMIT or per-statement remote commits were used.
+
+The local verifier applies source migrations and transformed migrations to separate Miniflare databases, compares normalized schema definitions, checks true/false/NULL/negative-value guard behavior, and runs integrity checks. It passed for all 11 migrations. A later remote comparison also matched **all 73 application-owned table/index/trigger definitions** exactly after whitespace normalization against that local expected schema. The Cloudflare-managed migration tracking table and internal metadata tables are excluded from this comparison.
+
+Remote checks after application:
+
+- All 11 expected filenames are present in `d1_migrations`, applied between 20:52:24 and 20:52:46 UTC.
+- `PRAGMA foreign_keys` returned 1.
+- `PRAGMA foreign_key_check` returned no violations.
+- `PRAGMA quick_check` returned `ok`.
+- Schema inventory: 37 tables (including migration tracking), 22 explicit indexes, 15 triggers; 74 objects after excluding SQLite/Cloudflare internals.
+- Organizations, users, documents and dispatches each had count 0.
+- All temporary `_guteneo_*` probe objects were removed.
+
+The Miniflare internal `_cf_METADATA` table is excluded from local schema counts; it is not an application table and is absent remotely.
+
+## Recovery markers
+
+Pre-migration Time Travel bookmark (includes only migration tracking and temporary diagnostic probes):
+
+`00000002-00000000-000050e8-2eb762d4a4ea53da72405a07be798443`
+
+Post-migration bookmark:
+
+`00000002-0000001c-000050e8-5efab382e5dda1f37d75518795c8f910`
+
+These are recovery references, not a request to restore. Restoration after onboarding or live activity would lose later writes and requires a separately reviewed recovery decision.
+
+## Reproduce the transport proof
+
+Run `node scripts/migrate-remote.mjs --verify` for the local equivalence and integrity check. `--verify --schema` additionally prints the local normalized schema. Run `node scripts/migrate-remote.mjs` to list migration hashes/counts; `--json` emits the schema-only API batch plan. The helper does not read credentials or apply remote writes itself.
+
+For a future authorized remote migration, first read the current migration ledger, retain a Time Travel bookmark, and select only unapplied entries from the reviewed plan. Submit each entry's entire `batch` to `POST /accounts/{account_id}/d1/database/{database_id}/query` through an authenticated Cloudflare connector/API client. Do not split a migration into separate requests. Confirm the ledger, schema, foreign keys and integrity afterward. Never replay the initial plan against an already migrated database.
+
+## Applied source and transport hashes
+
+The transport hash covers all semicolon-terminated statements joined with a newline, including the migration-ledger insertion. It therefore identifies exactly the applied batch representation.
+
+| Migration                  | Statements | Guard rewrites | Source SHA-256                                                     | Transport SHA-256                                                  |
+| -------------------------- | ---------: | -------------: | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 0001_core.sql              |         34 |              3 | `2639699a3e0f1f55f531b58e45db602ff758b9c70510df38e4dd39e0a7d4d37a` | `536d51c40d05dad8146c6dbe8d6bc4922083410b6d46bb37cdc89d0dcfd13d83` |
+| 0002_auth.sql              |         10 |              0 | `9f49d5c037cdcfb37805eae05e82af5511cc3fb48574fcc996bf5fc639fefd17` | `28ffc25d9602a1469eef92d026ab165f3ae4fe161d315cf923b535184d0f833a` |
+| 0003_operations.sql        |          6 |              0 | `c9e957f562a898e38cea7e67c195222d072acbf1ece516b579f6aaa313dff3ac` | `8beafe1f9f642b5079beeffc1b5c71dc3e039399cae04d779eeb9decba5aad7c` |
+| 0004_core_hardening.sql    |          6 |              3 | `2adad5fc48a79c72f017a38de41c50154217504240ab05e01d6cd7e7fe5aec76` | `f122d6ff751884a6ae42bbaa33926e80844732d19e5a246019a7689bda2d28bd` |
+| 0005_content_limits.sql    |          5 |              0 | `5cf3b0123118c8ed7ea2235b1d3da1a5bdf18512ad5f1b90dace81a805e9068e` | `d9f0974c394ba79124f631687741f1723b5cd6d1d7b6635bc2db5a8b5d8abd15` |
+| 0006_maintenance.sql       |          2 |              0 | `ba8f1a4206613a774eec8d8a0eaa9ef265f43a12b40b8cc669393dbe17faacaf` | `fa5f03c43fadc3360b2338750e8f9c7f42c99a1eeb4251c1845b9f74e4cce24f` |
+| 0007_live_drafts.sql       |         10 |              0 | `963575c74d23bcd9e30aeaca65103c55b345d7cab1d4cc438fb057252ea31182` | `11d4c6e39b5088662527923bd3459ef016024cd9a6bbf1bba81b5eabb00a7354` |
+| 0008_document_versions.sql |         17 |              3 | `097ecca3dde8d4d88ffd9d5bd08742ee8657d0bdafd37f6165b2cc0f49655844` | `8327b6dd1ef3bf1c0eb6b22e9f4eb36bdcfad047ac59e2100cf3e9791ea81337` |
+| 0009_billing.sql           |          8 |              0 | `522c4fe012028056cc727020ca1848e6d38420fc37bd67df54c78e3aaf3783e6` | `818acb98355e5d23a3f81b850cbab06b20693b72f38efd232f912b284cc637dc` |
+| 0010_onboarding_limits.sql |          3 |              0 | `47bf848dd51b61f28ce9f5d7e8555268f36eb48925bacc6b5662c022cc9730dc` | `d667951b9f23f5863c9d75aca569a1e9afd6e425614fa33ba5ce5a389191dc8d` |
+| 0011_account.sql           |          7 |              0 | `82350f896e3f2a55cca32f979dd441c762f94866dd4a208eb61b76322edbee2d` | `1f6bde3d5d18dd737b0433873124dbc5ee50366af443fdbf49bac875333e0e1f` |
+
+The CLI parser also preserves the existing trailing semicolon on a single-statement file; appending another semicolon creates an empty statement. This was caught in local verification before any real migration was submitted.
+
+Cloudflare API endpoint schema was inspected through the installed connector before execution. Official references: [D1 batch operations](https://developers.cloudflare.com/d1/worker-api/d1-database/#batch), [D1 migrations](https://developers.cloudflare.com/d1/reference/migrations/), [Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/). The CASE parsing failure and successful workaround above are direct observations of the hosted API, not a claimed documented limitation.
+
+## Subsequent rescan migration
+
+`0012_document_rescan.sql` was applied with Wrangler at 21:07:42 UTC. A fresh read at 21:30 UTC confirmed all twelve ledger entries, no foreign-key violations, `quick_check=ok`, and zero organizations/users/documents/dispatches. No fictional data was seeded. Before the next quote migration the Time Travel bookmark was `00000006-00000000-000050e8-8ce7db8df18ba4b76cd35120d615668a`.
+
+The local source/transport verifier subsequently passed all thirteen candidate migrations with 88 schema objects, nine unchanged guard normalizations, matching true/false/NULL semantics and no integrity violation. This candidate proof does not itself apply migration 0013 remotely.
+
+## Applied trusted-quote migration
+
+`0013_trusted_fax_quotes.sql` was applied through Wrangler at **2026-09-16 21:38:12 UTC**, executing 14 schema commands. The ledger now contains **13 migrations**. Fresh remote checks returned `foreign_keys=1`, an empty `foreign_key_check`, `quick_check=ok`, and zero tariff, quote, user and document rows. No tariff or funded budget was inserted. Post-migration Time Travel bookmark: `00000007-00000004-000050e8-0da2a14d1506ea2449dae78e21d0e675`.

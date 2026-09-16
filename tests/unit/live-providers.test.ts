@@ -28,6 +28,7 @@ import {
 } from "../../packages/domain/src/index";
 import { validateRecipient } from "../../packages/contracts/src/content";
 import type { Fetcher } from "../../packages/providers";
+import { resetFixtureMemberships } from "../helpers/reset-memberships";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -112,6 +113,7 @@ beforeEach(async () => {
     "idempotency_keys",
     "audit_log",
     "dispatches",
+    "trusted_fax_tariffs",
     "campaigns",
     "documents",
     "suppressions",
@@ -122,7 +124,8 @@ beforeEach(async () => {
     "users",
     "organizations",
   ])
-    await db.prepare(`DELETE FROM ${table}`).run();
+    if (table === "memberships") await resetFixtureMemberships(db);
+    else await db.prepare(`DELETE FROM ${table}`).run();
   const now = new Date().toISOString();
   await db
     .prepare("INSERT INTO organizations VALUES(?,'Fixture','production',?)")
@@ -160,7 +163,13 @@ beforeEach(async () => {
       .bind(ctx.organizationId, channel, now.slice(0, 7))
       .run();
   }
-  domain = new DomainService(db, { mode: "production" });
+  domain = new DomainService(db, {
+    mode: "production",
+    liveFaxIdentity: {
+      accountId: "account-fixture",
+      connectionId: "connection-fixture",
+    },
+  });
   await domain.registerDocument(ctx, {
     id: "doc_fixture",
     name: "exact.pdf",
@@ -181,6 +190,7 @@ beforeEach(async () => {
     APP_ORIGIN: "https://guteneo.example",
     LIVE_SENDS_ENABLED: "true",
     TELNYX_API_KEY: "test-only",
+    TELNYX_ACCOUNT_ID: "account-fixture",
     TELNYX_CONNECTION_ID: "connection-fixture",
     TELNYX_FROM: "+33100000000",
     TELNYX_ALLOWED_PREFIXES: "+33,+352,+49",
@@ -197,21 +207,47 @@ beforeEach(async () => {
   } as LiveProviderEnv;
 });
 
-/** Fixture-only insertion bypasses the deliberately closed live-pricing preparation gate.
- * Approval and acceptance still execute the real SQL reservation/outbox triggers. */
+/** Fax uses a qualified isolated tariff fixture through real preparation. Non-fax bridges retain synthetic prepared fixtures; no external calls escape interception. */
 async function queueFixture(
   channel: Channel,
   options: Record<string, unknown> = {},
   recipientOverride?: Record<string, unknown>,
 ): Promise<Dispatch> {
+  if (channel === "fax") {
+    const now = new Date().toISOString();
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO trusted_fax_tariffs(id,organization_id,sender_id,provider,account_id,connection_id,destination_prefix,options_json,currency,base_minor,per_page_minor,max_pages,quote_ttl_seconds,cost_basis,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES('fixture-tariff',?,'sender_fax','telnyx','account-fixture','connection-fixture','+33','{}','EUR',0,100,350,900,'qualified_upper_bound','isolated test fixture only',?,? ,?,'qualified',?)",
+      )
+      .bind(
+        ctx.organizationId,
+        "a".repeat(64),
+        now,
+        new Date(Date.now() + 3600000).toISOString(),
+        now,
+      )
+      .run();
+    const prepared = await domain.prepareDispatch(
+      ctx,
+      {
+        channel,
+        recipient: recipientOverride ?? { phone: "+33100000001" },
+        documentId: "doc_fixture",
+        senderId: "sender_fax",
+        options,
+        ceilingMinor: 200,
+      },
+      crypto.randomUUID(),
+    );
+    await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint);
+    return domain.confirmDispatch(ctx, prepared.id, crypto.randomUUID());
+  }
   const recipient = validateRecipient(
     channel,
     recipientOverride ??
-      (channel === "fax"
-        ? { phone: "+33100000001" }
-        : channel === "email"
-          ? { email: "recipient@example.invalid" }
-          : postalRecipient),
+      (channel === "email"
+        ? { email: "recipient@example.invalid" }
+        : postalRecipient),
   );
   const id = `dsp_${crypto.randomUUID()}`;
   const now = new Date().toISOString();
@@ -417,6 +453,44 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     ).toBe(404);
   });
 
+  it("rejects a quote that expires while creating the media grant, before the supplier call", async () => {
+    const row = await queueFixture("fax");
+    const fetcher = vi.fn<Fetcher>();
+    const initial = Date.now();
+    let reads = 0;
+    const clock = () => initial + (++reads >= 4 ? 16 * 60_000 : 0);
+    expect(
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "fax", { fetcher, now: clock }),
+      ),
+    ).toMatchObject({ status: "failed" });
+    expect(reads).toBeGreaterThanOrEqual(4);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(
+      (
+        await db
+          .prepare(
+            "SELECT count(*) AS n FROM document_access_grants WHERE dispatch_id=?",
+          )
+          .bind(row.id)
+          .first()
+      )?.n,
+    ).toBe(1);
+    expect((await domain.getDispatch(ctx, row.id)).attempts[0]).toMatchObject({
+      status: "rejected",
+      error_code: "LIVE_QUOTE_INVALID",
+    });
+    expect(
+      (
+        await db
+          .prepare("SELECT status FROM reservations WHERE dispatch_id=?")
+          .bind(row.id)
+          .first()
+      )?.status,
+    ).toBe("released");
+  });
+
   it("blocks missing scan evidence and changed R2 content before provider submission", async () => {
     const row = await queueFixture("fax");
     const fetcher = vi.fn<Fetcher>();
@@ -468,6 +542,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     const live = createLiveProviderHook(env, "fax", { fetcher });
     await domain.processDispatch(other.id, {
       name: live.name,
+      liveFaxIdentity: live.liveFaxIdentity,
       submit: (active) =>
         live.submit({
           ...active,
@@ -489,6 +564,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     const results: Awaited<ReturnType<ProviderHook["submit"]>>[] = [];
     await domain.processDispatch(row.id, {
       name: hook.name,
+      liveFaxIdentity: hook.liveFaxIdentity,
       async submit(active) {
         results.push(
           ...(await Promise.all([hook.submit(active), hook.submit(active)])),

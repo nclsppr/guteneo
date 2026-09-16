@@ -13,6 +13,7 @@ import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
 import {
   authenticateBrowser,
   authenticateMcp,
+  AuthError,
   handleAuthRoute,
   hashSecret,
   hasMfa,
@@ -383,6 +384,8 @@ describe("identity and authentication boundaries", () => {
     const idToken = await token("guteneo-browser", {
       nonce,
       name: "Fixture user",
+      email: "fixture@example.test",
+      email_verified: true,
       amr: ["pwd", "mfa"],
     });
     const accessToken = await token(`${origin}/mcp`, {
@@ -432,6 +435,160 @@ describe("identity and authentication boundaries", () => {
     await expect(
       handleAuthRoute(callbackRequest, realEnv()),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
+  });
+  it("requests real signup and fresh authentication using the same PKCE flow", async () => {
+    const response = await handleAuthRoute(
+      request("/auth/signup?fresh=1"),
+      realEnv(),
+    );
+    const destination = new URL(response!.headers.get("Location")!);
+    expect(destination.searchParams.get("screen_hint")).toBe("signup");
+    expect(destination.searchParams.get("prompt")).toBe("login");
+    expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
+    expect(destination.searchParams.get("scope")).toBe("openid profile email");
+  });
+  it.each([
+    {
+      label: "unverified email",
+      subject: "unverified",
+      verified: false,
+      amr: ["pwd", "mfa"],
+      code: "EMAIL_VERIFICATION_REQUIRED",
+    },
+    {
+      label: "verified email without MFA",
+      subject: "without-mfa",
+      verified: true,
+      amr: ["pwd"],
+      code: "MFA_REQUIRED",
+    },
+  ])(
+    "never provisions $label or issues a session",
+    async ({ subject, verified, amr, code }) => {
+      const sessionCount = await env.DB.prepare(
+        "SELECT count(*) AS count FROM browser_sessions",
+      ).first<{ count: number }>();
+      const response = await handleAuthRoute(
+        request("/auth/signup"),
+        realEnv(),
+      );
+      const destination = new URL(response!.headers.get("Location")!);
+      const sub = `auth0|${subject}-fixture`;
+      const idToken = await token("guteneo-browser", {
+        sub,
+        nonce: destination.searchParams.get("nonce"),
+        email: "unverified@example.test",
+        email_verified: verified,
+        amr,
+      });
+      const accessToken = await token(`${origin}/mcp`, {
+        sub,
+        client_id: "guteneo-browser",
+      });
+      vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+        const target = String(input);
+        if (target === `${issuer}oauth/token`)
+          return Response.json({
+            id_token: idToken,
+            access_token: accessToken,
+          });
+        if (target === `${issuer}.well-known/jwks.json`)
+          return Response.json({ keys: [jwk] });
+        throw new Error("Unexpected network target");
+      });
+      await expect(
+        handleAuthRoute(
+          request(
+            `/auth/callback?state=${destination.searchParams.get("state")}&code=fixture-code`,
+            "GET",
+            undefined,
+            { Cookie: response!.headers.get("Set-Cookie")!.split(";")[0] },
+          ),
+          realEnv(),
+        ),
+      ).rejects.toMatchObject({ code });
+      expect(
+        await env.DB.prepare(
+          "SELECT user_id FROM auth_identities WHERE subject=?",
+        )
+          .bind(sub)
+          .first(),
+      ).toBeNull();
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) AS count FROM browser_sessions",
+        ).first(),
+      ).toEqual(sessionCount);
+    },
+  );
+  it.each(["network", "invalid JSON", "null JSON"])(
+    "returns a safe retry error on token exchange %s failure",
+    async (failure) => {
+      const response = await handleAuthRoute(request("/auth/login"), realEnv());
+      const destination = new URL(response!.headers.get("Location")!);
+      const state = destination.searchParams.get("state")!;
+      const sessionCount = await env.DB.prepare(
+        "SELECT count(*) AS count FROM browser_sessions",
+      ).first();
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        if (failure === "network")
+          throw new Error("provider-private-response-fixture");
+        if (failure === "null JSON") return Response.json(null);
+        return new Response("provider-private-response-fixture", {
+          status: 200,
+        });
+      });
+      const callback = request(
+        `/auth/callback?state=${state}&code=fixture-code`,
+        "GET",
+        undefined,
+        {
+          Cookie: response!.headers.get("Set-Cookie")!.split(";")[0],
+        },
+      );
+      const error = await handleAuthRoute(callback, realEnv()).catch(
+        (error: unknown) => error,
+      );
+      expect(error).toBeInstanceOf(AuthError);
+      expect(error).toMatchObject({ code: "LOGIN_EXCHANGE_FAILED" });
+      expect(String(error)).not.toContain("provider-private-response-fixture");
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) AS count FROM browser_sessions",
+        ).first(),
+      ).toEqual(sessionCount);
+      expect(
+        await env.DB.prepare(
+          "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+        )
+          .bind(await hashSecret(state))
+          .first(),
+      ).toBeNull();
+    },
+  );
+  it("bounds hosted login writes per source without retaining raw addresses", async () => {
+    const hosted = {
+      ...realEnv(),
+      ENVIRONMENT: "production",
+      APP_ORIGIN: "https://guteneo.test",
+    };
+    const request = () =>
+      new Request("https://guteneo.test/auth/signup", {
+        headers: { "CF-Connecting-IP": "192.0.2.9" },
+      });
+    for (let index = 0; index < 60; index++)
+      expect((await handleAuthRoute(request(), hosted))?.status).toBe(302);
+    await expect(handleAuthRoute(request(), hosted)).rejects.toMatchObject({
+      code: "LOGIN_RATE_LIMITED",
+    });
+    const rows = await env.DB.prepare("SELECT key FROM auth_flow_limits").all<{
+      key: string;
+    }>();
+    expect(rows.results).toHaveLength(1);
+    expect(rows.results[0].key).toMatch(/^[a-f0-9]{64}$/);
+    await expect(
+      handleAuthRoute(new Request("https://guteneo.test/auth/signup"), hosted),
+    ).rejects.toMatchObject({ code: "LOGIN_UNAVAILABLE" });
   });
 });
 

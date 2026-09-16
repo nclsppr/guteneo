@@ -13,8 +13,10 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { DocumentService, validatePdf } from "../../apps/api/src/documents";
 import { maintainDocuments } from "../../apps/api/src/maintenance";
 import type { Env } from "../../apps/api/src/env";
+import { resetFixtureMemberships } from "../helpers/reset-memberships";
 import {
   DomainService,
+  canonicalJson,
   sha256,
   simulationProvider,
   type ActorContext,
@@ -156,7 +158,8 @@ beforeEach(async () => {
     "users",
     "organizations",
   ])
-    await db.prepare(`DELETE FROM ${table}`).run();
+    if (table === "memberships") await resetFixtureMemberships(db);
+    else await db.prepare(`DELETE FROM ${table}`).run();
   const listing = await bucket.list({ limit: 1000 });
   if (listing.objects.length)
     await bucket.delete(listing.objects.map((item) => item.key));
@@ -220,36 +223,151 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
           oldDate,
         )
         .run();
-      const legacyDomain = new DomainService(legacyDb, { mode: "simulation" });
-      const dispatch = await legacyDomain.prepareDispatch(
-        atelier,
-        {
-          channel: "email",
-          recipient: { email: "migration@example.invalid" },
-          subject: "Migration fixture",
-          html: "<p>Preserve approval</p>",
-          documentId: "doc_legacy",
-        },
-        "migration-fixture",
-      );
-      await legacyDomain.approveDispatch(
-        atelier,
-        dispatch.id,
-        dispatch.fingerprint,
-      );
-      await legacyDomain.confirmDispatch(
-        atelier,
-        dispatch.id,
-        "migration-confirm",
-      );
-      const before = await legacyDomain.getDispatch(atelier, dispatch.id);
+      // Exercise the populated pre-0008 schema with its own SQL contract. Current
+      // domain code legitimately requires later migrations and is not an upgrade fixture.
+      const dispatch = { id: "dsp_legacy" };
+      const now = new Date().toISOString();
+      const frozen = {
+        channel: "email",
+        recipient: { email: "migration@example.invalid" },
+        documentId: "doc_legacy",
+        documentSha256: await sha256(original),
+        senderId: "sender_atelier_email",
+        senderAddress: "atelier@example.invalid",
+        subject: "Migration fixture",
+        html: "<p>Preserve approval</p>",
+        text: "Preserve approval",
+        options: {},
+        campaignId: null,
+        estimatedMinor: 1,
+        ceilingMinor: 1,
+        currency: "EUR",
+        mode: "simulation",
+      };
+      const fingerprint = await sha256(canonicalJson(frozen));
+      const legacyRow = {
+        id: dispatch.id,
+        organization_id: atelier.organizationId,
+        channel: frozen.channel,
+        recipient_json: canonicalJson(frozen.recipient),
+        document_id: frozen.documentId,
+        sender_id: frozen.senderId,
+        sender_address: frozen.senderAddress,
+        subject: frozen.subject,
+        html: frozen.html,
+        text: frozen.text,
+        options_json: canonicalJson(frozen.options),
+        status: "prepared",
+        mode: frozen.mode,
+        estimated_minor: frozen.estimatedMinor,
+        ceiling_minor: frozen.ceilingMinor,
+        currency: frozen.currency,
+        fingerprint,
+        prepare_key: "migration-fixture",
+        request_hash: await sha256(
+          canonicalJson({
+            channel: "email",
+            recipient: frozen.recipient,
+            subject: frozen.subject,
+            html: frozen.html,
+            documentId: frozen.documentId,
+          }),
+        ),
+        created_at: now,
+        updated_at: now,
+      };
+      await legacyDb
+        .prepare(
+          `INSERT INTO dispatches(${Object.keys(legacyRow).join(",")}) VALUES(${Object.keys(
+            legacyRow,
+          )
+            .map(() => "?")
+            .join(",")})`,
+        )
+        .bind(...Object.values(legacyRow))
+        .run();
+      // The legacy acceptance trigger creates the reservation and outbox; neither
+      // derived row is fabricated by the fixture.
+      await legacyDb.batch([
+        legacyDb
+          .prepare(
+            "INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at) VALUES('approval_legacy',?,?,?,?,?,?)",
+          )
+          .bind(
+            atelier.organizationId,
+            dispatch.id,
+            atelier.userId,
+            fingerprint,
+            new Date(Date.now() + 900_000).toISOString(),
+            now,
+          ),
+        legacyDb
+          .prepare(
+            "UPDATE dispatches SET status='queued',updated_at=? WHERE organization_id=? AND id=? AND status='prepared'",
+          )
+          .bind(now, atelier.organizationId, dispatch.id),
+      ]);
+      const snapshotLegacyRows = async () =>
+        Object.fromEntries(
+          await Promise.all(
+            [
+              "documents",
+              "dispatches",
+              "approvals",
+              "reservations",
+              "outbox",
+              "usage",
+            ].map(async (table) => [
+              table,
+              (
+                await legacyDb
+                  .prepare(
+                    `SELECT * FROM ${table} WHERE organization_id=? ORDER BY 1,2`,
+                  )
+                  .bind(atelier.organizationId)
+                  .all()
+              ).results,
+            ]),
+          ),
+        );
+      const before = await snapshotLegacyRows();
+      expect(before.documents).toEqual([
+        expect.objectContaining({
+          id: "doc_legacy",
+          sha256: await sha256(original),
+          size: original.length,
+          storage_key: "legacy-object",
+        }),
+      ]);
+      expect(before.dispatches).toEqual([
+        expect.objectContaining({
+          id: dispatch.id,
+          status: "queued",
+          document_id: "doc_legacy",
+          fingerprint,
+        }),
+      ]);
+      expect(before.approvals).toEqual([
+        expect.objectContaining({ dispatch_id: dispatch.id, fingerprint }),
+      ]);
+      expect(before.reservations).toEqual([
+        expect.objectContaining({
+          dispatch_id: dispatch.id,
+          status: "reserved",
+          amount_minor: 1,
+        }),
+      ]);
+      expect(before.outbox).toEqual([
+        expect.objectContaining({
+          dispatch_id: dispatch.id,
+          status: "pending",
+        }),
+      ]);
       await applySql(
         readFileSync(new URL("0008_document_versions.sql", migrations), "utf8"),
         legacyDb,
       );
-      expect(await legacyDomain.getDispatch(atelier, dispatch.id)).toEqual(
-        before,
-      );
+      expect(await snapshotLegacyRows()).toEqual(before);
       expect(
         (await legacyDb.prepare("PRAGMA foreign_key_check").all()).results,
       ).toEqual([]);
@@ -310,7 +428,15 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
 
   it("rejects a viewer before R2 storage, accounting, scanning, rendering or URL access", async () => {
     await db
-      .prepare("UPDATE memberships SET role='viewer' WHERE organization_id=?")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,'user_studio','admin',?)",
+      )
+      .bind(atelier.organizationId, new Date().toISOString())
+      .run();
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id='user_atelier'",
+      )
       .bind(atelier.organizationId)
       .run();
     const viewer = { ...atelier, role: "viewer" as const };

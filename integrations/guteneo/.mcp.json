@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "guteneo": {
+      "type": "http",
+      "url": "https://guteneo.com/mcp",
+      "oauth": {
+        "scopes": "documents:read documents:write dispatches:prepare dispatches:send dispatches:read"
+      }
+    }
+  }
+}

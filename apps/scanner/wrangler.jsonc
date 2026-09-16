@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "guteneo-scanner",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "containers": [
+    {
+      "class_name": "ClamAvContainer",
+      "image": "./Dockerfile",
+      "image_vars": {
+        "SIGNATURE_REFRESH": "2026-09-16T20:56:08.442Z",
+      },
+      "instance_type": "standard-1",
+      "max_instances": 1,
+      "constraints": {
+        "jurisdiction": "eu",
+      },
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SCANNER_CONTAINER",
+        "class_name": "ClamAvContainer",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ClamAvContainer"],
+    },
+  ],
+  "observability": {
+    "enabled": false,
+  },
+}

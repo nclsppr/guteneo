@@ -19,5 +19,6 @@
     "tests/**/*.ts",
     "scripts/**/*.ts",
     "*.ts"
-  ]
+  ],
+  "exclude": ["apps/scanner/**"]
 }

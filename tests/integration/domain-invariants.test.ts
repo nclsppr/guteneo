@@ -1,6 +1,7 @@
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
+import { resetFixtureMemberships } from "../helpers/reset-memberships";
 import {
   DomainService,
   type ActorContext,
@@ -85,7 +86,7 @@ afterAll(async () => {
   await mf?.dispose();
 });
 beforeEach(async () => {
-  // Child-first cleanup retains schema/triggers, then reinstalls the two fictional tenants.
+  // Child-first cleanup restores the same schema/guards before reinstalling fictional tenants.
   for (const table of [
     "provider_events",
     "attempts",
@@ -105,7 +106,8 @@ beforeEach(async () => {
     "users",
     "organizations",
   ])
-    await db.prepare(`DELETE FROM ${table}`).run();
+    if (table === "memberships") await resetFixtureMemberships(db);
+    else await db.prepare(`DELETE FROM ${table}`).run();
   await applySql(seed);
   domain = new DomainService(db, { mode: "simulation" });
 });
@@ -637,7 +639,13 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
   it("rejects a forged organization role even when the user has a real membership", async () => {
     await db
       .prepare(
-        "UPDATE memberships SET role='viewer' WHERE organization_id='org_atelier'",
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('org_atelier','user_studio','admin',?)",
+      )
+      .bind(new Date().toISOString())
+      .run();
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE organization_id='org_atelier' AND user_id='user_atelier'",
       )
       .run();
     await expect(prepare()).rejects.toMatchObject({ code: "FORBIDDEN" });

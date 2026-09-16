@@ -1,6 +1,6 @@
 # Architecture
 
-One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. Business-service infrastructure is not provisioned yet. The separate public design preview Worker serves browser-local examples at guteneo.com, with only static assets and no access to the application backend.
+One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. The production-mode backend is provisioned separately with EU-jurisdiction D1/R2, queues, a private ClamAV container and the private document Worker. Real account activation and funded live communications remain gated. The separate public design preview Worker serves browser-local examples at guteneo.com, with only static assets and no access to the application backend.
 
 ```mermaid
 flowchart TD
@@ -9,6 +9,7 @@ flowchart TD
   Identity["Auth0 identity"] --> API
   API --> D1["D1: jobs, approvals, quota, outbox"]
   API --> R2["Private R2 documents"]
+  API --> Scanner["Private ClamAV container"]
   API --> Renderer["Isolated document Worker"]
   D1 --> Publisher["Outbox publisher / cron"]
   Publisher --> Interactive["Interactive Queue"]
@@ -34,4 +35,4 @@ D1 paid database limit verified at 10GB; operational alert at 5GB, migration pla
 
 ## Deliberate first-release limitations
 
-Real sends remain gated by verified live estimates and external configuration. Deterministic simulation traverses actual D1/Queues/domain paths. The local PDF browser is a development substitute, not evidence of Browser Run parity. Marketing is disabled until real unsubscribe policy/event handling are qualified. Platform content-operator access is not implemented; there is no universal operator bypass. No Workflow, KV, custom OAuth server, LLM call or VBS dependency.
+Real sends remain gated by verified live estimates and external configuration. Deterministic simulation traverses actual D1/Queues/domain paths. The local PDF browser is a development substitute; separate real Cloudflare Browser Run byte/render evidence is recorded in SCANNER.md. Scanner definitions require refresh at least every 72 hours and currently need an operational daily rebuild/redeploy procedure. Marketing is disabled until real unsubscribe policy/event handling are qualified. Platform content-operator access is not implemented; there is no universal operator bypass. No Workflow, KV, custom OAuth server, LLM call or VBS dependency.

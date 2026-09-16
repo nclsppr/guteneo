@@ -1,0 +1,16 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "guteneo-local-private-qualification",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "main": "remote-probe.ts",
+  "compatibility_date": "2026-09-16",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "services": [
+    { "binding": "SCANNER", "service": "guteneo-scanner", "remote": true },
+    { "binding": "DOCUMENTS", "service": "guteneo-documents", "remote": true },
+  ],
+  "dev": { "ip": "127.0.0.1", "port": 8799 },
+  "observability": { "enabled": false },
+}

@@ -10,6 +10,68 @@ import type { DomainService } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
 
 type DocumentContext = Parameters<DomainService["registerDocument"]>[0];
+
+async function withinDeadline<T>(
+  operation: Promise<T>,
+  signal: AbortSignal,
+): Promise<T> {
+  let abort: () => void = () => {};
+  const expired = new Promise<never>((_resolve, reject) => {
+    abort = () => reject(new Error("DOCUMENT_SCAN_TIMEOUT"));
+    if (signal.aborted) abort();
+    else signal.addEventListener("abort", abort, { once: true });
+  });
+  try {
+    return await Promise.race([operation, expired]);
+  } finally {
+    signal.removeEventListener("abort", abort);
+  }
+}
+
+async function boundedJson(
+  response: Response,
+  signal: AbortSignal,
+): Promise<Record<string, unknown>> {
+  if (
+    !response.ok ||
+    !response.headers
+      .get("Content-Type")
+      ?.toLowerCase()
+      .startsWith("application/json")
+  )
+    throw new Error("DOCUMENT_SCAN_RESPONSE_INVALID");
+  const bytes = await withinDeadline(readLimited(response, 4096), signal);
+  const result: unknown = JSON.parse(new TextDecoder().decode(bytes));
+  if (!result || typeof result !== "object" || Array.isArray(result))
+    throw new Error("DOCUMENT_SCAN_RESPONSE_INVALID");
+  return result as Record<string, unknown>;
+}
+
+async function reserveScanBudget(
+  db: D1Database,
+  organizationId: string,
+  warm: boolean,
+): Promise<void> {
+  const result = await db
+    .prepare(
+      `INSERT INTO document_scan_usage(organization_id,day,rescans,warmups) VALUES(?,?,?,?)
+ ON CONFLICT(organization_id,day) DO UPDATE SET rescans=rescans+excluded.rescans,warmups=warmups+excluded.warmups
+ WHERE rescans+excluded.rescans<=10 AND warmups+excluded.warmups<=3 RETURNING rescans`,
+    )
+    .bind(
+      organizationId,
+      new Date().toISOString().slice(0, 10),
+      warm ? 0 : 1,
+      warm ? 1 : 0,
+    )
+    .first();
+  if (!result)
+    throw new ContentError(
+      "SCAN_QUOTA_EXCEEDED",
+      "Limite quotidienne d’analyses atteinte. Réessayez demain.",
+      429,
+    );
+}
 export async function readLimited(
   response: Response,
   limit = LIMITS.pdfBytes,
@@ -85,6 +147,224 @@ export class DocumentService {
     private env: Env,
     private domain: DomainService,
   ) {}
+
+  async rescan(ctx: DocumentContext, id: string) {
+    await this.domain.authorizeWrite(ctx);
+    const document = await this.domain.getDocument(ctx, id);
+    if (document.status === "ready") return document;
+    if (document.status !== "quarantined" || document.pages !== 0)
+      throw new ContentError(
+        "DOCUMENT_NOT_RESCANABLE",
+        "Ce document ne peut pas être analysé de nouveau.",
+        409,
+      );
+    if (!this.env.SCANNER || !this.env.DOCUMENT_RENDERER)
+      throw new ContentError(
+        "SCANNER_NOT_CONFIGURED",
+        "Le service d’analyse doit être raccordé avant de réessayer.",
+        503,
+      );
+    const token = crypto.randomUUID();
+    const now = Date.now();
+    const lock = await this.env.DB.prepare(
+      `INSERT INTO document_scan_locks(organization_id,document_id,token,expires_at) VALUES(?,?,?,?)
+ ON CONFLICT(organization_id,document_id) DO UPDATE SET token=excluded.token,expires_at=excluded.expires_at
+ WHERE expires_at<? RETURNING token`,
+    )
+      .bind(ctx.organizationId, document.id, token, now + 45_000, now)
+      .first();
+    if (!lock)
+      throw new ContentError(
+        "DOCUMENT_SCAN_BUSY",
+        "Ce document est déjà en cours d’analyse.",
+        409,
+      );
+    try {
+      await reserveScanBudget(this.env.DB, ctx.organizationId, false);
+      const signal = AbortSignal.timeout(30_000);
+      const object = await withinDeadline(
+        this.env.DOCUMENTS.get(document.storage_key),
+        signal,
+      );
+      if (!object)
+        throw new ContentError(
+          "DOCUMENT_UNAVAILABLE",
+          "L’original de ce document est indisponible.",
+          404,
+        );
+      if (
+        object.size !== document.size ||
+        object.size > LIMITS.pdfBytes ||
+        !document.storage_key.startsWith(`${ctx.organizationId}/documents/`)
+      )
+        throw new ContentError(
+          "DOCUMENT_INTEGRITY_ERROR",
+          "L’intégrité de l’original n’a pas pu être vérifiée.",
+          423,
+        );
+      const bytes = await withinDeadline(
+        readLimited(new Response(object.body), LIMITS.pdfBytes),
+        signal,
+      );
+      const hash = Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest(
+            "SHA-256",
+            bytes as Uint8Array<ArrayBuffer>,
+          ),
+        ),
+        (b) => b.toString(16).padStart(2, "0"),
+      ).join("");
+      if (bytes.byteLength !== document.size || hash !== document.sha256)
+        throw new ContentError(
+          "DOCUMENT_INTEGRITY_ERROR",
+          "L’intégrité de l’original n’a pas pu être vérifiée.",
+          423,
+        );
+      let pages = 0;
+      try {
+        const scan = await withinDeadline(
+          this.env.SCANNER.fetch(
+            new Request("https://scanner.internal/scan", {
+              method: "POST",
+              body: bytes as Uint8Array<ArrayBuffer>,
+              headers: { "Content-Type": "application/pdf" },
+              signal,
+            }),
+          ),
+          signal,
+        );
+        const scanned = await boundedJson(scan, signal);
+        if (scanned.sha256 !== document.sha256 || scanned.verdict !== "clean")
+          return await this.domain.getDocument(ctx, id);
+        const validated = await withinDeadline(
+          this.env.DOCUMENT_RENDERER.fetch(
+            new Request("https://documents.internal/validate", {
+              method: "POST",
+              body: bytes as Uint8Array<ArrayBuffer>,
+              headers: { "Content-Type": "application/pdf" },
+              signal,
+            }),
+          ),
+          signal,
+        );
+        const result = await boundedJson(validated, signal);
+        if (
+          result.sha256 !== document.sha256 ||
+          typeof result.pages !== "number" ||
+          !Number.isInteger(result.pages) ||
+          result.pages < 1 ||
+          result.pages > LIMITS.pages
+        )
+          return await this.domain.getDocument(ctx, id);
+        pages = result.pages;
+      } catch {
+        // Timeout, infected bytes and malformed responses never lift quarantine.
+        return await this.domain.getDocument(ctx, id);
+      }
+      await this.domain.authorizeWrite(ctx);
+      const fence =
+        "EXISTS(SELECT 1 FROM document_scan_locks WHERE organization_id=? AND document_id=? AND token=? AND expires_at>?)";
+      const member =
+        "EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=? AND role IN ('admin','member'))";
+      const guards = [
+        ctx.organizationId,
+        id,
+        token,
+        Date.now(),
+        ctx.organizationId,
+        ctx.userId,
+        ctx.role,
+      ];
+      const result = await this.env.DB.batch([
+        this.env.DB.prepare(
+          `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND id=? AND status='quarantined' AND pages=0 AND sha256=? AND size=? AND storage_key=? AND ${fence} AND ${member}`,
+        ).bind(
+          pages,
+          ctx.organizationId,
+          id,
+          document.sha256,
+          document.size,
+          document.storage_key,
+          ...guards,
+        ),
+        // Keep the human retry history and the hash-based proof consumed by
+        // live providers atomic with promotion of this exact original.
+        ...[
+          ["document.rescan_verified", id],
+          ["document.scan_verified", document.sha256],
+        ].map(([action, resourceId]) =>
+          this.env.DB.prepare(
+            `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM documents WHERE organization_id=? AND id=? AND status='ready' AND pages=? AND sha256=? AND size=? AND storage_key=?) AND ${fence} AND ${member}`,
+          ).bind(
+            crypto.randomUUID(),
+            ctx.organizationId,
+            ctx.userId,
+            action,
+            resourceId,
+            JSON.stringify({ pages }),
+            new Date().toISOString(),
+            ctx.organizationId,
+            id,
+            pages,
+            document.sha256,
+            document.size,
+            document.storage_key,
+            ...guards,
+          ),
+        ),
+      ]);
+      const current = await this.domain.getDocument(ctx, id);
+      if (result[0].meta.changes !== 1 && current.status === "quarantined")
+        throw new ContentError(
+          "DOCUMENT_SCAN_EXPIRED",
+          "Cette analyse a expiré. Vous pouvez réessayer.",
+          409,
+        );
+      return current;
+    } finally {
+      await this.env.DB.prepare(
+        "DELETE FROM document_scan_locks WHERE organization_id=? AND document_id=? AND token=?",
+      )
+        .bind(ctx.organizationId, id, token)
+        .run();
+    }
+  }
+
+  async warmScanner(
+    ctx: DocumentContext,
+  ): Promise<{ status: "ready" | "not_ready"; retryAfterSeconds: number }> {
+    await this.domain.authorizeWrite(ctx);
+    if (ctx.actor !== "browser" || ctx.role !== "admin")
+      throw new ContentError(
+        "SCANNER_ADMIN_REQUIRED",
+        "Seul un administrateur peut préparer le service d’analyse depuis son navigateur.",
+        403,
+      );
+    if (!this.env.SCANNER)
+      throw new ContentError(
+        "SCANNER_NOT_CONFIGURED",
+        "Le service d’analyse n’est pas raccordé.",
+        503,
+      );
+    await reserveScanBudget(this.env.DB, ctx.organizationId, true);
+    const signal = AbortSignal.timeout(30_000);
+    try {
+      const response = await withinDeadline(
+        this.env.SCANNER.fetch(
+          new Request("https://scanner.internal/health", { signal }),
+        ),
+        signal,
+      );
+      const result = await boundedJson(response, signal);
+      if (result.status === "ready")
+        return { status: "ready", retryAfterSeconds: 0 };
+    } catch {
+      /* Starting a cold scanner may exceed this request's deadline. */
+    }
+    return { status: "not_ready", retryAfterSeconds: 15 };
+  }
+
   async upload(
     ctx: DocumentContext,
     input: { name: string; bytes: Uint8Array },

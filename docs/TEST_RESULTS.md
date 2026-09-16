@@ -1,6 +1,17 @@
 # Executed verification — 2026-09-16
 
-## Cloudflare preview continuation — current evidence
+## Hosted accounts, billing and MCP continuation
+
+The v0.2 continuation adds account/team/session authorization, Stripe tracking, secure credential input, assistant packages and PDF rescan. **36/36 application browser tests passed** on desktop Chromium, mobile Chromium and iPhone WebKit. The rescan browser cases use controlled HTTP responses; **23 D1/R2 tests** independently exercise real document leases, hashes, quotas, revocation and quarantine.
+
+The isolated scanner passed **14 tests**, typecheck and actual Cloudflare clean/EICAR qualification. Browser Run also rendered and validated real fixture PDFs. Production dependency audits for both the application and scanner reported zero known vulnerabilities. Hosted proof and open identity/provider gates are detailed in [LIVE_RELEASE.md](LIVE_RELEASE.md); no simulated send is counted as a real fax. The final full run passed **249/249 unit/integration tests across 18 files**, plus **12/12 secure-configuration tests** (including real Chromium/WebKit form submissions). The final application run passed **36/36** and the local preview run **6/6** browser tests. TypeScript, ESLint, the production Worker dry-run and 13-migration source/transport equivalence passed; the latter compared 88 schema objects with clean integrity and foreign keys. Exact deployed code identities are checked separately in LIVE_RELEASE.md.
+
+The integrated review fixed three boundary defects before release: revoked browser administrators cannot receive a newly created Stripe portal URL; successful PDF rescans write the canonical scan proof in the same fenced transaction as readiness; and fax quote expiry is rechecked after asynchronous media preparation, immediately before the supplier call. A SQL NULL-provider regression also protects the attempt claim.
+
+The historical migration fixture was updated to construct genuine pre-0008 rows using its original SQL acceptance triggers. It compares populated documents, dispatches, approvals, reservations, outbox and usage before/after migration, without calling current code against an obsolete schema or adding a production compatibility bypass.
+
+
+## Initial Cloudflare preview continuation — historical evidence
 
 - **163/163 unit and integration tests pass across 13 files**, including browser-preview isolation, remote route rejection, Cursor quarantine receipts, populated-schema migration and document re-import after purge. Final report: `reports/vitest.json`.
 - **18/18 application browser tests pass** across desktop Chromium, mobile Chromium and iPhone WebKit; report: `reports/playwright.json`. These use the local D1/R2/Queue application, actual PDF import/render and simulated transport.
@@ -16,7 +27,7 @@ Migration 0008 is verified locally with populated tables, preserved approvals/re
 
 ## Original foundation report — historical evidence
 
-The remainder records the preceding environment's run. Its counts and environment limitations describe that earlier run; current evidence is above.
+The remainder records the preceding environment's run. Its counts and environment limitations describe that earlier run; current continuation evidence is recorded above.
 
 Evidence is local unless explicitly stated otherwise. No real provider account, SES/Pingen sandbox, remote Auth0 tenant, hosted Cloudflare service or ChatGPT/Claude/Cursor client was exercised. A passing fixture is not a live integration result.
 

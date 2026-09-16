@@ -95,7 +95,10 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
       },
     }),
   );
-  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await page
+    .locator(".page-heading")
+    .getByRole("button", { name: "Actualiser", exact: true })
+    .click();
   await expect(
     page
       .locator(".dead-letters")

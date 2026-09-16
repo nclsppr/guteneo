@@ -1,0 +1,15 @@
+# Configuration privée des prestataires
+
+La saisie des clés se fait sur l’ordinateur de l’opérateur, puis leur valeur est transmise directement aux secrets Cloudflare du Worker `guteneo-app`. Ne collez jamais une clé dans une conversation, un ticket, un fichier Git ou une URL.
+
+Depuis le projet, lancer `npm run setup:fax` pour Telnyx, ou `npm run setup:billing` pour Stripe. Ouvrir le lien local imprimé, remplir les champs masqués et enregistrer. Le service Cloudflare doit déjà exister et Wrangler doit être connecté au compte autorisé. Les champs facultatifs vides préservent les secrets existants.
+
+Le serveur écoute exclusivement sur `127.0.0.1`, avec un chemin aléatoire, une vérification de l’origine, un jeton anti-CSRF, une liste fermée de champs, des limites de taille et une expiration de trente minutes. Une saisie réussie ferme le serveur. Les valeurs ne sont jamais renvoyées au navigateur, inscrites dans un fichier ou passées dans les arguments du processus. Elles transitent en mémoire et par l’entrée standard de Wrangler ; ses sorties, journaux sur disque et télémétrie sont désactivés pour cette opération. Ce mécanisme suppose que l’ordinateur et les processus locaux sont de confiance.
+
+La politique de référent est `same-origin` : aucune adresse de saisie n’est envoyée à un autre site, et Safari peut transmettre l’en-tête Origin lors de la soumission du formulaire. Les formulaires ont été éprouvés avec Chromium et WebKit, en plus des essais d’origine étrangère, CSRF invalide, champs inconnus/dupliqués, erreurs et valeurs non réaffichées.
+
+Stripe exige ici une clé restreinte **de production** `rk_live_…` ; le service de production refuse les clés de test. Prévoir seulement les autorisations du module décrit dans [BILLING.md](BILLING.md). La création d’un client et l’ouverture du portail ne déclenchent pas de débit. Aucune offre, tarif ou facturation automatique n’est créée par ce formulaire.
+
+Auth0 utilise sa reconnexion officielle et le provisionnement dédié, sans saisie d’un mot de passe dans Guteneo. Une clé de fax ne remplace pas la configuration d’identité, le numéro expéditeur, le tarif vérifié, les budgets et l’approbation humaine.
+
+Le 16 septembre 2026, à la demande explicite de l’utilisateur, la clé Telnyx étiquetée `guteneo-production` a été créée dans sa session Safari, avec expiration le 15 décembre 2026 à 23:59 UTC. Sa valeur a été copiée directement dans le champ sécurisé puis transférée à Cloudflare ; le presse-papiers a ensuite été remplacé. La présence du secret `TELNYX_API_KEY` a été confirmée sans lire sa valeur. La clé publique de validation des callbacks a également été installée sous `TELNYX_PUBLIC_KEY`. L’application fax `Guteneo` (`3050489615535310376`) est active, avec callback `https://guteneo.com/webhooks/telnyx`, profil sortant `Default` et limite d’un canal sortant ; son identifiant est installé sous `TELNYX_CONNECTION_ID`. L’inventaire Telnyx ne contient encore aucun numéro. Aucun fax ni paiement n’a été effectué par l’agent.

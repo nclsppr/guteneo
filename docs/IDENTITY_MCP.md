@@ -34,7 +34,7 @@ Scopes: `documents:read`, `documents:write`, `dispatches:prepare`, `dispatches:s
 
 `GET /auth/login` starts managed login; callback consumes a state transaction only once, checks browser binding, exchanges the code with PKCE and validates signed ID/access tokens with issuer/audience/expiry. Safe return paths include the frontend hash route. Session secrets are random and only SHA-256 digests are stored. Cookies are HttpOnly/SameSite=Lax with `__Host-` + Secure outside local. Every browser mutation requires the exact configured Origin and `X-CSRF-Token` from `GET /api/session`.
 
-Membership is read from D1 on every authenticated request. An organization header or MCP argument grants no access. New verified identities receive an isolated organization, zero credits and three disabled channels. Admin MFA is required before using that organization. The current browser session selects the first existing membership; a full multi-organization browser switcher is deferred.
+Membership is read from D1 on every authenticated request. An organization header or MCP argument grants no access. New verified identities receive an isolated organization, zero sending credits, a bounded PDF allowance (10 imports / 20 MiB / 3 renders per day) and three disabled channels. Admin MFA is required before using that organization. The current browser session selects the first existing membership; a full multi-organization browser switcher is deferred.
 
 `POST /api/logout` deletes the local session. It does not claim to terminate all Auth0 SSO sessions. Sessions expire after one hour; the user re-enters the hosted flow, where provider SSO may apply. No home-grown refresh protocol is implemented.
 
@@ -48,18 +48,23 @@ The installed transport uses `agents/mcp/server.createMcpHandler` and `@modelcon
 
 Discovery: `/.well-known/oauth-protected-resource` and `/.well-known/oauth-protected-resource/mcp`; the authorization server is the configured Auth0 issuer. Missing bearer access returns a `WWW-Authenticate` discovery challenge. Tools use structured result/error envelopes and bounded pagination:
 
-| Tool                  | Required scope     | Effect                                                      |
-| --------------------- | ------------------ | ----------------------------------------------------------- |
-| `get_capabilities`    | Authenticated      | Current simulation/configuration/limits                     |
-| `import_document`     | documents:write    | Exact PDF bytes through restricted download service         |
-| `render_pdf`          | documents:write    | Explicitly creates a PDF from controlled HTML               |
-| `prepare_dispatch`    | dispatches:prepare | Immutable preview and human-approval URL                    |
-| `confirm_dispatch`    | dispatches:send    | Shared durable acceptance; requires existing human approval |
-| `get_dispatch_status` | dispatches:read    | Known outcome and next actions                              |
-| `list_dispatches`     | dispatches:read    | 1–50 items with cursor                                      |
-| `cancel_dispatch`     | dispatches:send    | Only states supported by shared domain cancellation         |
+| Tool                  | Required scope     | Effect                                                                |
+| --------------------- | ------------------ | --------------------------------------------------------------------- |
+| `get_capabilities`    | Authenticated      | Current simulation/configuration/limits                               |
+| `import_document`     | documents:write    | Exact PDF bytes through restricted download service                   |
+| `render_pdf`          | documents:write    | Explicitly creates a PDF from controlled HTML                         |
+| `get_document`        | documents:read     | Exact document metadata, digest, scan state and authenticated preview |
+| `list_documents`      | documents:read     | Bounded tenant-scoped discovery after a browser upload                |
+| `prepare_fax`         | dispatches:prepare | Focused PDF-to-fax preparation; E.164 and explicit cost ceiling       |
+| `prepare_dispatch`    | dispatches:prepare | Immutable preview and human-approval URL                              |
+| `confirm_dispatch`    | dispatches:send    | Shared durable acceptance; requires existing human approval           |
+| `get_dispatch_status` | dispatches:read    | Known outcome and next actions                                        |
+| `list_dispatches`     | dispatches:read    | 1–50 items with cursor                                                |
+| `cancel_dispatch`     | dispatches:send    | Only states supported by shared domain cancellation                   |
 
 There is deliberately **no MCP approval tool** and no `user_confirmed` bypass. Confirmation invokes the same domain method as REST; the model cannot mint browser approval. Approval links are `/#/app/dispatch/{id}`. A publication hook is awaited after acceptance for low latency; failure leaves the committed outbox recoverable. MCP and HTTP share the organization rate limiter, independent of atomic send quotas.
+
+The `fax_pdf` MCP prompt and distributable Agent Plugins/Claude Code/Cursor package describe the exact-byte fax journey. Each tool advertises its OAuth permissions under `_meta.securitySchemes` (the installed v2 SDK preserves that documented compatibility field, not arbitrary top-level extensions). Missing tool scope emits an `mcp/www_authenticate` relinking hint in addition to the enforced error; the remote HTTP boundary still rejects missing bearer authentication. Build/package instructions, exact OAuth callbacks and current host qualification limits are in [LLM_SETUP.md](LLM_SETUP.md).
 
 ## Files and client qualification matrix
 

@@ -118,6 +118,7 @@ export function Documents() {
   const [selected, setSelected] = useState<DocumentRecord>();
   const [name, setName] = useState("");
   const [html, setHtml] = useState(t.documents.defaultHtml);
+  const [scanMessage, setScanMessage] = useState("");
   const file = useRef<HTMLInputElement>(null);
   async function upload(event: FormEvent) {
     event.preventDefault();
@@ -145,6 +146,23 @@ export function Documents() {
       setSelected(document);
       setTab(null);
       resource.refresh();
+    });
+  }
+  async function rescan() {
+    if (!selected) return;
+    setScanMessage("");
+    await action.run(async () => {
+      const document = await api<DocumentRecord>(
+        `/documents/${encodeURIComponent(selected.id)}/rescan`,
+        { method: "POST", body: {} },
+      );
+      setSelected(document);
+      resource.refresh();
+      setScanMessage(
+        document.status === "ready"
+          ? "Analyse terminée. Votre PDF est prêt."
+          : "L’analyse n’a pas encore validé ce PDF. Au premier démarrage, le service peut prendre quelques minutes ; vous pourrez réessayer.",
+      );
     });
   }
   return (
@@ -264,6 +282,20 @@ export function Documents() {
           ) : (
             <PdfPreview id={selected.id} />
           )}
+          {!isPublicPreview && selected.status === "quarantined" && (
+            <p>
+              <button
+                className="button"
+                disabled={action.pending}
+                onClick={() => void rescan()}
+              >
+                {action.pending
+                  ? "Analyse en cours…"
+                  : "Relancer l’analyse du PDF"}
+              </button>
+            </p>
+          )}
+          {scanMessage && <p role="status">{scanMessage}</p>}
           <dl className="document-metadata">
             <Definition label={t.documents.pages}>{selected.pages}</Definition>
             <Definition label={t.documents.size}>
@@ -830,6 +862,11 @@ export function DispatchDetailPage({
             <Definition label={t.dispatch.ceilingLabel}>
               {money(d.ceiling_minor, d.currency)}
             </Definition>
+            {d.quote_expires_at && (
+              <Definition label="Devis valable jusqu’au">
+                {date(d.quote_expires_at)}
+              </Definition>
+            )}
             <Definition label={t.created}>{date(d.created_at)}</Definition>
           </dl>
           {d.mode === "simulation" && (

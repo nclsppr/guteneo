@@ -1,0 +1,230 @@
+import { createServer } from "node:http";
+import { randomBytes, timingSafeEqual } from "node:crypto";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+
+const profiles = {
+  telnyx: {
+    title: "Connecter le fax Telnyx",
+    description:
+      "La clé sera enregistrée dans les secrets du service Guteneo sur Cloudflare. Cette opération n’envoie aucun fax et n’active aucun paiement.",
+    fields: [
+      ["TELNYX_API_KEY", "Clé API Telnyx", true],
+      ["TELNYX_CONNECTION_ID", "Identifiant de l’application fax", false],
+      ["TELNYX_FROM", "Numéro d’expédition, au format +33…", false],
+      [
+        "TELNYX_PUBLIC_KEY",
+        "Clé publique de vérification des notifications",
+        false,
+      ],
+    ],
+  },
+  stripe: {
+    title: "Connecter la facturation Stripe",
+    description:
+      "Utilisez une clé restreinte de production autorisant uniquement les clients, factures, paiements, abonnements et le portail client. Cette connexion ne déclenche aucun débit.",
+    fields: [
+      ["STRIPE_API_KEY", "Clé API restreinte Stripe", true],
+      ["STRIPE_WEBHOOK_SECRET", "Secret de signature du webhook", false],
+    ],
+  },
+};
+const escape = (s) =>
+  s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
+const equal = (a, b) =>
+  typeof a === "string" &&
+  Buffer.byteLength(a) === Buffer.byteLength(b) &&
+  timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
+// Values travel only through a pipe to Wrangler. Never pass them in arguments,
+// environment variables, output, temporary files, or error messages.
+export function writeCloudflareSecrets(values, config = "wrangler.live.jsonc") {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url),
+        ),
+        "secret",
+        "bulk",
+        "--config",
+        config,
+      ],
+      {
+        cwd: fileURLToPath(new URL("../", import.meta.url)),
+        stdio: ["pipe", "ignore", "ignore"],
+        env: {
+          ...process.env,
+          CI: "true",
+          WRANGLER_SEND_METRICS: "false",
+          WRANGLER_LOG: "error",
+          WRANGLER_WRITE_LOGS: "false",
+        },
+      },
+    );
+    const timeout = setTimeout(() => {
+      child.kill();
+      reject(new Error("Secret upload timed out"));
+    }, 60_000);
+    child.once("error", () => {
+      clearTimeout(timeout);
+      reject(new Error("Secret upload unavailable"));
+    });
+    child.once("close", (code) => {
+      clearTimeout(timeout);
+      if (code === 0) resolvePromise();
+      else reject(new Error("Secret upload failed"));
+    });
+    child.stdin.on("error", () => {});
+    child.stdin.end(JSON.stringify(values));
+  });
+}
+
+export async function startSecureSetup({
+  profile = "telnyx",
+  writer = writeCloudflareSecrets,
+  timeoutMs = 30 * 60_000,
+} = {}) {
+  const settings = Object.hasOwn(profiles, profile)
+    ? profiles[profile]
+    : undefined;
+  if (!settings) throw new Error("Unknown setup profile");
+  const path = `/setup/${randomBytes(32).toString("hex")}`;
+  const csrf = randomBytes(32).toString("hex");
+  let origin = "";
+  let busy = false;
+  let completed = false;
+  const html = (message = "", success = false) =>
+    `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — connexion privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:590px;padding:48px 24px;margin:auto}h1{font:44px/1.08 Georgia,serif;letter-spacing:-1px}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;border-radius:4px;background:#fff;font:inherit}button{background:#284c3e;color:white;border:0;padding:15px 24px;margin-top:28px;font:inherit;cursor:pointer}small{display:block;margin-top:24px;color:#535a50}a{color:#284c3e}.message{padding:18px;background:#e0e8dc}</style><main><p>GUTENEO · CONNEXION PRIVÉE</p><h1>${settings.title}</h1><p>${settings.description}</p>${message ? `<p class="message" role="status">${message}</p>` : ""}${success ? "<p>Vous pouvez fermer cette fenêtre. Les valeurs ne seront pas affichées à l’assistant.</p>" : `<form method="post" action="${path}" autocomplete="off"><input type="hidden" name="csrf" value="${csrf}">${settings.fields.map(([key, label, required]) => `<label for="${key}">${escape(label)}${required ? "" : " (facultatif)"}</label><input id="${key}" name="${key}" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" maxlength="4096" ${required ? "required" : ""}>`).join("")}<button type="submit">Enregistrer dans Cloudflare</button></form><small>Ce formulaire fonctionne uniquement sur votre ordinateur. Les valeurs restent en mémoire le temps de la transmission chiffrée à Cloudflare. Aucun fichier de clés n’est créé. La page expire après 30 minutes ; les champs vides conservent la configuration existante.</small>`}</main></html>`;
+  const server = createServer(async (req, res) => {
+    const send = (status, body, type = "text/plain; charset=utf-8") => {
+      res.writeHead(status, {
+        "Content-Type": type,
+        "Cache-Control": "no-store",
+        "Referrer-Policy": "same-origin",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy":
+          "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+        "Cross-Origin-Resource-Policy": "same-origin",
+      });
+      res.end(body);
+    };
+    if (req.headers.host !== new URL(origin).host || req.url !== path)
+      return send(404, "Not found");
+    if (req.headers["sec-fetch-site"] === "cross-site")
+      return send(403, "Forbidden");
+    if (completed) return send(410, "Cette saisie est terminée.");
+    if (req.method === "GET")
+      return send(200, html(), "text/html; charset=utf-8");
+    if (req.method !== "POST") return send(405, "Method not allowed");
+    if (
+      req.headers.origin !== origin ||
+      req.headers["content-type"]?.split(";")[0] !==
+        "application/x-www-form-urlencoded"
+    )
+      return send(403, "Forbidden");
+    if (busy) return send(409, "Une transmission est déjà en cours.");
+    busy = true;
+    try {
+      const chunks = [];
+      let size = 0;
+      for await (const chunk of req) {
+        size += chunk.length;
+        if (size > 32_768) {
+          send(413, "Formulaire trop volumineux.");
+          return;
+        }
+        chunks.push(chunk);
+      }
+      const body = Buffer.concat(chunks);
+      const fields = new URLSearchParams(body.toString("utf8"));
+      body.fill(0);
+      for (const chunk of chunks) chunk.fill(0);
+      if (
+        !equal(fields.get("csrf"), csrf) ||
+        fields.getAll("csrf").length !== 1
+      )
+        return send(403, "Forbidden");
+      const allowed = new Set([
+        "csrf",
+        ...settings.fields.map(([name]) => name),
+      ]);
+      if (
+        [...fields.keys()].some(
+          (key) => !allowed.has(key) || fields.getAll(key).length !== 1,
+        )
+      )
+        return send(400, "Champs invalides.");
+      const values = {};
+      for (const [name, , required] of settings.fields) {
+        const value = (fields.get(name) ?? "").trim();
+        if (
+          (required && !value) ||
+          value.length > 4096 ||
+          /[\u0000-\u001f\u007f]/.test(value)
+        )
+          return send(400, "Valeur invalide.");
+        if (value) values[name] = value;
+        fields.delete(name);
+      }
+      if (values.TELNYX_FROM && !/^\+[1-9]\d{6,14}$/.test(values.TELNYX_FROM))
+        return send(400, "Le numéro doit être au format international.");
+      if (values.STRIPE_API_KEY) {
+        if (!/^rk_live_[a-zA-Z0-9]+$/.test(values.STRIPE_API_KEY))
+          return send(
+            400,
+            "Utilisez une clé restreinte de production (rk_live_) pour ce service.",
+          );
+        values.STRIPE_MODE = "live";
+      }
+      try {
+        await writer(values);
+      } finally {
+        for (const key of Object.keys(values)) values[key] = "";
+      }
+      completed = true;
+      send(
+        200,
+        html("Configuration enregistrée dans Cloudflare.", true),
+        "text/html; charset=utf-8",
+      );
+      setTimeout(() => server.close(), 1000).unref();
+    } catch {
+      send(
+        503,
+        html(
+          "La transmission n’a pas abouti. Vérifiez la connexion Cloudflare et réessayez ; les valeurs n’ont pas été conservées.",
+        ),
+        "text/html; charset=utf-8",
+      );
+    } finally {
+      busy = false;
+    }
+  });
+  server.requestTimeout = 70_000;
+  server.headersTimeout = 10_000;
+  await new Promise((resolvePromise) =>
+    server.listen(0, "127.0.0.1", resolvePromise),
+  );
+  origin = `http://127.0.0.1:${server.address().port}`;
+  const timer = setTimeout(() => server.close(), timeoutMs).unref();
+  server.on("close", () => clearTimeout(timer));
+  return {
+    url: `${origin}${path}`,
+    server,
+    close: () => new Promise((r) => server.close(r)),
+  };
+}
+
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  const setup = await startSecureSetup({
+    profile: process.argv[2] || "telnyx",
+  });
+  console.log(`Saisie privée disponible pendant 30 minutes : ${setup.url}`);
+}

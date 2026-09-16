@@ -38,6 +38,8 @@ test("public design and every workspace page render without server data or overf
     "connection",
     "senders",
     "usage",
+    "billing",
+    "account",
     "admin",
     "prepare",
   ]) {
@@ -104,6 +106,9 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
   for (const path of [
     "/api/dev/login",
     "/api/dispatches",
+    "/api/account",
+    "/api/billing/customer",
+    "/api/admin/members/user_atelier/revoke-access",
     "/mcp",
     "/webhooks/telnyx",
   ]) {

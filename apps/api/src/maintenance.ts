@@ -89,6 +89,11 @@ export async function maintainDocuments(
       .bind(new Date().toISOString())
       .run();
   await env.DB.prepare(
+    "DELETE FROM auth_flow_limits WHERE key IN (SELECT key FROM auth_flow_limits WHERE window_start<? LIMIT 500)",
+  )
+    .bind(Math.floor(Date.now() / 3_600_000) - 48)
+    .run();
+  await env.DB.prepare(
     "DELETE FROM document_access_grants WHERE token_hash IN (SELECT token_hash FROM document_access_grants WHERE expires_at<? ORDER BY expires_at LIMIT 100)",
   )
     .bind(new Date().toISOString())

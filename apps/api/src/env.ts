@@ -15,10 +15,15 @@ export interface Env {
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
+  STRIPE_API_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_MODE?: "test" | "live";
+  STRIPE_PORTAL_CONFIGURATION_ID?: string;
   LIVE_SENDS_ENABLED?: string;
   TELNYX_API_KEY?: string;
   TELNYX_PUBLIC_KEY?: string;
   TELNYX_CONNECTION_ID?: string;
+  TELNYX_ACCOUNT_ID?: string;
   TELNYX_FROM?: string;
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
@@ -37,6 +42,12 @@ export interface Env {
   PINGEN_UPLOAD_ORIGINS?: string;
 }
 export function assertConfiguration(env: Env, request?: Request): void {
+  const readiness =
+    request &&
+    ["GET", "HEAD"].includes(request.method) &&
+    ["/api/health", "/api/capabilities"].includes(
+      new URL(request.url).pathname,
+    );
   if (!["local", "staging", "production"].includes(env.ENVIRONMENT))
     throw new Error("INVALID_ENVIRONMENT");
   if (!["simulation", "production"].includes(env.MODE))
@@ -45,6 +56,7 @@ export function assertConfiguration(env: Env, request?: Request): void {
     throw new Error("PRODUCTION_SIMULATION_FORBIDDEN");
   if (
     env.ENVIRONMENT !== "local" &&
+    !readiness &&
     (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
   )
     throw new Error("IDENTITY_NOT_CONFIGURED");
