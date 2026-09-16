@@ -178,3 +178,7 @@ Les routes de profil, sessions et équipe sont décrites dans [ACCOUNT_ADMIN.md]
 `POST /api/documents/:id/rescan` relance l’analyse du PDF original avec les droits `documents:write` ou une session navigateur protégée contre les requêtes forgées. `POST /api/admin/scanner/warm` est réservé à l’administrateur dans le navigateur. Le serveur ne déclare le document prêt qu’après analyse propre, égalité de hash et validation PDF isolée. Voir [SCANNER_RESCAN.md](SCANNER_RESCAN.md).
 
 Le MCP ajoute la consultation des documents, la préparation simplifiée d’un fax et `rescan_document`. Les outils conservent les mêmes portées et ne peuvent pas accorder l’approbation humaine. Installation et limites des hôtes : [LLM_SETUP.md](LLM_SETUP.md). Devis fax, expiration et source de tarification : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
+
+## Shared welcome credit
+
+`GET /api/billing` and `GET /api/usage` expose the same `welcomeCredit` projection: `kind`, `currency`, `grantedMinor`, `reservedMinor`, `spentMinor`, `availableMinor`, `grantedAt`, `status`, `renewal: "none"` and `topUpAvailable: false`. Production grants EUR5000 minor units once per organization. A local simulation does not create a real promotional grant; the standalone public preview has its own fictional balance. Dispatch confirmation reserves the approved ceiling atomically with acceptance and the outbox write. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md) for settlement and uncertainty rules.
