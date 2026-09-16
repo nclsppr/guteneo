@@ -14,6 +14,18 @@ const sesRegions = new Set([
   "eu-south-1",
 ]);
 const profiles = {
+  pingen: {
+    title: "Connecter le courrier Pingen",
+    description:
+      "Les accès de votre application Pingen seront enregistrés dans les secrets Guteneo sur Cloudflare. Cette connexion ne crée aucun courrier et n’active aucun envoi. Utilisez une application dédiée à Guteneo avec le type Client Credentials.",
+    note:
+      "L’identifiant d’organisation désigne votre organisation Pingen. Le secret de webhook sera configuré séparément lors de l’activation des notifications ; il n’est pas nécessaire pour vérifier la connexion.",
+    fields: [
+      ["PINGEN_CLIENT_ID", "Identifiant client Pingen", true],
+      ["PINGEN_CLIENT_SECRET", "Secret client Pingen", true],
+      ["PINGEN_ORGANIZATION_ID", "Identifiant de l’organisation Pingen", true],
+    ],
+  },
   telnyx: {
     title: "Connecter le fax Telnyx",
     description:
@@ -197,6 +209,11 @@ export async function startSecureSetup({
       }
       if (values.TELNYX_FROM && !/^\+[1-9]\d{6,14}$/.test(values.TELNYX_FROM))
         return send(400, "Le numéro doit être au format international.");
+      if (
+        profile === "pingen" &&
+        !/^[a-zA-Z0-9_-]{1,128}$/.test(values.PINGEN_ORGANIZATION_ID)
+      )
+        return send(400, "Identifiant d’organisation Pingen invalide.");
       if (values.STRIPE_API_KEY) {
         if (!/^rk_live_[a-zA-Z0-9]+$/.test(values.STRIPE_API_KEY))
           return send(

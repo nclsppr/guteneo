@@ -171,6 +171,57 @@ const sesFixture = {
   SES_SNS_TOPIC_ARN: "arn:aws:sns:eu-west-3:000000000000:guteneo-fixture",
 };
 
+const pingenFixture = {
+  PINGEN_CLIENT_ID: "fixture-pingen-client",
+  PINGEN_CLIENT_SECRET: "fixture-pingen-secret",
+  PINGEN_ORGANIZATION_ID: "00000000-0000-4000-8000-000000000001",
+};
+
+test("Pingen setup accepts only bounded credentials and organization, without enabling sending", async () => {
+  let written;
+  let held;
+  const setup = await startSecureSetup({
+    profile: "pingen",
+    writer: async (values) => { held = values; written = { ...values }; },
+  });
+  try {
+    const html = await (await fetch(setup.url)).text();
+    const csrf = html.match(/name="csrf" value="([^"]+)"/)[1];
+    assert.doesNotMatch(html, /name="PINGEN_SANDBOX"|name="LIVE_SENDS_ENABLED"|name="PINGEN_WEBHOOK_SECRET"/);
+    const submit = (changes) => fetch(setup.url, {
+      method: "POST",
+      headers: { origin: new URL(setup.url).origin },
+      body: new URLSearchParams({ csrf, ...pingenFixture, ...changes }),
+    });
+    for (const invalid of [
+      { PINGEN_CLIENT_ID: "" },
+      { PINGEN_CLIENT_SECRET: "" },
+      { PINGEN_ORGANIZATION_ID: "" },
+      { PINGEN_ORGANIZATION_ID: "../another-organisation" },
+      { PINGEN_ORGANIZATION_ID: "org?include=letters" },
+      { PINGEN_ORGANIZATION_ID: "o".repeat(129) },
+      { PINGEN_CLIENT_SECRET: "fixture\nsecret" },
+      { PINGEN_CLIENT_SECRET: "s".repeat(4097) },
+      { PINGEN_SANDBOX: "false" },
+      { PINGEN_WEBHOOK_SECRET: "not-required-for-readiness" },
+      { LIVE_SENDS_ENABLED: "true" },
+    ]) {
+      const rejected = await submit(invalid);
+      assert.equal(rejected.status, 400);
+      assert.doesNotMatch(await rejected.text(), /fixture-pingen|another-organisation/);
+      assert.equal(written, undefined);
+    }
+    const result = await submit({});
+    assert.equal(result.status, 200);
+    assert.deepEqual(written, pingenFixture);
+    assert.ok(Object.values(held).every((value) => value === ""));
+    assert.doesNotMatch(await result.text(), /fixture-pingen|00000000-0000-4000|<input/);
+    assert.equal((await submit({})).status, 410);
+  } finally {
+    await setup.close();
+  }
+});
+
 test("SES setup validates EU regions, credentials and regional SNS; never enables production", async () => {
   let written;
   let held;
@@ -265,6 +316,30 @@ test("AWS alias requires a bounded session token for temporary SES credentials",
 });
 
 for (const browserType of [chromium, webkit]) {
+  test(`real ${browserType.name()} Pingen form keeps all access fields masked and submits once`, async () => {
+    let written;
+    const setup = await startSecureSetup({
+      profile: "pingen",
+      writer: async (values) => { written = { ...values }; },
+    });
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage();
+      await page.goto(setup.url);
+      for (const [field, value] of Object.entries(pingenFixture)) {
+        const input = page.locator(`input[name="${field}"]`);
+        assert.equal(await input.getAttribute("type"), "password");
+        await input.fill(value);
+      }
+      await page.getByRole("button", { name: "Enregistrer dans Cloudflare" }).click();
+      await page.getByText("Configuration enregistrée dans Cloudflare.", { exact: true }).waitFor();
+      assert.deepEqual(written, pingenFixture);
+      assert.doesNotMatch(await page.content(), /fixture-pingen|00000000-0000-4000|<input/);
+    } finally {
+      await browser.close();
+      await setup.close();
+    }
+  });
   test(`real ${browserType.name()} form submission preserves Origin and never returns the secret`, async () => {
     let written;
     const setup = await startSecureSetup({
