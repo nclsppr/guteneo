@@ -101,10 +101,10 @@ export async function inspectPingenReadiness(
   const identity = config.sandbox
     ? "https://identity-staging.pingen.com"
     : "https://identity.pingen.com";
-  // Current canonical resource origins from the official Pingen V2 documentation.
+  // OpenAPI and current SDK origins; older Postman documentation has stale v2 aliases.
   const api = config.sandbox
-    ? "https://api-staging.v2.pingen.com"
-    : "https://api.v2.pingen.com";
+    ? "https://api-staging.pingen.com"
+    : "https://api.pingen.com";
 
   async function readJson(url: string, init: RequestInit): Promise<unknown> {
     let response: Response;

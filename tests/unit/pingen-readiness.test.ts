@@ -77,7 +77,7 @@ describe("private Pingen account inspection", () => {
       scope: "organisation_read",
     });
     expect(orgUrl).toBe(
-      `https://api.v2.pingen.com/organisations/${config.organisationId}`,
+      `https://api.pingen.com/organisations/${config.organisationId}`,
     );
     expect(orgInit?.method).toBe("GET");
     expect(orgInit?.body).toBeUndefined();
@@ -105,7 +105,7 @@ describe("private Pingen account inspection", () => {
       fetcher.mock.calls.map(([url]) => new URL(String(url)).origin),
     ).toEqual([
       "https://identity-staging.pingen.com",
-      "https://api-staging.v2.pingen.com",
+      "https://api-staging.pingen.com",
     ]);
   });
 
