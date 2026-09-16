@@ -83,6 +83,226 @@
   },
   "suites": [
     {
+      "title": "homepage.spec.ts",
+      "file": "homepage.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "homepage explains installation, welcome credit, pricing and Luxembourg provenance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:23.765Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "84e7eb052e8cbae1c9f0-dab3e647a9421f8a6021",
+          "file": "homepage.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "decorative birds stop when reduced motion is requested",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1559,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:23.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "84e7eb052e8cbae1c9f0-90ba8bbe7cf9747dad97",
+          "file": "homepage.spec.ts",
+          "line": 168,
+          "column": 1
+        },
+        {
+          "title": "homepage explains installation, welcome credit, pricing and Luxembourg provenance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 4654,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:26.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "84e7eb052e8cbae1c9f0-56a1f4acf31cc036211e",
+          "file": "homepage.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "decorative birds stop when reduced motion is requested",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 3189,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:26.533Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "84e7eb052e8cbae1c9f0-8743dd60c9b9e5d2abd9",
+          "file": "homepage.spec.ts",
+          "line": 168,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "legal.spec.ts",
+      "file": "legal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "legal information is public, accurate and returns to the homepage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 1437,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:23.762Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0fb7d420323fe6d6fc1e-436e6a1623630db3e013",
+          "file": "legal.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "legal information is public, accurate and returns to the homepage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1997,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:17:26.823Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0fb7d420323fe6d6fc1e-f1b717137da9400eb362",
+          "file": "legal.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
       "title": "preview.spec.ts",
       "file": "preview.spec.ts",
       "column": 0,
@@ -101,15 +321,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
                   "status": "passed",
-                  "duration": 1668,
+                  "duration": 1976,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:28.589Z",
+                  "startTime": "2026-09-16T23:17:23.749Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -135,15 +355,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 1,
-                  "parallelIndex": 1,
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 1782,
+                  "duration": 1497,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:28.587Z",
+                  "startTime": "2026-09-16T23:17:23.756Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -153,7 +373,7 @@
           ],
           "id": "f7191c1356a09079afd8-c990ef6b3a479246abb0",
           "file": "preview.spec.ts",
-          "line": 59,
+          "line": 76,
           "column": 1
         },
         {
@@ -172,12 +392,12 @@
                   "workerIndex": 2,
                   "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 1933,
+                  "duration": 1703,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:28.570Z",
+                  "startTime": "2026-09-16T23:17:25.895Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -187,7 +407,7 @@
           ],
           "id": "f7191c1356a09079afd8-79b0d83b33189766fd9a",
           "file": "preview.spec.ts",
-          "line": 96,
+          "line": 113,
           "column": 1
         },
         {
@@ -203,15 +423,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 3,
-                  "parallelIndex": 3,
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2452,
+                  "duration": 3031,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:28.587Z",
+                  "startTime": "2026-09-16T23:17:28.125Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -237,15 +457,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 4,
-                  "parallelIndex": 4,
+                  "workerIndex": 9,
+                  "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 2286,
+                  "duration": 1974,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:28.584Z",
+                  "startTime": "2026-09-16T23:17:28.593Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -255,7 +475,7 @@
           ],
           "id": "f7191c1356a09079afd8-f44a68c44cc40640be62",
           "file": "preview.spec.ts",
-          "line": 59,
+          "line": 76,
           "column": 1
         },
         {
@@ -271,15 +491,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 5,
-                  "parallelIndex": 0,
+                  "workerIndex": 7,
+                  "parallelIndex": 3,
                   "status": "passed",
-                  "duration": 2076,
+                  "duration": 2395,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T21:41:31.214Z",
+                  "startTime": "2026-09-16T23:17:29.520Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -289,7 +509,7 @@
           ],
           "id": "f7191c1356a09079afd8-b34ccf5818c9c1c3c9d6",
           "file": "preview.spec.ts",
-          "line": 96,
+          "line": 113,
           "column": 1
         }
       ]
@@ -297,9 +517,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-16T21:41:28.212Z",
-    "duration": 5812.092000000001,
-    "expected": 6,
+    "startTime": "2026-09-16T23:17:23.345Z",
+    "duration": 8853.196,
+    "expected": 12,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

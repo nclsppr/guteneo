@@ -24,10 +24,18 @@ The result reports the application's active flag, attached numbers/status/countr
 
 ## Local evidence
 
-Eight deterministic unit cases verify the fixed GET routes, projections, credentials confined to authorization headers, cross-connection filtering, bounded pagination, ID mismatches, malformed configuration, raw-error suppression, unknown/false/zero/unlimited distinctions, response size limits and malformed records. Typecheck and scoped lint pass. These tests use fictional fixtures and make no real Telnyx request; any actual inspection must be recorded separately by its private caller.
+Eleven deterministic unit cases verify the fixed GET routes, projections, credentials confined to authorization headers, cross-connection filtering, bounded pagination, ID mismatches, malformed configuration, raw-error suppression, unknown/false/zero/unlimited distinctions, response size limits and malformed records. Typecheck and scoped lint pass. These tests use fictional fixtures and make no real Telnyx request; any actual inspection must be recorded separately by its private caller.
 
 ## Private operator invocation
 
 The live Worker exports `ProviderInspection` as a named service entrypoint. It has no public inspection HTTP route: its `fetch` returns404. `node scripts/provider-readiness.mjs telnyx` uses Wrangler's authenticated same-account remote binding to that entrypoint and keeps the installed API key inside Cloudflare. The local helper configuration must never be deployed. The script exposes no application HTTP handler and prints only the bounded projection; Wrangler internally runs a temporary local proxy for the authenticated service binding.
 
 `node scripts/provider-readiness.mjs ses` independently checks the installed sender's identity with AWS STS `GetCallerIdentity`. It must match the exact configured AWS account, sender IAM user and Paris region. No email is sent, no permission is widened and this identity check is not delivery qualification. Neither inspection accepts a URL, key, recipient or mutation argument.
+
+## Private account observations — 2026-09-17
+
+The installed credentials read the exact active fax application and its single active Luxembourg number; the sender was installed as `TELNYX_FROM` without publishing it in documentation. T.38 is enabled, HD voice disabled, and the application's outbound channel limit is one.
+
+The current profile allows 54 country codes: US/CA plus 52 European destinations, including LU/FR/DE. Earlier in the session only US/CA were selected; the agent did not widen this list. A Luxembourg sender is therefore not limited to Luxembourg by the observed profile. The profile is enabled; concurrent limit is explicit null, maximum destination rate null, daily spend enforcement false. The unsupported daily-spend value remains null with a fixed field-name warning, rather than hiding independently verified destination restrictions or inventing an amount. The portal separately displays an account outbound concurrency cap of two. No live send or final account tariff is qualified by these observations.
+
+The fax application's callback was corrected to `https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx`; the portal confirmed the save. An unsigned probe returned 401 on the deployed backend. Exact configured POST callbacks can reach Ed25519 verification without Auth0; invalid signatures, stale timestamps and wrong application IDs remain rejected. The public design-preview origin cannot receive these notifications.

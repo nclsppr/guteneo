@@ -80,3 +80,7 @@ Read back only the receipt ID and `json_type(payload_json,'$.metadata.confirmati
 ## Local evidence
 
 `node --test tests/security/confirm-ses-subscription.test.mjs` validates exact topic/type/status, expiry, bounded JSON, a fixed read-only query, generic failure messages, Host/Origin/capability checks, single-use serving and the masked copy flow in Chromium and WebKit. Browser tests substitute an in-memory fixture clipboard and never touch the user's actual clipboard. They do not prove a real AWS confirmation.
+
+## Completed handshake — 2026-09-17
+
+The procedure completed for subscription `arn:aws:sns:eu-west-3:982055099242:guteneo-ses-events:54d3e8f5-538e-4c83-b32b-806634db1430`. Exact topic, owner and HTTPS endpoint matched; pending confirmation was false, authenticated confirmation true, and raw delivery false. Only the consumed token in receipt `e2c768ce-a778-444d-bfdd-8b3102494ee0` was removed, with one changed row and a null token-type read-back. The helper was stopped and no email was sent.

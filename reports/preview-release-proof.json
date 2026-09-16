@@ -1,12 +1,12 @@
 {
   "origin": "https://guteneo.com",
-  "sourceCommit": "b3988da34c2d73765be7e74c6fda2af2e887b5ba",
+  "sourceCommit": "872281827d375f38946dc8eea4dcef23ecd5a591",
   "sourceDirty": false,
-  "sourceSnapshotSha256": "405b25eb5e75c43cf56d84d4c1efcb136680b1ce854fc635dfce9d763add7bd7",
-  "publicAssetsVerified": 25,
+  "sourceSnapshotSha256": "7340f3d612fc7378e59554de0701f451b172c077e165a16ab3a9749238588581",
+  "publicAssetsVerified": 35,
   "configurationFiles": [
     "/_headers"
   ],
   "securityHeadersVerified": true,
-  "verifiedAt": "2026-09-16T21:41:28.369Z"
+  "verifiedAt": "2026-09-16T23:17:22.858Z"
 }

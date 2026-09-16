@@ -29,3 +29,11 @@ Le point d’entrée privé `inspectPingenUploadOrigin` effectue seulement l’�
 Seule `uploadOrigin` est rendue avec le statut technique. Le contrôle exige HTTPS, un nom DNS public syntaxiquement valide, aucun identifiant URL, port non standard, fragment, caractère de contrôle ou adresse IP ; les noms locaux sont rejetés. Aucun appel réseau ne cible le domaine de stockage. L’origine observée n’est donc ni une preuve de juridiction ou de propriété du stockage, ni une preuve de dépôt effectif : elle doit être qualifiée avant sa configuration explicite dans `PINGEN_UPLOAD_ORIGINS`. Les URL/signatures éphémères sont abandonnées après la lecture.
 
 Les tests interceptés couvrent les deux environnements, les seuls appels autorisés, la portée de lecture, l’absence de `PUT` ou de suivi des liens, la projection de l’origine sans secrets, le refus des URL locales/ambiguës, les réponses excessives et les erreurs sans nouvelle tentative.
+
+## Connexion réellement vérifiée — 17 septembre 2026
+
+L’application dédiée Guteneo, type Client Credentials, a été créée dans la session Safari autorisée. Le formulaire privé a installé les trois accès Cloudflare ; seules leurs présences ont été relues. OAuth puis la lecture de l’organisation configurée ont réussi : devise EUR, destination par défaut LU, fenêtre à gauche. Le portail affichait un solde nul et aucun courrier envoyé ; aucun achat de crédit n’a été réalisé.
+
+La lecture séparée de `/file-upload`, avec le seul scope `organisation_read`, a réussi et projeté `https://pingen2-production-transfer.objects.rma.cloudscale.ch`. Cette origine exacte est installée comme seule valeur de `PINGEN_UPLOAD_ORIGINS`. `PINGEN_SANDBOX=false` reflète le compte réel ; `LIVE_SENDS_ENABLED=false` reste inchangé. Aucun PUT vers ce stockage, dépôt de PDF, brouillon, webhook ou courrier n’a été créé. Les URL signées et jetons sont restés dans la mémoire du Worker.
+
+Restent à qualifier : notifications signées, prévisualisation et consentement de transfert d’un document exact, tarif applicable à l’organisation (la destination par défaut LU ne qualifie pas automatiquement la grille française La Poste), crédit fournisseur et essai explicitement autorisé. L’installation des accès ne vaut pas preuve d’impression ou d’acheminement.

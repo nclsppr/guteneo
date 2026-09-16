@@ -1,54 +1,46 @@
-# Hosted beta release — 2026-09-16
+# Hosted continuation — 2026-09-17
 
-Guteneo has two separate hosted surfaces. `https://guteneo.com` is the public design preview, with fictional per-tab data. `https://guteneo-app.nclsppr.workers.dev` is the production-mode application backend. The root domain will move to that application after managed identity is configured and a real login is verified.
+Guteneo has two hosted surfaces. **https://guteneo.com** is the public design preview with fictional per-tab data. **https://guteneo-app.nclsppr.workers.dev** serves the production-mode backend and the same visual updates. The root domain will move to that application after managed identity is configured and an actual login is verified. The PR remains open and unmerged.
 
-## Pending SES candidate — local verification on 2026-09-17
+## Published source and public evidence
 
-Uncommitted changes on `b01e876` add fixed-code SES signature/certificate and receipt-storage diagnostics, the private SNS confirmation helper, explicit partial IAM-simulator qualification, and independent local browser HTTP windows. They are **not yet deployed or qualified by new GitHub CI**. No new Worker version, public source identity or asset-hash proof is claimed here.
+| Surface | Clean source commit | Active Worker version | Verified public assets |
+| --- | --- | --- | --- |
+| Design preview | `872281827d375f38946dc8eea4dcef23ecd5a591` | `9cab9372-8098-4c7d-91c5-179f19953fbf` | 35 |
+| Application backend | `ee64850691f9f50c3e7cee5cbbfea2afe46c448d` | `092f4792-fb1a-42e3-a76b-093c76376376` | 37 |
 
-Local verification passed **256/256 unit/integration tests**, **22/22 secure-configuration tests** and **36/36 browser tests** across Chromium desktop, Chromium mobile and iPhone WebKit, with zero browser failures, flaky cases or skips. Typecheck, lint and offline SES setup decision checks passed. Details and limitations are in [TEST_RESULTS.md](TEST_RESULTS.md). These results cover controlled local fixtures; they do not prove a working AWS notification handshake or a real communication.
+The backend code deployment was version `c5183396-e48c-46b3-9fcc-11a4136c9f0b`; installation of the verified Pingen upload origin produced the active secret-update version above, serving 100% of traffic. The preview also serves 100%. Each asset was compared with its local SHA-256 manifest, including `/index.html` through canonical `/`. `_headers` is configuration, checked through resulting response security headers. Machine-readable evidence: `reports/live-release-proof.json` and `reports/preview-release-proof.json`.
 
-The SNS subscription is still awaiting a verified receipt and operator confirmation; the observed AWS/Cloudflare state and remaining checks are recorded in [SES_STATUS.md](SES_STATUS.md). The new diagnostics must first be published and observed on an actual callback. Actual SES transport, managed login and live sending remain unqualified. The release snapshot below records the earlier v0.2 publication, independently of this pending candidate.
+Backend snapshot: `d5a395028067ece9b038c8507e4aa1bffb74c336085b4916fdbebc86a001edb1`. Preview snapshot: `7340f3d612fc7378e59554de0701f451b172c077e165a16ab3a9749238588581`. Public manifests: [preview](https://guteneo.com/release.json), [backend](https://guteneo-app.nclsppr.workers.dev/release.json).
 
-## Published v0.2 code — earlier release evidence
+Both CI runs passed for the exact preview source: [PR verification](https://github.com/nclsppr/guteneo/actions/runs/35161641153), [push verification](https://github.com/nclsppr/guteneo/actions/runs/35161637609). Both checks also passed for the exact backend source `ee64850691f9f50c3e7cee5cbbfea2afe46c448d`: [PR verification](https://github.com/nclsppr/guteneo/actions/runs/35162247327) and [push verification](https://github.com/nclsppr/guteneo/actions/runs/35162242683). These include full unit/security suites, 36 application browser cases, 12 preview cases, migration transport, scanner and both deployment bundles.
 
-Both hosted surfaces in this earlier release were deployed from clean commit **`b3988da34c2d73765be7e74c6fda2af2e887b5ba`**. Final public verification at 21:41 UTC matched all **27 backend public assets** and all **25 preview public assets** to their local SHA-256 manifests, including the entry document served at Cloudflare's canonical `/` route. `_headers` is deployment configuration and is checked through the resulting response headers, not fetched as an asset.
+## Delivered experience and account rules
 
-| Surface | Worker version | Public proof |
-| --- | --- | --- |
-| Production-mode beta | `740c3356-72a5-449d-9a0a-8cbaaab0951f` | [Release manifest](https://guteneo-app.nclsppr.workers.dev/release.json) |
-| Public design preview | `e0f61996-192e-4b59-8462-0a7c2d3d12d3` | [Release manifest](https://guteneo.com/release.json) |
+Official ChatGPT, Claude, Grok and Cursor marks keep their shapes and colors inside perforated paper stamps. The Luxembourg footer now uses the printer's blue/ivory dithering, with automatic flight and four-pose wing animation, respecting reduced motion. The animation button is removed. The homepage and downloadable guide show dated customer price examples and applicable limits, without publishing supplier-margin arithmetic. The legal page identifies Nicolas Pieper, his supplied address/contact, Cloudflare hosting and the project's unregistered preparatory state.
 
-GitHub CI passed for that exact deployed commit: [verify and scanner run](https://github.com/nclsppr/guteneo/actions/runs/35153584742), with the full application/browser/migration/bundle checks successful. The PR remains open; this deployment does not claim a merge. A subsequent evidence-only commit records these results without changing deployed application source.
+The account ledger grants EUR50 once, shares the balance across all three channels, atomically reserves costs and stops unaffordable sends. Top-up stays disabled until Stripe is implemented. Migrations 0001–0015 are applied remotely, with clean integrity/foreign-key checks and domain-schema comparison. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md), [D1_MIGRATION.md](D1_MIGRATION.md) and [TEST_RESULTS.md](TEST_RESULTS.md).
 
-Backend source snapshot: `d115c1ab6853399e5fdbff85ae1e2070ffb586f1439d1b52fab1f3d7785635d4`. Preview source snapshot: `405b25eb5e75c43cf56d84d4c1efcb136680b1ce854fc635dfce9d763add7bd7`. Machine-readable proof is under `reports/live-release-proof.json`, `reports/preview-release-proof.json` and `reports/live-runtime-proof.json`.
+Twelve browser journeys pass both locally and on the published preview across desktop Chromium and iPhone WebKit. The complete local application suite previously passed 36 journeys; local unit/security runs and subsequent targeted provider checks are recorded separately in TEST_RESULTS. No fixture result is described as actual delivery.
 
-The runtime reports `mode=production`, registration disabled, billing unconfigured, scanner connected, PDF rendering connected and live sending disabled. Anonymous account/billing/document/MCP routes fail closed while identity is missing. Signup returns the explicit identity-configuration state. These are intended activation boundaries, not successful account or fax tests. The earlier bootstrap `83ac4676-395f-4738-8cad-9bb293f94374` is superseded by this release.
+## Provider configuration and real account checks
 
-The backend has EU-jurisdiction D1/R2, interactive/bulk/dead-letter queues, and private scanning/rendering services. Resource identifiers, jurisdiction limits and setup evidence: [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md). Migrations 0001–0013 were applied remotely, with clean integrity and foreign-key checks: [D1_MIGRATION.md](D1_MIGRATION.md).
+- **Telnyx:** an active Luxembourg number is attached to the active Guteneo fax application, T.38 is enabled, and the application allows one outgoing channel. `TELNYX_FROM` is installed privately. Current read-back includes Luxembourg, France, Germany and the other enabled European destinations, plus US/Canada; this number is not restricted to Luxembourg by that profile. Profile concurrency is null, maximum destination rate null, and daily spending enforcement is disabled; an unsupported daily-limit representation remains unknown and is reported as a partial diagnostic. The agent did not widen the destination list. The callback was corrected and saved to `https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx`. An unsigned probe returns 401, while signed fixture tests prove exact-application signature verification independently of Auth0. No fax delivery is qualified. See [TELNYX_READINESS.md](TELNYX_READINESS.md).
+- **Amazon SES:** Paris-region domain/DKIM/MAIL FROM resources and the dedicated sender are configured. Installed credentials authenticated as the exact intended IAM principal. The SNS subscription is confirmed, with authenticated confirmation and unsubscribe protection; its consumed one-use token was removed from the specific receipt. The account remains in sandbox, the configuration set's sending stays disabled, and actual delivery permission remains unqualified. See [SES_STATUS.md](SES_STATUS.md).
+- **Pingen:** the dedicated Guteneo Client Credentials application was created through the authorized Safari session. Three access values were copied through masked local fields directly to Cloudflare, without credentials files or displayed secrets. Private OAuth and the exact organization read succeed: EUR, default country LU, left envelope window. A separate read-scoped `/file-upload` inspection returned the actual storage origin, now installed as the sole `PINGEN_UPLOAD_ORIGINS`; `PINGEN_SANDBOX=false` reflects the actual production account. No PDF was deposited, letter created, credit purchased or mail sent. Signed postal notifications, exact-document preflight and actual delivery qualification remain open. See [PINGEN_SETUP.md](PINGEN_SETUP.md).
 
-Private services have independent release identities:
+## Runtime boundaries
 
-- `guteneo-scanner`: Worker `c753afc4-9310-4738-b3f2-5110f55f611e`, container `a03030c0-8135-4234-8e86-ec7016ec5e16`. Real ClamAV clean/EICAR/hash checks passed, with EU placement observed at `cdg08`.
-- `guteneo-documents`: Worker `f38ce894-066a-4fb2-8e9f-fc8145b576e0`. Real Cloudflare Browser Run HTML-to-PDF and exact-byte parsing passed.
+The runtime reports production mode, registration disabled, billing unconfigured, scanner/rendering connected, all three provider credentials configured but not live-validated, and **`LIVE_SENDS_ENABLED=false`**. Protected account/document/MCP routes fail closed while identity is missing. Public design data stays separate from D1/R2 and never sends documents.
 
-Neither service has a public route or workers.dev hostname. The scanner stops after two idle minutes; the instance was observed inactive after qualification. Definitions currently require an operator's daily rebuild/redeploy, and fail closed once older than 72 hours. See [SCANNER.md](SCANNER.md).
+Auth0's earlier CLI authentication expired. Renew its official login, configure the dedicated client/audience/actions and verify a real email/MFA login before enabling signup. Stripe tracking is implemented but credentials and actual billing qualification remain absent. Qualified account tariffs, sender/country policy, funded budgets, signed callbacks and immutable human approval remain prerequisites for any communication. Host-specific OAuth/PDF transfer in ChatGPT, Claude and Cursor remains untested; downloadable packages do not imply marketplace publication or an operational host connection.
 
-## Configuration installed
+No real fax, postal letter, email, Stripe charge or automatic credit refill was performed. See [EXECUTION_PLAN.md](EXECUTION_PLAN.md) for the remaining implementation and activation work.
 
-Cloudflare secret-name inspection confirms `TELNYX_API_KEY`, `TELNYX_PUBLIC_KEY` and `TELNYX_CONNECTION_ID`. Values are not included in source, release metadata or this document. The key expires on 2026-12-15 at 23:59 UTC. Telnyx application `Guteneo` has callback `https://guteneo.com/webhooks/telnyx`, outbound profile `Default` and concurrency limit 1. No owned number was present at inspection; `TELNYX_FROM` is absent.
+## Private infrastructure
 
-Auth0 CLI authentication has expired and no real signup has completed. The isolated setup utility is ready but has not changed the tenant. Its exact prerequisites and official login procedure are in [AUTH0_SETUP.md](AUTH0_SETUP.md). Stripe is also unconfigured; billing pages expose that state rather than displaying invented invoices.
+D1 and R2 use EU jurisdiction; interactive, bulk and dead-letter queues are configured. `guteneo-scanner` previously passed real ClamAV clean/EICAR/hash checks with EU placement observed, and `guteneo-documents` passed actual Browser Run rendering/exact-byte parsing. These services have no public route. Scanner definitions require regular rebuilds and fail closed after 72 hours; prior qualification is distinct from current definition freshness. Details: [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md), [SCANNER.md](SCANNER.md).
 
-## Activation boundaries
+## Repeatable proof
 
-- Registration requires the managed identity domain, browser client, audience and secret, then an actual verified-email/MFA login. Account/profile/team/session features are tested locally but are not advertised as accessible hosted accounts yet.
-- Real fax requires qualified account tariffs, an owned verified sender, funded organizational quotas, enabled channel policy and explicit human approval of the immutable document/recipient/cost. `LIVE_SENDS_ENABLED=false` remains in production.
-- MCP and downloadable host packages are implemented and tested through the official protocol transport. ChatGPT, Claude and Cursor account/OAuth/file-transfer qualification remains open. Packages are installable configuration artifacts, not a marketplace publication or proof of a successful host connection.
-- No fax, postal letter, real email, Stripe charge or automatic credit refill was performed during this release.
-
-## Verification procedure
-
-Build from a clean committed source with `npm run build:live`, deploy `wrangler.live.jsonc`, then compare the deployed `/release.json` source commit and every public asset hash against the local manifest. `_headers` is a Cloudflare configuration file, not a served asset; verify resulting security response headers separately. Run `node scripts/verify-release.mjs https://guteneo-app.nclsppr.workers.dev dist/web/release.json` to perform the source/asset/header comparison. Inspect `/api/health`, `/api/capabilities`, anonymous protected routes, Worker version/bindings and secret names. A successful dry-run or passing local fixture is not public release proof.
-
-The preview follows its separate build/deploy/remote-browser procedure in [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md). CI verifies the application, scanner, migration transport and both bundles but does not publish or merge the open PR.
+Build clean committed source, deploy the intended Wrangler configuration, then run `node scripts/verify-release.mjs https://guteneo-app.nclsppr.workers.dev dist/web/release.json`. Inspect runtime capabilities and active Worker version after any secret update. Preview publication uses its separate configuration and remote browser suite described in [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md). A dry-run, local test or successful asset upload alone is not release proof.

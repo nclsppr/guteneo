@@ -79,3 +79,9 @@ The local source/transport verifier subsequently passed all thirteen candidate m
 ## Applied trusted-quote migration
 
 `0013_trusted_fax_quotes.sql` was applied through Wrangler at **2026-09-16 21:38:12 UTC**, executing 14 schema commands. The ledger now contains **13 migrations**. Fresh remote checks returned `foreign_keys=1`, an empty `foreign_key_check`, `quick_check=ok`, and zero tariff, quote, user and document rows. No tariff or funded budget was inserted. Post-migration Time Travel bookmark: `00000007-00000004-000050e8-0da2a14d1506ea2449dae78e21d0e675`.
+
+## Welcome balance and exact supplier pricing — 2026-09-17
+
+Migrations `0014_welcome_credit.sql` and `0015_exact_supplier_fax_pricing.sql` were applied in order at **2026-09-16 22:47:13 UTC**. Pre-migration bookmark: `00000010-00000000-000050e8-f27c1081e6e508635c5a61e7738de47c`. Post-migration bookmark: `00000010-00000006-000050e8-40deba372379015d4d341a488d194e85`.
+
+Fresh checks confirmed fifteen ledger entries, `quick_check=ok`, zero foreign-key violations and zero organizations, grants, qualified supplier costs or v2 quotes. The local source/normalized transport schemas match across 121 objects. A fresh remote schema comparison matched all 120 domain objects exactly after the documented whitespace/guard normalization. The remaining `d1_migrations` tracking table differs only in quoting and whitespace added by Wrangler, with the same columns and constraints. No sample accounts, grants or tariffs were inserted remotely.
