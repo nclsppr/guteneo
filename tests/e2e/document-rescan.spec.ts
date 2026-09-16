@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { PDFDocument } from "pdf-lib";
 import type { DocumentRecord, Session } from "../../apps/web/src/api";
 

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import type { Session } from "../../apps/web/src/api";
 
 const origin = "http://localhost:8787";
@@ -162,7 +162,12 @@ test("billing exposes its actual connection mode and simulation consumption with
   page,
 }) => {
   await login(page);
-  const overview = (await (await page.request.get("/api/billing")).json()) as {
+  const response = await page.request.get("/api/billing");
+  expect(
+    response.status(),
+    "Billing overview must succeed before reading its fields",
+  ).toBe(200);
+  const overview = (await response.json()) as {
     status: string;
     mode: "live" | "test" | "unconfigured";
     portalAvailable: boolean;

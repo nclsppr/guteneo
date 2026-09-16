@@ -1,6 +1,21 @@
-# Executed verification — 2026-09-16
+# Executed verification — 2026-09-17
 
-## Hosted accounts, billing and MCP continuation
+## SES diagnostics and private confirmation — local candidate
+
+The current candidate consists of uncommitted changes on `b01e876`. It has not yet been qualified by new GitHub CI or deployed. The earlier hosted-release evidence below remains separate from this local validation.
+
+- **256/256 unit and integration tests passed across 18 files**, with zero failed or pending tests. `reports/vitest.json` records the complete run started on September 16 at 22:14:12 UTC; all nine provider-webhook cases, including both new diagnostic tests, passed. No full-suite result is inferred from a targeted run.
+- **22/22 secure-configuration tests passed** in an independent rerun of `node --test tests/security/*.test.mjs`, including real Chromium and WebKit submissions of the SES credentials form and private SNS copy controls. The fixture clipboard stays in browser memory; it does not access the operator's clipboard. Receipt validation, freshness, exact topic, one-time display, expiry and suppression of private child-process errors are covered.
+- **36/36 application browser tests passed** on desktop Chromium, mobile Chromium and iPhone WebKit, with zero failures, flaky cases or skipped tests in **74.85 seconds**. `reports/playwright.json` and `reports/screenshots/` were refreshed. The suite reused the local application server without rebuilding or deploying it.
+- `npm run typecheck`, `npm run lint` and `git diff --check` passed. Offline Python checks validated the SES setup script's syntax, per-resource IAM decision precedence, missing/truncated response rejection, full versus explicitly partial qualification, and rejection of unexpected grants. These doubles make no AWS calls and do not qualify the actual IAM policy or SES transport.
+
+The previous CI push run exposed shared local test-account HTTP counters: later scenarios received 429 responses, including a billing request and the oversized-image journey. Each independent browser scenario now resets only the HTTP counters of the two fictional local simulation organizations. Production limits, sending/content budgets and the existing UI assertions are preserved. The billing scenario also checks HTTP success before reading the response fields.
+
+Signed SES rejection and receipt-storage diagnostics log only a fixed event and an allowlisted or constant code. Tests prove that malformed input, certificate-import errors and storage exceptions do not expose message text, addresses, tokens, signatures or URLs. These diagnostics do not weaken signature verification or turn a failed callback into a successful receipt. The local confirmation helper reads the configured topic's verified receipt; AWS confirmation and removal of the consumed token remain separate operator actions.
+
+The refreshed local restore proof reports **40 tables, 32 rows, a valid 890-byte one-page PDF, zero foreign-key violations and zero resubmissions after restore** (`reports/restore-proof.json`). This is a Miniflare rehearsal, not hosted backup or recovery qualification. No new preview/scanner qualification, production deployment, real notification handshake, email or fax send is claimed by this candidate.
+
+## Hosted accounts, billing and MCP continuation — earlier release evidence
 
 The v0.2 continuation adds account/team/session authorization, Stripe tracking, secure credential input, assistant packages and PDF rescan. **36/36 application browser tests passed** on desktop Chromium, mobile Chromium and iPhone WebKit. The rescan browser cases use controlled HTTP responses; **23 D1/R2 tests** independently exercise real document leases, hashes, quotas, revocation and quarantine.
 

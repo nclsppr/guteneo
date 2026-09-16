@@ -24,6 +24,24 @@ type Receipt = {
   status: "pending" | "projected" | "unrecognized";
 };
 type EventSink = Pick<DomainService, "ingestEvent">;
+// Only these fixed values may enter logs. Never log an exception, request or
+// arbitrary ProviderError code: provider messages can contain private values.
+const snsDiagnosticCodes = new Set([
+  "webhook_not_configured",
+  "configuration_sns_topic",
+  "unexpected_sns_topic",
+  "unsupported_sns_message",
+  "sns_signature_v2_required",
+  "sns_certificate_url_not_allowed",
+  "sns_certificate_unavailable",
+  "sns_certificate_invalid",
+  "invalid_signature",
+  "invalid_provider_response",
+  "invalid_event_timestamp",
+  "invalid_event_id",
+  "provider_response_too_large",
+  "webhook_too_large",
+]);
 const json = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), {
     status,
@@ -128,6 +146,13 @@ export async function handleWebhook(
   } catch (error) {
     const code =
       error instanceof ProviderError ? error.code : "invalid_webhook";
+    if (provider === "ses")
+      console.warn(
+        JSON.stringify({
+          event: "sns_webhook_verification_failed",
+          code: snsDiagnosticCodes.has(code) ? code : "invalid_webhook",
+        }),
+      );
     const unavailable =
       code === "webhook_not_configured" ||
       code === "sns_certificate_unavailable";
@@ -161,6 +186,13 @@ export async function handleWebhook(
       .first<Receipt>())!;
     if (!receipt) throw new ProviderError("receipt_not_persisted");
   } catch {
+    if (provider === "ses")
+      console.warn(
+        JSON.stringify({
+          event: "sns_webhook_storage_failed",
+          code: "webhook_storage_unavailable",
+        }),
+      );
     return json({ error: { code: "WEBHOOK_STORAGE_UNAVAILABLE" } }, 503);
   }
   if (receipt.status === "pending") {

@@ -104,35 +104,48 @@ def preserve_owner_policy(raw):
     return {**policy, "Statement": preserved + [SES_PUBLISH]}
 
 
+def simulation_decisions(response, resources):
+    require(not response.get("IsTruncated"), "iam_simulation_truncated")
+    decisions = {}
+    for evaluation in response.get("EvaluationResults", []):
+        require(not evaluation.get("MissingContextValues"), "iam_missing_context")
+        details = evaluation.get("ResourceSpecificResults", [])
+        if details:
+            for item in details:
+                require(not item.get("MissingContextValues"), "iam_missing_context")
+                decisions[item["EvalResourceName"]] = item["EvalResourceDecision"]
+        elif evaluation.get("EvalResourceName") in resources:
+            decisions[evaluation["EvalResourceName"]] = evaluation["EvalDecision"]
+    require(set(decisions) == set(resources), "iam_simulation_resource_coverage")
+    return decisions
+
+
 def simulate(iam):
+    # IAM's SES resource model may not evaluate configuration-set ARNs. Keep
+    # identity/sender/action proof separate from that independently reported gap.
     cases = [
-        ("exact", [IDENTITY_ARN, CONFIG_ARN], FROM_ADDRESS, "allowed"),
-        ("other_from", [IDENTITY_ARN, CONFIG_ARN], "other@guteneo.com", "implicitDeny"),
-        ("other_region", [IDENTITY_ARN.replace(REGION, "eu-west-1"),
-                          CONFIG_ARN.replace(REGION, "eu-west-1")], FROM_ADDRESS, "implicitDeny"),
-        ("other_set", [CONFIG_ARN + "-other"], FROM_ADDRESS, "implicitDeny"),
-        ("other_identity", [IDENTITY_ARN.replace(DOMAIN, "example.com")],
-         FROM_ADDRESS, "implicitDeny"),
+        ("exact_identity", IDENTITY_ARN, FROM_ADDRESS, "ses:SendEmail", "allowed"),
+        ("other_from", IDENTITY_ARN, "other@guteneo.com", "ses:SendEmail", "implicitDeny"),
+        ("other_region", IDENTITY_ARN.replace(REGION, "eu-west-1"),
+         FROM_ADDRESS, "ses:SendEmail", "implicitDeny"),
+        ("other_identity", IDENTITY_ARN.replace(DOMAIN, "example.com"),
+         FROM_ADDRESS, "ses:SendEmail", "implicitDeny"),
+        ("raw_email_denied", IDENTITY_ARN, FROM_ADDRESS, "ses:SendRawEmail", "implicitDeny"),
+        ("ses_admin_denied", CONFIG_ARN, FROM_ADDRESS, "ses:CreateConfigurationSet", "implicitDeny"),
+        ("iam_key_creation_denied", USER_ARN, FROM_ADDRESS, "iam:CreateAccessKey", "implicitDeny"),
     ]
-    for name, resources, sender, expected in cases:
+    for name, resource, sender, action, expected in cases:
         verified = False
         for attempt in range(6):
             response = iam.simulate_principal_policy(
-                PolicySourceArn=USER_ARN, ActionNames=["ses:SendEmail"],
-                ResourceArns=resources, ContextEntries=[{
+                PolicySourceArn=USER_ARN, ActionNames=[action],
+                ResourceArns=[resource], ContextEntries=[{
                     "ContextKeyName": "ses:FromAddress", "ContextKeyValues": [sender],
                     "ContextKeyType": "string",
                 }],
             )
-            decisions = {}
-            for evaluation in response.get("EvaluationResults", []):
-                require(not evaluation.get("MissingContextValues"), "iam_missing_context")
-                if evaluation.get("EvalResourceName") in resources:
-                    decisions[evaluation["EvalResourceName"]] = evaluation["EvalDecision"]
-                for item in evaluation.get("ResourceSpecificResults", []):
-                    require(not item.get("MissingContextValues"), "iam_missing_context")
-                    decisions[item["EvalResourceName"]] = item["EvalResourceDecision"]
-            verified = set(decisions) == set(resources) and all(
+            decisions = simulation_decisions(response, [resource])
+            verified = all(
                 value == expected for value in decisions.values())
             if verified:
                 break
@@ -141,6 +154,34 @@ def simulate(iam):
                 time.sleep(2)
         require(verified, f"iam_simulation_{name}_failed")
         emit("iam_simulation_passed", case=name, decision=expected)
+
+    context = [{"ContextKeyName": "ses:FromAddress", "ContextKeyValues": [FROM_ADDRESS],
+                "ContextKeyType": "string"}]
+    response = iam.simulate_principal_policy(
+        PolicySourceArn=USER_ARN, ActionNames=["ses:SendEmail"],
+        ResourceArns=[CONFIG_ARN], ContextEntries=context)
+    decision = simulation_decisions(response, [CONFIG_ARN])[CONFIG_ARN]
+    if decision == "allowed":
+        other = CONFIG_ARN + "-other"
+        response = iam.simulate_principal_policy(
+            PolicySourceArn=USER_ARN, ActionNames=["ses:SendEmail"],
+            ResourceArns=[other], ContextEntries=context)
+        require(simulation_decisions(response, [other])[other] == "implicitDeny",
+                "iam_simulation_other_set_failed")
+        return "simulator_passed_live_transport_unqualified"
+    require(decision == "implicitDeny", "iam_config_set_explicit_deny")
+    # Diagnose without attaching this policy or invoking SES. An unconditional
+    # exact-resource allow also denied by the simulator cannot qualify that type.
+    diagnostic = {"Version": "2012-10-17", "Statement": [{
+        "Effect": "Allow", "Action": "ses:SendEmail", "Resource": CONFIG_ARN}]}
+    response = iam.simulate_custom_policy(
+        PolicyInputList=[json.dumps(diagnostic)], ActionNames=["ses:SendEmail"],
+        ResourceArns=[CONFIG_ARN])
+    require(simulation_decisions(response, [CONFIG_ARN])[CONFIG_ARN] == "implicitDeny",
+            "iam_config_set_principal_denied_requires_review")
+    emit("iam_simulation_inconclusive", resourceType="configuration-set",
+         principalDecision="implicitDeny", isolatedUnconditionalDecision="implicitDeny")
+    return "partial_config_set_simulator_inconclusive"
 
 
 def apply():
@@ -229,7 +270,7 @@ def apply():
         created_user = iam.create_user(UserName=USER, Tags=TAGS)
         require(created_user["User"]["Arn"] == USER_ARN, "unexpected_created_user_arn")
     iam.put_user_policy(UserName=USER, PolicyName=POLICY, PolicyDocument=json.dumps(SEND_POLICY))
-    simulate(iam)
+    iam_qualification = simulate(iam)
 
     # Read back each application-relevant setting instead of assuming write success.
     result = ses.get_configuration_set(ConfigurationSetName=CONFIG_SET)
@@ -254,6 +295,7 @@ def apply():
             "iam_console_readback")
     emit("setup_complete", account=ACCOUNT, region=REGION, configurationSet=CONFIG_SET,
          topicArn=TOPIC_ARN, senderPrincipal=USER_ARN, sendingEnabled=False,
+         iamPolicyQualification=iam_qualification, liveTransportQualified=False,
          accessKeysCreated=0, subscriptionsCreated=0, emailsSent=0)
 
 

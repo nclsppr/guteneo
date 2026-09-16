@@ -2,9 +2,17 @@
 
 Guteneo has two separate hosted surfaces. `https://guteneo.com` is the public design preview, with fictional per-tab data. `https://guteneo-app.nclsppr.workers.dev` is the production-mode application backend. The root domain will move to that application after managed identity is configured and a real login is verified.
 
-## Published v0.2 code
+## Pending SES candidate — local verification on 2026-09-17
 
-Both hosted surfaces were deployed from clean commit **`b3988da34c2d73765be7e74c6fda2af2e887b5ba`**. Final public verification at 21:41 UTC matched all **27 backend public assets** and all **25 preview public assets** to their local SHA-256 manifests, including the entry document served at Cloudflare's canonical `/` route. `_headers` is deployment configuration and is checked through the resulting response headers, not fetched as an asset.
+Uncommitted changes on `b01e876` add fixed-code SES signature/certificate and receipt-storage diagnostics, the private SNS confirmation helper, explicit partial IAM-simulator qualification, and independent local browser HTTP windows. They are **not yet deployed or qualified by new GitHub CI**. No new Worker version, public source identity or asset-hash proof is claimed here.
+
+Local verification passed **256/256 unit/integration tests**, **22/22 secure-configuration tests** and **36/36 browser tests** across Chromium desktop, Chromium mobile and iPhone WebKit, with zero browser failures, flaky cases or skips. Typecheck, lint and offline SES setup decision checks passed. Details and limitations are in [TEST_RESULTS.md](TEST_RESULTS.md). These results cover controlled local fixtures; they do not prove a working AWS notification handshake or a real communication.
+
+The SNS subscription is still awaiting a verified receipt and operator confirmation; the observed AWS/Cloudflare state and remaining checks are recorded in [SES_STATUS.md](SES_STATUS.md). The new diagnostics must first be published and observed on an actual callback. Actual SES transport, managed login and live sending remain unqualified. The release snapshot below records the earlier v0.2 publication, independently of this pending candidate.
+
+## Published v0.2 code — earlier release evidence
+
+Both hosted surfaces in this earlier release were deployed from clean commit **`b3988da34c2d73765be7e74c6fda2af2e887b5ba`**. Final public verification at 21:41 UTC matched all **27 backend public assets** and all **25 preview public assets** to their local SHA-256 manifests, including the entry document served at Cloudflare's canonical `/` route. `_headers` is deployment configuration and is checked through the resulting response headers, not fetched as an asset.
 
 | Surface | Worker version | Public proof |
 | --- | --- | --- |

@@ -231,7 +231,12 @@ export async function verifySnsWebhook(
   } catch {
     throw new ProviderError("sns_certificate_unavailable", true);
   }
-  const key = await importX509(pem, "RS256");
+  let key: CryptoKey;
+  try {
+    key = await importX509(pem, "RS256");
+  } catch {
+    throw new ProviderError("sns_certificate_invalid");
+  }
   if (
     !(await crypto.subtle.verify(
       "RSASSA-PKCS1-v1_5",

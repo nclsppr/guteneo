@@ -193,6 +193,7 @@ describe("signed SNS callbacks during identity setup", () => {
   });
 
   it("rejects unsigned, wrong-topic, version-one and oversized callbacks before storage", async () => {
+    const diagnostics = vi.spyOn(console, "warn").mockImplementation(() => {});
     const network = snsCertificates();
     const message = signedSns("SubscriptionConfirmation", "Public fixture");
     for (const patch of [
@@ -225,6 +226,82 @@ describe("signed SNS callbacks during identity setup", () => {
     expect(
       (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
     ).toBe(0);
+    expect(diagnostics.mock.calls).toEqual(
+      [
+        "unexpected_sns_topic",
+        "sns_signature_v2_required",
+        "sns_certificate_url_not_allowed",
+        "invalid_signature",
+        "provider_response_too_large",
+      ].map((code) => [
+        JSON.stringify({ event: "sns_webhook_verification_failed", code }),
+      ]),
+    );
+  });
+
+  it("logs only fixed diagnostics for malformed private input and certificates", async () => {
+    const diagnostics = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const message = signedSns(
+      "SubscriptionConfirmation",
+      "Private fixture recipient@example.test\nNever log this message",
+    );
+    const network = snsCertificates();
+    network.mockResolvedValueOnce(new Response("Unusable certificate fixture"));
+    const badCertificate = await worker.fetch(
+      sesRequest(message),
+      sesEnvironment(),
+      {} as ExecutionContext,
+    );
+    expect(badCertificate.status).toBe(401);
+    const invalidJson = await worker.fetch(
+      new Request("https://guteneo.example/webhooks/ses", {
+        method: "POST",
+        body: JSON.stringify(message).slice(0, -1),
+      }),
+      sesEnvironment(),
+      {} as ExecutionContext,
+    );
+    expect(invalidJson.status).toBe(401);
+    expect(diagnostics.mock.calls).toEqual(
+      ["sns_certificate_invalid", "invalid_webhook"].map((code) => [
+        JSON.stringify({ event: "sns_webhook_verification_failed", code }),
+      ]),
+    );
+    expect(
+      (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
+    ).toBe(0);
+  });
+
+  it("reports a signed callback storage failure without logging private exception details", async () => {
+    const diagnostics = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const network = snsCertificates();
+    const prepare = vi.fn(() => {
+      throw new Error("Private fixture recipient@example.test and token");
+    });
+    const domain = sink();
+    const response = await handleWebhook(
+      sesRequest(signedSns("SubscriptionConfirmation", "Public fixture")),
+      {
+        ...sesEnvironment(),
+        DB: { prepare } as unknown as D1Database,
+      },
+      domain,
+    );
+    expect(response?.status).toBe(503);
+    expect(await response?.json()).toEqual({
+      error: { code: "WEBHOOK_STORAGE_UNAVAILABLE" },
+    });
+    expect(network).toHaveBeenCalledTimes(1);
+    expect(prepare).toHaveBeenCalledTimes(1);
+    expect(domain.ingestEvent).not.toHaveBeenCalled();
+    expect(diagnostics.mock.calls).toEqual([
+      [
+        JSON.stringify({
+          event: "sns_webhook_storage_failed",
+          code: "webhook_storage_unavailable",
+        }),
+      ],
+    ]);
   });
 
   it("recovers a verified rendering failure by cron without identity or outbox publication", async () => {
