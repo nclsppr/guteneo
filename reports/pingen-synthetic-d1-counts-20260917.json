@@ -1,0 +1,21 @@
+{
+  "checkedAfter": "synthetic_pingen_deletion",
+  "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+  "success": true,
+  "result": [
+    {
+      "success": true,
+      "results": [
+        {
+          "users": 0,
+          "organizations": 0,
+          "documents": 0,
+          "dispatches": 0,
+          "faxTariffs": 0,
+          "faxQuotes": 0,
+          "faxSettlements": 0
+        }
+      ]
+    }
+  ]
+}

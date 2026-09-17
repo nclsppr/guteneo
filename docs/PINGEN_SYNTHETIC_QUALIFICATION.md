@@ -1,12 +1,28 @@
 # Qualification fournisseur Pingen par document fictif
 
-Candidat local basé sur `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`. Aucun dépôt, appel fournisseur authentifié, déploiement ni qualification réelle n'a été effectué pendant son développement. Les réponses des tests sont fictives ; le verrou R2 est exercé sur le runtime local réel.
+Développé à partir de `118ce087`, puis publié dans la source `5b91ad312ec14b40fa3441382d69782cc6343c96`, version Worker `0cac0373-eca4-454d-af8c-322d76fcc8d9`, le 17 septembre 2026 à 03:42:43 UTC. La qualification fournisseur réelle décrite ci-dessous a ensuite créé, inspecté puis supprimé un seul brouillon fictif sans expédition. Les tests locaux restent une preuve distincte : réponses fournisseur fictives et verrou R2 exercé sur le runtime local réel.
+
+## Résultat fournisseur observé
+
+Le test s’est déroulé sur le compte de production configuré, avec `LIVE_SENDS_ENABLED=false`. Rapport filtré : `reports/pingen-synthetic-qualification-20260917.json`.
+
+| Heure UTC, 17 septembre 2026 | Étape | Résultat |
+| --- | --- | --- |
+| 03:43:35 | Calculateur | 151 centimes EUR pour 1 page normale, LU, cheap/simplex/grayscale |
+| 03:43:56 | Dépôt et création | Un seul PDF fictif embarqué ; brouillon `auto_send:false`, état `created` |
+| 03:44:16 | Inspection | 1 page, adresse/pays/papier normal/polices incorporées conformes, suppression et soumission possibles côté fournisseur, aucune soumission effectuée |
+| 03:44:43 | Nettoyage | Suppression API confirmée, état `deleted` |
+| 03:45:22 | Relecture du journal | Tombstone durable `deleted` conservé |
+
+Le prix de **1,51 EUR** est une observation du calculateur pour ce compte, cette date et ces options ; il n’est ni un tarif client universel, ni une qualification fiscale, ni une facture finale. La réponse 302 de `/file` a été observée lors de l’inspection sans lire ni suivre `Location`. Aucun aperçu final d’impression n’a été téléchargé ou qualifié. La suppression API ne prouve pas l’effacement immédiat de toutes les copies ou sauvegardes fournisseur.
+
+Après nettoyage, les tables D1 utilisateurs, organisations, documents, dispatches, tarifs/devis/règlements fax v3 contenaient toutes zéro ligne (`reports/pingen-synthetic-d1-counts-20260917.json`). Aucun document client, consentement applicatif, envoi postal, tarif actif ou achat de crédit n’a été créé. Le journal technique R2 reste conservé et non rejouable.
 
 Cette preuve est indépendante de l'inscription Guteneo et du parcours applicatif. Elle ne crée aucun tenant, document métier, approbation, dispatch, quota ou crédit. `appJourneyVerified`, `liveSendingVerified` et `canSend` restent toujours `false`. Le PDF embarqué est entièrement fictif : une page A4, adresse à gauche x25/y62 mm, Arial incorporé, zones réservées blanches, mention de ne pas imprimer ni expédier. Son rendu a été contrôlé localement ; ce test fournisseur ne prétend pas prouver un upload client, une analyse antivirus métier ou un consentement navigateur.
 
 ## Autorisation et périmètre
 
-Après intégration/revue et déploiement autorisés, l'opérateur disposant de l'accès Cloudflare au même compte peut appeler la méthode RPC privée `ProviderInspection.qualifyPingenSynthetic`. La classe conserve `fetch() -> 404` ; aucune route REST/MCP/publique n'est ajoutée. L'accès Cloudflare opérateur, distinct d'Auth0, est l'autorité du test. Ne pas accorder une liaison vers ce point d'entrée à un Worker non approuvé.
+L'opérateur disposant de l'accès Cloudflare au même compte appelle la méthode RPC privée `ProviderInspection.qualifyPingenSynthetic` uniquement dans le périmètre autorisé. La classe conserve `fetch() -> 404` ; aucune route REST/MCP/publique n'est ajoutée. L'accès Cloudflare opérateur, distinct d'Auth0, est l'autorité du test. Ne pas accorder une liaison vers ce point d'entrée à un Worker non approuvé. Le run documenté est terminé : son journal ne doit pas être réinitialisé pour créer un autre brouillon.
 
 La seule entrée est `{phase: "calculator" | "create" | "inspect" | "cleanup"}`. Toute clé supplémentaire est refusée. Aucun PDF, URL, destinataire, organisation, identifiant de lettre, date ou dépendance n'est contrôlable par cette entrée. PDF/SHA, nom, run `20260917-synthetic-v1` et options LU/gauche/cheap/simplex/grayscale sont fixés dans la source. Seule l'organisation déjà configurée est accessible. Le profil relu doit être EUR/LU/fenêtre gauche. La configuration exige explicitement production, `PINGEN_SANDBOX=false`, `LIVE_SENDS_ENABLED=false` et l'origine de dépôt déjà qualifiée, seule dans l'allowliste.
 

@@ -1,0 +1,31 @@
+{
+  "observedAt": "2026-09-17T03:29:00.013845Z",
+  "runtimeSourceCommit": "118ce087c3fe5a1ad63bd4c562adb8e26aa8af21",
+  "success": true,
+  "bindings": [
+    {
+      "name": "LIVE_SENDS_ENABLED",
+      "type": "plain_text",
+      "text": "false"
+    },
+    {
+      "name": "TELNYX_OUTBOUND_VOICE_PROFILE_ID",
+      "type": "secret_text"
+    }
+  ],
+  "deployment": {
+    "id": "8ece9560-3204-4169-b8f3-caa2d1f3ac01",
+    "source": "api",
+    "strategy": "percentage",
+    "annotations": {
+      "workers/triggered_by": "secret"
+    },
+    "versions": [
+      {
+        "version_id": "258c95dd-8238-4a7b-beaa-751ba1d18d59",
+        "percentage": 100
+      }
+    ],
+    "created_on": "2026-09-17T03:29:00.013845Z"
+  }
+}
