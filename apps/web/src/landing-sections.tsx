@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from "react";
+import { useId, useState, type MouseEvent } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -325,19 +325,103 @@ export function FrequentlyAsked() {
   );
 }
 
+function FoundingPostage() {
+  const id = useId();
+  return (
+    <figure className="footer-postage">
+      <img
+        className="founding-stamp"
+        src="/brand/gutenberg-guteneo-stamp.webp"
+        alt=""
+        width="640"
+        height="640"
+        loading="lazy"
+        decoding="async"
+      />
+      <svg
+        className="founding-postmark"
+        viewBox="0 0 300 230"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <path id={`${id}-top`} d="M 25,139 A 62,62 0 0 1 149,139" />
+          <path id={`${id}-bottom`} d="M 21,137 A 66,66 0 0 0 153,137" />
+          <pattern
+            id={`${id}-grain`}
+            width="9"
+            height="11"
+            patternUnits="userSpaceOnUse"
+          >
+            <rect width="9" height="11" fill="white" />
+            <circle cx="2" cy="3" r="0.65" fill="black" />
+            <path d="M6 8h1.2v0.7H6z" fill="black" />
+          </pattern>
+          <mask id={`${id}-ink`}>
+            <rect width="300" height="230" fill={`url(#${id}-grain)`} />
+          </mask>
+        </defs>
+        <g mask={`url(#${id}-ink)`}>
+          <g fill="none" stroke="currentColor" strokeWidth="1.8">
+            <circle cx="87" cy="137" r="73" />
+            <circle cx="87" cy="137" r="69" strokeWidth="0.7" />
+            <circle cx="87" cy="137" r="49" strokeWidth="1" />
+            <path d="M159 107c20-14 37 14 57 0s37 14 67 0M161 122c20-14 37 14 57 0s37 14 67 0M161 152c20-14 37 14 57 0s37 14 67 0M159 167c20-14 37 14 57 0s37 14 67 0" />
+          </g>
+          <text className="postmark-place">
+            <textPath href={`#${id}-top`} startOffset="50%" textAnchor="middle">
+              LUXEMBOURG
+            </textPath>
+          </text>
+          <text className="postmark-edition">
+            <textPath
+              href={`#${id}-bottom`}
+              startOffset="50%"
+              textAnchor="middle"
+            >
+              PREMIER JOUR
+            </textPath>
+          </text>
+          <text className="postmark-post" x="87" y="116" textAnchor="middle">
+            POSTES
+          </text>
+          <text className="postmark-date" x="87" y="140" textAnchor="middle">
+            16.09.2026
+          </text>
+          <text
+            className="postmark-signature"
+            x="87"
+            y="160"
+            textAnchor="middle"
+          >
+            guteneo
+          </text>
+        </g>
+      </svg>
+      <figcaption className="sr-only">
+        {copy.footer.stampDescription}{" "}
+        <time dateTime="2026-09-16">{copy.footer.foundingDate}</time>.
+      </figcaption>
+    </figure>
+  );
+}
+
 export function LuxembourgFooter() {
   return (
     <footer className="luxembourg-footer">
       <div className="footer-invitation">
-        <p>
-          {copy.footer.title}
-          <br />
-          <em>{copy.footer.italic}</em>
-        </p>
-        <a className="button primary" href="/#/app">
-          {copy.footer.cta}
-          <ArrowRight size={18} aria-hidden="true" />
-        </a>
+        <div className="footer-invitation-copy">
+          <p>
+            {copy.footer.title}
+            <br />
+            <em>{copy.footer.italic}</em>
+          </p>
+          <a className="button primary" href="/#/app">
+            {copy.footer.cta}
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        </div>
+        <FoundingPostage />
       </div>
       <div className="luxembourg-art">
         <img
