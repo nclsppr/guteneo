@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { EventEmitter } from "node:events";
+import { PassThrough } from "node:stream";
 import {
   applyBranding,
+  brandingCli,
   brandingSummary,
   inspectBranding,
   makeBrandingApi,
@@ -10,6 +13,49 @@ import {
   TEXTS,
   BrandingError,
 } from "../../scripts/setup-auth0-branding.mjs";
+
+function failedCli(diagnostic) {
+  return () => {
+    const child = new EventEmitter();
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    child.stdin = new PassThrough();
+    child.kill = () => {};
+    queueMicrotask(() => {
+      child.stderr.write(diagnostic);
+      child.emit("close", 1);
+    });
+    return child;
+  };
+}
+
+test("projects multiline CLI errors without returning raw provider output", async () => {
+  for (const [diagnostic, expected] of [
+    [
+      'Error! HTTP 404: {"error":"Not Found","message":"private-marker"}',
+      "NOT_FOUND",
+    ],
+    [
+      'Error! HTTP 403: {"error":"Forbidden","message":"private-marker"}',
+      "PERMISSION_REQUIRED",
+    ],
+    [
+      'Error! HTTP 400: {"error":"Bad Request","message":"private-marker"}',
+      "INVALID_BRANDING_PAYLOAD",
+    ],
+  ]) {
+    await assert.rejects(
+      brandingCli(
+        ["api", "get", "branding/themes/default"],
+        undefined,
+        failedCli(diagnostic),
+      ),
+      (error) =>
+        error.code === expected &&
+        !JSON.stringify(error).includes("private-marker"),
+    );
+  }
+});
 
 function fixture(overrides = {}) {
   let state = {

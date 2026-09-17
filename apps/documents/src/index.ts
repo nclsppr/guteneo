@@ -1,12 +1,20 @@
 import puppeteer from "@cloudflare/puppeteer";
 import { printableHtml, LIMITS } from "../../../packages/contracts/src/content";
 import { validatePdf } from "../../../packages/contracts/src/pdf";
+import { handlePingenPreflight } from "./pingen-preflight";
+import pdfSource from "../dist/pdfjs/pdf.txt";
+import pdfWorkerSource from "../dist/pdfjs/pdf.worker.txt";
 interface DocumentEnv {
   BROWSER: Fetcher;
 }
 /** Service-binding-only worker; no public route or account secrets exposed. */
 export default {
   async fetch(request: Request, env: DocumentEnv): Promise<Response> {
+    if (new URL(request.url).pathname === "/preflight/pingen")
+      return handlePingenPreflight(request, {
+        launch: () => puppeteer.launch(env.BROWSER),
+        scripts: { pdf: pdfSource, worker: pdfWorkerSource },
+      });
     if (
       request.method === "POST" &&
       new URL(request.url).pathname === "/validate"
