@@ -1,6 +1,16 @@
 # Executed verification — 2026-09-17
 
-## Private Pingen qualification tooling — published `5b91ad3`
+## Postal status and private webhook tooling — published `44d1d5b`
+
+Both exact-source GitHub runs passed on their first attempt for `44d1d5bb64418372c5174faa1ce5601681fcc813`: [PR CI 35180968830](https://github.com/nclsppr/guteneo/actions/runs/35180968830) and [push CI 35180966623](https://github.com/nclsppr/guteneo/actions/runs/35180966623). The `verify` and `scanner` jobs completed successfully in both reports: `reports/ci-pr-44d1d5b.json` and `reports/ci-push-44d1d5b.json`.
+
+The preserved PR log, `test-results/ci-44d1d5b-pr.log`, records **675/675 Vitest tests across 41 files**, **78/78 security tests**, **six scanner Worker tests plus eight Python scanner tests**, **75 application browser cases with three intentional skips**, and **30 preview cases with four intentional skips**. Typecheck, lint, migration verification, application/live/preview builds and the live Worker dry-run also passed. These CI browser and provider fixtures remain separate from remote user or supplier qualification.
+
+The clean source was published on 17 September at 04:22:44 UTC as Worker version `bb332483-fd95-4b72-9b19-f967fbe492e0`, receiving 100% of application traffic. The preserved publication report, `reports/published-44d1d5b-release-proof.json`, records **56 matching public assets on each of the canonical and fallback hosts**, verified security headers and host-specific robots policy. `/api/health` returned HTTP 200 with production mode and `liveSending:false`. This evidence proves application publication, not a real postal delivery, a provider-originated signed notification or an authenticated customer journey.
+
+The postal correction preserves a signed non-delivery outcome after handover, including reordered/concurrent events and replays, without refunding incurred postage or resubmitting. An explicitly proven delivery retains priority and fax/email rules are unchanged. The signed events in its regression tests are local fixtures, not real Pingen notifications; see [POSTAL_STATUS_PROJECTION.md](POSTAL_STATUS_PROJECTION.md).
+
+## Historical private Pingen qualification tooling — published `5b91ad3`
 
 Exact-source [PR CI 35178294242](https://github.com/nclsppr/guteneo/actions/runs/35178294242) passed all jobs for `5b91ad312ec14b40fa3441382d69782cc6343c96`, including tests, migrations, both builds/browser suites and scanner checks. The first [push CI 35178292026](https://github.com/nclsppr/guteneo/actions/runs/35178292026) attempt failed: 608 tests passed and one failed on `proxy.worker.ts:150 assert(heapValue !== undefined)` during native argument hydration before a D1 call. The subsequent migration/build/browser steps in that failed job were skipped; the independent successful PR run is not a relabeling of that attempt.
 

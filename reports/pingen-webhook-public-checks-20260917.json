@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-09-17T04:33:05.735Z",
+  "checks": [
+    {
+      "name": "release",
+      "status": 200,
+      "redirected": false,
+      "body": {
+        "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+        "sourceDirty": false,
+        "sourceSnapshotSha256": "e52b7abe27ca683eb4bee87d5a7ec810ccd53e60565ed2e0eaf370f2751a5501"
+      }
+    },
+    {
+      "name": "health",
+      "status": 200,
+      "redirected": false,
+      "body": {
+        "status": "ok",
+        "mode": "production",
+        "liveSending": false
+      }
+    },
+    {
+      "name": "unsignedWebhook",
+      "status": 401,
+      "redirected": false,
+      "body": {
+        "error": {
+          "code": "WEBHOOK_REJECTED"
+        }
+      }
+    }
+  ]
+}

@@ -1,8 +1,16 @@
 # Notifications Pingen : inscription privée
 
-Ce module permet d'inspecter puis d'inscrire les notifications du compte Pingen configuré, sans compte utilisateur Guteneo, PDF, brouillon, crédit ou courrier. C'est un candidat local tant que sa publication et son exécution réelle ne sont pas consignées séparément. Il ne remplace pas la qualification du parcours utilisateur et n'active aucun envoi.
+Ce module permet d'inspecter puis d'inscrire les notifications du compte Pingen configuré, sans compte utilisateur Guteneo, PDF, brouillon, crédit ou courrier. Il est publié dans la source `44d1d5bb64418372c5174faa1ce5601681fcc813` ; l'inscription réelle du 17 septembre 2026 est consignée ci-dessous. Il ne remplace pas la qualification du parcours utilisateur et n'active aucun envoi.
 
 Le récepteur publié `/webhooks/pingen` vérifie déjà la signature HMAC-SHA256 du corps intact, l'organisation fournisseur et le canal `letters`. Il enregistre un reçu durable avant de répondre positivement, déduplique les événements et reprend les projections interrompues par cron. La présence de ce code ne prouve pas qu'un abonnement existe chez Pingen, que son secret est installé, ni qu'une notification réelle a été reçue. Les événements `issues` restent conservés comme métadonnées d'un reçu `unrecognized` ; ils ne provoquent pas automatiquement un échec définitif.
+
+## Inscription réellement vérifiée — 17 septembre 2026
+
+L'inspection privée initiale a lu une liste complète : les quatre catégories étaient absentes, sans journal et sans secret local. Une clé aléatoire de 32 caractères hexadécimaux a ensuite été transmise directement à l'entrée standard de Wrangler, sans fichier, argument ni affichage de sa valeur. La relecture Cloudflare confirme le binding secret, la version `7eb55d92-4434-4c0d-9701-4a4e8c348f87` à 100 % du trafic et `LIVE_SENDS_ENABLED=false` ; la source reste `44d1d5b`.
+
+Les inscriptions ont été exécutées et leurs résultats examinés une par une : `issues`, `sent`, `undeliverable`, puis `delivered`. Une dernière inspection indépendante a relu les quatre catégories `matched` et leurs quatre journaux `registered`. Le récepteur public refuse un corps non signé avec `401 WEBHOOK_REJECTED`. Les comptes utilisateurs, organisations, documents, dispatches et reçus Pingen sont toujours à zéro dans D1.
+
+Cette preuve établit la configuration des abonnements, pas la réception d'une notification signée par Pingen. Aucun bouton fournisseur de test n'a été utilisé, aucun courrier n'a été créé ou expédié et aucun crédit n'a été acheté. La recette du transport signé et du parcours applicatif reste ouverte. Preuves filtrées : `reports/pingen-webhook-registration-20260917.json`, `reports/pingen-webhook-secret-20260917.json`, `reports/pingen-webhook-public-checks-20260917.json` et `reports/pingen-webhooks-d1-counts-20260917.json`. Les heures des étapes dans le premier rapport sont celles des captures locales, pas les dates de création internes du fournisseur.
 
 ## Contrat et autorité
 

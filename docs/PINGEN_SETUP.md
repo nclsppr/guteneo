@@ -6,7 +6,7 @@ La release `813dd717`, déployée le 17 septembre à 02:28 UTC, a introduit `POS
 
 Créer une application dédiée à Guteneo dans Pingen, type **Client Credentials**, puis lancer `node scripts/secure-setup.mjs pingen`. Le formulaire local exige `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET` et `PINGEN_ORGANIZATION_ID`. Il les transmet directement aux secrets du Worker via l’entrée standard de Wrangler ; aucun fichier d’accès, argument de processus ou sortie contenant leurs valeurs n’est produit. Voir [SECURE_CONFIGURATION.md](SECURE_CONFIGURATION.md).
 
-Cette installation ne modifie aucun flag d’activation ou d’environnement. Le secret `PINGEN_WEBHOOK_SECRET` n’est pas nécessaire pour l’authentification et la lecture de l’organisation. Il devra être défini lors d’une future inscription explicite des notifications signées. Aucun webhook n’est créé par ce parcours.
+Cette installation ne modifie aucun flag d’activation ou d’environnement. Le secret `PINGEN_WEBHOOK_SECRET` n’est pas nécessaire pour l’authentification et la lecture de l’organisation. Aucun webhook n’est créé par ce parcours de connexion. Le secret et les quatre abonnements ont été configurés séparément le 17 septembre 2026 ; voir [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
 
 Après déploiement du point d’entrée privé, `node scripts/provider-readiness.mjs pingen` appelle le service Cloudflare `ProviderInspection`. Ce service n’expose aucune route HTTP d’inspection. Les accès restent dans Cloudflare ; le script local ne reçoit que le résultat filtré.
 
@@ -24,7 +24,7 @@ Les alias `api.v2.pingen.com` et `api-staging.v2.pingen.com` figurent encore dan
 
 Configuration requise avant un brouillon, désormais installée pour ce compte : `PINGEN_SANDBOX=false` et l’origine exacte qualifiée dans `PINGEN_UPLOAD_ORIGINS`. L’OpenAPI ne publie qu’une URL de stockage fictive (`s3.example`), donc aucune origine réelle ne peut être honnêtement déduite de cet exemple. La commande privée séparée `node scripts/provider-readiness.mjs pingen-upload-origin` observe seulement l’origine HTTPS renvoyée par `GET /file-upload`, sans journaliser ni renvoyer chemin, paramètres signés ou signature, et sans effectuer le `PUT`. Cette inspection reste distincte de la lecture de connexion ; elle ne modifie pas automatiquement l’allowliste. Ne pas autoriser globalement `*.amazonaws.com`, `*.cloudscale.ch` ou une origine fictive.
 
-L’adaptateur postal demande le scope `letter` pour son préflight et ses opérations de lettres. Le scope `webhook` est réservé à une future inscription explicite de notifications ; `organisation_read` suffit au contrôle de connexion. Configurer les accès ne remplace pas les contrôles de PDF/adresse, le devis final, le secret des notifications, le financement et l’approbation humaine. Aucun flag d’envoi n’est modifié par ces utilitaires.
+L’adaptateur postal demande le scope `letter` pour son préflight et ses opérations de lettres. Le scope `webhook` est réservé à l’inscription explicite et séparée de notifications ; `organisation_read` suffit au contrôle de connexion. Configurer les accès ne remplace pas les contrôles de PDF/adresse, le devis final, le secret des notifications, le financement et l’approbation humaine. Aucun flag d’envoi n’est modifié par ces utilitaires.
 
 ## Inspection séparée de l’origine de dépôt
 
@@ -48,4 +48,6 @@ Le seul PDF fictif embarqué a été déposé et son brouillon `auto_send:false`
 
 La suppression API a réussi à 03:44:43 UTC et le journal durable a été relu dans l’état `deleted` à 03:45:22 UTC. Cela ne prouve pas l’effacement immédiat de toutes les copies fournisseur. Aucun courrier n’a été expédié. Les tables utilisateurs, organisations, documents, dispatches et fax v3 sont restées vides ; le seul journal technique privé est dans R2. `appJourneyVerified`, `liveSendingVerified` et `canSend` restent faux. Preuves : `reports/pingen-synthetic-qualification-20260917.json`, `reports/pingen-synthetic-d1-counts-20260917.json` et [PINGEN_SYNTHETIC_QUALIFICATION.md](PINGEN_SYNTHETIC_QUALIFICATION.md).
 
-Restent à qualifier : notifications signées, inscription et consentement navigateur pour un document client exact, aperçu final, politique tarifaire active par compte/route, crédit fournisseur et expédition explicitement autorisée. Le test LU ne qualifie pas automatiquement la grille française La Poste, le parcours applicatif ou l’acheminement postal.
+Les quatre abonnements de suivi (`issues`, `sent`, `undeliverable`, `delivered`) sont désormais inscrits et leur signature configurée a été relue exactement. Le récepteur rejette les notifications non signées. Aucun test émis par Pingen n'a encore été reçu ; voir [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
+
+Restent à qualifier : réception d’une notification signée par Pingen, inscription et consentement navigateur pour un document client exact, aperçu final, politique tarifaire active par compte/route, crédit fournisseur et expédition explicitement autorisée. Le test LU ne qualifie pas automatiquement la grille française La Poste, le parcours applicatif ou l’acheminement postal.

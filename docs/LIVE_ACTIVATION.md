@@ -1,6 +1,6 @@
 # Live adapter bridge and activation boundary
 
-The real Telnyx, Amazon SES and Pingen clients are connected to a `ProviderHook` adapter in `apps/api/src/live-providers.ts`. This is executable integration code, not an authorization to send. **Real fax preparation requires qualified account-specific quote snapshots.** The resolver and SQL guards are implemented in migration 0013; no production tariff or verified account identity has been supplied, so the hosted configuration still returns `LIVE_PRICING_REQUIRED`. Other production channels remain closed. Credentials or `LIVE_SENDS_ENABLED=true` cannot replace a trusted quote. See [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
+The real Telnyx, Amazon SES and Pingen clients are connected to a `ProviderHook` adapter in `apps/api/src/live-providers.ts`. This is executable integration code, not an authorization to send. **Real fax preparation requires qualified account-specific quote snapshots.** Migration 0013 introduced the historical fixed-price resolver; migration 0023 now adds the published fax v3 estimate, approved cap and separately verified usage settlement. No active production tariff or verified Guteneo sender has been installed, and live sending remains closed for all channels. Credentials or `LIVE_SENDS_ENABLED=true` cannot replace a trusted quote. See [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) and [LIVE_RELEASE.md](LIVE_RELEASE.md) for current deployment and separate provider qualification evidence.
 
 No real provider calls, document transfers, paid resources or physical deliveries were made while implementing this bridge. The tests use Cloudflare D1/R2 emulation and intercepted provider requests.
 
@@ -32,12 +32,15 @@ All values below must refer to the intended environment and be supplied through 
 | `TELNYX_ALLOWED_PREFIXES`                                                  | Explicit comma-separated subset of `+33,+352,+49`; actual country enablement must first be qualified.          |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN` | Restricted SES identity; see provider documentation for account/IAM prerequisites.                             |
 | `AWS_REGION`, `SES_CONFIGURATION_SET`                                      | Qualified EU region and event configuration; the bridge does not infer account readiness.                      |
-| `SES_SANDBOX`                                                              | Explicit `true` or `false`; sandbox mode is forbidden when `ENVIRONMENT=production`. Staging may use sandbox.  |
+| `SES_SANDBOX`                                                              | Must reflect the actual AWS account: explicit `true` or `false`. Sandbox sends are real emails and require an exact recipient in `SES_VERIFIED_RECIPIENTS`, including on the production-mode application. Never change this flag to bypass AWS review. |
+| `SES_ACCOUNT_ID`, `SES_SNS_TOPIC_ARN`, `SES_VERIFIED_RECIPIENTS`             | Qualified AWS account and matching EU-region SNS topic. In sandbox, recipients must be individually verified and explicitly listed with their exact casing; no wildcard or case normalization grants access. |
 | `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET`, `PINGEN_ORGANIZATION_ID`       | Independent Pingen account with agreed data processing and postal coverage.                                    |
 | `PINGEN_SANDBOX`                                                           | Explicit `true` or `false`; sandbox mode is forbidden in production.                                           |
 | `PINGEN_UPLOAD_ORIGINS`                                                    | Exact comma-separated HTTPS origins from the qualified provider upload contract. No wildcard or arbitrary URL. |
 
 Webhook keys, topic/account checks, scanner bindings, identity settings, channel limits and deployment approval remain required separately. Do not treat a configured secret as evidence that those prerequisites passed.
+
+The SES transport policy above is implemented by `sesTransportSandbox` and the shared account/region limiter. A verified recipient permits a bounded test while AWS reviews production access; it does not open email to arbitrary recipients or bypass quotes, human approval, funding, the application send gate or the configuration-set send gate. See [SES_STATUS.md](SES_STATUS.md) and [SES_SEND_LIMITS.md](SES_SEND_LIMITS.md) for the separately observed account state and quota proof.
 
 ## Telnyx PDF access
 

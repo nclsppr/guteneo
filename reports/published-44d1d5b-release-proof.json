@@ -1,0 +1,74 @@
+{
+  "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+  "sourceDirty": false,
+  "sourceSnapshotSha256": "e52b7abe27ca683eb4bee87d5a7ec810ccd53e60565ed2e0eaf370f2751a5501",
+  "provenance": {
+    "evidenceSuppliedBy": "root agent tool reads",
+    "deploymentAndPublicChecks": "Transcribed from verified tool results supplied by root; no deployment or remote verification was executed by the documenting subagent.",
+    "ci": "Existing local reports read and checked against the exact source commit, event, run URL and successful conclusion.",
+    "purpose": "Preserve the deployment started before the subsequent authentication question; this report authorizes no additional operation."
+  },
+  "worker": {
+    "versionId": "bb332483-fd95-4b72-9b19-f967fbe492e0",
+    "deploymentId": "71d0d864-32ac-4581-be3a-b716113de8e6",
+    "createdAt": "2026-09-17T04:22:44.965905Z",
+    "trafficPercent": 100
+  },
+  "verifyRelease": [
+    {
+      "target": "canonical",
+      "origin": "https://guteneo.com",
+      "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+      "sourceDirty": false,
+      "sourceSnapshotSha256": "e52b7abe27ca683eb4bee87d5a7ec810ccd53e60565ed2e0eaf370f2751a5501",
+      "publicAssetsVerified": 56,
+      "securityHeadersVerified": true,
+      "robotsPolicyVerified": true,
+      "verifiedAt": "2026-09-17T04:26:20.729Z"
+    },
+    {
+      "target": "fallback",
+      "origin": "https://guteneo-app.nclsppr.workers.dev",
+      "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+      "sourceDirty": false,
+      "sourceSnapshotSha256": "e52b7abe27ca683eb4bee87d5a7ec810ccd53e60565ed2e0eaf370f2751a5501",
+      "publicAssetsVerified": 56,
+      "securityHeadersVerified": true,
+      "robotsPolicyVerified": true,
+      "verifiedAt": "2026-09-17T04:26:20.841Z"
+    }
+  ],
+  "health": {
+    "httpStatus": 200,
+    "body": {
+      "status": "ok",
+      "mode": "production",
+      "liveSending": false
+    }
+  },
+  "ci": [
+    {
+      "event": "pull_request",
+      "runId": 35180968830,
+      "report": "reports/ci-pr-44d1d5b.json",
+      "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nclsppr/guteneo/actions/runs/35180968830"
+    },
+    {
+      "event": "push",
+      "runId": 35180966623,
+      "report": "reports/ci-push-44d1d5b.json",
+      "sourceCommit": "44d1d5bb64418372c5174faa1ce5601681fcc813",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nclsppr/guteneo/actions/runs/35180966623"
+    }
+  ],
+  "pingen": {
+    "webhookSetupPerformed": false,
+    "signedProviderNotificationProven": false,
+    "note": "The webhook setup capability is deployed, but Pingen webhook registration was not performed and no signed provider notification was proven by this release evidence."
+  }
+}

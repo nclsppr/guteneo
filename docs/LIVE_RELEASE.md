@@ -2,7 +2,17 @@
 
 Guteneo has two hosted surfaces. Since the controlled cutover on 17 September, **https://guteneo.com** serves the production-mode application, also reachable at **https://guteneo-app.nclsppr.workers.dev**. The separate fictional design preview remains at **https://guteneo-preview.nclsppr.workers.dev**. Registration is configured on the canonical domain; completed signup and reconnection still require qualification. Live sending remains disabled. The PR remains open and unmerged.
 
-## Current application publication — `5b91ad3`; preview remains `118ce087`
+## Current application publication — `44d1d5b`; preview remains `118ce087`
+
+Clean source `44d1d5bb64418372c5174faa1ce5601681fcc813` was published at **04:22:44 UTC** on 17 September, initially as Worker version `bb332483-fd95-4b72-9b19-f967fbe492e0` at 100% traffic. It adds bounded private Pingen webhook registration and corrects postal non-delivery projection after handover. Both exact-source CI runs passed on their first attempt: [PR 35180968830](https://github.com/nclsppr/guteneo/actions/runs/35180968830) and [push 35180966623](https://github.com/nclsppr/guteneo/actions/runs/35180966623). No migration or public UI change was needed; the preview was not republished.
+
+At 04:26 UTC, both application hosts matched **56 public asset hashes**, clean snapshot `e52b7abe27ca683eb4bee87d5a7ec810ccd53e60565ed2e0eaf370f2751a5501`, security headers and host-specific robots policy. `/api/health` returned HTTP 200, production mode and `liveSending:false`. Evidence: `reports/published-44d1d5b-release-proof.json`; integrated test counts are in [TEST_RESULTS.md](TEST_RESULTS.md).
+
+The separately authorized installation of the previously absent `PINGEN_WEBHOOK_SECRET` created the current configuration version **`7eb55d92-4434-4c0d-9701-4a4e8c348f87`** at **04:30:55 UTC**, deployment `fda15b48-fb21-44b3-bd88-7e6898b0fa2f`, with **100% traffic**. The random value was sent directly to Wrangler stdin without a secret file, argument or output; read-back confirmed its secret binding and unchanged `LIVE_SENDS_ENABLED=false`. Public source remained `44d1d5b`. Evidence: `reports/pingen-webhook-secret-20260917.json` and `reports/pingen-webhook-public-checks-20260917.json`.
+
+Pingen registration then succeeded sequentially for `issues`, `sent`, `undeliverable` and `delivered`, after a complete initial inspection found all four missing and no journal. The final private inspection found four exact matches and four durable `registered` journals. An unsigned public notification returned **401 WEBHOOK_REJECTED**. No provider-originated signed notification has been tested: the four configured subscriptions do not prove callback transport or letter tracking. D1 still contained zero users, organizations, documents, dispatches and Pingen receipts. No postage, purchase or live sending was triggered. See `reports/pingen-webhook-registration-20260917.json`, `reports/pingen-webhooks-d1-counts-20260917.json` and [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
+
+## Historical application publication — `5b91ad3`
 
 Clean runtime source `5b91ad312ec14b40fa3441382d69782cc6343c96` was published on 17 September at **03:42:43 UTC** as application version `0cac0373-eca4-454d-af8c-322d76fcc8d9`, with **100% traffic** verified in `reports/cloudflare-5b91ad3-deployments.json`. The separate preview was not redeployed and retains source `118ce087`, version `2a63dad6-f48c-4f0e-acef-18a5e4026392`. This increment adds the private synthetic Pingen qualification RPC and updates Wrangler to 4.133.0 with Miniflare 5.20260916.0-alpha. No migration or public UI change is included.
 
