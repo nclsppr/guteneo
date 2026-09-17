@@ -555,6 +555,31 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     },
   );
 
+  it.each(["email", "postal"] as const)(
+    "fax-only activation blocks the %s bridge before any provider or database operation",
+    async (channel) => {
+      const fetcher = vi.fn<Fetcher>();
+      const prepare = vi.fn(() => {
+        throw new Error("Database access before channel gate");
+      });
+      const result = await createLiveProviderHook(
+        {
+          ...env,
+          LIVE_SEND_CHANNELS: "fax",
+          DB: { prepare } as unknown as D1Database,
+        },
+        channel,
+        { fetcher },
+      ).submit({ channel } as Dispatch);
+      expect(result).toEqual({
+        status: "rejected",
+        errorCode: "LIVE_TRANSPORT_DISABLED",
+      });
+      expect(prepare).not.toHaveBeenCalled();
+      expect(fetcher).not.toHaveBeenCalled();
+    },
+  );
+
   it("cannot send a queued row directly without the durable active approved attempt", async () => {
     const fetcher = vi.fn<Fetcher>();
     expect(
@@ -566,6 +591,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
   });
 
   it("submits Telnyx with the frozen sender and creates a hashed, scoped, expiring media capability", async () => {
+    env.LIVE_SEND_CHANNELS = "fax";
     const row = await queueFixture("fax");
     const fetcher = vi.fn<Fetcher>(async () =>
       json({ data: { id: "fax-fixture", status: "queued" } }, 202),
@@ -604,6 +630,17 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(pdfBytes);
+    for (const channels of ["email", "postal", "", "fax,unexpected"]) {
+      expect(
+        (
+          await serveProviderMedia(
+            { ...env, LIVE_SEND_CHANNELS: channels },
+            new Request(media),
+            token,
+          )
+        ).status,
+      ).toBe(404);
+    }
     expect(
       (
         await serveProviderMedia(env, new Request(media), token, {

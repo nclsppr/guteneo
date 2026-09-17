@@ -92,6 +92,7 @@ export function getCapabilities(env: Env) {
     channels: [
       {
         id: "fax",
+        liveSending: liveSendingEnabled(env, "fax"),
         name: "Fax",
         provider: "Telnyx",
         status: env.TELNYX_API_KEY
@@ -100,6 +101,7 @@ export function getCapabilities(env: Env) {
       },
       {
         id: "email",
+        liveSending: liveSendingEnabled(env, "email"),
         name: "E-mail",
         provider: "Amazon SES",
         status: env.AWS_ACCESS_KEY_ID
@@ -108,6 +110,7 @@ export function getCapabilities(env: Env) {
       },
       {
         id: "postal",
+        liveSending: liveSendingEnabled(env, "postal"),
         name: "Courrier postal",
         provider: "Pingen",
         status: env.PINGEN_CLIENT_ID
@@ -796,6 +799,14 @@ export default {
           if (!row) {
             message.ack();
             counts.acked++;
+            continue;
+          }
+          if (
+            env.MODE !== "simulation" &&
+            !liveSendingEnabled(env, row.channel)
+          ) {
+            message.retry({ delaySeconds: 300 });
+            counts.retried++;
             continue;
           }
           const result = await service.processDispatch(

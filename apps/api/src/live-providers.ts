@@ -103,14 +103,29 @@ function hostedProductionGate(env: LiveProviderEnv): void {
   )
     blocked("LIVE_ORIGIN_INVALID");
 }
-function liveGate(env: LiveProviderEnv): void {
+function liveGate(env: LiveProviderEnv, channel?: Channel): void {
   hostedProductionGate(env);
   if (env.LIVE_SENDS_ENABLED !== "true") blocked("LIVE_TRANSPORT_DISABLED");
+  // Omission preserves the pre-allowlist configuration contract. A configured
+  // empty/invalid list authorizes nothing, never an implicit fallback to all.
+  const channels =
+    env.LIVE_SEND_CHANNELS === undefined
+      ? ["fax", "email", "postal"]
+      : env.LIVE_SEND_CHANNELS.split(",").map((value) => value.trim());
+  if (
+    !channels.length ||
+    channels.some((value) => !["fax", "email", "postal"].includes(value)) ||
+    (channel !== undefined && !channels.includes(channel))
+  )
+    blocked("LIVE_TRANSPORT_DISABLED");
 }
 /** Reports the transport switch; per-dispatch qualification remains mandatory. */
-export function liveSendingEnabled(env: LiveProviderEnv): boolean {
+export function liveSendingEnabled(
+  env: LiveProviderEnv,
+  channel?: Channel,
+): boolean {
   try {
-    liveGate(env);
+    liveGate(env, channel);
     return true;
   } catch {
     return false;
@@ -387,7 +402,7 @@ export function createLiveProviderHook(
     async submit(input) {
       let providerCallStarted = false;
       try {
-        liveGate(env);
+        liveGate(env, channel);
         if (input.channel !== channel) blocked("PROVIDER_CHANNEL_MISMATCH");
         const row = await checkActiveDispatch(env, input, provider);
         const loaded = row.document_id
@@ -751,7 +766,7 @@ export async function serveProviderMedia(
   };
   const deny = () => new Response("Not found", { status: 404, headers });
   try {
-    liveGate(env);
+    liveGate(env, "fax");
     if (request.method !== "GET" || !/^[A-Za-z0-9_-]{43}$/.test(token))
       return deny();
     const now = new Date((dependencies.now ?? Date.now)()).toISOString();
