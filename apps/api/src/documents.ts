@@ -6,8 +6,17 @@ import {
   printableHtml,
   safeHeader,
 } from "../../../packages/contracts/src/content";
-import type { DomainService } from "../../../packages/domain/src/index";
+import type {
+  DocumentRecord,
+  DomainService,
+} from "../../../packages/domain/src/index";
 import type { Env } from "./env";
+
+export const REVIEW_PDF_MAX_BYTES = 1024 * 1024;
+export interface ExactReviewPdf {
+  document: DocumentRecord;
+  bytes: Uint8Array;
+}
 
 type DocumentContext = Parameters<DomainService["registerDocument"]>[0];
 
@@ -75,6 +84,7 @@ async function reserveScanBudget(
 export async function readLimited(
   response: Response,
   limit = LIMITS.pdfBytes,
+  signal?: AbortSignal,
 ): Promise<Uint8Array> {
   if (!response.ok)
     throw new ContentError(
@@ -91,7 +101,9 @@ export async function readLimited(
   let size = 0;
   try {
     while (true) {
-      const next = await reader.read();
+      const next = await (signal
+        ? withinDeadline(reader.read(), signal)
+        : reader.read());
       if (next.done) break;
       size += next.value.byteLength;
       if (size > limit)
@@ -103,7 +115,10 @@ export async function readLimited(
       chunks.push(next.value);
     }
   } finally {
-    await reader.cancel();
+    // Cleanup must not defeat the caller's deadline or replace its integrity error.
+    const cancelled = reader.cancel().catch(() => {});
+    if (signal) await withinDeadline(cancelled, signal).catch(() => {});
+    else await cancelled;
   }
   const result = new Uint8Array(size);
   let offset = 0;
@@ -541,6 +556,119 @@ export class DocumentService {
       },
       "render",
     );
+  }
+  /** Private exact bytes for an OAuth review, never a URL or a claim of model comprehension. */
+  async getReviewContent(
+    ctx: DocumentContext,
+    id: string,
+  ): Promise<ExactReviewPdf> {
+    const document = await this.domain.getDocument(ctx, id);
+    const fallback = " Ouvrez la revue dans Guteneo pour continuer.";
+    if (document.status !== "ready" || document.pages < 1)
+      throw new ContentError(
+        "DOCUMENT_QUARANTINED",
+        "PDF non prêt pour la revue." + fallback,
+        423,
+      );
+    if (document.size > REVIEW_PDF_MAX_BYTES)
+      throw new ContentError(
+        "EXPERT_DOCUMENT_TOO_LARGE",
+        "La revue MCP accepte un PDF de 1 Mio maximum, sans troncature." +
+          fallback,
+        413,
+      );
+    if (
+      !Number.isSafeInteger(document.size) ||
+      document.size < 1 ||
+      !document.storage_key.startsWith(`${ctx.organizationId}/documents/`)
+    )
+      throw new ContentError(
+        "DOCUMENT_INTEGRITY_ERROR",
+        "Original PDF non vérifiable." + fallback,
+        423,
+      );
+    const local =
+      this.env.ENVIRONMENT === "local" && this.env.MODE === "simulation";
+    const assertProof = async () => {
+      const current = await this.domain.getDocument(ctx, id);
+      if (
+        current.status !== "ready" ||
+        current.sha256 !== document.sha256 ||
+        current.size !== document.size ||
+        current.storage_key !== document.storage_key ||
+        current.pages !== document.pages ||
+        (!local &&
+          !(await this.env.DB.prepare(
+            "SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=?",
+          )
+            .bind(ctx.organizationId, document.sha256)
+            .first()))
+      )
+        throw new ContentError(
+          "DOCUMENT_INTEGRITY_ERROR",
+          "La preuve du PDF exact est indisponible." + fallback,
+          423,
+        );
+    };
+    await assertProof();
+    let bytes: Uint8Array;
+    try {
+      const signal = AbortSignal.timeout(15_000);
+      const object = await withinDeadline(
+        this.env.DOCUMENTS.get(document.storage_key),
+        signal,
+      );
+      if (!object)
+        throw new ContentError(
+          "DOCUMENT_UNAVAILABLE",
+          "Original PDF indisponible." + fallback,
+          404,
+        );
+      if (object.size !== document.size) {
+        await withinDeadline(
+          object.body.cancel().catch(() => {}),
+          signal,
+        ).catch(() => {});
+        throw new ContentError(
+          "DOCUMENT_INTEGRITY_ERROR",
+          "La taille du PDF a changé." + fallback,
+          423,
+        );
+      }
+      bytes = await readLimited(
+        new Response(object.body),
+        REVIEW_PDF_MAX_BYTES,
+        signal,
+      );
+    } catch (error) {
+      if (error instanceof ContentError && error.code === "FILE_TOO_LARGE")
+        throw new ContentError(
+          "EXPERT_DOCUMENT_TOO_LARGE",
+          "Le PDF dépasse la limite de 1 Mio ; aucun extrait n’a été retourné." +
+            fallback,
+          413,
+        );
+      if (error instanceof ContentError) throw error;
+      throw new ContentError(
+        "DOCUMENT_UNAVAILABLE",
+        "La lecture du PDF n’a pas abouti." + fallback,
+        503,
+      );
+    }
+    const hash = Array.from(
+      new Uint8Array(
+        await crypto.subtle.digest("SHA-256", bytes as Uint8Array<ArrayBuffer>),
+      ),
+      (b) => b.toString(16).padStart(2, "0"),
+    ).join("");
+    if (bytes.byteLength !== document.size || hash !== document.sha256)
+      throw new ContentError(
+        "DOCUMENT_INTEGRITY_ERROR",
+        "L’intégrité du PDF exact n’a pas pu être vérifiée." + fallback,
+        423,
+      );
+    await assertProof();
+    return { document, bytes };
   }
   async getContent(ctx: DocumentContext, id: string) {
     const document = await this.domain.getDocument(ctx, id);

@@ -1,3 +1,4 @@
+import type { DocumentService } from "./documents";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import {
   DomainError,
@@ -101,6 +102,7 @@ export async function reviewExpertDispatch(
   env: AuthEnv,
   domain: DomainService,
   dispatchId: string,
+  readDocument?: DocumentService["getReviewContent"],
 ) {
   requireScope(identity, "dispatches:read");
   requireScope(identity, "documents:read");
@@ -116,6 +118,39 @@ export async function reviewExpertDispatch(
   const document = dispatch.document_id
     ? await domain.getDocument(identity.context, dispatch.document_id)
     : null;
+  let documentResource:
+    { uri: string; mimeType: "application/pdf"; blob: string } | undefined;
+  if (document) {
+    if (!readDocument)
+      throw new DomainError(
+        "EXPERT_DOCUMENT_UNAVAILABLE",
+        "Ce connecteur ne fournit pas le PDF exact. Ouvrez la revue dans Guteneo.",
+        409,
+      );
+    const exact = await readDocument(identity.context, document.id);
+    if (
+      exact.document.id !== document.id ||
+      exact.document.sha256 !== document.sha256 ||
+      exact.document.size !== document.size ||
+      exact.document.storage_key !== document.storage_key
+    )
+      throw new DomainError(
+        "DOCUMENT_INTEGRITY_ERROR",
+        "Le PDF a changé. Ouvrez la revue dans Guteneo.",
+        423,
+      );
+    // No async I/O after this conversion before the current authority/proof fences.
+    let binary = "";
+    for (let offset = 0; offset < exact.bytes.length; offset += 8192)
+      binary += String.fromCharCode(
+        ...exact.bytes.subarray(offset, offset + 8192),
+      );
+    documentResource = {
+      uri: `guteneo-document:///${encodeURIComponent(document.id)}/${document.sha256}.pdf`,
+      mimeType: "application/pdf",
+      blob: btoa(binary),
+    };
+  }
   const reviewToken = randomReview();
   const reviewHash = await hashSecret(reviewToken);
   const expiresAt = new Date(
@@ -132,9 +167,12 @@ export async function reviewExpertDispatch(
     denied("EXPERT_REVIEW_EXPIRED", "Renouvelez la connexion ou le devis.");
   await authority.assertCurrent();
   const fence = authority.sql();
+  const documentFence = document
+    ? "AND EXISTS(SELECT 1 FROM documents WHERE organization_id=? AND id=? AND sha256=? AND size=? AND pages=? AND storage_key=? AND status='ready') AND (?=1 OR EXISTS(SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=?))"
+    : "";
   const result = await env.DB.prepare(
     `INSERT INTO expert_dispatch_reviews(token_hash,organization_id,dispatch_id,user_id,connection_id,policy_revision,connection_updated_at,fingerprint,ceiling_minor,expires_at,created_at)
-    SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND fingerprint=? AND status='prepared')
+    SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND fingerprint=? AND status='prepared') ${documentFence}
     ON CONFLICT(organization_id,dispatch_id,connection_id) DO UPDATE SET token_hash=excluded.token_hash,policy_revision=excluded.policy_revision,connection_updated_at=excluded.connection_updated_at,fingerprint=excluded.fingerprint,ceiling_minor=excluded.ceiling_minor,expires_at=excluded.expires_at,created_at=excluded.created_at`,
   )
     .bind(
@@ -153,10 +191,24 @@ export async function reviewExpertDispatch(
       identity.context.organizationId,
       dispatchId,
       dispatch.fingerprint,
+      ...(document
+        ? [
+            identity.context.organizationId,
+            document.id,
+            document.sha256,
+            document.size,
+            document.pages,
+            document.storage_key,
+            Number(env.ENVIRONMENT === "local" && env.MODE === "simulation"),
+            identity.context.organizationId,
+            document.sha256,
+          ]
+        : []),
     )
     .run();
   if (result.meta.changes !== 1) denied("EXPERT_AUTHORITY_CHANGED");
   return {
+    documentResource,
     authority: "delegated" as const,
     reviewToken,
     expiresAt,
@@ -202,7 +254,10 @@ export async function reviewExpertDispatch(
       : {}),
     approvalUrl: `${env.APP_ORIGIN}/#/app/dispatch/${encodeURIComponent(dispatchId)}`,
     instructions:
-      "Présenter le fichier exact, son empreinte, le destinataire, le contenu, les options et le coût. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
+      (document
+        ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver et utiliser approvalUrl. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
+        : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
+      "Présenter l’empreinte, le destinataire, le contenu, les options et le coût. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
   };
 }
 export type ExpertAcceptanceInput = {

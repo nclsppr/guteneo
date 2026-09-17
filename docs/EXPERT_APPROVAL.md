@@ -29,6 +29,16 @@ Une expiration, une révocation, un changement de rôle, de connexion, de versio
 
 `approvalUrl` reste un lien de consultation et de repli vers le parcours standard. Sa présence n’impose pas une navigation lorsque le serveur autorise réellement le parcours expert. `confirm_dispatch` conserve son usage après une approbation déjà enregistrée ; il ne crée pas à lui seul de délégation.
 
+## PDF exact dans la revue MCP
+
+Pour un envoi contenant un document, `review_dispatch` fournit les octets privés exacts sous forme de ressource MCP intégrée : `{type:"resource",resource:{uri,mimeType:"application/pdf",blob}}`. Le `blob` est encodé en base64, uniquement dans `content`, jamais dupliqué dans le JSON structuré. L’URI `guteneo-document:///…` identifie ce contenu intégré ; ce n’est ni une URL publique, ni un lien signé, ni un endpoint de téléchargement. Le lien navigateur de `get_document` ne permet pas à lui seul une revue par l’assistant.
+
+La limite est **1 Mio (1 048 576 octets)** du PDF original, avant encodage, sans extrait ni troncature. Le serveur vérifie l’appartenance au compte, le statut `ready`, les tailles déclarée et réellement lue, l’empreinte SHA-256 et, hors simulation locale explicite, la preuve de scan canonique du même compte. Il recontrôle les droits OAuth et la délégation après lecture ; l’insertion du jeton reste conditionnée à ces droits et à la preuve courante du document. Un document absent, altéré, non prêt, trop gros, une lecture échouée ou une révocation ne fournit aucun nouveau jeton ni octets au client.
+
+`EXPERT_DOCUMENT_TOO_LARGE` impose le parcours navigateur via `approvalUrl`. `EXPERT_DOCUMENT_UNAVAILABLE` signifie que le service de revue exacte n’est pas raccordé ; il impose le même repli. Les autres erreurs de document ou d’autorité ne doivent pas être contournées. Si l’hôte ne sait pas rendre ou faire lire une ressource PDF intégrée, l’assistant **n’appelle pas** `approve_and_send_dispatch` et ouvre le parcours navigateur. Le jeton prouve la mise à disposition des octets validés, jamais leur perception ou leur compréhension par le modèle. Ne pas afficher ni journaliser le blob ou le jeton. La compatibilité réelle de chaque hôte reste à qualifier.
+
+Le format suit les [ressources intégrées de la spécification MCP](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#embedded-resources). Les tests utilisent des PDF synthétiques, D1/R2 locaux et le transport MCP réel ; ils ne constituent aucun envoi fournisseur ni preuve de lecture par un modèle.
+
 ## Courrier : transfert distinct de l’expédition
 
 Le contrôle `preflight_postal_pdf` ne dépose aucun PDF chez Pingen. Lire `get_postal_preflight`, les contrôles des pages et de l’adresse, puis le PDF exact. Une empreinte fournie au prochain outil doit être celle de la preuve serveur, pas un hash inventé ni celui d’un autre objet.

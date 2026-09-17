@@ -1,3 +1,4 @@
+import type { DocumentService } from "./documents";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
 import { createMcpHandler } from "agents/mcp/server";
@@ -24,6 +25,7 @@ import {
 } from "./auth";
 
 export interface McpDocuments {
+  getReviewContent?: DocumentService["getReviewContent"];
   rescan?(ctx: AuthContext, documentId: string): Promise<DocumentRecord>;
   importFile(
     ctx: AuthContext,
@@ -262,15 +264,16 @@ export function createGuteneoMcpServer(
   services: McpServices,
 ): McpServer {
   const server = new McpServer({ name: "guteneo", version: "0.2.0" });
-  const run = async (
+  const run = async <T>(
     scope: string | string[] | null,
-    operation: () => Promise<unknown> | unknown,
+    operation: () => Promise<T> | T,
+    format: (data: T) => CallToolResult = success,
   ): Promise<CallToolResult> => {
     try {
       if (scope)
         for (const required of Array.isArray(scope) ? scope : [scope])
           requireScope(identity, required);
-      return success(await operation());
+      return format(await operation());
     } catch (error) {
       // MCP tool errors can be carried by HTTP 200. Emit a closed code without input or error text.
       services.onToolFailure?.(
@@ -620,7 +623,7 @@ export function createGuteneoMcpServer(
     "review_dispatch",
     {
       description:
-        "Lit l’envoi exact et prépare un jeton de revue de cinq minutes maximum pour le mode expert. Exige une délégation préalable active pour cette connexion. Présenter fichier et empreinte, destinataire, contenu, options, estimation et plafond ; respecter les confirmations de l’hôte. Ne transmet rien au fournisseur. En cas de refus, conserver approvalUrl comme parcours standard.",
+        "Lit l’envoi exact, fournit son PDF lorsqu’il existe en ressource MCP intégrée application/pdf (maximum 1 Mio, sans troncature) et prépare un jeton de revue de cinq minutes maximum pour le mode expert. Exige une délégation préalable active pour cette connexion. Présenter fichier et empreinte, destinataire, contenu, options, estimation et plafond ; respecter les confirmations de l’hôte. Ne transmet rien au fournisseur. Si le PDF est trop gros, inaccessible ou illisible par l’hôte, ne pas approuver : utiliser approvalUrl dans le navigateur. Un jeton ne certifie jamais que le modèle a lu le fichier.",
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(z.unknown()),
       annotations: { ...writeAnnotations, idempotentHint: false },
@@ -631,8 +634,25 @@ export function createGuteneoMcpServer(
       ]),
     },
     ({ dispatchId }) =>
-      run(["dispatches:read", "documents:read", "dispatches:send"], () =>
-        reviewExpertDispatch(identity, env, services.domain, dispatchId),
+      run(
+        ["dispatches:read", "documents:read", "dispatches:send"],
+        () =>
+          reviewExpertDispatch(
+            identity,
+            env,
+            services.domain,
+            dispatchId,
+            services.documents.getReviewContent?.bind(services.documents),
+          ),
+        ({ documentResource, ...data }) => {
+          const result = success(data);
+          if (documentResource)
+            result.content.push({
+              type: "resource",
+              resource: documentResource,
+            });
+          return result;
+        },
       ),
   );
   server.registerTool(
