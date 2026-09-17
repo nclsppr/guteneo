@@ -1,5 +1,5 @@
 {
-  "origin": "https://guteneo-app.nclsppr.workers.dev",
+  "origin": "https://guteneo.com",
   "sourceCommit": "174e6012920d9d4893faa2a5baa5671da01e8fab",
   "sourceDirty": false,
   "sourceSnapshotSha256": "17beaaa465abfd8e46e0d938771d16929de9a0c08eb21201f81e7de28862eed8",
@@ -12,5 +12,5 @@
   ],
   "robotsPolicyVerified": true,
   "securityHeadersVerified": true,
-  "verifiedAt": "2026-09-17T01:11:39.306Z"
+  "verifiedAt": "2026-09-17T01:11:38.148Z"
 }

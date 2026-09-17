@@ -30,7 +30,7 @@ Secret-name inspection confirmed `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `
 
 ## Notification handshake confirmed
 
-The subscription endpoint is **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. The brand root serves the design preview and cannot receive provider callbacks.
+The subscription endpoint remains **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. Since the 17 September cutover, the brand root also serves the application; the established technical callback remains valid and was not changed during that cutover.
 
 On 2026-09-17 the authenticated AWS CloudShell confirmation succeeded for subscription **`arn:aws:sns:eu-west-3:982055099242:guteneo-ses-events:54d3e8f5-538e-4c83-b32b-806634db1430`**. Read-back verified the exact topic, account, HTTPS endpoint, `PendingConfirmation=false`, `ConfirmationWasAuthenticated=true` and `RawMessageDelivery=false`. The consumed token was removed only from verified receipt `e2c768ce-a778-444d-bfdd-8b3102494ee0`; the targeted update affected one row and read-back returned a null token type. The local transfer helper was stopped and the clipboard replaced with public text.
 

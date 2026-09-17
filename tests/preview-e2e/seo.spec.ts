@@ -25,8 +25,8 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
     const title = /<title>([^<]+)<\/title>/.exec(html)?.[1];
     expect(title).toBeTruthy();
     titles.add(title!);
-    // Wrangler local dev uses the configured custom-domain URL inside the Worker.
-    const primary = !new URL(response.url()).hostname.endsWith(".workers.dev");
+    // Only the canonical domain is indexable; local and fallback hosts stay private.
+    const primary = new URL(response.url()).hostname === "guteneo.com";
     expect(response.headers()["x-robots-tag"] ?? null).toBe(
       primary ? null : "noindex, nofollow",
     );
@@ -85,7 +85,7 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
   );
   expect(urls).toEqual(paths.map((path) => `https://guteneo.com${path}`));
   const robots = await request.get("/robots.txt");
-  if (!new URL(robots.url()).hostname.endsWith(".workers.dev")) {
+  if (new URL(robots.url()).hostname === "guteneo.com") {
     expect(await robots.text()).toContain(
       "Sitemap: https://guteneo.com/sitemap.xml",
     );

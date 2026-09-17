@@ -1,6 +1,6 @@
 # Architecture
 
-One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. The production-mode backend is provisioned separately with EU-jurisdiction D1/R2, queues, a private ClamAV container and the private document Worker. Real account activation and funded live communications remain gated. The separate public design preview Worker serves browser-local examples at guteneo.com, with only static assets and no access to the application backend.
+One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. Since the controlled domain switch on 17 September 2026, the production-mode application serves `https://guteneo.com`, backed by EU-jurisdiction D1/R2, queues, a private ClamAV container and the private document Worker. Auth0 is configured; a completed signup and browser session still require qualification, and live communications remain disabled. The same backend is reachable at `https://guteneo-app.nclsppr.workers.dev`, but browser login must start on the canonical domain to retain its host-only callback cookie. The separate public design preview at `https://guteneo-preview.nclsppr.workers.dev` serves browser-local examples, with only static assets and no access to the application backend. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for dated release proof.
 
 ```mermaid
 flowchart TD
@@ -26,6 +26,8 @@ A queued transition is a D1 write whose SQL trigger verifies approval, reserves 
 Approvals bind fingerprint of normalized recipient, immutable document ID/hash, sanitized final HTML/text, sender, options, estimated cost and ceiling. No MCP approval tool exists. Content changes create a new command. Campaign membership freezes when approved; current bounded campaign import prepares individual recipients and requires individual approvals. Large asynchronous manifest materialization is a future extension, not claimed delivered.
 
 ## Runtime and location
+
+D1 migrations 0001–0019 are applied remotely. The canonical domain belongs to the application Worker; the preview has no custom-domain route. Public static pages pass through host-aware response policy: only canonical public documents and images are indexable, while alternative hosts, account/API/auth routes and private query parameters retain noindex. `robots.txt` follows the same origin policy. Public asset access does not bypass authentication on private routes.
 
 D1 and R2 provisioning plans require EU **jurisdiction**, not merely a location hint. Binding R2 also declares `jurisdiction: eu`. This says nothing about all Workers execution, Browser Run processing, Auth0 tenant, email routing, Telnyx/Pingen subprocessors, logs or backups. Those locations and contracts require qualification before live data. Originals never become public assets.
 
