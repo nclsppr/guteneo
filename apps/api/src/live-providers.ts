@@ -361,6 +361,7 @@ export function createLiveProviderHook(
       ? {
           accountId: env.TELNYX_ACCOUNT_ID,
           connectionId: env.TELNYX_CONNECTION_ID,
+          outboundProfileId: env.TELNYX_OUTBOUND_VOICE_PROFILE_ID,
         }
       : undefined;
   const { liveDeliveryIdentity } = createLiveDeliveryQuoteConfig(

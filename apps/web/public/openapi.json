@@ -609,7 +609,7 @@
           "Envois"
         ],
         "summary": "Préparer un envoi immuable",
-        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue.",
+        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue. Pour le fax v3, faxPricing expose une fourchette HT et un plafond ferme approuvé ; la confirmation réserve le plafond et le décompte attend l’usage vérifié, sans exiger un coût final connu avant transmission.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -689,7 +689,7 @@
           "Envois"
         ],
         "summary": "Consulter état, événements et approbation",
-        "description": "Lire avant toute décision de relance. submission_unknown et submitting peuvent déjà correspondre à une communication acceptée par le fournisseur. Ne jamais recréer automatiquement un envoi, changer de clé ou répéter la soumission fournisseur. L’approbation est null si absente ou expirée. quote_expires_at peut être null.",
+        "description": "Lire avant toute décision de relance. submission_unknown et submitting peuvent déjà correspondre à une communication acceptée par le fournisseur. Ne jamais recréer automatiquement un envoi, changer de clé ou répéter la soumission fournisseur. L’approbation est null si absente ou expirée. quote_expires_at peut être null. Livraison et décompte sont distincts : consulter faxPricing.settlement pour les fax v3. Un statut delivered ne garantit pas encore le débit final ; la réserve reste conservée si l’usage est en attente.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1300,7 +1300,7 @@
           "Compte"
         ],
         "summary": "Lire le crédit et les plafonds",
-        "description": "Crédit promotionnel de bienvenue distinct des plafonds mensuels par canal. 50 € sont attribués une seule fois à une organisation de production créée par le parcours prévu. Lire les montants retournés : ce crédit n’active pas les transports. Aucun renouvellement ni recharge. Le plafond est réservé à la confirmation ; le coût client exact est consommé à l’acceptation fournisseur. Pour les devis fractionnaires, le débit en centimes est ceil(cumul nanoEUR / 10 000 000) moins ceil(cumul précédent / 10 000 000), au niveau de l’organisation ; il ne s’agit pas d’un arrondi facturé par e-mail. Une issue inconnue conserve la réservation. Les totaux sont des centimes EUR, jamais des flottants.",
+        "description": "Crédit promotionnel de bienvenue distinct des plafonds mensuels par canal. 50 € sont attribués une seule fois à une organisation de production créée par le parcours prévu. Lire les montants retournés : ce crédit n’active pas les transports. Aucun renouvellement ni recharge. Le plafond est réservé à la confirmation. Les devis fixes sont consommés à l’acceptation fournisseur ; le fax v3 conserve sa réserve jusqu’au rapprochement de l’usage vérifié, même si sa livraison est terminée. Pour les devis fractionnaires, le débit en centimes est ceil(cumul nanoEUR / 10 000 000) moins ceil(cumul précédent / 10 000 000), au niveau de l’organisation ; il ne s’agit pas d’un arrondi facturé par e-mail. Une issue inconnue conserve la réservation. Les totaux sont des centimes EUR, jamais des flottants.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1978,7 +1978,7 @@
           "estimated_minor": {
             "type": "integer",
             "minimum": 0,
-            "description": "Borne en centimes EUR, arrondie au supérieur pour un devis en nanoEUR. Affichage/réservation : ce n’est pas un centime facturé pour chaque e-mail. La consommation utilise le cumul exact de l’organisation. En simulation, montant fictif."
+            "description": "Estimation historique en centimes. Pour un fax v3, utiliser la fourchette faxPricing : ce champ ne représente pas une consommation définitive."
           },
           "ceiling_minor": {
             "type": "integer",
@@ -2088,11 +2088,8 @@
             "nullable": true,
             "description": "Montant client exact du devis de livraison, exprimé en nanoEUR (1 EUR = 1 000 000 000 nanoEUR). Projection des lectures enrichies ; peut être absent des listes SELECT* ou null sans devis de cette version. Ne jamais convertir null en zéro."
           },
-          "quote_supplier_nanoeur": {
-            "type": "integer",
-            "minimum": 0,
-            "nullable": true,
-            "description": "Coût fournisseur exact du devis de livraison, exprimé en nanoEUR (1 EUR = 1 000 000 000 nanoEUR). Projection des lectures enrichies ; peut être absent des listes SELECT* ou null sans devis de cette version. Ne jamais convertir null en zéro."
+          "faxPricing": {
+            "$ref": "#/components/schemas/FaxPricing"
           }
         },
         "required": [
@@ -3582,6 +3579,125 @@
           "requirements",
           "canSend"
         ]
+      },
+      "FaxPricing": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "description": "Fourchette client HT du fax v3 et décompte après vérification de l’usage. 1 EUR = 1 000 000 000 nanoEUR ; les centimes servent au plafond et au solde. Les coûts fournisseur restent privés. Absent ou nul pour les autres versions : ne jamais interpréter cette absence comme un prix nul.",
+        "required": [
+          "version",
+          "currency",
+          "basis",
+          "estimatedLowNanoeur",
+          "estimatedHighNanoeur",
+          "ceilingMinor",
+          "fx",
+          "settlement"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              3
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "qualified_usage_ex_tax"
+            ]
+          },
+          "estimatedLowNanoeur": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Borne basse de l’estimation client, pas une garantie de consommation finale."
+          },
+          "estimatedHighNanoeur": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Borne haute estimée. Le plafond approuvé reste la limite ferme du client."
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Plafond client ferme en centimes EUR, réservé à la confirmation."
+          },
+          "fx": {
+            "type": "object",
+            "nullable": false,
+            "additionalProperties": false,
+            "required": [
+              "numerator",
+              "denominator",
+              "date",
+              "source"
+            ],
+            "properties": {
+              "numerator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "denominator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "description": "Taux EUR par USD figé pour ce devis."
+          },
+          "settlement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "customerNanoeur",
+              "chargedMinor",
+              "settledAt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_reserved",
+                  "reserved",
+                  "settled",
+                  "released"
+                ],
+                "description": "reserved reste possible après delivered/failed : le décompte attend un usage rapproché et vérifié. released signifie une réserve libérée sans débit. Ne jamais réexpédier à cause d’un décompte en attente."
+              },
+              "customerNanoeur": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true,
+                "description": "Consommation client HT validée en nanoEUR, dans la limite du plafond. Nulle avant règlement ; zéro est un montant vérifié."
+              },
+              "chargedMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true,
+                "description": "Débit du solde en centimes après cumul des fractions sur l’organisation. Peut être zéro pour une consommation positive inférieure au centime déjà couverte par le cumul."
+              },
+              "settledAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          }
+        }
       }
     },
     "responses": {

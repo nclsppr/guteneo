@@ -14,6 +14,7 @@ import {
   bytes,
   date,
   money,
+  nanoMoney,
   quotedMoney,
   isPublicPreview,
   recipientOf,
@@ -913,18 +914,28 @@ export function DispatchDetailPage({
   useEffect(() => {
     if (
       !d ||
-      !["accepted", "queued", "submitting", "submitted", "sending"].includes(
+      (!["accepted", "queued", "submitting", "submitted", "sending"].includes(
         d.status,
-      )
+      ) &&
+        d.faxPricing?.settlement.status !== "reserved")
     )
       return;
-    const interval = window.setInterval(resource.refresh, 3000);
+    const interval = window.setInterval(
+      resource.refresh,
+      ["delivered", "failed", "cancelled"].includes(d.status) ? 15000 : 3000,
+    );
     return () => window.clearInterval(interval);
-  }, [d?.status, resource.refresh]);
+  }, [d?.status, d?.faxPricing?.settlement.status, resource.refresh]);
   if (!d && resource.loading) return <Loading />;
   if (!d)
     return <ErrorNotice error={resource.error} retry={resource.refresh} />;
   const target = recipientOf(d);
+  const faxPricing =
+    d.channel === "fax" &&
+    d.mode === "production" &&
+    d.faxPricing?.version === 3
+      ? d.faxPricing
+      : null;
   const pendingApproval = ["prepared", "draft"].includes(d.status);
   const emailAttestationRequired =
     d.channel === "email" && d.mode === "production";
@@ -1052,12 +1063,40 @@ export function DispatchDetailPage({
             <Definition label={t.dispatch.sender}>
               {d.sender_address ?? t.unknown}
             </Definition>
-            <Definition label={t.dispatch.estimate}>
-              {quotedMoney(d)}
+            <Definition
+              label={faxPricing ? "Fourchette estimée HT" : t.dispatch.estimate}
+            >
+              {faxPricing ? (
+                <>
+                  {nanoMoney(faxPricing.estimatedLowNanoeur)} à{" "}
+                  {nanoMoney(faxPricing.estimatedHighNanoeur)}
+                </>
+              ) : (
+                quotedMoney(d)
+              )}
             </Definition>
             <Definition label={t.dispatch.ceilingLabel}>
               {money(d.ceiling_minor, d.currency)}
             </Definition>
+            {faxPricing?.settlement.status === "reserved" && (
+              <Definition label="Crédits en réserve">
+                {money(faxPricing.ceilingMinor)}
+              </Definition>
+            )}
+            {faxPricing?.settlement.status === "settled" && (
+              <>
+                <Definition label="Consommation validée HT">
+                  {faxPricing.settlement.customerNanoeur == null
+                    ? t.unknown
+                    : nanoMoney(faxPricing.settlement.customerNanoeur)}
+                </Definition>
+                <Definition label="Débit du solde">
+                  {faxPricing.settlement.chargedMinor == null
+                    ? t.unknown
+                    : money(faxPricing.settlement.chargedMinor)}
+                </Definition>
+              </>
+            )}
             {d.quote_expires_at && (
               <Definition label="Devis valable jusqu’au">
                 {date(d.quote_expires_at)}
@@ -1067,6 +1106,21 @@ export function DispatchDetailPage({
           </dl>
           {d.mode === "simulation" && (
             <p className="field-hint">{t.simulationCost}</p>
+          )}
+          {faxPricing && (
+            <div className="notice info" role="status" aria-atomic="true">
+              <p>
+                {faxPricing.settlement.status === "settled"
+                  ? "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde."
+                  : faxPricing.settlement.status === "released"
+                    ? "La réservation a été libérée sans débit pour cet envoi."
+                    : faxPricing.settlement.status === "reserved"
+                      ? "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax."
+                      : `Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas ${money(faxPricing.ceilingMinor)}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.`}{" "}
+                Montants hors taxes, sur vos crédits de bêta ; aucun paiement
+                n’est prélevé.
+              </p>
+            </div>
           )}
           {d.mode === "production" && d.quote_customer_nanoeur != null && (
             <p className="field-hint">
@@ -1105,7 +1159,11 @@ export function DispatchDetailPage({
                   checked={consent}
                   onChange={(e) => setConsent(e.target.checked)}
                 />
-                <span>{t.dispatch.approvalCheck}</span>
+                <span>
+                  {faxPricing
+                    ? `J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de ${money(faxPricing.ceilingMinor)}, pour cette version du fax.`
+                    : t.dispatch.approvalCheck}
+                </span>
               </label>
               {emailAttestationRequired && (
                 <label className="checkbox-label">

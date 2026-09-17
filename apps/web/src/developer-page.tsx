@@ -368,6 +368,16 @@ export function DeveloperPage() {
                 signifie pas un prix nul.
               </p>
               <p>
+                Pour le fax v3, <code>faxPricing</code> fournit la fourchette HT
+                en nanoEUR et le plafond ferme en centimes. Le plafond est
+                réservé à la confirmation. Consultez ensuite
+                <code> settlement.status</code> : une livraison peut être
+                terminée alors que le décompte est encore <code>reserved</code>.
+                Seul <code>settled</code> fournit la consommation validée et le
+                débit du solde. Le tarif qualifié limite le fax à dix pages au
+                maximum, même si le PDF a pu être importé.
+              </p>
+              <p>
                 En production, chaque canal exige une tarification privée
                 qualifiée et un devis encore valide. Aucun montant fournisseur
                 fourni par le client ne peut les remplacer. Les tarifs

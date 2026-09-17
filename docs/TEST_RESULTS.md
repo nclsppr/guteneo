@@ -1,5 +1,17 @@
 # Executed verification — 2026-09-17
 
+## Fax v3 candidate — 2026-09-17
+
+The integrated candidate passed **578/578 Vitest tests across 39 files** and **65/65 security tests**, with the dedicated report `reports/fax-v3-full-vitest.json`. All **75 application browser cases pass**, with three intentional desktop skips; `reports/fax-v3-full-browser.json` preserves this independent run. Its local D1/R2 state was created in a separate temporary directory and all 23 final migrations applied before seeding fictional users. Existing development data was not reset. No real provider or account was used.
+
+Typecheck, ESLint and the production Worker dry-run also pass. The separate preview build passed **30 browser cases with four intentional desktop skips**, including the updated developer reference and Swagger; report `reports/fax-v3-preview.json`.
+
+The new coverage checks range/cap approval, accepted and delivered holds, later verified usage, supplier overrun capped for the customer, unknown→failed→late acceptance without resending, zero-cost proof, cross-tenant/account/attempt rejection, revoked reviewer, expiry, prefix exclusions, legacy-v2 behavior, cumulative fractional charging, retained financial history and a 100-ID page with only two D1 parameters. The public SDK transport preserves all four settlement states without leaking private cost fields. The targeted 320px UI screenshots were visually inspected on iPhone WebKit; real devices and external assistant hosts remain separate qualifications.
+
+All 23 source/transport migrations produce equivalent local schemas (**178 objects including the migration ledger**) with clean integrity and foreign keys. During integration, the transport verifier rejected two unqualified CASE expressions in the new migration; equivalent OR-based country checks resolved this without editing the transport utility or previously applied migrations. Additional review preserved the v3 scope marker against deletion of a revoked tariff. The deployment review found no data seed or channel activation; migration must be applied atomically before the new runtime. Remote migration and publication are not implied by these local results.
+
+The preceding evidence/test-only commit `b8d4b5f48abc6b5075ca645752f09eba6d181198` passed both complete GitHub runs ([push](https://github.com/nclsppr/guteneo/actions/runs/35175024740), [PR](https://github.com/nclsppr/guteneo/actions/runs/35175028676)); this is not CI proof for the fax v3 candidate.
+
 ## Current continuation — 2026-09-17
 
 After publication, the canonical developer/SEO qualification passed **8/8 desktop+iPhone cases**, and the separately hosted fictional preview passed **30 cases with 4 intentional desktop skips**. Dedicated reports preserve the full local suite results: `reports/production-public-qualification.json` and `reports/published-preview-813dd717.json`. The canonical mode explicitly verifies its anonymous session 401; default preview mode retains 403 PREVIEW_ONLY. See LIVE_RELEASE for the initial mismatched-mode check and its correction.

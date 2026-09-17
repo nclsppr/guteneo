@@ -25,6 +25,9 @@ import {
   type LiveFaxIdentity,
 } from "./live-fax-quotes";
 import { ensureCreditPeriod, readWelcomeCredit } from "./welcome-credit";
+import { readFaxPricing, readFaxPricingBatch } from "./live-fax-usage";
+import type { FaxPricing } from "../../contracts/src/fax-pricing";
+export { settleFaxUsage, type OperatorFaxUsageProof } from "./live-fax-usage";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
   cleanHtml,
@@ -69,10 +72,10 @@ export type DispatchStatus =
   | "printed"
   | "handed_to_post";
 export type Dispatch = {
+  faxPricing?: FaxPricing;
   quote_fingerprint?: string | null;
   quote_expires_at?: string | null;
   quote_customer_nanoeur?: number | null;
-  quote_supplier_nanoeur?: number | null;
   quote_pricing_basis?: PricingBasis | null;
   quote_fx?: CommercialFx | null;
   id: string;
@@ -741,7 +744,7 @@ export class DomainService {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.supplier_nanoeur AS quote_supplier_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=?",
+        "SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=?",
       )
       .bind(ctx.organizationId, id)
       .first<Dispatch & { quote_fx_json: string | null }>();
@@ -759,6 +762,10 @@ export class DomainService {
           source: fx.source,
         }
       : null;
+    if (row.mode === "production" && row.channel === "fax") {
+      const faxPricing = await readFaxPricing(this.db, ctx.organizationId, id);
+      if (faxPricing) (result as Dispatch).faxPricing = faxPricing;
+    }
     return result;
   }
   async approveDispatch(
@@ -1005,7 +1012,24 @@ export class DomainService {
   }
   async listDispatches(ctx: ActorContext, cursor?: string, limit = 30) {
     await this.organization(ctx);
-    return this.page<Dispatch>("dispatches", ctx.organizationId, cursor, limit);
+    const page = await this.page<Dispatch>(
+      "dispatches",
+      ctx.organizationId,
+      cursor,
+      limit,
+    );
+    const pricing = await readFaxPricingBatch(
+      this.db,
+      ctx.organizationId,
+      page.items
+        .filter((d) => d.mode === "production" && d.channel === "fax")
+        .map((d) => d.id),
+    );
+    for (const row of page.items) {
+      const faxPricing = pricing.get(row.id);
+      if (faxPricing) row.faxPricing = faxPricing;
+    }
+    return page;
   }
   async cancelDispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
     writable(ctx);

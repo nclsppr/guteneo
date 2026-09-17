@@ -26,6 +26,7 @@ export interface Env {
   TELNYX_PUBLIC_KEY?: string;
   TELNYX_CONNECTION_ID?: string;
   TELNYX_ACCOUNT_ID?: string;
+  TELNYX_OUTBOUND_VOICE_PROFILE_ID?: string;
   TELNYX_FROM?: string;
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;

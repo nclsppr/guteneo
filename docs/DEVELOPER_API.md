@@ -1,5 +1,7 @@
 # Référence développeurs — 17 septembre 2026
 
+The fax v3 candidate adds an optional customer-only `faxPricing` projection to REST/MCP results: estimated range in nanoEUR, firm cap in centimes, frozen FX and a separate settlement status. Existing `estimated_minor` is not a final usage charge. Supplier cost projections are removed from public dispatch responses; private accounting is unchanged. These additions have no public price-write or settlement endpoint. Until release is recorded in LIVE_RELEASE.md, the hosted runtime remains the preceding version.
+
 La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat REST de la bêta, pas une ouverture commerciale. Le domaine canonique sert l’application ; seule la démonstration séparée sur `guteneo-preview.nclsppr.workers.dev` refuse ses routes API avec `403 PREVIEW_ONLY`. Vérifier les capacités et la release réellement servies avant d’utiliser un nouveau parcours. Un compte, un crédit promotionnel ou des identifiants fournisseur ne prouvent ni un transport activé ni un test réel d’assistant.
 
 ## Périmètre exact

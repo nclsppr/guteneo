@@ -181,7 +181,7 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "binary",
   );
   assert.ok(spec.paths["/api/documents/{id}/content"].get.responses["423"]);
-  for (const field of ["quote_customer_nanoeur", "quote_supplier_nanoeur"]) {
+  for (const field of ["quote_customer_nanoeur"]) {
     assert.equal(schemas.Dispatch.properties[field].type, "integer");
     assert.equal(schemas.Dispatch.properties[field].nullable, true);
     assert.ok(
@@ -194,6 +194,16 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     );
   }
   assert.equal(schemas.Attempt.properties.error_code.type, "string");
+  assert.ok(!("quote_supplier_nanoeur" in schemas.Dispatch.properties));
+  assert.equal(
+    schemas.Dispatch.properties.faxPricing.$ref,
+    "#/components/schemas/FaxPricing",
+  );
+  assert.deepEqual(
+    schemas.FaxPricing.properties.settlement.properties.status.enum,
+    ["not_reserved", "reserved", "settled", "released"],
+  );
+  assert.ok(!("faxPricing" in schemas.PrepareDispatch.properties));
   assert.equal(schemas.Attempt.properties.error_code.enum, undefined);
   assert.ok(
     !(

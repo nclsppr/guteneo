@@ -476,12 +476,13 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
         date: "2026-09-16",
         source: publicRate.fxSource,
       },
-      quote_supplier_nanoeur: 138685,
       quote_customer_nanoeur: 277370,
       estimated_minor: 1,
     });
     const q = await validateLiveDeliveryQuote(db, row, identity.email, stamp());
     expect(q.fiscal_basis).toBe("public_list_price_ex_tax");
+    expect(q.supplier_nanoeur).toBe(138685);
+    expect(row).not.toHaveProperty("quote_supplier_nanoeur");
     expect(JSON.parse(q.input_json)).toMatchObject({
       pricingBasis: "public_list_price_ex_tax",
       fx: row.quote_fx,
@@ -812,7 +813,11 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       domain.prepareDispatch(ctx, input, "same"),
     ]);
     expect(a.id).toBe(b.id);
-    expect(a.quote_supplier_nanoeur).toBe(100120);
+    expect(a).not.toHaveProperty("quote_supplier_nanoeur");
+    expect(
+      (await validateLiveDeliveryQuote(db, a, identity.email, stamp()))
+        .supplier_nanoeur,
+    ).toBe(100120);
     expect(a.quote_customer_nanoeur).toBe(200240);
     expect(a.estimated_minor).toBe(1);
     expect(await count("live_delivery_quotes")).toBe(1);

@@ -1,3 +1,5 @@
+import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
+
 export type Channel = "fax" | "email" | "postal";
 export type Session = {
   organization: { id: string; name: string };
@@ -31,6 +33,7 @@ export type Dispatch = {
   ceiling_minor: number;
   quote_expires_at?: string | null;
   quote_customer_nanoeur?: number | null;
+  faxPricing?: FaxPricing | null;
   quote_pricing_basis?:
     "qualified_final_variable_cost" | "public_list_price_ex_tax" | null;
   quote_fx?: {
@@ -235,6 +238,12 @@ export function quotedMoney(
     nano < 0
   )
     return money(dispatch.estimated_minor, dispatch.currency);
+  return nanoMoney(nano);
+}
+
+/** Preserve the same precision as the shared fractional credit ledger. */
+export function nanoMoney(nano: number): string {
+  if (!Number.isSafeInteger(nano) || nano < 0) return "Indisponible";
   const amount = BigInt(nano);
   const whole = new Intl.NumberFormat("fr-FR", {
     maximumFractionDigits: 0,

@@ -1,6 +1,18 @@
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
+import {
+  resolveFaxUsageTariff,
+  makeFaxUsageQuote,
+  insertFaxUsageQuote,
+  validateFaxUsageQuote,
+  type ResolvedFaxUsageTariff,
+  type FaxUsageQuote,
+} from "./live-fax-usage";
 
-export type LiveFaxIdentity = { accountId: string; connectionId: string };
+export type LiveFaxIdentity = {
+  accountId: string;
+  connectionId: string;
+  outboundProfileId?: string;
+};
 type SupplierCost = {
   id: string;
   account_id: string;
@@ -117,13 +129,24 @@ export async function resolveFaxTariff(
   pages: number,
   identity: LiveFaxIdentity | undefined,
   now: string,
-): Promise<Tariff> {
+): Promise<Tariff | ResolvedFaxUsageTariff> {
   if (!identityValid(identity))
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
       "Compte fournisseur et tarification fax qualifiée requis.",
       409,
     );
+  const usage = await resolveFaxUsageTariff(
+    db,
+    organizationId,
+    senderId,
+    number,
+    options,
+    pages,
+    identity,
+    now,
+  );
+  if (usage) return usage;
   const tariff = await db
     .prepare(
       "SELECT * FROM trusted_fax_supplier_costs WHERE organization_id=? AND sender_id=? AND provider='telnyx' AND account_id=? AND connection_id=? AND status='qualified' AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC LIMIT 1",
@@ -184,9 +207,11 @@ export async function makeFaxQuote(
   dispatchId: string,
   organizationId: string,
   frozen: Record<string, unknown>,
-  tariff: Tariff,
+  tariff: Tariff | ResolvedFaxUsageTariff,
   now: string,
-): Promise<LiveFaxQuote> {
+): Promise<LiveFaxQuote | FaxUsageQuote> {
+  if ("pricing_version" in tariff)
+    return makeFaxUsageQuote(dispatchId, organizationId, frozen, tariff, now);
   if (frozen.estimatedMinor !== tariff.customer_minor) throw invalid();
   const input = canonicalJson(frozen);
   const quote: LiveFaxQuote = {
@@ -222,7 +247,11 @@ export async function makeFaxQuote(
   quote.fingerprint = await sha256(canonicalJson(quoteMaterial(quote)));
   return quote;
 }
-export function insertFaxQuote(db: D1Database, quote: LiveFaxQuote) {
+export function insertFaxQuote(
+  db: D1Database,
+  quote: LiveFaxQuote | FaxUsageQuote,
+) {
+  if (quote.pricing_version === 3) return insertFaxUsageQuote(db, quote);
   const columns = Object.keys(quote) as (keyof LiveFaxQuote)[];
   return db
     .prepare(
@@ -241,8 +270,10 @@ export async function validateLiveFaxQuote(
   row: Dispatch,
   identity: LiveFaxIdentity | undefined,
   now: string,
-): Promise<LiveFaxQuote> {
+): Promise<LiveFaxQuote | FaxUsageQuote> {
   if (!identityValid(identity)) throw invalid();
+  const usage = await validateFaxUsageQuote(db, row, identity, now);
+  if (usage) return usage;
   const quote = await db
     .prepare(
       "SELECT * FROM valid_live_fax_quotes WHERE organization_id=? AND dispatch_id=? AND account_id=? AND connection_id=? AND created_at<=? AND expires_at>? AND tariff_valid_from<=? AND tariff_expires_at>?",

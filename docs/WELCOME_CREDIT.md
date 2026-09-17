@@ -1,5 +1,9 @@
 # One-time welcome credit
 
+## Fax v3 candidate
+
+Migration0023 extends the same promotional balance without adding grants or increasing any quota. A fax v3 confirmation reserves its firm approved cap. Provider acceptance and delivery retain that reservation; only a separately verified terminal usage proof commits the bounded customer consumption and releases the unused reserve. Confirmed absence of submission can release it without a debit. Unknown outcomes remain held and are never retried automatically. Fractional consumption joins the same organization-level ledger used by email and post. Historical fixed quotes retain their existing settlement behavior below. This extension is a local candidate until release proof is recorded in LIVE_RELEASE.md; it does not activate any channel or production tariff.
+
 Implemented as an isolated candidate on 2026-09-17. Migration `0014_welcome_credit.sql` is required before deploying this code. This document does not claim remote migration, deployment, a charge, or a real send.
 
 Each production organization receives **5000 EUR cents once**, shared across fax, email and postal dispatches. This is a non-cash promotional allowance, independent of Stripe and distinct from per-channel monthly safety quotas. No API, webhook, month rollover, repeated login or duplicate signup increases this allowance. Top-up is unavailable; no checkout or credit-purchase route is implemented.

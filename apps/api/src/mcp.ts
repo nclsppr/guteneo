@@ -73,6 +73,32 @@ const documentSchema = z
     simulation: z.boolean(),
   })
   .strict();
+const faxPricingSchema = z
+  .object({
+    version: z.literal(3),
+    currency: z.literal("EUR"),
+    basis: z.literal("qualified_usage_ex_tax"),
+    estimatedLowNanoeur: z.number().int().nonnegative(),
+    estimatedHighNanoeur: z.number().int().nonnegative(),
+    ceilingMinor: z.number().int().nonnegative(),
+    fx: z
+      .object({
+        numerator: z.number().int().positive(),
+        denominator: z.number().int().positive(),
+        date: z.string(),
+        source: z.string(),
+      })
+      .strict(),
+    settlement: z
+      .object({
+        status: z.enum(["not_reserved", "reserved", "settled", "released"]),
+        customerNanoeur: z.number().int().nonnegative().nullable(),
+        chargedMinor: z.number().int().nonnegative().nullable(),
+        settledAt: z.string().nullable(),
+      })
+      .strict(),
+  })
+  .strict();
 const dispatchSchema = z
   .object({
     id: z.string(),
@@ -90,6 +116,7 @@ const dispatchSchema = z
     updatedAt: z.string(),
     approvalUrl: z.string(),
     nextActions: z.array(z.string()),
+    faxPricing: faxPricingSchema.optional(),
   })
   .strict();
 function output<T extends z.ZodType>(data: T) {
@@ -129,10 +156,10 @@ export const FAX_WORKFLOW = [
   "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages.",
   "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un fichier autorisé, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant.",
   "3. Attendre le statut ready du document. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
-  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl.",
+  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl. Si faxPricing est présent, afficher sa fourchette HT en nanoEUR (1 EUR = 1 000 000 000 nanoEUR) et son plafond ferme en centimes : l’estimation n’est pas un débit définitif. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
   "5. L’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ou l’autorisation d’un outil ne remplace pas cette approbation. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
   "6. Après cette approbation, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
-  "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain.",
+  "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain. La livraison et le décompte sont distincts : faxPricing.settlement.status=reserved conserve le plafond jusqu’à vérification de l’usage, même après livraison ; settled donne la consommation validée et le débit agrégé, released libère la réservation sans débit. Ne pas réexpédier pour accélérer le décompte.",
 ].join("\n");
 
 export const openAIFileSchema = z
@@ -160,6 +187,30 @@ export function dispatchSummary(dispatch: Dispatch, origin: string) {
     currency: dispatch.currency,
     updatedAt: dispatch.updated_at,
     approvalUrl: `${origin}/#/app/dispatch/${encodeURIComponent(dispatch.id)}`,
+    ...(dispatch.faxPricing
+      ? {
+          faxPricing: {
+            version: dispatch.faxPricing.version,
+            currency: dispatch.faxPricing.currency,
+            basis: dispatch.faxPricing.basis,
+            estimatedLowNanoeur: dispatch.faxPricing.estimatedLowNanoeur,
+            estimatedHighNanoeur: dispatch.faxPricing.estimatedHighNanoeur,
+            ceilingMinor: dispatch.faxPricing.ceilingMinor,
+            fx: {
+              numerator: dispatch.faxPricing.fx.numerator,
+              denominator: dispatch.faxPricing.fx.denominator,
+              date: dispatch.faxPricing.fx.date,
+              source: dispatch.faxPricing.fx.source,
+            },
+            settlement: {
+              status: dispatch.faxPricing.settlement.status,
+              customerNanoeur: dispatch.faxPricing.settlement.customerNanoeur,
+              chargedMinor: dispatch.faxPricing.settlement.chargedMinor,
+              settledAt: dispatch.faxPricing.settlement.settledAt,
+            },
+          },
+        }
+      : {}),
     nextActions:
       dispatch.status === "prepared"
         ? [
@@ -443,7 +494,7 @@ export function createGuteneoMcpServer(
     {
       title: "Préparer un fax PDF",
       description:
-        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le prix et le lien d’approbation humaine. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, faxPricing donne la fourchette HT en nanoEUR et le plafond ferme ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
       inputSchema: z
         .object({
           documentId: id,
