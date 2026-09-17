@@ -1,0 +1,15 @@
+# Publication depuis main
+
+Les publications applicatives publiques passent par `npm run deploy:live` ou `npm run deploy:preview`. Les deux commandes exigent une branche locale `main`, un arbre Git entièrement propre (fichiers suivis et non suivis non ignorés) et un `HEAD` exactement égal à `origin/main` après un nouveau fetch explicite. Un échec du fetch refuse la publication ; une ancienne référence locale ne suffit pas.
+
+Les marqueurs d'index `assume-unchanged` et `skip-worktree` sont refusés : ils peuvent masquer des modifications au contrôle ordinaire de Git.
+
+Le contrôle intervient avant le build, puis de nouveau avant le déploiement. Le commit doit rester celui contrôlé au départ. Le garde vérifie aussi le `release.json` fraîchement produit : commit exact, `sourceDirty:false`, mode correspondant, périmètre source attendu et empreinte des octets actuels. Le calcul de cette empreinte est partagé avec les builders. Tous les assets sont relus et comparés au manifeste ; un fichier ajouté, manquant ou modifié bloque. Le `health.json` de la maquette est vérifié séparément. Une dernière vérification locale de branche/commit/propreté précède Wrangler.
+
+Procédure opérateur : fusionner la PR validée, actualiser `main` par avance rapide, vérifier la CI du commit fusionné puis publier depuis un checkout propre de ce commit. Conserver ensuite la version et la répartition de trafic Cloudflare, la santé et les preuves publiques produites par `scripts/verify-release.mjs`. Les rapports suivis modifiés par des tests doivent être examinés et sauvegardés selon le travail demandé, pas effacés automatiquement pour contourner le garde.
+
+Les commandes `npm run build:live` et `npm run build:preview` restent utilisables sur une PR ou un HEAD détaché pour les tests et dry-runs. La valeur `VITE_PUBLIC_PREVIEW` est fixée explicitement à `false` dans le build applicatif et à `true` dans la maquette ; un fichier `.env` local ne peut inverser ce choix. Aucun secret GitHub, déploiement CI, achat ou nouvelle ressource n'est ajouté. Les commandes privées de configuration ou de secrets ne publient pas les sources et ne passent pas par ce garde.
+
+Ce contrôle est une protection des commandes du projet, pas une politique d'accès Cloudflare. Il n'empêche pas un `npx wrangler deploy` direct, un autre projet, une ancienne copie du script ou un accès administrateur externe. Il ne rend pas le fetch et l'envoi Cloudflare atomiques : ne pas modifier le checkout ni avancer `main` pendant la publication. Il vérifie les sources Git et les artifacts locaux, sans attester tout l'environnement de compilation ou remplacer la CI et la preuve distante.
+
+Tests ciblés : `node --test tests/security/main-only-release.test.mjs`. Ils utilisent de vrais dépôts Git temporaires et un remote bare local ; les commandes de build et de déploiement sont interceptées. Ils couvrent les branches incorrectes, sources modifiées, références périmées, pannes du fetch, changements pendant le build, incohérences de manifeste et d'assets, et l'absence d'effet de déploiement après un refus. Aucun test n'accède au remote du produit ou à Cloudflare.

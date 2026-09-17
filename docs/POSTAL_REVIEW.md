@@ -1,0 +1,41 @@
+# Revue postale liée au document exact
+
+Le raccordement serveur et le portail sont publiés dans la release `813dd717` du 17 septembre ; la migration0020 est appliquée sur D1 avec0021 et0022. Les routes et le portail de revue ne constituent pas à eux seuls une qualification de Pingen ou une autorisation d’envoi. Le flag de brouillons est actif, celui des envois reste désactivé. Voir [LIVE_RELEASE.md](LIVE_RELEASE.md). La qualification distincte du Worker de rendu est documentée dans [DOCUMENT_POSTAL_PREFLIGHT.md](DOCUMENT_POSTAL_PREFLIGHT.md).
+
+## Parcours exposé
+
+1. `GET /api/postal/requirements?country=FR|LU|DE`, ou `get_postal_requirements`, lit le profil effectif du compte par OAuth `organisation_read`. Il fournit la fenêtre, les rectangles en millimètres, les limites et les règles avant la création d’un PDF. `qualified:true` qualifie uniquement cette lecture de configuration : aucun tarif, fonds, envoi ou traitement géographique n’est certifié. Les identifiants et secrets du compte ne sont pas renvoyés.
+2. `POST /api/postal/preflights` avec `Idempotency-Key`, ou `preflight_postal_pdf`, accepte uniquement `documentId`, `senderId`, `recipient`, les trois options d’impression/livraison et `ceilingMinor`. Le serveur récupère lui-même le profil, la fenêtre, l’empreinte et la preuve de scan. Une réponse comporte le lien `/#/app/postal/:id`, les contrôles de toutes les pages et l’adresse attendue/extraites. Aucun dépôt Pingen n’a lieu.
+3. `GET /api/postal/preflights/:id` consulte la preuve. L’image de fenêtre est une route navigateur privée `GET /api/postal/preflights/:id/address.png`, jamais un fichier public ou une URL signée. Le texte extrait n’est pas une preuve de visibilité ; la revue visuelle de l’original et des retours reste obligatoire.
+4. `POST /api/postal/preflights/:id/transfer` exige une session navigateur, l’origine et le CSRF valides, ainsi que les deux valeurs explicites `reviewed:true` et `consentToTransfer:true`. Un outil MCP ne peut pas fournir ce consentement. Le dépôt autorisé conserve les octets et crée exclusivement un brouillon Pingen avec `auto_send:false`.
+5. `POST /api/postal/preflights/:id/quote`, ou `quote_postal_draft`, avec `Idempotency-Key` et sans contenu client, reprend uniquement le document/destinataire/options/plafond persistés. Le fournisseur peut encore analyser le brouillon : `POSTAL_DRAFT_NOT_READY` invite à consulter plus tard, sans refaire le dépôt. Quand les qualifications tarifaires existent, le résultat est le `Dispatch` préparé habituel et son approbation humaine séparée.
+
+Les lectures MCP exigent `documents:read`. La création exige **`documents:write` et `dispatches:prepare`**, annoncés ensemble dans la découverte et le challenge OAuth. Le devis exige `dispatches:prepare`. Aucun outil ne crée un consentement de transfert ni une approbation d’envoi.
+
+## Preuves et engagement atomique
+
+Le document doit appartenir à l’organisation authentifiée, être `ready`, présenter un audit canonique `document.scan_verified` de son empreinte dans la même organisation, et correspondre exactement aux octets R2 privés relus et recalculés. Le compte Pingen lu doit correspondre à la configuration installée, être en EUR, exposer son pays et sa fenêtre, et être cohérent avec `PINGEN_DEFAULT_COUNTRY`. Le profil/version est gelé avec les options, le destinataire normalisé, l’expéditeur vérifié, le document et le plafond.
+
+L’insertion SQL de la preuve et la consommation d’une analyse partagent une transaction : le trigger utilise le quota quotidien `content_limits.renders_per_day` existant. Aucun quota n’est augmenté. Un double clic ou deux appels concurrents avec la même clé ne rendent et ne consomment qu’une fois. Une clé réutilisée pour un autre contenu est refusée. Les échecs/interruptions consomment l’analyse déjà entreprise, n’autorisent rien et ne déclenchent aucune relance automatique. Le rendu a une échéance client de30 secondes, le Worker sa propre limite ; une preuve `processing` abandonnée devient inutilisable après90 secondes.
+
+Les preuves du moteur sont validées : empreinte, nombre exact de pages, ordre complet,144dpi, dimensions et rasters ; la réponse doit conserver `canSend:false`. Une adresse extraite différente de celle attendue bloque le dépôt. Même avec correspondance, texte invisible, superpositions et contours approximatifs exigent la revue humaine.
+
+L’identité de la requête reste éphémère : aucun jeton OAuth ou cookie brut n’est persisté. Les factories d’autorité vérifient session/connexion, rôle, organisation, expiration, politique de vérification et révocation. Après chaque attente utile, le serveur réauthentifie ; les écritures qui créent/finalisent la preuve et autorisent le transfert portent aussi un fence SQL sur la session ou connexion actuelle. Le rôle initial doit rester identique. Les réponses contenant adresse ou image sont également revérifiées juste avant leur retour.
+
+Le consentement est immuable, limité au transfert et lié à l’empreinte du manifest serveur. La transition vers `preparing` est atomique ; un concurrent ne peut pas démarrer un second dépôt. Les droits, le profil et les octets sont revérifiés avant le PUT externe et avant la création de lettre. Une révocation pendant un appel déjà parti ne peut retirer les octets transmis ; le résultat est conservé ou marqué `unknown`, sans nouvelle tentative implicite. Le refus de la session n’expose pas le résultat privé.
+
+La vue `valid_postal_draft_reviews` relie preuve, consentement, brouillon, document, scan et expéditeur. Les transitions SQL de dispatch vers `queued` et `submitting` exigent cette preuve et son compte tarifaire. Le bridge la recontrôle avant/après le calcul et juste avant le PATCH d’envoi. Un ancien identifiant fournisseur ou une preuve fabriquée par le navigateur ne remplace jamais ce lien.
+
+## États, limites et conservation
+
+- Analyse : `processing`, `review_required`, `blocked` ou `failed`.
+- Transfert : `not_started`, `preparing`, `prepared` ou `unknown`. `prepared` signifie uniquement « brouillon fournisseur enregistré ». Un `preparing` abandonné apparaît incertain après120 secondes ; il ne redevient jamais automatiquement disponible.
+- `POSTAL_DRAFTS_ENABLED` est un gate distinct de `LIVE_SENDS_ENABLED`. Le premier permet les dépôts consentis et devis lorsque toutes les autres qualifications sont réunies ; le second reste requis pour une communication réelle. La configuration publiée active uniquement les brouillons après qualification du renderer et relecture du compte/de l’origine de dépôt ; l’essai réel reste une preuve distincte. Les envois restent désactivés.
+- La preuve expire après24 heures. Aucun rejeu ne prolonge ce délai. Les images et extraits de texte sont privés, sans journalisation et `no-store`. Le cron efface par lots de100 les rapports dérivés expirés ou liés à un original purgé ; les métadonnées immuables de requête/consentement restent pour l’audit et l’idempotence.
+- Les réponses renvoient toujours `canSend:false`. Les droits sur le compte, la vérification de l’expéditeur, les fonds, les tarifs exacts, l’approbation et les gates d’envoi conservent leurs responsabilités propres.
+
+## Validation
+
+`tests/unit/postal.test.ts` utilise D1 et R2 locaux réels avec des PDF synthétiques, des réponses de renderer et des appels fournisseur interceptés. Il couvre concurrence/idempotence/quota, isolation, hash/scan, preuve incomplète, mauvaise adresse, délai, révocation après attente, lecture privée, CSRF, entrée forgée, consentement, profil changé, octets intacts, dépôt sans envoi, état incertain et effacement dérivé. `postal-authority.test.ts` utilise également des JWT RS256 signés de fixture. `postal-mcp.test.ts` teste le transport MCP réel, les deux scopes annoncés/demandés et l’absence d’outil de consentement.
+
+Les fixtures des suites de devis et du bridge enregistrent une preuve synthétique explicitement qualifiée pour leurs scénarios ; elles ne prouvent pas un dépôt réel. La vérification locale des22 migrations constate un schéma équivalent, `quick_check=ok` et aucune violation de clé étrangère. Ces tests locaux ne font aucun appel Pingen. La migration distante a ensuite été appliquée et vérifiée lors de la release, sans dépôt de PDF ni brouillon réel.

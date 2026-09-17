@@ -1,0 +1,292 @@
+{
+  "runId": "876e031e-4a1c-4ad6-a065-b8f96eb7cb8c",
+  "startedAt": "2026-09-16T18:57:39.619Z",
+  "finishedAt": "2026-09-16T18:57:42.979Z",
+  "outcome": "passed",
+  "conditions": {
+    "origin": "http://localhost:8787",
+    "environment": "local",
+    "mode": "simulation",
+    "organization": "org_studio",
+    "transport": "Actual HTTP to Wrangler/workerd with local D1/R2/Queues",
+    "sampleCount": 15,
+    "concurrency": 1,
+    "firstMeasuredRequestRetained": true,
+    "serverStartedByScript": true,
+    "acceptanceMeasurement": "POST confirmation round trip, including durable D1 acceptance and attempted queue publication; excludes upload, PDF render, preparation and human review time.",
+    "projectionMeasurement": "First observed simulated terminal result from confirmation request start. Initial read is immediate; remaining results are polled after the acceptance batch. Includes queue wait, batch duration and polling; NOT provider callback-ingestion latency.",
+    "limitations": [
+      "Small single-process local sample, not staging or load qualification.",
+      "No real provider transmission, real OAuth login, real assistant client or monthly availability measurement.",
+      "Browser authentication and MCP tokens use explicitly labelled local simulation.",
+      "Existing local data and quotas are retained; this run adds up to 15 simulated email sends."
+    ]
+  },
+  "checks": [
+    {
+      "name": "server_explicitly_simulation",
+      "passed": true
+    },
+    {
+      "name": "real_transmissions_disabled",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated_documents_rejected",
+      "passed": true
+    },
+    {
+      "name": "login_studio_simulation",
+      "passed": true
+    },
+    {
+      "name": "login_studio_cookie_httpOnly",
+      "passed": true
+    },
+    {
+      "name": "login_atelier_simulation",
+      "passed": true
+    },
+    {
+      "name": "login_atelier_cookie_httpOnly",
+      "passed": true
+    },
+    {
+      "name": "session_organization_from_membership",
+      "passed": true
+    },
+    {
+      "name": "client_organization_header_ignored",
+      "passed": true
+    },
+    {
+      "name": "mutation_missing_csrf_rejected",
+      "passed": true
+    },
+    {
+      "name": "mutation_foreign_origin_rejected",
+      "passed": true
+    },
+    {
+      "name": "exact_pdf_import_ready_in_simulation",
+      "passed": true,
+      "documentId": "doc_67839bc2-cfad-466a-b89f-f0b86aa37720"
+    },
+    {
+      "name": "import_hash_matches_original",
+      "passed": true
+    },
+    {
+      "name": "authenticated_preview_preserves_exact_bytes",
+      "passed": true
+    },
+    {
+      "name": "other_organization_cannot_read_pdf",
+      "passed": true
+    },
+    {
+      "name": "public_pdf_access_denied",
+      "passed": true
+    },
+    {
+      "name": "other_organization_document_list_isolated",
+      "passed": true
+    },
+    {
+      "name": "local_mcp_credential_explicit_simulation",
+      "passed": true
+    },
+    {
+      "name": "actual_stateless_http_mcp_tools_list",
+      "passed": true
+    },
+    {
+      "name": "mcp_has_no_human_approval_tool",
+      "passed": true,
+      "toolNames": [
+        "get_capabilities",
+        "import_document",
+        "render_pdf",
+        "prepare_dispatch",
+        "confirm_dispatch",
+        "get_dispatch_status",
+        "list_dispatches",
+        "cancel_dispatch"
+      ]
+    },
+    {
+      "name": "mcp_file_params_contract_exact",
+      "passed": true
+    },
+    {
+      "name": "mcp_oauth_discovery_challenge",
+      "passed": true
+    },
+    {
+      "name": "enough_existing_test_credit_without_topup",
+      "passed": true
+    },
+    {
+      "name": "llm_cannot_confirm_without_human_approval",
+      "passed": true
+    },
+    {
+      "name": "bearer_cannot_impersonate_browser_approval",
+      "passed": true
+    },
+    {
+      "name": "model_confirmed_boolean_rejected",
+      "passed": true
+    },
+    {
+      "name": "all_acceptance_responses_persisted",
+      "passed": true
+    },
+    {
+      "name": "all_results_are_simulated_terminal_facts",
+      "passed": true
+    }
+  ],
+  "samples": [
+    {
+      "index": 1,
+      "dispatchId": "dsp_a38b608d-5e94-44e9-b560-6d8469ceb915",
+      "acceptanceRoundTripMs": 20.53,
+      "statusOnRead": "queued",
+      "correlationId": "1cae725d-724d-4320-93bc-a2b0a095b56b",
+      "resultFirstObservedMs": 1018.61
+    },
+    {
+      "index": 2,
+      "dispatchId": "dsp_c18d0274-1e87-40f3-84bc-3ea48e73fd4d",
+      "acceptanceRoundTripMs": 16.06,
+      "statusOnRead": "queued",
+      "correlationId": "431db6ed-fbec-47ec-8402-9481fa375fcc",
+      "resultFirstObservedMs": 952.54
+    },
+    {
+      "index": 3,
+      "dispatchId": "dsp_6c1c2e2f-7f12-463c-9863-39cf226c741d",
+      "acceptanceRoundTripMs": 17.17,
+      "statusOnRead": "queued",
+      "correlationId": "1e29378f-80f3-43ce-8865-1bac54488500",
+      "resultFirstObservedMs": 899.28
+    },
+    {
+      "index": 4,
+      "dispatchId": "dsp_92d40eee-9f12-4cf8-9327-e405b3e29d1d",
+      "acceptanceRoundTripMs": 16.32,
+      "statusOnRead": "queued",
+      "correlationId": "14cd9cb0-3d1d-40df-a3e0-1dc209619398",
+      "resultFirstObservedMs": 839.57
+    },
+    {
+      "index": 5,
+      "dispatchId": "dsp_2e34b047-29eb-47ff-a62d-60076374a210",
+      "acceptanceRoundTripMs": 16.15,
+      "statusOnRead": "delivered",
+      "correlationId": "88e149f0-337d-4787-9522-44c6023a7209",
+      "resultFirstObservedMs": 108.02
+    },
+    {
+      "index": 6,
+      "dispatchId": "dsp_7d87046f-ff5c-47c5-8d3f-c0a854d0c261",
+      "acceptanceRoundTripMs": 21.01,
+      "statusOnRead": "queued",
+      "correlationId": "e2a941f2-e455-4728-9813-1ad1ecd29a73",
+      "resultFirstObservedMs": 648.02
+    },
+    {
+      "index": 7,
+      "dispatchId": "dsp_beece1a0-8ee7-4884-b8e0-592dfac432f4",
+      "acceptanceRoundTripMs": 16.95,
+      "statusOnRead": "queued",
+      "correlationId": "c3f12a29-c11c-46a0-a220-673f314723b9",
+      "resultFirstObservedMs": 589.14
+    },
+    {
+      "index": 8,
+      "dispatchId": "dsp_91ab6bc4-52be-464e-9597-27321fd3a189",
+      "acceptanceRoundTripMs": 16.53,
+      "statusOnRead": "queued",
+      "correlationId": "217b6551-f8a7-4cc3-b367-482a9d3230d4",
+      "resultFirstObservedMs": 535.67
+    },
+    {
+      "index": 9,
+      "dispatchId": "dsp_f3158988-9bde-4da9-aa3c-9872b04f65cf",
+      "acceptanceRoundTripMs": 16.14,
+      "statusOnRead": "queued",
+      "correlationId": "b29a806f-6a71-46ad-bd1d-66ec0538e83b",
+      "resultFirstObservedMs": 486.76
+    },
+    {
+      "index": 10,
+      "dispatchId": "dsp_a3bd6c32-ea7d-4756-925f-4ef4b1edb7a2",
+      "acceptanceRoundTripMs": 14.31,
+      "statusOnRead": "delivered",
+      "correlationId": "6421748d-3cda-48af-b587-d6170ef051eb",
+      "resultFirstObservedMs": 92.89
+    },
+    {
+      "index": 11,
+      "dispatchId": "dsp_411c023d-0f36-44a0-a01d-7cbc524dc79c",
+      "acceptanceRoundTripMs": 17.21,
+      "statusOnRead": "queued",
+      "correlationId": "835b67b5-a9cb-486e-81de-1325727ecbce",
+      "resultFirstObservedMs": 318.92
+    },
+    {
+      "index": 12,
+      "dispatchId": "dsp_83e2bab4-de5c-4210-8049-a7ad76e77b9c",
+      "acceptanceRoundTripMs": 15.74,
+      "statusOnRead": "queued",
+      "correlationId": "ff2d6ab4-5085-4869-ad16-7ca1eca4762d",
+      "resultFirstObservedMs": 253.6
+    },
+    {
+      "index": 13,
+      "dispatchId": "dsp_a836ede9-8016-4d64-8c5c-b0b71b8bce29",
+      "acceptanceRoundTripMs": 15.62,
+      "statusOnRead": "queued",
+      "correlationId": "f14dfffa-df98-404d-b18d-6e1c473f5276",
+      "resultFirstObservedMs": 203.9
+    },
+    {
+      "index": 14,
+      "dispatchId": "dsp_915409a4-54c9-408e-8305-763243c95e27",
+      "acceptanceRoundTripMs": 15.23,
+      "statusOnRead": "queued",
+      "correlationId": "3938f39c-6614-41db-b2ff-25414fc28927",
+      "resultFirstObservedMs": 153.93
+    },
+    {
+      "index": 15,
+      "dispatchId": "dsp_589863ac-c175-403d-9be0-e9756d42134e",
+      "acceptanceRoundTripMs": 16.4,
+      "statusOnRead": "delivered",
+      "correlationId": "4747f200-f75d-4bb0-ad33-d148fc891596",
+      "resultFirstObservedMs": 97.39
+    }
+  ],
+  "metrics": {
+    "acceptance": {
+      "count": 15,
+      "minMs": 14.31,
+      "medianMs": 16.32,
+      "p95Ms": 21.01,
+      "maxMs": 21.01
+    },
+    "simulatedResultFirstObserved": {
+      "count": 15,
+      "minMs": 92.89,
+      "medianMs": 486.76,
+      "p95Ms": 1018.61,
+      "maxMs": 1018.61
+    },
+    "initialAcceptanceP95GoalMs": 2000,
+    "goalMetOnlyInTheseLocalConditions": true,
+    "providerCallbackLatencyMeasured": false
+  },
+  "failure": null
+}

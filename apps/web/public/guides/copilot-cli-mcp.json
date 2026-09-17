@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "guteneo": {
+      "type": "http",
+      "url": "https://guteneo.com/mcp",
+      "tools": ["*"]
+    }
+  }
+}

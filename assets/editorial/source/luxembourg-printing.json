@@ -1,0 +1,35 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-09-17",
+  "prompt": "Landscape editorial art, aspect ratio 3:2, 1536x1024, for Guteneo's history of printing in Luxembourg. A single timeless contemporary conceptual engraving, not an archival picture and not an exact historic reconstruction. Finely etched cobalt blue #2450db single ink on spacious warm ivory #f6f5ef paper, crisp copperplate lines and fine halftone/dithering dots, elegant French print atelier aesthetic. In foreground at lower left: close, beautifully detailed letterpress composing stick, a drawer of individual metal type, an open unlettered book and blank folded newspaper on a printer's bench, one hand-operated platen press to the left middle ground. Beyond the atelier open window to the right, a poetic recognizable Luxembourg City landscape with layered Grund rooftops, the Alzette valley, stone bridges and Bock cliffs, distant church spires; no modern towers. Soft edge transition drawn with blue stipple into ivory negative space. A sheet floats gently from foreground into city, suggesting circulation of ideas. Balanced wide magazine composition, no portrait, no text, no letters, no numbers, no watermark, no simulated official documents or seals. Match the restrained refined blue engraved printing press brand identity; readable silhouettes, strong composition and delicate craft texture.",
+  "source": "assets/editorial/source/luxembourg-printing.png",
+  "originalToolOutput": "/Users/nclsppr/.codex/generated_images/01a0abd2-021b-72a1-bd6c-41e42bd47c05/exec-0ef8d5f0-49b2-4fe2-b8c6-64b125fe33d7.png",
+  "web": "apps/web/public/editorial/luxembourg-printing.webp",
+  "width": 1536,
+  "height": 1024,
+  "conversion": "cwebp -q 84 -metadata all; responsive small version width 720 q80",
+  "historicalStatus": "Contemporary conceptual illustration generated with AI; not an archive, portrait, or exact historical reconstruction.",
+  "artifacts": [
+    {
+      "path": "assets/editorial/source/luxembourg-printing.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 4097005,
+      "sha256": "1fa5b5ed7f34ba9dfc3dbf4fb2d459ab9bd804a838d7d0cd9713fc8ef5b79940"
+    },
+    {
+      "path": "apps/web/public/editorial/luxembourg-printing.webp",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 592874,
+      "sha256": "02dbe5998182dfbd00d0eb8cee15d36ae589f18886767dcc71f037f808622a1b"
+    },
+    {
+      "path": "apps/web/public/editorial/luxembourg-printing-small.webp",
+      "width": 720,
+      "height": 480,
+      "bytes": 103498,
+      "sha256": "a5f78dc20b8ec412dcce03fdfa0dd0305400f4cb0b2487ae235d63f57e70f5fc"
+    }
+  ]
+}

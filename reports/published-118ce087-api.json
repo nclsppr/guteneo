@@ -1,0 +1,104 @@
+{
+  "verifiedAt": "2026-09-17T03:12:49.347Z",
+  "checks": [
+    {
+      "path": "/api/health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "mode": "production",
+        "liveSending": false
+      }
+    },
+    {
+      "path": "/api/capabilities",
+      "status": 200,
+      "body": {
+        "name": "Guteneo",
+        "version": "0.2.0",
+        "mode": "production",
+        "simulation": false,
+        "humanApproval": "authenticated_browser",
+        "registration": {
+          "enabled": true,
+          "verification": "verified_email"
+        },
+        "billing": {
+          "configured": false,
+          "mode": "unconfigured",
+          "chargingEnabled": false
+        },
+        "channels": [
+          {
+            "id": "fax",
+            "name": "Fax",
+            "provider": "Telnyx",
+            "status": "configured_not_live_validated"
+          },
+          {
+            "id": "email",
+            "name": "E-mail",
+            "provider": "Amazon SES",
+            "status": "configured_not_live_validated"
+          },
+          {
+            "id": "postal",
+            "name": "Courrier postal",
+            "provider": "Pingen",
+            "status": "configured_not_live_validated"
+          }
+        ],
+        "limits": {
+          "pdfBytes": 10485760,
+          "pages": 100,
+          "htmlBytes": 131072,
+          "csvBytes": 262144,
+          "campaignRows": 500,
+          "attachments": 5
+        },
+        "liveSending": false,
+        "scanner": "connected",
+        "assistants": [
+          {
+            "name": "ChatGPT",
+            "status": "not_tested_in_real_client",
+            "transport": "Streamable HTTP"
+          },
+          {
+            "name": "Claude",
+            "status": "not_tested_in_real_client",
+            "transport": "Streamable HTTP"
+          },
+          {
+            "name": "Cursor",
+            "status": "not_tested_in_real_client",
+            "transport": "Streamable HTTP"
+          }
+        ],
+        "mcpUrl": "https://guteneo.com/mcp",
+        "identity": "Auth0 configured, real login unverified",
+        "productionBlockers": [
+          "verified_tariffs",
+          "provider_live_tests",
+          "funded_sending_budget"
+        ],
+        "documents": {
+          "import": true,
+          "render": true,
+          "exactBytes": true,
+          "urlImport": false
+        }
+      }
+    },
+    {
+      "path": "/api/v1/postal/requirements",
+      "status": 401,
+      "body": {
+        "error": {
+          "code": "AUTHENTICATION_REQUIRED",
+          "message": "Connectez-vous pour continuer."
+        }
+      }
+    }
+  ]
+}

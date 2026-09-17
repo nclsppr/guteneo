@@ -1,0 +1,75 @@
+name: Guteneo checks
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scanner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/scanner/package-lock.json
+      - run: npm ci --prefix apps/scanner
+      - run: npm --prefix apps/scanner run typecheck
+      - run: npm --prefix apps/scanner test
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Permit the installed Chromium to use its Linux sandbox
+        # Ubuntu restricts user namespaces for downloaded browsers. Keep the
+        # Chromium sandbox enabled and allow only this job's exact browser path.
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync, readFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import { chromium } from '@playwright/test';
+          const restriction = '/proc/sys/kernel/apparmor_restrict_unprivileged_userns';
+          if (existsSync(restriction) && readFileSync(restriction, 'utf8').trim() === '1') {
+            const executable = chromium.executablePath();
+            if (!/^\/home\/runner\/\.cache\/ms-playwright\/chromium-\d+\/chrome-linux64\/chrome$/.test(executable) || !existsSync(executable)) {
+              throw new Error('Unexpected CI Chromium path; sandbox profile not installed.');
+            }
+            const profile = `abi <abi/4.0>,\ninclude <tunables/global>\nprofile guteneo-ci-chromium "${executable}" flags=(unconfined) {\n  userns,\n}\n`;
+            const path = '/etc/apparmor.d/guteneo-ci-chromium';
+            execFileSync('sudo', ['-n', 'tee', path], { input: profile, stdio: ['pipe', 'ignore', 'inherit'] });
+            execFileSync('sudo', ['-n', 'apparmor_parser', '-r', path], { stdio: 'inherit' });
+          }
+          NODE
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: node scripts/migrate-remote.mjs --verify
+      - run: npm run build
+      - run: npm run test:e2e
+      - run: npm run build:live
+      - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
+      - run: npm run build:preview
+      - run: npm run test:preview
+      - run: npm run costs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: guteneo-verification
+          path: |
+            reports/
+            playwright-report/
+            test-results/
+          retention-days: 14

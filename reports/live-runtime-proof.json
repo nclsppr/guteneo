@@ -1,0 +1,49 @@
+{
+  "verifiedAt": "2026-09-16T21:41:55.058Z",
+  "health": {
+    "status": "configuration_required",
+    "mode": "production",
+    "liveSending": false
+  },
+  "registration": {
+    "enabled": false,
+    "verification": "verified_email_and_mfa"
+  },
+  "billing": {
+    "configured": false,
+    "mode": "unconfigured",
+    "chargingEnabled": false
+  },
+  "scanner": "connected",
+  "render": true,
+  "fax": {
+    "id": "fax",
+    "name": "Fax",
+    "provider": "Telnyx",
+    "status": "configured_not_live_validated"
+  },
+  "liveSending": false,
+  "protectedRoutes": [
+    {
+      "path": "/api/session",
+      "status": 503
+    },
+    {
+      "path": "/api/account",
+      "status": 503
+    },
+    {
+      "path": "/api/billing",
+      "status": 503
+    },
+    {
+      "path": "/api/documents",
+      "status": 503
+    },
+    {
+      "path": "/mcp",
+      "status": 503
+    }
+  ],
+  "signupRedirect": "IDENTITY_NOT_CONFIGURED"
+}

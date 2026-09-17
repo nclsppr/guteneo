@@ -1,0 +1,126 @@
+{
+  "completedAt": "2026-09-17T03:45:56.677Z",
+  "provider": "pingen",
+  "environment": "production",
+  "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+  "workerVersion": "0cac0373-eca4-454d-af8c-322d76fcc8d9",
+  "scope": "supplier_only_synthetic_unsent_draft",
+  "options": {
+    "country": "LU",
+    "pages": 1,
+    "paper_types": [
+      "normal"
+    ],
+    "delivery_product": "cheap",
+    "print_mode": "simplex",
+    "print_spectrum": "grayscale"
+  },
+  "steps": [
+    {
+      "completedAt": "2026-09-17T03:43:35.821Z",
+      "phase": "calculator",
+      "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+      "result": {
+        "provider": "pingen",
+        "mode": "synthetic_draft_qualification",
+        "status": "ok",
+        "state": "not_started",
+        "runId": "20260917-synthetic-v1",
+        "sourceSha256": "ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385",
+        "canSend": false,
+        "liveSendingVerified": false,
+        "appJourneyVerified": false,
+        "price": {
+          "currency": "EUR",
+          "minor": 151
+        }
+      }
+    },
+    {
+      "completedAt": "2026-09-17T03:43:56.515Z",
+      "phase": "create",
+      "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+      "result": {
+        "provider": "pingen",
+        "mode": "synthetic_draft_qualification",
+        "status": "ok",
+        "state": "created",
+        "runId": "20260917-synthetic-v1",
+        "sourceSha256": "ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385",
+        "canSend": false,
+        "liveSendingVerified": false,
+        "appJourneyVerified": false
+      }
+    },
+    {
+      "completedAt": "2026-09-17T03:44:16.082Z",
+      "phase": "inspect",
+      "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+      "result": {
+        "provider": "pingen",
+        "mode": "synthetic_draft_qualification",
+        "status": "ok",
+        "state": "created",
+        "runId": "20260917-synthetic-v1",
+        "sourceSha256": "ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385",
+        "canSend": false,
+        "liveSendingVerified": false,
+        "appJourneyVerified": false,
+        "draft": {
+          "addressMatches": true,
+          "countryMatches": true,
+          "normalPaper": true,
+          "fontsEmbedded": true,
+          "deleteAllowed": true,
+          "readyForSending": true,
+          "previewRedirectObserved": true,
+          "pages": 1
+        }
+      }
+    },
+    {
+      "completedAt": "2026-09-17T03:44:43.483Z",
+      "phase": "delete",
+      "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+      "result": {
+        "provider": "pingen",
+        "mode": "synthetic_draft_qualification",
+        "status": "ok",
+        "state": "deleted",
+        "runId": "20260917-synthetic-v1",
+        "sourceSha256": "ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385",
+        "canSend": false,
+        "liveSendingVerified": false,
+        "appJourneyVerified": false,
+        "draft": {
+          "addressMatches": true,
+          "countryMatches": true,
+          "normalPaper": true,
+          "fontsEmbedded": true,
+          "deleteAllowed": true,
+          "readyForSending": true,
+          "previewRedirectObserved": false,
+          "pages": 1
+        }
+      }
+    },
+    {
+      "completedAt": "2026-09-17T03:45:22.494Z",
+      "phase": "final",
+      "sourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+      "result": {
+        "provider": "pingen",
+        "mode": "synthetic_draft_qualification",
+        "status": "ok",
+        "state": "deleted",
+        "runId": "20260917-synthetic-v1",
+        "sourceSha256": "ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385",
+        "canSend": false,
+        "liveSendingVerified": false,
+        "appJourneyVerified": false
+      }
+    }
+  ],
+  "liveSendingVerified": false,
+  "appJourneyVerified": false
+}

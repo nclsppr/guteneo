@@ -1,0 +1,172 @@
+{
+  "sourceCommit": "118ce087c3fe5a1ad63bd4c562adb8e26aa8af21",
+  "migration": "0023_fax_usage_pricing.sql",
+  "sourceSha256": "e506b0a18db23ce70296ef73d508932d1f69c6c3fd5a41f67b95abc7b78a1f27",
+  "transportSha256": "95f275392edcc0b29a46cecf49c214d2e5e389811f15395a18ec4226cfdef270",
+  "before": {
+    "result": {
+      "bookmark": "00000030-00000000-000050e9-1b5e0f03069ddf1862821af86bfea947"
+    },
+    "success": true,
+    "errors": [],
+    "messages": [],
+    "status": 200
+  },
+  "application": {
+    "success": true,
+    "status": 200,
+    "errors": [],
+    "statements": 43,
+    "allStatementsSuccessful": true,
+    "rowsWritten": 41
+  },
+  "after": {
+    "success": true,
+    "expectedDomainObjects": 177,
+    "actualDomainObjects": 177,
+    "schemaMatches": true,
+    "differences": [],
+    "ledger": [
+      {
+        "id": 1,
+        "name": "0001_core.sql",
+        "applied_at": "2026-09-16 20:52:24"
+      },
+      {
+        "id": 2,
+        "name": "0002_auth.sql",
+        "applied_at": "2026-09-16 20:52:43"
+      },
+      {
+        "id": 3,
+        "name": "0003_operations.sql",
+        "applied_at": "2026-09-16 20:52:43"
+      },
+      {
+        "id": 4,
+        "name": "0004_core_hardening.sql",
+        "applied_at": "2026-09-16 20:52:43"
+      },
+      {
+        "id": 5,
+        "name": "0005_content_limits.sql",
+        "applied_at": "2026-09-16 20:52:44"
+      },
+      {
+        "id": 6,
+        "name": "0006_maintenance.sql",
+        "applied_at": "2026-09-16 20:52:44"
+      },
+      {
+        "id": 7,
+        "name": "0007_live_drafts.sql",
+        "applied_at": "2026-09-16 20:52:44"
+      },
+      {
+        "id": 8,
+        "name": "0008_document_versions.sql",
+        "applied_at": "2026-09-16 20:52:45"
+      },
+      {
+        "id": 9,
+        "name": "0009_billing.sql",
+        "applied_at": "2026-09-16 20:52:45"
+      },
+      {
+        "id": 10,
+        "name": "0010_onboarding_limits.sql",
+        "applied_at": "2026-09-16 20:52:45"
+      },
+      {
+        "id": 11,
+        "name": "0011_account.sql",
+        "applied_at": "2026-09-16 20:52:46"
+      },
+      {
+        "id": 12,
+        "name": "0012_document_rescan.sql",
+        "applied_at": "2026-09-16 21:07:42"
+      },
+      {
+        "id": 13,
+        "name": "0013_trusted_fax_quotes.sql",
+        "applied_at": "2026-09-16 21:38:12"
+      },
+      {
+        "id": 14,
+        "name": "0014_welcome_credit.sql",
+        "applied_at": "2026-09-16 22:47:13"
+      },
+      {
+        "id": 15,
+        "name": "0015_exact_supplier_fax_pricing.sql",
+        "applied_at": "2026-09-16 22:47:13"
+      },
+      {
+        "id": 16,
+        "name": "0016_live_delivery_quotes.sql",
+        "applied_at": "2026-09-17 00:56:39"
+      },
+      {
+        "id": 17,
+        "name": "0017_ses_send_limits.sql",
+        "applied_at": "2026-09-17 00:56:40"
+      },
+      {
+        "id": 18,
+        "name": "0018_email_recipient_attestation.sql",
+        "applied_at": "2026-09-17 00:56:40"
+      },
+      {
+        "id": 19,
+        "name": "0019_verified_account_sessions.sql",
+        "applied_at": "2026-09-17 00:56:40"
+      },
+      {
+        "id": 20,
+        "name": "0020_postal_preflights.sql",
+        "applied_at": "2026-09-17 02:17:17"
+      },
+      {
+        "id": 21,
+        "name": "0021_ses_text_only_quotes.sql",
+        "applied_at": "2026-09-17 02:17:26"
+      },
+      {
+        "id": 22,
+        "name": "0022_ses_public_list_prices.sql",
+        "applied_at": "2026-09-17 02:17:35"
+      },
+      {
+        "id": 23,
+        "name": "0023_fax_usage_pricing.sql",
+        "applied_at": "2026-09-17 03:10:32"
+      }
+    ],
+    "foreignKeys": [
+      {
+        "foreign_keys": 1
+      }
+    ],
+    "foreignKeyViolations": [],
+    "quickCheck": [
+      {
+        "quick_check": "ok"
+      }
+    ],
+    "counts": [
+      {
+        "users": 0,
+        "organizations": 0,
+        "documents": 0,
+        "dispatches": 0,
+        "fax_v3_tariffs": 0,
+        "fax_v3_quotes": 0,
+        "fax_v3_settlements": 0
+      }
+    ],
+    "bookmark": {
+      "bookmark": "00000030-00000004-000050e9-c87e13489a07d1f034e4c8d9ad07a993"
+    }
+  }
+}

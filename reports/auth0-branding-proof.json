@@ -1,0 +1,62 @@
+{
+  "tenant": "pieper.eu.auth0.com",
+  "experience": "new",
+  "friendlyNameMatches": true,
+  "enabledLocales": [
+    "fr",
+    "en"
+  ],
+  "brandingMatches": true,
+  "themePresent": true,
+  "themeMatches": true,
+  "textMatches": {
+    "fr": {
+      "login": true,
+      "login-id": true,
+      "login-password": true,
+      "signup": true,
+      "signup-id": true,
+      "signup-password": true
+    },
+    "en": {
+      "login": true,
+      "login-id": true,
+      "login-password": true,
+      "signup": true,
+      "signup-id": true,
+      "signup-password": true
+    }
+  },
+  "appliedAt": "2026-09-17T01:11:32.446Z",
+  "before": {
+    "tenant": "pieper.eu.auth0.com",
+    "experience": "new",
+    "friendlyNameMatches": true,
+    "enabledLocales": [
+      "fr",
+      "en"
+    ],
+    "brandingMatches": true,
+    "themePresent": true,
+    "themeMatches": true,
+    "textMatches": {
+      "fr": {
+        "login": true,
+        "login-id": true,
+        "login-password": true,
+        "signup": true,
+        "signup-id": true,
+        "signup-password": true
+      },
+      "en": {
+        "login": true,
+        "login-id": true,
+        "login-password": true,
+        "signup": true,
+        "signup-id": true,
+        "signup-password": true
+      }
+    }
+  },
+  "verificationMutations": 0
+}

@@ -1,0 +1,16 @@
+{
+  "origin": "https://guteneo-preview.nclsppr.workers.dev",
+  "sourceCommit": "174e6012920d9d4893faa2a5baa5671da01e8fab",
+  "sourceDirty": false,
+  "sourceSnapshotSha256": "1a5397d79ad3fbd3d8642019aa465a307dc18d1f9dcd5948657f757abfa6aac6",
+  "publicAssetsVerified": 51,
+  "configurationFiles": [
+    "/_headers"
+  ],
+  "dynamicResources": [
+    "/robots.txt"
+  ],
+  "robotsPolicyVerified": true,
+  "securityHeadersVerified": true,
+  "verifiedAt": "2026-09-17T01:22:42.169Z"
+}

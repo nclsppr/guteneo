@@ -1,0 +1,57 @@
+{
+  "verifiedAt": "2026-09-16T23:26:21Z",
+  "source": "operator UI confirmations and private Cloudflare service-binding projections",
+  "liveCommunicationsSent": 0,
+  "pingen": {
+    "applicationCreated": true,
+    "grantType": "client_credentials",
+    "credentialsInstalled": true,
+    "authenticationVerified": true,
+    "organizationMatched": true,
+    "currency": "EUR",
+    "defaultCountry": "LU",
+    "addressPosition": "left",
+    "sandbox": false,
+    "uploadOrigin": "https://pingen2-production-transfer.objects.rma.cloudscale.ch",
+    "uploadOriginInstalled": true,
+    "pdfUploaded": false,
+    "letterCreated": false,
+    "webhookConfigured": false,
+    "liveSendingVerified": false
+  },
+  "telnyx": {
+    "activeApplication": true,
+    "activeAttachedNumberCount": 1,
+    "senderCountry": "LU",
+    "senderInstalled": true,
+    "t38Enabled": true,
+    "appOutboundChannels": 1,
+    "allowedDestinationCount": 54,
+    "allowsLUFRDE": true,
+    "destinationsChangedByAgent": false,
+    "profileDailySpendEnforced": false,
+    "dailySpendValueQualified": false,
+    "callback": "https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx",
+    "callbackSaved": true,
+    "unsignedCallbackStatus": 401,
+    "liveSendingVerified": false
+  },
+  "ses": {
+    "region": "eu-west-3",
+    "expectedSenderPrincipalVerified": true,
+    "snsConfirmed": true,
+    "snsConfirmationAuthenticated": true,
+    "snsRawDelivery": false,
+    "consumedConfirmationTokenRemoved": true,
+    "sandbox": true,
+    "liveSendingVerified": false
+  },
+  "backend": {
+    "sourceCommit": "ee64850691f9f50c3e7cee5cbbfea2afe46c448d",
+    "activeWorkerVersion": "092f4792-fb1a-42e3-a76b-093c76376376",
+    "trafficPercentage": 100,
+    "registrationEnabled": false,
+    "billingConfigured": false,
+    "liveSending": false
+  }
+}

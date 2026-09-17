@@ -1,0 +1,87 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "guteneo-app",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "main": "apps/api/src/worker.ts",
+  "compatibility_date": "2026-09-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  // Auth0 is configured; real browser login is qualified on this canonical origin.
+  "routes": [{ "pattern": "guteneo.com", "custom_domain": true }],
+  "assets": {
+    "directory": "./dist/web",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "html_handling": "force-trailing-slash",
+    // The Worker applies the canonical-host crawl policy to every asset response.
+    "run_worker_first": true,
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "MODE": "production",
+    "APP_ORIGIN": "https://guteneo.com",
+    "LIVE_SENDS_ENABLED": "false",
+    // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
+    "POSTAL_DRAFTS_ENABLED": "true",
+    "SES_ACCOUNT_ID": "982055099242",
+    "PINGEN_DEFAULT_COUNTRY": "LU",
+    "AUTH0_AUTH_POLICY": "verified_email",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "guteneo-production",
+      "database_id": "f86235fa-58c1-404f-a9a6-e2d657315854",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS",
+      "bucket_name": "guteneo-production-documents",
+      "jurisdiction": "eu",
+    },
+  ],
+  "services": [
+    { "binding": "SCANNER", "service": "guteneo-scanner" },
+    { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents" },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "DISPATCH_QUEUE",
+        "queue": "guteneo-production-interactive",
+      },
+      { "binding": "BULK_QUEUE", "queue": "guteneo-production-bulk" },
+    ],
+    "consumers": [
+      {
+        "queue": "guteneo-production-interactive",
+        "max_batch_size": 5,
+        "max_batch_timeout": 1,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-production-dlq",
+      },
+      {
+        "queue": "guteneo-production-bulk",
+        "max_batch_size": 2,
+        "max_batch_timeout": 2,
+        "max_retries": 3,
+        "dead_letter_queue": "guteneo-production-dlq",
+      },
+      {
+        "queue": "guteneo-production-dlq",
+        "max_batch_size": 5,
+        "max_batch_timeout": 2,
+        "max_retries": 3,
+      },
+    ],
+  },
+  "triggers": { "crons": ["* * * * *"] },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": { "enabled": true, "invocation_logs": false },
+  },
+}

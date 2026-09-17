@@ -1,0 +1,115 @@
+{
+  "verifiedOn": "2026-09-16",
+  "currency": "USD",
+  "scenario": "assumptions, no commercial quotation",
+  "rows": [
+    {
+      "monthlyDispatches": 1000,
+      "email": 700,
+      "fax": 100,
+      "postal": 200,
+      "faxPages": 200,
+      "postalPages": 400,
+      "uniqueDocuments": 500,
+      "renders": 250,
+      "events": 3000,
+      "requests": 63200,
+      "queueOperations": 3050,
+      "r2Gb": 1,
+      "d1Gb": 1,
+      "browserHours": 0,
+      "usd": {
+        "workers": "5.000000",
+        "queues": "0.000000",
+        "r2": "0.000000",
+        "d1": "0.000000",
+        "browser": "0.000000",
+        "ses": "0.112000",
+        "independentBackup": "0.015000"
+      },
+      "knownSubtotalUsd": "5.127000",
+      "excluded": [
+        "fax transport + originating number",
+        "postal print/postage",
+        "identity with admin MFA",
+        "malware scanning",
+        "backup transfer/operations",
+        "supervision and human operations",
+        "tax/FX",
+        "existing account allowance consumption"
+      ]
+    },
+    {
+      "monthlyDispatches": 10000,
+      "email": 7000,
+      "fax": 1000,
+      "postal": 2000,
+      "faxPages": 2000,
+      "postalPages": 4000,
+      "uniqueDocuments": 5000,
+      "renders": 2500,
+      "events": 30000,
+      "requests": 243200,
+      "queueOperations": 30500,
+      "r2Gb": 8,
+      "d1Gb": 2,
+      "browserHours": 2,
+      "usd": {
+        "workers": "5.000000",
+        "queues": "0.000000",
+        "r2": "0.000000",
+        "d1": "0.000000",
+        "browser": "0.000000",
+        "ses": "1.120000",
+        "independentBackup": "0.120000"
+      },
+      "knownSubtotalUsd": "6.240000",
+      "excluded": [
+        "fax transport + originating number",
+        "postal print/postage",
+        "identity with admin MFA",
+        "malware scanning",
+        "backup transfer/operations",
+        "supervision and human operations",
+        "tax/FX",
+        "existing account allowance consumption"
+      ]
+    },
+    {
+      "monthlyDispatches": 100000,
+      "email": 70000,
+      "fax": 10000,
+      "postal": 20000,
+      "faxPages": 20000,
+      "postalPages": 40000,
+      "uniqueDocuments": 50000,
+      "renders": 25000,
+      "events": 300000,
+      "requests": 2043200,
+      "queueOperations": 305000,
+      "r2Gb": 75,
+      "d1Gb": 15,
+      "browserHours": 21,
+      "usd": {
+        "workers": "5.000000",
+        "queues": "0.000000",
+        "r2": "0.975000",
+        "d1": "7.500000",
+        "browser": "0.990000",
+        "ses": "11.200000",
+        "independentBackup": "1.125000"
+      },
+      "knownSubtotalUsd": "26.790000",
+      "excluded": [
+        "fax transport + originating number",
+        "postal print/postage",
+        "identity with admin MFA",
+        "malware scanning",
+        "backup transfer/operations",
+        "supervision and human operations",
+        "tax/FX",
+        "existing account allowance consumption"
+      ]
+    }
+  ]
+}

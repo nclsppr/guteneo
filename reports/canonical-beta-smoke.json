@@ -1,0 +1,131 @@
+{
+  "origin": "https://guteneo.com",
+  "sourceCommit": "174e6012920d9d4893faa2a5baa5671da01e8fab",
+  "at": "2026-09-17T01:13:03.068Z",
+  "readOnly": true,
+  "profiles": [
+    {
+      "name": "desktop-1280",
+      "checks": [
+        {
+          "path": "/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/developpeurs/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/de-gutenberg-au-numerique/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/histoire-imprimerie-luxembourg/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/mentions-legales/",
+          "status": 200,
+          "overflow": false
+        }
+      ],
+      "swaggerOperations": 18,
+      "account": "real-login-no-fixtures",
+      "registrationConfigured": true,
+      "liveSendsEnabled": false,
+      "blockedRequests": 0,
+      "pageErrors": 0
+    },
+    {
+      "name": "iphone-390",
+      "checks": [
+        {
+          "path": "/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/developpeurs/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/de-gutenberg-au-numerique/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/histoire-imprimerie-luxembourg/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/mentions-legales/",
+          "status": 200,
+          "overflow": false
+        }
+      ],
+      "swaggerOperations": 18,
+      "account": "real-login-no-fixtures",
+      "registrationConfigured": true,
+      "liveSendsEnabled": false,
+      "blockedRequests": 0,
+      "pageErrors": 0
+    },
+    {
+      "name": "iphone-320",
+      "checks": [
+        {
+          "path": "/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/developpeurs/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/de-gutenberg-au-numerique/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/journal/histoire-imprimerie-luxembourg/",
+          "status": 200,
+          "overflow": false
+        },
+        {
+          "path": "/mentions-legales/",
+          "status": 200,
+          "overflow": false
+        }
+      ],
+      "swaggerOperations": 18,
+      "account": "real-login-no-fixtures",
+      "registrationConfigured": true,
+      "liveSendsEnabled": false,
+      "blockedRequests": 0,
+      "pageErrors": 0
+    }
+  ]
+}

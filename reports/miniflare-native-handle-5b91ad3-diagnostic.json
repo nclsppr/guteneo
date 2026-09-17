@@ -1,0 +1,54 @@
+{
+  "sourceSha": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+  "observedAt": "2026-09-17T03:42:35.598694+00:00",
+  "versions": {
+    "node": "24.18.0",
+    "wrangler": "4.133.0",
+    "miniflare": "5.20260916.0-alpha",
+    "workerd": "1.20260916.1"
+  },
+  "originalTest": {
+    "file": "tests/integration/trusted-fax-quotes.test.ts",
+    "passed": 16,
+    "failed": 0,
+    "report": "test-results/trusted-fax-5b91ad3-diagnostic.json"
+  },
+  "ciFailure": {
+    "run": "35178292026",
+    "passed": 608,
+    "failed": 1,
+    "assertion": "proxy.worker.ts:150 assert(heapValue !== undefined)",
+    "location": "native argument hydration before D1 CALL",
+    "exactLostHandleAndPhase": "not present in CI trace"
+  },
+  "controlledMicroReproduction": {
+    "network": "local Miniflare only; no remote account/provider",
+    "codeFilesModified": false,
+    "conditions": "Node --expose-gc; process.execArgv cleared before Miniflare child workers; wrap local dispatchFetch in memory to delay only MF-Op-Key=batch by600ms; global.gc every15ms; warm db.batch first",
+    "ephemeralStatements": {
+      "outcome": "failed",
+      "error": "AssertionError: false == true",
+      "stack": [
+        "Native proxy.worker.ts:150:4",
+        "hydrate devalue/src/parse.js:89:24",
+        "hydrate devalue/src/parse.js:224:17"
+      ],
+      "delayedBatchCount": 1,
+      "observedFreeCount": 1
+    },
+    "retainedStatementsControl": {
+      "outcome": "passed",
+      "statementCount": 2,
+      "retainedReferences": 2,
+      "cumulativeDelayedBatchCount": 2,
+      "cumulativeFreeCount": 2
+    },
+    "limit": "Injected latency/GC reproduces the mechanism, not the exact scheduler or lost address from CI."
+  },
+  "independentReview": {
+    "agent": "credit_review",
+    "comparison": "Published Miniflare5.20260915.0-alpha archive versus local5.20260916.0-alpha sourcemaps: proxy/client.ts and proxy.worker.ts byte-identical; workerd dependency changes15.1 to16.1",
+    "noUpgradeCausationClaim": true
+  },
+  "decision": "A single manual rerun of the unchanged failed push job is justified; retain attempt1. Do not add automatic retries, weaken assertions or change runtime. Recurrence requires separate proxy-lifetime remediation."
+}

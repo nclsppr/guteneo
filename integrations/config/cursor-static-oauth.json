@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "guteneo": {
+      "url": "https://guteneo.com/mcp",
+      "auth": {
+        "CLIENT_ID": "${env:GUTENEO_CURSOR_CLIENT_ID}",
+        "scopes": [
+          "documents:read",
+          "documents:write",
+          "dispatches:prepare",
+          "dispatches:send",
+          "dispatches:read"
+        ]
+      }
+    }
+  }
+}

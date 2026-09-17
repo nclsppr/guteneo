@@ -1,0 +1,3896 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Guteneo — API développeurs",
+    "version": "0.2.0",
+    "description": "Contrat REST du candidat bêta, documenté le 17 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
+  },
+  "servers": [
+    {
+      "url": "https://guteneo.com",
+      "description": "Bêta Guteneo ; activation des canaux et clients OAuth à vérifier via les capacités du service."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Service",
+      "description": "État et capacités déclarées, sans authentification."
+    },
+    {
+      "name": "Documents",
+      "description": "PDF privés, intégrité et quarantaine."
+    },
+    {
+      "name": "Envois",
+      "description": "Préparation immuable, accord navigateur puis confirmation."
+    },
+    {
+      "name": "Campagnes",
+      "description": "Regroupement et validation, sans envoi implicite."
+    },
+    {
+      "name": "Compte",
+      "description": "Lecture des expéditeurs et de la consommation, aucune facturation."
+    },
+    {
+      "name": "Courrier",
+      "description": "Contrôle du PDF, revue humaine dans Guteneo, brouillon Pingen puis devis ; aucune expédition implicite."
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "tags": [
+          "Service"
+        ],
+        "summary": "État du service",
+        "description": "Sans jeton. Un état ok ne prouve ni la livraison d’un message ni l’ouverture commerciale. Une configuration globale invalide peut répondre 503 avant cette route.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/capabilities": {
+      "get": {
+        "operationId": "getCapabilities",
+        "tags": [
+          "Service"
+        ],
+        "summary": "Capacités déclarées",
+        "description": "Sans jeton. Les statuts configured_not_live_validated et not_tested_in_real_client ne prouvent aucun test fournisseur ou assistant réel. Le site de démonstration refuse les routes API.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/documents": {
+      "get": {
+        "operationId": "listDocuments",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Lister les documents",
+        "description": "Tri décroissant par création et identifiant. Les PDF restent privés et rattachés à l’organisation.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "uploadDocument",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Déposer un PDF original",
+        "description": "Champ multipart file, 10 Mio maximum, 100 pages maximum après validation. Les octets sont conservés et hachés SHA-256. En production, le document reste quarantined tant que l’analyse et la validation PDF isolée ne sont pas concluantes. Une réponse 201 ne garantit donc pas status=ready. Aucun import URL REST : utiliser import_document via MCP pour les hôtes explicitement autorisés.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "PDF original, application/pdf, 20 octets minimum et 10 485 760 octets maximum."
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "additionalProperties": false
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "application/pdf"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/render": {
+      "post": {
+        "operationId": "renderDocument",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Créer un PDF depuis du HTML",
+        "description": "Produit un nouveau document A4, pas une reconstruction fidèle d’un PDF original. HTML limité à 128 Kio UTF-8 ; CSS client, scripts et ressources externes supprimés. Nécessite le moteur isolé et le scanner. Consomme un quota de rendu puis de dépôt. Un résultat peut rester quarantined.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Corps JSON strict ; les propriétés non documentées à la racine sont refusées.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 180
+                  },
+                  "html": {
+                    "type": "string",
+                    "maxLength": 131072
+                  }
+                },
+                "required": [
+                  "name",
+                  "html"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{id}/content": {
+      "get": {
+        "operationId": "getDocumentContent",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Lire les octets PDF validés",
+        "description": "Aucun lien public ni URL signée renvoyée. Le jeton autorise seulement les documents de son organisation. Disponible uniquement pour status=ready ; 423 sinon. Afficher les octets reçus, ne pas reconstruire le PDF depuis du texte.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Octets PDF exacts du document validé.",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Document-SHA256": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "inline; filename=\"document.pdf\""
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "private, no-store"
+              },
+              "Content-Security-Policy": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "sandbox; default-src 'none'"
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/documents/{id}/rescan": {
+      "post": {
+        "operationId": "rescanDocument",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Réexaminer un document en quarantaine",
+        "description": "Sans corps. Un document déjà ready est renvoyé tel quel. Sinon seuls quarantined et pages=0 sont admissibles. Contrôle d’intégrité des octets originaux, verrou de 45 s et maximum de 10 réexamens/jour/organisation. Un scan indisponible ou non concluant laisse le document en quarantaine ; inspecter status, même après 200. Ne jamais considérer la demande de réexamen comme une validation.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/dispatches": {
+      "get": {
+        "operationId": "listDispatches",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Lister les envois",
+        "description": "Tri décroissant par création et identifiant. Montants entiers en centimes EUR ; recipient_json et options_json sont des chaînes JSON.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "prepareDispatch",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Préparer un envoi immuable",
+        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue. Pour le fax v3, faxPricing expose une fourchette HT et un plafond ferme approuvé ; la confirmation réserve le plafond et le décompte attend l’usage vérifié, sans exiger un coût final connu avant transmission.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Corps JSON strict ; les propriétés non documentées à la racine sont refusées.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareDispatch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dispatches/{id}": {
+      "get": {
+        "operationId": "getDispatch",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Consulter état, événements et approbation",
+        "description": "Lire avant toute décision de relance. submission_unknown et submitting peuvent déjà correspondre à une communication acceptée par le fournisseur. Ne jamais recréer automatiquement un envoi, changer de clé ou répéter la soumission fournisseur. L’approbation est null si absente ou expirée. quote_expires_at peut être null. Livraison et décompte sont distincts : consulter faxPricing.settlement pour les fax v3. Un statut delivered ne garantit pas encore le débit final ; la réserve reste conservée si l’usage est en attente.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/dispatches/{id}/confirm": {
+      "post": {
+        "operationId": "confirmDispatch",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Confirmer un envoi déjà approuvé",
+        "description": "Sans corps. Nécessite une approbation humaine faite dans le navigateur, liée à l’empreinte immutable et encore valide (au plus 15 min, limitée aussi par le devis). Un accord dans une conversation ne suffit pas. L’assistant ne peut jamais appeler /approve pour la produire. La transition prepared→queued, les réservations de quota/crédit et l’outbox sont atomiques. La réponse ne signifie pas livré. Après un timeout HTTP, relire l’envoi ; seule la même confirmation logique peut réutiliser sa clé. Ne jamais relancer une soumission fournisseur à issue inconnue. Les gates de canal, devis et crédit restent applicables.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:send"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
+      }
+    },
+    "/api/dispatches/{id}/cancel": {
+      "post": {
+        "operationId": "cancelDispatch",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Annuler avant la soumission",
+        "description": "Sans corps ni clé d’idempotence requise. Autorisé pour prepared ou queued ; un envoi déjà cancelled reste cancelled. Dès que la soumission commence, 409 CANCELLATION_TOO_LATE : aucune annulation fournisseur ni nouveau message n’est déclenché.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:send"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/campaigns": {
+      "get": {
+        "operationId": "listCampaigns",
+        "tags": [
+          "Campagnes"
+        ],
+        "summary": "Lister les campagnes",
+        "description": "Pagination descendante ; une campagne regroupe au maximum 500 envois.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createCampaign",
+        "tags": [
+          "Campagnes"
+        ],
+        "summary": "Créer une campagne vide",
+        "description": "Crée seulement un brouillon. Rattacher ensuite les préparations avec campaignId. Aucune idempotence de création n’est implémentée : ne pas répéter aveuglément après un timeout. Pas d’envoi en masse ni d’approbation globale implicite.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Campaign"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Corps JSON strict ; les propriétés non documentées à la racine sont refusées.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns/{id}": {
+      "get": {
+        "operationId": "getCampaign",
+        "tags": [
+          "Campagnes"
+        ],
+        "summary": "Consulter une campagne et ses envois",
+        "description": "La première approbation humaine fige la campagne et son manifeste. Chaque envoi conserve sa propre approbation et confirmation. Les campagnes marketing sont désactivées.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaign": {
+                      "$ref": "#/components/schemas/Campaign"
+                    },
+                    "dispatches": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Dispatch"
+                      },
+                      "maxItems": 500
+                    }
+                  },
+                  "required": [
+                    "campaign",
+                    "dispatches"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/recipients/validate": {
+      "post": {
+        "operationId": "validateRecipients",
+        "tags": [
+          "Campagnes"
+        ],
+        "summary": "Valider un CSV sans créer d’envoi",
+        "description": "256 Kio UTF-8, 500 lignes maximum. En-tête channel obligatoire ; colonnes autorisées : channel,email,phone,name,line1,postalCode,city,country. Pas de formule CSV. Numéros de ligne à partir de 2 (en-tête en ligne 1). Doublons conservés dans rows et signalés séparément ; valid=false si erreur ou doublon. Validation syntaxique seulement, aucune vérification de délivrabilité et aucun envoi.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsvValidation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Corps JSON strict ; les propriétés non documentées à la racine sont refusées.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "csv": {
+                    "type": "string",
+                    "maxLength": 262144
+                  }
+                },
+                "required": [
+                  "csv"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/senders": {
+      "get": {
+        "operationId": "listSenders",
+        "tags": [
+          "Compte"
+        ],
+        "summary": "Lister les expéditeurs",
+        "description": "Lecture seule ; aucun ajout ni vérification par cet endpoint. Utiliser uniquement un expéditeur verified du canal et du mode de l’envoi.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Sender"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/usage": {
+      "get": {
+        "operationId": "getUsage",
+        "tags": [
+          "Compte"
+        ],
+        "summary": "Lire le crédit et les plafonds",
+        "description": "Crédit promotionnel de bienvenue distinct des plafonds mensuels par canal. 50 € sont attribués une seule fois à une organisation de production créée par le parcours prévu. Lire les montants retournés : ce crédit n’active pas les transports. Aucun renouvellement ni recharge. Le plafond est réservé à la confirmation. Les devis fixes sont consommés à l’acceptation fournisseur ; le fax v3 conserve sa réserve jusqu’au rapprochement de l’usage vérifié, même si sa livraison est terminée. Pour les devis fractionnaires, le débit en centimes est ceil(cumul nanoEUR / 10 000 000) moins ceil(cumul précédent / 10 000 000), au niveau de l’organisation ; il ne s’agit pas d’un arrondi facturé par e-mail. Une issue inconnue conserve la réservation. Les totaux sont des centimes EUR, jamais des flottants.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/postal/preflights": {
+      "post": {
+        "operationId": "preflightPostalPdf",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Contrôler le PDF postal",
+        "description": "Contrôle les octets exacts d’un PDF ready déjà scanné, toutes ses pages et son adresse avec le profil Pingen du serveur. Maximum 8 000 000 octets ; consomme un contrôle du quota PDF. La même clé et le même contenu reprennent le contrôle existant. Aucun PDF n’est transmis à Pingen ici ; reviewUrl mène à la revue humaine. Ni hash, ni rapport de rendu, ni consentement ne sont acceptés du client.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write",
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalReview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostalPreflightInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/postal/preflights/{id}": {
+      "get": {
+        "operationId": "getPostalPreflight",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire le contrôle postal",
+        "description": "Lecture sans création de brouillon ni calcul de prix. prepared signifie uniquement que le brouillon est déposé chez Pingen. unknown interdit une nouvelle création automatique : vérifier le résultat avec Guteneo.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalReview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/postal/preflights/{id}/address.png": {
+      "get": {
+        "operationId": "getPostalAddressCrop",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire la fenêtre d’adresse contrôlée",
+        "description": "Extrait PNG privé issu du rendu serveur des mêmes octets que le document contrôlé. La présence de texte ne certifie ni l’existence de l’adresse ni sa lisibilité ; revue humaine nécessaire.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extrait privé PNG",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/postal/preflights/{id}/quote": {
+      "post": {
+        "operationId": "quotePostalDraft",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Obtenir le devis du brouillon contrôlé",
+        "description": "Uniquement après la revue humaine et le transfert explicitement consenti dans Guteneo. Aucun corps requis : document, destinataire et options viennent du contrôle immuable. Une analyse Pingen encore en cours répond 409 POSTAL_DRAFT_NOT_READY ; reprendre la même clé après analyse. Le devis ne vaut pas approbation : ouvrir /#/app/dispatch/{id} avec l’identifiant du Dispatch retourné. Aucun envoi implicite.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
+      }
+    },
+    "/api/postal/requirements": {
+      "get": {
+        "operationId": "getPostalRequirements",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire le gabarit postal avant de créer le PDF",
+        "description": "Lecture du profil actuel de l’organisation Pingen, sans PDF ni brouillon. Coordonnées en millimètres depuis le coin supérieur gauche de la page A4. qualified qualifie ici le profil, jamais une adresse, un PDF ou un envoi. Si le profil fournisseur ne peut être vérifié, POSTAL_PROFILE_UNQUALIFIED ; ne pas déduire le gabarit du pays de résidence de l’utilisateur.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalRequirements"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FR",
+                "LU",
+                "DE"
+              ]
+            },
+            "description": "Pays du destinataire."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "GuteneoOAuth": {
+        "type": "oauth2",
+        "description": "Client OAuth enregistré requis. Code d’autorisation + PKCE S256, audience=https://guteneo.com/mcp. Jeton d’accès uniquement dans Authorization: Bearer. Ne pas utiliser un ID token, une clé fournisseur ou un token dans une URL. Utiliser state et une URI de retour enregistrée exacte ; ne jamais embarquer de client_secret dans un client public. Connexion navigateur Guteneo préalable et adhésion active obligatoires. En bêta, la politique verified_email exige le claim signé https://guteneo.com/verified_account=true ; la MFA n’est pas obligatoire. La politique historique verified_email_and_mfa conserve son exigence MFA pour les administrateurs. Scopes accordés explicitement ; aucun scope ne permet l’approbation humaine.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://pieper.eu.auth0.com/authorize",
+            "tokenUrl": "https://pieper.eu.auth0.com/oauth/token",
+            "scopes": {
+              "documents:read": "Lister et lire les PDF de l’organisation associée.",
+              "documents:write": "Déposer, générer et réanalyser les documents.",
+              "dispatches:prepare": "Préparer des envois, créer des campagnes et valider un CSV.",
+              "dispatches:send": "Confirmer après approbation humaine ou annuler un envoi. Ne permet jamais d’approuver.",
+              "dispatches:read": "Lire les envois, campagnes, expéditeurs et consommation."
+            }
+          }
+        },
+        "x-pkce-required": true,
+        "x-pkce-method": "S256",
+        "x-audience": "https://guteneo.com/mcp"
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "Clé stable de 1 à 200 caractères, sans CR, LF ni NUL. Une clé par préparation et une autre par confirmation. Réutiliser la même clé uniquement pour la même opération logique et le même contenu. Conflit : 409 IDEMPOTENCY_CONFLICT.",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[^\\r\\n\\u0000]+$"
+        }
+      },
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Identifiant opaque appartenant à l’organisation authentifiée.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "description": "Curseur nextCursor opaque de la réponse précédente. Ne pas le fabriquer.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Taille souhaitée, 30 par défaut ; le serveur borne à 1–100.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 30
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "message"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "quarantined",
+              "rejected",
+              "purged"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "import",
+              "render"
+            ]
+          },
+          "storage_key": {
+            "type": "string",
+            "description": "Identifiant opaque de stockage. Ce n’est ni une URL ni une autorisation de lecture."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "organization_id",
+          "name",
+          "sha256",
+          "size",
+          "pages",
+          "status",
+          "source",
+          "storage_key",
+          "created_at"
+        ]
+      },
+      "Dispatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "campaign_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email",
+              "postal"
+            ]
+          },
+          "recipient_json": {
+            "type": "string",
+            "description": "Objet destinataire normalisé sérialisé en JSON ; il ne s’agit pas d’un objet JSON dans cette réponse."
+          },
+          "document_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "sender_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "sender_address": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "html": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "options_json": {
+            "type": "string",
+            "description": "Options immuables sérialisées en JSON."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "prepared",
+              "queued",
+              "submitting",
+              "submission_unknown",
+              "accepted",
+              "delivered",
+              "failed",
+              "cancelled",
+              "bounced",
+              "complained",
+              "printed",
+              "handed_to_post"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "production"
+            ]
+          },
+          "estimated_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Estimation historique en centimes. Pour un fax v3, utiliser la fourchette faxPricing : ce champ ne représente pas une consommation définitive."
+          },
+          "ceiling_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Plafond réservé à la confirmation ; supérieur ou égal au montant estimé."
+          },
+          "known_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Montant connu projeté en centimes EUR ; consulter les nanoEUR du devis et le solde cumulé pour les prix fractionnaires."
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "prepare_key": {
+            "type": "string"
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "lease_until": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "active_attempt_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "quote_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "nullable": true
+          },
+          "quote_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "quote_pricing_basis": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "qualified_final_variable_cost",
+              "public_list_price_ex_tax"
+            ],
+            "description": "Base figée du devis. public_list_price_ex_tax désigne un tarif public SES HT avec conversion commerciale figée, pas le coût net exact de la facture AWS."
+          },
+          "quote_fx": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": false,
+            "required": [
+              "numerator",
+              "denominator",
+              "date",
+              "source"
+            ],
+            "properties": {
+              "numerator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "denominator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "source": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "description": "Conversion publique signée du devis : numerator/denominator EUR pour 1 USD. Absente des listes et nulle pour les devis historiques."
+          },
+          "quote_customer_nanoeur": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Montant client exact du devis de livraison, exprimé en nanoEUR (1 EUR = 1 000 000 000 nanoEUR). Projection des lectures enrichies ; peut être absent des listes SELECT* ou null sans devis de cette version. Ne jamais convertir null en zéro."
+          },
+          "faxPricing": {
+            "$ref": "#/components/schemas/FaxPricing"
+          }
+        },
+        "required": [
+          "id",
+          "organization_id",
+          "campaign_id",
+          "channel",
+          "recipient_json",
+          "document_id",
+          "sender_id",
+          "sender_address",
+          "subject",
+          "html",
+          "text",
+          "options_json",
+          "status",
+          "mode",
+          "estimated_minor",
+          "ceiling_minor",
+          "known_minor",
+          "currency",
+          "fingerprint",
+          "prepare_key",
+          "request_hash",
+          "provider",
+          "provider_id",
+          "lease_until",
+          "active_attempt_id",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "frozen",
+              "completed"
+            ]
+          },
+          "manifest_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "organization_id",
+          "name",
+          "status",
+          "manifest_hash",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "Approval": {
+        "type": "object",
+        "properties": {
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "fingerprint",
+          "expires_at"
+        ]
+      },
+      "ProviderEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "payload_json": {
+            "type": "string",
+            "description": "Données d’événement sérialisées en JSON."
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dispatch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "kind",
+          "payload_json",
+          "occurred_at",
+          "received_at",
+          "dispatch_id"
+        ]
+      },
+      "Attempt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "started",
+              "accepted",
+              "rejected",
+              "unknown"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "error_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "provider",
+          "provider_id",
+          "error_code",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "DispatchDetail": {
+        "type": "object",
+        "properties": {
+          "dispatch": {
+            "$ref": "#/components/schemas/Dispatch"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderEvent"
+            }
+          },
+          "attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attempt"
+            }
+          },
+          "approval": {
+            "type": "object",
+            "properties": {
+              "fingerprint": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "fingerprint",
+              "expires_at"
+            ],
+            "nullable": true,
+            "description": "Approbation non expirée correspondant à l’empreinte courante, sinon null. Ce champ ne permet pas de créer un consentement."
+          }
+        },
+        "required": [
+          "dispatch",
+          "events",
+          "attempts",
+          "approval"
+        ]
+      },
+      "Sender": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email",
+              "postal"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "pending",
+              "disabled"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "production"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "name",
+          "address",
+          "status",
+          "mode"
+        ]
+      },
+      "DocumentPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Curseur opaque ; renvoyer tel quel en query cursor. null marque la dernière page.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "DispatchPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dispatch"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Curseur opaque ; renvoyer tel quel en query cursor. null marque la dernière page.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "CampaignPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Campaign"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Curseur opaque ; renvoyer tel quel en query cursor. null marque la dernière page.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "WelcomeCredit": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "promotional",
+              "simulation"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "grantedMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reservedMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "spentMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "availableMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "grantedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "exhausted",
+              "not_granted",
+              "simulation"
+            ]
+          },
+          "renewal": {
+            "type": "string",
+            "enum": [
+              "none"
+            ]
+          },
+          "topUpAvailable": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "currency",
+          "grantedMinor",
+          "reservedMinor",
+          "spentMinor",
+          "availableMinor",
+          "grantedAt",
+          "status",
+          "renewal",
+          "topUpAvailable"
+        ]
+      },
+      "Usage": {
+        "type": "object",
+        "properties": {
+          "welcomeCredit": {
+            "$ref": "#/components/schemas/WelcomeCredit"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "fax",
+                    "email",
+                    "postal"
+                  ]
+                },
+                "period": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}$"
+                },
+                "limit_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reserved_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "confirmed_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit_minor": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reserved_minor": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "confirmed_minor": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "EUR"
+                  ]
+                }
+              },
+              "required": [
+                "channel",
+                "period",
+                "limit_count",
+                "reserved_count",
+                "confirmed_count",
+                "limit_minor",
+                "reserved_minor",
+                "confirmed_minor",
+                "currency"
+              ]
+            }
+          }
+        },
+        "required": [
+          "welcomeCredit",
+          "items"
+        ]
+      },
+      "Recipient": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Format international normalisé ; préfixes +33, +352 ou +49. Espaces, parenthèses et tirets sont retirés. Validation syntaxique, pas une preuve de délivrabilité."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "line1": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          }
+        }
+      },
+      "PrepareDispatch": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email",
+              "postal"
+            ]
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/Recipient"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "senderId": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 250
+          },
+          "html": {
+            "type": "string",
+            "description": "HTML nettoyé, 128 Kio UTF-8 maximum. Scripts, CSS client et ressources externes supprimés."
+          },
+          "text": {
+            "type": "string",
+            "description": "Texte non vide pour l’e-mail, 128 Kio UTF-8 maximum ; dérivé du HTML si absent."
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Objet JSON, sérialisation canonique de 8 192 caractères maximum. kind=marketing est refusé. Pour le fax réel, correspondance exacte avec les options du tarif qualifié."
+          },
+          "campaignId": {
+            "type": "string"
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "Entier en centimes EUR, >= estimation ; valeur par défaut : estimation. Ce n’est pas un prix fixé par le client."
+          }
+        },
+        "required": [
+          "channel",
+          "recipient"
+        ],
+        "additionalProperties": false
+      },
+      "CsvValidation": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "line": {
+                  "type": "integer",
+                  "minimum": 2
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "fax",
+                    "email",
+                    "postal"
+                  ]
+                },
+                "recipient": {
+                  "$ref": "#/components/schemas/Recipient"
+                }
+              },
+              "required": [
+                "line",
+                "channel",
+                "recipient"
+              ]
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "line": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "line",
+                "message"
+              ]
+            }
+          },
+          "duplicates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "line": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "duplicateOf": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "line",
+                "duplicateOf"
+              ]
+            }
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "rows",
+          "errors",
+          "duplicates",
+          "valid"
+        ]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "configuration_required"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "production"
+            ]
+          },
+          "liveSending": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "mode",
+          "liveSending"
+        ]
+      },
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "Guteneo"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "production"
+            ]
+          },
+          "simulation": {
+            "type": "boolean"
+          },
+          "humanApproval": {
+            "type": "string",
+            "enum": [
+              "authenticated_browser"
+            ]
+          },
+          "registration": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "verification": {
+                "type": "string",
+                "enum": [
+                  "verified_email",
+                  "verified_email_and_mfa"
+                ],
+                "description": "Politique de vérification configurée côté serveur. La bêta Auth0 Free utilise verified_email ; une configuration sans politique explicite conserve verified_email_and_mfa. Ce champ n’active pas les inscriptions."
+              }
+            },
+            "required": [
+              "enabled",
+              "verification"
+            ]
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "configured": {
+                "type": "boolean"
+              },
+              "mode": {
+                "type": "string"
+              },
+              "chargingEnabled": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              }
+            },
+            "required": [
+              "configured",
+              "mode",
+              "chargingEnabled"
+            ]
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "fax",
+                    "email",
+                    "postal"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "provider": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "configured_not_live_validated",
+                    "not_configured"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "provider",
+                "status"
+              ]
+            }
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "pdfBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "htmlBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "csvBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "campaignRows": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "attachments": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "pdfBytes",
+              "pages",
+              "htmlBytes",
+              "csvBytes",
+              "campaignRows",
+              "attachments"
+            ]
+          },
+          "liveSending": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "scanner": {
+            "type": "string",
+            "enum": [
+              "connected",
+              "disabled_in_local_simulation",
+              "missing_quarantine"
+            ]
+          },
+          "assistants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "not_tested_in_real_client"
+                  ]
+                },
+                "transport": {
+                  "type": "string",
+                  "enum": [
+                    "Streamable HTTP"
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "status",
+                "transport"
+              ]
+            }
+          },
+          "mcpUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "productionBlockers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documents": {
+            "type": "object",
+            "properties": {
+              "import": {
+                "type": "boolean"
+              },
+              "render": {
+                "type": "boolean"
+              },
+              "exactBytes": {
+                "type": "boolean"
+              },
+              "urlImport": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "import",
+              "render",
+              "exactBytes",
+              "urlImport"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "mode",
+          "simulation",
+          "humanApproval",
+          "registration",
+          "billing",
+          "channels",
+          "limits",
+          "liveSending",
+          "scanner",
+          "assistants",
+          "mcpUrl",
+          "identity",
+          "productionBlockers",
+          "documents"
+        ]
+      },
+      "PostalRecipient": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "line1",
+          "postalCode",
+          "city",
+          "country"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "line1": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "postalCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          }
+        }
+      },
+      "PostalPrintOptions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deliveryProduct",
+          "printMode",
+          "printSpectrum"
+        ],
+        "properties": {
+          "deliveryProduct": {
+            "type": "string",
+            "enum": [
+              "cheap",
+              "fast"
+            ]
+          },
+          "printMode": {
+            "type": "string",
+            "enum": [
+              "simplex",
+              "duplex"
+            ]
+          },
+          "printSpectrum": {
+            "type": "string",
+            "enum": [
+              "grayscale",
+              "color"
+            ]
+          }
+        }
+      },
+      "PostalPreflightInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "documentId",
+          "senderId",
+          "recipient",
+          "options",
+          "ceilingMinor"
+        ],
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "senderId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PostalPrintOptions"
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Plafond en centimes EUR ; ne constitue pas le tarif."
+          }
+        }
+      },
+      "PostalReview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "document",
+          "recipient",
+          "options",
+          "ceilingMinor",
+          "reviewUrl",
+          "checks",
+          "address",
+          "canTransfer",
+          "transferStatus",
+          "draftId",
+          "canSend"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "review_required",
+              "blocked",
+              "failed"
+            ]
+          },
+          "document": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "sha256",
+              "pages",
+              "previewUrl"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "previewUrl": {
+                "type": "string",
+                "description": "Chemin privé de contenu PDF ; authentification requise."
+              }
+            }
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "deliveryProduct",
+              "printMode",
+              "printSpectrum",
+              "addressPosition"
+            ],
+            "properties": {
+              "deliveryProduct": {
+                "type": "string",
+                "enum": [
+                  "cheap",
+                  "fast"
+                ]
+              },
+              "printMode": {
+                "type": "string",
+                "enum": [
+                  "simplex",
+                  "duplex"
+                ]
+              },
+              "printSpectrum": {
+                "type": "string",
+                "enum": [
+                  "grayscale",
+                  "color"
+                ]
+              },
+              "addressPosition": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            }
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reviewUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Ouvrir ce lien dans la session Guteneo pour relire le PDF et consentir au transfert fournisseur."
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "complete",
+              "dpi",
+              "pages",
+              "issues"
+            ],
+            "properties": {
+              "complete": {
+                "type": "boolean"
+              },
+              "dpi": {
+                "type": "integer",
+                "minimum": 1,
+                "nullable": true
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "page",
+                    "width",
+                    "height"
+                  ],
+                  "properties": {
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "width": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "address": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expectedLines",
+              "extractedLines",
+              "matches",
+              "cropUrl"
+            ],
+            "properties": {
+              "expectedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "extractedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "matches": {
+                "type": "boolean"
+              },
+              "cropUrl": {
+                "type": "string",
+                "nullable": true,
+                "description": "Chemin authentifié de l’extrait PNG ; aucune URL fournisseur publique."
+              }
+            }
+          },
+          "canTransfer": {
+            "type": "boolean",
+            "description": "Éligibilité technique seulement ; ne remplace jamais la revue et le consentement navigateur."
+          },
+          "transferStatus": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "preparing",
+              "prepared",
+              "unknown"
+            ]
+          },
+          "draftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "canSend": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        }
+      },
+      "PostalRequirements": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "pingen"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "qualified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          },
+          "profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "defaultCountry": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "addressPosition": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            },
+            "required": [
+              "defaultCountry",
+              "addressPosition"
+            ]
+          },
+          "layout": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "profile": {
+                "type": "string",
+                "enum": [
+                  "general",
+                  "france_domestic"
+                ]
+              },
+              "address": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "postage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "corner": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "edgeMm": {
+                "type": "number",
+                "enum": [
+                  5
+                ]
+              }
+            },
+            "required": [
+              "profile",
+              "address",
+              "postage",
+              "corner",
+              "edgeMm"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pdfBytes": {
+                "type": "integer",
+                "enum": [
+                  8000000
+                ]
+              },
+              "pages": {
+                "type": "integer",
+                "enum": [
+                  100
+                ]
+              },
+              "pageWidthMm": {
+                "type": "integer",
+                "enum": [
+                  210
+                ]
+              },
+              "pageHeightMm": {
+                "type": "integer",
+                "enum": [
+                  297
+                ]
+              },
+              "renderDpi": {
+                "type": "integer",
+                "enum": [
+                  144
+                ]
+              }
+            },
+            "required": [
+              "pdfBytes",
+              "pages",
+              "pageWidthMm",
+              "pageHeightMm",
+              "renderDpi"
+            ]
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canSend": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "provider",
+          "version",
+          "qualified",
+          "country",
+          "profile",
+          "layout",
+          "limits",
+          "requirements",
+          "canSend"
+        ]
+      },
+      "FaxPricing": {
+        "type": "object",
+        "nullable": true,
+        "additionalProperties": false,
+        "description": "Fourchette client HT du fax v3 et décompte après vérification de l’usage. 1 EUR = 1 000 000 000 nanoEUR ; les centimes servent au plafond et au solde. Les coûts fournisseur restent privés. Absent ou nul pour les autres versions : ne jamais interpréter cette absence comme un prix nul.",
+        "required": [
+          "version",
+          "currency",
+          "basis",
+          "estimatedLowNanoeur",
+          "estimatedHighNanoeur",
+          "ceilingMinor",
+          "fx",
+          "settlement"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              3
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "qualified_usage_ex_tax"
+            ]
+          },
+          "estimatedLowNanoeur": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Borne basse de l’estimation client, pas une garantie de consommation finale."
+          },
+          "estimatedHighNanoeur": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Borne haute estimée. Le plafond approuvé reste la limite ferme du client."
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Plafond client ferme en centimes EUR, réservé à la confirmation."
+          },
+          "fx": {
+            "type": "object",
+            "nullable": false,
+            "additionalProperties": false,
+            "required": [
+              "numerator",
+              "denominator",
+              "date",
+              "source"
+            ],
+            "properties": {
+              "numerator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "denominator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "description": "Taux EUR par USD figé pour ce devis."
+          },
+          "settlement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "customerNanoeur",
+              "chargedMinor",
+              "settledAt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_reserved",
+                  "reserved",
+                  "settled",
+                  "released"
+                ],
+                "description": "reserved reste possible après delivered/failed : le décompte attend un usage rapproché et vérifié. released signifie une réserve libérée sans débit. Ne jamais réexpédier à cause d’un décompte en attente."
+              },
+              "customerNanoeur": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true,
+                "description": "Consommation client HT validée en nanoEUR, dans la limite du plafond. Nulle avant règlement ; zéro est un montant vérifié."
+              },
+              "chargedMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true,
+                "description": "Débit du solde en centimes après cumul des fractions sur l’organisation. Peut être zéro pour une consommation positive inférieure au centime déjà couverte par le cumul."
+              },
+              "settledAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error503": {
+        "description": "Configuration, moteur PDF, scanner ou service requis indisponible.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Erreur interne ; conserver X-Correlation-ID.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error400": {
+        "description": "Requête invalide : VALIDATION_ERROR, INVALID_CURSOR, INVALID_IDEMPOTENCY_KEY ou autre validation métier.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error401": {
+        "description": "Authentification absente, invalide ou expirée.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Scope, rôle, adhésion ou connexion OAuth insuffisants ; ONBOARDING_REQUIRED possible. La démonstration publique retourne PREVIEW_ONLY pour /api/*.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Ressource absente dans cette organisation.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error409": {
+        "description": "Conflit d’état, d’approbation, d’idempotence, de quota ou de devis. Ne pas contourner en créant un nouvel envoi.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error413": {
+        "description": "Corps, fichier ou campagne trop volumineux.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error429": {
+        "description": "Limite de requêtes ou quota de documents atteint.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "Retry-After": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "60 pour la limite HTTP de 180 requêtes/minute/organisation. Les erreurs de quota documentaire n’ont pas nécessairement cet en-tête."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error423": {
+        "description": "PDF non consultable : quarantaine ou intégrité invalide.",
+        "headers": {
+          "X-Correlation-ID": {
+            "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Guide développeurs Guteneo",
+    "url": "https://guteneo.com/developpeurs/"
+  }
+}

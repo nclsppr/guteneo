@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "checkedAt": "2026-09-17T04:33:19.078Z",
+  "rows": [
+    {
+      "users": 0,
+      "organizations": 0,
+      "documents": 0,
+      "dispatches": 0,
+      "pingenReceipts": 0
+    }
+  ],
+  "rowsWritten": 0
+}

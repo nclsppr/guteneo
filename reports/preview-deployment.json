@@ -1,0 +1,161 @@
+{
+  "verifiedAt": "2026-09-16T20:15:22.800Z",
+  "origin": "https://guteneo.com",
+  "manifestMatches": true,
+  "verifiedAssetCount": 25,
+  "versionId": "71f30997-dfbd-4f70-a4ce-10cfa4367e81",
+  "release": {
+    "product": "Guteneo",
+    "mode": "public-design-preview",
+    "publicPreview": true,
+    "liveSendsEnabled": false,
+    "sourceCommit": "ef4fcd7afdce0b8aa8eeb161ee725011556c01fb",
+    "sourceTree": "c74f6e4ecbf6ec97d5fa996ed5af38ec9c2606c1",
+    "sourceDirty": true,
+    "sourceSnapshotSha256": "8782be19b3b37033e5ca0935bda82ac1fbbf22157f042cb1e8741e247caf5b26",
+    "sourceSnapshotScope": [
+      "apps/web",
+      "apps/preview",
+      "packages",
+      "scripts/build-preview.mjs",
+      "wrangler.preview.jsonc",
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json"
+    ],
+    "builtAt": "2026-09-16T20:12:03.977Z",
+    "assetsSha256": "b16373b573c5d765d55b09ff9fae14fb219a66239dc6454002f79720a1c27486",
+    "assets": [
+      {
+        "path": "/_headers",
+        "bytes": 355,
+        "sha256": "08882150bc46d042044244a1c646fe6fc9461486132497fc36d49312f4d65336"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-400-italic-CDFyLPXJ.woff",
+        "bytes": 30864,
+        "sha256": "ee21466cc9fc9b46c76ccd9dc92eb23cfe91c39f1d625a60a894c8037ca657fb"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-400-italic-DSEbMgZu.woff2",
+        "bytes": 25388,
+        "sha256": "fc5851c4466e73bec048bb62d65f8abadf70d602816687e6d364214e35fa8abb"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-400-normal-BCNrxLz_.woff2",
+        "bytes": 23820,
+        "sha256": "912929dba0faab5e151849ea5e988adba3080ad6d2bcc4dbff27aa427896498d"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-400-normal-maQnHeKB.woff",
+        "bytes": 28608,
+        "sha256": "4667d9135a659b8fae5b5d74eac679150d12dd0e72196fc120f94c0d676568c5"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-500-normal-DehAIUv0.woff2",
+        "bytes": 25264,
+        "sha256": "7b252686ba2797f0a376a4ce7e56534dfc2007fba8b50546bb11b24f9279b5c7"
+      },
+      {
+        "path": "/assets/eb-garamond-latin-500-normal-DZU8xF9o.woff",
+        "bytes": 30208,
+        "sha256": "bf302c59b1370d8f4b5594e98d2c352ce21ba33211a66b2874fb3fa7d6c81c5e"
+      },
+      {
+        "path": "/assets/es-DgkR2xIP.js",
+        "bytes": 419967,
+        "sha256": "5f25dd173ab0c5584223cdcdafc647133654d23b2f18bed2b31bfa200fa71fa7"
+      },
+      {
+        "path": "/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff",
+        "bytes": 13144,
+        "sha256": "328d50b6ece9ca25c46eea3e885ba497f6237f2fb84ef7b92f88e14a1a25e381"
+      },
+      {
+        "path": "/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",
+        "bytes": 14708,
+        "sha256": "08949f728dc52d528e69b1667d15c89a5686a4ee9a296ff90983985f99c380f7"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",
+        "bytes": 22588,
+        "sha256": "3b646991d30055a93a4ecc499713d4347953a74a947ecab435ab72070cbdab0e"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff",
+        "bytes": 22104,
+        "sha256": "828907bfd14855c880789878bd2b38ffd284a6c27c8b80f6069900f70dae3901"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2",
+        "bytes": 24184,
+        "sha256": "0717336fb31fcdcde4b8deb3675bb4a0f7f6d484864afcd6751ac29975962203"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff",
+        "bytes": 23916,
+        "sha256": "8d2c7b2eca91869d447851a9c8bd07edf629b26025eacb882291e03b384b4e35"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff",
+        "bytes": 23876,
+        "sha256": "7861a349af1e925a80d56547c2c9e0b1e9f6a9002a9a6867351da2f05122ad21"
+      },
+      {
+        "path": "/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",
+        "bytes": 24252,
+        "sha256": "8960851d691c054ed38e259bdcf1a6190d157b4203ed5bb32c632a863fb8ec2f"
+      },
+      {
+        "path": "/assets/index-CZWp_pzh.js",
+        "bytes": 348733,
+        "sha256": "c49c45dd9ab5d45a4eca1cdba064feab280e9c505268dd905dbce57a7c70c008"
+      },
+      {
+        "path": "/assets/index-DkMDHJTi.css",
+        "bytes": 35851,
+        "sha256": "f6cc9b684d9dbbe240dc20fe818dd76c68ebfe429c6b4c54d9c5c12f4a8d21cc"
+      },
+      {
+        "path": "/assets/pdf-viewer-DOjh1ARt.js",
+        "bytes": 433517,
+        "sha256": "11ec58f0cf220fbfe5a1ff13a94a34b66bdf000698780f929c56208f7f158cb6"
+      },
+      {
+        "path": "/assets/pdf.worker.min-Dswkl-cV.mjs",
+        "bytes": 1265413,
+        "sha256": "8ab0e5e30031b4a06ecfddd5ae9562f0227f830ee7ec9ed1a968b134243d2386"
+      },
+      {
+        "path": "/assets/preview-q44hS3EO.js",
+        "bytes": 32502,
+        "sha256": "1fe0bd58a2466d6acb408e160c459c8de660ba934c3152d6791a3f643d200d3c"
+      },
+      {
+        "path": "/assets/rolldown-runtime-CbXtAM7H.js",
+        "bytes": 589,
+        "sha256": "bbf7c5086ae414dc3f33777e3eebf16ea8631325b8bb4690d25091c03567f31a"
+      },
+      {
+        "path": "/favicon.svg",
+        "bytes": 235,
+        "sha256": "1e128260bf28b9afdb00b8d53087e7a758d58954d5e2b861ceab08bf0c14bcb8"
+      },
+      {
+        "path": "/index.html",
+        "bytes": 803,
+        "sha256": "2d2edea9564ebd3268baf9627149d797f1e5cfa9982efc60c1393bf9d5853973"
+      },
+      {
+        "path": "/press-halftone.webp",
+        "bytes": 410048,
+        "sha256": "1e86ef2a0c8fb02d22f8adbce19b46ca38ab3a0a5f0cbe5b8c8db2e1cb5d47d8"
+      },
+      {
+        "path": "/robots.txt",
+        "bytes": 26,
+        "sha256": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1"
+      }
+    ]
+  }
+}

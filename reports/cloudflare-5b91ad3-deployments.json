@@ -1,0 +1,42 @@
+{
+  "runtimeSourceCommit": "5b91ad312ec14b40fa3441382d69782cc6343c96",
+  "deploymentSuccess": true,
+  "deployments": [
+    {
+      "id": "4e0a5948-9dc8-48ca-9106-32bb65c30497",
+      "created_on": "2026-09-17T03:42:43.087307Z",
+      "source": "wrangler",
+      "versions": [
+        {
+          "version_id": "0cac0373-eca4-454d-af8c-322d76fcc8d9",
+          "percentage": 100
+        }
+      ]
+    }
+  ],
+  "settingsSuccess": true,
+  "bindings": [
+    {
+      "name": "LIVE_SENDS_ENABLED",
+      "type": "plain_text",
+      "text": "false"
+    },
+    {
+      "name": "PINGEN_SANDBOX",
+      "type": "secret_text"
+    },
+    {
+      "name": "PINGEN_UPLOAD_ORIGINS",
+      "type": "secret_text"
+    },
+    {
+      "name": "POSTAL_DRAFTS_ENABLED",
+      "type": "plain_text",
+      "text": "true"
+    },
+    {
+      "name": "TELNYX_OUTBOUND_VOICE_PROFILE_ID",
+      "type": "secret_text"
+    }
+  ]
+}

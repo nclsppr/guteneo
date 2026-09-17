@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "guteneo": {
+      "type": "http",
+      "url": "https://guteneo.com/mcp",
+      "oauth": {
+        "clientId": "REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID",
+        "callbackPort": 8788,
+        "scopes": "documents:read documents:write dispatches:prepare dispatches:send dispatches:read"
+      }
+    }
+  }
+}

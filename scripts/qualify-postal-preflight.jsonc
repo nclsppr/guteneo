@@ -1,0 +1,14 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "guteneo-local-postal-qualification",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "compatibility_date": "2026-09-17",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "services": [
+    { "binding": "SCANNER", "service": "guteneo-scanner", "remote": true },
+    { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents", "remote": true }
+  ],
+  "observability": { "enabled": false }
+}

@@ -1,0 +1,20 @@
+{
+  "origin": "https://guteneo.com",
+  "paths": [
+    "/",
+    "/journal/",
+    "/journal/de-gutenberg-au-numerique/",
+    "/journal/histoire-imprimerie-luxembourg/",
+    "/mentions-legales/",
+    "/developpeurs/"
+  ],
+  "privatePrefixes": [
+    "api",
+    "auth",
+    "oauth",
+    "mcp",
+    "webhooks",
+    "media",
+    ".well-known"
+  ]
+}

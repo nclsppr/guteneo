@@ -1,0 +1,20 @@
+{
+  "width": 600,
+  "height": 600,
+  "originalWidth": 1254,
+  "originalHeight": 1254,
+  "alpha": true,
+  "references": [
+    "apps/web/public/press-halftone.webp"
+  ],
+  "conversion": "cwebp -q 88 -resize 600 600 assets/brand/source/luxembourg-blue-swallow-sheet.png -o apps/web/public/luxembourg-blue-swallow-sheet.webp",
+  "prompt": "Use case: stylized-concept. Asset type: four-frame transparent sprite sheet for a small animated swallow on Guteneo's website. Generate one square PNG with genuine transparent alpha background. Arrange exactly FOUR square animation frames in a perfect 2 by 2 equal grid, no visible grid lines or labels. Each frame shows the SAME slender swallow, SIDE VIEW, body horizontal facing right, beak and forked tail fixed at identical relative positions, same scale and center, no body rotation. Only the wings change to create a clean wingbeat cycle: upper-left wings fully raised; upper-right wings spread at mid height; lower-left wings swept fully down; lower-right wings spread at mid height again. Keep generous transparent space all around each full bird so no feather touches the borders. The bird uses only crisp COBALT BLUE #2450DB ink, antique copperplate engraving lines and tiny visible halftone dots. Ivory highlights must be transparent, not filled white. The attached printing-press image is the exact blue engraved/dither style reference, not a subject to include. Each swallow must have anatomically coherent two wings, one slim body, one head and one forked tail. No extra birds, no letters, no watermark, no frame borders, no gray/black ink, no landscape, no shadows or glow, no checkerboard painted into the image. Deliver 1024 by 1024 with real alpha pixels, four equal 512 by 512 cells.",
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-09-17",
+  "source": "assets/brand/source/luxembourg-blue-swallow-sheet.png",
+  "sourceSha256": "6e67c4d2d5e7d7b299caca6257e48224d3dba26529c49745608d4f0c941f00cf",
+  "sourceBytes": 1022187,
+  "web": "apps/web/public/luxembourg-blue-swallow-sheet.webp",
+  "webSha256": "d70e87fa3391b80fd9280c93e3ec795d5cf036417159f92cfe61887e75cf5e37",
+  "webBytes": 72336
+}
