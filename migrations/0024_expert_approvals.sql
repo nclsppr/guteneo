@@ -22,6 +22,12 @@ CREATE TRIGGER expert_policy_owner_update BEFORE UPDATE ON expert_approval_polic
 BEGIN
   SELECT RAISE(ABORT,'expert_policy_invalid') WHERE NEW.connection_id<>OLD.connection_id OR NEW.organization_id<>OLD.organization_id OR NEW.user_id<>OLD.user_id OR NEW.revision<>OLD.revision+1 OR NEW.created_at<>OLD.created_at;
 END;
+-- Reconnecting or revoking OAuth never silently revives an earlier delegation.
+CREATE TRIGGER expert_policy_connection_changed AFTER UPDATE OF status,organization_id,not_before,updated_at ON authorized_connections
+WHEN NEW.status<>OLD.status OR NEW.organization_id<>OLD.organization_id OR NEW.not_before<>OLD.not_before OR NEW.updated_at<>OLD.updated_at
+BEGIN
+  UPDATE expert_approval_policies SET enabled=0,revision=revision+1,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE connection_id=NEW.id AND enabled=1;
+END;
 CREATE VIEW active_expert_approval_policies AS SELECT p.*,c.client_id,c.issuer,c.updated_at AS connection_updated_at,c.not_before FROM expert_approval_policies p JOIN authorized_connections c ON c.id=p.connection_id AND c.organization_id=p.organization_id AND c.user_id=p.user_id JOIN memberships m ON m.organization_id=p.organization_id AND m.user_id=p.user_id WHERE p.enabled=1 AND p.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND c.status='active' AND m.role='admin';
 CREATE TABLE expert_dispatch_reviews (
   token_hash TEXT PRIMARY KEY CHECK(length(token_hash)=64),

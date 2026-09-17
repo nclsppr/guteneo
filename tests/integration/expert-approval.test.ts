@@ -379,6 +379,30 @@ describe("expert delegation against real D1 and signed OAuth identities", () => 
       expect(await count("outbox")).toBe(0);
     },
   );
+  it("never revives an expert mandate when a revoked OAuth connection is reconnected", async () => {
+    await grant();
+    const row = await prepare();
+    await db
+      .prepare("UPDATE authorized_connections SET status='revoked' WHERE id=?")
+      .bind(connection)
+      .run();
+    await db
+      .prepare(
+        "UPDATE authorized_connections SET status='active',updated_at=? WHERE id=?",
+      )
+      .bind(later(1), connection)
+      .run();
+    const policy = await db
+      .prepare(
+        "SELECT enabled,revision FROM expert_approval_policies WHERE connection_id=?",
+      )
+      .bind(connection)
+      .first();
+    expect(policy).toMatchObject({ enabled: 0, revision: 2 });
+    await expect(
+      reviewExpertDispatch(identity, env, domain, row.id),
+    ).rejects.toMatchObject({ code: "EXPERT_OPT_IN_REQUIRED" });
+  });
   it("enforces channel and per-send limits before minting a review", async () => {
     await grant({ channels: '["fax"]' });
     const row = await prepare();

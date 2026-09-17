@@ -45,6 +45,7 @@ function ConnectionSettings({
   const id = useId();
   const policy = connection.policy;
   const active =
+    canManage &&
     connection.status === "active" &&
     policy?.enabled &&
     new Date(policy.expiresAt).getTime() > Date.now();
@@ -168,11 +169,13 @@ function ConnectionSettings({
         <span className="expert-state">
           {connection.status === "revoked"
             ? "Connexion révoquée"
-            : active
-              ? "Délégation active"
-              : policy?.enabled
-                ? "Délégation expirée"
-                : "Désactivée"}
+            : policy?.enabled && !canManage
+              ? "Inactive · rôle administrateur requis"
+              : active
+                ? "Délégation active"
+                : policy?.enabled
+                  ? "Délégation expirée"
+                  : "Désactivée"}
         </span>
       </div>
       {policy && (
