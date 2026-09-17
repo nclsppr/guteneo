@@ -539,6 +539,7 @@ ol {
 }
 .organization {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 11px;
   border-top: 1px solid var(--line);
@@ -568,8 +569,10 @@ ol {
   overflow-wrap: anywhere;
 }
 .organization small {
+  display: block;
   font-size: 11px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 .sidebar nav {
   display: flex;
@@ -1988,7 +1991,8 @@ ol {
     border-bottom: 1px solid var(--line);
     padding: 15px 18px 0;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 16px;
   }
   .sidebar-brand {
     padding: 0 0 14px;
@@ -2001,6 +2005,7 @@ ol {
     display: none;
   }
   .organization {
+    justify-self: end;
     border: 0;
     padding: 0;
     margin: 0 0 12px;
@@ -3651,7 +3656,8 @@ ol {
     height: auto;
     padding: 18px 28px 0;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 16px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
@@ -3659,6 +3665,7 @@ ol {
     padding: 0 0 14px;
   }
   .workspace .organization {
+    justify-self: end;
     border: 0;
     margin: 0;
     padding: 0 0 14px;
