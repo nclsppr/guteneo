@@ -296,6 +296,9 @@ test("lost transfer response requires fresh server state before any further acti
   page,
 }) => {
   const fixture = await setup(page, "lost_response");
+  // Review the rendered page before confirming it: PDF sizing and navigation
+  // otherwise change the mobile layout while WebKit clicks the consent box.
+  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
   await page
     .getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ })
     .check();
