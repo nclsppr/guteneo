@@ -127,8 +127,10 @@ describe("exact remote document imports", () => {
     expect(upload).toHaveBeenCalledWith(actor, { name: file.file_name, bytes });
   });
 
-  it("imports from the observed ChatGPT Azure account without authorizing other storage accounts", async () => {
-    const azureHost = "oaisdmntprnortheu.blob.core.windows.net";
+  it.each([
+    "oaisdmntprnortheu.blob.core.windows.net",
+    "oaisdmntprdenmarkeast.blob.core.windows.net",
+  ])("imports from observed ChatGPT account %s without authorizing other storage accounts", async (azureHost) => {
     const azureSource = `https://${azureHost}/${secret}?sig=${secret}`;
     const allowed = `${host}, ${azureHost.toUpperCase()} `;
     expect(permittedImportUrl(azureSource, allowed).href).toBe(azureSource);

@@ -25,7 +25,7 @@
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
     "LIVE_SEND_CHANNELS": "fax",
     // ChatGPT fileParams downloads. Exact host only; no redirects or wildcard sources.
-    "IMPORT_ALLOWED_HOSTS": "files.oaiusercontent.com,oaisdmntprnortheu.blob.core.windows.net",
+    "IMPORT_ALLOWED_HOSTS": "files.oaiusercontent.com,oaisdmntprnortheu.blob.core.windows.net,oaisdmntprdenmarkeast.blob.core.windows.net",
     // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
     "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",

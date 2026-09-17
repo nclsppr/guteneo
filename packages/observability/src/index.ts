@@ -91,6 +91,7 @@ export type ImportSourceCategory = (typeof importSourceCategories)[number];
 export const knownImportHosts = [
   "files.oaiusercontent.com",
   "oaisdmntprnortheu.blob.core.windows.net",
+  "oaisdmntprdenmarkeast.blob.core.windows.net",
 ] as const;
 export interface ImportFailureObservation {
   reason: ImportFailureReason;
