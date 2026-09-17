@@ -62,6 +62,7 @@ export async function createFaxUsageFixture(
   db: D1Database,
   clock: () => number,
   overrides: Partial<FaxUsageTariff> = {},
+  pages = 2,
 ) {
   const org = `fixture_${crypto.randomUUID()}`,
     now = new Date(clock()).toISOString();
@@ -118,7 +119,7 @@ export async function createFaxUsageFixture(
     name: "synthetic.pdf",
     sha256: "a".repeat(64),
     size: 100,
-    pages: 2,
+    pages,
     status: "ready",
     source: "import",
     storageKey: `fixture/${documentId}.pdf`,

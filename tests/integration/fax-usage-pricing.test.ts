@@ -26,6 +26,7 @@ import {
 } from "../../packages/domain/src/live-fax-usage";
 import { validateLiveFaxQuote } from "../../packages/domain/src/live-fax-quotes";
 import { emailRateComponents } from "../../packages/domain/src/live-delivery-quotes";
+import luDeck from "../fixtures/telnyx-luxembourg-local.json";
 import {
   createFaxUsageFixture,
   insertRecord,
@@ -852,7 +853,7 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
       available_minor: 5000,
     });
   });
-  it("does not widen testing to mobiles or another Luxembourg prefix", async () => {
+  it("keeps a destination closed when no matching tariff was installed", async () => {
     await fixture();
     f.input.recipient.phone = "+35260000000";
     await expect(prepare()).rejects.toMatchObject({
@@ -918,7 +919,7 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     { operator_test_ceiling_minor: 201 },
     { local_calling_verified: 1 },
     { destination_prefix: "+352" },
-    { destination_prefix: "+3526" },
+    { destination_prefix: "+3536" },
     { destination_category: "special" },
     { origin_class: "eea" },
     { destination_country_code: "FR", destination_prefix: "+334" },
@@ -944,5 +945,179 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
         expires_at: "2026-09-23T00:00:00.001Z",
       }),
     ).rejects.toThrow();
+  });
+});
+
+describe("Luxembourg local rate coverage — isolated D1, no provider calls", () => {
+  beforeEach(() => {
+    clock = Date.parse("2026-09-17T12:00:00.000Z");
+  });
+  const routes = luDeck.groups.flatMap((group) =>
+    group.prefixes.map((prefix) => ({ ...group, prefix })),
+  );
+  async function coverageFixture(route: (typeof routes)[number], pages = 1) {
+    f = await createFaxUsageFixture(
+      db,
+      () => clock,
+      {
+        origin_class: "local",
+        destination_country_code: "LU",
+        destination_prefix: route.prefix,
+        destination_category:
+          route.category as FaxUsageTariff["destination_category"],
+        minute_nano_usd: route.minuteNanoUsd,
+        page_nano_usd: luDeck.pageNanoUsd,
+        fx_numerator: luDeck.fxNumerator,
+        fx_denominator: luDeck.fxDenominator,
+        duration_base_seconds: luDeck.durationBaseSeconds,
+        duration_high_per_page_seconds: luDeck.durationHighPerPageSeconds,
+        max_pages: route.maxPages,
+        local_calling_verified: 0,
+        route_qualification: "operator_test",
+        operator_authorization_reference: "SYNTHETIC OPERATOR TEST — NO SEND",
+        operator_test_ceiling_minor: 200,
+      },
+      pages,
+    );
+    f.input.recipient.phone = `${route.prefix}000000`;
+  }
+  it.each(routes)(
+    "prepares separately priced $category $prefix",
+    async (route) => {
+      await coverageFixture(route);
+      const d = await prepare(200);
+      expect(d.faxPricing?.routeQualification).toBe("operator_authorized_test");
+      expect(d.faxPricing?.ceilingMinor).toBe(200);
+      expect(await balance()).toEqual({
+        reserved_minor: 0,
+        spent_minor: 0,
+        available_minor: 5000,
+      });
+    },
+  );
+  it.each(luDeck.groups)(
+    "keeps $category/$minuteNanoUsd within EUR2 at $maxPages pages",
+    async (group) => {
+      const route = { ...group, prefix: group.prefixes[0] };
+      await coverageFixture(route, group.maxPages);
+      const d = await queue(200);
+      expect(d.estimated_minor).toBeLessThanOrEqual(200);
+      expect(await balance()).toEqual({
+        reserved_minor: 200,
+        spent_minor: 0,
+        available_minor: 4800,
+      });
+      await coverageFixture(route, group.maxPages + 1);
+      await expect(prepare(200)).rejects.toThrow();
+      expect(await balance()).toEqual({
+        reserved_minor: 0,
+        spent_minor: 0,
+        available_minor: 5000,
+      });
+    },
+  );
+  it.each([
+    ["+35229", "+352291"],
+    ["+3526", "+35260"],
+  ])(
+    "selects %s's more-specific %s rate and does not fall back after revocation",
+    async (broad, specific) => {
+      await coverageFixture(routes.find((route) => route.prefix === broad)!);
+      f.input.recipient.phone = `${specific}000000`;
+      const broadQuote = await prepare(200);
+      const matched = routes.find((route) => route.prefix === specific)!;
+      const specificTariff = {
+        ...f.tariff,
+        id: `${f.tariff.id}_specific`,
+        destination_prefix: specific,
+        destination_category: matched.category,
+        minute_nano_usd: matched.minuteNanoUsd,
+        max_pages: matched.maxPages,
+      };
+      await insertRecord(db, "trusted_fax_usage_tariffs", specificTariff);
+      await expect(
+        f.domain.approveDispatch(f.ctx, broadQuote.id, broadQuote.fingerprint),
+      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+      const specificQuote = await prepare(200);
+      expect(
+        await db
+          .prepare(
+            "SELECT tariff_id FROM live_fax_quotes_v3 WHERE dispatch_id=?",
+          )
+          .bind(specificQuote.id)
+          .first(),
+      ).toEqual({ tariff_id: specificTariff.id });
+      expect(specificQuote.estimated_minor).toBeGreaterThan(
+        broadQuote.estimated_minor,
+      );
+      await db
+        .prepare(
+          "UPDATE trusted_fax_usage_tariffs SET status='revoked' WHERE id=?",
+        )
+        .bind(specificTariff.id)
+        .run();
+      await expect(prepare(200)).rejects.toMatchObject({
+        code: "LIVE_PRICING_REQUIRED",
+      });
+      await expect(
+        f.domain.approveDispatch(f.ctx, broadQuote.id, broadQuote.fingerprint),
+      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+      await expect(
+        f.domain.approveDispatch(
+          f.ctx,
+          specificQuote.id,
+          specificQuote.fingerprint,
+        ),
+      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+      // A newly authorized replacement at the SAME prefix can restore the route.
+      await insertRecord(db, "trusted_fax_usage_tariffs", {
+        ...specificTariff,
+        id: `${specificTariff.id}_replacement`,
+      });
+      const restored = await prepare(200);
+      expect(
+        await db
+          .prepare(
+            "SELECT tariff_id FROM live_fax_quotes_v3 WHERE dispatch_id=?",
+          )
+          .bind(restored.id)
+          .first(),
+      ).toEqual({ tariff_id: `${specificTariff.id}_replacement` });
+    },
+  );
+  it("does not grant non-fixed routes provider qualification or generic country pricing", async () => {
+    await coverageFixture(routes.find((route) => route.category === "mobile")!);
+    for (const override of [
+      { destination_prefix: "+352" },
+      { destination_category: "special" },
+      {
+        route_qualification: "provider_verified",
+        operator_authorization_reference: null,
+        operator_test_ceiling_minor: null,
+        local_calling_verified: 1,
+      },
+    ]) {
+      await expect(
+        insertRecord(db, "trusted_fax_usage_tariffs", {
+          ...f.tariff,
+          id: crypto.randomUUID(),
+          status: "revoked",
+          ...override,
+        }),
+      ).rejects.toThrow();
+    }
+    for (const phone of [
+      "+3521200000",
+      "+3529000000",
+      "+3522100000",
+      "+35360000000",
+    ]) {
+      f.input.recipient.phone = phone;
+      await expect(prepare(200)).rejects.toMatchObject({
+        code: phone.startsWith("+353")
+          ? "INVALID_PHONE"
+          : "LIVE_PRICING_REQUIRED",
+      });
+    }
   });
 });

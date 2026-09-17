@@ -6,7 +6,7 @@ The Fax API application's saved webhook was changed, then reread after reloading
 
 Current portal observations supersede the older concurrency observations below: the application is active with outbound channel limit **5**, and its active Default profile reports an account outbound concurrent limit of **10**. Luxembourg, France and Germany are selected, among 52 European countries plus US/Canada. The existing single National LU number is active and attached, T.38 is enabled, HD voice disabled, billing per minute. Neither application concurrency nor account concurrency was changed during this audit. Daily spend enforcement and Repeat Call Guard are disabled; ambiguous grey profile placeholders are not confirmed numerical limits.
 
-## Explicit Luxembourg operator test — migration 0025
+## Initial Luxembourg operator test — migration 0025
 
 The operator explicitly authorized Luxembourg tests without waiting for Telnyx's Local Calling response. This is recorded separately from provider qualification. Migration 0025 and the application support a private `route_qualification=operator_test` tariff with `local_calling_verified=0`, a nonempty immutable authorization reference, LU-to-LU fixed prefix **+3524**, at most 10 pages, at most seven days of validity, and an operator ceiling no higher than **EUR2 per fax**. Both the domain and the authoritative SQL quote view enforce that ceiling. Other prefixes, mobile and premium categories are not opened by this exception. A server-side operator must install the scoped tariff; no REST/MCP tool or account checkbox can grant this authority.
 
@@ -17,6 +17,26 @@ The freshly reread profile-linked CSV has SHA-256 `ec4e3baeb5e26ba40024d99ffac02
 MCP, REST and the review page expose `routeQualification=operator_authorized_test` and a visible notice that Local Calling is unconfirmed and transmission may fail. The pending support discussion remains evidence of a question, not an affirmative answer. Enabling the route does not send a fax; a separately approved dispatch is still required.
 
 The forward migration stages the old tariff rows, recreates the table under its original name and restores all old columns unchanged in one D1 batch with deferred foreign keys. Existing quotations retain their original hashes and incoming foreign keys. The new default retains the previous route policy. Synthetic populated-database tests cover old quotes/reservations, integrity, transaction rollback, immutable authority, revocation, bounds and actual MCP preparation. This documentation records implementation and evidence; it does not by itself claim the migration, tariff installation or real transmission has occurred.
+
+## Luxembourg coverage extension — migration 0027 (candidate, not activation)
+
+The operator requested the Luxembourg country code +352 rather than only the initial +3524 fixed prefix. Migration 0027 preserves the installed tariffs and immutable quotes, and permits separate LU operator-test tariffs for fixed, mobile, NGN and freephone destinations. It installs no tariff and sends nothing. Provider-qualified routes retain the existing fixed-only policy; the operator exception still records `local_calling_verified=0`. A country-wide generic Local price is not invented.
+
+The profile-linked CSV was fetched again on 17 September with the same 34,769,285-byte content and SHA-256 `ec4e3baeb5e26ba40024d99ffac022e95b22573cdbe6af008fb1c6193e0949c7`. It contains exactly 42 distinct LU Local prefixes, all at 60/60-second intervals. The test fixture `tests/fixtures/telnyx-luxembourg-local.json` retains this public reference and is not an active production tariff.
+
+| Local category | Prefixes (all begin +352) | USD/minute | Pilot maximum pages within EUR2 |
+| --- | --- | ---: | ---: |
+| Fixed | 22, 23, 24, 25, 26, 27, 28, 29, 3, 4, 5, 7, 802, 803, 804, 805, 806, 807, 808, 809, 81, 83, 84, 85, 86, 87, 88, 89, 908, 909, 92, 93, 94, 95, 97, 99 | 0.022 | 10 |
+| NGN Service 1 | 20, 291, 801 | 0.044 | 7 |
+| NGN Service 2 | 60 | 0.20 | 1 |
+| Mobile | 6 | 0.08 | 4 |
+| Freephone | 800 | 0 | 10 |
+
+These page limits use the existing USD0.007/page reference, 30-second duration base, upper estimate of 180 seconds/page, FX10000/11537 and customer estimate rule. At the maximum page count, the minimum estimated ceilings are respectively 131, 177, 140, 186 and 13 cents; the next NGN1/NGN2/mobile page would require 201/246/228 cents and is not opened by this pilot. Freephone's SIP reference is zero, but the fax page component is not. A category's presence in a voice rate deck does not prove that any particular recipient can receive fax.
+
+The longest matching prefix governs both runtime and SQL quote validity: +352291 takes precedence over +35229, and +35260 over +3526. A revoked specific tariff blocks broader fallback, including approval of a previously prepared broad quote. A new qualified tariff at that same specific prefix may restore the route. No qualifying Local row exists for the generic +352 entry, +35212 or +352900–907; those remain explicitly unpriced/closed, with no substitution of EEA or generic rates.
+
+The activation batch is an independent operator action after migration and release. It must preserve the existing +3524 row byte-for-byte, clone its tenant/sender/account/application/profile/FX, add only the other 41 priced prefixes, retain the shared EUR50 credit, and expire no later than 24 September 2026 09:00:01.620 UTC. The cap, scan, approval, quota, uncertain-outcome and settlement rules stay unchanged. No authority is granted by the MCP client.
 
 ## Fax pilot activation, 17 September 2026
 
