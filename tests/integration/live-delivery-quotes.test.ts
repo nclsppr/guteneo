@@ -267,7 +267,9 @@ const email = (): PrepareInput => ({
   html: "<p>Fixture</p>",
   text: "Fixture",
 });
-async function postal(): Promise<PrepareInput> {
+async function postal(
+  version: string = PINGEN_PREFLIGHT_VERSION,
+): Promise<PrepareInput> {
   const recipient = {
     name: "Fixture Person",
     line1: "1 Test Street",
@@ -320,7 +322,7 @@ async function postal(): Promise<PrepareInput> {
       environment: "sandbox",
       defaultCountry: "LU",
       addressPosition: "left",
-      version: PINGEN_PREFLIGHT_VERSION,
+      version,
     }),
     expected_address: expectedAddress,
     ceiling_minor: 400,
@@ -335,7 +337,7 @@ async function postal(): Promise<PrepareInput> {
     updated_at: stamp(),
   };
   const report = {
-    version: PINGEN_PREFLIGHT_VERSION,
+    version,
     status: "review_required",
     sha256: "a".repeat(64),
     pages: 2,
@@ -949,6 +951,28 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
         "wrong-draft",
       ),
     ).rejects.toThrow();
+  });
+  it("atomically refuses a v1 postal proof after the v2 rules migration", async () => {
+    const row = await domain.prepareDispatch(
+      ctx,
+      await postal("pingen-2026-09-17-v1"),
+      "legacy-postal-proof",
+    );
+    await domain.approveDispatch(ctx, row.id, row.fingerprint);
+    await expect(
+      domain.confirmDispatch(ctx, row.id, "legacy-postal-accept"),
+    ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
+    for (const table of [
+      "outbox",
+      "reservations",
+      "welcome_credit_reservations",
+    ])
+      expect(await count(table)).toBe(0);
+    expect(await balance()).toMatchObject({
+      availableMinor: 5000,
+      reservedMinor: 0,
+      spentMinor: 0,
+    });
   });
   it("atomically blocks postal acceptance if its canonical scan proof is withdrawn after approval", async () => {
     const row = await domain.prepareDispatch(

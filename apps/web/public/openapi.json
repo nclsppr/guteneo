@@ -3126,7 +3126,8 @@
           "canTransfer",
           "transferStatus",
           "draftId",
-          "canSend"
+          "canSend",
+          "transferPolicy"
         ],
         "properties": {
           "id": {
@@ -3304,7 +3305,10 @@
               "expectedLines",
               "extractedLines",
               "matches",
-              "cropUrl"
+              "cropUrl",
+              "textVisibility",
+              "cropAccess",
+              "mcpEmbeddedVisualEvidenceAvailable"
             ],
             "properties": {
               "expectedLines": {
@@ -3326,12 +3330,31 @@
                 "type": "string",
                 "nullable": true,
                 "description": "Chemin authentifié de l’extrait PNG ; aucune URL fournisseur publique."
+              },
+              "textVisibility": {
+                "type": "string",
+                "enum": [
+                  "not_verified"
+                ],
+                "description": "L’extraction ne prouve pas la visibilité : revoir le PDF original exact."
+              },
+              "cropAccess": {
+                "type": "string",
+                "enum": [
+                  "authenticated_browser_session_only"
+                ]
+              },
+              "mcpEmbeddedVisualEvidenceAvailable": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
               }
             }
           },
           "canTransfer": {
             "type": "boolean",
-            "description": "Éligibilité technique seulement ; ne remplace jamais la revue et le consentement navigateur."
+            "description": "Disponibilité du transfert navigateur seulement. false en MCP ne statue pas sur le mandat expert, évalué séparément par transfer_postal_draft."
           },
           "transferStatus": {
             "type": "string",
@@ -3350,6 +3373,54 @@
             "type": "boolean",
             "enum": [
               false
+            ]
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Empreinte de la preuve exacte, utilisée par le parcours expert distinct ; aucun consentement implicite."
+          },
+          "transferPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "canTransferMeaning": {
+                "type": "string",
+                "enum": [
+                  "browser_session_only"
+                ]
+              },
+              "expertTool": {
+                "type": "string",
+                "enum": [
+                  "transfer_postal_draft"
+                ]
+              },
+              "expertAuthority": {
+                "type": "string",
+                "enum": [
+                  "separate_active_postal_transfer_mandate_required"
+                ]
+              },
+              "expertEligibilityEvaluated": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "requiresVisualReview": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "canTransferMeaning",
+              "expertTool",
+              "expertAuthority",
+              "expertEligibilityEvaluated",
+              "requiresVisualReview"
             ]
           }
         }
@@ -3566,6 +3637,9 @@
             "enum": [
               false
             ]
+          },
+          "addressGuidance": {
+            "$ref": "#/components/schemas/PostalAddressGuidance"
           }
         },
         "required": [
@@ -3577,7 +3651,8 @@
           "layout",
           "limits",
           "requirements",
-          "canSend"
+          "canSend",
+          "addressGuidance"
         ]
       },
       "FaxPricing": {
@@ -3707,6 +3782,569 @@
             }
           }
         }
+      },
+      "PostalAddressGuidance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          },
+          "route": {
+            "type": "string",
+            "enum": [
+              "la_poste",
+              "dhl_international",
+              "bpost_luxembourg",
+              "deutsche_post"
+            ]
+          },
+          "recipientSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "renderedLines": {
+                "type": "integer",
+                "enum": [
+                  3,
+                  4
+                ]
+              },
+              "additionalAddressLinesSupported": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "maxCharactersPerPrintedLine": {
+                "type": "integer",
+                "enum": [
+                  38,
+                  160
+                ]
+              },
+              "lineOrder": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "fields",
+              "renderedLines",
+              "additionalAddressLinesSupported",
+              "maxCharactersPerPrintedLine",
+              "lineOrder",
+              "limitations"
+            ]
+          },
+          "addressRules": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "streetNumberOrder": {
+                "type": "string",
+                "enum": [
+                  "house_number_then_street",
+                  "street_then_house_number"
+                ]
+              },
+              "postcodeDigits": {
+                "type": "integer",
+                "enum": [
+                  4,
+                  5
+                ]
+              },
+              "postcodePrefix": {
+                "type": "string"
+              },
+              "postcodeAndCitySeparator": {
+                "type": "string",
+                "enum": [
+                  "single space"
+                ]
+              },
+              "countryLine": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "type": "string",
+                    "enum": [
+                      "FRANCE",
+                      "LUXEMBOURG",
+                      "GERMANY",
+                      null
+                    ],
+                    "nullable": true
+                  },
+                  "domesticCountryLineForbidden": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "required",
+                  "value",
+                  "domesticCountryLineForbidden"
+                ]
+              },
+              "blankLinesAllowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "additionalContentInsideAddressAreaAllowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "latinAlphabetAndArabicDigits": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "all_address_lines",
+                      "country_line_only",
+                      "not_specified_here"
+                    ]
+                  }
+                },
+                "required": [
+                  "scope"
+                ]
+              },
+              "cityUppercaseRequired": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "cityUppercaseRecommended": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "maxCharactersPerLine": {
+                "type": "integer",
+                "enum": [
+                  38
+                ]
+              },
+              "streetAndPostcodePunctuationAllowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "providerAddressLines": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "forbiddenCharacters": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "forbiddenStreetNumberMarkers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "houseNumberSupplementSeparator": {
+                "type": "string",
+                "enum": [
+                  "//"
+                ]
+              },
+              "specialLargeRecipientAddressesSupported": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "providerMinimumNormalAddressLines": {
+                "type": "integer",
+                "enum": [
+                  3
+                ]
+              },
+              "countryNameLanguage": {
+                "type": "string"
+              },
+              "providerMinimumLinesExcludingCountry": {
+                "type": "integer",
+                "enum": [
+                  2
+                ]
+              },
+              "guteneoMinimumLinesExcludingCountry": {
+                "type": "integer",
+                "enum": [
+                  3
+                ]
+              }
+            },
+            "required": [
+              "streetNumberOrder",
+              "postcodeDigits",
+              "postcodePrefix",
+              "postcodeAndCitySeparator",
+              "countryLine",
+              "blankLinesAllowed",
+              "additionalContentInsideAddressAreaAllowed",
+              "latinAlphabetAndArabicDigits"
+            ]
+          },
+          "typography": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommendedFont": {
+                "type": "string"
+              },
+              "guteneoRecommendedSizePt": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "color": {
+                "type": "string",
+                "enum": [
+                  "black"
+                ]
+              },
+              "alignment": {
+                "type": "string",
+                "enum": [
+                  "left"
+                ]
+              },
+              "uniformFontAndSpacing": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "forbiddenStyles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "boldAllowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "providerFontSizePt": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "providerCapitalHeightMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "characterGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "wordGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "lineGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "verification": {
+                "type": "string",
+                "enum": [
+                  "manual_visual_review_required"
+                ]
+              }
+            },
+            "required": [
+              "recommendedFont",
+              "guteneoRecommendedSizePt",
+              "color",
+              "alignment",
+              "uniformFontAndSpacing",
+              "forbiddenStyles",
+              "verification"
+            ]
+          },
+          "example": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fictional": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "deliverabilityVerified": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "recipient": {
+                "$ref": "#/components/schemas/PostalRecipient"
+              },
+              "printedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "fictional",
+              "deliverabilityVerified",
+              "recipient",
+              "printedLines"
+            ]
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "automatic": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "manual": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "provider": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "provesAddressExists": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "provesDelivery": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "textVisibility": {
+                "type": "string",
+                "enum": [
+                  "not_verified"
+                ]
+              },
+              "addressCropAccess": {
+                "type": "string",
+                "enum": [
+                  "authenticated_browser_session_only"
+                ]
+              },
+              "mcpEmbeddedVisualEvidenceAvailable": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "visualReviewFallback": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "automatic",
+              "manual",
+              "provider",
+              "provesAddressExists",
+              "provesDelivery",
+              "textVisibility",
+              "addressCropAccess",
+              "mcpEmbeddedVisualEvidenceAvailable",
+              "visualReviewFallback"
+            ]
+          },
+          "workflow": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "title",
+                "url"
+              ]
+            }
+          },
+          "sourcesVerifiedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "destination",
+          "route",
+          "recipientSchema",
+          "addressRules",
+          "typography",
+          "example",
+          "verification",
+          "workflow",
+          "sources",
+          "sourcesVerifiedAt"
+        ],
+        "description": "Instructions pour le circuit effectif de cette destination et du compte Pingen. Les champs spécifiques au pays sont optionnels dans ce schéma ; les listes automatic/manual/provider distinguent les preuves et leurs limites."
       }
     },
     "responses": {

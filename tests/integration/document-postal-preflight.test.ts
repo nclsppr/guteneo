@@ -9,6 +9,7 @@ import {
   type PostalPreflightReport,
 } from "../../apps/documents/src/pingen-preflight";
 import { validatePdf } from "../../packages/contracts/src/pdf";
+import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 
 const options = {
   defaultCountry: "LU",
@@ -35,11 +36,11 @@ let clean: Uint8Array<ArrayBuffer>;
 let lateCorner: Uint8Array<ArrayBuffer>;
 let emptyAddress: Uint8Array<ArrayBuffer>;
 
-async function fixture(extra = "", address = true) {
+async function fixture(extra = "", address = true, street = "Rue du Test 12") {
   const page = await fixtureBrowser.newPage();
   try {
     await page.setContent(
-      `<style>@page{size:210mm 297mm;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial}.sheet{position:relative;width:210mm;height:297mm;break-after:page}.address{position:absolute;left:25mm;top:62mm;font-size:11pt;line-height:14pt}.body{position:absolute;left:25mm;top:110mm;font-size:11pt}</style><div class="sheet">${address ? '<div class="address">ATELIER EXEMPLE<br>Rue du Test 12<br>L-1234 LUXEMBOURG</div>' : ""}<div class="body">Synthetic postal fixture</div></div><div class="sheet">${extra}</div>`,
+      `<style>@page{size:210mm 297mm;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial}.sheet{position:relative;width:210mm;height:297mm;break-after:page}.address{position:absolute;left:25mm;top:62mm;font-size:11pt;line-height:14pt}.body{position:absolute;left:25mm;top:110mm;font-size:11pt}</style><div class="sheet">${address ? `<div class="address">ATELIER EXEMPLE<br>${street}<br>L-1234 LUXEMBOURG</div>` : ""}<div class="body">Synthetic postal fixture</div></div><div class="sheet">${extra}</div>`,
       { waitUntil: "load" },
     );
     return new Uint8Array(
@@ -164,6 +165,25 @@ describe("Postal preflight with actual local Chromium and exact PDF.js bytes", (
     expect(clean).toEqual(original);
     expect(report.sha256).toBe((await validatePdf(original)).sha256);
     expect(report.requiredReviews).toContain("printed_recipient_matches");
+  });
+  it("blocks the actual rendered/extracted Luxembourg address under v2 without changing its bytes", async () => {
+    const invalid = await fixture("", true, "Rue du Test #12");
+    const original = invalid.slice();
+    const { report } = await run(invalid);
+    expect(report).toMatchObject({
+      version: PINGEN_PREFLIGHT_VERSION,
+      status: "blocked",
+      canSend: false,
+      rendering: { complete: true },
+    });
+    expect(report.address?.lines).toContain("Rue du Test #12");
+    expect(report.issues).toContainEqual({
+      code: "POSTAL_ADDRESS_CHARACTERS_UNSUPPORTED",
+      page: 1,
+    });
+    expect(report.address?.textVisibility).toBe("not_verified");
+    expect(invalid).toEqual(original);
+    expect(report.sha256).toBe((await validatePdf(original)).sha256);
   });
   it("rejects nonwhite content in a reserved corner on a later page", async () => {
     const { report } = await run(lateCorner);

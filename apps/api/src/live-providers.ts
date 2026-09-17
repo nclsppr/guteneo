@@ -28,6 +28,7 @@ import {
   type ProviderResult,
 } from "../../../packages/providers";
 import type { Env } from "./env";
+import { PINGEN_PREFLIGHT_VERSION } from "../../../packages/contracts/src/pingen-preflight";
 import type { PostalAuthority } from "./postal-authority";
 
 export type LiveProviderEnv = Env & {
@@ -248,7 +249,7 @@ async function requirePostalReview(
   draftId: string,
 ) {
   const proof = await env.DB.prepare(
-    "SELECT 1 FROM valid_postal_draft_reviews WHERE organization_id=? AND provider_draft_id=? AND json_extract(profile_json,'$.accountId')=? AND json_extract(profile_json,'$.defaultCountry')=? AND json_extract(profile_json,'$.environment')=? AND json_extract(profile_json,'$.version')='pingen-2026-09-17-v1'",
+    "SELECT 1 FROM valid_postal_draft_reviews WHERE organization_id=? AND provider_draft_id=? AND json_extract(profile_json,'$.accountId')=? AND json_extract(profile_json,'$.defaultCountry')=? AND json_extract(profile_json,'$.environment')=? AND json_extract(profile_json,'$.version')=?",
   )
     .bind(
       organizationId,
@@ -256,6 +257,7 @@ async function requirePostalReview(
       env.PINGEN_ORGANIZATION_ID ?? "",
       env.PINGEN_DEFAULT_COUNTRY ?? "",
       env.PINGEN_SANDBOX === "true" ? "sandbox" : "production",
+      PINGEN_PREFLIGHT_VERSION,
     )
     .first();
   if (!proof) blocked("POSTAL_PREFLIGHT_REQUIRED");

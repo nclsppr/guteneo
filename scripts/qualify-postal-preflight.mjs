@@ -3,6 +3,8 @@
 import { createHash } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+// Keep this release expectation explicit: security tests bind it to the TS contract.
+export const EXPECTED_PREFLIGHT_VERSION = "pingen-2026-09-17-v2";
 const OPTIONS = Object.freeze({
   defaultCountry: "LU",
   country: "LU",
@@ -143,6 +145,10 @@ export function summarizeReport(name, response, expectedHash) {
   return {
     case: name,
     httpStatus: response.status,
+    preflightVersion:
+      report.version === EXPECTED_PREFLIGHT_VERSION
+        ? EXPECTED_PREFLIGHT_VERSION
+        : "unexpected",
     diagnosticStage: [
       "read",
       "structure",
@@ -208,6 +214,7 @@ function completePages(summary) {
 function passes(summary) {
   if (
     summary.httpStatus !== 200 ||
+    summary.preflightVersion !== EXPECTED_PREFLIGHT_VERSION ||
     summary.canSend !== false ||
     (summary.case === "truncated_pdf"
       ? !summary.hashAbsent
@@ -278,7 +285,10 @@ export async function qualifyPostalPreflight(
         health.body.status === "unavailable"
       )
         await new Promise((resolve) =>
-          setTimeout(resolve, Math.min(30_000, Math.max(0, healthRetryDelayMs))),
+          setTimeout(
+            resolve,
+            Math.min(30_000, Math.max(0, healthRetryDelayMs)),
+          ),
         );
     } catch (error) {
       if (!(error instanceof QualificationError)) throw error;
@@ -341,6 +351,7 @@ export async function qualifyPostalPreflight(
     contract: "guteneo-postal-qualification-v1",
     remoteServiceBindings: true,
     syntheticOnly: true,
+    expectedPreflightVersion: EXPECTED_PREFLIGHT_VERSION,
     scanRequests: 3,
     healthRequests,
     renderRequests: 4,

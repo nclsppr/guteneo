@@ -1,6 +1,6 @@
 # Préparer un PDF postal Pingen
 
-Vérification officielle : **17 septembre 2026**. Version locale : `pingen-2026-09-17-v1`. Ce document distingue les règles Pingen, les restrictions de la bêta Guteneo et les preuves encore nécessaires. La documentation fournisseur reste l’autorité pour son acceptation.
+Vérification officielle : **17 septembre 2026**. Version locale : `pingen-2026-09-17-v2`. Ce document distingue les règles Pingen, les restrictions de la bêta Guteneo et les preuves encore nécessaires. La documentation fournisseur reste l’autorité pour son acceptation.
 
 ## Fichier et profil
 
@@ -54,12 +54,24 @@ Pour la revue finale : hash, nombre de pages, adresse extraite exacte, pays, fen
 
 Le candidat applicatif raccorde maintenant ces contrôles au renderer privé et à une revue navigateur. Leur présence dans le code ne prouve pas encore leur qualification distante ni le dépôt Pingen. Le connecteur applique également le plafond 8 000 000 octets. L’adresse attendue utilise le pays par défaut du compte qualifié ; elle conserve la dernière ligne de pays pour un destinataire international. Voir [le service documentaire](DOCUMENT_POSTAL_PREFLIGHT.md) pour la preuve du renderer et [la release](LIVE_RELEASE.md) pour l’état publié.
 
+## Instructions directement lisibles par le MCP
+
+`get_postal_requirements({country})` expose `addressGuidance` pour FR, LU et DE : circuit réellement applicable au profil, ordre des lignes, code postal/pays, caractères, typographie, exemple fictif et sources officielles datées. Les rectangles restent dans `layout`, les plafonds dans `limits`. L’assistant doit lire ces données avant de produire le PDF, puis vérifier le fichier final exact. La France depuis un compte LU utilise DHL ; les règles locales La Poste ne doivent pas être étendues à ce circuit.
+
+**Limite actuelle Guteneo :** `recipient` ne possède que `name`, `line1`, `postalCode`, `city`, `country`. L’adresse attendue a exactement trois lignes (nom, rue/boîte postale, code et ville), puis la ligne canonique du pays pour l’international. Il n’existe pas de `line2` ou de ligne distincte pour bâtiment, étage, service ou référence de distribution. Les 3–6 lignes annoncées par certains opérateurs ne signifient pas que Guteneo sait les représenter. Ne pas supprimer un complément nécessaire pour contourner cette limite. Les champs ne sont jamais imprimés automatiquement sur le PDF ; celui-ci doit déjà contenir l’adresse.
+
+Les trois listes `verification.automatic`, `manual` et `provider` séparent les preuves. Guteneo contrôle les octets, le scan, toutes les pages, la géométrie, les zones réservées, l’extraction/correspondance et une syntaxe bornée. La v2 ajoute l’alphabet latin/chiffres 0–9 pour LU/DE, les caractères LU explicitement interdits et les marqueurs `n°`/`nr` sur la ligne de rue canonique, ainsi que la ponctuation de rue en FR local. Elle conserve accents, apostrophes autorisées dans les noms et compléments allemands séparés par `//`. Aucun texte n’est corrigé ou réécrit pour passer.
+
+L’ordre rue/numéro, la complétude et l’existence de l’adresse, la couleur, le style, la taille, les espacements et la visibilité réelle exigent encore une revue. Les coordonnées des glyphes sont approximatives. Le contrôle fournisseur ajoute sa propre analyse ; même une réponse favorable ne certifie pas toutes les règles ni la distribution.
+
+`get_postal_preflight` expose publiquement `address.textVisibility: "not_verified"`, `cropAccess: "authenticated_browser_session_only"` et `mcpEmbeddedVisualEvidenceAvailable: false`. Le lien de l’extrait nécessite une session navigateur : le jeton OAuth du MCP ne donne pas accès à une image embarquée. L’assistant doit examiner son PDF original en vérifiant l’empreinte ou renvoyer vers `reviewUrl`, et ne doit jamais affirmer avoir lu un extrait inaccessible. `canTransfer` décrit uniquement la disponibilité du bouton navigateur ; sa valeur `false` en MCP ne statue pas sur un mandat expert. `transferPolicy` précise cette distinction sans prétendre évaluer le mandat.
+
 ## Parcours du candidat REST et MCP
 
 1. Lire `GET /api/postal/requirements?country=LU` ou `get_postal_requirements` avant de créer le PDF ; remplacer LU par le pays du destinataire. Le profil de l’organisation est lu chez Pingen, sans envoi de document. `qualified:true` concerne uniquement le profil.
 2. Après import et scan qualifié, `POST /api/postal/preflights` ou `preflight_postal_pdf` reçoit le document, l’expéditeur, le destinataire, les options et le plafond. Les scopes OAuth `documents:write` et `dispatches:prepare` sont tous deux nécessaires. La clé d’idempotence protège aussi la consommation du quota de contrôle.
-3. `GET /api/postal/preflights/{id}` ou `get_postal_preflight` expose l’état, le texte d’adresse, le lien de l’extrait PNG privé et `reviewUrl`. Ni cette lecture ni la préparation n’envoie le PDF à Pingen. Le rapport conserve `canSend:false`.
-4. La session navigateur ouvre `/#/app/postal/{id}`. Elle présente les pages, l’adresse attendue et extraite, les anomalies et les options. Les deux cases explicites autorisent la revue puis le transfert de cette version précise ; le POST privé `/transfer` exige session actuelle et CSRF. Aucun outil MCP ni jeton OAuth ne peut le remplacer.
+3. `GET /api/postal/preflights/{id}` ou `get_postal_preflight` expose l’état, le texte d’adresse, le lien de l’extrait PNG privé et `reviewUrl`. Ni cette lecture ni la préparation n’envoie le PDF à Pingen. Le rapport conserve `canSend:false` et les limites de preuve visuelle décrites ci-dessus.
+4. La session navigateur ouvre `/#/app/postal/{id}`. Elle présente les pages, l’adresse attendue et extraite, les anomalies et les options. Les deux cases explicites autorisent la revue puis le transfert de cette version précise ; le POST privé `/transfer` exige session actuelle et CSRF. Le parcours expert distinct utilise `transfer_postal_draft({preflightId,fingerprint})` uniquement sous un mandat préalable, borné et encore actif, accordé par un administrateur à ce client OAuth et couvrant explicitement le transfert à Pingen. Il enregistre une autorité déléguée, jamais un consentement humain prétendu par le modèle. L’assistant ne peut ni créer ni étendre le mandat ; la confirmation de l’hôte ne le remplace pas.
 5. Le transfert crée uniquement un brouillon avec `auto_send:false`. Une réponse perdue oblige l’interface à relire l’état ; `unknown` ne réactive pas une création. Un échec de chargement de l’extrait bloque la confirmation et peut être repris par « Actualiser ».
 6. Après dépôt consenti, `POST /api/postal/preflights/{id}/quote` ou `quote_postal_draft` demande le devis du même brouillon. Aucun document, prix ou destinataire n’est repris depuis un corps client. Pingen peut répondre que l’analyse n’est pas terminée ; conserver la même clé. L’approbation du devis et l’expédition sont des étapes distinctes.
 
@@ -77,4 +89,10 @@ Source normative lue : [OpenAPI Pingen courant](https://api.pingen.com/documenta
 
 Le calculateur prépare une estimation fournisseur ; il faut encore qualifier devise, taxes, frais et validité avant de figer le prix client à deux fois le coût fournisseur total. Aucun crédit ni montant inconnu n’autorise un envoi gratuit. Les identifiants de document, secrets, URL signées et adresses ne doivent pas apparaître dans les journaux de test.
 
-Validation locale : `npx vitest run tests/unit/pingen-preflight.test.ts --reporter=default`, typecheck et lint ciblé. Fixtures synthétiques exclusivement ; aucun dépôt ou courrier réel exécuté par ce module.
+## Compatibilité de la v2 et validation
+
+La version fait partie du profil, du rapport et de la preuve gelée. Une preuve v1 ne devient pas une preuve v2 : elle doit être refaite explicitement, sans recréer automatiquement un dépôt déjà transmis ou incertain. `POSTAL_PREFLIGHT_VERSION_CHANGED` signale une ancienne preuve à la lecture. Le devis et les transitions atomiques d’envoi refusent aussi l’ancienne version. La migration `0026_postal_address_rules_v2.sql` conserve le garde existant et remplace sa version attendue ; elle ne change aucune donnée, quota ou délégation.
+
+La publication nécessite la migration 0026, le Worker privé `guteneo-documents` et l’application construits depuis la même révision. Tant que leurs versions diffèrent, les nouveaux rapports sont refusés : prévoir cette brève indisponibilité fermée, puis requalifier le renderer avec les PDF synthétiques. Le helper `scripts/qualify-postal-preflight.mjs` exige désormais explicitement la version v2 sur les quatre cas et refuse un renderer v1 même si ses autres résultats passent. Une publication de l’app seule ne suffit pas. Les preuves historiques v1 du renderer restent des preuves v1 ; elles ne qualifient pas ces nouvelles règles.
+
+Tests concernés : `postal-requirements`, `pingen-preflight`, `postal`, `postal-mcp`, `live-providers`, `live-delivery-quotes`, et `document-postal-preflight` (Chromium réel), plus typecheck, lint et vérification locale du transport de migrations. Fixtures synthétiques et fournisseur intercepté exclusivement ; aucun dépôt ou courrier réel exécuté pour ce correctif.

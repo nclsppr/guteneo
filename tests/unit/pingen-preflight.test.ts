@@ -230,6 +230,96 @@ describe("Pingen destination and organisation-dependent layout", () => {
       ),
     ).toEqual([]);
   });
+  it.each([
+    '"',
+    "“",
+    "”",
+    "«",
+    "»",
+    "(",
+    ")",
+    "[",
+    "]",
+    "!",
+    "?",
+    "/",
+    "#",
+    "&",
+    "§",
+  ])(
+    "rejects the documented Luxembourg character %s without rewriting the address",
+    (character) => {
+      const lines = [
+        "DESTINATAIRE FICTIF",
+        `RUE EXEMPLE ${character}12`,
+        "L-1234 LUXEMBOURG",
+      ];
+      const original = [...lines];
+      expect(checkPingenAddress(lines, options)).toContainEqual({
+        code: "POSTAL_ADDRESS_CHARACTERS_UNSUPPORTED",
+      });
+      expect(lines).toEqual(original);
+    },
+  );
+  it.each(["n°12", "N° 12", "nr 12", "Nr. 12"])(
+    "rejects Luxembourg street-number marker %s",
+    (marker) => {
+      expect(
+        checkPingenAddress(
+          ["DESTINATAIRE FICTIF", `RUE EXEMPLE ${marker}`, "L-1234 LUXEMBOURG"],
+          options,
+        ),
+      ).toContainEqual({ code: "POSTAL_ADDRESS_NUMBER_MARKER_UNSUPPORTED" });
+    },
+  );
+  it.each(["LU", "DE"] as const)(
+    "requires Latin letters and 0–9 digits for %s, while preserving accents",
+    (country) => {
+      const config = { ...options, country, defaultCountry: country };
+      const postcode = country === "LU" ? "L-1234 LUXEMBOURG" : "12345 MÜNCHEN";
+      for (const recipient of ["ИВАН", "EXEMPLE ١٢"])
+        expect(
+          checkPingenAddress([recipient, "RUE EXEMPLE 12", postcode], config),
+        ).toContainEqual({ code: "POSTAL_ADDRESS_LATIN_REQUIRED" });
+      expect(
+        checkPingenAddress(
+          ["ÉLODIE O'NEILL", "RUE SAINT-ÉTIENNE 12", postcode],
+          config,
+        ),
+      ).toEqual([]);
+    },
+  );
+  it("checks French-local street punctuation without applying it to names or DHL routes", () => {
+    const lines = ["ÉLODIE O'NEILL", "12, RUE D'EXEMPLE", "12345 EXEMPLE"];
+    expect(checkPingenAddress(lines, france)).toContainEqual({
+      code: "POSTAL_STREET_PUNCTUATION",
+    });
+    expect(
+      checkPingenAddress([lines[0], "12 RUE EXEMPLE", lines[2]], france),
+    ).toEqual([]);
+    expect(
+      checkPingenAddress([...lines, "FRANCE"], { ...options, country: "FR" }),
+    ).toEqual([]);
+  });
+  it("retains the documented German house-number supplement and optional Luxembourg prefix", () => {
+    expect(
+      checkPingenAddress(
+        [
+          "FIKTIVER EMPFÄNGER",
+          "BEISPIELSTRASSE 12 // WOHNUNG 3",
+          "12345 MÜNCHEN",
+          "GERMANY",
+        ],
+        { ...options, country: "DE" },
+      ),
+    ).toEqual([]);
+    expect(
+      checkPingenAddress(
+        ["NR EXEMPLE", "RUE EXEMPLE 12", "1234 LUXEMBOURG"],
+        options,
+      ),
+    ).toEqual([]);
+  });
   it("rejects blank/injected lines and domestic French lowercase city or overlong lines", () => {
     expect(
       checkPingenAddress(["TEST", "", "12345 PARIS"], france),

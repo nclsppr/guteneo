@@ -11,6 +11,7 @@ import {
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
+import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/ajv";
 import api from "../../apps/api/src/index";
 import {
   PostalService,
@@ -30,6 +31,22 @@ import type { Env } from "../../apps/api/src/env";
 import type { PostalReviewInput } from "../../packages/contracts/src/postal-review";
 import type { Fetcher } from "../../packages/providers";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+
+const openapi = JSON.parse(
+  await readFile(
+    new URL("../../apps/web/public/openapi.json", import.meta.url),
+    "utf8",
+  ),
+);
+const schemaValidator = new AjvJsonSchemaValidator();
+const validateReview = schemaValidator.getValidator({
+  ...openapi.components.schemas.PostalReview,
+  components: openapi.components,
+});
+const validateRequirements = schemaValidator.getValidator({
+  ...openapi.components.schemas.PostalRequirements,
+  components: openapi.components,
+});
 
 let mf: Miniflare, env: Env, domain: DomainService;
 let bytes: Uint8Array<ArrayBuffer>,
@@ -344,9 +361,26 @@ describe("server-owned postal review and consent", () => {
       qualified: true,
       profile: { defaultCountry: "LU", addressPosition: "left" },
       country: "FR",
+      addressGuidance: {
+        destination: "FR",
+        route: "dhl_international",
+        recipientSchema: {
+          renderedLines: 4,
+          additionalAddressLinesSupported: false,
+        },
+        addressRules: { countryLine: { required: true, value: "FRANCE" } },
+        verification: {
+          textVisibility: "not_verified",
+          mcpEmbeddedVisualEvidenceAvailable: false,
+        },
+      },
       layout: { profile: "general", edgeMm: 5 },
       canSend: false,
     });
+    expect(validateRequirements(requirements)).toMatchObject({ valid: true });
+    expect(
+      validateRequirements({ ...requirements, invented: true }),
+    ).toMatchObject({ valid: false });
     expect(requirements.limits).toMatchObject({
       pdfBytes: 8000000,
       pages: 100,
@@ -384,9 +418,29 @@ describe("server-owned postal review and consent", () => {
       canTransfer: true,
       canSend: false,
       transferStatus: "not_started",
-      address: { matches: true },
+      address: {
+        matches: true,
+        textVisibility: "not_verified",
+        cropAccess: "authenticated_browser_session_only",
+        mcpEmbeddedVisualEvidenceAvailable: false,
+      },
+      transferPolicy: {
+        canTransferMeaning: "browser_session_only",
+        expertEligibilityEvaluated: false,
+        requiresVisualReview: true,
+      },
       checks: { complete: true, dpi: 144 },
     });
+    expect(validateReview(result)).toMatchObject({ valid: true });
+    expect(validateReview({ ...result, invented: true })).toMatchObject({
+      valid: false,
+    });
+    expect(
+      validateReview({
+        ...result,
+        address: { ...result.address, textVisibility: undefined },
+      }),
+    ).toMatchObject({ valid: false });
     expect(result.options.addressPosition).toBe("left");
     expect(await renders()).toBe(1);
     expect(transfers()).toHaveLength(0);
@@ -503,11 +557,13 @@ describe("server-owned postal review and consent", () => {
       )
       .run();
   });
-  it.each(["hash", "missing_page", "address", "incomplete"])(
+  it.each(["hash", "missing_page", "address", "incomplete", "old_version"])(
     "never authorizes transfer on %s proof",
     async (fault) => {
       renderer.mockImplementationOnce(async () => {
         const r = report();
+        if (fault === "old_version")
+          return Response.json({ ...r, version: "pingen-2026-09-17-v1" });
         if (fault === "hash") r.sha256 = "b".repeat(64);
         if (fault === "missing_page") r.rendering.pages.pop();
         if (fault === "address") r.address.lines[0] = "OTHER RECIPIENT";

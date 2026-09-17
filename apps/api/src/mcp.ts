@@ -326,7 +326,7 @@ export function createGuteneoMcpServer(
       "get_postal_requirements",
       {
         description:
-          "Lire avant de créer une lettre : profil Pingen qualifié, position de fenêtre, rectangles réservés en mm et contraintes exactes du pays. Lecture seule du compte fournisseur, sans PDF ni dépôt ; ne pas inventer un gabarit si le profil n’est pas disponible.",
+          "Lire avant de créer une lettre : profil Pingen qualifié, position de fenêtre, rectangles réservés en mm, addressGuidance par pays avec ordre des lignes, exemple fictif, règles typographiques, sources et limites du schéma. Distinguer verification.automatic, manual et provider ; le schéma actuel ne supporte aucun complément de ligne. Lecture seule du compte fournisseur, sans PDF ni dépôt ; ne pas inventer un gabarit si le profil n’est pas disponible.",
         inputSchema: z.object({ country: z.enum(["FR", "LU", "DE"]) }).strict(),
         outputSchema: output(z.unknown()),
         annotations: { ...readonlyAnnotations, openWorldHint: true },
@@ -339,7 +339,7 @@ export function createGuteneoMcpServer(
       "preflight_postal_pdf",
       {
         description:
-          "Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Par défaut le transfert exige une confirmation séparée dans Guteneo. Une délégation expert préalablement activée pour le canal postal permet transfer_postal_draft après lecture de la revue exacte, sans inventer un consentement humain.",
+          "Lire get_postal_requirements pour le pays avant de produire le PDF. Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Par défaut le transfert exige une confirmation séparée dans Guteneo. Une délégation expert préalablement activée pour le canal postal permet transfer_postal_draft après lecture de la revue exacte, sans inventer un consentement humain.",
         inputSchema: postalReviewInputSchema
           .extend({ idempotencyKey: key })
           .strict(),
@@ -356,7 +356,7 @@ export function createGuteneoMcpServer(
       "get_postal_preflight",
       {
         description:
-          "Consulte le contrôle postal et son lien de revue humaine. prepared désigne uniquement un brouillon fournisseur ; aucun courrier n’a été envoyé. Ne jamais inventer une preuve ou relancer un transfert unknown.",
+          "Consulte le contrôle postal, le texte attendu/extrait et son lien de revue humaine. textVisibility reste not_verified : le MCP ne fournit pas l’image, cropUrl exige une session navigateur. Examiner le PDF original exact ou ouvrir reviewUrl. canTransfer décrit la voie navigateur uniquement ; il ne qualifie pas un mandat expert. prepared désigne uniquement un brouillon fournisseur ; aucun courrier n’a été envoyé. Ne jamais inventer une preuve ou relancer un transfert unknown.",
         inputSchema: z.object({ preflightId: id }).strict(),
         outputSchema: output(z.unknown()),
         annotations: readonlyAnnotations,

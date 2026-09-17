@@ -11,6 +11,7 @@ import {
   type AuthEnv,
 } from "../../apps/api/src/auth";
 import type { PostalReview } from "../../packages/contracts/src/postal-review";
+import { postalAddressGuidance } from "../../packages/contracts/src/postal-requirements";
 const input = {
   documentId: "doc_owned",
   senderId: "sender_owned",
@@ -28,14 +29,49 @@ const input = {
   },
   ceilingMinor: 500,
   idempotencyKey: "stable-review",
-};
-const result = {
+} as const;
+const result: PostalReview = {
   id: "pp_owned",
+  document: {
+    id: "doc_owned",
+    name: "fixture.pdf",
+    sha256: "a".repeat(64),
+    pages: 1,
+    previewUrl: "https://guteneo.example/api/documents/doc_owned/content",
+  },
+  recipient: input.recipient,
+  options: { ...input.options, addressPosition: "left" },
+  ceilingMinor: input.ceilingMinor,
+  checks: {
+    complete: true,
+    dpi: 144,
+    pages: [{ page: 1, width: 1191, height: 1684 }],
+    issues: [],
+  },
+  draftId: null,
   canSend: false,
   reviewUrl: "https://guteneo.example/#/app/postal/pp_owned",
   status: "review_required",
   transferStatus: "not_started",
-} as PostalReview;
+  canTransfer: false,
+  address: {
+    expectedLines: [],
+    extractedLines: [],
+    matches: false,
+    textVisibility: "not_verified",
+    cropAccess: "authenticated_browser_session_only",
+    mcpEmbeddedVisualEvidenceAvailable: false,
+    cropUrl:
+      "https://guteneo.example/api/postal/preflights/pp_owned/address.png",
+  },
+  transferPolicy: {
+    canTransferMeaning: "browser_session_only",
+    expertTool: "transfer_postal_draft",
+    expertAuthority: "separate_active_postal_transfer_mandate_required",
+    expertEligibilityEvaluated: false,
+    requiresVisualReview: true,
+  },
+};
 async function connected(
   scopes: string[],
   action: (client: Client, create: ReturnType<typeof vi.fn>) => Promise<void>,
@@ -61,9 +97,20 @@ async function connected(
       documents: {},
       capabilities: () => ({}),
       postal: {
-        requirements: async () => ({
+        requirements: async (
+          _authority: unknown,
+          country: "FR" | "LU" | "DE",
+        ) => ({
           provider: "pingen",
           qualified: true,
+          addressGuidance: postalAddressGuidance({
+            country,
+            defaultCountry: "LU",
+            addressPosition: "left",
+            deliveryProduct: "cheap",
+            printMode: "simplex",
+            printSpectrum: "grayscale",
+          }),
           canSend: false,
         }),
         create,
@@ -94,7 +141,23 @@ describe("postal tools over MCP transport", () => {
       });
       expect(response.structuredContent).toMatchObject({
         ok: true,
-        data: { provider: "pingen", qualified: true, canSend: false },
+        data: {
+          provider: "pingen",
+          qualified: true,
+          canSend: false,
+          addressGuidance: {
+            destination: "LU",
+            route: "bpost_luxembourg",
+            recipientSchema: {
+              renderedLines: 3,
+              additionalAddressLinesSupported: false,
+            },
+            verification: {
+              textVisibility: "not_verified",
+              mcpEmbeddedVisualEvidenceAvailable: false,
+            },
+          },
+        },
       });
       expect(create).not.toHaveBeenCalled();
     });
@@ -107,6 +170,34 @@ describe("postal tools over MCP transport", () => {
         ok: false,
         error: { code: "INSUFFICIENT_SCOPE" },
       });
+    });
+  });
+
+  it("preserves visual-evidence and browser-only availability limits over MCP", async () => {
+    await connected(["documents:read"], async (client) => {
+      const response = await client.callTool({
+        name: "get_postal_preflight",
+        arguments: { preflightId: "pp_owned" },
+      });
+      expect(response.structuredContent).toMatchObject({
+        ok: true,
+        data: {
+          canTransfer: false,
+          address: {
+            textVisibility: "not_verified",
+            cropAccess: "authenticated_browser_session_only",
+            mcpEmbeddedVisualEvidenceAvailable: false,
+          },
+          transferPolicy: {
+            canTransferMeaning: "browser_session_only",
+            expertEligibilityEvaluated: false,
+            requiresVisualReview: true,
+          },
+        },
+      });
+      expect(response.content).not.toContainEqual(
+        expect.objectContaining({ type: "image" }),
+      );
     });
   });
 

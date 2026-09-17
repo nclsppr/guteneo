@@ -25,6 +25,7 @@ import { preparePostalDraft } from "./live-providers";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
+import { postalAddressGuidance } from "../../../packages/contracts/src/postal-requirements";
 
 type Profile = {
   accountId: string;
@@ -222,6 +223,14 @@ export class PostalService {
         addressPosition: profile.addressPosition,
       },
       layout,
+      addressGuidance: postalAddressGuidance({
+        defaultCountry: profile.defaultCountry,
+        country,
+        addressPosition: profile.addressPosition,
+        printMode: "simplex",
+        printSpectrum: "grayscale",
+        deliveryProduct: "cheap",
+      }),
       limits: {
         pdfBytes: PINGEN_MAX_BYTES,
         pages: 100,
@@ -236,7 +245,7 @@ export class PostalService {
         "Rendre et examiner toutes les pages à au moins 144 dpi ; comparer le destinataire attendu au texte et à l’image réellement visibles. L’extraction de texte et le contrôle automatique ne prouvent pas seuls cette identité.",
         "L’expéditeur vérifié et le traitement des retours exigent une revue distincte. Ne pas promettre un retour postal : les retours Pingen sont traités numériquement.",
         "Ne jamais corriger ou recomposer un original importé. Pour une nouvelle lettre, générer un nouveau PDF, puis appeler preflight_postal_pdf avec les octets déposés et son identifiant Guteneo.",
-        "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur, un devis exact, une approbation humaine et une confirmation sont des étapes distinctes ; ce profil n’autorise aucun envoi.",
+        "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur et un devis exact ne valent pas approbation ni acceptation d’envoi ; celles-ci suivent la voie navigateur ou un mandat expert préalable. Ce profil n’autorise aucun envoi.",
       ],
       canSend: false as const,
     };
@@ -345,9 +354,16 @@ export class PostalService {
     return exact;
   }
   private report(row: Row): Report | null {
-    return row.report_json
-      ? reportSchema.parse(JSON.parse(row.report_json))
-      : null;
+    if (!row.report_json) return null;
+    const value: unknown = JSON.parse(row.report_json);
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "version" in value &&
+      value.version !== PINGEN_PREFLIGHT_VERSION
+    )
+      error("POSTAL_PREFLIGHT_VERSION_CHANGED");
+    return reportSchema.parse(value);
   }
 
   async get(authority: PostalAuthority, id: string): Promise<PostalReview> {
@@ -405,9 +421,19 @@ export class PostalService {
         expectedLines: row.expected_address.split("\n"),
         extractedLines: report?.address?.lines ?? [],
         matches,
+        textVisibility: "not_verified",
+        cropAccess: "authenticated_browser_session_only",
+        mcpEmbeddedVisualEvidenceAvailable: false,
         cropUrl: report?.address
           ? `${this.env.APP_ORIGIN}/api/postal/preflights/${encodeURIComponent(row.id)}/address.png`
           : null,
+      },
+      transferPolicy: {
+        canTransferMeaning: "browser_session_only",
+        expertTool: "transfer_postal_draft",
+        expertAuthority: "separate_active_postal_transfer_mandate_required",
+        expertEligibilityEvaluated: false,
+        requiresVisualReview: true,
       },
       canTransfer:
         authority.context.actor === "browser" &&

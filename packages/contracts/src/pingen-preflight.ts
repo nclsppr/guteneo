@@ -11,7 +11,7 @@ import { validatePdf } from "./pdf";
 import { LIMITS } from "./content";
 
 /** Dated, deliberately narrower Guteneo beta policy; not a provider acceptance proof. */
-export const PINGEN_PREFLIGHT_VERSION = "pingen-2026-09-17-v1";
+export const PINGEN_PREFLIGHT_VERSION = "pingen-2026-09-17-v2";
 export const PINGEN_MAX_BYTES = 8_000_000;
 const configSchema = z
   .object({
@@ -276,6 +276,30 @@ export function checkPingenAddress(
   const address = lastIsCountry ? lines.slice(0, -1) : lines;
   if (address.length < 3 || address.length > 6)
     errors.push({ code: "POSTAL_ADDRESS_LINE_COUNT" });
+  // These countries explicitly require Latin letters and Arabic digits. Keep
+  // punctuation separate so ordinary diacritics, apostrophes and street hyphens survive.
+  if (
+    (options.country === "LU" || options.country === "DE") &&
+    address.some((line) =>
+      Array.from(line).some(
+        (char) =>
+          (/\p{L}/u.test(char) && !/\p{Script=Latin}/u.test(char)) ||
+          (/\p{N}/u.test(char) && !/[0-9]/.test(char)),
+      ),
+    )
+  )
+    errors.push({ code: "POSTAL_ADDRESS_LATIN_REQUIRED" });
+  if (options.country === "LU") {
+    if (address.some((line) => /["“”«»()\[\]!?/#&§]/u.test(line)))
+      errors.push({ code: "POSTAL_ADDRESS_CHARACTERS_UNSUPPORTED" });
+    // The current public recipient schema has one street line. Never rewrite it
+    // or mistake a name/company abbreviation for a prohibited street-number marker.
+    if (
+      address.length === 3 &&
+      /(?:^|\s)(?:n[°º]|nr\.?)(?=\s|\d|$)/iu.test(address[1])
+    )
+      errors.push({ code: "POSTAL_ADDRESS_NUMBER_MARKER_UNSUPPORTED" });
+  }
   const postcode = address.at(-1) ?? "";
   const pattern =
     options.country === "LU"
@@ -288,6 +312,8 @@ export function checkPingenAddress(
       errors.push({ code: "POSTAL_ADDRESS_LINE_TOO_LONG" });
     if (postcode !== postcode.toLocaleUpperCase("fr-FR"))
       errors.push({ code: "POSTAL_CITY_UPPERCASE_REQUIRED" });
+    if (address.length === 3 && /[\p{P}\p{S}]/u.test(address[1]))
+      errors.push({ code: "POSTAL_STREET_PUNCTUATION" });
     if (/[\p{P}\p{S}]/u.test(postcode))
       errors.push({ code: "POSTAL_POSTCODE_PUNCTUATION" });
   }
