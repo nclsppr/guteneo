@@ -297,14 +297,16 @@ export function createGuteneoMcpServer(
       return format(await operation());
     } catch (error) {
       // MCP tool errors can be carried by HTTP 200. Emit a closed code without input or error text.
-      const correlationId = services.onToolFailure?.(
+      const code =
         error instanceof AuthError
           ? "AUTH_REJECTED"
           : error instanceof Error && "code" in error
             ? "DOMAIN_REJECTED"
-            : "INTERNAL_ERROR",
-        error instanceof ImportSourceError ? error.observation() : undefined,
-      );
+            : "INTERNAL_ERROR";
+      const correlationId =
+        error instanceof ImportSourceError
+          ? services.onToolFailure?.(code, error.observation())
+          : services.onToolFailure?.(code);
       const result = failure(error, correlationId);
       if (error instanceof AuthError && error.code === "INSUFFICIENT_SCOPE") {
         result._meta = {
