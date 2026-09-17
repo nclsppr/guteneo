@@ -20,8 +20,10 @@ has already been scheduled.
 Transient scanner startup, load or timeout creates durable analysis work in D1.
 The existing minute cron retries the same original without requiring an open
 browser or another assistant call. A cycle allows at most five automatic
-attempts and expires after ten minutes. This is a bound, not a promised completion
-time. Exhaustion produces a clear retry action. No job is created by a status
+attempts and expires ten minutes after its first automatic claim. Waiting in
+the ordered queue does not consume that window; subsequent attempts cannot
+extend it. This is a bound, not a promised completion time. Exhaustion produces
+a clear retry action. No job is created by a status
 read, and duplicate imports cannot reset the cycle. Manual restarts retain the
 existing organization limit of ten per UTC day; background attempts use their
 own per-cycle counter.

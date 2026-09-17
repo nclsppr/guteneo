@@ -11,7 +11,10 @@ import {
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
-import { DocumentService } from "../../apps/api/src/documents";
+import {
+  DocumentService,
+  type AnalyzedDocument,
+} from "../../apps/api/src/documents";
 import {
   DomainService,
   type ActorContext,
@@ -540,6 +543,8 @@ describe("manual rescan of the exact quarantined original", () => {
     await expect(unavailable.rescan(owner, doc.id)).resolves.toMatchObject({
       analysis: { state: "processing", nextAction: "wait" },
     });
+    await due(doc.id);
+    expect(await unavailable.processPendingScans()).toEqual({ processed: 1 });
     await env.DB.prepare(
       "UPDATE document_analysis SET deadline_at=0 WHERE organization_id=? AND document_id=?",
     )
@@ -634,6 +639,124 @@ const unavailable = () =>
   );
 
 describe("durable automatic analysis of the retained original", () => {
+  it("gives queued originals a full bounded cycle from their first automatic claim despite cron backlog", async () => {
+    let now = Date.now();
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const documents: {
+      document: AnalyzedDocument;
+      original: Uint8Array<ArrayBuffer>;
+    }[] = [];
+    const pending = service({ SCANNER: unavailable() });
+    for (let index = 0; index < 4; index++) {
+      const pdf = await PDFDocument.load(bytes);
+      pdf.setTitle(`queue-${index}`);
+      const original = new Uint8Array(await pdf.save());
+      const document = await pending.upload(owner, {
+        name: `queue-${index}.pdf`,
+        bytes: original,
+      });
+      documents.push({ document, original });
+    }
+    documents.sort((a, b) => a.document.id.localeCompare(b.document.id));
+    const waiting = documents[3].document;
+    const scanner = vi.fn(async (request: Request) => {
+      const original = new Uint8Array(await request.arrayBuffer());
+      const digest = Array.from(
+        new Uint8Array(await crypto.subtle.digest("SHA-256", original)),
+        (value) => value.toString(16).padStart(2, "0"),
+      ).join("");
+      expect(original).toEqual(
+        documents.find(({ document }) => document.sha256 === digest)?.original,
+      );
+      return digest === waiting.sha256
+        ? Response.json({ code: "SCANNER_NOT_READY" }, { status: 503 })
+        : Response.json({ verdict: "clean", sha256: digest });
+    });
+    const worker = service({
+      SCANNER: binding(scanner),
+      DOCUMENT_RENDERER: binding(async (request) => {
+        const digest = Array.from(
+          new Uint8Array(
+            await crypto.subtle.digest("SHA-256", await request.arrayBuffer()),
+          ),
+          (value) => value.toString(16).padStart(2, "0"),
+        ).join("");
+        return Response.json({ sha256: digest, pages: 1 });
+      }),
+    });
+    const analysis = (id: string) =>
+      env.DB.prepare(
+        "SELECT state,attempts,deadline_at FROM document_analysis WHERE organization_id=? AND document_id=?",
+      )
+        .bind(owner.organizationId, id)
+        .first<{ state: string; attempts: number; deadline_at: number }>();
+
+    // Waiting behind the global three-per-cron limit must not consume the
+    // recovery window before a document gets its first automatic scanner call.
+    now += 11 * 60_000;
+    for (const { document } of documents)
+      expect((await worker.get(owner, document.id)).analysis).toMatchObject({
+        state: "processing",
+        nextAction: "wait",
+      });
+    expect((await worker.rescan(owner, waiting.id)).analysis.state).toBe(
+      "processing",
+    );
+    expect(scanner).not.toHaveBeenCalled();
+    expect(await worker.processPendingScans()).toEqual({ processed: 3 });
+    expect(scanner).toHaveBeenCalledTimes(3);
+    for (const { document } of documents.slice(0, 3)) {
+      expect(await worker.get(owner, document.id)).toMatchObject({
+        id: document.id,
+        sha256: document.sha256,
+        status: "ready",
+      });
+      expect(await analysis(document.id)).toEqual({
+        state: "ready",
+        attempts: 1,
+        deadline_at: now + 10 * 60_000,
+      });
+    }
+    expect(await analysis(waiting.id)).toMatchObject({
+      state: "processing",
+      attempts: 0,
+    });
+    expect((await worker.get(owner, waiting.id)).analysis.state).toBe(
+      "processing",
+    );
+
+    now += 60_000;
+    expect(await worker.processPendingScans()).toEqual({ processed: 1 });
+    const deadline = now + 10 * 60_000;
+    expect(await analysis(waiting.id)).toEqual({
+      state: "processing",
+      attempts: 1,
+      deadline_at: deadline,
+    });
+    now += 60_000;
+    expect(await worker.processPendingScans()).toEqual({ processed: 1 });
+    expect(await analysis(waiting.id)).toEqual({
+      state: "processing",
+      attempts: 2,
+      deadline_at: deadline,
+    });
+    now = deadline;
+    expect((await worker.get(owner, waiting.id)).analysis).toMatchObject({
+      state: "retryable",
+      code: "retry_exhausted",
+    });
+    expect(await worker.processPendingScans()).toEqual({ processed: 0 });
+    expect(scanner).toHaveBeenCalledTimes(5);
+    expect(await analysis(waiting.id)).toEqual({
+      state: "retryable",
+      attempts: 2,
+      deadline_at: deadline,
+    });
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM outbox").first(),
+    ).toEqual({ n: 0 });
+  });
+
   it("recovers a cold upload on the cron, preserves exact bytes and attributes proof to the system", async () => {
     const doc = await service({ SCANNER: unavailable() }).upload(owner, {
       name: "original.pdf",
@@ -830,7 +953,10 @@ describe("durable automatic analysis of the retained original", () => {
 
   it("projects an expired deadline immediately and retires it without another scanner call", async () => {
     const doc = await quarantine();
-    await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+    const instance = service({ SCANNER: unavailable() });
+    await instance.rescan(owner, doc.id);
+    await due(doc.id);
+    expect(await instance.processPendingScans()).toEqual({ processed: 1 });
     await env.DB.prepare(
       "UPDATE document_analysis SET deadline_at=0 WHERE organization_id=? AND document_id=?",
     )

@@ -349,7 +349,7 @@ export class DocumentService {
   ): AnalyzedDocument {
     const expired =
       row?.state === "processing" &&
-      (row.deadline_at <= Date.now() ||
+      ((row.attempts > 0 && row.deadline_at <= Date.now()) ||
         (row.attempts >= MAX_AUTO_ATTEMPTS &&
           row.next_attempt_at <= Date.now()));
     return {
@@ -421,7 +421,7 @@ export class DocumentService {
       `INSERT INTO document_analysis(organization_id,document_id,request_user_id,request_role,state,code,attempts,deadline_at,next_attempt_at,updated_at)
  SELECT ?,?,?,?,?,?,0,?,?,? WHERE EXISTS(SELECT 1 FROM documents WHERE organization_id=? AND id=? AND status='quarantined' AND pages=0)
  ON CONFLICT(organization_id,document_id) DO UPDATE SET request_user_id=excluded.request_user_id,request_role=excluded.request_role,state=excluded.state,code=excluded.code,attempts=0,deadline_at=excluded.deadline_at,next_attempt_at=excluded.next_attempt_at,updated_at=excluded.updated_at
- WHERE ?=1 AND (document_analysis.state<>'processing' OR document_analysis.deadline_at<=? OR (document_analysis.attempts>=5 AND document_analysis.next_attempt_at<=?))`,
+ WHERE ?=1 AND (document_analysis.state<>'processing' OR (document_analysis.attempts>0 AND document_analysis.deadline_at<=?) OR (document_analysis.attempts>=5 AND document_analysis.next_attempt_at<=?))`,
     )
       .bind(
         ctx.organizationId,
@@ -453,7 +453,9 @@ export class DocumentService {
     const row = await this.analysisRow(ctx, id);
     const exhausted =
       outcome.state === "processing" &&
-      (attempts >= MAX_AUTO_ATTEMPTS || !row || row.deadline_at <= now);
+      (attempts >= MAX_AUTO_ATTEMPTS ||
+        !row ||
+        (attempts > 0 && row.deadline_at <= now));
     await this.env.DB.prepare(
       `UPDATE document_analysis SET state=?,code=?,next_attempt_at=?,updated_at=?
  WHERE organization_id=? AND document_id=?
@@ -764,19 +766,20 @@ export class DocumentService {
   /** The existing minute cron drains durable, bounded PDF-only work. Never approves or sends. */
   async processPendingScans(limit = 3): Promise<{ processed: number }> {
     const now = Date.now();
-    // Retire expired/crashed final attempts without presenting endless progress to clients.
+    // Queue time does not consume the recovery window. The first claimed retry
+    // starts it; expired/crashed attempts that already started remain bounded.
     await this.env.DB.prepare(
       `UPDATE document_analysis SET state='retryable',code='retry_exhausted',updated_at=?
  WHERE (organization_id,document_id) IN (
  SELECT a.organization_id,a.document_id FROM document_analysis a WHERE a.state='processing'
- AND (a.deadline_at<=? OR (a.attempts>=? AND a.next_attempt_at<=?))
+ AND ((a.attempts>0 AND a.deadline_at<=?) OR (a.attempts>=? AND a.next_attempt_at<=?))
  AND NOT EXISTS(SELECT 1 FROM document_scan_locks l WHERE l.organization_id=a.organization_id AND l.document_id=a.document_id AND l.expires_at>?)
  ORDER BY a.deadline_at,a.organization_id,a.document_id LIMIT 100)`,
     )
       .bind(now, now, MAX_AUTO_ATTEMPTS, now, now)
       .run();
     const rows = await this.env.DB.prepare(
-      "SELECT * FROM document_analysis WHERE state='processing' AND next_attempt_at<=? AND deadline_at>? AND attempts<? ORDER BY next_attempt_at,organization_id,document_id LIMIT ?",
+      "SELECT * FROM document_analysis WHERE state='processing' AND next_attempt_at<=? AND (attempts=0 OR deadline_at>?) AND attempts<? ORDER BY next_attempt_at,organization_id,document_id LIMIT ?",
     )
       .bind(
         now,
@@ -793,10 +796,11 @@ export class DocumentService {
       try {
         const claimTime = Date.now();
         const claimed = await this.env.DB.prepare(
-          `UPDATE document_analysis SET attempts=attempts+1,next_attempt_at=?,updated_at=? WHERE organization_id=? AND document_id=? AND state='processing' AND next_attempt_at<=? AND deadline_at>? AND attempts<?
+          `UPDATE document_analysis SET deadline_at=CASE WHEN attempts=0 THEN ? ELSE deadline_at END,attempts=attempts+1,next_attempt_at=?,updated_at=? WHERE organization_id=? AND document_id=? AND state='processing' AND next_attempt_at<=? AND (attempts=0 OR deadline_at>?) AND attempts<?
  AND EXISTS(SELECT 1 FROM document_scan_locks WHERE organization_id=? AND document_id=? AND token=? AND expires_at>?) RETURNING *`,
         )
           .bind(
+            claimTime + ANALYSIS_WINDOW_MS,
             claimTime + SCAN_LEASE_MS,
             claimTime,
             row.organization_id,
