@@ -29,6 +29,7 @@ import {
   type ProviderHook,
 } from "../../packages/domain/src/index";
 import { validateRecipient } from "../../packages/contracts/src/content";
+import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import type { Fetcher } from "../../packages/providers";
 import { resetFixtureMemberships } from "../helpers/reset-memberships";
 
@@ -105,6 +106,8 @@ afterAll(async () => {
 });
 beforeEach(async () => {
   for (const table of [
+    "postal_transfer_consents",
+    "postal_preflights",
     "document_access_grants",
     "provider_drafts",
     "provider_events",
@@ -124,6 +127,8 @@ beforeEach(async () => {
     "senders",
     "channel_controls",
     "usage",
+    "content_usage",
+    "content_limits",
     "memberships",
     "users",
     "organizations",
@@ -193,6 +198,7 @@ beforeEach(async () => {
     MODE: "production",
     APP_ORIGIN: "https://guteneo.example",
     LIVE_SENDS_ENABLED: "true",
+    POSTAL_DRAFTS_ENABLED: "true",
     TELNYX_API_KEY: "test-only",
     TELNYX_ACCOUNT_ID: "account-fixture",
     TELNYX_CONNECTION_ID: "connection-fixture",
@@ -371,7 +377,157 @@ const draftInput = (): PreparePostalDraftInput => ({
   options: postalOptions,
   ceilingMinor: 200,
   idempotencyKey: "draft-fixture",
+  preflightId: "preflight_fixture",
 });
+
+/** Synthetic completed renderer evidence and browser consent. This bridge fixture
+ * does not claim the blank PDF was analyzed; PostalService has its own renderer,
+ * session, quota and consent integration suite. Every SQL guard stays installed. */
+async function prepareFixtureDraft(fetcher: Fetcher, input = draftInput()) {
+  const preflightId = input.preflightId!;
+  const existing = await db
+    .prepare("SELECT id FROM postal_preflights WHERE id=?")
+    .bind(preflightId)
+    .first();
+  if (!existing) {
+    const created = new Date().toISOString();
+    const profile = {
+      accountId: env.PINGEN_ORGANIZATION_ID,
+      environment: "sandbox",
+      defaultCountry: env.PINGEN_DEFAULT_COUNTRY,
+      addressPosition: input.options.addressPosition,
+      version: PINGEN_PREFLIGHT_VERSION,
+    };
+    const fingerprint = await sha256(
+      canonicalJson({
+        documentId: input.documentId,
+        senderId: input.senderId,
+        recipient: input.recipient,
+        options: input.options,
+        ceilingMinor: input.ceilingMinor,
+        profile,
+        documentSha256: documentSha,
+        senderAddress: "Fixture return address",
+      }),
+    );
+    const record = {
+      id: preflightId,
+      organization_id: ctx.organizationId,
+      user_id: ctx.userId,
+      document_id: input.documentId,
+      document_sha256: documentSha,
+      sender_id: input.senderId,
+      sender_address: "Fixture return address",
+      recipient_json: canonicalJson(input.recipient),
+      options_json: canonicalJson(input.options),
+      profile_json: canonicalJson(profile),
+      expected_address: expectedAddress,
+      ceiling_minor: input.ceilingMinor,
+      request_hash: fingerprint,
+      input_hash: fingerprint,
+      idempotency_key: "fixture-preflight-key",
+      status: "processing",
+      budget_day: created.slice(0, 10),
+      processing_until: new Date(Date.now() + 60000).toISOString(),
+      expires_at: new Date(Date.now() + 600000).toISOString(),
+      created_at: created,
+      updated_at: created,
+    };
+    const report = {
+      version: PINGEN_PREFLIGHT_VERSION,
+      status: "review_required",
+      sha256: documentSha,
+      pages: 1,
+      canSend: false,
+      issues: [],
+      requiredReviews: ["printed_recipient_matches"],
+      rendering: {
+        dpi: 144,
+        complete: true,
+        pages: [
+          { page: 1, width: 1191, height: 1684, rasterSha256: "a".repeat(64) },
+        ],
+      },
+      address: {
+        lines: expectedAddress.split("\n"),
+        issues: [],
+        textVisibility: "not_verified",
+        crop: {
+          pngBase64:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+          width: 1,
+          height: 1,
+          boundsMm: { x: 20, y: 40, width: 89.5, height: 47.5 },
+        },
+      },
+    };
+    await db
+      .prepare("INSERT INTO content_limits VALUES(?,10,80000000,10)")
+      .bind(ctx.organizationId)
+      .run();
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO postal_preflights(${Object.keys(record).join(",")}) VALUES(${Object.keys(
+            record,
+          )
+            .map(() => "?")
+            .join(",")})`,
+        )
+        .bind(...Object.values(record)),
+      db
+        .prepare(
+          "UPDATE postal_preflights SET status='review_required',report_json=? WHERE id=?",
+        )
+        .bind(canonicalJson(report), preflightId),
+      db
+        .prepare("INSERT INTO postal_transfer_consents VALUES(?,?,?,?,1,1,?)")
+        .bind(
+          preflightId,
+          ctx.organizationId,
+          ctx.userId,
+          fingerprint,
+          created,
+        ),
+      db
+        .prepare(
+          "UPDATE postal_preflights SET transfer_status='preparing',transfer_started_at=? WHERE id=?",
+        )
+        .bind(created, preflightId),
+    ]);
+  }
+  const beforeTransfer = async () => {
+    expect(
+      await db
+        .prepare(
+          "SELECT p.id FROM postal_preflights p JOIN memberships m ON m.organization_id=p.organization_id AND m.user_id=? JOIN documents d ON d.organization_id=p.organization_id AND d.id=p.document_id WHERE p.id=? AND p.organization_id=? AND p.transfer_status='preparing' AND d.status='ready' AND d.sha256=p.document_sha256 AND m.role='admin'",
+        )
+        .bind(ctx.userId, preflightId, ctx.organizationId)
+        .first(),
+    ).toEqual({ id: preflightId });
+  };
+  try {
+    const result = await preparePostalDraft(env, domain, ctx, input, {
+      fetcher,
+      beforeTransfer,
+    });
+    await db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='prepared',provider_draft_id=? WHERE id=? AND transfer_status='preparing'",
+      )
+      .bind(result.providerDraftId, preflightId)
+      .run();
+    return result;
+  } catch (error) {
+    await db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='unknown' WHERE id=? AND transfer_status='preparing'",
+      )
+      .bind(preflightId)
+      .run();
+    throw error;
+  }
+}
 
 describe("Live provider bridge — real D1/R2, intercepted external fetch only", () => {
   it.each([
@@ -609,6 +765,51 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     ).toBe("reserved");
   });
 
+  it.each([
+    { AWS_REGION: "eu-west-3" },
+    { SES_CONFIGURATION_SET: "another-configuration" },
+    { SES_SANDBOX: "false" },
+  ])(
+    "invalidates an approved SES quote when the sending contract changes: %j",
+    async (override) => {
+      expect(
+        createLiveDeliveryQuoteConfig(env).liveDeliveryIdentity.email,
+      ).toEqual({
+        accountId: "123456789012",
+        routeId: "eu-west-1:fixture:true",
+      });
+      const row = await queueFixture("email");
+      const fetcher = vi.fn<Fetcher>();
+      expect(
+        await domain.processDispatch(
+          row.id,
+          createLiveProviderHook({ ...env, ...override }, "email", { fetcher }),
+        ),
+      ).toMatchObject({ status: "failed" });
+      expect(fetcher).not.toHaveBeenCalled();
+      expect(
+        await db
+          .prepare("SELECT error_code FROM attempts WHERE dispatch_id=?")
+          .bind(row.id)
+          .first(),
+      ).toEqual({ error_code: "LIVE_QUOTE_INVALID" });
+      expect(
+        await db
+          .prepare("SELECT status FROM reservations WHERE dispatch_id=?")
+          .bind(row.id)
+          .first(),
+      ).toEqual({ status: "released" });
+    },
+  );
+
+  it("does not create a SES pricing identity for an unspecified or malformed sandbox mode", () => {
+    for (const SES_SANDBOX of [undefined, "", "unknown", "TRUE"])
+      expect(
+        createLiveDeliveryQuoteConfig({ ...env, SES_SANDBOX })
+          .liveDeliveryIdentity.email,
+      ).toBeUndefined();
+  });
+
   it("sends SES one frozen recipient and unmodified HTML, text and optional PDF attachment", async () => {
     const row = await queueFixture("email");
     const fetcher = vi.fn<Fetcher>(async () =>
@@ -654,9 +855,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
 
   it("persists a Pingen non-sending draft and only submits a matching frozen, tenant-bound draft", async () => {
     const fetcher = pingenFixtureFetch();
-    const prepared = await preparePostalDraft(env, domain, ctx, draftInput(), {
-      fetcher,
-    });
+    const prepared = await prepareFixtureDraft(fetcher);
     expect(prepared).toMatchObject({
       preparedLetterId: "letter-fixture",
       expectedAddress,
@@ -671,9 +870,9 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       JSON.parse(String(fetcher.mock.calls[3][1]?.body)).data.attributes
         .auto_send,
     ).toBe(false);
-    expect(
-      await preparePostalDraft(env, domain, ctx, draftInput(), { fetcher }),
-    ).toEqual(prepared);
+    await expect(prepareFixtureDraft(fetcher)).rejects.toMatchObject({
+      code: "POSTAL_PREFLIGHT_REQUIRED",
+    });
     expect(fetcher).toHaveBeenCalledTimes(4);
     const row = await queueFixture("postal", {
       ...postalOptions,
@@ -714,9 +913,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
 
   it("rejects a supplied provider ID, changed recipient, options or missing persisted draft during preparation", async () => {
     const draftFetch = pingenFixtureFetch();
-    const prepared = await preparePostalDraft(env, domain, ctx, draftInput(), {
-      fetcher: draftFetch,
-    });
+    const prepared = await prepareFixtureDraft(draftFetch);
     for (const patch of [
       { providerDraftId: "foreign-draft" },
       { preparedLetterId: "unowned-letter" },
@@ -758,13 +955,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     "rechecks a Pingen quote after asynchronous calculation: %s",
     async (change) => {
       const draftFetch = pingenFixtureFetch();
-      const prepared = await preparePostalDraft(
-        env,
-        domain,
-        ctx,
-        draftInput(),
-        { fetcher: draftFetch },
-      );
+      const prepared = await prepareFixtureDraft(draftFetch);
       const row = await queueFixture("postal", {
         ...postalOptions,
         providerDraftId: prepared.providerDraftId,
@@ -817,25 +1008,19 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       }),
     ).rejects.toMatchObject({ code: "HUMAN_DOCUMENT_TRANSFER_REQUIRED" });
     expect(fetcher).not.toHaveBeenCalled();
-    await expect(
-      preparePostalDraft(env, domain, ctx, draftInput(), { fetcher }),
-    ).rejects.toMatchObject({ code: "POSTAL_DRAFT_RECONCILIATION_REQUIRED" });
+    await expect(prepareFixtureDraft(fetcher)).rejects.toMatchObject({
+      code: "POSTAL_DRAFT_RECONCILIATION_REQUIRED",
+    });
     expect(
       (await db.prepare("SELECT status FROM provider_drafts").first())!.status,
     ).toBe("unknown");
-    await expect(
-      preparePostalDraft(env, domain, ctx, draftInput(), { fetcher }),
-    ).rejects.toMatchObject({ code: "POSTAL_DRAFT_RECONCILIATION_REQUIRED" });
+    await expect(prepareFixtureDraft(fetcher)).rejects.toMatchObject({
+      code: "POSTAL_PREFLIGHT_REQUIRED",
+    });
     expect(fetcher).toHaveBeenCalledTimes(1);
     await expect(
-      preparePostalDraft(
-        env,
-        domain,
-        ctx,
-        { ...draftInput(), ceilingMinor: 201 },
-        { fetcher },
-      ),
-    ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+      prepareFixtureDraft(fetcher, { ...draftInput(), ceilingMinor: 201 }),
+    ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
   });
 
   it("keeps the production tariff gate closed even when all provider environment values are present", async () => {

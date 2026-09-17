@@ -12,15 +12,19 @@ import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   DomainService,
   canonicalJson,
+  sha256,
   type ActorContext,
   type PrepareInput,
   type ProviderHook,
 } from "../../packages/domain/src/index";
 import {
   emailRateComponents,
+  resolveDeliveryPrice,
   validateLiveDeliveryQuote,
   type EmailRateEvidence,
+  type PublicEmailRateEvidence,
 } from "../../packages/domain/src/live-delivery-quotes";
+import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 let mf: Miniflare,
   db: D1Database,
   domain: DomainService,
@@ -39,6 +43,34 @@ const rate: EmailRateEvidence = {
   eurPerUsdDenominator: 1,
   attachmentBasis: "raw_pdf_bytes",
 };
+const textOnlyRate: EmailRateEvidence = {
+  usdMicrosPerMessage: 160,
+  eurPerUsdNumerator: 10000,
+  eurPerUsdDenominator: 11537,
+  attachmentBasis: "no_attachments",
+};
+const publicRate: PublicEmailRateEvidence = {
+  ...textOnlyRate,
+  attachmentBasis: "no_attachments",
+  pricingBasis: "public_list_price_ex_tax",
+  plan: "Essentials",
+  tier: "0-10000000",
+  unit: "recipient",
+  currency: "USD",
+  tariffSource: "https://aws.amazon.com/ses/pricing/",
+  tariffDate: "2026-09-17",
+  fxBasis: "commercial_fixed_reference",
+  fxSource: "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+  fxDate: "2026-09-16",
+};
+let upgradeProof: {
+  before: string;
+  after: string;
+  foreignKeys: unknown[];
+  quickCheck: unknown;
+  legacyBasis: string;
+  legacyQuoteValid: boolean;
+};
 const print = {
   addressPosition: "left",
   deliveryProduct: "cheap",
@@ -48,6 +80,7 @@ const print = {
 const stamp = () => new Date(clock).toISOString();
 const id = (prefix: string) => `${prefix}_${ctx.organizationId}`;
 async function sql(source: string) {
+  const statements: D1PreparedStatement[] = [];
   let statement = "",
     trigger = false;
   for (const raw of source.split("\n")) {
@@ -57,12 +90,13 @@ async function sql(source: string) {
       trigger = line.startsWith("CREATE TRIGGER") && !line.endsWith("END;");
     statement += line + " ";
     if ((trigger && line === "END;") || (!trigger && line.endsWith(";"))) {
-      await db.prepare(statement).run();
+      statements.push(db.prepare(statement));
       statement = "";
       trigger = false;
     }
   }
   if (statement.trim()) throw Error("Incomplete SQL");
+  if (statements.length) await db.batch(statements);
 }
 beforeAll(async () => {
   mf = new Miniflare(
@@ -76,18 +110,65 @@ beforeAll(async () => {
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
   const dir = new URL("../../migrations/", import.meta.url);
   for (const f of readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
+    .filter((f) => f.endsWith(".sql") && !f.startsWith("0022_"))
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
+  // Exercise an upgrade with an existing immutable quote, approval and settled
+  // credit, not merely an empty schema. Both old policies retain their contract.
+  await setupFixture();
+  const legacy = await queue();
+  await domain.processDispatch(legacy.id, provider("email"));
+  const snapshot = async () =>
+    JSON.stringify(
+      await Promise.all(
+        [
+          "live_delivery_quotes",
+          "approvals",
+          "delivery_charge_entries",
+          "welcome_credit_entries",
+        ].map(
+          async (table) =>
+            (
+              await db
+                .prepare(
+                  `SELECT * FROM ${table} WHERE organization_id=? ORDER BY rowid`,
+                )
+                .bind(ctx.organizationId)
+                .all()
+            ).results,
+        ),
+      ),
+    );
+  const before = await snapshot();
+  await sql(
+    readFileSync(new URL("0022_ses_public_list_prices.sql", dir), "utf8"),
+  );
+  upgradeProof = {
+    before,
+    after: await snapshot(),
+    foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
+    quickCheck: await db.prepare("PRAGMA quick_check").first(),
+    legacyBasis: (await db
+      .prepare("SELECT pricing_basis FROM trusted_delivery_costs WHERE id=?")
+      .bind(id("policy_email"))
+      .first<{ pricing_basis: string }>())!.pricing_basis,
+    legacyQuoteValid: Boolean(
+      await validateLiveDeliveryQuote(db, legacy, identity.email, stamp()),
+    ),
+  };
 });
 afterAll(async () => {
   await mf?.dispose();
 });
-async function qualify(channel: "email" | "postal", customRate = rate) {
+async function qualify(
+  channel: "email" | "postal",
+  customRate: EmailRateEvidence = rate,
+) {
   const c = emailRateComponents(customRate);
+  const basis = (customRate as Partial<PublicEmailRateEvidence>).pricingBasis;
   await db
     .prepare(
-      "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'EUR','qualified_final_variable_cost',300,'ISOLATED FIXTURE - NOT A REAL TARIFF',?,?,?,'qualified',?)",
+      `INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at${basis ? ",pricing_basis" : ""}) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'EUR','qualified_final_variable_cost',300,'ISOLATED FIXTURE - NOT A REAL TARIFF',?,?,?,'qualified',?${basis ? ",?" : ""})`,
     )
     .bind(
       id("policy_" + channel),
@@ -106,10 +187,11 @@ async function qualify(channel: "email" | "postal", customRate = rate) {
       stamp(),
       new Date(clock + 3600000).toISOString(),
       stamp(),
+      ...(basis ? [basis] : []),
     )
     .run();
 }
-beforeEach(async () => {
+async function setupFixture() {
   clock = Date.now();
   postalSupplierMinor = 150;
   ctx = {
@@ -176,7 +258,8 @@ beforeEach(async () => {
     storageKey: "fixture/" + ctx.organizationId,
     scanVerified: true,
   });
-});
+}
+beforeEach(setupFixture);
 const email = (): PrepareInput => ({
   channel: "email",
   recipient: { email: "recipient@example.invalid" },
@@ -216,6 +299,107 @@ async function postal(): Promise<PrepareInput> {
       stamp(),
     )
     .run();
+  // Synthetic renderer proof and browser consent for this isolated postal draft.
+  // Keep the actual migration guards enabled; the service suite tests rendering.
+  const preflightId = crypto.randomUUID();
+  const fingerprint = await sha256(
+    canonicalJson({ recipient, print, documentSha256: "a".repeat(64), draft }),
+  );
+  const record = {
+    id: preflightId,
+    organization_id: ctx.organizationId,
+    user_id: ctx.userId,
+    document_id: id("doc"),
+    document_sha256: "a".repeat(64),
+    sender_id: id("sender_postal"),
+    sender_address: "Fixture sender",
+    recipient_json: canonicalJson(recipient),
+    options_json: canonicalJson(print),
+    profile_json: canonicalJson({
+      accountId: identity.postal.accountId,
+      environment: "sandbox",
+      defaultCountry: "LU",
+      addressPosition: "left",
+      version: PINGEN_PREFLIGHT_VERSION,
+    }),
+    expected_address: expectedAddress,
+    ceiling_minor: 400,
+    request_hash: fingerprint,
+    input_hash: fingerprint,
+    idempotency_key: preflightId,
+    status: "processing",
+    budget_day: stamp().slice(0, 10),
+    processing_until: new Date(clock + 60000).toISOString(),
+    expires_at: new Date(clock + 3600000).toISOString(),
+    created_at: stamp(),
+    updated_at: stamp(),
+  };
+  const report = {
+    version: PINGEN_PREFLIGHT_VERSION,
+    status: "review_required",
+    sha256: "a".repeat(64),
+    pages: 2,
+    canSend: false,
+    issues: [],
+    requiredReviews: ["printed_recipient_matches"],
+    rendering: {
+      complete: true,
+      dpi: 144,
+      pages: [1, 2].map((page) => ({
+        page,
+        width: 1191,
+        height: 1684,
+        rasterSha256: "b".repeat(64),
+      })),
+    },
+    address: {
+      lines: expectedAddress.split("\n"),
+      issues: [],
+      textVisibility: "not_verified",
+      crop: {
+        pngBase64:
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        width: 1,
+        height: 1,
+        boundsMm: { x: 20, y: 40, width: 89.5, height: 47.5 },
+      },
+    },
+  };
+  await db
+    .prepare(
+      "INSERT INTO content_limits VALUES(?,10,80000000,10) ON CONFLICT(organization_id) DO NOTHING",
+    )
+    .bind(ctx.organizationId)
+    .run();
+  await db.batch([
+    db
+      .prepare(
+        `INSERT INTO postal_preflights(${Object.keys(record).join(",")}) VALUES(${Object.keys(
+          record,
+        )
+          .map(() => "?")
+          .join(",")})`,
+      )
+      .bind(...Object.values(record)),
+    db
+      .prepare(
+        "UPDATE postal_preflights SET status='review_required',report_json=? WHERE id=?",
+      )
+      .bind(canonicalJson(report), preflightId),
+    db
+      .prepare("INSERT INTO postal_transfer_consents VALUES(?,?,?,?,1,1,?)")
+      .bind(preflightId, ctx.organizationId, ctx.userId, fingerprint, stamp()),
+    db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='preparing',transfer_started_at=? WHERE id=?",
+      )
+      .bind(stamp(), preflightId),
+    db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='prepared',provider_draft_id=? WHERE id=?",
+      )
+      .bind(draft, preflightId),
+  ]);
   return {
     channel: "postal",
     recipient,
@@ -257,7 +441,322 @@ const count = async (table: string) =>
     .prepare(`SELECT count(*) n FROM ${table} WHERE organization_id=?`)
     .bind(ctx.organizationId)
     .first<{ n: number }>())!.n;
+async function replaceEmailRate(customRate: EmailRateEvidence) {
+  await db
+    .prepare(
+      "DELETE FROM trusted_delivery_costs WHERE organization_id=? AND id=?",
+    )
+    .bind(ctx.organizationId, id("policy_email"))
+    .run();
+  await qualify("email", customRate);
+}
 describe("live delivery quotes and cumulative EUR credit — isolated D1 only", () => {
+  it("upgrades existing signed quotes and settled credit without repricing or changing fingerprints", () => {
+    expect(upgradeProof.after).toBe(upgradeProof.before);
+    expect(upgradeProof.foreignKeys).toEqual([]);
+    expect(upgradeProof.quickCheck).toEqual({ quick_check: "ok" });
+    expect(upgradeProof.legacyBasis).toBe("qualified_final_variable_cost");
+    expect(upgradeProof.legacyQuoteValid).toBe(true);
+  });
+  it("quotes the SES public ex-tax price at a signed commercial FX without claiming invoice cost", async () => {
+    await replaceEmailRate(publicRate);
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        { ...email(), documentId: id("doc") },
+        "public-pdf",
+      ),
+    ).rejects.toMatchObject({ code: "LIVE_PRICING_REQUIRED" });
+    const row = await queue();
+    expect(row).toMatchObject({
+      quote_pricing_basis: "public_list_price_ex_tax",
+      quote_fx: {
+        numerator: 10000,
+        denominator: 11537,
+        date: "2026-09-16",
+        source: publicRate.fxSource,
+      },
+      quote_supplier_nanoeur: 138685,
+      quote_customer_nanoeur: 277370,
+      estimated_minor: 1,
+    });
+    const q = await validateLiveDeliveryQuote(db, row, identity.email, stamp());
+    expect(q.fiscal_basis).toBe("public_list_price_ex_tax");
+    expect(JSON.parse(q.input_json)).toMatchObject({
+      pricingBasis: "public_list_price_ex_tax",
+      fx: row.quote_fx,
+    });
+    await expect(
+      db
+        .prepare(
+          "UPDATE trusted_delivery_costs SET pricing_basis='qualified_final_variable_cost' WHERE id=?",
+        )
+        .bind(id("policy_email"))
+        .run(),
+    ).rejects.toThrow("immutable_delivery_cost");
+    await domain.processDispatch(row.id, provider("email"));
+    expect(await balance()).toMatchObject({ spentMinor: 1, reservedMinor: 0 });
+    expect((await domain.getDispatch(ctx, row.id)).dispatch.quote_fx).toEqual(
+      row.quote_fx,
+    );
+  });
+  it("rejects public-price qualification with unknown sources, future FX, attachments, or the postal channel", async () => {
+    await replaceEmailRate(publicRate);
+    const baseline = (await db
+      .prepare("SELECT * FROM trusted_delivery_costs WHERE id=?")
+      .bind(id("policy_email"))
+      .first<Record<string, string | number>>())!;
+    const patches = [
+      {
+        rate_json: canonicalJson({
+          ...publicRate,
+          attachmentBasis: "raw_pdf_bytes",
+          usdMicrosPerGb: 0,
+          bytesPerGb: 1,
+        }),
+      },
+      { rate_json: canonicalJson({ ...publicRate, fxDate: "2999-01-01" }) },
+      {
+        rate_json: canonicalJson({
+          ...publicRate,
+          fxSource: "https://unqualified.example.invalid/",
+        }),
+      },
+      { rate_json: canonicalJson({ ...publicRate, plan: "Pro" }) },
+      { rate_json: canonicalJson(textOnlyRate) },
+      { pricing_basis: "qualified_final_variable_cost" },
+      { channel: "postal", provider: "pingen" },
+    ];
+    for (const patch of patches) {
+      const values = {
+        ...baseline,
+        ...patch,
+        id: crypto.randomUUID(),
+        status: "revoked",
+      };
+      await expect(
+        db
+          .prepare(
+            `INSERT INTO trusted_delivery_costs(${Object.keys(values).join(",")}) VALUES(${Object.keys(
+              values,
+            )
+              .map(() => "?")
+              .join(",")})`,
+          )
+          .bind(...Object.values(values))
+          .run(),
+      ).rejects.toThrow("public_email_price_invalid");
+    }
+  });
+  it("atomically blocks an old reader from relabelling a public policy as qualified invoice cost", async () => {
+    await replaceEmailRate(publicRate);
+    const legacyDb = new Proxy(db, {
+      get(target, key) {
+        if (key !== "prepare") return Reflect.get(target, key, target);
+        return (query: string) => {
+          const statement = target.prepare(query);
+          if (
+            !query.startsWith(
+              "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=?",
+            )
+          )
+            return statement;
+          return {
+            bind: (...bindings: unknown[]) => ({
+              first: async () => {
+                const p = await statement
+                  .bind(...bindings)
+                  .first<Record<string, unknown>>();
+                if (!p) return p;
+                const { pricing_basis: _ignored, ...old } = p;
+                return { ...old, rate_json: canonicalJson(textOnlyRate) };
+              },
+            }),
+          } as D1PreparedStatement;
+        };
+      },
+    });
+    const legacyReader = new DomainService(legacyDb, {
+      mode: "production",
+      now: () => clock,
+      liveDeliveryIdentity: identity,
+    });
+    await expect(
+      legacyReader.prepareDispatch(ctx, email(), "old-pricing-reader"),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    expect(await count("dispatches")).toBe(0);
+    expect(await count("live_delivery_quotes")).toBe(0);
+    expect(await count("outbox")).toBe(0);
+  });
+  it("qualifies text-only email independently of unknown attachment billing and retains exact rational FX", async () => {
+    expect(emailRateComponents(textOnlyRate)).toEqual({
+      base_numerator: 1600000000,
+      byte_numerator: 0,
+      rate_denominator: 11537,
+    });
+    await replaceEmailRate(textOnlyRate);
+    const row = await queue();
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.email,
+      stamp(),
+    );
+    const supplierNano = Number((1600000000n + 11536n) / 11537n);
+    expect(quote).toMatchObject({
+      supplier_numerator: "1600000000",
+      supplier_denominator: "11537",
+      supplier_nanoeur: supplierNano,
+      customer_nanoeur: 2 * supplierNano,
+      attachment_bytes: 0,
+      amount_minor: 1,
+    });
+    const hook = provider("email");
+    hook.submit = vi.fn(hook.submit);
+    await domain.processDispatch(row.id, hook);
+    expect(hook.submit).toHaveBeenCalledOnce();
+    expect(await balance()).toMatchObject({ reservedMinor: 0, spentMinor: 1 });
+  });
+  it("rejects documents under a no-attachments policy even when their declared byte size is zero", async () => {
+    await replaceEmailRate(textOnlyRate);
+    await expect(
+      domain.prepareDispatch(ctx, { ...email(), documentId: id("doc") }, "pdf"),
+    ).rejects.toMatchObject({ code: "LIVE_PRICING_REQUIRED" });
+    await expect(
+      resolveDeliveryPrice(db, {
+        organizationId: ctx.organizationId,
+        senderId: id("sender_email"),
+        channel: "email",
+        recipient: { email: "recipient@example.invalid" },
+        options: {},
+        document: { id: id("doc"), sha256: "a".repeat(64), size: 0 },
+        identity: identity.email,
+        now: stamp(),
+      }),
+    ).rejects.toMatchObject({ code: "LIVE_PRICING_REQUIRED" });
+    expect(await count("dispatches")).toBe(0);
+    expect(await count("live_delivery_quotes")).toBe(0);
+    expect(await count("outbox")).toBe(0);
+    const row = await domain.prepareDispatch(ctx, email(), "text");
+    // The transport receives this Dispatch object. The last pre-submit check must
+    // reject a document on it even if the persisted no-attachment quote is valid.
+    await expect(
+      validateLiveDeliveryQuote(
+        db,
+        { ...row, document_id: id("doc") },
+        identity.email,
+        stamp(),
+      ),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    await expect(
+      validateLiveDeliveryQuote(
+        db,
+        row,
+        { ...identity.email, accountId: "other" },
+        stamp(),
+      ),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    clock += 301000;
+    await expect(
+      validateLiveDeliveryQuote(db, row, identity.email, stamp()),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+  });
+  it("rejects ambiguous no-attachment evidence in both the rate helper and direct SQL qualification", async () => {
+    const baseline = (await db
+      .prepare(
+        "SELECT * FROM trusted_delivery_costs WHERE id=? AND organization_id=?",
+      )
+      .bind(id("policy_email"), ctx.organizationId)
+      .first<Record<string, string | number>>())!;
+    for (const evidence of [
+      { ...textOnlyRate, usdMicrosPerGb: 0 },
+      { ...textOnlyRate, bytesPerGb: 1000000000 },
+      { ...textOnlyRate, usdMicrosPerGb: null },
+      { ...textOnlyRate, attachmentBasis: "unknown" },
+      { usdMicrosPerMessage: 160 },
+    ]) {
+      expect(() =>
+        emailRateComponents(evidence as EmailRateEvidence),
+      ).toThrow();
+      const values = {
+        ...baseline,
+        id: crypto.randomUUID(),
+        status: "revoked",
+        rate_json: canonicalJson(evidence),
+        byte_numerator: 0,
+      };
+      await expect(
+        db
+          .prepare(
+            `INSERT INTO trusted_delivery_costs(${Object.keys(values).join(",")}) VALUES(${Object.keys(
+              values,
+            )
+              .map(() => "?")
+              .join(",")})`,
+          )
+          .bind(...Object.values(values))
+          .run(),
+      ).rejects.toThrow("email_attachment_scope_invalid");
+    }
+  });
+  it("atomically rejects an attached quote produced by a legacy reader that ignores no-attachment scope", async () => {
+    await replaceEmailRate({
+      ...textOnlyRate,
+      eurPerUsdNumerator: 1,
+      eurPerUsdDenominator: 1,
+    });
+    // Simulate the old application's interpretation of zero byte cost. Writes and
+    // approval guards still run against the actual migrated D1 policy and view.
+    const legacyDb = new Proxy(db, {
+      get(target, key) {
+        if (key !== "prepare") return Reflect.get(target, key, target);
+        return (query: string) => {
+          const statement = target.prepare(query);
+          if (
+            !query.startsWith(
+              "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=?",
+            )
+          )
+            return statement;
+          return {
+            bind: (...bindings: unknown[]) => ({
+              first: async () => {
+                const p = await statement
+                  .bind(...bindings)
+                  .first<Record<string, unknown>>();
+                return (
+                  p && {
+                    ...p,
+                    rate_json: canonicalJson({
+                      ...rate,
+                      usdMicrosPerMessage: 160,
+                      usdMicrosPerGb: 0,
+                    }),
+                  }
+                );
+              },
+            }),
+          } as D1PreparedStatement;
+        };
+      },
+    });
+    const legacyReader = new DomainService(legacyDb, {
+      mode: "production",
+      now: () => clock,
+      liveDeliveryIdentity: identity,
+    });
+    await expect(
+      legacyReader.prepareDispatch(
+        ctx,
+        { ...email(), documentId: id("doc") },
+        "legacy",
+      ),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    expect(await count("dispatches")).toBe(0);
+    expect(await count("live_delivery_quotes")).toBe(0);
+    expect(await count("approvals")).toBe(0);
+    expect(await count("outbox")).toBe(0);
+  });
   it("requires a true human recipient-request attestation before any production email approval", async () => {
     const row = await domain.prepareDispatch(ctx, email(), "attestation");
     for (const attestation of [{}, { recipientRequested: false }])
@@ -443,6 +942,34 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
         "wrong-draft",
       ),
     ).rejects.toThrow();
+  });
+  it("atomically blocks postal acceptance if its canonical scan proof is withdrawn after approval", async () => {
+    const row = await domain.prepareDispatch(
+      ctx,
+      await postal(),
+      "postal-proof",
+    );
+    await domain.approveDispatch(ctx, row.id, row.fingerprint);
+    await db
+      .prepare(
+        "DELETE FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=?",
+      )
+      .bind(ctx.organizationId, "a".repeat(64))
+      .run();
+    await expect(
+      domain.confirmDispatch(ctx, row.id, "postal-no-proof"),
+    ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
+    for (const table of [
+      "outbox",
+      "reservations",
+      "welcome_credit_reservations",
+    ])
+      expect(await count(table)).toBe(0);
+    expect(await balance()).toMatchObject({
+      availableMinor: 5000,
+      reservedMinor: 0,
+      spentMinor: 0,
+    });
   });
   it("does not charge a cent per email: 51 concurrent acceptances cost 2 cents cumulatively", async () => {
     const rows = await Promise.all(Array.from({ length: 51 }, () => queue()));

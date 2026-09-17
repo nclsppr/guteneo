@@ -118,6 +118,7 @@ export class PingenPostalProvider {
     filename: string;
     addressPosition: "left" | "right";
     idempotencyKey: string;
+    beforeTransfer?: () => Promise<void>;
   }): Promise<PreparedPostalDocument> {
     if (
       input.bytes.byteLength < 5 ||
@@ -139,15 +140,18 @@ export class PingenPostalProvider {
       !this.config.uploadOrigins.includes(url.origin)
     )
       throw new ProviderError("pingen_upload_origin_not_allowed");
+    await input.beforeTransfer?.();
     const response = await request(this.fetcher, url.href, {
       method: "PUT",
       body: input.bytes.slice().buffer,
       headers: { "Content-Type": "application/pdf" },
     });
     await requireOk(response);
+    const headers = await this.headers(input.idempotencyKey);
+    await input.beforeTransfer?.();
     const created = await request(this.fetcher, this.letters(), {
       method: "POST",
-      headers: await this.headers(input.idempotencyKey),
+      headers,
       body: JSON.stringify({
         data: {
           type: "letters",

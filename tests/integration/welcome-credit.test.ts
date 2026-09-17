@@ -5,11 +5,13 @@ import {
   DomainService,
   canonicalJson,
   emailRateComponents,
+  sha256,
   type ActorContext,
   type Channel,
   type Dispatch,
 } from "../../packages/domain/src/index";
 import { BillingService, type BillingEnv } from "../../apps/api/src/billing";
+import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -241,6 +243,115 @@ async function approved(
         stampNow,
       )
       .run();
+    // Synthetic renderer evidence and browser consent, only for these isolated
+    // credit scenarios. Exercise migration 0020's guards without a provider call.
+    const preflightId = `pp_${key}`;
+    const fingerprint = await sha256(
+      canonicalJson({ documentId, recipient, print, ceiling, draft: key }),
+    );
+    const record = {
+      id: preflightId,
+      organization_id: actor.organizationId,
+      user_id: actor.userId,
+      document_id: documentId,
+      document_sha256: "a".repeat(64),
+      sender_id: `${actor.organizationId}_postal`,
+      sender_address: "Fixture sender",
+      recipient_json: canonicalJson(recipient),
+      options_json: canonicalJson(print),
+      profile_json: canonicalJson({
+        accountId: liveDeliveryIdentity.postal.accountId,
+        environment: "sandbox",
+        defaultCountry: "FR",
+        addressPosition: "left",
+        version: PINGEN_PREFLIGHT_VERSION,
+      }),
+      expected_address: expectedAddress,
+      ceiling_minor: ceiling,
+      request_hash: fingerprint,
+      input_hash: fingerprint,
+      idempotency_key: preflightId,
+      status: "processing",
+      budget_day: stampNow.slice(0, 10),
+      processing_until: new Date(now + 60_000).toISOString(),
+      expires_at: new Date(now + 3_600_000).toISOString(),
+      created_at: stampNow,
+      updated_at: stampNow,
+    };
+    const report = {
+      version: PINGEN_PREFLIGHT_VERSION,
+      status: "review_required",
+      sha256: "a".repeat(64),
+      pages: 1,
+      canSend: false,
+      issues: [],
+      requiredReviews: ["printed_recipient_matches"],
+      rendering: {
+        complete: true,
+        dpi: 144,
+        pages: [
+          {
+            page: 1,
+            width: 1191,
+            height: 1684,
+            rasterSha256: "b".repeat(64),
+          },
+        ],
+      },
+      address: {
+        lines: expectedAddress.split("\n"),
+        issues: [],
+        textVisibility: "not_verified",
+        crop: {
+          pngBase64:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+          width: 1,
+          height: 1,
+          boundsMm: { x: 20, y: 40, width: 89.5, height: 47.5 },
+        },
+      },
+    };
+    await db
+      .prepare(
+        "INSERT INTO content_limits VALUES(?,10,80000000,10) ON CONFLICT(organization_id) DO NOTHING",
+      )
+      .bind(actor.organizationId)
+      .run();
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO postal_preflights(${Object.keys(record).join(",")}) VALUES(${Object.keys(
+            record,
+          )
+            .map(() => "?")
+            .join(",")})`,
+        )
+        .bind(...Object.values(record)),
+      db
+        .prepare(
+          "UPDATE postal_preflights SET status='review_required',report_json=? WHERE organization_id=? AND id=?",
+        )
+        .bind(canonicalJson(report), actor.organizationId, preflightId),
+      db
+        .prepare("INSERT INTO postal_transfer_consents VALUES(?,?,?,?,1,1,?)")
+        .bind(
+          preflightId,
+          actor.organizationId,
+          actor.userId,
+          fingerprint,
+          stampNow,
+        ),
+      db
+        .prepare(
+          "UPDATE postal_preflights SET transfer_status='preparing',transfer_started_at=? WHERE organization_id=? AND id=?",
+        )
+        .bind(stampNow, actor.organizationId, preflightId),
+      db
+        .prepare(
+          "UPDATE postal_preflights SET transfer_status='prepared',provider_draft_id=? WHERE organization_id=? AND id=?",
+        )
+        .bind(key, actor.organizationId, preflightId),
+    ]);
     postalPrices.set(key, charge / 2);
     input = {
       channel,

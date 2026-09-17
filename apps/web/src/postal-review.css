@@ -1,0 +1,146 @@
+.postal-review {
+  display: grid;
+  gap: 2rem;
+  min-width: 0;
+}
+.postal-review-summary,
+.postal-consent {
+  border-block: 1px solid var(--line, #d4d5cf);
+  padding-block: 1.5rem;
+}
+.postal-review-summary h2,
+.postal-consent h2 {
+  margin-block: 0.3rem 1rem;
+}
+.postal-review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+.postal-review-grid > section {
+  min-width: 0;
+}
+.postal-review-document h2,
+.postal-review-address h2 {
+  margin-top: 0;
+}
+.postal-document-name {
+  overflow-wrap: anywhere;
+}
+.postal-address-crop {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: white;
+  border: 1px solid var(--line, #d4d5cf);
+}
+.postal-address-crop img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.postal-address-crop figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted, #585e69);
+  font-size: 0.8rem;
+}
+.postal-address-comparison {
+  display: grid;
+  gap: 1rem;
+}
+.postal-address-comparison h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.postal-address-comparison address,
+.postal-address-comparison p {
+  font-style: normal;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.postal-address-comparison span {
+  display: block;
+}
+.postal-print-options {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line, #d4d5cf);
+}
+.postal-print-options dt {
+  font-size: 0.8rem;
+  color: var(--muted, #585e69);
+}
+.postal-print-options dd {
+  margin: 0.25rem 0 0;
+}
+.postal-integrity {
+  margin-top: 1rem;
+}
+.postal-integrity summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 0.75rem;
+}
+.postal-integrity code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+.postal-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding-block: 0.8rem;
+  cursor: pointer;
+  max-width: 70ch;
+}
+.postal-check input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 0.1rem 0 0;
+}
+.postal-check span {
+  line-height: 1.55;
+}
+.postal-consent > p {
+  max-width: 75ch;
+}
+.postal-consent .button {
+  margin-top: 1rem;
+}
+.postal-issues {
+  padding-left: 1.25rem;
+}
+.postal-issues li {
+  margin-block: 0.75rem;
+}
+.postal-issues small {
+  display: block;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+  margin-top: 0.25rem;
+}
+@media (max-width: 760px) {
+  .postal-review-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .postal-review-address {
+    order: -1;
+  }
+  .postal-review-summary .section-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .postal-consent .button {
+    width: 100%;
+    white-space: normal;
+    min-height: 48px;
+  }
+  .postal-address-crop {
+    padding: 0.75rem;
+  }
+}

@@ -7,11 +7,36 @@ export type LiveDeliveryIdentities = Partial<
 >;
 export type EmailRateEvidence = {
   usdMicrosPerMessage: number;
-  usdMicrosPerGb: number;
-  bytesPerGb: number;
   eurPerUsdNumerator: number;
   eurPerUsdDenominator: number;
-  attachmentBasis: "raw_pdf_bytes";
+} & (
+  | { attachmentBasis: "no_attachments" }
+  | {
+      attachmentBasis: "raw_pdf_bytes";
+      usdMicrosPerGb: number;
+      bytesPerGb: number;
+    }
+);
+export type PublicEmailRateEvidence = EmailRateEvidence & {
+  attachmentBasis: "no_attachments";
+  pricingBasis: "public_list_price_ex_tax";
+  plan: "Essentials";
+  tier: "0-10000000";
+  unit: "recipient";
+  currency: "USD";
+  tariffSource: "https://aws.amazon.com/ses/pricing/";
+  tariffDate: string;
+  fxBasis: "commercial_fixed_reference";
+  fxSource: "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
+  fxDate: string;
+};
+export type PricingBasis =
+  "qualified_final_variable_cost" | "public_list_price_ex_tax";
+export type CommercialFx = {
+  numerator: number;
+  denominator: number;
+  date: string;
+  source: string;
 };
 export type PostalQuoteRequest = {
   organizationId: string;
@@ -48,6 +73,9 @@ type Policy = {
   source_reference: string;
   source_sha256: string;
   fiscal_basis: string;
+  // fiscal_basis is the legacy SQL compatibility column. This new immutable
+  // authority is snapshotted into the quote's already-signed fiscal_basis field.
+  pricing_basis?: PricingBasis;
   valid_from: string;
   expires_at: string;
   quote_ttl_seconds: number;
@@ -103,7 +131,7 @@ const invalid = () =>
 const unqualified = () =>
   new DomainError(
     "LIVE_PRICING_REQUIRED",
-    "Coût fournisseur, devise et compte qualifiés requis pour ce canal.",
+    "Tarif, devise et compte qualifiés requis pour ce canal.",
     409,
   );
 function identityValid(
@@ -125,28 +153,44 @@ function gcd(a: bigint, b: bigint): bigint {
 /** Private operator helper. Converts a documented USD schedule and a frozen FX ratio
  * into one exact rational EUR rate; never accepts a client-supplied price. */
 export function emailRateComponents(rate: EmailRateEvidence) {
+  if (!rate || typeof rate !== "object") throw unqualified();
   const values = [
     rate.usdMicrosPerMessage,
-    rate.usdMicrosPerGb,
-    rate.bytesPerGb,
     rate.eurPerUsdNumerator,
     rate.eurPerUsdDenominator,
   ];
   if (
     values.some(
-      (v, i) => !Number.isSafeInteger(v) || (i < 2 ? v < 0 : v <= 0),
-    ) ||
-    rate.attachmentBasis !== "raw_pdf_bytes"
+      (v, i) => !Number.isSafeInteger(v) || (i === 0 ? v < 0 : v <= 0),
+    )
   )
     throw unqualified();
-  const common = BigInt(rate.bytesPerGb) * BigInt(rate.eurPerUsdDenominator);
+  let bytesPerGb = 1,
+    usdMicrosPerGb = 0;
+  if (rate.attachmentBasis === "raw_pdf_bytes") {
+    if (
+      !Number.isSafeInteger(rate.usdMicrosPerGb) ||
+      rate.usdMicrosPerGb < 0 ||
+      !Number.isSafeInteger(rate.bytesPerGb) ||
+      rate.bytesPerGb <= 0
+    )
+      throw unqualified();
+    bytesPerGb = rate.bytesPerGb;
+    usdMicrosPerGb = rate.usdMicrosPerGb;
+  } else if (
+    rate.attachmentBasis !== "no_attachments" ||
+    "usdMicrosPerGb" in rate ||
+    "bytesPerGb" in rate
+  )
+    throw unqualified();
+  const common = BigInt(bytesPerGb) * BigInt(rate.eurPerUsdDenominator);
   const base =
     BigInt(rate.usdMicrosPerMessage) *
     1000n *
-    BigInt(rate.bytesPerGb) *
+    BigInt(bytesPerGb) *
     BigInt(rate.eurPerUsdNumerator);
   const bytes =
-    BigInt(rate.usdMicrosPerGb) * 1000n * BigInt(rate.eurPerUsdNumerator);
+    BigInt(usdMicrosPerGb) * 1000n * BigInt(rate.eurPerUsdNumerator);
   const divisor = gcd(gcd(base, bytes), common);
   const result = {
     base_numerator: Number(base / divisor),
@@ -161,6 +205,69 @@ export function emailRateComponents(rate: EmailRateEvidence) {
   )
     throw unqualified();
   return result;
+}
+function qualifiedEmailRate(policy: Policy, documentPresent: boolean) {
+  const rate = JSON.parse(policy.rate_json) as EmailRateEvidence &
+    Partial<PublicEmailRateEvidence>;
+  const components = emailRateComponents(rate);
+  const basis = policy.pricing_basis ?? policy.fiscal_basis;
+  if (basis === "public_list_price_ex_tax") {
+    const dated = (date?: string) =>
+      typeof date === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+      Number.isFinite(Date.parse(date)) &&
+      new Date(date).toISOString().slice(0, 10) === date &&
+      date <= policy.valid_from.slice(0, 10);
+    if (
+      policy.channel !== "email" ||
+      policy.provider !== "ses" ||
+      policy.options_json !== "{}" ||
+      rate.usdMicrosPerMessage <= 0 ||
+      rate.attachmentBasis !== "no_attachments" ||
+      rate.pricingBasis !== "public_list_price_ex_tax" ||
+      rate.plan !== "Essentials" ||
+      rate.tier !== "0-10000000" ||
+      rate.unit !== "recipient" ||
+      rate.currency !== "USD" ||
+      rate.tariffSource !== "https://aws.amazon.com/ses/pricing/" ||
+      rate.fxBasis !== "commercial_fixed_reference" ||
+      rate.fxSource !==
+        "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml" ||
+      !dated(rate.tariffDate) ||
+      !dated(rate.fxDate)
+    )
+      throw unqualified();
+  } else if (
+    basis !== "qualified_final_variable_cost" ||
+    rate.pricingBasis !== undefined
+  ) {
+    throw unqualified();
+  }
+  if (
+    (rate.attachmentBasis === "no_attachments" && documentPresent) ||
+    Object.entries(components).some(
+      ([k, v]) => policy[k as keyof typeof components] !== v,
+    )
+  )
+    throw unqualified();
+  return components;
+}
+function publicPriceDisclosure(rate: PublicEmailRateEvidence) {
+  return {
+    pricingBasis: "public_list_price_ex_tax" as const,
+    fx: {
+      numerator: rate.eurPerUsdNumerator,
+      denominator: rate.eurPerUsdDenominator,
+      date: rate.fxDate,
+      source: rate.fxSource,
+    },
+  };
+}
+/** Add public commercial terms to the signed input, without changing old inputs. */
+export function deliveryPriceDisclosure(price?: DeliveryPrice) {
+  return price?.policy.pricing_basis === "public_list_price_ex_tax"
+    ? publicPriceDisclosure(JSON.parse(price.policy.rate_json))
+    : {};
 }
 export async function resolveDeliveryPrice(
   db: D1Database,
@@ -217,11 +324,11 @@ export async function resolveDeliveryPrice(
   if (request.channel === "email") {
     if (canonicalJson(request.options) !== policy.options_json)
       throw unqualified();
-    const components = emailRateComponents(JSON.parse(policy.rate_json));
+    const components = qualifiedEmailRate(
+      policy,
+      request.document !== undefined,
+    );
     if (
-      Object.entries(components).some(
-        ([k, v]) => policy[k as keyof typeof components] !== v,
-      ) ||
       !Number.isSafeInteger(attachmentBytes) ||
       attachmentBytes < 0 ||
       attachmentBytes > 10_000_000
@@ -324,7 +431,7 @@ export async function makeDeliveryQuote(
     evidence_sha256: price.evidenceSha256,
     source_reference: p.source_reference,
     source_sha256: p.source_sha256,
-    fiscal_basis: p.fiscal_basis,
+    fiscal_basis: p.pricing_basis ?? p.fiscal_basis,
     created_at: now,
     expires_at: new Date(
       Math.min(
@@ -373,6 +480,36 @@ export async function validateLiveDeliveryQuote(
     .first<LiveDeliveryQuote>();
   // SELECT explicitly strips view-only columns from the signed material.
   if (!quote) throw invalid();
+  if (quote.channel === "email") {
+    // Repeat the scope check for reads and immediately before supplier submission,
+    // including during a rolling deployment with an older SQL view.
+    const policy = await db
+      .prepare(
+        "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND channel='email' AND status='qualified'",
+      )
+      .bind(row.organization_id, quote.policy_id)
+      .first<Policy>();
+    try {
+      if (!policy) throw invalid();
+      qualifiedEmailRate(
+        policy,
+        row.document_id !== null ||
+          JSON.parse(quote.input_json).documentId !== null ||
+          quote.attachment_bytes !== 0,
+      );
+      if (policy.pricing_basis === "public_list_price_ex_tax") {
+        const input = JSON.parse(quote.input_json);
+        const disclosure = publicPriceDisclosure(JSON.parse(policy.rate_json));
+        if (
+          input.pricingBasis !== disclosure.pricingBasis ||
+          canonicalJson(input.fx) !== canonicalJson(disclosure.fx)
+        )
+          throw invalid();
+      }
+    } catch {
+      throw invalid();
+    }
+  }
   const {
     policy_valid_from: _from,
     policy_expires_at: _until,

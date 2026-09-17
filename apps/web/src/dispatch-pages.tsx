@@ -25,6 +25,7 @@ import {
   type Sender,
 } from "./api";
 import { fr as t } from "./i18n";
+import type { PostalReview } from "../../../packages/contracts/src/postal-review";
 import {
   ChannelLabel,
   Definition,
@@ -449,8 +450,10 @@ export function Documents() {
 
 export function PrepareDispatch({
   initialDocument,
+  simulation,
 }: {
   initialDocument: string;
+  simulation: boolean;
 }) {
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const senders = useResource<{ items: Sender[] }>("/senders");
@@ -463,6 +466,13 @@ export function PrepareDispatch({
   const [html, setHtml] = useState("");
   const [text, setText] = useState("");
   const [ceiling, setCeiling] = useState("500");
+  const [printMode, setPrintMode] = useState<"simplex" | "duplex">("simplex");
+  const [printSpectrum, setPrintSpectrum] = useState<"grayscale" | "color">(
+    "grayscale",
+  );
+  const [deliveryProduct, setDeliveryProduct] = useState<"cheap" | "fast">(
+    "cheap",
+  );
   const [recipient, setRecipient] = useState<Record<string, string>>({
     country: "FR",
   });
@@ -494,6 +504,21 @@ export function PrepareDispatch({
                 city: recipient.city ?? "",
                 country: recipient.country ?? "FR",
               };
+      if (channel === "postal" && !simulation) {
+        const review = await api<PostalReview>("/postal/preflights", {
+          method: "POST",
+          key: key.current,
+          body: {
+            documentId,
+            senderId: selectedSender,
+            recipient: target,
+            options: { printMode, printSpectrum, deliveryProduct },
+            ceilingMinor: Number(ceiling),
+          },
+        });
+        go(`/app/postal/${encodeURIComponent(review.id)}`);
+        return;
+      }
       const dispatch = await api<Dispatch>("/dispatches", {
         method: "POST",
         key: key.current,
@@ -592,7 +617,11 @@ export function PrepareDispatch({
                   </option>
                 ))
               ) : (
-                <option value="">{t.dispatch.defaultSender}</option>
+                <option value="">
+                  {simulation
+                    ? t.dispatch.defaultSender
+                    : "Aucun expéditeur validé pour ce canal"}
+                </option>
               )}
             </select>
           </Field>
@@ -703,6 +732,53 @@ export function PrepareDispatch({
               </Field>
             </>
           )}
+          {channel === "postal" && !simulation && (
+            <fieldset className="postal-form-options">
+              <legend>Impression et distribution</legend>
+              <Field label="Faces imprimées">
+                <select
+                  value={printMode}
+                  onChange={(event) =>
+                    setPrintMode(event.target.value as "simplex" | "duplex")
+                  }
+                >
+                  <option value="simplex">Recto</option>
+                  <option value="duplex">Recto verso</option>
+                </select>
+              </Field>
+              <Field label="Couleurs">
+                <select
+                  value={printSpectrum}
+                  onChange={(event) =>
+                    setPrintSpectrum(
+                      event.target.value as "grayscale" | "color",
+                    )
+                  }
+                >
+                  <option value="grayscale">Noir et blanc</option>
+                  <option value="color">Couleur</option>
+                </select>
+              </Field>
+              <Field
+                label="Distribution souhaitée"
+                hint="La disponibilité et le prix seront confirmés par le devis Pingen."
+              >
+                <select
+                  value={deliveryProduct}
+                  onChange={(event) =>
+                    setDeliveryProduct(event.target.value as "cheap" | "fast")
+                  }
+                >
+                  <option value="cheap">Économique</option>
+                  <option value="fast">Rapide</option>
+                </select>
+              </Field>
+              <p className="field-hint">
+                La prochaine étape vérifie le PDF et son adresse. Aucun fichier
+                n’est transmis à Pingen avant votre accord.
+              </p>
+            </fieldset>
+          )}
           <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
             <input
               type="number"
@@ -717,19 +793,38 @@ export function PrepareDispatch({
           </Field>
           <button
             className="button primary full"
-            disabled={action.pending || (channel !== "email" && !documentId)}
+            disabled={
+              action.pending ||
+              (channel !== "email" && !documentId) ||
+              (!simulation && !selectedSender)
+            }
             aria-describedby={
-              channel !== "email" && !documentId
-                ? "prepare-document-required"
-                : undefined
+              [
+                channel !== "email" && !documentId
+                  ? "prepare-document-required"
+                  : "",
+                !simulation && !selectedSender ? "prepare-sender-required" : "",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
             }
           >
-            {action.pending ? t.dispatch.preparing : t.dispatch.prepare}
+            {action.pending
+              ? t.dispatch.preparing
+              : channel === "postal" && !simulation
+                ? "Contrôler le PDF pour le courrier"
+                : t.dispatch.prepare}
             <ArrowRight size={18} />
           </button>
           {channel !== "email" && !documentId && (
             <p id="prepare-document-required" className="field-hint">
               Choisissez un document pour pouvoir préparer cet envoi.
+            </p>
+          )}
+          {!simulation && !selectedSender && (
+            <p id="prepare-sender-required" className="field-hint">
+              Un expéditeur doit être validé pour ce canal avant la préparation.{" "}
+              <a href="#/app/senders">Consulter les expéditeurs</a>.
             </p>
           )}
         </div>
@@ -976,9 +1071,29 @@ export function DispatchDetailPage({
           {d.mode === "production" && d.quote_customer_nanoeur != null && (
             <p className="field-hint">
               Ce prix s’ajoute à vos envois précédents. La consommation totale
-              est arrondie au centime supérieur ; chaque e-mail n’est pas
-              arrondi séparément. Le plafond affiché reste réservé jusqu’au
-              résultat.
+              est arrondie au centime supérieur ; les fractions de centime sont
+              cumulées entre les envois. Le plafond affiché reste réservé
+              jusqu’au résultat.
+            </p>
+          )}
+          {d.quote_pricing_basis === "public_list_price_ex_tax" && (
+            <p className="field-hint">
+              Tarif de référence SES hors taxes. Le prix en euros est fixé pour
+              ce devis.
+              {d.quote_fx && (
+                <>
+                  {" "}
+                  Conversion du {d.quote_fx.date
+                    .split("-")
+                    .reverse()
+                    .join("/")}{" "}
+                  : 1 USD ≈{" "}
+                  {new Intl.NumberFormat("fr-FR", {
+                    maximumFractionDigits: 8,
+                  }).format(d.quote_fx.numerator / d.quote_fx.denominator)}{" "}
+                  EUR, selon le taux de référence BCE.
+                </>
+              )}
             </p>
           )}
           {pendingApproval && !approved && (

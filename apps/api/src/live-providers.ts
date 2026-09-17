@@ -38,7 +38,11 @@ export type LiveProviderEnv = Env & {
   PINGEN_SANDBOX?: string;
   PINGEN_UPLOAD_ORIGINS?: string;
 };
-type Dependencies = { fetcher?: Fetcher; now?: () => number };
+type Dependencies = {
+  fetcher?: Fetcher;
+  now?: () => number;
+  beforeTransfer?: () => Promise<void>;
+};
 const providerNames = {
   fax: "telnyx",
   email: "ses",
@@ -74,11 +78,10 @@ type Draft = {
 function blocked(code: string): never {
   throw new DomainError(code, code, 409);
 }
-function liveGate(env: LiveProviderEnv): void {
+function hostedProductionGate(env: LiveProviderEnv): void {
   if (
     !["staging", "production"].includes(env.ENVIRONMENT) ||
-    env.MODE !== "production" ||
-    env.LIVE_SENDS_ENABLED !== "true"
+    env.MODE !== "production"
   )
     blocked("LIVE_TRANSPORT_DISABLED");
   let url: URL;
@@ -96,6 +99,15 @@ function liveGate(env: LiveProviderEnv): void {
     url.pathname !== "/"
   )
     blocked("LIVE_ORIGIN_INVALID");
+}
+function liveGate(env: LiveProviderEnv): void {
+  hostedProductionGate(env);
+  if (env.LIVE_SENDS_ENABLED !== "true") blocked("LIVE_TRANSPORT_DISABLED");
+}
+function postalPreparationGate(env: LiveProviderEnv): void {
+  hostedProductionGate(env);
+  if (env.POSTAL_DRAFTS_ENABLED !== "true")
+    blocked("POSTAL_DRAFT_TRANSFER_DISABLED");
 }
 function required(value: string | undefined, code: string): string {
   if (!value || /[\r\n\0]/.test(value)) blocked(code);
@@ -202,6 +214,24 @@ function postalOptions(options: Record<string, unknown>): PostalOptions {
   });
   if (!result.success) blocked("POSTAL_OPTIONS_REQUIRE_APPROVAL");
   return result.data;
+}
+async function requirePostalReview(
+  env: LiveProviderEnv,
+  organizationId: string,
+  draftId: string,
+) {
+  const proof = await env.DB.prepare(
+    "SELECT 1 FROM valid_postal_draft_reviews WHERE organization_id=? AND provider_draft_id=? AND json_extract(profile_json,'$.accountId')=? AND json_extract(profile_json,'$.defaultCountry')=? AND json_extract(profile_json,'$.environment')=? AND json_extract(profile_json,'$.version')='pingen-2026-09-17-v1'",
+  )
+    .bind(
+      organizationId,
+      draftId,
+      env.PINGEN_ORGANIZATION_ID ?? "",
+      env.PINGEN_DEFAULT_COUNTRY ?? "",
+      env.PINGEN_SANDBOX === "true" ? "sandbox" : "production",
+    )
+    .first();
+  if (!proof) blocked("POSTAL_PREFLIGHT_REQUIRED");
 }
 async function checkActiveDispatch(
   env: LiveProviderEnv,
@@ -528,6 +558,7 @@ export function createLiveProviderHook(
             blocked("POSTAL_DRAFT_APPROVAL_MISMATCH");
           if (draft.claimed_dispatch_id && draft.claimed_dispatch_id !== row.id)
             blocked("POSTAL_DRAFT_ALREADY_USED");
+          await requirePostalReview(env, row.organization_id, draft.id);
           const connector = pingen(env, fetcher);
           submit = async () => {
             const claim = await env.DB.prepare(
@@ -546,6 +577,7 @@ export function createLiveProviderHook(
               ...approvedOptions,
               beforeSend: async () => {
                 await checkActiveDispatch(env, row, provider);
+                await requirePostalReview(env, row.organization_id, draft.id);
                 await validateLiveDeliveryQuote(
                   env.DB,
                   row,
@@ -615,8 +647,13 @@ export function createLiveDeliveryQuoteConfig(
     ...(env.SES_ACCOUNT_ID &&
     env.AWS_REGION &&
     env.SES_CONFIGURATION_SET &&
-    env.SES_SANDBOX
-      ? { email: { accountId: env.SES_ACCOUNT_ID, routeId: env.AWS_REGION } }
+    (env.SES_SANDBOX === "true" || env.SES_SANDBOX === "false")
+      ? {
+          email: {
+            accountId: env.SES_ACCOUNT_ID,
+            routeId: `${env.AWS_REGION}:${env.SES_CONFIGURATION_SET}:${env.SES_SANDBOX}`,
+          },
+        }
       : {}),
     ...(env.PINGEN_ORGANIZATION_ID
       ? {
@@ -630,7 +667,7 @@ export function createLiveDeliveryQuoteConfig(
   return {
     liveDeliveryIdentity,
     postalQuote: async (request) => {
-      liveGate(env);
+      postalPreparationGate(env);
       if (
         request.identity.accountId !== env.PINGEN_ORGANIZATION_ID ||
         request.identity.routeId !== env.PINGEN_ORGANIZATION_ID
@@ -663,6 +700,7 @@ export function createLiveDeliveryQuoteConfig(
         draft.claimed_dispatch_id
       )
         blocked("POSTAL_DRAFT_APPROVAL_MISMATCH");
+      await requirePostalReview(env, request.organizationId, draft.id);
       const priced = await pingen(
         env,
         dependencies.fetcher ?? fetch,
@@ -672,6 +710,7 @@ export function createLiveDeliveryQuoteConfig(
         expectedAddress,
         country: request.recipient.country as "FR" | "LU" | "DE",
       });
+      await requirePostalReview(env, request.organizationId, draft.id);
       return {
         supplierMinor: priced.amount.minor,
         currency: "EUR",
@@ -743,6 +782,7 @@ export type PreparePostalDraftInput = {
   options: PostalOptions;
   ceilingMinor: number;
   idempotencyKey: string;
+  preflightId?: string;
 };
 export async function preparePostalDraft(
   env: LiveProviderEnv,
@@ -751,7 +791,7 @@ export async function preparePostalDraft(
   input: PreparePostalDraftInput,
   dependencies: Dependencies = {},
 ) {
-  liveGate(env);
+  postalPreparationGate(env);
   await domain.authorizeWrite(ctx);
   if (ctx.actor !== "browser") blocked("HUMAN_DOCUMENT_TRANSFER_REQUIRED");
   if (
@@ -760,6 +800,21 @@ export async function preparePostalDraft(
     input.ceilingMinor < 0
   )
     blocked("POSTAL_DRAFT_INPUT_INVALID");
+  if (!dependencies.beforeTransfer || !input.preflightId)
+    blocked("POSTAL_PREFLIGHT_REQUIRED");
+  const consent = await env.DB.prepare(
+    "SELECT p.id FROM postal_preflights p JOIN postal_transfer_consents c ON c.organization_id=p.organization_id AND c.preflight_id=p.id AND c.fingerprint=p.request_hash WHERE p.organization_id=? AND p.id=? AND p.status='review_required' AND p.transfer_status='preparing' AND p.document_id=? AND p.sender_id=? AND c.user_id=?",
+  )
+    .bind(
+      ctx.organizationId,
+      input.preflightId,
+      input.documentId,
+      input.senderId,
+      ctx.userId,
+    )
+    .first();
+  if (!consent) blocked("POSTAL_PREFLIGHT_REQUIRED");
+  await dependencies.beforeTransfer();
   const recipient = validateRecipient("postal", input.recipient);
   const options = postalOptionsSchema.parse(input.options);
   const expectedAddress = expectedPostalAddress(
@@ -832,6 +887,7 @@ export async function preparePostalDraft(
       filename: loaded.document.name,
       addressPosition: options.addressPosition,
       idempotencyKey: id,
+      beforeTransfer: dependencies.beforeTransfer,
     });
     await env.DB.batch([
       env.DB.prepare(

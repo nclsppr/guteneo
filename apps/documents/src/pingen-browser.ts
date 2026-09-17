@@ -43,6 +43,34 @@ export async function openPostalPdf(input: {
   expectedPages: number;
 }) {
   const state = globalThis as BrowserState;
+  // Fixed capability names only: never return an exception, document data or
+  // user agent. The pinned PDF.js compatibility build supplies these browser APIs.
+  if (typeof state.pdfjsLib?.getDocument !== "function")
+    return { failure: "open_library" as const };
+  if (
+    typeof (state as unknown as { pdfjsWorker?: { WorkerMessageHandler?: unknown } })
+      .pdfjsWorker?.WorkerMessageHandler !== "function"
+  )
+    return { failure: "open_worker" as const };
+  if (typeof state.crypto?.subtle?.digest !== "function")
+    return { failure: "open_crypto" as const };
+  if (
+    typeof (Promise as unknown as { withResolvers?: unknown }).withResolvers !==
+    "function"
+  )
+    return { failure: "open_promise_resolvers" as const };
+  if (typeof (Promise as unknown as { try?: unknown }).try !== "function")
+    return { failure: "open_promise_try" as const };
+  if (
+    typeof (Map.prototype as unknown as { getOrInsertComputed?: unknown })
+      .getOrInsertComputed !== "function"
+  )
+    return { failure: "open_map_insert" as const };
+  if (
+    typeof (Uint8Array as unknown as { fromBase64?: unknown }).fromBase64 !==
+    "function"
+  )
+    return { failure: "open_base64" as const };
   state.guteneoRenderWarning = false;
   // PDF.js sometimes reports a skipped/undecodable image as a warning rather
   // than rejecting RenderTask. Such a page must never look falsely compliant.

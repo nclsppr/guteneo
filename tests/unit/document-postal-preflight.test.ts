@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { PDFDocument } from "pdf-lib";
-import { handlePingenPreflight } from "../../apps/documents/src/pingen-preflight";
+import {
+  handlePingenPreflight,
+  type PostalBrowser,
+} from "../../apps/documents/src/pingen-preflight";
 import { validatePdf } from "../../packages/contracts/src/pdf";
 
 const options = {
@@ -150,4 +153,71 @@ describe("Private postal preflight boundary", () => {
     );
     expect(response.headers.get("Cache-Control")).toBe("no-store");
   });
+  it.each([
+    "launch",
+    "new_page",
+    "isolation",
+    "navigation",
+    "worker_script",
+    "pdf_script",
+    "open",
+    "render",
+  ])(
+    "returns only the fixed %s failure stage, never browser diagnostics",
+    async (stage) => {
+      const { bytes, hash } = await input();
+      const privateMessage =
+        "PRIVATE PDF TEXT https://private.invalid/?secret=TOKEN";
+      const at = (current: string) => {
+        if (stage === current) throw new Error(privateMessage);
+      };
+      const close = vi.fn(async () => undefined);
+      let script = 0;
+      const browser = {
+        close,
+        async newPage() {
+          at("new_page");
+          return {
+            setDefaultTimeout() {},
+            async setBypassServiceWorker() {
+              at("isolation");
+            },
+            async setRequestInterception() {},
+            on() {},
+            async setOfflineMode() {},
+            async goto() {
+              at("navigation");
+            },
+            async addScriptTag() {
+              at(script++ === 0 ? "worker_script" : "pdf_script");
+            },
+            async evaluate(fn: { name: string }) {
+              at(fn.name === "openPostalPdf" ? "open" : "render");
+              return { sha256: hash, pages: 1 };
+            },
+          };
+        },
+      };
+      const response = await handlePingenPreflight(request(bytes, hash), {
+        launch: async () => {
+          at("launch");
+          return browser as unknown as PostalBrowser;
+        },
+        scripts: { pdf: "", worker: "" },
+      });
+      const report = await response.json();
+      expect(response.status).toBe(422);
+      expect(report).toMatchObject({
+        status: "blocked",
+        canSend: false,
+        diagnostic: { stage },
+        rendering: { complete: false, pages: [] },
+        issues: [{ code: "POSTAL_RENDER_FAILED" }],
+      });
+      expect(JSON.stringify(report)).not.toContain(privateMessage);
+      expect(JSON.stringify(report)).not.toContain("TOKEN");
+      expect((report as { diagnostic: unknown }).diagnostic).toEqual({ stage });
+      expect(close).toHaveBeenCalledTimes(stage === "launch" ? 0 : 1);
+    },
+  );
 });

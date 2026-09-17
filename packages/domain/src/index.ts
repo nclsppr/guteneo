@@ -3,6 +3,9 @@ import {
   makeDeliveryQuote,
   insertDeliveryQuote,
   validateLiveDeliveryQuote,
+  deliveryPriceDisclosure,
+  type PricingBasis,
+  type CommercialFx,
   type LiveDeliveryIdentities,
   type PostalQuoteResolver,
 } from "./live-delivery-quotes";
@@ -70,6 +73,8 @@ export type Dispatch = {
   quote_expires_at?: string | null;
   quote_customer_nanoeur?: number | null;
   quote_supplier_nanoeur?: number | null;
+  quote_pricing_basis?: PricingBasis | null;
+  quote_fx?: CommercialFx | null;
   id: string;
   organization_id: string;
   campaign_id: string | null;
@@ -182,6 +187,12 @@ function writable(ctx: ActorContext) {
     throw new DomainError("FORBIDDEN", "Droit de modification requis.", 403);
 }
 function sqlError(error: unknown): never {
+  if (String(error).includes("postal_preflight_required"))
+    throw new DomainError(
+      "POSTAL_PREFLIGHT_REQUIRED",
+      "Le contrôle postal doit être renouvelé.",
+      409,
+    );
   const message = String(error);
   for (const [needle, code, label, status] of [
     [
@@ -647,6 +658,7 @@ export class DomainService {
       ceilingMinor,
       currency: "EUR",
       mode: this.config.mode,
+      ...deliveryPriceDisclosure(deliveryPrice),
     };
     const id = uid("dsp"),
       now = this.time();
@@ -729,12 +741,25 @@ export class DomainService {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,COALESCE((SELECT q.expires_at FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes_v2 q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id)) AS quote_expires_at,(SELECT q.customer_nanoeur FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_customer_nanoeur,(SELECT q.supplier_nanoeur FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_supplier_nanoeur FROM dispatches d WHERE d.organization_id=? AND d.id=?",
+        "SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.supplier_nanoeur AS quote_supplier_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=?",
       )
       .bind(ctx.organizationId, id)
-      .first<Dispatch>();
+      .first<Dispatch & { quote_fx_json: string | null }>();
     if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
-    return row;
+    const { quote_fx_json, ...result } = row;
+    const fx =
+      row.quote_pricing_basis === "public_list_price_ex_tax" && quote_fx_json
+        ? (JSON.parse(quote_fx_json) as CommercialFx)
+        : null;
+    result.quote_fx = fx
+      ? {
+          numerator: fx.numerator,
+          denominator: fx.denominator,
+          date: fx.date,
+          source: fx.source,
+        }
+      : null;
+    return result;
   }
   async approveDispatch(
     ctx: ActorContext,

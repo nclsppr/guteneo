@@ -12,6 +12,8 @@ The exact-source CI runs [35169488520](https://github.com/nclsppr/guteneo/action
 
 At 01:22 UTC, the separate workers.dev preview passed verification of 51 public asset hashes, noindex/robots policy and security headers (`reports/preview-release-proof.json`).
 
+The subsequent committed baseline `b349c19b23eda30518ae36a9f9e372fb89c0da68` passed full [GitHub CI](https://github.com/nclsppr/guteneo/actions/runs/35171803416), including the corrected preview SEO expectations and sandboxed Chromium PDF integration. This CI success is separate from the currently published application source `174e601`; it is not a claim that the in-progress postal application or revised SES pricing has been deployed. The new postal UI and OpenAPI checks are recorded in TEST_RESULTS.md.
+
 ## Published source and public evidence — historical release `8f39014`
 
 | Surface | Clean source commit | Active Worker version | Verified public assets |
@@ -57,7 +59,7 @@ No real Guteneo fax, postal letter or email, Stripe charge or automatic credit r
 
 D1 and R2 use EU jurisdiction; interactive, bulk and dead-letter queues are configured. `guteneo-scanner` previously passed real ClamAV clean/EICAR/hash checks with EU placement observed, and `guteneo-documents` passed actual Browser Run rendering/exact-byte parsing. These services have no public route. Scanner definitions require regular rebuilds and fail closed after 72 hours; prior qualification is distinct from current definition freshness. Details: [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md), [SCANNER.md](SCANNER.md).
 
-The private document service subsequently deployed the exact-PDF postal preflight from source `d69aad9`, Worker version `63d90793-7b68-416a-8a8d-b0267339c05f`. Local structural and real Chromium fixtures passed; remote preflight qualification and application integration remain separate outstanding work. It always returns `canSend:false`, has no public route and transfers nothing to Pingen. See [DOCUMENT_POSTAL_PREFLIGHT.md](DOCUMENT_POSTAL_PREFLIGHT.md).
+The private document service now runs the compatible PDF.js postal preflight as Worker version `b551ef12-dba0-4845-b664-b2715fe10d3d`. Four remote synthetic cases passed, including a complete two-page render and blocked forbidden-corner/hash/truncated inputs. This private service has no public route and transfers nothing to Pingen. Its exact source/asset hashes and the distinction between this renderer deployment and application integration are recorded in [DOCUMENT_POSTAL_PREFLIGHT.md](DOCUMENT_POSTAL_PREFLIGHT.md).
 
 ## Repeatable proof
 

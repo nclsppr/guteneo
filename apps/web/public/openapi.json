@@ -3,12 +3,12 @@
   "info": {
     "title": "Guteneo — API développeurs",
     "version": "0.2.0",
-    "description": "Contrat REST du candidat bêta, documenté le 17 septembre 2026. Le site public est une démonstration et refuse /api/* (PREVIEW_ONLY) ; la présence de cette référence ne signifie pas que les comptes, clients OAuth ou transports réels sont ouverts. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve est réservé au navigateur avec session et CSRF, exclu de cette API OAuth. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
+    "description": "Contrat REST du candidat bêta, documenté le 17 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
   },
   "servers": [
     {
       "url": "https://guteneo.com",
-      "description": "Origine canonique prévue ; démonstration publique actuellement, accès API non ouvert."
+      "description": "Bêta Guteneo ; activation des canaux et clients OAuth à vérifier via les capacités du service."
     }
   ],
   "tags": [
@@ -31,6 +31,10 @@
     {
       "name": "Compte",
       "description": "Lecture des expéditeurs et de la consommation, aucune facturation."
+    },
+    {
+      "name": "Courrier",
+      "description": "Contrôle du PDF, revue humaine dans Guteneo, brouillon Pingen puis devis ; aucune expédition implicite."
     }
   ],
   "paths": {
@@ -605,7 +609,7 @@
           "Envois"
         ],
         "summary": "Préparer un envoi immuable",
-        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft.",
+        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1352,6 +1356,377 @@
           }
         }
       }
+    },
+    "/api/postal/preflights": {
+      "post": {
+        "operationId": "preflightPostalPdf",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Contrôler le PDF postal",
+        "description": "Contrôle les octets exacts d’un PDF ready déjà scanné, toutes ses pages et son adresse avec le profil Pingen du serveur. Maximum 8 000 000 octets ; consomme un contrôle du quota PDF. La même clé et le même contenu reprennent le contrôle existant. Aucun PDF n’est transmis à Pingen ici ; reviewUrl mène à la revue humaine. Ni hash, ni rapport de rendu, ni consentement ne sont acceptés du client.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write",
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalReview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostalPreflightInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/postal/preflights/{id}": {
+      "get": {
+        "operationId": "getPostalPreflight",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire le contrôle postal",
+        "description": "Lecture sans création de brouillon ni calcul de prix. prepared signifie uniquement que le brouillon est déposé chez Pingen. unknown interdit une nouvelle création automatique : vérifier le résultat avec Guteneo.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalReview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/postal/preflights/{id}/address.png": {
+      "get": {
+        "operationId": "getPostalAddressCrop",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire la fenêtre d’adresse contrôlée",
+        "description": "Extrait PNG privé issu du rendu serveur des mêmes octets que le document contrôlé. La présence de texte ne certifie ni l’existence de l’adresse ni sa lisibilité ; revue humaine nécessaire.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extrait privé PNG",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
+    },
+    "/api/postal/preflights/{id}/quote": {
+      "post": {
+        "operationId": "quotePostalDraft",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Obtenir le devis du brouillon contrôlé",
+        "description": "Uniquement après la revue humaine et le transfert explicitement consenti dans Guteneo. Aucun corps requis : document, destinataire et options viennent du contrôle immuable. Une analyse Pingen encore en cours répond 409 POSTAL_DRAFT_NOT_READY ; reprendre la même clé après analyse. Le devis ne vaut pas approbation : ouvrir /#/app/dispatch/{id} avec l’identifiant du Dispatch retourné. Aucun envoi implicite.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
+      }
+    },
+    "/api/postal/requirements": {
+      "get": {
+        "operationId": "getPostalRequirements",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Lire le gabarit postal avant de créer le PDF",
+        "description": "Lecture du profil actuel de l’organisation Pingen, sans PDF ni brouillon. Coordonnées en millimètres depuis le coin supérieur gauche de la page A4. qualified qualifie ici le profil, jamais une adresse, un PDF ou un envoi. Si le profil fournisseur ne peut être vérifié, POSTAL_PROFILE_UNQUALIFIED ; ne pas déduire le gabarit du pays de résidence de l’utilisateur.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalRequirements"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FR",
+                "LU",
+                "DE"
+              ]
+            },
+            "description": "Pays du destinataire."
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1667,6 +2042,45 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "quote_pricing_basis": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "qualified_final_variable_cost",
+              "public_list_price_ex_tax"
+            ],
+            "description": "Base figée du devis. public_list_price_ex_tax désigne un tarif public SES HT avec conversion commerciale figée, pas le coût net exact de la facture AWS."
+          },
+          "quote_fx": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": false,
+            "required": [
+              "numerator",
+              "denominator",
+              "date",
+              "source"
+            ],
+            "properties": {
+              "numerator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "denominator": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "source": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "description": "Conversion publique signée du devis : numerator/denominator EUR pour 1 USD. Absente des listes et nulle pour les devis historiques."
           },
           "quote_customer_nanoeur": {
             "type": "integer",
@@ -2589,6 +3003,584 @@
           "identity",
           "productionBlockers",
           "documents"
+        ]
+      },
+      "PostalRecipient": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "line1",
+          "postalCode",
+          "city",
+          "country"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "line1": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "postalCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          }
+        }
+      },
+      "PostalPrintOptions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deliveryProduct",
+          "printMode",
+          "printSpectrum"
+        ],
+        "properties": {
+          "deliveryProduct": {
+            "type": "string",
+            "enum": [
+              "cheap",
+              "fast"
+            ]
+          },
+          "printMode": {
+            "type": "string",
+            "enum": [
+              "simplex",
+              "duplex"
+            ]
+          },
+          "printSpectrum": {
+            "type": "string",
+            "enum": [
+              "grayscale",
+              "color"
+            ]
+          }
+        }
+      },
+      "PostalPreflightInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "documentId",
+          "senderId",
+          "recipient",
+          "options",
+          "ceilingMinor"
+        ],
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "senderId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PostalPrintOptions"
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Plafond en centimes EUR ; ne constitue pas le tarif."
+          }
+        }
+      },
+      "PostalReview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "document",
+          "recipient",
+          "options",
+          "ceilingMinor",
+          "reviewUrl",
+          "checks",
+          "address",
+          "canTransfer",
+          "transferStatus",
+          "draftId",
+          "canSend"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "review_required",
+              "blocked",
+              "failed"
+            ]
+          },
+          "document": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "sha256",
+              "pages",
+              "previewUrl"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "previewUrl": {
+                "type": "string",
+                "description": "Chemin privé de contenu PDF ; authentification requise."
+              }
+            }
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "deliveryProduct",
+              "printMode",
+              "printSpectrum",
+              "addressPosition"
+            ],
+            "properties": {
+              "deliveryProduct": {
+                "type": "string",
+                "enum": [
+                  "cheap",
+                  "fast"
+                ]
+              },
+              "printMode": {
+                "type": "string",
+                "enum": [
+                  "simplex",
+                  "duplex"
+                ]
+              },
+              "printSpectrum": {
+                "type": "string",
+                "enum": [
+                  "grayscale",
+                  "color"
+                ]
+              },
+              "addressPosition": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            }
+          },
+          "ceilingMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reviewUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Ouvrir ce lien dans la session Guteneo pour relire le PDF et consentir au transfert fournisseur."
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "complete",
+              "dpi",
+              "pages",
+              "issues"
+            ],
+            "properties": {
+              "complete": {
+                "type": "boolean"
+              },
+              "dpi": {
+                "type": "integer",
+                "minimum": 1,
+                "nullable": true
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "page",
+                    "width",
+                    "height"
+                  ],
+                  "properties": {
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "width": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "address": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expectedLines",
+              "extractedLines",
+              "matches",
+              "cropUrl"
+            ],
+            "properties": {
+              "expectedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "extractedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "matches": {
+                "type": "boolean"
+              },
+              "cropUrl": {
+                "type": "string",
+                "nullable": true,
+                "description": "Chemin authentifié de l’extrait PNG ; aucune URL fournisseur publique."
+              }
+            }
+          },
+          "canTransfer": {
+            "type": "boolean",
+            "description": "Éligibilité technique seulement ; ne remplace jamais la revue et le consentement navigateur."
+          },
+          "transferStatus": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "preparing",
+              "prepared",
+              "unknown"
+            ]
+          },
+          "draftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "canSend": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        }
+      },
+      "PostalRequirements": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "pingen"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "qualified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "FR",
+              "LU",
+              "DE"
+            ]
+          },
+          "profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "defaultCountry": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "addressPosition": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            },
+            "required": [
+              "defaultCountry",
+              "addressPosition"
+            ]
+          },
+          "layout": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "profile": {
+                "type": "string",
+                "enum": [
+                  "general",
+                  "france_domestic"
+                ]
+              },
+              "address": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "postage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "corner": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ]
+              },
+              "edgeMm": {
+                "type": "number",
+                "enum": [
+                  5
+                ]
+              }
+            },
+            "required": [
+              "profile",
+              "address",
+              "postage",
+              "corner",
+              "edgeMm"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pdfBytes": {
+                "type": "integer",
+                "enum": [
+                  8000000
+                ]
+              },
+              "pages": {
+                "type": "integer",
+                "enum": [
+                  100
+                ]
+              },
+              "pageWidthMm": {
+                "type": "integer",
+                "enum": [
+                  210
+                ]
+              },
+              "pageHeightMm": {
+                "type": "integer",
+                "enum": [
+                  297
+                ]
+              },
+              "renderDpi": {
+                "type": "integer",
+                "enum": [
+                  144
+                ]
+              }
+            },
+            "required": [
+              "pdfBytes",
+              "pages",
+              "pageWidthMm",
+              "pageHeightMm",
+              "renderDpi"
+            ]
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canSend": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "provider",
+          "version",
+          "qualified",
+          "country",
+          "profile",
+          "layout",
+          "limits",
+          "requirements",
+          "canSend"
         ]
       }
     },

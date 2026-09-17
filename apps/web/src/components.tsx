@@ -154,7 +154,9 @@ export function ErrorNotice({
         <strong>{t.errorTitle}</strong>
         <p>
           {error instanceof ApiError
-            ? (sesErrorMessage(error.code) ?? error.message)
+            ? (postalErrorMessage(error.code) ??
+              sesErrorMessage(error.code) ??
+              error.message)
             : error.message}
         </p>
         {error instanceof ApiError && (
@@ -171,6 +173,46 @@ export function ErrorNotice({
 }
 
 /** Fixed copy only: provider response bodies can contain private identities. */
+function postalErrorMessage(code?: string): string | undefined {
+  const messages: Record<string, string> = {
+    POSTAL_DRAFT_NOT_READY:
+      "Pingen analyse encore ce brouillon. Réessayez le devis après son analyse.",
+    POSTAL_DRAFT_TRANSFER_DISABLED:
+      "La préparation du courrier est actuellement indisponible. Vous pouvez consulter le suivi d’un brouillon existant.",
+    POSTAL_DRAFT_RECONCILIATION_REQUIRED:
+      "Le résultat du transfert doit être vérifié. Contactez Guteneo avant de créer un autre brouillon.",
+    POSTAL_DRAFT_ALREADY_USED:
+      "Ce brouillon est déjà associé à un envoi. Consultez son suivi avant de continuer.",
+    POSTAL_ADDRESS_MISMATCH:
+      "L’adresse du PDF ne correspond pas au destinataire. Vérifiez les deux avant de continuer.",
+    POSTAL_ADDRESS_PREVIEW_UNAVAILABLE:
+      "L’extrait d’adresse est indisponible. Actualisez la page pour vérifier s’il est prêt.",
+    POSTAL_PREFLIGHT_EXPIRED:
+      "Ce contrôle a expiré. Faites contrôler à nouveau le document avant tout transfert.",
+    POSTAL_PREFLIGHT_NOT_FOUND:
+      "Ce contrôle postal n’est pas accessible dans votre espace.",
+    POSTAL_PREFLIGHT_REQUIRED:
+      "Le PDF doit être contrôlé et revu dans Guteneo avant cette étape.",
+    POSTAL_PREFLIGHT_STALE:
+      "Le document ou ses autorisations ont changé. Actualisez le suivi avant de continuer.",
+    POSTAL_PREPARED_DRAFT_REQUIRED:
+      "Ouvrez la revue du document pour préparer son brouillon avant de demander le devis.",
+    POSTAL_PROFILE_CHANGED:
+      "Les paramètres d’impression ont changé. Une nouvelle vérification du PDF est nécessaire.",
+    POSTAL_PROFILE_UNQUALIFIED:
+      "Les paramètres postaux de Pingen ne peuvent pas être vérifiés pour le moment. Réessayez leur consultation plus tard.",
+    POSTAL_RENDERER_UNAVAILABLE:
+      "Le contrôle du PDF est momentanément indisponible. Votre document n’a pas été transmis à Pingen.",
+    POSTAL_RENDER_FAILED:
+      "Le contrôle du PDF n’a pas abouti. Consultez son état avant de recommencer.",
+    POSTAL_RENDER_TIMEOUT:
+      "Le contrôle du PDF a dépassé le délai prévu. Aucun transfert à Pingen n’est autorisé.",
+    POSTAL_RENDER_PROOF_INVALID:
+      "Le résultat du contrôle du PDF est incomplet. Le transfert reste bloqué.",
+  };
+  return code ? messages[code] : undefined;
+}
+
 export function sesErrorMessage(code?: string): string | undefined {
   if (!code) return undefined;
   const messages: Record<string, string> = {

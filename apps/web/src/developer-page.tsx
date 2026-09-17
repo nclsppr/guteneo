@@ -98,9 +98,11 @@ export function DeveloperPage() {
           </div>
           <p className="developer-beta">
             <strong>Bêta en préparation.</strong> Cette référence décrit le code
-            disponible. La démonstration publique n’ouvre pas l’API ni les
-            envois réels. Le crédit de bienvenue de 50 € ne remplace pas
-            l’activation des transports ; aucune recharge n’est proposée.
+            disponible. Guteneo héberge la bêta ; consultez les capacités du
+            service pour connaître les canaux activés. La démonstration séparée
+            utilise des données fictives. Le crédit de bienvenue de 50 € ne
+            remplace pas l’activation des transports ; aucune recharge n’est
+            proposée.
           </p>
           <dl className="developer-facts">
             <div>
@@ -187,6 +189,20 @@ export function DeveloperPage() {
                 construisez le lien navigateur avec l’identifiant retourné. Un «
                 oui » dans une conversation et une autorisation d’outil ne
                 constituent jamais l’approbation Guteneo.
+              </p>
+              <p>
+                Pour le courrier, lisez d’abord le gabarit avec{" "}
+                <code>GET /api/postal/requirements?country=LU</code>, en
+                indiquant le pays du destinataire. Après avoir créé et importé
+                le PDF, utilisez <code>POST /api/postal/preflights</code> :
+                Guteneo contrôle le PDF exact et retourne un{" "}
+                <code>reviewUrl</code>. La personne ouvre ce lien pour relire
+                les pages et autoriser le dépôt du brouillon chez Pingen. Après
+                son analyse, demandez
+                <code> POST /api/postal/preflights/&#123;id&#125;/quote</code>,
+                puis faites approuver le devis. Ces étapes restent distinctes de
+                l’expédition ; un transfert incertain ne doit jamais être
+                relancé automatiquement.
               </p>
             </section>
             <section id="authentification">
@@ -454,10 +470,10 @@ export function DeveloperPage() {
             <FilePdf size={38} weight="thin" aria-hidden="true" />
           </div>
           <p>
-            18 opérations : documents, envois, campagnes, destinataires,
-            expéditeurs, consommation et état du service. Explorez les schémas
-            en lecture seule. Aucun bouton d’exécution, aucune connexion OAuth,
-            aucun jeton envoyé depuis l’explorateur.
+            23 opérations : documents, contrôle postal, envois, campagnes,
+            destinataires, expéditeurs, consommation et état du service.
+            Explorez les schémas en lecture seule. Aucun bouton d’exécution,
+            aucune connexion OAuth, aucun jeton envoyé depuis l’explorateur.
           </p>
           <div className="developer-reference-actions">
             <button

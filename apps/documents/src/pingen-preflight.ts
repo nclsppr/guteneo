@@ -57,6 +57,27 @@ export type PostalPreflightDependencies = {
   /** Test seam only; the request cannot choose its own resource limits. */
   deadlineMs?: number;
 };
+export type PostalPreflightStage =
+  | "read"
+  | "structure"
+  | "budget"
+  | "launch"
+  | "new_page"
+  | "isolation"
+  | "navigation"
+  | "worker_script"
+  | "pdf_script"
+  | "open"
+  | "open_library"
+  | "open_worker"
+  | "open_crypto"
+  | "open_promise_resolvers"
+  | "open_promise_try"
+  | "open_map_insert"
+  | "open_base64"
+  | "render"
+  | "raster"
+  | "address";
 export type PostalPreflightReport = PingenPreflightResult & {
   rendering: {
     dpi: 144;
@@ -69,6 +90,8 @@ export type PostalPreflightReport = PingenPreflightResult & {
     }[];
   };
   address: PostalPageEvidence["address"];
+  /** Private, fixed-code failure location; never an engine message or PDF data. */
+  diagnostic?: { stage: PostalPreflightStage };
 };
 const response = (body: unknown, status = 200) =>
   Response.json(body, {
@@ -78,8 +101,16 @@ const response = (body: unknown, status = 200) =>
       "X-Content-Type-Options": "nosniff",
     },
   });
-const failure = (code: string, status: number) =>
-  response({ status: "blocked", canSend: false, issues: [{ code }] }, status);
+const failure = (code: string, status: number, stage?: PostalPreflightStage) =>
+  response(
+    {
+      status: "blocked",
+      canSend: false,
+      issues: [{ code }],
+      ...(stage ? { diagnostic: { stage } } : {}),
+    },
+    status,
+  );
 
 async function boundedPdf(
   request: Request,
@@ -200,6 +231,7 @@ export async function handlePingenPreflight(
   }
   let browser: PostalBrowser | undefined;
   let report: PostalPreflightReport | undefined;
+  let stage: PostalPreflightStage = "read";
   let expired = false;
   const cancellation = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -216,6 +248,7 @@ export async function handlePingenPreflight(
   const run = async () => {
     const bytes = await boundedPdf(request, cancellation.signal);
     if (expired) throw new Error("POSTAL_RENDER_TIMEOUT");
+    stage = "structure";
     const structural = await preflightPingenPdf(bytes, options);
     report = {
       ...structural,
@@ -228,18 +261,22 @@ export async function handlePingenPreflight(
     }
     if (report.status === "blocked" || !report.layout || !report.pages)
       return report;
+    stage = "budget";
     const budgetIssue = await renderBudget(bytes);
     if (budgetIssue) {
       report.status = "blocked";
       report.issues.push({ code: budgetIssue });
       return report;
     }
+    stage = "launch";
     browser = await deps.launch();
     if (expired) {
       await browser.close();
       throw new Error("POSTAL_RENDER_TIMEOUT");
     }
+    stage = "new_page";
     const page = await browser.newPage();
+    stage = "isolation";
     page.setDefaultTimeout(5_000);
     await page.setBypassServiceWorker(true);
     await page.setRequestInterception(true);
@@ -259,23 +296,32 @@ export async function handlePingenPreflight(
     });
     await page.setOfflineMode(true);
     // Intercepted synthetic HTTPS origin enables WebCrypto, without DNS/egress.
+    stage = "navigation";
     await page.goto(isolatedUrl, {
       timeout: 5_000,
       waitUntil: "domcontentloaded",
     });
     // PDF.js detects the package-owned worker module and uses its in-page fake
     // worker. No remote script, web worker, font, image or CMap fetch is allowed.
+    stage = "worker_script";
     await page.addScriptTag({ content: deps.scripts.worker, type: "module" });
+    stage = "pdf_script";
     await page.addScriptTag({ content: deps.scripts.pdf, type: "module" });
+    stage = "open";
     const loaded = await page.evaluate(openPostalPdf, {
       base64: encode(bytes),
       expectedPages: report.pages,
     });
+    if (loaded.failure) {
+      stage = loaded.failure;
+      throw new Error("POSTAL_RENDER_FAILED");
+    }
     if (loaded.sha256 !== sourceHash || loaded.pages !== report.pages)
       throw new Error("POSTAL_RENDER_HASH_MISMATCH");
     for (let number = 1; number <= report.pages; number++) {
       if (expired || request.signal.aborted)
         throw new Error("POSTAL_RENDER_TIMEOUT");
+      stage = "render";
       const rendered = await page.evaluate(renderPostalPage, {
         page: number,
         address: report.layout.address,
@@ -292,6 +338,7 @@ export async function handlePingenPreflight(
         !/^[a-f0-9]{64}$/.test(rendered.rasterSha256)
       )
         throw new Error("POSTAL_RENDER_INVALID");
+      stage = "raster";
       const rgba = decode(rendered.rgbaBase64);
       report.issues.push(
         ...checkPingenRaster(
@@ -313,6 +360,7 @@ export async function handlePingenPreflight(
         rasterSha256: rendered.rasterSha256,
       });
       if (number === 1) {
+        stage = "address";
         report.address = rendered.address;
         if (!report.address)
           throw new Error("POSTAL_ADDRESS_EXTRACTION_MISSING");
@@ -346,9 +394,10 @@ export async function handlePingenPreflight(
       report.status = "blocked";
       report.rendering.complete = false;
       report.issues.push({ code: known });
+      report.diagnostic = { stage };
       return response(report, 422);
     }
-    return failure(known, known === "POSTAL_PDF_SIZE" ? 413 : 422);
+    return failure(known, known === "POSTAL_PDF_SIZE" ? 413 : 422, stage);
   } finally {
     if (timer) clearTimeout(timer);
     if (browser) {

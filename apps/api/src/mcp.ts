@@ -2,6 +2,11 @@ import { createMcpHandler } from "agents/mcp/server";
 import { McpServer, type CallToolResult } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { LIMITS } from "../../../packages/contracts/src/content";
+import {
+  postalReviewInputSchema,
+  type PostalReviewInput,
+  type PostalReview,
+} from "../../../packages/contracts/src/postal-review";
 import type {
   DomainService,
   Dispatch,
@@ -37,6 +42,19 @@ export interface McpServices {
   documents: McpDocuments;
   capabilities: () => unknown;
   afterConfirmation?: () => Promise<void>;
+  postal?: {
+    requirements(
+      identity: McpIdentity,
+      country: "FR" | "LU" | "DE",
+    ): Promise<unknown>;
+    create(
+      identity: McpIdentity,
+      input: PostalReviewInput,
+      key: string,
+    ): Promise<PostalReview>;
+    get(identity: McpIdentity, id: string): Promise<PostalReview>;
+    quote(identity: McpIdentity, id: string, key: string): Promise<Dispatch>;
+  };
 }
 const errorSchema = z
   .object({ code: z.string(), message: z.string() })
@@ -97,9 +115,14 @@ const writeAnnotations = {
   idempotentHint: true,
   openWorldHint: false,
 };
-const oauthMetadata = (scope?: string) => ({
+const oauthMetadata = (scope?: string | string[]) => ({
   // The installed MCP v2 SDK preserves extension metadata, not arbitrary top-level fields.
-  securitySchemes: [{ type: "oauth2", scopes: scope ? [scope] : [] }],
+  securitySchemes: [
+    {
+      type: "oauth2",
+      scopes: scope ? (Array.isArray(scope) ? scope : [scope]) : [],
+    },
+  ],
 });
 
 export const FAX_WORKFLOW = [
@@ -198,24 +221,92 @@ export function createGuteneoMcpServer(
 ): McpServer {
   const server = new McpServer({ name: "guteneo", version: "0.2.0" });
   const run = async (
-    scope: string | null,
+    scope: string | string[] | null,
     operation: () => Promise<unknown> | unknown,
   ): Promise<CallToolResult> => {
     try {
-      if (scope) requireScope(identity, scope);
+      if (scope)
+        for (const required of Array.isArray(scope) ? scope : [scope])
+          requireScope(identity, required);
       return success(await operation());
     } catch (error) {
       const result = failure(error);
       if (error instanceof AuthError && error.code === "INSUFFICIENT_SCOPE") {
         result._meta = {
           "mcp/www_authenticate": [
-            `Bearer resource_metadata="${env.APP_ORIGIN}/.well-known/oauth-protected-resource/mcp", error="insufficient_scope", error_description="Additional Guteneo permission required", scope="${scope}"`,
+            `Bearer resource_metadata="${env.APP_ORIGIN}/.well-known/oauth-protected-resource/mcp", error="insufficient_scope", error_description="Additional Guteneo permission required", scope="${Array.isArray(scope) ? scope.join(" ") : scope}"`,
           ],
         };
       }
       return result;
     }
   };
+  if (services.postal) {
+    const postal = services.postal;
+    server.registerTool(
+      "get_postal_requirements",
+      {
+        description:
+          "Lire avant de créer une lettre : profil Pingen qualifié, position de fenêtre, rectangles réservés en mm et contraintes exactes du pays. Lecture seule du compte fournisseur, sans PDF ni dépôt ; ne pas inventer un gabarit si le profil n’est pas disponible.",
+        inputSchema: z.object({ country: z.enum(["FR", "LU", "DE"]) }).strict(),
+        outputSchema: output(z.unknown()),
+        annotations: { ...readonlyAnnotations, openWorldHint: true },
+        _meta: oauthMetadata("documents:read"),
+      },
+      ({ country }) =>
+        run("documents:read", () => postal.requirements(identity, country)),
+    );
+    server.registerTool(
+      "preflight_postal_pdf",
+      {
+        description:
+          "Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Le modèle ne peut pas donner le consentement de transfert : l’utilisateur doit ouvrir Guteneo et le confirmer séparément.",
+        inputSchema: postalReviewInputSchema
+          .extend({ idempotencyKey: key })
+          .strict(),
+        outputSchema: output(z.unknown()),
+        annotations: writeAnnotations,
+        _meta: oauthMetadata(["documents:write", "dispatches:prepare"]),
+      },
+      ({ idempotencyKey, ...input }) =>
+        run(["documents:write", "dispatches:prepare"], async () => {
+          return postal.create(identity, input, idempotencyKey);
+        }),
+    );
+    server.registerTool(
+      "get_postal_preflight",
+      {
+        description:
+          "Consulte le contrôle postal et son lien de revue humaine. prepared désigne uniquement un brouillon fournisseur ; aucun courrier n’a été envoyé. Ne jamais inventer une preuve ou relancer un transfert unknown.",
+        inputSchema: z.object({ preflightId: id }).strict(),
+        outputSchema: output(z.unknown()),
+        annotations: readonlyAnnotations,
+        _meta: oauthMetadata("documents:read"),
+      },
+      ({ preflightId }) =>
+        run("documents:read", () => postal.get(identity, preflightId)),
+    );
+    server.registerTool(
+      "quote_postal_draft",
+      {
+        description:
+          "Demande le devis exact d’un brouillon Pingen déjà déposé avec consentement dans Guteneo. Attend la fin de l’analyse fournisseur ; retourne ensuite le lien d’approbation distinct de l’envoi. Aucun envoi implicite.",
+        inputSchema: z
+          .object({ preflightId: id, idempotencyKey: key })
+          .strict(),
+        outputSchema: output(dispatchSchema),
+        annotations: writeAnnotations,
+        _meta: oauthMetadata("dispatches:prepare"),
+      },
+      ({ preflightId, idempotencyKey }) =>
+        run("dispatches:prepare", async () =>
+          dispatchSummary(
+            await postal.quote(identity, preflightId, idempotencyKey),
+            env.APP_ORIGIN,
+          ),
+        ),
+    );
+  }
   server.registerTool(
     "get_capabilities",
     {

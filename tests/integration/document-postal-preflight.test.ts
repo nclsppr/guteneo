@@ -19,9 +19,9 @@ const options = {
   deliveryProduct: "cheap",
 };
 const scripts = {
-  pdf: readFileSync("node_modules/pdfjs-dist/build/pdf.min.mjs", "utf8"),
+  pdf: readFileSync("node_modules/pdfjs-dist/legacy/build/pdf.min.mjs", "utf8"),
   worker: readFileSync(
-    "node_modules/pdfjs-dist/build/pdf.worker.min.mjs",
+    "node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs",
     "utf8",
   ),
 };
@@ -80,6 +80,59 @@ async function run(bytes = clean, engine = launch, deadlineMs?: number) {
 }
 
 describe("Postal preflight with actual local Chromium and exact PDF.js bytes", () => {
+  it("the pinned compatibility scripts render when the remote browser lacks Map insertion APIs", async () => {
+    const engine = async () => {
+      const browser = await launch();
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, "newPage").mockImplementation(async () => {
+        const page = await newPage();
+        await page.evaluateOnNewDocument(() => {
+          Reflect.deleteProperty(Map.prototype, "getOrInsertComputed");
+          Reflect.deleteProperty(WeakMap.prototype, "getOrInsertComputed");
+        });
+        return page;
+      });
+      return browser;
+    };
+    const { report, response } = await run(clean, engine);
+    expect(response.status).toBe(200);
+    expect(report.status).toBe("review_required");
+    expect(report.rendering.complete).toBe(true);
+    expect(report.rendering.pages).toHaveLength(2);
+    expect(report.issues).toEqual([]);
+    expect(report.canSend).toBe(false);
+  });
+  it.each([
+    ["promise_try", "open_promise_try"],
+    ["map_insert", "open_map_insert"],
+    ["library", "open_library"],
+  ])("reports only a fixed capability stage when %s is missing", async (missing, stage) => {
+    const engine = async () => {
+      const browser = await launch();
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, "newPage").mockImplementation(async () => {
+        const page = await newPage();
+        const evaluate = page.evaluate.bind(page);
+        vi.spyOn(page, "evaluate").mockImplementation(async (fn, ...args) => {
+          if (typeof fn === "function" && fn.name === "openPostalPdf")
+            await evaluate((capability) => {
+              if (capability === "promise_try") Reflect.deleteProperty(Promise, "try");
+              if (capability === "map_insert") Reflect.deleteProperty(Map.prototype, "getOrInsertComputed");
+              if (capability === "library") Reflect.deleteProperty(globalThis, "pdfjsLib");
+            }, missing);
+          return evaluate(fn, ...args);
+        });
+        return page;
+      });
+      return browser;
+    };
+    const { report, response } = await run(clean, engine);
+    expect(response.status).toBe(422);
+    expect(report.diagnostic).toEqual({ stage });
+    expect(report.rendering).toMatchObject({ complete: false, pages: [] });
+    expect(report.issues).toEqual([{ code: "POSTAL_RENDER_FAILED" }]);
+    expect(report.canSend).toBe(false);
+  });
   it("renders every original page at 144dpi, extracts the window and retains mandatory human review", async () => {
     const original = clean.slice();
     const { report, response } = await run();
@@ -184,6 +237,7 @@ describe("Postal preflight with actual local Chromium and exact PDF.js bytes", (
     expect(response.status).toBe(422);
     expect(report.rendering.pages).toHaveLength(1);
     expect(report.rendering.complete).toBe(false);
+    expect(report.diagnostic).toEqual({ stage: "render" });
     expect(report.canSend).toBe(false);
     expect(JSON.stringify(report)).not.toContain("PRIVATE CONTENT");
     expect(closed).toBe(true);

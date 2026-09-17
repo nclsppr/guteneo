@@ -21,6 +21,7 @@ export interface Env {
   STRIPE_MODE?: "test" | "live";
   STRIPE_PORTAL_CONFIGURATION_ID?: string;
   LIVE_SENDS_ENABLED?: string;
+  POSTAL_DRAFTS_ENABLED?: string;
   TELNYX_API_KEY?: string;
   TELNYX_PUBLIC_KEY?: string;
   TELNYX_CONNECTION_ID?: string;

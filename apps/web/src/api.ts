@@ -31,6 +31,14 @@ export type Dispatch = {
   ceiling_minor: number;
   quote_expires_at?: string | null;
   quote_customer_nanoeur?: number | null;
+  quote_pricing_basis?:
+    "qualified_final_variable_cost" | "public_list_price_ex_tax" | null;
+  quote_fx?: {
+    numerator: number;
+    denominator: number;
+    date: string;
+    source: string;
+  } | null;
   currency: string;
   fingerprint: string;
   created_at: string;

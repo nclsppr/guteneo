@@ -43,6 +43,7 @@ import {
   Admin,
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
+import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { LegalPage } from "./legal-page";
 import { DeveloperPage } from "./developer-page";
@@ -443,10 +444,15 @@ function WorkspaceApplication() {
   else if (page === "/app/prepare")
     content = (
       <PrepareDispatch
+        simulation={session.simulation}
         initialDocument={
           new URLSearchParams(route.split("?")[1]).get("document") ?? ""
         }
       />
+    );
+  else if (page.startsWith("/app/postal/"))
+    content = (
+      <PostalReviewPage key={page} id={page.slice("/app/postal/".length)} />
     );
   else if (page === "/app/dispatches") content = <DispatchList />;
   else if (page.startsWith("/app/dispatch/"))
@@ -554,7 +560,8 @@ function WorkspaceApplication() {
                     page === path ||
                     (id === "dispatches" &&
                       (page.startsWith("/app/dispatch/") ||
-                        page === "/app/prepare"))
+                        page === "/app/prepare" ||
+                        page.startsWith("/app/postal/")))
                       ? "page"
                       : undefined
                   }
@@ -604,7 +611,9 @@ function WorkspaceApplication() {
             {
               t.nav[
                 navigation.find((n) => n.path === page)?.id ??
-                  (page === "/app/prepare" || page.startsWith("/app/dispatch/")
+                  (page === "/app/prepare" ||
+                  page.startsWith("/app/dispatch/") ||
+                  page.startsWith("/app/postal/")
                     ? "dispatches"
                     : page.startsWith("/app/campaign/")
                       ? "campaigns"

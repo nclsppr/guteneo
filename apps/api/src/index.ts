@@ -37,6 +37,9 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
+import { PostalService, cleanupPostalEvidence } from "./postal";
+import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
+import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 
 type Variables = { actor: ActorContext };
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
@@ -201,6 +204,30 @@ app.all("/mcp", (c) =>
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     capabilities: () => getCapabilities(c.env),
+    postal: {
+      requirements: async (identity, country) =>
+        new PostalService(c.env, domain(c.env)).requirements(
+          await postalMcpAuthority(identity, c.env, "documents:read"),
+          country,
+        ),
+      create: async (identity, input, key) =>
+        new PostalService(c.env, domain(c.env)).create(
+          await postalMcpAuthority(identity, c.env, "documents:write"),
+          input,
+          key,
+        ),
+      get: async (identity, id) =>
+        new PostalService(c.env, domain(c.env)).get(
+          await postalMcpAuthority(identity, c.env, "documents:read"),
+          id,
+        ),
+      quote: async (identity, id, key) =>
+        new PostalService(c.env, domain(c.env)).quote(
+          await postalMcpAuthority(identity, c.env, "dispatches:prepare"),
+          id,
+          key,
+        ),
+    },
     afterConfirmation: () =>
       publishOutbox(c.env, domain(c.env)).then(() => undefined),
   }),
@@ -235,15 +262,17 @@ app.use("/api/*", async (c, next) => {
   if (c.req.header("Authorization")) {
     const identity = await authenticateMcp(c.req.raw, c.env);
     const path = c.req.path;
-    const scope = path.startsWith("/api/documents")
-      ? c.req.method === "GET"
-        ? "documents:read"
-        : "documents:write"
-      : path.endsWith("/confirm") || path.endsWith("/cancel")
-        ? "dispatches:send"
-        : c.req.method === "GET"
-          ? "dispatches:read"
-          : "dispatches:prepare";
+    const scope =
+      path.startsWith("/api/documents") ||
+      (path.startsWith("/api/postal/") && !path.endsWith("/quote"))
+        ? c.req.method === "GET"
+          ? "documents:read"
+          : "documents:write"
+        : path.endsWith("/confirm") || path.endsWith("/cancel")
+          ? "dispatches:send"
+          : c.req.method === "GET"
+            ? "dispatches:read"
+            : "dispatches:prepare";
     requireScope(identity, scope);
     c.set("actor", identity.context as ActorContext);
   } else {
@@ -299,6 +328,79 @@ const page = (url: string) => {
   const p = new URL(url).searchParams;
   return [p.get("cursor") ?? undefined, Number(p.get("limit") ?? 30)] as const;
 };
+const postalAuthority = async (request: Request, env: Env, scope: string) => {
+  if (request.headers.has("Authorization")) {
+    const identity = await authenticateMcp(request, env);
+    requireScope(identity, scope);
+    return postalMcpAuthority(identity, env, scope);
+  }
+  return postalBrowserAuthority(request, env, request.method !== "GET");
+};
+app.get("/api/postal/requirements", async (c) =>
+  c.json(
+    await new PostalService(c.env, domain(c.env)).requirements(
+      await postalAuthority(c.req.raw, c.env, "documents:read"),
+      z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
+    ),
+  ),
+);
+app.post("/api/postal/preflights", async (c) => {
+  if (c.req.header("Authorization"))
+    requireScope(await authenticateMcp(c.req.raw, c.env), "dispatches:prepare");
+  return c.json(
+    await new PostalService(c.env, domain(c.env)).create(
+      await postalAuthority(c.req.raw, c.env, "documents:write"),
+      postalReviewInputSchema.parse(await c.req.json()),
+      idempotency(c.req.header("Idempotency-Key")),
+    ),
+    201,
+  );
+});
+app.get("/api/postal/preflights/:id", async (c) =>
+  c.json(
+    await new PostalService(c.env, domain(c.env)).get(
+      await postalAuthority(c.req.raw, c.env, "documents:read"),
+      c.req.param("id"),
+    ),
+  ),
+);
+app.get("/api/postal/preflights/:id/address.png", async (c) =>
+  new PostalService(c.env, domain(c.env)).crop(
+    await postalBrowserAuthority(c.req.raw, c.env, false),
+    c.req.param("id"),
+  ),
+);
+app.post("/api/postal/preflights/:id/transfer", async (c) =>
+  c.json(
+    await new PostalService(c.env, domain(c.env)).transfer(
+      await postalBrowserAuthority(c.req.raw, c.env, true),
+      c.req.param("id"),
+      z
+        .object({
+          reviewed: z.literal(true),
+          consentToTransfer: z.literal(true),
+        })
+        .strict()
+        .parse(await c.req.json()),
+    ),
+  ),
+);
+app.post("/api/postal/preflights/:id/quote", async (c) => {
+  const body = await c.req.text();
+  if (body && body !== "{}")
+    throw new ContentError(
+      "POSTAL_QUOTE_INPUT_INVALID",
+      "Le devis reprend le document et le destinataire déjà vérifiés.",
+    );
+  return c.json(
+    await new PostalService(c.env, domain(c.env)).quote(
+      await postalAuthority(c.req.raw, c.env, "dispatches:prepare"),
+      c.req.param("id"),
+      idempotency(c.req.header("Idempotency-Key")),
+    ),
+    201,
+  );
+});
 app.get("/api/documents", async (c) =>
   c.json(await domain(c.env).listDocuments(c.get("actor"), ...page(c.req.url))),
 );
@@ -639,6 +741,7 @@ export default {
     await publishOutbox(env, service);
     await service.reconcileExpiredLeases();
     await maintainDocuments(env);
+    await cleanupPostalEvidence(env.DB);
     await env.DB.prepare("DELETE FROM http_limits WHERE window_start<?")
       .bind(Math.floor(Date.now() / 60000) - 5)
       .run();

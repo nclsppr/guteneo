@@ -1,5 +1,9 @@
 # Connexion privée Pingen
 
+Le parcours applicatif en cours de qualification expose maintenant le profil postal, le contrôle exact du PDF, la revue navigateur et la demande de devis. Voir [PINGEN_PREFLIGHT.md](PINGEN_PREFLIGHT.md). La création d’un brouillon est commandée séparément par `POSTAL_DRAFTS_ENABLED` ; l’expédition reste soumise à `LIVE_SENDS_ENABLED`, au devis et à l’approbation humaine. Les identifiants configurés ne prouvent aucune de ces activations.
+
+La configuration candidate de cette release active `POSTAL_DRAFTS_ENABLED=true` après la qualification distante du renderer et une nouvelle lecture réussie du profil EUR/LU/fenêtre gauche et de l’origine exacte de dépôt le 17 septembre. Cette activation ne sera effective qu’après le déploiement applicatif. Elle permet uniquement le transfert explicitement consenti d’un PDF contrôlé vers un brouillon `auto_send:false`. L’envoi, le crédit fournisseur et le tarif restent séparés ; aucun dépôt réel n’est encore qualifié.
+
 Créer une application dédiée à Guteneo dans Pingen, type **Client Credentials**, puis lancer `node scripts/secure-setup.mjs pingen`. Le formulaire local exige `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET` et `PINGEN_ORGANIZATION_ID`. Il les transmet directement aux secrets du Worker via l’entrée standard de Wrangler ; aucun fichier d’accès, argument de processus ou sortie contenant leurs valeurs n’est produit. Voir [SECURE_CONFIGURATION.md](SECURE_CONFIGURATION.md).
 
 Cette installation ne modifie aucun flag d’activation ou d’environnement. Le secret `PINGEN_WEBHOOK_SECRET` n’est pas nécessaire pour l’authentification et la lecture de l’organisation. Il devra être défini lors d’une future inscription explicite des notifications signées. Aucun webhook n’est créé par ce parcours.

@@ -36,7 +36,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 18);
+  assert.equal(operations.length, 23);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -63,6 +63,11 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/recipients/validate",
     "get /api/senders",
     "get /api/usage",
+    "post /api/postal/preflights",
+    "get /api/postal/preflights/{id}",
+    "get /api/postal/preflights/{id}/address.png",
+    "post /api/postal/preflights/{id}/quote",
+    "get /api/postal/requirements",
   ]);
   assert.deepEqual(
     new Set(operations.map(({ path, method }) => `${method} ${path}`)),
@@ -75,21 +80,32 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     );
     assert.doesNotMatch(
       path,
-      /approve|admin|billing|session|webhooks|documents\/import/,
+      /approve|transfer|admin|billing|session|webhooks|documents\/import/,
     );
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
-    const scope = path.startsWith("/api/documents")
-      ? method === "get"
-        ? "documents:read"
-        : "documents:write"
-      : /\/(confirm|cancel)$/.test(path)
-        ? "dispatches:send"
-        : method === "get"
-          ? "dispatches:read"
-          : "dispatches:prepare";
+    const scope =
+      path.startsWith("/api/documents") ||
+      (path.startsWith("/api/postal") && method === "get")
+        ? method === "get"
+          ? "documents:read"
+          : "documents:write"
+        : /\/(confirm|cancel)$/.test(path)
+          ? "dispatches:send"
+          : method === "get"
+            ? "dispatches:read"
+            : "dispatches:prepare";
     assert.deepEqual(
       operation.security,
-      publicRoute ? [] : [{ GuteneoOAuth: [scope] }],
+      publicRoute
+        ? []
+        : [
+            {
+              GuteneoOAuth:
+                path === "/api/postal/preflights"
+                  ? ["documents:write", "dispatches:prepare"]
+                  : [scope],
+            },
+          ],
     );
   }
   assert.match(
@@ -154,6 +170,8 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
   assert.deepEqual(requiredKeys, [
     "post /api/dispatches",
     "post /api/dispatches/{id}/confirm",
+    "post /api/postal/preflights",
+    "post /api/postal/preflights/{id}/quote",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(
@@ -182,6 +200,34 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
       "Retry-After" in
       spec.paths["/api/dispatches"].get.responses["200"].headers
     ),
+  );
+});
+
+test("postal contracts keep the source immutable and separate human transfer consent from OAuth", () => {
+  const input = spec.components.schemas.PostalPreflightInput;
+  assert.equal(input.additionalProperties, false);
+  for (const forbidden of [
+    "organizationId",
+    "sha256",
+    "reviewed",
+    "consentToTransfer",
+    "report",
+    "preparedLetterId",
+  ])
+    assert.ok(!(forbidden in input.properties));
+  assert.deepEqual(
+    spec.components.schemas.PostalReview.properties.canSend.enum,
+    [false],
+  );
+  assert.equal(spec.paths["/api/postal/preflights/{id}/transfer"], undefined);
+  assert.equal(
+    spec.paths["/api/postal/preflights/{id}/quote"].post.requestBody,
+    undefined,
+  );
+  assert.equal(
+    spec.paths["/api/postal/preflights/{id}/address.png"].get.responses["200"]
+      .content["image/png"].schema.format,
+    "binary",
   );
 });
 

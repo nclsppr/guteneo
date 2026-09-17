@@ -22,6 +22,8 @@
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "false",
+    // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
+    "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",
     "PINGEN_DEFAULT_COUNTRY": "LU",
     "AUTH0_AUTH_POLICY": "verified_email",

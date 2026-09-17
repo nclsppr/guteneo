@@ -52,7 +52,18 @@ Intégrer **après le scan qualifié et avant le dépôt fournisseur**, dans le 
 
 Pour la revue finale : hash, nombre de pages, adresse extraite exacte, pays, fenêtre, papier détecté, options, montant fournisseur qualifié et prix client gelé doivent appartenir au même brouillon/manifest. Revalider droits et document avant chaque effet externe. Ne pas utiliser le résultat local comme jeton d’approbation. Les outils MCP n’accordent jamais le consentement humain.
 
-Ces helpers et tests sont livrés indépendamment du raccordement aux routes et au renderer ; leur présence seule ne prouve pas qu’un dépôt de production les exécute. Le connecteur applique également le plafond 8 000 000 octets. L’adresse attendue utilise le pays par défaut du compte qualifié ; elle conserve la dernière ligne de pays pour un destinataire international. Le raccordement du contrôle raster isolé reste à vérifier séparément.
+Le candidat applicatif raccorde maintenant ces contrôles au renderer privé et à une revue navigateur. Leur présence dans le code ne prouve pas encore leur qualification distante ni le dépôt Pingen. Le connecteur applique également le plafond 8 000 000 octets. L’adresse attendue utilise le pays par défaut du compte qualifié ; elle conserve la dernière ligne de pays pour un destinataire international. Voir [le service documentaire](DOCUMENT_POSTAL_PREFLIGHT.md) pour la preuve du renderer et [la release](LIVE_RELEASE.md) pour l’état publié.
+
+## Parcours du candidat REST et MCP
+
+1. Lire `GET /api/postal/requirements?country=LU` ou `get_postal_requirements` avant de créer le PDF ; remplacer LU par le pays du destinataire. Le profil de l’organisation est lu chez Pingen, sans envoi de document. `qualified:true` concerne uniquement le profil.
+2. Après import et scan qualifié, `POST /api/postal/preflights` ou `preflight_postal_pdf` reçoit le document, l’expéditeur, le destinataire, les options et le plafond. Les scopes OAuth `documents:write` et `dispatches:prepare` sont tous deux nécessaires. La clé d’idempotence protège aussi la consommation du quota de contrôle.
+3. `GET /api/postal/preflights/{id}` ou `get_postal_preflight` expose l’état, le texte d’adresse, le lien de l’extrait PNG privé et `reviewUrl`. Ni cette lecture ni la préparation n’envoie le PDF à Pingen. Le rapport conserve `canSend:false`.
+4. La session navigateur ouvre `/#/app/postal/{id}`. Elle présente les pages, l’adresse attendue et extraite, les anomalies et les options. Les deux cases explicites autorisent la revue puis le transfert de cette version précise ; le POST privé `/transfer` exige session actuelle et CSRF. Aucun outil MCP ni jeton OAuth ne peut le remplacer.
+5. Le transfert crée uniquement un brouillon avec `auto_send:false`. Une réponse perdue oblige l’interface à relire l’état ; `unknown` ne réactive pas une création. Un échec de chargement de l’extrait bloque la confirmation et peut être repris par « Actualiser ».
+6. Après dépôt consenti, `POST /api/postal/preflights/{id}/quote` ou `quote_postal_draft` demande le devis du même brouillon. Aucun document, prix ou destinataire n’est repris depuis un corps client. Pingen peut répondre que l’analyse n’est pas terminée ; conserver la même clé. L’approbation du devis et l’expédition sont des étapes distinctes.
+
+`POSTAL_DRAFTS_ENABLED` contrôle la préparation fournisseur ; `LIVE_SENDS_ENABLED` contrôle toujours les expéditions. Les drapeaux seuls ne remplacent ni les preuves de scan/rendu, ni l’expéditeur, ni le profil, ni le devis. Le candidat est vérifié avec des données synthétiques ; l’activation et les essais réels restent des preuves séparées.
 
 ## Qualification distante sans expédition
 
