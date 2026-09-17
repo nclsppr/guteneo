@@ -728,6 +728,7 @@ export class PostalService {
         },
         {
           fetcher: this.dependencies.fetcher,
+          transferAuthority: authority.expert ? authority : undefined,
           beforeTransfer: async () => {
             const active = await this.row(authority, id);
             if (active.transfer_status !== "preparing")

@@ -481,7 +481,9 @@ async function prepareFixtureDraft(fetcher: Fetcher, input = draftInput()) {
         )
         .bind(canonicalJson(report), preflightId),
       db
-        .prepare("INSERT INTO postal_transfer_consents VALUES(?,?,?,?,1,1,?)")
+        .prepare(
+          "INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at) VALUES(?,?,?,?,1,1,?)",
+        )
         .bind(
           preflightId,
           ctx.organizationId,
