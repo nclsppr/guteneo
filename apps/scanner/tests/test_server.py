@@ -1,8 +1,9 @@
 import datetime
 import importlib.util
+import io
 from pathlib import Path
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location("scanner_server", Path(__file__).parents[1] / "container/server.py")
 server = importlib.util.module_from_spec(spec)
@@ -71,6 +72,68 @@ class VerdictTests(unittest.TestCase):
                 with self.assertRaises(server.ScanError):
                     server.scan_bytes(data)
             connect.assert_not_called()
+
+
+class DiagnosticTests(unittest.TestCase):
+    def test_missing_or_refused_engine_socket_is_not_ready(self):
+        for error in [FileNotFoundError("private socket"), ConnectionRefusedError("private socket")]:
+            sock = Mock()
+            sock.connect.side_effect = error
+            with self.subTest(error=type(error).__name__), patch.object(server.socket, "socket", return_value=sock):
+                with self.assertRaises(server.ScanError) as caught:
+                    server.connect()
+                self.assertEqual(caught.exception.args, ("SCANNER_NOT_READY",))
+                self.assertEqual(server.scan_error_code(caught.exception), "SCANNER_NOT_READY")
+                sock.close.assert_called_once()
+
+    def test_only_exact_known_engine_failures_have_specific_codes(self):
+        cases = [
+            (server.ScanError("SIGNATURES_STALE"), "SIGNATURES_STALE"),
+            (server.ScanError("ENGINE_TIMEOUT"), "SCAN_TIMEOUT"),
+            (server.socket.timeout("private timeout detail"), "SCAN_TIMEOUT"),
+            (server.ScanError("SIGNATURES_STALE private detail"), "SCAN_INCOMPLETE"),
+            (server.ScanError("SIGNATURES_CHANGED"), "SCAN_INCOMPLETE"),
+            (server.ScanError("private finding"), "SCAN_INCOMPLETE"),
+            (ValueError("private parser detail"), "SCAN_INCOMPLETE"),
+            (FileNotFoundError("unrelated missing file"), "SCAN_INCOMPLETE"),
+        ]
+        for error, expected in cases:
+            with self.subTest(expected=expected):
+                self.assertEqual(server.scan_error_code(error), expected)
+
+    def handler(self, path):
+        handler = server.Handler.__new__(server.Handler)
+        handler.path = path
+        handler.headers = {"Content-Type": "application/pdf", "Content-Length": "5"}
+        handler.connection = Mock()
+        handler.rfile = io.BytesIO(b"exact")
+        handler.send_json = Mock()
+        return handler
+
+    def test_scan_failures_return_sanitized_code_and_release_capacity(self):
+        handler = self.handler("/scan")
+        lock = Mock()
+        lock.acquire.return_value = True
+        with patch.object(server, "SCAN_LOCK", lock), patch.object(server, "scan_bytes", side_effect=TimeoutError("private engine detail")):
+            handler.do_POST()
+        handler.send_json.assert_called_once_with(503, {"verdict": "error", "code": "SCAN_TIMEOUT"})
+        lock.release.assert_called_once()
+
+    def test_busy_scan_does_not_invoke_engine_or_release_someone_elses_lock(self):
+        handler = self.handler("/scan")
+        lock = Mock()
+        lock.acquire.return_value = False
+        with patch.object(server, "SCAN_LOCK", lock), patch.object(server, "scan_bytes") as scan:
+            handler.do_POST()
+        handler.send_json.assert_called_once_with(503, {"verdict": "error", "code": "SCANNER_BUSY"})
+        scan.assert_not_called()
+        lock.release.assert_not_called()
+
+    def test_health_failures_are_not_ready_and_do_not_expose_exception_text(self):
+        handler = self.handler("/health")
+        with patch.object(server, "engine_version", side_effect=server.ScanError("SIGNATURES_STALE")):
+            handler.do_GET()
+        handler.send_json.assert_called_once_with(503, {"status": "unavailable", "code": "SIGNATURES_STALE"})
 
 
 if __name__ == "__main__":

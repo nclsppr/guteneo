@@ -6,6 +6,7 @@ import puppeteer from "@cloudflare/puppeteer";
 import { printableHtml, LIMITS } from "../../../packages/contracts/src/content";
 import { validatePdf } from "../../../packages/contracts/src/pdf";
 import { handlePingenPreflight } from "./pingen-preflight";
+import { handleExpertReviewPages } from "./expert-review";
 import pdfSource from "../dist/pdfjs/pdf.txt";
 import pdfWorkerSource from "../dist/pdfjs/pdf.worker.txt";
 interface DocumentEnv extends ObservationEnv {
@@ -23,6 +24,11 @@ async function handleDocumentRequest(
   request: Request,
   env: DocumentEnv,
 ): Promise<Response> {
+  if (new URL(request.url).pathname === "/review-pages")
+    return handleExpertReviewPages(request, {
+      launch: () => puppeteer.launch(env.BROWSER),
+      scripts: { pdf: pdfSource, worker: pdfWorkerSource },
+    });
   if (new URL(request.url).pathname === "/preflight/pingen")
     return handlePingenPreflight(request, {
       launch: () => puppeteer.launch(env.BROWSER),

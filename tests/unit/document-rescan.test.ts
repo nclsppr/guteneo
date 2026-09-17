@@ -11,7 +11,10 @@ import {
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
-import { DocumentService } from "../../apps/api/src/documents";
+import {
+  DocumentService,
+  type AnalyzedDocument,
+} from "../../apps/api/src/documents";
 import {
   DomainService,
   type ActorContext,
@@ -99,6 +102,9 @@ beforeAll(async () => {
       DB.prepare(
         "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
       ).bind(actor.organizationId, actor.userId, new Date().toISOString()),
+      DB.prepare(
+        "INSERT INTO content_limits(organization_id,uploads_per_day,bytes_per_day,renders_per_day) VALUES(?,100,104857600,50)",
+      ).bind(actor.organizationId),
     ]);
   }
   env = {
@@ -125,6 +131,8 @@ beforeEach(async () => {
   ).join("");
   await env.DB.prepare("DELETE FROM document_scan_usage").run();
   await env.DB.prepare("DELETE FROM document_scan_locks").run();
+  await env.DB.prepare("DELETE FROM document_analysis").run();
+  await env.DB.prepare("DELETE FROM content_usage").run();
 });
 afterEach(() => {
   vi.restoreAllMocks();
@@ -444,8 +452,8 @@ describe("manual rescan of the exact quarantined original", () => {
       }),
     }).rescan(owner, doc.id);
     await scanning;
-    await expect(service().rescan(owner, doc.id)).rejects.toMatchObject({
-      code: "DOCUMENT_SCAN_BUSY",
+    await expect(service().rescan(owner, doc.id)).resolves.toMatchObject({
+      analysis: { state: "processing", nextAction: "wait" },
     });
     await env.DB.prepare(
       "UPDATE document_scan_locks SET token='successor' WHERE organization_id=? AND document_id=?",
@@ -532,6 +540,16 @@ describe("manual rescan of the exact quarantined original", () => {
     expect((await unavailable.rescan(owner, doc.id)).status).toBe(
       "quarantined",
     );
+    await expect(unavailable.rescan(owner, doc.id)).resolves.toMatchObject({
+      analysis: { state: "processing", nextAction: "wait" },
+    });
+    await due(doc.id);
+    expect(await unavailable.processPendingScans()).toEqual({ processed: 1 });
+    await env.DB.prepare(
+      "UPDATE document_analysis SET deadline_at=0 WHERE organization_id=? AND document_id=?",
+    )
+      .bind(owner.organizationId, doc.id)
+      .run();
     await expect(unavailable.rescan(owner, doc.id)).rejects.toMatchObject({
       code: "SCAN_QUOTA_EXCEEDED",
     });
@@ -605,5 +623,548 @@ describe("explicit scanner warmup", () => {
       service({ SCANNER: binding(fetcher) }).warmScanner(owner),
     ).rejects.toMatchObject({ code: "SCAN_QUOTA_EXCEEDED" });
     expect(fetcher).not.toHaveBeenCalled();
+  });
+});
+
+async function due(documentId: string, actor = owner) {
+  await env.DB.prepare(
+    "UPDATE document_analysis SET next_attempt_at=0 WHERE organization_id=? AND document_id=?",
+  )
+    .bind(actor.organizationId, documentId)
+    .run();
+}
+const unavailable = () =>
+  binding(async () =>
+    Response.json({ code: "SCANNER_NOT_READY" }, { status: 503 }),
+  );
+
+describe("durable automatic analysis of the retained original", () => {
+  it("gives queued originals a full bounded cycle from their first automatic claim despite cron backlog", async () => {
+    let now = Date.now();
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const documents: {
+      document: AnalyzedDocument;
+      original: Uint8Array<ArrayBuffer>;
+    }[] = [];
+    const pending = service({ SCANNER: unavailable() });
+    for (let index = 0; index < 4; index++) {
+      const pdf = await PDFDocument.load(bytes);
+      pdf.setTitle(`queue-${index}`);
+      const original = new Uint8Array(await pdf.save());
+      const document = await pending.upload(owner, {
+        name: `queue-${index}.pdf`,
+        bytes: original,
+      });
+      documents.push({ document, original });
+    }
+    documents.sort((a, b) => a.document.id.localeCompare(b.document.id));
+    const waiting = documents[3].document;
+    const scanner = vi.fn(async (request: Request) => {
+      const original = new Uint8Array(await request.arrayBuffer());
+      const digest = Array.from(
+        new Uint8Array(await crypto.subtle.digest("SHA-256", original)),
+        (value) => value.toString(16).padStart(2, "0"),
+      ).join("");
+      expect(original).toEqual(
+        documents.find(({ document }) => document.sha256 === digest)?.original,
+      );
+      return digest === waiting.sha256
+        ? Response.json({ code: "SCANNER_NOT_READY" }, { status: 503 })
+        : Response.json({ verdict: "clean", sha256: digest });
+    });
+    const worker = service({
+      SCANNER: binding(scanner),
+      DOCUMENT_RENDERER: binding(async (request) => {
+        const digest = Array.from(
+          new Uint8Array(
+            await crypto.subtle.digest("SHA-256", await request.arrayBuffer()),
+          ),
+          (value) => value.toString(16).padStart(2, "0"),
+        ).join("");
+        return Response.json({ sha256: digest, pages: 1 });
+      }),
+    });
+    const analysis = (id: string) =>
+      env.DB.prepare(
+        "SELECT state,attempts,deadline_at FROM document_analysis WHERE organization_id=? AND document_id=?",
+      )
+        .bind(owner.organizationId, id)
+        .first<{ state: string; attempts: number; deadline_at: number }>();
+
+    // Waiting behind the global three-per-cron limit must not consume the
+    // recovery window before a document gets its first automatic scanner call.
+    now += 11 * 60_000;
+    for (const { document } of documents)
+      expect((await worker.get(owner, document.id)).analysis).toMatchObject({
+        state: "processing",
+        nextAction: "wait",
+      });
+    expect((await worker.rescan(owner, waiting.id)).analysis.state).toBe(
+      "processing",
+    );
+    expect(scanner).not.toHaveBeenCalled();
+    expect(await worker.processPendingScans()).toEqual({ processed: 3 });
+    expect(scanner).toHaveBeenCalledTimes(3);
+    for (const { document } of documents.slice(0, 3)) {
+      expect(await worker.get(owner, document.id)).toMatchObject({
+        id: document.id,
+        sha256: document.sha256,
+        status: "ready",
+      });
+      expect(await analysis(document.id)).toEqual({
+        state: "ready",
+        attempts: 1,
+        deadline_at: now + 10 * 60_000,
+      });
+    }
+    expect(await analysis(waiting.id)).toMatchObject({
+      state: "processing",
+      attempts: 0,
+    });
+    expect((await worker.get(owner, waiting.id)).analysis.state).toBe(
+      "processing",
+    );
+
+    now += 60_000;
+    expect(await worker.processPendingScans()).toEqual({ processed: 1 });
+    const deadline = now + 10 * 60_000;
+    expect(await analysis(waiting.id)).toEqual({
+      state: "processing",
+      attempts: 1,
+      deadline_at: deadline,
+    });
+    now += 60_000;
+    expect(await worker.processPendingScans()).toEqual({ processed: 1 });
+    expect(await analysis(waiting.id)).toEqual({
+      state: "processing",
+      attempts: 2,
+      deadline_at: deadline,
+    });
+    now = deadline;
+    expect((await worker.get(owner, waiting.id)).analysis).toMatchObject({
+      state: "retryable",
+      code: "retry_exhausted",
+    });
+    expect(await worker.processPendingScans()).toEqual({ processed: 0 });
+    expect(scanner).toHaveBeenCalledTimes(5);
+    expect(await analysis(waiting.id)).toEqual({
+      state: "retryable",
+      attempts: 2,
+      deadline_at: deadline,
+    });
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM outbox").first(),
+    ).toEqual({ n: 0 });
+  });
+
+  it("recovers a cold upload on the cron, preserves exact bytes and attributes proof to the system", async () => {
+    const doc = await service({ SCANNER: unavailable() }).upload(owner, {
+      name: "original.pdf",
+      bytes,
+    });
+    expect(doc).toMatchObject({
+      status: "quarantined",
+      analysis: {
+        state: "processing",
+        code: "scanner_not_ready",
+        nextAction: "wait",
+      },
+    });
+    expect(await service().get(owner, doc.id)).toMatchObject({
+      analysis: doc.analysis,
+    });
+    expect((await service().list(owner)).items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: doc.id, analysis: doc.analysis }),
+      ]),
+    );
+    const scan = vi.fn(async (request: Request) => {
+      expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
+      return Response.json({ verdict: "clean", sha256: hash });
+    });
+    await due(doc.id);
+    expect(
+      await service({ SCANNER: binding(scan) }).processPendingScans(),
+    ).toEqual({ processed: 1 });
+    const ready = await service().get(owner, doc.id);
+    expect(ready).toMatchObject({
+      id: doc.id,
+      sha256: hash,
+      storage_key: doc.storage_key,
+      status: "ready",
+      pages: 1,
+      analysis: { state: "ready", nextAction: "continue" },
+    });
+    expect(
+      new Uint8Array(
+        await (await env.DOCUMENTS.get(doc.storage_key))!.arrayBuffer(),
+      ),
+    ).toEqual(bytes);
+    expect(await scanProof()).toMatchObject({
+      user_id: null,
+      details_json: JSON.stringify({ pages: 1, actor: "system" }),
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) n FROM document_scan_usage",
+      ).first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await env.DB.prepare(
+        "SELECT uploads FROM content_usage WHERE organization_id=?",
+      )
+        .bind(owner.organizationId)
+        .first(),
+    ).toEqual({ uploads: 1 });
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM dispatches").first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM outbox").first(),
+    ).toEqual({ n: 0 });
+    expect(await service().processPendingScans()).toEqual({ processed: 0 });
+    expect(scan).toHaveBeenCalledTimes(1);
+    await expect(service().get(other, doc.id)).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
+
+  it.each([
+    [
+      "security_rejected",
+      () => ({
+        SCANNER: binding(async () =>
+          Response.json({ verdict: "infected", sha256: hash }),
+        ),
+      }),
+    ],
+    [
+      "integrity_error",
+      () => ({
+        SCANNER: binding(async () =>
+          Response.json({ verdict: "clean", sha256: "0".repeat(64) }),
+        ),
+      }),
+    ],
+    [
+      "signatures_stale",
+      () => ({
+        SCANNER: binding(async () =>
+          Response.json(
+            {
+              code: "SIGNATURES_STALE",
+              details: "never disclose private service data",
+            },
+            { status: 503 },
+          ),
+        ),
+      }),
+    ],
+    ["service_not_configured", () => ({ SCANNER: undefined })],
+    [
+      "pdf_rejected",
+      () => ({
+        DOCUMENT_RENDERER: binding(
+          async () => new Response("private parser error", { status: 422 }),
+        ),
+      }),
+    ],
+    [
+      "invalid_response",
+      () => ({
+        SCANNER: binding(async () =>
+          Response.json({ extra: "x".repeat(5000) }),
+        ),
+      }),
+    ],
+  ])(
+    "retains safe %s reason and never automatically retries permanent failure",
+    async (code, overrides) => {
+      const doc = await service(overrides()).upload(owner, {
+        name: "blocked.pdf",
+        bytes,
+      });
+      expect(doc.analysis).toMatchObject({ state: "blocked", code });
+      expect(JSON.stringify(doc.analysis)).not.toContain("private");
+      await due(doc.id);
+      const scanner = vi.fn(async () =>
+        Response.json({ verdict: "clean", sha256: hash }),
+      );
+      expect(
+        await service({ SCANNER: binding(scanner) }).processPendingScans(),
+      ).toEqual({ processed: 0 });
+      expect(scanner).not.toHaveBeenCalled();
+      expect((await service().get(owner, doc.id)).analysis).toEqual(
+        doc.analysis,
+      );
+      await expectNoVerification(doc.id);
+    },
+  );
+
+  it("bounds retries to five, makes pending manual retries idempotent, and cannot reset via duplicate import", async () => {
+    const doc = await quarantine();
+    const scan = vi.fn(async () =>
+      Response.json({ code: "SCANNER_BUSY" }, { status: 503 }),
+    );
+    const instance = service({ SCANNER: binding(scan) });
+    await instance.rescan(owner, doc.id);
+    await instance.rescan(owner, doc.id);
+    expect(scan).toHaveBeenCalledTimes(1);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await due(doc.id);
+      expect(await instance.processPendingScans()).toEqual({ processed: 1 });
+    }
+    expect(scan).toHaveBeenCalledTimes(6);
+    expect((await instance.get(owner, doc.id)).analysis).toMatchObject({
+      state: "retryable",
+      code: "retry_exhausted",
+      nextAction: "rescan",
+    });
+    await due(doc.id);
+    expect(await instance.processPendingScans()).toEqual({ processed: 0 });
+    const duplicate = await instance.upload(owner, { name: "same.pdf", bytes });
+    expect(duplicate).toMatchObject({
+      id: doc.id,
+      analysis: { state: "retryable", code: "retry_exhausted" },
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT attempts FROM document_analysis WHERE organization_id=? AND document_id=?",
+      )
+        .bind(owner.organizationId, doc.id)
+        .first(),
+    ).toEqual({ attempts: 5 });
+    expect(
+      await env.DB.prepare(
+        "SELECT rescans FROM document_scan_usage WHERE organization_id=?",
+      )
+        .bind(owner.organizationId)
+        .first(),
+    ).toEqual({ rescans: 1 });
+    expect((await service().rescan(owner, doc.id)).status).toBe("ready");
+    expect(
+      await env.DB.prepare(
+        "SELECT rescans FROM document_scan_usage WHERE organization_id=?",
+      )
+        .bind(owner.organizationId)
+        .first(),
+    ).toEqual({ rescans: 2 });
+  });
+
+  it("projects an expired deadline immediately and retires it without another scanner call", async () => {
+    const doc = await quarantine();
+    const instance = service({ SCANNER: unavailable() });
+    await instance.rescan(owner, doc.id);
+    await due(doc.id);
+    expect(await instance.processPendingScans()).toEqual({ processed: 1 });
+    await env.DB.prepare(
+      "UPDATE document_analysis SET deadline_at=0 WHERE organization_id=? AND document_id=?",
+    )
+      .bind(owner.organizationId, doc.id)
+      .run();
+    expect((await service().get(owner, doc.id)).analysis).toMatchObject({
+      state: "retryable",
+      code: "retry_exhausted",
+    });
+    expect(await service().processPendingScans()).toEqual({ processed: 0 });
+    await expectNoVerification(doc.id);
+  });
+
+  it("reclaims a crashed lease once and prevents concurrent cron or manual duplicate scans", async () => {
+    const doc = await quarantine();
+    await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+    await due(doc.id);
+    await env.DB.prepare(
+      "INSERT INTO document_scan_locks(organization_id,document_id,token,expires_at) VALUES(?,?,'crashed',0)",
+    )
+      .bind(owner.organizationId, doc.id)
+      .run();
+    let started!: () => void;
+    const scanning = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    let release!: (response: Response) => void;
+    const scanner = vi.fn(async () => {
+      started();
+      return new Promise<Response>((resolve) => {
+        release = resolve;
+      });
+    });
+    const active = service({ SCANNER: binding(scanner) }).processPendingScans();
+    await scanning;
+    expect(await service().processPendingScans()).toEqual({ processed: 0 });
+    expect((await service().rescan(owner, doc.id)).analysis.state).toBe(
+      "processing",
+    );
+    release(Response.json({ verdict: "clean", sha256: hash }));
+    expect(await active).toEqual({ processed: 1 });
+    expect(scanner).toHaveBeenCalledTimes(1);
+    expect((await service().get(owner, doc.id)).status).toBe("ready");
+    expect(
+      await env.DB.prepare(
+        "SELECT rescans FROM document_scan_usage WHERE organization_id=?",
+      )
+        .bind(owner.organizationId)
+        .first(),
+    ).toEqual({ rescans: 1 });
+  });
+
+  it("uses the requesting authority returned by the claim when a selected cycle changes", async () => {
+    const doc = await quarantine();
+    await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+    await due(doc.id);
+    const prepare = env.DB.prepare.bind(env.DB);
+    const database = {
+      prepare(sql: string) {
+        const statement = prepare(sql);
+        if (
+          !sql.startsWith(
+            "SELECT * FROM document_analysis WHERE state='processing'",
+          )
+        )
+          return statement;
+        return {
+          bind(...values: unknown[]) {
+            const bound = statement.bind(...values);
+            return {
+              async all<T>() {
+                const selected = await bound.all<T>();
+                // A newer explicit cycle replaced the selected one before claim;
+                // its requesting member then lost authority.
+                await prepare(
+                  "UPDATE document_analysis SET request_user_id=?,request_role='member' WHERE organization_id=? AND document_id=?",
+                )
+                  .bind(other.userId, owner.organizationId, doc.id)
+                  .run();
+                return selected;
+              },
+            } as D1PreparedStatement;
+          },
+        } as D1PreparedStatement;
+      },
+      batch: env.DB.batch.bind(env.DB),
+    } as D1Database;
+    const scanner = vi.fn(async () =>
+      Response.json({ verdict: "clean", sha256: hash }),
+    );
+    await service({
+      DB: database,
+      SCANNER: binding(scanner),
+    }).processPendingScans();
+    expect(scanner).not.toHaveBeenCalled();
+    expect((await service().get(owner, doc.id)).analysis).toMatchObject({
+      state: "blocked",
+      code: "access_revoked",
+    });
+    await expectNoVerification(doc.id);
+  });
+
+  it("cannot promote when a successor replaces the automatic lease", async () => {
+    const doc = await quarantine();
+    await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+    await due(doc.id);
+    const scanner = binding(async () => {
+      await env.DB.prepare(
+        "UPDATE document_scan_locks SET token='successor' WHERE organization_id=? AND document_id=?",
+      )
+        .bind(owner.organizationId, doc.id)
+        .run();
+      return Response.json({ verdict: "clean", sha256: hash });
+    });
+    await expect(
+      service({ SCANNER: scanner }).processPendingScans(),
+    ).rejects.toMatchObject({ code: "DOCUMENT_SCAN_EXPIRED" });
+    await expectNoVerification(doc.id);
+    expect((await service().get(owner, doc.id)).status).toBe("quarantined");
+    expect(
+      await env.DB.prepare(
+        "SELECT token FROM document_scan_locks WHERE organization_id=? AND document_id=?",
+      )
+        .bind(owner.organizationId, doc.id)
+        .first(),
+    ).toEqual({ token: "successor" });
+  });
+
+  it.each(["before", "during"])(
+    "rechecks the requesting member %s an automatic scan",
+    async (when) => {
+      const member: ActorContext = {
+        ...owner,
+        userId: other.userId,
+        role: "member",
+      };
+      await env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'member',?)",
+      )
+        .bind(member.organizationId, member.userId, new Date().toISOString())
+        .run();
+      const revoke = () =>
+        env.DB.prepare(
+          "DELETE FROM memberships WHERE organization_id=? AND user_id=?",
+        )
+          .bind(member.organizationId, member.userId)
+          .run();
+      const doc = await quarantine(member);
+      await service({ SCANNER: unavailable() }).rescan(member, doc.id);
+      await due(doc.id);
+      if (when === "before") await revoke();
+      const scanner = vi.fn(async () => {
+        if (when === "during") await revoke();
+        return Response.json({ verdict: "clean", sha256: hash });
+      });
+      expect(
+        await service({ SCANNER: binding(scanner) }).processPendingScans(),
+      ).toEqual({ processed: 1 });
+      expect(scanner).toHaveBeenCalledTimes(when === "during" ? 1 : 0);
+      expect((await service().get(owner, doc.id)).analysis).toMatchObject({
+        state: "blocked",
+        code: "access_revoked",
+      });
+      await expectNoVerification(doc.id);
+    },
+  );
+
+  it.each(["before", "during"])(
+    "does not revive an original purged %s automatic scanning",
+    async (when) => {
+      const doc = await quarantine();
+      await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+      await due(doc.id);
+      const purge = () =>
+        env.DB.prepare(
+          "UPDATE documents SET status='purged' WHERE organization_id=? AND id=?",
+        )
+          .bind(owner.organizationId, doc.id)
+          .run();
+      if (when === "before") await purge();
+      const scanner = vi.fn(async () => {
+        if (when === "during") await purge();
+        return Response.json({ verdict: "clean", sha256: hash });
+      });
+      await service({ SCANNER: binding(scanner) }).processPendingScans();
+      expect(scanner).toHaveBeenCalledTimes(when === "during" ? 1 : 0);
+      expect((await service().get(owner, doc.id)).status).toBe("purged");
+      await expectNoVerification(doc.id);
+      expect(await service().processPendingScans()).toEqual({ processed: 0 });
+    },
+  );
+
+  it("blocks an altered R2 original before automatic scanner access", async () => {
+    const doc = await quarantine();
+    await service({ SCANNER: unavailable() }).rescan(owner, doc.id);
+    await due(doc.id);
+    const altered = bytes.slice();
+    altered[altered.length - 1] ^= 1;
+    await env.DOCUMENTS.put(doc.storage_key, altered);
+    const scanner = vi.fn(async () =>
+      Response.json({ verdict: "clean", sha256: hash }),
+    );
+    await service({ SCANNER: binding(scanner) }).processPendingScans();
+    expect(scanner).not.toHaveBeenCalled();
+    expect((await service().get(owner, doc.id)).analysis).toMatchObject({
+      state: "blocked",
+      code: "integrity_error",
+    });
+    await expectNoVerification(doc.id);
   });
 });

@@ -13,11 +13,22 @@ import {
 } from "../../apps/api/src/mcp";
 import {
   MCP_SCOPES,
+  hashSecret,
   type AuthEnv,
   type McpIdentity,
 } from "../../apps/api/src/auth";
 import { ImportSourceError } from "../../apps/api/src/documents";
-import { DomainService, type Dispatch } from "../../packages/domain/src/index";
+import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
+import {
+  assistantRecovery,
+  assistantRecoverySchema,
+} from "../../packages/contracts/src/assistant-recovery";
+import { ContentError } from "../../packages/contracts/src/content";
+import {
+  DomainError,
+  DomainService,
+  type Dispatch,
+} from "../../packages/domain/src/index";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -139,16 +150,342 @@ async function call(
 ) {
   return (await client.callTool({ name, arguments: args })) as {
     isError?: boolean;
+    content: Array<{ type: string; text?: string }>;
     structuredContent?: {
       ok: boolean;
       data?: Record<string, unknown>;
-      error?: { code: string };
+      error?: { code: string; recovery?: unknown };
     };
     _meta?: Record<string, unknown>;
   };
 }
 
 describe("distributable LLM integrations", () => {
+  it.each([
+    ["DOCUMENT_INTEGRITY_ERROR", "contact_support", null],
+    ["CORRUPT_PDF", "replace_file", null],
+    ["EXPERT_REVIEW_INVALID", "check_dispatch", "get_dispatch_status"],
+    ["EXPERT_REVIEW_EXPIRED", "check_dispatch", "get_dispatch_status"],
+  ])(
+    "keeps %s recovery actionable without authorizing another send",
+    async (code, action, tool) => {
+      const importFile = vi.fn(async () => {
+        throw new ContentError(code!, "Cette opération est bloquée.");
+      });
+      await connected(
+        async (client) => {
+          const result = await call(client, "import_document", {
+            file: {
+              download_url: "https://files.example.invalid/original.pdf",
+              file_id: "fixture",
+            },
+          });
+          expect(result.isError).toBe(true);
+          expect(result.structuredContent).toMatchObject({
+            ok: false,
+            error: { code, recovery: { action, tool } },
+          });
+          expect(result.content[0].text).toContain(
+            "Cette opération est bloquée.",
+          );
+          expect(result.content[0].text).not.toMatch(
+            /approvalUrl|https?:\/\/|approve_and_send_dispatch|confirm_dispatch/,
+          );
+          expect(importFile).toHaveBeenCalledTimes(1);
+        },
+        identity,
+        { importFile },
+      );
+    },
+  );
+  it.each([
+    "LIVE_QUOTE_INVALID",
+    "FAX_QUOTE_RENEWAL_UNSAFE",
+    "RENEWAL_CONTENT_MISMATCH",
+    "QUOTE_STILL_VALID",
+  ])(
+    "exposes a status-first recovery for linked renewal refusal %s",
+    async (code) => {
+      const renew = vi
+        .spyOn(domain, "renewFaxQuote")
+        .mockRejectedValue(
+          new DomainError(
+            code,
+            "Le renouvellement exige une vérification.",
+            409,
+          ),
+        );
+      const prepare = vi.spyOn(domain, "prepareDispatch");
+      const confirm = vi.spyOn(domain, "confirmDispatch");
+      try {
+        await connected(async (client) => {
+          const { tools } = await client.listTools();
+          const tool = tools.find((item) => item.name === "prepare_fax")!;
+          expect(tool.inputSchema.properties?.renewalOf).toMatchObject({
+            type: "string",
+          });
+          expect(tool.inputSchema.required).not.toContain("renewalOf");
+          expect(tool.inputSchema.additionalProperties).toBe(false);
+          const result = await call(client, "prepare_fax", {
+            documentId,
+            phone: "+33123456789",
+            ceilingMinor: 500,
+            renewalOf: "dsp_initial_quote",
+            idempotencyKey: "linked-renewal-recovery",
+          });
+          expect(result.isError).toBe(true);
+          expect(result.structuredContent?.error?.code).toBe(code);
+          expect(
+            assistantRecoverySchema.parse(
+              result.structuredContent?.error?.recovery,
+            ),
+          ).toMatchObject({
+            action: "check_dispatch",
+            tool: "get_dispatch_status",
+            retry: "never_resend",
+          });
+          expect(renew).toHaveBeenCalledExactlyOnceWith(
+            identity.context,
+            "dsp_initial_quote",
+            { documentId, phone: "+33123456789", ceilingMinor: 500 },
+          );
+          expect(prepare).not.toHaveBeenCalled();
+          expect(confirm).not.toHaveBeenCalled();
+        });
+      } finally {
+        renew.mockRestore();
+        prepare.mockRestore();
+        confirm.mockRestore();
+      }
+    },
+  );
+
+  it("requires explicit renewal eligibility while keeping standalone reads independent", () => {
+    for (const code of [
+      "LIVE_QUOTE_INVALID",
+      "EXPERT_REVIEW_INVALID",
+      "EXPERT_REVIEW_EXPIRED",
+    ]) {
+      const recovery = assistantRecoverySchema.parse(assistantRecovery(code));
+      for (const prerequisite of [
+        "status=prepared",
+        "attemptCount=0",
+        "renewalOf=ancien dispatchId",
+        "documentId, phone E.164 et ceilingMinor exacts",
+      ])
+        expect(recovery.message).toContain(prerequisite);
+    }
+    for (const code of [
+      "LIVE_QUOTE_INVALID",
+      "EXPERT_REVIEW_INVALID",
+      "EXPERT_REVIEW_EXPIRED",
+      "FAX_QUOTE_RENEWAL_UNSAFE",
+      "RENEWAL_CONTENT_MISMATCH",
+      "QUOTE_STILL_VALID",
+    ])
+      expect(
+        assistantRecoverySchema.parse(
+          assistantRecovery(code, "read_document_pages"),
+        ),
+      ).toMatchObject({
+        action: "read_same_document",
+        tool: "read_document_pages",
+        retry: "after_change",
+      });
+  });
+
+  it.each([
+    "REVIEW_RENDER_FAILED",
+    "REVIEW_RENDER_TIMEOUT",
+    "RENDERER_NOT_CONFIGURED",
+    "EXPERT_DOCUMENT_UNAVAILABLE",
+    "EXPERT_DOCUMENT_TOO_LARGE",
+    "REVIEW_IMAGE_BUDGET",
+    "REVIEW_RESULT_SIZE",
+    "INTERNAL_ERROR",
+  ])("keeps standalone page recovery on the same PDF for %s", async (code) => {
+    const token = `gtn_dev_${crypto.randomUUID()}`;
+    const expiresAt = new Date(Date.now() + 60_000).toISOString();
+    await env.DB.prepare(
+      "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
+    )
+      .bind(
+        await hashSecret(token),
+        identity.context.userId,
+        identity.context.organizationId,
+        expiresAt,
+      )
+      .run();
+    const reader = {
+      ...identity,
+      clientId: "local-simulation",
+      token,
+      expiresAt: Date.parse(expiresAt) / 1000,
+    };
+    const getReviewPages = vi.fn(async () => {
+      if (code === "INTERNAL_ERROR")
+        throw new Error("private renderer diagnostic");
+      throw new ContentError(code, "La lecture de ces pages n’a pas abouti.");
+    });
+    await connected(
+      async (client) => {
+        const result = await call(client, "read_document_pages", {
+          documentId,
+          page: 1,
+        });
+        expect(result.isError).toBe(true);
+        expect(result.structuredContent).toMatchObject({
+          error: {
+            code,
+            recovery: {
+              action: "read_same_document",
+              tool: "read_document_pages",
+              retry: "after_change",
+            },
+          },
+        });
+        const error = result.structuredContent?.error as
+          { recovery: unknown } | undefined;
+        const recovery = assistantRecoverySchema.parse(error?.recovery);
+        expect(recovery.message).toContain("mêmes documentId et page");
+        expect(recovery.message).toContain("ni envoi préparé ni mandat expert");
+        expect(recovery.message).not.toContain("review_dispatch");
+        expect(JSON.stringify(result)).not.toContain("get_dispatch_status");
+        expect(JSON.stringify(result)).not.toContain(
+          "private renderer diagnostic",
+        );
+        expect(
+          result.content.filter((item) => item.type === "image"),
+        ).toHaveLength(0);
+        expect(getReviewPages).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          documentId,
+          1,
+        );
+      },
+      reader,
+      { getReviewPages },
+    );
+    if (code !== "INTERNAL_ERROR")
+      expect(assistantRecovery(code)).toMatchObject({
+        action: "review_same_dispatch",
+        tool: "review_dispatch",
+        retry: "after_change",
+      });
+    else
+      expect(assistantRecovery(code)).toMatchObject({
+        action: "check_dispatch",
+        tool: "get_dispatch_status",
+        retry: "never_resend",
+      });
+  });
+
+  it("preserves authentication and integrity recovery ahead of standalone page retry", () => {
+    for (const code of [
+      "CONNECTION_REVOKED",
+      "TOKEN_INVALID",
+      "POSTAL_AUTHORITY_CHANGED",
+    ])
+      expect(assistantRecovery(code, "read_document_pages")).toMatchObject({
+        action: "reconnect",
+        tool: null,
+        retry: "after_change",
+      });
+    expect(
+      assistantRecovery("DOCUMENT_INTEGRITY_ERROR", "read_document_pages"),
+    ).toMatchObject({ action: "contact_support", tool: null });
+  });
+
+  it("keeps automatic analysis readable and resumable without another import or rescan", async () => {
+    const saved = await domain.getDocument(identity.context, documentId);
+    const processing = {
+      ...saved,
+      status: "quarantined" as const,
+      pages: 0,
+      analysis: documentAnalysis(
+        "quarantined",
+        "processing",
+        "scanner_unavailable",
+      ),
+    };
+    const get = vi.fn(async (ctx: typeof identity.context, id: string) => {
+      await domain.getDocument(ctx, id);
+      return processing;
+    });
+    const rescan = vi.fn(async () => processing);
+    const importFile = vi.fn(async () => processing);
+    await connected(
+      async (client) => {
+        const result = await call(client, "get_document", { documentId });
+        expect(result.isError).not.toBe(true);
+        const message = result.content[0];
+        expect(message.type).toBe("text");
+        expect(message.text).toContain("dans cette conversation");
+        expect(message.text).not.toMatch(/https?:\/\/|quarantined|doc_/);
+        expect(result.structuredContent?.data).toMatchObject({
+          id: documentId,
+          status: "quarantined",
+          documentUrl: `${env.APP_ORIGIN}/#/app/documents?document=${documentId}`,
+          analysis: {
+            state: "processing",
+            nextAction: "wait",
+            retryAfterSeconds: 15,
+          },
+        });
+        const analysis = result.structuredContent?.data?.analysis;
+        expect(JSON.stringify(analysis)).toContain("automatiquement");
+        expect(JSON.stringify(analysis)).not.toContain("quarantined");
+        expect(JSON.stringify(result)).not.toContain("private-test-document");
+        const listing = await call(client, "list_documents");
+        expect(listing.structuredContent?.data?.items).toEqual([
+          expect.objectContaining({ analysis: processing.analysis }),
+        ]);
+        expect(get).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          documentId,
+        );
+        expect(rescan).not.toHaveBeenCalled();
+        expect(importFile).not.toHaveBeenCalled();
+      },
+      identity,
+      {
+        get,
+        rescan,
+        importFile,
+        list: async () => ({ items: [processing], nextCursor: null }),
+      },
+    );
+  });
+
+  it("gives an honest recovery action for old quarantine and a distinct permanent refusal", async () => {
+    const saved = await domain.getDocument(identity.context, documentId);
+    const doc = { ...saved, status: "quarantined" as const, pages: 0 };
+    for (const analysis of [
+      undefined,
+      documentAnalysis("quarantined", "blocked", "security_rejected"),
+    ]) {
+      await connected(
+        async (client) => {
+          const result = await call(client, "rescan_document", { documentId });
+          expect(result.structuredContent?.data?.analysis).toMatchObject(
+            analysis
+              ? { state: "blocked", nextAction: "replace_document" }
+              : {
+                  state: "retryable",
+                  nextAction: "rescan",
+                  code: "not_started",
+                },
+          );
+          expect(
+            JSON.stringify(result.structuredContent?.data?.analysis),
+          ).not.toContain("automatiquement");
+        },
+        identity,
+        { rescan: async () => ({ ...doc, ...(analysis ? { analysis } : {}) }) },
+      );
+    }
+  });
+
   it("returns an actionable import reason and correlation without leaking signed URL details", async () => {
     const correlation = "fcd1cb36-c54b-427a-98b5-19f6f304728a";
     const onFailure = vi.fn(() => correlation);

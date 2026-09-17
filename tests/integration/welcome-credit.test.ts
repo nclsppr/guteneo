@@ -247,6 +247,9 @@ async function approved(
       .run();
     // Synthetic renderer evidence and browser consent, only for these isolated
     // credit scenarios. Exercise migration 0020's guards without a provider call.
+    // The credit clock is fixed for month-rollover assertions, but D1's consent
+    // guard uses wall time. Keep this prerequisite valid under both clocks.
+    const preflightNow = Math.max(now, Date.now());
     const preflightId = `pp_${key}`;
     const fingerprint = await sha256(
       canonicalJson({ documentId, recipient, print, ceiling, draft: key }),
@@ -275,8 +278,8 @@ async function approved(
       idempotency_key: preflightId,
       status: "processing",
       budget_day: stampNow.slice(0, 10),
-      processing_until: new Date(now + 60_000).toISOString(),
-      expires_at: new Date(now + 3_600_000).toISOString(),
+      processing_until: new Date(preflightNow + 60_000).toISOString(),
+      expires_at: new Date(preflightNow + 3_600_000).toISOString(),
       created_at: stampNow,
       updated_at: stampNow,
     };

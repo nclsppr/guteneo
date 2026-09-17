@@ -189,7 +189,7 @@
           "Documents"
         ],
         "summary": "Déposer un PDF original",
-        "description": "Champ multipart file, 10 Mio maximum, 100 pages maximum après validation. Les octets sont conservés et hachés SHA-256. En production, le document reste quarantined tant que l’analyse et la validation PDF isolée ne sont pas concluantes. Une réponse 201 ne garantit donc pas status=ready. Aucun import URL REST : utiliser import_document via MCP pour les hôtes explicitement autorisés.",
+        "description": "Champ multipart file, 10 Mio maximum, 100 pages maximum après validation. Les octets sont conservés et hachés SHA-256. En production, le document reste quarantined tant que l’analyse et la validation PDF isolée ne sont pas concluantes. Une réponse 201 ne garantit donc pas status=ready. Aucun import URL REST : utiliser import_document via MCP pour les hôtes explicitement autorisés. Lire analysis pour le message utilisateur et la prochaine action : une indisponibilité temporaire déclenche une reprise automatique bornée sur les mêmes octets.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -467,7 +467,7 @@
           "Documents"
         ],
         "summary": "Réexaminer un document en quarantaine",
-        "description": "Sans corps. Un document déjà ready est renvoyé tel quel. Sinon seuls quarantined et pages=0 sont admissibles. Contrôle d’intégrité des octets originaux, verrou de 45 s et maximum de 10 réexamens/jour/organisation. Un scan indisponible ou non concluant laisse le document en quarantaine ; inspecter status, même après 200. Ne jamais considérer la demande de réexamen comme une validation.",
+        "description": "Sans corps. Un document déjà ready est renvoyé tel quel. Pendant une reprise automatique, lecture idempotente de son état sans nouveau quota manuel. Sinon, contrôle d’intégrité des octets originaux et maximum de 10 relances manuelles/jour/organisation. Les erreurs transitoires déclenchent une reprise automatique bornée ; les refus de sécurité ou de format restent bloqués. Lire analysis pour le motif et la prochaine action. Aucun nouveau dépôt nécessaire ; une relance ne vaut jamais validation, approbation ou envoi.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1779,6 +1779,63 @@
           }
         }
       }
+    },
+    "/api/documents/{id}": {
+      "get": {
+        "operationId": "getDocument",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Suivre la vérification d’un PDF",
+        "description": "Lecture seule du document conservé et de son état analysis. Si processing, Guteneo poursuit la vérification automatiquement ; consulter de nouveau après retryAfterSeconds. Ne pas réimporter le PDF ni déclencher une analyse à chaque lecture. Seul status=ready permet de préparer un envoi.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1936,6 +1993,9 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "analysis": {
+            "$ref": "#/components/schemas/DocumentAnalysis"
           }
         },
         "required": [
@@ -1948,7 +2008,8 @@
           "status",
           "source",
           "storage_key",
-          "created_at"
+          "created_at",
+          "analysis"
         ]
       },
       "Dispatch": {
@@ -3835,7 +3896,9 @@
           },
           "routeQualification": {
             "type": "string",
-            "enum": ["operator_authorized_test"],
+            "enum": [
+              "operator_authorized_test"
+            ],
             "description": "Test explicitement autorisé par l’opérateur ; ne prouve pas la capacité Local Calling du fournisseur."
           },
           "routeNotice": {
@@ -4492,6 +4555,54 @@
           "sourcesVerifiedAt"
         ],
         "description": "Instructions pour le circuit effectif de cette destination et du compte Pingen. Les champs spécifiques au pays sont optionnels dans ce schéma ; les listes automatic/manual/provider distinguent les preuves et leurs limites."
+      },
+      "DocumentAnalysis": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "ready",
+              "retryable",
+              "blocked"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "Catégorie sûre ; aucune sortie brute du moteur de sécurité."
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "nextAction": {
+            "type": "string",
+            "enum": [
+              "wait",
+              "rescan",
+              "replace_document",
+              "contact_support",
+              "continue"
+            ]
+          },
+          "retryAfterSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          }
+        },
+        "required": [
+          "state",
+          "code",
+          "title",
+          "message",
+          "nextAction",
+          "retryAfterSeconds"
+        ]
       }
     },
     "responses": {

@@ -1,9 +1,35 @@
 import { createServer } from "node:http";
 import { chromium } from "@playwright/test";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { Readable } from "node:stream";
 import bundledChromium from "@sparticuz/chromium";
+import puppeteer from "@cloudflare/puppeteer/internal/puppeteer-core.js";
+import { tsImport } from "tsx/esm/api";
+const { handleExpertReviewPages } = await tsImport(
+  "../apps/documents/src/expert-review.ts",
+  import.meta.url,
+);
+const reviewScripts = {
+  pdf: readFileSync(
+    new URL(
+      "../node_modules/pdfjs-dist/legacy/build/pdf.min.mjs",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+  worker: readFileSync(
+    new URL(
+      "../node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+};
 const fallback =
   process.platform === "linux" && !existsSync(chromium.executablePath());
+const port = Number(process.env.GUTENEO_LOCAL_RENDERER_PORT ?? 8788);
+if (!Number.isSafeInteger(port) || port < 1024 || port > 65535)
+  throw new Error("Invalid local renderer port");
 const browser = await chromium.launch(
   fallback
     ? {
@@ -22,7 +48,11 @@ const browser = await chromium.launch(
 );
 let active = 0;
 const server = createServer(async (req, res) => {
-  if (req.method !== "POST" || req.url !== "/render") {
+  const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
+  if (
+    req.method !== "POST" ||
+    !["/render", "/review-pages"].includes(url.pathname)
+  ) {
     res.writeHead(404);
     res.end();
     return;
@@ -35,6 +65,53 @@ const server = createServer(async (req, res) => {
   active++;
   let context;
   try {
+    if (url.pathname === "/review-pages") {
+      const controller = new AbortController();
+      req.once("aborted", () => controller.abort());
+      const headers = new Headers();
+      for (const [key, value] of Object.entries(req.headers)) {
+        if (Array.isArray(value))
+          for (const item of value) headers.append(key, item);
+        else if (value !== undefined) headers.set(key, value);
+      }
+      const result = await handleExpertReviewPages(
+        new Request(url, {
+          method: "POST",
+          headers,
+          body: Readable.toWeb(req),
+          duplex: "half",
+          signal: controller.signal,
+        }),
+        {
+          launch: async () =>
+            puppeteer.launch({
+              executablePath: fallback
+                ? await bundledChromium.executablePath()
+                : chromium.executablePath(),
+              headless: true,
+              ...(fallback
+                ? {
+                    args: bundledChromium.args.filter(
+                      (arg) =>
+                        !arg.includes("single-process") &&
+                        !arg.includes("allow-running-insecure-content") &&
+                        !arg.includes("disable-web-security") &&
+                        !arg.includes("disable-site-isolation-trials") &&
+                        !arg.startsWith("--disable-features="),
+                    ),
+                  }
+                : {}),
+            }),
+          scripts: reviewScripts,
+        },
+      );
+      res.writeHead(result.status, {
+        ...Object.fromEntries(result.headers),
+        "X-Guteneo-Renderer": "local-chromium-simulation",
+      });
+      res.end(Buffer.from(await result.arrayBuffer()));
+      return;
+    }
     let text = "";
     for await (const chunk of req) {
       text += chunk;
@@ -71,9 +148,9 @@ const server = createServer(async (req, res) => {
     active--;
   }
 });
-server.listen(8788, "127.0.0.1", () =>
+server.listen(port, "127.0.0.1", () =>
   console.log(
-    "Guteneo local PDF renderer at 127.0.0.1:8788 (Simulation; not Browser Run)",
+    `Guteneo local PDF renderer at 127.0.0.1:${port} (Simulation; not Browser Run)`,
   ),
 );
 for (const signal of ["SIGTERM", "SIGINT"])

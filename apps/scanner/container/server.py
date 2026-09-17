@@ -23,6 +23,20 @@ class ScanError(Exception):
     pass
 
 
+def scan_error_code(error):
+    """Expose only fixed operational categories, never exception or finding text."""
+    if isinstance(error, (TimeoutError, socket.timeout)):
+        return "SCAN_TIMEOUT"
+    if isinstance(error, ScanError):
+        if error.args == ("ENGINE_TIMEOUT",):
+            return "SCAN_TIMEOUT"
+        if error.args == ("SCANNER_NOT_READY",):
+            return "SCANNER_NOT_READY"
+        if error.args == ("SIGNATURES_STALE",):
+            return "SIGNATURES_STALE"
+    return "SCAN_INCOMPLETE"
+
+
 def reply(sock):
     result = bytearray()
     while len(result) <= 4096:
@@ -43,6 +57,9 @@ def connect():
     try:
         sock.connect(SOCKET_PATH)
         return sock
+    except (FileNotFoundError, ConnectionRefusedError) as error:
+        sock.close()
+        raise ScanError("SCANNER_NOT_READY") from error
     except BaseException:
         sock.close()
         raise
@@ -123,8 +140,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(404, {"verdict": "error", "code": "NOT_FOUND"})
         try:
             return self.send_json(200, {"status": "ready", "engine": engine_version()})
-        except Exception:
-            return self.send_json(503, {"status": "unavailable"})
+        except Exception as error:
+            return self.send_json(503, {"status": "unavailable", "code": scan_error_code(error)})
 
     def do_POST(self):
         if self.path != "/scan":
@@ -142,8 +159,8 @@ class Handler(BaseHTTPRequestHandler):
             if len(data) != int(length):
                 raise ScanError("INCOMPLETE_BODY")
             self.send_json(200, scan_bytes(data))
-        except Exception:
-            self.send_json(503, {"verdict": "error", "code": "SCAN_INCOMPLETE"})
+        except Exception as error:
+            self.send_json(503, {"verdict": "error", "code": scan_error_code(error)})
         finally:
             SCAN_LOCK.release()
 

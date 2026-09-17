@@ -1,5 +1,6 @@
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
+import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
 
 export type Channel = "fax" | "email" | "postal";
 export type Session = {
@@ -18,6 +19,7 @@ export type DocumentRecord = {
   status: string;
   source: string;
   created_at: string;
+  analysis?: DocumentAnalysis;
 };
 export type Dispatch = {
   id: string;

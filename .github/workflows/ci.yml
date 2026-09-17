@@ -65,6 +65,7 @@ jobs:
       - run: >-
           npx vitest run --shard=${{ matrix.shard }}/4
           --exclude=tests/integration/document-postal-preflight.test.ts
+          --exclude=tests/integration/expert-review-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
           --outputFile.blob=test-results/ci/blobs/${{ matrix.shard }}.json
@@ -103,7 +104,7 @@ jobs:
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
       - run: >-
-          npx vitest run tests/integration/document-postal-preflight.test.ts
+          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-renderer.json
           --outputFile.blob=test-results/ci/blobs/renderer.json
@@ -141,6 +142,7 @@ jobs:
       # Typecheck runs once in checks. These are the same two steps as build.
       - run: npm run build:web
       - run: npx wrangler deploy --dry-run --outdir dist/worker
+      - run: npx wrangler deploy --config apps/documents/wrangler.jsonc --dry-run --outdir ../../dist/documents-worker
       - run: npm run build:live
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview

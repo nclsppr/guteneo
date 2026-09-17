@@ -90,6 +90,12 @@ async function setup(
     draftId: null,
     canSend: false,
   };
+  const readyDocument = {
+    ...review.document,
+    status: "ready",
+    source: "import",
+    size: pdfBytes.length,
+  };
   // Generate a clearly synthetic image for the UI fixture, never a preflight proof.
   await page.goto("about:blank");
   const crop = await page.evaluate(() => {
@@ -138,16 +144,14 @@ async function setup(
       body = { registration: { enabled: true } };
     else if (path === "/documents")
       body = {
-        items: [
-          {
-            ...review.document,
-            status: "ready",
-            source: "import",
-            size: pdfBytes.length,
-          },
-        ],
+        items: [readyDocument],
         nextCursor: null,
       };
+    else if (
+      request.method() === "GET" &&
+      path === "/documents/pdf-ui-fixture"
+    )
+      body = readyDocument;
     else if (path === "/senders")
       body = {
         items: [

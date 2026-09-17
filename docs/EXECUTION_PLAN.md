@@ -1,5 +1,19 @@
 # Execution plan and handoff
 
+Local candidate, 17 September: the expert assistant journey now exposes the
+current connection's mandate and remaining limits, reads immutable PDFs as
+bounded page images in the conversation (including before postal preparation),
+and returns explicit recovery actions. The paginated review covers every page
+before issuing an approval token. Human administrator activation/renewal remains
+explicit, with a direct connection link and return-to-chat guidance. See
+[EXPERT_CHAT_JOURNEY.md](EXPERT_CHAT_JOURNEY.md) for proof and release boundaries.
+
+Local candidate in `fix/document-analysis-recovery`: replace the unexplained PDF
+quarantine dead end with durable bounded verification recovery, shared REST/MCP
+guidance and a resumable browser view. No production migration or release has
+been performed. See [DOCUMENT_ANALYSIS_RECOVERY.md](DOCUMENT_ANALYSIS_RECOVERY.md)
+for the new migration, limits and hosted qualification still required.
+
 Updated 2026-09-17. The existing foundation from PR #1 was continued into a hosted v0.2 beta. Since the controlled switch at 01:11 UTC, **https://guteneo.com** serves the production-mode application with configured managed authentication and live sending disabled. A completed signup and reconnection remain to be qualified on this canonical domain. The separate fictional preview remains available at **https://guteneo-preview.nclsppr.workers.dev**. The application's alternate address is **https://guteneo-app.nclsppr.workers.dev**; its infrastructure includes EU-jurisdiction D1/R2, queues, a private qualified antivirus and a private PDF renderer. Telnyx credentials and the Guteneo Fax API application are configured. AWS sender identity and SNS notification confirmation are verified. The dedicated Pingen application is created, its credentials are installed, and OAuth plus the configured organization read succeed; no real Guteneo dispatch has been sent. Final release identities and open activation gates are recorded in [LIVE_RELEASE.md](LIVE_RELEASE.md).
 
 ## Delivered v0.2 continuation
