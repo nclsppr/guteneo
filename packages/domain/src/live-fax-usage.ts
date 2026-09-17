@@ -189,6 +189,7 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
     Number.isInteger(t.operator_test_ceiling_minor) &&
     t.operator_test_ceiling_minor! >= 1 &&
     t.operator_test_ceiling_minor! <= 200 &&
+    t.expires_at <= "2026-09-24T09:00:01.620Z" &&
     Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
   );
 }

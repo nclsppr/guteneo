@@ -57,6 +57,7 @@ CREATE TABLE trusted_fax_usage_tariffs (
    AND destination_prefix='+3524' AND destination_category='fixed' AND route_allowed=1 AND local_calling_verified=0
    AND operator_authorization_reference IS NOT NULL AND length(operator_authorization_reference) BETWEEN 1 AND 500
    AND operator_test_ceiling_minor IS NOT NULL AND typeof(operator_test_ceiling_minor)='integer' AND operator_test_ceiling_minor BETWEEN 1 AND 200
+   AND expires_at<='2026-09-24T09:00:01.620Z'
    AND expires_at<=strftime('%Y-%m-%dT%H:%M:%fZ',valid_from,'+7 days'))
  )
 );

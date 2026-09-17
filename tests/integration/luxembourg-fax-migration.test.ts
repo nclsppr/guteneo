@@ -496,6 +496,11 @@ describe("Luxembourg operator fax test migration — isolated D1", () => {
       { origin_class: "eea" },
       { max_pages: 11 },
       { expires_at: "2026-09-24T12:00:00.001Z" },
+      { expires_at: "2026-09-24T09:00:01.621Z" },
+      {
+        valid_from: "2026-09-30T09:00:00.000Z",
+        expires_at: "2026-10-01T09:00:00.000Z",
+      },
       { route_qualification: "provider_verified" },
     ];
     for (const [index, override] of invalid.entries())

@@ -127,6 +127,39 @@ describe("exact remote document imports", () => {
     expect(upload).toHaveBeenCalledWith(actor, { name: file.file_name, bytes });
   });
 
+  it("imports from the observed ChatGPT Azure account without authorizing other storage accounts", async () => {
+    const azureHost = "oaisdmntprnortheu.blob.core.windows.net";
+    const azureSource = `https://${azureHost}/${secret}?sig=${secret}`;
+    const allowed = `${host}, ${azureHost.toUpperCase()} `;
+    expect(permittedImportUrl(azureSource, allowed).href).toBe(azureSource);
+    for (const rejected of [
+      "another-account.blob.core.windows.net",
+      `sub.${azureHost}`,
+      `${azureHost}.evil.example`,
+    ]) {
+      expect(errorFor(`https://${rejected}/a`, allowed).reason).toBe(
+        "untrusted_host",
+      );
+    }
+    expect(() =>
+      permittedImportUrl(azureSource, "*.blob.core.windows.net"),
+    ).toThrow();
+    const observation = errorFor(azureSource, host).observation();
+    expect(observation).toEqual({
+      reason: "untrusted_host",
+      sourceCategory: "known_provider",
+      knownHost: azureHost,
+    });
+    expect(JSON.stringify(observation)).not.toContain(secret);
+    const { instance, upload } = service(allowed);
+    const bytes = new TextEncoder().encode("%PDF-exact-azure-synthetic-bytes");
+    const fetcher = vi.fn(async (_input: RequestInfo | URL) => new Response(bytes));
+    vi.stubGlobal("fetch", fetcher);
+    await instance.importFile(actor, { ...file, download_url: azureSource });
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe(azureSource);
+    expect(upload).toHaveBeenCalledWith(actor, { name: file.file_name, bytes });
+  });
+
   it.each([
     [302, "SOURCE_REDIRECT_NOT_ALLOWED", "redirect_rejected"],
     [403, "SOURCE_EXPIRED_OR_UNAVAILABLE", "source_expired"],

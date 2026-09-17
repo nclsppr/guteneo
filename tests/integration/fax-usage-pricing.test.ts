@@ -716,6 +716,9 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
 });
 
 describe("Luxembourg operator-authorized route test — synthetic D1 only", () => {
+  beforeEach(() => {
+    clock = Date.parse("2026-09-17T12:00:00.000Z");
+  });
   const operatorTest: Partial<FaxUsageTariff> = {
     origin_class: "local",
     destination_country_code: "LU",
@@ -739,7 +742,7 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
         scopes: [...MCP_SCOPES],
         clientId: "fixture-only",
         token: "fixture-only",
-        expiresAt: clock + 60000,
+        expiresAt: Date.now() + 60000,
       },
       { APP_ORIGIN: "https://guteneo.invalid" } as AuthEnv,
       {
@@ -877,6 +880,28 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
       ).rejects.toThrow("immutable_fax_usage_tariff");
     }
   });
+  it("allows the exact pilot expiry and stops preparing at that boundary", async () => {
+    const deadline = "2026-09-24T09:00:01.620Z";
+    f = await createFaxUsageFixture(db, () => clock, {
+      ...operatorTest,
+      expires_at: deadline,
+    });
+    f.input.recipient.phone = "+35240000000";
+    clock = Date.parse(deadline) - 1;
+    const d = await prepare(200);
+    expect(
+      await db
+        .prepare(
+          "SELECT expires_at FROM live_fax_quotes_v3 WHERE dispatch_id=?",
+        )
+        .bind(d.id)
+        .first(),
+    ).toEqual({ expires_at: deadline });
+    clock = Date.parse(deadline);
+    await expect(prepare(200)).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+  });
   it.each([
     { operator_authorization_reference: null },
     { operator_authorization_reference: "" },
@@ -888,6 +913,11 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     { destination_category: "special" },
     { origin_class: "eea" },
     { destination_country_code: "FR", destination_prefix: "+334" },
+    { expires_at: "2026-09-24T09:00:01.621Z" },
+    {
+      valid_from: "2026-09-30T09:00:00.000Z",
+      expires_at: "2026-10-01T09:00:00.000Z",
+    },
   ] as Partial<FaxUsageTariff>[])(
     "rejects an unbounded or false test policy %#",
     async (invalid) => {
@@ -900,7 +930,9 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     await expect(
       createFaxUsageFixture(db, () => clock, {
         ...operatorTest,
-        expires_at: new Date(clock + 7 * 86400_000 + 1).toISOString(),
+        valid_from: "2026-09-16T00:00:00.000Z",
+        fx_date: "2026-09-16",
+        expires_at: "2026-09-23T00:00:00.001Z",
       }),
     ).rejects.toThrow();
   });
