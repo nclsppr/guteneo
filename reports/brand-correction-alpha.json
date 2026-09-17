@@ -1,0 +1,62 @@
+[
+  {
+    "path": "assets/brand/source/guteneo-portrait-transparent.png",
+    "width": 1254,
+    "height": 1254,
+    "transparentPixels": 287849,
+    "partialPixels": 1277346,
+    "transparentPercent": 18.304996578731153,
+    "cornerAlpha": [
+      0,
+      0,
+      2,
+      0
+    ]
+  },
+  {
+    "path": "apps/web/public/brand/guteneo-portrait-128.webp",
+    "width": 128,
+    "height": 128,
+    "transparentPixels": 1931,
+    "partialPixels": 13913,
+    "transparentPercent": 11.785888671875,
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "path": "apps/web/public/brand/guteneo-portrait-192.webp",
+    "width": 192,
+    "height": 192,
+    "transparentPixels": 7692,
+    "partialPixels": 27834,
+    "transparentPercent": 20.865885416666668,
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "path": "apps/web/public/brand/guteneo-portrait.png",
+    "width": 512,
+    "height": 512,
+    "transparentPixels": 64315,
+    "partialPixels": 187771,
+    "transparentPercent": 24.534225463867188,
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "footer": "apps/web/public/brand/gutenberg-guteneo-stamp.webp",
+    "sha256": "6e04f5f1d744942be176843ef0a0cb41ce7e4c710b1d36c22257a33f3679225f"
+  }
+]
