@@ -65,3 +65,51 @@ There is deliberately no tariff creation command or production seed in this chan
 `tests/unit/live-providers.test.ts` now creates fax commands through the actual quote preparation and approval path using isolated qualified tariff fixtures. Its external requests remain intercepted. Existing non-fax bridge fixture commands are still synthetic and do not imply a live postal/email quote resolver. Test totals are recorded in `TEST_RESULTS.md` after the final integrated run; automated local results are not live account qualification.
 
 The v2 tests additionally check exact doubling, rational fractions and overflow refusal, supplier/fiscal/currency material in the hash, and a populated pre-v2 migration using original SQL approval/acceptance guards. Historical quotes remain byte-for-byte unchanged while legacy approval/acceptance/claim fail and an unsubmitted queued reservation is released without a supplier call. No new qualified supplier costs are inserted by the migration. `tests/unit/exact-fax-pricing.test.ts` uses only synthetic amounts.
+
+## Customer quote presentation (17 September 2026)
+
+Fax v3 already returns the estimated low/high range. Its compatibility field
+`estimated_minor` (REST) / `estimatedMinor` (MCP) is **the high estimate rounded up
+to a whole EUR cent**, not a fixed price or a debit. Presenting that field first as
+“the quote” and then repeating the range is ambiguous. Current ChatGPT observation
+included both 17 cents and the range; the range was not missing from the response.
+
+`faxPricing.display` supplies the preferred presentation for REST, MCP summaries,
+and expert review. Present `estimate.label` and `estimate.creditLabel`, then the
+separate `ceiling` labels and `explanation`. `creditUnit=EUR_balance` means the
+existing monetary credit balance, not a new token conversion. `lowEur` and
+`highEur` are exact decimal strings retaining all nine nanoEUR decimal places;
+labels round to four decimal places and say “Environ”. Tiny positive amounts that
+would round to zero retain their exact precision. These strings are derived
+read-only and never enter tariff, fingerprint, reservation or settlement arithmetic.
+
+For the observed range 50,273,036–164,687,528 nanoEUR, presentation is
+“Environ 0,0503 à 0,1647 € HT”, with the same amount in euros of credit. The exact
+values are `0.050273036` and `0.164687528`. The historical integer remains 17;
+a separate 200-cent ceiling is “2,00 €”, reserved only at confirmation. The range
+is for the whole fax, including its estimated transmission. Actual duration is
+not guaranteed; final consumption may differ within the approved firm ceiling.
+Delivery and settlement remain separate, and `settlement` remains authoritative
+for current reservation/charge state. No tariff, commercial multiplier, authority
+or billing behavior changes with this presentation.
+
+Public copy audit on 17 September: the canonical homepage HTML and public source
+contain no promise of a complete fax for EUR0.007/page. The previously published
+homepage described an
+illustrative EEA-to-Luxembourg route (EUR0.03–0.12, one page, 1–3 minutes), different
+from the local LU-to-LU quote above. This correction aligns the public example
+with the configured Luxembourg sender: about EUR0.05–0.17 for one page to a fixed
+Luxembourg number, estimated 1–4 billed minutes (the 60–210 second duration
+assumptions are rounded to whole 60-second billing increments). It explicitly
+remains a variable-cost
+example, not a guaranteed ceiling; the operational quote governs each send. The
+existing dated FX and other channels are unchanged. [Telnyx's public fax price](https://telnyx.com/pricing/fax)
+is USD0.007/page **plus SIP transmission usage**; it is not an all-inclusive EUR
+customer price. Provider charges and commercial accounting remain private.
+
+Verification: official in-memory MCP transport exercises preparation, status and
+list responses across all four settlement states, plus strict OpenAPI validation,
+exact observed amounts, unchanged legacy 17-cent field and 200-cent cap, tiny
+positive estimates, zero, no supplier-accounting leak and text/structured parity.
+The D1 domain fixture verifies the same display projection from an immutable
+quote. These are synthetic tests, not another real fax or live assistant run.

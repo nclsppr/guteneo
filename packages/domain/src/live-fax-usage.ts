@@ -3,6 +3,7 @@ import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
 import {
   FAX_OPERATOR_TEST_NOTICE,
+  customerFaxPricing,
   type FaxPricing,
 } from "../../contracts/src/fax-pricing";
 
@@ -597,7 +598,7 @@ export async function readFaxPricingBatch(
   return new Map(
     rows.results.map((q) => [
       q.dispatch_id,
-      {
+      customerFaxPricing({
         version: 3,
         currency: "EUR",
         basis: "qualified_usage_ex_tax",
@@ -622,7 +623,7 @@ export async function readFaxPricingBatch(
           chargedMinor: q.charged_minor,
           settledAt: q.settled_at,
         },
-      },
+      }),
     ]),
   );
 }

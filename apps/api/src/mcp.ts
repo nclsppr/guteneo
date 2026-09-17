@@ -103,6 +103,34 @@ const faxPricingSchema = z
     estimatedLowNanoeur: z.number().int().nonnegative(),
     estimatedHighNanoeur: z.number().int().nonnegative(),
     ceilingMinor: z.number().int().nonnegative(),
+    display: z
+      .object({
+        locale: z.literal("fr-FR"),
+        creditUnit: z.literal("EUR_balance"),
+        estimate: z
+          .object({
+            lowEur: z.string().regex(/^\d+\.\d{9}$/),
+            highEur: z.string().regex(/^\d+\.\d{9}$/),
+            label: z.string(),
+            creditLabel: z.string(),
+          })
+          .strict(),
+        ceiling: z
+          .object({
+            eur: z.string().regex(/^\d+\.\d{2}$/),
+            label: z.string(),
+            creditLabel: z.string(),
+          })
+          .strict(),
+        explanation: z.string(),
+        legacyEstimatedMinorMeaning: z.literal(
+          "rounded_up_estimated_high_centimes",
+        ),
+      })
+      .strict()
+      .describe(
+        "Présenter estimate.label et estimate.creditLabel, puis le plafond distinct et explanation. EUR_balance est un solde en euros de crédit, pas un nombre de jetons. Les libellés sont arrondis ; lowEur/highEur conservent les valeurs exactes.",
+      ),
     fx: z
       .object({
         numerator: z.number().int().positive(),
@@ -131,7 +159,12 @@ const dispatchSchema = z
     documentId: z.string().nullable(),
     campaignId: z.string().nullable(),
     fingerprint: z.string(),
-    estimatedMinor: z.number().int(),
+    estimatedMinor: z
+      .number()
+      .int()
+      .describe(
+        "Compatibilité : pour faxPricing.version=3, borne haute estimée arrondie au centime supérieur, jamais prix fixe ni débit. Présenter faxPricing.display.estimate, puis le plafond distinct.",
+      ),
     ceilingMinor: z.number().int(),
     knownMinor: z.number().int().nullable(),
     currency: z.literal("EUR"),
@@ -178,7 +211,7 @@ export const FAX_WORKFLOW = [
   "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages.",
   "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un fichier autorisé, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant.",
   "3. Attendre le statut ready du document. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
-  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl. Si faxPricing est présent, afficher sa fourchette HT en nanoEUR (1 EUR = 1 000 000 000 nanoEUR) et son plafond ferme en centimes : l’estimation n’est pas un débit définitif. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
+  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl. Si faxPricing est présent, présenter faxPricing.display.estimate.label et creditLabel, puis display.ceiling et display.explanation. Les crédits sont un solde en euros. estimatedMinor est seulement la borne haute arrondie au centime supérieur, jamais un prix fixe ni un débit. Les montants exacts restent disponibles dans display.estimate.lowEur/highEur et les nanoEUR. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
   "5. Par défaut, l’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ne remplace pas cette approbation. Si le titulaire a préalablement activé le mode expert pour cette connexion dans son compte, appeler review_dispatch, présenter la revue exacte et respecter la confirmation de l’hôte, puis approve_and_send_dispatch avec le jeton, l’empreinte et le plafond retournés. Cette voie utilise une délégation enregistrée, jamais une affirmation de consentement humain par le modèle. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
   "6. Dans le parcours standard, après cette approbation navigateur, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
   "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain. La livraison et le décompte sont distincts : faxPricing.settlement.status=reserved conserve le plafond jusqu’à vérification de l’usage, même après livraison ; settled donne la consommation validée et le débit agrégé, released libère la réservation sans débit. Ne pas réexpédier pour accélérer le décompte.",
@@ -552,7 +585,7 @@ export function createGuteneoMcpServer(
     {
       title: "Préparer un fax PDF",
       description:
-        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, faxPricing donne la fourchette HT en nanoEUR et le plafond ferme ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
       inputSchema: z
         .object({
           documentId: id,

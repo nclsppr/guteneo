@@ -26,12 +26,12 @@ export const customerPricing: { rates: CustomerRate[]; note: string } = {
       scope: "Selon les pages, la durée et la destination",
       prices: [
         {
-          amount: "≈ 0,03–0,12 €",
+          amount: "≈ 0,05–0,17 €",
           unit: "par fax, estimation du scénario ci-dessous",
         },
       ],
       supplement:
-        "Exemple : une page vers un numéro fixe luxembourgeois, depuis un numéro de l’EEE, pour 1 à 3 minutes de transmission. Le total varie selon la route et les surcharges ; cette fourchette n’est pas un plafond garanti. Autres destinations et durées sur devis.",
+        "Exemple : une page depuis notre numéro luxembourgeois vers un numéro fixe au Luxembourg, pour une estimation de 1 à 4 minutes facturées de transmission. Le coût varie selon la durée réelle et la route ; cette fourchette n’est pas un plafond garanti. Le devis indique le plafond avant confirmation. Autres destinations et durées sur devis.",
     },
     {
       id: "postal",

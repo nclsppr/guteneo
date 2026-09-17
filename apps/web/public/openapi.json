@@ -1978,7 +1978,7 @@
           "estimated_minor": {
             "type": "integer",
             "minimum": 0,
-            "description": "Estimation historique en centimes. Pour un fax v3, utiliser la fourchette faxPricing : ce champ ne représente pas une consommation définitive."
+            "description": "Estimation historique en centimes. Pour un fax v3, borne haute estimée arrondie au centime supérieur : jamais un prix fixe ni un débit. Présenter faxPricing.display.estimate, puis le plafond distinct ; les valeurs exactes sont lowEur/highEur et les nanoEUR."
           },
           "ceiling_minor": {
             "type": "integer",
@@ -3655,6 +3655,97 @@
           "addressGuidance"
         ]
       },
+      "FaxPricingDisplay": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "locale",
+          "creditUnit",
+          "estimate",
+          "ceiling",
+          "explanation",
+          "legacyEstimatedMinorMeaning"
+        ],
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "fr-FR"
+            ]
+          },
+          "creditUnit": {
+            "type": "string",
+            "enum": [
+              "EUR_balance"
+            ],
+            "description": "Le crédit est un solde en euros, pas une unité de jeton ou un tarif supplémentaire."
+          },
+          "estimate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "lowEur",
+              "highEur",
+              "label",
+              "creditLabel"
+            ],
+            "properties": {
+              "lowEur": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d{9}$",
+                "description": "Borne basse exacte en EUR HT."
+              },
+              "highEur": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d{9}$",
+                "description": "Borne haute exacte en EUR HT."
+              },
+              "label": {
+                "type": "string",
+                "description": "Fourchette estimative HT prête à présenter, affichage arrondi."
+              },
+              "creditLabel": {
+                "type": "string",
+                "description": "Même estimation exprimée en euros de crédit du solde, jamais un débit acquis."
+              }
+            }
+          },
+          "ceiling": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eur",
+              "label",
+              "creditLabel"
+            ],
+            "properties": {
+              "eur": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d{2}$"
+              },
+              "label": {
+                "type": "string",
+                "description": "Plafond ferme distinct de la fourchette."
+              },
+              "creditLabel": {
+                "type": "string",
+                "description": "Montant réservé à la confirmation, pas consommation finale ; consulter settlement pour son état actuel."
+              }
+            }
+          },
+          "explanation": {
+            "type": "string",
+            "description": "À présenter avec la fourchette et le plafond. Aucune garantie de durée ni prix fixe par page."
+          },
+          "legacyEstimatedMinorMeaning": {
+            "type": "string",
+            "enum": [
+              "rounded_up_estimated_high_centimes"
+            ],
+            "description": "estimated_minor REST / estimatedMinor MCP est la borne haute arrondie au centime supérieur, pas un prix fixe ni un débit."
+          }
+        }
+      },
       "FaxPricing": {
         "type": "object",
         "nullable": true,
@@ -3667,6 +3758,7 @@
           "estimatedLowNanoeur",
           "estimatedHighNanoeur",
           "ceilingMinor",
+          "display",
           "fx",
           "settlement"
         ],
@@ -3712,6 +3804,9 @@
             "type": "integer",
             "minimum": 0,
             "description": "Plafond client ferme en centimes EUR, réservé à la confirmation."
+          },
+          "display": {
+            "$ref": "#/components/schemas/FaxPricingDisplay"
           },
           "fx": {
             "type": "object",

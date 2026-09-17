@@ -194,6 +194,15 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
       estimatedLowNanoeur: 35_280_000,
       estimatedHighNanoeur: 55_440_000,
       ceilingMinor: 100,
+      display: {
+        estimate: {
+          lowEur: "0.035280000",
+          highEur: "0.055440000",
+          label: "Environ 0,0353 à 0,0554 € HT",
+        },
+        ceiling: { eur: "1.00" },
+        legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
+      },
       settlement: { status: "not_reserved" },
     });
     expect(JSON.stringify(a.faxPricing)).not.toMatch(
