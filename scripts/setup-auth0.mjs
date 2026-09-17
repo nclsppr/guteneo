@@ -259,7 +259,7 @@ function clientSpecs(options) {
     key,
     body: {
       ...client,
-      logo_uri: "https://guteneo.com/favicon.svg",
+      logo_uri: "https://guteneo.com/brand/guteneo-portrait.png",
       description:
         "Guteneo-owned OAuth registration. Consent and browser approval remain required.",
       client_metadata: { guteneo_managed_by: OWNER, guteneo_component: key },

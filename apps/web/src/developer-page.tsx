@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Code, FilePdf } from "@phosphor-icons/react";
 import { LuxembourgFooter } from "./landing-sections";
+import { Brand } from "./brand";
 import "./developer.css";
 
 const scopes = [
@@ -61,12 +62,7 @@ export function DeveloperPage() {
         Aller à la documentation
       </a>
       <header className="site-header developer-header">
-        <a className="brand" href="/" aria-label="guteneo, accueil">
-          <span className="brand-mark" aria-hidden="true">
-            g
-          </span>
-          <span>guteneo</span>
-        </a>
+        <Brand />
         <nav aria-label="Navigation principale">
           <a href="/#installation">Les intégrations</a>
           <a href="/openapi.json" download="guteneo-openapi.json">

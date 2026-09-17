@@ -5,12 +5,13 @@ Le script `scripts/setup-auth0-branding.mjs` applique uniquement la présentatio
 ## Présentation
 
 - Papier `#f6f5ef`, formulaire `#fffefa`, texte `#181b22`, bouton et liens `#2450db`.
-- Logo et favicon publics : `https://guteneo.com/favicon.svg`.
+- Logo de connexion : portrait sans texte à fond transparent, `https://guteneo.com/brand/guteneo-portrait.png`.
+- Favicon simple distinct : `https://guteneo.com/favicon.svg?brand=20260917`.
 - Nom d’affichage du tenant : **Guteneo**. Aucun autre champ des paramètres du tenant n’est envoyé.
 - Titres, descriptions et texte alternatif du logo en français et anglais pour les écrans `login`, `login-id`, `login-password`, `signup`, `signup-id` et `signup-password`.
 - Formulaire natif Auth0, sans police distante, gabarit HTML personnalisé, Classic Login ou domaine personnalisé.
 
-Le thème de présentation ne change ni les méthodes d’authentification ni les exigences de vérification du compte. Le nom d’affichage s’applique au tenant ; il ne renomme pas son domaine. Les logos des applications sont gérés séparément par le provisionnement Auth0 principal.
+Le thème de présentation ne change ni les méthodes d’authentification ni les exigences de vérification du compte. Le nom d’affichage s’applique au tenant ; il ne renomme pas son domaine. Les nouveaux clients prennent le portrait transparent dans le plan de provisionnement. Pour mettre à jour les clients existants, limiter l’écriture à leur champ `logo_uri`, après vérification de leur propriété Guteneo ; ne pas relancer le provisionnement général pour une modification visuelle. Voir [BRAND_IDENTITY.md](BRAND_IDENTITY.md) pour la distinction avec le timbre « guteneo.com » du footer et des communications externes.
 
 ## Utilisation
 

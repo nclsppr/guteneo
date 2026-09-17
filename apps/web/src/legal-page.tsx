@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
+import { Brand } from "./brand";
 import "./legal-page.css";
 
 export function LegalPage() {
@@ -8,12 +9,7 @@ export function LegalPage() {
         Aller au contenu
       </a>
       <header className="site-header">
-        <a className="brand" href="/" aria-label="guteneo, accueil">
-          <span className="brand-mark" aria-hidden="true">
-            g
-          </span>
-          <span>guteneo</span>
-        </a>
+        <Brand />
         <a className="legal-back" href="/">
           <ArrowLeft size={18} /> Retour à l’accueil
         </a>
@@ -158,7 +154,7 @@ export function LegalPage() {
         </div>
       </main>
       <footer className="legal-colophon">
-        <a href="/">guteneo</a>
+        <Brand variant="simple" compact />
         <a href="mailto:guteneo@pieper.fr">Une question ? Écrivez-nous.</a>
       </footer>
     </div>

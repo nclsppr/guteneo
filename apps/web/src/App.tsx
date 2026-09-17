@@ -20,6 +20,7 @@ import {
 } from "@phosphor-icons/react";
 import { api, ApiError, setSession, type Session } from "./api";
 import { fr as t } from "./i18n";
+import { Brand } from "./brand";
 import {
   ErrorNotice,
   Loading,
@@ -58,21 +59,6 @@ import {
 } from "./landing-sections";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
-
-function Brand({ app = false }: { app?: boolean }) {
-  return (
-    <a
-      className="brand"
-      href={app ? "#/app" : "/"}
-      aria-label="guteneo, accueil"
-    >
-      <span className="brand-mark" aria-hidden="true">
-        g
-      </span>
-      <span>{t.brand}</span>
-    </a>
-  );
-}
 
 export function Landing() {
   return (
@@ -631,7 +617,7 @@ function WorkspaceApplication() {
           {content}
         </main>
         <footer className="app-footer">
-          <span>{t.brand}</span>
+          <Brand app variant="simple" compact />
           <span>{session.organization.name}</span>
           <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
         </footer>

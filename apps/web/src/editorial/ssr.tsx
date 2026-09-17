@@ -6,7 +6,17 @@ import { articles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 
 const origin = "https://guteneo.com";
-const publisher = { "@type": "Organization", name: "Guteneo", url: origin };
+const publisher = {
+  "@type": "Organization",
+  name: "Guteneo",
+  url: origin,
+  logo: {
+    "@type": "ImageObject",
+    url: `${origin}/brand/guteneo-stamp.png`,
+    width: 512,
+    height: 512,
+  },
+};
 const author = {
   "@type": "Organization",
   name: "Rédaction Guteneo",
