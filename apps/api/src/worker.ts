@@ -1,5 +1,8 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
-import { inspectTelnyxReadiness } from "../../../packages/providers/telnyx-readiness";
+import {
+  inspectTelnyxReadiness,
+  telnyxAccountReference,
+} from "../../../packages/providers/telnyx-readiness";
 import {
   inspectPingenReadiness,
   inspectPingenUploadOrigin,
@@ -11,11 +14,43 @@ import { configurePingenWebhooks } from "../../../packages/providers/pingen-webh
 
 import application from "./index";
 import { servePublicAssets } from "./public-assets";
+import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+import { startObservation } from "../../../packages/observability/src/index";
 
 export default {
   ...application,
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const asset = await servePublicAssets(request, env);
+    let asset: Response | null;
+    try {
+      asset = await servePublicAssets(request, env);
+    } catch {
+      asset = new Response("Static content unavailable", {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, nofollow",
+        },
+      });
+    }
+    // Successful public assets do not create one log per image/font/script.
+    const path = new URL(request.url).pathname;
+    if (
+      asset &&
+      asset.status >= 500 &&
+      [...site.paths, "/robots.txt", "/sitemap.xml", "/release.json"].includes(
+        path,
+      )
+    ) {
+      const observation = startObservation(
+        env,
+        "app",
+        "http",
+        "public_asset",
+        request.method,
+      );
+      observation.finish(asset.status);
+      asset.headers.set("X-Correlation-ID", observation.correlationId);
+    }
     return asset ?? application.fetch(request, env, ctx);
   },
 };
@@ -59,10 +94,16 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
   }
 
   async inspectTelnyx() {
-    return inspectTelnyxReadiness({
+    const inspection = await inspectTelnyxReadiness({
       apiKey: this.env.TELNYX_API_KEY || "",
       connectionId: this.env.TELNYX_CONNECTION_ID || "",
     });
+    return {
+      ...inspection,
+      accountReference: inspection.application
+        ? await telnyxAccountReference(this.env.TELNYX_PUBLIC_KEY)
+        : null,
+    };
   }
 
   async inspectSes() {

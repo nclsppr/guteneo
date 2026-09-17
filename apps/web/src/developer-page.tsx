@@ -61,11 +61,11 @@ export function DeveloperPage() {
         Aller à la documentation
       </a>
       <header className="site-header developer-header">
-        <a className="brand" href="/" aria-label="Guteneo, accueil">
+        <a className="brand" href="/" aria-label="guteneo, accueil">
           <span className="brand-mark" aria-hidden="true">
             g
           </span>
-          <span>Guteneo</span>
+          <span>guteneo</span>
         </a>
         <nav aria-label="Navigation principale">
           <a href="/#installation">Les intégrations</a>
@@ -157,11 +157,13 @@ export function DeveloperPage() {
                   éventuel est exprimé en centimes EUR.
                 </li>
                 <li>
-                  <strong>Faites ouvrir l’aperçu.</strong> Orientez la personne
+                  <strong>Validation standard.</strong> Orientez la personne
                   vers{" "}
                   <code>https://guteneo.com/#/app/dispatch/&#123;id&#125;</code>
                   . Elle vérifie le PDF, le destinataire, les options et le
-                  coût, puis approuve dans sa session Guteneo.
+                  coût, puis approuve dans sa session Guteneo. Le mode expert
+                  facultatif suit un mandat limité, activé au préalable dans Mon
+                  compte pour l’assistant concerné.
                 </li>
                 <li>
                   <strong>Confirmez et suivez.</strong> Le client peut alors
@@ -188,7 +190,10 @@ export function DeveloperPage() {
                 <code>approvalUrl</code> appartient à la réponse MCP ; en REST,
                 construisez le lien navigateur avec l’identifiant retourné. Un «
                 oui » dans une conversation et une autorisation d’outil ne
-                constituent jamais l’approbation Guteneo.
+                créent ni approbation humaine ni mandat expert. Le parcours MCP
+                expert utilise une revue récente puis l’approbation déléguée ;
+                il respecte les limites du mandat et les confirmations de votre
+                assistant.
               </p>
               <p>
                 Pour le courrier, lisez d’abord le gabarit avec{" "}
@@ -196,9 +201,11 @@ export function DeveloperPage() {
                 indiquant le pays du destinataire. Après avoir créé et importé
                 le PDF, utilisez <code>POST /api/postal/preflights</code> :
                 Guteneo contrôle le PDF exact et retourne un{" "}
-                <code>reviewUrl</code>. La personne ouvre ce lien pour relire
-                les pages et autoriser le dépôt du brouillon chez Pingen. Après
-                son analyse, demandez
+                <code>reviewUrl</code>. En mode standard, la personne ouvre ce
+                lien pour relire les pages et autoriser le dépôt chez Pingen. Le
+                mode expert exige un mandat postal couvrant séparément ce
+                transfert de données ; il ne déclenche aucune expédition. Après
+                l’analyse du brouillon, demandez
                 <code> POST /api/postal/preflights/&#123;id&#125;/quote</code>,
                 puis faites approuver le devis. Ces étapes restent distinctes de
                 l’expédition ; un transfert incertain ne doit jamais être

@@ -43,6 +43,11 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
   ])
     if (remote[field] !== local[field])
       throw new Error(`Deployed release mismatch: ${field}`);
+  if (
+    JSON.stringify(remote.liveSendChannels) !==
+    JSON.stringify(local.liveSendChannels)
+  )
+    throw new Error("Deployed release mismatch: liveSendChannels");
   let checked = 0;
   const files = [...local.assets];
   const configurationFiles = [];

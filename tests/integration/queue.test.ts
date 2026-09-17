@@ -242,6 +242,26 @@ it("does not start production attempts when live sends are disabled", async () =
       )
       .first(),
   ).toEqual({ status: "queued", active_attempt_id: null });
+  for (const channels of ["fax", "", "fax,invalid"]) {
+    const blocked = message(`channel-gated-${channels}`, {
+      dispatchId: "production-queued-fixture",
+    });
+    await worker.queue(batch([blocked]), {
+      ...productionEnv,
+      LIVE_SENDS_ENABLED: "true",
+      LIVE_SEND_CHANNELS: channels,
+    });
+    expect(blocked.retry).toHaveBeenCalledWith({ delaySeconds: 300 });
+    expect(blocked.ack).not.toHaveBeenCalled();
+    expect(await attempts()).toBe(before);
+    expect(
+      await db
+        .prepare(
+          "SELECT status,active_attempt_id FROM dispatches WHERE id='production-queued-fixture'",
+        )
+        .first(),
+    ).toEqual({ status: "queued", active_attempt_id: null });
+  }
   expect(globalThis.fetch).not.toHaveBeenCalled();
 });
 it("processes duplicate simulation delivery once through the real consumer and domain", async () => {
@@ -250,8 +270,8 @@ it("processes duplicate simulation delivery once through the real consumer and d
   const first = message("queue-first", { dispatchId: row.id });
   const duplicate = message("queue-second", { dispatchId: row.id });
   await Promise.all([
-    worker.queue(batch([first]), env),
-    worker.queue(batch([duplicate]), env),
+    worker.queue(batch([first]), { ...env, LIVE_SEND_CHANNELS: "" }),
+    worker.queue(batch([duplicate]), { ...env, LIVE_SEND_CHANNELS: "" }),
   ]);
   expect(first.ack).toHaveBeenCalledOnce();
   expect(duplicate.ack).toHaveBeenCalledOnce();

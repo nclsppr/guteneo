@@ -15,11 +15,11 @@ const dateLabel = (date: string) =>
 function EditorialHeader() {
   return (
     <header className="site-header editorial-header">
-      <a className="brand" href="/" aria-label="Guteneo, accueil">
+      <a className="brand" href="/" aria-label="guteneo, accueil">
         <span className="brand-mark" aria-hidden="true">
           g
         </span>
-        <span>Guteneo</span>
+        <span>guteneo</span>
       </a>
       <nav aria-label="Navigation principale">
         <a href="/journal/">Le journal</a>

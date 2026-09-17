@@ -1,7 +1,8 @@
 name: Guteneo checks
 on:
+  # A feature change runs once on its PR; main is checked again after merge.
   push:
-    branches: [main, "feat/**"]
+    branches: [main]
   pull_request:
 permissions:
   contents: read
@@ -22,9 +23,10 @@ jobs:
       - run: npm ci --prefix apps/scanner
       - run: npm --prefix apps/scanner run typecheck
       - run: npm --prefix apps/scanner test
-  verify:
+
+  checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -32,44 +34,218 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
-      - name: Permit the installed Chromium to use its Linux sandbox
-        # Ubuntu restricts user namespaces for downloaded browsers. Keep the
-        # Chromium sandbox enabled and allow only this job's exact browser path.
-        run: |
-          node --input-type=module <<'NODE'
-          import { existsSync, readFileSync } from 'node:fs';
-          import { execFileSync } from 'node:child_process';
-          import { chromium } from '@playwright/test';
-          const restriction = '/proc/sys/kernel/apparmor_restrict_unprivileged_userns';
-          if (existsSync(restriction) && readFileSync(restriction, 'utf8').trim() === '1') {
-            const executable = chromium.executablePath();
-            if (!/^\/home\/runner\/\.cache\/ms-playwright\/chromium-\d+\/chrome-linux64\/chrome$/.test(executable) || !existsSync(executable)) {
-              throw new Error('Unexpected CI Chromium path; sandbox profile not installed.');
-            }
-            const profile = `abi <abi/4.0>,\ninclude <tunables/global>\nprofile guteneo-ci-chromium "${executable}" flags=(unconfined) {\n  userns,\n}\n`;
-            const path = '/etc/apparmor.d/guteneo-ci-chromium';
-            execFileSync('sudo', ['-n', 'tee', path], { input: profile, stdio: ['pipe', 'ignore', 'inherit'] });
-            execFileSync('sudo', ['-n', 'apparmor_parser', '-r', path], { stdio: 'inherit' });
-          }
-          NODE
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm test
       - run: node scripts/migrate-remote.mjs --verify
-      - run: npm run build
-      - run: npm run test:e2e
+      - run: npm run costs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-checks
+          path: reports/cost-model.json
+          if-no-files-found: error
+          retention-days: 14
+
+  vitest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      # Every shard retains sequential files and isolated Miniflare databases.
+      # Only the actual Chromium integration is handled by the security job.
+      - run: >-
+          npx vitest run --shard=${{ matrix.shard }}/4
+          --exclude=tests/integration/document-postal-preflight.test.ts
+          --reporter=default --reporter=json --reporter=blob
+          --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
+          --outputFile.blob=test-results/ci/blobs/${{ matrix.shard }}.json
+      - name: Preserve the newly exercised restore proof
+        if: always()
+        run: node scripts/ci/collect-restore-proof.mjs test-results/ci/vitest-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-vitest-${{ matrix.shard }}
+          path: test-results/ci/blobs/${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-vitest-${{ matrix.shard }}
+          path: |
+            test-results/ci/vitest-${{ matrix.shard }}.json
+            test-results/ci/restore-proof.json
+          if-no-files-found: error
+          retention-days: 14
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      # Security setup forms exercise both engines, not just Chromium.
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Preserve the Chromium sandbox
+        run: node scripts/ci/chromium-sandbox.mjs
+      - run: >-
+          npx vitest run tests/integration/document-postal-preflight.test.ts
+          --reporter=default --reporter=json --reporter=blob
+          --outputFile.json=test-results/ci/vitest-renderer.json
+          --outputFile.blob=test-results/ci/blobs/renderer.json
+      - name: Run every Node security test
+        run: |
+          set -o pipefail
+          node --test tests/security/*.test.mjs | tee test-results/ci/security.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-vitest-renderer
+          path: test-results/ci/blobs/renderer.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-security
+          path: |
+            test-results/ci/vitest-renderer.json
+            test-results/ci/security.log
+          if-no-files-found: error
+          retention-days: 14
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      # Typecheck runs once in checks. These are the same two steps as build.
+      - run: npm run build:web
+      - run: npx wrangler deploy --dry-run --outdir dist/worker
       - run: npm run build:live
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview
-      - run: npm run test:preview
-      - run: npm run costs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: guteneo-browser-builds-${{ github.sha }}
+          path: |
+            dist/web/
+            dist/preview/
+          if-no-files-found: error
+          retention-days: 1
+
+  browser:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: chromium
+            browsers: chromium
+            preview: desktop
+          - project: mobile-chromium
+            browsers: chromium
+            preview: ""
+          - project: iphone-webkit
+            # The local HTML renderer needs Chromium even for WebKit clients.
+            browsers: chromium webkit
+            preview: iphone
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browsers }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: guteneo-browser-builds-${{ github.sha }}
+          path: dist
+      - name: Remove historical screenshot evidence from this fresh runner
+        run: rm -rf reports/screenshots
+      # Each project has its own runner, D1 state and fixed local server ports.
+      - run: npx playwright test --project=${{ matrix.project }}
+        env:
+          GUTENEO_E2E_PREBUILT: "true"
+          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/ci/${{ matrix.project }}/html
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/playwright.json
+      - if: ${{ matrix.preview != '' }}
+        run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/preview-playwright.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-browser-${{ matrix.project }}
+          path: |
+            test-results/ci/
+            test-results/application/
+            test-results/preview/
+            reports/screenshots/
+          if-no-files-found: error
+          retention-days: 14
+
+  # Branch protection keeps the same required check. A skipped/cancelled/failed
+  # dependency must fail this job rather than produce a green skipped gate.
+  verify:
+    if: always()
+    needs: [scanner, checks, vitest, security, build, browser]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: ci-vitest-*
+          path: test-results/ci/blobs
+          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: ci-evidence-*
+          path: test-results/ci/evidence
+      - name: Merge all Vitest results without rerunning tests
+        run: |
+          rm -f reports/vitest.json
+          npx vitest run --merge-reports=test-results/ci/blobs \
+            --reporter=json --outputFile.json=reports/vitest.json
+      - name: Require every job and every discovered test file
+        if: always()
+        run: node scripts/ci/verify-results.mjs
+        env:
+          CI_JOB_RESULTS: ${{ toJSON(needs) }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: guteneo-verification
           path: |
-            reports/
-            playwright-report/
-            test-results/
+            reports/vitest.json
+            test-results/ci/
+          if-no-files-found: error
           retention-days: 14

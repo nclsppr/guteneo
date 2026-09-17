@@ -2,6 +2,18 @@ import { z } from "zod";
 import { boundedText, request } from "./transport";
 import type { Fetcher } from "./types";
 
+/** Internal account namespace, not a Telnyx-issued UUID or proof of ownership by itself. */
+export async function telnyxAccountReference(
+  publicKey: string | undefined,
+): Promise<string | null> {
+  if (!publicKey || !/^[A-Za-z0-9+/]{43}=$/.test(publicKey)) return null;
+  const bytes = Uint8Array.from(atob(publicKey), (char) => char.charCodeAt(0));
+  if (bytes.length !== 32 || btoa(String.fromCharCode(...bytes)) !== publicKey)
+    return null;
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  return `telnyx-key-sha256:${Array.from(digest, (n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
 const id = z.string().regex(/^\d{1,30}$/);
 const optionalFlag = z.boolean().optional();
 const limit = z.number().int().nonnegative().nullable().optional();

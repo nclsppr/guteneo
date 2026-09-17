@@ -43,6 +43,34 @@ describe("truthful live transport capabilities", () => {
     },
   );
 
+  it.each([
+    [undefined, [true, true, true]],
+    ["fax", [true, false, false]],
+    ["email,postal", [false, true, true]],
+    ["", [false, false, false]],
+    ["fax,", [false, false, false]],
+    ["fax,other", [false, false, false]],
+    ["FAX", [false, false, false]],
+  ] as const)(
+    "reports channel transport restrictions for %s without declaring provider qualification",
+    (channels, allowed) => {
+      const capabilities = getCapabilities({
+        ...hosted,
+        LIVE_SENDS_ENABLED: "true",
+        LIVE_SEND_CHANNELS: channels,
+        TELNYX_API_KEY: "fixture-only",
+      });
+      expect(capabilities.liveSending).toBe(allowed.some(Boolean));
+      expect(
+        capabilities.channels.map((channel) => channel.liveSending),
+      ).toEqual(allowed);
+      expect(capabilities.channels[0].status).toBe(
+        "configured_not_live_validated",
+      );
+      expect(capabilities.productionBlockers).toContain("verified_tariffs");
+    },
+  );
+
   it("does not present simulation, local transport or an unsafe origin as live", () => {
     for (const overrides of [
       { MODE: "simulation" },

@@ -7,6 +7,7 @@ import {
   releaseProfiles,
   sha256,
   sourceSnapshot,
+  liveReleaseSending,
 } from "./release-source.mjs";
 
 function fail(code) {
@@ -62,6 +63,9 @@ export async function verifyLocalRelease(root, target, sourceCommit) {
   if (!Object.hasOwn(releaseProfiles, target)) fail("RELEASE_TARGET_INVALID");
   const profile = releaseProfiles[target];
   const output = join(root, profile.output);
+  const sending = profile.publicPreview
+    ? { liveSendsEnabled: false, liveSendChannels: undefined }
+    : await liveReleaseSending(root);
   let manifest;
   try {
     manifest = JSON.parse(await readFile(join(output, "release.json"), "utf8"));
@@ -73,7 +77,9 @@ export async function verifyLocalRelease(root, target, sourceCommit) {
     manifest.sourceDirty !== false ||
     manifest.mode !== profile.mode ||
     manifest.publicPreview !== profile.publicPreview ||
-    manifest.liveSendsEnabled !== false ||
+    manifest.liveSendsEnabled !== sending.liveSendsEnabled ||
+    JSON.stringify(manifest.liveSendChannels) !==
+      JSON.stringify(sending.liveSendChannels) ||
     JSON.stringify(manifest.sourceSnapshotScope) !==
       JSON.stringify(profile.scope)
   )

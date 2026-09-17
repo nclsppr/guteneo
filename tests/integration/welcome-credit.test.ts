@@ -335,7 +335,9 @@ async function approved(
         )
         .bind(canonicalJson(report), actor.organizationId, preflightId),
       db
-        .prepare("INSERT INTO postal_transfer_consents VALUES(?,?,?,?,1,1,?)")
+        .prepare(
+          "INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at) VALUES(?,?,?,?,1,1,?)",
+        )
         .bind(
           preflightId,
           actor.organizationId,

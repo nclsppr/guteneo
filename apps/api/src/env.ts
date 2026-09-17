@@ -1,6 +1,7 @@
 import { billingConfigured } from "./billing";
 
 export interface Env {
+  WRANGLER_VERSION_METADATA?: { id: string };
   DB: D1Database;
   DOCUMENTS: R2Bucket;
   DISPATCH_QUEUE: Queue<{ dispatchId: string }>;
@@ -23,6 +24,7 @@ export interface Env {
   STRIPE_MODE?: "test" | "live";
   STRIPE_PORTAL_CONFIGURATION_ID?: string;
   LIVE_SENDS_ENABLED?: string;
+  LIVE_SEND_CHANNELS?: string;
   POSTAL_DRAFTS_ENABLED?: string;
   TELNYX_API_KEY?: string;
   TELNYX_PUBLIC_KEY?: string;

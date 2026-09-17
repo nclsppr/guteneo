@@ -41,7 +41,7 @@ Add this entry to the project's `.cursor/mcp.json`, replacing the two absolute i
 }
 ```
 
-Restart the MCP entry after changing its environment. In Cursor, inspect the tool arguments and approve the upload. Example request: `Utilise upload_local_pdf pour importer documents/lettre.pdf, puis prépare un fax avec la référence obtenue.` A generated PDF must first be fully written inside the authorized project; an in-memory chat attachment is not a local path. Any dispatch still follows Guteneo's separate human approval flow.
+Restart the MCP entry after changing its environment. In Cursor, inspect the tool arguments and approve the upload. Example request: `Utilise upload_local_pdf pour importer documents/lettre.pdf, puis prépare un fax avec la référence obtenue.` A generated PDF must first be fully written inside the authorized project; an in-memory chat attachment is not a local path. Dispatches use Guteneo's standard browser approval flow unless a browser administrator has previously granted a bounded, expiring expert mandate to that exact OAuth connection. The local uploader grants no dispatch authority. The optional remote `review_dispatch` / `approve_and_send_dispatch` flow and separate postal transfer are described in [EXPERT_APPROVAL.md](EXPERT_APPROVAL.md); Cursor's own confirmations and OAuth scopes remain unchanged.
 
 For direct startup from the checkout, with the three variables already configured:
 

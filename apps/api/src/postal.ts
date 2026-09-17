@@ -128,6 +128,10 @@ const key = (value: string) => {
 };
 function sqlFailure(failure: unknown): never {
   const message = failure instanceof Error ? failure.message : "";
+  if (message.includes("expert_budget_exceeded"))
+    error("EXPERT_BUDGET_EXCEEDED", 429);
+  if (message.includes("expert_approval_invalid"))
+    error("EXPERT_APPROVAL_INVALID", 403);
   if (message.includes("postal_render_quota_exceeded"))
     error("RENDER_QUOTA_EXCEEDED", 429);
   if (message.includes("postal_")) error("POSTAL_PREFLIGHT_STALE");
@@ -365,6 +369,7 @@ export class PostalService {
     await authority.assertCurrent();
     return {
       id: row.id,
+      fingerprint: row.request_hash,
       status: timedOut ? "failed" : row.status,
       document: {
         id: document.id,
@@ -671,7 +676,10 @@ export class PostalService {
     z.object({ reviewed: z.literal(true), consentToTransfer: z.literal(true) })
       .strict()
       .parse(consent);
-    if (authority.context.actor !== "browser")
+    if (
+      authority.context.actor !== "browser" &&
+      !(authority.context.actor === "mcp" && authority.expert)
+    )
       error("HUMAN_DOCUMENT_TRANSFER_REQUIRED", 403);
     if (!transferConfigured(this.env)) error("POSTAL_DRAFT_TRANSFER_DISABLED");
     const row = await this.row(authority, id);
@@ -689,13 +697,16 @@ export class PostalService {
     try {
       results = await this.env.DB.batch([
         this.env.DB.prepare(
-          `INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at) SELECT ?,?,?,?,1,1,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM postal_preflights WHERE organization_id=? AND id=? AND transfer_status='not_started') AND NOT EXISTS(SELECT 1 FROM postal_transfer_consents WHERE preflight_id=?)`,
+          `INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at,consent_kind,expert_connection_id,expert_policy_revision) SELECT ?,?,?,?,1,1,?,?,?,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM postal_preflights WHERE organization_id=? AND id=? AND transfer_status='not_started') AND NOT EXISTS(SELECT 1 FROM postal_transfer_consents WHERE preflight_id=?)`,
         ).bind(
           id,
           row.organization_id,
           authority.context.userId,
           row.request_hash,
           now(),
+          authority.expert ? "expert" : "browser",
+          authority.expert?.connectionId ?? null,
+          authority.expert?.policyRevision ?? null,
           ...fence.values,
           row.organization_id,
           id,
@@ -728,6 +739,7 @@ export class PostalService {
         },
         {
           fetcher: this.dependencies.fetcher,
+          transferAuthority: authority.expert ? authority : undefined,
           beforeTransfer: async () => {
             const active = await this.row(authority, id);
             if (active.transfer_status !== "preparing")

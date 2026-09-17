@@ -226,7 +226,9 @@ describe("signed SNS callbacks during identity setup", () => {
     expect(
       (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
     ).toBe(0);
-    expect(diagnostics.mock.calls).toEqual(
+    expect(
+      diagnostics.mock.calls.filter(([entry]) => typeof entry === "string"),
+    ).toEqual(
       [
         "unexpected_sns_topic",
         "sns_signature_v2_required",
@@ -262,10 +264,27 @@ describe("signed SNS callbacks during identity setup", () => {
       {} as ExecutionContext,
     );
     expect(invalidJson.status).toBe(401);
-    expect(diagnostics.mock.calls).toEqual(
+    expect(
+      diagnostics.mock.calls.filter(([entry]) => typeof entry === "string"),
+    ).toEqual(
       ["sns_certificate_invalid", "invalid_webhook"].map((code) => [
         JSON.stringify({ event: "sns_webhook_verification_failed", code }),
       ]),
+    );
+    const observations = diagnostics.mock.calls.filter(
+      ([entry]) => typeof entry === "object",
+    );
+    expect(observations).toHaveLength(2);
+    for (const [entry] of observations)
+      expect(entry).toMatchObject({
+        schema: 1,
+        component: "app",
+        event: "http",
+        route: "webhook_ses",
+        status: 401,
+      });
+    expect(JSON.stringify(diagnostics.mock.calls)).not.toMatch(
+      /recipient@example|Never log|Unusable certificate|Signature|SigningCertURL/,
     );
     expect(
       (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
@@ -294,7 +313,9 @@ describe("signed SNS callbacks during identity setup", () => {
     expect(network).toHaveBeenCalledTimes(1);
     expect(prepare).toHaveBeenCalledTimes(1);
     expect(domain.ingestEvent).not.toHaveBeenCalled();
-    expect(diagnostics.mock.calls).toEqual([
+    expect(
+      diagnostics.mock.calls.filter(([entry]) => typeof entry === "string"),
+    ).toEqual([
       [
         JSON.stringify({
           event: "sns_webhook_storage_failed",

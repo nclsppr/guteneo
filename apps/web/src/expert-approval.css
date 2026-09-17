@@ -1,0 +1,119 @@
+.expert-heading,
+.expert-connection-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.expert-heading h2 {
+  font-size: 26px;
+  margin: 0 0 20px;
+}
+.expert-heading .eyebrow {
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+.expert-settings > p,
+.expert-warning {
+  max-width: 72ch;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.expert-connection {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.expert-connection-heading > div {
+  min-width: 0;
+  flex: 1 1 260px;
+}
+.expert-connection-heading h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.expert-connection-heading code {
+  overflow-wrap: anywhere;
+}
+.expert-state {
+  font-size: 12px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.expert-summary,
+.expert-limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin-block: 20px;
+}
+.expert-summary dt {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.expert-summary dd {
+  margin: 0;
+  font-size: 14px;
+}
+.expert-form {
+  margin-top: 24px;
+}
+.expert-form legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.expert-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+}
+.expert-channels .checkbox-label {
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 0;
+}
+.expert-limits .field {
+  min-width: 0;
+  margin-bottom: 0;
+}
+.expert-form input {
+  max-width: 100%;
+}
+.expert-form .expert-agreement {
+  max-width: 76ch;
+  margin-block: 20px;
+  font-size: 14px;
+}
+.expert-warning {
+  border-left: 2px solid var(--blue);
+  padding-left: 16px;
+  margin-block: 24px;
+}
+.expert-validation:not(:empty) {
+  margin-block: 16px;
+  font-size: 14px;
+}
+.expert-settings .button-group {
+  flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+  .expert-limits,
+  .expert-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .expert-limits input {
+    min-width: 0;
+    min-height: 48px;
+    font-size: 16px;
+  }
+  .expert-heading h2 {
+    margin-bottom: 8px;
+  }
+  .expert-settings .button-group > .button {
+    flex: 1 1 100%;
+  }
+}

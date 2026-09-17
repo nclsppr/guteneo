@@ -16,6 +16,7 @@ import {
   useAction,
   useResource,
 } from "./components";
+import { ExpertApproval } from "./expert-approval";
 
 type Props = { session: Session; onUpdated: () => void | Promise<void> };
 type SessionItem = {
@@ -94,7 +95,7 @@ export function Account({ session, onUpdated }: Props) {
     <>
       <PageHeading
         title="Mon compte"
-        intro="Votre identité dans l’atelier et les sessions qui y ont accès."
+        intro="Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier."
       />
       {isPublicPreview ? (
         <PreviewNotice />
@@ -174,6 +175,7 @@ export function Account({ session, onUpdated }: Props) {
               <ErrorNotice error={action.error} />
             </div>
           </form>
+          <ExpertApproval />
           <section
             className="form-panel"
             aria-labelledby="account-sessions-title"
@@ -280,6 +282,7 @@ export function Account({ session, onUpdated }: Props) {
           </section>
         </>
       )}
+      {isPublicPreview && <ExpertApproval />}
     </>
   );
 }

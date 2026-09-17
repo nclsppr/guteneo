@@ -2,6 +2,32 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { readFile, readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
+import ts from "typescript";
+
+/** Publishing must describe the reviewed transport configuration, never a stale flag. */
+export async function liveReleaseSending(root) {
+  const path = join(root, "wrangler.live.jsonc");
+  const parsed = ts.parseConfigFileTextToJson(
+    path,
+    await readFile(path, "utf8"),
+  );
+  const vars = parsed.config?.vars;
+  if (
+    parsed.error ||
+    vars?.ENVIRONMENT !== "production" ||
+    vars?.MODE !== "production" ||
+    !["true", "false"].includes(vars?.LIVE_SENDS_ENABLED)
+  )
+    throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
+  const enabled = vars.LIVE_SENDS_ENABLED === "true";
+  // The current approved activation is fax only. A wider release needs a source review.
+  if (enabled && vars.LIVE_SEND_CHANNELS !== "fax")
+    throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
+  return {
+    liveSendsEnabled: enabled,
+    liveSendChannels: enabled ? ["fax"] : [],
+  };
+}
 
 const common = [
   "scripts/release-source.mjs",

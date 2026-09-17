@@ -28,6 +28,7 @@ import {
   type ProviderResult,
 } from "../../../packages/providers";
 import type { Env } from "./env";
+import type { PostalAuthority } from "./postal-authority";
 
 export type LiveProviderEnv = Env & {
   TELNYX_ALLOWED_PREFIXES?: string;
@@ -42,6 +43,8 @@ type Dependencies = {
   fetcher?: Fetcher;
   now?: () => number;
   beforeTransfer?: () => Promise<void>;
+  /** Server-created credential closure. Never populated from a tool/request body. */
+  transferAuthority?: PostalAuthority;
 };
 const providerNames = {
   fax: "telnyx",
@@ -100,14 +103,29 @@ function hostedProductionGate(env: LiveProviderEnv): void {
   )
     blocked("LIVE_ORIGIN_INVALID");
 }
-function liveGate(env: LiveProviderEnv): void {
+function liveGate(env: LiveProviderEnv, channel?: Channel): void {
   hostedProductionGate(env);
   if (env.LIVE_SENDS_ENABLED !== "true") blocked("LIVE_TRANSPORT_DISABLED");
+  // Omission preserves the pre-allowlist configuration contract. A configured
+  // empty/invalid list authorizes nothing, never an implicit fallback to all.
+  const channels =
+    env.LIVE_SEND_CHANNELS === undefined
+      ? ["fax", "email", "postal"]
+      : env.LIVE_SEND_CHANNELS.split(",").map((value) => value.trim());
+  if (
+    !channels.length ||
+    channels.some((value) => !["fax", "email", "postal"].includes(value)) ||
+    (channel !== undefined && !channels.includes(channel))
+  )
+    blocked("LIVE_TRANSPORT_DISABLED");
 }
 /** Reports the transport switch; per-dispatch qualification remains mandatory. */
-export function liveSendingEnabled(env: LiveProviderEnv): boolean {
+export function liveSendingEnabled(
+  env: LiveProviderEnv,
+  channel?: Channel,
+): boolean {
   try {
-    liveGate(env);
+    liveGate(env, channel);
     return true;
   } catch {
     return false;
@@ -384,7 +402,7 @@ export function createLiveProviderHook(
     async submit(input) {
       let providerCallStarted = false;
       try {
-        liveGate(env);
+        liveGate(env, channel);
         if (input.channel !== channel) blocked("PROVIDER_CHANNEL_MISMATCH");
         const row = await checkActiveDispatch(env, input, provider);
         const loaded = row.document_id
@@ -748,7 +766,7 @@ export async function serveProviderMedia(
   };
   const deny = () => new Response("Not found", { status: 404, headers });
   try {
-    liveGate(env);
+    liveGate(env, "fax");
     if (request.method !== "GET" || !/^[A-Za-z0-9_-]{43}$/.test(token))
       return deny();
     const now = new Date((dependencies.now ?? Date.now)()).toISOString();
@@ -803,7 +821,21 @@ export async function preparePostalDraft(
 ) {
   postalPreparationGate(env);
   await domain.authorizeWrite(ctx);
-  if (ctx.actor !== "browser") blocked("HUMAN_DOCUMENT_TRANSFER_REQUIRED");
+  const expertAuthority =
+    ctx.actor === "mcp" ? dependencies.transferAuthority : undefined;
+  if (
+    ctx.actor !== "browser" &&
+    !(
+      ctx.actor === "mcp" &&
+      ctx.role === "admin" &&
+      expertAuthority?.expert &&
+      expertAuthority.context.actor === "mcp" &&
+      expertAuthority.context.role === "admin" &&
+      expertAuthority.context.organizationId === ctx.organizationId &&
+      expertAuthority.context.userId === ctx.userId
+    )
+  )
+    blocked("HUMAN_DOCUMENT_TRANSFER_REQUIRED");
   if (
     !/^[a-zA-Z0-9_.:-]{1,200}$/.test(input.idempotencyKey) ||
     !Number.isSafeInteger(input.ceilingMinor) ||
@@ -812,19 +844,36 @@ export async function preparePostalDraft(
     blocked("POSTAL_DRAFT_INPUT_INVALID");
   if (!dependencies.beforeTransfer || !input.preflightId)
     blocked("POSTAL_PREFLIGHT_REQUIRED");
-  const consent = await env.DB.prepare(
-    "SELECT p.id FROM postal_preflights p JOIN postal_transfer_consents c ON c.organization_id=p.organization_id AND c.preflight_id=p.id AND c.fingerprint=p.request_hash WHERE p.organization_id=? AND p.id=? AND p.status='review_required' AND p.transfer_status='preparing' AND p.document_id=? AND p.sender_id=? AND c.user_id=?",
-  )
-    .bind(
-      ctx.organizationId,
-      input.preflightId,
-      input.documentId,
-      input.senderId,
-      ctx.userId,
+  const assertConsent = async () => {
+    await expertAuthority?.assertCurrent();
+    const fence = expertAuthority?.sql();
+    const expert = expertAuthority?.expert;
+    const consent = await env.DB.prepare(
+      `SELECT p.id FROM postal_preflights p JOIN postal_transfer_consents c ON c.organization_id=p.organization_id AND c.preflight_id=p.id AND c.fingerprint=p.request_hash
+       WHERE p.organization_id=? AND p.id=? AND p.status='review_required' AND p.transfer_status='preparing' AND p.document_id=? AND p.sender_id=? AND c.user_id=?
+       AND ${expert ? `c.consent_kind='expert' AND c.expert_connection_id=? AND c.expert_policy_revision=? AND EXISTS(SELECT 1 FROM active_expert_approval_policies a WHERE a.connection_id=c.expert_connection_id AND a.revision=c.expert_policy_revision AND a.organization_id=p.organization_id AND a.user_id=c.user_id AND p.ceiling_minor<=a.max_per_dispatch_minor AND EXISTS(SELECT 1 FROM json_each(a.channels_json) WHERE value='postal'))` : "c.consent_kind='browser'"}
+       AND (${fence?.condition ?? "1=1"})`,
     )
-    .first();
-  if (!consent) blocked("POSTAL_PREFLIGHT_REQUIRED");
-  await dependencies.beforeTransfer();
+      .bind(
+        ctx.organizationId,
+        input.preflightId,
+        input.documentId,
+        input.senderId,
+        ctx.userId,
+        ...(expert ? [expert.connectionId, expert.policyRevision] : []),
+        ...(fence?.values ?? []),
+      )
+      .first();
+    if (!consent) blocked("POSTAL_PREFLIGHT_REQUIRED");
+  };
+  const beforeTransfer = async () => {
+    await assertConsent();
+    await dependencies.beforeTransfer!();
+    // The profile/document check above may await a provider read. Recheck the
+    // delegated credential and grant before any subsequent content transfer.
+    if (expertAuthority) await assertConsent();
+  };
+  await beforeTransfer();
   const recipient = validateRecipient("postal", input.recipient);
   const options = postalOptionsSchema.parse(input.options);
   const expectedAddress = expectedPostalAddress(
@@ -850,7 +899,17 @@ export async function preparePostalDraft(
     }),
   );
   const now = () => new Date((dependencies.now ?? Date.now)()).toISOString();
-  const connector = pingen(env, dependencies.fetcher ?? fetch);
+  const providerFetch = dependencies.fetcher ?? fetch;
+  const connector = pingen(
+    env,
+    expertAuthority
+      ? async (url, init) => {
+          // Includes OAuth and upload-location reads, not just PUT/letter creation.
+          await assertConsent();
+          return providerFetch(url, init);
+        }
+      : providerFetch,
+  );
   const id = `pd_${crypto.randomUUID()}`;
   const inserted = await env.DB.prepare(
     "INSERT INTO provider_drafts(id,organization_id,document_id,document_sha256,sender_id,sender_address,provider,recipient_json,expected_address,options_json,ceiling_minor,currency,status,request_hash,idempotency_key,created_at,updated_at) VALUES(?,?,?,?,?,?,'pingen',?,?,?,?,'EUR','preparing',?,?,?,?) ON CONFLICT(organization_id,idempotency_key) DO NOTHING",
@@ -897,7 +956,7 @@ export async function preparePostalDraft(
       filename: loaded.document.name,
       addressPosition: options.addressPosition,
       idempotencyKey: id,
-      beforeTransfer: dependencies.beforeTransfer,
+      beforeTransfer,
     });
     await env.DB.batch([
       env.DB.prepare(

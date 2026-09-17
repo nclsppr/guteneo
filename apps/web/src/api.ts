@@ -1,3 +1,4 @@
+import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 
 export type Channel = "fax" | "email" | "postal";
@@ -58,7 +59,11 @@ export type EventRecord = {
   payload_json?: string;
 };
 export type DispatchDetail = {
-  approval?: { fingerprint: string; expires_at: string } | null;
+  approval?: {
+    fingerprint: string;
+    expires_at: string;
+    approval_kind?: "browser" | "expert";
+  } | null;
   dispatch: Dispatch;
   events: EventRecord[];
   attempts: {
@@ -80,6 +85,12 @@ export type Sender = {
   configuration_json?: string;
 };
 export type Page<T> = { items: T[]; nextCursor: string | null };
+export type ExpertApprovalSettings = ExpertApprovalAccount;
+export type ExpertApprovalConnection =
+  ExpertApprovalAccount["connections"][number];
+export type ExpertApprovalPolicy = NonNullable<
+  ExpertApprovalConnection["policy"]
+>;
 
 export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 

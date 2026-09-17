@@ -8,11 +8,11 @@ export function LegalPage() {
         Aller au contenu
       </a>
       <header className="site-header">
-        <a className="brand" href="/" aria-label="Guteneo, accueil">
+        <a className="brand" href="/" aria-label="guteneo, accueil">
           <span className="brand-mark" aria-hidden="true">
             g
           </span>
-          <span>Guteneo</span>
+          <span>guteneo</span>
         </a>
         <a className="legal-back" href="/">
           <ArrowLeft size={18} /> Retour à l’accueil
@@ -158,7 +158,7 @@ export function LegalPage() {
         </div>
       </main>
       <footer className="legal-colophon">
-        <a href="/">Guteneo</a>
+        <a href="/">guteneo</a>
         <a href="mailto:guteneo@pieper.fr">Une question ? Écrivez-nous.</a>
       </footer>
     </div>

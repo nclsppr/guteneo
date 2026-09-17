@@ -40,9 +40,19 @@ import {
 import { handleAccountRoute } from "./account";
 import { PostalService, cleanupPostalEvidence } from "./postal";
 import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
+import { expertPostalAuthority } from "./expert-approval";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 
-type Variables = { actor: ActorContext };
+import {
+  startObservation,
+  routeCode,
+  queueCode,
+  type Observation,
+  type Stage,
+  type Metrics,
+} from "../../../packages/observability/src/index";
+
+type Variables = { actor: ActorContext; observation: Observation };
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 function identityConfigured(env: Env) {
   return Boolean(
@@ -59,6 +69,17 @@ export function getCapabilities(env: Env) {
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",
+    approval: {
+      default: "authenticated_browser",
+      expert: {
+        available: true,
+        requiresAccountOptIn: true,
+        accountUrl: `${env.APP_ORIGIN}/#/app/account`,
+        reviewTool: "review_dispatch",
+        acceptanceTool: "approve_and_send_dispatch",
+        postalTransferTool: "transfer_postal_draft",
+      },
+    },
     registration: {
       enabled: identityConfigured(env),
       verification: env.AUTH0_AUTH_POLICY ?? "verified_email_and_mfa",
@@ -71,6 +92,7 @@ export function getCapabilities(env: Env) {
     channels: [
       {
         id: "fax",
+        liveSending: liveSendingEnabled(env, "fax"),
         name: "Fax",
         provider: "Telnyx",
         status: env.TELNYX_API_KEY
@@ -79,6 +101,7 @@ export function getCapabilities(env: Env) {
       },
       {
         id: "email",
+        liveSending: liveSendingEnabled(env, "email"),
         name: "E-mail",
         provider: "Amazon SES",
         status: env.AWS_ACCESS_KEY_ID
@@ -87,6 +110,7 @@ export function getCapabilities(env: Env) {
       },
       {
         id: "postal",
+        liveSending: liveSendingEnabled(env, "postal"),
         name: "Courrier postal",
         provider: "Pingen",
         status: env.PINGEN_CLIENT_ID
@@ -127,8 +151,25 @@ export function getCapabilities(env: Env) {
   };
 }
 app.use("*", async (c, next) => {
-  const correlationId = crypto.randomUUID();
-  c.header("X-Correlation-ID", correlationId);
+  const route = routeCode(c.req.raw);
+  // Media capability tokens are path segments. Avoid emitting a log in this invocation
+  // because platform-added request metadata is outside the structured logger's control.
+  const observation = startObservation(
+    c.env,
+    "app",
+    "http",
+    route,
+    c.req.method,
+    ![
+      "provider_media",
+      "unknown",
+      "public_asset",
+      "auth_other",
+      "webhook_other",
+    ].includes(route),
+  );
+  c.set("observation", observation);
+  c.header("X-Correlation-ID", observation.correlationId);
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Robots-Tag", "noindex, nofollow");
   c.header("Referrer-Policy", "no-referrer");
@@ -140,14 +181,18 @@ app.use("*", async (c, next) => {
   try {
     assertConfiguration(c.env, c.req.raw);
   } catch {
+    observation.setCode("CONFIGURATION_INVALID");
     if (
       c.req.method === "GET" &&
       ["/auth/login", "/auth/signup"].includes(c.req.path)
-    )
+    ) {
+      observation.finish(302);
       return c.redirect(
         `${c.env.APP_ORIGIN}/?auth=IDENTITY_NOT_CONFIGURED#/app`,
         302,
       );
+    }
+    observation.finish(503);
     return c.json(
       {
         error: {
@@ -158,17 +203,8 @@ app.use("*", async (c, next) => {
       503,
     );
   }
-  const start = Date.now();
   await next();
-  console.log(
-    JSON.stringify({
-      event: "request",
-      correlationId,
-      method: c.req.method,
-      status: c.res.status,
-      durationMs: Date.now() - start,
-    }),
-  );
+  observation.finish(c.res.status);
 });
 app.use(
   "*",
@@ -205,7 +241,23 @@ app.all("/mcp", (c) =>
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     capabilities: () => getCapabilities(c.env),
+    onToolFailure: (code) => {
+      const observation = startObservation(
+        c.env,
+        "app",
+        "mcp_tool_error",
+        "mcp",
+      );
+      observation.setCode(code);
+      observation.finish();
+    },
     postal: {
+      transferExpert: async (identity, id, fingerprint) =>
+        new PostalService(c.env, domain(c.env)).transfer(
+          await expertPostalAuthority(identity, c.env, id, fingerprint),
+          id,
+          { reviewed: true, consentToTransfer: true },
+        ),
       requirements: async (identity, country) =>
         new PostalService(c.env, domain(c.env)).requirements(
           await postalMcpAuthority(identity, c.env, "documents:read"),
@@ -517,7 +569,7 @@ app.post("/api/dispatches/:id/confirm", async (c) => {
   try {
     await publishOutbox(c.env, service);
   } catch {
-    console.log(JSON.stringify({ event: "outbox_publication_deferred" }));
+    c.get("observation").setCode("OUTBOX_DEFERRED");
   }
   return c.json(result);
 });
@@ -602,6 +654,17 @@ app.all("/api/*", (c) =>
 );
 app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((error, c) => {
+  c.get("observation")?.setCode(
+    error instanceof AuthError
+      ? "AUTH_REJECTED"
+      : error instanceof DomainError
+        ? "DOMAIN_REJECTED"
+        : error instanceof ContentError
+          ? "CONTENT_REJECTED"
+          : error instanceof z.ZodError
+            ? "VALIDATION_ERROR"
+            : "INTERNAL_ERROR",
+  );
   if (error instanceof AuthError && c.req.path.startsWith("/auth/")) {
     return c.redirect(
       `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
@@ -631,7 +694,6 @@ app.onError((error, c) => {
       },
       400,
     );
-  console.error(JSON.stringify({ event: "request_failed", kind: error.name }));
   return c.json(
     {
       error: {
@@ -685,67 +747,133 @@ const simulation: ProviderHook = {
 export default {
   fetch: app.fetch,
   async queue(batch: MessageBatch<{ dispatchId: string }>, env: Env) {
-    assertConfiguration(env);
-    const service = domain(env);
-    for (const message of batch.messages) {
-      try {
-        const parsed = z
-          .object({ dispatchId: z.string().min(1).max(200) })
-          .passthrough()
-          .safeParse(message.body);
-        if (batch.queue.endsWith("-dlq") || !parsed.success) {
-          await env.DB.prepare(
-            "INSERT OR IGNORE INTO dead_letters(id,dispatch_id,queue,received_at) VALUES(?,?,?,?)",
-          )
-            .bind(
-              message.id,
-              parsed.success ? parsed.data.dispatchId : null,
-              batch.queue,
-              new Date().toISOString(),
+    const observation = startObservation(
+      env,
+      "app",
+      "queue",
+      queueCode(batch.queue),
+    );
+    const counts = {
+      messages: batch.messages.length,
+      acked: 0,
+      retried: 0,
+      deadLetters: 0,
+      unknown: 0,
+      failed: 0,
+    };
+    try {
+      assertConfiguration(env);
+      const service = domain(env);
+      for (const message of batch.messages) {
+        try {
+          const parsed = z
+            .object({ dispatchId: z.string().min(1).max(200) })
+            .passthrough()
+            .safeParse(message.body);
+          if (batch.queue.endsWith("-dlq") || !parsed.success) {
+            await env.DB.prepare(
+              "INSERT OR IGNORE INTO dead_letters(id,dispatch_id,queue,received_at) VALUES(?,?,?,?)",
             )
-            .run();
+              .bind(
+                message.id,
+                parsed.success ? parsed.data.dispatchId : null,
+                batch.queue,
+                new Date().toISOString(),
+              )
+              .run();
+            message.ack();
+            counts.acked++;
+            counts.deadLetters++;
+            continue;
+          }
+          if (env.MODE !== "simulation" && env.LIVE_SENDS_ENABLED !== "true") {
+            message.retry({ delaySeconds: 300 });
+            counts.retried++;
+            continue;
+          }
+          const row = await env.DB.prepare(
+            "SELECT channel FROM dispatches WHERE id=?",
+          )
+            .bind(parsed.data.dispatchId)
+            .first<{ channel: Channel }>();
+          if (!row) {
+            message.ack();
+            counts.acked++;
+            continue;
+          }
+          if (
+            env.MODE !== "simulation" &&
+            !liveSendingEnabled(env, row.channel)
+          ) {
+            message.retry({ delaySeconds: 300 });
+            counts.retried++;
+            continue;
+          }
+          const result = await service.processDispatch(
+            parsed.data.dispatchId,
+            env.MODE === "simulation"
+              ? simulation
+              : createLiveProviderHook(env, row.channel),
+          );
+          if (result.status === "submission_unknown") counts.unknown++;
+          if (result.status === "failed") counts.failed++;
           message.ack();
-          continue;
+          counts.acked++;
+        } catch {
+          message.retry({ delaySeconds: 30 });
+          counts.retried++;
         }
-        if (env.MODE !== "simulation" && env.LIVE_SENDS_ENABLED !== "true") {
-          message.retry({ delaySeconds: 300 });
-          continue;
-        }
-        const row = await env.DB.prepare(
-          "SELECT channel FROM dispatches WHERE id=?",
-        )
-          .bind(parsed.data.dispatchId)
-          .first<{ channel: Channel }>();
-        if (!row) {
-          message.ack();
-          continue;
-        }
-        await service.processDispatch(
-          parsed.data.dispatchId,
-          env.MODE === "simulation"
-            ? simulation
-            : createLiveProviderHook(env, row.channel),
-        );
-        message.ack();
-      } catch {
-        message.retry({ delaySeconds: 30 });
       }
+      if (counts.unknown) observation.setCode("SUBMISSION_UNKNOWN");
+      else if (counts.deadLetters) observation.setCode("QUEUE_DEAD_LETTER");
+      else if (counts.retried) observation.setCode("QUEUE_RETRY");
+      else if (counts.failed) observation.setCode("DISPATCH_FAILED");
+    } catch {
+      observation.setCode("QUEUE_FAILED");
+      // Preserve batch failure/retry semantics without exporting arbitrary exception text.
+      throw new Error("QUEUE_FAILED");
+    } finally {
+      observation.finish(undefined, counts);
     }
   },
   async scheduled(_event: ScheduledController, env: Env) {
-    assertBaseConfiguration(env);
-    const service = domain(env);
-    // Already verified receipts must recover even during identity-provider setup.
-    // This bounded projection does not publish an outbox or submit communications.
-    await reconcileWebhookReceipts(env.DB, service);
-    if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) return;
-    assertConfiguration(env);
-    await publishOutbox(env, service);
-    await service.reconcileExpiredLeases();
-    await maintainDocuments(env);
-    await cleanupPostalEvidence(env.DB);
-    await env.DB.prepare("DELETE FROM http_limits WHERE window_start<?")
-      .bind(Math.floor(Date.now() / 60000) - 5)
-      .run();
+    const observation = startObservation(env, "app", "cron", "maintenance");
+    let stage: Stage = "configuration";
+    const counts: Metrics = {};
+    try {
+      assertBaseConfiguration(env);
+      const service = domain(env);
+      // Already verified receipts must recover even during identity-provider setup.
+      // This bounded projection does not publish an outbox or submit communications.
+      stage = "callbacks";
+      Object.assign(counts, await reconcileWebhookReceipts(env.DB, service));
+      stage = "identity";
+      if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
+        observation.setCode("IDENTITY_NOT_CONFIGURED");
+        return;
+      }
+      assertConfiguration(env);
+      stage = "outbox";
+      Object.assign(counts, await publishOutbox(env, service));
+      stage = "leases";
+      Object.assign(counts, await service.reconcileExpiredLeases());
+      stage = "documents";
+      Object.assign(counts, await maintainDocuments(env));
+      stage = "postal";
+      await cleanupPostalEvidence(env.DB);
+      stage = "http_limits";
+      await env.DB.prepare("DELETE FROM http_limits WHERE window_start<?")
+        .bind(Math.floor(Date.now() / 60000) - 5)
+        .run();
+      stage = "complete";
+      if (counts.uncertain) observation.setCode("SUBMISSION_UNKNOWN");
+      else if (counts.pending) observation.setCode("CALLBACK_PENDING");
+    } catch {
+      observation.setCode("CRON_FAILED");
+      // Keep the scheduled event failed so Cloudflare metrics still expose the failure.
+      throw new Error("CRON_FAILED");
+    } finally {
+      observation.finish(undefined, counts, stage);
+    }
   },
 };

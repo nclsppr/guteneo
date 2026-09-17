@@ -21,7 +21,9 @@
     "ENVIRONMENT": "production",
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
-    "LIVE_SENDS_ENABLED": "false",
+    "LIVE_SENDS_ENABLED": "true",
+    // Transport only: tenant controls, verified senders, quotes and approval still apply.
+    "LIVE_SEND_CHANNELS": "fax",
     // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
     "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",
@@ -82,6 +84,18 @@
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
-    "logs": { "enabled": true, "invocation_logs": false },
+    "redact_query_string": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": false
+    }
+  },
+  "version_metadata": {
+    "binding": "WRANGLER_VERSION_METADATA"
   },
 }

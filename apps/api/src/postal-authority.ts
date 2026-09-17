@@ -18,6 +18,7 @@ import {
 type SqlValue = string | number | null;
 export interface PostalAuthority {
   readonly context: ActorContext;
+  readonly expert?: { connectionId: string; policyRevision: number };
   assertCurrent(): Promise<void>;
   sql(): { condition: string; values: SqlValue[] };
 }

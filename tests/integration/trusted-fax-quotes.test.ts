@@ -632,6 +632,8 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
           approval.dispatch_id as string,
         )!.dispatch_fingerprint;
         delete approval.recipient_requested;
+        delete approval.approval_kind;
+        delete approval.expert_review_hash;
         await insert("approvals", approval);
       }
       await legacy

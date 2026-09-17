@@ -442,7 +442,7 @@ export const fr = {
       "La copie n’est pas disponible. Sélectionnez et copiez l’adresse.",
     scopeTitle: "Une autorisation, des limites explicites.",
     scopeBody:
-      "L’assistant peut préparer un envoi. Une approbation humaine reste nécessaire pour autoriser cette version.",
+      "Par défaut, vous approuvez chaque version dans Guteneo. Le mode expert, activé volontairement dans Mon compte pour un assistant, permet aussi la confirmation dans votre conversation, dans les limites de votre délégation.",
     clients: "Compatibilité des assistants",
     client: "Assistant",
     validation: "Validation dans un vrai client",

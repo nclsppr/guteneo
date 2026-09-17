@@ -1,3 +1,6 @@
+import type { DocumentService } from "./documents";
+import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
+import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
 import { createMcpHandler } from "agents/mcp/server";
 import { McpServer, type CallToolResult } from "@modelcontextprotocol/server";
 import { z } from "zod";
@@ -22,6 +25,7 @@ import {
 } from "./auth";
 
 export interface McpDocuments {
+  getReviewContent?: DocumentService["getReviewContent"];
   rescan?(ctx: AuthContext, documentId: string): Promise<DocumentRecord>;
   importFile(
     ctx: AuthContext,
@@ -42,6 +46,9 @@ export interface McpServices {
   documents: McpDocuments;
   capabilities: () => unknown;
   afterConfirmation?: () => Promise<void>;
+  onToolFailure?: (
+    code: "AUTH_REJECTED" | "DOMAIN_REJECTED" | "INTERNAL_ERROR",
+  ) => void;
   postal?: {
     requirements(
       identity: McpIdentity,
@@ -54,6 +61,11 @@ export interface McpServices {
     ): Promise<PostalReview>;
     get(identity: McpIdentity, id: string): Promise<PostalReview>;
     quote(identity: McpIdentity, id: string, key: string): Promise<Dispatch>;
+    transferExpert?(
+      identity: McpIdentity,
+      id: string,
+      fingerprint: string,
+    ): Promise<PostalReview>;
   };
 }
 const errorSchema = z
@@ -157,8 +169,8 @@ export const FAX_WORKFLOW = [
   "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un fichier autorisé, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant.",
   "3. Attendre le statut ready du document. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
   "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl. Si faxPricing est présent, afficher sa fourchette HT en nanoEUR (1 EUR = 1 000 000 000 nanoEUR) et son plafond ferme en centimes : l’estimation n’est pas un débit définitif. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
-  "5. L’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ou l’autorisation d’un outil ne remplace pas cette approbation. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
-  "6. Après cette approbation, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
+  "5. Par défaut, l’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ne remplace pas cette approbation. Si le titulaire a préalablement activé le mode expert pour cette connexion dans son compte, appeler review_dispatch, présenter la revue exacte et respecter la confirmation de l’hôte, puis approve_and_send_dispatch avec le jeton, l’empreinte et le plafond retournés. Cette voie utilise une délégation enregistrée, jamais une affirmation de consentement humain par le modèle. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
+  "6. Dans le parcours standard, après cette approbation navigateur, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
   "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain. La livraison et le décompte sont distincts : faxPricing.settlement.status=reserved conserve le plafond jusqu’à vérification de l’usage, même après livraison ; settled donne la consommation validée et le débit agrégé, released libère la réservation sans débit. Ne pas réexpédier pour accélérer le décompte.",
 ].join("\n");
 
@@ -189,32 +201,13 @@ export function dispatchSummary(dispatch: Dispatch, origin: string) {
     approvalUrl: `${origin}/#/app/dispatch/${encodeURIComponent(dispatch.id)}`,
     ...(dispatch.faxPricing
       ? {
-          faxPricing: {
-            version: dispatch.faxPricing.version,
-            currency: dispatch.faxPricing.currency,
-            basis: dispatch.faxPricing.basis,
-            estimatedLowNanoeur: dispatch.faxPricing.estimatedLowNanoeur,
-            estimatedHighNanoeur: dispatch.faxPricing.estimatedHighNanoeur,
-            ceilingMinor: dispatch.faxPricing.ceilingMinor,
-            fx: {
-              numerator: dispatch.faxPricing.fx.numerator,
-              denominator: dispatch.faxPricing.fx.denominator,
-              date: dispatch.faxPricing.fx.date,
-              source: dispatch.faxPricing.fx.source,
-            },
-            settlement: {
-              status: dispatch.faxPricing.settlement.status,
-              customerNanoeur: dispatch.faxPricing.settlement.customerNanoeur,
-              chargedMinor: dispatch.faxPricing.settlement.chargedMinor,
-              settledAt: dispatch.faxPricing.settlement.settledAt,
-            },
-          },
+          faxPricing: customerFaxPricing(dispatch.faxPricing),
         }
       : {}),
     nextActions:
       dispatch.status === "prepared"
         ? [
-            "Ouvrir l’aperçu authentifié et approuver humainement, puis appeler confirm_dispatch.",
+            "Par défaut : ouvrir l’aperçu authentifié et approuver, puis confirm_dispatch. Si une délégation expert est déjà active pour cette connexion : review_dispatch puis approve_and_send_dispatch, sans modifier les confirmations de l’hôte.",
           ]
         : dispatch.status === "submission_unknown"
           ? [
@@ -271,16 +264,25 @@ export function createGuteneoMcpServer(
   services: McpServices,
 ): McpServer {
   const server = new McpServer({ name: "guteneo", version: "0.2.0" });
-  const run = async (
+  const run = async <T>(
     scope: string | string[] | null,
-    operation: () => Promise<unknown> | unknown,
+    operation: () => Promise<T> | T,
+    format: (data: T) => CallToolResult = success,
   ): Promise<CallToolResult> => {
     try {
       if (scope)
         for (const required of Array.isArray(scope) ? scope : [scope])
           requireScope(identity, required);
-      return success(await operation());
+      return format(await operation());
     } catch (error) {
+      // MCP tool errors can be carried by HTTP 200. Emit a closed code without input or error text.
+      services.onToolFailure?.(
+        error instanceof AuthError
+          ? "AUTH_REJECTED"
+          : error instanceof Error && "code" in error
+            ? "DOMAIN_REJECTED"
+            : "INTERNAL_ERROR",
+      );
       const result = failure(error);
       if (error instanceof AuthError && error.code === "INSUFFICIENT_SCOPE") {
         result._meta = {
@@ -311,7 +313,7 @@ export function createGuteneoMcpServer(
       "preflight_postal_pdf",
       {
         description:
-          "Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Le modèle ne peut pas donner le consentement de transfert : l’utilisateur doit ouvrir Guteneo et le confirmer séparément.",
+          "Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Par défaut le transfert exige une confirmation séparée dans Guteneo. Une délégation expert préalablement activée pour le canal postal permet transfer_postal_draft après lecture de la revue exacte, sans inventer un consentement humain.",
         inputSchema: postalReviewInputSchema
           .extend({ idempotencyKey: key })
           .strict(),
@@ -337,11 +339,41 @@ export function createGuteneoMcpServer(
       ({ preflightId }) =>
         run("documents:read", () => postal.get(identity, preflightId)),
     );
+    if (postal.transferExpert)
+      server.registerTool(
+        "transfer_postal_draft",
+        {
+          description:
+            "Transfère le PDF contrôlé à Pingen pour préparer un brouillon, sans envoyer de courrier. Exige la délégation expert postale activée au préalable dans Mon compte, les droits OAuth et l’empreinte exacte du preflight. Présenter le document, l’adresse et les contrôles avant l’appel, respecter la confirmation de l’hôte. Un transfert unknown ne doit jamais être relancé.",
+          inputSchema: z
+            .object({
+              preflightId: id,
+              fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+            })
+            .strict(),
+          outputSchema: output(z.unknown()),
+          annotations: {
+            ...writeAnnotations,
+            openWorldHint: true,
+            destructiveHint: true,
+          },
+          _meta: oauthMetadata([
+            "documents:write",
+            "dispatches:prepare",
+            "dispatches:send",
+          ]),
+        },
+        ({ preflightId, fingerprint }) =>
+          run(
+            ["documents:write", "dispatches:prepare", "dispatches:send"],
+            () => postal.transferExpert!(identity, preflightId, fingerprint),
+          ),
+      );
     server.registerTool(
       "quote_postal_draft",
       {
         description:
-          "Demande le devis exact d’un brouillon Pingen déjà déposé avec consentement dans Guteneo. Attend la fin de l’analyse fournisseur ; retourne ensuite le lien d’approbation distinct de l’envoi. Aucun envoi implicite.",
+          "Demande le devis exact d’un brouillon Pingen déjà déposé avec consentement navigateur ou délégation expert postale. Attend la fin de l’analyse fournisseur ; retourne ensuite le lien d’approbation distinct de l’envoi. Aucun envoi implicite.",
         inputSchema: z
           .object({ preflightId: id, idempotencyKey: key })
           .strict(),
@@ -586,6 +618,81 @@ export function createGuteneoMcpServer(
           env.APP_ORIGIN,
         ),
       ),
+  );
+  server.registerTool(
+    "review_dispatch",
+    {
+      description:
+        "Lit l’envoi exact, fournit son PDF lorsqu’il existe en ressource MCP intégrée application/pdf (maximum 1 Mio, sans troncature) et prépare un jeton de revue de cinq minutes maximum pour le mode expert. Exige une délégation préalable active pour cette connexion. Présenter fichier et empreinte, destinataire, contenu, options, estimation et plafond ; respecter les confirmations de l’hôte. Ne transmet rien au fournisseur. Si le PDF est trop gros, inaccessible ou illisible par l’hôte, ne pas approuver : utiliser approvalUrl dans le navigateur. Un jeton ne certifie jamais que le modèle a lu le fichier.",
+      inputSchema: z.object({ dispatchId: id }).strict(),
+      outputSchema: output(z.unknown()),
+      annotations: { ...writeAnnotations, idempotentHint: false },
+      _meta: oauthMetadata([
+        "dispatches:read",
+        "documents:read",
+        "dispatches:send",
+      ]),
+    },
+    ({ dispatchId }) =>
+      run(
+        ["dispatches:read", "documents:read", "dispatches:send"],
+        () =>
+          reviewExpertDispatch(
+            identity,
+            env,
+            services.domain,
+            dispatchId,
+            services.documents.getReviewContent?.bind(services.documents),
+          ),
+        ({ documentResource, ...data }) => {
+          const result = success(data);
+          if (documentResource)
+            result.content.push({
+              type: "resource",
+              resource: documentResource,
+            });
+          return result;
+        },
+      ),
+  );
+  server.registerTool(
+    "approve_and_send_dispatch",
+    {
+      description:
+        "Approuve par délégation expert et accepte durablement cet envoi exact, sans retour au site. Peut entraîner un envoi réel et une consommation de crédit. Exige le jeton de review_dispatch, la même empreinte et le même plafond, ainsi qu’une délégation browser préalable encore active. Ne jamais affirmer un consentement humain indépendant : l’autorité provient de la délégation. Pour l’e-mail, recipientRequested=true atteste que le destinataire a demandé le message ; ne pas l’inventer. Respecter les confirmations de l’hôte. Réutiliser la même clé et consulter le statut en cas d’incertitude ; ne jamais réexpédier aveuglément.",
+      inputSchema: z
+        .object({
+          dispatchId: id,
+          fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+          ceilingMinor: z.number().int().nonnegative().safe(),
+          reviewToken: z.string().regex(/^[a-f0-9]{64}$/),
+          idempotencyKey: key,
+          recipientRequested: z.boolean().optional(),
+        })
+        .strict(),
+      outputSchema: output(dispatchSchema),
+      annotations: {
+        ...writeAnnotations,
+        openWorldHint: true,
+        destructiveHint: true,
+      },
+      _meta: oauthMetadata("dispatches:send"),
+    },
+    (input) =>
+      run("dispatches:send", async () => {
+        const dispatch = await acceptExpertDispatch(
+          identity,
+          env,
+          services.domain,
+          input,
+        );
+        try {
+          await services.afterConfirmation?.();
+        } catch {
+          /* durable outbox owns recovery */
+        }
+        return dispatchSummary(dispatch, env.APP_ORIGIN);
+      }),
   );
   server.registerTool(
     "confirm_dispatch",

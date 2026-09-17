@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { inspectTelnyxReadiness } from "../../packages/providers/telnyx-readiness";
+import {
+  inspectTelnyxReadiness,
+  telnyxAccountReference,
+} from "../../packages/providers/telnyx-readiness";
 import type { Fetcher } from "../../packages/providers/types";
 
 // Deterministic fictional provider fixtures; these are not live account evidence.
@@ -7,6 +10,26 @@ const config = {
   apiKey: "fixture-private-key",
   connectionId: "1000000000000000001",
 };
+
+it("derives a stable internal account reference only from a canonical Ed25519 public key", async () => {
+  const key = btoa(String.fromCharCode(...new Uint8Array(32).fill(42)));
+  const reference = await telnyxAccountReference(key);
+  expect(reference).toMatch(/^telnyx-key-sha256:[a-f0-9]{64}$/);
+  expect(await telnyxAccountReference(key)).toBe(reference);
+  expect(
+    await telnyxAccountReference(
+      btoa(String.fromCharCode(...new Uint8Array(32).fill(43))),
+    ),
+  ).not.toBe(reference);
+  for (const invalid of [
+    undefined,
+    "",
+    key + "\n",
+    btoa("short"),
+    "!".repeat(44),
+  ])
+    expect(await telnyxAccountReference(invalid)).toBeNull();
+});
 const profileId = "1000000000000000002";
 const app = {
   data: {

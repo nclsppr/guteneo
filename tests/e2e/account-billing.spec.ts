@@ -32,9 +32,11 @@ test("profile changes persist through the browser and current-session revocation
     await page
       .getByRole("button", { name: "Enregistrer les modifications" })
       .click();
-    await expect(page.getByRole("status")).toContainText(
-      "Votre profil a été enregistré.",
-    );
+    await expect(
+      page
+        .getByRole("status")
+        .filter({ hasText: "Votre profil a été enregistré." }),
+    ).toBeVisible();
     await page.reload();
     await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
       userName,
