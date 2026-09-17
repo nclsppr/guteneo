@@ -86,7 +86,11 @@ export function useRoute() {
     // keyboard and screen-reader users at the newly opened workspace page.
     const frame = requestAnimationFrame(() => {
       if (document.activeElement?.closest('[role="alert"]')) return;
-      document.getElementById("main-content")?.focus({ preventScroll: true });
+      const content = document.getElementById("main-content");
+      // A fast interaction can focus the new page before this frame runs.
+      // Preserve it instead of interrupting typing, especially on WebKit.
+      if (!content?.contains(document.activeElement))
+        content?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
   }, [route]);
