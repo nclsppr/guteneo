@@ -18,6 +18,8 @@ import {
   type BillingEnv,
 } from "../../apps/api/src/billing";
 import { handleAuthRoute, type AuthContext } from "../../apps/api/src/auth";
+import worker from "../../apps/api/src/index";
+import type { Env } from "../../apps/api/src/env";
 
 let mf: Miniflare;
 let env: BillingEnv;
@@ -180,6 +182,97 @@ const webhook = async (payload: unknown) =>
   handleStripeWebhook(await signed(payload), env);
 
 describe("organization billing without fabricated charges", () => {
+  it("reaches Stripe signature and account validation without Auth0 during hosted recovery", async () => {
+    const hosted = {
+      ...env,
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: "https://guteneo.example",
+      STRIPE_MODE: "live",
+      STRIPE_API_KEY: "rk_live_fixture",
+    } as Env;
+    const network = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("No provider call permitted"));
+    const payload = event(
+      "evt_recoveryfixture",
+      "in_recoveryfixture",
+      "cus_unmappedfixture",
+      "invoice.paid",
+      { livemode: true },
+    );
+    const hostedRequest = async (value: unknown, seconds?: number) => {
+      const source = await signed(value, seconds);
+      return new Request(`${hosted.APP_ORIGIN}/webhooks/stripe`, {
+        method: "POST",
+        headers: source.headers,
+        body: await source.text(),
+      });
+    };
+    const response = await worker.fetch(
+      await hostedRequest(payload),
+      hosted,
+      {} as ExecutionContext,
+    );
+    expect(response.status).toBe(200);
+    // An unknown customer never creates account ownership, billing records or charges.
+    expect(await response.json()).toEqual({ received: true, ignored: true });
+    const unsigned = await hostedRequest(payload);
+    unsigned.headers.delete("Stripe-Signature");
+    const original = await hostedRequest(payload);
+    const tampered = new Request(original.url, {
+      method: "POST",
+      headers: original.headers,
+      body: (await original.text()).replace(
+        "cus_unmappedfixture",
+        "cus_otherfixture",
+      ),
+    });
+    for (const request of [
+      unsigned,
+      tampered,
+      await hostedRequest(payload, Math.floor(Date.now() / 1000) - 600),
+    ]) {
+      const rejected = await worker.fetch(
+        request,
+        hosted,
+        {} as ExecutionContext,
+      );
+      expect(rejected.status).toBe(400);
+      expect(await rejected.json()).toMatchObject({
+        error: { code: "BILLING_SIGNATURE_INVALID" },
+      });
+    }
+    for (const changes of [
+      { livemode: false },
+      { account: "acct_foreignfixture" },
+    ]) {
+      const rejected = await worker.fetch(
+        await hostedRequest({ ...payload, ...changes }),
+        hosted,
+        {} as ExecutionContext,
+      );
+      expect(rejected.status).toBe(400);
+      expect(await rejected.json()).toMatchObject({
+        error: { code: "BILLING_MODE_MISMATCH" },
+      });
+    }
+    expect(
+      (
+        await env.DB.prepare(
+          "SELECT count(*) n FROM billing_accounts WHERE customer_id IN ('cus_unmappedfixture','cus_otherfixture')",
+        ).first()
+      )?.n,
+    ).toBe(0);
+    expect(
+      (
+        await env.DB.prepare(
+          "SELECT count(*) n FROM billing_webhook_receipts WHERE event_id='evt_recoveryfixture'",
+        ).first()
+      )?.n,
+    ).toBe(0);
+    expect(network).not.toHaveBeenCalled();
+  });
   it("shows missing configuration while keeping simulation reservations separate from invoices", async () => {
     expect(billingConfigured(env)).toBe(true);
     expect(billingConfigured({ ...env, ENVIRONMENT: "production" })).toBe(

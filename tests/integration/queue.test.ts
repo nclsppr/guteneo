@@ -223,6 +223,7 @@ it("does not start production attempts when live sends are disabled", async () =
     APP_ORIGIN: "https://guteneo.example.invalid",
     AUTH0_DOMAIN: "tenant.example.invalid",
     AUTH0_CLIENT_ID: "fixture-only",
+    AUTH0_CLIENT_SECRET: "fixture-confidential-client",
     AUTH0_AUDIENCE: "https://guteneo.example.invalid",
     LIVE_SENDS_ENABLED: "false",
   } as Env;

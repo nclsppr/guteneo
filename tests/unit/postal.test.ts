@@ -234,6 +234,7 @@ beforeAll(async () => {
     AUTH0_AUTH_POLICY: "verified_email",
     AUTH0_DOMAIN: "fixture.auth0.com",
     AUTH0_CLIENT_ID: "fixture-client",
+    AUTH0_CLIENT_SECRET: "fixture-confidential-client",
     AUTH0_AUDIENCE: "https://guteneo.example",
     POSTAL_DRAFTS_ENABLED: "true",
     LIVE_SENDS_ENABLED: "false",

@@ -515,6 +515,71 @@ describe("signed Telnyx callbacks during identity setup", () => {
 });
 
 describe("webhook HTTP boundary with actual local D1", () => {
+  it("accepts and deduplicates a signed Pingen callback through the Worker without Auth0", async () => {
+    const env = {
+      ...configured(),
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: "https://guteneo.example",
+    } as Env;
+    for (let index = 0; index < 2; index++) {
+      const response = await worker.fetch(
+        await callback("webhook_issues"),
+        env,
+        {} as ExecutionContext,
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ received: true });
+    }
+    const receipts = await db
+      .prepare("SELECT provider,event_id,status FROM provider_receipts")
+      .all();
+    expect(receipts.results).toEqual([
+      {
+        provider: "pingen",
+        event_id: "provider-event-1",
+        status: "unrecognized",
+      },
+    ]);
+  });
+  it("still rejects unsigned, tampered and foreign-organization Pingen callbacks before storage without Auth0", async () => {
+    const env = {
+      ...configured(),
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: "https://guteneo.example",
+    } as Env;
+    const unsigned = await callback();
+    unsigned.headers.delete("Signature");
+    const original = await callback();
+    const tampered = new Request(original.url, {
+      method: "POST",
+      headers: original.headers,
+      body: (await original.text()).replace(
+        "provider-letter-1",
+        "provider-letter-2",
+      ),
+    });
+    for (const request of [unsigned, tampered]) {
+      const response = await worker.fetch(request, env, {} as ExecutionContext);
+      expect(response.status).toBe(401);
+      expect(await response.json()).toEqual({
+        error: { code: "WEBHOOK_REJECTED" },
+      });
+    }
+    expect(
+      (
+        await worker.fetch(
+          await callback(),
+          { ...env, PINGEN_ORGANIZATION_ID: "different-provider-org" },
+          {} as ExecutionContext,
+        )
+      ).status,
+    ).toBe(401);
+    expect(
+      (await db.prepare("SELECT count(*) n FROM provider_receipts").first())?.n,
+    ).toBe(0);
+  });
   it("persists a verified receipt before ingestion/ACK and deduplicates repeated callbacks", async () => {
     const domain = sink(
       vi

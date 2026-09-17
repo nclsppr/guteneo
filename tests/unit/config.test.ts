@@ -191,3 +191,124 @@ it("keeps registration and health incomplete until every identity setting exists
   }
   expect(getCapabilities(complete).registration.enabled).toBe(true);
 });
+
+it("blocks hosted private routes and work until the confidential Auth0 client is complete", async () => {
+  const prepare = vi.fn();
+  const env = {
+    DB: { prepare },
+    ENVIRONMENT: "production",
+    MODE: "production",
+    APP_ORIGIN: "https://guteneo.com",
+    AUTH0_DOMAIN: "identity.example",
+    AUTH0_CLIENT_ID: "fixture-client",
+    AUTH0_AUDIENCE: "https://guteneo.com/mcp",
+  } as unknown as Env;
+  for (const secret of [undefined, ""]) {
+    const partial = { ...env, AUTH0_CLIENT_SECRET: secret };
+    expect(() => assertConfiguration(partial)).toThrow(
+      "IDENTITY_NOT_CONFIGURED",
+    );
+    for (const [path, method] of [
+      ["/api/session", "GET"],
+      ["/api/documents", "POST"],
+      ["/mcp", "POST"],
+    ]) {
+      const response = await worker.fetch(
+        new Request(`https://guteneo.com${path}`, { method }),
+        partial,
+        {} as ExecutionContext,
+      );
+      expect(response.status).toBe(503);
+      expect(await response.json()).toMatchObject({
+        error: { code: "CONFIGURATION_INVALID" },
+      });
+    }
+    for (const path of ["/api/health", "/api/capabilities"])
+      expect(() =>
+        assertConfiguration(partial, new Request(`https://guteneo.com${path}`)),
+      ).not.toThrow();
+  }
+  expect(prepare).not.toHaveBeenCalled();
+  expect(() =>
+    assertConfiguration({
+      ...env,
+      AUTH0_CLIENT_SECRET: "fixture-confidential-client",
+    }),
+  ).not.toThrow();
+});
+
+for (const provider of ["pingen", "stripe"] as const) {
+  it(`allows only the configured ${provider} POST during identity setup without weakening base guards`, () => {
+    const providerConfig =
+      provider === "pingen"
+        ? {
+            PINGEN_WEBHOOK_SECRET: "fixture-signature-key",
+            PINGEN_ORGANIZATION_ID: "fixture-organisation",
+          }
+        : {
+            STRIPE_WEBHOOK_SECRET: "whsec_fixture",
+            STRIPE_API_KEY: "rk_live_fixture",
+            STRIPE_MODE: "live" as const,
+          };
+    const env = {
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: "https://guteneo.com",
+      ...providerConfig,
+    } as Env;
+    const url = `https://guteneo.com/webhooks/${provider}`;
+    const callback = new Request(url, { method: "POST" });
+    expect(() => assertConfiguration(env, callback)).not.toThrow();
+    for (const field of Object.keys(providerConfig))
+      for (const value of [undefined, ""])
+        expect(() =>
+          assertConfiguration({ ...env, [field]: value }, callback),
+        ).toThrow("IDENTITY_NOT_CONFIGURED");
+    for (const method of ["GET", "HEAD", "PUT", "OPTIONS", "DELETE"])
+      expect(() =>
+        assertConfiguration(env, new Request(url, { method })),
+      ).toThrow("IDENTITY_NOT_CONFIGURED");
+    for (const path of [
+      `/webhooks/${provider}/`,
+      `/webhooks/${provider}/other`,
+      `/webhooks/${provider}-other`,
+      `/webhooks/${provider.toUpperCase()}`,
+      `/webhooks/%${provider.charCodeAt(0).toString(16)}${provider.slice(1)}`,
+      ...["ses", "telnyx", provider === "pingen" ? "stripe" : "pingen"].map(
+        (name) => `/webhooks/${name}`,
+      ),
+      "/api/session",
+      "/api/documents",
+      "/api/billing/customer",
+      "/mcp",
+    ])
+      expect(() =>
+        assertConfiguration(
+          env,
+          new Request(`https://guteneo.com${path}`, { method: "POST" }),
+        ),
+      ).toThrow("IDENTITY_NOT_CONFIGURED");
+    expect(() => assertConfiguration(env)).toThrow("IDENTITY_NOT_CONFIGURED");
+    expect(() =>
+      assertConfiguration({ ...env, MODE: "simulation" }, callback),
+    ).toThrow("PRODUCTION_SIMULATION_FORBIDDEN");
+    expect(() =>
+      assertConfiguration(
+        { ...env, APP_ORIGIN: "http://guteneo.com" },
+        callback,
+      ),
+    ).toThrow("HTTPS_REQUIRED");
+    expect(() =>
+      assertConfiguration({ ...env, ENVIRONMENT: "local" }, callback),
+    ).toThrow("LOCAL_HOST_REQUIRED");
+    if (provider === "stripe")
+      for (const changes of [
+        { STRIPE_MODE: "test" as const, STRIPE_API_KEY: "rk_test_fixture" },
+        { STRIPE_API_KEY: "rk_test_fixture" },
+        { STRIPE_API_KEY: "invalid-key" },
+      ])
+        expect(() =>
+          assertConfiguration({ ...env, ...changes }, callback),
+        ).toThrow("IDENTITY_NOT_CONFIGURED");
+  });
+}

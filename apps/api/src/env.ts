@@ -1,3 +1,5 @@
+import { billingConfigured } from "./billing";
+
 export interface Env {
   DB: D1Database;
   DOCUMENTS: R2Bucket;
@@ -85,12 +87,25 @@ export function assertConfiguration(env: Env, request?: Request): void {
     request?.method === "POST" &&
     pathname === "/webhooks/telnyx" &&
     Boolean(env.TELNYX_PUBLIC_KEY);
+  const configuredPingenCallback =
+    request?.method === "POST" &&
+    pathname === "/webhooks/pingen" &&
+    Boolean(env.PINGEN_WEBHOOK_SECRET && env.PINGEN_ORGANIZATION_ID);
+  const configuredStripeCallback =
+    request?.method === "POST" &&
+    pathname === "/webhooks/stripe" &&
+    billingConfigured(env);
   if (
     env.ENVIRONMENT !== "local" &&
     !readiness &&
     !configuredSesCallback &&
     !configuredTelnyxCallback &&
-    (!env.AUTH0_DOMAIN || !env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE)
+    !configuredPingenCallback &&
+    !configuredStripeCallback &&
+    (!env.AUTH0_DOMAIN ||
+      !env.AUTH0_CLIENT_ID ||
+      !env.AUTH0_CLIENT_SECRET ||
+      !env.AUTH0_AUDIENCE)
   )
     throw new Error("IDENTITY_NOT_CONFIGURED");
 }
