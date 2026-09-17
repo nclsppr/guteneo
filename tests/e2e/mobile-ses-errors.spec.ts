@@ -55,7 +55,7 @@ test("mobile email refusals explain capacity and AWS restrictions while uncertai
           ? {}
           : {
               dispatch: {
-                id: "dispatch_ui",
+                id: decodeURIComponent(path.slice("/api/dispatches/".length)),
                 channel: "email",
                 recipient_json: { email: "recipient@example.invalid" },
                 sender_address: "sender@example.invalid",
