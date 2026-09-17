@@ -7,6 +7,7 @@ async function fixture(page: Page, expiresIn = 2000) {
   const writes: { path: string; body: unknown }[] = [];
   const old = {
     id: "quote_old",
+    campaign_id: null as string | null,
     channel: "fax",
     mode: "production",
     status: "prepared",
@@ -115,6 +116,31 @@ test("expiry disables approval and renewal requires a fresh explicit consent", a
     path: testInfo.outputPath("renewed-quote.png"),
     fullPage: true,
   });
+});
+
+test("campaign renewal is disclosed before creating an individual quote", async ({
+  page,
+}) => {
+  const f = await fixture(page, -1);
+  f.old.campaign_id = "campaign_frozen";
+  await page.goto("/#/app/dispatch/quote_old");
+  await expect(
+    page.getByText("Ce renouvellement créera un devis individuel", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  expect(f.writes).toHaveLength(0);
+  await page
+    .getByRole("button", { name: "Renouveler le devis", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/app\/dispatch\/quote_new$/);
+  await expect(page.getByRole("checkbox")).not.toBeChecked();
+  await expect(
+    page.getByRole("button", { name: "Approuver cette version" }),
+  ).toBeDisabled();
+  expect(f.writes).toEqual([
+    { path: "/api/dispatches/quote_old/renew-quote", body: {} },
+  ]);
 });
 
 test("a live quote rejection offers renewal while preserving a real configuration failure", async ({

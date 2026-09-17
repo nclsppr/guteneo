@@ -1128,6 +1128,13 @@ export function DispatchDetailPage({
                 ? "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi."
                 : "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration."}
             </p>
+            {quoteBlocked && d.campaign_id && (
+              <p>
+                Ce renouvellement créera un devis individuel, hors de la
+                campagne d’origine. La campagne conservera son historique ; vous
+                devrez approuver ce nouvel envoi séparément.
+              </p>
+            )}
             {renewalAllowed && (
               <button
                 className="button primary"

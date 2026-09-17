@@ -161,6 +161,35 @@ describe("private operational observations", () => {
     ).toBe("documents");
   });
 
+  it("records quote renewal failures without retaining dispatch IDs or query strings", async () => {
+    const dispatchId = "dsp_00000000-0000-4000-8000-000000000001";
+    const response = await worker.fetch(
+      new Request(
+        `https://guteneo.com/api/dispatches/${dispatchId}/renew-quote?private=${sentinel}`,
+        { method: "POST", body: JSON.stringify({ private: sentinel }) },
+      ),
+      environment(),
+      {} as ExecutionContext,
+    );
+    expect(response.status).toBe(401);
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      route: "dispatches",
+      method: "POST",
+      status: 401,
+      code: "AUTH_REJECTED",
+    });
+    expect(JSON.stringify(records)).not.toContain(dispatchId);
+    expect(JSON.stringify(records)).not.toContain(sentinel);
+    expect(
+      routeCode(
+        new Request(
+          `https://guteneo.com/api/dispatches/${dispatchId}/renew-quote/extra`,
+        ),
+      ),
+    ).toBe("unknown");
+  });
+
   it("captures configuration failures that used to return before the request logger", async () => {
     const response = await worker.fetch(
       new Request("https://guteneo.com/api/session"),

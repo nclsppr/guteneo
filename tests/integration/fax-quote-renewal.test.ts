@@ -1,7 +1,15 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
@@ -132,6 +140,96 @@ describe("fax quote renewal — local D1, no provider request", () => {
     expect(replay.status).toBe("queued");
     expect(await rows("dispatches")).toHaveLength(2);
     expect(await funding()).toEqual(funds);
+  });
+  it("renews individually without changing a frozen campaign manifest or a queued member", async () => {
+    const campaign = await f.domain.createCampaign(f.ctx, { name: "Frozen" });
+    const input = { ...f.input, campaignId: campaign.id as string };
+    const old = await f.domain.prepareDispatch(f.ctx, input, "campaign-old");
+    const sibling = await f.domain.prepareDispatch(
+      f.ctx,
+      input,
+      "campaign-sibling",
+    );
+    await f.domain.approveDispatch(f.ctx, old.id, old.fingerprint);
+    await f.domain.approveDispatch(f.ctx, sibling.id, sibling.fingerprint);
+    await f.domain.confirmDispatch(f.ctx, sibling.id, "queue-sibling");
+    const before = await f.domain.getCampaign(f.ctx, input.campaignId);
+    const siblingBefore = await f.domain.getDispatch(f.ctx, sibling.id);
+    const approvals = await rows("approvals");
+    const funds = await funding();
+    expire(old);
+    const renewed = await f.domain.renewFaxQuote(f.ctx, old.id);
+    expect(renewed.campaign_id).toBeNull();
+    expect(renewed.recipient_json).toBe(old.recipient_json);
+    expect(renewed.document_id).toBe(old.document_id);
+    expect(renewed.ceiling_minor).toBe(old.ceiling_minor);
+    expect((await f.domain.getDispatch(f.ctx, renewed.id)).approval).toBeNull();
+    const after = await f.domain.getCampaign(f.ctx, input.campaignId);
+    expect(after.campaign).toEqual(before.campaign);
+    expect(
+      after.dispatches.map(({ id, fingerprint }) => ({ id, fingerprint })),
+    ).toEqual(
+      before.dispatches.map(({ id, fingerprint }) => ({ id, fingerprint })),
+    );
+    expect((await f.domain.getDispatch(f.ctx, sibling.id)).dispatch).toEqual(
+      siblingBefore.dispatch,
+    );
+    expect(await funding()).toEqual(funds);
+    expect(await rows("approvals")).toEqual(approvals);
+    expect(
+      (await rows("audit_log")).find((x) => x.action === "fax.quote_renewed"),
+    ).toMatchObject({
+      details_json: JSON.stringify({
+        approvalInherited: false,
+        originalCampaignId: input.campaignId,
+        replacementDispatchId: renewed.id,
+      }),
+    });
+    await expect(
+      f.domain.prepareDispatch(f.ctx, input, "ordinary-insertion"),
+    ).rejects.toMatchObject({ code: "CAMPAIGN_FROZEN" });
+    await f.domain.approveDispatch(f.ctx, renewed.id, renewed.fingerprint);
+    expect(
+      (await f.domain.getCampaign(f.ctx, input.campaignId)).campaign,
+    ).toEqual(before.campaign);
+    expect((await f.domain.renewFaxQuote(f.ctx, old.id)).id).toBe(renewed.id);
+  });
+  it("remains individual and idempotent when a draft campaign freezes during renewal", async () => {
+    const campaign = await f.domain.createCampaign(f.ctx, {
+      name: "Concurrent freeze",
+    });
+    const input = { ...f.input, campaignId: campaign.id as string };
+    const old = await f.domain.prepareDispatch(f.ctx, input, "draft-old");
+    expire(old);
+    const sibling = await f.domain.prepareDispatch(
+      f.ctx,
+      input,
+      "current-sibling",
+    );
+    let frozenManifest: unknown;
+    const racingDb = {
+      prepare: db.prepare.bind(db),
+      batch: async (statements: D1PreparedStatement[]) => {
+        await f.domain.approveDispatch(f.ctx, sibling.id, sibling.fingerprint);
+        frozenManifest = (await f.domain.getCampaign(f.ctx, input.campaignId))
+          .campaign;
+        return db.batch(statements);
+      },
+    } as D1Database;
+    const renewing = new DomainService(racingDb, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: f.identity,
+    });
+    const renewed = await renewing.renewFaxQuote(f.ctx, old.id);
+    expect(renewed.campaign_id).toBeNull();
+    expect(
+      (await f.domain.getCampaign(f.ctx, input.campaignId)).campaign,
+    ).toEqual(frozenManifest);
+    expect((await f.domain.getDispatch(f.ctx, renewed.id)).approval).toBeNull();
+    expect((await f.domain.renewFaxQuote(f.ctx, old.id)).id).toBe(renewed.id);
+    expect(await rows("outbox")).toHaveLength(0);
+    expect(await rows("reservations")).toHaveLength(0);
   });
   it("rejects still-valid, cross-tenant and modified-content renewal requests", async () => {
     const old = await prepare();
@@ -305,7 +403,7 @@ describe("fax quote renewal — local D1, no provider request", () => {
         scopes: [...MCP_SCOPES],
         clientId: "fixture",
         token: "fixture",
-        expiresAt: Date.now() + 60000,
+        expiresAt: clock + 60000,
       },
       { APP_ORIGIN: "https://guteneo.invalid" } as AuthEnv,
       {
@@ -325,7 +423,33 @@ describe("fax quote renewal — local D1, no provider request", () => {
     const [ct, st] = InMemoryTransport.createLinkedPair();
     await server.connect(st);
     await client.connect(ct);
+    const currentTime = vi.spyOn(Date, "now").mockImplementation(() => clock);
     try {
+      const other = await createFaxUsageFixture(db, () => clock);
+      await other.domain.prepareDispatch(
+        other.ctx,
+        other.input,
+        "other-tenant",
+      );
+      const list = await client.callTool({
+        name: "list_dispatches",
+        arguments: { limit: 50 },
+      });
+      expect(list.structuredContent).toMatchObject({
+        ok: true,
+        data: {
+          items: [
+            {
+              id: old.id,
+              quoteExpiresAt: old.quote_expires_at,
+              nextActions: [expect.stringContaining("Devis expiré")],
+            },
+          ],
+        },
+      });
+      const listed = (list.structuredContent as { data: { items: unknown[] } })
+        .data.items;
+      expect(listed).toHaveLength(1);
       const status = await client.callTool({
         name: "get_dispatch_status",
         arguments: { dispatchId: old.id },
@@ -369,6 +493,7 @@ describe("fax quote renewal — local D1, no provider request", () => {
       expect(await rows("outbox")).toHaveLength(0);
       expect(await rows("attempts")).toHaveLength(0);
     } finally {
+      currentTime.mockRestore();
       await client.close();
       await server.close();
     }
