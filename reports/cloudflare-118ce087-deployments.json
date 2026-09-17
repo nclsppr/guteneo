@@ -1,0 +1,42 @@
+[
+  {
+    "name": "guteneo-app",
+    "success": true,
+    "latest": {
+      "id": "605235d0-6ef2-4060-bc63-a92585360a5e",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "author_email": "nclsppr@gmail.com",
+      "annotations": {
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "634bc1b9-4991-4dbf-b807-0ebf3f7a7edc",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-09-17T03:11:22.161638Z"
+    }
+  },
+  {
+    "name": "guteneo-preview",
+    "success": true,
+    "latest": {
+      "id": "28768102-fa8f-4717-90ec-10c0b7d5c9f3",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "author_email": "nclsppr@gmail.com",
+      "annotations": {
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "2a63dad6-f48c-4f0e-acef-18a5e4026392",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-09-17T03:11:29.92489Z"
+    }
+  }
+]

@@ -4,7 +4,7 @@ The user originally requested an immediate Cloudflare deployment to inspect the 
 
 The separate `guteneo-preview` Worker serves the React application built with `VITE_PUBLIC_PREVIEW=true`. The first deployment version was `71f30997-dfbd-4f70-a4ce-10cfa4367e81`. `/release.json` records the currently deployed source commit, whether local changes were included, the source snapshot digest and individual asset digests. `/health` identifies the preview mode and closed live-send gate. These endpoints are public evidence; a successful local build alone is not deployment proof.
 
-Current preview source is `813dd7173389f8fbcc1e1e1abaf68be905e7084c`, Worker version `b47daae5-19bd-43c9-91e6-a78d159efc35`, deployed at 02:29 UTC on 17 September with 100% traffic verified. All 51 public asset hashes, robots policy and security headers match the clean local build. This remains fictional preview evidence.
+Current preview source is `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, Worker version `2a63dad6-f48c-4f0e-acef-18a5e4026392`, deployed at **03:11:29 UTC** on 17 September with **100% traffic** verified. All 51 public asset hashes, robots policy and security headers match the clean local build, snapshot `90b8a7cc9527c7a60042e2f30b2ce2da3087858ef973695f1f56eaec6ab323b0`; evidence: `reports/preview-118ce087-release-proof.json`. The published preview passed **30 browser cases with four intentional desktop skips** in 12 seconds (`reports/published-preview-118ce087.json`). This is fictional preview evidence, separate from the canonical application’s eight read-only public checks and its `/api/health` endpoint. The later documentation commit is not the deployed source.
 
 ## What is interactive
 

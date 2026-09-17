@@ -2,11 +2,27 @@
 
 Guteneo has two hosted surfaces. Since the controlled cutover on 17 September, **https://guteneo.com** serves the production-mode application, also reachable at **https://guteneo-app.nclsppr.workers.dev**. The separate fictional design preview remains at **https://guteneo-preview.nclsppr.workers.dev**. Registration is configured on the canonical domain; completed signup and reconnection still require qualification. Live sending remains disabled. The PR remains open and unmerged.
 
-## Current publication — `813dd717`
+## Current publication — `118ce087`
+
+Clean runtime source `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21` was published on 17 September at **03:11:22 UTC** as application version `634bc1b9-4991-4dbf-b807-0ebf3f7a7edc`, followed at **03:11:29 UTC** by preview version `2a63dad6-f48c-4f0e-acef-18a5e4026392`. Cloudflare returned both versions at **100% traffic**; evidence: `reports/cloudflare-118ce087-deployments.json`. This runtime source is distinct from the subsequent documentation-only commit recording its proof.
+
+Both exact-source CI runs completed successfully: [PR 35176518316](https://github.com/nclsppr/guteneo/actions/runs/35176518316) and [push 35176516018](https://github.com/nclsppr/guteneo/actions/runs/35176516018). Local integrated results are recorded separately in [TEST_RESULTS.md](TEST_RESULTS.md): 578 unit/integration tests, 65 security tests, 75 application browser cases with three intentional skips, and 30 preview cases with four intentional skips.
+
+At 03:12 UTC, public checks matched **56 asset hashes on each application host** and **51 on the preview**, with clean source, host-specific robots policy and security headers verified. Reports: `reports/canonical-118ce087-release-proof.json`, `reports/fallback-118ce087-release-proof.json` and `reports/preview-118ce087-release-proof.json`. Application snapshot: `2c2b85b508931bb4506ca81f30f96b90f198103ebf112ec3da70209ac3788207`; preview snapshot: `90b8a7cc9527c7a60042e2f30b2ce2da3087858ef973695f1f56eaec6ab323b0`.
+
+Migration **0023** was applied before publication in one atomic batch. The remote ledger contains **23 migrations**, with **177 matching domain schema objects** (178 including the ledger), `foreign_keys=1`, no foreign-key violations and `quick_check=ok`. The observed users, organizations, documents, dispatches and all three new fax v3 tables remained empty. See [D1_MIGRATION.md](D1_MIGRATION.md) and `reports/d1-0023-release-proof.json`.
+
+The canonical **`/api/health`** response at 03:12:49 UTC is HTTP 200, production mode, `liveSending:false`. `/api/capabilities` reports registration configured with verified email, charging disabled and all three providers `configured_not_live_validated`; anonymous postal requirements return `401 AUTHENTICATION_REQUIRED`. Evidence: `reports/published-118ce087-api.json`. `/health` is the separate preview's health endpoint, not the application's health API.
+
+Post-publication canonical developer/SEO checks passed **8/8 desktop+iPhone cases** in 4.6 seconds (`reports/published-118ce087-public-browser.json`). The fictional preview passed **30 cases with four intentional desktop skips** in 12 seconds (`reports/published-preview-118ce087.json`). These read-only public checks do not qualify signup, an assistant connection or an external communication.
+
+The published fax v3 implementation adds a qualified estimate, firm approved cap, retained reservation and separate verified-usage settlement. REST, MCP and the dashboard expose customer pricing only; removal of the public supplier-price projection does not remove private accounting or historical snapshots. No production tariff or sender was installed, no channel was activated, and no signup or real send was qualified. `LIVE_SENDS_ENABLED=false` remains in force.
+
+## Historical publication — `813dd717`
 
 On 17 September at 02:28–02:29 UTC, clean source `813dd7173389f8fbcc1e1e1abaf68be905e7084c` was deployed as application version `dac5f1af-fb40-46f2-9cf5-511a8ee70e32` and separate preview version `b47daae5-19bd-43c9-91e6-a78d159efc35`. Cloudflare subsequently returned both exact versions at **100% traffic**. The application source snapshot is `2eff4845459ca49b4ede019afc3d4cd1518abb9a2b32fbbc52ebd5bab52f5c07`; the preview snapshot is `9af577f1d3846653062885621642c2d6d645c9608b6fd16a3094ede9a2cb6529`.
 
-Public verification compared **56 asset hashes on each application host** and **51 on the preview**, plus their complete host-specific robots policies and security headers. The canonical health response is `200`, production mode, `liveSending:false`. `/openapi.json` exposes **20 paths and 23 operations**; unauthenticated postal requirements correctly return `401 AUTHENTICATION_REQUIRED`.
+Public verification compared **56 asset hashes on each application host** and **51 on the preview**, plus their complete host-specific robots policies and security headers. The canonical `/api/health` response was `200`, production mode, `liveSending:false`. `/openapi.json` exposed **20 paths and 23 operations**; unauthenticated postal requirements correctly returned `401 AUTHENTICATION_REQUIRED`.
 
 Exact-source [PR CI 35173778876](https://github.com/nclsppr/guteneo/actions/runs/35173778876) passed every step: scanner, types, lint, 537 unit/integration tests, 65 security tests, migration equivalence, builds, application/preview browser suites, deployment dry-run and cost model. The sibling [push CI 35173776032](https://github.com/nclsppr/guteneo/actions/runs/35173776032) failed solely because the 51-concurrent-email integration test exceeded its 30-second test deadline; 536 other tests passed. A subsequent test-only correction allows that one scenario 90 seconds, preserving concurrency and every assertion; its targeted local rerun passed in 27.21 seconds. This does not rewrite the failed run or alter the published runtime.
 
@@ -18,7 +34,7 @@ The separately published fictional preview passed **30/30 browser cases with 4 i
 
 ## Historical canonical cutover — `174e601`
 
-The application serves clean source `174e6012920d9d4893faa2a5baa5671da01e8fab`, Worker version `0ad2a5ba-acbb-4ce7-a983-8ea6290a3eca`, with 100% application traffic verified at cutover. The independent preview was deployed from the same source as version `c84a4333-5fd5-4335-88f0-2bc4f017d7a4`.
+At cutover, the application served clean source `174e6012920d9d4893faa2a5baa5671da01e8fab`, Worker version `0ad2a5ba-acbb-4ce7-a983-8ea6290a3eca`, with 100% application traffic verified. The independent preview was deployed from the same source as version `c84a4333-5fd5-4335-88f0-2bc4f017d7a4`.
 
 At 01:11 UTC, `reports/canonical-release-proof.json` and `reports/live-release-proof.json` verified 56 public asset hashes against snapshot `17beaaa465abfd8e46e0d938771d16929de9a0c08eb21201f81e7de28862eed8`, response security headers and host-specific robots policy. The canonical browser smoke at 01:13 UTC checked six public pages, 18 Swagger operations and the real account page at 1280, 390 and 320 pixels with no overflow or JavaScript errors. It performed no login or mutation. See `reports/canonical-beta-smoke.json`.
 
@@ -26,7 +42,7 @@ The exact-source CI runs [35169488520](https://github.com/nclsppr/guteneo/action
 
 At 01:22 UTC, the separate workers.dev preview passed verification of 51 public asset hashes, noindex/robots policy and security headers (`reports/preview-release-proof.json`).
 
-The subsequent committed baseline `b349c19b23eda30518ae36a9f9e372fb89c0da68` passed full [GitHub CI](https://github.com/nclsppr/guteneo/actions/runs/35171803416), including the corrected preview SEO expectations and sandboxed Chromium PDF integration. This CI success is separate from the currently published application source `174e601`; it is not a claim that the in-progress postal application or revised SES pricing has been deployed. The new postal UI and OpenAPI checks are recorded in TEST_RESULTS.md.
+The subsequent committed baseline `b349c19b23eda30518ae36a9f9e372fb89c0da68` passed full [GitHub CI](https://github.com/nclsppr/guteneo/actions/runs/35171803416), including the corrected preview SEO expectations and sandboxed Chromium PDF integration. At that time this CI success was separate from the published application source `174e601`; it did not establish deployment of the then-in-progress postal application or revised SES pricing. Their later checks are recorded in TEST_RESULTS.md.
 
 ## Published source and public evidence — historical release `8f39014`
 
@@ -35,7 +51,7 @@ The subsequent committed baseline `b349c19b23eda30518ae36a9f9e372fb89c0da68` pas
 | Design preview | `8f39014b8ebf9b38b5e3f217393bdce2d4507c17` | `ae250f7f-dfdf-4f6b-a70c-1c38d92fe0e0` | 44 |
 | Application backend | `8f39014b8ebf9b38b5e3f217393bdce2d4507c17` | `e86ba7b2-c3b3-43e4-bb76-a8741236c627` | 46 |
 
-Both historical deployments above served 100% of traffic at their recorded verification. They were superseded by `174e601` and subsequently by the current `813dd717` release. The mutable machine-readable release reports now track subsequent checks and must not be used as proof of this older source.
+Both historical deployments above served 100% of traffic at their recorded verification. They were superseded by `174e601`, then `813dd717` and the current `118ce087` release. The mutable machine-readable release reports now track subsequent checks and must not be used as proof of this older source.
 
 Backend snapshot: `b6aa291a7ca49ba742f90d73e2063488379c6db4a71b82c56b84443c6f06d41f`. Preview snapshot: `16f20ee339b3d2312f2a4db475e458d5af1d6f16cb52ee3d1be67bfedc8706e9`. Public manifests: [preview](https://guteneo.com/release.json), [backend](https://guteneo-app.nclsppr.workers.dev/release.json).
 
@@ -47,9 +63,9 @@ Both CI runs passed for the exact preview source: [PR verification](https://gith
 
 Official ChatGPT, Claude, Grok and Cursor marks keep their shapes and colors inside perforated paper stamps. The Luxembourg footer now uses the printer's blue/ivory dithering, with automatic flight and four-pose wing animation, respecting reduced motion. The animation button is removed. The homepage and downloadable guide show dated customer price examples and applicable limits, without publishing supplier-margin arithmetic. The legal page identifies Nicolas Pieper, his supplied address/contact, Cloudflare hosting and the project's unregistered preparatory state.
 
-The account ledger grants EUR50 once, shares the balance across all three channels, atomically reserves costs and stops unaffordable sends. Paid top-up remains disabled during the requested beta. Migrations 0001–0022 are applied remotely, with clean integrity/foreign-key checks and an exact comparison of 161 domain schema objects. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md), [D1_MIGRATION.md](D1_MIGRATION.md) and [TEST_RESULTS.md](TEST_RESULTS.md).
+The account ledger grants EUR50 once, shares the balance across all three channels, atomically reserves costs and stops unaffordable sends. Paid top-up remains disabled during the requested beta. Migrations 0001–0023 are applied remotely, with clean integrity/foreign-key checks and an exact comparison of 177 domain schema objects. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md), [D1_MIGRATION.md](D1_MIGRATION.md) and [TEST_RESULTS.md](TEST_RESULTS.md).
 
-Twelve browser journeys pass both locally and on the published preview across desktop Chromium and iPhone WebKit. The complete local application suite previously passed 36 journeys; local unit/security runs and subsequent targeted provider checks are recorded separately in TEST_RESULTS. No fixture result is described as actual delivery.
+Current browser and unit/security counts are recorded above and in TEST_RESULTS. Earlier 12-case preview and 36-case application results remain historical evidence. No fixture result is described as actual delivery.
 
 ## Provider configuration and real account checks
 
@@ -61,7 +77,7 @@ Twelve browser journeys pass both locally and on the published preview across de
 
 The current public capability response reports production mode, registration configured with verified email, billing disabled, all three provider credentials configured but not live-validated, and **`LIVE_SENDS_ENABLED=false`**. The separate design preview stays independent of D1/R2 and never sends documents.
 
-On 17 September the official Auth0 CLI session was renewed, the three dedicated Guteneo clients, database connection, API and two Actions were provisioned, and the browser credentials were installed privately in Cloudflare. The user explicitly retained the Free plan. Published source `813dd717` retains the `verified_email` policy introduced with migration0019. Guteneo branding and French signup were applied and visually verified. A real signup, received verification email, signed verified-account evidence and completed browser session still need qualification. MFA is not required by this beta policy; the legacy default remains strict. See [AUTH0_SETUP.md](AUTH0_SETUP.md) and [AUTH0_BRANDING.md](AUTH0_BRANDING.md).
+On 17 September the official Auth0 CLI session was renewed, the three dedicated Guteneo clients, database connection, API and two Actions were provisioned, and the browser credentials were installed privately in Cloudflare. The user explicitly retained the Free plan. Published source `118ce087` retains the `verified_email` policy introduced with migration 0019. Guteneo branding and French signup were applied and visually verified. A real signup, received verification email, signed verified-account evidence and completed browser session still need qualification. MFA is not required by this beta policy; the legacy default remains strict. See [AUTH0_SETUP.md](AUTH0_SETUP.md) and [AUTH0_BRANDING.md](AUTH0_BRANDING.md).
 
 The browser client's registered callback is `https://guteneo.com/auth/callback`, and the root domain now reaches the backend. Start actual signup from `guteneo.com`: a login started on `workers.dev` cannot qualify that flow because its host-only login cookie does not accompany the canonical callback. Keep `LIVE_SENDS_ENABLED=false` while qualifying reconnection, logout and the EUR50 account balance. Returning the domain to the preview is a rollback option that disables the account API without deleting provisioned identities or account records; subsequent qualification must start a new login.
 

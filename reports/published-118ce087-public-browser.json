@@ -1,0 +1,392 @@
+{
+  "config": {
+    "argv": [
+      "/Users/nclsppr/.nvm/versions/node/v24.18.0/bin/node",
+      "/Users/nclsppr/Developer/guteneo/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.preview.config.ts",
+      "tests/preview-e2e/seo.spec.ts",
+      "tests/preview-e2e/developers.spec.ts",
+      "--reporter=json",
+      "--output=test-results/published-118ce087"
+    ],
+    "configFile": "/Users/nclsppr/Developer/guteneo/playwright.preview.config.ts",
+    "rootDir": "/Users/nclsppr/Developer/guteneo/tests/preview-e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/nclsppr/Developer/guteneo/test-results/published-118ce087",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/nclsppr/Developer/guteneo/tests/preview-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "/Users/nclsppr/Developer/guteneo/test-results/published-118ce087",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "iphone",
+        "name": "iphone",
+        "testDir": "/Users/nclsppr/Developer/guteneo/tests/preview-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 5,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "developers.spec.ts",
+      "file": "developers.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "developer guide is SSR-readable and its download is a self-contained contract",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1087,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:01.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b1f45892616a4a7e593a-de573b06319be184f021",
+          "file": "developers.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "Swagger is lazy, does not authorize or execute, and cannot follow query overrides",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 2415,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:01.363Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "anonymous-home-session-denial",
+                      "contentType": "application/json",
+                      "body": "eyJzdGF0dXMiOjQwMSwiY29kZSI6IkFVVEhFTlRJQ0FUSU9OX1JFUVVJUkVEIiwiY29uc29sZSI6eyJ0ZXh0IjoiRmFpbGVkIHRvIGxvYWQgcmVzb3VyY2U6IHRoZSBzZXJ2ZXIgcmVzcG9uZGVkIHdpdGggYSBzdGF0dXMgb2YgNDAxICgpIiwidXJsIjoiaHR0cHM6Ly9ndXRlbmVvLmNvbS9hcGkvc2Vzc2lvbiJ9fQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b1f45892616a4a7e593a-340bf6e98a146d50e6fa",
+          "file": "developers.spec.ts",
+          "line": 45,
+          "column": 1
+        },
+        {
+          "title": "developer guide is SSR-readable and its download is a self-contained contract",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 1671,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:01.356Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b1f45892616a4a7e593a-2c0fb9534dd477bba074",
+          "file": "developers.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "Swagger is lazy, does not authorize or execute, and cannot follow query overrides",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 2307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:02.268Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "anonymous-home-session-denial",
+                      "contentType": "application/json",
+                      "body": "eyJzdGF0dXMiOjQwMSwiY29kZSI6IkFVVEhFTlRJQ0FUSU9OX1JFUVVJUkVEIiwiY29uc29sZSI6eyJ0ZXh0IjoiRmFpbGVkIHRvIGxvYWQgcmVzb3VyY2U6IHRoZSBzZXJ2ZXIgcmVzcG9uZGVkIHdpdGggYSBzdGF0dXMgb2YgNDAxICgpIiwidXJsIjoiaHR0cHM6Ly9ndXRlbmVvLmNvbS9hcGkvc2Vzc2lvbiJ9fQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b1f45892616a4a7e593a-395953ca3261cd8a09ff",
+          "file": "developers.spec.ts",
+          "line": 45,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "seo.spec.ts",
+      "file": "seo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "public routes expose complete initial HTML, metadata and true HTTP statuses",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 614,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:01.343Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-9d772cc1171f4267f33b",
+          "file": "seo.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "journal content and ordinary navigation work with JavaScript disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1460,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:01.361Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-92e012dc9061044cef86",
+          "file": "seo.spec.ts",
+          "line": 105,
+          "column": 1
+        },
+        {
+          "title": "public routes expose complete initial HTML, metadata and true HTTP statuses",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 836,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:03.230Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-6647426558896a4337b6",
+          "file": "seo.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "journal content and ordinary navigation work with JavaScript disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1611,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T03:12:03.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-627162ec8e312014b923",
+          "file": "seo.spec.ts",
+          "line": 105,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T03:12:00.852Z",
+    "duration": 4601.1449999999995,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

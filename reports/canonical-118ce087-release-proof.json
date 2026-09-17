@@ -1,0 +1,16 @@
+{
+  "origin": "https://guteneo.com",
+  "sourceCommit": "118ce087c3fe5a1ad63bd4c562adb8e26aa8af21",
+  "sourceDirty": false,
+  "sourceSnapshotSha256": "2c2b85b508931bb4506ca81f30f96b90f198103ebf112ec3da70209ac3788207",
+  "publicAssetsVerified": 56,
+  "configurationFiles": [
+    "/_headers"
+  ],
+  "dynamicResources": [
+    "/robots.txt"
+  ],
+  "robotsPolicyVerified": true,
+  "securityHeadersVerified": true,
+  "verifiedAt": "2026-09-17T03:12:01.362Z"
+}

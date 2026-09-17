@@ -105,7 +105,7 @@ A fresh schema comparison matched all **145 application-owned objects** against 
 
 ## Postal review and public SES pricing — 2026-09-17
 
-Committed source `813dd7173389f8fbcc1e1e1abaf68be905e7084c` supplied migrations0020–0022. They were applied at **02:17:17–02:17:35 UTC** as three complete D1 API batches, with each ledger insertion in its own migration transaction. All 15, 4 and 7 statements succeeded. No user, dispatch, postal review or tariff was inserted.
+Committed source `813dd7173389f8fbcc1e1e1abaf68be905e7084c` supplied migrations 0020–0022. They were applied at **02:17:17–02:17:35 UTC** as three complete D1 API batches, with each ledger insertion in its own migration transaction. All 15, 4 and 7 statements succeeded. No user, dispatch, postal review or tariff was inserted.
 
 Pre-migration bookmark: `0000002a-00000000-000050e9-7f4054a4f992ba4b46625c4af4507e8c`. Post-migration bookmark: `0000002a-00000008-000050e9-e00340b59278c431d5780d363ba3d79c`.
 
@@ -116,3 +116,17 @@ Fresh remote checks confirmed all **22 migrations**, `foreign_keys=1`, no foreig
 | 0020 | `5867ea67e48812e8772db893ce3b6c8198662767140797c58b22d986cbc7ccb7` | `b6cc5c07c40cf66c6a48daaccb4a90ef795d0773b848f4f85a7999c0731736ff` |
 | 0021 | `80f73b855fa5353c9992afa3113baeff02019f6f9fb0caa1fa30158b5a54651a` | `6db398a3a161d3ed04d44cd10d76dd59cbfcbd6701f10bb6a14cfd6ffe53f618` |
 | 0022 | `4562d478eec03c25cfa2f7ee4b39261c2f4a8cd51ed5063d8f2251c0b4b70c11` | `f46d82af13cf0dac0d5c40b4ebf2c94107684e129af9fdf2f30db1ebd5675d0d` |
+
+## Fax usage pricing — 2026-09-17
+
+Migration `0023_fax_usage_pricing.sql` from clean source `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21` was applied at **03:10:32 UTC**, before the application publication. All **43 statements** succeeded in one atomic D1 API batch, including its ledger insertion. This migration adds the fax usage tariff, immutable quote and reconciled settlement structures without seeding business rows or activating a channel.
+
+Pre-migration bookmark: `00000030-00000000-000050e9-1b5e0f03069ddf1862821af86bfea947`. Post-migration bookmark: `00000030-00000004-000050e9-c87e13489a07d1f034e4c8d9ad07a993`.
+
+The read-back contains **23 ledger entries** and exactly **177 domain schema objects**, all matching the locally verified normalized source/transport schema with no differences. The local verifier's **178-object** count includes the migration ledger; the remote domain comparison excludes it. Checks returned `foreign_keys=1`, no foreign-key violations and `quick_check=ok`. Users, organizations, documents, dispatches, `trusted_fax_usage_tariffs`, `live_fax_quotes_v3` and `fax_usage_settlements` each contained zero rows. Evidence: `reports/d1-0023-release-proof.json`.
+
+| Migration | Source SHA-256 | Transport SHA-256 |
+| --- | --- | --- |
+| 0023 | `e506b0a18db23ce70296ef73d508932d1f69c6c3fd5a41f67b95abc7b78a1f27` | `95f275392edcc0b29a46cecf49c214d2e5e389811f15395a18ec4226cfdef270` |
+
+The existing fixed fax v2 and email/postal quote contracts remain distinct. The subsequent application deployment, public hashes and `/api/health` response with live sending disabled are recorded in [LIVE_RELEASE.md](LIVE_RELEASE.md); applying this migration alone is not runtime publication or supplier qualification.

@@ -1,5 +1,7 @@
 # Telnyx rate qualification and proposed fax pricing v3
 
+**Current implementation status — 17 September 2026:** the proposal below is now implemented and published in release `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, after migration 0023. No active v3 tariff was installed and live sending remains disabled. Publication does not qualify the supplier route, usage-record correlation or a successful fax. See [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) and [LIVE_RELEASE.md](LIVE_RELEASE.md). The dated inspection and proposal below are retained as historical evidence; their original status describes that inspection.
+
 Observed and reviewed **2026-09-17**. Status: **read-only account evidence and implementation proposal; no active v3 tariff or runtime change**. The inspection covered only the authorized Guteneo Telnyx account. No key, number, purchase, account setting, call or fax was created or changed. This note does not qualify successful transmission or authorize activation.
 
 The current [fax v2 contract](LIVE_FAX_QUOTES.md) requires a guaranteed final supplier total before preparation. Standard Telnyx fax combines a page charge with transmission duration, so that contract cannot model the observed rate deck faithfully. The proposed v3 prepares from a qualified, dated tariff and an explicit duration estimate, reserves a firm customer ceiling, then reconciles usage after transmission. **A future supplier invoice is not a prerequisite for preparing the estimate.**
