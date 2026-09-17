@@ -1,5 +1,15 @@
 # Qualification ChatGPT — 17 septembre 2026
 
+## Premier fax réel livré — preuve limitée au parcours observé
+
+Après l’import natif du PDF dans ChatGPT, le renouvellement manuel de son devis et l’approbation de l’utilisateur dans Guteneo, une seule tentative Telnyx a été créée le 17 septembre 2026 à 11:13:55.422 UTC. Elle a été acceptée à 11:13:59.101 UTC. L’événement fournisseur `delivered`, survenu à 11:15:17.154 UTC, a été reçu à 11:15:18.497 UTC et appliqué à 11:15:18.892 UTC. La relecture D1 confirme le statut livré et une tentative unique. L’agent de diagnostic n’a ni approuvé ni renvoyé ce fax.
+
+La preuve privée expurgée est conservée dans `test-results/chatgpt-import/first-live-fax-delivery.json`, observée à 11:22:18.366 UTC. À cette observation, le plafond de 200 centimes restait réservé : aucun usage rapproché ni débit client définitif n’était enregistré. Livraison et décompte restent deux faits distincts ; le champ de borne estimée ne constitue pas un débit.
+
+Cette observation qualifie un document et une route destinataire au Luxembourg. Elle ne certifie pas l’option Local Calling chez Telnyx, la réception de fax par tous les numéros luxembourgeois, ni les 42 routes du catalogue. L’installation privée et les essais initiaux en lecture seule ci-dessous restent des preuves historiques distinctes. Aucun nouvel envoi n’a été effectué pour corriger le renouvellement des devis.
+
+## Installation initiale en lecture seule
+
 Dans Safari, l’utilisateur était connecté à Guteneo et à ChatGPT. Après son accord explicite, le mode développeur a été activé et le connecteur distant `https://guteneo.com/mcp` a été créé. Le consentement Auth0 a ensuite été accepté avec son autorisation : adresse e-mail, `documents:read` et `dispatches:read` uniquement. Aucun droit d’import, de préparation ou d’envoi n’a été accordé pour cette recette.
 
 Un client OAuth Guteneo dédié à ChatGPT a été enregistré avec l’adresse de retour exacte fournie par l’interface. Ce client public utilise Authorization Code et les contrôles PKCE existants. Les Actions Guteneo vérifient aussi l’audience et l’identité ; leur configuration, le client navigateur et les secrets Cloudflare n’ont pas été modifiés. Aucun secret client n’a été copié dans ChatGPT.

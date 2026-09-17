@@ -93,7 +93,10 @@ describe("fax pricing through the official MCP transport", () => {
         { APP_ORIGIN: "https://guteneo.invalid" } as AuthEnv,
         {
           domain: {
-            getDispatch: async () => ({ dispatch }),
+            getDispatch: async () => ({
+              dispatch,
+              attempts: [{ id: "attempt_fixture" }],
+            }),
             listDispatches: async () => ({
               items: [dispatch],
               nextCursor: null,
@@ -140,6 +143,11 @@ describe("fax pricing through the official MCP transport", () => {
             };
           };
           expect(body.ok).toBe(true);
+          if (name === "get_dispatch_status")
+            expect(body.data).toMatchObject({
+              attemptCount: 1,
+              quoteExpiresAt: null,
+            });
           const pricing =
             name === "list_dispatches"
               ? body.data.items?.[0].faxPricing

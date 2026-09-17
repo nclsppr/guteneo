@@ -232,7 +232,7 @@ function sqlError(error: unknown): never {
     [
       "live_quote_invalid",
       "LIVE_QUOTE_INVALID",
-      "Le devis fax a expiré ou sa configuration a changé.",
+      "Le devis fax a expiré ou sa configuration a changé. Renouvelez le devis avant de l’approuver à nouveau.",
       409,
     ],
     [
@@ -497,12 +497,123 @@ export class DomainService {
     input: PrepareInput,
     idempotencyKey: string,
   ): Promise<Dispatch> {
+    return this.prepareDispatchInternal(ctx, input, idempotencyKey);
+  }
+  async renewFaxQuote(
+    ctx: ActorContext,
+    sourceId: string,
+    expected?: {
+      documentId: string;
+      phone: string;
+      ceilingMinor: number;
+      senderId?: string;
+    },
+  ): Promise<Dispatch> {
+    writable(ctx);
+    const source = await this.dispatch(ctx, sourceId);
+    if (
+      source.channel !== "fax" ||
+      source.mode !== "production" ||
+      !source.document_id
+    )
+      throw new DomainError(
+        "FAX_QUOTE_RENEWAL_UNSAFE",
+        "Seul un devis fax réel peut être renouvelé ici.",
+        409,
+      );
+    const recipient = JSON.parse(source.recipient_json) as Record<
+      string,
+      unknown
+    >;
+    if (
+      expected &&
+      (expected.documentId !== source.document_id ||
+        validateRecipient("fax", { phone: expected.phone }).phone !==
+          recipient.phone ||
+        expected.ceilingMinor !== source.ceiling_minor ||
+        (expected.senderId !== undefined &&
+          expected.senderId !== source.sender_id))
+    )
+      throw new DomainError(
+        "RENEWAL_CONTENT_MISMATCH",
+        "Le renouvellement doit conserver le PDF, le destinataire, l’expéditeur et le plafond exacts du devis initial.",
+        409,
+      );
+    const idempotencyKey = `fax-renew:${source.id}`;
+    const existing = await this.db
+      .prepare(
+        "SELECT 1 FROM dispatches WHERE organization_id=? AND prepare_key=?",
+      )
+      .bind(ctx.organizationId, idempotencyKey)
+      .first();
+    if (!existing) {
+      // The transaction below rechecks all submission and funding evidence.
+      if (
+        source.status !== "prepared" ||
+        source.provider ||
+        source.provider_id ||
+        source.active_attempt_id
+      )
+        throw new DomainError(
+          "FAX_QUOTE_RENEWAL_UNSAFE",
+          "La soumission de cet envoi a commencé ou il n’est plus préparé. Consultez son statut sans le réexpédier.",
+          409,
+        );
+      let invalid =
+        !!source.quote_expires_at && source.quote_expires_at <= this.time();
+      if (!invalid) {
+        try {
+          await validateLiveFaxQuote(
+            this.db,
+            source,
+            this.config.liveFaxIdentity,
+            this.time(),
+          );
+        } catch (error) {
+          if (
+            !(error instanceof DomainError) ||
+            error.code !== "LIVE_QUOTE_INVALID"
+          )
+            throw error;
+          invalid = true;
+        }
+      }
+      if (!invalid)
+        throw new DomainError(
+          "QUOTE_STILL_VALID",
+          "Ce devis est encore valable. Vérifiez-le avant de l’approuver.",
+          409,
+        );
+    }
+    return this.prepareDispatchInternal(
+      ctx,
+      {
+        channel: "fax",
+        recipient,
+        documentId: source.document_id,
+        ...(source.sender_id ? { senderId: source.sender_id } : {}),
+        options: JSON.parse(source.options_json) as Record<string, unknown>,
+        ...(source.campaign_id ? { campaignId: source.campaign_id } : {}),
+        ceilingMinor: source.ceiling_minor,
+      },
+      idempotencyKey,
+      source,
+    );
+  }
+  private async prepareDispatchInternal(
+    ctx: ActorContext,
+    input: PrepareInput,
+    idempotencyKey: string,
+    renewal?: Dispatch,
+  ): Promise<Dispatch> {
     writable(ctx);
     await this.organization(ctx);
     key(idempotencyKey);
     if (!["fax", "email", "postal"].includes(input.channel))
       throw new DomainError("INVALID_CHANNEL", "Canal inconnu.");
-    const requestHash = await sha256(canonicalJson(input));
+    const requestHash = await sha256(
+      canonicalJson(renewal ? { ...input, renewalOf: renewal.id } : input),
+    );
     const existing = await this.db
       .prepare(
         "SELECT * FROM dispatches WHERE organization_id=? AND prepare_key=?",
@@ -734,7 +845,32 @@ export class DomainService {
           now,
           quote?.fingerprint ?? null,
         );
+      const renewalFence = renewal
+        ? [
+            this.db
+              .prepare(
+                "SELECT json(CASE WHEN NOT EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND prepare_key=? AND request_hash<>?) AND (EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND prepare_key=? AND request_hash=?) OR EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=? AND d.id=? AND d.fingerprint=? AND d.status='prepared' AND d.provider IS NULL AND d.provider_id IS NULL AND d.active_attempt_id IS NULL AND NOT EXISTS(SELECT 1 FROM attempts a WHERE a.organization_id=d.organization_id AND a.dispatch_id=d.id) AND NOT EXISTS(SELECT 1 FROM outbox o WHERE o.organization_id=d.organization_id AND o.dispatch_id=d.id) AND NOT EXISTS(SELECT 1 FROM reservations r WHERE r.organization_id=d.organization_id AND r.dispatch_id=d.id) AND NOT EXISTS(SELECT 1 FROM welcome_credit_reservations r WHERE r.organization_id=d.organization_id AND r.dispatch_id=d.id))) THEN '{}' ELSE 'fax_quote_renewal_unsafe' END)",
+              )
+              .bind(
+                ctx.organizationId,
+                idempotencyKey,
+                requestHash,
+                ctx.organizationId,
+                idempotencyKey,
+                requestHash,
+                ctx.organizationId,
+                renewal.id,
+                renewal.fingerprint,
+              ),
+            this.db
+              .prepare(
+                "UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status='prepared' AND fingerprint=?",
+              )
+              .bind(now, ctx.organizationId, renewal.id, renewal.fingerprint),
+          ]
+        : [];
       await this.db.batch([
+        ...renewalFence,
         insert,
         ...(quote
           ? [
@@ -743,8 +879,29 @@ export class DomainService {
                 : insertFaxQuote(this.db, quote),
             ]
           : []),
+        ...(renewal
+          ? [
+              this.audit(
+                ctx,
+                "fax.quote_renewed",
+                renewal.id,
+                { replacementDispatchId: id, approvalInherited: false },
+                {
+                  condition:
+                    "EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND prepare_key=?)",
+                  values: [ctx.organizationId, id, idempotencyKey],
+                },
+              ),
+            ]
+          : []),
       ]);
     } catch (e) {
+      if (renewal && String(e).includes("malformed JSON"))
+        throw new DomainError(
+          "FAX_QUOTE_RENEWAL_UNSAFE",
+          "Cet envoi a changé ou sa soumission a commencé. Consultez son statut ; aucun nouveau fax n’a été préparé.",
+          409,
+        );
       sqlError(e);
     }
     const saved = (await this.db

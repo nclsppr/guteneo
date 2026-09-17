@@ -542,6 +542,15 @@ app.post("/api/dispatches", async (c) =>
     201,
   ),
 );
+app.post("/api/dispatches/:id/renew-quote", async (c) => {
+  z.object({})
+    .strict()
+    .parse(await c.req.json());
+  return c.json(
+    await domain(c.env).renewFaxQuote(c.get("actor"), c.req.param("id")),
+    201,
+  );
+});
 app.post("/api/dispatches/:id/approve", async (c) => {
   const session = await authenticateBrowser(c.req.raw, c.env, true);
   const { fingerprint, recipientRequested } = z

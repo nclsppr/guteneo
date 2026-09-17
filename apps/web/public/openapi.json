@@ -1727,6 +1727,58 @@
           }
         ]
       }
+    },
+    "/api/dispatches/{id}/renew-quote": {
+      "post": {
+        "operationId": "renewFaxQuote",
+        "summary": "Renouveler un devis fax expiré",
+        "description": "Recopie le PDF, le numéro E.164, les options, l’expéditeur et le plafond exacts dans un nouveau devis. Réservé à un fax prepared, expiré ou devenu invalide, sans tentative, fournisseur, outbox ni réservation. Annule l’ancien devis et crée le nouveau atomiquement. Une nouvelle approbation est requise ; aucun envoi, accord ou jeton expert hérité. Idempotence serveur stable par ancien dispatchId : un rejeu renvoie le même nouveau devis. Les erreurs de configuration restent bloquantes. Relire le détail avant action : prepared et attempts vide côté REST ; get_dispatch_status fournit attemptCount=0 explicite côté MCP. Un champ absent ne prouve aucune absence de tentative. L’échéance vient de quote_expires_at en REST et quoteExpiresAt en MCP.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Nouveau devis ou résultat idempotent, sans approbation ni envoi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispatch"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Envoi non renouvelable, devis encore valable ou configuration indisponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
