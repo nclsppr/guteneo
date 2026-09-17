@@ -1,0 +1,31 @@
+{
+  "assets": [
+    {
+      "source": "assets/brand/source/gutenberg-guteneo-stamp.jpg",
+      "originalAttachment": "Photo 1.jpg",
+      "provenance": "Original supplied by Nicolas Pieper in the Guteneo task on 2026-09-17; preserved byte for byte.",
+      "sourceSha256": "9f5e573c1deff3ba4fae0de046104b67f05bcc8dec7d887761b64ca246a7b733",
+      "sourceBytes": 768769,
+      "web": "apps/web/public/brand/gutenberg-guteneo-stamp.webp",
+      "webSha256": "6e04f5f1d744942be176843ef0a0cb41ce7e4c710b1d36c22257a33f3679225f",
+      "webBytes": 175830,
+      "width": 640,
+      "height": 640,
+      "conversion": "cwebp -quiet -q 88 -resize 640 640 assets/brand/source/gutenberg-guteneo-stamp.jpg -o apps/web/public/brand/gutenberg-guteneo-stamp.webp"
+    },
+    {
+      "source": "assets/brand/source/gutenberg-portrait-stamp.jpg",
+      "originalAttachment": "Photo 2.jpg",
+      "provenance": "Original supplied by Nicolas Pieper in the Guteneo task on 2026-09-17; preserved byte for byte.",
+      "sourceSha256": "f4b858e83c68e24c1b2a7910ec19d6a5a432bb127e1f14ad3aed69dca60833f9",
+      "sourceBytes": 745231,
+      "web": "apps/web/public/brand/gutenberg-portrait-stamp.webp",
+      "webSha256": "ac4722d3e7ddfcb3bcd38b2911446c98088a623ac27ef5ff11e4f880a6f096f4",
+      "webBytes": 180318,
+      "width": 640,
+      "height": 640,
+      "conversion": "cwebp -quiet -q 88 -resize 640 640 assets/brand/source/gutenberg-portrait-stamp.jpg -o apps/web/public/brand/gutenberg-portrait-stamp.webp"
+    }
+  ],
+  "footer": "The branded stamp appears with a decorative, code-authored Luxembourg first-day cancellation. The fixed date 2026-09-16 is the founding date supplied by the user; this is brand artwork, not an official postal validation."
+}

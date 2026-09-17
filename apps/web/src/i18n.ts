@@ -230,6 +230,9 @@ export const fr = {
       cta: "Entrer dans l’atelier",
       imageAlt:
         "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en bleu et ivoire.",
+      stampDescription:
+        "Timbre Gutenberg et cachet décoratif Luxembourg, premier jour de guteneo :",
+      foundingDate: "16 septembre 2026",
       made: "Fait au Luxembourg",
       created: "Créé par",
       nav: "Liens de bas de page",
