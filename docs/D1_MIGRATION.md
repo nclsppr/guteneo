@@ -94,6 +94,8 @@ Pre-migration bookmark: `00000020-00000000-000050e9-6ccf89b8ade84d7c2b7b32b27333
 
 Fresh remote checks confirmed nineteen ledger entries, `foreign_keys=1`, `quick_check=ok`, zero foreign-key violations and 146 schema objects including the migration ledger.
 
+A fresh schema comparison matched all **145 application-owned objects** against the normalized source migrations applied to a separate in-memory SQLite database: SHA-256 `710c8ab2a96eb22f2fedf7fe44df1983a061b58620ddc6db79a40193c8c4e401` for both sorted, whitespace-normalized schema inventories. The ledger is excluded as in the previous comparison. Separate local workerd tests already exercised the source/transport behavior; a redundant workerd verifier invocation remained idle and was stopped after this independent schema comparison completed. Its stopped invocation is not recorded as a passing test.
+
 | Migration | Source SHA-256 | Transport SHA-256 |
 | --- | --- | --- |
 | 0016 | `ff6cb71c2ee7bbb869d6b37c84481ff3308a075e13cccc68af55cc71e9cbaa14` | `a691b38c6bccdc63b4d94e1c50a0fb036ce943a995e002f7cf722b1f41c971da` |

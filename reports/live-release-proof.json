@@ -1,12 +1,16 @@
 {
   "origin": "https://guteneo-app.nclsppr.workers.dev",
-  "sourceCommit": "8f39014b8ebf9b38b5e3f217393bdce2d4507c17",
+  "sourceCommit": "291e697c23b21dd766ccd60486b0d8d97d34bdf7",
   "sourceDirty": false,
-  "sourceSnapshotSha256": "b6aa291a7ca49ba742f90d73e2063488379c6db4a71b82c56b84443c6f06d41f",
-  "publicAssetsVerified": 46,
+  "sourceSnapshotSha256": "79d2a86f32c4d3b5e11687aa0c874d2dcb91dc6d7c1bbc90c8bb616ce6cfd210",
+  "publicAssetsVerified": 56,
   "configurationFiles": [
     "/_headers"
   ],
+  "dynamicResources": [
+    "/robots.txt"
+  ],
+  "robotsPolicyVerified": true,
   "securityHeadersVerified": true,
-  "verifiedAt": "2026-09-17T00:02:00.590Z"
+  "verifiedAt": "2026-09-17T01:04:36.107Z"
 }

@@ -7,7 +7,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
-  "routes": [{ "pattern": "guteneo.com", "custom_domain": true }],
+  // The fictional design model remains available on its workers.dev address.
+  "routes": [],
   "assets": {
     "directory": "./dist/preview",
     "binding": "ASSETS",

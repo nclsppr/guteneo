@@ -2,6 +2,14 @@
 
 ## Current continuation — 2026-09-17
 
+The mobile/API/verified-account increment published initially from `291e697c23b21dd766ccd60486b0d8d97d34bdf7` passed typecheck, lint and **447/447 Vitest tests across 30 files**, followed by **40/40 security tests**. Adding the branding and release-verification tests brought the separate security run to **51/51**. A subsequent French-login-locale change passed all **27 auth tests** and targeted lint. The private postal renderer under development is a separate, not-yet-published increment.
+
+On the committed application's built assets, the full local browser run had **39 passing cases, 3 intentional desktop skips and 6 failures caused by an obsolete rescan-link selector**. The UI correctly removes the link while scanning is incomplete. The corrected test now asserts absence of `href`, disabled accessibility state and removal from keyboard navigation before scanning, then the exact restored link afterward. All six affected cases passed on Chromium, Pixel Chromium and iPhone WebKit. This is a targeted successful rerun, not a relabelled all-green full run. The public preview independently passed **30 cases**, with **4 intentional desktop skips**, without rebuilding either bundle during testing.
+
+Remote D1 has all **19 migrations**, `quick_check=ok`, no foreign-key violations and an exact comparison of all 145 application-owned schema objects. AWS's verification email arrived in macOS Mail and its address-confirmation succeeded; that is not a Guteneo delivery test. Real signup, assistant OAuth and actual business-channel delivery remain separate qualification steps.
+
+### Earlier editorial release evidence
+
 Editorial SEO candidate: typecheck and lint pass; the full local suite passed **328/328 unit/integration tests in 24 files** and **31/31 security/build tests**. A subsequent conditional-304 indexing regression brings the targeted preview Worker suite to **35/35**, without relabeling the earlier full-run count. All **20/20 preview browser cases** pass locally on desktop Chromium and iPhone WebKit, including raw HTML/canonical/schema/HTTP checks, journal navigation with JavaScript disabled, responsive generated images, source links and chapter anchors. The independently reviewed five SSR pages produce no CSP violations. Production preview/backend builds pass with separate index/noindex policies. These are local candidate results; published SHA and remote evidence are recorded separately after deployment.
 
 Both CI runs passed for the exact deployed backend source `ee64850691f9f50c3e7cee5cbbfea2afe46c448d`: [PR](https://github.com/nclsppr/guteneo/actions/runs/35162247327) and [push](https://github.com/nclsppr/guteneo/actions/runs/35162242683). The CI includes the complete updated unit suite, 25 security tests, 36 application browser cases and 12 preview cases, migration verification and deployment builds. The local runs below retain their separate dates and scope.

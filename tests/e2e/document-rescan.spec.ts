@@ -105,11 +105,13 @@ for (const initialResult of ["quarantined", "unavailable"] as const) {
       .getByRole("button", { name: /^Original à vérifier\.pdf/ })
       .click();
     const detail = page.locator(".document-detail");
-    const prepare = detail.locator('a[href^="#/app/prepare?document="]');
+    const prepare = detail.getByText("Utiliser pour un envoi", { exact: true });
     const retry = detail.getByRole("button", {
       name: "Relancer l’analyse du PDF",
     });
     await expect(prepare).toHaveAttribute("aria-disabled", "true");
+    await expect(prepare).not.toHaveAttribute("href");
+    await expect(prepare).toHaveAttribute("tabindex", "-1");
     await expect(detail.locator("code")).toHaveText(document.sha256);
     await expect(detail.locator("canvas")).toHaveCount(0);
     expect(contentPaths).toEqual([]);
@@ -127,6 +129,7 @@ for (const initialResult of ["quarantined", "unavailable"] as const) {
     }
     await expect(retry).toBeEnabled();
     await expect(prepare).toHaveAttribute("aria-disabled", "true");
+    await expect(prepare).not.toHaveAttribute("href");
     expect(rescans).toBe(1);
     expect(contentPaths).toEqual([]);
 
@@ -135,6 +138,7 @@ for (const initialResult of ["quarantined", "unavailable"] as const) {
       detail.getByRole("button", { name: "Analyse en cours…" }),
     ).toBeDisabled();
     await expect(prepare).toHaveAttribute("aria-disabled", "true");
+    await expect(prepare).not.toHaveAttribute("href");
     finishScan();
     await expect(
       detail.getByRole("status").filter({ hasText: "Analyse terminée." }),
@@ -142,6 +146,7 @@ for (const initialResult of ["quarantined", "unavailable"] as const) {
     await expect(retry).toHaveCount(0);
     await expect(detail.locator("canvas")).toBeVisible();
     await expect(prepare).toHaveAttribute("aria-disabled", "false");
+    await expect(prepare).not.toHaveAttribute("tabindex");
     await expect(prepare).toHaveAttribute(
       "href",
       `#/app/prepare?document=${document.id}`,

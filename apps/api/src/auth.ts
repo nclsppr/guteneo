@@ -671,6 +671,7 @@ export async function handleAuthRoute(
       response_type: "code",
       redirect_uri: `${env.APP_ORIGIN}/auth/callback`,
       scope: "openid profile email",
+      ui_locales: "fr",
       audience: config.audience,
       state,
       nonce,

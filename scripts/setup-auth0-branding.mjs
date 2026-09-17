@@ -14,8 +14,10 @@ export const THEME = {
   borders: {
     button_border_radius: 2,
     button_border_weight: 1,
+    buttons_style: "rounded",
     input_border_radius: 2,
     input_border_weight: 1,
+    inputs_style: "rounded",
     show_widget_shadow: false,
     widget_border_weight: 1,
     widget_corner_radius: 4,
@@ -47,12 +49,23 @@ export const THEME = {
     font_url: "",
     input_labels: { bold: false, size: 100 },
     links: { bold: false, size: 100 },
+    links_style: "normal",
     reference_text_size: 16,
     subtitle: { bold: false, size: 100 },
     title: { bold: true, size: 150 },
   },
-  page_background: { background_color: "#f6f5ef", background_image_url: "" },
-  widget: { logo_height: 56, logo_url: LOGO },
+  page_background: {
+    background_color: "#f6f5ef",
+    background_image_url: "",
+    page_layout: "center",
+  },
+  widget: {
+    logo_height: 56,
+    logo_url: LOGO,
+    logo_position: "center",
+    header_text_alignment: "center",
+    social_buttons_layout: "bottom",
+  },
 };
 export const TEXTS = {
   fr: {
@@ -190,6 +203,8 @@ export function brandingCli(args, payload, spawnChild = spawn) {
             /insufficient[_ ]scope/i.test(diagnostic)
           )
             throw new BrandingError("PERMISSION_REQUIRED");
+          if (/\b400\b/.test(diagnostic))
+            throw new BrandingError("INVALID_BRANDING_PAYLOAD");
           throw new BrandingError("CLI_REQUEST_FAILED");
         }
         const result = stdout.length ? JSON.parse(stdout.toString("utf8")) : {};

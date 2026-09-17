@@ -721,6 +721,7 @@ describe("identity and authentication boundaries", () => {
     );
     const destination = new URL(response!.headers.get("Location")!);
     expect(destination.searchParams.get("screen_hint")).toBe("signup");
+    expect(destination.searchParams.get("ui_locales")).toBe("fr");
     expect(destination.searchParams.get("prompt")).toBe("login");
     expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
     expect(destination.searchParams.get("scope")).toBe("openid profile email");

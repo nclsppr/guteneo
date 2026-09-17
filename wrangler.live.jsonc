@@ -7,8 +7,8 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
-  // Root-domain routing is added only after authentication is configured and checked.
-  "routes": [],
+  // Auth0 is configured; real browser login is qualified on this canonical origin.
+  "routes": [{ "pattern": "guteneo.com", "custom_domain": true }],
   "assets": {
     "directory": "./dist/web",
     "binding": "ASSETS",
