@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { luxembourgOperatorRoute } from "./luxembourg-fax-routes";
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
 import {
@@ -74,7 +75,7 @@ export type FaxUsageTariff = {
   sender_country_code: string;
   destination_country_code: string;
   origin_class: "local" | "eea";
-  destination_category: "fixed" | "special";
+  destination_category: "fixed" | "special" | "mobile" | "ngn" | "freephone";
   route_allowed: number;
   local_calling_verified: number;
   route_qualification?: "provider_verified" | "operator_test";
@@ -182,8 +183,10 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
     t.origin_class === "local" &&
     t.sender_country_code === "LU" &&
     t.destination_country_code === "LU" &&
-    t.destination_prefix === "+3524" &&
-    t.destination_category === "fixed" &&
+    luxembourgOperatorRoute(t.destination_prefix)?.prefix ===
+      t.destination_prefix &&
+    luxembourgOperatorRoute(t.destination_prefix)?.category ===
+      t.destination_category &&
     t.route_allowed === 1 &&
     t.local_calling_verified === 0 &&
     reference.safeParse(t.operator_authorization_reference).success &&
@@ -216,7 +219,7 @@ export async function resolveFaxUsageTariff(
   if (!id.safeParse(identity.outboundProfileId).success) throw unavailable();
   const t = await db
     .prepare(
-      "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND status='qualified' AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC LIMIT 1",
+      "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
     )
     .bind(
       organizationId,
@@ -236,13 +239,16 @@ export async function resolveFaxUsageTariff(
     .first<{ address: string }>();
   if (
     !t ||
+    t.status !== "qualified" ||
     !sender ||
     t.valid_from > now ||
     t.expires_at <= now ||
     t.route_allowed !== 1 ||
-    t.destination_category !== "fixed" ||
+    (t.destination_category !== "fixed" && !operatorRouteTest(t)) ||
     t.currency !== "USD" ||
-    (t.route_qualification === "operator_test" && !operatorRouteTest(t)) ||
+    (t.route_qualification === "operator_test" &&
+      (!operatorRouteTest(t) ||
+        luxembourgOperatorRoute(number)?.prefix !== t.destination_prefix)) ||
     pages > t.max_pages ||
     !hash.safeParse(t.source_sha256).success ||
     !reference.safeParse(t.source_reference).success ||

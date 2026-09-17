@@ -1,0 +1,82 @@
+{
+  "referenceOnly": true,
+  "source": "https://portal.telnyx.com/downloads/global_conversational/global_conver_6f678b5cc3.csv",
+  "sourceSha256": "ec4e3baeb5e26ba40024d99ffac022e95b22573cdbe6af008fb1c6193e0949c7",
+  "observedAt": "2026-09-17",
+  "origin": "local",
+  "intervals": [60, 60],
+  "pageNanoUsd": 7000000,
+  "fxNumerator": 10000,
+  "fxDenominator": 11537,
+  "durationBaseSeconds": 30,
+  "durationHighPerPageSeconds": 180,
+  "groups": [
+    {
+      "category": "fixed",
+      "minuteNanoUsd": 22000000,
+      "maxPages": 10,
+      "prefixes": [
+        "+35222",
+        "+35223",
+        "+35224",
+        "+35225",
+        "+35226",
+        "+35227",
+        "+35228",
+        "+35229",
+        "+3523",
+        "+3524",
+        "+3525",
+        "+3527",
+        "+352802",
+        "+352803",
+        "+352804",
+        "+352805",
+        "+352806",
+        "+352807",
+        "+352808",
+        "+352809",
+        "+35281",
+        "+35283",
+        "+35284",
+        "+35285",
+        "+35286",
+        "+35287",
+        "+35288",
+        "+35289",
+        "+352908",
+        "+352909",
+        "+35292",
+        "+35293",
+        "+35294",
+        "+35295",
+        "+35297",
+        "+35299"
+      ]
+    },
+    {
+      "category": "ngn",
+      "minuteNanoUsd": 44000000,
+      "maxPages": 7,
+      "prefixes": ["+35220", "+352291", "+352801"]
+    },
+    {
+      "category": "ngn",
+      "minuteNanoUsd": 200000000,
+      "maxPages": 1,
+      "prefixes": ["+35260"]
+    },
+    {
+      "category": "mobile",
+      "minuteNanoUsd": 80000000,
+      "maxPages": 4,
+      "prefixes": ["+3526"]
+    },
+    {
+      "category": "freephone",
+      "minuteNanoUsd": 0,
+      "maxPages": 10,
+      "prefixes": ["+352800"]
+    }
+  ]
+}
