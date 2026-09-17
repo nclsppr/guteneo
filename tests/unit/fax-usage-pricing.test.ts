@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { faxUsageEstimate } from "../../packages/domain/src/live-fax-usage";
+import {
+  faxUsageEstimate,
+  makeFaxUsageQuote,
+  type ResolvedFaxUsageTariff,
+} from "../../packages/domain/src/live-fax-usage";
 import { fixtureTariff } from "../helpers/fax-usage-fixture";
 
 const tariff = fixtureTariff("2026-09-17T00:00:00.000Z");
@@ -61,4 +65,44 @@ describe("fax usage estimate — integer arithmetic, synthetic rates", () => {
   it("keeps the first pilot at ten pages maximum", () => {
     expect(() => faxUsageEstimate(tariff, 11)).toThrow();
   });
+});
+
+describe("operator-test absolute expiry — runtime guard without SQL", () => {
+  const quote = (validFrom: string, expiresAt: string) => {
+    const t: ResolvedFaxUsageTariff = {
+      ...fixtureTariff(validFrom),
+      ...faxUsageEstimate(tariff, 1),
+      pricing_version: 3,
+      origin_class: "local",
+      destination_country_code: "LU",
+      destination_prefix: "+3524",
+      route_qualification: "operator_test",
+      operator_authorization_reference: "ISOLATED OPERATOR TEST",
+      operator_test_ceiling_minor: 200,
+      expires_at: expiresAt,
+    };
+    return makeFaxUsageQuote(
+      "dispatch_fixture",
+      t.organization_id,
+      { estimatedMinor: t.customer_minor, ceilingMinor: 200 },
+      t,
+      validFrom,
+    );
+  };
+  it("accepts authority ending exactly at the pilot deadline", async () => {
+    await expect(
+      quote("2026-09-23T09:00:00.000Z", "2026-09-24T09:00:01.620Z"),
+    ).resolves.toMatchObject({ ceiling_minor: 200 });
+  });
+  it.each([
+    ["2026-09-23T09:00:00.000Z", "2026-09-24T09:00:01.621Z"],
+    ["2026-09-30T09:00:00.000Z", "2026-10-01T09:00:00.000Z"],
+  ])(
+    "rejects short authority after the pilot deadline: %s to %s",
+    async (from, to) => {
+      await expect(quote(from, to)).rejects.toMatchObject({
+        code: "FAX_TEST_CEILING_EXCEEDED",
+      });
+    },
+  );
 });

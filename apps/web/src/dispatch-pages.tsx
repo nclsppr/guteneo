@@ -1,3 +1,4 @@
+import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
@@ -1110,6 +1111,9 @@ export function DispatchDetailPage({
           )}
           {faxPricing && (
             <div className="notice info" role="status" aria-atomic="true">
+              {faxPricing.routeQualification === "operator_authorized_test" && (
+                <p>{FAX_OPERATOR_TEST_NOTICE}</p>
+              )}
               <p>
                 {faxPricing.settlement.status === "settled"
                   ? "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde."

@@ -1,3 +1,7 @@
+import { Client } from "@modelcontextprotocol/client";
+import { InMemoryTransport } from "@modelcontextprotocol/server";
+import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
+import { MCP_SCOPES, type AuthEnv } from "../../apps/api/src/auth";
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
@@ -18,6 +22,7 @@ import {
   settleFaxUsage,
   readFaxPricingBatch,
   type OperatorFaxUsageProof,
+  type FaxUsageTariff,
 } from "../../packages/domain/src/live-fax-usage";
 import { validateLiveFaxQuote } from "../../packages/domain/src/live-fax-quotes";
 import { emailRateComponents } from "../../packages/domain/src/live-delivery-quotes";
@@ -707,5 +712,228 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
       (await f.domain.getDispatch(f.ctx, d.id)).dispatch.faxPricing?.settlement
         .chargedMinor,
     ).toBe(0);
+  });
+});
+
+describe("Luxembourg operator-authorized route test — synthetic D1 only", () => {
+  beforeEach(() => {
+    clock = Date.parse("2026-09-17T12:00:00.000Z");
+  });
+  const operatorTest: Partial<FaxUsageTariff> = {
+    origin_class: "local",
+    destination_country_code: "LU",
+    destination_prefix: "+3524",
+    minute_nano_usd: 22_000_000,
+    local_calling_verified: 0,
+    route_qualification: "operator_test",
+    operator_authorization_reference:
+      "ISOLATED OPERATOR AUTHORIZATION - NEVER PRODUCTION",
+    operator_test_ceiling_minor: 200,
+  };
+  async function fixture() {
+    f = await createFaxUsageFixture(db, () => clock, operatorTest);
+    f.input.recipient.phone = "+35240000000";
+  }
+  it("returns the real LU operator-test quote through MCP prepare_fax's strict output schema", async () => {
+    await fixture();
+    const server = createGuteneoMcpServer(
+      {
+        context: { ...f.ctx, actor: "mcp" },
+        scopes: [...MCP_SCOPES],
+        clientId: "fixture-only",
+        token: "fixture-only",
+        expiresAt: Date.now() + 60000,
+      },
+      { APP_ORIGIN: "https://guteneo.invalid" } as AuthEnv,
+      {
+        domain: f.domain,
+        documents: {
+          importFile: async () => {
+            throw Error("No upload in this test");
+          },
+          render: async () => {
+            throw Error("No render in this test");
+          },
+        },
+        capabilities: () => ({ mode: "production", liveSendsEnabled: true }),
+      },
+    );
+    const client = new Client({ name: "lu-operator-route-test", version: "1" });
+    const [ct, st] = InMemoryTransport.createLinkedPair();
+    await server.connect(st);
+    await client.connect(ct);
+    try {
+      const result = await client.callTool({
+        name: "prepare_fax",
+        arguments: {
+          documentId: f.documentId,
+          phone: f.input.recipient.phone,
+          ceilingMinor: 200,
+          idempotencyKey: "lu-real-domain-test",
+        },
+      });
+      expect(result.isError).not.toBe(true);
+      expect(result.structuredContent).toMatchObject({
+        ok: true,
+        data: {
+          status: "prepared",
+          faxPricing: {
+            routeQualification: "operator_authorized_test",
+            routeNotice: expect.stringContaining("n’est pas confirmée"),
+            ceilingMinor: 200,
+          },
+        },
+      });
+      expect(JSON.stringify(result)).not.toMatch(
+        /operator_authorization_reference|page_nano_usd|minute_nano_usd|supplier/,
+      );
+      expect(
+        await db
+          .prepare("SELECT count(*) n FROM outbox WHERE organization_id=?")
+          .bind(f.ctx.organizationId)
+          .first(),
+      ).toEqual({ n: 0 });
+    } finally {
+      await client.close();
+      await server.close();
+    }
+  });
+  it("prepares and accepts a bounded test without claiming verified Local Calling", async () => {
+    await fixture();
+    const d = await queue(200);
+    expect(d.faxPricing).toMatchObject({
+      routeQualification: "operator_authorized_test",
+      routeNotice: expect.stringContaining("n’est pas confirmée"),
+      ceilingMinor: 200,
+    });
+    expect(await balance()).toEqual({
+      reserved_minor: 200,
+      spent_minor: 0,
+      available_minor: 4800,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT local_calling_verified FROM trusted_fax_usage_tariffs WHERE id=?",
+        )
+        .bind(f.tariff.id)
+        .first(),
+    ).toEqual({ local_calling_verified: 0 });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM attempts WHERE organization_id=?")
+        .bind(f.ctx.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it("rejects more than the operator ceiling before preparing or reserving", async () => {
+    await fixture();
+    await expect(prepare(201)).rejects.toMatchObject({
+      code: "FAX_TEST_CEILING_EXCEEDED",
+    });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM dispatches WHERE organization_id=?")
+        .bind(f.ctx.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(await balance()).toEqual({
+      reserved_minor: 0,
+      spent_minor: 0,
+      available_minor: 5000,
+    });
+  });
+  it("does not widen testing to mobiles or another Luxembourg prefix", async () => {
+    await fixture();
+    f.input.recipient.phone = "+35260000000";
+    await expect(prepare()).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+  });
+  it("revocation prevents approval of an already prepared operator test", async () => {
+    await fixture();
+    const d = await prepare();
+    await db
+      .prepare(
+        "UPDATE trusted_fax_usage_tariffs SET status='revoked' WHERE id=?",
+      )
+      .bind(f.tariff.id)
+      .run();
+    await expect(
+      f.domain.approveDispatch(f.ctx, d.id, d.fingerprint),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+  });
+  it("keeps test authority and ceiling immutable", async () => {
+    await fixture();
+    for (const assignment of [
+      "operator_test_ceiling_minor=199",
+      "operator_authorization_reference='different'",
+      "route_qualification='provider_verified'",
+    ]) {
+      await expect(
+        db
+          .prepare(
+            `UPDATE trusted_fax_usage_tariffs SET ${assignment} WHERE id=?`,
+          )
+          .bind(f.tariff.id)
+          .run(),
+      ).rejects.toThrow("immutable_fax_usage_tariff");
+    }
+  });
+  it("allows the exact pilot expiry and stops preparing at that boundary", async () => {
+    const deadline = "2026-09-24T09:00:01.620Z";
+    f = await createFaxUsageFixture(db, () => clock, {
+      ...operatorTest,
+      expires_at: deadline,
+    });
+    f.input.recipient.phone = "+35240000000";
+    clock = Date.parse(deadline) - 1;
+    const d = await prepare(200);
+    expect(
+      await db
+        .prepare(
+          "SELECT expires_at FROM live_fax_quotes_v3 WHERE dispatch_id=?",
+        )
+        .bind(d.id)
+        .first(),
+    ).toEqual({ expires_at: deadline });
+    clock = Date.parse(deadline);
+    await expect(prepare(200)).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+  });
+  it.each([
+    { operator_authorization_reference: null },
+    { operator_authorization_reference: "" },
+    { operator_test_ceiling_minor: null },
+    { operator_test_ceiling_minor: 201 },
+    { local_calling_verified: 1 },
+    { destination_prefix: "+352" },
+    { destination_prefix: "+3526" },
+    { destination_category: "special" },
+    { origin_class: "eea" },
+    { destination_country_code: "FR", destination_prefix: "+334" },
+    { expires_at: "2026-09-24T09:00:01.621Z" },
+    {
+      valid_from: "2026-09-30T09:00:00.000Z",
+      expires_at: "2026-10-01T09:00:00.000Z",
+    },
+  ] as Partial<FaxUsageTariff>[])(
+    "rejects an unbounded or false test policy %#",
+    async (invalid) => {
+      await expect(
+        createFaxUsageFixture(db, () => clock, { ...operatorTest, ...invalid }),
+      ).rejects.toThrow();
+    },
+  );
+  it("rejects test authority longer than seven days", async () => {
+    await expect(
+      createFaxUsageFixture(db, () => clock, {
+        ...operatorTest,
+        valid_from: "2026-09-16T00:00:00.000Z",
+        fx_date: "2026-09-16",
+        expires_at: "2026-09-23T00:00:00.001Z",
+      }),
+    ).rejects.toThrow();
   });
 });

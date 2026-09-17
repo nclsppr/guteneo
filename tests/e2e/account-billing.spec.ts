@@ -68,6 +68,53 @@ test("profile changes persist through the browser and current-session revocation
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });
 
+test("a delayed route focus preserves a profile field that is already active", async ({
+  page,
+}) => {
+  await login(page);
+  await page.evaluate(() => {
+    const browser = window as Window & {
+      releaseRouteFrames?: () => void;
+      pendingRouteFrameCount?: number;
+    };
+    const original = window.requestAnimationFrame;
+    const pending: FrameRequestCallback[] = [];
+    window.requestAnimationFrame = (callback) =>
+      original(() => {
+        pending.push(callback);
+        browser.pendingRouteFrameCount = pending.length;
+      });
+    browser.releaseRouteFrames = () => {
+      window.requestAnimationFrame = original;
+      for (const callback of pending) callback(performance.now());
+      delete browser.releaseRouteFrames;
+      delete browser.pendingRouteFrameCount;
+    };
+  });
+  await page.goto("/#/app/account");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as Window & { pendingRouteFrameCount?: number })
+            .pendingRouteFrameCount ?? 0,
+      ),
+    )
+    .toBeGreaterThan(0);
+  const name = page.getByLabel("Votre nom", { exact: true });
+  await name.focus();
+  await page.evaluate(() => {
+    const browser = window as Window & {
+      releaseRouteFrames?: () => void;
+    };
+    browser.releaseRouteFrames?.();
+  });
+  await expect(name).toBeFocused();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.insertText("Profil encore actif");
+  await expect(name).toHaveValue("Profil encore actif");
+});
+
 test("the sole admin cannot demote themselves and disconnecting their access refreshes the app", async ({
   page,
 }) => {

@@ -1,5 +1,23 @@
 # Private Telnyx configuration inspection
 
+## Canonical webhook audit — 17 September 2026
+
+The Fax API application's saved webhook was changed, then reread after reloading the portal, to `https://guteneo.com/webhooks/telnyx`. Failover remains empty. Both the previous Workers address and the canonical address returned 405 for GET and 401 `WEBHOOK_REJECTED` for unsigned POST probes. These probes sent no fax and do not qualify a real signed callback. The outgoing adapter already supplies this canonical URL on each fax request; the old application callback did not explain a ChatGPT `SOURCE_NOT_ALLOWED` import refusal.
+
+Current portal observations supersede the older concurrency observations below: the application is active with outbound channel limit **5**, and its active Default profile reports an account outbound concurrent limit of **10**. Luxembourg, France and Germany are selected, among 52 European countries plus US/Canada. The existing single National LU number is active and attached, T.38 is enabled, HD voice disabled, billing per minute. Neither application concurrency nor account concurrency was changed during this audit. Daily spend enforcement and Repeat Call Guard are disabled; ambiguous grey profile placeholders are not confirmed numerical limits.
+
+## Explicit Luxembourg operator test — migration 0025
+
+The operator explicitly authorized Luxembourg tests without waiting for Telnyx's Local Calling response. This is recorded separately from provider qualification. Migration 0025 and the application support a private `route_qualification=operator_test` tariff with `local_calling_verified=0`, a nonempty immutable authorization reference, LU-to-LU fixed prefix **+3524**, at most 10 pages, at most seven days of validity, and an operator ceiling no higher than **EUR2 per fax**. Both the domain and the authoritative SQL quote view enforce that ceiling. Other prefixes, mobile and premium categories are not opened by this exception. A server-side operator must install the scoped tariff; no REST/MCP tool or account checkbox can grant this authority.
+
+The reviewed installation must expire no later than the existing pilot's **24 September 2026 at 09:00:01.620 UTC**. The shared EUR50 promotional balance, per-channel quota, exact scanned PDF, human or bounded delegated approval, atomic reservations/outbox, one-attempt fencing and uncertain-outcome handling remain mandatory. `TELNYX_ALLOWED_PREFIXES` may include the country code `+352`; the immutable tariff then restricts the actual test to +3524. The current transport validator accepts country codes, not `+3524` directly.
+
+The freshly reread profile-linked CSV has SHA-256 `ec4e3baeb5e26ba40024d99ffac022e95b22573cdbe6af008fb1c6193e0949c7`, 34,769,285 bytes and Last-Modified 8 September 2026. Its most-specific Local row for +3524 is USD0.022/minute, 60/60 seconds, plus the public fax reference USD0.007/page. This is an explicit pilot commercial estimate, not a successful route test or guaranteed final supplier invoice. Existing dated FX and conservative duration assumptions remain frozen in the quote. Any unqualified per-call or later supplier adjustments stay Guteneo's liability within the existing capped settlement model.
+
+MCP, REST and the review page expose `routeQualification=operator_authorized_test` and a visible notice that Local Calling is unconfirmed and transmission may fail. The pending support discussion remains evidence of a question, not an affirmative answer. Enabling the route does not send a fax; a separately approved dispatch is still required.
+
+The forward migration stages the old tariff rows, recreates the table under its original name and restores all old columns unchanged in one D1 batch with deferred foreign keys. Existing quotations retain their original hashes and incoming foreign keys. The new default retains the previous route policy. Synthetic populated-database tests cover old quotes/reservations, integrity, transaction rollback, immutable authority, revocation, bounds and actual MCP preparation. This documentation records implementation and evidence; it does not by itself claim the migration, tariff installation or real transmission has occurred.
+
 ## Fax pilot activation, 17 September 2026
 
 The operator has explicitly requested real fax activation. The reviewed application configuration now opens the fax transport alone (`LIVE_SENDS_ENABLED=true`, `LIVE_SEND_CHANNELS=fax`). Email and postal transport remain closed even if their organization controls are enabled. This configuration is separate from the sender, route estimate, approval and funded reservation required for every dispatch; it does not prove successful fax delivery.
