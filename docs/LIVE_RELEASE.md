@@ -1,4 +1,6 @@
-# Hosted continuation — 2026-09-17
+# Dated hosted release evidence — 2026-09-17
+
+The sections below preserve the state observed at each publication, including the branch state at that time. Read the current public `/release.json` and Cloudflare deployment record for the active version. Subsequent publication must follow [MAIN_RELEASE.md](MAIN_RELEASE.md). The later real ChatGPT read-only connection test is recorded separately in [CHATGPT_QUALIFICATION.md](CHATGPT_QUALIFICATION.md).
 
 Guteneo has two hosted surfaces. Since the controlled cutover on 17 September, **https://guteneo.com** serves the production-mode application, also reachable at **https://guteneo-app.nclsppr.workers.dev**. The separate fictional design preview remains at **https://guteneo-preview.nclsppr.workers.dev**. Registration is configured on the canonical domain; completed signup and reconnection still require qualification. Live sending remains disabled. The PR remains open and unmerged.
 

@@ -104,6 +104,15 @@ function liveGate(env: LiveProviderEnv): void {
   hostedProductionGate(env);
   if (env.LIVE_SENDS_ENABLED !== "true") blocked("LIVE_TRANSPORT_DISABLED");
 }
+/** Reports the transport switch; per-dispatch qualification remains mandatory. */
+export function liveSendingEnabled(env: LiveProviderEnv): boolean {
+  try {
+    liveGate(env);
+    return true;
+  } catch {
+    return false;
+  }
+}
 function postalPreparationGate(env: LiveProviderEnv): void {
   hostedProductionGate(env);
   if (env.POSTAL_DRAFTS_ENABLED !== "true")

@@ -29,6 +29,7 @@ import { handleMcp } from "./mcp";
 import {
   createLiveDeliveryQuoteConfig,
   createLiveProviderHook,
+  liveSendingEnabled,
   serveProviderMedia,
 } from "./live-providers";
 import {
@@ -94,7 +95,7 @@ export function getCapabilities(env: Env) {
       },
     ],
     limits: LIMITS,
-    liveSending: false,
+    liveSending: liveSendingEnabled(env),
     scanner: env.SCANNER
       ? "connected"
       : env.ENVIRONMENT === "local"
@@ -192,7 +193,7 @@ app.get("/api/health", (c) =>
         ? "ok"
         : "configuration_required",
     mode: c.env.MODE,
-    liveSending: false,
+    liveSending: liveSendingEnabled(c.env),
   }),
 );
 app.get("/api/capabilities", (c) => c.json(getCapabilities(c.env)));

@@ -1,6 +1,6 @@
 # Guteneo dans ChatGPT, Claude, Cursor et GitHub Copilot
 
-Guide vérifié le **17 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. Les paquets sont construits et testés localement ; aucune publication dans un annuaire ni connexion réelle dans ces hôtes n’est attestée par ce guide. Consulter la preuve de déploiement séparément avant d’annoncer que l’URL et l’identité sont opérationnelles.
+Guide vérifié le **17 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. La connexion ChatGPT en mode développeur et trois appels en lecture seule ont été observés dans le vrai client : voir [la qualification datée](CHATGPT_QUALIFICATION.md). L’import d’un PDF, le renouvellement et la révocation restent à qualifier ; aucune publication dans un annuaire n’est attestée. Les autres hôtes et l’installation du paquet complet restent non qualifiés.
 
 ## Paquet et téléchargements
 
