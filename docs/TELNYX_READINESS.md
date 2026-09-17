@@ -1,5 +1,11 @@
 # Private Telnyx configuration inspection
 
+## Fax pilot activation, 17 September 2026
+
+The operator has explicitly requested real fax activation. The reviewed application configuration now opens the fax transport alone (`LIVE_SENDS_ENABLED=true`, `LIVE_SEND_CHANNELS=fax`). Email and postal transport remain closed even if their organization controls are enabled. This configuration is separate from the sender, route estimate, approval and funded reservation required for every dispatch; it does not prove successful fax delivery.
+
+Private inspection now returns an `accountReference` derived from the canonical 32-byte Ed25519 verification public key, only after reading the configured application through its installed API credential. `telnyx-key-sha256:<digest>` is Guteneo's internal account namespace, **not a Telnyx-issued account UUID**. Authenticated application/number/profile observations establish the association; the hash alone does not establish ownership. The same reference must be installed as `TELNYX_ACCOUNT_ID` and recorded in tariff, quote and reconciliation evidence. A verification-key rotation requires a new namespace and qualification for future quotes; historical records must retain their original identity.
+
 `inspectTelnyxReadiness({ apiKey, connectionId }, fetcher = fetch)` is a read-only provider client. It does not expose an HTTP route, read environment variables, enable sending, change an account or submit a communication. The caller supplies the existing key inside its private runtime; the result contains attached phone numbers and must stay private.
 
 The only possible requests are GETs to the fixed `https://api.telnyx.com/v2` origin:

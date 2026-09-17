@@ -1,5 +1,8 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
-import { inspectTelnyxReadiness } from "../../../packages/providers/telnyx-readiness";
+import {
+  inspectTelnyxReadiness,
+  telnyxAccountReference,
+} from "../../../packages/providers/telnyx-readiness";
 import {
   inspectPingenReadiness,
   inspectPingenUploadOrigin,
@@ -91,10 +94,16 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
   }
 
   async inspectTelnyx() {
-    return inspectTelnyxReadiness({
+    const inspection = await inspectTelnyxReadiness({
       apiKey: this.env.TELNYX_API_KEY || "",
       connectionId: this.env.TELNYX_CONNECTION_ID || "",
     });
+    return {
+      ...inspection,
+      accountReference: inspection.application
+        ? await telnyxAccountReference(this.env.TELNYX_PUBLIC_KEY)
+        : null,
+    };
   }
 
   async inspectSes() {
