@@ -10,6 +10,7 @@ export const packageFiles = [
   ".cursor-plugin/plugin.json",
   ".mcp.json",
   "README.md",
+  "assets/guteneo-mark.png",
   "mcp.json",
   "plugin.json",
   "skills/fax-pdf/SKILL.md",
@@ -116,9 +117,12 @@ export async function buildIntegrationPackage(
       join(outputDirectory, file),
       await readFile(join(root, "config", file)),
     );
+  const plugin = JSON.parse(
+    await readFile(join(root, "guteneo", "plugin.json"), "utf8"),
+  );
   const result = {
-    name: "guteneo",
-    version: "0.2.0",
+    name: plugin.name,
+    version: plugin.version,
     endpoint: "https://guteneo.com/mcp",
     archive: "guteneo-plugin.zip",
     sha256: createHash("sha256").update(archive).digest("hex"),

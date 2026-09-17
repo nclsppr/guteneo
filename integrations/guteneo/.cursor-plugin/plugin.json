@@ -1,8 +1,10 @@
 {
   "name": "guteneo",
-  "version": "0.2.0",
-  "description": "Préparer un PDF et son devis, avec validation standard ou mandat expert facultatif dans Guteneo, puis suivre le fax ou le courrier autorisé.",
-  "author": { "name": "Guteneo" },
+  "version": "0.2.1",
+  "description": "Préparer ses PDF, consulter un devis et suivre ses envois avec Guteneo.",
+  "author": {
+    "name": "Guteneo"
+  },
   "homepage": "https://guteneo.com",
   "repository": "https://github.com/nclsppr/guteneo",
   "skills": "./skills/",

@@ -1,0 +1,67 @@
+{
+  "observedAt": "2026-09-17T17:25:44.651Z",
+  "kind": "public_read_only",
+  "sourceCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
+  "liveChannels": [
+    {
+      "id": "fax",
+      "liveSending": true
+    },
+    {
+      "id": "email",
+      "liveSending": false
+    },
+    {
+      "id": "postal",
+      "liveSending": false
+    }
+  ],
+  "billingChargingEnabled": false,
+  "urlImport": true,
+  "mcp": {
+    "url": "https://guteneo.com/mcp",
+    "resource": "https://guteneo.com/mcp",
+    "oauthDiscovery": {
+      "userinfoAdvertised": true,
+      "openidAdvertised": true,
+      "emailAdvertised": true,
+      "reviewerLoginVerified": false
+    }
+  },
+  "logo": {
+    "url": "https://guteneo.com/brand/guteneo-mark.png",
+    "status": 200,
+    "bytes": 249823,
+    "sha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
+    "matchesApprovedSource": true
+  },
+  "publicPages": [
+    {
+      "path": "/mentions-legales/",
+      "status": 200
+    },
+    {
+      "path": "/confidentialite/",
+      "status": 404
+    },
+    {
+      "path": "/conditions/",
+      "status": 404
+    }
+  ],
+  "portal": {
+    "url": "https://platform.openai.com/plugins",
+    "organizationLabel": "Personal",
+    "createAttempt": "With MCP",
+    "result": "blocked_before_draft_creation",
+    "message": "You need a verified developer identity before you can create or upload a plugin.",
+    "handoffUrl": "https://platform.openai.com/settings/organization/general"
+  },
+  "submitted": false,
+  "published": false,
+  "limits": [
+    "No authenticated business action was run.",
+    "Public metadata does not prove reviewer OAuth login, renewal, revocation or provider route eligibility.",
+    "No identity document or credential was collected."
+  ]
+}

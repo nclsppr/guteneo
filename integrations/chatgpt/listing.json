@@ -1,0 +1,71 @@
+{
+  "documentType": "guteneo_internal_submission_worksheet",
+  "officialOpenAISchema": false,
+  "preparedAt": "2026-09-17",
+  "submissionStatus": "blocked_developer_verification",
+  "pluginVersion": "0.2.1",
+  "listing": {
+    "name": "Guteneo",
+    "shortDescription": "Préparez vos PDF, consultez le prix et suivez vos envois.",
+    "description": "Retrouvez vos PDF Guteneo ou importez un document original. Préparez un fax, consultez son estimation et son plafond, puis suivez son statut. Les actions disponibles dépendent des canaux, des permissions et du solde de votre compte. En mode standard, vous relisez et approuvez l’envoi dans Guteneo. Un mandat expert facultatif, limité et temporaire, doit être activé par un administrateur dans son compte avant toute action déléguée. L’installation du connecteur n’active aucun mandat ni canal.",
+    "category": "Productivity",
+    "primaryLanguage": "fr-FR",
+    "supportedLanguages": ["fr-FR"],
+    "websiteUrl": "https://guteneo.com",
+    "supportEmail": "guteneo@pieper.fr",
+    "privacyPolicyUrl": null,
+    "publisherDisplayName": null,
+    "logoUrl": "https://guteneo.com/brand/guteneo-mark.png",
+    "logoLocalPath": "apps/web/public/brand/guteneo-mark.png",
+    "logoSha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
+    "logoWidth": 512,
+    "logoHeight": 512,
+    "screenshots": [],
+    "conversationStarters": [
+      "Quels documents ai-je dans Guteneo ?",
+      "Aide-moi à préparer ce PDF pour un fax. Montre-moi le prix et le plafond avant toute validation.",
+      "Où en est mon dernier fax Guteneo ?"
+    ],
+    "supportUrl": null,
+    "termsOfServiceUrl": null,
+    "availabilityCountries": null
+  },
+  "connection": {
+    "mcpServerUrl": "https://guteneo.com/mcp",
+    "transport": "streamable-http",
+    "authentication": "oauth",
+    "resource": "https://guteneo.com/mcp",
+    "authorizationServer": "https://pieper.eu.auth0.com",
+    "readOnlyScopes": ["documents:read", "dispatches:read"],
+    "additionalWriteScopes": [
+      "documents:write",
+      "dispatches:prepare",
+      "dispatches:send"
+    ],
+    "oauthClientId": null,
+    "oauthRedirectUri": null,
+    "reviewerCredentials": "not_provisioned_or_verified_for_this_submission"
+  },
+  "currentPublicObservation": {
+    "observedOn": "2026-09-17",
+    "sourceCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
+    "sourceDirty": false,
+    "mode": "production",
+    "urlImport": true,
+    "liveChannels": ["fax"],
+    "disabledLiveChannels": ["email", "postal"],
+    "chargingEnabled": false,
+    "nativeChatGptUi": false,
+    "marketplacePublicationVerified": false
+  },
+  "unresolvedSubmissionFields": [
+    "Verified publisher identity matching the chosen display name",
+    "Eligible Global project and Apps Management — Write permission",
+    "Published privacy policy covering the actual authenticated service",
+    "OAuth client and exact callback displayed by the submission portal",
+    "Reviewer account, sample data and tested credentials supplied privately",
+    "Executed reviewer cases and exact scanned tool snapshot",
+    "Published support URL and terms of service URL",
+    "Availability countries explicitly chosen for submission"
+  ]
+}
