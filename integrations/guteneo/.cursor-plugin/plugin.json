@@ -1,7 +1,7 @@
 {
   "name": "guteneo",
   "version": "0.2.0",
-  "description": "Préparer un PDF pour le fax ou le courrier postal selon les fonctions du compte, avec document et devis approuvés dans Guteneo.",
+  "description": "Préparer un PDF et son devis, avec validation standard ou mandat expert facultatif dans Guteneo, puis suivre le fax ou le courrier autorisé.",
   "author": { "name": "Guteneo" },
   "homepage": "https://guteneo.com",
   "repository": "https://github.com/nclsppr/guteneo",
