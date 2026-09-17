@@ -36,7 +36,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 23);
+  assert.equal(operations.length, 24);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -57,6 +57,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/dispatches/{id}",
     "post /api/dispatches/{id}/confirm",
     "post /api/dispatches/{id}/cancel",
+    "post /api/dispatches/{id}/renew-quote",
     "get /api/campaigns",
     "post /api/campaigns",
     "get /api/campaigns/{id}",

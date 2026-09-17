@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   api,
+  ApiError,
   bytes,
   date,
   money,
@@ -900,11 +901,42 @@ export function DispatchDetailPage({
   const action = useAction();
   const [consent, setConsent] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
-  const d = resource.data?.dispatch;
+  const d =
+    resource.data?.dispatch.id === id ? resource.data.dispatch : undefined;
+  const [quoteClock, setQuoteClock] = useState(Date.now);
+  const [invalidQuoteId, setInvalidQuoteId] = useState<string>();
   useEffect(() => {
     setConsent(false);
     setRecipientRequested(false);
+    setInvalidQuoteId(undefined);
+    action.clear();
   }, [id, d?.fingerprint]);
+  useEffect(() => {
+    const expiry = d?.quote_expires_at ? Date.parse(d.quote_expires_at) : NaN;
+    if (
+      d?.channel !== "fax" ||
+      d.status !== "prepared" ||
+      !Number.isFinite(expiry) ||
+      expiry <= Date.now()
+    )
+      return;
+    const remaining = expiry - Date.now();
+    const timeout = window.setTimeout(
+      () => {
+        setQuoteClock(Date.now());
+        if (Date.now() >= expiry) setConsent(false);
+      },
+      (remaining > 60000 ? remaining - 60000 : remaining) + 25,
+    );
+    const wake = () => setQuoteClock(Date.now());
+    window.addEventListener("focus", wake);
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("focus", wake);
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [d?.quote_expires_at, d?.channel, d?.status, quoteClock]);
   useEffect(() => {
     const expiresAt = resource.data?.approval?.expires_at;
     if (!expiresAt) return;
@@ -927,7 +959,7 @@ export function DispatchDetailPage({
     );
     return () => window.clearInterval(interval);
   }, [d?.status, d?.faxPricing?.settlement.status, resource.refresh]);
-  if (!d && resource.loading) return <Loading />;
+  if (!d && !resource.error) return <Loading />;
   if (!d)
     return <ErrorNotice error={resource.error} retry={resource.refresh} />;
   const target = recipientOf(d);
@@ -938,10 +970,29 @@ export function DispatchDetailPage({
       ? d.faxPricing
       : null;
   const pendingApproval = ["prepared", "draft"].includes(d.status);
+  const quoteExpired =
+    d.channel === "fax" &&
+    d.mode === "production" &&
+    !!d.quote_expires_at &&
+    Date.parse(d.quote_expires_at) <= Date.now();
+  const quoteBlocked =
+    pendingApproval && (quoteExpired || invalidQuoteId === d.id);
+  const renewalAllowed =
+    quoteBlocked &&
+    d.status === "prepared" &&
+    resource.data?.attempts.length === 0;
+  const expiringSoon =
+    pendingApproval &&
+    d.channel === "fax" &&
+    d.mode === "production" &&
+    !quoteBlocked &&
+    !!d.quote_expires_at &&
+    Date.parse(d.quote_expires_at) - Date.now() <= 60000;
   const emailAttestationRequired =
     d.channel === "email" && d.mode === "production";
   const approved =
     pendingApproval &&
+    !quoteBlocked &&
     resource.data?.approval?.approval_kind !== "expert" &&
     resource.data?.approval?.fingerprint === d.fingerprint &&
     Date.parse(resource.data.approval.expires_at) > Date.now();
@@ -957,24 +1008,53 @@ export function DispatchDetailPage({
   ].includes(d.status);
   async function approve() {
     await action.run(async () => {
-      await api(`/dispatches/${encodeURIComponent(id)}/approve`, {
-        method: "POST",
-        body: {
-          fingerprint: d?.fingerprint,
-          ...(emailAttestationRequired ? { recipientRequested } : {}),
-        },
-      });
-      resource.refresh();
+      try {
+        await api(`/dispatches/${encodeURIComponent(id)}/approve`, {
+          method: "POST",
+          body: {
+            fingerprint: d?.fingerprint,
+            ...(emailAttestationRequired ? { recipientRequested } : {}),
+          },
+        });
+        resource.refresh();
+      } catch (error) {
+        if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
+          setInvalidQuoteId(id);
+          setConsent(false);
+          resource.refresh();
+        }
+        throw error;
+      }
     });
   }
   async function confirm() {
     await action.run(async () => {
-      await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
-        method: "POST",
-        key: `web-confirm:${id}`,
-        body: {},
-      });
-      resource.refresh();
+      try {
+        await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
+          method: "POST",
+          key: `web-confirm:${id}`,
+          body: {},
+        });
+        resource.refresh();
+      } catch (error) {
+        if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
+          setInvalidQuoteId(id);
+          setConsent(false);
+          resource.refresh();
+        }
+        throw error;
+      }
+    });
+  }
+  async function renewQuote() {
+    await action.run(async () => {
+      const replacement = await api<Dispatch>(
+        `/dispatches/${encodeURIComponent(id)}/renew-quote`,
+        { method: "POST", key: `web-renew:${id}`, body: {} },
+      );
+      setConsent(false);
+      setRecipientRequested(false);
+      go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);
     });
   }
   async function cancel() {
@@ -1032,6 +1112,43 @@ export function DispatchDetailPage({
       </div>
       <p className="field-hint">{t.dispatch.channelNotes[d.channel]}</p>
       <ErrorNotice error={action.error ?? resource.error} />
+      {(quoteBlocked || expiringSoon) && (
+        <section className="notice warning" role="status" aria-atomic="true">
+          <WarningCircle size={25} aria-hidden="true" />
+          <div>
+            <strong>
+              {quoteExpired
+                ? "Ce devis a expiré."
+                : quoteBlocked
+                  ? "Ce devis n’est plus valable."
+                  : "Ce devis expire dans moins d’une minute."}
+            </strong>
+            <p>
+              {quoteBlocked
+                ? "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi."
+                : "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration."}
+            </p>
+            {quoteBlocked && d.campaign_id && (
+              <p>
+                Ce renouvellement créera un devis individuel, hors de la
+                campagne d’origine. La campagne conservera son historique ; vous
+                devrez approuver ce nouvel envoi séparément.
+              </p>
+            )}
+            {renewalAllowed && (
+              <button
+                className="button primary"
+                disabled={action.pending || resource.loading}
+                onClick={() => void renewQuote()}
+              >
+                {action.pending
+                  ? "Renouvellement du devis…"
+                  : "Renouveler le devis"}
+              </button>
+            )}
+          </div>
+        </section>
+      )}
       {providerNotice && (
         <div className="notice warning" role="status">
           <WarningCircle size={25} aria-hidden="true" />
@@ -1170,6 +1287,7 @@ export function DispatchDetailPage({
                 <input
                   type="checkbox"
                   checked={consent}
+                  disabled={quoteBlocked}
                   onChange={(e) => setConsent(e.target.checked)}
                 />
                 <span>
@@ -1195,6 +1313,7 @@ export function DispatchDetailPage({
                 className="button primary full"
                 disabled={
                   !consent ||
+                  quoteBlocked ||
                   (emailAttestationRequired && !recipientRequested) ||
                   action.pending ||
                   resource.loading
