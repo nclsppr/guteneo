@@ -22,7 +22,7 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
     }),
   );
   await page.goto("/");
-  await expect(page.locator(".assistant-brandstrip li")).toHaveCount(4);
+  await expect(page.locator(".assistant-brandstrip li")).toHaveCount(5);
   await expect(page.locator(".assistant-brandstrip")).toContainText("Grok");
   await expect(
     page.locator(".assistant-brandstrip li").filter({ hasText: "Grok" }),
@@ -58,6 +58,37 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   const config = await request.get("/guides/cursor-mcp.json");
   expect(await config.json()).toEqual({
     mcpServers: { guteneo: { url: "https://guteneo.com/mcp" } },
+  });
+  await page
+    .getByRole("button", { name: "GitHub Copilot", exact: true })
+    .click();
+  await expect(page.locator("#host-instructions")).toContainText(
+    "Microsoft Copilot grand public n’est pas couvert",
+  );
+  await expect(page.locator("#host-instructions")).toContainText(
+    "restent à qualifier",
+  );
+  await expect(
+    page.getByRole("link", { name: "Configuration VS Code", exact: true }),
+  ).toHaveAttribute("href", "/guides/copilot-vscode-mcp.json");
+  await expect(
+    page.getByRole("link", { name: "Configuration Copilot CLI", exact: true }),
+  ).toHaveAttribute("href", "/guides/copilot-cli-mcp.json");
+  expect(
+    await (await request.get("/guides/copilot-vscode-mcp.json")).json(),
+  ).toEqual({
+    servers: { guteneo: { type: "http", url: "https://guteneo.com/mcp" } },
+  });
+  expect(
+    await (await request.get("/guides/copilot-cli-mcp.json")).json(),
+  ).toEqual({
+    mcpServers: {
+      guteneo: { type: "http", url: "https://guteneo.com/mcp", tools: ["*"] },
+    },
+  });
+  await mkdir("reports/screenshots/homepage", { recursive: true });
+  await page.locator(".installation-section").screenshot({
+    path: `reports/screenshots/homepage/copilot-${info.project.name}.png`,
   });
   const guide = await request.get("/guides/installer-guteneo.md");
   expect(guide.status()).toBe(200);
@@ -163,6 +194,34 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   });
   expect(calls).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test("Copilot setup remains usable from narrow phones to desktop", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "GitHub Copilot", exact: true })
+    .click();
+  await page.evaluate(() => document.fonts.ready);
+  for (const width of [320, 768, 844, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(width);
+    for (const button of await page.locator(".host-selector button").all()) {
+      expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
+    await expect(
+      page.getByRole("button", { name: "GitHub Copilot", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      page.getByRole("link", {
+        name: "Configuration Copilot CLI",
+        exact: true,
+      }),
+    ).toBeVisible();
+  }
 });
 
 test("decorative birds stop when reduced motion is requested", async ({

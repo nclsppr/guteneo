@@ -2,14 +2,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createServer } from "vite";
 
-export const PUBLIC_ORIGIN = "https://guteneo.com";
-export const PUBLIC_PATHS = Object.freeze([
-  "/",
-  "/journal/",
-  "/journal/de-gutenberg-au-numerique/",
-  "/journal/histoire-imprimerie-luxembourg/",
-  "/mentions-legales/",
-]);
+import site from "../packages/contracts/src/public-site.json" with { type: "json" };
+
+export const PUBLIC_ORIGIN = site.origin;
+export const PUBLIC_PATHS = Object.freeze(site.paths);
 
 const escapeHtml = (value) =>
   String(value)
@@ -26,7 +22,7 @@ const jsonForHtml = (value) =>
     .replaceAll("\u2028", "\\u2028")
     .replaceAll("\u2029", "\\u2029");
 
-/** Keep Vite's actual hashed CSS; only the homepage needs the application entry. */
+/** Keep Vite's actual hashed CSS; the homepage and developer reference need the application entry. */
 export function publicPageDocument(template, pathname, page, indexable = true) {
   if (
     !PUBLIC_PATHS.includes(pathname) ||
@@ -90,7 +86,7 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
       /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
       "",
     );
-  if (pathname !== "/") {
+  if (!["/", "/developpeurs/"].includes(pathname)) {
     html = html
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
       .replace(/<link\b[^>]*rel=["']modulepreload["'][^>]*>/gi, "");
@@ -127,23 +123,21 @@ export async function writePublicPages({
   await writeFile(
     join(output, "robots.txt"),
     indexable
-      ? `User-agent: *\nAllow: /\n${["api", "auth", "oauth", "mcp", "webhooks", "media", ".well-known"].map((path) => `Disallow: /${path}`).join("\n")}\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`
+      ? `User-agent: *\nAllow: /\n${site.privatePrefixes.map((path) => `Disallow: /${path}`).join("\n")}\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`
       : "User-agent: *\nDisallow: /\n",
   );
   await writeFile(
     join(output, "sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_PATHS.map((pathname) => `  <url><loc>${PUBLIC_ORIGIN}${pathname}</loc></url>`).join("\n")}\n</urlset>\n`,
   );
-  if (!indexable) {
-    const path = join(output, "_headers");
-    const headers = await readFile(path, "utf8");
-    const globalRule = /^\/\*[ \t]*\r?\n/gm;
-    if ([...headers.matchAll(globalRule)].length !== 1)
-      throw new Error(
-        "The backend asset policy requires one global header rule.",
-      );
-    // Static Assets replaces duplicate path rules rather than merging them.
-    // Add noindex inside the existing rule so CSP/nosniff remain in force.
+  const path = join(output, "_headers");
+  const headers = await readFile(path, "utf8");
+  const globalRule = /^\/\*[ \t]*\r?\n/gm;
+  if ([...headers.matchAll(globalRule)].length !== 1)
+    throw new Error("The asset policy requires one global header rule.");
+  // Assets fail closed if served without the host-aware Worker. Remove noindex
+  // only on explicitly permitted responses after ASSETS.fetch, never in _headers.
+  if (!/^  X-Robots-Tag: noindex, nofollow$/m.test(headers))
     await writeFile(
       path,
       headers.replace(
@@ -151,7 +145,6 @@ export async function writePublicPages({
         (rule) => `${rule}  X-Robots-Tag: noindex, nofollow\n`,
       ),
     );
-  }
 }
 
 export async function buildPublicPages({ root, output, indexable }) {

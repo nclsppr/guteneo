@@ -26,7 +26,11 @@ import {
   AuthError,
 } from "./auth";
 import { handleMcp } from "./mcp";
-import { createLiveProviderHook, serveProviderMedia } from "./live-providers";
+import {
+  createLiveDeliveryQuoteConfig,
+  createLiveProviderHook,
+  serveProviderMedia,
+} from "./live-providers";
 import {
   billingConfigured,
   handleBillingRoute,
@@ -39,9 +43,9 @@ const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 function identityConfigured(env: Env) {
   return Boolean(
     env.AUTH0_DOMAIN &&
-      env.AUTH0_CLIENT_ID &&
-      env.AUTH0_AUDIENCE &&
-      env.AUTH0_CLIENT_SECRET,
+    env.AUTH0_CLIENT_ID &&
+    env.AUTH0_AUDIENCE &&
+    env.AUTH0_CLIENT_SECRET,
   );
 }
 export function getCapabilities(env: Env) {
@@ -53,7 +57,7 @@ export function getCapabilities(env: Env) {
     humanApproval: "authenticated_browser",
     registration: {
       enabled: identityConfigured(env),
-      verification: "verified_email_and_mfa",
+      verification: env.AUTH0_AUTH_POLICY ?? "verified_email_and_mfa",
     },
     billing: {
       configured: billingConfigured(env),
@@ -204,11 +208,7 @@ app.all("/mcp", (c) =>
 app.use("*", async (c, next) => {
   const stripe = await handleStripeWebhook(c.req.raw, c.env);
   if (stripe) return stripe;
-  const webhook = await handleWebhook(
-    c.req.raw,
-    c.env,
-    domain(c.env),
-  );
+  const webhook = await handleWebhook(c.req.raw, c.env, domain(c.env));
   if (webhook) return webhook;
   await next();
 });
@@ -278,6 +278,7 @@ app.use("/api/*", async (c, next) => {
 const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
+    ...createLiveDeliveryQuoteConfig(env),
     liveFaxIdentity:
       env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
         ? {
@@ -385,8 +386,11 @@ app.post("/api/dispatches", async (c) =>
 );
 app.post("/api/dispatches/:id/approve", async (c) => {
   const session = await authenticateBrowser(c.req.raw, c.env, true);
-  const { fingerprint } = z
-    .object({ fingerprint: z.string().regex(/^[a-f0-9]{64}$/) })
+  const { fingerprint, recipientRequested } = z
+    .object({
+      fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+      recipientRequested: z.boolean().optional(),
+    })
     .strict()
     .parse(await c.req.json());
   return c.json(
@@ -394,6 +398,7 @@ app.post("/api/dispatches/:id/approve", async (c) => {
       session.context as ActorContext,
       c.req.param("id"),
       fingerprint,
+      { recipientRequested },
     ),
   );
 });

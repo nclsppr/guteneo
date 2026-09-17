@@ -23,7 +23,7 @@ Les routes métier REST authentifiées et MCP partagent une limite de 180 requê
 | Autre lecture métier                              | `dispatches:read`    |
 | Autre mutation métier                             | `dispatches:prepare` |
 
-Les restrictions de rôle et de session humaine s’ajoutent aux scopes. Les routes `/api/session`, `/api/logout` et `/api/connections` utilisent exclusivement la session navigateur. Voir [Identité et MCP](IDENTITY_MCP.md) pour les réglages Auth0, le consentement, PKCE, MFA et les limites de validation réelle.
+Les restrictions de rôle et de session humaine s’ajoutent aux scopes. Les routes `/api/session`, `/api/logout` et `/api/connections` utilisent exclusivement la session navigateur. Voir [Identité et MCP](IDENTITY_MCP.md) pour les réglages Auth0, le consentement, PKCE, politique de compte vérifié, MFA conditionnelle et limites de validation réelle.
 
 ## Authentification et découverte
 
@@ -31,7 +31,7 @@ Les restrictions de rôle et de session humaine s’ajoutent aux scopes. Les rou
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /auth/login`                           | Option `returnTo` relative à la même origine ; redirection vers Auth0 avec PKCE. Retour par défaut : `/#/app`.                                                             |
 | `GET /auth/callback`                        | Retour Auth0 avec `state` et `code` ; vérifie et consomme l’état une fois, crée la session puis redirige.                                                                  |
-| `GET /api/session`                          | `{organization:{id,name},user:{id,name,role},csrfToken,simulation,mfa}`.                                                                                                   |
+| `GET /api/session`                          | `{organization:{id,name},user:{id,name,role},csrfToken,simulation,mfa,verifiedAccount}`.                                                                                                   |
 | `POST /api/logout`                          | Révoque la session Guteneo courante ; `{signedOut:true}`. Ce n’est pas une déconnexion globale Auth0.                                                                      |
 | `GET /api/connections`                      | `{items:[{id,client_id,organization_id,status,created_at,updated_at}]}` ; connexions du membre courant dans son organisation, maximum 100.                                 |
 | `POST /api/connections`                     | `{clientId}` ; rattache ce client OAuth à l’organisation courante, invalide ses anciens jetons pour ce rattachement ; `{bound:true,reconnectRequired:true}`.               |

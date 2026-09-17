@@ -7,7 +7,32 @@ export const TENANT = "pieper.eu.auth0.com";
 export const AUDIENCE = "https://guteneo.com/mcp";
 const OWNER = "guteneo-setup-v1";
 const CONNECTION = "Guteneo-Accounts";
-const ACTION_NAMES = ["Guteneo - require MFA", "Guteneo - verified MFA claims"];
+const ACTION_NAMES = [
+  "Guteneo - require verified identity",
+  "Guteneo - verified identity claims",
+];
+const LEGACY_ACTION_NAMES = [
+  "Guteneo - require MFA",
+  "Guteneo - verified MFA claims",
+];
+
+function authPolicy(options = {}) {
+  const policy = options.authPolicy ?? "verified_email_and_mfa";
+  if (!["verified_email", "verified_email_and_mfa"].includes(policy))
+    fail(
+      "INVALID_AUTH_POLICY",
+      "Choose verified_email or verified_email_and_mfa.",
+    );
+  return policy;
+}
+function ownedAction(actions, index) {
+  return unique(
+    actions,
+    (item) =>
+      [ACTION_NAMES[index], LEGACY_ACTION_NAMES[index]].includes(item.name),
+    "Action",
+  );
+}
 export const SCOPES = [
   "documents:read",
   "documents:write",
@@ -81,7 +106,7 @@ export function cliJson(args, payload, spawnChild = spawn) {
       reject(
         new SetupError(
           "AUTH0_CLI_FAILED",
-          "Auth0 access failed. Renew the official CLI login and verify its permissions; provider output was withheld.",
+          "Auth0 command failed. Check the session, permissions and request parameters; provider output was withheld.",
         ),
       );
     };
@@ -234,6 +259,7 @@ function clientSpecs(options) {
     key,
     body: {
       ...client,
+      logo_uri: "https://guteneo.com/favicon.svg",
       description:
         "Guteneo-owned OAuth registration. Consent and browser approval remain required.",
       client_metadata: { guteneo_managed_by: OWNER, guteneo_component: key },
@@ -252,10 +278,12 @@ function clientSpecs(options) {
 }
 
 export function setupPlan(options = {}) {
+  const policy = authPolicy(options);
   return {
     mode: "plan",
     tenant: TENANT,
     audience: AUDIENCE,
+    authPolicy: policy,
     resourceServer: {
       name: "Guteneo MCP",
       identifier: AUDIENCE,
@@ -286,8 +314,11 @@ export function setupPlan(options = {}) {
     prerequisites: [
       "Official CLI login to the exact tenant with documented management scopes",
       "resource_parameter_profile = compatibility",
-      "customize_mfa_in_postlogin_action = true",
-      "OTP factor enabled",
+      ...(policy === "verified_email_and_mfa"
+        ? ["customize_mfa_in_postlogin_action = true", "OTP factor enabled"]
+        : [
+            "Application AUTH0_AUTH_POLICY = verified_email; signed verified-account claim required",
+          ]),
       "Existing Action bindings must be preservable without replacing private binding configuration",
     ],
     cloudflareSecretNames: [
@@ -306,15 +337,29 @@ export function setupPlan(options = {}) {
   };
 }
 
-export function actionSources(clientIds, connectionId) {
+export function actionSources(
+  clientIds,
+  connectionId,
+  policy = "verified_email_and_mfa",
+) {
+  authPolicy({ authPolicy: policy });
   if (!Array.isArray(clientIds) || !clientIds.length)
     fail("INVALID_CLIENTS", "OAuth clients are required.");
   clientIds.forEach(id);
   id(connectionId);
   const scope = `const ownClients = ${JSON.stringify(clientIds)};\n  const ownResource = event.resource_server?.identifier === ${JSON.stringify(AUDIENCE)};\n  if (!ownClients.includes(event.client?.client_id) && !ownResource) return;\n  if (event.connection?.id !== ${JSON.stringify(connectionId)}) { api.access.deny('Use the Guteneo account connection.'); return; }`;
+  const pkce = `const query = event.request?.query || {};\n  if (event.transaction?.protocol !== 'oidc-basic-profile' || query.code_challenge_method !== 'S256' || typeof query.code_challenge !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)) { api.access.deny('Guteneo requires an authorization code with S256 PKCE.'); return; }`;
+  const challenge =
+    policy === "verified_email_and_mfa"
+      ? `const factors = (event.user.enrolledFactors || []).filter((factor) => ['otp','webauthn-roaming','webauthn-platform','push-notification','phone','duo'].includes(factor.type));\n  if (factors.length) api.authentication.challengeWithAny(factors.map(({type}) => ({type})));\n  else api.authentication.enrollWith({type:'otp'});`
+      : "// Free beta: verified account required; no paid MFA enrollment.";
+  const requireMfa =
+    policy === "verified_email_and_mfa"
+      ? "if (!completed) { api.access.deny('Complete multi-factor authentication to access Guteneo.'); return; }"
+      : "";
   return [
-    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  const query = event.request?.query || {};\n  if (event.transaction?.protocol !== 'oidc-basic-profile' || query.code_challenge_method !== 'S256' || typeof query.code_challenge !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)) { api.access.deny('Guteneo requires an authorization code with S256 PKCE.'); return; }\n  if (event.user?.email_verified !== true) return;\n  const factors = (event.user.enrolledFactors || []).filter((factor) => ['otp','webauthn-roaming','webauthn-platform','push-notification','phone','duo'].includes(factor.type));\n  if (factors.length) api.authentication.challengeWithAny(factors.map(({type}) => ({type})));\n  else api.authentication.enrollWith({type:'otp'});\n};\n`,
-    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  if (event.user?.email_verified !== true) return;\n  const completed = (event.authentication?.methods || []).some((method) => method.name === 'mfa' && Number.isFinite(Date.parse(method.timestamp)) && Date.now() - Date.parse(method.timestamp) >= -30000 && Date.now() - Date.parse(method.timestamp) <= 300000);\n  if (!completed) { api.access.deny('Complete multi-factor authentication to access Guteneo.'); return; }\n  api.idToken.setCustomClaim('https://guteneo.com/mfa', true);\n  api.accessToken.setCustomClaim('https://guteneo.com/mfa', true);\n};\n`,
+    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${pkce}\n  if (event.user?.email_verified !== true) return;\n  ${challenge}\n};\n`,
+    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${pkce}\n  if (event.user?.email_verified !== true) return;\n  const completed = (event.authentication?.methods || []).some((method) => method.name === 'mfa' && Number.isFinite(Date.parse(method.timestamp)) && Date.now() - Date.parse(method.timestamp) >= -30000 && Date.now() - Date.parse(method.timestamp) <= 300000);\n  ${requireMfa}\n  api.idToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  api.accessToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  if (completed) {\n    api.idToken.setCustomClaim('https://guteneo.com/mfa', true);\n    api.accessToken.setCustomClaim('https://guteneo.com/mfa', true);\n  }\n};\n`,
   ];
 }
 
@@ -352,17 +397,20 @@ function bindingRefs(bindings, ownIds = []) {
 
 export async function inspectSetup(api, options = {}) {
   const plan = setupPlan(options);
-  const settings = await api.request(
-    "GET",
-    "tenants/settings?fields=resource_parameter_profile%2Ccustomize_mfa_in_postlogin_action%2Cauthorization_response_iss_parameter_supported&include_fields=true",
-  );
+  // Auth0 returns these current settings, but its fields query allowlist rejects
+  // some of their names. Keep the full response private and inspect only below.
+  const settings = await api.request("GET", "tenants/settings");
   const factors = list(await api.request("GET", "guardian/factors"));
   const blockers = [];
   if (settings.resource_parameter_profile !== "compatibility")
     blockers.push("resource_parameter_profile");
-  if (settings.customize_mfa_in_postlogin_action !== true)
+  if (
+    plan.authPolicy === "verified_email_and_mfa" &&
+    settings.customize_mfa_in_postlogin_action !== true
+  )
     blockers.push("customize_mfa_in_postlogin_action");
   if (
+    plan.authPolicy === "verified_email_and_mfa" &&
     !factors.some((factor) => factor.name === "otp" && factor.enabled === true)
   )
     blockers.push("otp_factor");
@@ -376,10 +424,9 @@ export async function inspectSetup(api, options = {}) {
     include_fields: "true",
   });
   const resources = await pages(api, "resource-servers");
-  const connections = await pages(api, "connections", undefined, {
-    fields: "id,name,strategy,metadata,options,is_domain_connection",
-    include_fields: "true",
-  });
+  // is_domain_connection exists in responses but not in the fields allowlist.
+  // Keep connection options private while inspecting their ownership guards.
+  const connections = await pages(api, "connections");
   const actions = await pages(api, "actions/actions", "actions");
   const bindings = await pages(
     api,
@@ -432,8 +479,8 @@ export async function inspectSetup(api, options = {}) {
       connection.is_domain_connection === true)
   )
     blockers.push("unowned_or_incompatible_database_connection");
-  for (const name of ACTION_NAMES) {
-    const action = unique(actions, (item) => item.name === name, "Action");
+  for (let index = 0; index < ACTION_NAMES.length; index++) {
+    const action = ownedAction(actions, index);
     if (action && !action.code?.startsWith(`// ${OWNER}\n`))
       blockers.push("unowned_action");
   }
@@ -486,7 +533,7 @@ export async function runSetup({
         (item) => item.client_metadata?.guteneo_managed_by === OWNER,
       ).length,
       actions: inventory.actions.filter((item) =>
-        ACTION_NAMES.includes(item.name),
+        [...ACTION_NAMES, ...LEGACY_ACTION_NAMES].includes(item.name),
       ).length,
     },
     humanLoginVerified: false,
@@ -544,12 +591,14 @@ export async function runSetup({
       })),
     );
   }
-  const sources = actionSources(Object.values(clientIds), connection.id);
+  const sources = actionSources(
+    Object.values(clientIds),
+    connection.id,
+    plan.authPolicy,
+  );
   const actionIds = [];
   for (let index = 0; index < ACTION_NAMES.length; index++) {
-    const existing = inventory.actions.find(
-      (item) => item.name === ACTION_NAMES[index],
-    );
+    const existing = ownedAction(inventory.actions, index);
     const body = {
       name: ACTION_NAMES[index],
       code: sources[index],
@@ -682,6 +731,11 @@ if (
         if (mode !== "plan")
           fail("INVALID_ARGUMENTS", "Choose one setup mode.");
         mode = args[i].slice(2);
+      } else if (args[i] === "--auth-policy") {
+        if (options.authPolicy || !args[i + 1])
+          fail("INVALID_ARGUMENTS", "Supply one auth policy.");
+        options.authPolicy = args[++i];
+        authPolicy(options);
       } else if (
         ["--chatgpt-callback", "--claude-callback"].includes(args[i])
       ) {
@@ -695,7 +749,7 @@ if (
       } else
         fail(
           "INVALID_ARGUMENTS",
-          "Supported arguments: --inspect, --apply, --chatgpt-callback URL, --claude-callback URL.",
+          "Supported arguments: --inspect, --apply, --auth-policy POLICY, --chatgpt-callback URL, --claude-callback URL.",
         );
     }
     console.log(JSON.stringify(await runSetup({ mode, options }), null, 2));

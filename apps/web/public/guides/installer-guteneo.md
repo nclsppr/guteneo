@@ -31,6 +31,22 @@ Cette configuration ne donne pas accès au disque. Déposez le PDF dans Guteneo.
 
 Source : https://cursor.com/docs/mcp
 
+## GitHub Copilot dans VS Code
+
+Téléchargez /guides/copilot-vscode-mcp.json. Fusionnez l’entrée guteneo sous la clé `servers` dans `.vscode/mcp.json`, en conservant vos autres serveurs. Dans VS Code, ouvrez `MCP: List Servers`, sélectionnez Guteneo et examinez les permissions de connexion avant de vérifier les outils.
+
+La configuration utilise HTTP et l’adresse publique Guteneo. Si un client OAuth préenregistré est nécessaire, Guteneo devra fournir son identifiant public ; le modèle seul ne crée pas ce client. Un compte et une politique d’organisation autorisant MCP sont requis.
+
+Source : https://code.visualstudio.com/docs/agents/reference/mcp-configuration
+
+## GitHub Copilot CLI
+
+Téléchargez /guides/copilot-cli-mcp.json et fusionnez l’entrée guteneo sous `mcpServers` dans `~/.copilot/mcp-config.json`. Le CLI ne lit pas le fichier `.vscode/mcp.json` : les deux modèles sont distincts. Dans une session interactive, `/mcp auth guteneo` ouvre la connexion OAuth lorsqu’elle est nécessaire ; `/mcp show guteneo` affiche les outils.
+
+Ces deux parcours GitHub Copilot restent à qualifier sur des comptes réels. Ils ne concernent pas Microsoft Copilot grand public. Déposez le PDF dans Guteneo : ces configurations ne donnent aucun accès au disque et ne promettent pas le transfert d’une pièce jointe Copilot. Elles n’installent aucun paquet de skills.
+
+Sources : https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers et https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
+
 ## Votre premier message
 
 Avec Guteneo, vérifie les fonctions disponibles pour mon compte. Aide-moi à préparer un courrier et à choisir son canal. Demande-moi les informations manquantes, puis présente le document, le destinataire et le coût pour ma validation dans Guteneo. N’effectue aucun envoi sans cette validation.

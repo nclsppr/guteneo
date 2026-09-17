@@ -17,6 +17,8 @@ import {
   handleAuthRoute,
   hashSecret,
   hasMfa,
+  hasVerifiedAccount,
+  authenticationPolicy,
   isLocalSimulation,
   MCP_SCOPES,
   protectedResourceMetadata,
@@ -70,6 +72,58 @@ async function token(audience: string, claims: Record<string, unknown> = {}) {
     .setIssuedAt()
     .setExpirationTime("5m")
     .sign(keyPair.privateKey);
+}
+const betaEnv = () => ({
+  ...realEnv(),
+  MODE: "production",
+  AUTH0_AUTH_POLICY: "verified_email",
+});
+async function signedBetaLogin(
+  idChanges: Record<string, unknown> = {},
+  accessChanges: Record<string, unknown> = {},
+) {
+  const configured = betaEnv();
+  const started = await handleAuthRoute(request("/auth/signup"), configured);
+  const destination = new URL(started!.headers.get("Location")!);
+  const sub = `auth0|beta-${crypto.randomUUID()}`;
+  const claims = {
+    sub,
+    email: "verified-fixture@example.test",
+    email_verified: true,
+    amr: ["pwd"],
+    "https://guteneo.com/verified_account": true,
+  };
+  const idToken = await token("guteneo-browser", {
+    ...claims,
+    nonce: destination.searchParams.get("nonce"),
+    ...idChanges,
+  });
+  const accessToken = await token(`${origin}/mcp`, {
+    sub,
+    client_id: "guteneo-browser",
+    "https://guteneo.com/verified_account": true,
+    ...accessChanges,
+  });
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+    const target = input instanceof Request ? input.url : String(input);
+    if (target === `${issuer}oauth/token`)
+      return Response.json({ id_token: idToken, access_token: accessToken });
+    if (target === `${issuer}.well-known/jwks.json`)
+      return Response.json({ keys: [jwk] });
+    throw new Error("Unexpected fixture target");
+  });
+  const callback = request(
+    `/auth/callback?state=${destination.searchParams.get("state")}&code=fixture-code`,
+    "GET",
+    undefined,
+    { Cookie: started!.headers.get("Set-Cookie")!.split(";")[0] },
+  );
+  return {
+    configured,
+    sub,
+    callback,
+    complete: () => handleAuthRoute(callback, configured),
+  };
 }
 async function login(organization = "atelier") {
   const response = await handleAuthRoute(
@@ -480,6 +534,185 @@ describe("identity and authentication boundaries", () => {
     await expect(
       handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
+  });
+  it("accepts a verified password signup in explicit free beta without manufacturing MFA", async () => {
+    const flow = await signedBetaLogin();
+    const result = await flow.complete();
+    expect(result?.status).toBe(302);
+    const cookie = result!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      flow.configured,
+    );
+    expect(session).toMatchObject({
+      mfa: false,
+      verifiedAccount: true,
+      simulation: false,
+      context: { role: "admin" },
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT mfa,verified_account,is_development FROM browser_sessions WHERE token_hash=?",
+      )
+        .bind(session.tokenHash)
+        .first(),
+    ).toEqual({ mfa: 0, verified_account: 1, is_development: 0 });
+    await expect(
+      authenticateBrowser(
+        request(
+          "/api/account",
+          "PATCH",
+          {},
+          { Cookie: cookie, "X-CSRF-Token": session.csrfToken },
+        ),
+        flow.configured,
+        true,
+      ),
+    ).resolves.toMatchObject({ verifiedAccount: true });
+    await expect(
+      authenticateBrowser(
+        request(
+          "/api/account",
+          "PATCH",
+          {},
+          {
+            Cookie: cookie,
+            "X-CSRF-Token": session.csrfToken,
+            Origin: "https://attacker.invalid",
+          },
+        ),
+        flow.configured,
+        true,
+      ),
+    ).rejects.toMatchObject({ code: "ORIGIN_REJECTED" });
+    await expect(
+      authenticateBrowser(
+        request("/api/session", "GET", undefined, { Cookie: cookie }),
+        { ...flow.configured, AUTH0_AUTH_POLICY: undefined },
+      ),
+    ).rejects.toMatchObject({ code: "MFA_REQUIRED" });
+    await env.DB.prepare(
+      "UPDATE browser_sessions SET verified_account=0 WHERE token_hash=?",
+    )
+      .bind(session.tokenHash)
+      .run();
+    await expect(
+      authenticateBrowser(
+        request("/api/session", "GET", undefined, { Cookie: cookie }),
+        flow.configured,
+      ),
+    ).rejects.toMatchObject({ code: "ACCOUNT_VERIFICATION_REQUIRED" });
+  });
+  it.each([
+    {
+      label: "missing ID proof",
+      id: { "https://guteneo.com/verified_account": undefined },
+      access: {},
+      code: "ACCOUNT_VERIFICATION_REQUIRED",
+    },
+    {
+      label: "string ID proof",
+      id: { "https://guteneo.com/verified_account": "true" },
+      access: {},
+      code: "ACCOUNT_VERIFICATION_REQUIRED",
+    },
+    {
+      label: "missing access proof",
+      id: {},
+      access: { "https://guteneo.com/verified_account": undefined },
+      code: "ACCOUNT_VERIFICATION_REQUIRED",
+    },
+    {
+      label: "false access proof",
+      id: {},
+      access: { "https://guteneo.com/verified_account": false },
+      code: "ACCOUNT_VERIFICATION_REQUIRED",
+    },
+    {
+      label: "unverified email despite custom proof",
+      id: { email_verified: false },
+      access: {},
+      code: "EMAIL_VERIFICATION_REQUIRED",
+    },
+  ])(
+    "free beta refuses $label before creating an account or grant",
+    async ({ id, access, code }) => {
+      const before = await env.DB.prepare(
+        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+      ).first();
+      const flow = await signedBetaLogin(id, access);
+      await expect(flow.complete()).rejects.toMatchObject({ code });
+      expect(
+        await env.DB.prepare("SELECT 1 FROM auth_identities WHERE subject=?")
+          .bind(flow.sub)
+          .first(),
+      ).toBeNull();
+      expect(
+        await env.DB.prepare(
+          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+        ).first(),
+      ).toEqual(before);
+    },
+  );
+  it("requires the signed verified-account claim for MCP before binding a client, then preserves scope and revocation", async () => {
+    const flow = await signedBetaLogin();
+    await flow.complete();
+    const client = "mcp-beta-" + crypto.randomUUID();
+    const requestToken = async (claims: Record<string, unknown>) =>
+      request("/mcp", "POST", undefined, {
+        Authorization: `Bearer ${await token(`${origin}/mcp`, { sub: flow.sub, client_id: client, scope: "documents:read", ...claims })}`,
+      });
+    await expect(
+      authenticateMcp(
+        await requestToken({ amr: ["pwd", "mfa"] }),
+        flow.configured,
+      ),
+    ).rejects.toMatchObject({ code: "ACCOUNT_VERIFICATION_REQUIRED" });
+    expect(
+      await env.DB.prepare(
+        "SELECT 1 FROM authorized_connections WHERE client_id=?",
+      )
+        .bind(client)
+        .first(),
+    ).toBeNull();
+    const authorized = await requestToken({
+      "https://guteneo.com/verified_account": true,
+    });
+    const identity = await authenticateMcp(authorized, flow.configured);
+    expect(identity.scopes).toEqual(["documents:read"]);
+    expect(identity.context.role).toBe("admin");
+    expect(() => requireScope(identity, "dispatches:send")).toThrow(AuthError);
+    await env.DB.prepare(
+      "UPDATE authorized_connections SET status='revoked' WHERE issuer=? AND user_id=? AND client_id=?",
+    )
+      .bind(issuer, identity.context.userId, client)
+      .run();
+    await expect(
+      authenticateMcp(authorized, flow.configured),
+    ).rejects.toMatchObject({ code: "CONNECTION_REVOKED" });
+  });
+  it("treats a passkey method as informational, and keeps legacy and invalid policies fail-closed", () => {
+    expect(
+      hasMfa({
+        amr: ["passkey"],
+        "https://guteneo.com/verified_account": true,
+      }),
+    ).toBe(false);
+    expect(hasVerifiedAccount({ email_verified: true, amr: ["passkey"] })).toBe(
+      false,
+    );
+    expect(
+      hasVerifiedAccount({ "https://guteneo.com/verified_account": true }),
+    ).toBe(true);
+    expect(
+      hasVerifiedAccount({ "https://guteneo.com/verified_account": "true" }),
+    ).toBe(false);
+    expect(authenticationPolicy({})).toBe("verified_email_and_mfa");
+    expect(() => authenticationPolicy({ AUTH0_AUTH_POLICY: "typo" })).toThrow(
+      AuthError,
+    );
   });
   it("requests real signup and fresh authentication using the same PKCE flow", async () => {
     const response = await handleAuthRoute(

@@ -3,6 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   DomainService,
+  canonicalJson,
+  emailRateComponents,
   type ActorContext,
   type Channel,
   type Dispatch,
@@ -13,6 +15,11 @@ let mf: Miniflare;
 let db: D1Database;
 let domain: DomainService;
 let owner: ActorContext;
+const liveDeliveryIdentity = {
+  email: { accountId: "123456789012", routeId: "fixture-region" },
+  postal: { accountId: "fixture-pingen", routeId: "fixture-pingen" },
+};
+const postalPrices = new Map<string, number>();
 let now = Date.parse("2026-09-17T12:00:00.000Z");
 const stamp = () => new Date(now).toISOString();
 async function applySql(target: D1Database, sql: string) {
@@ -62,7 +69,20 @@ afterAll(async () => {
 beforeEach(async () => {
   now = Date.parse("2026-09-17T12:00:00.000Z");
   owner = await tenant();
-  domain = new DomainService(db, { mode: "production", now: () => now });
+  domain = new DomainService(db, {
+    mode: "production",
+    now: () => now,
+    liveDeliveryIdentity,
+    postalQuote: async (request) => ({
+      currency: "EUR",
+      supplierMinor: postalPrices.get(
+        request.options.providerDraftId as string,
+      )!,
+      providerDraftId: request.options.providerDraftId as string,
+      preparedLetterId: request.options.preparedLetterId as string,
+      evidenceSha256: "c".repeat(64),
+    }),
+  });
 });
 
 async function tenant(mode = "production"): Promise<ActorContext> {
@@ -110,46 +130,136 @@ async function tenant(mode = "production"): Promise<ActorContext> {
   return actor;
 }
 
-// Isolated pre-priced production commands exercise the real approval/acceptance
-// and settlement engine. These fixtures do not qualify a live price or provider.
+// Isolated qualified-price fixtures exercise the same live guards as production.
+// No provider or real tariff is installed, and no external request is made.
 async function approved(
   charge = 1000,
   ceiling = charge,
   channel: Channel = "email",
   actor = owner,
 ) {
-  const id = `dispatch_${crypto.randomUUID()}`;
+  if (channel === "fax") throw Error("Use fax-specific quote fixtures");
+  const key = crypto.randomUUID(),
+    stampNow = stamp();
+  const print = {
+    addressPosition: "left",
+    deliveryProduct: "cheap",
+    printMode: "duplex",
+    printSpectrum: "grayscale",
+  };
+  const options = channel === "email" ? { fixture: key } : print;
+  const rate = {
+    usdMicrosPerMessage: charge * 5000,
+    usdMicrosPerGb: 0,
+    bytesPerGb: 1000000000,
+    eurPerUsdNumerator: 1,
+    eurPerUsdDenominator: 1,
+    attachmentBasis: "raw_pdf_bytes" as const,
+  };
+  const components = emailRateComponents(rate);
+  const policyId =
+    channel === "email" ? key : actor.organizationId + "_postal_policy";
   await db
     .prepare(
-      "INSERT INTO dispatches(id,organization_id,channel,recipient_json,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at) VALUES(?,?,?,?,?,'Fixture sender','Fixture','<p>Fixture</p>','Fixture','{}','prepared','production',?,?,'EUR',?,?,?,?,?)",
+      "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'EUR','qualified_final_variable_cost',900,'ISOLATED CREDIT FIXTURE',?,?,?,'qualified',?) ON CONFLICT(id) DO NOTHING",
     )
     .bind(
-      id,
+      policyId,
       actor.organizationId,
-      channel,
-      JSON.stringify(
-        channel === "email"
-          ? { email: "fixture@example.invalid" }
-          : {
-              name: "Fixture",
-              line1: "Fixture",
-              postalCode: "75001",
-              city: "Paris",
-              country: "FR",
-            },
-      ),
       `${actor.organizationId}_${channel}`,
-      charge,
-      ceiling,
-      id,
-      id,
-      id,
-      stamp(),
-      stamp(),
+      channel,
+      channel === "email" ? "ses" : "pingen",
+      liveDeliveryIdentity[channel].accountId,
+      liveDeliveryIdentity[channel].routeId,
+      canonicalJson(options),
+      canonicalJson(rate),
+      components.base_numerator,
+      components.byte_numerator,
+      components.rate_denominator,
+      "b".repeat(64),
+      stampNow,
+      new Date(now + 3600000).toISOString(),
+      stampNow,
     )
     .run();
-  await domain.approveDispatch(actor, id, id);
-  return id;
+  let input;
+  if (channel === "email")
+    input = {
+      channel,
+      recipient: { email: "fixture@example.invalid" },
+      subject: "Fixture",
+      html: "<p>Fixture</p>",
+      text: "Fixture",
+      ceilingMinor: ceiling,
+      options,
+    };
+  else {
+    const documentId = actor.organizationId + "_doc";
+    if (
+      !(await db
+        .prepare("SELECT 1 FROM documents WHERE organization_id=? AND id=?")
+        .bind(actor.organizationId, documentId)
+        .first())
+    )
+      await domain.registerDocument(actor, {
+        id: documentId,
+        name: "fixture.pdf",
+        sha256: "a".repeat(64),
+        size: 100,
+        pages: 1,
+        status: "ready",
+        source: "import",
+        storageKey: "fixture/" + actor.organizationId,
+        scanVerified: true,
+      });
+    const recipient = {
+        name: "Fixture",
+        line1: "Fixture",
+        postalCode: "75001",
+        city: "Paris",
+        country: "FR",
+      },
+      expectedAddress = "Fixture\nFixture\n75001 Paris";
+    await db
+      .prepare(
+        "INSERT INTO provider_drafts(id,organization_id,document_id,document_sha256,sender_id,sender_address,provider,provider_id,recipient_json,expected_address,options_json,ceiling_minor,currency,status,request_hash,idempotency_key,created_at,updated_at) VALUES(?,?,?,?,?,'Fixture sender','pingen',?,?,?,?,?,'EUR','prepared',?,?,?,?)",
+      )
+      .bind(
+        key,
+        actor.organizationId,
+        documentId,
+        "a".repeat(64),
+        `${actor.organizationId}_postal`,
+        key,
+        canonicalJson(recipient),
+        expectedAddress,
+        canonicalJson(print),
+        ceiling,
+        "d".repeat(64),
+        key,
+        stampNow,
+        stampNow,
+      )
+      .run();
+    postalPrices.set(key, charge / 2);
+    input = {
+      channel,
+      recipient,
+      documentId,
+      ceilingMinor: ceiling,
+      options: {
+        ...print,
+        providerDraftId: key,
+        preparedLetterId: key,
+        expectedAddress,
+      },
+    };
+  }
+  const row = await domain.prepareDispatch(actor, input, key);
+  await domain.approveDispatch(actor, row.id, row.fingerprint, {
+    recipientRequested: true,
+  });
+  return row.id;
 }
 async function queue(
   charge = 1000,
@@ -172,7 +282,8 @@ async function count(table: string, actor = owner) {
 }
 async function accept(id: string) {
   await domain.processDispatch(id, {
-    name: "fixture-provider",
+    name: "ses",
+    liveDeliveryIdentity,
     submit: async () => ({ status: "accepted", providerId: `provider_${id}` }),
   });
 }
@@ -404,7 +515,7 @@ describe("one shared lifetime promotional credit", () => {
       spentMinor: 1200,
     });
     const event = {
-      provider: "fixture-provider",
+      provider: "ses",
       providerId: `provider_${id}`,
       eventId: `settled_${id}`,
       kind: "delivered" as const,
@@ -433,7 +544,8 @@ describe("one shared lifetime promotional credit", () => {
     ]);
     const rejected = await queue(1000, 1500);
     await domain.processDispatch(rejected, {
-      name: "fixture-provider",
+      name: "ses",
+      liveDeliveryIdentity,
       submit: async () => ({ status: "rejected" }),
     });
     expect(await balance()).toMatchObject({
@@ -448,7 +560,7 @@ describe("one shared lifetime promotional credit", () => {
     async (timing) => {
       const id = await queue(1000, 5000);
       const failed = {
-        provider: "fixture-provider",
+        provider: "ses",
         dispatchId: id,
         providerId: `provider_${id}`,
         eventId: `failed_${id}`,
@@ -457,7 +569,8 @@ describe("one shared lifetime promotional credit", () => {
         payload: { amountMinor: 0, reason: "partial transmission" },
       };
       await domain.processDispatch(id, {
-        name: "fixture-provider",
+        name: "ses",
+        liveDeliveryIdentity,
         submit: async () => {
           if (timing === "early") await domain.ingestEvent(failed);
           return { status: "submission_unknown" };
@@ -481,7 +594,7 @@ describe("one shared lifetime promotional credit", () => {
           .run(),
       ).rejects.toThrow("credit_settlement_invalid");
       expect(await count("welcome_credit_entries")).toBe(1);
-      const next = await approved(1, 1, "postal");
+      const next = await approved(2, 2, "postal");
       await expect(
         domain.confirmDispatch(owner, next, next),
       ).rejects.toMatchObject({ code: "CREDIT_EXHAUSTED" });
@@ -491,7 +604,7 @@ describe("one shared lifetime promotional credit", () => {
     const id = await queue(1000, 5000);
     await accept(id);
     await domain.ingestEvent({
-      provider: "fixture-provider",
+      provider: "ses",
       providerId: `provider_${id}`,
       eventId: `accepted_then_failed_${id}`,
       kind: "failed",
@@ -511,10 +624,11 @@ describe("one shared lifetime promotional credit", () => {
     async (evidence) => {
       const id = await queue(1000, 5000);
       await domain.processDispatch(id, {
-        name: "fixture-provider",
+        name: "ses",
+        liveDeliveryIdentity,
         submit: async () => {
           await domain.ingestEvent({
-            provider: "fixture-provider",
+            provider: "ses",
             providerId: `provider_${id}`,
             dispatchId: id,
             eventId: `failure_first_${id}`,
@@ -536,7 +650,7 @@ describe("one shared lifetime promotional credit", () => {
       });
       if (evidence === "late_webhook") {
         const event = {
-          provider: "fixture-provider",
+          provider: "ses",
           providerId: `provider_${id}`,
           eventId: `acceptance_later_${id}`,
           kind: "accepted" as const,
@@ -560,7 +674,8 @@ describe("one shared lifetime promotional credit", () => {
     const id = await queue(1000, 5000);
     let calls = 0;
     const provider = {
-      name: "fixture-provider",
+      name: "ses",
+      liveDeliveryIdentity,
       submit: async (_dispatch: Dispatch): Promise<never> => {
         calls++;
         throw new Error("unknown outcome");
@@ -579,7 +694,7 @@ describe("one shared lifetime promotional credit", () => {
     await expect(domain.cancelDispatch(owner, id)).rejects.toMatchObject({
       code: "CANCELLATION_TOO_LATE",
     });
-    const next = await approved(1, 1, "postal");
+    const next = await approved(2, 2, "postal");
     await expect(
       domain.confirmDispatch(owner, next, next),
     ).rejects.toMatchObject({ code: "CREDIT_EXHAUSTED" });
@@ -592,7 +707,7 @@ describe("one shared lifetime promotional credit", () => {
         .first(),
     ).toBeNull();
     await domain.ingestEvent({
-      provider: "fixture-provider",
+      provider: "ses",
       dispatchId: id,
       providerId: `provider_${id}`,
       eventId: `resolved_${id}`,
@@ -631,7 +746,7 @@ describe("one shared lifetime promotional credit", () => {
       .bind(fresh.organizationId)
       .run();
     now = Date.parse("2026-11-17T12:00:00.000Z");
-    const stopped = await approved(1, 1, "postal", fresh);
+    const stopped = await approved(2, 2, "postal", fresh);
     await expect(
       domain.confirmDispatch(fresh, stopped, stopped),
     ).rejects.toMatchObject({ code: "QUOTA_EXCEEDED" });
@@ -646,9 +761,14 @@ describe("one shared lifetime promotional credit", () => {
       .bind(owner.organizationId, id)
       .run();
     await expect(domain.confirmDispatch(owner, id, id)).rejects.toMatchObject({
-      code: "APPROVAL_REQUIRED",
+      code: "RECIPIENT_REQUEST_REQUIRED",
     });
-    await domain.approveDispatch(owner, id, id);
+    await domain.approveDispatch(
+      owner,
+      id,
+      (await domain.getDispatch(owner, id)).dispatch.fingerprint,
+      { recipientRequested: true },
+    );
     await db
       .prepare(
         "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='email'",

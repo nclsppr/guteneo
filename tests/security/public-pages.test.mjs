@@ -72,12 +72,18 @@ test("initial document contains readable content, canonical metadata and safely 
   );
 });
 
-test("only the homepage retains the app entry; every static page reuses built CSS", () => {
+test("only the homepage and developer reference retain the app entry; every static page reuses built CSS", () => {
   for (const pathname of PUBLIC_PATHS) {
     const html = publicPageDocument(template, pathname, page(pathname));
     assert.match(html, /href="\/assets\/main-hash.css"/);
-    assert.equal(html.includes('type="module"'), pathname === "/");
-    assert.equal(html.includes('rel="modulepreload"'), pathname === "/");
+    assert.equal(
+      html.includes('type="module"'),
+      ["/", "/developpeurs/"].includes(pathname),
+    );
+    assert.equal(
+      html.includes('rel="modulepreload"'),
+      ["/", "/developpeurs/"].includes(pathname),
+    );
     assert.equal(html.includes('type="application/ld+json"'), true);
   }
 });
@@ -114,7 +120,7 @@ async function outputDirectory(t) {
   return output;
 }
 
-test("all five public pages and only canonical primary URLs enter the sitemap", async (t) => {
+test("all six public pages and only canonical primary URLs enter the sitemap", async (t) => {
   const output = await outputDirectory(t);
   await writePublicPages({ output, renderPublicPage: page, indexable: true });
   for (const pathname of PUBLIC_PATHS) {
@@ -125,6 +131,11 @@ test("all five public pages and only canonical primary URLs enter the sitemap", 
     assert.match(html, /Une histoire imprimée/);
     assert.ok(html.includes(`${PUBLIC_ORIGIN}${pathname}`));
   }
+  assert.match(
+    await readFile(join(output, "_headers"), "utf8"),
+    /X-Robots-Tag: noindex, nofollow/,
+    "raw assets stay noindex until the canonical-host Worker approves the response",
+  );
   const sitemap = await readFile(join(output, "sitemap.xml"), "utf8");
   assert.deepEqual(
     [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]),
@@ -137,7 +148,7 @@ test("all five public pages and only canonical primary URLs enter the sitemap", 
   assert.match(robots, /Disallow: \/api/);
 });
 
-test("backend build stays noindex in HTML and static response headers", async (t) => {
+test("an explicitly private build stays noindex in HTML and static response headers", async (t) => {
   const output = await outputDirectory(t);
   await writePublicPages({ output, renderPublicPage: page, indexable: false });
   const html = await readFile(join(output, "journal/index.html"), "utf8");
@@ -187,7 +198,12 @@ test("real Static Assets parsing retains noindex and security headers together",
     }),
   );
   try {
-    for (const path of ["/", "/journal/", "/mentions-legales/"]) {
+    for (const path of [
+      "/",
+      "/journal/",
+      "/mentions-legales/",
+      "/developpeurs/",
+    ]) {
       const response = await mf.dispatchFetch(
         `http://backend-fixture.invalid${path}`,
       );

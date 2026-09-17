@@ -7,7 +7,16 @@ import {
 import type { Env } from "./env";
 import { inspectSesPrincipal } from "./provider-principal";
 
-export { default } from "./index";
+import application from "./index";
+import { servePublicAssets } from "./public-assets";
+
+export default {
+  ...application,
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const asset = await servePublicAssets(request, env);
+    return asset ?? application.fetch(request, env, ctx);
+  },
+};
 
 /** Available only through an authenticated same-account service binding. */
 export class ProviderInspection extends WorkerEntrypoint<Env> {

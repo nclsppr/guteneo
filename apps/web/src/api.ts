@@ -4,6 +4,7 @@ export type Session = {
   user: { id: string; name: string; role: string };
   csrfToken: string;
   simulation: boolean;
+  verifiedAccount?: boolean;
 };
 export type DocumentRecord = {
   id: string;
@@ -29,6 +30,7 @@ export type Dispatch = {
   estimated_minor: number;
   ceiling_minor: number;
   quote_expires_at?: string | null;
+  quote_customer_nanoeur?: number | null;
   currency: string;
   fingerprint: string;
   created_at: string;
@@ -208,6 +210,33 @@ export function money(minor: number, currency = "EUR"): string {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(
     minor / 100,
   );
+}
+
+/** Display the frozen quote without rounding each small email to one cent. */
+export function quotedMoney(
+  dispatch: Pick<
+    Dispatch,
+    "quote_customer_nanoeur" | "estimated_minor" | "currency"
+  >,
+): string {
+  const nano = dispatch.quote_customer_nanoeur;
+  if (
+    dispatch.currency !== "EUR" ||
+    nano == null ||
+    !Number.isSafeInteger(nano) ||
+    nano < 0
+  )
+    return money(dispatch.estimated_minor, dispatch.currency);
+  const amount = BigInt(nano);
+  const whole = new Intl.NumberFormat("fr-FR", {
+    maximumFractionDigits: 0,
+  }).format(amount / 1_000_000_000n);
+  const fraction = (amount % 1_000_000_000n)
+    .toString()
+    .padStart(9, "0")
+    .replace(/0+$/, "")
+    .padEnd(2, "0");
+  return `${whole},${fraction}\u00a0€`;
 }
 export function bytes(size: number): string {
   return size < 1024

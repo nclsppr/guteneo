@@ -12,12 +12,13 @@ import { customerPricing } from "./customer-pricing";
 
 const copy = t.homepage;
 const endpoint = "https://guteneo.com/mcp";
-type Host = "chatgpt" | "claude" | "cursor";
+type Host = "chatgpt" | "claude" | "cursor" | "copilot";
 const assistants = [
   { id: "chatgpt", name: "ChatGPT", available: true },
   { id: "claude", name: "Claude", available: true },
   { id: "grok", name: "Grok", available: false },
   { id: "cursor", name: "Cursor", available: true },
+  { id: "copilot", name: "GitHub Copilot", available: true },
 ];
 
 export function scrollToSection(
@@ -79,7 +80,7 @@ export function Installation() {
         <p>{copy.install.brandIntro}</p>
         <ul>
           {assistants.map((assistant) => (
-            <li key={assistant.id}>
+            <li key={assistant.id} data-assistant={assistant.id}>
               <span className="assistant-stamp">
                 <span className="assistant-stamp-paper" aria-hidden="true" />
                 <span className="assistant-official-mark">
@@ -123,7 +124,7 @@ export function Installation() {
           role="group"
           aria-label={copy.install.choose}
         >
-          {(["chatgpt", "claude", "cursor"] as const).map((item) => (
+          {(["chatgpt", "claude", "cursor", "copilot"] as const).map((item) => (
             <button
               key={item}
               type="button"
@@ -132,7 +133,9 @@ export function Installation() {
               onClick={() => setHost(item)}
             >
               <img src={`/brands/${item}.svg`} alt="" width="20" height="20" />
-              {copy.install.hosts[item].name}
+              <span className={item === "copilot" ? "sr-only" : undefined}>
+                {copy.install.hosts[item].name}
+              </span>
             </button>
           ))}
         </div>
@@ -166,6 +169,35 @@ export function Installation() {
                 {copy.install.cursorDownload}
                 <DownloadSimple size={16} aria-hidden="true" />
               </a>
+            )}
+            {host === "copilot" && (
+              <>
+                <a
+                  className="text-link"
+                  href="/guides/copilot-vscode-mcp.json"
+                  download
+                >
+                  {copy.install.copilotVscodeDownload}
+                  <DownloadSimple size={16} aria-hidden="true" />
+                </a>
+                <a
+                  className="text-link"
+                  href="/guides/copilot-cli-mcp.json"
+                  download
+                >
+                  {copy.install.copilotCliDownload}
+                  <DownloadSimple size={16} aria-hidden="true" />
+                </a>
+                <a
+                  className="text-link"
+                  href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {copy.install.copilotCliLink}
+                  <ArrowUpRight size={17} aria-hidden="true" />
+                </a>
+              </>
             )}
           </div>
           <p className="installation-caveat">{instructions.note}</p>
@@ -360,6 +392,7 @@ export function LuxembourgFooter() {
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
           <a href="/journal/">Le journal</a>
+          <a href="/developpeurs/">Développeurs</a>
           <a href="/mentions-legales/">{copy.footer.legal}</a>
         </nav>
       </div>

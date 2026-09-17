@@ -213,20 +213,48 @@ export function Campaigns() {
               </dl>
               {validated.rows.length > 0 && (
                 <div className="table-scroll csv-preview">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{t.campaigns.row}</th>
-                        <th>{t.channel}</th>
-                        <th>{t.recipient}</th>
+                  <table className="responsive-table" role="table">
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          {t.campaigns.row}
+                        </th>
+                        <th role="columnheader" scope="col">
+                          {t.channel}
+                        </th>
+                        <th role="columnheader" scope="col">
+                          {t.recipient}
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {validated.rows.slice(0, 25).map((row) => (
-                        <tr key={row.line}>
-                          <td>{row.line}</td>
-                          <td>{t.channels[row.channel]}</td>
-                          <td>
+                        <tr role="row" key={row.line}>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              {t.campaigns.row}
+                            </span>
+                            {row.line}
+                          </td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              {t.channel}
+                            </span>
+                            {t.channels[row.channel]}
+                          </td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              {t.recipient}
+                            </span>
                             {Object.values(row.recipient)
                               .filter(Boolean)
                               .join(", ")}
@@ -356,21 +384,30 @@ export function Campaigns() {
         <EmptyState title={t.campaigns.empty} />
       ) : (
         <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{t.campaigns.name}</th>
-                <th>{t.status}</th>
-                <th>{t.created}</th>
-                <th>
+          <table className="responsive-table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  {t.campaigns.name}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.status}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.created}
+                </th>
+                <th role="columnheader" scope="col">
                   <span className="sr-only">{t.open}</span>
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {campaigns.data.items.map((campaign) => (
-                <tr key={campaign.id}>
-                  <td>
+                <tr role="row" key={campaign.id}>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.campaigns.name}
+                    </span>
                     <a
                       className="row-link"
                       href={`#/app/campaign/${campaign.id}`}
@@ -379,11 +416,22 @@ export function Campaigns() {
                       <span className="reference mono">{campaign.id}</span>
                     </a>
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.status}
+                    </span>
                     <Status status={campaign.status} />
                   </td>
-                  <td className="date-cell">{date(campaign.created_at)}</td>
-                  <td>
+                  <td role="cell" className="date-cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.created}
+                    </span>
+                    {date(campaign.created_at)}
+                  </td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.open}
+                    </span>
                     <a
                       className="icon-link"
                       href={`#/app/campaign/${campaign.id}`}
@@ -577,24 +625,39 @@ export function Connection() {
         />
         {connections.data?.items.length ? (
           <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t.connection.clientId}</th>
-                  <th>{t.status}</th>
-                  <th>{t.actions}</th>
+            <table className="responsive-table" role="table">
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th role="columnheader" scope="col">
+                    {t.connection.clientId}
+                  </th>
+                  <th role="columnheader" scope="col">
+                    {t.status}
+                  </th>
+                  <th role="columnheader" scope="col">
+                    {t.actions}
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody role="rowgroup">
                 {connections.data.items.map((connection) => (
-                  <tr key={connection.id}>
-                    <td>
+                  <tr role="row" key={connection.id}>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.connection.clientId}
+                      </span>
                       <code>{connection.client_id}</code>
                     </td>
-                    <td>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.status}
+                      </span>
                       <Status status={connection.status} />
                     </td>
-                    <td>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.actions}
+                      </span>
                       {connection.status === "active" && (
                         <button
                           className="text-button"
@@ -676,30 +739,47 @@ export function Connection() {
           </div>
         )}
         <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{t.connection.client}</th>
-                <th>{t.connection.validation}</th>
-                <th>{t.connection.file}</th>
+          <table className="responsive-table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  {t.connection.client}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.connection.validation}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.connection.file}
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {[
                 ["ChatGPT", t.connection.chatgptFile],
                 ["Claude", t.connection.claudeFile],
                 ["Cursor", t.connection.cursorFile],
               ].map(([client, file]) => (
-                <tr key={client}>
-                  <td>
+                <tr role="row" key={client}>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.connection.client}
+                    </span>
                     <strong>{client}</strong>
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.connection.validation}
+                    </span>
                     <span className="status status-pending">
                       {t.connection.notVerified}
                     </span>
                   </td>
-                  <td>{file}</td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.connection.file}
+                    </span>
+                    {file}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -741,32 +821,52 @@ export function Senders() {
         <EmptyState title={t.senders.empty} />
       ) : (
         <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{t.senders.profile}</th>
-                <th>{t.channel}</th>
-                <th>{t.senders.address}</th>
-                <th>{t.status}</th>
+          <table className="responsive-table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  {t.senders.profile}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.channel}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.senders.address}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.status}
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {resource.data.items.map((sender) => (
-                <tr key={sender.id}>
-                  <td>
+                <tr role="row" key={sender.id}>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.senders.profile}
+                    </span>
                     <strong>{sender.name ?? sender.id}</strong>
                     <span className="reference mono">{sender.id}</span>
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.channel}
+                    </span>
                     <ChannelLabel channel={sender.channel} />
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.senders.address}
+                    </span>
                     {sender.address ??
                       sender.email ??
                       sender.phone ??
                       t.senders.unavailable}
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.status}
+                    </span>
                     <Status
                       status={
                         sender.status ?? (sender.verified ? "ready" : "pending")
@@ -978,26 +1078,48 @@ export function Admin({ children }: { children?: ReactNode }) {
         <h2 className="section-title">{t.admin.deadLetters}</h2>
         {diagnostics.data?.deadLetters?.length ? (
           <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t.identifier}</th>
-                  <th>{t.admin.queue}</th>
-                  <th>{t.created}</th>
-                  <th>{t.actions}</th>
+            <table className="responsive-table" role="table">
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th role="columnheader" scope="col">
+                    {t.identifier}
+                  </th>
+                  <th role="columnheader" scope="col">
+                    {t.admin.queue}
+                  </th>
+                  <th role="columnheader" scope="col">
+                    {t.created}
+                  </th>
+                  <th role="columnheader" scope="col">
+                    {t.actions}
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody role="rowgroup">
                 {diagnostics.data.deadLetters.map((receipt) => (
-                  <tr key={receipt.id}>
-                    <td>
+                  <tr role="row" key={receipt.id}>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.identifier}
+                      </span>
                       <code>{receipt.id}</code>
                     </td>
-                    <td>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.admin.queue}
+                      </span>
                       <code>{receipt.queue}</code>
                     </td>
-                    <td className="date-cell">{date(receipt.received_at)}</td>
-                    <td>
+                    <td role="cell" className="date-cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.created}
+                      </span>
+                      {date(receipt.received_at)}
+                    </td>
+                    <td role="cell">
+                      <span className="mobile-cell-label" aria-hidden="true">
+                        {t.actions}
+                      </span>
                       <a
                         className="text-link"
                         href={`#/app/dispatch/${receipt.dispatch_id}`}

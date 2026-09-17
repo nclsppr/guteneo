@@ -12,6 +12,7 @@ import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
 import {
   createLiveProviderHook,
+  createLiveDeliveryQuoteConfig,
   preparePostalDraft,
   serveProviderMedia,
   type LiveProviderEnv,
@@ -20,6 +21,7 @@ import {
 import {
   canonicalJson,
   DomainService,
+  emailRateComponents,
   sha256,
   type ActorContext,
   type Channel,
@@ -57,7 +59,7 @@ const postalOptions = {
   printSpectrum: "grayscale",
 } as const;
 const expectedAddress =
-  "Fixture Recipient\n1 Fixture Street\n00000 Fixture City";
+  "Fixture Recipient\n1 Fixture Street\n00000 Fixture City\nFRANCE";
 const json = (value: unknown, status = 200) => Response.json(value, { status });
 async function applySql(sql: string) {
   let statement = "";
@@ -106,6 +108,7 @@ beforeEach(async () => {
     "document_access_grants",
     "provider_drafts",
     "provider_events",
+    "ses_send_reservations",
     "attempts",
     "outbox",
     "reservations",
@@ -114,6 +117,7 @@ beforeEach(async () => {
     "audit_log",
     "dispatches",
     "trusted_fax_supplier_costs",
+    "trusted_delivery_costs",
     "campaigns",
     "documents",
     "suppressions",
@@ -199,15 +203,27 @@ beforeEach(async () => {
     AWS_REGION: "eu-west-1",
     SES_CONFIGURATION_SET: "fixture",
     SES_SANDBOX: "true",
+    SES_ACCOUNT_ID: "123456789012",
+    SES_SNS_TOPIC_ARN: "arn:aws:sns:eu-west-1:123456789012:fixture",
+    SES_VERIFIED_RECIPIENTS: "recipient@example.invalid",
     PINGEN_CLIENT_ID: "test-client",
     PINGEN_CLIENT_SECRET: "test-only",
     PINGEN_ORGANIZATION_ID: "pingen-fixture",
     PINGEN_SANDBOX: "true",
+    PINGEN_DEFAULT_COUNTRY: "LU",
     PINGEN_UPLOAD_ORIGINS: "https://objects.cloudscale.ch",
   } as LiveProviderEnv;
+  domain = new DomainService(db, {
+    mode: "production",
+    liveFaxIdentity: {
+      accountId: "account-fixture",
+      connectionId: "connection-fixture",
+    },
+    ...createLiveDeliveryQuoteConfig(env, { fetcher: pingenFixtureFetch() }),
+  });
 });
 
-/** Fax uses a qualified isolated tariff fixture through real preparation. Non-fax bridges retain synthetic prepared fixtures; no external calls escape interception. */
+/** All channels use qualified isolated prices through the real preparation/approval path. */
 async function queueFixture(
   channel: Channel,
   options: Record<string, unknown> = {},
@@ -249,55 +265,61 @@ async function queueFixture(
         ? { email: "recipient@example.invalid" }
         : postalRecipient),
   );
-  const id = `dsp_${crypto.randomUUID()}`;
   const now = new Date().toISOString();
-  const sender = await db
-    .prepare("SELECT address FROM senders WHERE id=?")
-    .bind(`sender_${channel}`)
-    .first<{ address: string }>();
-  const frozen = {
-    channel,
-    recipient,
-    documentId: "doc_fixture",
-    documentSha256: documentSha,
-    senderId: `sender_${channel}`,
-    senderAddress: sender!.address,
-    subject: channel === "email" ? "Fixture subject" : null,
-    html: channel === "email" ? "<p>Approved HTML.</p>" : null,
-    text: channel === "email" ? "Approved text." : null,
-    options,
-    campaignId: null,
-    estimatedMinor: 100,
-    ceilingMinor: 200,
-    currency: "EUR",
-    mode: "production",
+  const priceOptions = channel === "postal" ? postalOptions : options;
+  const rate = {
+    usdMicrosPerMessage: 100,
+    usdMicrosPerGb: 120000,
+    bytesPerGb: 1000000000,
+    eurPerUsdNumerator: 1,
+    eurPerUsdDenominator: 1,
+    attachmentBasis: "raw_pdf_bytes" as const,
   };
-  const fingerprint = await sha256(canonicalJson(frozen));
+  const c = emailRateComponents(rate),
+    identity =
+      createLiveDeliveryQuoteConfig(env).liveDeliveryIdentity[channel]!;
   await db
     .prepare(
-      "INSERT INTO dispatches(id,organization_id,channel,recipient_json,document_id,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'prepared','production',100,200,'EUR',?,?,?,?,?)",
+      "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'EUR','qualified_final_variable_cost',900,'ISOLATED PROVIDER FIXTURE',?,?,?,'qualified',?) ON CONFLICT(id) DO NOTHING",
     )
     .bind(
-      id,
+      "policy_" + channel,
       ctx.organizationId,
+      "sender_" + channel,
       channel,
-      canonicalJson(recipient),
-      "doc_fixture",
-      frozen.senderId,
-      frozen.senderAddress,
-      frozen.subject,
-      frozen.html,
-      frozen.text,
-      canonicalJson(options),
-      fingerprint,
-      id,
-      fingerprint,
+      channel === "email" ? "ses" : "pingen",
+      identity.accountId,
+      identity.routeId,
+      canonicalJson(priceOptions),
+      canonicalJson(rate),
+      c.base_numerator,
+      c.byte_numerator,
+      c.rate_denominator,
+      "b".repeat(64),
       now,
+      new Date(Date.now() + 3600000).toISOString(),
       now,
     )
     .run();
-  await domain.approveDispatch(ctx, id, fingerprint);
-  return domain.confirmDispatch(ctx, id, `confirm-${id}`);
+  const row = await domain.prepareDispatch(
+    ctx,
+    {
+      channel,
+      recipient,
+      documentId: "doc_fixture",
+      senderId: "sender_" + channel,
+      subject: channel === "email" ? "Fixture subject" : undefined,
+      html: channel === "email" ? "<p>Approved HTML.</p>" : undefined,
+      text: channel === "email" ? "Approved text." : undefined,
+      options,
+      ceilingMinor: 200,
+    },
+    crypto.randomUUID(),
+  );
+  await domain.approveDispatch(ctx, row.id, row.fingerprint, {
+    recipientRequested: true,
+  });
+  return domain.confirmDispatch(ctx, row.id, crypto.randomUUID());
 }
 function pingenFixtureFetch() {
   return vi.fn<Fetcher>(async (input, init) => {
@@ -337,7 +359,7 @@ function pingenFixtureFetch() {
         },
       });
     if (url.endsWith("/price-calculator"))
-      return json({ data: { attributes: { currency: "EUR", price: "1.23" } } });
+      return json({ data: { attributes: { currency: "EUR", price: "0.73" } } });
     if (url.endsWith("/letter-fixture/send")) return json({}, 202);
     throw new Error("Unexpected fixture endpoint");
   });
@@ -679,68 +701,111 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       print_mode: "duplex",
       print_spectrum: "grayscale",
     });
-    const reused = await queueFixture("postal", {
-      ...postalOptions,
-      providerDraftId: prepared.providerDraftId,
-      preparedLetterId: prepared.preparedLetterId,
-      expectedAddress,
-    });
-    await domain.processDispatch(
-      reused.id,
-      createLiveProviderHook(env, "postal", { fetcher }),
-    );
-    expect(
-      (await domain.getDispatch(ctx, reused.id)).attempts[0],
-    ).toMatchObject({ error_code: "POSTAL_DRAFT_ALREADY_USED" });
+    await expect(
+      queueFixture("postal", {
+        ...postalOptions,
+        providerDraftId: prepared.providerDraftId,
+        preparedLetterId: prepared.preparedLetterId,
+        expectedAddress,
+      }),
+    ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
     expect(fetcher).toHaveBeenCalledTimes(8);
   });
 
-  it("does not trust a supplied provider letter ID, changed recipient or missing persisted draft", async () => {
+  it("rejects a supplied provider ID, changed recipient, options or missing persisted draft during preparation", async () => {
     const draftFetch = pingenFixtureFetch();
     const prepared = await preparePostalDraft(env, domain, ctx, draftInput(), {
       fetcher: draftFetch,
     });
-    const fetcher = vi.fn<Fetcher>();
     for (const patch of [
       { providerDraftId: "foreign-draft" },
       { preparedLetterId: "unowned-letter" },
       { expectedAddress: "Other address" },
       { printMode: "simplex" },
     ]) {
+      await expect(
+        queueFixture("postal", {
+          ...postalOptions,
+          providerDraftId: prepared.providerDraftId,
+          preparedLetterId: prepared.preparedLetterId,
+          expectedAddress,
+          ...patch,
+        }),
+      ).rejects.toMatchObject({
+        code: patch.printMode
+          ? "LIVE_PRICING_REQUIRED"
+          : "POSTAL_DRAFT_APPROVAL_MISMATCH",
+      });
+    }
+    await expect(
+      queueFixture(
+        "postal",
+        {
+          ...postalOptions,
+          providerDraftId: prepared.providerDraftId,
+          preparedLetterId: prepared.preparedLetterId,
+          expectedAddress,
+        },
+        { ...postalRecipient, name: "Different recipient" },
+      ),
+    ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
+    expect(
+      draftFetch.mock.calls.some(([url]) => String(url).endsWith("/send")),
+    ).toBe(false);
+  });
+
+  it.each(["price_changed", "policy_revoked"] as const)(
+    "rechecks a Pingen quote after asynchronous calculation: %s",
+    async (change) => {
+      const draftFetch = pingenFixtureFetch();
+      const prepared = await preparePostalDraft(
+        env,
+        domain,
+        ctx,
+        draftInput(),
+        { fetcher: draftFetch },
+      );
       const row = await queueFixture("postal", {
         ...postalOptions,
         providerDraftId: prepared.providerDraftId,
         preparedLetterId: prepared.preparedLetterId,
         expectedAddress,
-        ...patch,
       });
-      await domain.processDispatch(
-        row.id,
-        createLiveProviderHook(env, "postal", { fetcher }),
-      );
-      expect((await domain.getDispatch(ctx, row.id)).attempts[0]).toMatchObject(
-        { error_code: "POSTAL_DRAFT_APPROVAL_MISMATCH" },
-      );
-    }
-    const changed = await queueFixture(
-      "postal",
-      {
-        ...postalOptions,
-        providerDraftId: prepared.providerDraftId,
-        preparedLetterId: prepared.preparedLetterId,
-        expectedAddress,
-      },
-      { ...postalRecipient, name: "Different recipient" },
-    );
-    await domain.processDispatch(
-      changed.id,
-      createLiveProviderHook(env, "postal", { fetcher }),
-    );
-    expect(
-      (await domain.getDispatch(ctx, changed.id)).attempts[0],
-    ).toMatchObject({ error_code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
-    expect(fetcher).not.toHaveBeenCalled();
-  });
+      const base = pingenFixtureFetch();
+      const fetcher = vi.fn<Fetcher>(async (input, init) => {
+        if (String(input).endsWith("/price-calculator")) {
+          if (change === "policy_revoked")
+            await db
+              .prepare(
+                "UPDATE trusted_delivery_costs SET status='revoked' WHERE id='policy_postal'",
+              )
+              .run();
+          return json({
+            data: {
+              attributes: {
+                currency: "EUR",
+                price: change === "price_changed" ? "1.20" : "0.73",
+              },
+            },
+          });
+        }
+        return base(input, init);
+      });
+      expect(
+        await domain.processDispatch(
+          row.id,
+          createLiveProviderHook(env, "postal", { fetcher }),
+        ),
+      ).toMatchObject({ status: "failed" });
+      expect(
+        fetcher.mock.calls.some(([url]) => String(url).endsWith("/send")),
+      ).toBe(false);
+      expect((await domain.usage(ctx)).welcomeCredit).toMatchObject({
+        reservedMinor: 0,
+        spentMinor: 0,
+      });
+    },
+  );
 
   it("requires a human document-transfer request and never retries an uncertain draft automatically", async () => {
     const fetcher = vi.fn<Fetcher>(async () => {

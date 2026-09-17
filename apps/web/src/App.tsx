@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -16,6 +16,7 @@ import {
   SignOut,
   WarningCircle,
   Receipt,
+  List,
 } from "@phosphor-icons/react";
 import { api, ApiError, setSession, type Session } from "./api";
 import { fr as t } from "./i18n";
@@ -44,6 +45,7 @@ import {
 import { Billing } from "./billing-page";
 import { Account, TeamAdmin } from "./account-page";
 import { LegalPage } from "./legal-page";
+import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
 import { articles, articlePath } from "./editorial/articles";
 import {
@@ -220,6 +222,8 @@ function Login({
   const authMessages: Record<string, string> = {
     EMAIL_VERIFICATION_REQUIRED:
       "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+    ACCOUNT_VERIFICATION_REQUIRED:
+      "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.",
     MFA_REQUIRED:
       "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.",
     IDENTITY_NOT_CONFIGURED:
@@ -328,8 +332,8 @@ function Login({
                 <ArrowRight size={18} />
               </a>
               <p className="field-hint">
-                Adresse e-mail vérifiée et double authentification. Aucun envoi
-                payant sans votre accord.
+                Adresse e-mail vérifiée requise. Aucun envoi payant sans votre
+                accord.
               </p>
             </>
           )}
@@ -355,7 +359,26 @@ const navigation = [
 ] as const;
 
 export function App() {
+  if (window.location.pathname === "/developpeurs/") return <DeveloperPage />;
+  return <WorkspaceApplication />;
+}
+
+function WorkspaceApplication() {
   const route = useRoute();
+  const navigationSummary = useRef<HTMLElement>(null);
+  const [navigationOpen, setNavigationOpen] = useState(
+    () => window.matchMedia("(min-width: 1025px)").matches,
+  );
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1025px)");
+    const update = () => setNavigationOpen(desktop.matches);
+    desktop.addEventListener("change", update);
+    return () => desktop.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 1024px)").matches)
+      setNavigationOpen(false);
+  }, [route]);
   const capabilities = useResource<{
     scanner: string;
     registration?: { enabled: boolean };
@@ -485,33 +508,63 @@ export function App() {
             <small>{session.user.name}</small>
           </div>
         </div>
-        <nav aria-label="Navigation de l’atelier">
-          {navigation
-            .filter(
-              (n) =>
-                !["admin", "billing"].includes(n.id) ||
-                ["admin", "owner", "platform_operator"].includes(
-                  session.user.role,
-                ),
-            )
-            .map(({ id, path, Icon }) => (
-              <a
-                key={id}
-                href={`#${path}`}
-                aria-current={
-                  page === path ||
-                  (id === "dispatches" &&
-                    (page.startsWith("/app/dispatch/") ||
-                      page === "/app/prepare"))
-                    ? "page"
-                    : undefined
-                }
-              >
-                <Icon size={21} aria-hidden="true" />
-                <span>{t.nav[id]}</span>
-              </a>
-            ))}
-        </nav>
+        <details
+          className="workspace-navigation"
+          open={navigationOpen}
+          onToggle={(event) => setNavigationOpen(event.currentTarget.open)}
+          onKeyDown={(event) => {
+            if (
+              event.key === "Escape" &&
+              window.matchMedia("(max-width: 1024px)").matches
+            ) {
+              event.preventDefault();
+              setNavigationOpen(false);
+              navigationSummary.current?.focus();
+            }
+          }}
+        >
+          <summary ref={navigationSummary}>
+            <List size={21} aria-hidden="true" />
+            Navigation de l’atelier
+          </summary>
+          <nav aria-label="Navigation de l’atelier">
+            {navigation
+              .filter(
+                (n) =>
+                  !["admin", "billing"].includes(n.id) ||
+                  ["admin", "owner", "platform_operator"].includes(
+                    session.user.role,
+                  ),
+              )
+              .map(({ id, path, Icon }) => (
+                <a
+                  key={id}
+                  href={`#${path}`}
+                  onClick={() => {
+                    if (window.matchMedia("(max-width: 1024px)").matches) {
+                      setNavigationOpen(false);
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById("main-content")
+                          ?.focus({ preventScroll: true }),
+                      );
+                    }
+                  }}
+                  aria-current={
+                    page === path ||
+                    (id === "dispatches" &&
+                      (page.startsWith("/app/dispatch/") ||
+                        page === "/app/prepare"))
+                      ? "page"
+                      : undefined
+                  }
+                >
+                  <Icon size={21} aria-hidden="true" />
+                  <span>{t.nav[id]}</span>
+                </a>
+              ))}
+          </nav>
+        </details>
         <div className="sidebar-footer">
           <p>{t.tagline}</p>
           <button onClick={() => void logout()}>

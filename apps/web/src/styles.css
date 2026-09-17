@@ -2519,6 +2519,14 @@ ol {
 .installation-section {
   row-gap: 55px;
 }
+@media (max-width: 360px) {
+  .landing .site-header {
+    gap: 8px;
+  }
+  .landing .hero h1 {
+    font-size: 42px;
+  }
+}
 .assistant-brandstrip {
   grid-column: 1 / -1;
   padding-bottom: 35px;
@@ -2536,7 +2544,7 @@ ol {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(184px, 1.2fr);
   gap: 20px;
 }
 .assistant-brandstrip li {
@@ -2568,7 +2576,11 @@ ol {
     radial-gradient(circle at 6px 100%, transparent 3px, #000 3.5px),
     radial-gradient(circle at 0 6px, transparent 3px, #000 3.5px),
     radial-gradient(circle at 100% 6px, transparent 3px, #000 3.5px);
-  mask-size: 12px 100%, 12px 100%, 100% 12px, 100% 12px;
+  mask-size:
+    12px 100%,
+    12px 100%,
+    100% 12px,
+    100% 12px;
   mask-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
   mask-composite: intersect;
 }
@@ -2616,6 +2628,16 @@ ol {
   width: 66px;
   height: 66px;
 }
+.assistant-brandstrip [data-assistant="copilot"] .assistant-stamp {
+  width: 184px;
+}
+.assistant-brandstrip [data-assistant="copilot"] .assistant-official-mark {
+  width: 160px;
+}
+.assistant-official-mark img[src$="copilot.svg"] {
+  width: 160px;
+  height: auto;
+}
 .assistant-brandstrip strong {
   font-size: 15px;
   font-weight: 500;
@@ -2657,12 +2679,14 @@ ol {
 }
 .host-selector {
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid var(--line);
   gap: 22px;
   margin-bottom: 25px;
 }
 .host-selector button {
   display: flex;
+  min-height: 44px;
   align-items: center;
   gap: 9px;
   background: none;
@@ -2680,6 +2704,10 @@ ol {
   width: 28px;
   height: 28px;
   margin: -4px;
+}
+.host-selector button img[src$="copilot.svg"] {
+  width: 120px;
+  height: auto;
 }
 .host-selector button[aria-pressed="true"] {
   color: var(--blue);
@@ -3052,6 +3080,11 @@ ol {
   font-size: 11px;
 }
 @media (max-width: 1000px) {
+  .assistant-brandstrip ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+  }
   .installation-section,
   .pricing-section,
   .faq-section {
@@ -3097,8 +3130,12 @@ ol {
     font-size: 25px;
   }
   .assistant-brandstrip ul {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 22px 12px;
+  }
+  .assistant-brandstrip [data-assistant="copilot"] {
+    grid-column: 1 / -1;
   }
   .installation-heading h2,
   .pricing-heading h2,
@@ -3112,12 +3149,17 @@ ol {
     font-size: 14px;
   }
   .host-selector {
-    gap: 19px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 19px;
   }
   .host-selector button {
     min-height: 44px;
     font-size: 14px;
     gap: 7px;
+  }
+  .installation-links .text-link {
+    min-height: 44px;
   }
   .endpoint-copy {
     padding: 15px;
@@ -3219,5 +3261,322 @@ ol {
   }
   .bird-three {
     left: 80%;
+  }
+}
+
+/* The same table and its column headers remain available to assistive tools;
+   narrow viewports reflow every cell instead of dropping operational fields. */
+.mobile-cell-label {
+  display: none;
+}
+.workspace :is(h1, h2, [role="alert"])[tabindex="-1"]:focus,
+.workspace main:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 5px;
+}
+.workspace :is(input, textarea, select) {
+  caret-color: var(--blue);
+  scroll-margin-block: 24px;
+}
+.workspace .notice,
+.workspace .section-toolbar > div,
+.workspace .page-heading > div,
+.workspace .form-panel,
+.workspace .definition {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.workspace .preview-label > :is(a, button) {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--blue);
+  background: transparent;
+  border: 0;
+  padding: 8px 0;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-align: left;
+}
+@media (max-width: 1024px) {
+  .workspace
+    :is(
+      .button,
+      .button.small,
+      .icon-link,
+      .text-button,
+      .text-link,
+      .back-link,
+      summary
+    ),
+  .workspace .sidebar nav a,
+  .workspace .sidebar-brand .brand {
+    min-height: 44px;
+  }
+  .workspace :is(.button, .text-button, .text-link, .back-link, summary) {
+    font-size: 14px;
+  }
+  .workspace :is(.text-link, .back-link, .text-button) {
+    display: inline-flex;
+    align-items: center;
+  }
+  .workspace .row-link {
+    display: block;
+    min-height: 44px;
+    max-width: none;
+    font-size: 16px;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .workspace .icon-link {
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+  .workspace .button {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+  .workspace .button-group {
+    flex-wrap: wrap;
+  }
+  .workspace .sidebar nav a {
+    font-size: 14px;
+    padding: 11px 12px;
+  }
+  .workspace .app-topbar {
+    min-height: 68px;
+    height: auto;
+    padding-block: 10px;
+  }
+  .workspace .app-topbar > span {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .workspace .app-topbar > .button {
+    flex-shrink: 0;
+  }
+  .workspace .page-heading p,
+  .workspace .empty-state p,
+  .workspace .connection-callout p,
+  .workspace .notice p,
+  .workspace .approval-panel > p,
+  .workspace .checkbox-label {
+    font-size: 15px;
+  }
+  .workspace .field > label,
+  .workspace .notice strong,
+  .workspace .definition dd {
+    font-size: 14px;
+  }
+  .workspace .field > small,
+  .workspace .field-hint,
+  .workspace .definition dt,
+  .workspace .simulation-banner p,
+  .workspace .scanner-warning {
+    font-size: 12px;
+  }
+  .workspace .field select,
+  .workspace select {
+    /* iOS native selects may ignore min-height when using their default face. */
+    height: 48px;
+    min-height: 48px;
+    max-width: 100%;
+    font-size: 16px;
+  }
+  .workspace .channel-selector span {
+    min-height: 48px;
+    font-size: 13px;
+  }
+  .workspace .checkbox-label {
+    padding-block: 8px;
+    min-height: 48px;
+  }
+  .workspace .checkbox-label input {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .workspace .section-toolbar {
+    flex-wrap: wrap;
+  }
+  .workspace .table-scroll {
+    overflow: visible;
+  }
+  .workspace .responsive-table,
+  .workspace .responsive-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .workspace .responsive-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .workspace .responsive-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .workspace .responsive-table tbody tr:first-child {
+    border-top: 1px solid var(--line);
+  }
+  .workspace .responsive-table tbody :is(td, th) {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 14px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+  .workspace .responsive-table tbody :is(td, th):first-child {
+    grid-column: 1 / -1;
+  }
+  .workspace .mobile-cell-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+  .workspace .responsive-table .reference {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .workspace :is(.status, .channel-label) {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .workspace .sub-label {
+    font-size: 11px;
+  }
+  .workspace .pdf-navigation {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  .workspace .preview-label {
+    font-size: 13px;
+  }
+  .workspace .preview-label > :is(a, button) {
+    font-size: 14px;
+    white-space: normal;
+  }
+  .workspace .app-footer {
+    flex-wrap: wrap;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    font-size: 11px;
+  }
+}
+@media (max-width: 360px) {
+  .workspace main {
+    padding-inline: 16px;
+  }
+  .workspace .field-row,
+  .workspace .document-metadata {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace .app-topbar {
+    padding-inline: 12px;
+  }
+}
+.workspace-navigation > summary {
+  display: none;
+}
+@media (max-width: 1024px) {
+  .workspace-navigation {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .workspace-navigation > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 0;
+    font-size: 14px;
+    color: var(--blue);
+    cursor: pointer;
+    list-style: none;
+  }
+  .workspace-navigation > summary::-webkit-details-marker {
+    display: none;
+  }
+  .workspace-navigation > summary::after {
+    content: "+";
+    margin-left: auto;
+    font-size: 22px;
+  }
+  .workspace-navigation[open] > summary::after {
+    content: "−";
+  }
+  .workspace-navigation nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px 0 16px;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
+  }
+  .workspace-navigation nav a {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 360px) {
+  .workspace-navigation nav {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .workspace {
+    display: block;
+  }
+  .workspace .sidebar {
+    position: static;
+    height: auto;
+    padding: 18px 28px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .workspace .sidebar-brand {
+    padding: 0 0 14px;
+  }
+  .workspace .organization {
+    border: 0;
+    margin: 0;
+    padding: 0 0 14px;
+  }
+  .workspace .sidebar-footer,
+  .workspace .atelier-label {
+    display: none;
+  }
+  .workspace .sidebar nav a:nth-child(5) {
+    margin-top: 0;
+  }
+  .workspace .mobile-logout {
+    display: inline-flex;
+  }
+  .workspace main {
+    padding-inline: 28px;
   }
 }

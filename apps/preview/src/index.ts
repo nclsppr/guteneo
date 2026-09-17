@@ -1,12 +1,6 @@
-const backendPaths = [
-  "/api",
-  "/auth",
-  "/oauth",
-  "/mcp",
-  "/webhooks",
-  "/media",
-  "/.well-known",
-];
+import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+
+const backendPaths = site.privatePrefixes.map((prefix) => `/${prefix}`);
 
 const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
@@ -17,13 +11,7 @@ const privateHeaders = {
   ...securityHeaders,
   "X-Robots-Tag": "noindex, nofollow",
 };
-const publicPages = new Set([
-  "/",
-  "/journal/",
-  "/journal/de-gutenberg-au-numerique/",
-  "/journal/histoire-imprimerie-luxembourg/",
-  "/mentions-legales/",
-]);
+const publicPages = new Set(site.paths);
 
 export default {
   async fetch(request: Request, env: PreviewEnv): Promise<Response> {

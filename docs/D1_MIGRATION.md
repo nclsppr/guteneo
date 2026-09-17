@@ -85,3 +85,18 @@ The local source/transport verifier subsequently passed all thirteen candidate m
 Migrations `0014_welcome_credit.sql` and `0015_exact_supplier_fax_pricing.sql` were applied in order at **2026-09-16 22:47:13 UTC**. Pre-migration bookmark: `00000010-00000000-000050e8-f27c1081e6e508635c5a61e7738de47c`. Post-migration bookmark: `00000010-00000006-000050e8-40deba372379015d4d341a488d194e85`.
 
 Fresh checks confirmed fifteen ledger entries, `quick_check=ok`, zero foreign-key violations and zero organizations, grants, qualified supplier costs or v2 quotes. The local source/normalized transport schemas match across 121 objects. A fresh remote schema comparison matched all 120 domain objects exactly after the documented whitespace/guard normalization. The remaining `d1_migrations` tracking table differs only in quoting and whitespace added by Wrangler, with the same columns and constraints. No sample accounts, grants or tariffs were inserted remotely.
+
+## Email/postal quotes, SES limits and verified accounts — 2026-09-17
+
+Migrations `0016_live_delivery_quotes.sql`, `0017_ses_send_limits.sql`, `0018_email_recipient_attestation.sql` and `0019_verified_account_sessions.sql` were applied in order at **00:56:39–00:56:40 UTC** through four complete D1 API batches, each including its migration-ledger insertion. All statements succeeded (25, 8, 4 and 2 statements respectively). No application data, tariff, quota funding or live-send permission was inserted.
+
+Pre-migration bookmark: `00000020-00000000-000050e9-6ccf89b8ade84d7c2b7b32b273330ca6`. Post-migration bookmark: `00000020-0000000b-000050e9-2475811ccdcf41f161a5abdcb8626ec5`.
+
+Fresh remote checks confirmed nineteen ledger entries, `foreign_keys=1`, `quick_check=ok`, zero foreign-key violations and 146 schema objects including the migration ledger.
+
+| Migration | Source SHA-256 | Transport SHA-256 |
+| --- | --- | --- |
+| 0016 | `ff6cb71c2ee7bbb869d6b37c84481ff3308a075e13cccc68af55cc71e9cbaa14` | `a691b38c6bccdc63b4d94e1c50a0fb036ce943a995e002f7cf722b1f41c971da` |
+| 0017 | `224d49155f9d656e539e21034034871f8d920bc0533933af328702de68400208` | `3bac6df3ac59f299350421e7fd32b8d287c1772a8753b5fc004d787e27e25ba8` |
+| 0018 | `0e02d2d3e334b2fe0368d189c9fe72a293d58b0d55f9b5671cbfe3c8138c3f2b` | `1552b5dc9d694a4e555c77204c3921234a1fa002f08bc17c4e1262b35f08ae2f` |
+| 0019 | `ee02af225e4ddc92867e5faa5eaffb7921a12082565dea6b51fdf77a816669f6` | `0c46560efdf16be0e007d7e7f03bf8ceb4c30ac171af95f2f875dab00db60834` |

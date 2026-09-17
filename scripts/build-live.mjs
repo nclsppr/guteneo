@@ -80,7 +80,8 @@ await build({
   build: { outDir: output, emptyOutDir: true },
 });
 await buildIntegrationPackage(join(output, "integrations"));
-await buildPublicPages({ root, output, indexable: false });
+// Runtime asset middleware permits indexing only on the canonical public origin.
+await buildPublicPages({ root, output, indexable: true });
 if ((await snapshot()) !== sourceSnapshotSha256)
   throw new Error(
     "Source changed during build. Build again before deployment.",

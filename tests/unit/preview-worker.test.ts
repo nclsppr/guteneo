@@ -65,6 +65,7 @@ describe("public preview boundary", () => {
     "/journal/de-gutenberg-au-numerique/",
     "/journal/histoire-imprimerie-luxembourg/",
     "/mentions-legales/",
+    "/developpeurs/",
   ])(
     "serves canonical public HTML at %s without noindex on the primary domain",
     async (path) => {
@@ -81,17 +82,20 @@ describe("public preview boundary", () => {
     },
   );
 
-  it.each(["/", "/journal/", "/mentions-legales/", "/image.webp"])(
-    "keeps fallback workers.dev URL %s out of the index",
-    async (path) => {
-      const { env } = assetsEnv();
-      const response = await worker.fetch(
-        new Request(`https://guteneo-preview.nclsppr.workers.dev${path}`),
-        env,
-      );
-      expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
-    },
-  );
+  it.each([
+    "/",
+    "/journal/",
+    "/mentions-legales/",
+    "/developpeurs/",
+    "/image.webp",
+  ])("keeps fallback workers.dev URL %s out of the index", async (path) => {
+    const { env } = assetsEnv();
+    const response = await worker.fetch(
+      new Request(`https://guteneo-preview.nclsppr.workers.dev${path}`),
+      env,
+    );
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+  });
 
   it("does not turn missing pages into the homepage", async () => {
     const { env, fetch } = assetsEnv();

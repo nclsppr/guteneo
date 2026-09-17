@@ -170,6 +170,88 @@ async function count(table: string, organization = org) {
 }
 
 describe("browser account and organization administration", () => {
+  it("allows verified-email beta administrators to manage the account while retaining honest MFA status", async () => {
+    env = { ...env, MODE: "production", AUTH0_AUTH_POLICY: "verified_email" };
+    await db
+      .prepare(
+        "UPDATE browser_sessions SET is_development=0,mfa=0,verified_account=1 WHERE token_hash=?",
+      )
+      .bind(owner.hash)
+      .run();
+    const result = await response("/api/account", owner, "PATCH", {
+      organizationName: "Beta verified workspace",
+    });
+    expect(result).toMatchObject({
+      mfa: false,
+      verifiedAccount: true,
+      organization: { name: "Beta verified workspace" },
+      permissions: { manageOrganization: true },
+    });
+    await db
+      .prepare(
+        "UPDATE browser_sessions SET verified_account=0 WHERE token_hash=?",
+      )
+      .bind(owner.hash)
+      .run();
+    await expect(
+      handleAccountRoute(
+        req("/api/account", owner, "PATCH", {
+          organizationName: "Must remain unchanged",
+        }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "ACCOUNT_VERIFICATION_REQUIRED" });
+    expect(
+      await db
+        .prepare("SELECT name FROM organizations WHERE id=?")
+        .bind(org)
+        .first(),
+    ).toEqual({ name: "Beta verified workspace" });
+  });
+  it("rechecks the verified-account proof within the mutation transaction", async () => {
+    env = { ...env, MODE: "production", AUTH0_AUTH_POLICY: "verified_email" };
+    await db
+      .prepare(
+        "UPDATE browser_sessions SET is_development=0,mfa=0,verified_account=1 WHERE token_hash=?",
+      )
+      .bind(owner.hash)
+      .run();
+    let revoked = false;
+    const wrapped = new Proxy(db, {
+      get(target, property) {
+        if (property === "batch")
+          return async (statements: D1PreparedStatement[]) => {
+            if (!revoked) {
+              revoked = true;
+              await db
+                .prepare(
+                  "UPDATE browser_sessions SET verified_account=0 WHERE token_hash=?",
+                )
+                .bind(owner.hash)
+                .run();
+            }
+            return db.batch(statements);
+          };
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    await expect(
+      handleAccountRoute(
+        req("/api/account", owner, "PATCH", {
+          organizationName: "Must remain unchanged",
+        }),
+        { ...env, DB: wrapped },
+      ),
+    ).rejects.toMatchObject({ code: "ACCESS_CHANGED" });
+    expect(await count("audit_log")).toBe(0);
+    expect(
+      await db
+        .prepare("SELECT name FROM organizations WHERE id=?")
+        .bind(org)
+        .first(),
+    ).toEqual({ name: "Atelier confidentiel" });
+  });
   it("allows own name updates but restricts workspace changes and rejects privilege fields", async () => {
     const updated = await response("/api/account", member, "PATCH", {
       userName: "  Camille  ",

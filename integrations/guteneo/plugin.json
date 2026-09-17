@@ -2,23 +2,23 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "guteneo",
   "version": "0.2.0",
-  "description": "Préparer le fax d’un PDF exact, faire valider le document et son coût dans Guteneo, puis suivre la transmission.",
+  "description": "Préparer un PDF pour le fax ou le courrier postal selon les fonctions du compte, faire approuver document et devis dans Guteneo, puis suivre les résultats disponibles.",
   "author": { "name": "Guteneo" },
   "homepage": "https://guteneo.com",
   "repository": "https://github.com/nclsppr/guteneo",
-  "keywords": ["pdf", "fax", "documents", "guteneo"],
+  "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Guteneo",
-        "shortDescription": "Votre PDF, prêt à être faxé et suivi.",
-        "longDescription": "Importez votre PDF original, préparez un fax avec un plafond de coût, approuvez dans Guteneo et suivez le résultat. Les fonctions disponibles dépendent de la configuration de votre compte.",
+        "shortDescription": "PDF, devis et validation dans Guteneo.",
+        "longDescription": "Préparez un PDF original pour le fax ou le courrier postal, selon les outils et canaux activés pour votre compte. Relisez le document et le devis dans Guteneo avant toute transmission. Le paquet ne configure aucun prestataire et ne prouve pas une connexion opérationnelle.",
         "developerName": "Guteneo",
         "category": "Productivity",
         "capabilities": ["Read", "Write"],
         "websiteURL": "https://guteneo.com",
         "defaultPrompt": [
-          "Prépare un fax de ce PDF avec Guteneo.",
+          "Vérifie les fonctions de mon compte Guteneo, puis aide-moi à préparer ce PDF pour un fax ou un courrier postal.",
           "Quel est le résultat de mon dernier fax Guteneo ?"
         ],
         "brandColor": "#2450db"

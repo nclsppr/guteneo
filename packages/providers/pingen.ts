@@ -38,6 +38,9 @@ export type PostalSubmission = PostalOptions & {
   expectedAddress: string;
   country: "FR" | "LU" | "DE";
   maxCost: Money;
+  expectedCost?: Money;
+  expectedQuoteSha256?: string;
+  beforeSend?: () => Promise<void>;
   idempotencyKey: string;
 };
 export type PreparedPostalDocument = {
@@ -118,7 +121,7 @@ export class PingenPostalProvider {
   }): Promise<PreparedPostalDocument> {
     if (
       input.bytes.byteLength < 5 ||
-      input.bytes.byteLength > 20_000_000 ||
+      input.bytes.byteLength > 8_000_000 ||
       new TextDecoder().decode(input.bytes.subarray(0, 5)) !== "%PDF-" ||
       !/^[^\r\n\0/\\]{1,180}\.pdf$/i.test(input.filename) ||
       !["left", "right"].includes(input.addressPosition) ||
@@ -220,6 +223,64 @@ export class PingenPostalProvider {
       verifiedAt: new Date().toISOString(),
     };
   }
+  /** Read and price a draft only. Neither GET nor the calculator dispatches mail. */
+  async quotePrepared(
+    input: Pick<
+      PostalSubmission,
+      | "preparedLetterId"
+      | "expectedAddress"
+      | "country"
+      | "deliveryProduct"
+      | "printMode"
+      | "printSpectrum"
+    >,
+  ): Promise<{ amount: Money; evidenceSha256: string }> {
+    const data = asObject(
+      (
+        await this.get(
+          `${this.lettersPath()}/${safeId(input.preparedLetterId)}`,
+        )
+      ).data,
+    );
+    const attributes = asObject(data.attributes);
+    if (
+      attributes.country !== input.country ||
+      this.normalizeAddress(textField(attributes, "address")) !==
+        this.normalizeAddress(input.expectedAddress)
+    )
+      throw new ProviderError("postal_address_requires_new_approval");
+    const abilities = asObject(asObject(asObject(data.meta).abilities).self);
+    if (abilities.submit !== "ok")
+      throw new ProviderError("postal_document_not_ready");
+    const paperTypes = attributes.paper_types;
+    if (
+      !Array.isArray(paperTypes) ||
+      paperTypes.some((x) => typeof x !== "string")
+    )
+      throw new ProviderError("postal_paper_types_unknown");
+    const quote = await this.estimate({ ...input, paperTypes });
+    if (!quote.amount || quote.amount.currency !== "EUR")
+      throw new ProviderError("postal_cost_requires_new_approval");
+    const evidence = JSON.stringify({
+      providerId: input.preparedLetterId,
+      country: input.country,
+      address: this.normalizeAddress(input.expectedAddress),
+      paperTypes,
+      options: this.options(input),
+      amount: quote.amount,
+    });
+    const evidenceSha256 = Array.from(
+      new Uint8Array(
+        await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(evidence),
+        ),
+      ),
+    )
+      .map((v) => v.toString(16).padStart(2, "0"))
+      .join("");
+    return { amount: quote.amount, evidenceSha256 };
+  }
   async submit(input: PostalSubmission): Promise<ProviderResult> {
     const errors = this.validate(input);
     if (errors.length)
@@ -227,46 +288,15 @@ export class PingenPostalProvider {
     // All preparatory reads can fail without a physical send. The mutation alone is ambiguous.
     let headers: Record<string, string>;
     try {
-      const data = asObject(
-        (
-          await this.get(
-            `${this.lettersPath()}/${safeId(input.preparedLetterId)}`,
-          )
-        ).data,
-      );
-      const attributes = asObject(data.attributes);
+      const quote = await this.quotePrepared(input);
       if (
-        attributes.country !== input.country ||
-        this.normalizeAddress(textField(attributes, "address")) !==
-          this.normalizeAddress(input.expectedAddress)
-      )
-        return {
-          status: "rejected",
-          errorCode: "postal_address_requires_new_approval",
-          retryable: false,
-        };
-      const abilities = asObject(asObject(asObject(data.meta).abilities).self);
-      if (abilities.submit !== "ok")
-        return {
-          status: "rejected",
-          errorCode: "postal_document_not_ready",
-          retryable: false,
-        };
-      const paperTypes = attributes.paper_types;
-      if (
-        !Array.isArray(paperTypes) ||
-        paperTypes.some((x) => typeof x !== "string")
-      )
-        return {
-          status: "rejected",
-          errorCode: "postal_paper_types_unknown",
-          retryable: false,
-        };
-      const quote = await this.estimate({ ...input, paperTypes });
-      if (
-        !quote.amount ||
         quote.amount.currency !== input.maxCost.currency ||
-        quote.amount.minor > input.maxCost.minor
+        quote.amount.minor > input.maxCost.minor ||
+        (input.expectedCost &&
+          (quote.amount.currency !== input.expectedCost.currency ||
+            quote.amount.minor !== input.expectedCost.minor)) ||
+        (input.expectedQuoteSha256 &&
+          quote.evidenceSha256 !== input.expectedQuoteSha256)
       )
         return {
           status: "rejected",
@@ -274,6 +304,7 @@ export class PingenPostalProvider {
           retryable: false,
         };
       headers = await this.headers(input.idempotencyKey);
+      await input.beforeSend?.();
     } catch (error) {
       // Token/read/quote operations cannot print a letter; preserve this distinction
       // from the physically meaningful PATCH below when reporting an outage.

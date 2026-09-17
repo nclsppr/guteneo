@@ -631,6 +631,7 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         approval.fingerprint = historicalQuotes.get(
           approval.dispatch_id as string,
         )!.dispatch_fingerprint;
+        delete approval.recipient_requested;
         await insert("approvals", approval);
       }
       await legacy
@@ -704,6 +705,16 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
           .run(),
       ).rejects.toThrow();
       const submit = vi.fn();
+      // The current service expects the complete additive schema after proving
+      // migration0015 preserves/revokes legacy prices above.
+      for (const file of readdirSync(directory)
+        .filter(
+          (file) =>
+            file.endsWith(".sql") &&
+            (file.startsWith("0014") || file >= "0016"),
+        )
+        .sort())
+        await sql(readFileSync(new URL(file, directory), "utf8"), legacy);
       const upgraded = new DomainService(legacy, {
         mode: "production",
         now: () => clock,

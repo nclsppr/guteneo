@@ -108,6 +108,9 @@ export const fr = {
       endpoint: "Adresse du serveur Guteneo",
       copyEndpoint: "Copier l’adresse",
       cursorDownload: "Télécharger la configuration Cursor",
+      copilotVscodeDownload: "Configuration VS Code",
+      copilotCliDownload: "Configuration Copilot CLI",
+      copilotCliLink: "Guide officiel Copilot CLI",
       promptTitle: "Une première conversation, tout simplement.",
       prompt:
         "Avec Guteneo, vérifie les fonctions disponibles pour mon compte. Aide-moi à préparer un courrier et à choisir son canal. Demande-moi les informations manquantes, puis présente le document, le destinataire et le coût pour ma validation dans Guteneo. N’effectue aucun envoi sans cette validation.",
@@ -147,6 +150,17 @@ export const fr = {
           url: "https://cursor.com/docs/mcp",
           link: "Voir les étapes officielles Cursor",
           note: "Cette configuration ne lit aucun fichier local. Déposez votre PDF dans Guteneo pour l’utiliser ; l’adaptateur d’import local se configure séparément.",
+        },
+        copilot: {
+          name: "GitHub Copilot",
+          steps: [
+            "Dans VS Code avec GitHub Copilot, ajoutez l’entrée guteneo de la configuration VS Code ci-dessous à .vscode/mcp.json. Conservez vos autres serveurs.",
+            "Ouvrez MCP: List Servers, choisissez Guteneo et connectez votre compte si l’accès est disponible. Vérifiez les outils avant de commencer votre conversation.",
+            "Dans Copilot CLI, utilisez plutôt la configuration CLI dans ~/.copilot/mcp-config.json. La commande /mcp auth guteneo ouvre la connexion OAuth lorsqu’elle est nécessaire.",
+          ],
+          url: "https://code.visualstudio.com/docs/agents/reference/mcp-configuration",
+          link: "Guide officiel VS Code",
+          note: "GitHub Copilot dans VS Code et Copilot CLI uniquement ; Microsoft Copilot grand public n’est pas couvert. La connexion OAuth et les règles de votre compte restent à qualifier. Déposez votre PDF dans Guteneo : ces configurations ne donnent aucun accès au disque.",
         },
       },
     },

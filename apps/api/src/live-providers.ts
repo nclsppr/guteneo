@@ -1,3 +1,5 @@
+import { submitSesWithLimits } from "./ses-send-limits";
+import { sesTransportSandbox } from "./ses-environment";
 import { z } from "zod";
 import {
   validateRecipient,
@@ -8,6 +10,9 @@ import {
   DomainError,
   sha256,
   validateLiveFaxQuote,
+  validateLiveDeliveryQuote,
+  type LiveDeliveryIdentities,
+  type PostalQuoteResolver,
   type ActorContext,
   type Channel,
   type Dispatch,
@@ -28,6 +33,8 @@ export type LiveProviderEnv = Env & {
   TELNYX_ALLOWED_PREFIXES?: string;
   AWS_SESSION_TOKEN?: string;
   SES_SANDBOX?: string;
+  SES_ACCOUNT_ID?: string;
+  PINGEN_DEFAULT_COUNTRY?: string;
   PINGEN_SANDBOX?: string;
   PINGEN_UPLOAD_ORIGINS?: string;
 };
@@ -164,8 +171,27 @@ async function exactDocument(
     blocked("DOCUMENT_INTEGRITY_MISMATCH");
   return { document, bytes };
 }
-function expectedPostalAddress(recipient: Record<string, string>): string {
-  return `${recipient.name}\n${recipient.line1}\n${recipient.postalCode} ${recipient.city}`;
+function expectedPostalAddress(
+  recipient: Record<string, string>,
+  defaultCountry?: string,
+): string {
+  if (!defaultCountry || !/^[A-Z]{2}$/.test(defaultCountry))
+    blocked("PINGEN_COUNTRY_NOT_CONFIGURED");
+  const lines = [
+    recipient.name,
+    recipient.line1,
+    `${recipient.postalCode} ${recipient.city}`,
+  ];
+  if (recipient.country !== defaultCountry)
+    lines.push(
+      (
+        { FR: "FRANCE", DE: "GERMANY", LU: "LUXEMBOURG" } as Record<
+          string,
+          string
+        >
+      )[recipient.country],
+    );
+  return lines.join("\n");
 }
 function postalOptions(options: Record<string, unknown>): PostalOptions {
   const result = postalOptionsSchema.safeParse({
@@ -307,9 +333,14 @@ export function createLiveProviderHook(
           connectionId: env.TELNYX_CONNECTION_ID,
         }
       : undefined;
+  const { liveDeliveryIdentity } = createLiveDeliveryQuoteConfig(
+    env,
+    dependencies,
+  );
   return {
     name: provider,
     liveFaxIdentity,
+    liveDeliveryIdentity,
     async submit(input) {
       let providerCallStarted = false;
       try {
@@ -404,11 +435,7 @@ export function createLiveProviderHook(
                 "SES_NOT_CONFIGURED",
               ),
               authorizedSenders: [row.sender_address],
-              sandbox: sandbox(
-                env.SES_SANDBOX,
-                env.ENVIRONMENT,
-                "SES_MODE_REQUIRED",
-              ),
+              sandbox: sesTransportSandbox(env, recipient.email),
             },
             fetcher,
           );
@@ -432,10 +459,37 @@ export function createLiveProviderHook(
           };
           const errors = connector.validate(email);
           if (errors.length) blocked(errors[0]);
-          submit = () => {
-            providerCallStarted = true;
-            return connector.submit(email);
-          };
+          submit = () =>
+            submitSesWithLimits(
+              env.DB,
+              {
+                accountId: required(env.SES_ACCOUNT_ID, "SES_ACCOUNT_REQUIRED"),
+                region: required(env.AWS_REGION, "SES_NOT_CONFIGURED"),
+                sandbox: sesTransportSandbox(env, recipient.email),
+                organizationId: row.organization_id,
+                dispatchId: row.id,
+                attemptId: row.active_attempt_id!,
+              },
+              async () => {
+                try {
+                  await checkActiveDispatch(env, row, provider);
+                  await validateLiveDeliveryQuote(
+                    env.DB,
+                    row,
+                    liveDeliveryIdentity.email,
+                    new Date(clock()).toISOString(),
+                  );
+                } catch {
+                  return {
+                    status: "rejected",
+                    errorCode: "LIVE_QUOTE_INVALID",
+                  };
+                }
+                providerCallStarted = true;
+                return connector.submit(email);
+              },
+              { now: clock },
+            );
         } else {
           const approvedOptions = postalOptions(options);
           const draftId = z
@@ -453,7 +507,10 @@ export function createLiveProviderHook(
           )
             .bind(row.organization_id, draftId.data)
             .first<Draft>();
-          const expectedAddress = expectedPostalAddress(recipient);
+          const expectedAddress = expectedPostalAddress(
+            recipient,
+            env.PINGEN_DEFAULT_COUNTRY,
+          );
           if (
             !draft ||
             draft.provider_id !== letterId.data ||
@@ -479,9 +536,29 @@ export function createLiveProviderHook(
               .bind(row.id, row.organization_id, draft.id, row.id)
               .run();
             if (claim.meta.changes !== 1) blocked("POSTAL_DRAFT_ALREADY_USED");
-            providerCallStarted = true;
+            const quote = await validateLiveDeliveryQuote(
+              env.DB,
+              row,
+              liveDeliveryIdentity.postal,
+              new Date(clock()).toISOString(),
+            );
             return connector.submit({
               ...approvedOptions,
+              beforeSend: async () => {
+                await checkActiveDispatch(env, row, provider);
+                await validateLiveDeliveryQuote(
+                  env.DB,
+                  row,
+                  liveDeliveryIdentity.postal,
+                  new Date(clock()).toISOString(),
+                );
+                providerCallStarted = true;
+              },
+              expectedCost: {
+                currency: "EUR",
+                minor: quote.supplier_nanoeur / 10_000_000,
+              },
+              expectedQuoteSha256: quote.evidence_sha256,
               preparedLetterId: draft.provider_id!,
               expectedAddress,
               country: recipient.country as "FR" | "LU" | "DE",
@@ -495,6 +572,13 @@ export function createLiveProviderHook(
             env.DB,
             row,
             liveFaxIdentity,
+            new Date(clock()).toISOString(),
+          );
+        if (channel !== "fax")
+          await validateLiveDeliveryQuote(
+            env.DB,
+            row,
+            liveDeliveryIdentity[channel],
             new Date(clock()).toISOString(),
           );
         if (!(await claimAttempt(env, row, clock())))
@@ -514,6 +598,87 @@ export function createLiveProviderHook(
                 : "LIVE_PREFLIGHT_FAILED",
         };
       }
+    },
+  };
+}
+
+/** Private dependency injection for trusted quote preparation. Prices never come
+ * from the browser or an assistant, and the calculator cannot send a letter. */
+export function createLiveDeliveryQuoteConfig(
+  env: LiveProviderEnv,
+  dependencies: Dependencies = {},
+): {
+  liveDeliveryIdentity: LiveDeliveryIdentities;
+  postalQuote: PostalQuoteResolver;
+} {
+  const liveDeliveryIdentity: LiveDeliveryIdentities = {
+    ...(env.SES_ACCOUNT_ID &&
+    env.AWS_REGION &&
+    env.SES_CONFIGURATION_SET &&
+    env.SES_SANDBOX
+      ? { email: { accountId: env.SES_ACCOUNT_ID, routeId: env.AWS_REGION } }
+      : {}),
+    ...(env.PINGEN_ORGANIZATION_ID
+      ? {
+          postal: {
+            accountId: env.PINGEN_ORGANIZATION_ID,
+            routeId: env.PINGEN_ORGANIZATION_ID,
+          },
+        }
+      : {}),
+  };
+  return {
+    liveDeliveryIdentity,
+    postalQuote: async (request) => {
+      liveGate(env);
+      if (
+        request.identity.accountId !== env.PINGEN_ORGANIZATION_ID ||
+        request.identity.routeId !== env.PINGEN_ORGANIZATION_ID
+      )
+        blocked("POSTAL_ACCOUNT_MISMATCH");
+      const draftId = request.options.providerDraftId;
+      if (typeof draftId !== "string")
+        blocked("POSTAL_PREPARED_DRAFT_REQUIRED");
+      const draft = await env.DB.prepare(
+        "SELECT * FROM provider_drafts WHERE organization_id=? AND id=? AND provider='pingen' AND status='prepared'",
+      )
+        .bind(request.organizationId, draftId)
+        .first<Draft>();
+      const options = postalOptions(request.options),
+        expectedAddress = expectedPostalAddress(
+          request.recipient,
+          env.PINGEN_DEFAULT_COUNTRY,
+        );
+      if (
+        !draft ||
+        !draft.provider_id ||
+        draft.provider_id !== request.options.preparedLetterId ||
+        draft.document_id !== request.documentId ||
+        draft.document_sha256 !== request.documentSha256 ||
+        draft.sender_id !== request.senderId ||
+        draft.recipient_json !== canonicalJson(request.recipient) ||
+        draft.expected_address !== expectedAddress ||
+        request.options.expectedAddress !== expectedAddress ||
+        draft.options_json !== canonicalJson(options) ||
+        draft.claimed_dispatch_id
+      )
+        blocked("POSTAL_DRAFT_APPROVAL_MISMATCH");
+      const priced = await pingen(
+        env,
+        dependencies.fetcher ?? fetch,
+      ).quotePrepared({
+        ...options,
+        preparedLetterId: draft.provider_id,
+        expectedAddress,
+        country: request.recipient.country as "FR" | "LU" | "DE",
+      });
+      return {
+        supplierMinor: priced.amount.minor,
+        currency: "EUR",
+        providerDraftId: draft.id,
+        preparedLetterId: draft.provider_id,
+        evidenceSha256: priced.evidenceSha256,
+      };
     },
   };
 }
@@ -597,7 +762,10 @@ export async function preparePostalDraft(
     blocked("POSTAL_DRAFT_INPUT_INVALID");
   const recipient = validateRecipient("postal", input.recipient);
   const options = postalOptionsSchema.parse(input.options);
-  const expectedAddress = expectedPostalAddress(recipient);
+  const expectedAddress = expectedPostalAddress(
+    recipient,
+    env.PINGEN_DEFAULT_COUNTRY,
+  );
   const sender = await env.DB.prepare(
     "SELECT address FROM senders WHERE organization_id=? AND id=? AND channel='postal' AND status='verified' AND mode='production'",
   )

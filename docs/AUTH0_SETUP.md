@@ -4,7 +4,13 @@
 
 ## Renew the official CLI session
 
-The read-only inspection on 16 September 2026 failed because the saved CLI session needs renewed access. No tenant changes have been made by this utility. The installed CLI help confirms `auth0 api METHOD PATH` accepts JSON on standard input. Authentication stays inside the official CLI; never copy its token or a client secret into a chat, an argument or a file.
+The official CLI session was successfully renewed on 17 September 2026. Live inspection found three existing clients (including Parkventory) and no existing Post Login bindings before Guteneo setup. Unsupported API `fields` projections were corrected; they were not authentication failures.
+
+The operator completed their personal administrator MFA enrollment in Safari. The application tenant was inspected separately: it is on **Free ($0)**. OTP was briefly enabled while qualifying the configuration; the console then disclosed that use requires Pro MFA (Essentials displayed $35/month excluding taxes). The operator explicitly chose to remain free. Guteneo therefore uses the `verified_email` application policy; no subscription upgrade was performed. Administrator MFA for the Auth0 dashboard is a separate credential and remains intact.
+
+The three Guteneo applications, its database connection, API and two Actions are now provisioned, and the browser credentials were securely installed in Cloudflare. A second successful apply updated the same two Action IDs for the free beta. Real user signup, email receipt and host OAuth qualification remain to be completed; configuration is not evidence of those journeys.
+
+The installed CLI help confirms `auth0 api METHOD PATH` accepts JSON on standard input. Authentication stays inside the official CLI; never copy its token or a client secret into a chat, an argument or a file.
 
 The required management permissions are:
 
@@ -15,7 +21,7 @@ auth0 login --scopes read:tenant_settings,read:guardian_factors,read:clients,cre
 Then inspect:
 
 ```sh
-node scripts/setup-auth0.mjs --inspect
+node scripts/setup-auth0.mjs --inspect --auth-policy verified_email
 ```
 
 `read:clients` alone does not reveal the confidential client secret. Its narrow retrieval requires `read:client_keys` or `read:client_credentials`. The utility uses `read:client_keys` and keeps that response in memory. [Auth0 client field permissions](https://auth0.com/docs/api/management/v2/clients/get-clients-by-id)
@@ -25,8 +31,7 @@ node scripts/setup-auth0.mjs --inspect
 Inspection reports blockers and `--apply` stops before any mutation unless all required settings are already present:
 
 - `resource_parameter_profile: "compatibility"`, so MCP's RFC 8707 `resource` is accepted as the audience.
-- `customize_mfa_in_postlogin_action: true`, so the first Action can complete a challenge before the second observes its result.
-- The `otp` factor is enabled. The utility does not enable factors, change MFA policies, upgrade a plan, or configure a paid phone provider.
+- Only for the legacy `verified_email_and_mfa` policy: `customize_mfa_in_postlogin_action: true` and an enabled OTP factor. The explicitly selected free-beta policy does not require or invoke paid MFA. The utility does not change a subscription or factor configuration.
 - A current `post-login` trigger advertises the `node22` runtime. Its version is discovered from Auth0 rather than assumed.
 
 These are tenant-wide settings, so the utility reports them without changing them. Review their effect on the existing tenant before an operator adjusts them. Neither the tenant's default audience nor Dynamic Client Registration settings are changed. [Resource compatibility](https://auth0.com/ai/docs/mcp/get-started/authorization-for-your-mcp-server), [tenant settings](https://auth0.com/docs/api/management/v2/tenants/tenant-settings-route), [MFA prerequisites](https://auth0.com/docs/secure/multi-factor-authentication/customize-mfa/customize-mfa-enrollments-universal-login)
@@ -34,7 +39,7 @@ These are tenant-wide settings, so the utility reports them without changing the
 ## What apply creates
 
 ```sh
-node scripts/setup-auth0.mjs --apply
+node scripts/setup-auth0.mjs --apply --auth-policy verified_email
 ```
 
 The configured API identifier is `https://guteneo.com/mcp`, with RS256 access tokens lasting at most one hour. Its permissions are `documents:read`, `documents:write`, `dispatches:prepare`, `dispatches:send`, and `dispatches:read`. The API keeps consent enabled. It does not fund a sending budget or grant an organization role.
@@ -59,9 +64,11 @@ The dedicated `Guteneo-Accounts` database connection enables signup and brute-fo
 
 ## MFA and existing login flows
 
-Two Guteneo Actions run in order. The first requires S256 PKCE, then asks a verified account to complete an enrolled MFA factor or enroll in OTP. The second checks a completed Auth0 `mfa` method with a timestamp within five minutes before adding `https://guteneo.com/mfa: true` to both ID and access tokens. It never adds scopes or claims that enrollment alone is proof. Unverified users receive no custom MFA claim and the browser callback rejects their account creation. Neither Action changes an unrelated application requesting an unrelated API.
+Two scoped Guteneo Actions require the dedicated connection and S256 PKCE. The free beta adds `https://guteneo.com/verified_account: true` to ID/access tokens only for an actually verified email identity. The Worker must use the matching `AUTH0_AUTH_POLICY=verified_email`, and migration0019 records this signed evidence on browser sessions; old unqualified sessions must reconnect. The browser callback still independently checks `email_verified`, issuer, audience, nonce, signature and authorization-code exchange. The claim is never user metadata or client input.
 
-Using `api.multifactor.enable()` and immediately stamping a claim would be incorrect: its MFA challenge runs after the Action flow. The sequenced `challengeWithAny`/`enrollWith` approach lets the next Action observe completed evidence. [Auth0 first-login MFA behavior](https://support.auth0.com/center/s/article/using-actions-mfa-authentication-method-is-missing-on-first-login), [MFA enrollment sequencing](https://auth0.com/docs/secure/multi-factor-authentication/customize-mfa/customize-mfa-enrollments-universal-login)
+If Auth0 reports a genuinely completed MFA method within five minutes, the Actions also emit the real `https://guteneo.com/mfa` claim. Password or passkey login is never mislabeled MFA. In legacy `verified_email_and_mfa` mode the first Action challenges/enrolls and the second requires this recent MFA evidence; default tooling retains that stricter mode unless the operator explicitly selects the free-beta option.
+
+The owned legacy Action names are migrated to “Guteneo - require verified identity” and “Guteneo - verified identity claims” using their existing IDs. No unrelated application requesting an unrelated API is modified. Passkeys are available on the Free plan but require additional explicit connection/login configuration; their activation is not implied here.
 
 The utility reads every page of existing Post Login bindings and preserves their order and binding IDs. It appends the two Guteneo Actions, retaining existing Guteneo binding IDs on a rerun. It omits binding secrets entirely. Current Auth0 schema supports `ref.type: "binding_id"`; preserving private binding configuration through that existing identity is an API-semantic inference, not an independently tested live guarantee. Run while no other operator edits the login flow: the utility compares a fresh snapshot before writing and verifies the resulting action order, but Auth0 does not expose a transaction spanning these separate requests. [Binding schema and order](https://auth0.com/docs/api/management/v2/actions/patch-bindings), [current SDK reference types](https://github.com/auth0/node-auth0/blob/master/src/management/api/types/types.ts#L833-L882)
 
@@ -71,4 +78,8 @@ After the Actions are deployed and their order verified, `writeCloudflareSecrets
 
 Generated names and ownership metadata protect reruns. A conflicting unowned application, API or Action stops inspection. A failed step may leave Guteneo resources created earlier in that run; rerun inspection and then apply to complete them. No failed create, update, deployment or secret write is blindly retried by the utility. Final public client IDs may be printed because they are configuration identifiers; secrets are never printed.
 
-Validation: seven local tests cover the offline default, prerequisite refusal before writes, exact active tenant, existing binding identity/order, scoped MFA/PKCE behavior, secret-stream input and credential clearing on upload failure. `--inspect` reached the official CLI and failed closed on the expired login. This is not live Auth0 qualification. After successful provisioning, verify a real signup, delivered verification email, completed MFA, nonce/PKCE callback, resulting browser session, and each host's consent/resource-audience/token flow before claiming authentication is activated.
+Validation on 17 September 2026: eight provisioning tests passed locally; the free-beta identity/session migration tests are tracked in TEST_RESULTS.md. They cover the offline default, prerequisite refusal before writes, exact active tenant, existing binding identity/order, scoped MFA/PKCE behavior, secret-stream input, credential clearing on upload failure, signed callback fixtures, and a single shared welcome credit after verified signup. These are fixture tests, not live Auth0 qualification. Fresh `--inspect --auth-policy verified_email` succeeds without blockers. The dashboard administrator enrollment and an application user signup remain distinct proof levels.
+
+The tenant's public OpenID discovery returned HTTP 200 with the expected issuer, authorization-code support, S256 and RS256. It did not advertise `authorization_response_iss_parameter_supported: true`; the stable ChatGPT callback therefore remains ineligible under the utility's preflight check. Public discovery cannot establish the state of the management-only tenant prerequisites or dedicated Guteneo resources.
+
+After successful provisioning, verify a real signup, delivered verification email, signed verified-account proof, nonce/PKCE callback, resulting browser session, and each host's consent/resource-audience/token flow before claiming authentication is activated. Keep the €50 welcome-credit evidence separate from channel activation and from top-ups, which remain unavailable during the requested beta.

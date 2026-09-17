@@ -195,21 +195,51 @@ export function Account({ session, onUpdated }: Props) {
             ) : (
               sessions.data && (
                 <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Ouverture</th>
-                        <th scope="col">Expiration</th>
-                        <th scope="col">Session</th>
-                        <th scope="col">Action</th>
+                  <table className="responsive-table" role="table">
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          Ouverture
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Expiration
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Session
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Action
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {sessions.data.items.map((item) => (
-                        <tr key={item.id}>
-                          <td className="date-cell">{date(item.createdAt)}</td>
-                          <td className="date-cell">{date(item.expiresAt)}</td>
-                          <td>
+                        <tr role="row" key={item.id}>
+                          <td role="cell" className="date-cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Ouverture
+                            </span>
+                            {date(item.createdAt)}
+                          </td>
+                          <td role="cell" className="date-cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Expiration
+                            </span>
+                            {date(item.expiresAt)}
+                          </td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Session
+                            </span>
                             {item.current ? "Cet appareil" : "Autre session"}
                             {item.development
                               ? " · simulation"
@@ -217,7 +247,13 @@ export function Account({ session, onUpdated }: Props) {
                                 ? " · double authentification"
                                 : ""}
                           </td>
-                          <td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Action
+                            </span>
                             <button
                               type="button"
                               className="button small"
@@ -263,12 +299,18 @@ function MemberRow({
 }) {
   const [role, setRole] = useState(member.role);
   return (
-    <tr>
-      <th scope="row">
+    <tr role="row">
+      <th scope="row" role="rowheader">
+        <span className="mobile-cell-label" aria-hidden="true">
+          Membre
+        </span>
         {member.name}
         {member.id === currentUserId ? " (vous)" : ""}
       </th>
-      <td>
+      <td role="cell">
+        <span className="mobile-cell-label" aria-hidden="true">
+          Rôle
+        </span>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor={`member-role-${member.id}`} className="sr-only">
             Rôle de {member.name}
@@ -287,13 +329,19 @@ function MemberRow({
           </select>
         </div>
       </td>
-      <td>
+      <td role="cell">
+        <span className="mobile-cell-label" aria-hidden="true">
+          Accès actifs
+        </span>
         {member.sessions} session{member.sessions > 1 ? "s" : ""}
         <br />
         {member.connections} connexion{member.connections > 1 ? "s" : ""}{" "}
         assistant
       </td>
-      <td>
+      <td role="cell">
+        <span className="mobile-cell-label" aria-hidden="true">
+          Actions
+        </span>
         <button
           type="button"
           className="button small"
@@ -379,16 +427,24 @@ export function TeamAdmin({ session, onUpdated }: Props) {
             members.data && (
               <>
                 <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Membre</th>
-                        <th scope="col">Rôle</th>
-                        <th scope="col">Accès actifs</th>
-                        <th scope="col">Actions</th>
+                  <table className="responsive-table" role="table">
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          Membre
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Rôle
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Accès actifs
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {members.data.items.map((member) => (
                         <MemberRow
                           key={`${member.id}-${member.role}`}

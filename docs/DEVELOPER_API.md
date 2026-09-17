@@ -1,0 +1,69 @@
+# Référence développeurs — candidat local du 17 septembre 2026
+
+La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat REST actuel, pas une ouverture commerciale. Le site public de démonstration refuse toujours ses routes API avec `403 PREVIEW_ONLY`. Le contrat annonce cette limite dans `info` et dans le serveur canonique. Un compte, un crédit promotionnel ou des identifiants fournisseur ne prouvent ni un transport activé ni un test réel d’assistant.
+
+## Périmètre exact
+
+OpenAPI 3.0.3, version métier 0.2.0 : 15 chemins, 18 opérations. Source de vérité : `apps/api/src/index.ts`, `apps/api/src/auth.ts`, `apps/api/src/documents.ts`, `packages/domain/src/index.ts` et `packages/contracts/src/content.ts`.
+
+| Route                                                         | Méthode               | Scope OAuth                                      |
+| ------------------------------------------------------------- | --------------------- | ------------------------------------------------ |
+| `/api/health`, `/api/capabilities`                            | GET                   | Public, sous réserve de la configuration globale |
+| `/api/documents`                                              | GET                   | `documents:read`                                 |
+| `/api/documents`                                              | POST multipart `file` | `documents:write`                                |
+| `/api/documents/render`                                       | POST                  | `documents:write`                                |
+| `/api/documents/{id}/content`                                 | GET PDF               | `documents:read`                                 |
+| `/api/documents/{id}/rescan`                                  | POST sans corps       | `documents:write`                                |
+| `/api/dispatches`                                             | GET                   | `dispatches:read`                                |
+| `/api/dispatches`                                             | POST                  | `dispatches:prepare`                             |
+| `/api/dispatches/{id}`                                        | GET                   | `dispatches:read`                                |
+| `/api/dispatches/{id}/confirm`, `/api/dispatches/{id}/cancel` | POST sans corps       | `dispatches:send`                                |
+| `/api/campaigns`                                              | GET                   | `dispatches:read`                                |
+| `/api/campaigns`                                              | POST                  | `dispatches:prepare`                             |
+| `/api/campaigns/{id}`                                         | GET                   | `dispatches:read`                                |
+| `/api/recipients/validate`                                    | POST                  | `dispatches:prepare`                             |
+| `/api/senders`, `/api/usage`                                  | GET                   | `dispatches:read`                                |
+
+Il n’existe pas de route REST `/api/documents/import` : `import_document` est un outil MCP. Le dépôt REST est multipart. Les URL importées par MCP doivent appartenir à l’allowlist explicite, en HTTPS et sans redirection ; un chemin local ou une URL inventée ne convient jamais.
+
+La réponse REST de préparation est un `Dispatch`, sans `approvalUrl`. Le client ouvre `https://guteneo.com/#/app/dispatch/{id}` avec l’identifiant retourné. MCP construit lui-même `approvalUrl`. Aucun droit OAuth ni endpoint de cette référence ne permet de produire le consentement humain : `/approve` exige une session navigateur et un contrôle CSRF. Les routes d’administration, de compte, de facturation, les callbacks et la gestion privée des fournisseurs sont exclus.
+
+## OAuth et organisation
+
+Client enregistré, Authorization Code + PKCE S256, `state` vérifié, retour enregistré exact. Autorisation : `https://pieper.eu.auth0.com/authorize`. Échange du code : `https://pieper.eu.auth0.com/oauth/token`. Audience REST et MCP : `https://guteneo.com/mcp`. Le jeton d’accès passe uniquement dans `Authorization: Bearer …` ; un ID token, une clé fournisseur ou un token dans l’URL n’est pas un substitut. Aucun secret client dans un client public.
+
+Le parcours navigateur préalable crée l’espace après vérification de l’e-mail et de la preuve signée du compte. La bêta reste sur Auth0 Free avec la politique `verified_email` ; la MFA n’est pas obligatoire. L’API retrouve ensuite l’adhésion et la connexion OAuth : ni le corps de requête ni un en-tête arbitraire ne choisit le tenant. Une seule adhésion permet l’association implicite à cet espace ; plusieurs adhésions nécessitent une sélection dans les connexions. Un rôle `viewer` interdit les écritures même avec le scope ; les mêmes contrôles de compte vérifié s’appliquent à un administrateur. Le claim signé `https://guteneo.com/verified_account=true` est obligatoire dans les jetons ID et d’accès du callback en mode bêta, puis la preuve `verifiedAccount` est persistée dans la session. Une ancienne session sans cette preuve doit se reconnecter. La politique historique `verified_email_and_mfa`, conservée par défaut en l’absence de configuration explicite, exige toujours la MFA pour l’administrateur. La présence des URL OAuth dans le contrat ne garantit pas l’enregistrement d’un client donné.
+
+## Documents et fiabilité
+
+PDF original : 10 Mio et 100 pages maximum après validation. Les octets et le SHA-256 restent liés au document. Une création `201` peut retourner `quarantined`, avec zéro page ; seul `ready` autorise la consultation et la préparation. Le rendu HTML crée un nouveau document A4 nettoyé et ne reconstitue pas un original. La consultation PDF est privée, sans cache, sans URL signée. Le réexamen ne remplace pas une preuve d’analyse : un résultat incertain conserve la quarantaine.
+
+Préparation et confirmation exigent chacune leur clé `Idempotency-Key` stable, de 1 à 200 caractères sans CR/LF/NUL. Les scopes d’idempotence sont distincts. Une même clé avec un contenu différent est un conflit. Aucune garantie d’idempotence n’est inventée pour la création d’une campagne.
+
+L’empreinte lie les paramètres et le coût ; l’approbation expire au plus après 15 minutes, plus tôt si le devis expire. Confirmation, quota, crédit réservé et outbox sont atomiques. `accepted` n’est pas `delivered`. `submitting` et `submission_unknown` ne déclenchent jamais de relance automatique ; après un timeout, relire l’envoi, conserver sa clé logique et ne pas recréer une expédition.
+
+Montants de solde/plafond en centimes EUR entiers. Les lectures enrichies de dispatch exposent aussi `quote_customer_nanoeur` et `quote_supplier_nanoeur`, entiers nullable exprimés en nanoEUR (1 EUR = 1 000 000 000 nanoEUR), ainsi que `quote_expires_at`. Ces champs projetés ne sont pas présents sur tous les résultats de listes : ils sont optionnels dans le schéma. Une absence ou un null ne signifie pas zéro. `estimated_minor` est la borne arrondie au supérieur pour affichage/réservation, pas un centime facturé par e-mail. La consommation des devis fractionnaires utilise `ceil(cumul nanoEUR / 10^7) - ceil(cumul précédent / 10^7)` pour l’organisation entière ; le surarrondi du cumul reste inférieur à un centime. Les réponses WelcomeCredit/Usage conservent leur contrat en centimes. Le crédit de bienvenue est un grant unique de 5 000 centimes pour les organisations de production du parcours prévu, sans renouvellement ni recharge ; consulter `/api/usage` pour les valeurs effectives. Le plafond est réservé à la confirmation ; l’acceptation fournisseur consomme le montant client. Une issue inconnue garde la réserve. Les simulations restent explicitement distinctes. Le fax réel exige un devis qualifié ; les devis de livraison e-mail/postal exigent des politiques privées qualifiées par organisation, expéditeur, compte/région, options, source, FX et date. Le courrier exige aussi un brouillon fournisseur local exact et son calcul de prix réussi. Aucune valeur tarifaire soumise par le client ne fait autorité.
+
+Limites : HTML et texte e-mail 128 Kio UTF-8 ; CSV 256 Kio et 500 lignes ; pagination par défaut 30, maximum 100 ; HTTP authentifié 180 requêtes/minute/organisation, `Retry-After: 60` sur cette limite ; réexamens 10/jour/organisation. Dépôts/rendus ont leurs quotas quotidiens configurés. Les codes d’erreur restent des chaînes ouvertes pour intégrer les futurs diagnostics fournisseur, sans les confondre avec une permission de réessayer.
+
+## Rendu, sécurité et maintenance
+
+La sixième page publique est prérendue avec son titre, sa description, sa canonique, WebPage/BreadcrumbList et son contenu lisible sans JavaScript. Elle rejoint le sitemap et l’allowlist publique du Worker de preview ; les inconnues restent 404, le hostname de repli reste noindex et les routes métier restent inaccessibles. Le build conserve l’entrée JavaScript uniquement sur l’accueil et `/developpeurs/`. Le wrapper d’App épargne au guide les hooks de session et de capabilities de l’atelier.
+
+Swagger UI **5.33.0** est empaqueté localement, sans CDN. Le loader, le bundle et sa CSS sont importés seulement au clic sur « Ouvrir la référence Swagger ». Le guide et le téléchargement fonctionnent sans ce chargement. La seule lecture du loader est `/openapi.json`, sans credentials et sans redirection ; le fichier est autonome, aucun `$ref` distant. Aucun appel API métier, formulaire OAuth, jeton ou soumission d’exemple depuis cette page.
+
+Configuration : `supportedSubmitMethods: []`, `tryItOutEnabled: false`, `validatorUrl: null`, `queryConfigEnabled: false`, `persistAuthorization: false`, `withCredentials: false`, `deepLinking: false`. Les composants d’autorisation sont neutralisés et le `requestInterceptor` refuse toute demande issue de Swagger. Aucun `initOAuth` ni URL de configuration configurable par query. La CSP du site reste inchangée, sans `unsafe-eval` ni scripts externes. Le candidat de bascule production utilise désormais une politique d’indexation dépendant de l’origine : voir [TECHNICAL_SEO.md](TECHNICAL_SEO.md).
+
+La spec est volontairement suivie en JSON : une modification de route, scope, champ, statut ou limite demande une révision du contrat. Les tests comparent les opérations documentées au routeur et les scopes au middleware, valident la spec avec **@apidevtools/swagger-parser 13.0.0**, interdisent les références externes et protègent les formes sensibles (centimes entiers, champs JSON sérialisés, nullable, idempotence, absence de route d’approbation).
+
+Sources d’intégration : [configuration officielle Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/), [installation officielle](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/). Versions vérifiées sur npm le 17 septembre 2026. Les scripts optionnels de télémétrie du paquet `@scarf/scarf` n’ont pas été approuvés.
+
+## Validation locale
+
+- `npm run typecheck` et lint ciblé : passent.
+- `node --test tests/security/openapi.test.mjs tests/security/public-pages.test.mjs` : 11/11 passent : contrat + génération/encodage SSR, à conserver avec toute modification.
+- `npx vitest run tests/unit/preview-worker.test.ts --reporter=default` : 37 assertions de frontière preview passent.
+- `npm run build:preview` : build local réussi ; bundle Swagger et CSS dans des chunks séparés, aucun changement de CSP.
+- `npx playwright test --config playwright.preview.config.ts tests/preview-e2e/developers.spec.ts tests/preview-e2e/seo.spec.ts --reporter=list` : 8/8 passent sur Chromium desktop et WebKit iPhone : six routes initiales, HTTP réels, lecture sans JS, chargement différé, aucune API/exécution/authentification Swagger, requête du contrat sans cookie/Authorization, paramètres de configuration non suivis et absence de débordement. Synchronisation finale nanoEUR et présentation Swagger mobile incluses dans le dernier passage.
+
+Aucun commit, déploiement, accès OAuth réel, communication ou activation fournisseur n’est une conséquence de ce travail de documentation.

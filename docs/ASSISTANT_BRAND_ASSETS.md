@@ -2,7 +2,7 @@
 
 Fetched and checked on **2026-09-17, Europe/Paris** (2026-09-16 UTC). These files identify the named products in Guteneo's assistant choices and setup information. Their presence does not assert a partnership, endorsement, provider approval, or a working/qualified integration.
 
-All four SVG files are **unchanged source bytes**: only their local filenames differ. No third-party icon library, traced artwork, generated imitation, recoloring, path simplification, cropping, or added texture was used. Apply Guteneo's blue/ivory surfaces and dither to surrounding UI only. Preserve each SVG's aspect ratio and internal spacing; render as an image with the product's visible name nearby.
+All five SVG files are **unchanged source bytes**: only their local filenames differ. No third-party icon library, traced artwork, generated imitation, recoloring, path simplification, cropping, or added texture was used. Apply Guteneo's blue/ivory surfaces and dither to surrounding UI only. Preserve each SVG's aspect ratio and internal spacing; render as an image with the product's visible name nearby.
 
 ## ChatGPT
 
@@ -49,10 +49,21 @@ The original favicon includes one inert `foreignObject` for its vendor-authored 
 
 Cursor's official page explicitly offers its standalone cube and describes 2D as the default logo style. It asks that the product be called Cursor, rather than Cursor AI or Cursor Code. The page and archive did not provide a comprehensive reuse license; no separate trademark permission or partnership is claimed. Preserve the provided form and use it only to identify Cursor.
 
+## GitHub Copilot
+
+- Local file: `apps/web/public/brands/copilot.svg` — 9,430 bytes; supplied black GitHub Copilot product lockup with its built-in clear space.
+- First-party guidance: <https://brand.github.com/brand-identity/copilot> and <https://brand.github.com/foundations/logo>.
+- Source archive, linked by the official logo page: <https://brand.github.com/GitHub_Logos.zip>.
+- Exact member: `GitHub Logos/SVG/GitHub_Copilot_Lockup_Black_Clearspace.svg`.
+- SHA-256: `28d1dfc3549ea09c15b943184b26bd1af7909d99a733e8dd932f3933c46b44d9`.
+- Retrieved 17 September 2026; preserved byte-for-byte, XML parsed, no script, event handler, external reference or embedded execution element.
+
+The current guidance deprecates a standalone Copilot robot as the main logo; this page uses the full product lockup. The supplied black remains black. The stamp is wider to preserve proportions and clear space; its texture does not cover the mark. The asset identifies the product next to a connection-in-preparation label, below Guteneo's own branding. No endorsement, partnership, permission beyond the published guidelines, directory publication or qualified runtime connection is asserted. GitHub Copilot in VS Code and Copilot CLI are distinct from Microsoft Copilot for consumers.
+
 ## Verification and limits
 
 - Compared each local file byte-for-byte to its source archive member or direct download and recorded its SHA-256 above.
-- Parsed all four as SVG XML; checked for scripts, event handlers, embedded execution elements, and external `href`/`src` references. None were found. Grok's original inert `foreignObject` is documented above.
-- Rasterized all four originals together for visual inspection on an ivory background: recognizable symbols, intact proportions, no clipped paths, and visible native colors.
+- Parsed all five as SVG XML; checked for scripts, event handlers, embedded execution elements, and external `href`/`src` references. None were found. Grok's original inert `foreignObject` is documented above.
+- The original four marks were rasterized together for visual inspection on an ivory background: recognizable symbols, intact proportions, no clipped paths, and visible native colors.
 - Source artwork remains separate from Guteneo artwork and is not relicensed by this repository. The applicable marks remain their respective owners' property. Asset acquisition does not establish runtime compatibility, connection status, or production readiness.
 - This asset-only change does not modify the application or deploy it. Integrated page layout, accessibility, and production proof belong to the homepage change.

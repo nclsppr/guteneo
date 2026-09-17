@@ -162,6 +162,46 @@ describe("distributable LLM integrations", () => {
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
+      expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
+      const postalSkill = execFileSync(
+        "unzip",
+        [
+          "-p",
+          path.join(first, "guteneo-plugin.zip"),
+          "skills/postal-pdf/SKILL.md",
+        ],
+        { encoding: "utf8" },
+      );
+      expect(postalSkill).toContain("get_capabilities");
+      expect(postalSkill).toContain("n’est pas disponible");
+      expect(postalSkill).toContain("submission_unknown");
+      for (const name of ["copilot-vscode-mcp.json", "copilot-cli-mcp.json"]) {
+        const built = await readFile(path.join(first, name), "utf8");
+        expect(built).toBe(
+          await readFile(
+            new URL(`../../apps/web/public/guides/${name}`, import.meta.url),
+            "utf8",
+          ),
+        );
+        const config = JSON.parse(built);
+        expect(config).toEqual(
+          name.includes("vscode")
+            ? {
+                servers: {
+                  guteneo: { type: "http", url: "https://guteneo.com/mcp" },
+                },
+              }
+            : {
+                mcpServers: {
+                  guteneo: {
+                    type: "http",
+                    url: "https://guteneo.com/mcp",
+                    tools: ["*"],
+                  },
+                },
+              },
+        );
+      }
       expect(archive.toString()).not.toContain("Bearer ");
       expect(archive.toString()).not.toContain("client_secret");
       expect(archive.toString()).not.toContain("/Users/");

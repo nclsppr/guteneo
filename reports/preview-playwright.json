@@ -83,6 +83,150 @@
   },
   "suites": [
     {
+      "title": "editorial.spec.ts",
+      "file": "editorial.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "editorial reading, artwork and contents: de-gutenberg-au-numerique",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1372,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:55.065Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-b060b55c93fa36656b50",
+          "file": "editorial.spec.ts",
+          "line": 6,
+          "column": 3
+        },
+        {
+          "title": "editorial reading, artwork and contents: histoire-imprimerie-luxembourg",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:55.073Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-ec90dc3f943bb45e70a7",
+          "file": "editorial.spec.ts",
+          "line": 6,
+          "column": 3
+        },
+        {
+          "title": "editorial reading, artwork and contents: de-gutenberg-au-numerique",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1850,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:58.556Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-b2708b67f96adfadcaa6",
+          "file": "editorial.spec.ts",
+          "line": 6,
+          "column": 3
+        },
+        {
+          "title": "editorial reading, artwork and contents: histoire-imprimerie-luxembourg",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 1982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:58.729Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-d97b00775eeb769f2b38",
+          "file": "editorial.spec.ts",
+          "line": 6,
+          "column": 3
+        }
+      ]
+    },
+    {
       "title": "homepage.spec.ts",
       "file": "homepage.spec.ts",
       "column": 0,
@@ -101,15 +245,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 2897,
+                  "duration": 6636,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:23.765Z",
+                  "startTime": "2026-09-16T23:52:55.066Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -135,15 +279,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 1,
-                  "parallelIndex": 1,
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
                   "status": "passed",
-                  "duration": 1559,
+                  "duration": 1552,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:23.769Z",
+                  "startTime": "2026-09-16T23:52:55.057Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -169,15 +313,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 5,
-                  "parallelIndex": 4,
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4654,
+                  "duration": 4018,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:26.507Z",
+                  "startTime": "2026-09-16T23:52:59.047Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -203,15 +347,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 6,
+                  "workerIndex": 8,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 3189,
+                  "duration": 2061,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:26.533Z",
+                  "startTime": "2026-09-16T23:52:59.548Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -245,15 +389,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 2,
-                  "parallelIndex": 2,
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 1437,
+                  "duration": 1332,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:23.762Z",
+                  "startTime": "2026-09-16T23:52:55.063Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -279,15 +423,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 7,
+                  "workerIndex": 5,
                   "parallelIndex": 3,
                   "status": "passed",
-                  "duration": 1997,
+                  "duration": 1382,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:26.823Z",
+                  "startTime": "2026-09-16T23:53:01.008Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -321,15 +465,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 3,
-                  "parallelIndex": 3,
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 1976,
+                  "duration": 1428,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:23.749Z",
+                  "startTime": "2026-09-16T23:52:56.929Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -355,15 +499,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 4,
-                  "parallelIndex": 4,
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 1497,
+                  "duration": 1012,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:23.756Z",
+                  "startTime": "2026-09-16T23:52:56.968Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -389,15 +533,15 @@
               "projectName": "desktop",
               "results": [
                 {
-                  "workerIndex": 2,
-                  "parallelIndex": 2,
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1703,
+                  "duration": 1688,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:25.895Z",
+                  "startTime": "2026-09-16T23:52:56.973Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -423,15 +567,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 8,
-                  "parallelIndex": 0,
+                  "workerIndex": 6,
+                  "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 3031,
+                  "duration": 2506,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:28.125Z",
+                  "startTime": "2026-09-16T23:53:01.130Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -457,15 +601,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 9,
-                  "parallelIndex": 2,
+                  "workerIndex": 8,
+                  "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 1974,
+                  "duration": 1582,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:28.593Z",
+                  "startTime": "2026-09-16T23:53:02.247Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -491,15 +635,15 @@
               "projectName": "iphone",
               "results": [
                 {
-                  "workerIndex": 7,
-                  "parallelIndex": 3,
+                  "workerIndex": 9,
+                  "parallelIndex": 2,
                   "status": "passed",
-                  "duration": 2395,
+                  "duration": 2135,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-16T23:17:29.520Z",
+                  "startTime": "2026-09-16T23:53:02.763Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -513,13 +657,157 @@
           "column": 1
         }
       ]
+    },
+    {
+      "title": "seo.spec.ts",
+      "file": "seo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "public routes expose complete initial HTML, metadata and true HTTP statuses",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1025,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:57.152Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-9d772cc1171f4267f33b",
+          "file": "seo.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "journal content and ordinary navigation work with JavaScript disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 941,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:52:57.996Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-92e012dc9061044cef86",
+          "file": "seo.spec.ts",
+          "line": 96,
+          "column": 1
+        },
+        {
+          "title": "public routes expose complete initial HTML, metadata and true HTTP statuses",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 725,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:53:02.426Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-6647426558896a4337b6",
+          "file": "seo.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "journal content and ordinary navigation work with JavaScript disabled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1448,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-16T23:53:03.175Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265a6ee67c94b2ef6801-627162ec8e312014b923",
+          "file": "seo.spec.ts",
+          "line": 96,
+          "column": 1
+        }
+      ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-16T23:17:23.345Z",
-    "duration": 8853.196,
-    "expected": 12,
+    "startTime": "2026-09-16T23:52:54.613Z",
+    "duration": 10876.817000000001,
+    "expected": 20,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -1,6 +1,14 @@
 # Amazon SES connection evidence — 2026-09-17
 
-Resources were prepared through the user's authorized Safari AWS session and the Cloudflare API. No email, verification email, mailbox-simulator message, charge, account upgrade or production-access request was sent by the agent.
+Resources were prepared through the user's authorized Safari AWS session and the Cloudflare API. No Guteneo business email, mailbox-simulator message, charge or account upgrade has been sent. A production-access request was submitted on September 17 after the user explicitly confirmed the AWS Service Terms and Acceptable Use Policy.
+
+## Production access request
+
+The Paris (`eu-west-3`) request uses transactional mail, `https://guteneo.com`, English correspondence and the publisher contact `guteneo@pieper.fr`. The console confirmed submission and initially displayed **Under review**. It then requested additional information in existing support case **178960365600775**. The case must be answered rather than opening a duplicate request. This is not approval: the account remains in sandbox, including the verified-recipient restriction as well as 200 recipients per rolling 24 hours and one per second. Current official instructions: https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html.
+
+Before answering that case, a fresh SES identity page confirmed **Verified**, DKIM **Successful** with RSA 2048 signatures enabled, and custom MAIL FROM **Successful**. Independent public DNS resolution confirmed all three SES DKIM CNAMEs, `bounce.guteneo.com` MX priority 10 to `feedback-smtp.eu-west-3.amazonses.com`, SPF `v=spf1 include:amazonses.com ~all`, and `_dmarc.guteneo.com` with `v=DMARC1; p=none;`. The publisher explicitly authorized the support reply after requesting this verification.
+
+The detailed reply was submitted and visibly appeared in the existing case correspondence at **02:17:25 Europe/Paris on September 17**. [SES_SUPPORT_REPLY.md](SES_SUPPORT_REPLY.md) retains its text: transactional document delivery, planned beta volume, requested-recipient controls, confirmed domain authentication, bounce/complaint handling and a representative message. No AWS production approval has been observed.
 
 ## Observed AWS state
 
@@ -32,4 +40,10 @@ A private Cloudflare service-binding inspection authenticated the installed IAM 
 
 ## Remaining activation gates
 
-AWS production access and actual narrowly authorized send qualification remain open. Business email preparation also needs a trusted email tariff/quote implementation, tenant-approved sender, funded budget and human approval. Auth0 account verification/reset emails require separate Auth0 email-provider configuration. Creating SES resources or installing its key does not complete those steps.
+AWS production access and actual narrowly authorized send qualification remain open. Trusted email quotes and global SES limits are implemented, with migrations 0016–0019 now applied remotely; actual tariff qualification, a tenant-approved sender, funded budget and human approval remain required. Auth0 account verification/reset emails require separate Auth0 email-provider configuration. Creating SES resources or installing its key does not complete those steps.
+
+## Authorized test recipient verification
+
+At **02:53 Europe/Paris on September 17**, the AWS console created the email identity for the operator's explicitly requested test recipient, normalized to the same lowercase mailbox used by Guteneo. The AWS verification request was received in **Inbox – iCloud** in macOS Mail. Its official SES confirmation link opened `https://aws.amazon.com/ses/verifysuccess/` and confirmed successful verification. The exact recipient restriction was installed privately as `SES_VERIFIED_RECIPIENTS` in Cloudflare. No verification token was retained.
+
+This is proof of the AWS identity verification message and mailbox access only. It does not prove delivery through Guteneo or ChatGPT, and does not remove the SES sandbox restriction for other recipients. The application live-send gate and the SES configuration-set sending gate remain disabled.

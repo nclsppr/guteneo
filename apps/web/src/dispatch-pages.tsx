@@ -14,6 +14,7 @@ import {
   bytes,
   date,
   money,
+  quotedMoney,
   isPublicPreview,
   recipientOf,
   type Channel,
@@ -39,6 +40,7 @@ import {
   PdfPreview,
   RefreshButton,
   Status,
+  sesErrorMessage,
   useAction,
   useResource,
 } from "./components";
@@ -120,6 +122,15 @@ export function Documents() {
   const [html, setHtml] = useState(t.documents.defaultHtml);
   const [scanMessage, setScanMessage] = useState("");
   const file = useRef<HTMLInputElement>(null);
+  const documentHeading = useRef<HTMLHeadingElement>(null);
+  const documentTrigger = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (selected) documentHeading.current?.focus();
+  }, [selected?.id]);
+  function openDocument(document: DocumentRecord, trigger: HTMLButtonElement) {
+    documentTrigger.current = trigger;
+    setSelected(document);
+  }
   async function upload(event: FormEvent) {
     event.preventDefault();
     await action.run(async () => {
@@ -264,12 +275,17 @@ export function Documents() {
         <section className="document-detail">
           <div className="section-toolbar">
             <div>
-              <h2>{selected.name}</h2>
+              <h2 ref={documentHeading} tabIndex={-1}>
+                {selected.name}
+              </h2>
               <Status status={selected.status} />
             </div>
             <button
               className="text-button"
-              onClick={() => setSelected(undefined)}
+              onClick={() => {
+                setSelected(undefined);
+                documentTrigger.current?.focus();
+              }}
             >
               {t.close}
             </button>
@@ -312,7 +328,16 @@ export function Documents() {
           </dl>
           <a
             className={`button primary ${["quarantined", "quarantine"].includes(selected.status) ? "disabled-link" : ""}`}
-            href={`#/app/prepare?document=${selected.id}`}
+            href={
+              ["quarantined", "quarantine"].includes(selected.status)
+                ? undefined
+                : `#/app/prepare?document=${selected.id}`
+            }
+            tabIndex={
+              ["quarantined", "quarantine"].includes(selected.status)
+                ? -1
+                : undefined
+            }
             aria-disabled={["quarantined", "quarantine"].includes(
               selected.status,
             )}
@@ -326,46 +351,78 @@ export function Documents() {
         <Loading />
       ) : resource.data?.items.length ? (
         <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{t.document}</th>
-                <th>{t.documents.pages}</th>
-                <th>{t.documents.source}</th>
-                <th>{t.status}</th>
-                <th>{t.created}</th>
-                <th>
+          <table className="responsive-table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  {t.document}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.documents.pages}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.documents.source}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.status}
+                </th>
+                <th role="columnheader" scope="col">
+                  {t.created}
+                </th>
+                <th role="columnheader" scope="col">
                   <span className="sr-only">{t.open}</span>
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {resource.data.items.map((d) => (
-                <tr key={d.id}>
-                  <td>
+                <tr role="row" key={d.id}>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.document}
+                    </span>
                     <button
                       className="row-link text-button"
-                      onClick={() => setSelected(d)}
+                      onClick={(event) => openDocument(d, event.currentTarget)}
                     >
                       {d.name}
                       <span className="reference mono">{d.id}</span>
                     </button>
                   </td>
-                  <td>{d.pages}</td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.documents.pages}
+                    </span>
+                    {d.pages}
+                  </td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.documents.source}
+                    </span>
                     {d.source === "import"
                       ? t.documents.exact
                       : t.documents.generated}
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.status}
+                    </span>
                     <Status status={d.status} />
                   </td>
-                  <td className="date-cell">{date(d.created_at)}</td>
-                  <td>
+                  <td role="cell" className="date-cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.created}
+                    </span>
+                    {date(d.created_at)}
+                  </td>
+                  <td role="cell">
+                    <span className="mobile-cell-label" aria-hidden="true">
+                      {t.open}
+                    </span>
                     <button
                       className="icon-link"
                       aria-label={`${t.preview} ${d.name}`}
-                      onClick={() => setSelected(d)}
+                      onClick={(event) => openDocument(d, event.currentTarget)}
                     >
                       <ArrowRight size={20} />
                     </button>
@@ -465,6 +522,7 @@ export function PrepareDispatch({
         className="prepare-layout"
         onSubmit={(e) => void submit(e)}
         onChange={changed}
+        aria-busy={action.pending}
       >
         <div className="prepare-fields">
           <fieldset className="channel-selector">
@@ -540,10 +598,14 @@ export function PrepareDispatch({
           </Field>
           <div className="form-divider" />
           {channel === "fax" ? (
-            <Field label={t.dispatch.phone}>
+            <Field
+              label={t.dispatch.phone}
+              hint="Format international : + suivi de l’indicatif du pays et du numéro, sans espaces (ex. +352…)."
+            >
               <input
                 type="tel"
                 inputMode="tel"
+                autoComplete="tel"
                 pattern="\+[1-9][0-9]{7,14}"
                 placeholder={t.dispatch.phonePlaceholder}
                 value={recipient.phone ?? ""}
@@ -556,6 +618,9 @@ export function PrepareDispatch({
               <Field label={t.dispatch.email}>
                 <input
                   type="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   placeholder={t.dispatch.emailPlaceholder}
                   value={recipient.email ?? ""}
                   onChange={(e) => setAddress("email", e.target.value)}
@@ -641,6 +706,7 @@ export function PrepareDispatch({
           <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
             <input
               type="number"
+              inputMode="numeric"
               value={ceiling}
               onChange={(e) => setCeiling(e.target.value)}
               min="0"
@@ -652,10 +718,20 @@ export function PrepareDispatch({
           <button
             className="button primary full"
             disabled={action.pending || (channel !== "email" && !documentId)}
+            aria-describedby={
+              channel !== "email" && !documentId
+                ? "prepare-document-required"
+                : undefined
+            }
           >
             {action.pending ? t.dispatch.preparing : t.dispatch.prepare}
             <ArrowRight size={18} />
           </button>
+          {channel !== "email" && !documentId && (
+            <p id="prepare-document-required" className="field-hint">
+              Choisissez un document pour pouvoir préparer cet envoi.
+            </p>
+          )}
         </div>
         <aside className="prepare-preview">
           {channel === "email" && html ? (
@@ -726,10 +802,12 @@ export function DispatchDetailPage({
   );
   const action = useAction();
   const [consent, setConsent] = useState(false);
+  const [recipientRequested, setRecipientRequested] = useState(false);
   const d = resource.data?.dispatch;
   useEffect(() => {
     setConsent(false);
-  }, [id]);
+    setRecipientRequested(false);
+  }, [id, d?.fingerprint]);
   useEffect(() => {
     const expiresAt = resource.data?.approval?.expires_at;
     if (!expiresAt) return;
@@ -753,6 +831,8 @@ export function DispatchDetailPage({
     return <ErrorNotice error={resource.error} retry={resource.refresh} />;
   const target = recipientOf(d);
   const pendingApproval = ["prepared", "draft"].includes(d.status);
+  const emailAttestationRequired =
+    d.channel === "email" && d.mode === "production";
   const approved =
     pendingApproval &&
     resource.data?.approval?.fingerprint === d.fingerprint &&
@@ -771,7 +851,10 @@ export function DispatchDetailPage({
     await action.run(async () => {
       await api(`/dispatches/${encodeURIComponent(id)}/approve`, {
         method: "POST",
-        body: { fingerprint: d?.fingerprint },
+        body: {
+          fingerprint: d?.fingerprint,
+          ...(emailAttestationRequired ? { recipientRequested } : {}),
+        },
       });
       resource.refresh();
     });
@@ -796,6 +879,18 @@ export function DispatchDetailPage({
     });
   }
   const events = resource.data?.events ?? [];
+  const latestAttempt = resource.data?.attempts.at(-1) as
+    | (NonNullable<typeof resource.data>["attempts"][number] & {
+        error_code?: string;
+      })
+    | undefined;
+  const providerNotice = [
+    "failed",
+    "submission_unknown",
+    "reconciliation_required",
+  ].includes(d.status)
+    ? sesErrorMessage(latestAttempt?.error_code)
+    : undefined;
   return (
     <>
       <a className="back-link" href="#/app/dispatches">
@@ -829,6 +924,12 @@ export function DispatchDetailPage({
       </div>
       <p className="field-hint">{t.dispatch.channelNotes[d.channel]}</p>
       <ErrorNotice error={action.error ?? resource.error} />
+      {providerNotice && (
+        <div className="notice warning" role="status">
+          <WarningCircle size={25} aria-hidden="true" />
+          <p>{providerNotice}</p>
+        </div>
+      )}
       {uncertain && (
         <div className="notice warning">
           <WarningCircle size={25} />
@@ -857,7 +958,7 @@ export function DispatchDetailPage({
               {d.sender_address ?? t.unknown}
             </Definition>
             <Definition label={t.dispatch.estimate}>
-              {money(d.estimated_minor, d.currency)}
+              {quotedMoney(d)}
             </Definition>
             <Definition label={t.dispatch.ceilingLabel}>
               {money(d.ceiling_minor, d.currency)}
@@ -872,6 +973,14 @@ export function DispatchDetailPage({
           {d.mode === "simulation" && (
             <p className="field-hint">{t.simulationCost}</p>
           )}
+          {d.mode === "production" && d.quote_customer_nanoeur != null && (
+            <p className="field-hint">
+              Ce prix s’ajoute à vos envois précédents. La consommation totale
+              est arrondie au centime supérieur ; chaque e-mail n’est pas
+              arrondi séparément. Le plafond affiché reste réservé jusqu’au
+              résultat.
+            </p>
+          )}
           {pendingApproval && !approved && (
             <section className="approval-panel">
               <p>{t.dispatch.approvalExplain}</p>
@@ -883,9 +992,27 @@ export function DispatchDetailPage({
                 />
                 <span>{t.dispatch.approvalCheck}</span>
               </label>
+              {emailAttestationRequired && (
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={recipientRequested}
+                    onChange={(e) => setRecipientRequested(e.target.checked)}
+                  />
+                  <span>
+                    Je confirme que ce destinataire a demandé cet e-mail et son
+                    document. Cet envoi ne constitue pas une prospection.
+                  </span>
+                </label>
+              )}
               <button
                 className="button primary full"
-                disabled={!consent || action.pending || resource.loading}
+                disabled={
+                  !consent ||
+                  (emailAttestationRequired && !recipientRequested) ||
+                  action.pending ||
+                  resource.loading
+                }
                 onClick={() => void approve()}
               >
                 <Check size={18} />

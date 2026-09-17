@@ -14,20 +14,17 @@
     "binding": "ASSETS",
     "not_found_handling": "none",
     "html_handling": "force-trailing-slash",
-    "run_worker_first": [
-      "/api/*",
-      "/mcp",
-      "/.well-known/*",
-      "/auth/*",
-      "/webhooks/*",
-      "/media/*",
-    ],
+    // The Worker applies the canonical-host crawl policy to every asset response.
+    "run_worker_first": true,
   },
   "vars": {
     "ENVIRONMENT": "production",
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "false",
+    "SES_ACCOUNT_ID": "982055099242",
+    "PINGEN_DEFAULT_COUNTRY": "LU",
+    "AUTH0_AUTH_POLICY": "verified_email",
   },
   "d1_databases": [
     {

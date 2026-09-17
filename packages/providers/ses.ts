@@ -11,7 +11,77 @@ import {
   type ProviderEstimate,
   type ProviderResult,
 } from "./types";
-import { jsonResponse, rejection, unknownResult } from "./transport";
+import { boundedText, jsonResponse } from "./transport";
+
+function sesUnknown(): ProviderResult {
+  return {
+    status: "submission_unknown",
+    errorCode: "SES_RESPONSE_UNKNOWN",
+    retryable: false,
+  };
+}
+
+/** Project only known reason codes. AWS messages may contain identities and
+ * must never become an API response, attempt error, log or UI string. */
+async function sesRejection(response: Response): Promise<ProviderResult> {
+  if (
+    response.status < 400 ||
+    response.status >= 500 ||
+    [408, 409].includes(response.status)
+  )
+    return sesUnknown();
+  let code = response.headers.get("x-amzn-errortype")?.split(":")[0] ?? "";
+  let message = "";
+  try {
+    const parsed: unknown = JSON.parse(await boundedText(response, 16_384));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const body = parsed as Record<string, unknown>;
+      const kind = body.__type ?? body.code ?? body.Code;
+      if (!code && typeof kind === "string")
+        code = kind.split("#").at(-1) ?? "";
+      const text = body.message ?? body.Message;
+      if (typeof text === "string") message = text;
+    }
+  } catch {
+    // A definitive HTTP rejection remains a rejection if its optional body
+    // cannot be decoded. Never promote the raw response to a client error.
+  }
+  const known: Record<string, string> = {
+    AccountSuspendedException: "SES_ACCOUNT_SUSPENDED",
+    SendingPausedException: "SES_SENDING_PAUSED",
+    MailFromDomainNotVerifiedException: "SES_SENDER_NOT_VERIFIED",
+    NotFoundException: "SES_CONFIGURATION_MISSING",
+    BadRequestException: "SES_REQUEST_REJECTED",
+    LimitExceededException: "SES_RESOURCE_LIMIT",
+    AccessDeniedException: "SES_AUTHORIZATION_FAILED",
+    AccessDenied: "SES_AUTHORIZATION_FAILED",
+    UnrecognizedClientException: "SES_AUTHORIZATION_FAILED",
+    InvalidClientTokenId: "SES_AUTHORIZATION_FAILED",
+    SignatureDoesNotMatch: "SES_AUTHORIZATION_FAILED",
+  };
+  let errorCode = Object.hasOwn(known, code)
+    ? known[code]
+    : "SES_REQUEST_REJECTED";
+  if (
+    response.status === 429 ||
+    ["TooManyRequestsException", "ThrottlingException"].includes(code)
+  )
+    errorCode = /Daily message quota exceeded/i.test(message)
+      ? "SES_DAILY_QUOTA_EXCEEDED"
+      : /Maximum sending rate exceeded/i.test(message)
+        ? "SES_RATE_EXCEEDED"
+        : "SES_THROTTLED";
+  else if (code === "MessageRejected")
+    errorCode =
+      /(?:email address|identity|identities).*not verified|not verified.*(?:email address|identity|identities)/i.test(
+        message,
+      )
+        ? "SES_IDENTITY_NOT_VERIFIED"
+        : "SES_MESSAGE_REJECTED";
+  else if ([401, 403].includes(response.status))
+    errorCode = "SES_AUTHORIZATION_FAILED";
+  return { status: "rejected", errorCode, retryable: false };
+}
 
 export type SesConfig = {
   accessKeyId: string;
@@ -191,14 +261,16 @@ export class SesEmailProvider {
         redirect: "manual",
         signal: AbortSignal.timeout(20_000),
       });
-      if (!response.ok) return rejection(response);
+      if (!response.ok) return sesRejection(response);
+      const providerId = textField(await jsonResponse(response), "MessageId");
+      if (!/^[A-Za-z0-9-]{1,200}$/.test(providerId)) return sesUnknown();
       return {
         status: "accepted",
-        providerId: textField(await jsonResponse(response), "MessageId"),
+        providerId,
         providerStatus: "accepted_by_ses",
       };
     } catch {
-      return unknownResult();
+      return sesUnknown();
     }
   }
   async readStatus(): Promise<never> {

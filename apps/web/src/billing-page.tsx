@@ -294,20 +294,36 @@ function BillingWorkspace({ session }: { session: Session }) {
             ) : (
               <>
                 <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Facture</th>
-                        <th scope="col">État</th>
-                        <th scope="col">Total</th>
-                        <th scope="col">Réglé</th>
-                        <th scope="col">Reste dû</th>
+                  <table className="responsive-table" role="table">
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          Facture
+                        </th>
+                        <th role="columnheader" scope="col">
+                          État
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Total
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Réglé
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Reste dû
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {invoices.data.items.map((item) => (
-                        <tr key={item.id}>
-                          <th scope="row">
+                        <tr role="row" key={item.id}>
+                          <th role="rowheader" scope="row">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Facture
+                            </span>
                             {item.number ?? item.id}
                             <span className="reference">
                               {stamp(item.created)}
@@ -316,14 +332,40 @@ function BillingWorkspace({ session }: { session: Session }) {
                               Actualisée le {date(item.synced_at)}
                             </span>
                           </th>
-                          <td>{state(item.status)}</td>
-                          <td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              État
+                            </span>
+                            {state(item.status)}
+                          </td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Total
+                            </span>
                             {billedMoney(item.total_minor, item.currency)}
                           </td>
-                          <td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Réglé
+                            </span>
                             {billedMoney(item.amount_paid_minor, item.currency)}
                           </td>
-                          <td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Reste dû
+                            </span>
                             {billedMoney(
                               item.amount_remaining_minor,
                               item.currency,
@@ -359,18 +401,30 @@ function BillingWorkspace({ session }: { session: Session }) {
             ) : (
               <>
                 <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Référence</th>
-                        <th scope="col">État</th>
-                        <th scope="col">Montant reçu</th>
+                  <table className="responsive-table" role="table">
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          Référence
+                        </th>
+                        <th role="columnheader" scope="col">
+                          État
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Montant reçu
+                        </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {payments.data.items.map((item) => (
-                        <tr key={item.id}>
-                          <th scope="row">
+                        <tr role="row" key={item.id}>
+                          <th role="rowheader" scope="row">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Référence
+                            </span>
                             <span className="mono">{item.id}</span>
                             <span className="reference">
                               {stamp(item.created)}
@@ -379,8 +433,22 @@ function BillingWorkspace({ session }: { session: Session }) {
                               Actualisé le {date(item.synced_at)}
                             </span>
                           </th>
-                          <td>{state(item.status)}</td>
-                          <td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              État
+                            </span>
+                            {state(item.status)}
+                          </td>
+                          <td role="cell">
+                            <span
+                              className="mobile-cell-label"
+                              aria-hidden="true"
+                            >
+                              Montant reçu
+                            </span>
                             {billedMoney(
                               item.amount_received_minor,
                               item.currency,
@@ -415,21 +483,39 @@ function BillingWorkspace({ session }: { session: Session }) {
               <p>Aucun abonnement enregistré pour cet espace.</p>
             ) : (
               <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th scope="col">Référence</th>
-                      <th scope="col">État</th>
-                      <th scope="col">Dernière actualisation</th>
+                <table className="responsive-table" role="table">
+                  <thead role="rowgroup">
+                    <tr role="row">
+                      <th role="columnheader" scope="col">
+                        Référence
+                      </th>
+                      <th role="columnheader" scope="col">
+                        État
+                      </th>
+                      <th role="columnheader" scope="col">
+                        Dernière actualisation
+                      </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody role="rowgroup">
                     {data.subscriptions.map((item) => (
-                      <tr key={item.id}>
-                        <th scope="row" className="mono">
+                      <tr role="row" key={item.id}>
+                        <th role="rowheader" scope="row" className="mono">
+                          <span
+                            className="mobile-cell-label"
+                            aria-hidden="true"
+                          >
+                            Référence
+                          </span>
                           {item.id}
                         </th>
-                        <td>
+                        <td role="cell">
+                          <span
+                            className="mobile-cell-label"
+                            aria-hidden="true"
+                          >
+                            État
+                          </span>
                           {state(item.status)}
                           {Boolean(item.cancel_at_period_end) && (
                             <span className="reference">
@@ -437,7 +523,15 @@ function BillingWorkspace({ session }: { session: Session }) {
                             </span>
                           )}
                         </td>
-                        <td>{date(item.synced_at)}</td>
+                        <td role="cell">
+                          <span
+                            className="mobile-cell-label"
+                            aria-hidden="true"
+                          >
+                            Dernière actualisation
+                          </span>
+                          {date(item.synced_at)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

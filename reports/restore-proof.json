@@ -1,19 +1,19 @@
 {
-  "executedAt": "2026-09-16T23:19:02.381Z",
+  "executedAt": "2026-09-17T00:55:53.950Z",
   "mode": "simulation",
   "runtime": "Miniflare D1 + R2, independent source/restore instances",
-  "tables": 45,
+  "tables": 50,
   "rows": 32,
   "restoredPdf": {
-    "sha256": "51d9c8ba459aeb59c27b0a6adaac5e54414f552e351a3673c5636fa46c4c214d",
-    "bytes": 890,
+    "sha256": "71384df8f9ba8af204b094332c8cdbe65ef7e42d386cfec5788c930eba5b099a",
+    "bytes": 891,
     "pages": 1
   },
   "originalSimulatedSubmissions": 1,
   "resubmissionsAfterRestore": 0,
   "uncertaintyResolvedBy": "simulated verified provider fact",
   "foreignKeyViolations": 0,
-  "durationMs": 5980,
+  "durationMs": 6891,
   "limitations": [
     "Quiesced local logical snapshot; not a hosted Cloudflare consistent backup",
     "No production credentials, real provider or paid transport",

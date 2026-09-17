@@ -2,6 +2,7 @@ import { z } from "zod";
 import { DomainError } from "../../../packages/domain/src/index";
 import {
   authenticateBrowser,
+  authenticationPolicy,
   type AuthEnv,
   type AuthenticatedSession,
 } from "./auth";
@@ -85,10 +86,10 @@ function admin(session: AuthenticatedSession) {
 
 // Each write rechecks current membership and session inside the same D1 transaction.
 // A concurrent demotion or revocation cannot reuse the authority read before the batch.
-const authority = (requireAdmin: boolean) => `EXISTS(
+const authority = (requireAdmin: boolean, env: AuthEnv) => `EXISTS(
   SELECT 1 FROM memberships a JOIN browser_sessions s ON s.organization_id=a.organization_id AND s.user_id=a.user_id
   WHERE a.organization_id=? AND a.user_id=? AND s.token_hash=? AND s.expires_at>?
-  AND (a.role!='admin' OR s.mfa=1 OR s.is_development=1) ${requireAdmin ? "AND a.role='admin'" : ""}
+  AND ${authenticationPolicy(env) === "verified_email" ? "(s.verified_account=1 OR s.is_development=1)" : "(a.role!='admin' OR s.mfa=1 OR s.is_development=1)"} ${requireAdmin ? "AND a.role='admin'" : ""}
 )`;
 const authorityArgs = (session: AuthenticatedSession, timestamp: string) => [
   session.context.organizationId,
@@ -114,7 +115,7 @@ async function mutate(
   const auditId = `audit_${crypto.randomUUID()}`;
   const audit = env.DB.prepare(
     `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at)
-    SELECT ?,?,?,?,?,?,? WHERE ${authority(requireAdmin)} AND ${targetCondition}`,
+    SELECT ?,?,?,?,?,?,? WHERE ${authority(requireAdmin, env)} AND ${targetCondition}`,
   ).bind(
     auditId,
     session.context.organizationId,
@@ -190,6 +191,7 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
     },
     simulation: session.simulation,
     mfa: session.mfa,
+    verifiedAccount: session.verifiedAccount,
     permissions: {
       manageOrganization: session.context.role === "admin",
       manageMembers: session.context.role === "admin",

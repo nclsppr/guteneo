@@ -1,4 +1,20 @@
 import {
+  resolveDeliveryPrice,
+  makeDeliveryQuote,
+  insertDeliveryQuote,
+  validateLiveDeliveryQuote,
+  type LiveDeliveryIdentities,
+  type PostalQuoteResolver,
+} from "./live-delivery-quotes";
+export {
+  validateLiveDeliveryQuote,
+  emailRateComponents,
+  type LiveDeliveryIdentity,
+  type LiveDeliveryIdentities,
+  type PostalQuoteResolver,
+  type PostalQuoteRequest,
+} from "./live-delivery-quotes";
+import {
   resolveFaxTariff,
   makeFaxQuote,
   insertFaxQuote,
@@ -52,6 +68,8 @@ export type DispatchStatus =
 export type Dispatch = {
   quote_fingerprint?: string | null;
   quote_expires_at?: string | null;
+  quote_customer_nanoeur?: number | null;
+  quote_supplier_nanoeur?: number | null;
   id: string;
   organization_id: string;
   campaign_id: string | null;
@@ -111,6 +129,7 @@ export type ProviderEventInput = {
 export type ProviderHook = {
   name: string;
   liveFaxIdentity?: LiveFaxIdentity;
+  liveDeliveryIdentity?: LiveDeliveryIdentities;
   submit: (dispatch: Dispatch) => Promise<{
     status: "accepted" | "submission_unknown" | "rejected";
     providerId?: string;
@@ -165,6 +184,12 @@ function writable(ctx: ActorContext) {
 function sqlError(error: unknown): never {
   const message = String(error);
   for (const [needle, code, label, status] of [
+    [
+      "recipient_request_required",
+      "RECIPIENT_REQUEST_REQUIRED",
+      "Confirmez que le destinataire a demandé cet e-mail.",
+      409,
+    ],
     [
       "credit_exhausted",
       "CREDIT_EXHAUSTED",
@@ -237,6 +262,8 @@ export class DomainService {
       mode: Mode;
       now?: () => number;
       liveFaxIdentity?: LiveFaxIdentity;
+      liveDeliveryIdentity?: LiveDeliveryIdentities;
+      postalQuote?: PostalQuoteResolver;
     },
   ) {
     this.now = config.now ?? Date.now;
@@ -454,7 +481,7 @@ export class DomainService {
           "Cette clé correspond à un contenu différent.",
           409,
         );
-      return existing;
+      return this.dispatch(ctx, existing.id);
     }
     const recipient = validateRecipient(input.channel, input.recipient);
     const options = input.options ?? {};
@@ -534,15 +561,8 @@ export class DomainService {
         "Configurez et vérifiez un expéditeur pour ce canal.",
         409,
       );
-    // Only fax has an operator-qualified live quote resolver. Other channels remain closed.
-    if (this.config.mode === "production" && input.channel !== "fax")
-      throw new DomainError(
-        "LIVE_PRICING_REQUIRED",
-        "Tarification réelle et activation du transport requises.",
-        409,
-      );
     const tariff =
-      this.config.mode === "production"
+      this.config.mode === "production" && input.channel === "fax"
         ? await resolveFaxTariff(
             this.db,
             ctx.organizationId,
@@ -554,10 +574,26 @@ export class DomainService {
             this.time(),
           )
         : undefined;
+    const deliveryPrice =
+      this.config.mode === "production" && input.channel !== "fax"
+        ? await resolveDeliveryPrice(this.db, {
+            organizationId: ctx.organizationId,
+            senderId: sender.id,
+            channel: input.channel,
+            recipient,
+            options,
+            document,
+            identity: this.config.liveDeliveryIdentity?.[input.channel],
+            postalQuote: this.config.postalQuote,
+            now: this.time(),
+          })
+        : undefined;
     const estimatedMinor = tariff
       ? tariff.customer_minor
-      : { fax: 20, email: 1, postal: 150 }[input.channel] *
-        (input.channel === "fax" ? (document?.pages ?? 1) : 1);
+      : deliveryPrice
+        ? deliveryPrice.amountMinor
+        : { fax: 20, email: 1, postal: 150 }[input.channel] *
+          (input.channel === "fax" ? (document?.pages ?? 1) : 1);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
     if (
       !Number.isSafeInteger(ceilingMinor) ||
@@ -616,7 +652,15 @@ export class DomainService {
       now = this.time();
     const quote = tariff
       ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, now)
-      : undefined;
+      : deliveryPrice
+        ? await makeDeliveryQuote(
+            id,
+            ctx.organizationId,
+            frozen,
+            deliveryPrice,
+            now,
+          )
+        : undefined;
     const fingerprint = await sha256(
       canonicalJson({
         ...frozen,
@@ -656,7 +700,13 @@ export class DomainService {
         );
       await this.db.batch([
         insert,
-        ...(quote ? [insertFaxQuote(this.db, quote)] : []),
+        ...(quote
+          ? [
+              "policy_id" in quote
+                ? insertDeliveryQuote(this.db, quote)
+                : insertFaxQuote(this.db, quote),
+            ]
+          : []),
       ]);
     } catch (e) {
       sqlError(e);
@@ -673,13 +723,13 @@ export class DomainService {
         "Cette clé correspond à un contenu différent.",
         409,
       );
-    return saved;
+    return this.dispatch(ctx, saved.id);
   }
   private async dispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,COALESCE((SELECT q.expires_at FROM live_fax_quotes_v2 q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id)) AS quote_expires_at FROM dispatches d WHERE d.organization_id=? AND d.id=?",
+        "SELECT d.*,COALESCE((SELECT q.expires_at FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes_v2 q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id),(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id)) AS quote_expires_at,(SELECT q.customer_nanoeur FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_customer_nanoeur,(SELECT q.supplier_nanoeur FROM live_delivery_quotes q WHERE q.organization_id=d.organization_id AND q.dispatch_id=d.id) AS quote_supplier_nanoeur FROM dispatches d WHERE d.organization_id=? AND d.id=?",
       )
       .bind(ctx.organizationId, id)
       .first<Dispatch>();
@@ -690,6 +740,7 @@ export class DomainService {
     ctx: ActorContext,
     id: string,
     fingerprint: string,
+    attestation: { recipientRequested?: boolean } = {},
   ): Promise<Dispatch> {
     writable(ctx);
     if (ctx.actor !== "browser")
@@ -711,6 +762,16 @@ export class DomainService {
         "L’aperçu a changé. Rechargez avant approbation.",
         409,
       );
+    if (
+      row.mode === "production" &&
+      row.channel === "email" &&
+      attestation.recipientRequested !== true
+    )
+      throw new DomainError(
+        "RECIPIENT_REQUEST_REQUIRED",
+        "Confirmez que le destinataire a demandé cet e-mail.",
+        409,
+      );
     const now = this.time();
     const quote =
       row.mode === "production" && row.channel === "fax"
@@ -720,7 +781,14 @@ export class DomainService {
             this.config.liveFaxIdentity,
             now,
           )
-        : undefined;
+        : row.mode === "production" && row.channel !== "fax"
+          ? await validateLiveDeliveryQuote(
+              this.db,
+              row,
+              this.config.liveDeliveryIdentity?.[row.channel],
+              now,
+            )
+          : undefined;
     const approvalExpiresAt = new Date(
       Math.min(
         this.now() + 15 * 60_000,
@@ -739,7 +807,7 @@ export class DomainService {
     statements.push(
       this.db
         .prepare(
-          "INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at",
+          "INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested",
         )
         .bind(
           uid("approval"),
@@ -749,8 +817,12 @@ export class DomainService {
           fingerprint,
           approvalExpiresAt,
           now,
+          attestation.recipientRequested === true ? 1 : 0,
         ),
-      this.audit(ctx, "dispatch.approved", id, { fingerprint }),
+      this.audit(ctx, "dispatch.approved", id, {
+        fingerprint,
+        recipientRequested: attestation.recipientRequested === true,
+      }),
     );
     try {
       await this.db.batch(statements);
@@ -792,6 +864,17 @@ export class DomainService {
         this.db,
         row,
         this.config.liveFaxIdentity,
+        now,
+      );
+    if (
+      row.mode === "production" &&
+      row.channel !== "fax" &&
+      row.status === "prepared"
+    )
+      await validateLiveDeliveryQuote(
+        this.db,
+        row,
+        this.config.liveDeliveryIdentity?.[row.channel],
         now,
       );
     if (row.channel === "email" && row.status === "prepared") {
@@ -1104,7 +1187,7 @@ export class DomainService {
       if (!String(error).includes("live_quote_invalid")) throw error;
       await this.db
         .prepare(
-          "UPDATE dispatches SET status='failed',updated_at=? WHERE id=? AND mode='production' AND channel='fax' AND status='queued'",
+          "UPDATE dispatches SET status='failed',updated_at=? WHERE id=? AND mode='production' AND channel IN ('fax','email','postal') AND status='queued'",
         )
         .bind(now, id)
         .run();
@@ -1171,6 +1254,25 @@ export class DomainService {
           this.db,
           row,
           provider.liveFaxIdentity,
+          this.time(),
+        );
+      } catch {
+        await this.rejectAttempt(row, attemptId, "LIVE_QUOTE_INVALID");
+        return { processed: true, status: "failed" };
+      }
+    }
+    if (row.mode === "production" && row.channel !== "fax") {
+      try {
+        if (provider.name !== (row.channel === "email" ? "ses" : "pingen"))
+          throw new DomainError(
+            "LIVE_QUOTE_INVALID",
+            "Fournisseur incompatible.",
+            409,
+          );
+        await validateLiveDeliveryQuote(
+          this.db,
+          row,
+          provider.liveDeliveryIdentity?.[row.channel],
           this.time(),
         );
       } catch {

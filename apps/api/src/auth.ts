@@ -21,6 +21,7 @@ export interface AuthEnv {
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
+  AUTH0_AUTH_POLICY?: string;
 }
 export interface AuthContext {
   organizationId: string;
@@ -42,6 +43,7 @@ export interface AuthenticatedSession {
   csrfToken: string;
   simulation: boolean;
   mfa: boolean;
+  verifiedAccount: boolean;
   tokenHash: string;
 }
 export interface McpIdentity {
@@ -244,6 +246,34 @@ export function hasMfa(payload: JWTPayload): boolean {
     payload["https://guteneo.com/mfa"] === true
   );
 }
+export function authenticationPolicy(
+  env: Pick<AuthEnv, "AUTH0_AUTH_POLICY">,
+): "verified_email" | "verified_email_and_mfa" {
+  const policy = env.AUTH0_AUTH_POLICY ?? "verified_email_and_mfa";
+  if (policy !== "verified_email" && policy !== "verified_email_and_mfa")
+    throw new AuthError(
+      "IDENTITY_CONFIG_INVALID",
+      "Politique de connexion invalide.",
+      503,
+    );
+  return policy;
+}
+/** This is a scoped Action claim in a signature-verified token, never an input
+ * supplied by the browser or inferred from a passkey/MFA enrollment flag. */
+export function hasVerifiedAccount(payload: JWTPayload): boolean {
+  return (
+    payload["https://guteneo.com/verified_account"] === true &&
+    payload.email_verified !== false
+  );
+}
+function requireVerifiedAccount(payload: JWTPayload): void {
+  if (!hasVerifiedAccount(payload))
+    throw new AuthError(
+      "ACCOUNT_VERIFICATION_REQUIRED",
+      "Reconnectez-vous après la vérification de votre adresse e-mail.",
+      403,
+    );
+}
 async function memberships(
   env: AuthEnv,
   userId: string,
@@ -258,7 +288,11 @@ async function memberships(
   return result.results;
 }
 function sessionResult(
-  row: Membership & { csrf_token: string; mfa: number },
+  row: Membership & {
+    csrf_token: string;
+    mfa: number;
+    verified_account: number;
+  },
   tokenHash: string,
   env: AuthEnv,
 ): AuthenticatedSession {
@@ -274,6 +308,7 @@ function sessionResult(
     csrfToken: row.csrf_token,
     simulation: env.MODE === "simulation",
     mfa: Boolean(row.mfa),
+    verifiedAccount: row.verified_account === 1,
     tokenHash,
   };
 }
@@ -284,6 +319,7 @@ export function publicSession(session: AuthenticatedSession) {
     csrfToken: session.csrfToken,
     simulation: session.simulation,
     mfa: session.mfa,
+    verifiedAccount: session.verifiedAccount,
   };
 }
 async function createSession(
@@ -291,13 +327,14 @@ async function createSession(
   membership: Membership,
   mfa: boolean,
   development: boolean,
+  verifiedAccount = false,
 ): Promise<{ session: AuthenticatedSession; cookie: string }> {
   const secret = randomSecret();
   const tokenHash = await hashSecret(secret);
   const csrf = randomSecret();
   await env.DB.prepare(
-    `INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at)
-    VALUES(?,?,?,?,?,?,?,?)`,
+    `INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account)
+    VALUES(?,?,?,?,?,?,?,?,?)`,
   )
     .bind(
       tokenHash,
@@ -308,11 +345,17 @@ async function createSession(
       Number(development),
       nowISO(),
       new Date(Date.now() + HOUR).toISOString(),
+      Number(verifiedAccount),
     )
     .run();
   return {
     session: sessionResult(
-      { ...membership, csrf_token: csrf, mfa: Number(mfa) },
+      {
+        ...membership,
+        csrf_token: csrf,
+        mfa: Number(mfa),
+        verified_account: Number(verifiedAccount),
+      },
       tokenHash,
       env,
     ),
@@ -332,20 +375,41 @@ export async function authenticateBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,m.organization_id,m.user_id,m.role,o.name organization_name,u.name user_name
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,o.name organization_name,u.name user_name
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id WHERE s.token_hash=? AND s.expires_at>?`,
   )
     .bind(tokenHash, nowISO())
     .first<
-      Membership & { csrf_token: string; mfa: number; is_development: number }
+      Membership & {
+        csrf_token: string;
+        mfa: number;
+        is_development: number;
+        verified_account: number;
+      }
     >();
   if (!row || (row.is_development && !isLocalSimulation(request, env)))
     throw new AuthError(
       "SESSION_EXPIRED",
       "Session expirée. Reconnectez-vous.",
     );
-  if (!row.is_development && row.role === "admin" && !row.mfa)
+  const policy = authenticationPolicy(env);
+  if (
+    !row.is_development &&
+    policy === "verified_email" &&
+    row.verified_account !== 1
+  )
+    throw new AuthError(
+      "ACCOUNT_VERIFICATION_REQUIRED",
+      "Reconnectez-vous pour vérifier votre compte.",
+      403,
+    );
+  if (
+    !row.is_development &&
+    policy === "verified_email_and_mfa" &&
+    row.role === "admin" &&
+    !row.mfa
+  )
     throw new AuthError(
       "MFA_REQUIRED",
       "La double authentification est nécessaire pour les administrateurs.",
@@ -420,6 +484,8 @@ export async function authenticateMcp(
     };
   }
   const payload = await validateAuth0Token(token, env, "access");
+  const policy = authenticationPolicy(env);
+  if (policy === "verified_email") requireVerifiedAccount(payload);
   const issuer = auth0Issuer(env);
   const clientId =
     typeof payload.client_id === "string"
@@ -493,7 +559,11 @@ export async function authenticateMcp(
       "Accès à cette organisation refusé.",
       403,
     );
-  if (member.role === "admin" && !hasMfa(payload))
+  if (
+    policy === "verified_email_and_mfa" &&
+    member.role === "admin" &&
+    !hasMfa(payload)
+  )
     throw new AuthError(
       "MFA_REQUIRED",
       "Reconnectez l’assistant après une double authentification.",
@@ -702,13 +772,20 @@ export async function handleAuthRoute(
         "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
         403,
       );
+    const policy = authenticationPolicy(env);
+    if (policy === "verified_email") {
+      requireVerifiedAccount(claims);
+      requireVerifiedAccount(accessClaims);
+    }
+    const verifiedAccount =
+      hasVerifiedAccount(claims) && hasVerifiedAccount(accessClaims);
     let identity = await env.DB.prepare(
       "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
     )
       .bind(config.issuer, claims.sub)
       .first<{ user_id: string }>();
     if (!identity) {
-      if (!hasMfa(claims))
+      if (policy === "verified_email_and_mfa" && !hasMfa(claims))
         throw new AuthError(
           "MFA_REQUIRED",
           "Terminez la double authentification pour créer votre espace.",
@@ -772,13 +849,23 @@ export async function handleAuthRoute(
         cookie(env, "login", "", 0),
       ]);
     const member = memberRows[0];
-    if (member.role === "admin" && !hasMfa(claims))
+    if (
+      policy === "verified_email_and_mfa" &&
+      member.role === "admin" &&
+      !hasMfa(claims)
+    )
       throw new AuthError(
         "MFA_REQUIRED",
         "Activez la double authentification avant d’accéder à l’espace administrateur.",
         403,
       );
-    const session = await createSession(env, member, hasMfa(claims), false);
+    const session = await createSession(
+      env,
+      member,
+      hasMfa(claims),
+      false,
+      verifiedAccount,
+    );
     return redirect(new URL(transaction.return_to, env.APP_ORIGIN).href, [
       cookie(env, "login", "", 0),
       session.cookie,

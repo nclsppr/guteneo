@@ -3,6 +3,7 @@ import {
   useEffect,
   useState,
   useId,
+  useRef,
   cloneElement,
   lazy,
   Suspense,
@@ -79,6 +80,16 @@ export function useRoute() {
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, []);
+  useEffect(() => {
+    if (!route.startsWith("/app")) return;
+    // Route changes replace the content without a browser navigation. Keep
+    // keyboard and screen-reader users at the newly opened workspace page.
+    const frame = requestAnimationFrame(() => {
+      if (document.activeElement?.closest('[role="alert"]')) return;
+      document.getElementById("main-content")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [route]);
   return route;
 }
 export function useResource<T>(path: string | null) {
@@ -131,13 +142,21 @@ export function ErrorNotice({
   error?: Error;
   retry?: () => void;
 }) {
+  const notice = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error) notice.current?.focus();
+  }, [error]);
   if (!error) return null;
   return (
-    <div className="notice error" role="alert">
+    <div className="notice error" role="alert" tabIndex={-1} ref={notice}>
       <WarningCircle size={22} aria-hidden="true" />
       <div>
         <strong>{t.errorTitle}</strong>
-        <p>{error.message}</p>
+        <p>
+          {error instanceof ApiError
+            ? (sesErrorMessage(error.code) ?? error.message)
+            : error.message}
+        </p>
         {error instanceof ApiError && (
           <small className="mono">{error.code}</small>
         )}
@@ -149,6 +168,62 @@ export function ErrorNotice({
       </div>
     </div>
   );
+}
+
+/** Fixed copy only: provider response bodies can contain private identities. */
+export function sesErrorMessage(code?: string): string | undefined {
+  if (!code) return undefined;
+  const messages: Record<string, string> = {
+    SES_ACCOUNT_DAILY_LIMIT:
+      "La capacité d’envoi d’e-mails de Guteneo est atteinte. Cet envoi n’a pas été transmis. Réessayez plus tard en préparant un nouvel envoi.",
+    SES_ACCOUNT_RATE_LIMIT:
+      "Le service d’e-mail traite déjà un envoi ou vient d’en traiter un. Cet envoi n’a pas été transmis. Patientez avant de préparer un nouvel envoi.",
+    SES_DAILY_QUOTA_EXCEEDED:
+      "AWS a refusé cet envoi car le quota d’e-mails sur les dernières 24 heures est atteint. Aucun envoi n’a été accepté. Réessayez plus tard en préparant un nouvel envoi.",
+    SES_RATE_EXCEEDED:
+      "AWS a refusé cet envoi car les demandes sont trop rapprochées. Aucun envoi n’a été accepté. Patientez avant de préparer un nouvel envoi.",
+    SES_THROTTLED:
+      "AWS limite temporairement les demandes d’envoi. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
+    SES_IDENTITY_NOT_VERIFIED:
+      "AWS a refusé cet envoi : une adresse ou un domaine n’est pas vérifié. Pendant la phase restreinte SES, les destinataires doivent aussi être vérifiés. Aucun envoi n’a été accepté.",
+    SES_SENDER_NOT_VERIFIED:
+      "Le domaine d’expédition doit encore être vérifié auprès d’AWS. Aucun envoi n’a été accepté. Le raccordement doit être corrigé par l’équipe Guteneo.",
+    SES_MESSAGE_REJECTED:
+      "AWS a refusé le message. Aucun envoi n’a été accepté. Vérifiez son contenu et les adresses avant de préparer une nouvelle version.",
+    SES_REQUEST_REJECTED:
+      "AWS a refusé la demande d’envoi. Aucun envoi n’a été accepté. Le contenu et les paramètres doivent être vérifiés avant une nouvelle préparation.",
+    SES_ACCOUNT_SUSPENDED:
+      "AWS a suspendu les envois de ce compte. Ce message a été refusé. L’équipe Guteneo doit rétablir le service avant tout nouvel essai.",
+    SES_SENDING_PAUSED:
+      "L’envoi d’e-mails est actuellement suspendu chez AWS. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
+    SES_RESOURCE_LIMIT:
+      "AWS a refusé cet envoi à cause d’une limite du service. L’équipe Guteneo doit vérifier sa configuration avant tout nouvel essai.",
+    SES_CONFIGURATION_MISSING:
+      "La configuration d’envoi attendue est indisponible chez AWS. Ce message a été refusé. Le raccordement doit être corrigé par l’équipe Guteneo.",
+    SES_AUTHORIZATION_FAILED:
+      "AWS n’autorise pas ce raccordement à envoyer des e-mails. Ce message a été refusé. L’équipe Guteneo doit vérifier les accès du service.",
+    SES_LIMITS_NOT_CONFIGURED:
+      "Les limites du compte d’e-mail ne sont pas encore configurées. Cet envoi n’a pas été transmis.",
+    SES_LIMITS_UNAVAILABLE:
+      "Le contrôle de capacité du service d’e-mail est temporairement indisponible. Cet envoi n’a pas été transmis.",
+    SES_ACTIVE_ATTEMPT_REQUIRED:
+      "Cette tentative ne peut plus être transmise. Consultez son suivi avant toute autre action.",
+    SES_NOT_CONFIGURED:
+      "Le raccordement e-mail n’est pas encore prêt. Cet envoi n’a pas été transmis.",
+    SES_ACCOUNT_REQUIRED:
+      "Le compte d’envoi AWS doit être identifié avant de transmettre cet e-mail. L’équipe Guteneo doit terminer le raccordement.",
+    SES_IDENTITY_REQUIRED:
+      "L’identité du compte e-mail et son suivi doivent encore être qualifiés. Cet envoi n’a pas été transmis.",
+    SES_RECIPIENT_NOT_QUALIFIED:
+      "Ce destinataire n’est pas encore autorisé pour la phase restreinte d’envoi. Son adresse doit être vérifiée auprès d’AWS et qualifiée par l’équipe Guteneo. Cet envoi n’a pas été transmis.",
+    SES_MODE_REQUIRED:
+      "Le mode d’envoi du compte AWS doit être qualifié avant de transmettre cet e-mail.",
+    SES_RESPONSE_UNKNOWN:
+      "La réponse d’AWS n’a pas permis de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.",
+    SES_ATTEMPT_ALREADY_RESERVED:
+      "Cette tentative a déjà été prise en charge. Ne recréez pas cet envoi : consultez son suivi pour éviter un doublon.",
+  };
+  return Object.hasOwn(messages, code) ? messages[code] : undefined;
 }
 export function Loading() {
   return (
@@ -249,38 +324,63 @@ export function DispatchTable({ items }: { items: Dispatch[] }) {
     );
   return (
     <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>{t.recipient}</th>
-            <th>{t.channel}</th>
-            <th>{t.status}</th>
-            <th>{t.created}</th>
-            <th>
+      <table className="responsive-table" role="table">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th role="columnheader" scope="col">
+              {t.recipient}
+            </th>
+            <th role="columnheader" scope="col">
+              {t.channel}
+            </th>
+            <th role="columnheader" scope="col">
+              {t.status}
+            </th>
+            <th role="columnheader" scope="col">
+              {t.created}
+            </th>
+            <th role="columnheader" scope="col">
               <span className="sr-only">{t.open}</span>
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {items.map((d) => (
-            <tr key={d.id}>
-              <td>
+            <tr role="row" key={d.id}>
+              <td role="cell">
+                <span className="mobile-cell-label" aria-hidden="true">
+                  {t.recipient}
+                </span>
                 <a className="row-link" href={`#/app/dispatch/${d.id}`}>
                   {recipientLabel(d) || d.id}
                   <span className="reference mono">{d.id}</span>
                 </a>
               </td>
-              <td>
+              <td role="cell">
+                <span className="mobile-cell-label" aria-hidden="true">
+                  {t.channel}
+                </span>
                 <ChannelLabel channel={d.channel} />
               </td>
-              <td>
+              <td role="cell">
+                <span className="mobile-cell-label" aria-hidden="true">
+                  {t.status}
+                </span>
                 <Status status={d.status} channel={d.channel} />
                 {d.mode === "simulation" && (
                   <small className="sub-label">{t.simulation}</small>
                 )}
               </td>
-              <td className="date-cell">{date(d.created_at)}</td>
-              <td>
+              <td role="cell" className="date-cell">
+                <span className="mobile-cell-label" aria-hidden="true">
+                  {t.created}
+                </span>
+                {date(d.created_at)}
+              </td>
+              <td role="cell">
+                <span className="mobile-cell-label" aria-hidden="true">
+                  {t.open}
+                </span>
                 <a
                   className="icon-link"
                   href={`#/app/dispatch/${d.id}`}
@@ -326,7 +426,7 @@ export function PdfPreview({
         <span>{title}</span>
         {isPublicPreview ? (
           <button
-            className="icon-link"
+            className="pdf-download"
             onClick={() => void downloadSample()}
             disabled={download.pending}
           >
@@ -383,9 +483,10 @@ export function Field({
       <label htmlFor={id}>{label}</label>
       {cloneElement(children, {
         id,
-        "aria-describedby": hint
-          ? `${id}-help`
-          : children.props["aria-describedby"],
+        "aria-describedby":
+          [children.props["aria-describedby"], hint ? `${id}-help` : undefined]
+            .filter(Boolean)
+            .join(" ") || undefined,
       })}
       {hint && <small id={`${id}-help`}>{hint}</small>}
     </div>

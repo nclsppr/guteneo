@@ -10,7 +10,7 @@ The user authorized and received the public design preview at guteneo.com and a 
 
 ## Activation gates
 
-- Auth0 region/tenant, first-party BFF and MCP third-party OAuth clients; admin MFA; scopes/audience/resource parameters; real refresh/revoke check.
+- Auth0 region/tenant, first-party BFF and MCP third-party OAuth clients; explicit authentication policy (`verified_email` for the Auth0 Free beta, legacy admin MFA otherwise); signed verified-account evidence; scopes/audience/resource parameters; real refresh/revoke check.
 - Qualified scanner binding, isolated document Worker, R2 private EU bucket; hostile-file limits proven in staging.
 - Verified sender ownership, destination/country policy, exact provider costs and funding. The fax quote snapshot/resolver is implemented; actual qualified tariff rows and verified account identity are still absent, so hosted preparation remains closed. Other channels retain their production pricing gate.
 - Telnyx originating number/application and public-key webhook; SES region/IAM/configuration-set/SNS allowed topic; Pingen OAuth organization/upload domains/return address and sandbox qualification.
@@ -33,7 +33,7 @@ Invalid callback signature: reject before receipt. Valid signature + D1 unavaila
 
 Initial content retention90 days; active, prepared, submitting, unknown and nonterminal referenced documents remain. Cron processes25 metadata rows and50 R2 orphan candidates per run with durable cursors. It marks a tombstone before deleting R2, so an interrupted delete can retry. Orphans older24h are deleted. Metadata/audit retention still requires a approved operational policy before production; recipient/content fields in dispatch records are not claimed fully anonymized by this content purge.
 
-Daily document limits are distinct from HTTP rate limiting and dispatch credits. Failed expensive attempts consume conservative daily allowance. After verified identity and MFA, new real organizations receive 10 imports / 20 MiB / 3 renders daily, with a one-time EUR50 promotional balance shared across channels and disabled provider channels. The balance never renews monthly; monthly channel limits are separate safety ceilings. Unknown supplier outcomes retain their ceiling and must not be refunded or retried without reconciliation. Top-up remains disabled. See WELCOME_CREDIT.md. Local simulated orgs:100 imports /100MiB /50renders daily;100 simulated sends per channel per month, explicit test ceilings. Tune via reviewed configuration, never frontend asserted org IDs.
+Daily document limits are distinct from HTTP rate limiting and dispatch credits. Failed expensive attempts consume conservative daily allowance. After the configured identity policy has been satisfied (verified email and signed verified-account evidence for the Auth0 Free beta), new real organizations receive 10 imports / 20 MiB / 3 renders daily, with a one-time EUR50 promotional balance shared across channels and disabled provider channels. The balance never renews monthly; monthly channel limits are separate safety ceilings. Unknown supplier outcomes retain their ceiling and must not be refunded or retried without reconciliation. Top-up remains disabled. See WELCOME_CREDIT.md. Local simulated orgs:100 imports /100MiB /50renders daily;100 simulated sends per channel per month, explicit test ceilings. Tune via reviewed configuration, never frontend asserted org IDs.
 
 ## Backup and restore
 

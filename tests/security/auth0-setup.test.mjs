@@ -267,6 +267,8 @@ test("MFA Actions leave unrelated applications alone and cannot assert consent o
     api,
   );
   assert.deepEqual(operations, [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
     ["id", "https://guteneo.com/mfa", true],
     ["access", "https://guteneo.com/mfa", true],
   ]);
@@ -281,6 +283,74 @@ test("MFA Actions leave unrelated applications alone and cannot assert consent o
     api,
   );
   assert.equal(operations[0][0], "deny");
+});
+
+test("free beta requires scoped verified identity and PKCE without inventing MFA", async () => {
+  const plan = setupPlan({ authPolicy: "verified_email" });
+  assert.equal(plan.authPolicy, "verified_email");
+  assert.ok(!plan.prerequisites.some((item) => item.includes("OTP factor")));
+  assert.throws(() => setupPlan({ authPolicy: "unverified" }), {
+    code: "INVALID_AUTH_POLICY",
+  });
+  const execute = actionSources(
+    ["client_fixture"],
+    "connection_fixture",
+    "verified_email",
+  ).map((code) => {
+    const context = { exports: {}, Date };
+    vm.runInNewContext(code, context);
+    return context.exports.onExecutePostLogin;
+  });
+  const calls = [];
+  const api = {
+    access: { deny: () => calls.push("deny") },
+    authentication: {
+      challengeWithAny: () => calls.push("challenge"),
+      enrollWith: () => calls.push("enroll"),
+    },
+    idToken: {
+      setCustomClaim: (name, value) => calls.push(["id", name, value]),
+    },
+    accessToken: {
+      setCustomClaim: (name, value) => calls.push(["access", name, value]),
+    },
+  };
+  const base = {
+    client: { client_id: "client_fixture" },
+    connection: { id: "connection_fixture" },
+    user: { email_verified: true },
+    transaction: { protocol: "oidc-basic-profile" },
+    request: {
+      query: { code_challenge: "b".repeat(43), code_challenge_method: "S256" },
+    },
+    authentication: {
+      methods: [{ name: "pwd", timestamp: new Date().toISOString() }],
+    },
+  };
+  for (const action of execute) await action(base, api);
+  assert.deepEqual(calls, [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
+  ]);
+  for (const change of [
+    { user: { email_verified: false } },
+    { client: { client_id: "unrelated" } },
+    { connection: { id: "wrong" } },
+    { request: { query: {} } },
+  ]) {
+    calls.length = 0;
+    for (const action of execute) await action({ ...base, ...change }, api);
+    assert.ok(calls.every((call) => call === "deny"));
+  }
+  const fixtureState = fixture({
+    settings: { customize_mfa_in_postlogin_action: false },
+  });
+  const report = await runSetup({
+    mode: "inspect",
+    options: { authPolicy: "verified_email" },
+    api: fixtureState.api,
+  });
+  assert.deepEqual(report.blockers, []);
 });
 
 test("Auth0 CLI checks exact active tenant before sending any API request", async () => {

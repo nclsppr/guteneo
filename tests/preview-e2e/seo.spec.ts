@@ -6,6 +6,7 @@ const paths = [
   "/journal/de-gutenberg-au-numerique/",
   "/journal/histoire-imprimerie-luxembourg/",
   "/mentions-legales/",
+  "/developpeurs/",
 ];
 
 test("public routes expose complete initial HTML, metadata and true HTTP statuses", async ({
@@ -29,7 +30,9 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
     expect(response.headers()["x-robots-tag"] ?? null).toBe(
       primary ? null : "noindex, nofollow",
     );
-    expect(html.includes('type="module"')).toBe(path === "/");
+    expect(html.includes('type="module"')).toBe(
+      ["/", "/developpeurs/"].includes(path),
+    );
     if (path.startsWith("/journal/") && path !== "/journal/") {
       const schemas = [
         ...html.matchAll(

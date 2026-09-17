@@ -1,17 +1,19 @@
 # Hosted continuation — 2026-09-17
 
-Guteneo has two hosted surfaces. **https://guteneo.com** is the public design preview with fictional per-tab data. **https://guteneo-app.nclsppr.workers.dev** serves the production-mode backend and the same visual updates. The root domain will move to that application after managed identity is configured and an actual login is verified. The PR remains open and unmerged.
+Guteneo has two hosted surfaces. **https://guteneo.com** is the public design preview with fictional per-tab data. **https://guteneo-app.nclsppr.workers.dev** serves the production-mode backend and the same visual updates. The planned identity rollout first deploys and verifies the configured backend, then moves the root domain to it with live sending disabled, and finally qualifies actual signup and reconnection on the canonical callback. If authentication fails, restore the preview domain route. The PR remains open and unmerged.
 
-## Published source and public evidence
+## Published source and public evidence — historical release `8f39014`
 
 | Surface | Clean source commit | Active Worker version | Verified public assets |
 | --- | --- | --- | --- |
-| Design preview | `872281827d375f38946dc8eea4dcef23ecd5a591` | `9cab9372-8098-4c7d-91c5-179f19953fbf` | 35 |
-| Application backend | `ee64850691f9f50c3e7cee5cbbfea2afe46c448d` | `092f4792-fb1a-42e3-a76b-093c76376376` | 37 |
+| Design preview | `8f39014b8ebf9b38b5e3f217393bdce2d4507c17` | `ae250f7f-dfdf-4f6b-a70c-1c38d92fe0e0` | 44 |
+| Application backend | `8f39014b8ebf9b38b5e3f217393bdce2d4507c17` | `e86ba7b2-c3b3-43e4-bb76-a8741236c627` | 46 |
 
-The backend code deployment was version `c5183396-e48c-46b3-9fcc-11a4136c9f0b`; installation of the verified Pingen upload origin produced the active secret-update version above, serving 100% of traffic. The preview also serves 100%. Each asset was compared with its local SHA-256 manifest, including `/index.html` through canonical `/`. `_headers` is configuration, checked through resulting response security headers. Machine-readable evidence: `reports/live-release-proof.json` and `reports/preview-release-proof.json`.
+Both deployments above serve 100% of traffic, verified through the Cloudflare deployment API. Each asset was compared with its clean local SHA-256 manifest, including nested `index.html` files through their canonical directory URLs. `_headers` is configuration, checked through resulting response security headers. Machine-readable evidence: `reports/live-release-proof.json` and `reports/preview-release-proof.json`.
 
-Backend snapshot: `d5a395028067ece9b038c8507e4aa1bffb74c336085b4916fdbebc86a001edb1`. Preview snapshot: `7340f3d612fc7378e59554de0701f451b172c077e165a16ab3a9749238588581`. Public manifests: [preview](https://guteneo.com/release.json), [backend](https://guteneo-app.nclsppr.workers.dev/release.json).
+Backend snapshot: `b6aa291a7ca49ba742f90d73e2063488379c6db4a71b82c56b84443c6f06d41f`. Preview snapshot: `16f20ee339b3d2312f2a4db475e458d5af1d6f16cb52ee3d1be67bfedc8706e9`. Public manifests: [preview](https://guteneo.com/release.json), [backend](https://guteneo-app.nclsppr.workers.dev/release.json).
+
+CI passes for exact current source `8f39014`: [verification](https://github.com/nclsppr/guteneo/actions/runs/35164317625) and [verification](https://github.com/nclsppr/guteneo/actions/runs/35164314191). The public journal, both illustrated history articles and legal page are published with complete initial HTML and verified security headers. Twenty remote browser checks passed on the preceding `25e2f61` deployment; the final release preserves those visible assets and adds the backend header-policy regression fix. Current manifests and HTTP header checks were rerun after both final deployments.
 
 Both CI runs passed for the exact preview source: [PR verification](https://github.com/nclsppr/guteneo/actions/runs/35161641153), [push verification](https://github.com/nclsppr/guteneo/actions/runs/35161637609). Both checks also passed for the exact backend source `ee64850691f9f50c3e7cee5cbbfea2afe46c448d`: [PR verification](https://github.com/nclsppr/guteneo/actions/runs/35162247327) and [push verification](https://github.com/nclsppr/guteneo/actions/runs/35162242683). These include full unit/security suites, 36 application browser cases, 12 preview cases, migration transport, scanner and both deployment bundles.
 
@@ -31,9 +33,13 @@ Twelve browser journeys pass both locally and on the published preview across de
 
 ## Runtime boundaries
 
-The runtime reports production mode, registration disabled, billing unconfigured, scanner/rendering connected, all three provider credentials configured but not live-validated, and **`LIVE_SENDS_ENABLED=false`**. Protected account/document/MCP routes fail closed while identity is missing. Public design data stays separate from D1/R2 and never sends documents.
+The published release snapshot above reported production mode, registration disabled, billing unconfigured, scanner/rendering connected, all three provider credentials configured but not live-validated, and **`LIVE_SENDS_ENABLED=false`**. Its identity checks failed closed before the later Auth0 provisioning. This historical snapshot is not a fresh capability check after credential installation. Public design data stays separate from D1/R2 and never sends documents.
 
-Auth0's earlier CLI authentication expired. Renew its official login, configure the dedicated client/audience/actions and verify a real email/MFA login before enabling signup. Stripe tracking is implemented but credentials and actual billing qualification remain absent. Qualified account tariffs, sender/country policy, funded budgets, signed callbacks and immutable human approval remain prerequisites for any communication. Host-specific OAuth/PDF transfer in ChatGPT, Claude and Cursor remains untested; downloadable packages do not imply marketplace publication or an operational host connection.
+On 17 September the official Auth0 CLI session was renewed, the three dedicated Guteneo clients, database connection, API and two Actions were provisioned, and the browser credentials were installed privately in Cloudflare. The user explicitly retained the Free plan. The local candidate uses the `verified_email` policy and migration0019; these changes are not part of the published `8f39014` source. A real signup, received verification email, signed verified-account evidence and completed browser session still need qualification before account activation is claimed. MFA is optional in this policy; the legacy default remains strict. See [AUTH0_SETUP.md](AUTH0_SETUP.md).
+
+The browser client's registered callback is `https://guteneo.com/auth/callback`. A complete browser session therefore requires the root domain to reach the backend; a login started on `workers.dev` cannot qualify that flow because its host-only login cookie does not accompany the canonical callback. Verify the configured Universal Login and backend release first, then switch the domain and start a fresh signup from `guteneo.com`. Keep `LIVE_SENDS_ENABLED=false` throughout and verify reconnection, logout and the EUR50 account balance separately. Returning the domain to the preview disables the account API without deleting provisioned identities or account records; subsequent qualification must start a new login.
+
+Stripe tracking is implemented but credentials and actual billing qualification remain absent. Qualified account tariffs, sender/country policy, funded budgets, signed callbacks and immutable human approval remain prerequisites for any communication. Host-specific OAuth/PDF transfer in ChatGPT, Claude and Cursor remains untested; downloadable packages do not imply marketplace publication or an operational host connection.
 
 No real fax, postal letter, email, Stripe charge or automatic credit refill was performed. See [EXECUTION_PLAN.md](EXECUTION_PLAN.md) for the remaining implementation and activation work.
 

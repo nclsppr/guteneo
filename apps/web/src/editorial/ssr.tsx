@@ -1,6 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { Landing } from "../App";
 import { LegalPage } from "../legal-page";
+import { DeveloperPage } from "../developer-page";
 import { articles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 
@@ -43,6 +44,29 @@ export function renderPublicPage(pathname: string) {
           inLanguage: "fr",
           publisher,
         },
+      ],
+    };
+  if (pathname === "/developpeurs/")
+    return {
+      html: renderToString(<DeveloperPage />),
+      title: "Développeurs · API, OAuth et référence OpenAPI | Guteneo",
+      description:
+        "Intégrez vos PDF à Guteneo : guide REST et MCP, permissions OAuth, approbation humaine, limites et référence OpenAPI en lecture seule. Bêta en préparation.",
+      canonical: origin + pathname,
+      image: "/press-halftone.webp",
+      structuredData: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: "Documentation développeurs Guteneo",
+          url: origin + pathname,
+          inLanguage: "fr",
+          publisher,
+        },
+        breadcrumbs([
+          { name: "Accueil", path: "/" },
+          { name: "Développeurs", path: pathname },
+        ]),
       ],
     };
   if (pathname === "/journal/")

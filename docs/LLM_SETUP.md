@@ -1,10 +1,10 @@
-# Guteneo dans ChatGPT, Claude et Cursor
+# Guteneo dans ChatGPT, Claude, Cursor et GitHub Copilot
 
-Guide vérifié le **16 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. Les paquets sont construits et testés localement ; aucune publication dans un annuaire ni connexion réelle dans ces trois hôtes n’est attestée par ce guide. Consulter la preuve de déploiement séparément avant d’annoncer que l’URL et l’identité sont opérationnelles.
+Guide vérifié le **17 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. Les paquets sont construits et testés localement ; aucune publication dans un annuaire ni connexion réelle dans ces hôtes n’est attestée par ce guide. Consulter la preuve de déploiement séparément avant d’annoncer que l’URL et l’identité sont opérationnelles.
 
 ## Paquet et téléchargements
 
-Le dossier `integrations/guteneo/` est un paquet Agent Plugins 1.0.0 avec `plugin.json`, `mcp.json` et `skills/fax-pdf/SKILL.md`. Il comporte aussi les manifestes Claude Code et Cursor. Pas de script exécuté à l’installation, pas de hook, pas de secret, pas d’accès local au disque. Le paquet ne déclare aucun identifiant de plugin ChatGPT enregistré qui n’existe pas.
+Le dossier `integrations/guteneo/` est un paquet Agent Plugins 1.0.0 avec `plugin.json`, `mcp.json` et les instructions `skills/fax-pdf/SKILL.md` / `skills/postal-pdf/SKILL.md`. Il comporte aussi les manifestes Claude Code et Cursor. Les instructions postales sont conditionnelles : elles n’ajoutent pas d’outil et n’activent aucun canal. Pas de script exécuté à l’installation, pas de hook, pas de secret, pas d’accès local au disque. Le paquet ne déclare aucun identifiant de plugin ChatGPT enregistré qui n’existe pas.
 
 ```sh
 node integrations/build.mjs
@@ -12,7 +12,7 @@ node integrations/build.mjs
 node integrations/build.mjs dist/web/integrations
 ```
 
-Le résultat contient `guteneo-plugin.zip`, les trois modèles JSON hôtes et `manifest.json` avec version, SHA-256 et statut de qualification. Les noms internes, leur ordre et les dates ZIP sont fixes ; le contenu est identique entre deux constructions identiques. Le script valide les manifestes portables contre les schémas officiels conservés dans `integrations/schemas/`. Le dossier de sortie par défaut est `dist/integrations`. Le build ne publie rien.
+Le résultat contient `guteneo-plugin.zip`, cinq modèles JSON hôtes et `manifest.json` avec version, SHA-256 et statut de qualification. Les noms internes, leur ordre et les dates ZIP sont fixes ; le contenu est identique entre deux constructions identiques. Le script valide les manifestes portables contre les schémas officiels conservés dans `integrations/schemas/`. Le dossier de sortie par défaut est `dist/integrations`. Le build ne publie rien.
 
 [Format OpenAI/Agent Plugins](https://developers.openai.com/plugins/build/plugins), [format Cursor](https://cursor.com/docs/reference/plugins), [format Claude Code](https://code.claude.com/docs/en/plugins-reference).
 
@@ -24,6 +24,8 @@ Le résultat contient `guteneo-plugin.zip`, les trois modèles JSON hôtes et `m
 | Claude web / Desktop | Ajouter l’URL comme connecteur distant, puis connecter le compte Guteneo. Les paramètres avancés peuvent fournir un client OAuth préenregistré. Un paquet Claude Code ne remplace pas cette connexion.                                            | Déposer le PDF dans le navigateur Guteneo, puis reprendre avec `list_documents` / `get_document`. Aucun transfert implicite d’une pièce jointe Claude n’est promis.                                                       |
 | Claude Code          | `claude --plugin-dir ./integrations/guteneo`, puis `/mcp`. Pour un client statique, utiliser la configuration ci-dessous.                                                                                                                         | Dépôt navigateur, ou adaptateur local explicitement configuré suivant [CURSOR.md](CURSOR.md), avec les mêmes contraintes de dossier et de jeton.                                                                          |
 | Cursor               | Copier `integrations/config/cursor-mcp.json` dans `.cursor/mcp.json` en fusionnant les entrées existantes, ou installer le paquet portable. La variante `cursor-static-oauth.json` ajoute un identifiant OAuth public fourni via l’environnement. | Dépôt navigateur ou `upload_local_pdf`, configuré séparément suivant [CURSOR.md](CURSOR.md). Le paquet distant n’installe pas l’adaptateur.                                                                               |
+
+GitHub Copilot possède deux configurations distinctes : `copilot-vscode-mcp.json` pour `.vscode/mcp.json` (`servers`), et `copilot-cli-mcp.json` pour `~/.copilot/mcp-config.json` (`mcpServers`). Installation, variantes OAuth et limites : [guide GitHub Copilot](COPILOT.md). Aucun parcours Microsoft Copilot grand public n’est annoncé. Ces modèles MCP ne prouvent pas l’installation du paquet ZIP dans Copilot.
 
 Les libellés et disponibilités dépendent des versions et politiques du compte : [connexion ChatGPT](https://developers.openai.com/plugins/deploy/connect-chatgpt), [connecteurs Claude](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [MCP Cursor](https://cursor.com/docs/mcp).
 
@@ -43,7 +45,7 @@ Permissions du parcours : `documents:read documents:write dispatches:prepare dis
 
 Le modèle Claude Code fixe les permissions ; remplacer son marqueur par le véritable identifiant public. L’interpolation des variables dans `oauth.clientId` n’est pas présumée. L’autre chemin documenté est `claude mcp add --transport http --client-id CLIENT_ID --callback-port 8788 guteneo https://guteneo.com/mcp`, puis connexion via `/mcp`. Aucun secret de client public ne doit être inventé. [Claude Code OAuth](https://code.claude.com/docs/en/mcp), [Claude hébergé OAuth](https://claude.com/docs/connectors/building/authentication), [Cursor OAuth](https://cursor.com/docs/mcp).
 
-**Attention de configuration Auth0** : les clients tiers stricts Auth0 documentés dans [IDENTITY_MCP.md](IDENTITY_MCP.md) n’acceptent pas les scopes OIDC. ChatGPT peut demander `openid`, `profile` ou `email` si l’autorité les annonce. Il faut donc qualifier un client préenregistré compatible, avec consentement et permissions exactes, ou une configuration d’autorité adaptée ; annoncer DCR/CIMD ou retirer arbitrairement les scopes ne prouve pas la compatibilité. Le vrai parcours consentement, renouvellement, révocation et MFA doit passer sur chaque hôte. [Contrat d’authentification OpenAI](https://developers.openai.com/plugins/build/auth).
+**Attention de configuration Auth0** : les clients tiers stricts Auth0 documentés dans [IDENTITY_MCP.md](IDENTITY_MCP.md) n’acceptent pas les scopes OIDC. ChatGPT peut demander `openid`, `profile` ou `email` si l’autorité les annonce. Il faut donc qualifier un client préenregistré compatible, avec consentement et permissions exactes, ou une configuration d’autorité adaptée ; annoncer DCR/CIMD ou retirer arbitrairement les scopes ne prouve pas la compatibilité. Le vrai parcours consentement, preuve signée de compte vérifié, renouvellement et révocation doit passer sur chaque hôte. La bêta Auth0 Free utilise `verified_email` sans MFA obligatoire ; la politique historique conserve son contrôle MFA lorsqu’elle est choisie. [Contrat d’authentification OpenAI](https://developers.openai.com/plugins/build/auth).
 
 ## De l’original au fax
 
@@ -57,7 +59,7 @@ Le prompt MCP `fax_pdf` et le skill du paquet expliquent ce parcours à l’hôt
 
 ## Preuves et recette avant publication
 
-`npx vitest run tests/unit/mcp-integrations.test.ts tests/unit/auth.test.ts` couvre les vrais schémas et transports SDK locaux, la validation du paquet ZIP, la lecture isolée par organisation, les scopes, la préparation d’un fax de simulation et l’approbation humaine avant réservation atomique. Il n’appelle ni ChatGPT, ni Claude, ni Cursor, ni un prestataire de fax.
+`npx vitest run tests/unit/mcp-integrations.test.ts tests/unit/auth.test.ts` couvre les vrais schémas et transports SDK locaux, la validation du paquet ZIP, la lecture isolée par organisation, les scopes, la préparation d’un fax de simulation et l’approbation humaine avant réservation atomique. Il n’appelle ni ChatGPT, ni Claude, ni Cursor, ni GitHub Copilot, ni un prestataire de communication.
 
 Pour chaque hôte, conserver une preuve datée du compte/surface, de la version, du consentement OAuth, du renouvellement et de la révocation, puis du fichier original et de son SHA-256 importé. Tester les refus : mauvais scope, autre organisation, PDF en quarantaine, plafond insuffisant, approbation absente et statut incertain. Ne conserver ni jeton, ni URL signée, ni numéro personnel dans les journaux de recette. Une transmission réelle nécessite un destinataire d’essai explicitement autorisé, la configuration scanner/prestataire et un devis réel qualifié.
 

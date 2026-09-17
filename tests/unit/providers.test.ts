@@ -217,6 +217,130 @@ describe("real provider request contracts (no real calls)", () => {
     ).toMatchObject({ status: "submission_unknown" });
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
+  it.each([
+    [
+      429,
+      "TooManyRequestsException",
+      "Daily message quota exceeded",
+      "SES_DAILY_QUOTA_EXCEEDED",
+    ],
+    [
+      429,
+      "TooManyRequestsException",
+      "Maximum sending rate exceeded",
+      "SES_RATE_EXCEEDED",
+    ],
+    [429, "TooManyRequestsException", "Request throttled", "SES_THROTTLED"],
+    [
+      400,
+      "MessageRejected",
+      "Email address is not verified. The following identities failed: private@example.invalid",
+      "SES_IDENTITY_NOT_VERIFIED",
+    ],
+    [
+      400,
+      "MessageRejected",
+      "Invalid content with confidential details",
+      "SES_MESSAGE_REJECTED",
+    ],
+    [
+      400,
+      "MailFromDomainNotVerifiedException",
+      "private.invalid",
+      "SES_SENDER_NOT_VERIFIED",
+    ],
+    [
+      400,
+      "AccountSuspendedException",
+      "private-account",
+      "SES_ACCOUNT_SUSPENDED",
+    ],
+    [400, "SendingPausedException", "private-account", "SES_SENDING_PAUSED"],
+    [400, "LimitExceededException", "private-resource", "SES_RESOURCE_LIMIT"],
+    [404, "NotFoundException", "private-config", "SES_CONFIGURATION_MISSING"],
+    [403, "AccessDeniedException", "private-arn", "SES_AUTHORIZATION_FAILED"],
+    [400, "__proto__", "private-value", "SES_REQUEST_REJECTED"],
+  ])(
+    "SES projects safe rejection codes for %s/%s without retry or raw response data",
+    async (status, kind, message, code) => {
+      const fetcher = vi
+        .fn<Fetcher>()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ message }), {
+            status,
+            headers: {
+              "x-amzn-errortype": kind,
+              "x-request-id": "private-request-reference",
+            },
+          }),
+        );
+      const result = await new SesEmailProvider(sesConfig, fetcher).submit(
+        email,
+      );
+      expect(result).toEqual({
+        status: "rejected",
+        errorCode: code,
+        retryable: false,
+      });
+      expect(JSON.stringify(result)).not.toContain("private");
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+  it("SES reads namespaced JSON errors but bounds malformed rejection bodies", async () => {
+    const responses = [
+      json(
+        {
+          __type: "com.amazonaws.ses#SendingPausedException",
+          Message: "private",
+        },
+        400,
+      ),
+      new Response("private".repeat(5000), { status: 400 }),
+      new Response("<error>private</error>", { status: 400 }),
+    ];
+    for (let i = 0; i < responses.length; i++) {
+      const fetcher = vi.fn<Fetcher>().mockResolvedValue(responses[i]);
+      expect(
+        await new SesEmailProvider(sesConfig, fetcher).submit(email),
+      ).toEqual({
+        status: "rejected",
+        errorCode: i === 0 ? "SES_SENDING_PAUSED" : "SES_REQUEST_REJECTED",
+        retryable: false,
+      });
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    }
+  });
+  it.each([302, 408, 409, 500, 503])(
+    "SES treats %s as unknown even if its body claims a definitive rejection",
+    async (status) => {
+      const fetcher = vi
+        .fn<Fetcher>()
+        .mockResolvedValue(
+          json(
+            { __type: "MessageRejected", message: "private@example.invalid" },
+            status,
+          ),
+        );
+      expect(
+        await new SesEmailProvider(sesConfig, fetcher).submit(email),
+      ).toEqual({
+        status: "submission_unknown",
+        errorCode: "SES_RESPONSE_UNKNOWN",
+        retryable: false,
+      });
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(fetcher.mock.calls[0][1]?.redirect).toBe("manual");
+    },
+  );
+  it("SES does not accept a malformed acknowledgement reference", async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(json({ MessageId: "private@example.invalid" }));
+    expect(
+      await new SesEmailProvider(sesConfig, fetcher).submit(email),
+    ).toMatchObject({ status: "submission_unknown" });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
   it("Pingen uploads untouched bytes without bearer leakage and creates an auto_send=false draft", async () => {
     const fetcher = vi
       .fn<Fetcher>()

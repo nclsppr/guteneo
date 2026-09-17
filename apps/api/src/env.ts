@@ -15,6 +15,7 @@ export interface Env {
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
+  AUTH0_AUTH_POLICY?: "verified_email" | "verified_email_and_mfa";
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_MODE?: "test" | "live";
@@ -30,9 +31,12 @@ export interface Env {
   AWS_REGION?: string;
   SES_CONFIGURATION_SET?: string;
   SES_SNS_TOPIC_ARN?: string;
+  SES_ACCOUNT_ID?: string;
+  SES_VERIFIED_RECIPIENTS?: string;
   PINGEN_CLIENT_ID?: string;
   PINGEN_CLIENT_SECRET?: string;
   PINGEN_ORGANIZATION_ID?: string;
+  PINGEN_DEFAULT_COUNTRY?: string;
   PINGEN_WEBHOOK_SECRET?: string;
   PROVIDER_URL_SIGNING_SECRET?: string;
   TELNYX_ALLOWED_PREFIXES?: string;

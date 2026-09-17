@@ -13,11 +13,14 @@ export const packageFiles = [
   "mcp.json",
   "plugin.json",
   "skills/fax-pdf/SKILL.md",
+  "skills/postal-pdf/SKILL.md",
 ];
 const configFiles = [
   "cursor-mcp.json",
   "cursor-static-oauth.json",
   "claude-static-oauth.json",
+  "copilot-vscode-mcp.json",
+  "copilot-cli-mcp.json",
 ];
 
 export async function validateIntegrationPackage() {
