@@ -118,6 +118,11 @@ const reportSchema = z.object({
     .nullable(),
 });
 type Report = z.infer<typeof reportSchema>;
+// Read historical evidence without promoting it to the current write contract.
+const storedReportSchema = reportSchema.extend({
+  version: z.enum(["pingen-2026-09-17-v1", PINGEN_PREFLIGHT_VERSION]),
+});
+type StoredReport = z.infer<typeof storedReportSchema>;
 function error(code: string, status = 409): never {
   throw new ContentError(code, code, status);
 }
@@ -159,7 +164,10 @@ const normalized = (value: string) =>
     .replace(/\s+/g, " ")
     .trim()
     .toLocaleUpperCase("fr-FR");
-function addressMatches(row: Row, report: Report | null): boolean {
+function addressMatches(
+  row: Row,
+  report: Pick<Report, "address"> | null,
+): boolean {
   return Boolean(
     report?.address &&
     report.address.issues.length === 0 &&
@@ -337,6 +345,8 @@ export class PostalService {
   private async current(authority: PostalAuthority, row: Row, profile = false) {
     await authority.assertCurrent();
     await this.domain.authorizeWrite(authority.context);
+    if (this.superseded(row, this.report(row)))
+      error("POSTAL_PREFLIGHT_VERSION_CHANGED");
     if (row.expires_at <= now()) error("POSTAL_PREFLIGHT_EXPIRED");
     const exact = await this.exactDocument(
       row.organization_id,
@@ -353,17 +363,16 @@ export class PostalService {
     await authority.assertCurrent();
     return exact;
   }
-  private report(row: Row): Report | null {
-    if (!row.report_json) return null;
-    const value: unknown = JSON.parse(row.report_json);
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      "version" in value &&
-      value.version !== PINGEN_PREFLIGHT_VERSION
-    )
-      error("POSTAL_PREFLIGHT_VERSION_CHANGED");
-    return reportSchema.parse(value);
+  private report(row: Row): StoredReport | null {
+    return row.report_json
+      ? storedReportSchema.parse(JSON.parse(row.report_json))
+      : null;
+  }
+  private superseded(row: Row, report: StoredReport | null): boolean {
+    return (
+      JSON.parse(row.profile_json).version !== PINGEN_PREFLIGHT_VERSION ||
+      (report !== null && report.version !== PINGEN_PREFLIGHT_VERSION)
+    );
   }
 
   async get(authority: PostalAuthority, id: string): Promise<PostalReview> {
@@ -373,6 +382,7 @@ export class PostalService {
       row.document_id,
     );
     const report = this.report(row);
+    const superseded = this.superseded(row, report);
     const timedOut =
       row.status === "processing" && row.processing_until <= now();
     const expired = row.expires_at <= now();
@@ -386,7 +396,7 @@ export class PostalService {
     return {
       id: row.id,
       fingerprint: row.request_hash,
-      status: timedOut ? "failed" : row.status,
+      status: superseded ? "blocked" : timedOut ? "failed" : row.status,
       document: {
         id: document.id,
         name: document.name,
@@ -409,6 +419,7 @@ export class PostalService {
           })) ?? [],
         issues: [
           ...(report?.issues ?? []),
+          ...(superseded ? [{ code: "POSTAL_PREFLIGHT_VERSION_CHANGED" }] : []),
           ...(row.failure_code ? [{ code: row.failure_code }] : []),
           ...(timedOut ? [{ code: "POSTAL_RENDER_TIMEOUT" }] : []),
           ...(expired ? [{ code: "POSTAL_PREFLIGHT_EXPIRED" }] : []),
@@ -439,6 +450,7 @@ export class PostalService {
         authority.context.actor === "browser" &&
         authority.context.role !== "viewer" &&
         transferConfigured(this.env) &&
+        !superseded &&
         !expired &&
         row.status === "review_required" &&
         complete &&

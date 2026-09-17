@@ -24,6 +24,7 @@ import {
 import { hashSecret } from "../../apps/api/src/auth";
 import {
   DomainService,
+  canonicalJson,
   sha256,
   type ActorContext,
 } from "../../packages/domain/src/index";
@@ -204,6 +205,127 @@ async function login(
     },
   });
 }
+// Historical v1 records are inserted through the real D1 constraints, never by
+// disabling immutability guards or relabelling a v2 report. Provider data is synthetic.
+async function legacyReview(
+  state:
+    "not_started" | "preparing" | "stale_preparing" | "unknown" | "prepared",
+) {
+  const id = `legacy_${state}`;
+  const created = new Date(Date.now() - 300_000).toISOString();
+  const profile = {
+    accountId: "pingen_org",
+    environment: "production",
+    defaultCountry: "LU",
+    addressPosition: "left",
+    version: "pingen-2026-09-17-v1",
+  };
+  const options = { ...input.options, addressPosition: "left" };
+  const expectedAddress = [
+    input.recipient.name,
+    input.recipient.line1,
+    `${input.recipient.postalCode} ${input.recipient.city}`,
+  ].join("\n");
+  const requestHash = await sha256(
+    canonicalJson({
+      ...input,
+      options,
+      profile,
+      documentSha256: hash,
+      senderAddress: "Return fixture",
+    }),
+  );
+  const record = {
+    id,
+    organization_id: ctx.organizationId,
+    user_id: ctx.userId,
+    document_id: input.documentId,
+    document_sha256: hash,
+    sender_id: input.senderId,
+    sender_address: "Return fixture",
+    recipient_json: canonicalJson(input.recipient),
+    options_json: canonicalJson(options),
+    profile_json: canonicalJson(profile),
+    expected_address: expectedAddress,
+    ceiling_minor: input.ceilingMinor,
+    request_hash: requestHash,
+    input_hash: await sha256(canonicalJson(input)),
+    idempotency_key: id,
+    status: "processing",
+    budget_day: created.slice(0, 10),
+    processing_until: new Date(Date.now() - 210_000).toISOString(),
+    expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+    created_at: created,
+    updated_at: created,
+  };
+  await env.DB.prepare(
+    `INSERT INTO postal_preflights(${Object.keys(record).join(",")}) VALUES(${Object.keys(
+      record,
+    )
+      .map(() => "?")
+      .join(",")})`,
+  )
+    .bind(...Object.values(record))
+    .run();
+  await env.DB.prepare(
+    "UPDATE postal_preflights SET status='review_required',report_json=? WHERE id=?",
+  )
+    .bind(canonicalJson({ ...report(), version: profile.version }), id)
+    .run();
+  if (state !== "not_started") {
+    await env.DB.prepare(
+      "INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at) VALUES(?,?,?,?,1,1,?)",
+    )
+      .bind(id, ctx.organizationId, ctx.userId, requestHash, created)
+      .run();
+    await env.DB.prepare(
+      "UPDATE postal_preflights SET transfer_status='preparing',transfer_started_at=? WHERE id=?",
+    )
+      .bind(
+        new Date(
+          Date.now() - (state === "stale_preparing" ? 180_000 : 10_000),
+        ).toISOString(),
+        id,
+      )
+      .run();
+    if (state === "unknown")
+      await env.DB.prepare(
+        "UPDATE postal_preflights SET transfer_status='unknown' WHERE id=?",
+      )
+        .bind(id)
+        .run();
+    if (state === "prepared") {
+      await env.DB.prepare(
+        "INSERT INTO provider_drafts(id,organization_id,document_id,document_sha256,sender_id,sender_address,provider,provider_id,recipient_json,expected_address,options_json,ceiling_minor,currency,status,request_hash,idempotency_key,created_at,updated_at) VALUES(?,?,?,?,?,?,'pingen',?,?,?,?,?,'EUR','prepared',?,?,?,?)",
+      )
+        .bind(
+          "legacy_draft",
+          ctx.organizationId,
+          input.documentId,
+          hash,
+          input.senderId,
+          "Return fixture",
+          "legacy_letter",
+          canonicalJson(input.recipient),
+          expectedAddress,
+          canonicalJson(options),
+          input.ceilingMinor,
+          requestHash,
+          id,
+          created,
+          created,
+        )
+        .run();
+      await env.DB.prepare(
+        "UPDATE postal_preflights SET transfer_status='prepared',provider_draft_id='legacy_draft' WHERE id=?",
+      )
+        .bind(id)
+        .run();
+    }
+  }
+  return id;
+}
+
 beforeAll(async () => {
   mf = new Miniflare(
     convertV4MiniflareOptions({
@@ -451,6 +573,75 @@ describe("server-owned postal review and consent", () => {
     expect(JSON.stringify(result)).not.toContain("fixture-secret");
     expect(JSON.stringify(result)).not.toContain(png);
   });
+  it.each([
+    "not_started",
+    "preparing",
+    "stale_preparing",
+    "unknown",
+    "prepared",
+  ] as const)(
+    "keeps the historical v1 %s state readable without permitting a new transfer or quote",
+    async (state) => {
+      const id = await legacyReview(state);
+      const stored = await env.DB.prepare(
+        "SELECT profile_json,report_json,transfer_status,provider_draft_id FROM postal_preflights WHERE id=?",
+      )
+        .bind(id)
+        .first();
+      const result = await service().get(authority, id);
+      expect(validateReview(result)).toMatchObject({ valid: true });
+      expect(result).toMatchObject({
+        id,
+        status: "blocked",
+        canTransfer: false,
+        canSend: false,
+        transferStatus: state === "stale_preparing" ? "unknown" : state,
+        draftId: state === "prepared" ? "legacy_draft" : null,
+        address: { matches: true, textVisibility: "not_verified" },
+      });
+      expect(result.checks.issues).toContainEqual({
+        code: "POSTAL_PREFLIGHT_VERSION_CHANGED",
+      });
+      expect(await service().crop(authority, id)).toMatchObject({
+        status: 200,
+      });
+      expect(await service().create(authority, input, id)).toEqual(result);
+      if (state === "not_started") {
+        await expect(
+          service().transfer(authority, id, {
+            reviewed: true,
+            consentToTransfer: true,
+          }),
+        ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_VERSION_CHANGED" });
+      } else {
+        expect(
+          await service().transfer(authority, id, {
+            reviewed: true,
+            consentToTransfer: true,
+          }),
+        ).toEqual(result);
+      }
+      await expect(
+        service().quote(authority, id, "legacy-quote"),
+      ).rejects.toMatchObject({
+        code:
+          state === "prepared"
+            ? "POSTAL_PREFLIGHT_VERSION_CHANGED"
+            : "POSTAL_PREPARED_DRAFT_REQUIRED",
+      });
+      expect(
+        await env.DB.prepare(
+          "SELECT profile_json,report_json,transfer_status,provider_draft_id FROM postal_preflights WHERE id=?",
+        )
+          .bind(id)
+          .first(),
+      ).toEqual(stored);
+      expect(renderer).not.toHaveBeenCalled();
+      expect(calls).toEqual([]);
+      expect(await renders()).toBe(1);
+    },
+  );
+
   it("concurrent same-key preparation reserves/renders once, and changed replay conflicts", async () => {
     const results = await Promise.all([
       service().create(authority, input, "same"),
