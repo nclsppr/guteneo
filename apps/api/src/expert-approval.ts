@@ -257,7 +257,7 @@ export async function reviewExpertDispatch(
       (document
         ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver et utiliser approvalUrl. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
         : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
-      "Présenter l’empreinte, le destinataire, le contenu, les options et le coût. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
+      "Présenter l’empreinte, le destinataire, le contenu, les options et le coût. Pour un fax v3, présenter faxPricing.display.estimate (fourchette HT et euros de crédit), puis le plafond distinct et display.explanation ; estimatedMinor est seulement la borne haute arrondie, jamais le prix fixe ni le débit. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
   };
 }
 export type ExpertAcceptanceInput = {

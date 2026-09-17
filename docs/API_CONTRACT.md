@@ -182,3 +182,16 @@ Le MCP ajoute la consultation des documents, la préparation simplifiée d’un 
 ## Shared welcome credit
 
 `GET /api/billing` and `GET /api/usage` expose the same `welcomeCredit` projection: `kind`, `currency`, `grantedMinor`, `reservedMinor`, `spentMinor`, `availableMinor`, `grantedAt`, `status`, `renewal: "none"` and `topUpAvailable: false`. Production grants EUR5000 minor units once per organization. A local simulation does not create a real promotional grant; the standalone public preview has its own fictional balance. Dispatch confirmation reserves the approved ceiling atomically with acceptance and the outbox write. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md) for settlement and uncertainty rules.
+
+### Présentation du devis fax v3
+
+Dans les résumés MCP, `estimatedMinor` est conservé pour compatibilité : il est la
+borne haute de la fourchette arrondie au centime supérieur, jamais un prix fixe ni
+un débit. Présenter `faxPricing.display.estimate.label` et `creditLabel`, puis le
+plafond distinct `display.ceiling` et `display.explanation`. Les crédits sont un
+solde en euros (`creditUnit=EUR_balance`). `estimate.lowEur` / `highEur` conservent
+les montants exacts sous forme de chaînes à neuf décimales ; les libellés sont des
+estimations arrondies. La lecture REST et la revue experte exposent la même
+projection. Les montants nanoEUR, les empreintes, le plafond approuvé et
+`settlement` gardent leur rôle actuel ; aucun nouveau prix client n’est accepté.
+Voir [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md#customer-quote-presentation-17-september-2026).

@@ -112,7 +112,13 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
     "Montants indicatifs hors taxes",
   );
   await expect(page.locator(".pricing-table")).toContainText("≈ 0,28 €");
-  await expect(page.locator(".pricing-table")).toContainText("≈ 0,03–0,12 €");
+  await expect(page.locator(".pricing-table")).toContainText("≈ 0,05–0,17 €");
+  await expect(page.locator(".pricing-table")).toContainText(
+    "depuis notre numéro luxembourgeois",
+  );
+  await expect(page.locator(".pricing-table")).toContainText(
+    "estimation de 1 à 4 minutes facturées",
+  );
   await expect(page.locator(".pricing-table")).toContainText("Dès 2,50 €");
   await expect(page.locator(".pricing-table")).toContainText(
     "pas un plafond garanti",
