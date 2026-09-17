@@ -25,10 +25,18 @@ test("profile changes persist through the browser and current-session revocation
   const organizationName = `Atelier de contrôle ${suffix}`;
   try {
     await page.goto("/#/app/account");
+    // Finish the accessible route transition before editing the profile.
+    await expect(page.getByRole("main")).toBeFocused();
     await page.getByLabel("Votre nom", { exact: true }).fill(userName);
+    await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
+      userName,
+    );
     await page
       .getByLabel("Nom de l’atelier", { exact: true })
       .fill(organizationName);
+    await expect(
+      page.getByLabel("Nom de l’atelier", { exact: true }),
+    ).toHaveValue(organizationName);
     await page
       .getByRole("button", { name: "Enregistrer les modifications" })
       .click();
