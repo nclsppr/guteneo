@@ -12,7 +12,6 @@ export interface Env {
   MODE: "simulation" | "production";
   APP_ORIGIN: string;
   DOCUMENT_RENDERER_URL?: string;
-  IMPORT_ALLOWED_HOSTS?: string;
   SCANNER?: Fetcher;
   AUTH0_DOMAIN?: string;
   AUTH0_CLIENT_ID?: string;

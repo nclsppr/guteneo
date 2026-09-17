@@ -31,7 +31,7 @@ OpenAPI 3.0.3, version métier 0.2.0 : **20 chemins, 23 opérations**. Source de
 | `/api/postal/preflights/{id}/address.png` | GET PNG privé | `documents:read` |
 | `/api/postal/preflights/{id}/quote` | POST sans corps, avec `Idempotency-Key` | `dispatches:prepare` |
 
-Il n’existe pas de route REST `/api/documents/import` : `import_document` est un outil MCP. Le dépôt REST est multipart. Les URL importées par MCP doivent appartenir à l’allowlist explicite, en HTTPS et sans redirection ; un chemin local ou une URL inventée ne convient jamais.
+Il n’existe pas de route REST `/api/documents/import` : `import_document` est un outil MCP. Le dépôt REST est multipart. Le candidat local du 17 septembre retire la liste de domaines autorisés des imports hébergés : toute source DNS publique en HTTPS peut convenir, sous les limites de téléchargement et d’analyse. Les URL locales/privées, ports non standard et redirections restent refusés. L’import par URL est désactivé en environnement local, où le dépôt multipart authentifié reste disponible. Ce candidat n’est pas une preuve de déploiement ni de compatibilité avec chaque assistant ; voir [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md).
 
 Pour un courrier de production, lire d’abord les règles du compte, contrôler le PDF exact puis ouvrir le `reviewUrl` retourné. Le transfert standard vers un brouillon Pingen requiert la revue et le consentement dans le navigateur ; sa route `/transfer` reste exclue de cette référence OAuth. L’outil MCP `transfer_postal_draft` est une voie distincte sous un mandat postal expert préalable, jamais un consentement humain fabriqué. Le devis est une étape ultérieure qui réutilise le brouillon sans effectuer un second dépôt. Le contrôle renvoie toujours `canSend:false`. Le détail du contrat et des limites figure dans [POSTAL_REVIEW.md](POSTAL_REVIEW.md).
 
@@ -46,6 +46,8 @@ Le parcours navigateur préalable crée l’espace après vérification de l’e
 ## Documents et fiabilité
 
 PDF original : 10 Mio et 100 pages maximum après validation. Les octets et le SHA-256 restent liés au document. Une création `201` peut retourner `quarantined`, avec zéro page ; seul `ready` autorise la consultation et la préparation. Le rendu HTML crée un nouveau document A4 nettoyé et ne reconstitue pas un original. La consultation PDF est privée, sans cache, sans URL signée. Le réexamen ne remplace pas une preuve d’analyse : un résultat incertain conserve la quarantaine.
+
+Un refus de source avant téléchargement n’atteint pas l’antivirus et ne crée pas de document en quarantaine. Un PDF généré ensuite constitue un document distinct ; son statut `quarantined` signifie que la vérification reste incomplète ou bloquée, sans constituer à lui seul une détection de virus. Voir [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md) pour les deux étapes et leurs diagnostics.
 
 Préparation et confirmation exigent chacune leur clé `Idempotency-Key` stable, de 1 à 200 caractères sans CR/LF/NUL. Les scopes d’idempotence sont distincts. Une même clé avec un contenu différent est un conflit. Aucune garantie d’idempotence n’est inventée pour la création d’une campagne.
 

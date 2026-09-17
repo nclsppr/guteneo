@@ -1,5 +1,34 @@
 # Executed verification — 2026-09-17
 
+## Public HTTPS PDF imports — local candidate
+
+Branch `fix/public-pdf-import`, based on `649c079`. The provider-domain allowlist
+is removed, with hosted public egress required and remote URL imports kept
+closed in local Miniflare. Source refusals occur before download and never
+create a quarantined document. See [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md).
+
+- **159 distinct focused Vitest cases pass** across document import, content,
+  document recovery, document integration, MCP and observability. The first
+  five-file run passed 148 cases; the final import rerun passed 50 (three added
+  capability cases), and the separate content suite passed eight. Reports:
+  `test-results/public-pdf-import-vitest.json`,
+  `test-results/public-pdf-import-final-unit.json`, and
+  `test-results/public-pdf-import-content.json`.
+- **12 focused Node security cases pass**: deployment public-egress configuration,
+  OpenAPI and observability. Report:
+  `test-results/public-pdf-import-security.log`.
+- Typecheck, ESLint, application build and both local/live Worker dry runs pass.
+  Build report: `test-results/public-pdf-import-build.log`.
+- Independent source/security review found no blocking issue. Config tests prove
+  the required deployment flag is present; intercepted downloads and local
+  Miniflare tests do not prove hosted DNS filtering or real assistant transfer.
+
+The exact reported Azure hostname is exercised with synthetic bytes and retained
+hash-matched PDF/scan integration checks. No existing customer document was read
+or promoted, and no real communication, merge or production deployment occurred.
+The full repository/CI/browser suites were not rerun for this candidate.
+
+
 ## Postal status and private webhook tooling — published `44d1d5b`
 
 Both exact-source GitHub runs passed on their first attempt for `44d1d5bb64418372c5174faa1ce5601681fcc813`: [PR CI 35180968830](https://github.com/nclsppr/guteneo/actions/runs/35180968830) and [push CI 35180966623](https://github.com/nclsppr/guteneo/actions/runs/35180966623). The `verify` and `scanner` jobs completed successfully in both reports: `reports/ci-pr-44d1d5b.json` and `reports/ci-push-44d1d5b.json`.

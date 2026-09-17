@@ -237,7 +237,7 @@ export async function readLimited(
   return result;
 }
 function publicImportHostname(hostname: string): string | undefined {
-  const value = hostname.toLowerCase();
+  const value = hostname.toLowerCase().replace(/\.$/, "");
   if (
     value.length > 253 ||
     !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(
@@ -245,7 +245,12 @@ function publicImportHostname(hostname: string): string | undefined {
     )
   )
     return undefined;
-  if (/^(localhost|.*\.localhost|.*\.local|.*\.internal)$/.test(value))
+  if (
+    /(^|\.)(localhost|local|internal|home|lan|corp|test|invalid|example|onion)$/.test(
+      value,
+    ) ||
+    /(^|\.)home\.arpa$/.test(value)
+  )
     return undefined;
   return value;
 }
@@ -259,7 +264,6 @@ export class ImportSourceError extends ContentError {
     readonly reason: ImportFailureReason,
     message: string,
     hostname?: string,
-    configured = false,
     status = 400,
   ) {
     const safeHost = hostname ? publicImportHostname(hostname) : undefined;
@@ -272,9 +276,7 @@ export class ImportSourceError extends ContentError {
     this.sourceCategory = safeHost
       ? knownImportHosts.some((host) => host === safeHost)
         ? "known_provider"
-        : configured
-          ? "configured_host"
-          : "unknown_host"
+        : "public_host"
       : "invalid_source";
   }
   observation(): ImportFailureObservation {
@@ -287,10 +289,7 @@ export class ImportSourceError extends ContentError {
   }
 }
 
-export function permittedImportUrl(
-  raw: string,
-  hosts: string | undefined,
-): URL {
+export function permittedImportUrl(raw: string): URL {
   let url: URL;
   try {
     url = new URL(raw);
@@ -301,10 +300,6 @@ export function permittedImportUrl(
       "URL source invalide. Joignez de nouveau le PDF pour obtenir une référence de fichier téléchargeable.",
     );
   }
-  const allowed = (hosts ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
   const hostname = url.hostname.toLowerCase();
   let reason: ImportFailureReason | undefined;
   if (url.protocol !== "https:") reason = "invalid_scheme";
@@ -312,17 +307,12 @@ export function permittedImportUrl(
   else if (url.port) reason = "port";
   else if (url.hash) reason = "fragment";
   else if (!publicImportHostname(hostname)) reason = "private_host";
-  else if (!allowed.length) reason = "missing_configuration";
-  else if (!allowed.includes(hostname)) reason = "untrusted_host";
   if (reason)
     throw new ImportSourceError(
       "SOURCE_NOT_ALLOWED",
       reason,
-      reason === "missing_configuration"
-        ? "L’import distant n’est pas configuré sur Guteneo. L’opérateur doit autoriser le domaine exact du fournisseur de fichiers ; vous pouvez aussi utiliser le téléversement authentifié."
-        : "Source non autorisée. Utilisez une URL HTTPS temporaire du fournisseur de fichiers autorisé, ou le téléversement authentifié Guteneo.",
+      "Source non autorisée. Utilisez un lien direct HTTPS vers un domaine public, sans identifiants, port personnalisé ni fragment, ou le téléversement authentifié Guteneo.",
       hostname,
-      allowed.includes(hostname),
     );
   return url;
 }
@@ -1027,16 +1017,23 @@ export class DocumentService {
     await this.domain.authorizeWrite(ctx);
     if (file.mime_type && file.mime_type !== "application/pdf")
       throw new ContentError("NOT_PDF", "Seuls les PDF sont acceptés.");
-    const url = permittedImportUrl(
-      file.download_url,
-      this.env.IMPORT_ALLOWED_HOSTS,
-    );
+    // Wrangler/Miniflare local fetch can reach the developer's private network.
+    // Hosted Workers enforce public egress, including DNS resolution; see PUBLIC_PDF_IMPORT.md.
+    if (!["production", "staging"].includes(this.env.ENVIRONMENT))
+      throw new ImportSourceError(
+        "SOURCE_NOT_ALLOWED",
+        "local_import_disabled",
+        "L’import par URL est disponible sur Guteneo hébergé. En développement local, utilisez le téléversement authentifié du PDF.",
+      );
+    const url = permittedImportUrl(file.download_url);
     // One deadline covers connection, streamed body and cancellation, even if a provider ignores abort.
     const signal = AbortSignal.timeout(15_000);
     let response: Response | undefined;
     let bytes: Uint8Array;
     try {
       response = await withinDeadline(
+        // Never substitute a service binding or copy inbound authentication headers.
+        // global_fetch_strictly_public must remain enabled on every hosted API Worker.
         fetch(url, {
           redirect: "manual",
           signal,
@@ -1050,7 +1047,6 @@ export class DocumentService {
           "redirect_rejected",
           "Le fournisseur a redirigé le téléchargement. Joignez de nouveau le PDF pour obtenir un lien direct ; les redirections ne sont pas suivies.",
           url.hostname,
-          true,
           422,
         );
       if ([401, 403, 404, 410].includes(response.status))
@@ -1059,7 +1055,6 @@ export class DocumentService {
           "source_expired",
           "Le lien temporaire est expiré ou inaccessible. Joignez de nouveau le PDF et relancez import_document avec la nouvelle référence de fichier.",
           url.hostname,
-          true,
           422,
         );
       if (response.status === 408 || response.status === 504)
@@ -1068,7 +1063,6 @@ export class DocumentService {
           "download_timeout",
           "Le téléchargement du PDF a dépassé le délai autorisé. Joignez de nouveau le PDF et réessayez l’import.",
           url.hostname,
-          true,
           408,
         );
       bytes = await withinDeadline(
@@ -1083,7 +1077,6 @@ export class DocumentService {
           "download_timeout",
           "Le téléchargement du PDF a dépassé le délai de 15 secondes. Joignez de nouveau le PDF et réessayez l’import.",
           url.hostname,
-          true,
           408,
         );
       if (error instanceof ContentError && error.code !== "DOWNLOAD_FAILED")
@@ -1093,7 +1086,6 @@ export class DocumentService {
         "download_failed",
         "Le fichier source est inaccessible. Joignez de nouveau le PDF pour renouveler son lien temporaire, puis réessayez l’import.",
         url.hostname,
-        true,
         422,
       );
     } finally {

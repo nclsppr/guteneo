@@ -506,7 +506,7 @@ describe("distributable LLM integrations", () => {
           ok: false,
           error: {
             code: "SOURCE_NOT_ALLOWED",
-            reason: "missing_configuration",
+            reason: "invalid_scheme",
             sourceHost: "files.oaiusercontent.com",
             correlationId: correlation,
           },
@@ -519,8 +519,8 @@ describe("distributable LLM integrations", () => {
         importFile: async () => {
           throw new ImportSourceError(
             "SOURCE_NOT_ALLOWED",
-            "missing_configuration",
-            "Configurez le fournisseur de fichiers.",
+            "invalid_scheme",
+            "Utilisez un lien HTTPS public direct.",
             "files.oaiusercontent.com",
           );
         },
@@ -528,7 +528,7 @@ describe("distributable LLM integrations", () => {
       onFailure,
     );
     expect(onFailure).toHaveBeenCalledWith("DOMAIN_REJECTED", {
-      reason: "missing_configuration",
+      reason: "invalid_scheme",
       sourceCategory: "known_provider",
       knownHost: "files.oaiusercontent.com",
     });

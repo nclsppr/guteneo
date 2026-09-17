@@ -189,7 +189,7 @@
           "Documents"
         ],
         "summary": "Déposer un PDF original",
-        "description": "Champ multipart file, 10 Mio maximum, 100 pages maximum après validation. Les octets sont conservés et hachés SHA-256. En production, le document reste quarantined tant que l’analyse et la validation PDF isolée ne sont pas concluantes. Une réponse 201 ne garantit donc pas status=ready. Aucun import URL REST : utiliser import_document via MCP pour les hôtes explicitement autorisés. Lire analysis pour le message utilisateur et la prochaine action : une indisponibilité temporaire déclenche une reprise automatique bornée sur les mêmes octets.",
+        "description": "Champ multipart file, 10 Mio maximum, 100 pages maximum après validation. Les octets sont conservés et hachés SHA-256. En production, le document reste quarantined tant que l’analyse et la validation PDF isolée ne sont pas concluantes. Une réponse 201 ne garantit donc pas status=ready. Aucun import URL REST : utiliser import_document via MCP pour tout domaine public en HTTPS, sans redirection. Lire analysis pour le message utilisateur et la prochaine action : une indisponibilité temporaire déclenche une reprise automatique bornée sur les mêmes octets.",
         "security": [
           {
             "GuteneoOAuth": [
