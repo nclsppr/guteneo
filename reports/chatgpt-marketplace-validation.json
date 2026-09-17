@@ -1,0 +1,41 @@
+{
+  "candidate": "feat/chatgpt-marketplace-polish",
+  "baseCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
+  "testedAt": "2026-09-17T17:23:22.890Z",
+  "tests": {
+    "command": "npx vitest run tests/unit/mcp-integrations.test.ts tests/unit/postal-mcp.test.ts tests/unit/fax-mcp-pricing.test.ts",
+    "passed": 43,
+    "failed": 0,
+    "success": true,
+    "files": [
+      {
+        "file": "unit/fax-mcp-pricing.test.ts",
+        "status": "passed",
+        "assertions": 6
+      },
+      {
+        "file": "unit/mcp-integrations.test.ts",
+        "status": "passed",
+        "assertions": 32
+      },
+      {
+        "file": "unit/postal-mcp.test.ts",
+        "status": "passed",
+        "assertions": 5
+      }
+    ]
+  },
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "buildWeb": "passed",
+    "buildIntegrations": "passed",
+    "gitDiffCheck": "passed"
+  },
+  "archive": {
+    "version": "0.2.1",
+    "bytes": 285340,
+    "sha256": "b3c6a1f7f1d933fcf548b66b48f90edd95ffc938e3452a2aa9c468d4a709dfe4"
+  },
+  "evidenceBoundary": "Local fixture and package checks only. Not a deployment, real communication, directory submission or publication."
+}
