@@ -73,7 +73,9 @@ beforeAll(async () => {
     await insertRecord(db, "trusted_fax_usage_tariffs", {
       ...fixture.tariff,
       id: `${fixture.tariff.id}_historical_${i}`,
-      destination_prefix: `+339${String(i).padStart(2, "0")}`,
+      destination_prefix:
+        i === 0 ? "+493000" : `+339${String(i).padStart(2, "0")}`,
+      destination_country_code: i === 0 ? "DE" : "FR",
       status: i % 2 ? "revoked" : "qualified",
     });
   await insertRecord(db, "trusted_fax_usage_tariffs", {
@@ -162,6 +164,24 @@ describe("Luxembourg coverage migration — populated local D1", () => {
         )
         .first(),
     ).toEqual({ n: 0 });
+  });
+  it("still prepares Germany with its preserved provider-qualified tariff", async () => {
+    const dispatch = await fixture.domain.prepareDispatch(
+      fixture.ctx,
+      {
+        ...fixture.input,
+        recipient: { phone: "+493000000000" },
+      },
+      "migration-de",
+    );
+    expect(dispatch.status).toBe("prepared");
+    expect(dispatch.faxPricing?.routeQualification).toBeUndefined();
+    expect(
+      await db
+        .prepare("SELECT tariff_id FROM live_fax_quotes_v3 WHERE dispatch_id=?")
+        .bind(dispatch.id)
+        .first(),
+    ).toEqual({ tariff_id: `${fixture.tariff.id}_historical_0` });
   });
   it("keeps old and expanded tariffs immutable and tenant-scoped", async () => {
     await expect(

@@ -16,10 +16,13 @@ import {
 import {
   DomainService,
   canonicalJson,
+  sha256,
   type Dispatch,
 } from "../../packages/domain/src/index";
 import {
   settleFaxUsage,
+  makeFaxUsageQuote,
+  faxUsageEstimate,
   readFaxPricingBatch,
   type OperatorFaxUsageProof,
   type FaxUsageTariff,
@@ -27,6 +30,7 @@ import {
 import { validateLiveFaxQuote } from "../../packages/domain/src/live-fax-quotes";
 import { emailRateComponents } from "../../packages/domain/src/live-delivery-quotes";
 import luDeck from "../fixtures/telnyx-luxembourg-local.json";
+import { LUXEMBOURG_OPERATOR_FAX_ROUTES } from "../../packages/domain/src/luxembourg-fax-routes";
 import {
   createFaxUsageFixture,
   insertRecord,
@@ -979,7 +983,74 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
       },
       pages,
     );
-    f.input.recipient.phone = `${route.prefix}000000`;
+    // +35260 has its own NGN route; a mobile example must start +35261 instead.
+    f.input.recipient.phone = `${route.prefix}${route.prefix === "+3526" ? "1" : "0"}00000`;
+  }
+  it("keeps all 42 immutable SQL and runtime classifications equal to the observed deck", async () => {
+    const expected = Object.fromEntries(
+      routes.map((route) => [route.prefix, route.category]),
+    );
+    expect(Object.keys(expected)).toHaveLength(42);
+    expect(LUXEMBOURG_OPERATOR_FAX_ROUTES).toEqual(expected);
+    const result = await db
+      .prepare("SELECT prefix,category FROM luxembourg_operator_fax_routes")
+      .all<{ prefix: string; category: string }>();
+    expect(
+      Object.fromEntries(
+        result.results.map((route) => [route.prefix, route.category]),
+      ),
+    ).toEqual(expected);
+  });
+  // Direct immutable inserts deliberately bypass the runtime resolver. All SQL
+  // constraints/triggers remain active and quote material uses exact domain hashes.
+  async function directQuote(template: Dispatch, phone: string) {
+    const prior = await db
+      .prepare("SELECT * FROM live_fax_quotes_v3 WHERE dispatch_id=?")
+      .bind(template.id)
+      .first<{ input_json: string }>();
+    const frozen = { ...JSON.parse(prior!.input_json), recipient: { phone } };
+    const id = crypto.randomUUID();
+    const quote = await makeFaxUsageQuote(
+      id,
+      f.ctx.organizationId,
+      frozen,
+      {
+        ...f.tariff,
+        pricing_version: 3,
+        ...faxUsageEstimate(f.tariff, 1),
+      },
+      stamp(),
+    );
+    const fingerprint = await sha256(
+      canonicalJson({ ...frozen, quoteFingerprint: quote.fingerprint }),
+    );
+    quote.dispatch_fingerprint = fingerprint;
+    const old = await db
+      .prepare("SELECT * FROM dispatches WHERE id=?")
+      .bind(template.id)
+      .first<Record<string, unknown>>();
+    const row = {
+      ...old,
+      id,
+      recipient_json: canonicalJson({ phone }),
+      fingerprint,
+      quote_fingerprint: quote.fingerprint,
+      prepare_key: id,
+      request_hash: await sha256(id),
+    };
+    const statement = (table: string, value: Record<string, unknown>) => {
+      const columns = Object.keys(value);
+      return db
+        .prepare(
+          `INSERT INTO ${table}(${columns.join(",")}) VALUES(${columns.map(() => "?").join(",")})`,
+        )
+        .bind(...columns.map((key) => value[key]));
+    };
+    await db.batch([
+      statement("dispatches", row),
+      statement("live_fax_quotes_v3", quote),
+    ]);
+    return id;
   }
   it.each(routes)(
     "prepares separately priced $category $prefix",
@@ -1023,8 +1094,16 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
     "selects %s's more-specific %s rate and does not fall back after revocation",
     async (broad, specific) => {
       await coverageFixture(routes.find((route) => route.prefix === broad)!);
-      f.input.recipient.phone = `${specific}000000`;
       const broadQuote = await prepare(200);
+      // A valid direct SQL control proves the helper is not rejected for bad material.
+      await directQuote(broadQuote, f.input.recipient.phone);
+      f.input.recipient.phone = `${specific}000000`;
+      await expect(prepare(200)).rejects.toMatchObject({
+        code: "LIVE_PRICING_REQUIRED",
+      });
+      await expect(
+        directQuote(broadQuote, f.input.recipient.phone),
+      ).rejects.toThrow("live_quote_invalid");
       const matched = routes.find((route) => route.prefix === specific)!;
       const specificTariff = {
         ...f.tariff,
@@ -1035,9 +1114,6 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
         max_pages: matched.maxPages,
       };
       await insertRecord(db, "trusted_fax_usage_tariffs", specificTariff);
-      await expect(
-        f.domain.approveDispatch(f.ctx, broadQuote.id, broadQuote.fingerprint),
-      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
       const specificQuote = await prepare(200);
       expect(
         await db
@@ -1060,8 +1136,8 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
         code: "LIVE_PRICING_REQUIRED",
       });
       await expect(
-        f.domain.approveDispatch(f.ctx, broadQuote.id, broadQuote.fingerprint),
-      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+        directQuote(broadQuote, f.input.recipient.phone),
+      ).rejects.toThrow("live_quote_invalid");
       await expect(
         f.domain.approveDispatch(
           f.ctx,
@@ -1083,6 +1159,50 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
           .bind(restored.id)
           .first(),
       ).toEqual({ tariff_id: `${specificTariff.id}_replacement` });
+    },
+  );
+  it.each([
+    { destination_prefix: "+35212", destination_category: "fixed" },
+    { destination_prefix: "+352900", destination_category: "ngn" },
+    { destination_prefix: "+352600", destination_category: "ngn" },
+    { destination_prefix: "+35260", destination_category: "mobile" },
+    { destination_prefix: "+3526", destination_category: "ngn" },
+    { destination_prefix: "+352291", destination_category: "fixed" },
+    { destination_prefix: "+35229", destination_category: "ngn" },
+    { destination_prefix: "+352800", destination_category: "fixed" },
+    { destination_prefix: "+3524", destination_category: "freephone" },
+  ] as const)(
+    "rejects unsupported or misclassified operator route $destination_prefix/$destination_category in SQL and runtime",
+    async (invalid) => {
+      await coverageFixture(routes.find((route) => route.prefix === "+3524")!);
+      const candidate = {
+        ...f.tariff,
+        ...invalid,
+        id: crypto.randomUUID(),
+        status: "revoked" as const,
+      };
+      await expect(
+        insertRecord(db, "trusted_fax_usage_tariffs", candidate),
+      ).rejects.toThrow("CHECK constraint failed");
+      // No database validation is invoked: exercise the shared runtime policy directly.
+      const estimate = faxUsageEstimate(candidate, 1);
+      await expect(
+        makeFaxUsageQuote(
+          crypto.randomUUID(),
+          f.ctx.organizationId,
+          {
+            estimatedMinor: estimate.customer_minor,
+            ceilingMinor: 200,
+          },
+          { ...candidate, pricing_version: 3, ...estimate },
+          stamp(),
+        ),
+      ).rejects.toMatchObject({ code: "FAX_TEST_CEILING_EXCEEDED" });
+      expect(await balance()).toEqual({
+        reserved_minor: 0,
+        spent_minor: 0,
+        available_minor: 5000,
+      });
     },
   );
   it("does not grant non-fixed routes provider qualification or generic country pricing", async () => {

@@ -55,7 +55,7 @@ CREATE TABLE trusted_fax_usage_tariffs (
    ((origin_class='local' AND sender_country_code=destination_country_code AND local_calling_verified=1) OR (origin_class='eea' AND sender_country_code<>destination_country_code)))
   OR
   (route_qualification='operator_test' AND origin_class='local' AND sender_country_code='LU' AND destination_country_code='LU'
-   AND destination_prefix LIKE '+352%' AND length(destination_prefix)>4 AND destination_category IN ('fixed','mobile','ngn','freephone') AND route_allowed=1 AND local_calling_verified=0
+   AND ((destination_category='fixed' AND destination_prefix IN ('+35222','+35223','+35224','+35225','+35226','+35227','+35228','+35229','+3523','+3524','+3525','+3527','+352802','+352803','+352804','+352805','+352806','+352807','+352808','+352809','+35281','+35283','+35284','+35285','+35286','+35287','+35288','+35289','+352908','+352909','+35292','+35293','+35294','+35295','+35297','+35299')) OR (destination_category='ngn' AND destination_prefix IN ('+35220','+352291','+352801','+35260')) OR (destination_category='mobile' AND destination_prefix IN ('+3526')) OR (destination_category='freephone' AND destination_prefix IN ('+352800'))) AND route_allowed=1 AND local_calling_verified=0
    AND operator_authorization_reference IS NOT NULL AND length(operator_authorization_reference) BETWEEN 1 AND 500
    AND operator_test_ceiling_minor IS NOT NULL AND typeof(operator_test_ceiling_minor)='integer' AND operator_test_ceiling_minor BETWEEN 1 AND 200
    AND expires_at<='2026-09-24T09:00:01.620Z'
@@ -68,6 +68,51 @@ CREATE INDEX fax_usage_scope ON trusted_fax_usage_tariffs(organization_id,sender
 CREATE TRIGGER retained_fax_usage_tariff BEFORE DELETE ON trusted_fax_usage_tariffs WHEN EXISTS(SELECT 1 FROM organizations WHERE id=OLD.organization_id) BEGIN SELECT RAISE(ABORT,'immutable_fax_usage_tariff'); END;
 INSERT INTO trusted_fax_usage_tariffs SELECT * FROM fax_tariff_migration_backup;
 DROP TABLE fax_tariff_migration_backup;
+-- Constant route classification remains complete even when account tariffs are missing.
+-- Not a mutable registry and not an authorization or price source.
+CREATE VIEW luxembourg_operator_fax_routes(prefix,category) AS VALUES
+ ('+35222','fixed'),
+ ('+35223','fixed'),
+ ('+35224','fixed'),
+ ('+35225','fixed'),
+ ('+35226','fixed'),
+ ('+35227','fixed'),
+ ('+35228','fixed'),
+ ('+35229','fixed'),
+ ('+3523','fixed'),
+ ('+3524','fixed'),
+ ('+3525','fixed'),
+ ('+3527','fixed'),
+ ('+352802','fixed'),
+ ('+352803','fixed'),
+ ('+352804','fixed'),
+ ('+352805','fixed'),
+ ('+352806','fixed'),
+ ('+352807','fixed'),
+ ('+352808','fixed'),
+ ('+352809','fixed'),
+ ('+35281','fixed'),
+ ('+35283','fixed'),
+ ('+35284','fixed'),
+ ('+35285','fixed'),
+ ('+35286','fixed'),
+ ('+35287','fixed'),
+ ('+35288','fixed'),
+ ('+35289','fixed'),
+ ('+352908','fixed'),
+ ('+352909','fixed'),
+ ('+35292','fixed'),
+ ('+35293','fixed'),
+ ('+35294','fixed'),
+ ('+35295','fixed'),
+ ('+35297','fixed'),
+ ('+35299','fixed'),
+ ('+35220','ngn'),
+ ('+352291','ngn'),
+ ('+352801','ngn'),
+ ('+35260','ngn'),
+ ('+3526','mobile'),
+ ('+352800','freephone');
 DROP VIEW valid_live_fax_quotes_v3;
 CREATE VIEW valid_live_fax_quotes_v3 AS
  SELECT q.*,t.valid_from AS tariff_valid_from,t.expires_at AS tariff_expires_at
@@ -77,7 +122,11 @@ CREATE VIEW valid_live_fax_quotes_v3 AS
  JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id
  JOIN documents doc ON doc.organization_id=d.organization_id AND doc.id=d.document_id
  WHERE d.mode='production' AND d.channel='fax' AND d.quote_fingerprint=q.fingerprint AND d.fingerprint=q.dispatch_fingerprint
- AND (t.route_qualification<>'operator_test' OR q.ceiling_minor<=t.operator_test_ceiling_minor)
+ AND (t.route_qualification<>'operator_test' OR (
+  q.ceiling_minor<=t.operator_test_ceiling_minor
+  AND EXISTS(SELECT 1 FROM luxembourg_operator_fax_routes route WHERE route.prefix=t.destination_prefix AND route.category=t.destination_category)
+  AND NOT EXISTS(SELECT 1 FROM luxembourg_operator_fax_routes route WHERE length(route.prefix)>length(t.destination_prefix) AND substr(json_extract(d.recipient_json,'$.phone'),1,length(route.prefix))=route.prefix)
+ ))
  AND t.status='qualified' AND t.route_allowed=1 AND (t.destination_category='fixed' OR (t.route_qualification='operator_test' AND t.destination_category IN ('mobile','ngn','freephone'))) AND t.sender_id=d.sender_id AND t.provider='telnyx'
  AND t.account_id=q.account_id AND t.connection_id=q.connection_id AND t.outbound_profile_id=q.outbound_profile_id AND t.options_json=d.options_json
  AND s.status='verified' AND s.mode='production' AND s.channel='fax' AND s.address=d.sender_address AND substr(s.address,1,length(t.sender_prefix))=t.sender_prefix

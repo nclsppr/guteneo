@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { luxembourgOperatorRoute } from "./luxembourg-fax-routes";
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
 import {
@@ -182,8 +183,10 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
     t.origin_class === "local" &&
     t.sender_country_code === "LU" &&
     t.destination_country_code === "LU" &&
-    /^\+352\d+$/.test(t.destination_prefix) &&
-    ["fixed", "mobile", "ngn", "freephone"].includes(t.destination_category) &&
+    luxembourgOperatorRoute(t.destination_prefix)?.prefix ===
+      t.destination_prefix &&
+    luxembourgOperatorRoute(t.destination_prefix)?.category ===
+      t.destination_category &&
     t.route_allowed === 1 &&
     t.local_calling_verified === 0 &&
     reference.safeParse(t.operator_authorization_reference).success &&
@@ -243,7 +246,9 @@ export async function resolveFaxUsageTariff(
     t.route_allowed !== 1 ||
     (t.destination_category !== "fixed" && !operatorRouteTest(t)) ||
     t.currency !== "USD" ||
-    (t.route_qualification === "operator_test" && !operatorRouteTest(t)) ||
+    (t.route_qualification === "operator_test" &&
+      (!operatorRouteTest(t) ||
+        luxembourgOperatorRoute(number)?.prefix !== t.destination_prefix)) ||
     pages > t.max_pages ||
     !hash.safeParse(t.source_sha256).success ||
     !reference.safeParse(t.source_reference).success ||
