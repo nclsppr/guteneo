@@ -4,7 +4,7 @@ The user originally requested an immediate Cloudflare deployment to inspect the 
 
 The separate `guteneo-preview` Worker serves the React application built with `VITE_PUBLIC_PREVIEW=true`. The first deployment version was `71f30997-dfbd-4f70-a4ce-10cfa4367e81`. `/release.json` records the currently deployed source commit, whether local changes were included, the source snapshot digest and individual asset digests. `/health` identifies the preview mode and closed live-send gate. These endpoints are public evidence; a successful local build alone is not deployment proof.
 
-Current preview source is `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, Worker version `2a63dad6-f48c-4f0e-acef-18a5e4026392`, deployed at **03:11:29 UTC** on 17 September with **100% traffic** verified. All 51 public asset hashes, robots policy and security headers match the clean local build, snapshot `90b8a7cc9527c7a60042e2f30b2ce2da3087858ef973695f1f56eaec6ab323b0`; evidence: `reports/preview-118ce087-release-proof.json`. The published preview passed **30 browser cases with four intentional desktop skips** in 12 seconds (`reports/published-preview-118ce087.json`). This is fictional preview evidence, separate from the canonical application’s eight read-only public checks and its `/api/health` endpoint. The later documentation commit is not the deployed source.
+The preview publication recorded at **03:11:29 UTC** on 17 September used source `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, Worker version `2a63dad6-f48c-4f0e-acef-18a5e4026392`, with **100% traffic** verified. All 51 public asset hashes, robots policy and security headers matched the clean local build, snapshot `90b8a7cc9527c7a60042e2f30b2ce2da3087858ef973695f1f56eaec6ab323b0`; evidence: `reports/preview-118ce087-release-proof.json`. That published preview passed **30 browser cases with four intentional desktop skips** in 12 seconds (`reports/published-preview-118ce087.json`). This is dated fictional preview evidence, separate from the canonical application’s eight read-only public checks and its `/api/health` endpoint. Read the public `/release.json` for the currently served source.
 
 ## What is interactive
 
@@ -21,11 +21,11 @@ The public preview is a design model, distinct from the local application's D1/R
 npm run build:preview
 npm run test:preview
 npx wrangler deploy --config wrangler.preview.jsonc --dry-run
-npx wrangler deploy --config wrangler.preview.jsonc
+npm run deploy:preview
 GUTENEO_PREVIEW_URL=https://guteneo-preview.nclsppr.workers.dev npm run test:preview
 ```
 
-The build explicitly enables preview mode and uses `dist/preview`, leaving the application build in `dist/web`. It fails if deployment inputs change while building. Source and asset digests permit verification even for an early release from uncommitted changes; the final release should use a clean committed source. GitHub CI builds and tests this preview but does not deploy it.
+The build explicitly enables preview mode and uses `dist/preview`, leaving the application build in `dist/web`. It fails if deployment inputs change while building. Publishing requires a clean `main` synchronized with `origin/main`, then rebuilds and checks the source and every asset before deployment; see [MAIN_RELEASE.md](MAIN_RELEASE.md). GitHub CI builds and tests this preview but does not deploy it.
 
 Desktop Chromium and iPhone WebKit tests cover all workspace routes, layout overflow, zero browser API requests, PDF canvas display, preparation/approval/simulation and remote route rejection. Captures are under `reports/screenshots/preview/`.
 
