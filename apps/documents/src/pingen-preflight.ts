@@ -53,7 +53,7 @@ export type PostalBrowser = {
 };
 export type PostalPreflightDependencies = {
   launch: () => Promise<PostalBrowser>;
-  scripts: { pdf: string; worker: string };
+  scripts: { pdf: string; worker: string; fonts: string };
   /** Test seam only; the request cannot choose its own resource limits. */
   deadlineMs?: number;
 };
@@ -307,6 +307,7 @@ export async function handlePingenPreflight(
     await page.addScriptTag({ content: deps.scripts.worker, type: "module" });
     stage = "pdf_script";
     await page.addScriptTag({ content: deps.scripts.pdf, type: "module" });
+    await page.addScriptTag({ content: deps.scripts.fonts, type: "module" });
     stage = "open";
     const loaded = await page.evaluate(openPostalPdf, {
       base64: encode(bytes),

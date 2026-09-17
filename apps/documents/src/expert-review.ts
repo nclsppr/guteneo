@@ -60,7 +60,7 @@ export type ExpertReviewBrowser = {
 };
 export type ExpertReviewDependencies = {
   launch: () => Promise<ExpertReviewBrowser>;
-  scripts: { pdf: string; worker: string };
+  scripts: { pdf: string; worker: string; fonts: string };
   /** Test-only seam, never an HTTP input. */
   deadlineMs?: number;
 };
@@ -286,6 +286,7 @@ export async function handleExpertReviewPages(
     });
     await page.addScriptTag({ content: deps.scripts.worker, type: "module" });
     await page.addScriptTag({ content: deps.scripts.pdf, type: "module" });
+    await page.addScriptTag({ content: deps.scripts.fonts, type: "module" });
     assertActive();
     const loaded = await page.evaluate(openPostalPdf, {
       base64: encode(bytes),

@@ -34,6 +34,7 @@ type BrowserState = typeof globalThis & {
   pdfjsLib: typeof import("pdfjs-dist");
   guteneoPdf?: PDFDocumentProxy;
   guteneoRenderWarning?: boolean;
+  guteneoBinaryDataFactory?: object;
 };
 
 // These functions execute inside a fresh isolated browser page. Only package-owned
@@ -48,8 +49,9 @@ export async function openPostalPdf(input: {
   if (typeof state.pdfjsLib?.getDocument !== "function")
     return { failure: "open_library" as const };
   if (
-    typeof (state as unknown as { pdfjsWorker?: { WorkerMessageHandler?: unknown } })
-      .pdfjsWorker?.WorkerMessageHandler !== "function"
+    typeof (
+      state as unknown as { pdfjsWorker?: { WorkerMessageHandler?: unknown } }
+    ).pdfjsWorker?.WorkerMessageHandler !== "function"
   )
     return { failure: "open_worker" as const };
   if (typeof state.crypto?.subtle?.digest !== "function")
@@ -90,11 +92,17 @@ export async function openPostalPdf(input: {
   const sha256 = Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
+  // Factory code is injected as a Text asset so Worker bundling cannot add
+  // closure helpers to this function before Puppeteer serializes it.
+  if (typeof state.guteneoBinaryDataFactory !== "function")
+    throw new Error("PDF_RESOURCE_UNAVAILABLE");
   state.guteneoPdf = await state.pdfjsLib.getDocument({
     data,
     verbosity: 1,
     stopAtErrors: true,
     useSystemFonts: false,
+    useWorkerFetch: false,
+    BinaryDataFactory: state.guteneoBinaryDataFactory,
     useWasm: false,
     isOffscreenCanvasSupported: false,
     maxImageSize: 10_000_000,

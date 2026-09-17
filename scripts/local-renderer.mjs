@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { chromium } from "@playwright/test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
+import { loadPdfScripts } from "../apps/documents/pdfjs-assets.mjs";
 import { Readable } from "node:stream";
 import bundledChromium from "@sparticuz/chromium";
 import puppeteer from "@cloudflare/puppeteer/internal/puppeteer-core.js";
@@ -9,22 +10,7 @@ const { handleExpertReviewPages } = await tsImport(
   "../apps/documents/src/expert-review.ts",
   import.meta.url,
 );
-const reviewScripts = {
-  pdf: readFileSync(
-    new URL(
-      "../node_modules/pdfjs-dist/legacy/build/pdf.min.mjs",
-      import.meta.url,
-    ),
-    "utf8",
-  ),
-  worker: readFileSync(
-    new URL(
-      "../node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs",
-      import.meta.url,
-    ),
-    "utf8",
-  ),
-};
+const reviewScripts = await loadPdfScripts();
 const fallback =
   process.platform === "linux" && !existsSync(chromium.executablePath());
 const port = Number(process.env.GUTENEO_LOCAL_RENDERER_PORT ?? 8788);

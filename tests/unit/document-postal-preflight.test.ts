@@ -41,7 +41,7 @@ const dependencies = () => ({
   launch: vi.fn(async () => {
     throw new Error("engine not expected");
   }),
-  scripts: { pdf: "", worker: "" },
+  scripts: { pdf: "", worker: "", fonts: "" },
 });
 describe("Private postal preflight boundary", () => {
   it("rejects a missing or mismatched scan assertion before reading or parsing content", async () => {
@@ -203,7 +203,7 @@ describe("Private postal preflight boundary", () => {
           at("launch");
           return browser as unknown as PostalBrowser;
         },
-        scripts: { pdf: "", worker: "" },
+        scripts: { pdf: "", worker: "", fonts: "" },
       });
       const report = await response.json();
       expect(response.status).toBe(422);

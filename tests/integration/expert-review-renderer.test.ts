@@ -1,10 +1,14 @@
+import { loadPdfScripts } from "../../apps/documents/pdfjs-assets.mjs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
+import ts from "typescript";
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import { chromium } from "@playwright/test";
 import puppeteer from "@cloudflare/puppeteer/internal/puppeteer-core.js";
-import { PDFDocument, PDFName } from "pdf-lib";
+import { PDFDocument, PDFName, StandardFonts } from "pdf-lib";
 import {
   EXPERT_REVIEW_LIMITS,
   handleExpertReviewPages,
@@ -12,13 +16,7 @@ import {
 import { reviewPagesSchema } from "../../packages/contracts/src/expert-review";
 import { validatePdf } from "../../packages/contracts/src/pdf";
 
-const scripts = {
-  pdf: readFileSync("node_modules/pdfjs-dist/legacy/build/pdf.min.mjs", "utf8"),
-  worker: readFileSync(
-    "node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs",
-    "utf8",
-  ),
-};
+const scripts = await loadPdfScripts();
 const launch = () =>
   puppeteer.launch({
     executablePath: chromium.executablePath(),
@@ -96,6 +94,7 @@ async function run(
   pageCount = 3,
   engine = launch,
   deadlineMs?: number,
+  resources = scripts,
 ) {
   const hash = (await validatePdf(bytes)).sha256;
   const response = await handleExpertReviewPages(
@@ -111,12 +110,301 @@ async function run(
         },
       },
     ),
-    { launch: engine, scripts, deadlineMs },
+    { launch: engine, scripts: resources, deadlineMs },
   );
   return { response, body: await response.json() };
 }
 
 describe("Exact paginated PDF review with actual local Chromium and pinned PDF.js", () => {
+  it("executes the real Wrangler browser callbacks with their bundled standard-font assets", async () => {
+    const output = "test-results/standard-fonts/worker";
+    execFileSync(
+      process.execPath,
+      [
+        "node_modules/wrangler/bin/wrangler.js",
+        "deploy",
+        "--dry-run",
+        "--config",
+        "apps/documents/wrangler.jsonc",
+        "--outdir",
+        `../../${output}`,
+      ],
+      { timeout: 60_000, stdio: "pipe" },
+    );
+    const bundle = ts.createSourceFile(
+      "index.js",
+      readFileSync(`${output}/index.js`, "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.JS,
+    );
+    const callbacks = new Map<string, string>();
+    const resources = { pdf: "", worker: "", fonts: "" };
+    for (const node of bundle.statements) {
+      if (
+        ts.isFunctionDeclaration(node) &&
+        node.name &&
+        ["openPostalPdf", "renderExpertReviewPage"].includes(node.name.text)
+      )
+        callbacks.set(node.name.text, node.getText(bundle));
+      if (
+        !ts.isImportDeclaration(node) ||
+        !ts.isStringLiteral(node.moduleSpecifier)
+      )
+        continue;
+      const filename = node.moduleSpecifier.text;
+      for (const [key, suffix] of [
+        ["pdf", "-pdf.txt"],
+        ["worker", "-pdf.worker.txt"],
+        ["fonts", "-standard-fonts.txt"],
+      ] as const)
+        if (filename.endsWith(suffix))
+          resources[key] = readFileSync(resolve(output, filename), "utf8");
+    }
+    expect(callbacks.size).toBe(2);
+    expect(resources).toEqual(scripts);
+    for (const callback of callbacks.values())
+      expect(callback).not.toContain("__name");
+    const pdf = await PDFDocument.create();
+    const page = pdf.addPage([595.28, 841.89]);
+    for (const [index, name] of [
+      StandardFonts.Helvetica,
+      StandardFonts.TimesRoman,
+      StandardFonts.Courier,
+    ].entries()) {
+      const font = await pdf.embedFont(name);
+      page.drawText(`${name}: BUNDLED ORIGINAL`, {
+        font,
+        x: 50,
+        y: 750 - index * 80,
+        size: 18,
+      });
+    }
+    const original = new Uint8Array(await pdf.save());
+    const requests: string[] = [];
+    const evaluated: string[] = [];
+    const engine = async () => {
+      const browser = await launch();
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, "newPage").mockImplementation(async () => {
+        const page = await newPage();
+        page.on("request", (request) => requests.push(request.url()));
+        const evaluate = page.evaluate.bind(page);
+        vi.spyOn(page, "evaluate").mockImplementation(async (fn, ...args) => {
+          if (typeof fn === "function" && callbacks.has(fn.name)) {
+            evaluated.push(fn.name);
+            // Only our locally built Worker code is evaluated. Its browser
+            // callbacks must work without the Worker's surrounding helpers.
+            const compiled = new Function(
+              `return (${callbacks.get(fn.name)});`,
+            )() as typeof fn;
+            return evaluate(compiled, ...args);
+          }
+          return evaluate(fn, ...args);
+        });
+        return page;
+      });
+      return browser;
+    };
+    const { response, body } = await run(
+      original,
+      1,
+      1,
+      engine,
+      undefined,
+      resources,
+    );
+    expect(response.status).toBe(200);
+    const report = reviewPagesSchema.parse(body);
+    expect(report.sha256).toBe(
+      createHash("sha256").update(original).digest("hex"),
+    );
+    expect(report.rendering.complete).toBe(true);
+    for (const name of [
+      StandardFonts.Helvetica,
+      StandardFonts.TimesRoman,
+      StandardFonts.Courier,
+    ])
+      expect(report.pages[0].text.replace(/\s+/g, " ")).toContain(
+        `${name}: BUNDLED ORIGINAL`,
+      );
+    expect(evaluated).toEqual(["openPostalPdf", "renderExpertReviewPage"]);
+    expect(requests).toEqual(["https://guteneo-documents.invalid/review"]);
+  }, 90_000);
+
+  it.each([
+    [
+      "Helvetica",
+      [
+        StandardFonts.Helvetica,
+        StandardFonts.HelveticaBold,
+        StandardFonts.HelveticaOblique,
+        StandardFonts.HelveticaBoldOblique,
+      ],
+    ],
+    [
+      "Times",
+      [
+        StandardFonts.TimesRoman,
+        StandardFonts.TimesRomanBold,
+        StandardFonts.TimesRomanItalic,
+        StandardFonts.TimesRomanBoldItalic,
+      ],
+    ],
+    [
+      "Courier",
+      [
+        StandardFonts.Courier,
+        StandardFonts.CourierBold,
+        StandardFonts.CourierOblique,
+        StandardFonts.CourierBoldOblique,
+      ],
+    ],
+    ["Symbols", [StandardFonts.Symbol, StandardFonts.ZapfDingbats]],
+  ] as const)(
+    "renders the unembedded %s standard fonts from bundled bytes without resource requests",
+    async (family, names) => {
+      const pdf = await PDFDocument.create();
+      const page = pdf.addPage([595.28, 841.89]);
+      for (const [index, name] of names.entries()) {
+        const font = await pdf.embedFont(name);
+        const text =
+          family === "Symbols"
+            ? font
+                .getCharacterSet()
+                .filter((code) => code > 32)
+                .slice(0, 20)
+                .map((code) => String.fromCodePoint(code))
+                .join("")
+            : `${name}: ORIGINAL ABCDEF 0123456789`;
+        page.drawText(text, { font, x: 50, y: 760 - index * 80, size: 18 });
+      }
+      const original = new Uint8Array(await pdf.save());
+      const retained = original.slice();
+      const requests: string[] = [];
+      const engine = async () => {
+        const browser = await launch();
+        const newPage = browser.newPage.bind(browser);
+        vi.spyOn(browser, "newPage").mockImplementation(async () => {
+          const page = await newPage();
+          page.on("request", (request) => requests.push(request.url()));
+          return page;
+        });
+        return browser;
+      };
+      const { response, body } = await run(original, 1, 1, engine);
+      expect(response.status).toBe(200);
+      const report = reviewPagesSchema.parse(body);
+      expect(report).toMatchObject({
+        totalPages: 1,
+        sha256: createHash("sha256").update(retained).digest("hex"),
+        rendering: { complete: true },
+      });
+      expect(original).toEqual(retained);
+      expect(report.pages[0]).toMatchObject({ width: 1132, height: 1600 });
+      if (family !== "Symbols")
+        for (const name of names)
+          expect(report.pages[0].text.replace(/\s+/g, " ")).toContain(
+            `${name}: ORIGINAL`,
+          );
+      expect(requests).toEqual(["https://guteneo-documents.invalid/review"]);
+      mkdirSync("test-results/standard-fonts", { recursive: true });
+      writeFileSync(
+        `test-results/standard-fonts/${family}.jpg`,
+        Buffer.from(report.pages[0].imageBase64, "base64"),
+      );
+    },
+  );
+
+  it("keeps incomplete standard-font assets fail closed instead of substituting a system font", async () => {
+    const pdf = await PDFDocument.create();
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    pdf.addPage().drawText("Original Helvetica", { font, x: 50, y: 700 });
+    const { response, body } = await run(
+      new Uint8Array(await pdf.save()),
+      1,
+      1,
+      launch,
+      undefined,
+      {
+        ...scripts,
+        fonts: `${scripts.fonts}\nglobalThis.guteneoStandardFonts = Object.freeze({});`,
+      },
+    );
+    expect(response.status).toBe(422);
+    expect(body).toEqual({ error: { code: "REVIEW_RENDER_FAILED" } });
+  });
+
+  it("restricts the offline factory to package fonts and returns fresh bytes without fetching", async () => {
+    const page = await fixtureBrowser.newPage();
+    const requests: string[] = [];
+    page.on("request", (request) => requests.push(request.url()));
+    try {
+      await page.addScriptTag({ content: scripts.fonts, type: "module" });
+      const result = await page.evaluate(async () => {
+        const state = globalThis as typeof globalThis & {
+          guteneoStandardFonts: Readonly<Record<string, string>>;
+          guteneoBinaryDataFactory: new () => {
+            fetch(input: {
+              kind: string;
+              filename: string;
+            }): Promise<Uint8Array>;
+          };
+        };
+        const factory = new state.guteneoBinaryDataFactory();
+        const forbidden = [
+          { kind: "wasmUrl", filename: "LiberationSans-Regular.ttf" },
+          { kind: "cMapUrl", filename: "FoxitFixed.pfb" },
+          {
+            kind: "standardFontDataUrl",
+            filename: "https://example.invalid/font.ttf",
+          },
+          {
+            kind: "standardFontDataUrl",
+            filename: "../LiberationSans-Regular.ttf",
+          },
+          { kind: "standardFontDataUrl", filename: "constructor" },
+          { kind: "standardFontDataUrl", filename: "__proto__" },
+        ];
+        const rejected = await Promise.all(
+          forbidden.map(async (input) => {
+            try {
+              await factory.fetch(input);
+              return false;
+            } catch {
+              return true;
+            }
+          }),
+        );
+        const input = {
+          kind: "standardFontDataUrl",
+          filename: "LiberationSans-Regular.ttf",
+        };
+        const first = await factory.fetch(input);
+        const original = first[0];
+        first[0] ^= 0xff;
+        const second = await factory.fetch(input);
+        return {
+          files: Object.keys(state.guteneoStandardFonts).length,
+          immutableTable: Object.isFrozen(state.guteneoStandardFonts),
+          rejected,
+          originalPreserved: second[0] === original,
+          bytes: second.length,
+        };
+      });
+      expect(result).toEqual({
+        files: 14,
+        immutableTable: true,
+        rejected: [true, true, true, true, true, true],
+        originalPreserved: true,
+        bytes: 139512,
+      });
+      expect(requests).toEqual([]);
+    } finally {
+      await page.close();
+    }
+  });
+
   it("renders a >1MiB four-page original as bounded readable page images and text without changing its bytes", async () => {
     const original = source.slice();
     expect(source.byteLength).toBeGreaterThan(1024 * 1024);
