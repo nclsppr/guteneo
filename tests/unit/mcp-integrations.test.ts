@@ -13,11 +13,17 @@ import {
 } from "../../apps/api/src/mcp";
 import {
   MCP_SCOPES,
+  hashSecret,
   type AuthEnv,
   type McpIdentity,
 } from "../../apps/api/src/auth";
 import { ImportSourceError } from "../../apps/api/src/documents";
 import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
+import {
+  assistantRecovery,
+  assistantRecoverySchema,
+} from "../../packages/contracts/src/assistant-recovery";
+import { ContentError } from "../../packages/contracts/src/content";
 import { DomainService, type Dispatch } from "../../packages/domain/src/index";
 
 let mf: Miniflare;
@@ -151,6 +157,144 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it.each([
+    ["DOCUMENT_INTEGRITY_ERROR", "contact_support", null],
+    ["CORRUPT_PDF", "replace_file", null],
+    ["EXPERT_REVIEW_INVALID", "check_dispatch", "get_dispatch_status"],
+  ])(
+    "keeps %s recovery actionable without authorizing another send",
+    async (code, action, tool) => {
+      const importFile = vi.fn(async () => {
+        throw new ContentError(code!, "Cette opération est bloquée.");
+      });
+      await connected(
+        async (client) => {
+          const result = await call(client, "import_document", {
+            file: {
+              download_url: "https://files.example.invalid/original.pdf",
+              file_id: "fixture",
+            },
+          });
+          expect(result.isError).toBe(true);
+          expect(result.structuredContent).toMatchObject({
+            ok: false,
+            error: { code, recovery: { action, tool } },
+          });
+          expect(result.content[0].text).toContain(
+            "Cette opération est bloquée.",
+          );
+          expect(result.content[0].text).not.toMatch(
+            /approvalUrl|https?:\/\/|approve_and_send_dispatch|confirm_dispatch/,
+          );
+          expect(importFile).toHaveBeenCalledTimes(1);
+        },
+        identity,
+        { importFile },
+      );
+    },
+  );
+  it.each([
+    "REVIEW_RENDER_FAILED",
+    "REVIEW_RENDER_TIMEOUT",
+    "RENDERER_NOT_CONFIGURED",
+    "EXPERT_DOCUMENT_UNAVAILABLE",
+    "EXPERT_DOCUMENT_TOO_LARGE",
+    "REVIEW_IMAGE_BUDGET",
+    "REVIEW_RESULT_SIZE",
+    "INTERNAL_ERROR",
+  ])("keeps standalone page recovery on the same PDF for %s", async (code) => {
+    const token = `gtn_dev_${crypto.randomUUID()}`;
+    const expiresAt = new Date(Date.now() + 60_000).toISOString();
+    await env.DB.prepare(
+      "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
+    )
+      .bind(
+        await hashSecret(token),
+        identity.context.userId,
+        identity.context.organizationId,
+        expiresAt,
+      )
+      .run();
+    const reader = {
+      ...identity,
+      clientId: "local-simulation",
+      token,
+      expiresAt: Date.parse(expiresAt) / 1000,
+    };
+    const getReviewPages = vi.fn(async () => {
+      if (code === "INTERNAL_ERROR")
+        throw new Error("private renderer diagnostic");
+      throw new ContentError(code, "La lecture de ces pages n’a pas abouti.");
+    });
+    await connected(
+      async (client) => {
+        const result = await call(client, "read_document_pages", {
+          documentId,
+          page: 1,
+        });
+        expect(result.isError).toBe(true);
+        expect(result.structuredContent).toMatchObject({
+          error: {
+            code,
+            recovery: {
+              action: "read_same_document",
+              tool: "read_document_pages",
+              retry: "after_change",
+            },
+          },
+        });
+        const error = result.structuredContent?.error as
+          { recovery: unknown } | undefined;
+        const recovery = assistantRecoverySchema.parse(error?.recovery);
+        expect(recovery.message).toContain("mêmes documentId et page");
+        expect(recovery.message).toContain("ni envoi préparé ni mandat expert");
+        expect(recovery.message).not.toContain("review_dispatch");
+        expect(JSON.stringify(result)).not.toContain("get_dispatch_status");
+        expect(JSON.stringify(result)).not.toContain(
+          "private renderer diagnostic",
+        );
+        expect(
+          result.content.filter((item) => item.type === "image"),
+        ).toHaveLength(0);
+        expect(getReviewPages).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          documentId,
+          1,
+        );
+      },
+      reader,
+      { getReviewPages },
+    );
+    if (code !== "INTERNAL_ERROR")
+      expect(assistantRecovery(code)).toMatchObject({
+        action: "review_same_dispatch",
+        tool: "review_dispatch",
+        retry: "after_change",
+      });
+    else
+      expect(assistantRecovery(code)).toMatchObject({
+        action: "check_dispatch",
+        tool: "get_dispatch_status",
+        retry: "never_resend",
+      });
+  });
+
+  it("preserves authentication and integrity recovery ahead of standalone page retry", () => {
+    for (const code of [
+      "CONNECTION_REVOKED",
+      "TOKEN_INVALID",
+      "POSTAL_AUTHORITY_CHANGED",
+    ])
+      expect(assistantRecovery(code, "read_document_pages")).toMatchObject({
+        action: "reconnect",
+        tool: null,
+        retry: "after_change",
+      });
+    expect(
+      assistantRecovery("DOCUMENT_INTEGRITY_ERROR", "read_document_pages"),
+    ).toMatchObject({ action: "contact_support", tool: null });
+  });
+
   it("keeps automatic analysis readable and resumable without another import or rescan", async () => {
     const saved = await domain.getDocument(identity.context, documentId);
     const processing = {

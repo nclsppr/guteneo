@@ -1,5 +1,13 @@
 # Guteneo product contract
 
+Local candidate, 17 September: the expert assistant journey now exposes the
+current connection's mandate and remaining limits, reads immutable PDFs as
+bounded page images in the conversation (including before postal preparation),
+and returns explicit recovery actions. The paginated review covers every page
+before issuing an approval token. Human administrator activation/renewal remains
+explicit, with a direct connection link and return-to-chat guidance. See
+[EXPERT_CHAT_JOURNEY.md](EXPERT_CHAT_JOURNEY.md) for proof and release boundaries.
+
 Local candidate, 17 September: document verification now has a readable progress
 and recovery contract, with automatic bounded retries of temporary scanner
 failures on the same original. This does not automate preparation, approval or

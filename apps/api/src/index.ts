@@ -41,6 +41,7 @@ import { handleAccountRoute } from "./account";
 import { PostalService, cleanupPostalEvidence } from "./postal";
 import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
 import { expertPostalAuthority } from "./expert-approval";
+import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 
 import {
@@ -240,7 +241,19 @@ app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
-    capabilities: () => getCapabilities(c.env),
+    capabilities: async (identity) => {
+      const capabilities = getCapabilities(c.env);
+      return {
+        ...capabilities,
+        approval: {
+          ...capabilities.approval,
+          expert: {
+            ...capabilities.approval.expert,
+            connection: await getExpertStatus(identity, c.env),
+          },
+        },
+      };
+    },
     onToolFailure: (code, importFailure) => {
       const observation = startObservation(
         c.env,
@@ -886,6 +899,11 @@ export default {
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);
+      await env.DB.prepare(
+        "DELETE FROM expert_document_review_progress WHERE rowid IN (SELECT rowid FROM expert_document_review_progress WHERE expires_at<? LIMIT 100)",
+      )
+        .bind(new Date().toISOString())
+        .run();
       stage = "http_limits";
       await env.DB.prepare("DELETE FROM http_limits WHERE window_start<?")
         .bind(Math.floor(Date.now() / 60000) - 5)

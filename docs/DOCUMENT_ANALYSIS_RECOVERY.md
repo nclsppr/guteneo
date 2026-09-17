@@ -1,7 +1,7 @@
 # Recoverable PDF verification
 
-Local candidate, 17 September 2026. Not deployed. Apply migration
-`0027_document_analysis.sql` before releasing the application. Scanner diagnostics
+Local candidate, 17 September 2026. Not deployed. Current combined validation is recorded in [EXPERT_CHAT_JOURNEY.md](EXPERT_CHAT_JOURNEY.md). Apply migration
+`0028_document_analysis.sql` before releasing the application. Scanner diagnostics
 also require a coordinated private scanner image/Worker release; the application
 still safely treats the previous scanner's generic 503 as transient.
 
@@ -63,7 +63,7 @@ needed; this uses the application's existing scheduled handler.
 
 ## Release and proof boundary
 
-Local validation on 17 September:
+Earlier recovery-only validation on 17 September (before reconciliation with main and the expert journey extension):
 
 - Full Vitest suite: 49 files / 896 tests passed. After the final bounded cleanup
   adjustment, the focused document suite passed 40 tests, including the additional

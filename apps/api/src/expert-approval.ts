@@ -5,6 +5,7 @@ import {
   type Channel,
   type DomainService,
   type ExpertDispatchAuthority,
+  type DocumentRecord,
 } from "../../../packages/domain/src/index";
 import {
   auth0Issuer,
@@ -97,12 +98,22 @@ function randomReview() {
     n.toString(16).padStart(2, "0"),
   ).join("");
 }
+/** Server-produced evidence only. No MCP input can supply this proof. */
+export type ExpertPageEvidence = {
+  document: DocumentRecord;
+  connectionId: string;
+  policyRevision: number;
+  connectionUpdatedAt: string;
+  condition: string;
+  values: Array<string | number>;
+};
 export async function reviewExpertDispatch(
   identity: McpIdentity,
   env: AuthEnv,
   domain: DomainService,
   dispatchId: string,
   readDocument?: DocumentService["getReviewContent"],
+  pageEvidence?: ExpertPageEvidence,
 ) {
   requireScope(identity, "dispatches:read");
   requireScope(identity, "documents:read");
@@ -120,7 +131,22 @@ export async function reviewExpertDispatch(
     : null;
   let documentResource:
     { uri: string; mimeType: "application/pdf"; blob: string } | undefined;
-  if (document) {
+  if (document && pageEvidence) {
+    if (
+      pageEvidence.document.id !== document.id ||
+      pageEvidence.document.sha256 !== document.sha256 ||
+      pageEvidence.document.size !== document.size ||
+      pageEvidence.document.pages !== document.pages ||
+      pageEvidence.document.storage_key !== document.storage_key ||
+      pageEvidence.connectionId !== policy.connection_id ||
+      pageEvidence.policyRevision !== policy.revision ||
+      pageEvidence.connectionUpdatedAt !== policy.connection_updated_at
+    )
+      denied(
+        "EXPERT_AUTHORITY_CHANGED",
+        "La revue a changé. Reprenez la lecture du même envoi depuis sa première page.",
+      );
+  } else if (document) {
     if (!readDocument)
       throw new DomainError(
         "EXPERT_DOCUMENT_UNAVAILABLE",
@@ -136,7 +162,7 @@ export async function reviewExpertDispatch(
     )
       throw new DomainError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "Le PDF a changé : la revue expert est interrompue. Une revue humaine dans Guteneo reste une alternative.",
+        "Le PDF a changé : la revue est interrompue. L’intégrité doit être rétablie avant toute approbation.",
         423,
       );
     // No async I/O after this conversion before the current authority/proof fences.
@@ -164,7 +190,10 @@ export async function reviewExpertDispatch(
     ),
   ).toISOString();
   if (expiresAt <= new Date().toISOString())
-    denied("EXPERT_REVIEW_EXPIRED", "Renouvelez la connexion ou le devis.");
+    denied(
+      "EXPERT_REVIEW_EXPIRED",
+      "Le devis ou la connexion a expiré. Consultez l’état du même envoi avant de reprendre sa revue.",
+    );
   await authority.assertCurrent();
   const fence = authority.sql();
   const documentFence = document
@@ -172,7 +201,7 @@ export async function reviewExpertDispatch(
     : "";
   const result = await env.DB.prepare(
     `INSERT INTO expert_dispatch_reviews(token_hash,organization_id,dispatch_id,user_id,connection_id,policy_revision,connection_updated_at,fingerprint,ceiling_minor,expires_at,created_at)
-    SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND fingerprint=? AND status='prepared') ${documentFence}
+    SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence.condition} AND EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=? AND fingerprint=? AND status='prepared') ${documentFence} ${pageEvidence ? `AND (${pageEvidence.condition})` : ""}
     ON CONFLICT(organization_id,dispatch_id,connection_id) DO UPDATE SET token_hash=excluded.token_hash,policy_revision=excluded.policy_revision,connection_updated_at=excluded.connection_updated_at,fingerprint=excluded.fingerprint,ceiling_minor=excluded.ceiling_minor,expires_at=excluded.expires_at,created_at=excluded.created_at`,
   )
     .bind(
@@ -204,6 +233,7 @@ export async function reviewExpertDispatch(
             document.sha256,
           ]
         : []),
+      ...(pageEvidence?.values ?? []),
     )
     .run();
   if (result.meta.changes !== 1) denied("EXPERT_AUTHORITY_CHANGED");
@@ -254,10 +284,12 @@ export async function reviewExpertDispatch(
       : {}),
     approvalUrl: `${env.APP_ORIGIN}/#/app/dispatch/${encodeURIComponent(dispatchId)}`,
     instructions:
-      (document
-        ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver, expliquer la limite dans la conversation et proposer approvalUrl comme alternative sans ouvrir le site automatiquement. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
-        : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
-      "Présenter l’empreinte, le destinataire, le contenu, les options et le coût. Pour un fax v3, présenter faxPricing.display.estimate (fourchette HT et euros de crédit), puis le plafond distinct et display.explanation ; estimatedMinor est seulement la borne haute arrondie, jamais le prix fixe ni le débit. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
+      (pageEvidence
+        ? "Lire toutes les images de pages retournées au fil de cette revue ; le texte extrait aide la lecture mais ne remplace pas les images. Si une page est illisible ou absente dans l’hôte, ne pas approuver. La progression et le jeton attestent une mise à disposition, jamais une compréhension par le modèle. "
+        : document
+          ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver, expliquer la limite dans la conversation et proposer approvalUrl comme alternative sans ouvrir le site automatiquement. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
+          : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
+      "Présenter le document par son nom et son nombre de pages, le destinataire, les options et le coût. Garder les identifiants et empreintes techniques pour les appels d’outils, sauf demande explicite de vérification d’intégrité. Pour un fax v3, présenter faxPricing.display.estimate (fourchette HT et euros de crédit), puis le plafond distinct et display.explanation ; estimatedMinor est seulement la borne haute arrondie, jamais le prix fixe ni le débit. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
   };
 }
 export type ExpertAcceptanceInput = {

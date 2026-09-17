@@ -3,6 +3,12 @@ import {
   type DocumentAnalysis,
 } from "../../../packages/contracts/src/document-analysis";
 import { validatePdf } from "../../../packages/contracts/src/pdf";
+import {
+  REVIEW_PAGE_BATCH,
+  REVIEW_RESULT_BYTES,
+  reviewPagesSchema,
+  type ReviewPages,
+} from "../../../packages/contracts/src/expert-review";
 export { validatePdf } from "../../../packages/contracts/src/pdf";
 import {
   ContentError,
@@ -26,6 +32,10 @@ export const REVIEW_PDF_MAX_BYTES = 1024 * 1024;
 export interface ExactReviewPdf {
   document: DocumentRecord;
   bytes: Uint8Array;
+}
+export interface ExactReviewPages {
+  document: DocumentRecord;
+  view: ReviewPages;
 }
 
 type DocumentContext = Parameters<DomainService["registerDocument"]>[0];
@@ -1138,18 +1148,26 @@ export class DocumentService {
     ctx: DocumentContext,
     id: string,
   ): Promise<ExactReviewPdf> {
+    return this.readReviewOriginal(ctx, id, REVIEW_PDF_MAX_BYTES);
+  }
+  private async readReviewOriginal(
+    ctx: DocumentContext,
+    id: string,
+    maximumBytes: number,
+  ): Promise<ExactReviewPdf> {
     const document = await this.domain.getDocument(ctx, id);
-    const fallback = " La revue expert est interrompue ; une revue humaine dans Guteneo reste une alternative.";
+    const fallback =
+      " Aucune approbation ne peut être donnée tant que cette vérification échoue.";
     if (document.status !== "ready" || document.pages < 1)
       throw new ContentError(
         "DOCUMENT_QUARANTINED",
         "PDF non prêt pour la revue." + fallback,
         423,
       );
-    if (document.size > REVIEW_PDF_MAX_BYTES)
+    if (document.size > maximumBytes)
       throw new ContentError(
         "EXPERT_DOCUMENT_TOO_LARGE",
-        "La revue MCP accepte un PDF de 1 Mio maximum, sans troncature." +
+        `Cette lecture accepte un PDF de ${maximumBytes / (1024 * 1024)} Mio maximum, sans troncature.` +
           fallback,
         413,
       );
@@ -1213,14 +1231,14 @@ export class DocumentService {
       }
       bytes = await readLimited(
         new Response(object.body),
-        REVIEW_PDF_MAX_BYTES,
+        maximumBytes,
         signal,
       );
     } catch (error) {
       if (error instanceof ContentError && error.code === "FILE_TOO_LARGE")
         throw new ContentError(
           "EXPERT_DOCUMENT_TOO_LARGE",
-          "Le PDF dépasse la limite de 1 Mio ; aucun extrait n’a été retourné." +
+          "Le PDF dépasse la taille autorisée ; aucun extrait n’a été retourné." +
             fallback,
           413,
         );
@@ -1245,6 +1263,179 @@ export class DocumentService {
       );
     await assertProof();
     return { document, bytes };
+  }
+  /** Bounded page views from the same verified original; never a replacement PDF. */
+  async getReviewPages(
+    ctx: DocumentContext,
+    id: string,
+    startPage: number,
+  ): Promise<ExactReviewPages> {
+    const exact = await this.readReviewOriginal(ctx, id, LIMITS.pdfBytes);
+    if (
+      !Number.isInteger(startPage) ||
+      startPage < 1 ||
+      startPage > exact.document.pages
+    )
+      throw new ContentError(
+        "REVIEW_PAGE_RANGE",
+        "Cette page n’existe pas dans le PDF.",
+      );
+    const pageCount = Math.min(
+      REVIEW_PAGE_BATCH,
+      exact.document.pages - startPage + 1,
+    );
+    const path = `/review-pages?startPage=${startPage}&pageCount=${pageCount}`;
+    const signal = AbortSignal.timeout(30_000);
+    const init: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/pdf",
+        "X-Guteneo-Source-Sha256": exact.document.sha256,
+        "X-Guteneo-Scan-Sha256": exact.document.sha256,
+      },
+      body: exact.bytes as Uint8Array<ArrayBuffer>,
+      signal,
+    };
+    let response: Response;
+    let raw: Uint8Array;
+    try {
+      if (this.env.DOCUMENT_RENDERER) {
+        response = await withinDeadline(
+          this.env.DOCUMENT_RENDERER.fetch(
+            new Request(`https://documents.internal${path}`, init),
+          ),
+          signal,
+        );
+      } else if (
+        this.env.ENVIRONMENT === "local" &&
+        this.env.MODE === "simulation" &&
+        this.env.DOCUMENT_RENDERER_URL
+      ) {
+        const base = new URL(this.env.DOCUMENT_RENDERER_URL);
+        if (!["localhost", "127.0.0.1"].includes(base.hostname))
+          throw new ContentError(
+            "RENDERER_NOT_CONFIGURED",
+            "Le lecteur PDF local est indisponible.",
+            503,
+          );
+        response = await withinDeadline(
+          fetch(new Request(new URL(path, base), init)),
+          signal,
+        );
+      } else {
+        throw new ContentError(
+          "RENDERER_NOT_CONFIGURED",
+          "La lecture des pages du PDF est temporairement indisponible. Le document reste enregistré.",
+          503,
+        );
+      }
+      raw = await readLimited(
+        new Response(response.body, { headers: response.headers }),
+        REVIEW_RESULT_BYTES,
+        signal,
+      );
+    } catch (error) {
+      if (error instanceof ContentError && error.code === "FILE_TOO_LARGE")
+        throw new ContentError(
+          "REVIEW_RESULT_SIZE",
+          "Ces pages dépassent le budget du lecteur de la conversation.",
+          413,
+        );
+      if (error instanceof ContentError) throw error;
+      throw new ContentError(
+        signal.aborted ? "REVIEW_RENDER_TIMEOUT" : "REVIEW_RENDER_FAILED",
+        "La lecture des pages est temporairement indisponible. Le même PDF reste enregistré.",
+        503,
+      );
+    }
+    if (!response.ok) {
+      let code = "REVIEW_RENDER_FAILED";
+      try {
+        const detail = JSON.parse(new TextDecoder().decode(raw)) as {
+          error?: { code?: string };
+        };
+        if (
+          [
+            "REVIEW_UNSUPPORTED_CONTENT",
+            "REVIEW_IMAGE_BUDGET",
+            "REVIEW_RENDER_TIMEOUT",
+            "REVIEW_PAGE_RANGE",
+            "REVIEW_PDF_INVALID",
+            "REVIEW_RESULT_SIZE",
+          ].includes(detail.error?.code ?? "")
+        )
+          code = detail.error!.code!;
+      } catch {
+        /* Never expose raw renderer failures or document text. */
+      }
+      throw new ContentError(
+        code,
+        code === "REVIEW_UNSUPPORTED_CONTENT"
+          ? "Ce PDF contient des éléments que le lecteur de la conversation ne peut pas restituer fidèlement. Aucun envoi n’a été autorisé."
+          : "La lecture de ces pages n’a pas abouti. Le PDF reste enregistré ; reprenez la revue du même envoi.",
+        422,
+      );
+    }
+    let view: ReviewPages;
+    try {
+      view = reviewPagesSchema.parse(JSON.parse(new TextDecoder().decode(raw)));
+      if (
+        view.sha256 !== exact.document.sha256 ||
+        view.totalPages !== exact.document.pages ||
+        view.startPage !== startPage ||
+        view.pageCount !== pageCount ||
+        view.pages.length !== pageCount ||
+        view.nextPage !==
+          (startPage + pageCount > view.totalPages
+            ? null
+            : startPage + pageCount)
+      )
+        throw new Error("mismatch");
+      for (const [offset, page] of view.pages.entries()) {
+        if (
+          page.page !== startPage + offset ||
+          page.width * page.height > 2_100_000
+        )
+          throw new Error("mismatch");
+        const decoded = Uint8Array.from(atob(page.imageBase64), (char) =>
+          char.charCodeAt(0),
+        );
+        if (
+          decoded[0] !== 0xff ||
+          decoded[1] !== 0xd8 ||
+          decoded.at(-2) !== 0xff ||
+          decoded.at(-1) !== 0xd9
+        )
+          throw new Error("invalid image");
+        const imageHash = Array.from(
+          new Uint8Array(await crypto.subtle.digest("SHA-256", decoded)),
+          (b) => b.toString(16).padStart(2, "0"),
+        ).join("");
+        if (imageHash !== page.imageSha256)
+          throw new Error("invalid image hash");
+      }
+    } catch {
+      throw new ContentError(
+        "DOCUMENT_INTEGRITY_ERROR",
+        "La lecture fidèle de ces pages n’a pas pu être vérifiée.",
+        423,
+      );
+    }
+    // The caller also fences OAuth authority and the canonical scan proof after rendering.
+    const current = await this.domain.getDocument(ctx, id);
+    if (
+      current.status !== "ready" ||
+      current.sha256 !== exact.document.sha256 ||
+      current.size !== exact.document.size ||
+      current.pages !== exact.document.pages ||
+      current.storage_key !== exact.document.storage_key
+    )
+      throw new ContentError(
+        "DOCUMENT_INTEGRITY_ERROR",
+        "Le PDF a changé pendant la lecture.",
+        423,
+      );
+    return { document: exact.document, view };
   }
   async getContent(ctx: DocumentContext, id: string) {
     const document = await this.domain.getDocument(ctx, id);

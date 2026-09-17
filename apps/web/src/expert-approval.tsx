@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import {
   api,
   date,
@@ -36,20 +36,30 @@ function toMinor(value: string) {
 function ConnectionSettings({
   connection,
   canManage,
+  selected,
   onUpdated,
 }: {
   connection: ExpertApprovalConnection;
   canManage: boolean;
+  selected: boolean;
   onUpdated: (data: ExpertApprovalSettings) => void;
 }) {
   const id = useId();
   const policy = connection.policy;
+  const expired = Boolean(
+    policy?.enabled && new Date(policy.expiresAt).getTime() <= Date.now(),
+  );
+  const editable = canManage && connection.status === "active";
   const active =
     canManage &&
     connection.status === "active" &&
     policy?.enabled &&
     new Date(policy.expiresAt).getTime() > Date.now();
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(selected && editable && !active);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const editButton = useRef<HTMLButtonElement>(null);
+  const noticeElement = useRef<HTMLParagraphElement>(null);
+  const handledSelection = useRef(false);
   const [channels, setChannels] = useState<Channel[]>(
     policy?.channels ?? ["fax"],
   );
@@ -72,7 +82,25 @@ function ConnectionSettings({
   const [validation, setValidation] = useState("");
   const [notice, setNotice] = useState("");
   const action = useAction();
-  const editable = canManage && connection.status === "active";
+
+  useEffect(() => {
+    if (!selected) {
+      handledSelection.current = false;
+      return;
+    }
+    if (handledSelection.current) return;
+    if (editable && !active) setEditing(true);
+    const frame = requestAnimationFrame(() => {
+      handledSelection.current = true;
+      heading.current?.focus({ preventScroll: true });
+      heading.current?.scrollIntoView({ block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selected, editable, active]);
+
+  useEffect(() => {
+    if (notice) noticeElement.current?.focus();
+  }, [notice]);
 
   function changed() {
     setAcknowledged(false);
@@ -135,7 +163,9 @@ function ConnectionSettings({
       setEditing(false);
       setAcknowledged(false);
       setPostalAcknowledged(false);
-      setNotice("Votre délégation a été enregistrée pour cette connexion.");
+      setNotice(
+        "Votre délégation a été enregistrée pour cette connexion. Revenez dans ChatGPT et dites « reprends l’envoi » pour poursuivre votre demande. Cette confirmation n’a déclenché aucun envoi.",
+      );
     });
   }
 
@@ -161,7 +191,11 @@ function ConnectionSettings({
     <article className="expert-connection" aria-labelledby={`${id}-title`}>
       <div className="expert-connection-heading">
         <div>
-          <h3 id={`${id}-title`}>Connexion de l’assistant</h3>
+          <h3 id={`${id}-title`} ref={heading} tabIndex={-1}>
+            {selected
+              ? "Connexion choisie dans ChatGPT"
+              : "Connexion de l’assistant"}
+          </h3>
           <p className="field-hint">
             Client OAuth : <code>{connection.clientId}</code>
           </p>
@@ -178,6 +212,14 @@ function ConnectionSettings({
                   : "Désactivée"}
         </span>
       </div>
+      {selected && editable && !active && (
+        <p className="field-hint">
+          {expired
+            ? "Cette délégation a expiré. Vérifiez ses limites et choisissez une nouvelle date pour reprendre vos envois dans ChatGPT."
+            : "Vérifiez les limites de cette connexion, puis confirmez vous-même l’activation pour poursuivre vos envois dans ChatGPT."}{" "}
+          Ouvrir ce lien n’accorde aucune autorisation.
+        </p>
+      )}
       {policy && (
         <dl className="expert-summary">
           <div>
@@ -221,12 +263,17 @@ function ConnectionSettings({
       {editable && !editing && (
         <div className="button-group">
           <button
+            ref={editButton}
             type="button"
             className="button"
             onClick={startEditing}
             disabled={action.pending}
           >
-            {active ? "Modifier la délégation" : "Configurer la délégation"}
+            {active
+              ? "Modifier la délégation"
+              : expired
+                ? "Renouveler la délégation"
+                : "Configurer la délégation"}
           </button>
           {policy?.enabled && (
             <button
@@ -416,7 +463,9 @@ function ConnectionSettings({
                   ? "Enregistrement…"
                   : active
                     ? "Confirmer la modification"
-                    : "Confirmer l’activation"}
+                    : expired
+                      ? "Confirmer le renouvellement"
+                      : "Confirmer l’activation"}
               </button>
               <button
                 type="button"
@@ -424,6 +473,7 @@ function ConnectionSettings({
                 onClick={() => {
                   changed();
                   setEditing(false);
+                  requestAnimationFrame(() => editButton.current?.focus());
                 }}
               >
                 Annuler
@@ -433,7 +483,7 @@ function ConnectionSettings({
         </form>
       )}
       <ErrorNotice error={action.error} />
-      <p className="field-hint" aria-live="polite">
+      <p className="field-hint" role="status" tabIndex={-1} ref={noticeElement}>
         {notice}
       </p>
     </article>
@@ -441,9 +491,23 @@ function ConnectionSettings({
 }
 
 export function ExpertApproval() {
+  const selectedConnection = new URLSearchParams(
+    window.location.hash.split("?")[1] ?? "",
+  ).get("connection");
   const resource = useResource<ExpertApprovalSettings>(
     isPublicPreview ? null : "/account/expert-approval",
   );
+  const unavailableNotice = useRef<HTMLParagraphElement>(null);
+  const unavailable = Boolean(
+    selectedConnection !== null &&
+    resource.data &&
+    !resource.data.connections.some(
+      (connection) => connection.connectionId === selectedConnection,
+    ),
+  );
+  useEffect(() => {
+    if (unavailable) unavailableNotice.current?.focus();
+  }, [unavailable, selectedConnection]);
   return (
     <section
       className="form-panel expert-settings"
@@ -478,6 +542,19 @@ export function ExpertApproval() {
           {resource.loading && !resource.data && <Loading />}
           {resource.data && (
             <>
+              {unavailable && (
+                <p
+                  className="notice info"
+                  role="status"
+                  tabIndex={-1}
+                  ref={unavailableNotice}
+                >
+                  Cette connexion n’est pas disponible dans votre compte. Aucune
+                  autorisation n’a été modifiée. Choisissez l’une de vos
+                  connexions ci-dessous ou reconnectez votre assistant depuis
+                  ChatGPT.
+                </p>
+              )}
               {!resource.data.canManage && (
                 <p className="notice info">
                   Seul un administrateur peut gérer la délégation de ses propres
@@ -492,9 +569,10 @@ export function ExpertApproval() {
               ) : (
                 resource.data.connections.map((connection) => (
                   <ConnectionSettings
-                    key={connection.connectionId}
+                    key={`${connection.connectionId}:${connection.connectionId === selectedConnection}`}
                     connection={connection}
                     canManage={resource.data!.canManage}
+                    selected={connection.connectionId === selectedConnection}
                     onUpdated={resource.setData}
                   />
                 ))

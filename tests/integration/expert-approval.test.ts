@@ -598,7 +598,7 @@ describe("expert delegation against real D1 and signed OAuth identities", () => 
       expertPostalAuthority(identity, env, "unknown", "a".repeat(64)),
     ).rejects.toMatchObject({ code: "EXPERT_CHANNEL_DISABLED" });
   });
-  it("completes an exact PDF fax through MCP under a mandate without any browser approval call", async () => {
+  it("completes an embedded-PDF fax through MCP under a mandate without any browser approval call", async () => {
     await grant({ channels: '["fax"]' });
     await db.batch([
       db
@@ -639,7 +639,7 @@ describe("expert delegation against real D1 and signed OAuth identities", () => 
         .data;
       const reviewed = await client.callTool({
         name: "review_dispatch",
-        arguments: { dispatchId: dispatch.id },
+        arguments: { dispatchId: dispatch.id, format: "pdf" },
       });
       expect(reviewed.isError).not.toBe(true);
       expect(reviewed.structuredContent).toMatchObject({
@@ -1021,7 +1021,7 @@ describe("exact private PDF before an expert review token", () => {
     try {
       const result = await client.callTool({
         name: "review_dispatch",
-        arguments: { dispatchId: dispatch.id },
+        arguments: { dispatchId: dispatch.id, format: "pdf" },
       });
       expect(result.isError).toBe(true);
       expect(result.content.every((item) => item.type === "text")).toBe(true);
