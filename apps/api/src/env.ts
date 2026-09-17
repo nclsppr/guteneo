@@ -1,6 +1,7 @@
 import { billingConfigured } from "./billing";
 
 export interface Env {
+  WRANGLER_VERSION_METADATA?: { id: string };
   DB: D1Database;
   DOCUMENTS: R2Bucket;
   DISPATCH_QUEUE: Queue<{ dispatchId: string }>;

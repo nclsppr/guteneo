@@ -37,6 +37,9 @@
     },
   ],
   "observability": {
-    "enabled": false,
+    "enabled": false
+  },
+  "version_metadata": {
+    "binding": "WRANGLER_VERSION_METADATA"
   },
 }

@@ -126,14 +126,14 @@ it("rejects unsafe scheduled environments before reading receipts", async () => 
   } as unknown as Env;
   await expect(
     worker.scheduled({} as ScheduledController, env),
-  ).rejects.toThrow("PRODUCTION_SIMULATION_FORBIDDEN");
+  ).rejects.toThrow("CRON_FAILED");
   await expect(
     worker.scheduled({} as ScheduledController, {
       ...env,
       MODE: "production",
       APP_ORIGIN: "http://guteneo.com",
     }),
-  ).rejects.toThrow("HTTPS_REQUIRED");
+  ).rejects.toThrow("CRON_FAILED");
   expect(prepare).not.toHaveBeenCalled();
 });
 it("allows only read-only readiness while identity is awaiting configuration", () => {

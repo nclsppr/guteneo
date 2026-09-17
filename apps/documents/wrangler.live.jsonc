@@ -14,5 +14,21 @@
   "routes": [],
   "browser": { "binding": "BROWSER" },
   "limits": { "cpu_ms": 30000 },
-  "observability": { "enabled": false },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "redact_query_string": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": false
+    }
+  },
+  "version_metadata": {
+    "binding": "WRANGLER_VERSION_METADATA"
+  },
 }
