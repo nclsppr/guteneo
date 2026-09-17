@@ -408,7 +408,17 @@ export function createGuteneoMcpServer(
   env: AuthEnv,
   services: McpServices,
 ): McpServer {
-  const server = new McpServer({ name: "guteneo", version: "0.2.0" });
+  const server = new McpServer({
+    name: "guteneo",
+    version: "0.2.0",
+    icons: [
+      {
+        src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
+        mimeType: "image/png",
+        sizes: ["512x512"],
+      },
+    ],
+  });
   const run = async <T>(
     scope: string | string[] | null,
     operation: () => Promise<T> | T,

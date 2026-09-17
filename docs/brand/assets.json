@@ -1,0 +1,112 @@
+{
+  "source": "User-approved stamp with guteneo.com for public footer/external communications; transparent wordless portrait for site/workspace headers; earlier simple flat mark for favicons and compact icons. Corrected 2026-09-17.",
+  "processing": "Original JPGs and existing footer stamp preserved; wordless portrait alpha extracted with built-in image_gen from user JPEG. Raw RGBA output retained. Web derivatives resized/encoded with Sharp; alpha retained, never flattened. Favicon exports preserve earlier simple mark.",
+  "engine": "sharp 0.35.4",
+  "assets": [
+    {
+      "path": "docs/brand/sources/guteneo-mark-original.jpg",
+      "bytes": 226096,
+      "sha256": "3b696c945e95059399d04bd89b578c21596de3dd6420fb479e8b237dafbbafd5"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-mark-128.webp",
+      "bytes": 8798,
+      "sha256": "f2a2304f8bf4203f82adaa1b0553d7a6b5ce2512e019a3841ae62250ca93f646"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-mark.webp",
+      "bytes": 41932,
+      "sha256": "82e8d8b583b5ae3163558ecd90cb66a0ce76f51a595519a7a967b7f9c31ddc56"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-mark.png",
+      "bytes": 249823,
+      "sha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9"
+    },
+    {
+      "path": "docs/brand/sources/guteneo-logo-original.jpg",
+      "bytes": 745231,
+      "sha256": "f4b858e83c68e24c1b2a7910ec19d6a5a432bb127e1f14ad3aed69dca60833f9"
+    },
+    {
+      "path": "apps/web/public/favicon-16.png",
+      "bytes": 862,
+      "sha256": "ad096c627f7ff96fda6bedffdc5551842d17832f9d2e4674afdf08072e6116c9"
+    },
+    {
+      "path": "apps/web/public/favicon-32.png",
+      "bytes": 2583,
+      "sha256": "d1c970c0edd5236268a1776cecf877b08be01b926aa83be5902ebef2f0b3d026"
+    },
+    {
+      "path": "apps/web/public/apple-touch-icon.png",
+      "bytes": 38300,
+      "sha256": "42acf26f5bf670bef741fe0dc4a09e107dd56681e864756e20c677e6db1966a9"
+    },
+    {
+      "path": "apps/web/public/icon-192.png",
+      "bytes": 42770,
+      "sha256": "47664c9c866f6739825408c6b79de14aaafacdb283c58cca8011b3a2c7995687"
+    },
+    {
+      "path": "apps/web/public/icon-512.png",
+      "bytes": 249823,
+      "sha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9"
+    },
+    {
+      "path": "apps/web/public/favicon.svg",
+      "bytes": 29430,
+      "sha256": "7459869d106ca8135457fa2b4fbf9d2754a48c417d37703b9793b310f9704b6c"
+    },
+    {
+      "path": "apps/web/public/favicon.ico",
+      "bytes": 8542,
+      "sha256": "5c9494b8cec8e88589f8a74906e1234b6edbf8219917b4b0cfa5ee2b29b12bc0"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-portrait-128.webp",
+      "bytes": 15068,
+      "sha256": "92c7203f679b97c7b1b9dc47902112fbedbd1e83c6e097fbcfc656763403fa5b"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-portrait-192.webp",
+      "bytes": 33534,
+      "sha256": "1013e7e5a4da1988d2bbf738987da3961394f16a7be030a8df508c3810da3740"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-portrait.png",
+      "bytes": 179923,
+      "sha256": "df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-stamp.png",
+      "bytes": 213606,
+      "sha256": "4a71302cbf9226fb6efc2df99ce8effc48101d5bc254d2e71bb10e84f8820822"
+    },
+    {
+      "path": "assets/brand/source/guteneo-portrait-transparent.png",
+      "bytes": 2371056,
+      "sha256": "6aacf9fa457b03c3a45d6fcb97dd149c242cef8ecf891db10e115f5a235e68df"
+    },
+    {
+      "path": "assets/brand/source/gutenberg-guteneo-stamp.jpg",
+      "bytes": 768769,
+      "sha256": "9f5e573c1deff3ba4fae0de046104b67f05bcc8dec7d887761b64ca246a7b733"
+    },
+    {
+      "path": "assets/brand/source/gutenberg-portrait-stamp.jpg",
+      "bytes": 745231,
+      "sha256": "f4b858e83c68e24c1b2a7910ec19d6a5a432bb127e1f14ad3aed69dca60833f9"
+    },
+    {
+      "path": "apps/web/public/brand/gutenberg-guteneo-stamp.webp",
+      "bytes": 175830,
+      "sha256": "6e04f5f1d744942be176843ef0a0cb41ce7e4c710b1d36c22257a33f3679225f"
+    },
+    {
+      "path": "apps/web/src/assets/guteneo-stamp-preview.jpg",
+      "bytes": 37186,
+      "sha256": "dcd48ec4caf1ece7672509f9513fb86f7043fb617fa2ceda1b1dd6ee6daefce5"
+    }
+  ]
+}

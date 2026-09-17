@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import previewStamp from "./assets/guteneo-stamp-preview.jpg?inline";
 import type {
   Channel,
   Dispatch,
@@ -199,19 +200,14 @@ async function fixturePdf(title: string) {
   const serif = await pdf.embedFont(StandardFonts.TimesRoman);
   const sans = await pdf.embedFont(StandardFonts.Helvetica);
   const ink = rgb(0.12, 0.13, 0.12);
-  const green = rgb(0.17, 0.3, 0.23);
-  sheet.drawText("GUTENEO", {
-    x: 56,
-    y: 774,
-    size: 14,
-    font: sans,
-    color: green,
-  });
+  const blue = rgb(0.14, 0.31, 0.86);
+  const stamp = await pdf.embedJpg(previewStamp);
+  sheet.drawImage(stamp, { x: 56, y: 728, width: 72, height: 72 });
   sheet.drawLine({
-    start: { x: 56, y: 754 },
-    end: { x: 539, y: 754 },
+    start: { x: 56, y: 710 },
+    end: { x: 539, y: 710 },
     thickness: 0.7,
-    color: green,
+    color: blue,
   });
   sheet.drawText(title, { x: 56, y: 665, size: 30, font: serif, color: ink });
   const lines = [
@@ -244,14 +240,14 @@ async function fixturePdf(title: string) {
     start: { x: 56, y: 100 },
     end: { x: 539, y: 100 },
     thickness: 0.5,
-    color: green,
+    color: blue,
   });
   sheet.drawText("EXEMPLE FICTIF · APERÇU DE DESIGN · AUCUN ENVOI", {
     x: 56,
     y: 78,
     size: 9,
     font: sans,
-    color: green,
+    color: blue,
   });
   return new Uint8Array(await pdf.save());
 }

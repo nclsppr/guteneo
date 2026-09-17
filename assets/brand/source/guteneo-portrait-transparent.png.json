@@ -1,0 +1,11 @@
+{
+  "source": "assets/brand/source/gutenberg-portrait-stamp.jpg",
+  "tool": "image_gen (built-in)",
+  "operation": "White paper/background to alpha, preserving blue halftone portrait and wordless perforated border.",
+  "output": "assets/brand/source/guteneo-portrait-transparent.png",
+  "width": 1254,
+  "height": 1254,
+  "background": "transparent; alpha verified in raw output and final derivatives",
+  "prompt": "Use case: background-extraction. Asset type: exact existing Guteneo website header logo. Edit the provided single image by making its white background TRANSPARENT with real PNG alpha. This is a faithful background extraction of approved artwork, NOT a logo redesign. Preserve the same blue halftone Gutenberg portrait, exact pose, facial geometry, dot-screen texture, square perforated stamp border, blue color, framing and proportions. Preserve ALL existing blue marks. Turn white paper/background and white negative space (both outside the stamp and inside between the blue halftone dots/white portrait areas) into actual transparency. No white rectangular backing, no new colored background, no drawn checkerboard, no shadow, no lettering, no added wordmark, no text. No guteneo.com text; the header logo must remain wordless. Output a single square RGBA PNG cutout with transparent pixels, keeping the original artwork centered with the same small outer margin. Do not smooth away halftone dots or invent new engraving lines.",
+  "note": "User attachments are JPEGs without alpha; transparency was reconstructed, not inherited from the JPEG. External stamp with guteneo.com remains unchanged."
+}

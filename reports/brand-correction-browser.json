@@ -1,0 +1,296 @@
+[
+  {
+    "name": "desktop",
+    "route": "/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "desktop",
+    "route": "/journal/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "desktop",
+    "route": "/journal/de-gutenberg-au-numerique/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "desktop",
+    "route": "/journal/histoire-imprimerie-luxembourg/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "desktop",
+    "route": "/mentions-legales/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  },
+  {
+    "name": "desktop",
+    "route": "/developpeurs/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 48,
+      "height": 48
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "desktop",
+    "route": "/#/app",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 40,
+      "height": 40
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  },
+  {
+    "name": "iphone",
+    "route": "/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "iphone",
+    "route": "/journal/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "iphone",
+    "route": "/journal/de-gutenberg-au-numerique/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "iphone",
+    "route": "/journal/histoire-imprimerie-luxembourg/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "iphone",
+    "route": "/mentions-legales/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  },
+  {
+    "name": "iphone",
+    "route": "/developpeurs/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "iphone",
+    "route": "/#/app",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-192.webp",
+      "transparentPixels": 292,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 40,
+      "height": 40
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  },
+  {
+    "name": "small",
+    "route": "/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "small",
+    "route": "/journal/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "small",
+    "route": "/journal/de-gutenberg-au-numerique/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "small",
+    "route": "/journal/histoire-imprimerie-luxembourg/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "small",
+    "route": "/mentions-legales/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  },
+  {
+    "name": "small",
+    "route": "/developpeurs/",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 44,
+      "height": 44
+    },
+    "wordmark": "guteneo",
+    "footerStamp": "/brand/gutenberg-guteneo-stamp.webp"
+  },
+  {
+    "name": "small",
+    "route": "/#/app",
+    "overflow": false,
+    "header": {
+      "source": "/brand/guteneo-portrait-128.webp",
+      "transparentPixels": 181,
+      "background": "rgba(0, 0, 0, 0)",
+      "width": 40,
+      "height": 40
+    },
+    "wordmark": "guteneo",
+    "footerStamp": null
+  }
+]

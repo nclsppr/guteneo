@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { LuxembourgFooter } from "../landing-sections";
+import { Brand } from "../brand";
 import { articles, articlePath } from "./articles";
 import type { EditorialArticle } from "./types";
 import "./editorial.css";
@@ -15,12 +16,7 @@ const dateLabel = (date: string) =>
 function EditorialHeader() {
   return (
     <header className="site-header editorial-header">
-      <a className="brand" href="/" aria-label="guteneo, accueil">
-        <span className="brand-mark" aria-hidden="true">
-          g
-        </span>
-        <span>guteneo</span>
-      </a>
+      <Brand />
       <nav aria-label="Navigation principale">
         <a href="/journal/">Le journal</a>
         <a className="button small" href="/#/app">

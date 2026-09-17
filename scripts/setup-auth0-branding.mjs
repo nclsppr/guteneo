@@ -3,11 +3,12 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 
 export const BRANDING_TENANT = "pieper.eu.auth0.com";
-const LOGO = "https://guteneo.com/favicon.svg";
+const LOGO = "https://guteneo.com/brand/guteneo-portrait.png";
+const FAVICON = "https://guteneo.com/favicon.svg?brand=20260917";
 export const BRANDING = {
   colors: { primary: "#2450db", page_background: "#f6f5ef" },
   logo_url: LOGO,
-  favicon_url: LOGO,
+  favicon_url: FAVICON,
 };
 export const THEME = {
   displayName: "Guteneo — atelier de correspondance",
@@ -72,68 +73,68 @@ export const TEXTS = {
     login: {
       title: "Bienvenue chez Guteneo",
       description: "Connectez-vous à votre atelier de correspondance.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "login-id": {
       title: "Bienvenue chez Guteneo",
       description: "Connectez-vous à votre atelier de correspondance.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "login-password": {
       title: "Votre mot de passe",
       description: "Retrouvez votre atelier Guteneo.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     signup: {
       title: "Créez votre atelier",
       description:
         "Votre compte Guteneo, pour préparer et suivre votre correspondance.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "signup-id": {
       title: "Créez votre atelier",
       description:
         "Votre compte Guteneo, pour préparer et suivre votre correspondance.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "signup-password": {
       title: "Protégez votre atelier",
       description: "Choisissez un mot de passe pour votre compte Guteneo.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
   },
   en: {
     login: {
       title: "Welcome to Guteneo",
       description: "Sign in to your correspondence workspace.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "login-id": {
       title: "Welcome to Guteneo",
       description: "Sign in to your correspondence workspace.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "login-password": {
       title: "Your password",
       description: "Return to your Guteneo workspace.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     signup: {
       title: "Create your workspace",
       description:
         "Your Guteneo account, to prepare and track your correspondence.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "signup-id": {
       title: "Create your workspace",
       description:
         "Your Guteneo account, to prepare and track your correspondence.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
     "signup-password": {
       title: "Protect your workspace",
       description: "Choose a password for your Guteneo account.",
-      logoAltText: "Guteneo",
+      logoAltText: "guteneo",
     },
   },
 };
