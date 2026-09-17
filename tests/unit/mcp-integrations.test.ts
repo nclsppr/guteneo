@@ -17,6 +17,7 @@ import {
   type McpIdentity,
 } from "../../apps/api/src/auth";
 import { ImportSourceError } from "../../apps/api/src/documents";
+import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
 import { DomainService, type Dispatch } from "../../packages/domain/src/index";
 
 let mf: Miniflare;
@@ -139,6 +140,7 @@ async function call(
 ) {
   return (await client.callTool({ name, arguments: args })) as {
     isError?: boolean;
+    content: Array<{ type: string; text?: string }>;
     structuredContent?: {
       ok: boolean;
       data?: Record<string, unknown>;
@@ -149,6 +151,96 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("keeps automatic analysis readable and resumable without another import or rescan", async () => {
+    const saved = await domain.getDocument(identity.context, documentId);
+    const processing = {
+      ...saved,
+      status: "quarantined" as const,
+      pages: 0,
+      analysis: documentAnalysis(
+        "quarantined",
+        "processing",
+        "scanner_unavailable",
+      ),
+    };
+    const get = vi.fn(async (ctx: typeof identity.context, id: string) => {
+      await domain.getDocument(ctx, id);
+      return processing;
+    });
+    const rescan = vi.fn(async () => processing);
+    const importFile = vi.fn(async () => processing);
+    await connected(
+      async (client) => {
+        const result = await call(client, "get_document", { documentId });
+        expect(result.isError).not.toBe(true);
+        const message = result.content[0];
+        expect(message.type).toBe("text");
+        expect(message.text).toContain("dans cette conversation");
+        expect(message.text).not.toMatch(/https?:\/\/|quarantined|doc_/);
+        expect(result.structuredContent?.data).toMatchObject({
+          id: documentId,
+          status: "quarantined",
+          documentUrl: `${env.APP_ORIGIN}/#/app/documents?document=${documentId}`,
+          analysis: {
+            state: "processing",
+            nextAction: "wait",
+            retryAfterSeconds: 15,
+          },
+        });
+        const analysis = result.structuredContent?.data?.analysis;
+        expect(JSON.stringify(analysis)).toContain("automatiquement");
+        expect(JSON.stringify(analysis)).not.toContain("quarantined");
+        expect(JSON.stringify(result)).not.toContain("private-test-document");
+        const listing = await call(client, "list_documents");
+        expect(listing.structuredContent?.data?.items).toEqual([
+          expect.objectContaining({ analysis: processing.analysis }),
+        ]);
+        expect(get).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          documentId,
+        );
+        expect(rescan).not.toHaveBeenCalled();
+        expect(importFile).not.toHaveBeenCalled();
+      },
+      identity,
+      {
+        get,
+        rescan,
+        importFile,
+        list: async () => ({ items: [processing], nextCursor: null }),
+      },
+    );
+  });
+
+  it("gives an honest recovery action for old quarantine and a distinct permanent refusal", async () => {
+    const saved = await domain.getDocument(identity.context, documentId);
+    const doc = { ...saved, status: "quarantined" as const, pages: 0 };
+    for (const analysis of [
+      undefined,
+      documentAnalysis("quarantined", "blocked", "security_rejected"),
+    ]) {
+      await connected(
+        async (client) => {
+          const result = await call(client, "rescan_document", { documentId });
+          expect(result.structuredContent?.data?.analysis).toMatchObject(
+            analysis
+              ? { state: "blocked", nextAction: "replace_document" }
+              : {
+                  state: "retryable",
+                  nextAction: "rescan",
+                  code: "not_started",
+                },
+          );
+          expect(
+            JSON.stringify(result.structuredContent?.data?.analysis),
+          ).not.toContain("automatiquement");
+        },
+        identity,
+        { rescan: async () => ({ ...doc, ...(analysis ? { analysis } : {}) }) },
+      );
+    }
+  });
+
   it("returns an actionable import reason and correlation without leaking signed URL details", async () => {
     const correlation = "fcd1cb36-c54b-427a-98b5-19f6f304728a";
     const onFailure = vi.fn(() => correlation);

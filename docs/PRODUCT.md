@@ -1,5 +1,11 @@
 # Guteneo product contract
 
+Local candidate, 17 September: document verification now has a readable progress
+and recovery contract, with automatic bounded retries of temporary scanner
+failures on the same original. This does not automate preparation, approval or
+sending. Migration and production qualification remain pending; see
+[DOCUMENT_ANALYSIS_RECOVERY.md](DOCUMENT_ANALYSIS_RECOVERY.md).
+
 Guteneo implements document delivery by fax (Telnyx), email (SES) and physical post (Pingen). Published release `118ce087` includes these contracts with production sending still disabled; provider and account qualification remain open. REST, MCP and the French dashboard invoke the same domain operations. One dispatch means one recipient and channel. No automatic channel substitution.
 
 Accepted journeys: (A) exact immutable imported PDF; (B) explicitly generated PDF from standalone HTML; (C) sanitized HTML plus text email; (D) named multichannel campaign referencing shared documents and validated CSV recipients. By default a human reviews content, destinations, options and bounded cost in Guteneo before durable acceptance. An administrator may instead explicitly delegate approval to one of their own OAuth connections in account settings, with channels, per-send/daily limits and expiry. This expert mode starts off and never bypasses host confirmation rules or provider gates; the assistant reviews and accepts the exact command under recorded delegated authority. Revocation stops new acceptance, not already accepted communications. See [EXPERT_APPROVAL.md](EXPERT_APPROVAL.md). Simulation is always labelled and consumes a separate test ledger.

@@ -309,11 +309,15 @@ export function DeveloperPage() {
                 n’est pas une route REST.
               </p>
               <p>
-                Un document <code>quarantined</code> peut être réexaminé avec{" "}
-                <code>POST /api/documents/&#123;id&#125;/rescan</code>. Un scan
-                indisponible ou non concluant le laisse en quarantaine. Ne
-                bouclez pas : consultez le statut et les erreurs ; seuls les
-                octets d’origine sont réanalysés.
+                Le champ <code>analysis</code> indique si la vérification est en
+                cours, terminée, à relancer ou bloquée, avec une explication et
+                une prochaine action. Pendant une vérification en cours,
+                consultez <code>GET /api/documents/&#123;id&#125;</code> toutes
+                les 15 secondes au maximum. Le serveur gère les reprises
+                automatiques limitées. Proposez une relance explicite via{" "}
+                <code>POST /api/documents/&#123;id&#125;/rescan</code> seulement
+                lorsque l’action retournée est <code>rescan</code>. Conservez le
+                même document : aucun nouveau dépôt n’est nécessaire.
               </p>
             </section>
             <section id="fiabilite">

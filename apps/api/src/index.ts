@@ -458,7 +458,20 @@ app.post("/api/postal/preflights/:id/quote", async (c) => {
   );
 });
 app.get("/api/documents", async (c) =>
-  c.json(await domain(c.env).listDocuments(c.get("actor"), ...page(c.req.url))),
+  c.json(
+    await new DocumentService(c.env, domain(c.env)).list(
+      c.get("actor"),
+      ...page(c.req.url),
+    ),
+  ),
+);
+app.get("/api/documents/:id", async (c) =>
+  c.json(
+    await new DocumentService(c.env, domain(c.env)).get(
+      c.get("actor"),
+      c.req.param("id"),
+    ),
+  ),
 );
 app.post("/api/documents", async (c) => {
   const data = await c.req.raw.formData();
@@ -869,6 +882,7 @@ export default {
       stage = "leases";
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";
+      await new DocumentService(env, service).processPendingScans();
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);

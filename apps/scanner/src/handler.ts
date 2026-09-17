@@ -1,5 +1,12 @@
 const MAX_BYTES = 10 * 1024 * 1024;
 const DEADLINE_MS = 25_000;
+const SCANNER_ERROR_CODES = new Set([
+  "SCANNER_NOT_READY",
+  "SCANNER_BUSY",
+  "SIGNATURES_STALE",
+  "SCAN_TIMEOUT",
+  "SCAN_INCOMPLETE",
+]);
 
 function fail(code: string, status: number): Response {
   return Response.json(
@@ -32,8 +39,10 @@ async function readBounded(
       chunks.push(value);
     }
   } finally {
+    await Promise.race([reader.cancel().catch(() => {}), aborted]).catch(
+      () => {},
+    );
     signal.removeEventListener("abort", onAbort);
-    await reader.cancel().catch(() => {});
     reader.releaseLock();
   }
   if (size === 0) throw new Error("EMPTY_BODY");
@@ -46,20 +55,53 @@ async function readBounded(
   return bytes;
 }
 
+async function scannerFailure(
+  response: Response,
+  signal: AbortSignal,
+): Promise<Response> {
+  try {
+    if (
+      response.headers
+        .get("content-type")
+        ?.split(";")[0]
+        .trim()
+        .toLowerCase() !== "application/json"
+    )
+      return fail("SCANNER_UNAVAILABLE", 503);
+    const result: unknown = JSON.parse(
+      new TextDecoder().decode(await readBounded(response, signal, 4096)),
+    );
+    if (
+      result &&
+      typeof result === "object" &&
+      !Array.isArray(result) &&
+      "code" in result &&
+      typeof result.code === "string" &&
+      SCANNER_ERROR_CODES.has(result.code)
+    )
+      return fail(result.code, 503);
+  } catch {
+    // Untrusted response fields and exception text never cross this boundary.
+  }
+  return fail(signal.aborted ? "SCAN_TIMEOUT" : "SCANNER_UNAVAILABLE", 503);
+}
+
 export async function handleRequest(
   request: Request,
   env: ScannerEnv,
 ): Promise<Response> {
   const { pathname } = new URL(request.url);
   if (request.method === "GET" && pathname === "/health") {
+    const signal = AbortSignal.timeout(DEADLINE_MS);
     try {
       const response = await env.SCANNER_CONTAINER.getByName(
         "scanner-v1",
       ).fetch(
         new Request("http://scanner.internal/health", {
-          signal: AbortSignal.timeout(DEADLINE_MS),
+          signal,
         }),
       );
+      if (!response.ok) return scannerFailure(response, signal);
       return new Response(response.body, {
         status: response.status,
         headers: {
@@ -68,7 +110,7 @@ export async function handleRequest(
         },
       });
     } catch {
-      return fail("SCANNER_UNAVAILABLE", 503);
+      return fail(signal.aborted ? "SCAN_TIMEOUT" : "SCANNER_UNAVAILABLE", 503);
     }
   }
   if (request.method !== "POST" || pathname !== "/scan")
@@ -106,12 +148,15 @@ export async function handleRequest(
         signal,
       }),
     );
-    if (!response.ok) return fail("SCANNER_UNAVAILABLE", 503);
+    if (!response.ok) return scannerFailure(response, signal);
     let raw: string;
     try {
       raw = new TextDecoder().decode(await readBounded(response, signal, 4096));
     } catch {
-      return fail("INVALID_SCANNER_RESPONSE", 503);
+      return fail(
+        signal.aborted ? "SCAN_TIMEOUT" : "INVALID_SCANNER_RESPONSE",
+        503,
+      );
     }
     const result = JSON.parse(raw) as {
       sha256?: string;
@@ -134,6 +179,6 @@ export async function handleRequest(
       return fail("BODY_TOO_LARGE", 413);
     if (error instanceof Error && error.message === "EMPTY_BODY")
       return fail("EMPTY_BODY", 400);
-    return fail("SCANNER_UNAVAILABLE", 503);
+    return fail(signal.aborted ? "SCAN_TIMEOUT" : "SCANNER_UNAVAILABLE", 503);
   }
 }

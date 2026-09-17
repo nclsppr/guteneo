@@ -827,6 +827,22 @@ ol {
   background: #eef4ec;
   color: #345934;
 }
+.status-document-ready {
+  border-color: #bdcebd;
+  background: #eef4ec;
+  color: #345934;
+}
+.status-document-processing {
+  border-color: #c9d4f6;
+  background: #edf1ff;
+  color: #2443a0;
+}
+.status-document-retryable,
+.status-document-blocked {
+  border-color: #dfd0b8;
+  background: #f7f0e5;
+  color: #754509;
+}
 .status-prepared,
 .status-approved,
 .status-accepted,
@@ -1093,6 +1109,29 @@ ol {
 }
 .document-detail h2 {
   margin-bottom: 9px;
+}
+.document-analysis h3 {
+  margin: 0 0 7px;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.document-analysis p,
+.document-followup-notice p {
+  max-width: 65ch;
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.document-analysis .document-followup-hint {
+  margin-bottom: 0;
+}
+.document-support {
+  display: inline-block;
+  margin: 12px 0 0;
+}
+.document-analysis .button + .document-support {
+  display: block;
 }
 .document-metadata {
   display: grid;

@@ -124,7 +124,7 @@ export async function reviewExpertDispatch(
     if (!readDocument)
       throw new DomainError(
         "EXPERT_DOCUMENT_UNAVAILABLE",
-        "Ce connecteur ne fournit pas le PDF exact. Ouvrez la revue dans Guteneo.",
+        "Ce connecteur ne fournit pas le PDF exact pour la revue expert. Une revue humaine dans Guteneo reste une alternative.",
         409,
       );
     const exact = await readDocument(identity.context, document.id);
@@ -136,7 +136,7 @@ export async function reviewExpertDispatch(
     )
       throw new DomainError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "Le PDF a changé. Ouvrez la revue dans Guteneo.",
+        "Le PDF a changé : la revue expert est interrompue. Une revue humaine dans Guteneo reste une alternative.",
         423,
       );
     // No async I/O after this conversion before the current authority/proof fences.
@@ -255,7 +255,7 @@ export async function reviewExpertDispatch(
     approvalUrl: `${env.APP_ORIGIN}/#/app/dispatch/${encodeURIComponent(dispatchId)}`,
     instructions:
       (document
-        ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver et utiliser approvalUrl. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
+        ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver, expliquer la limite dans la conversation et proposer approvalUrl comme alternative sans ouvrir le site automatiquement. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
         : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
       "Présenter l’empreinte, le destinataire, le contenu, les options et le coût. Pour un fax v3, présenter faxPricing.display.estimate (fourchette HT et euros de crédit), puis le plafond distinct et display.explanation ; estimatedMinor est seulement la borne haute arrondie, jamais le prix fixe ni le débit. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
   };

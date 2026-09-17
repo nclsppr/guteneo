@@ -207,7 +207,7 @@ export function routeCode(
   const id =
     "[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}";
   for (const [pattern, code] of [
-    [`^/api/documents/doc_${id}/(content|rescan)$`, "documents"],
+    [`^/api/documents/doc_${id}(/(content|rescan))?$`, "documents"],
     [
       `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote))?$`,
       "dispatches",

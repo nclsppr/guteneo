@@ -48,6 +48,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/health",
     "get /api/capabilities",
     "get /api/documents",
+    "get /api/documents/{id}",
     "post /api/documents",
     "post /api/documents/render",
     "get /api/documents/{id}/content",

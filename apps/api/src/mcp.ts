@@ -1,4 +1,8 @@
 import { ImportSourceError, type DocumentService } from "./documents";
+import {
+  documentAnalysis,
+  type DocumentAnalysis,
+} from "../../../packages/contracts/src/document-analysis";
 import type { ImportFailureObservation } from "../../../packages/observability/src/index";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
@@ -26,6 +30,8 @@ import {
 } from "./auth";
 
 export interface McpDocuments {
+  get?: DocumentService["get"];
+  list?: DocumentService["list"];
   getReviewContent?: DocumentService["getReviewContent"];
   rescan?(ctx: AuthContext, documentId: string): Promise<DocumentRecord>;
   importFile(
@@ -79,6 +85,22 @@ const errorSchema = z
     sourceHost: z.string().max(253).optional(),
   })
   .strict();
+const analysisSchema = z
+  .object({
+    state: z.enum(["processing", "ready", "retryable", "blocked"]),
+    code: z.string(),
+    title: z.string(),
+    message: z.string(),
+    nextAction: z.enum([
+      "wait",
+      "rescan",
+      "replace_document",
+      "contact_support",
+      "continue",
+    ]),
+    retryAfterSeconds: z.number().int().nonnegative().nullable(),
+  })
+  .strict();
 const documentSchema = z
   .object({
     id: z.string(),
@@ -90,6 +112,8 @@ const documentSchema = z
     source: z.string(),
     createdAt: z.string(),
     previewUrl: z.string(),
+    documentUrl: z.string(),
+    analysis: analysisSchema,
     simulation: z.boolean(),
   })
   .strict();
@@ -222,12 +246,12 @@ const oauthMetadata = (scope?: string | string[]) => ({
 });
 
 export const FAX_WORKFLOW = [
-  "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages.",
+  "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages. expert.available indique seulement la disponibilité de la fonction, pas un mandat actif pour cette connexion ; seul le contrôle serveur de la délégation fait autorité.",
   "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un fichier autorisé, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant.",
-  "3. Attendre le statut ready du document. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
-  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter l’aperçu, le destinataire, le coût et approvalUrl. Si faxPricing est présent, présenter faxPricing.display.estimate.label et creditLabel, puis display.ceiling et display.explanation. Les crédits sont un solde en euros. estimatedMinor est seulement la borne haute arrondie au centime supérieur, jamais un prix fixe ni un débit. Les montants exacts restent disponibles dans display.estimate.lowEur/highEur et les nanoEUR. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
+  "3. Lire analysis et reprendre ses title/message en langage courant : ne pas présenter quarantined comme un échec ou une infection. Si analysis.state=processing, le PDF est conservé et Guteneo poursuit automatiquement la vérification. Attendre retryAfterSeconds avant get_document (lecture seule), au maximum trois lectures dans cette interaction ; ne pas boucler sur rescan_document ni réimporter. Si l’attente dépasse l’interaction, proposer de dire « reprends l’envoi » ici pour consulter le même PDF, en conservant son identifiant et les paramètres déjà fournis sans demander de les recopier. documentUrl est une consultation facultative, pas une étape nécessaire ; ne le présenter que si l’utilisateur souhaite le site. Ne promettre ni notification ni envoi automatique. Si nextAction=rescan, proposer une seule relance sur le même document ; si blocked, expliquer message et l’action proposée. Seul ready autorise prepare_fax. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
+  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter le PDF, le destinataire et le coût dans la conversation ; le lien approvalUrl dépend de la voie autorisée à l’étape suivante. Si faxPricing est présent, présenter faxPricing.display.estimate.label et creditLabel, puis display.ceiling et display.explanation. Les crédits sont un solde en euros. estimatedMinor est seulement la borne haute arrondie au centime supérieur, jamais un prix fixe ni un débit. Les montants exacts restent disponibles dans display.estimate.lowEur/highEur et les nanoEUR. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
   "4b. Afficher quoteExpiresAt, l’échéance exacte renvoyée par le serveur, sans calculer createdAt + 15 minutes. Si elle est dépassée ou si LIVE_QUOTE_INVALID est renvoyé, relire get_dispatch_status. Seulement si status=prepared et attemptCount=0 explicitement (un champ absent ne vaut pas zéro), proposer prepare_fax avec renewalOf=ancien dispatchId, les mêmes documentId, phone E.164 et ceilingMinor exacts, et une clé stable pour ce renouvellement. Le serveur conserve aussi l’expéditeur et les options, remplace l’ancien devis et ne transmet rien. Si le fax venait d’une campagne, annoncer avant le renouvellement que le nouveau devis sera individuel, hors campagne, avec une approbation séparée ; le manifeste et les autres membres restent inchangés. Présenter le nouveau devis et sa nouvelle échéance, puis obtenir une nouvelle approbation ou revue expert sous l’autorité actuelle ; aucun accord, jeton de revue ou fingerprint antérieur ne se reporte. Ne jamais renouveler queued, submitting, submission_unknown, accepted, delivered ou failed, ni un envoi avec tentative. Un refus de configuration ou de plafond doit être expliqué, jamais contourné par un changement de numéro, de document, de tarif ou de clé.",
-  "5. Par défaut, l’utilisateur doit ouvrir approvalUrl, vérifier le PDF et approuver dans Guteneo. Un oui dans la conversation ne remplace pas cette approbation. Si le titulaire a préalablement activé le mode expert pour cette connexion dans son compte, appeler review_dispatch, présenter la revue exacte et respecter la confirmation de l’hôte, puis approve_and_send_dispatch avec le jeton, l’empreinte et le plafond retournés. Cette voie utilise une délégation enregistrée, jamais une affirmation de consentement humain par le modèle. Le modèle ne doit jamais appeler l’API navigateur d’approbation.",
+  "5. Si le titulaire a préalablement activé le mode expert pour cette connexion dans son compte, poursuivre dans la conversation : appeler review_dispatch, lire le PDF exact intégré et présenter la revue, respecter la confirmation de l’hôte, puis approve_and_send_dispatch avec le jeton, l’empreinte et le plafond retournés. approvalUrl n’est pas une étape de cette voie autorisée. Cette voie utilise une délégation enregistrée, jamais une affirmation de consentement humain par le modèle. Si la délégation est refusée ou le PDF exact illisible pour l’hôte, expliquer la limite ici et proposer le parcours standard comme alternative, sans l’ouvrir automatiquement ni appeler approve_and_send_dispatch. Le mode standard reste le défaut sans mandat : l’utilisateur ouvre approvalUrl, vérifie le PDF et approuve dans Guteneo. Un oui dans la conversation ne remplace pas cette approbation et ne crée pas de mandat. Le modèle ne doit jamais appeler l’API navigateur d’approbation ni activer ou étendre sa propre délégation.",
   "6. Dans le parcours standard, après cette approbation navigateur, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
   "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain. La livraison et le décompte sont distincts : faxPricing.settlement.status=reserved conserve le plafond jusqu’à vérification de l’usage, même après livraison ; settled donne la consommation validée et le débit agrégé, released libère la réservation sans débit. Ne pas réexpédier pour accélérer le décompte.",
 ].join("\n");
@@ -276,7 +300,7 @@ export function dispatchSummary(
               "Devis expiré : relire get_dispatch_status ; uniquement si status=prepared et attemptCount=0 explicite, renouveler avec prepare_fax et renewalOf, les mêmes PDF, numéro et plafond. Une nouvelle approbation est requise.",
             ]
           : [
-              "Par défaut : ouvrir l’aperçu authentifié et approuver, puis confirm_dispatch. Si une délégation expert est déjà active pour cette connexion : review_dispatch puis approve_and_send_dispatch, sans modifier les confirmations de l’hôte.",
+              "Si une délégation expert est déjà active pour cette connexion : poursuivre ici avec review_dispatch, lire le PDF exact, puis approve_and_send_dispatch ; aucun passage par approvalUrl n’est nécessaire lorsque le serveur autorise cette voie et que l’hôte lit le PDF. Respecter les confirmations de l’hôte. Sans mandat, le parcours standard reste requis : présenter approvalUrl pour une approbation humaine, puis confirm_dispatch.",
             ]
         : dispatch.status === "submission_unknown"
           ? [
@@ -287,7 +311,10 @@ export function dispatchSummary(
             : [],
   };
 }
-function documentSummary(document: DocumentRecord, env: AuthEnv) {
+function documentSummary(
+  document: DocumentRecord & { analysis?: DocumentAnalysis },
+  env: AuthEnv,
+) {
   return {
     id: document.id,
     name: document.name,
@@ -298,6 +325,8 @@ function documentSummary(document: DocumentRecord, env: AuthEnv) {
     source: document.source,
     createdAt: document.created_at,
     previewUrl: `${env.APP_ORIGIN}/api/documents/${encodeURIComponent(document.id)}/content`,
+    documentUrl: `${env.APP_ORIGIN}/#/app/documents?document=${encodeURIComponent(document.id)}`,
+    analysis: document.analysis ?? documentAnalysis(document.status),
     simulation: env.MODE === "simulation",
   };
 }
@@ -306,6 +335,25 @@ function success(data: unknown): CallToolResult {
   return {
     structuredContent,
     content: [{ type: "text", text: JSON.stringify(structuredContent) }],
+  };
+}
+function documentSuccess(
+  data: ReturnType<typeof documentSummary>,
+): CallToolResult {
+  const result = success(data);
+  return {
+    ...result,
+    content: [
+      {
+        type: "text",
+        text: `${data.analysis.title}. ${data.analysis.message}${
+          data.analysis.state === "processing"
+            ? ' Vous pouvez reprendre dans cette conversation en disant « reprends l’envoi » ; le statut du même PDF sera consulté, sans nouvel import.'
+            : ""
+        }`,
+      },
+      ...result.content,
+    ],
   };
 }
 function failure(
@@ -491,7 +539,7 @@ export function createGuteneoMcpServer(
     "import_document",
     {
       description:
-        "Importe les octets exacts d’un fichier PDF depuis une URL temporaire autorisée. Retourne un identifiant durable ; ne reconstruit jamais son texte. Les sources non autorisées sont refusées.",
+        "Importe les octets exacts d’un PDF depuis une URL temporaire autorisée. Retourne son identifiant durable, analysis et documentUrl. Présenter analysis.title/message. processing signifie que Guteneo poursuit automatiquement la vérification : attendre retryAfterSeconds puis get_document, sans réimporter ni relancer en boucle. Ne promettre ni notification ni envoi. Les sources non autorisées sont refusées.",
       inputSchema: z.object({ file: openAIFileSchema }).strict(),
       outputSchema: output(documentSchema),
       annotations: { ...writeAnnotations, openWorldHint: true },
@@ -501,11 +549,14 @@ export function createGuteneoMcpServer(
       },
     },
     ({ file }) =>
-      run("documents:write", async () =>
-        documentSummary(
-          await services.documents.importFile(identity.context, file),
-          env,
-        ),
+      run(
+        "documents:write",
+        async () =>
+          documentSummary(
+            await services.documents.importFile(identity.context, file),
+            env,
+          ),
+        documentSuccess,
       ),
   );
   server.registerTool(
@@ -524,11 +575,14 @@ export function createGuteneoMcpServer(
       _meta: oauthMetadata("documents:write"),
     },
     (input) =>
-      run("documents:write", async () =>
-        documentSummary(
-          await services.documents.render(identity.context, input),
-          env,
-        ),
+      run(
+        "documents:write",
+        async () =>
+          documentSummary(
+            await services.documents.render(identity.context, input),
+            env,
+          ),
+        documentSuccess,
       ),
   );
   server.registerTool(
@@ -536,18 +590,23 @@ export function createGuteneoMcpServer(
     {
       title: "Vérifier un PDF Guteneo",
       description:
-        "Vérifie l’identifiant, l’empreinte SHA-256, les pages et le statut d’un PDF de l’organisation connectée. Un document quarantined ne peut pas être faxé. L’aperçu nécessite une session navigateur Guteneo.",
+        "Consulte la vérification du PDF enregistré. Présenter analysis.title/message et nextAction, pas le statut technique quarantined. Si processing, attendre retryAfterSeconds avant une nouvelle lecture (trois lectures maximum par interaction), sans réimporter ni rescan ; proposer ensuite de reprendre ici avec le même identifiant. documentUrl est facultatif, uniquement si l’utilisateur souhaite consulter le site. Seul ready permet de préparer un envoi. Ne promettre ni notification ni envoi automatique.",
       inputSchema: z.object({ documentId: id }).strict(),
       outputSchema: output(documentSchema),
       annotations: readonlyAnnotations,
       _meta: oauthMetadata("documents:read"),
     },
     ({ documentId }) =>
-      run("documents:read", async () =>
-        documentSummary(
-          await services.domain.getDocument(identity.context, documentId),
-          env,
-        ),
+      run(
+        "documents:read",
+        async () =>
+          documentSummary(
+            await (services.documents.get
+              ? services.documents.get(identity.context, documentId)
+              : services.domain.getDocument(identity.context, documentId)),
+            env,
+          ),
+        documentSuccess,
       ),
   );
   if (services.documents.rescan)
@@ -556,18 +615,21 @@ export function createGuteneoMcpServer(
       {
         title: "Relancer la vérification d’un PDF",
         description:
-          "Relance une analyse du PDF original en quarantaine, sans modifier ses octets ni l’envoyer. Utile après le démarrage de l’antivirus. Maximum dix nouvelles tentatives par organisation et par jour ; ne pas appeler en boucle. Seul le statut ready permet de préparer un fax.",
+          "Relance la vérification du même PDF uniquement si analysis.nextAction=rescan. Si une vérification automatique est déjà en cours, la consulter avec get_document après retryAfterSeconds. Présenter analysis.title/message et poursuivre dans la conversation ; documentUrl est une consultation facultative si l’utilisateur souhaite le site. Ne pas réimporter ni appeler en boucle. Maximum dix relances manuelles par jour. Ne modifie ni n’envoie le PDF ; seul ready permet de préparer un fax.",
         inputSchema: z.object({ documentId: id }).strict(),
         outputSchema: output(documentSchema),
         annotations: { ...writeAnnotations, idempotentHint: false },
         _meta: oauthMetadata("documents:write"),
       },
       ({ documentId }) =>
-        run("documents:write", async () =>
-          documentSummary(
-            await services.documents.rescan!(identity.context, documentId),
-            env,
-          ),
+        run(
+          "documents:write",
+          async () =>
+            documentSummary(
+              await services.documents.rescan!(identity.context, documentId),
+              env,
+            ),
+          documentSuccess,
         ),
     );
   server.registerTool(
@@ -595,11 +657,13 @@ export function createGuteneoMcpServer(
     },
     ({ cursor, limit }) =>
       run("documents:read", async () => {
-        const result = await services.domain.listDocuments(
-          identity.context,
-          cursor,
-          limit,
-        );
+        const result = services.documents.list
+          ? await services.documents.list(identity.context, cursor, limit)
+          : await services.domain.listDocuments(
+              identity.context,
+              cursor,
+              limit,
+            );
         return {
           ...result,
           items: result.items.map((document) => documentSummary(document, env)),
@@ -611,7 +675,7 @@ export function createGuteneoMcpServer(
     {
       title: "Préparer un fax PDF",
       description:
-        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien ; nécessite ensuite une approbation dans Guteneo puis confirm_dispatch.",
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien. Sous un mandat expert déjà actif pour cette connexion, poursuivre ici avec review_dispatch puis approve_and_send_dispatch après lecture du PDF exact ; le lien n’est pas requis. Sans mandat, une approbation humaine dans Guteneo puis confirm_dispatch restent nécessaires.",
       inputSchema: z
         .object({
           documentId: id,
@@ -718,7 +782,7 @@ export function createGuteneoMcpServer(
     "review_dispatch",
     {
       description:
-        "Lit l’envoi exact, fournit son PDF lorsqu’il existe en ressource MCP intégrée application/pdf (maximum 1 Mio, sans troncature) et prépare un jeton de revue de cinq minutes maximum pour le mode expert. Exige une délégation préalable active pour cette connexion. Présenter fichier et empreinte, destinataire, contenu, options, estimation et plafond ; respecter les confirmations de l’hôte. Ne transmet rien au fournisseur. Si le PDF est trop gros, inaccessible ou illisible par l’hôte, ne pas approuver : utiliser approvalUrl dans le navigateur. Un jeton ne certifie jamais que le modèle a lu le fichier.",
+        "Lit l’envoi exact, fournit son PDF lorsqu’il existe en ressource MCP intégrée application/pdf (maximum 1 Mio, sans troncature) et prépare un jeton de revue de cinq minutes maximum pour le mode expert. Exige une délégation préalable active pour cette connexion. Présenter fichier et empreinte, destinataire, contenu, options, estimation et plafond ; respecter les confirmations de l’hôte. Ne transmet rien au fournisseur. Si le PDF est trop gros, inaccessible ou illisible par l’hôte, ne pas approuver : expliquer la limite dans la conversation et proposer approvalUrl comme alternative, sans ouvrir le site automatiquement. Un jeton ne certifie jamais que le modèle a lu le fichier.",
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(z.unknown()),
       annotations: { ...writeAnnotations, idempotentHint: false },
@@ -901,9 +965,9 @@ export function createGuteneoMcpServer(
   server.registerPrompt(
     "fax_pdf",
     {
-      title: "Faxer un PDF avec contrôle humain",
+      title: "Faxer un PDF avec approbation autorisée",
       description:
-        "Parcours complet : PDF exact, devis, approbation dans Guteneo, envoi et suivi.",
+        "PDF exact, devis et suivi ; envoi dans la conversation sous mandat expert actif, ou approbation humaine dans Guteneo en mode standard.",
     },
     () => ({
       description:
@@ -913,7 +977,7 @@ export function createGuteneoMcpServer(
           role: "user",
           content: {
             type: "text",
-            text: `${FAX_WORKFLOW}\nDépôt et revue authentifiés : ${env.APP_ORIGIN}/#/app/documents`,
+            text: FAX_WORKFLOW,
           },
         },
       ],

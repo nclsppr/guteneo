@@ -1,5 +1,12 @@
 # Architecture
 
+Local candidate: `document_analysis` persists bounded PDF verification recovery
+for the existing minute cron. Status reads are read-only; exact-byte validation,
+current membership and a document-scoped lease fence every promotion. The
+technical quarantine status remains the send gate. This candidate requires
+migration 0027 and a coordinated release; see
+[DOCUMENT_ANALYSIS_RECOVERY.md](DOCUMENT_ANALYSIS_RECOVERY.md).
+
 One TypeScript application, React/Vite assets and Hono API with shared domain operations; stateless official MCP v2 handler. Dedicated document Worker isolates browser processing. D1 owns authorization-related membership and all business commitments. R2 contains exact immutable private bytes. Since the controlled domain switch on 17 September 2026, the production-mode application serves `https://guteneo.com`, backed by EU-jurisdiction D1/R2, queues, a private ClamAV container and the private document Worker. Auth0 is configured; a completed signup and browser session still require qualification, and live communications remain disabled. The same backend is reachable at `https://guteneo-app.nclsppr.workers.dev`, but browser login must start on the canonical domain to retain its host-only callback cookie. The separate public design preview at `https://guteneo-preview.nclsppr.workers.dev` serves browser-local examples, with only static assets and no access to the application backend. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for dated release proof.
 
 ```mermaid

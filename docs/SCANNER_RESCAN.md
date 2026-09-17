@@ -1,5 +1,10 @@
 # Explicit document re-analysis
 
+Local follow-up candidate, 17 September: [recoverable PDF verification](DOCUMENT_ANALYSIS_RECOVERY.md)
+adds durable bounded retries for transient service failures, separate from manual
+retry quotas. The sections below describe the previously released behavior;
+the candidate adds `analysis` to document reads and keeps all safety gates.
+
 Implemented 2026-09-16. Apply `0012_document_rescan.sql` before exposing the new operations. The implementation is in `DocumentService.rescan(context, documentId)` and `DocumentService.warmScanner(context)`; the API/router and browser controls are integrated separately.
 
 ## Manual rescan

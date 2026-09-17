@@ -1,5 +1,12 @@
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+import { documentAnalysis } from "../../../packages/contracts/src/document-analysis";
 import {
   ArrowRight,
   Plus,
@@ -47,7 +54,94 @@ import {
   sesErrorMessage,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
+
+function analysisOf(document: DocumentRecord) {
+  // Old responses have no evidence that background processing was scheduled.
+  // Preserve their useful manual recovery without promising an automatic retry.
+  return document.analysis ?? documentAnalysis(document.status);
+}
+
+function DocumentStatus({ document }: { document: DocumentRecord }) {
+  const analysis = analysisOf(document);
+  const labels = {
+    processing: "Vérification en cours",
+    ready: "PDF prêt",
+    retryable: "À vérifier",
+    blocked: "PDF indisponible",
+  };
+  return (
+    <span className={`status status-document-${analysis.state}`}>
+      {labels[analysis.state]}
+    </span>
+  );
+}
+
+/** Status reads only: scanning and its bounded recovery belong to the server. */
+function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
+  const [document, setDocument] = useState<DocumentRecord>();
+  const [loading, setLoading] = useState(false);
+  const [issue, setIssue] = useState<"network" | "paused" | null>(null);
+  const [revision, setRevision] = useState(0);
+  const refresh = useCallback(() => setRevision((value) => value + 1), []);
+  useEffect(() => {
+    setDocument((current) => (current?.id === id ? current : undefined));
+    setIssue(null);
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    if (isPublicPreview) {
+      setDocument(preview);
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    let nextRead: ReturnType<typeof setTimeout> | undefined;
+    const deadline = setTimeout(() => {
+      controller.abort();
+      clearTimeout(nextRead);
+      setLoading(false);
+      setIssue("paused");
+    }, 10 * 60_000);
+    async function readStatus() {
+      try {
+        const current = await api<DocumentRecord>(
+          `/documents/${encodeURIComponent(id!)}`,
+          { signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        setDocument(current);
+        setLoading(false);
+        if (
+          current.status !== "ready" &&
+          current.analysis?.state === "processing"
+        ) {
+          nextRead = setTimeout(() => void readStatus(), 15_000);
+        } else clearTimeout(deadline);
+      } catch {
+        if (controller.signal.aborted) return;
+        clearTimeout(deadline);
+        setLoading(false);
+        setIssue("network");
+      }
+    }
+    setLoading(true);
+    void readStatus();
+    return () => {
+      controller.abort();
+      clearTimeout(nextRead);
+      clearTimeout(deadline);
+    };
+  }, [id, revision, preview]);
+  return {
+    document: document?.id === id ? document : undefined,
+    loading,
+    issue,
+    refresh,
+  };
+}
 
 export function Overview() {
   const documents = useResource<Page<DocumentRecord>>("/documents");
@@ -120,20 +214,48 @@ export function Overview() {
 export function Documents() {
   const resource = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
+  const route = useRoute();
+  const selectedId = new URLSearchParams(route.split("?")[1]).get("document");
+  const followup = useDocumentFollowup(
+    selectedId,
+    isPublicPreview
+      ? resource.data?.items.find((item) => item.id === selectedId)
+      : undefined,
+  );
+  const selected = followup.document;
+  const analysis = selected ? analysisOf(selected) : undefined;
+  const updateDocumentList = resource.setData;
+  useEffect(() => {
+    if (!selected || isPublicPreview) return;
+    updateDocumentList((current) =>
+      current
+        ? {
+            ...current,
+            items: current.items.map((item) =>
+              item.id === selected.id ? selected : item,
+            ),
+          }
+        : current,
+    );
+  }, [selected, updateDocumentList]);
   const [tab, setTab] = useState<"import" | "render" | null>(null);
-  const [selected, setSelected] = useState<DocumentRecord>();
   const [name, setName] = useState("");
   const [html, setHtml] = useState(t.documents.defaultHtml);
-  const [scanMessage, setScanMessage] = useState("");
+  const scanRequest = useRef<AbortController | null>(null);
   const file = useRef<HTMLInputElement>(null);
   const documentHeading = useRef<HTMLHeadingElement>(null);
   const documentTrigger = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (selected) documentHeading.current?.focus();
   }, [selected?.id]);
+  useEffect(() => {
+    if (tab === "import") file.current?.focus();
+  }, [tab]);
+  useEffect(() => () => scanRequest.current?.abort(), [selectedId]);
   function openDocument(document: DocumentRecord, trigger: HTMLButtonElement) {
     documentTrigger.current = trigger;
-    setSelected(document);
+    action.clear();
+    go(`/app/documents?document=${encodeURIComponent(document.id)}`);
   }
   async function upload(event: FormEvent) {
     event.preventDefault();
@@ -146,7 +268,7 @@ export function Documents() {
         method: "POST",
         body: form,
       });
-      setSelected(document);
+      go(`/app/documents?document=${encodeURIComponent(document.id)}`);
       setTab(null);
       resource.refresh();
     });
@@ -158,26 +280,27 @@ export function Documents() {
         method: "POST",
         body: { name, html },
       });
-      setSelected(document);
+      go(`/app/documents?document=${encodeURIComponent(document.id)}`);
       setTab(null);
       resource.refresh();
     });
   }
   async function rescan() {
     if (!selected) return;
-    setScanMessage("");
+    const controller = new AbortController();
+    scanRequest.current = controller;
     await action.run(async () => {
-      const document = await api<DocumentRecord>(
-        `/documents/${encodeURIComponent(selected.id)}/rescan`,
-        { method: "POST", body: {} },
-      );
-      setSelected(document);
-      resource.refresh();
-      setScanMessage(
-        document.status === "ready"
-          ? "Analyse terminée. Votre PDF est prêt."
-          : "L’analyse n’a pas encore validé ce PDF. Au premier démarrage, le service peut prendre quelques minutes ; vous pourrez réessayer.",
-      );
+      try {
+        await api<DocumentRecord>(
+          `/documents/${encodeURIComponent(selected.id)}/rescan`,
+          { method: "POST", body: {}, signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        followup.refresh();
+        resource.refresh();
+      } catch (error) {
+        if (!controller.signal.aborted) throw error;
+      }
     });
   }
   return (
@@ -220,6 +343,31 @@ export function Documents() {
       )}
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       <ErrorNotice error={action.error} />
+      {followup.loading && !selected && <Loading />}
+      {followup.issue && (
+        <div className="notice warning document-followup-notice" role="status">
+          <WarningCircle size={22} aria-hidden="true" />
+          <div>
+            <strong>
+              {followup.issue === "network"
+                ? t.documents.followupUnavailable
+                : t.documents.followupPaused}
+            </strong>
+            <p>
+              {selected
+                ? t.documents.followupRecovery
+                : t.documents.followupLoadError}
+            </p>
+            <button
+              className="button"
+              onClick={followup.refresh}
+              disabled={followup.loading}
+            >
+              {t.documents.refreshStatus}
+            </button>
+          </div>
+        </div>
+      )}
       {tab && (
         <section className="form-panel">
           <div className="section-toolbar">
@@ -275,49 +423,83 @@ export function Documents() {
           )}
         </section>
       )}
-      {selected && (
+      {selected && analysis && (
         <section className="document-detail">
           <div className="section-toolbar">
             <div>
               <h2 ref={documentHeading} tabIndex={-1}>
                 {selected.name}
               </h2>
-              <Status status={selected.status} />
+              <DocumentStatus document={selected} />
             </div>
             <button
               className="text-button"
               onClick={() => {
-                setSelected(undefined);
+                go("/app/documents");
+                action.clear();
                 documentTrigger.current?.focus();
               }}
             >
               {t.close}
             </button>
           </div>
-          {["quarantined", "quarantine"].includes(selected.status) ? (
-            <div className="notice warning">
-              <WarningCircle size={22} />
-              <p>{t.documents.quarantine}</p>
+          <div
+            className={`notice document-analysis ${analysis.state === "blocked" || analysis.state === "retryable" ? "warning" : "info"}`}
+          >
+            {analysis.state === "ready" ? (
+              <ShieldCheck size={22} aria-hidden="true" />
+            ) : (
+              <FileText size={22} aria-hidden="true" />
+            )}
+            <div>
+              <div role="status" aria-live="polite" aria-atomic="true">
+                <h3>{analysis.title}</h3>
+                <p>{analysis.message}</p>
+              </div>
+              {analysis.state === "processing" && !followup.issue && (
+                <p className="document-followup-hint">
+                  {t.documents.followupAutomatic}
+                </p>
+              )}
+              {!isPublicPreview && analysis.nextAction === "rescan" && (
+                <button
+                  className="button"
+                  disabled={action.pending || followup.loading}
+                  onClick={() => void rescan()}
+                >
+                  {action.pending ? t.documents.rescanning : t.documents.rescan}
+                </button>
+              )}
+              {!isPublicPreview &&
+                analysis.nextAction === "replace_document" && (
+                  <button
+                    className="button"
+                    onClick={() => {
+                      setTab("import");
+                      action.clear();
+                    }}
+                  >
+                    {t.documents.chooseAnother}
+                  </button>
+                )}
+              {(analysis.nextAction === "contact_support" ||
+                analysis.state === "retryable") && (
+                <a
+                  className="text-link document-support"
+                  href="mailto:guteneo@pieper.fr"
+                >
+                  {t.documents.contactSupport}
+                </a>
+              )}
             </div>
-          ) : (
-            <PdfPreview id={selected.id} />
-          )}
-          {!isPublicPreview && selected.status === "quarantined" && (
-            <p>
-              <button
-                className="button"
-                disabled={action.pending}
-                onClick={() => void rescan()}
-              >
-                {action.pending
-                  ? "Analyse en cours…"
-                  : "Relancer l’analyse du PDF"}
-              </button>
-            </p>
-          )}
-          {scanMessage && <p role="status">{scanMessage}</p>}
+          </div>
+          {selected.status === "ready" && <PdfPreview id={selected.id} />}
           <dl className="document-metadata">
-            <Definition label={t.documents.pages}>{selected.pages}</Definition>
+            <Definition label={t.documents.pages}>
+              {selected.status === "ready"
+                ? selected.pages
+                : t.documents.pagesUnverified}
+            </Definition>
             <Definition label={t.documents.size}>
               {bytes(selected.size)}
             </Definition>
@@ -331,20 +513,14 @@ export function Documents() {
             </Definition>
           </dl>
           <a
-            className={`button primary ${["quarantined", "quarantine"].includes(selected.status) ? "disabled-link" : ""}`}
+            className={`button primary ${selected.status !== "ready" ? "disabled-link" : ""}`}
             href={
-              ["quarantined", "quarantine"].includes(selected.status)
+              selected.status !== "ready"
                 ? undefined
                 : `#/app/prepare?document=${selected.id}`
             }
-            tabIndex={
-              ["quarantined", "quarantine"].includes(selected.status)
-                ? -1
-                : undefined
-            }
-            aria-disabled={["quarantined", "quarantine"].includes(
-              selected.status,
-            )}
+            tabIndex={selected.status !== "ready" ? -1 : undefined}
+            aria-disabled={selected.status !== "ready"}
           >
             {t.documents.ready}
             <ArrowRight size={18} />
@@ -397,7 +573,9 @@ export function Documents() {
                     <span className="mobile-cell-label" aria-hidden="true">
                       {t.documents.pages}
                     </span>
-                    {d.pages}
+                    {(selected?.id === d.id ? selected : d).status === "ready"
+                      ? (selected?.id === d.id ? selected : d).pages
+                      : t.documents.pagesUnverified}
                   </td>
                   <td role="cell">
                     <span className="mobile-cell-label" aria-hidden="true">
@@ -411,7 +589,9 @@ export function Documents() {
                     <span className="mobile-cell-label" aria-hidden="true">
                       {t.status}
                     </span>
-                    <Status status={d.status} />
+                    <DocumentStatus
+                      document={selected?.id === d.id ? selected : d}
+                    />
                   </td>
                   <td role="cell" className="date-cell">
                     <span className="mobile-cell-label" aria-hidden="true">
@@ -459,6 +639,11 @@ export function PrepareDispatch({
   simulation: boolean;
 }) {
   const documents = useResource<Page<DocumentRecord>>("/documents");
+  const initial = useResource<DocumentRecord>(
+    initialDocument && !isPublicPreview
+      ? `/documents/${encodeURIComponent(initialDocument)}`
+      : null,
+  );
   const senders = useResource<{ items: Sender[] }>("/senders");
   const action = useAction();
   const key = useRef(crypto.randomUUID());
@@ -479,10 +664,16 @@ export function PrepareDispatch({
   const [recipient, setRecipient] = useState<Record<string, string>>({
     country: "FR",
   });
-  const available =
-    documents.data?.items.filter((d) =>
-      ["ready", "clean"].includes(d.status),
-    ) ?? [];
+  const candidates = new Map(
+    (documents.data?.items ?? []).map((item) => [item.id, item]),
+  );
+  if (initial.data?.id === initialDocument)
+    candidates.set(initial.data.id, initial.data);
+  const available = [...candidates.values()].filter(
+    (item) => item.status === "ready",
+  );
+  const documentUnavailable =
+    !!documentId && !available.some((item) => item.id === documentId);
   const matchingSenders =
     senders.data?.items.filter((s) => s.channel === channel) ?? [];
   const selectedSender =
@@ -495,6 +686,8 @@ export function PrepareDispatch({
   async function submit(event: FormEvent) {
     event.preventDefault();
     await action.run(async () => {
+      if (documentUnavailable)
+        throw new Error("Vérifiez le PDF avant de préparer l’envoi.");
       const target =
         channel === "fax"
           ? { phone: recipient.phone ?? "" }
@@ -545,7 +738,11 @@ export function PrepareDispatch({
   return (
     <>
       <PageHeading title={t.dispatch.title} intro={t.dispatch.intro} />
-      <ErrorNotice error={documents.error ?? senders.error ?? action.error} />
+      <ErrorNotice
+        error={
+          documents.error ?? initial.error ?? senders.error ?? action.error
+        }
+      />
       <form
         className="prepare-layout"
         onSubmit={(e) => void submit(e)}
@@ -586,8 +783,8 @@ export function PrepareDispatch({
               </option>
               {initialDocument &&
                 !available.some((d) => d.id === initialDocument) && (
-                  <option value={initialDocument}>
-                    {t.document} · {initialDocument}
+                  <option value={initialDocument} disabled>
+                    {initial.loading ? "Chargement du PDF…" : "PDF à vérifier"}
                   </option>
                 )}
               {available.map((d) => (
@@ -597,6 +794,16 @@ export function PrepareDispatch({
               ))}
             </select>
           </Field>
+          {documentUnavailable && !initial.loading && (
+            <p className="field-hint" id="prepare-document-unavailable">
+              Ce PDF doit être vérifié avant de préparer l’envoi.{" "}
+              <a
+                href={`#/app/documents?document=${encodeURIComponent(documentId)}`}
+              >
+                Voir le suivi du PDF
+              </a>
+            </p>
+          )}
           <LoadMore
             path="/documents"
             data={documents.data}
@@ -798,6 +1005,7 @@ export function PrepareDispatch({
             className="button primary full"
             disabled={
               action.pending ||
+              documentUnavailable ||
               (channel !== "email" && !documentId) ||
               (!simulation && !selectedSender)
             }
@@ -806,6 +1014,7 @@ export function PrepareDispatch({
                 channel !== "email" && !documentId
                   ? "prepare-document-required"
                   : "",
+                documentUnavailable ? "prepare-document-unavailable" : "",
                 !simulation && !selectedSender ? "prepare-sender-required" : "",
               ]
                 .filter(Boolean)
@@ -837,7 +1046,7 @@ export function PrepareDispatch({
               <h2>{t.dispatch.htmlPreview}</h2>
               <EmailPreview html={html} />
             </>
-          ) : documentId ? (
+          ) : documentId && !documentUnavailable ? (
             <PdfPreview id={documentId} />
           ) : (
             <div className="preview-empty">

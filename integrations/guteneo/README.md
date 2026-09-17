@@ -14,6 +14,8 @@ Demandez : « Vérifie les fonctions de mon compte Guteneo, puis aide-moi à pr�
 
 Dans ChatGPT, l’import utilise le contrat de fichier fourni par l’hôte, si sa source est autorisée par Guteneo. Pour Claude, GitHub Copilot ou tout hôte sans transfert de fichier qualifié, déposez le PDF dans [Documents Guteneo](https://guteneo.com/#/app/documents), puis utilisez son identifiant. Un adaptateur local optionnel pour Cursor et Claude Code est documenté séparément ; ce paquet ne lui donne aucun accès au disque.
 
+Après l’import, `analysis` explique si la vérification continue, si le PDF est prêt ou si une action est nécessaire. La suite reste dans la conversation avec le même document ; `documentUrl` est une consultation facultative si vous souhaitez ouvrir le site. Une indisponibilité temporaire du scanner est reprise automatiquement par Guteneo ; l’assistant consulte `get_document` après le délai indiqué, sans réimporter ni multiplier les relances. La vérification ne prépare, n’approuve et n’envoie aucune communication.
+
 Installation, enregistrement dans un annuaire et qualification réelle de chaque hôte sont des étapes distinctes. Guide détaillé : [LLM_SETUP.md](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md).
 
 Le serveur reste l’autorité ; n’utilisez que les outils effectivement disponibles et les champs de leur schéma courant. Une réponse incertaine se consulte, elle ne justifie jamais une nouvelle expédition. Détails du contrat : [EXPERT_APPROVAL.md](https://github.com/nclsppr/guteneo/blob/main/docs/EXPERT_APPROVAL.md).
