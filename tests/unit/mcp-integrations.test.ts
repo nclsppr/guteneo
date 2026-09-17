@@ -24,7 +24,11 @@ import {
   assistantRecoverySchema,
 } from "../../packages/contracts/src/assistant-recovery";
 import { ContentError } from "../../packages/contracts/src/content";
-import { DomainService, type Dispatch } from "../../packages/domain/src/index";
+import {
+  DomainError,
+  DomainService,
+  type Dispatch,
+} from "../../packages/domain/src/index";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -150,7 +154,7 @@ async function call(
     structuredContent?: {
       ok: boolean;
       data?: Record<string, unknown>;
-      error?: { code: string };
+      error?: { code: string; recovery?: unknown };
     };
     _meta?: Record<string, unknown>;
   };
@@ -161,6 +165,7 @@ describe("distributable LLM integrations", () => {
     ["DOCUMENT_INTEGRITY_ERROR", "contact_support", null],
     ["CORRUPT_PDF", "replace_file", null],
     ["EXPERT_REVIEW_INVALID", "check_dispatch", "get_dispatch_status"],
+    ["EXPERT_REVIEW_EXPIRED", "check_dispatch", "get_dispatch_status"],
   ])(
     "keeps %s recovery actionable without authorizing another send",
     async (code, action, tool) => {
@@ -193,6 +198,102 @@ describe("distributable LLM integrations", () => {
       );
     },
   );
+  it.each([
+    "LIVE_QUOTE_INVALID",
+    "FAX_QUOTE_RENEWAL_UNSAFE",
+    "RENEWAL_CONTENT_MISMATCH",
+    "QUOTE_STILL_VALID",
+  ])(
+    "exposes a status-first recovery for linked renewal refusal %s",
+    async (code) => {
+      const renew = vi
+        .spyOn(domain, "renewFaxQuote")
+        .mockRejectedValue(
+          new DomainError(
+            code,
+            "Le renouvellement exige une vérification.",
+            409,
+          ),
+        );
+      const prepare = vi.spyOn(domain, "prepareDispatch");
+      const confirm = vi.spyOn(domain, "confirmDispatch");
+      try {
+        await connected(async (client) => {
+          const { tools } = await client.listTools();
+          const tool = tools.find((item) => item.name === "prepare_fax")!;
+          expect(tool.inputSchema.properties?.renewalOf).toMatchObject({
+            type: "string",
+          });
+          expect(tool.inputSchema.required).not.toContain("renewalOf");
+          expect(tool.inputSchema.additionalProperties).toBe(false);
+          const result = await call(client, "prepare_fax", {
+            documentId,
+            phone: "+33123456789",
+            ceilingMinor: 500,
+            renewalOf: "dsp_initial_quote",
+            idempotencyKey: "linked-renewal-recovery",
+          });
+          expect(result.isError).toBe(true);
+          expect(result.structuredContent?.error?.code).toBe(code);
+          expect(
+            assistantRecoverySchema.parse(
+              result.structuredContent?.error?.recovery,
+            ),
+          ).toMatchObject({
+            action: "check_dispatch",
+            tool: "get_dispatch_status",
+            retry: "never_resend",
+          });
+          expect(renew).toHaveBeenCalledExactlyOnceWith(
+            identity.context,
+            "dsp_initial_quote",
+            { documentId, phone: "+33123456789", ceilingMinor: 500 },
+          );
+          expect(prepare).not.toHaveBeenCalled();
+          expect(confirm).not.toHaveBeenCalled();
+        });
+      } finally {
+        renew.mockRestore();
+        prepare.mockRestore();
+        confirm.mockRestore();
+      }
+    },
+  );
+
+  it("requires explicit renewal eligibility while keeping standalone reads independent", () => {
+    for (const code of [
+      "LIVE_QUOTE_INVALID",
+      "EXPERT_REVIEW_INVALID",
+      "EXPERT_REVIEW_EXPIRED",
+    ]) {
+      const recovery = assistantRecoverySchema.parse(assistantRecovery(code));
+      for (const prerequisite of [
+        "status=prepared",
+        "attemptCount=0",
+        "renewalOf=ancien dispatchId",
+        "documentId, phone E.164 et ceilingMinor exacts",
+      ])
+        expect(recovery.message).toContain(prerequisite);
+    }
+    for (const code of [
+      "LIVE_QUOTE_INVALID",
+      "EXPERT_REVIEW_INVALID",
+      "EXPERT_REVIEW_EXPIRED",
+      "FAX_QUOTE_RENEWAL_UNSAFE",
+      "RENEWAL_CONTENT_MISMATCH",
+      "QUOTE_STILL_VALID",
+    ])
+      expect(
+        assistantRecoverySchema.parse(
+          assistantRecovery(code, "read_document_pages"),
+        ),
+      ).toMatchObject({
+        action: "read_same_document",
+        tool: "read_document_pages",
+        retry: "after_change",
+      });
+  });
+
   it.each([
     "REVIEW_RENDER_FAILED",
     "REVIEW_RENDER_TIMEOUT",

@@ -39,6 +39,9 @@ function readSameDocument(): AssistantRecovery {
   };
 }
 
+const linkedFaxRenewal =
+  "Si le devis est expiré ou invalide, seul un fax avec status=prepared et attemptCount=0 explicitement peut être renouvelé ; un champ absent ne vaut pas zéro. Utilisez prepare_fax avec renewalOf=ancien dispatchId et les mêmes documentId, phone E.164 et ceilingMinor exacts. Ne préparez jamais librement un autre envoi. Présentez le nouveau devis, puis obtenez une nouvelle approbation ou reprenez la revue expert complète sur le nouvel identifiant sous l’autorité actuelle ; aucun ancien accord ni jeton de revue ne se reporte.";
+
 /** Closed, content-free actions. Error categories never authorize a send. */
 export function assistantRecovery(
   code: string,
@@ -84,14 +87,43 @@ export function assistantRecovery(
       message:
         "Consultez le mandat de cette connexion et ses limites avant de continuer. L’assistant ne peut ni l’activer ni augmenter les plafonds.",
     };
-  if (["EXPERT_REVIEW_INVALID", "EXPERT_REVIEW_EXPIRED"].includes(code))
-    return {
-      action: "check_dispatch",
-      tool: "get_dispatch_status",
-      retry: "never_resend",
-      message:
-        "Relisez le statut du même envoi. S’il est toujours préparé et son devis valide, reprenez sa revue ; ne créez pas un nouvel envoi.",
-    };
+  if (
+    [
+      "LIVE_QUOTE_INVALID",
+      "EXPERT_REVIEW_INVALID",
+      "EXPERT_REVIEW_EXPIRED",
+    ].includes(code)
+  )
+    return context === "read_document_pages"
+      ? readSameDocument()
+      : {
+          action: "check_dispatch",
+          tool: "get_dispatch_status",
+          retry: "never_resend",
+          message:
+            "Relisez le statut du même envoi. S’il est toujours préparé et son devis valide, reprenez sa revue. " +
+            linkedFaxRenewal,
+        };
+  if (["FAX_QUOTE_RENEWAL_UNSAFE", "RENEWAL_CONTENT_MISMATCH"].includes(code))
+    return context === "read_document_pages"
+      ? readSameDocument()
+      : {
+          action: "check_dispatch",
+          tool: "get_dispatch_status",
+          retry: "never_resend",
+          message:
+            "Arrêtez le renouvellement et consultez le statut du même envoi pour expliquer le refus. Ne contournez pas ce blocage par une préparation libre, un autre PDF, numéro, plafond ou une nouvelle clé. Un résultat de transmission incertain ne doit jamais être renvoyé.",
+        };
+  if (code === "QUOTE_STILL_VALID")
+    return context === "read_document_pages"
+      ? readSameDocument()
+      : {
+          action: "check_dispatch",
+          tool: "get_dispatch_status",
+          retry: "never_resend",
+          message:
+            "Consultez le statut du même envoi. Si son devis est toujours valide et son statut préparé, reprenez la revue et l’approbation de ce devis existant ; aucun renouvellement ni nouvel envoi n’est nécessaire.",
+        };
   if (code === "EXPERT_REVIEW_SEQUENCE_REQUIRED")
     return {
       action: "review_same_dispatch",

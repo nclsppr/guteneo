@@ -1,6 +1,6 @@
 # Expert journey inside the assistant
 
-Local candidate on 17 September 2026, based on `origin/main` at `2466eb6`.
+Local candidate on 17 September 2026, based on `origin/main` at `d62ceef`.
 No production deployment, database migration, mandate activation or real
 communication was performed. This extends the PDF analysis recovery candidate.
 
@@ -26,6 +26,11 @@ communication was performed. This extends the PDF analysis recovery candidate.
   the same dispatch, missing rights prompt the correct reconnection/mandate
   action, and unknown outcomes never become a fresh send. Integrity errors stop
   approval; invalid PDFs are distinguished from expired attachment links.
+- Expired fax quotes use the existing linked renewal after checking an exact
+  server expiry, prepared status and an explicitly zero attempt count. The
+  replacement needs a complete new review. A lost renewal reply can recover
+  that same idempotent operation, including after the source became cancelled;
+  it never authorizes a free new preparation or resending an uncertain fax.
 - When an administrator must grant or renew authority, the link targets the
   exact connection, focuses its form, preserves renewal limits, and keeps the
   acknowledgment unchecked. Nothing submits automatically. The saved result
@@ -41,34 +46,38 @@ having understood a page.
 
 ## Validation
 
-The full Vitest run passed **54 files / 1,023 tests**, with no failures. Focused local evidence:
+After reconciliation with `origin/main` at `d62ceef`, the complete Vitest run
+passed **55 files / 1,056 tests**, with no failures. The final evidence is:
 
-- `test-results/expert-journey-integration.json`: connection status and paginated
-  review against real local D1/R2, signed OAuth identities and MCP transport.
-- `test-results/expert-read-document-final.json`: 20 MCP integration cases,
-  including standalone read-only access without a mandate or dispatch,
-  revocation during rendering and isolation between organizations.
-- `test-results/expert-chat-recovery-final.json`: 16 MCP integration contract
-  cases, including concrete recovery for invalid PDFs and expired reviews.
-- `test-results/expert-review-renderer-tests.json`: boundary and actual Chromium
-  PDF.js rendering tests. `test-results/expert-review/synthetic-proof.json`
-  records a 1,610,140-byte four-page original, unchanged SHA-256, batches 1–3
-  and 4. Full-page 1131×1600 JPEGs were visually checked.
-- `test-results/expert-onboarding-target-switch-report.json`: 15 browser cases
-  across desktop Chromium, mobile Chromium and iPhone WebKit; no automatic
-  mandate changes and safe focus/query switching. Screenshots were reviewed.
-- `test-results/expert-chat-security.log`: 130 security tests passed.
-- `test-results/expert-chat-migration.json`: 29 migrations, 199 equivalent schema
-  objects, integrity check OK and no foreign-key violations.
+- `test-results/expert-chat-final-vitest.json` and `.log`: complete application,
+  renderer, authenticated MCP, tenant isolation, authority and renewal tests.
+- `test-results/expert-chat-final-browser.json`: **69/69 browser cases**, with
+  no failure, flaky case or skip, covering PDF analysis, expert activation and
+  quote renewal on desktop Chromium, mobile Chromium and iPhone WebKit.
+  Onboarding screenshots were visually checked.
+- `test-results/expert-chat-final-security.log`: **130/130 security tests**.
+- `test-results/expert-chat-final-migration.json`: 29 migrations, 199 equivalent
+  schema objects, integrity check OK and no foreign-key violations.
+- `test-results/expert-chat-final-build.log` and
+  `test-results/expert-chat-final-documents-build.log`: application build and
+  both Workers' dry-run bundles passed. Typecheck, lint and diff checks passed.
 
-Full-suite and build evidence is retained in `test-results/expert-chat-vitest.json`,
-`test-results/expert-chat-vitest.log`, `test-results/expert-chat-build.log` and
-`test-results/expert-chat-documents-build.log`. Application build and private
-documents Worker dry-run passed. Typecheck, lint and diff checks passed. The
-additional MCP recovery assertions and read-only document-page cases were run
-after the full suite and are recorded separately above. CI now includes the
-actual renderer test in the browser-equipped
-job and bundles the private documents Worker during dry-run validation.
+Focused evidence is also retained in `test-results/expert-quote-recovery-final.json`
+(31 MCP contract cases), `test-results/expert-read-document-final.json`
+(20 paginated and standalone reading cases) and
+`test-results/expert-journey-integration.json` (connection and authority behavior).
+`test-results/expert-review/synthetic-proof.json` records a four-page original
+larger than 1 MiB, unchanged SHA-256, batches 1–3 and 4, and bounded full-page
+1131×1600 JPEGs. The images were visually checked. This proves private rendering
+and MCP transport locally, not perception in a real ChatGPT session.
+
+The old local simulation database retained the analysis migration's earlier
+number. It was archived reversibly under
+`test-results/expert-chat-final-state-backup/` before creating the clean browser
+test database. No production database was touched. Generated restore evidence
+is retained as `test-results/expert-chat-final-restore-proof.json`.
+CI includes the actual renderer test in the browser-equipped job and bundles
+the private documents Worker during dry-run validation.
 
 ## Release and qualification still required
 

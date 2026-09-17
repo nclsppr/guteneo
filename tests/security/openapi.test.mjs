@@ -36,7 +36,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 24);
+  assert.equal(operations.length, 25);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
