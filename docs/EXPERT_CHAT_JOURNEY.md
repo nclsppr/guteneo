@@ -1,8 +1,18 @@
 # Expert journey inside the assistant
 
-Local candidate on 17 September 2026, based on `origin/main` at `d62ceef`.
-No production deployment, database migration, mandate activation or real
-communication was performed. This extends the PDF analysis recovery candidate.
+Published on 17 September 2026 at `649c0794c6c93619dd258a70cc839c941391f595`
+through [PR #10](https://github.com/nclsppr/guteneo/pull/10). The exact merged
+commit passed [main CI](https://github.com/nclsppr/guteneo/actions/runs/35227582669):
+1,057 application tests, 130 security tests and 186 browser tests. Seven desktop
+exclusions cover mobile-only scenarios that passed on their mobile projects.
+The application, private renderer and scanner were released, all 29 migrations
+were verified, and 58 public assets matched on both public origins. A synthetic
+four-page PDF with embedded fonts passed private scan and paginated rendering.
+No mandate was activated and no real communication was sent.
+
+Release evidence is retained in `test-results/release/publication-649c079.json`
+in the isolated release checkout. The additional standard-font correction is a
+local follow-up described in [EXPERT_STANDARD_FONTS.md](EXPERT_STANDARD_FONTS.md).
 
 ## Delivered behavior
 
@@ -44,7 +54,7 @@ OCR or evidence of what is visible. Unsupported forms, annotations and optional
 layers are rejected explicitly; an unreadable image never counts as a model
 having understood a page.
 
-## Validation
+## Earlier local validation
 
 After reconciliation with `origin/main` at `d62ceef`, the complete Vitest run
 passed **55 files / 1,056 tests**, with no failures. The final evidence is:
@@ -79,15 +89,14 @@ is retained as `test-results/expert-chat-final-restore-proof.json`.
 CI includes the actual renderer test in the browser-equipped job and bundles
 the private documents Worker during dry-run validation.
 
-## Release and qualification still required
+## Published release and remaining client qualification
 
-Apply migrations `0028_document_analysis.sql` and `0029_expert_review_pages.sql`
-through the protected release process after reconciling the current applied
-ledger. Migration 0027 belongs to the already merged Luxembourg route change;
-the unreleased analysis migration was renumbered rather than modifying it.
-Release the compatible scanner, private documents Worker and application,
-record their exact source/version evidence, then refresh the host's MCP tools
-and installed integration instructions.
+Migrations `0028_document_analysis.sql` and `0029_expert_review_pages.sql` are
+applied in the published baseline. Migration 0027 is the Luxembourg route
+change; the analysis migration was renumbered before its first release. The
+compatible scanner, private renderer and application are published. Refresh
+the host's MCP tools and installed integration instructions when qualifying
+the client against that release.
 
 Local tests and browser emulation do not prove ChatGPT iPhone image perception,
 human consent display, an active mandate or real delivery. Qualify the installed

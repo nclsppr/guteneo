@@ -1,9 +1,9 @@
+import { loadPdfScripts } from "../../apps/documents/pdfjs-assets.mjs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { chromium } from "@playwright/test";
 import puppeteer from "@cloudflare/puppeteer/internal/puppeteer-core.js";
-import { PDFDocument, PDFName } from "pdf-lib";
+import { PDFDocument, PDFName, StandardFonts } from "pdf-lib";
 import {
   handlePingenPreflight,
   type PostalPreflightReport,
@@ -19,13 +19,7 @@ const options = {
   printSpectrum: "grayscale",
   deliveryProduct: "cheap",
 };
-const scripts = {
-  pdf: readFileSync("node_modules/pdfjs-dist/legacy/build/pdf.min.mjs", "utf8"),
-  worker: readFileSync(
-    "node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs",
-    "utf8",
-  ),
-};
+const scripts = await loadPdfScripts();
 const launch = () =>
   puppeteer.launch({
     executablePath: chromium.executablePath(),
@@ -81,6 +75,20 @@ async function run(bytes = clean, engine = launch, deadlineMs?: number) {
 }
 
 describe("Postal preflight with actual local Chromium and exact PDF.js bytes", () => {
+  it("retains the postal embedding requirement even when standard-font review is available", async () => {
+    const pdf = await PDFDocument.create();
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    pdf
+      .addPage([595.28, 841.89])
+      .drawText("ATELIER EXEMPLE", { font, x: 70, y: 660, size: 11 });
+    const engine = vi.fn(launch);
+    const { report } = await run(new Uint8Array(await pdf.save()), engine);
+    expect(report.status).toBe("blocked");
+    expect(report.canSend).toBe(false);
+    expect(report.issues).toContainEqual({ code: "POSTAL_FONT_NOT_EMBEDDED" });
+    expect(engine).not.toHaveBeenCalled();
+  });
+
   it("the pinned compatibility scripts render when the remote browser lacks Map insertion APIs", async () => {
     const engine = async () => {
       const browser = await launch();

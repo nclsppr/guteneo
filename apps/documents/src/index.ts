@@ -9,6 +9,7 @@ import { handlePingenPreflight } from "./pingen-preflight";
 import { handleExpertReviewPages } from "./expert-review";
 import pdfSource from "../dist/pdfjs/pdf.txt";
 import pdfWorkerSource from "../dist/pdfjs/pdf.worker.txt";
+import standardFontSource from "../dist/pdfjs/standard-fonts.txt";
 interface DocumentEnv extends ObservationEnv {
   BROWSER: Fetcher;
 }
@@ -27,12 +28,20 @@ async function handleDocumentRequest(
   if (new URL(request.url).pathname === "/review-pages")
     return handleExpertReviewPages(request, {
       launch: () => puppeteer.launch(env.BROWSER),
-      scripts: { pdf: pdfSource, worker: pdfWorkerSource },
+      scripts: {
+        pdf: pdfSource,
+        worker: pdfWorkerSource,
+        fonts: standardFontSource,
+      },
     });
   if (new URL(request.url).pathname === "/preflight/pingen")
     return handlePingenPreflight(request, {
       launch: () => puppeteer.launch(env.BROWSER),
-      scripts: { pdf: pdfSource, worker: pdfWorkerSource },
+      scripts: {
+        pdf: pdfSource,
+        worker: pdfWorkerSource,
+        fonts: standardFontSource,
+      },
     });
   if (
     request.method === "POST" &&

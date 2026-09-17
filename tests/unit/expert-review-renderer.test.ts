@@ -38,7 +38,7 @@ const dependencies = () => ({
   launch: vi.fn(async () => {
     throw new Error("must not launch");
   }),
-  scripts: { pdf: "", worker: "" },
+  scripts: { pdf: "", worker: "", fonts: "" },
 });
 
 describe("Private immutable PDF review boundary", () => {
@@ -273,7 +273,7 @@ describe("Private immutable PDF review boundary", () => {
     };
     const result = await handleExpertReviewPages(await request(bytes), {
       launch: async () => browser,
-      scripts: { pdf: "", worker: "" },
+      scripts: { pdf: "", worker: "", fonts: "" },
     });
     expect(result.status).toBe(422);
     expect(await result.json()).toEqual({
