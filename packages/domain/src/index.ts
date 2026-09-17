@@ -1570,7 +1570,8 @@ export class DomainService {
       submission_unknown: 10,
       accepted: 20,
       printed: 30,
-      failed: 35,
+      // Postal non-delivery can follow handover, but cannot erase proven delivery.
+      failed: row.channel === "postal" ? 45 : 35,
       delivered: 50,
       handed_to_post: 40,
       bounced: 55,

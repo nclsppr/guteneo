@@ -330,6 +330,50 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
     });
     await expect(prepare("other-org", email(), studio)).resolves.toBeTruthy();
   });
+  it.each(["fax", "email"] as const)(
+    "preserves confirmed delivery priority over reordered failures for %s",
+    async (channel) => {
+      const document = await domain.registerDocument(atelier, {
+        name: "status-fixture.pdf",
+        sha256: "e".repeat(64),
+        size: 100,
+        pages: 1,
+        status: "ready",
+        source: "import",
+        storageKey: "org_atelier/status-fixture.pdf",
+      });
+      const input: PrepareInput =
+        channel === "fax"
+          ? {
+              channel,
+              documentId: document.id,
+              recipient: { phone: "+33123456789" },
+            }
+          : email();
+      for (const order of [
+        ["failed", "delivered"],
+        ["delivered", "failed"],
+      ] as const) {
+        const row = await queue(`${channel}-${order[0]}`, input);
+        const provider = `simulation:${channel}`;
+        await domain.processDispatch(row.id, {
+          name: provider,
+          submit: async () => ({ status: "accepted", providerId: row.id }),
+        });
+        for (const kind of order)
+          await domain.ingestEvent({
+            provider,
+            providerId: row.id,
+            eventId: `${row.id}-${kind}`,
+            kind,
+            occurredAt: new Date().toISOString(),
+          });
+        expect((await domain.getDispatch(atelier, row.id)).dispatch.status).toBe(
+          "delivered",
+        );
+      }
+    },
+  );
   it("rejects invalid event shapes before storage and never assigns another provider callback", async () => {
     await expect(
       domain.ingestEvent({

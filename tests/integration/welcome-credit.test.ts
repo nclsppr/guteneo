@@ -11,6 +11,8 @@ import {
   type Dispatch,
 } from "../../packages/domain/src/index";
 import { BillingService, type BillingEnv } from "../../apps/api/src/billing";
+import type { Env } from "../../apps/api/src/env";
+import { handleWebhook } from "../../apps/api/src/webhooks";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 
 let mf: Miniflare;
@@ -399,6 +401,58 @@ async function accept(id: string) {
   });
 }
 
+async function signedPostalCallback(
+  id: string,
+  type: "webhook_sent" | "webhook_undeliverable" | "webhook_delivered",
+  eventId: string,
+) {
+  const body = JSON.stringify({
+    data: {
+      type,
+      attributes: {
+        created_at:
+          type === "webhook_sent"
+            ? "2026-09-17T12:01:00.000Z"
+            : "2026-09-17T12:02:00.000Z",
+      },
+      relationships: {
+        organisation: { data: { id: liveDeliveryIdentity.postal.accountId } },
+        event: { data: { id: eventId } },
+        deliverable: { data: { id: `provider_${id}`, type: "letters" } },
+      },
+    },
+  });
+  const secret = "isolated-postal-callback-fixture";
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = Array.from(
+    new Uint8Array(
+      await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body)),
+    ),
+    (byte) => byte.toString(16).padStart(2, "0"),
+  ).join("");
+  const response = await handleWebhook(
+    new Request("https://guteneo.example/webhooks/pingen", {
+      method: "POST",
+      headers: { Signature: signature },
+      body,
+    }),
+    {
+      DB: db,
+      PINGEN_WEBHOOK_SECRET: secret,
+      PINGEN_ORGANIZATION_ID: liveDeliveryIdentity.postal.accountId,
+    } as Env,
+    domain,
+  );
+  expect(response?.status).toBe(200);
+  expect(await response!.json()).toEqual({ received: true });
+}
+
 describe("one shared lifetime promotional credit", () => {
   it("upgrades existing untouched onboarding zeros without enabling channels or lifting operator stops", async () => {
     const legacy = (await mf.getD1Database("LEGACY")) as unknown as D1Database;
@@ -646,7 +700,97 @@ describe("one shared lifetime promotional credit", () => {
       spentMinor: 1200,
     });
     expect(await count("welcome_credit_entries")).toBe(2);
+    expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+      "delivered",
+    );
   });
+  it.each(["sent-first", "undeliverable-first", "concurrent"] as const)(
+    "projects signed postal undeliverable callbacks without refunding incurred costs: %s",
+    async (order) => {
+      const id = await queue(302, 500, "postal");
+      let submissions = 0;
+      const provider = {
+        name: "pingen",
+        liveDeliveryIdentity,
+        submit: async () => {
+          submissions++;
+          return {
+            status: "accepted" as const,
+            providerId: `provider_${id}`,
+          };
+        },
+      };
+      await domain.processDispatch(id, provider);
+      const credit = await balance();
+      expect(credit).toMatchObject({
+        availableMinor: 4698,
+        reservedMinor: 0,
+        spentMinor: 302,
+      });
+      const usage = (await domain.usage(owner)).items;
+      const sent = () => signedPostalCallback(id, "webhook_sent", `sent_${id}`);
+      const failed = () =>
+        signedPostalCallback(id, "webhook_undeliverable", `failed_${id}`);
+      if (order === "concurrent") await Promise.all([sent(), failed()]);
+      else if (order === "sent-first") {
+        await sent();
+        expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+          "handed_to_post",
+        );
+        await failed();
+      } else {
+        await failed();
+        expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+          "failed",
+        );
+        await sent();
+      }
+      expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+        "failed",
+      );
+      // Replayed receipts and a distinct late sent event cannot restore the
+      // handover state, repeat the charge, refund it, or submit another letter.
+      await Promise.all([sent(), failed()]);
+      await signedPostalCallback(id, "webhook_sent", `late_sent_${id}`);
+      expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+        "failed",
+      );
+      const receipts = await db
+        .prepare(
+          "SELECT status FROM provider_receipts WHERE provider='pingen' AND event_id IN (?,?,?)",
+        )
+        .bind(`sent_${id}`, `failed_${id}`, `late_sent_${id}`)
+        .all<{ status: string }>();
+      expect(receipts.results).toEqual([
+        { status: "projected" },
+        { status: "projected" },
+        { status: "projected" },
+      ]);
+      expect(await count("provider_events")).toBe(4); // acceptance + 3 callbacks
+      expect(await count("welcome_credit_entries")).toBe(2); // reserve + settle
+      expect(await count("delivery_charge_entries")).toBe(1);
+      expect(await balance()).toEqual(credit);
+      expect((await domain.usage(owner)).items).toEqual(usage);
+      expect(await domain.processDispatch(id, provider)).toMatchObject({
+        processed: false,
+      });
+      expect(submissions).toBe(1);
+      // An explicit signed delivery still takes priority over contradictory
+      // failure facts, preserving the existing contract in either arrival order.
+      await signedPostalCallback(id, "webhook_delivered", `delivered_${id}`);
+      await signedPostalCallback(
+        id,
+        "webhook_undeliverable",
+        `late_failed_${id}`,
+      );
+      expect((await domain.getDispatch(owner, id)).dispatch.status).toBe(
+        "delivered",
+      );
+      expect(await balance()).toEqual(credit);
+      expect(await count("welcome_credit_entries")).toBe(2);
+      expect(await count("delivery_charge_entries")).toBe(1);
+    },
+  );
   it("releases only a pending reservation on cancellation or definitive rejection", async () => {
     const cancelled = await queue(500, 1000);
     await Promise.all([
