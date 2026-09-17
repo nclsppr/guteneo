@@ -6,6 +6,7 @@ import {
 } from "../../../packages/providers/pingen-readiness";
 import type { Env } from "./env";
 import { inspectSesPrincipal } from "./provider-principal";
+import { qualifyPingenSynthetic } from "../../../packages/providers/pingen-qualification";
 
 import application from "./index";
 import { servePublicAssets } from "./public-assets";
@@ -20,6 +21,24 @@ export default {
 
 /** Available only through an authenticated same-account service binding. */
 export class ProviderInspection extends WorkerEntrypoint<Env> {
+  /** Temporary, fixed synthetic run. No public HTTP, arbitrary PDF or app approval. */
+  async qualifyPingenSynthetic(input: unknown) {
+    return qualifyPingenSynthetic(
+      {
+        clientId: this.env.PINGEN_CLIENT_ID || "",
+        clientSecret: this.env.PINGEN_CLIENT_SECRET || "",
+        organisationId: this.env.PINGEN_ORGANIZATION_ID || "",
+        environment: this.env.ENVIRONMENT,
+        mode: this.env.MODE,
+        sandbox: this.env.PINGEN_SANDBOX || "",
+        liveSendsEnabled: this.env.LIVE_SENDS_ENABLED || "",
+        uploadOrigins: this.env.PINGEN_UPLOAD_ORIGINS || "",
+      },
+      this.env.DOCUMENTS,
+      input,
+    );
+  }
+
   async inspectTelnyx() {
     return inspectTelnyxReadiness({
       apiKey: this.env.TELNYX_API_KEY || "",
