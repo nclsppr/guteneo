@@ -39,7 +39,9 @@ async function fixture(page: Page) {
         session.user.name = route.request().postDataJSON().userName;
         body = { saved: true };
       }
-    } else if (path === "/account/sessions")
+    } else if (path === "/account/expert-approval")
+      body = { canManage: true, day: "2026-09-17", connections: [] };
+    else if (path === "/account/sessions")
       body = {
         items: [
           {

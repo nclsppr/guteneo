@@ -64,7 +64,7 @@ function Brand({ app = false }: { app?: boolean }) {
     <a
       className="brand"
       href={app ? "#/app" : "/"}
-      aria-label="Guteneo, accueil"
+      aria-label="guteneo, accueil"
     >
       <span className="brand-mark" aria-hidden="true">
         g

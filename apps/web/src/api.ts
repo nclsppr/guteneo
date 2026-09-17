@@ -80,6 +80,28 @@ export type Sender = {
   configuration_json?: string;
 };
 export type Page<T> = { items: T[]; nextCursor: string | null };
+export type ExpertApprovalPolicy = {
+  enabled: boolean;
+  revision: number;
+  channels: Channel[];
+  maxPerDispatchMinor: number;
+  maxDailyMinor: number;
+  maxDailyCount: number;
+  expiresAt: string;
+  updatedAt: string;
+};
+export type ExpertApprovalConnection = {
+  connectionId: string;
+  clientId: string;
+  status: "active" | "revoked";
+  policy: ExpertApprovalPolicy | null;
+  usage: { count: number; ceilingMinor: number };
+};
+export type ExpertApprovalSettings = {
+  canManage: boolean;
+  day: string;
+  connections: ExpertApprovalConnection[];
+};
 
 export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 

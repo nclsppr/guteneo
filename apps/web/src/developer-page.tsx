@@ -61,11 +61,11 @@ export function DeveloperPage() {
         Aller à la documentation
       </a>
       <header className="site-header developer-header">
-        <a className="brand" href="/" aria-label="Guteneo, accueil">
+        <a className="brand" href="/" aria-label="guteneo, accueil">
           <span className="brand-mark" aria-hidden="true">
             g
           </span>
-          <span>Guteneo</span>
+          <span>guteneo</span>
         </a>
         <nav aria-label="Navigation principale">
           <a href="/#installation">Les intégrations</a>

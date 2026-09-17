@@ -1,0 +1,98 @@
+[
+  {
+    "device": "desktop",
+    "path": "/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/journal/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/journal/de-gutenberg-au-numerique/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/journal/histoire-imprimerie-luxembourg/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/mentions-legales/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/developpeurs/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/#/app",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "desktop",
+    "path": "/#/app/account",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/journal/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/journal/de-gutenberg-au-numerique/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/journal/histoire-imprimerie-luxembourg/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/mentions-legales/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/developpeurs/",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/#/app",
+    "brand": "guteneo",
+    "overflow": false
+  },
+  {
+    "device": "iphone",
+    "path": "/#/app/account",
+    "brand": "guteneo",
+    "overflow": false
+  }
+]
