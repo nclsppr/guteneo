@@ -8,7 +8,14 @@ export default defineConfig({
   expect: { timeout: 12000 },
   reporter: [
     ["list"],
-    ["json", { outputFile: "reports/preview-playwright.json" }],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.PLAYWRIGHT_JSON_OUTPUT_NAME ||
+          "reports/preview-playwright.json",
+      },
+    ],
   ],
   use: {
     baseURL: process.env.GUTENEO_PREVIEW_URL || "http://127.0.0.1:8790",

@@ -23,7 +23,13 @@ export default defineConfig({
   reporter: [
     ["list"],
     ["html", { open: "never" }],
-    ["json", { outputFile: "reports/playwright.json" }],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.PLAYWRIGHT_JSON_OUTPUT_NAME || "reports/playwright.json",
+      },
+    ],
   ],
   use: {
     baseURL: "http://localhost:8787",
@@ -36,7 +42,10 @@ export default defineConfig({
     { name: "iphone-webkit", use: { ...devices["iPhone 13"] } },
   ],
   webServer: {
-    command: "npm run db:migrate && npm run db:seed && npm run dev",
+    command:
+      process.env.GUTENEO_E2E_PREBUILT === "true"
+        ? "npm run db:migrate && npm run db:seed && node scripts/dev.mjs"
+        : "npm run db:migrate && npm run db:seed && npm run dev",
     url: "http://localhost:8787",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
