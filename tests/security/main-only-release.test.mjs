@@ -17,6 +17,7 @@ import {
   releaseProfiles,
   sha256,
   sourceSnapshot,
+  liveReleaseSending,
 } from "../../scripts/release-source.mjs";
 
 function git(root, ...args) {
@@ -45,6 +46,16 @@ async function fixture(t) {
     "export const realApplication = true;\n",
   );
   await writeFile(join(root, "reports/tracked-proof.json"), "{}\n");
+  await writeFile(
+    join(root, "wrangler.live.jsonc"),
+    JSON.stringify({
+      vars: {
+        ENVIRONMENT: "production",
+        MODE: "production",
+        LIVE_SENDS_ENABLED: "false",
+      },
+    }),
+  );
   git(root, "add", ".");
   git(root, "commit", "-m", "initial source");
   git(root, "remote", "add", "origin", origin);
@@ -66,7 +77,9 @@ async function buildFixture(root, target) {
     product: "Guteneo",
     mode: profile.mode,
     publicPreview: profile.publicPreview,
-    liveSendsEnabled: false,
+    ...(target === "live"
+      ? await liveReleaseSending(root)
+      : { liveSendsEnabled: false }),
     sourceCommit: git(root, "rev-parse", "HEAD"),
     sourceDirty: false,
     ...(target === "preview"
@@ -149,6 +162,70 @@ for (const target of ["live", "preview"]) {
     );
   });
 }
+
+test("the reviewed fax-only configuration publishes with matching transport metadata", async (t) => {
+  const f = await fixture(t);
+  await writeFile(
+    join(f.root, "wrangler.live.jsonc"),
+    JSON.stringify({
+      vars: {
+        ENVIRONMENT: "production",
+        MODE: "production",
+        LIVE_SENDS_ENABLED: "true",
+        LIVE_SEND_CHANNELS: "fax",
+      },
+    }),
+  );
+  git(f.root, "add", "wrangler.live.jsonc");
+  git(f.root, "commit", "-m", "authorize fax only");
+  git(f.root, "push", "origin", "main");
+  const runner = executor(f.root, "live");
+  await deployPublic("live", { root: f.root, execute: runner.execute });
+  assert.equal(runner.calls.length, 2);
+  const manifest = JSON.parse(
+    await readFile(join(f.root, "dist/web/release.json"), "utf8"),
+  );
+  assert.equal(manifest.liveSendsEnabled, true);
+  assert.deepEqual(manifest.liveSendChannels, ["fax"]);
+});
+
+for (const channels of [undefined, "", "fax,email", "postal", "fax,fax"]) {
+  test(`enabled production refuses unreviewed transport list ${channels}`, async (t) => {
+    const f = await fixture(t);
+    await writeFile(
+      join(f.root, "wrangler.live.jsonc"),
+      JSON.stringify({
+        vars: {
+          ENVIRONMENT: "production",
+          MODE: "production",
+          LIVE_SENDS_ENABLED: "true",
+          LIVE_SEND_CHANNELS: channels,
+        },
+      }),
+    );
+    await assert.rejects(
+      liveReleaseSending(f.root),
+      /RELEASE_SENDING_CONFIGURATION_INVALID/,
+    );
+  });
+}
+
+test("preview cannot publish an enabled transport or a channel list", async (t) => {
+  const f = await fixture(t);
+  for (const changes of [
+    { liveSendsEnabled: true },
+    { liveSendChannels: ["fax"] },
+  ]) {
+    const runner = executor(f.root, "preview", {
+      afterBuild: () => mutateManifest(f.root, changes, "preview"),
+    });
+    await assert.rejects(
+      deployPublic("preview", { root: f.root, execute: runner.execute }),
+      /RELEASE_MANIFEST_MISMATCH/,
+    );
+    assert.equal(runner.calls.length, 1);
+  }
+});
 
 for (const branch of ["feature/test", "detached"]) {
   test(`refuses ${branch} before running build or deployment`, async (t) => {
@@ -278,6 +355,7 @@ for (const [field, value] of [
   ["mode", "public-design-preview"],
   ["publicPreview", true],
   ["liveSendsEnabled", true],
+  ["liveSendChannels", ["fax"]],
   ["sourceSnapshotScope", []],
   ["sourceSnapshotSha256", "0".repeat(64)],
   ["assetsSha256", "0".repeat(64)],

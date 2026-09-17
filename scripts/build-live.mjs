@@ -11,6 +11,7 @@ import {
   releaseProfiles,
   sha256 as hash,
   sourceSnapshot,
+  liveReleaseSending,
 } from "./release-source.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -45,7 +46,7 @@ await writeFile(
       version: "0.2.0",
       mode: "production",
       publicPreview: false,
-      liveSendsEnabled: false,
+      ...(await liveReleaseSending(root)),
       sourceCommit,
       sourceDirty,
       sourceSnapshotSha256,
