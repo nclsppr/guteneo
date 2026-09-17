@@ -64,6 +64,8 @@ function safeIdentifier(name: string) {
   return `"${name}"`;
 }
 
+// Full migrations and logical copy across two independent D1/R2 runtimes can
+// exceed 30s on shared CI runners. Keep every reconciliation assertion intact.
 it("restores independent D1/R2 fixtures without resubmitting an uncertain physical command", async () => {
   const source = runtime(),
     restored = runtime();
@@ -306,4 +308,4 @@ it("restores independent D1/R2 fixtures without resubmitting an uncertain physic
     await source.dispose();
     await restored.dispose();
   }
-}, 30_000);
+}, 90_000);

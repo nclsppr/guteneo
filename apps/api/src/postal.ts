@@ -25,6 +25,7 @@ import { preparePostalDraft } from "./live-providers";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
+import { postalAddressGuidance } from "../../../packages/contracts/src/postal-requirements";
 
 type Profile = {
   accountId: string;
@@ -117,6 +118,11 @@ const reportSchema = z.object({
     .nullable(),
 });
 type Report = z.infer<typeof reportSchema>;
+// Read historical evidence without promoting it to the current write contract.
+const storedReportSchema = reportSchema.extend({
+  version: z.enum(["pingen-2026-09-17-v1", PINGEN_PREFLIGHT_VERSION]),
+});
+type StoredReport = z.infer<typeof storedReportSchema>;
 function error(code: string, status = 409): never {
   throw new ContentError(code, code, status);
 }
@@ -158,7 +164,10 @@ const normalized = (value: string) =>
     .replace(/\s+/g, " ")
     .trim()
     .toLocaleUpperCase("fr-FR");
-function addressMatches(row: Row, report: Report | null): boolean {
+function addressMatches(
+  row: Row,
+  report: Pick<Report, "address"> | null,
+): boolean {
   return Boolean(
     report?.address &&
     report.address.issues.length === 0 &&
@@ -222,6 +231,14 @@ export class PostalService {
         addressPosition: profile.addressPosition,
       },
       layout,
+      addressGuidance: postalAddressGuidance({
+        defaultCountry: profile.defaultCountry,
+        country,
+        addressPosition: profile.addressPosition,
+        printMode: "simplex",
+        printSpectrum: "grayscale",
+        deliveryProduct: "cheap",
+      }),
       limits: {
         pdfBytes: PINGEN_MAX_BYTES,
         pages: 100,
@@ -236,7 +253,7 @@ export class PostalService {
         "Rendre et examiner toutes les pages à au moins 144 dpi ; comparer le destinataire attendu au texte et à l’image réellement visibles. L’extraction de texte et le contrôle automatique ne prouvent pas seuls cette identité.",
         "L’expéditeur vérifié et le traitement des retours exigent une revue distincte. Ne pas promettre un retour postal : les retours Pingen sont traités numériquement.",
         "Ne jamais corriger ou recomposer un original importé. Pour une nouvelle lettre, générer un nouveau PDF, puis appeler preflight_postal_pdf avec les octets déposés et son identifiant Guteneo.",
-        "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur, un devis exact, une approbation humaine et une confirmation sont des étapes distinctes ; ce profil n’autorise aucun envoi.",
+        "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur et un devis exact ne valent pas approbation ni acceptation d’envoi ; celles-ci suivent la voie navigateur ou un mandat expert préalable. Ce profil n’autorise aucun envoi.",
       ],
       canSend: false as const,
     };
@@ -328,6 +345,8 @@ export class PostalService {
   private async current(authority: PostalAuthority, row: Row, profile = false) {
     await authority.assertCurrent();
     await this.domain.authorizeWrite(authority.context);
+    if (this.superseded(row, this.report(row)))
+      error("POSTAL_PREFLIGHT_VERSION_CHANGED");
     if (row.expires_at <= now()) error("POSTAL_PREFLIGHT_EXPIRED");
     const exact = await this.exactDocument(
       row.organization_id,
@@ -344,10 +363,16 @@ export class PostalService {
     await authority.assertCurrent();
     return exact;
   }
-  private report(row: Row): Report | null {
+  private report(row: Row): StoredReport | null {
     return row.report_json
-      ? reportSchema.parse(JSON.parse(row.report_json))
+      ? storedReportSchema.parse(JSON.parse(row.report_json))
       : null;
+  }
+  private superseded(row: Row, report: StoredReport | null): boolean {
+    return (
+      JSON.parse(row.profile_json).version !== PINGEN_PREFLIGHT_VERSION ||
+      (report !== null && report.version !== PINGEN_PREFLIGHT_VERSION)
+    );
   }
 
   async get(authority: PostalAuthority, id: string): Promise<PostalReview> {
@@ -357,6 +382,7 @@ export class PostalService {
       row.document_id,
     );
     const report = this.report(row);
+    const superseded = this.superseded(row, report);
     const timedOut =
       row.status === "processing" && row.processing_until <= now();
     const expired = row.expires_at <= now();
@@ -370,7 +396,7 @@ export class PostalService {
     return {
       id: row.id,
       fingerprint: row.request_hash,
-      status: timedOut ? "failed" : row.status,
+      status: superseded ? "blocked" : timedOut ? "failed" : row.status,
       document: {
         id: document.id,
         name: document.name,
@@ -393,6 +419,7 @@ export class PostalService {
           })) ?? [],
         issues: [
           ...(report?.issues ?? []),
+          ...(superseded ? [{ code: "POSTAL_PREFLIGHT_VERSION_CHANGED" }] : []),
           ...(row.failure_code ? [{ code: row.failure_code }] : []),
           ...(timedOut ? [{ code: "POSTAL_RENDER_TIMEOUT" }] : []),
           ...(expired ? [{ code: "POSTAL_PREFLIGHT_EXPIRED" }] : []),
@@ -405,14 +432,25 @@ export class PostalService {
         expectedLines: row.expected_address.split("\n"),
         extractedLines: report?.address?.lines ?? [],
         matches,
+        textVisibility: "not_verified",
+        cropAccess: "authenticated_browser_session_only",
+        mcpEmbeddedVisualEvidenceAvailable: false,
         cropUrl: report?.address
           ? `${this.env.APP_ORIGIN}/api/postal/preflights/${encodeURIComponent(row.id)}/address.png`
           : null,
+      },
+      transferPolicy: {
+        canTransferMeaning: "browser_session_only",
+        expertTool: "transfer_postal_draft",
+        expertAuthority: "separate_active_postal_transfer_mandate_required",
+        expertEligibilityEvaluated: false,
+        requiresVisualReview: true,
       },
       canTransfer:
         authority.context.actor === "browser" &&
         authority.context.role !== "viewer" &&
         transferConfigured(this.env) &&
+        !superseded &&
         !expired &&
         row.status === "review_required" &&
         complete &&

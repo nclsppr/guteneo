@@ -383,7 +383,11 @@ const draftInput = (): PreparePostalDraftInput => ({
 /** Synthetic completed renderer evidence and browser consent. This bridge fixture
  * does not claim the blank PDF was analyzed; PostalService has its own renderer,
  * session, quota and consent integration suite. Every SQL guard stays installed. */
-async function prepareFixtureDraft(fetcher: Fetcher, input = draftInput()) {
+async function prepareFixtureDraft(
+  fetcher: Fetcher,
+  input = draftInput(),
+  version: string = PINGEN_PREFLIGHT_VERSION,
+) {
   const preflightId = input.preflightId!;
   const existing = await db
     .prepare("SELECT id FROM postal_preflights WHERE id=?")
@@ -396,7 +400,7 @@ async function prepareFixtureDraft(fetcher: Fetcher, input = draftInput()) {
       environment: "sandbox",
       defaultCountry: env.PINGEN_DEFAULT_COUNTRY,
       addressPosition: input.options.addressPosition,
-      version: PINGEN_PREFLIGHT_VERSION,
+      version,
     };
     const fingerprint = await sha256(
       canonicalJson({
@@ -434,7 +438,7 @@ async function prepareFixtureDraft(fetcher: Fetcher, input = draftInput()) {
       updated_at: created,
     };
     const report = {
-      version: PINGEN_PREFLIGHT_VERSION,
+      version,
       status: "review_required",
       sha256: documentSha,
       pages: 1,
@@ -948,6 +952,29 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       }),
     ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
     expect(fetcher).toHaveBeenCalledTimes(8);
+  });
+
+  it("does not query or send a provider draft quoted from superseded preflight rules", async () => {
+    const fetcher = pingenFixtureFetch();
+    const prepared = await prepareFixtureDraft(
+      fetcher,
+      draftInput(),
+      "pingen-2026-09-17-v1",
+    );
+    fetcher.mockClear();
+    domain = new DomainService(db, {
+      mode: "production",
+      ...createLiveDeliveryQuoteConfig(env, { fetcher }),
+    });
+    await expect(
+      queueFixture("postal", {
+        ...postalOptions,
+        providerDraftId: prepared.providerDraftId,
+        preparedLetterId: prepared.preparedLetterId,
+        expectedAddress,
+      }),
+    ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
   it("rejects a supplied provider ID, changed recipient, options or missing persisted draft during preparation", async () => {

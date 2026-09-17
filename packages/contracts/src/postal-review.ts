@@ -50,9 +50,20 @@ export type PostalReview = {
     expectedLines: string[];
     extractedLines: string[];
     matches: boolean;
+    textVisibility: "not_verified";
+    cropAccess: "authenticated_browser_session_only";
+    mcpEmbeddedVisualEvidenceAvailable: false;
     cropUrl: string | null;
   };
+  /** Browser transfer availability only; never a decision on an expert MCP mandate. */
   canTransfer: boolean;
+  transferPolicy: {
+    canTransferMeaning: "browser_session_only";
+    expertTool: "transfer_postal_draft";
+    expertAuthority: "separate_active_postal_transfer_mandate_required";
+    expertEligibilityEvaluated: false;
+    requiresVisualReview: true;
+  };
   transferStatus: "not_started" | "preparing" | "prepared" | "unknown";
   draftId: string | null;
   canSend: false;

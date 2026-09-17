@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   main,
+  EXPECTED_PREFLIGHT_VERSION,
   privateJson,
   qualifyPostalPreflight,
   summarizeReport,
@@ -19,7 +20,7 @@ const expectedAddress = [
   "Rue du Test 12",
   "L-1234 LUXEMBOURG",
 ];
-function harness(scanOverride) {
+function harness(scanOverride, preflightVersion = EXPECTED_PREFLIGHT_VERSION) {
   const calls = [];
   const env = {
     SCANNER: {
@@ -48,6 +49,7 @@ function harness(scanOverride) {
         const corner = request.body === fixtures.corner;
         const invalid = request.body.length === 64;
         return Response.json({
+          version: preflightVersion,
           status: mismatch || corner || invalid ? "blocked" : "review_required",
           canSend: false,
           sha256: invalid ? null : digest(request.body),
@@ -145,6 +147,36 @@ test("bounded named cases call scanner before exact-byte rendering and never a p
     digest(fixtures.clean),
   );
 });
+test("qualification version follows the shipped contract and rejects a complete legacy renderer", async () => {
+  const contract = readFileSync(
+    new URL(
+      "../../packages/contracts/src/pingen-preflight.ts",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.equal(
+    contract.match(/export const PINGEN_PREFLIGHT_VERSION = "([^"]+)"/)?.[1],
+    EXPECTED_PREFLIGHT_VERSION,
+  );
+  for (const version of [
+    "pingen-2026-09-17-v1",
+    null,
+    "UNTRUSTED-VERSION-MUST-NOT-PRINT",
+  ]) {
+    const { env } = harness(undefined, version);
+    const result = await qualifyPostalPreflight(env, fixtures);
+    assert.equal(result.passed, false);
+    assert.equal(result.expectedPreflightVersion, EXPECTED_PREFLIGHT_VERSION);
+    assert.ok(
+      result.cases.every(
+        (item) =>
+          item.preflightVersion === "unexpected" && item.passed === false,
+      ),
+    );
+    assert.equal(JSON.stringify(result).includes("UNTRUSTED-VERSION"), false);
+  }
+});
 test("scan mismatch, infection or malformed verdict never reaches renderer", async () => {
   for (const scan of [
     { verdict: "clean", sha256: "f".repeat(64) },
@@ -166,6 +198,7 @@ test("summaries omit untrusted text, hashes, crops, URLs and arbitrary issue str
     {
       status: 200,
       body: {
+        version: privateMarker,
         status: privateMarker,
         canSend: privateMarker,
         sha256: privateMarker,
@@ -258,9 +291,10 @@ test("a warming scanner is retried before any PDF upload and can become ready", 
   });
   assert.equal(result.passed, true);
   assert.equal(result.healthRequests, 3);
-  assert.deepEqual(calls.slice(0, 4).map((call) => call.path), [
-    "/health", "/health", "/health", "/scan",
-  ]);
+  assert.deepEqual(
+    calls.slice(0, 4).map((call) => call.path),
+    ["/health", "/health", "/health", "/scan"],
+  );
   assert.ok(calls.slice(0, 3).every((call) => call.request.body === undefined));
 });
 test("private reader rejects arbitrary routes, verbs, oversized and malformed responses", async () => {
