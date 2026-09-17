@@ -143,7 +143,7 @@ describe("postal tools over MCP transport", () => {
       );
     },
   );
-  it("returns the server review URL and has no consent or transfer tool", async () => {
+  it("returns the server review URL and never exposes a browser consent tool", async () => {
     await connected([...MCP_SCOPES], async (client, create) => {
       const response = await client.callTool({
         name: "preflight_postal_pdf",
@@ -160,7 +160,11 @@ describe("postal tools over MCP transport", () => {
         "transfer_postal_document",
       );
       expect(
-        tools.tools.some((tool) => /consent|approve|transfer/.test(tool.name)),
+        tools.tools.some(
+          (tool) =>
+            /consent|transfer/.test(tool.name) ||
+            tool.name === "approve_dispatch",
+        ),
       ).toBe(false);
       const forged = await client.callTool({
         name: "preflight_postal_pdf",

@@ -205,8 +205,16 @@ function ConnectionSettings({
         Aujourd’hui (UTC) : {connection.usage.count} envoi
         {connection.usage.count === 1 ? "" : "s"} ·{" "}
         {money(connection.usage.ceilingMinor)} de plafonds engagés par cette
-        connexion.
+        connexion. Les plafonds des envois acceptés restent comptés jusqu’à
+        minuit UTC, même en cas d’annulation ou de modification de la
+        délégation.
       </p>
+      {policy?.channels.includes("postal") && (
+        <p className="field-hint">
+          Les dépôts de brouillons Pingen ont un compteur distinct, limité au
+          même nombre par jour. Un dépôt ne constitue pas un envoi.
+        </p>
+      )}
       {editable && !editing && (
         <div className="button-group">
           <button

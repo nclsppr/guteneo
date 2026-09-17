@@ -3,7 +3,8 @@ export interface ObservationEnv {
   WRANGLER_VERSION_METADATA?: { id: string };
 }
 export type Component = "app" | "documents" | "scanner";
-export type Event = "http" | "queue" | "cron" | "outbox_deferred";
+export type Event =
+  "http" | "queue" | "cron" | "outbox_deferred" | "mcp_tool_error";
 const routes = [
   "health",
   "capabilities",
@@ -156,6 +157,7 @@ export function routeCode(
   if (/^\/api\/postal\/(requirements|preflights)$/.test(path)) return "postal";
   if (
     path === "/api/account/sessions" ||
+    path === "/api/account/expert-approval" ||
     /^\/api\/account\/sessions\/session_[a-f0-9]{32}$/.test(path)
   )
     return "account";
@@ -181,6 +183,7 @@ export function routeCode(
     ],
     [`^/api/admin/members/usr_${id}(/revoke-access)?$`, "admin"],
     [`^/api/connections/${id}$`, "account"],
+    [`^/api/account/expert-approval/${id}$`, "account"],
   ] as const)
     if (new RegExp(pattern).test(path)) return code;
   return "unknown";
@@ -230,7 +233,13 @@ export function startObservation(
         component: ["app", "documents", "scanner"].includes(component)
           ? component
           : "app",
-        event: ["http", "queue", "cron", "outbox_deferred"].includes(event)
+        event: [
+          "http",
+          "queue",
+          "cron",
+          "outbox_deferred",
+          "mcp_tool_error",
+        ].includes(event)
           ? event
           : "http",
         correlationId,

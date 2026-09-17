@@ -941,6 +941,7 @@ export function DispatchDetailPage({
     d.channel === "email" && d.mode === "production";
   const approved =
     pendingApproval &&
+    resource.data?.approval?.approval_kind !== "expert" &&
     resource.data?.approval?.fingerprint === d.fingerprint &&
     Date.parse(resource.data.approval.expires_at) > Date.now();
   const uncertain = ["submission_unknown", "reconciliation_required"].includes(
@@ -1150,6 +1151,14 @@ export function DispatchDetailPage({
               )}
             </p>
           )}
+          {pendingApproval &&
+            resource.data?.approval?.approval_kind === "expert" && (
+              <p className="notice info">
+                Cet envoi a été revu sous votre délégation expert. L’assistant
+                doit encore en confirmer l’acceptation. Vous pouvez aussi le
+                vérifier et l’approuver ici.
+              </p>
+            )}
           {pendingApproval && !approved && (
             <section className="approval-panel">
               <p>{t.dispatch.approvalExplain}</p>

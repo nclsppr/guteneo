@@ -46,6 +46,13 @@ export type ActorContext = {
   actor: "browser" | "mcp" | "system";
 };
 export type DomainContext = ActorContext;
+/** Server-created proof: credentials and current authority are rechecked in the acceptance transaction. */
+export type ExpertDispatchAuthority = {
+  reviewHash: string;
+  connectionId: string;
+  condition: string;
+  values: (string | number | null)[];
+};
 export type DocumentRecord = {
   id: string;
   organization_id: string;
@@ -197,6 +204,18 @@ function sqlError(error: unknown): never {
       409,
     );
   const message = String(error);
+  if (message.includes("expert_approval_invalid"))
+    throw new DomainError(
+      "EXPERT_APPROVAL_INVALID",
+      "La délégation ou la revue a expiré ou a été révoquée.",
+      409,
+    );
+  if (message.includes("expert_budget_exceeded"))
+    throw new DomainError(
+      "EXPERT_BUDGET_EXCEEDED",
+      "Le plafond quotidien du mode expert est atteint.",
+      409,
+    );
   for (const [needle, code, label, status] of [
     [
       "recipient_request_required",
@@ -315,10 +334,11 @@ export class DomainService {
     action: string,
     resourceId: string,
     details: Record<string, unknown> = {},
+    fence?: { condition: string; values: (string | number | null)[] },
   ) {
     return this.db
       .prepare(
-        "INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) VALUES(?,?,?,?,?,?,?)",
+        `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"}`,
       )
       .bind(
         uid("audit"),
@@ -328,6 +348,7 @@ export class DomainService {
         resourceId,
         canonicalJson(details),
         this.time(),
+        ...(fence?.values ?? []),
       );
   }
   async registerDocument(
@@ -781,6 +802,31 @@ export class DomainService {
         "L’approbation exige une session humaine authentifiée.",
         403,
       );
+    return this.approveWithAuthority(ctx, id, fingerprint, attestation);
+  }
+  async approveExpertDispatch(
+    ctx: ActorContext,
+    id: string,
+    fingerprint: string,
+    proof: ExpertDispatchAuthority,
+    attestation: { recipientRequested?: boolean } = {},
+  ): Promise<Dispatch> {
+    writable(ctx);
+    if (ctx.actor !== "mcp" || ctx.role !== "admin")
+      throw new DomainError(
+        "FORBIDDEN",
+        "Une délégation expert active est requise.",
+        403,
+      );
+    return this.approveWithAuthority(ctx, id, fingerprint, attestation, proof);
+  }
+  private async approveWithAuthority(
+    ctx: ActorContext,
+    id: string,
+    fingerprint: string,
+    attestation: { recipientRequested?: boolean },
+    proof?: ExpertDispatchAuthority,
+  ): Promise<Dispatch> {
     const row = await this.dispatch(ctx, id);
     if (row.status !== "prepared")
       throw new DomainError(
@@ -821,8 +867,30 @@ export class DomainService {
               now,
             )
           : undefined;
+    const review = proof
+      ? await this.db
+          .prepare(
+            "SELECT expires_at FROM valid_expert_dispatch_reviews WHERE token_hash=? AND connection_id=? AND organization_id=? AND user_id=? AND dispatch_id=? AND fingerprint=?",
+          )
+          .bind(
+            proof.reviewHash,
+            proof.connectionId,
+            ctx.organizationId,
+            ctx.userId,
+            id,
+            fingerprint,
+          )
+          .first<{ expires_at: string }>()
+      : null;
+    if (proof && !review)
+      throw new DomainError(
+        "EXPERT_APPROVAL_INVALID",
+        "La revue expert n’est plus valide.",
+        409,
+      );
     const approvalExpiresAt = new Date(
       Math.min(
+        review ? Date.parse(review.expires_at) : Infinity,
         this.now() + 15 * 60_000,
         quote ? Date.parse(quote.expires_at) : Infinity,
       ),
@@ -832,14 +900,19 @@ export class DomainService {
       statements.push(
         this.db
           .prepare(
-            "UPDATE campaigns SET status='frozen',updated_at=? WHERE organization_id=? AND id=? AND status='draft'",
+            `UPDATE campaigns SET status='frozen',updated_at=? WHERE organization_id=? AND id=? AND status='draft' AND ${proof?.condition ?? "1=1"}`,
           )
-          .bind(now, ctx.organizationId, row.campaign_id),
+          .bind(
+            now,
+            ctx.organizationId,
+            row.campaign_id,
+            ...(proof?.values ?? []),
+          ),
       );
     statements.push(
       this.db
         .prepare(
-          "INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested",
+          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${proof?.condition ?? "1=1"} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash`,
         )
         .bind(
           uid("approval"),
@@ -850,14 +923,31 @@ export class DomainService {
           approvalExpiresAt,
           now,
           attestation.recipientRequested === true ? 1 : 0,
+          proof ? "expert" : "browser",
+          proof?.reviewHash ?? null,
+          ...(proof?.values ?? []),
         ),
-      this.audit(ctx, "dispatch.approved", id, {
-        fingerprint,
-        recipientRequested: attestation.recipientRequested === true,
-      }),
+      this.audit(
+        ctx,
+        proof ? "dispatch.expert_approved" : "dispatch.approved",
+        id,
+        {
+          authority: proof ? "delegated" : "browser",
+          ...(proof ? { connectionId: proof.connectionId } : {}),
+          fingerprint,
+          recipientRequested: attestation.recipientRequested === true,
+        },
+        proof,
+      ),
     );
     try {
-      await this.db.batch(statements);
+      const results = await this.db.batch(statements);
+      if (results[row.campaign_id ? 1 : 0].meta.changes !== 1)
+        throw new DomainError(
+          "EXPERT_APPROVAL_INVALID",
+          "L’autorisation a changé.",
+          409,
+        );
     } catch (error) {
       sqlError(error);
     }
@@ -882,10 +972,17 @@ export class DomainService {
     ctx: ActorContext,
     id: string,
     idempotencyKey: string,
+    proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
     writable(ctx);
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
+    if (proof && (ctx.actor !== "mcp" || ctx.role !== "admin"))
+      throw new DomainError(
+        "FORBIDDEN",
+        "Une délégation expert active est requise.",
+        403,
+      );
     const now = this.time();
     if (
       row.mode === "production" &&
@@ -928,6 +1025,12 @@ export class DomainService {
     const hash = await sha256(
       canonicalJson({ id, fingerprint: row.fingerprint }),
     );
+    const approvalFence = proof
+      ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
+      : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
+    const approvalValues = proof
+      ? [ctx.organizationId, id, proof.reviewHash, ctx.userId, ...proof.values]
+      : [ctx.organizationId, id];
     try {
       await this.db.batch([
         ensureCreditPeriod(
@@ -938,12 +1041,20 @@ export class DomainService {
         ),
         this.db
           .prepare(
-            "INSERT INTO idempotency_keys(organization_id,operation,key,request_hash,resource_id,created_at) VALUES(?,?,?,?,?,?) ON CONFLICT(organization_id,operation,key) DO NOTHING",
+            `INSERT INTO idempotency_keys(organization_id,operation,key,request_hash,resource_id,created_at) SELECT ?,?,?,?,?,? WHERE ${approvalFence} ON CONFLICT(organization_id,operation,key) DO NOTHING`,
           )
-          .bind(ctx.organizationId, "confirm", idempotencyKey, hash, id, now),
+          .bind(
+            ctx.organizationId,
+            "confirm",
+            idempotencyKey,
+            hash,
+            id,
+            now,
+            ...approvalValues,
+          ),
         this.db
           .prepare(
-            "UPDATE dispatches SET status='queued',updated_at=? WHERE organization_id=? AND id=? AND status='prepared' AND EXISTS(SELECT 1 FROM idempotency_keys WHERE organization_id=? AND operation='confirm' AND key=? AND request_hash=? AND resource_id=?)",
+            `UPDATE dispatches SET status='queued',updated_at=? WHERE organization_id=? AND id=? AND status='prepared' AND EXISTS(SELECT 1 FROM idempotency_keys WHERE organization_id=? AND operation='confirm' AND key=? AND request_hash=? AND resource_id=?) AND ${approvalFence}`,
           )
           .bind(
             now,
@@ -953,6 +1064,7 @@ export class DomainService {
             idempotencyKey,
             hash,
             id,
+            ...approvalValues,
           ),
       ]);
     } catch (e) {
@@ -964,6 +1076,12 @@ export class DomainService {
       )
       .bind(ctx.organizationId, idempotencyKey)
       .first<{ request_hash: string }>();
+    if (!idem && row.status === "prepared")
+      throw new DomainError(
+        "APPROVAL_REQUIRED",
+        "L’approbation ou la délégation valide est requise.",
+        409,
+      );
     if (idem?.request_hash !== hash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
@@ -998,10 +1116,14 @@ export class DomainService {
         .all(),
       this.db
         .prepare(
-          "SELECT fingerprint,expires_at FROM approvals WHERE organization_id=? AND dispatch_id=? AND fingerprint=? AND expires_at>?",
+          "SELECT fingerprint,expires_at,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=? AND fingerprint=? AND expires_at>?",
         )
         .bind(ctx.organizationId, id, dispatch.fingerprint, this.time())
-        .first<{ fingerprint: string; expires_at: string }>(),
+        .first<{
+          fingerprint: string;
+          expires_at: string;
+          approval_kind: "browser" | "expert";
+        }>(),
     ]);
     return {
       dispatch,

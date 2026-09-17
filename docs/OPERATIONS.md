@@ -20,6 +20,7 @@ Les nouveaux événements applicatifs sont des objets JSON avec `schema: 1`, `co
 
 | Signal dans Observability | Interprétation et premier geste |
 | --- | --- |
+| `event=mcp_tool_error` | Un outil MCP a échoué, même si le transport HTTP répond 200. Le code distingue refus d’autorisation, refus métier et erreur interne ; aucun argument ni texte d’exception n’est collecté. |
 | `event=http`, `status>=500` | Erreur technique ou configuration. Filtrer `correlationId` et `versionId`, puis le code de route fixe. |
 | `code=CONFIGURATION_INVALID` | Une validation de configuration a fermé la route ; le journal couvre aussi les sorties précoces avant authentification. |
 | `event=cron`, `stage=complete` | Le cycle de maintenance s’est terminé. Une absence de cycle complet depuis 5 minutes appelle une vérification des métriques cron/déploiement ; ce seuil est une règle opérateur initiale, pas un SLO mesuré. |

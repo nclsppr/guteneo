@@ -40,6 +40,7 @@ import {
 import { handleAccountRoute } from "./account";
 import { PostalService, cleanupPostalEvidence } from "./postal";
 import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
+import { expertPostalAuthority } from "./expert-approval";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 
 import {
@@ -68,6 +69,17 @@ export function getCapabilities(env: Env) {
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",
+    approval: {
+      default: "authenticated_browser",
+      expert: {
+        available: true,
+        requiresAccountOptIn: true,
+        accountUrl: `${env.APP_ORIGIN}/#/app/account`,
+        reviewTool: "review_dispatch",
+        acceptanceTool: "approve_and_send_dispatch",
+        postalTransferTool: "transfer_postal_draft",
+      },
+    },
     registration: {
       enabled: identityConfigured(env),
       verification: env.AUTH0_AUTH_POLICY ?? "verified_email_and_mfa",
@@ -226,7 +238,23 @@ app.all("/mcp", (c) =>
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     capabilities: () => getCapabilities(c.env),
+    onToolFailure: (code) => {
+      const observation = startObservation(
+        c.env,
+        "app",
+        "mcp_tool_error",
+        "mcp",
+      );
+      observation.setCode(code);
+      observation.finish();
+    },
     postal: {
+      transferExpert: async (identity, id, fingerprint) =>
+        new PostalService(c.env, domain(c.env)).transfer(
+          await expertPostalAuthority(identity, c.env, id, fingerprint),
+          id,
+          { reviewed: true, consentToTransfer: true },
+        ),
       requirements: async (identity, country) =>
         new PostalService(c.env, domain(c.env)).requirements(
           await postalMcpAuthority(identity, c.env, "documents:read"),

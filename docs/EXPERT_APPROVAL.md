@@ -6,6 +6,8 @@ Le **mode standard reste le défaut** : la personne relit le document, le destin
 
 L’assistant n’active, ne renouvelle et n’élargit jamais ce mandat. Il ne fabrique pas de consentement humain : l’approbation qu’il demande au serveur est enregistrée comme une action **déléguée**, sous le mandat préalable, et non comme une revue effectuée par la personne. La présence d’un outil, les scopes OAuth, une phrase « oui » ou l’autorisation d’exécution de l’hôte ne créent pas ce mandat. Les confirmations demandées par ChatGPT, Claude, Cursor ou Copilot restent celles de l’hôte : ne pas modifier leurs paramètres pour les supprimer.
 
+Les budgets suivent les journées UTC. La somme comptée est celle des plafonds des envois acceptés, pas le décompte final : une annulation ou une modification du mandat ne reconstitue pas ce budget. Les brouillons Pingen ont un compteur distinct, limité au même nombre quotidien ; ils ne consomment pas le budget d’expédition avant l’acceptation d’un envoi.
+
 ## Outils et permissions
 
 | Outil                       | Entrée stricte                                                                         | Scopes requis                                              |

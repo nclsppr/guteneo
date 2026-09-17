@@ -26,6 +26,8 @@ export const postalReviewInputSchema = z
 export type PostalReviewInput = z.infer<typeof postalReviewInputSchema>;
 export type PostalReview = {
   id: string;
+  /** Exact preflight reviewed by a delegated assistant; absent in historical previews. */
+  fingerprint?: string;
   status: "processing" | "review_required" | "blocked" | "failed";
   document: {
     id: string;
