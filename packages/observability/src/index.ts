@@ -65,6 +65,35 @@ const codes = [
   "CALLBACK_PENDING",
 ] as const;
 export type LogCode = (typeof codes)[number];
+// These are closed labels, never a URL, request field or exception message.
+export const importFailureReasons = [
+  "missing_configuration",
+  "untrusted_host",
+  "invalid_scheme",
+  "credentials",
+  "port",
+  "fragment",
+  "private_host",
+  "invalid_url",
+  "download_timeout",
+  "redirect_rejected",
+  "source_expired",
+  "download_failed",
+] as const;
+export type ImportFailureReason = (typeof importFailureReasons)[number];
+const importSourceCategories = [
+  "known_provider",
+  "configured_host",
+  "unknown_host",
+  "invalid_source",
+] as const;
+export type ImportSourceCategory = (typeof importSourceCategories)[number];
+export const knownImportHosts = ["files.oaiusercontent.com"] as const;
+export interface ImportFailureObservation {
+  reason: ImportFailureReason;
+  sourceCategory: ImportSourceCategory;
+  knownHost?: (typeof knownImportHosts)[number];
+}
 const stages = [
   "configuration",
   "callbacks",
@@ -210,8 +239,12 @@ export function startObservation(
   const started = Date.now();
   const correlationId = crypto.randomUUID();
   let code: LogCode | undefined;
+  let importFailure: ImportFailureObservation | undefined;
   return {
     correlationId,
+    setImportFailure(value: ImportFailureObservation) {
+      importFailure = value;
+    },
     setCode(value: LogCode) {
       code = codes.includes(value) ? value : "INTERNAL_ERROR";
     },
@@ -250,6 +283,17 @@ export function startObservation(
         code: finalCode,
         durationMs: Math.max(0, Date.now() - started),
       };
+      if (importFailure) {
+        if (importFailureReasons.includes(importFailure.reason))
+          record.importReason = importFailure.reason;
+        if (importSourceCategories.includes(importFailure.sourceCategory))
+          record.importSource = importFailure.sourceCategory;
+        if (
+          importFailure.knownHost &&
+          knownImportHosts.includes(importFailure.knownHost)
+        )
+          record.importKnownHost = importFailure.knownHost;
+      }
       if (method)
         record.method = [
           "GET",

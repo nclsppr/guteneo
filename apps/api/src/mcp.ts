@@ -1,4 +1,5 @@
-import type { DocumentService } from "./documents";
+import { ImportSourceError, type DocumentService } from "./documents";
+import type { ImportFailureObservation } from "../../../packages/observability/src/index";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
 import { createMcpHandler } from "agents/mcp/server";
@@ -48,7 +49,8 @@ export interface McpServices {
   afterConfirmation?: () => Promise<void>;
   onToolFailure?: (
     code: "AUTH_REJECTED" | "DOMAIN_REJECTED" | "INTERNAL_ERROR",
-  ) => void;
+    importFailure?: ImportFailureObservation,
+  ) => string | void;
   postal?: {
     requirements(
       identity: McpIdentity,
@@ -69,7 +71,13 @@ export interface McpServices {
   };
 }
 const errorSchema = z
-  .object({ code: z.string(), message: z.string() })
+  .object({
+    code: z.string(),
+    message: z.string(),
+    correlationId: z.string().uuid().optional(),
+    reason: z.string().optional(),
+    sourceHost: z.string().max(253).optional(),
+  })
   .strict();
 const documentSchema = z
   .object({
@@ -239,10 +247,23 @@ function success(data: unknown): CallToolResult {
     content: [{ type: "text", text: JSON.stringify(structuredContent) }],
   };
 }
-function failure(error: unknown): CallToolResult {
+function failure(
+  error: unknown,
+  correlationId?: string | void,
+): CallToolResult {
   const safe =
     error instanceof Error && "code" in error && typeof error.code === "string"
-      ? { code: error.code, message: error.message }
+      ? {
+          code: error.code,
+          message: error.message,
+          ...(error instanceof ImportSourceError
+            ? {
+                reason: error.reason,
+                ...(error.sourceHost ? { sourceHost: error.sourceHost } : {}),
+              }
+            : {}),
+          ...(correlationId ? { correlationId } : {}),
+        }
       : {
           code: "INTERNAL_ERROR",
           message:
@@ -276,14 +297,17 @@ export function createGuteneoMcpServer(
       return format(await operation());
     } catch (error) {
       // MCP tool errors can be carried by HTTP 200. Emit a closed code without input or error text.
-      services.onToolFailure?.(
+      const code =
         error instanceof AuthError
           ? "AUTH_REJECTED"
           : error instanceof Error && "code" in error
             ? "DOMAIN_REJECTED"
-            : "INTERNAL_ERROR",
-      );
-      const result = failure(error);
+            : "INTERNAL_ERROR";
+      const correlationId =
+        error instanceof ImportSourceError
+          ? services.onToolFailure?.(code, error.observation())
+          : services.onToolFailure?.(code);
+      const result = failure(error, correlationId);
       if (error instanceof AuthError && error.code === "INSUFFICIENT_SCOPE") {
         result._meta = {
           "mcp/www_authenticate": [

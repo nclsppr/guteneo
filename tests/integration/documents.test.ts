@@ -539,6 +539,69 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
     expect((await bucket.list()).objects).toHaveLength(1);
   });
 
+  it("imports exact remote PDF bytes into production-mode D1/R2 only after hash-matched scan and validation fixtures", async () => {
+    const { productionEnv, productionDomain } = await production();
+    const hash = await sha256(original);
+    const remoteFetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async () => new Response(original));
+    try {
+      const scanner = binding(async (request) => {
+        expect(new Uint8Array(await request.arrayBuffer())).toEqual(original);
+        return Response.json({ sha256: hash, verdict: "clean" });
+      });
+      const renderer = binding(async (request) => {
+        expect(new URL(request.url).pathname).toBe("/validate");
+        expect(new Uint8Array(await request.arrayBuffer())).toEqual(original);
+        return Response.json({ sha256: hash, pages: 1 });
+      });
+      const service = new DocumentService(
+        {
+          ...productionEnv,
+          IMPORT_ALLOWED_HOSTS: "files.oaiusercontent.com",
+          SCANNER: scanner,
+          DOCUMENT_RENDERER: renderer,
+        },
+        productionDomain,
+      );
+      const document = await service.importFile(
+        { ...atelier, actor: "mcp" },
+        {
+          download_url:
+            "https://files.oaiusercontent.com/fixture?signature=synthetic",
+          file_id: "synthetic-file",
+          file_name: "exact.pdf",
+          mime_type: "application/pdf",
+        },
+      );
+      expect(document).toMatchObject({
+        status: "ready",
+        sha256: hash,
+        pages: 1,
+        source: "import",
+        size: original.length,
+      });
+      expect(
+        new Uint8Array(
+          await (await bucket.get(document.storage_key))!.arrayBuffer(),
+        ),
+      ).toEqual(original);
+      expect((await productionDomain.listDocuments(atelier)).items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: document.id, sha256: hash }),
+        ]),
+      );
+      expect(
+        await db.prepare("SELECT count(*) AS n FROM dispatches").first(),
+      ).toEqual({ n: 0 });
+      expect(
+        await db.prepare("SELECT count(*) AS n FROM outbox").first(),
+      ).toEqual({ n: 0 });
+    } finally {
+      remoteFetch.mockRestore();
+    }
+  });
+
   it("quarantines unparsed remote bytes with unknown page count when the scanner is absent", async () => {
     const { productionEnv, productionDomain } = await production();
     const service = new DocumentService(productionEnv, productionDomain);

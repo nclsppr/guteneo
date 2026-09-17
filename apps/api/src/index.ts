@@ -241,7 +241,7 @@ app.all("/mcp", (c) =>
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     capabilities: () => getCapabilities(c.env),
-    onToolFailure: (code) => {
+    onToolFailure: (code, importFailure) => {
       const observation = startObservation(
         c.env,
         "app",
@@ -249,7 +249,9 @@ app.all("/mcp", (c) =>
         "mcp",
       );
       observation.setCode(code);
+      if (importFailure) observation.setImportFailure(importFailure);
       observation.finish();
+      return observation.correlationId;
     },
     postal: {
       transferExpert: async (identity, id, fingerprint) =>
