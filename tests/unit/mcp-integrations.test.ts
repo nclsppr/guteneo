@@ -9,12 +9,14 @@ import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   createGuteneoMcpServer,
   type McpDocuments,
+  type McpServices,
 } from "../../apps/api/src/mcp";
 import {
   MCP_SCOPES,
   type AuthEnv,
   type McpIdentity,
 } from "../../apps/api/src/auth";
+import { ImportSourceError } from "../../apps/api/src/documents";
 import { DomainService, type Dispatch } from "../../packages/domain/src/index";
 
 let mf: Miniflare;
@@ -99,9 +101,11 @@ async function connected<T>(
   run: (client: Client) => Promise<T>,
   principal = identity,
   documentServices: Partial<McpDocuments> = {},
+  onToolFailure?: McpServices["onToolFailure"],
 ) {
   const server = createGuteneoMcpServer(principal, env, {
     domain,
+    onToolFailure,
     capabilities: () => ({ mode: "simulation", liveSendsEnabled: false }),
     documents: {
       async importFile() {
@@ -145,6 +149,54 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("returns an actionable import reason and correlation without leaking signed URL details", async () => {
+    const correlation = "fcd1cb36-c54b-427a-98b5-19f6f304728a";
+    const onFailure = vi.fn(() => correlation);
+    await connected(
+      async (client) => {
+        const result = await client.callTool({
+          name: "import_document",
+          arguments: {
+            file: {
+              download_url:
+                "https://files.oaiusercontent.com/private-file?signature=private-token",
+              file_id: "private-file",
+            },
+          },
+        });
+        expect(result.isError).toBe(true);
+        expect(result.structuredContent).toMatchObject({
+          ok: false,
+          error: {
+            code: "SOURCE_NOT_ALLOWED",
+            reason: "missing_configuration",
+            sourceHost: "files.oaiusercontent.com",
+            correlationId: correlation,
+          },
+        });
+        expect(JSON.stringify(result)).not.toContain("private-file");
+        expect(JSON.stringify(result)).not.toContain("private-token");
+      },
+      identity,
+      {
+        importFile: async () => {
+          throw new ImportSourceError(
+            "SOURCE_NOT_ALLOWED",
+            "missing_configuration",
+            "Configurez le fournisseur de fichiers.",
+            "files.oaiusercontent.com",
+          );
+        },
+      },
+      onFailure,
+    );
+    expect(onFailure).toHaveBeenCalledWith("DOMAIN_REJECTED", {
+      reason: "missing_configuration",
+      sourceCategory: "known_provider",
+      knownHost: "files.oaiusercontent.com",
+    });
+  });
+
   it("validates official portable schemas and produces identical archives without secrets", async () => {
     const temp = await mkdtemp(path.join(tmpdir(), "guteneo-plugins-"));
     try {

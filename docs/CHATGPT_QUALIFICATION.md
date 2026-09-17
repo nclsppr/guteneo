@@ -19,3 +19,13 @@ Il s’agit d’une preuve observée dans l’interface réelle : installation, 
 Cette recette ne qualifie pas l’import ou la génération d’un PDF, son transfert exact et son empreinte, les parcours d’approbation, le renouvellement du jeton, la révocation ou une communication réelle. Aucun document n’a été créé ni envoyé. Le connecteur est une installation de développement privée ; le paquet de skills complet et la publication dans l’annuaire sont des étapes distinctes.
 
 Parcours suivi : [documentation officielle OpenAI](https://developers.openai.com/plugins/deploy/connect-chatgpt). Limites et prochaines recettes : [LLM_SETUP.md](LLM_SETUP.md).
+
+## Correction de l’import distant — 17 septembre 2026
+
+Le refus `SOURCE_NOT_ALLOWED` venait notamment d’une configuration de production sans `IMPORT_ALLOWED_HOSTS` : toutes les sources distantes étaient refusées, indépendamment de l’activation du fax. Le domaine exact `files.oaiusercontent.com` est désormais configuré dans `wrangler.live.jsonc`. Aucun sous-domaine arbitraire, redirection ou URL non HTTPS n’est accepté. Le contrat natif `openai/fileParams` conserve `download_url` et `file_id` obligatoires ; les octets sont téléchargés, limités, analysés puis conservés avant toute préparation d’envoi.
+
+Les erreurs d’import renvoient désormais une raison précise, le domaine public normalisé et une corrélation. Le serveur ne journalise que des catégories fermées et le domaine OpenAI reconnu ; aucune URL signée, chemin, nom de fichier, identifiant OpenAI ou domaine inconnu n’est conservé dans les logs. Un lien expiré, une redirection et un dépassement du délai de téléchargement de 15 secondes ont des codes distincts.
+
+Validation locale : 73 tests ciblés réussis, dont un transfert simulé vers D1/R2 avec comparaison des octets et du SHA-256. Ces fixtures ne constituent pas une preuve de transfert réel depuis ChatGPT.
+
+Le nouvel essai réel dans la conversation existante a pu relire le PDF original (136 018 octets, une page, SHA-256 `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`) mais la session n’exposait que sept outils de lecture, sans `import_document`. `list_documents` a confirmé une liste vide. Aucun nouvel appel d’import ni fax n’a été effectué dans cet essai : le domaine réellement fourni par cette session, l’import et l’égalité de l’empreinte côté Guteneo restent à qualifier après réactualisation de la connexion d’écriture. Une correction de configuration n’est pas une preuve d’envoi réel.

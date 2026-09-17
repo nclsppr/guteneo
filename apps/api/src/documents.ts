@@ -11,6 +11,12 @@ import type {
   DomainService,
 } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
+import {
+  knownImportHosts,
+  type ImportFailureObservation,
+  type ImportFailureReason,
+  type ImportSourceCategory,
+} from "../../../packages/observability/src/index";
 
 export const REVIEW_PDF_MAX_BYTES = 1024 * 1024;
 export interface ExactReviewPdf {
@@ -128,6 +134,57 @@ export async function readLimited(
   }
   return result;
 }
+function publicImportHostname(hostname: string): string | undefined {
+  const value = hostname.toLowerCase();
+  if (
+    value.length > 253 ||
+    !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(
+      value,
+    )
+  )
+    return undefined;
+  if (/^(localhost|.*\.localhost|.*\.local|.*\.internal)$/.test(value))
+    return undefined;
+  return value;
+}
+
+/** Private URL details are deliberately discarded, including when fetch throws them. */
+export class ImportSourceError extends ContentError {
+  readonly sourceHost?: string;
+  readonly sourceCategory: ImportSourceCategory;
+  constructor(
+    code: string,
+    readonly reason: ImportFailureReason,
+    message: string,
+    hostname?: string,
+    configured = false,
+    status = 400,
+  ) {
+    const safeHost = hostname ? publicImportHostname(hostname) : undefined;
+    super(
+      code,
+      `${message}${safeHost ? ` Domaine source : ${safeHost}.` : ""}`,
+      status,
+    );
+    this.sourceHost = safeHost;
+    this.sourceCategory = safeHost
+      ? knownImportHosts.some((host) => host === safeHost)
+        ? "known_provider"
+        : configured
+          ? "configured_host"
+          : "unknown_host"
+      : "invalid_source";
+  }
+  observation(): ImportFailureObservation {
+    const knownHost = knownImportHosts.find((host) => host === this.sourceHost);
+    return {
+      reason: this.reason,
+      sourceCategory: this.sourceCategory,
+      ...(knownHost ? { knownHost } : {}),
+    };
+  }
+}
+
 export function permittedImportUrl(
   raw: string,
   hosts: string | undefined,
@@ -136,24 +193,34 @@ export function permittedImportUrl(
   try {
     url = new URL(raw);
   } catch {
-    throw new ContentError("INVALID_URL", "URL source invalide.");
+    throw new ImportSourceError(
+      "INVALID_URL",
+      "invalid_url",
+      "URL source invalide. Joignez de nouveau le PDF pour obtenir une référence de fichier téléchargeable.",
+    );
   }
   const allowed = (hosts ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  if (
-    url.protocol !== "https:" ||
-    url.username ||
-    url.password ||
-    url.port ||
-    url.hash ||
-    !allowed.includes(url.hostname.toLowerCase()) ||
-    /^(localhost|.*\.localhost|.*\.local)$|^[\d.]+$|[:\[\]]/i.test(url.hostname)
-  )
-    throw new ContentError(
+  const hostname = url.hostname.toLowerCase();
+  let reason: ImportFailureReason | undefined;
+  if (url.protocol !== "https:") reason = "invalid_scheme";
+  else if (url.username || url.password) reason = "credentials";
+  else if (url.port) reason = "port";
+  else if (url.hash) reason = "fragment";
+  else if (!publicImportHostname(hostname)) reason = "private_host";
+  else if (!allowed.length) reason = "missing_configuration";
+  else if (!allowed.includes(hostname)) reason = "untrusted_host";
+  if (reason)
+    throw new ImportSourceError(
       "SOURCE_NOT_ALLOWED",
-      "Source non autorisée. Utilisez le téléversement authentifié ou configurez le domaine exact du fournisseur de fichiers.",
+      reason,
+      reason === "missing_configuration"
+        ? "L’import distant n’est pas configuré sur Guteneo. L’opérateur doit autoriser le domaine exact du fournisseur de fichiers ; vous pouvez aussi utiliser le téléversement authentifié."
+        : "Source non autorisée. Utilisez une URL HTTPS temporaire du fournisseur de fichiers autorisé, ou le téléversement authentifié Guteneo.",
+      hostname,
+      allowed.includes(hostname),
     );
   return url;
 }
@@ -507,16 +574,82 @@ export class DocumentService {
       file.download_url,
       this.env.IMPORT_ALLOWED_HOSTS,
     );
-    const response = await fetch(url, {
-      redirect: "manual",
-      signal: AbortSignal.timeout(15000),
-      headers: { Accept: "application/pdf" },
-    });
-    return this.upload(ctx, {
-      name: file.file_name ?? "document.pdf",
-      bytes: await readLimited(response),
-    });
+    // One deadline covers connection, streamed body and cancellation, even if a provider ignores abort.
+    const signal = AbortSignal.timeout(15_000);
+    let response: Response | undefined;
+    let bytes: Uint8Array;
+    try {
+      response = await withinDeadline(
+        fetch(url, {
+          redirect: "manual",
+          signal,
+          headers: { Accept: "application/pdf" },
+        }),
+        signal,
+      );
+      if (response.status >= 300 && response.status < 400)
+        throw new ImportSourceError(
+          "SOURCE_REDIRECT_NOT_ALLOWED",
+          "redirect_rejected",
+          "Le fournisseur a redirigé le téléchargement. Joignez de nouveau le PDF pour obtenir un lien direct ; les redirections ne sont pas suivies.",
+          url.hostname,
+          true,
+          422,
+        );
+      if ([401, 403, 404, 410].includes(response.status))
+        throw new ImportSourceError(
+          "SOURCE_EXPIRED_OR_UNAVAILABLE",
+          "source_expired",
+          "Le lien temporaire est expiré ou inaccessible. Joignez de nouveau le PDF et relancez import_document avec la nouvelle référence de fichier.",
+          url.hostname,
+          true,
+          422,
+        );
+      if (response.status === 408 || response.status === 504)
+        throw new ImportSourceError(
+          "SOURCE_DOWNLOAD_TIMEOUT",
+          "download_timeout",
+          "Le téléchargement du PDF a dépassé le délai autorisé. Joignez de nouveau le PDF et réessayez l’import.",
+          url.hostname,
+          true,
+          408,
+        );
+      bytes = await withinDeadline(
+        readLimited(response, LIMITS.pdfBytes, signal),
+        signal,
+      );
+    } catch (error) {
+      if (error instanceof ImportSourceError) throw error;
+      if (signal.aborted)
+        throw new ImportSourceError(
+          "SOURCE_DOWNLOAD_TIMEOUT",
+          "download_timeout",
+          "Le téléchargement du PDF a dépassé le délai de 15 secondes. Joignez de nouveau le PDF et réessayez l’import.",
+          url.hostname,
+          true,
+          408,
+        );
+      if (error instanceof ContentError && error.code !== "DOWNLOAD_FAILED")
+        throw error;
+      throw new ImportSourceError(
+        "DOWNLOAD_FAILED",
+        "download_failed",
+        "Le fichier source est inaccessible. Joignez de nouveau le PDF pour renouveler son lien temporaire, puis réessayez l’import.",
+        url.hostname,
+        true,
+        422,
+      );
+    } finally {
+      if (response?.body && !response.body.locked) {
+        await withinDeadline(
+          response.body.cancel().catch(() => {}),
+          signal,
+        ).catch(() => {});
+      }
+    }
+    return this.upload(ctx, { name: file.file_name ?? "document.pdf", bytes });
   }
+
   async render(ctx: DocumentContext, input: { name: string; html: string }) {
     await this.domain.authorizeWrite(ctx);
     await reserveContentBudget(this.env.DB, ctx.organizationId, 0, true);

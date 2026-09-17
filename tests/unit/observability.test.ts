@@ -86,6 +86,45 @@ describe("private operational observations", () => {
     expect(records[0]).not.toHaveProperty("stage");
   });
 
+  it("records only closed import diagnostics and known provider hosts, never arbitrary domains", () => {
+    const observation = startObservation(
+      environment(),
+      "app",
+      "mcp_tool_error",
+      "mcp",
+    );
+    observation.setCode("DOMAIN_REJECTED");
+    observation.setImportFailure({
+      reason: "untrusted_host",
+      sourceCategory: "unknown_host",
+      knownHost: sentinel,
+      url: sentinel,
+    } as never);
+    observation.finish();
+    expect(records[0]).toMatchObject({
+      importReason: "untrusted_host",
+      importSource: "unknown_host",
+    });
+    expect(records[0]).not.toHaveProperty("importKnownHost");
+    expect(JSON.stringify(records)).not.toContain(sentinel);
+    const known = startObservation(
+      environment(),
+      "app",
+      "mcp_tool_error",
+      "mcp",
+    );
+    known.setImportFailure({
+      reason: "missing_configuration",
+      sourceCategory: "known_provider",
+      knownHost: "files.oaiusercontent.com",
+    });
+    known.finish();
+    expect(records[1]).toMatchObject({
+      importReason: "missing_configuration",
+      importKnownHost: "files.oaiusercontent.com",
+    });
+  });
+
   it("never includes the OAuth code, state, cookie, path identifier, request body or client correlation header", async () => {
     const response = await worker.fetch(
       new Request(
