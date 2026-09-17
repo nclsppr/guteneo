@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
-import type { FaxPricing } from "../../contracts/src/fax-pricing";
+import {
+  FAX_OPERATOR_TEST_NOTICE,
+  type FaxPricing,
+} from "../../contracts/src/fax-pricing";
 
 const NANO_PER_CENT = 10_000_000;
 const countries: Record<string, string> = {
@@ -73,6 +76,9 @@ export type FaxUsageTariff = {
   destination_category: "fixed" | "special";
   route_allowed: number;
   local_calling_verified: number;
+  route_qualification?: "provider_verified" | "operator_test";
+  operator_authorization_reference?: string | null;
+  operator_test_ceiling_minor?: number | null;
   options_json: string;
   currency: "USD";
   page_nano_usd: number;
@@ -168,6 +174,25 @@ export function faxUsageEstimate(t: FaxUsageTariff, pages: number) {
   };
 }
 
+/** Private operator policy; never inferred from an assistant's request or provider capability. */
+function operatorRouteTest(t: FaxUsageTariff): boolean {
+  return (
+    t.route_qualification === "operator_test" &&
+    t.origin_class === "local" &&
+    t.sender_country_code === "LU" &&
+    t.destination_country_code === "LU" &&
+    t.destination_prefix === "+3524" &&
+    t.destination_category === "fixed" &&
+    t.route_allowed === 1 &&
+    t.local_calling_verified === 0 &&
+    reference.safeParse(t.operator_authorization_reference).success &&
+    Number.isInteger(t.operator_test_ceiling_minor) &&
+    t.operator_test_ceiling_minor! >= 1 &&
+    t.operator_test_ceiling_minor! <= 200 &&
+    Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
+  );
+}
+
 /** undefined means no v3 policy has EVER owned this sender/account/application scope. */
 export async function resolveFaxUsageTariff(
   db: D1Database,
@@ -215,6 +240,7 @@ export async function resolveFaxUsageTariff(
     t.route_allowed !== 1 ||
     t.destination_category !== "fixed" ||
     t.currency !== "USD" ||
+    (t.route_qualification === "operator_test" && !operatorRouteTest(t)) ||
     pages > t.max_pages ||
     !hash.safeParse(t.source_sha256).success ||
     !reference.safeParse(t.source_reference).success ||
@@ -231,7 +257,7 @@ export async function resolveFaxUsageTariff(
     !t.destination_prefix.startsWith(countries[t.destination_country_code]) ||
     (t.origin_class === "local"
       ? t.sender_country_code !== t.destination_country_code ||
-        t.local_calling_verified !== 1
+        (t.local_calling_verified !== 1 && !operatorRouteTest(t))
       : t.origin_class !== "eea" ||
         t.sender_country_code === t.destination_country_code)
   )
@@ -258,6 +284,17 @@ export async function makeFaxUsageQuote(
   now: string,
 ): Promise<FaxUsageQuote> {
   if (frozen.estimatedMinor !== t.customer_minor) throw invalid();
+  if (
+    t.route_qualification === "operator_test" &&
+    (!operatorRouteTest(t) ||
+      !Number.isSafeInteger(frozen.ceilingMinor) ||
+      (frozen.ceilingMinor as number) > t.operator_test_ceiling_minor!)
+  )
+    throw new DomainError(
+      "FAX_TEST_CEILING_EXCEEDED",
+      "Le test fax Luxembourg est limité à un plafond de 2 € par envoi.",
+      409,
+    );
   const input = canonicalJson(frozen);
   const q: FaxUsageQuote = {
     dispatch_id: dispatchId,
@@ -544,11 +581,12 @@ export async function readFaxPricingBatch(
     throw new DomainError("INVALID_LIMIT", "Au maximum 100 envois.");
   const rows = await db
     .prepare(
-      "SELECT q.*,r.status AS reservation_status,s.customer_nanoeur,n.charged_minor,s.created_at AS settled_at FROM live_fax_quotes_v3 q LEFT JOIN welcome_credit_reservations r ON r.organization_id=q.organization_id AND r.dispatch_id=q.dispatch_id LEFT JOIN fax_usage_settlements s ON s.organization_id=q.organization_id AND s.dispatch_id=q.dispatch_id LEFT JOIN delivery_charge_entries n ON n.organization_id=q.organization_id AND n.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id IN (SELECT value FROM json_each(?))",
+      "SELECT q.*,t.route_qualification,r.status AS reservation_status,s.customer_nanoeur,n.charged_minor,s.created_at AS settled_at FROM live_fax_quotes_v3 q JOIN trusted_fax_usage_tariffs t ON t.organization_id=q.organization_id AND t.id=q.tariff_id LEFT JOIN welcome_credit_reservations r ON r.organization_id=q.organization_id AND r.dispatch_id=q.dispatch_id LEFT JOIN fax_usage_settlements s ON s.organization_id=q.organization_id AND s.dispatch_id=q.dispatch_id LEFT JOIN delivery_charge_entries n ON n.organization_id=q.organization_id AND n.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id IN (SELECT value FROM json_each(?))",
     )
     .bind(organizationId, JSON.stringify(ids))
     .all<
       FaxUsageQuote & {
+        route_qualification: "provider_verified" | "operator_test";
         reservation_status: "reserved" | "settled" | "released" | null;
         customer_nanoeur: number | null;
         charged_minor: number | null;
@@ -562,6 +600,12 @@ export async function readFaxPricingBatch(
         version: 3,
         currency: "EUR",
         basis: "qualified_usage_ex_tax",
+        ...(q.route_qualification === "operator_test"
+          ? {
+              routeQualification: "operator_authorized_test" as const,
+              routeNotice: FAX_OPERATOR_TEST_NOTICE,
+            }
+          : {}),
         estimatedLowNanoeur: q.estimated_low_nanoeur,
         estimatedHighNanoeur: q.estimated_high_nanoeur,
         ceilingMinor: q.ceiling_minor,

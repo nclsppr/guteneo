@@ -3,6 +3,9 @@ export type FaxPricing = {
   version: 3;
   currency: "EUR";
   basis: "qualified_usage_ex_tax";
+  /** Explicit test authorization, not Telnyx Local Calling qualification. */
+  routeQualification?: "operator_authorized_test";
+  routeNotice?: string;
   estimatedLowNanoeur: number;
   estimatedHighNanoeur: number;
   ceilingMinor: number;
@@ -20,12 +23,21 @@ export type FaxPricing = {
   };
 };
 
+export const FAX_OPERATOR_TEST_NOTICE =
+  "Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.";
+
 /** Explicit projection also excludes accidental extra runtime accounting fields. */
 export function customerFaxPricing(pricing: FaxPricing): FaxPricing {
   return {
     version: pricing.version,
     currency: pricing.currency,
     basis: pricing.basis,
+    ...(pricing.routeQualification === "operator_authorized_test"
+      ? {
+          routeQualification: "operator_authorized_test" as const,
+          routeNotice: FAX_OPERATOR_TEST_NOTICE,
+        }
+      : {}),
     estimatedLowNanoeur: pricing.estimatedLowNanoeur,
     estimatedHighNanoeur: pricing.estimatedHighNanoeur,
     ceilingMinor: pricing.ceilingMinor,

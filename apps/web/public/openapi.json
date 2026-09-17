@@ -3614,6 +3614,15 @@
               "qualified_usage_ex_tax"
             ]
           },
+          "routeQualification": {
+            "type": "string",
+            "enum": ["operator_authorized_test"],
+            "description": "Test explicitement autorisé par l’opérateur ; ne prouve pas la capacité Local Calling du fournisseur."
+          },
+          "routeNotice": {
+            "type": "string",
+            "description": "Mention à présenter lors de la revue du test."
+          },
           "estimatedLowNanoeur": {
             "type": "integer",
             "minimum": 0,
