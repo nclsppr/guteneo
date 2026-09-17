@@ -1,5 +1,13 @@
 # Qualification ChatGPT — 17 septembre 2026
 
+Le nouveau candidat local retire la liste de domaines autorisés pour les sources
+HTTPS publiques des environnements hébergés, avec les contrôles de réseau et
+d’analyse décrits dans [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md). Il n’est pas
+déployé par ce travail. Les paragraphes ci-dessous conservent les configurations
+d’hôtes exacts et les essais historiques ; la politique d’hôtes est remplacée
+dans ce candidat. La preuve du premier fax livré concerne un autre parcours et
+ne prouve pas l’état du document signalé aujourd’hui.
+
 ## Premier fax réel livré — preuve limitée au parcours observé
 
 Après l’import natif du PDF dans ChatGPT, le renouvellement manuel de son devis et l’approbation de l’utilisateur dans Guteneo, une seule tentative Telnyx a été créée le 17 septembre 2026 à 11:13:55.422 UTC. Elle a été acceptée à 11:13:59.101 UTC. L’événement fournisseur `delivered`, survenu à 11:15:17.154 UTC, a été reçu à 11:15:18.497 UTC et appliqué à 11:15:18.892 UTC. La relecture D1 confirme le statut livré et une tentative unique. L’agent de diagnostic n’a ni approuvé ni renvoyé ce fax.
@@ -30,7 +38,7 @@ Cette recette ne qualifie pas l’import ou la génération d’un PDF, son tran
 
 Parcours suivi : [documentation officielle OpenAI](https://developers.openai.com/plugins/deploy/connect-chatgpt). Limites et prochaines recettes : [LLM_SETUP.md](LLM_SETUP.md).
 
-## Correction de l’import distant — 17 septembre 2026
+## Correction de l’import distant — historique du 17 septembre 2026
 
 Le refus `SOURCE_NOT_ALLOWED` venait notamment d’une configuration de production sans `IMPORT_ALLOWED_HOSTS` : toutes les sources distantes étaient refusées, indépendamment de l’activation du fax. Le domaine exact `files.oaiusercontent.com` est désormais configuré dans `wrangler.live.jsonc`. Aucun sous-domaine arbitraire, redirection ou URL non HTTPS n’est accepté. Le contrat natif `openai/fileParams` conserve `download_url` et `file_id` obligatoires ; les octets sont téléchargés, limités, analysés puis conservés avant toute préparation d’envoi.
 
@@ -40,7 +48,7 @@ Validation locale : 73 tests ciblés réussis, dont un transfert simulé vers D1
 
 Le nouvel essai réel dans la conversation existante a pu relire le PDF original (136 018 octets, une page, SHA-256 `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`) mais la session n’exposait que sept outils de lecture, sans `import_document`. `list_documents` a confirmé une liste vide. Aucun nouvel appel d’import ni fax n’a été effectué dans cet essai : le domaine réellement fourni par cette session, l’import et l’égalité de l’empreinte côté Guteneo restent à qualifier après réactualisation de la connexion d’écriture. Une correction de configuration n’est pas une preuve d’envoi réel.
 
-## Source native observée dans ChatGPT — 17 septembre 2026
+## Source native observée dans ChatGPT — historique du 17 septembre 2026
 
 Après actualisation des métadonnées du connecteur et sélection explicite de Guteneo dans une nouvelle conversation Chat, le PDF original a été joint depuis la bibliothèque native de ChatGPT, sans téléchargement local, téléversement manuel ni reconstruction. Cette demande a réellement appelé `import_document` : la réponse authentifiée a identifié le domaine `oaisdmntprnortheu.blob.core.windows.net` avec la raison `untrusted_host`. Le refus du domaine Azure précis explique pourquoi l’autorisation de `files.oaiusercontent.com` ne suffisait pas pour ce fichier.
 

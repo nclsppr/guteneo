@@ -5,6 +5,7 @@ import {
   permittedImportUrl,
 } from "../../apps/api/src/documents";
 import type { Env } from "../../apps/api/src/env";
+import { getCapabilities } from "../../apps/api/src/index";
 import type {
   DomainService,
   ActorContext,
@@ -19,13 +20,12 @@ const actor = {
   role: "admin",
   actor: "mcp",
 } as ActorContext;
-function service(hosts: string | undefined = host) {
+function service(environment: Env["ENVIRONMENT"] = "production") {
   const authorize = vi.fn(async () => {});
   const instance = new DocumentService(
     {
-      ENVIRONMENT: "production",
+      ENVIRONMENT: environment,
       MODE: "production",
-      IMPORT_ALLOWED_HOSTS: hosts,
     } as Env,
     { authorizeWrite: authorize } as unknown as DomainService,
   );
@@ -46,9 +46,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function errorFor(url: string, hosts?: string) {
+function errorFor(url: string) {
   try {
-    permittedImportUrl(url, hosts);
+    permittedImportUrl(url);
   } catch (error) {
     return error as ImportSourceError;
   }
@@ -56,31 +56,51 @@ function errorFor(url: string, hosts?: string) {
 }
 
 describe("exact remote document imports", () => {
-  it("distinguishes missing configuration from an unknown host without retaining source secrets", () => {
-    const error = errorFor(source);
-    expect(error).toMatchObject({
-      code: "SOURCE_NOT_ALLOWED",
-      reason: "missing_configuration",
-      sourceHost: host,
-    });
-    expect(error.observation()).toEqual({
-      reason: "missing_configuration",
-      sourceCategory: "known_provider",
-      knownHost: host,
-    });
-    expect(error.message).toContain(host);
-    expect(JSON.stringify(error)).not.toContain(secret);
-    const unknown = errorFor(
-      `https://private-document-host.example/a?token=${secret}`,
-      host,
-    );
-    expect(unknown.reason).toBe("untrusted_host");
-    expect(unknown.sourceHost).toBe("private-document-host.example");
-    expect(unknown.observation()).toEqual({
-      reason: "untrusted_host",
-      sourceCategory: "unknown_host",
-    });
-  });
+  it.each(["production", "staging", "local"] as const)(
+    "advertises URL import only when public egress is available in %s",
+    (environment) => {
+      expect(
+        getCapabilities({ ENVIRONMENT: environment } as Env).documents
+          .urlImport,
+      ).toBe(environment !== "local");
+    },
+  );
+  it.each([
+    host,
+    "oaisdmntprukwest.blob.core.windows.net",
+    "oaisdmntprnortheu.blob.core.windows.net",
+    "oaisdmntprdenmarkeast.blob.core.windows.net",
+    "any-other-account.blob.core.windows.net",
+    "downloads.another-assistant.com",
+    "customer-owned-storage.net",
+    "sub.files.oaiusercontent.com",
+  ])(
+    "imports exact bytes from public domain %s without any configuration",
+    async (sourceHost) => {
+      const url = `https://${sourceHost}/${secret}?signature=${secret}`;
+      expect(permittedImportUrl(url).href).toBe(url);
+      const { instance, upload } = service();
+      const bytes = new TextEncoder().encode("%PDF-exact-synthetic-bytes");
+      const fetcher = vi.fn(
+        async (_input: RequestInfo | URL, _init?: RequestInit) =>
+          new Response(bytes),
+      );
+      vi.stubGlobal("fetch", fetcher);
+      await instance.importFile(actor, { ...file, download_url: url });
+      expect(String(fetcher.mock.calls[0][0])).toBe(url);
+      expect(fetcher.mock.calls[0][1]).toMatchObject({
+        redirect: "manual",
+        headers: { Accept: "application/pdf" },
+      });
+      expect(Object.keys(fetcher.mock.calls[0][1]?.headers ?? {})).toEqual([
+        "Accept",
+      ]);
+      expect(upload).toHaveBeenCalledWith(actor, {
+        name: file.file_name,
+        bytes,
+      });
+    },
+  );
 
   it.each([
     ["http://files.oaiusercontent.com/a", "invalid_scheme"],
@@ -88,78 +108,83 @@ describe("exact remote document imports", () => {
     ["https://files.oaiusercontent.com:444/a", "port"],
     ["https://files.oaiusercontent.com/a#fragment", "fragment"],
     ["https://127.0.0.1/a", "private_host"],
+    ["https://127.1/a", "private_host"],
+    ["https://2130706433/a", "private_host"],
     ["https://0x7f000001/a", "private_host"],
+    ["https://10.0.0.1/a", "private_host"],
+    ["https://169.254.169.254/a", "private_host"],
     ["https://[::1]/a", "private_host"],
+    ["https://[::ffff:127.0.0.1]/a", "private_host"],
+    ["https://[fc00::1]/a", "private_host"],
     ["https://localhost/a", "private_host"],
+    ["https://sub.localhost./a", "private_host"],
     ["https://metadata.internal/a", "private_host"],
-    ["https://files.oaiusercontent.com.evil.example/a", "untrusted_host"],
-    ["https://sub.files.oaiusercontent.com/a", "untrusted_host"],
+    ["https://printer.local/a", "private_host"],
+    ["https://router.home.arpa/a", "private_host"],
+    ["https://router.lan/a", "private_host"],
+    ["https://files.test/a", "private_host"],
+    ["https://files.invalid/a", "private_host"],
+    ["https://files.onion/a", "private_host"],
     ["sandbox:/mnt/data/private.pdf", "invalid_scheme"],
+    ["file:///mnt/data/private.pdf", "invalid_scheme"],
     ["not a URL", "invalid_url"],
-  ])("rejects %s with bounded reason %s", (url, reason) => {
-    const error = errorFor(
-      url,
-      `${host},127.0.0.1,localhost,metadata.internal,[::1]`,
-    );
-    expect(error.reason).toBe(reason);
-    expect(JSON.stringify(error.observation())).not.toContain("password");
-    expect(JSON.stringify(error.observation())).not.toContain("private.pdf");
+  ])(
+    "rejects %s before any download with bounded reason %s",
+    async (url, reason) => {
+      const error = errorFor(url);
+      expect(error.reason).toBe(reason);
+      expect(JSON.stringify(error.observation())).not.toContain("password");
+      expect(JSON.stringify(error.observation())).not.toContain("private.pdf");
+      const { instance, upload } = service();
+      const fetcher = vi.fn();
+      vi.stubGlobal("fetch", fetcher);
+      await expect(
+        instance.importFile(actor, { ...file, download_url: url }),
+      ).rejects.toMatchObject({ reason });
+      expect(fetcher).not.toHaveBeenCalled();
+      expect(upload).not.toHaveBeenCalled();
+    },
+  );
+
+  it("allows standard HTTPS normalization without changing signed paths or query parameters", () => {
+    expect(
+      permittedImportUrl(`https://${host.toUpperCase()}:443/a?sig=%2F%2B%3D`)
+        .href,
+    ).toBe(`https://${host}/a?sig=%2F%2B%3D`);
+    expect(permittedImportUrl(`https://${host}./a`).hostname).toBe(`${host}.`);
   });
 
-  it("accepts only an exact configured normalized hostname and preserves the full signed URL for fetch", async () => {
-    expect(permittedImportUrl(source, ` ${host.toUpperCase()} `).href).toBe(
-      source,
-    );
-    expect(() => permittedImportUrl(source, "*.oaiusercontent.com")).toThrow();
-    const { instance, upload } = service();
-    const bytes = new TextEncoder().encode("%PDF-exact-synthetic-bytes");
-    const fetcher = vi.fn(
-      async (_input: RequestInfo | URL, _init?: RequestInit) =>
-        new Response(bytes),
-    );
+  it("keeps the local developer network unreachable through remote imports", async () => {
+    const { instance, upload } = service("local");
+    const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
-    await instance.importFile(actor, file);
-    expect(String(fetcher.mock.calls[0][0])).toBe(source);
-    expect(fetcher.mock.calls[0][1]).toMatchObject({
-      redirect: "manual",
-      headers: { Accept: "application/pdf" },
+    await expect(instance.importFile(actor, file)).rejects.toMatchObject({
+      code: "SOURCE_NOT_ALLOWED",
+      reason: "local_import_disabled",
     });
-    expect(upload).toHaveBeenCalledWith(actor, { name: file.file_name, bytes });
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(upload).not.toHaveBeenCalled();
   });
 
-  it.each([
-    "oaisdmntprnortheu.blob.core.windows.net",
-    "oaisdmntprdenmarkeast.blob.core.windows.net",
-  ])("imports from observed ChatGPT account %s without authorizing other storage accounts", async (azureHost) => {
-    const azureSource = `https://${azureHost}/${secret}?sig=${secret}`;
-    const allowed = `${host}, ${azureHost.toUpperCase()} `;
-    expect(permittedImportUrl(azureSource, allowed).href).toBe(azureSource);
-    for (const rejected of [
-      "another-account.blob.core.windows.net",
-      `sub.${azureHost}`,
-      `${azureHost}.evil.example`,
-    ]) {
-      expect(errorFor(`https://${rejected}/a`, allowed).reason).toBe(
-        "untrusted_host",
-      );
-    }
-    expect(() =>
-      permittedImportUrl(azureSource, "*.blob.core.windows.net"),
-    ).toThrow();
-    const observation = errorFor(azureSource, host).observation();
-    expect(observation).toEqual({
-      reason: "untrusted_host",
+  it("reports a public source failure without logging arbitrary domains or signed URLs", () => {
+    const domain = "customer-owned-storage.net";
+    const error = errorFor(`http://${domain}/${secret}?signature=${secret}`);
+    expect(error).toMatchObject({
+      code: "SOURCE_NOT_ALLOWED",
+      reason: "invalid_scheme",
+      sourceHost: domain,
+    });
+    expect(error.observation()).toEqual({
+      reason: "invalid_scheme",
+      sourceCategory: "public_host",
+    });
+    expect(JSON.stringify(error)).not.toContain(secret);
+    const known = errorFor(`http://${host}/${secret}`);
+    expect(known.observation()).toEqual({
+      reason: "invalid_scheme",
       sourceCategory: "known_provider",
-      knownHost: azureHost,
+      knownHost: host,
     });
-    expect(JSON.stringify(observation)).not.toContain(secret);
-    const { instance, upload } = service(allowed);
-    const bytes = new TextEncoder().encode("%PDF-exact-azure-synthetic-bytes");
-    const fetcher = vi.fn(async (_input: RequestInfo | URL) => new Response(bytes));
-    vi.stubGlobal("fetch", fetcher);
-    await instance.importFile(actor, { ...file, download_url: azureSource });
-    expect(String(fetcher.mock.calls[0]?.[0])).toBe(azureSource);
-    expect(upload).toHaveBeenCalledWith(actor, { name: file.file_name, bytes });
   });
 
   it.each([

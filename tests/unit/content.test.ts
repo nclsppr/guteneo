@@ -50,25 +50,19 @@ describe("content boundary", () => {
     expect(result.duplicates).toEqual([{ line: 3, duplicateOf: 2 }]);
     expect(result.errors[0].line).toBe(4);
   });
-  it("refuses arbitrary URLs, localhost, credentials, redirects and insecure schemes", () => {
+  it("allows public HTTPS sources without weakening private URL guards", () => {
     for (const url of [
-      "http://trusted.example/a",
+      "http://downloads.provider.com/a",
       "https://127.0.0.1/a",
-      "https://trusted.example.evil/a",
-      "https://user:pass@trusted.example/a",
+      "https://user:pass@downloads.provider.com/a",
       "https://[::1]/a",
-      "https://trusted.example:444/a",
+      "https://downloads.provider.com:444/a",
     ])
-      expect(() => permittedImportUrl(url, "trusted.example")).toThrow();
-    expect(() =>
-      permittedImportUrl("https://trusted.example/a", undefined),
-    ).toThrow();
+      expect(() => permittedImportUrl(url)).toThrow();
     expect(
-      permittedImportUrl(
-        "https://trusted.example/a?signature=secret",
-        "trusted.example",
-      ).hostname,
-    ).toBe("trusted.example");
+      permittedImportUrl("https://downloads.provider.com/a?signature=secret")
+        .hostname,
+    ).toBe("downloads.provider.com");
   });
   it("limits streaming downloads independent of content-length", async () => {
     await expect(

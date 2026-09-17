@@ -147,7 +147,7 @@ export function getCapabilities(env: Env) {
       import: true,
       render: Boolean(env.DOCUMENT_RENDERER || env.DOCUMENT_RENDERER_URL),
       exactBytes: true,
-      urlImport: !!env.IMPORT_ALLOWED_HOSTS,
+      urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
     },
   };
 }

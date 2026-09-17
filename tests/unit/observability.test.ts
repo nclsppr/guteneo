@@ -95,15 +95,15 @@ describe("private operational observations", () => {
     );
     observation.setCode("DOMAIN_REJECTED");
     observation.setImportFailure({
-      reason: "untrusted_host",
-      sourceCategory: "unknown_host",
+      reason: "download_failed",
+      sourceCategory: "public_host",
       knownHost: sentinel,
       url: sentinel,
     } as never);
     observation.finish();
     expect(records[0]).toMatchObject({
-      importReason: "untrusted_host",
-      importSource: "unknown_host",
+      importReason: "download_failed",
+      importSource: "public_host",
     });
     expect(records[0]).not.toHaveProperty("importKnownHost");
     expect(JSON.stringify(records)).not.toContain(sentinel);
@@ -114,13 +114,13 @@ describe("private operational observations", () => {
       "mcp",
     );
     known.setImportFailure({
-      reason: "missing_configuration",
+      reason: "source_expired",
       sourceCategory: "known_provider",
       knownHost: "files.oaiusercontent.com",
     });
     known.finish();
     expect(records[1]).toMatchObject({
-      importReason: "missing_configuration",
+      importReason: "source_expired",
       importKnownHost: "files.oaiusercontent.com",
     });
   });

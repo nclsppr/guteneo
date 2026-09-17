@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+Local candidate, 17 September: replace the hosted PDF source-domain allowlist
+with public HTTPS imports and runtime-enforced public egress. Local URL imports
+remain disabled; multipart upload remains available. Source refusal and stored
+document verification now have an explicit distinction. No deployment, real
+assistant qualification or fax is performed by this change. See
+[PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md) for the remaining release checks.
+
 Local candidate, 17 September: the expert assistant journey now exposes the
 current connection's mandate and remaining limits, reads immutable PDFs as
 bounded page images in the conversation (including before postal preparation),

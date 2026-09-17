@@ -1,5 +1,13 @@
 # Guteneo product contract
 
+Local candidate, 17 September: hosted PDF imports no longer require a
+provider-specific domain entry. Public HTTPS downloads retain network, size,
+time and exact-file verification limits; local URL import remains disabled.
+A source refusal before download never reaches the antivirus, while a separately
+generated PDF must pass its own verification. This does not qualify every
+assistant's file transfer or the reported document's current status. See
+[PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md) for release and evidence boundaries.
+
 Local candidate, 17 September: the expert assistant journey now exposes the
 current connection's mandate and remaining limits, reads immutable PDFs as
 bounded page images in the conversation (including before postal preparation),

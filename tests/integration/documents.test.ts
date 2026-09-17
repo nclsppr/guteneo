@@ -558,7 +558,6 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
       const service = new DocumentService(
         {
           ...productionEnv,
-          IMPORT_ALLOWED_HOSTS: "files.oaiusercontent.com",
           SCANNER: scanner,
           DOCUMENT_RENDERER: renderer,
         },
@@ -568,7 +567,7 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
         { ...atelier, actor: "mcp" },
         {
           download_url:
-            "https://files.oaiusercontent.com/fixture?signature=synthetic",
+            "https://oaisdmntprukwest.blob.core.windows.net/fixture?signature=synthetic",
           file_id: "synthetic-file",
           file_name: "exact.pdf",
           mime_type: "application/pdf",

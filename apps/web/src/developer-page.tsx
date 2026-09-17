@@ -305,8 +305,8 @@ export function DeveloperPage() {
                 ressources externes sont retirés. Ce rendu ne doit pas servir à
                 reconstruire un original à partir de son texte. L’import d’une
                 URL est réservé à l’outil MCP <code>import_document</code>, sur
-                des hôtes HTTPS explicitement autorisés, sans redirection ; ce
-                n’est pas une route REST.
+                tout domaine public en HTTPS, sans redirection ; ce n’est pas
+                une route REST.
               </p>
               <p>
                 Le champ <code>analysis</code> indique si la vérification est en

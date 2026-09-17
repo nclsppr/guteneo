@@ -67,8 +67,7 @@ const codes = [
 export type LogCode = (typeof codes)[number];
 // These are closed labels, never a URL, request field or exception message.
 export const importFailureReasons = [
-  "missing_configuration",
-  "untrusted_host",
+  "local_import_disabled",
   "invalid_scheme",
   "credentials",
   "port",
@@ -83,8 +82,7 @@ export const importFailureReasons = [
 export type ImportFailureReason = (typeof importFailureReasons)[number];
 const importSourceCategories = [
   "known_provider",
-  "configured_host",
-  "unknown_host",
+  "public_host",
   "invalid_source",
 ] as const;
 export type ImportSourceCategory = (typeof importSourceCategories)[number];

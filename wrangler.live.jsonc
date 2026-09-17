@@ -4,7 +4,7 @@
   "account_id": "39ac9fada6cba44d9ecf09d467609e69",
   "main": "apps/api/src/worker.ts",
   "compatibility_date": "2026-09-16",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "workers_dev": true,
   "preview_urls": false,
   // Auth0 is configured; real browser login is qualified on this canonical origin.
@@ -24,8 +24,6 @@
     "LIVE_SENDS_ENABLED": "true",
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
     "LIVE_SEND_CHANNELS": "fax",
-    // ChatGPT fileParams downloads. Exact host only; no redirects or wildcard sources.
-    "IMPORT_ALLOWED_HOSTS": "files.oaiusercontent.com,oaisdmntprnortheu.blob.core.windows.net,oaisdmntprdenmarkeast.blob.core.windows.net",
     // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
     "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",
