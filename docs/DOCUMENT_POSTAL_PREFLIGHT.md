@@ -1,6 +1,6 @@
 # Service privé de contrôle postal
 
-État au 17 septembre 2026 : le Worker privé est déployé et sa qualification distante utilise uniquement des PDF synthétiques. Le raccordement API/MCP et la migration 0020 sont implémentés et testés localement ; leur migration et leur déploiement applicatifs restent à effectuer par la release. Le parcours serveur, ses preuves de session et le consentement séparé au dépôt sont décrits dans [POSTAL_REVIEW.md](POSTAL_REVIEW.md). Aucun transfert Pingen n'a été effectué pour qualifier le renderer. Les règles de mise en page restent celles de [PINGEN_PREFLIGHT.md](PINGEN_PREFLIGHT.md).
+État au 17 septembre 2026 : le Worker privé est déployé et sa qualification distante utilise uniquement des PDF synthétiques. Le raccordement API/MCP est publié dans la release `813dd717` et la migration0020 est appliquée sur D1, avec contrôles d’intégrité et de schéma réussis ; voir [LIVE_RELEASE.md](LIVE_RELEASE.md). Le parcours serveur, ses preuves de session et le consentement séparé au dépôt sont décrits dans [POSTAL_REVIEW.md](POSTAL_REVIEW.md). Aucun transfert Pingen n'a été effectué pour qualifier le renderer. Les règles de mise en page restent celles de [PINGEN_PREFLIGHT.md](PINGEN_PREFLIGHT.md).
 
 ## Contrat interne
 

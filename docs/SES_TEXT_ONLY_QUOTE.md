@@ -1,6 +1,6 @@
 # Qualification SES pour un test sans pièce jointe
 
-État au 17 septembre 2026 : modèle public HT implémenté et testé localement, **aucune politique tarifaire installée, aucune activation et aucun envoi effectués par cette tranche**. Les migrations `0021_ses_text_only_quotes.sql` et `0022_ses_public_list_prices.sql` ne contiennent ni prix actif, ni expéditeur, ni organisation. Elles ne consomment aucun crédit.
+État au 17 septembre 2026 : modèle public HT publié dans la release `813dd717`, migrations0021–0022 appliquées et vérifiées, **aucune politique tarifaire installée, aucune activation et aucun envoi effectués par cette tranche**. Les migrations `0021_ses_text_only_quotes.sql` et `0022_ses_public_list_prices.sql` ne contiennent ni prix actif, ni expéditeur, ni organisation. Elles ne consomment aucun crédit.
 
 ## Preuves disponibles
 

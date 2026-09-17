@@ -1,6 +1,6 @@
 # Revue postale liée au document exact
 
-Le raccordement serveur est implémenté et testé localement. La migration0020, les routes applicatives et le portail de revue ne constituent pas à eux seuls une qualification de Pingen ou une autorisation d’envoi. Le déploiement applicatif et l’application distante de0020 appartiennent à la release. La qualification distincte du Worker de rendu est documentée dans [DOCUMENT_POSTAL_PREFLIGHT.md](DOCUMENT_POSTAL_PREFLIGHT.md).
+Le raccordement serveur et le portail sont publiés dans la release `813dd717` du 17 septembre ; la migration0020 est appliquée sur D1 avec0021 et0022. Les routes et le portail de revue ne constituent pas à eux seuls une qualification de Pingen ou une autorisation d’envoi. Le flag de brouillons est actif, celui des envois reste désactivé. Voir [LIVE_RELEASE.md](LIVE_RELEASE.md). La qualification distincte du Worker de rendu est documentée dans [DOCUMENT_POSTAL_PREFLIGHT.md](DOCUMENT_POSTAL_PREFLIGHT.md).
 
 ## Parcours exposé
 
@@ -30,7 +30,7 @@ La vue `valid_postal_draft_reviews` relie preuve, consentement, brouillon, docum
 
 - Analyse : `processing`, `review_required`, `blocked` ou `failed`.
 - Transfert : `not_started`, `preparing`, `prepared` ou `unknown`. `prepared` signifie uniquement « brouillon fournisseur enregistré ». Un `preparing` abandonné apparaît incertain après120 secondes ; il ne redevient jamais automatiquement disponible.
-- `POSTAL_DRAFTS_ENABLED` est un gate distinct de `LIVE_SENDS_ENABLED`. Le premier permet les dépôts consentis et devis lorsque toutes les autres qualifications sont réunies ; le second reste requis pour une communication réelle. La configuration candidate active uniquement les brouillons après qualification du renderer et relecture du compte/de l’origine de dépôt ; le déploiement et l’essai réel restent des preuves distinctes. Les envois restent désactivés.
+- `POSTAL_DRAFTS_ENABLED` est un gate distinct de `LIVE_SENDS_ENABLED`. Le premier permet les dépôts consentis et devis lorsque toutes les autres qualifications sont réunies ; le second reste requis pour une communication réelle. La configuration publiée active uniquement les brouillons après qualification du renderer et relecture du compte/de l’origine de dépôt ; l’essai réel reste une preuve distincte. Les envois restent désactivés.
 - La preuve expire après24 heures. Aucun rejeu ne prolonge ce délai. Les images et extraits de texte sont privés, sans journalisation et `no-store`. Le cron efface par lots de100 les rapports dérivés expirés ou liés à un original purgé ; les métadonnées immuables de requête/consentement restent pour l’audit et l’idempotence.
 - Les réponses renvoient toujours `canSend:false`. Les droits sur le compte, la vérification de l’expéditeur, les fonds, les tarifs exacts, l’approbation et les gates d’envoi conservent leurs responsabilités propres.
 
@@ -38,4 +38,4 @@ La vue `valid_postal_draft_reviews` relie preuve, consentement, brouillon, docum
 
 `tests/unit/postal.test.ts` utilise D1 et R2 locaux réels avec des PDF synthétiques, des réponses de renderer et des appels fournisseur interceptés. Il couvre concurrence/idempotence/quota, isolation, hash/scan, preuve incomplète, mauvaise adresse, délai, révocation après attente, lecture privée, CSRF, entrée forgée, consentement, profil changé, octets intacts, dépôt sans envoi, état incertain et effacement dérivé. `postal-authority.test.ts` utilise également des JWT RS256 signés de fixture. `postal-mcp.test.ts` teste le transport MCP réel, les deux scopes annoncés/demandés et l’absence d’outil de consentement.
 
-Les fixtures des suites de devis et du bridge enregistrent une preuve synthétique explicitement qualifiée pour leurs scénarios ; elles ne prouvent pas un dépôt réel. La vérification locale des22 migrations constate un schéma équivalent, `quick_check=ok` et aucune violation de clé étrangère. Aucun appel Pingen ni migration distante n’a été exécuté pour ce raccordement.
+Les fixtures des suites de devis et du bridge enregistrent une preuve synthétique explicitement qualifiée pour leurs scénarios ; elles ne prouvent pas un dépôt réel. La vérification locale des22 migrations constate un schéma équivalent, `quick_check=ok` et aucune violation de clé étrangère. Ces tests locaux ne font aucun appel Pingen. La migration distante a ensuite été appliquée et vérifiée lors de la release, sans dépôt de PDF ni brouillon réel.

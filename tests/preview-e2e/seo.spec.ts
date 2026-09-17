@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
+
 const paths = [
   "/",
   "/journal/",
@@ -92,8 +94,12 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
     expect(await robots.text()).not.toContain("Disallow: /\n");
   } else expect(await robots.text()).toBe("User-agent: *\nDisallow: /\n");
   const backend = await request.get("/api/session");
-  expect(backend.status()).toBe(403);
-  expect(await backend.text()).toContain("PREVIEW_ONLY");
+  expect(backend.status()).toBe(publicApplication ? 401 : 403);
+  expect(await backend.json()).toMatchObject({
+    error: {
+      code: publicApplication ? "AUTHENTICATION_REQUIRED" : "PREVIEW_ONLY",
+    },
+  });
 });
 
 test("journal content and ordinary navigation work with JavaScript disabled", async ({

@@ -1,8 +1,10 @@
 # Public design preview — updated 2026-09-17
 
-The user originally requested an immediate Cloudflare deployment to inspect the existing design. The separate preview is now at **https://guteneo-preview.nclsppr.workers.dev**, with its fictional workspace at **https://guteneo-preview.nclsppr.workers.dev/#/app**. Since the controlled switch on 17 September 2026 at 01:11 UTC, **https://guteneo.com** serves the production-mode application, with Auth0 configured and live sending disabled. Do not run the fictional-preview journeys against that canonical application. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for its current release and remaining account qualification.
+The user originally requested an immediate Cloudflare deployment to inspect the existing design. The separate preview is now at **https://guteneo-preview.nclsppr.workers.dev**, with its fictional workspace at **https://guteneo-preview.nclsppr.workers.dev/#/app**. Since the controlled switch on 17 September 2026 at 01:11 UTC, **https://guteneo.com** serves the production-mode application, with Auth0 configured and live sending disabled. Do not run the fictional-preview journeys against that canonical application. Only the read-only developer and SEO specs support the explicit `GUTENEO_PUBLIC_APP=1` mode for canonical qualification; never run the fictional workspace journeys there. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for its current release and remaining account qualification.
 
 The separate `guteneo-preview` Worker serves the React application built with `VITE_PUBLIC_PREVIEW=true`. The first deployment version was `71f30997-dfbd-4f70-a4ce-10cfa4367e81`. `/release.json` records the currently deployed source commit, whether local changes were included, the source snapshot digest and individual asset digests. `/health` identifies the preview mode and closed live-send gate. These endpoints are public evidence; a successful local build alone is not deployment proof.
+
+Current preview source is `813dd7173389f8fbcc1e1e1abaf68be905e7084c`, Worker version `b47daae5-19bd-43c9-91e6-a78d159efc35`, deployed at 02:29 UTC on 17 September with 100% traffic verified. All 51 public asset hashes, robots policy and security headers match the clean local build. This remains fictional preview evidence.
 
 ## What is interactive
 

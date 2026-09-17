@@ -971,33 +971,39 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       spentMinor: 0,
     });
   });
-  it("does not charge a cent per email: 51 concurrent acceptances cost 2 cents cumulatively", async () => {
-    const rows = await Promise.all(Array.from({ length: 51 }, () => queue()));
-    await Promise.all(
-      rows.map((row) => domain.processDispatch(row.id, provider("email"))),
-    );
-    expect(await balance()).toMatchObject({
-      reservedMinor: 0,
-      spentMinor: 2,
-      availableMinor: 4998,
-    });
-    expect(
-      await db
-        .prepare(
-          "SELECT confirmed_count,confirmed_minor FROM usage WHERE organization_id=? AND channel='email'",
-        )
-        .bind(ctx.organizationId)
-        .first(),
-    ).toMatchObject({ confirmed_count: 51, confirmed_minor: 2 });
-    expect(await count("delivery_charge_entries")).toBe(51);
-    await Promise.all(
-      rows
-        .slice(0, 4)
-        .map((row) => domain.processDispatch(row.id, provider("email"))),
-    );
-    expect(await count("delivery_charge_entries")).toBe(51);
-    expect(await balance()).toMatchObject({ spentMinor: 2 });
-  });
+  // Keep all 51 real D1 approval/acceptance paths concurrent. The shared Linux
+  // runner needs more than the default 30s for this financial integration test.
+  it(
+    "does not charge a cent per email: 51 concurrent acceptances cost 2 cents cumulatively",
+    { timeout: 90_000 },
+    async () => {
+      const rows = await Promise.all(Array.from({ length: 51 }, () => queue()));
+      await Promise.all(
+        rows.map((row) => domain.processDispatch(row.id, provider("email"))),
+      );
+      expect(await balance()).toMatchObject({
+        reservedMinor: 0,
+        spentMinor: 2,
+        availableMinor: 4998,
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT confirmed_count,confirmed_minor FROM usage WHERE organization_id=? AND channel='email'",
+          )
+          .bind(ctx.organizationId)
+          .first(),
+      ).toMatchObject({ confirmed_count: 51, confirmed_minor: 2 });
+      expect(await count("delivery_charge_entries")).toBe(51);
+      await Promise.all(
+        rows
+          .slice(0, 4)
+          .map((row) => domain.processDispatch(row.id, provider("email"))),
+      );
+      expect(await count("delivery_charge_entries")).toBe(51);
+      expect(await balance()).toMatchObject({ spentMinor: 2 });
+    },
+  );
   it("shares one credit balance across fractional email and whole-cent postal sends", async () => {
     const mail = await queue(),
       letter = await queue(await postal());

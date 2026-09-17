@@ -102,3 +102,17 @@ A fresh schema comparison matched all **145 application-owned objects** against 
 | 0017 | `224d49155f9d656e539e21034034871f8d920bc0533933af328702de68400208` | `3bac6df3ac59f299350421e7fd32b8d287c1772a8753b5fc004d787e27e25ba8` |
 | 0018 | `0e02d2d3e334b2fe0368d189c9fe72a293d58b0d55f9b5671cbfe3c8138c3f2b` | `1552b5dc9d694a4e555c77204c3921234a1fa002f08bc17c4e1262b35f08ae2f` |
 | 0019 | `ee02af225e4ddc92867e5faa5eaffb7921a12082565dea6b51fdf77a816669f6` | `0c46560efdf16be0e007d7e7f03bf8ceb4c30ac171af95f2f875dab00db60834` |
+
+## Postal review and public SES pricing — 2026-09-17
+
+Committed source `813dd7173389f8fbcc1e1e1abaf68be905e7084c` supplied migrations0020–0022. They were applied at **02:17:17–02:17:35 UTC** as three complete D1 API batches, with each ledger insertion in its own migration transaction. All 15, 4 and 7 statements succeeded. No user, dispatch, postal review or tariff was inserted.
+
+Pre-migration bookmark: `0000002a-00000000-000050e9-7f4054a4f992ba4b46625c4af4507e8c`. Post-migration bookmark: `0000002a-00000008-000050e9-e00340b59278c431d5780d363ba3d79c`.
+
+Fresh remote checks confirmed all **22 migrations**, `foreign_keys=1`, no foreign-key violations and `quick_check=ok`. All **161 domain schema objects** match the locally verified source/transport schema after the established guard/whitespace normalization and excluding the ledger. The sorted inventory SHA-256 is `3806f500df5f390b3ef5f84ac2ba45f86570da9e0e29d13ecce16f0e41fcd75b`. The remote schema was read in bounded batches after an oversized observation was truncated; no migration was retried or replayed. The canonical health endpoint remained HTTP200, production mode, live sending disabled.
+
+| Migration | Source SHA-256 | Transport SHA-256 |
+| --- | --- | --- |
+| 0020 | `5867ea67e48812e8772db893ce3b6c8198662767140797c58b22d986cbc7ccb7` | `b6cc5c07c40cf66c6a48daaccb4a90ef795d0773b848f4f85a7999c0731736ff` |
+| 0021 | `80f73b855fa5353c9992afa3113baeff02019f6f9fb0caa1fa30158b5a54651a` | `6db398a3a161d3ed04d44cd10d76dd59cbfcbd6701f10bb6a14cfd6ffe53f618` |
+| 0022 | `4562d478eec03c25cfa2f7ee4b39261c2f4a8cd51ed5063d8f2251c0b4b70c11` | `f46d82af13cf0dac0d5c40b4ebf2c94107684e129af9fdf2f30db1ebd5675d0d` |

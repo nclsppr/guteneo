@@ -1,10 +1,10 @@
-# Référence développeurs — candidat local du 17 septembre 2026
+# Référence développeurs — 17 septembre 2026
 
-La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat REST actuel, pas une ouverture commerciale. Le site public de démonstration refuse toujours ses routes API avec `403 PREVIEW_ONLY`. Le contrat annonce cette limite dans `info` et dans le serveur canonique. Un compte, un crédit promotionnel ou des identifiants fournisseur ne prouvent ni un transport activé ni un test réel d’assistant.
+La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat REST de la bêta, pas une ouverture commerciale. Le domaine canonique sert l’application ; seule la démonstration séparée sur `guteneo-preview.nclsppr.workers.dev` refuse ses routes API avec `403 PREVIEW_ONLY`. Vérifier les capacités et la release réellement servies avant d’utiliser un nouveau parcours. Un compte, un crédit promotionnel ou des identifiants fournisseur ne prouvent ni un transport activé ni un test réel d’assistant.
 
 ## Périmètre exact
 
-OpenAPI 3.0.3, version métier 0.2.0 : 15 chemins, 18 opérations. Source de vérité : `apps/api/src/index.ts`, `apps/api/src/auth.ts`, `apps/api/src/documents.ts`, `packages/domain/src/index.ts` et `packages/contracts/src/content.ts`.
+OpenAPI 3.0.3, version métier 0.2.0 : **20 chemins, 23 opérations**. Source de vérité : `apps/api/src/index.ts`, `apps/api/src/auth.ts`, `apps/api/src/documents.ts`, `apps/api/src/postal.ts`, `packages/domain/src/index.ts` et les contrats partagés de contenu/revue postale.
 
 | Route                                                         | Méthode               | Scope OAuth                                      |
 | ------------------------------------------------------------- | --------------------- | ------------------------------------------------ |
@@ -23,8 +23,15 @@ OpenAPI 3.0.3, version métier 0.2.0 : 15 chemins, 18 opérations. Source de vé
 | `/api/campaigns/{id}`                                         | GET                   | `dispatches:read`                                |
 | `/api/recipients/validate`                                    | POST                  | `dispatches:prepare`                             |
 | `/api/senders`, `/api/usage`                                  | GET                   | `dispatches:read`                                |
+| `/api/postal/requirements` | GET, query `country` | `documents:read` |
+| `/api/postal/preflights` | POST avec `Idempotency-Key` | `documents:write` et `dispatches:prepare` |
+| `/api/postal/preflights/{id}` | GET | `documents:read` |
+| `/api/postal/preflights/{id}/address.png` | GET PNG privé | `documents:read` |
+| `/api/postal/preflights/{id}/quote` | POST sans corps, avec `Idempotency-Key` | `dispatches:prepare` |
 
 Il n’existe pas de route REST `/api/documents/import` : `import_document` est un outil MCP. Le dépôt REST est multipart. Les URL importées par MCP doivent appartenir à l’allowlist explicite, en HTTPS et sans redirection ; un chemin local ou une URL inventée ne convient jamais.
+
+Pour un courrier de production, lire d’abord les règles du compte, contrôler le PDF exact puis ouvrir le `reviewUrl` retourné. Le transfert vers un brouillon Pingen requiert la revue et le consentement dans le navigateur ; sa route `/transfer` reste exclue de cette référence OAuth. Le devis est une étape ultérieure qui réutilise le brouillon sans effectuer un second dépôt. Le contrôle renvoie toujours `canSend:false`. Le détail du contrat et des limites figure dans [POSTAL_REVIEW.md](POSTAL_REVIEW.md).
 
 La réponse REST de préparation est un `Dispatch`, sans `approvalUrl`. Le client ouvre `https://guteneo.com/#/app/dispatch/{id}` avec l’identifiant retourné. MCP construit lui-même `approvalUrl`. Aucun droit OAuth ni endpoint de cette référence ne permet de produire le consentement humain : `/approve` exige une session navigateur et un contrôle CSRF. Les routes d’administration, de compte, de facturation, les callbacks et la gestion privée des fournisseurs sont exclus.
 
@@ -67,3 +74,7 @@ Sources d’intégration : [configuration officielle Swagger UI](https://swagger
 - `npx playwright test --config playwright.preview.config.ts tests/preview-e2e/developers.spec.ts tests/preview-e2e/seo.spec.ts --reporter=list` : 8/8 passent sur Chromium desktop et WebKit iPhone : six routes initiales, HTTP réels, lecture sans JS, chargement différé, aucune API/exécution/authentification Swagger, requête du contrat sans cookie/Authorization, paramètres de configuration non suivis et absence de débordement. Synchronisation finale nanoEUR et présentation Swagger mobile incluses dans le dernier passage.
 
 Aucun commit, déploiement, accès OAuth réel, communication ou activation fournisseur n’est une conséquence de ce travail de documentation.
+
+## Published qualification — 17 September 2026
+
+Release `813dd717` exposes 20 paths and 23 operations on https://guteneo.com/openapi.json. Post-deployment developer/SEO checks passed 8/8 across desktop and iPhone; the Swagger page remains error-free, without API execution, bearer tokens or cookies on its specification request. The explicit production-public test mode verifies the separate anonymous session 401 instead of the fictional preview 403. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for exact source, Worker versions and asset proof.
