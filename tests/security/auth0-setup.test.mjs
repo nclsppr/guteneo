@@ -7,11 +7,56 @@ import {
   actionSources,
   AUDIENCE,
   cliJson,
+  HOSTED_REFRESH_TOKEN_POLICY,
   makeAuth0Api,
   runSetup,
   setupPlan,
   TENANT,
 } from "../../scripts/setup-auth0.mjs";
+
+const hostedRefreshOptions = {
+  authPolicy: "verified_email",
+  claudeCallback: "https://claude.ai/api/mcp/auth_callback",
+  refreshClientKeys: ["claudeHosted"],
+};
+
+async function executeActions(sources, event) {
+  const calls = [];
+  const api = {
+    access: { deny: () => calls.push(["deny"]) },
+    authentication: {
+      challengeWithAny: () => calls.push(["challenge"]),
+      enrollWith: () => calls.push(["enroll"]),
+    },
+    idToken: {
+      setCustomClaim: (name, value) => calls.push(["id", name, value]),
+    },
+    accessToken: {
+      setCustomClaim: (name, value) => calls.push(["access", name, value]),
+    },
+  };
+  // Execute both independently as well: neither Action may mint a claim when
+  // the other Action would deny the request, even if binding order later changes.
+  for (const source of sources) {
+    const context = { exports: {}, Date };
+    vm.runInNewContext(source, context);
+    await context.exports.onExecutePostLogin(event, api);
+  }
+  return calls;
+}
+
+function hostedRefreshEvent(change = {}) {
+  return {
+    client: { client_id: "claude_hosted_fixture" },
+    resource_server: { identifier: AUDIENCE },
+    connection: { id: "connection_fixture" },
+    user: { email_verified: true },
+    transaction: { protocol: "oauth2-refresh-token" },
+    // No refresh_token object, session, query or authentication methods: these
+    // optional/Enterprise fields cannot become requirements for the Free beta.
+    ...change,
+  };
+}
 
 function fixture(overrides = {}) {
   const calls = [];
@@ -156,6 +201,291 @@ test("Auth0 apply refuses missing tenant prerequisites before creating any resou
     code: "PREREQUISITES_REQUIRED",
   });
   assert.ok(f.calls.every((call) => call.method === "GET"));
+});
+
+test("hosted refresh is an explicit finite rotating policy with unchanged other clients", () => {
+  const baseline = setupPlan({
+    authPolicy: "verified_email",
+    claudeCallback: hostedRefreshOptions.claudeCallback,
+  });
+  const selected = setupPlan(hostedRefreshOptions);
+  assert.equal(baseline.resourceServer.allow_offline_access, false);
+  assert.equal(selected.resourceServer.allow_offline_access, true);
+  assert.equal(selected.resourceServer.token_lifetime, 3600);
+  assert.equal(selected.resourceServer.token_lifetime_for_web, 3600);
+  assert.equal(
+    selected.resourceServer.skip_consent_for_verifiable_first_party_clients,
+    false,
+  );
+  assert.deepEqual(HOSTED_REFRESH_TOKEN_POLICY, {
+    rotation_type: "rotating",
+    expiration_type: "expiring",
+    token_lifetime: 7776000,
+    infinite_token_lifetime: false,
+    idle_token_lifetime: 2592000,
+    infinite_idle_token_lifetime: false,
+    leeway: 3,
+  });
+  for (const client of selected.clients) {
+    const original = baseline.clients.find((item) => item.key === client.key);
+    if (client.key !== "claudeHosted") {
+      assert.deepEqual(client, original);
+      continue;
+    }
+    assert.deepEqual(client.body.grant_types, [
+      "authorization_code",
+      "refresh_token",
+    ]);
+    assert.deepEqual(client.body.refresh_token, HOSTED_REFRESH_TOKEN_POLICY);
+    assert.equal(client.body.token_endpoint_auth_method, "none");
+    assert.deepEqual(client.body.callbacks, [
+      hostedRefreshOptions.claudeCallback,
+    ]);
+  }
+  for (const refreshClientKeys of [
+    ["browser"],
+    ["claudeCode"],
+    ["cursor"],
+    ["unknown"],
+    ["claudeHosted", "claudeHosted"],
+    "claudeHosted",
+  ]) {
+    assert.throws(
+      () => setupPlan({ ...hostedRefreshOptions, refreshClientKeys }),
+      {
+        code: "INVALID_REFRESH_CLIENTS",
+      },
+    );
+  }
+  assert.throws(
+    () =>
+      setupPlan({
+        authPolicy: "verified_email",
+        refreshClientKeys: ["claudeHosted"],
+      }),
+    {
+      code: "REFRESH_CALLBACK_REQUIRED",
+    },
+  );
+  assert.throws(
+    () =>
+      setupPlan({
+        ...hostedRefreshOptions,
+        authPolicy: "verified_email_and_mfa",
+      }),
+    {
+      code: "REFRESH_POLICY_REQUIRES_VERIFIED_EMAIL",
+    },
+  );
+  const callbacks = {
+    ...hostedRefreshOptions,
+    chatgptCallback: "https://chatgpt.com/connector/oauth/fixture",
+  };
+  assert.deepEqual(
+    setupPlan({ ...callbacks, refreshClientKeys: ["chatgpt", "claudeHosted"] }),
+    setupPlan({ ...callbacks, refreshClientKeys: ["claudeHosted", "chatgpt"] }),
+  );
+});
+
+test("setup binds only explicitly selected hosted clients into the refresh Actions", async () => {
+  const f = fixture();
+  await runSetup({
+    mode: "apply",
+    options: hostedRefreshOptions,
+    api: f.api,
+    writer: async () => {},
+  });
+  const hosted = f.clients.find(
+    (client) => client.client_metadata.guteneo_component === "claudeHosted",
+  );
+  assert.ok(hosted);
+  const sources = f.actions.map((action) => action.code);
+  const success = await executeActions(
+    sources,
+    hostedRefreshEvent({ client: { client_id: hosted.client_id } }),
+  );
+  assert.deepEqual(success, [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
+  ]);
+  for (const other of f.clients.filter((client) => client !== hosted)) {
+    assert.deepEqual(other.grant_types, ["authorization_code"]);
+    assert.equal(other.refresh_token, undefined);
+    assert.deepEqual(
+      await executeActions(
+        sources,
+        hostedRefreshEvent({ client: { client_id: other.client_id } }),
+      ),
+      [["deny"], ["deny"]],
+    );
+  }
+  const resource = f.calls.find(
+    (call) => call.method === "POST" && call.path === "resource-servers",
+  );
+  assert.equal(resource.body.allow_offline_access, true);
+  assert.ok(
+    f.calls
+      .filter((call) => call.method !== "GET")
+      .every((call) => !/^(tenants|guardian)/.test(call.path)),
+  );
+});
+
+test("full setup refuses to silently remove an existing hosted refresh grant", async () => {
+  const f = fixture();
+  f.clients.push({
+    client_id: "claude_hosted_fixture",
+    name: "Guteneo - Claude hosted",
+    client_metadata: {
+      guteneo_managed_by: "guteneo-setup-v1",
+      guteneo_component: "claudeHosted",
+    },
+    grant_types: ["authorization_code", "refresh_token"],
+  });
+  const report = await runSetup({
+    mode: "inspect",
+    options: { authPolicy: "verified_email" },
+    api: f.api,
+  });
+  assert.ok(
+    report.blockers.includes(
+      "existing_refresh_client_requires_explicit_selection",
+    ),
+  );
+  await assert.rejects(
+    runSetup({
+      mode: "apply",
+      options: { authPolicy: "verified_email" },
+      api: f.api,
+    }),
+    { code: "PREREQUISITES_REQUIRED" },
+  );
+  assert.ok(f.calls.every((call) => call.method === "GET"));
+  const selected = await runSetup({
+    mode: "inspect",
+    options: hostedRefreshOptions,
+    api: f.api,
+  });
+  assert.deepEqual(selected.blockers, []);
+});
+
+test("hosted refresh rechecks verified identity without extending MFA or requiring Enterprise event fields", async () => {
+  const sources = actionSources(
+    ["browser_fixture"],
+    "connection_fixture",
+    "verified_email",
+    ["claude_hosted_fixture"],
+  );
+  const expected = [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
+  ];
+  assert.deepEqual(
+    await executeActions(sources, hostedRefreshEvent()),
+    expected,
+  );
+  assert.deepEqual(
+    await executeActions(
+      sources,
+      hostedRefreshEvent({
+        authentication: {
+          methods: [{ name: "mfa", timestamp: new Date().toISOString() }],
+        },
+      }),
+    ),
+    expected,
+  );
+  for (const change of [
+    { client: { client_id: "browser_fixture" } },
+    { client: { client_id: "unapproved_hosted_fixture" } },
+    { resource_server: undefined },
+    { resource_server: { identifier: "https://other.invalid/api" } },
+    { connection: undefined },
+    { connection: { id: "other_connection" } },
+    { user: undefined },
+    { user: { email_verified: false } },
+    { user: { email_verified: "true" } },
+  ]) {
+    assert.deepEqual(
+      await executeActions(sources, hostedRefreshEvent(change)),
+      [["deny"], ["deny"]],
+    );
+  }
+  const unscoped = hostedRefreshEvent({
+    client: { client_id: "unrelated_fixture" },
+    resource_server: { identifier: "https://unrelated.invalid/api" },
+  });
+  assert.deepEqual(await executeActions(sources, unscoped), []);
+  const disabled = actionSources(
+    ["browser_fixture", "claude_hosted_fixture"],
+    "connection_fixture",
+    "verified_email",
+  );
+  assert.deepEqual(await executeActions(disabled, hostedRefreshEvent()), [
+    ["deny"],
+    ["deny"],
+  ]);
+});
+
+test("refresh support cannot bypass initial PKCE or silently renew a legacy MFA session", async () => {
+  const sources = actionSources(
+    ["browser_fixture"],
+    "connection_fixture",
+    "verified_email",
+    ["claude_hosted_fixture"],
+  );
+  const initial = hostedRefreshEvent({
+    transaction: { protocol: "oidc-basic-profile" },
+    request: {
+      query: { code_challenge: "a".repeat(43), code_challenge_method: "S256" },
+    },
+  });
+  assert.deepEqual(await executeActions(sources, initial), [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
+  ]);
+  for (const change of [
+    { request: undefined },
+    {
+      request: {
+        query: {
+          code_challenge: "a".repeat(43),
+          code_challenge_method: "plain",
+        },
+      },
+    },
+    {
+      request: {
+        query: {
+          code_challenge: "a".repeat(42),
+          code_challenge_method: "S256",
+        },
+      },
+    },
+    { request: { body: { grant_type: "refresh_token" } } },
+    { transaction: undefined },
+    { transaction: { protocol: "oauth2-password" } },
+    { transaction: { protocol: "oauth2-access-token" } },
+  ]) {
+    assert.deepEqual(await executeActions(sources, { ...initial, ...change }), [
+      ["deny"],
+      ["deny"],
+    ]);
+  }
+  const legacy = actionSources(
+    ["browser_fixture"],
+    "connection_fixture",
+    "verified_email_and_mfa",
+    ["claude_hosted_fixture"],
+  );
+  const freshMfa = hostedRefreshEvent({
+    authentication: {
+      methods: [{ name: "mfa", timestamp: new Date().toISOString() }],
+    },
+  });
+  assert.deepEqual(await executeActions(legacy, freshMfa), [
+    ["deny"],
+    ["deny"],
+  ]);
 });
 
 test("Auth0 apply preserves existing login order, scopes Guteneo Actions and imports secret only in memory", async () => {

@@ -1,6 +1,10 @@
 # Guteneo dans ChatGPT, Claude, Cursor et GitHub Copilot
 
-Guide vérifié le **17 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. La connexion ChatGPT en mode développeur et trois appels en lecture seule ont été observés dans le vrai client : voir [la qualification datée](CHATGPT_QUALIFICATION.md). L’import d’un PDF, le renouvellement et la révocation restent à qualifier ; aucune publication dans un annuaire n’est attestée. Les autres hôtes et l’installation du paquet complet restent non qualifiés.
+Guide vérifié le **17 septembre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. La connexion ChatGPT en mode développeur et trois appels en lecture seule ont été observés dans le vrai client : voir [la qualification datée](CHATGPT_QUALIFICATION.md). L’import d’un PDF, le renouvellement et la révocation restent à qualifier ; aucune publication dans un annuaire n’est attestée. Claude Code, Cursor, GitHub Copilot et l’installation du paquet complet restent non qualifiés.
+
+Claude.ai : le consentement OAuth, le retour réussi, la découverte de 21 outils et un appel réel de `get_capabilities` sont qualifiés dans Safari le 17 septembre 2026 à 17:55 UTC, en mode `production` avec `simulation:false`. Les autres lectures, le PDF, les écritures, les envois, l’expiration et la révocation restent non qualifiés dans Claude.ai. Voir [la qualification Claude.ai](CLAUDE_QUALIFICATION.md).
+
+Le candidat du 18 septembre ajoute **Connecter à Claude** à l’accueil et à la page de connexion : formulaire Claude.ai prérempli et identifiant public à copier, sans terminal. Le renouvellement rotatif préparé conserve des jetons d’accès d’une heure, avec 30 jours d’inactivité et 90 jours au maximum. Publication, activation Auth0 et renouvellement réel restent à qualifier : voir [installation et renouvellement Claude.ai](CLAUDE_RENEWAL.md).
 
 ## Paquet et téléchargements
 

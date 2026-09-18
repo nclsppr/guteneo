@@ -44,6 +44,25 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   await expect(page.locator("#host-instructions")).toContainText(
     "propriétaire de l’espace",
   );
+  await expect(
+    page.getByRole("button", { name: "Connecter à Claude", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByLabel("Identifiant public à coller dans Claude"),
+  ).toHaveValue("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
+  await page
+    .getByRole("button", { name: "Copier l’identifiant", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-copied",
+    "IhJieRsvZBAnl1uJO125X2SPoIHxT8ed",
+  );
+  await expect(
+    page.locator(".claude-connect").getByRole("status"),
+  ).toContainText("Identifiant copié.");
+  await expect(page.locator("#host-instructions")).toContainText(
+    "Client secret » vide",
+  );
   await page
     .getByRole("button", { name: "Copier l’adresse", exact: true })
     .click();
@@ -94,6 +113,10 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   expect(guide.status()).toBe(200);
   const guideText = await guide.text();
   expect(guideText).toContain("Ce message ne peut pas installer un connecteur");
+  expect(guideText).toContain("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
+  expect(guideText).toContain(
+    "modal=add-custom-connector&connectorName=Guteneo&connectorUrl=https%3A%2F%2Fguteneo.com%2Fmcp",
+  );
   expect(guideText).not.toMatch(/deux fois|2\s*[×x]|coût prestataire|marge/i);
   await page.getByRole("button", { name: "Copier ce premier message" }).click();
   await expect(page.locator("html")).toHaveAttribute(
@@ -200,6 +223,58 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   });
   expect(calls).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test("Claude installation keeps a selectable fallback when clipboard access fails", async ({
+  page,
+}) => {
+  const calls: string[] = [];
+  page.on("request", (request) => {
+    if (/^\/(api|mcp|auth)(\/|$)/.test(new URL(request.url()).pathname))
+      calls.push(request.url());
+  });
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async () => {
+          throw new Error("Clipboard unavailable");
+        },
+      },
+    }),
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "Claude", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Copier l’identifiant", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "La copie automatique est indisponible" }),
+  ).toBeVisible();
+  const client = page.getByLabel("Identifiant public à coller dans Claude");
+  await client.focus();
+  await expect(client).toBeFocused();
+  expect(
+    await client.evaluate((input: HTMLInputElement) =>
+      input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0),
+    ),
+  ).toBe("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
+  for (const width of [320, 768, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(width);
+    await expect(
+      page.getByRole("button", { name: "Connecter à Claude", exact: true }),
+    ).toBeDisabled();
+    expect(
+      (await page
+        .getByRole("button", { name: "Copier l’identifiant", exact: true })
+        .boundingBox())!.height,
+    ).toBeGreaterThanOrEqual(44);
+  }
+  expect(calls).toEqual([]);
 });
 
 test("Copilot setup remains usable from narrow phones to desktop", async ({

@@ -1,5 +1,12 @@
 # Architecture
 
+Local candidate, 18 September: selected hosted OAuth clients may renew through
+Auth0's native rotating, expiring refresh grants. Claude retains refresh tokens;
+the Guteneo browser and Worker introduce no token store or keep-alive timer.
+Current membership, connection revocation, scopes and separately expiring expert
+mandates remain enforced on each API call. See [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md)
+for the pending activation and host qualification.
+
 Local candidate, 17 September: hosted PDF imports accept public HTTPS DNS
 sources without a provider-domain allowlist. The candidate enables
 `global_fetch_strictly_public` for public egress in the hosted API runtime;

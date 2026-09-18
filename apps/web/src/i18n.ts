@@ -98,6 +98,7 @@ export const fr = {
     install: {
       brandIntro: "Vos assistants, une même correspondance.",
       brandPreparing: "Connexion en préparation",
+      claudeAvailable: "Connexion disponible",
       brandUnavailable: "Intégration non disponible",
       title: "Votre assistant.",
       italic: "Votre correspondance.",
@@ -116,7 +117,7 @@ export const fr = {
         "Avec Guteneo, vérifie les fonctions disponibles pour mon compte. Aide-moi à préparer un courrier et à choisir son canal. Demande-moi les informations manquantes, puis présente le document, le destinataire et le coût pour ma validation dans Guteneo. N’effectue aucun envoi sans cette validation.",
       copyPrompt: "Copier ce premier message",
       availability:
-        "La connexion des assistants est en cours de qualification. Ce guide prépare l’installation ; l’aperçu public ne connecte aucun compte et n’envoie aucun document.",
+        "La connexion à Claude.ai et la lecture des fonctions disponibles ont été vérifiées le 17 septembre 2026. Les autres parcours restent à qualifier ; l’aperçu public ne connecte aucun compte et n’envoie aucun document.",
       hosts: {
         chatgpt: {
           name: "ChatGPT",
@@ -131,14 +132,9 @@ export const fr = {
         },
         claude: {
           name: "Claude",
-          steps: [
-            "Dans Claude, ouvrez Personnaliser → Connecteurs. Sur un compte individuel compatible, choisissez + puis Ajouter un connecteur personnalisé.",
-            "Nommez le connecteur Guteneo et indiquez l’adresse du serveur ci-dessous.",
-            "Connectez votre compte Guteneo, puis activez le connecteur dans votre conversation.",
-          ],
           url: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
           link: "Voir les étapes officielles Claude",
-          note: "Sur Team et Enterprise, le propriétaire de l’espace ajoute d’abord le connecteur. Pour conserver un PDF exact, déposez-le dans Guteneo puis retrouvez-le dans Claude.",
+          note: "Sur Team et Enterprise, le propriétaire de l’espace ajoute d’abord le connecteur ; chaque membre connecte ensuite son propre compte Guteneo. Pour conserver un PDF exact, déposez-le dans Guteneo puis retrouvez-le dans Claude.",
         },
         cursor: {
           name: "Cursor",
@@ -215,7 +211,7 @@ export const fr = {
         {
           question: "Un message copié installe-t-il Guteneo en un clic ?",
           answer:
-            "Non. Le message proposé vous aide à démarrer une conversation une fois Guteneo connecté. L’ajout du connecteur, la connexion à votre compte et l’examen des permissions se font dans votre assistant. Les parcours ChatGPT, Claude et Cursor restent à vérifier sur des comptes réels.",
+            "Non. Le message proposé vous aide à démarrer une conversation une fois Guteneo connecté. L’ajout du connecteur, la connexion à votre compte et l’examen des permissions se font dans votre assistant. La connexion à Claude.ai a été vérifiée ; les autres parcours restent à qualifier.",
         },
         {
           question: "Comment savoir si mon envoi est arrivé ?",
@@ -446,6 +442,30 @@ export const fr = {
     total: "Destinataires",
     inspect: "Consulter la campagne",
   },
+  claudeConnect: {
+    connect: "Connecter à Claude",
+    prerequisite:
+      "Avant de commencer, créez votre compte Guteneo, vérifiez votre adresse e-mail et connectez-vous ici une première fois.",
+    account: "Ouvrir mon compte Guteneo",
+    clientId: "Identifiant public à coller dans Claude",
+    publicId:
+      "Cet identifiant est commun aux utilisateurs de Guteneo. Ce n’est pas un mot de passe.",
+    copy: "Copier l’identifiant",
+    copied: "Identifiant copié.",
+    copyFallback:
+      "La copie automatique est indisponible. Sélectionnez l’identifiant dans le champ ci-dessus et copiez-le.",
+    linkHelp:
+      "Ouvre Claude dans un nouvel onglet avec le nom Guteneo et l’adresse du serveur déjà remplis.",
+    unavailable:
+      "La connexion est disponible sur guteneo.com. Elle est désactivée dans cet aperçu et en développement local.",
+    steps: [
+      "Dans le formulaire Claude, choisissez « Use your own OAuth client » (utiliser votre propre client OAuth).",
+      "Collez l’identifiant public ci-dessus dans « Client ID ». Laissez « Client secret » vide, puis ajoutez le connecteur.",
+      "Connectez votre propre compte Guteneo et examinez les permissions demandées. Activez ensuite Guteneo dans votre conversation.",
+    ],
+    reconnect:
+      "Après expiration, reconnectez votre compte depuis les paramètres de connecteurs de Claude. Si vous avez révoqué l’accès dans Guteneo, réassociez d’abord l’assistant à votre organisation dans « Connecter un assistant », puis reconnectez-le dans Claude.",
+  },
   connection: {
     title: "La conversation continue ici.",
     intro:
@@ -463,6 +483,8 @@ export const fr = {
     validation: "Validation dans un vrai client",
     file: "Transfert de fichier",
     notVerified: "Non vérifié dans un vrai client",
+    claudeVerified: "Connexion vérifiée le 17/09/2026",
+    claudeQualification: "Lecture des fonctions disponibles uniquement.",
     chatgptFile:
       "Adaptateur de fichier ChatGPT ; essai en conversation requis.",
     claudeFile: "Rendu HTML commun ; transfert de PDF à valider.",

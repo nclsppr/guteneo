@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { fr as t } from "./i18n";
 import { customerPricing } from "./customer-pricing";
+import { ClaudeConnect } from "./claude-connect";
 
 const copy = t.homepage;
 const endpoint = "https://guteneo.com/mcp";
@@ -98,9 +99,11 @@ export function Installation() {
                 </span>
               </span>
               <span>
-                {assistant.available
-                  ? copy.install.brandPreparing
-                  : copy.install.brandUnavailable}
+                {assistant.id === "claude"
+                  ? copy.install.claudeAvailable
+                  : assistant.available
+                    ? copy.install.brandPreparing
+                    : copy.install.brandUnavailable}
               </span>
             </li>
           ))}
@@ -144,11 +147,15 @@ export function Installation() {
           className="host-instructions"
           aria-live="polite"
         >
-          <ol>
-            {instructions.steps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
+          {host === "claude" ? (
+            <ClaudeConnect showAccountLink />
+          ) : (
+            <ol>
+              {copy.install.hosts[host].steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          )}
           <div className="endpoint-copy">
             <span>{copy.install.endpoint}</span>
             <code>{endpoint}</code>

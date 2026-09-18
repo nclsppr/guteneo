@@ -21,6 +21,7 @@ import {
 } from "./api";
 import { fr as t } from "./i18n";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import { ClaudeConnect } from "./claude-connect";
 import {
   ChannelLabel,
   Definition,
@@ -575,6 +576,13 @@ export function Connection() {
         <section className="connection-setup">
           <PlugsConnected size={36} weight="light" />
           <h2>{t.nav.connection}</h2>
+          <section
+            className="claude-workspace-setup"
+            aria-labelledby="claude-workspace-title"
+          >
+            <h3 id="claude-workspace-title">Claude.ai</h3>
+            <ClaudeConnect />
+          </section>
           <Field label={t.connection.endpoint}>
             <input
               readOnly
@@ -727,13 +735,13 @@ export function Connection() {
                 </a>{" "}
                 ·{" "}
                 <a href="/integrations/claude-static-oauth.json" download>
-                  Configuration Claude
+                  Configuration Claude Code (terminal)
                 </a>
               </p>
               <p className="field-hint">
-                La connexion effective à chaque assistant reste à vérifier. Les
-                fichiers OAuth personnalisés demandent l’identifiant d’une
-                application enregistrée.
+                Ces fichiers concernent les clients locaux. Pour Claude.ai,
+                utilisez le bouton « Connecter à Claude » ci-dessus. Les autres
+                parcours restent à qualifier.
               </p>
             </div>
           </div>
@@ -756,7 +764,7 @@ export function Connection() {
             <tbody role="rowgroup">
               {[
                 ["ChatGPT", t.connection.chatgptFile],
-                ["Claude", t.connection.claudeFile],
+                ["Claude.ai", t.connection.claudeFile],
                 ["Cursor", t.connection.cursorFile],
               ].map(([client, file]) => (
                 <tr role="row" key={client}>
@@ -771,8 +779,15 @@ export function Connection() {
                       {t.connection.validation}
                     </span>
                     <span className="status status-pending">
-                      {t.connection.notVerified}
+                      {client === "Claude.ai"
+                        ? t.connection.claudeVerified
+                        : t.connection.notVerified}
                     </span>
+                    {client === "Claude.ai" && (
+                      <p className="field-hint">
+                        {t.connection.claudeQualification}
+                      </p>
+                    )}
                   </td>
                   <td role="cell">
                     <span className="mobile-cell-label" aria-hidden="true">

@@ -2812,6 +2812,54 @@ ol {
   flex-wrap: wrap;
   margin: 19px 0 12px;
 }
+.claude-connect {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.claude-connect p {
+  margin: 0;
+}
+.claude-client-field {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.claude-client-field input {
+  min-width: 0;
+}
+.claude-connect .button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.claude-open {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+.claude-connect .claude-install-steps {
+  margin: 0;
+  padding-left: 23px;
+}
+.claude-install-steps li {
+  margin-bottom: 12px;
+  padding-left: 7px;
+}
+.claude-install-steps li:last-child {
+  margin-bottom: 0;
+}
+.claude-workspace-setup {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 30px;
+}
+.claude-workspace-setup > h3 {
+  margin: 0 0 16px;
+}
 .installation-links .text-link {
   font-size: 12px;
 }
