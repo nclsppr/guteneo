@@ -112,7 +112,8 @@ constitue pas un échec du connecteur utilisateur et ne change pas la preuve du
 ## Vérifications locales du candidat
 
 Le 18 septembre : typecheck, ESLint, build applicatif avec dry-run Wrangler,
-build de production et build de la maquette réussis. Les **167 tests Node de
+build de production et build de la maquette réussis. Les **1 087 tests Vitest**
+(55 fichiers, dont les fixtures de révocation) passent. Les **167 tests Node de
 sécurité** passent, dont 30 cas de migration ciblée ; les **32 tests navigateur
 de la maquette** passent avec quatre exclusions desktop intentionnelles. La
 recette couvre copie, sélection manuelle, refus du presse-papiers, absence de
