@@ -1,8 +1,8 @@
 # Installer Guteneo dans votre assistant
 
-Guide du 17 septembre 2026. Serveur : https://guteneo.com/mcp
+Guide du 18 septembre 2026. Serveur : https://guteneo.com/mcp
 
-Guteneo est en préparation. L’aperçu public ne connecte aucun compte et n’envoie aucun document. Les parcours OAuth, les permissions et le transfert de PDF restent à qualifier sur des comptes réels. Ce guide n’atteste ni installation réussie ni publication dans un annuaire.
+L’aperçu public ne connecte aucun compte et n’envoie aucun document. Sur le service Guteneo, la connexion à Claude.ai et l’appel de lecture des fonctions disponibles ont été vérifiés le 17 septembre 2026. Cela ne qualifie pas le transfert de PDF, les envois ou les autres assistants, et ne constitue pas une publication dans un annuaire.
 
 ## ChatGPT
 
@@ -13,15 +13,21 @@ Guteneo est en préparation. L’aperçu public ne connecte aucun compte et n’
 
 Source : https://developers.openai.com/plugins/deploy/connect-chatgpt
 
-## Claude web et Desktop
+## Claude.ai — web et Desktop
 
-1. Ouvrez Personnaliser → Connecteurs. Sur un compte individuel compatible, choisissez + puis Ajouter un connecteur personnalisé.
-2. Indiquez Guteneo et l’URL https://guteneo.com/mcp.
-3. Connectez votre compte, examinez les permissions, puis activez le connecteur dans votre conversation.
+1. Créez votre propre compte sur https://guteneo.com, vérifiez votre adresse e-mail et connectez-vous une première fois dans le navigateur.
+2. Copiez cet identifiant public : `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed`.
+3. Ouvrez [Connecter à Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Guteneo&connectorUrl=https%3A%2F%2Fguteneo.com%2Fmcp). Le formulaire contient déjà le nom Guteneo et l’adresse du serveur. Vous pouvez aussi ouvrir Personnaliser → Connecteurs → Ajouter un connecteur personnalisé et saisir Guteneo et https://guteneo.com/mcp.
+4. Choisissez « Use your own OAuth client », collez l’identifiant dans « Client ID » et laissez « Client secret » vide. Ajoutez le connecteur, connectez votre propre compte Guteneo et examinez les permissions.
+5. Activez Guteneo dans votre conversation. Pour vérifier la connexion sans consulter de documents ni effectuer d’envoi, demandez uniquement l’appel de `get_capabilities`.
 
-Sur Team et Enterprise, le propriétaire ajoute d’abord le connecteur dans les paramètres de l’organisation. Un connecteur distant passe par l’infrastructure Anthropic, même depuis Desktop. Déposez votre PDF original dans le navigateur Guteneo puis retrouvez-le depuis votre conversation ; aucun accès implicite aux fichiers de votre ordinateur ou pièces jointes n’est promis.
+L’identifiant public est commun aux utilisateurs ; ce n’est pas un secret et il ne donne pas accès au compte d’une autre personne. Vous n’avez aucune application Auth0 à créer. Le lien prépare le formulaire : il n’installe pas le connecteur et n’accorde aucune permission à votre place.
 
-Source : https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp
+Sur Team et Enterprise, le propriétaire ajoute d’abord le connecteur dans les paramètres de l’organisation, puis chaque membre connecte son propre compte Guteneo. Un connecteur distant passe par l’infrastructure Anthropic, même depuis Desktop. Déposez votre PDF original dans le navigateur Guteneo puis retrouvez-le depuis votre conversation ; aucun accès implicite aux fichiers de votre ordinateur ou pièces jointes n’est promis.
+
+Après expiration, reconnectez votre compte depuis les paramètres de connecteurs de Claude. Si vous avez révoqué l’accès dans Guteneo, réassociez d’abord l’assistant à votre organisation dans « Connecter un assistant », puis reconnectez-le dans Claude. Les fichiers de configuration « Claude Code » concernent le terminal et ne servent pas à installer le connecteur dans Claude.ai.
+
+Sources : https://claude.com/docs/connectors/building/directory-vs-custom#share-an-install-link et https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp
 
 ## Cursor
 

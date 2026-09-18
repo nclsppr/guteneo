@@ -692,6 +692,36 @@ describe("identity and authentication boundaries", () => {
     await expect(
       authenticateMcp(authorized, flow.configured),
     ).rejects.toMatchObject({ code: "CONNECTION_REVOKED" });
+    // A later, independently signed access token models Auth0 renewal. A new
+    // issuance time must never reactivate the locally revoked connection.
+    const issuedAfterRevocation = Math.floor(Date.now() / 1000) + 1;
+    const renewedToken = await new SignJWT({
+      sub: flow.sub,
+      client_id: client,
+      scope: "documents:read offline_access",
+      "https://guteneo.com/verified_account": true,
+    })
+      .setProtectedHeader({ alg: "RS256", kid: jwk.kid })
+      .setIssuer(issuer)
+      .setAudience(`${origin}/mcp`)
+      .setIssuedAt(issuedAfterRevocation)
+      .setExpirationTime(issuedAfterRevocation + 3600)
+      .sign(keyPair.privateKey);
+    await expect(
+      authenticateMcp(
+        request("/mcp", "POST", undefined, {
+          Authorization: `Bearer ${renewedToken}`,
+        }),
+        flow.configured,
+      ),
+    ).rejects.toMatchObject({ code: "CONNECTION_REVOKED" });
+    expect(
+      await env.DB.prepare(
+        "SELECT status FROM authorized_connections WHERE issuer=? AND user_id=? AND client_id=?",
+      )
+        .bind(issuer, identity.context.userId, client)
+        .first(),
+    ).toEqual({ status: "revoked" });
   });
   it("treats a passkey method as informational, and keeps legacy and invalid policies fail-closed", () => {
     expect(

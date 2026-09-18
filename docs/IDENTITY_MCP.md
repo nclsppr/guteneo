@@ -44,6 +44,13 @@ The session persists explicit verified-account evidence and exposes `verifiedAcc
 
 MCP bearer tokens are verified using Auth0 JWKS and mapped by `(issuer, subject)` to a local user. A single membership can be bound on first OAuth use. Users with multiple memberships must bind the OAuth client in the dashboard. `POST /api/connections {clientId}` binds the current authenticated organization and invalidates older token issuance times. `DELETE /api/connections/:id` immediately disables Guteneo access for that connection. Refresh-token and provider-consent revocation can also be performed in Auth0; the app does not claim to revoke Auth0's grant through its local DELETE route.
 
+The 18 September Claude renewal candidate uses Auth0-managed rotating refresh
+tokens for explicitly selected hosted clients only. The Worker continues to
+reject access tokens lasting over one hour and checks active membership and
+connection status on every call, including newly issued tokens. OAuth renewal
+does not renew expert authority or browser sessions. Configuration and real-host
+proof remain separate; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
+
 No platform-content operator role is exposed through this identity module. Organization admins are not platform operators.
 
 ## MCP interface

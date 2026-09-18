@@ -1,5 +1,12 @@
 # Guteneo product contract
 
+Local candidate, 18 September: users can open a prefilled Claude.ai connector
+form and copy the shared public OAuth client identifier from Guteneo. The
+prepared renewal policy avoids hourly interactive login while bounding refresh
+to 30 days idle and 90 days absolute. Reconnection, current organization access
+and expert-mandate expiry remain distinct. Publication, Auth0 activation and
+actual host renewal are still pending; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
+
 Local candidate, 17 September: hosted PDF imports no longer require a
 provider-specific domain entry. Public HTTPS downloads retain network, size,
 time and exact-file verification limits; local URL import remains disabled.
