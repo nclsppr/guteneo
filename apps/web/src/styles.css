@@ -521,6 +521,15 @@ ol {
   flex-direction: column;
   background: var(--paper);
 }
+@media (min-width: 1025px) {
+  .sidebar {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .sidebar > * {
+    flex-shrink: 0;
+  }
+}
 .sidebar-brand {
   padding: 0 10px 26px;
   display: flex;
