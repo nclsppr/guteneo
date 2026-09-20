@@ -48,6 +48,9 @@ export async function loadPdfScripts() {
     }),
   );
   return {
+    // The address page embeds the same pinned, redistributable font locally.
+    // Its license is retained in standard-fonts below; no system font or CDN.
+    addressFont: fonts["LiberationSans-Regular.ttf"],
     pdf: await readFile(
       new URL("legacy/build/pdf.min.mjs", packageRoot),
       "utf8",

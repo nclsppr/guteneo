@@ -94,7 +94,7 @@ async function run(
   pageCount = 3,
   engine = launch,
   deadlineMs?: number,
-  resources = scripts,
+  resources: Pick<typeof scripts, "pdf" | "worker" | "fonts"> = scripts,
 ) {
   const hash = (await validatePdf(bytes)).sha256;
   const response = await handleExpertReviewPages(
@@ -139,7 +139,7 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
       ts.ScriptKind.JS,
     );
     const callbacks = new Map<string, string>();
-    const resources = { pdf: "", worker: "", fonts: "" };
+    const resources = { pdf: "", worker: "", fonts: "", addressFont: "" };
     for (const node of bundle.statements) {
       if (
         ts.isFunctionDeclaration(node) &&
@@ -157,6 +157,7 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
         ["pdf", "-pdf.txt"],
         ["worker", "-pdf.worker.txt"],
         ["fonts", "-standard-fonts.txt"],
+        ["addressFont", "-address-font.txt"],
       ] as const)
         if (filename.endsWith(suffix))
           resources[key] = readFileSync(resolve(output, filename), "utf8");

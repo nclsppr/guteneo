@@ -40,6 +40,8 @@ import {
 import { handleAccountRoute } from "./account";
 import { handlePostalSetupRoute } from "./postal-setup";
 import { PostalService, cleanupPostalEvidence } from "./postal";
+import { PostalAddressPageService } from "./postal-address-page";
+import { postalAddressPageInputSchema } from "../../../packages/contracts/src/postal-address-page";
 import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
 import { expertPostalAuthority } from "./expert-approval";
 import { getExpertStatus } from "./expert-status";
@@ -268,6 +270,12 @@ app.all("/mcp", (c) =>
       return observation.correlationId;
     },
     postal: {
+      generateAddressPage: async (identity, input, key) =>
+        new PostalAddressPageService(c.env, domain(c.env)).generate(
+          await postalMcpAuthority(identity, c.env, "documents:write"),
+          input,
+          key,
+        ),
       transferExpert: async (identity, id, fingerprint) =>
         new PostalService(c.env, domain(c.env)).transfer(
           await expertPostalAuthority(identity, c.env, id, fingerprint),
@@ -414,6 +422,16 @@ app.get("/api/postal/requirements", async (c) =>
       await postalAuthority(c.req.raw, c.env, "documents:read"),
       z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
     ),
+  ),
+);
+app.post("/api/postal/address-pages", async (c) =>
+  c.json(
+    await new PostalAddressPageService(c.env, domain(c.env)).generate(
+      await postalAuthority(c.req.raw, c.env, "documents:write"),
+      postalAddressPageInputSchema.parse(await c.req.json()),
+      idempotency(c.req.header("Idempotency-Key")),
+    ),
+    201,
   ),
 );
 app.post("/api/postal/preflights", async (c) => {

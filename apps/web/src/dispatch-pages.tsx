@@ -39,6 +39,12 @@ import { OverviewAssistantStart } from "./assistant-workspace";
 import { fr as t } from "./i18n";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
 import {
+  PostalAddressChoice,
+  PostalAddressPageSummary,
+  type PostalAddressMode,
+} from "./postal-address-page";
+import type { PostalAddressPageResult } from "../../../packages/contracts/src/postal-address-page";
+import {
   ChannelLabel,
   Definition,
   DispatchTable,
@@ -662,6 +668,27 @@ export function PrepareDispatch({
   const [recipient, setRecipient] = useState<Record<string, string>>({
     country: "FR",
   });
+  const [addressMode, setAddressMode] = useState<PostalAddressMode>("document");
+  const [generated, setGenerated] = useState<PostalAddressPageResult>();
+  const [generationAttempted, setGenerationAttempted] = useState(false);
+  const generationKey = useRef(crypto.randomUUID());
+  const submitting = useRef(false);
+  const addsAddressPage =
+    channel === "postal" &&
+    !simulation &&
+    addressMode === "generated_address_page";
+  const generatedFollowup = useDocumentFollowup(
+    addsAddressPage ? (generated?.document.id ?? null) : null,
+  );
+  const finalDocument = generatedFollowup.document ?? generated?.document;
+  const generatedAnalysis = finalDocument
+    ? analysisOf(finalDocument)
+    : undefined;
+  const generatedReady =
+    !!finalDocument &&
+    finalDocument.status === "ready" &&
+    generatedAnalysis?.state === "ready" &&
+    !generatedFollowup.issue;
   const candidates = new Map(
     (documents.data?.items ?? []).map((item) => [item.id, item]),
   );
@@ -683,6 +710,8 @@ export function PrepareDispatch({
   };
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     await action.run(async () => {
       if (documentUnavailable)
         throw new Error("Vérifiez le PDF avant de préparer l’envoi.");
@@ -699,11 +728,32 @@ export function PrepareDispatch({
                 country: recipient.country ?? "FR",
               };
       if (channel === "postal" && !simulation) {
+        if (addsAddressPage && !generated) {
+          setGenerationAttempted(true);
+          const result = await api<PostalAddressPageResult>(
+            "/postal/address-pages",
+            {
+              method: "POST",
+              key: generationKey.current,
+              body: {
+                documentId,
+                recipient: target,
+                printMode,
+              },
+            },
+          );
+          setGenerated(result);
+          return;
+        }
+        if (addsAddressPage && !generatedReady)
+          throw new Error(
+            "Attendez la vérification du PDF final avant le contrôle postal.",
+          );
         const review = await api<PostalReview>("/postal/preflights", {
           method: "POST",
           key: key.current,
           body: {
-            documentId,
+            documentId: addsAddressPage ? finalDocument!.id : documentId,
             senderId: selectedSender,
             recipient: target,
             options: { printMode, printSpectrum, deliveryProduct },
@@ -729,9 +779,14 @@ export function PrepareDispatch({
       });
       go(`/app/dispatch/${dispatch.id}`);
     });
+    submitting.current = false;
   }
   const changed = () => {
     key.current = crypto.randomUUID();
+    generationKey.current = crypto.randomUUID();
+    setGenerated(undefined);
+    setGenerationAttempted(false);
+    action.clear();
   };
   return (
     <>
@@ -744,10 +799,14 @@ export function PrepareDispatch({
       <form
         className="prepare-layout"
         onSubmit={(e) => void submit(e)}
-        onChange={changed}
         aria-busy={action.pending}
       >
-        <div className="prepare-fields">
+        <fieldset
+          className="prepare-fields"
+          disabled={action.pending}
+          onChange={changed}
+        >
+          <legend className="sr-only">Préparation de l’envoi</legend>
           <fieldset className="channel-selector">
             <legend>{t.channel}</legend>
             {(["fax", "email", "postal"] as const).map((c) => (
@@ -834,6 +893,13 @@ export function PrepareDispatch({
             </select>
           </Field>
           <div className="form-divider" />
+          {channel === "postal" && !simulation && (
+            <PostalAddressChoice
+              mode={addressMode}
+              onChange={setAddressMode}
+              printMode={printMode}
+            />
+          )}
           {channel === "fax" ? (
             <Field
               label={t.dispatch.phone}
@@ -897,6 +963,7 @@ export function PrepareDispatch({
                   value={recipient.name ?? ""}
                   onChange={(e) => setAddress("name", e.target.value)}
                   required
+                  maxLength={200}
                   autoComplete="name"
                 />
               </Field>
@@ -905,6 +972,7 @@ export function PrepareDispatch({
                   value={recipient.line1 ?? ""}
                   onChange={(e) => setAddress("line1", e.target.value)}
                   required
+                  maxLength={200}
                   autoComplete="address-line1"
                 />
               </Field>
@@ -914,6 +982,7 @@ export function PrepareDispatch({
                     value={recipient.postalCode ?? ""}
                     onChange={(e) => setAddress("postalCode", e.target.value)}
                     required
+                    maxLength={30}
                     autoComplete="postal-code"
                   />
                 </Field>
@@ -922,6 +991,7 @@ export function PrepareDispatch({
                     value={recipient.city ?? ""}
                     onChange={(e) => setAddress("city", e.target.value)}
                     required
+                    maxLength={200}
                     autoComplete="address-level2"
                   />
                 </Field>
@@ -1003,6 +1073,7 @@ export function PrepareDispatch({
             className="button primary full"
             disabled={
               action.pending ||
+              (addsAddressPage && !!generated && !generatedReady) ||
               documentUnavailable ||
               (channel !== "email" && !documentId) ||
               (!simulation && !selectedSender)
@@ -1014,18 +1085,38 @@ export function PrepareDispatch({
                   : "",
                 documentUnavailable ? "prepare-document-unavailable" : "",
                 !simulation && !selectedSender ? "prepare-sender-required" : "",
+                addsAddressPage && generated && !generatedReady
+                  ? "postal-generated-status"
+                  : "",
               ]
                 .filter(Boolean)
                 .join(" ") || undefined
             }
           >
             {action.pending
-              ? t.dispatch.preparing
-              : channel === "postal" && !simulation
-                ? "Contrôler le PDF pour le courrier"
-                : t.dispatch.prepare}
+              ? addsAddressPage && !generated
+                ? "Création du PDF final…"
+                : t.dispatch.preparing
+              : addsAddressPage && !generated
+                ? generationAttempted
+                  ? "Réessayer la création du PDF"
+                  : "Créer le PDF avec la page d’adresse"
+                : addsAddressPage && !generatedReady
+                  ? "Vérification du PDF final…"
+                  : channel === "postal" && !simulation
+                    ? "Contrôler le PDF pour le courrier"
+                    : t.dispatch.prepare}
             <ArrowRight size={18} />
           </button>
+          {addsAddressPage &&
+            generationAttempted &&
+            !generated &&
+            !action.pending && (
+              <p className="field-hint">
+                Réessayez sans modifier les champs pour retrouver la même
+                création et éviter un doublon.
+              </p>
+            )}
           {channel !== "email" && !documentId && (
             <p id="prepare-document-required" className="field-hint">
               Choisissez un document pour pouvoir préparer cet envoi.
@@ -1044,9 +1135,67 @@ export function PrepareDispatch({
               .
             </p>
           )}
-        </div>
+        </fieldset>
         <aside className="prepare-preview">
-          {channel === "email" && html ? (
+          {addsAddressPage ? (
+            generated && finalDocument && generatedAnalysis ? (
+              <>
+                <div
+                  id="postal-generated-status"
+                  className="postal-generated-status"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <h2>{generatedAnalysis.title}</h2>
+                  <p>{generatedAnalysis.message}</p>
+                  {generatedFollowup.issue && (
+                    <p>
+                      {generatedFollowup.issue === "network"
+                        ? t.documents.followupUnavailable
+                        : t.documents.followupPaused}
+                    </p>
+                  )}
+                  {(!generatedReady || generatedFollowup.issue) && (
+                    <button
+                      className="button small"
+                      type="button"
+                      onClick={generatedFollowup.refresh}
+                      disabled={generatedFollowup.loading}
+                    >
+                      Actualiser la vérification
+                    </button>
+                  )}
+                  {(generatedAnalysis.state === "retryable" ||
+                    generatedAnalysis.state === "blocked") && (
+                    <p>
+                      <a
+                        href={`#/app/documents?document=${encodeURIComponent(finalDocument.id)}`}
+                      >
+                        Reprendre le suivi de ce PDF
+                      </a>
+                    </p>
+                  )}
+                </div>
+                {generatedReady && (
+                  <>
+                    <PostalAddressPageSummary
+                      document={finalDocument}
+                      provenance={generated.provenance}
+                    />
+                    <PdfPreview id={finalDocument.id} />
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="preview-empty postal-generated-empty">
+                <FileText size={54} weight="light" aria-hidden="true" />
+                <p>
+                  Créez le PDF avec la page d’adresse pour afficher l’aperçu
+                  exact du courrier complet.
+                </p>
+              </div>
+            )
+          ) : channel === "email" && html ? (
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
               <EmailPreview html={html} />

@@ -4,6 +4,11 @@ import {
   type DocumentAnalysis,
 } from "../../../packages/contracts/src/document-analysis";
 import type { ImportFailureObservation } from "../../../packages/observability/src/index";
+import {
+  postalAddressPageInputSchema,
+  type PostalAddressPageInput,
+} from "../../../packages/contracts/src/postal-address-page";
+import type { PostalAddressPageService } from "./postal-address-page";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
 import { readDocumentPages, reviewExpertPages } from "./expert-review-pages";
@@ -72,6 +77,11 @@ export interface McpServices {
     importFailure?: ImportFailureObservation,
   ) => string | void;
   postal?: {
+    generateAddressPage?(
+      identity: McpIdentity,
+      input: PostalAddressPageInput,
+      key: string,
+    ): ReturnType<PostalAddressPageService["generate"]>;
     requirements(
       identity: McpIdentity,
       country: "FR" | "LU" | "DE",
@@ -327,7 +337,17 @@ export function dispatchSummary(
   };
 }
 function documentSummary(
-  document: DocumentRecord & { analysis?: DocumentAnalysis },
+  document: Pick<
+    DocumentRecord,
+    | "id"
+    | "name"
+    | "sha256"
+    | "size"
+    | "pages"
+    | "status"
+    | "source"
+    | "created_at"
+  > & { analysis?: DocumentAnalysis },
   env: AuthEnv,
 ) {
   return {
@@ -498,6 +518,36 @@ export function createGuteneoMcpServer(
   };
   if (services.postal) {
     const postal = services.postal;
+    if (postal.generateAddressPage)
+      registerTool(
+        "create_postal_address_page",
+        {
+          description:
+            "Sur demande explicite d’ajout d’une page d’adresse, crée un nouveau PDF prêt à être contrôlé pour le courrier à partir d’un document vérifié. Conserve l’original. Place automatiquement le destinataire saisi dans la fenêtre du profil Pingen courant. Ajoute une page en recto, ou une page et son verso blanc en recto verso pour préserver les paires de pages originales. Les pages ajoutées comptent dans le devis final. Réutiliser la même idempotencyKey après une réponse perdue ; ne pas générer à nouveau tant que l’analyse du document retourné est en cours. Attendre document.status=ready via get_document, puis lire toutes les pages du nouveau document avec read_document_pages et utiliser son identifiant dans preflight_postal_pdf. Toute modification du destinataire ou du mode recto verso exige une nouvelle génération depuis l’original. Ne transmet aucun PDF à Pingen, n’approuve rien et n’envoie rien.",
+          inputSchema: postalAddressPageInputSchema
+            .extend({ idempotencyKey: key })
+            .strict(),
+          outputSchema: output(z.unknown()),
+          annotations: {
+            ...writeAnnotations,
+            idempotentHint: true,
+            openWorldHint: true,
+          },
+          _meta: oauthMetadata("documents:write"),
+        },
+        ({ idempotencyKey, ...input }) =>
+          run("documents:write", async () => {
+            const result = await postal.generateAddressPage!(
+              identity,
+              input,
+              idempotencyKey,
+            );
+            return {
+              ...result,
+              document: documentSummary(result.document, env),
+            };
+          }),
+      );
     registerTool(
       "get_postal_requirements",
       {
@@ -515,7 +565,7 @@ export function createGuteneoMcpServer(
       "preflight_postal_pdf",
       {
         description:
-          "Lire get_postal_requirements pour le pays avant de produire le PDF. Vérifie toutes les pages du PDF original pour le courrier, son adresse et le profil Pingen qualifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Par défaut le transfert exige une confirmation séparée dans Guteneo. Une délégation expert préalablement activée pour le canal postal permet transfer_postal_draft après lecture de la revue exacte, sans inventer un consentement humain.",
+          "Lire get_postal_requirements pour le pays avant de produire le PDF. Vérifie toutes les pages du PDF final pour le courrier, son adresse et le profil Pingen qualifié. Les champs destinataire comparent l’adresse déjà imprimée ; pour ajouter une page d’adresse, utiliser explicitement create_postal_address_page puis l’identifiant du nouveau PDF vérifié. Consomme une analyse du quota PDF existant. Retourne reviewUrl pour la revue humaine. N’envoie rien et ne dépose aucun fichier chez Pingen. Par défaut le transfert exige une confirmation séparée dans Guteneo. Une délégation expert préalablement activée pour le canal postal permet transfer_postal_draft après lecture de la revue exacte, sans inventer un consentement humain.",
         inputSchema: postalReviewInputSchema
           .extend({ idempotencyKey: key })
           .strict(),

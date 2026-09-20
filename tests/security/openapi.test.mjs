@@ -36,7 +36,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 25);
+  assert.equal(operations.length, 26);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -70,6 +70,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/postal/preflights/{id}/address.png",
     "post /api/postal/preflights/{id}/quote",
     "get /api/postal/requirements",
+    "post /api/postal/address-pages",
   ]);
   assert.deepEqual(
     new Set(operations.map(({ path, method }) => `${method} ${path}`)),
@@ -87,6 +88,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
     const scope =
       path.startsWith("/api/documents") ||
+      path === "/api/postal/address-pages" ||
       (path.startsWith("/api/postal") && method === "get")
         ? method === "get"
           ? "documents:read"
@@ -174,6 +176,7 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "post /api/dispatches/{id}/confirm",
     "post /api/postal/preflights",
     "post /api/postal/preflights/{id}/quote",
+    "post /api/postal/address-pages",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(
@@ -216,6 +219,21 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
 });
 
 test("postal contracts keep the source immutable and separate human transfer consent from OAuth", () => {
+  const cover = spec.components.schemas.PostalAddressPageInput;
+  assert.equal(cover.additionalProperties, false);
+  assert.deepEqual(cover.required, ["documentId", "recipient", "printMode"]);
+  for (const forbidden of [
+    "organizationId",
+    "sha256",
+    "profile",
+    "reviewed",
+    "consentToTransfer",
+  ])
+    assert.ok(!(forbidden in cover.properties));
+  assert.deepEqual(
+    spec.components.schemas.PostalAddressPageResult.properties.canSend.enum,
+    [false],
+  );
   const input = spec.components.schemas.PostalPreflightInput;
   assert.equal(input.additionalProperties, false);
   for (const forbidden of [

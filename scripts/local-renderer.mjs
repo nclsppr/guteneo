@@ -10,6 +10,10 @@ const { handleExpertReviewPages } = await tsImport(
   "../apps/documents/src/expert-review.ts",
   import.meta.url,
 );
+const { handlePostalAddressPage } = await tsImport(
+  "../apps/documents/src/postal-address-page.ts",
+  import.meta.url,
+);
 const reviewScripts = await loadPdfScripts();
 const fallback =
   process.platform === "linux" && !existsSync(chromium.executablePath());
@@ -37,7 +41,7 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
   if (
     req.method !== "POST" ||
-    !["/render", "/review-pages"].includes(url.pathname)
+    !["/render", "/review-pages", "/postal-address-page"].includes(url.pathname)
   ) {
     res.writeHead(404);
     res.end();
@@ -51,7 +55,7 @@ const server = createServer(async (req, res) => {
   active++;
   let context;
   try {
-    if (url.pathname === "/review-pages") {
+    if (["/review-pages", "/postal-address-page"].includes(url.pathname)) {
       const controller = new AbortController();
       req.once("aborted", () => controller.abort());
       const headers = new Headers();
@@ -60,7 +64,11 @@ const server = createServer(async (req, res) => {
           for (const item of value) headers.append(key, item);
         else if (value !== undefined) headers.set(key, value);
       }
-      const result = await handleExpertReviewPages(
+      const handler =
+        url.pathname === "/postal-address-page"
+          ? handlePostalAddressPage
+          : handleExpertReviewPages;
+      const result = await handler(
         new Request(url, {
           method: "POST",
           headers,
@@ -89,6 +97,7 @@ const server = createServer(async (req, res) => {
                 : {}),
             }),
           scripts: reviewScripts,
+          fontBase64: reviewScripts.addressFont,
         },
       );
       res.writeHead(result.status, {

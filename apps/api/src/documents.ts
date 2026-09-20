@@ -934,8 +934,52 @@ export class DocumentService {
     ctx: DocumentContext,
     input: { name: string; bytes: Uint8Array },
     source: "import" | "render" = "import",
+    registration?: {
+      documentId: string;
+      authority: {
+        assertCurrent(): Promise<void>;
+        sql(): { condition: string; values: (string | number | null)[] };
+      };
+    },
   ) {
+    await registration?.authority.assertCurrent();
     await this.domain.authorizeWrite(ctx);
+    if (registration) {
+      const existing = await this.env.DB.prepare(
+        "SELECT id,sha256,status FROM documents WHERE organization_id=? AND id=?",
+      )
+        .bind(ctx.organizationId, registration.documentId)
+        .first<{ id: string; sha256: string; status: string }>();
+      if (existing) {
+        const digest = await crypto.subtle.digest(
+          "SHA-256",
+          input.bytes as Uint8Array<ArrayBuffer>,
+        );
+        const hash = Array.from(new Uint8Array(digest), (b) =>
+          b.toString(16).padStart(2, "0"),
+        ).join("");
+        if (existing.sha256 !== hash)
+          throw new ContentError(
+            "DOCUMENT_INTEGRITY_MISMATCH",
+            "Document immuable incompatible.",
+            409,
+          );
+        // Recover historical/interrupted ready registrations whose exact scan
+        // proof was not committed. They must pass the scanner again.
+        const proof =
+          existing.status === "ready"
+            ? await this.env.DB.prepare(
+                "SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=? LIMIT 1",
+              )
+                .bind(ctx.organizationId, hash)
+                .first()
+            : true;
+        if (proof) {
+          await registration.authority.assertCurrent();
+          return this.get(ctx, existing.id);
+        }
+      }
+    }
     await reserveContentBudget(
       this.env.DB,
       ctx.organizationId,
@@ -966,7 +1010,7 @@ export class DocumentService {
       status = "ready";
     }
     // Production bytes are stored without parsing. Only an exact clean scan unlocks isolated validation.
-    const documentId = `doc_${crypto.randomUUID()}`;
+    const documentId = registration?.documentId ?? `doc_${crypto.randomUUID()}`;
     // Each version owns its object. A resumed purge of an older version cannot delete a re-import.
     const storageKey = `${ctx.organizationId}/documents/${sha256}/${documentId}.pdf`;
     await this.env.DOCUMENTS.put(storageKey, input.bytes, {
@@ -982,17 +1026,22 @@ export class DocumentService {
       status = "ready";
       scanVerified = !local;
     }
-    const document = await this.domain.registerDocument(ctx, {
-      id: documentId,
-      name,
-      sha256,
-      size: input.bytes.length,
-      pages,
-      status,
-      source,
-      storageKey,
-      scanVerified,
-    });
+    await registration?.authority.assertCurrent();
+    const document = await this.domain.registerDocument(
+      ctx,
+      {
+        id: documentId,
+        name,
+        sha256,
+        size: input.bytes.length,
+        pages,
+        status,
+        source,
+        storageKey,
+        scanVerified,
+      },
+      registration?.authority,
+    );
     if (document.storage_key !== storageKey) {
       // Only discard our known losing candidate. An uncertain registration is left for orphan cleanup.
       try {
@@ -1001,6 +1050,20 @@ export class DocumentService {
         /* Orphan maintenance retries this cleanup without affecting the retained document. */
       }
     }
+    if (
+      registration &&
+      document.status === "ready" &&
+      !(await this.env.DB.prepare(
+        "SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=? LIMIT 1",
+      )
+        .bind(ctx.organizationId, document.sha256)
+        .first())
+    )
+      throw new ContentError(
+        "VERIFIED_SCAN_REQUIRED",
+        "La vérification du PDF final n’est pas terminée. Réessayez la même préparation dans quelques instants.",
+        409,
+      );
     if (document.status === "quarantined")
       await this.startAnalysis(ctx, document.id, outcome);
     return this.project(document, await this.analysisRow(ctx, document.id));

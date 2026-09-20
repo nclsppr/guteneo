@@ -616,11 +616,14 @@ function WorkspaceApplication() {
                   onClick={() => {
                     if (window.matchMedia("(max-width: 1024px)").matches) {
                       setNavigationOpen(false);
-                      requestAnimationFrame(() =>
-                        document
-                          .getElementById("main-content")
-                          ?.focus({ preventScroll: true }),
-                      );
+                      // A changed route moves focus in useRoute. Schedule it
+                      // here only when opening the already selected page.
+                      if (route === path)
+                        requestAnimationFrame(() =>
+                          document
+                            .getElementById("main-content")
+                            ?.focus({ preventScroll: true }),
+                        );
                     }
                   }}
                   aria-current={
