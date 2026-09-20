@@ -20,12 +20,22 @@ export async function liveReleaseSending(root) {
   )
     throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
   const enabled = vars.LIVE_SENDS_ENABLED === "true";
-  // The current approved activation is fax only. A wider release needs a source review.
-  if (enabled && vars.LIVE_SEND_CHANNELS !== "fax")
+  const channels =
+    typeof vars.LIVE_SEND_CHANNELS === "string"
+      ? vars.LIVE_SEND_CHANNELS.split(",")
+      : [];
+  // Fax and postal transport are reviewed. Narrowing or disabling remains a rollback.
+  // Further channels require a source review, not only a configuration change.
+  if (
+    enabled &&
+    (!channels.length ||
+      channels.some((channel) => !["fax", "postal"].includes(channel)) ||
+      new Set(channels).size !== channels.length)
+  )
     throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
   return {
     liveSendsEnabled: enabled,
-    liveSendChannels: enabled ? ["fax"] : [],
+    liveSendChannels: enabled ? channels : [],
   };
 }
 

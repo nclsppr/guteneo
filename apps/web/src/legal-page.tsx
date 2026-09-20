@@ -23,7 +23,7 @@ export function LegalPage() {
             Les informations sur l’éditeur de Guteneo, son hébergement et
             l’utilisation de ce site.
           </p>
-          <p className="legal-date">Mise à jour le 17 septembre 2026</p>
+          <p className="legal-date">Mise à jour le 20 septembre 2026</p>
         </div>
         <div className="legal-layout">
           <nav aria-label="Sur cette page" className="legal-index">
@@ -87,17 +87,20 @@ export function LegalPage() {
             <section id="legal-service" tabIndex={-1}>
               <h2>Le service aujourd’hui</h2>
               <p>
-                Guteneo prépare un service d’envoi de documents par fax, e-mail
-                et courrier postal. L’atelier actuellement accessible sur ce
-                site est une démonstration : ses comptes, documents et résultats
-                sont fictifs. Il ne réalise aucun envoi et ne permet aucun
-                paiement.
+                Guteneo propose un atelier connecté pour préparer et suivre des
+                envois de documents. Le courrier postal est accessible après la
+                déclaration de l’expéditeur par un administrateur ; chaque envoi
+                reste soumis à la vérification du document, au devis, au crédit
+                disponible et à son approbation. Les autres canaux dépendent de
+                leur activation dans le compte.
               </p>
               <p>
-                Les indications de tarifs décrivent les conditions envisagées
-                pour le service. Avant tout futur envoi réel, le destinataire,
-                le document, le prix applicable et les conditions de l’opération
-                devront être présentés pour validation.
+                Les tarifs publics sont indicatifs. Le document, le
+                destinataire, le prix applicable et les conditions sont
+                présentés avant la validation de l’envoi. Le rechargement payant
+                reste désactivé. L’aperçu de démonstration est distinct : ses
+                comptes, documents et résultats sont fictifs et il ne réalise
+                aucun envoi.
               </p>
             </section>
             <section id="legal-rights" tabIndex={-1}>

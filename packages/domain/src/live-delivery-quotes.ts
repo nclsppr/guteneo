@@ -30,6 +30,46 @@ export type PublicEmailRateEvidence = EmailRateEvidence & {
   fxSource: "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
   fxDate: string;
 };
+export type PublicPostalRateEvidence = {
+  pricingBasis: "public_list_price_ex_tax";
+  method: "pingen_price_calculator";
+  currency: "EUR";
+  unit: "letter";
+  tariffSource: "https://api.pingen.com/documentation/swagger-docs";
+  tariffDate: string;
+  taxBasis: "shipping_price_excluding_vat";
+  taxSource: "https://help.pingen.com/en/credits-and-billing/introduction-balance-and-credits";
+};
+/** A dated method qualification, never a fixed price or a supplier invoice. */
+export function postalRateEvidence(
+  tariffDate = "2026-09-20",
+): PublicPostalRateEvidence {
+  if (!validDate(tariffDate)) throw unqualified();
+  return {
+    pricingBasis: "public_list_price_ex_tax",
+    method: "pingen_price_calculator",
+    currency: "EUR",
+    unit: "letter",
+    tariffSource: "https://api.pingen.com/documentation/swagger-docs",
+    tariffDate,
+    taxBasis: "shipping_price_excluding_vat",
+    taxSource:
+      "https://help.pingen.com/en/credits-and-billing/introduction-balance-and-credits",
+  };
+}
+export function postalPolicyOptions(addressPosition: "left" | "right") {
+  if (!["left", "right"].includes(addressPosition)) throw unqualified();
+  return (["cheap", "fast"] as const).flatMap((deliveryProduct) =>
+    (["simplex", "duplex"] as const).flatMap((printMode) =>
+      (["grayscale", "color"] as const).map((printSpectrum) => ({
+        addressPosition,
+        deliveryProduct,
+        printMode,
+        printSpectrum,
+      })),
+    ),
+  );
+}
 export type PricingBasis =
   "qualified_final_variable_cost" | "public_list_price_ex_tax";
 export type CommercialFx = {
@@ -142,6 +182,13 @@ function identityValid(
     [identity.accountId, identity.routeId].every((v) =>
       /^[a-zA-Z0-9_.:-]{1,200}$/.test(v),
     )
+  );
+}
+function validDate(date: string) {
+  return (
+    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    Number.isFinite(Date.parse(date)) &&
+    new Date(date).toISOString().slice(0, 10) === date
   );
 }
 function gcd(a: bigint, b: bigint): bigint {
@@ -263,10 +310,41 @@ function publicPriceDisclosure(rate: PublicEmailRateEvidence) {
     },
   };
 }
+function qualifiedPostalRate(policy: Policy) {
+  const rate = JSON.parse(
+    policy.rate_json,
+  ) as Partial<PublicPostalRateEvidence>;
+  const basis = policy.pricing_basis ?? policy.fiscal_basis;
+  if (basis === "qualified_final_variable_cost") {
+    if (rate.pricingBasis !== undefined) throw unqualified();
+    return;
+  }
+  const options = JSON.parse(policy.options_json);
+  if (
+    basis !== "public_list_price_ex_tax" ||
+    policy.channel !== "postal" ||
+    policy.provider !== "pingen" ||
+    policy.account_id !== policy.route_id ||
+    typeof rate.tariffDate !== "string" ||
+    !validDate(rate.tariffDate) ||
+    rate.tariffDate > policy.valid_from.slice(0, 10) ||
+    canonicalJson(rate) !==
+      canonicalJson(postalRateEvidence(rate.tariffDate)) ||
+    !postalPolicyOptions(options.addressPosition).some(
+      (candidate) => canonicalJson(candidate) === policy.options_json,
+    ) ||
+    policy.base_numerator !== 0 ||
+    policy.byte_numerator !== 0 ||
+    policy.rate_denominator !== 1
+  )
+    throw unqualified();
+}
 /** Add public commercial terms to the signed input, without changing old inputs. */
 export function deliveryPriceDisclosure(price?: DeliveryPrice) {
   return price?.policy.pricing_basis === "public_list_price_ex_tax"
-    ? publicPriceDisclosure(JSON.parse(price.policy.rate_json))
+    ? price.policy.channel === "postal"
+      ? { pricingBasis: "public_list_price_ex_tax" as const }
+      : publicPriceDisclosure(JSON.parse(price.policy.rate_json))
     : {};
 }
 export async function resolveDeliveryPrice(
@@ -339,6 +417,7 @@ export async function resolveDeliveryPrice(
       BigInt(components.byte_numerator) * BigInt(attachmentBytes);
     denominator = BigInt(components.rate_denominator);
   } else {
+    qualifiedPostalRate(policy);
     if (!request.document || !request.postalQuote) throw unqualified();
     const printOptions = Object.fromEntries(
       ["addressPosition", "deliveryProduct", "printMode", "printSpectrum"].map(
@@ -480,31 +559,37 @@ export async function validateLiveDeliveryQuote(
     .first<LiveDeliveryQuote>();
   // SELECT explicitly strips view-only columns from the signed material.
   if (!quote) throw invalid();
-  if (quote.channel === "email") {
+  if (quote.channel === "email" || quote.channel === "postal") {
     // Repeat the scope check for reads and immediately before supplier submission,
     // including during a rolling deployment with an older SQL view.
     const policy = await db
       .prepare(
-        "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND channel='email' AND status='qualified'",
+        "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND channel=? AND status='qualified'",
       )
-      .bind(row.organization_id, quote.policy_id)
+      .bind(row.organization_id, quote.policy_id, quote.channel)
       .first<Policy>();
     try {
       if (!policy) throw invalid();
-      qualifiedEmailRate(
-        policy,
-        row.document_id !== null ||
-          JSON.parse(quote.input_json).documentId !== null ||
-          quote.attachment_bytes !== 0,
-      );
+      if (quote.channel === "postal") qualifiedPostalRate(policy);
+      else
+        qualifiedEmailRate(
+          policy,
+          row.document_id !== null ||
+            JSON.parse(quote.input_json).documentId !== null ||
+            quote.attachment_bytes !== 0,
+        );
       if (policy.pricing_basis === "public_list_price_ex_tax") {
         const input = JSON.parse(quote.input_json);
-        const disclosure = publicPriceDisclosure(JSON.parse(policy.rate_json));
-        if (
-          input.pricingBasis !== disclosure.pricingBasis ||
-          canonicalJson(input.fx) !== canonicalJson(disclosure.fx)
-        )
-          throw invalid();
+        if (input.pricingBasis !== "public_list_price_ex_tax") throw invalid();
+        if (quote.channel === "postal") {
+          if ("fx" in input) throw invalid();
+        } else {
+          const disclosure = publicPriceDisclosure(
+            JSON.parse(policy.rate_json),
+          );
+          if (canonicalJson(input.fx) !== canonicalJson(disclosure.fx))
+            throw invalid();
+        }
       }
     } catch {
       throw invalid();

@@ -19,6 +19,8 @@ import {
 } from "../../packages/domain/src/index";
 import {
   emailRateComponents,
+  postalPolicyOptions,
+  postalRateEvidence,
   resolveDeliveryPrice,
   validateLiveDeliveryQuote,
   type EmailRateEvidence,
@@ -71,6 +73,12 @@ let upgradeProof: {
   legacyBasis: string;
   legacyQuoteValid: boolean;
 };
+let postalUpgradeProof: {
+  before: string;
+  after: string;
+  historicalPostalValid: boolean;
+  publicEmailValid: boolean;
+};
 const print = {
   addressPosition: "left",
   deliveryProduct: "cheap",
@@ -110,7 +118,10 @@ beforeAll(async () => {
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
   const dir = new URL("../../migrations/", import.meta.url);
   for (const f of readdirSync(dir)
-    .filter((f) => f.endsWith(".sql") && !f.startsWith("0022_"))
+    .filter(
+      (f) =>
+        f.endsWith(".sql") && !f.startsWith("0022_") && !f.startsWith("0030_"),
+    )
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
   // Exercise an upgrade with an existing immutable quote, approval and settled
@@ -154,6 +165,37 @@ beforeAll(async () => {
       .first<{ pricing_basis: string }>())!.pricing_basis,
     legacyQuoteValid: Boolean(
       await validateLiveDeliveryQuote(db, legacy, identity.email, stamp()),
+    ),
+  };
+  const historicalPostal = await queue(await postal());
+  await setupFixture();
+  await replaceEmailRate(publicRate);
+  const publicEmail = await queue();
+  const allQuotes = async () =>
+    JSON.stringify(
+      (
+        await db
+          .prepare("SELECT * FROM live_delivery_quotes ORDER BY dispatch_id")
+          .all()
+      ).results,
+    );
+  const postalBefore = await allQuotes();
+  await sql(
+    readFileSync(new URL("0030_postal_public_pricing.sql", dir), "utf8"),
+  );
+  postalUpgradeProof = {
+    before: postalBefore,
+    after: await allQuotes(),
+    historicalPostalValid: Boolean(
+      await validateLiveDeliveryQuote(
+        db,
+        historicalPostal,
+        identity.postal,
+        stamp(),
+      ),
+    ),
+    publicEmailValid: Boolean(
+      await validateLiveDeliveryQuote(db, publicEmail, identity.email, stamp()),
     ),
   };
 });
@@ -454,6 +496,34 @@ async function replaceEmailRate(customRate: EmailRateEvidence) {
     .run();
   await qualify("email", customRate);
 }
+async function replacePostalRate() {
+  const rate = postalRateEvidence(stamp().slice(0, 10));
+  await db
+    .prepare(
+      "DELETE FROM trusted_delivery_costs WHERE organization_id=? AND id=?",
+    )
+    .bind(ctx.organizationId, id("policy_postal"))
+    .run();
+  await db
+    .prepare(
+      "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,pricing_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES(?,?,?,'postal','pingen',?,?,?, ?,0,0,1,'EUR','qualified_final_variable_cost','public_list_price_ex_tax',300,'ISOLATED PINGEN CALCULATOR CONTRACT',?,?,?,'qualified',?)",
+    )
+    .bind(
+      id("policy_postal"),
+      ctx.organizationId,
+      id("sender_postal"),
+      identity.postal.accountId,
+      identity.postal.routeId,
+      canonicalJson(print),
+      canonicalJson(rate),
+      await sha256(canonicalJson(rate)),
+      stamp(),
+      new Date(clock + 3600000).toISOString(),
+      stamp(),
+    )
+    .run();
+  return rate;
+}
 describe("live delivery quotes and cumulative EUR credit — isolated D1 only", () => {
   it("upgrades existing signed quotes and settled credit without repricing or changing fingerprints", () => {
     expect(upgradeProof.after).toBe(upgradeProof.before);
@@ -461,6 +531,176 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
     expect(upgradeProof.quickCheck).toEqual({ quick_check: "ok" });
     expect(upgradeProof.legacyBasis).toBe("qualified_final_variable_cost");
     expect(upgradeProof.legacyQuoteValid).toBe(true);
+  });
+  it("adds postal ex-tax pricing without altering historical postal or public-email quotes", () => {
+    expect(postalUpgradeProof.after).toBe(postalUpgradeProof.before);
+    expect(postalUpgradeProof.historicalPostalValid).toBe(true);
+    expect(postalUpgradeProof.publicEmailValid).toBe(true);
+  });
+  it("binds exact Pingen calculator EUR ex-tax price to approval, acceptance and charge without FX", async () => {
+    await replacePostalRate();
+    postalSupplierMinor = 151;
+    const row = await queue(await postal());
+    expect(row).toMatchObject({
+      quote_pricing_basis: "public_list_price_ex_tax",
+      quote_fx: null,
+      estimated_minor: 302,
+      quote_customer_nanoeur: 3020000000,
+    });
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.postal,
+      stamp(),
+    );
+    expect(JSON.parse(quote.input_json)).toHaveProperty(
+      "pricingBasis",
+      "public_list_price_ex_tax",
+    );
+    expect(JSON.parse(quote.input_json)).not.toHaveProperty("fx");
+    expect(quote).toMatchObject({
+      supplier_nanoeur: 1510000000,
+      fiscal_basis: "public_list_price_ex_tax",
+    });
+    const hook = provider("postal");
+    hook.submit = vi.fn(hook.submit);
+    await domain.processDispatch(row.id, hook);
+    expect(hook.submit).toHaveBeenCalledOnce();
+    expect(await balance()).toMatchObject({
+      spentMinor: 302,
+      reservedMinor: 0,
+    });
+  });
+  it("rejects unknown calculator methods, tax sources, currency, FX, options and policy coefficients", async () => {
+    const rate = await replacePostalRate();
+    expect(postalPolicyOptions("left")).toHaveLength(8);
+    expect(() => postalRateEvidence("2026-02-30")).toThrow();
+    const baseline = (await db
+      .prepare("SELECT * FROM trusted_delivery_costs WHERE id=?")
+      .bind(id("policy_postal"))
+      .first<Record<string, string | number>>())!;
+    const patches = [
+      ...[
+        { method: "unverified" },
+        { taxSource: "https://example.invalid" },
+        { taxBasis: "vat_included" },
+        { currency: "USD" },
+        { tariffDate: "2999-01-01" },
+        { tariffDate: "2026-02-30" },
+        { fx: { numerator: 1, denominator: 1 } },
+      ].map((patch) => ({ rate_json: canonicalJson({ ...rate, ...patch }) })),
+      { base_numerator: 1 },
+      { byte_numerator: 1 },
+      { rate_denominator: 100 },
+      { route_id: "other-account" },
+      { options_json: canonicalJson({ ...print, printSpectrum: "unknown" }) },
+      { options_json: canonicalJson({ ...print, extra: true }) },
+      { channel: "email", provider: "ses" },
+    ];
+    for (const patch of patches) {
+      const values = {
+        ...baseline,
+        ...patch,
+        id: crypto.randomUUID(),
+        status: "revoked",
+      };
+      await expect(
+        db
+          .prepare(
+            `INSERT INTO trusted_delivery_costs(${Object.keys(values).join(",")}) VALUES(${Object.keys(
+              values,
+            )
+              .map(() => "?")
+              .join(",")})`,
+          )
+          .bind(...Object.values(values))
+          .run(),
+      ).rejects.toThrow("public_email_price_invalid");
+    }
+  });
+  it("rechecks the postal public contract before accepting a signed quote and blocks revocation", async () => {
+    await replacePostalRate();
+    const row = await queue(await postal());
+    const tamperedDb = new Proxy(db, {
+      get(target, key) {
+        if (key !== "prepare") return Reflect.get(target, key, target);
+        return (query: string) => {
+          const statement = target.prepare(query);
+          if (
+            !query.startsWith(
+              "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=?",
+            )
+          )
+            return statement;
+          return {
+            bind: (...values: unknown[]) => ({
+              first: async () => {
+                const policy = await statement
+                  .bind(...values)
+                  .first<Record<string, unknown>>();
+                return {
+                  ...policy,
+                  rate_json: canonicalJson({
+                    ...postalRateEvidence(stamp().slice(0, 10)),
+                    fx: { numerator: 1, denominator: 1 },
+                  }),
+                };
+              },
+            }),
+          } as D1PreparedStatement;
+        };
+      },
+    });
+    await expect(
+      validateLiveDeliveryQuote(tamperedDb, row, identity.postal, stamp()),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    await db
+      .prepare("UPDATE trusted_delivery_costs SET status='revoked' WHERE id=?")
+      .bind(id("policy_postal"))
+      .run();
+    await expect(
+      validateLiveDeliveryQuote(db, row, identity.postal, stamp()),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    const hook = provider("postal");
+    hook.submit = vi.fn(hook.submit);
+    await domain.processDispatch(row.id, hook);
+    expect(hook.submit).not.toHaveBeenCalled();
+  });
+  it("atomically rejects a postal quote from an old reader that omits its public-price disclosure", async () => {
+    await replacePostalRate();
+    const legacyDb = new Proxy(db, {
+      get(target, key) {
+        if (key !== "prepare") return Reflect.get(target, key, target);
+        return (query: string) => {
+          const statement = target.prepare(query);
+          if (
+            !query.startsWith(
+              "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=?",
+            )
+          )
+            return statement;
+          return {
+            bind: (...values: unknown[]) => ({
+              first: async () => {
+                const policy = await statement
+                  .bind(...values)
+                  .first<Record<string, unknown>>();
+                if (!policy) return policy;
+                const { pricing_basis: _ignored, ...old } = policy;
+                return { ...old, rate_json: "{}" };
+              },
+            }),
+          } as D1PreparedStatement;
+        };
+      },
+    });
+    const oldReader = new DomainService(legacyDb, domain.config);
+    await expect(
+      oldReader.prepareDispatch(ctx, await postal(), "old-postal-reader"),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    expect(await count("dispatches")).toBe(0);
+    expect(await count("live_delivery_quotes")).toBe(0);
+    expect(await count("outbox")).toBe(0);
   });
   it("quotes the SES public ex-tax price at a signed commercial FX without claiming invoice cost", async () => {
     await replaceEmailRate(publicRate);

@@ -102,7 +102,7 @@ test("homepage explains installation, welcome credit, pricing and Luxembourg pro
   );
   await expect(page.locator(".welcome-amount")).toHaveText("50€");
   await expect(page.locator(".welcome-copy")).toContainText(
-    "À l’ouverture du service",
+    "Votre organisation reçoit 50 €",
   );
   await expect(
     page.getByRole("button", { name: "Ajouter du crédit" }),

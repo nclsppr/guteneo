@@ -1,5 +1,13 @@
 # Architecture
 
+20 September postal opening adds a browser-only administrator setup, immutable
+tenant-bound sender declarations and qualified EUR calculator policies. Sender
+authorization is explicitly administrator-declared, with no physical-address
+verification claim. Migrations 0030–0031 preserve historical quotes and bind the
+postal price excluding tax into the approved fingerprint. See
+[POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md) for the release and evidence boundary;
+the older dated publication descriptions below remain historical.
+
 Local candidate, 17 September: hosted PDF imports accept public HTTPS DNS
 sources without a provider-domain allowlist. The candidate enables
 `global_fetch_strictly_public` for public egress in the hosted API runtime;

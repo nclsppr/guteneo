@@ -1,5 +1,14 @@
 # Guteneo product contract
 
+20 September postal opening: every existing or future verified account can use
+the authenticated administrator setup in **Expéditeurs**. It records the sender's
+declared authority, not physical-address verification, and installs account-bound
+EUR calculator policies for all eight print/delivery combinations. Postal quotes
+explicitly use prices excluding tax, without FX. Individual PDF transfer and
+send approval remain separate. The user will conduct the first real letter test
+after publication. See [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md); older dated
+release statements below describe their historical state.
+
 Local candidate, 17 September: hosted PDF imports no longer require a
 provider-specific domain entry. Public HTTPS downloads retain network, size,
 time and exact-file verification limits; local URL import remains disabled.
