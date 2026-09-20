@@ -236,6 +236,9 @@ test("postal review separates document transfer, provider quote and dispatch app
     name: "Transmettre pour analyse",
   });
   await expect(transfer).toBeDisabled();
+  // Review the rendered PDF before consent: its page sizing and navigation
+  // otherwise move the mobile checkboxes while WebKit is clicking them.
+  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
   await page
     .getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ })
     .check();
@@ -243,7 +246,6 @@ test("postal review separates document transfer, provider quote and dispatch app
   await page.getByRole("checkbox", { name: /J’autorise le transfert/ }).check();
   await expect(transfer).toBeEnabled();
   expect(fixture.mutations).toEqual([]);
-  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth + 1,

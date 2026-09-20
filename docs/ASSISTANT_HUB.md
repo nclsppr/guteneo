@@ -1,9 +1,10 @@
 # Assistants and direct sending — local candidate, 20 September 2026
 
 The assistant journey extends the isolated homepage candidate. The existing
-Luxembourg footer and homepage identity are retained. No production release,
-external assistant connection, permission grant or real communication is part
-of this work.
+Luxembourg footer and homepage identity are retained. This document records
+implementation and local validation; publication evidence is recorded
+separately against the deployed source commit. No external assistant connection,
+permission grant or real communication is performed by these checks.
 
 ## User journeys
 
@@ -134,6 +135,14 @@ iPhone, including the same guide component used in the dashboard; see the
 [copy clarification report](../reports/assistant-mcp-copy-playwright.json) and
 [updated captures](../reports/screenshots/assistant-mcp-copy/).
 This follow-up changes guidance and labels only, with no backend change.
+
+Release preparation caught a missed hash navigation between the initial render
+and route subscription on iPhone. A deterministic regression failed on the
+previous bundle, then passed after resynchronizing the route at subscription
+without moving the initial scroll position. The postal review test now waits
+for the rendered PDF before interacting with consent checkboxes. All nine
+targeted checks (three scenarios across three browser profiles) passed; see
+[the release-fix report](../reports/ci-iphone-fixes-playwright.json).
 
 | Check | Result and evidence |
 | --- | --- |

@@ -254,6 +254,50 @@ test("verified connections require active authorization and dated server proof",
   expect(state.unmatched).toEqual([]);
 });
 
+test("workspace routing catches a fragment change before its listener subscribes", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.addInitScript(() => {
+    const subscribe = window.addEventListener.bind(window);
+    let changed = false;
+    window.addEventListener = (
+      ...args: Parameters<Window["addEventListener"]>
+    ) => {
+      if (args[0] === "hashchange" && !changed) {
+        changed = true;
+        const oldURL = window.location.href;
+        // Reproduce a fragment navigation between React's first render and its
+        // passive subscription. The notification precedes the new listener.
+        window.history.replaceState(null, "", "/#/app");
+        window.dispatchEvent(
+          new HashChangeEvent("hashchange", {
+            oldURL,
+            newURL: window.location.href,
+          }),
+        );
+      }
+      subscribe(...args);
+    };
+  });
+  await page.goto("/#/app/prepare?entry=direct");
+  await expect(page).toHaveURL(/#\/app$/);
+  await expect(
+    page.getByRole("heading", {
+      name: "Votre correspondance, au clair.",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Préparer une correspondance.",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  expect(state.writes).toEqual([]);
+  expect(state.unmatched).toEqual([]);
+});
+
 test("direct sending preference persists only for its user and tenant and can be reversed", async ({
   page,
 }, info) => {
