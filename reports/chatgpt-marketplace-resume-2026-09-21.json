@@ -152,8 +152,8 @@
   },
   "package": {
     "version": "0.2.1",
-    "bytes": 1263178,
-    "sha256": "e32cccb04549c3b60794d4271c24a8b68b5ffbedc73b5223b7772eeb629a013a"
+    "bytes": 1265171,
+    "sha256": "18485c5a5215175f051873fb2db0c15ea145ae83ad54e8d58ac2b3b7df2885a1"
   },
   "validation": {
     "targetedTestsPassed": 43,
@@ -242,7 +242,7 @@
     "validation": {
       "typecheck": "passed",
       "lint": "passed",
-      "mcpIntegrationTests": 32,
+      "mcpIntegrationTests": 39,
       "newReviewerSecurityTests": 8,
       "publicStaticTests": 7,
       "publicDesktopAndIphoneTests": 8,
@@ -254,6 +254,8 @@
       },
       "reviewerAndAuth0SecurityTests": 19
     },
-    "portalInfo": "Support, privacy and terms URLs, English base and French translation saved; icons and base fields confirmed after reload. Eight scenarios drafted, not executed; preparation prompt requires controlled recipient and ceiling."
+    "portalInfo": "Support, privacy and terms URLs, English base and French translation saved; icons and base fields confirmed after reload. Eight scenarios drafted, not executed; preparation prompt requires controlled recipient and ceiling.",
+    "reconciledMain": "406176933da9ad7d8c3d6265b26dbfa50e493c4b",
+    "toolCount": 22
   }
 }

@@ -526,6 +526,7 @@ export function createGuteneoMcpServer(
       registerTool(
         "create_postal_address_page",
         {
+          title: "Créer une page d’adresse postale",
           description:
             "Sur demande explicite d’ajout d’une page d’adresse, crée un nouveau PDF prêt à être contrôlé pour le courrier à partir d’un document vérifié. Conserve l’original. Place automatiquement le destinataire saisi dans la fenêtre du profil Pingen courant. Ajoute une page en recto, ou une page et son verso blanc en recto verso pour préserver les paires de pages originales. Les pages ajoutées comptent dans le devis final. Réutiliser la même idempotencyKey après une réponse perdue ; ne pas générer à nouveau tant que l’analyse du document retourné est en cours. Attendre document.status=ready via get_document, puis lire toutes les pages du nouveau document avec read_document_pages et utiliser son identifiant dans preflight_postal_pdf. Toute modification du destinataire ou du mode recto verso exige une nouvelle génération depuis l’original. Ne transmet aucun PDF à Pingen, n’approuve rien et n’envoie rien.",
           inputSchema: postalAddressPageInputSchema
@@ -535,7 +536,8 @@ export function createGuteneoMcpServer(
           annotations: {
             ...writeAnnotations,
             idempotentHint: true,
-            openWorldHint: true,
+            // Private source, internal renderer and configured Pingen profile only.
+            openWorldHint: false,
           },
           _meta: oauthMetadata("documents:write"),
         },

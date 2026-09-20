@@ -701,6 +701,7 @@ describe("distributable LLM integrations", () => {
           // Quote renewal cancels the superseded prepared dispatch.
           prepare_fax: [false, true, true, false],
           prepare_dispatch: [false, false, true, false],
+          create_postal_address_page: [false, false, true, false],
           preflight_postal_pdf: [false, false, true, false],
           quote_postal_draft: [false, false, true, false],
           import_document: [false, false, false, true],
@@ -738,6 +739,7 @@ describe("distributable LLM integrations", () => {
         get: unused,
         quote: unused,
         transferExpert: unused,
+        generateAddressPage: unused,
       },
     );
     expect(unused).not.toHaveBeenCalled();
