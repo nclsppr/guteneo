@@ -1,6 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { Landing } from "../App";
 import { LegalPage } from "../legal-page";
+import { InformationPage, informationPages } from "../information-page";
 import { DeveloperPage } from "../developer-page";
 import { articles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
@@ -39,6 +40,20 @@ function breadcrumbs(items: { name: string; path: string }[]) {
 }
 
 export function renderPublicPage(pathname: string) {
+  const information = informationPages[pathname];
+  if (information)
+    return {
+      html: renderToString(<InformationPage content={information} />),
+      title: `${information.label} | Guteneo`,
+      description: information.description,
+      canonical: origin + pathname,
+      structuredData: [
+        breadcrumbs([
+          { name: "Accueil", path: "/" },
+          { name: information.label, path: pathname },
+        ]),
+      ],
+    };
   if (pathname.startsWith("/assistants/")) {
     const id = pathname.split("/")[2];
     const assistant = getAssistant(id);

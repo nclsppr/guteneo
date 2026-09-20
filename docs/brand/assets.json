@@ -2,7 +2,28 @@
   "source": "User-approved stamp with guteneo.com for public footer/external communications; transparent wordless portrait for site/workspace headers; earlier simple flat mark for favicons and compact icons. Corrected 2026-09-17.",
   "processing": "Original JPGs and existing footer stamp preserved; wordless portrait alpha extracted with built-in image_gen from user JPEG. Raw RGBA output retained. Web derivatives resized/encoded with Sharp; alpha retained, never flattened. Favicon exports preserve earlier simple mark.",
   "engine": "sharp 0.35.4",
+  "composerVariant": {
+    "createdAt": "2026-09-21",
+    "engine": "image_gen",
+    "processing": "Generated derivative for the ChatGPT composer; transparent exterior and simplified inner frame. Original directory mark unchanged. Master copied byte-for-byte to public and integration assets, without resizing or alpha edits.",
+    "provenance": "assets/brand/source/guteneo-composer-transparent.png.json"
+  },
   "assets": [
+    {
+      "path": "assets/brand/source/guteneo-composer-transparent.png",
+      "bytes": 977001,
+      "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc"
+    },
+    {
+      "path": "apps/web/public/brand/guteneo-composer.png",
+      "bytes": 977001,
+      "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc"
+    },
+    {
+      "path": "integrations/guteneo/assets/guteneo-composer.png",
+      "bytes": 977001,
+      "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc"
+    },
     {
       "path": "docs/brand/sources/guteneo-mark-original.jpg",
       "bytes": 226096,
