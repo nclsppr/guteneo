@@ -3,12 +3,16 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { mkdir } from "node:fs/promises";
 import type { PostalReview } from "../../packages/contracts/src/postal-review";
 
+const cropPath = "/api/postal/preflights/postal-ui-fixture/address.png";
+const canonicalCropUrl = `https://guteneo.com${cropPath}`;
+
 // UI fixtures only: all API calls are intercepted. No PDF reaches Pingen,
 // no production account is authenticated and no ledger entry is created.
 async function setup(
   page: Page,
   variant:
     "ready" | "blocked" | "unknown" | "crop_failed" | "lost_response" = "ready",
+  cropUrl: string | null = canonicalCropUrl,
 ) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -29,6 +33,7 @@ async function setup(
     key: string | undefined;
   }[] = [];
   const unmatched: string[] = [];
+  const cropRequests: string[] = [];
   let quotePending = true;
   const controls = { cropFails: variant === "crop_failed" };
   const review: PostalReview = {
@@ -76,7 +81,7 @@ async function setup(
       textVisibility: "not_verified",
       cropAccess: "authenticated_browser_session_only",
       mcpEmbeddedVisualEvidenceAvailable: false,
-      cropUrl: "/api/postal/preflights/postal-ui-fixture/address.png",
+      cropUrl,
     },
     canTransfer: variant !== "blocked" && variant !== "unknown",
     transferPolicy: {
@@ -122,12 +127,14 @@ async function setup(
         csrf: request.headers()["x-csrf-token"],
         key: request.headers()["idempotency-key"],
       });
-    if (path.endsWith("/address.png"))
+    if (path.endsWith("/address.png")) {
+      cropRequests.push(request.url());
       return route.fulfill(
         controls.cropFails
           ? { status: 503, body: "" }
           : { contentType: "image/png", body: Buffer.from(crop, "base64") },
       );
+    }
     if (path === "/documents/pdf-ui-fixture/content")
       return route.fulfill({ contentType: "application/pdf", body: pdfBytes });
     let body: unknown,
@@ -147,10 +154,7 @@ async function setup(
         items: [readyDocument],
         nextCursor: null,
       };
-    else if (
-      request.method() === "GET" &&
-      path === "/documents/pdf-ui-fixture"
-    )
+    else if (request.method() === "GET" && path === "/documents/pdf-ui-fixture")
       body = readyDocument;
     else if (path === "/senders")
       body = {
@@ -220,8 +224,71 @@ async function setup(
     await route.fulfill({ status, json: body });
   });
   await page.goto("/#/app/postal/postal-ui-fixture");
-  return { mutations, unmatched, review, controls };
+  return { mutations, unmatched, review, controls, cropRequests };
 }
+
+for (const format of ["canonical", "current-origin", "relative"] as const)
+  test(`postal crop accepts ${format} API URLs and loads only the current authenticated endpoint`, async ({
+    page,
+    baseURL,
+  }) => {
+    const cropUrl =
+      format === "canonical"
+        ? canonicalCropUrl
+        : format === "current-origin"
+          ? new URL(cropPath, baseURL).href
+          : cropPath;
+    const fixture = await setup(page, "ready", cropUrl);
+    const image = page.getByRole("img", {
+      name: /Extrait de la première page/,
+    });
+    await expect(image).toBeVisible();
+    await expect(image).toHaveAttribute("src", cropPath);
+    await expect(
+      page.getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ }),
+    ).toBeEnabled();
+    await expect(
+      page.getByRole("button", { name: "Transmettre pour analyse" }),
+    ).toBeDisabled();
+    expect(fixture.cropRequests).toEqual([new URL(cropPath, baseURL).href]);
+    expect(fixture.mutations).toEqual([]);
+    expect(fixture.unmatched).toEqual([]);
+  });
+
+for (const [reason, cropUrl] of [
+  ["foreign origin", `https://outside.invalid${cropPath}`],
+  ["lookalike origin", `https://guteneo.com.outside.invalid${cropPath}`],
+  ["credentials", `https://user:password@guteneo.com${cropPath}`],
+  [
+    "another preflight",
+    "https://guteneo.com/api/postal/preflights/another/address.png",
+  ],
+  ["query", `${canonicalCropUrl}?download=1`],
+  ["fragment", `${canonicalCropUrl}#address`],
+  ["data URL", "data:image/png;base64,iVBORw0KGgo="],
+] as const)
+  test(`postal crop rejects ${reason} without requesting an image or enabling transfer`, async ({
+    page,
+  }) => {
+    const fixture = await setup(page, "ready", cropUrl);
+    await expect(
+      page.getByText("L’extrait de la zone d’adresse est indisponible.", {
+        exact: false,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: /Extrait de la première page/ }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ }),
+    ).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Transmettre pour analyse" }),
+    ).toBeDisabled();
+    expect(fixture.cropRequests).toEqual([]);
+    expect(fixture.mutations).toEqual([]);
+    expect(fixture.unmatched).toEqual([]);
+  });
 
 test("postal review separates document transfer, provider quote and dispatch approval", async ({
   page,
