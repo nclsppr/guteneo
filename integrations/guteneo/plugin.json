@@ -13,7 +13,7 @@
     "com.openai": {
       "interface": {
         "displayName": "Guteneo",
-        "shortDescription": "Vos PDF, vos devis et le suivi de vos envois.",
+        "shortDescription": "PDF, devis et suivi des envois",
         "longDescription": "Retrouvez vos documents Guteneo ou importez le PDF original depuis ChatGPT. Vérifiez son analyse, préparez un devis pour un canal disponible et suivez chaque étape de votre envoi. Vous validez le document, le destinataire et le plafond dans Guteneo avant tout envoi. Un mandat expert facultatif, limité et temporaire peut être accordé par un administrateur à cette connexion. La disponibilité du fax et du courrier dépend des canaux et destinations activés sur votre compte. L’installation n’active aucun canal ni mandat.",
         "developerName": "Guteneo",
         "category": "Productivity",

@@ -1,0 +1,106 @@
+{
+  "observedAtUtc": "2026-09-20T22:22:38.604234+00:00",
+  "observedAtParis": "2026-09-21T00:22:38.604234+02:00",
+  "candidateBaseCommit": "89d126d288b86f16f9c3be2d51182135ae6907e0",
+  "publicResponses": {
+    "/release.json": {
+      "httpStatus": 200,
+      "sourceCommit": "ef417c7f187bd11e327881b2127eae653288ac58",
+      "sourceDirty": false,
+      "mode": "production",
+      "liveSendChannels": [
+        "fax",
+        "postal"
+      ],
+      "builtAt": "2026-09-20T19:44:57.804Z"
+    },
+    "/api/capabilities": {
+      "httpStatus": 200,
+      "mode": "production",
+      "liveSending": true,
+      "documents": {
+        "import": true,
+        "render": true,
+        "exactBytes": true,
+        "urlImport": true
+      },
+      "channels": [
+        {
+          "id": "fax",
+          "liveSending": true,
+          "name": "Fax",
+          "provider": "Telnyx",
+          "status": "configured_not_live_validated"
+        },
+        {
+          "id": "email",
+          "liveSending": false,
+          "name": "E-mail",
+          "provider": "Amazon SES",
+          "status": "configured_not_live_validated"
+        },
+        {
+          "id": "postal",
+          "liveSending": true,
+          "name": "Courrier postal",
+          "provider": "Pingen",
+          "status": "configured_not_live_validated"
+        }
+      ],
+      "billing": {
+        "configured": false,
+        "mode": "unconfigured",
+        "chargingEnabled": false
+      }
+    },
+    "/confidentialite/": {
+      "httpStatus": 404
+    },
+    "/conditions/": {
+      "httpStatus": 404
+    },
+    "/contact/": {
+      "httpStatus": 404
+    },
+    "/mentions-legales/": {
+      "httpStatus": 200
+    },
+    "/.well-known/openai-apps-challenge": {
+      "httpStatus": 404
+    }
+  },
+  "portal": {
+    "observedOnParis": "2026-09-21",
+    "organizationLabel": "Personal",
+    "path": "Create plugin > With MCP",
+    "status": "blocked_developer_verification",
+    "message": "You need a verified developer identity before you can create or upload a plugin.",
+    "draftCreated": false,
+    "submitted": false,
+    "published": false
+  },
+  "package": {
+    "version": "0.2.1",
+    "bytes": 285325,
+    "sha256": "1c9fca3eca5551ccb3b34a862c84165dc5daa32fc8e745883c0f526e5c67eb79"
+  },
+  "validation": {
+    "targetedTestsPassed": 43,
+    "targetedTestsFailed": 0,
+    "typecheck": "passed",
+    "lint": "passed",
+    "buildIntegrations": "passed",
+    "buildWeb": "passed",
+    "reviewerAccountTests": "not_executed",
+    "targetedTestStartUtc": "2026-09-20T22:23:50.073000+00:00",
+    "metadataLimits": "passed: 30-character subtitle, three bounded prompts, exactly five positive and three negative portal cases"
+  },
+  "boundary": "Public GETs and local fixture/package checks. No real communication, identity attestation, reviewer credentials, deployment or marketplace submission.",
+  "changes": [
+    "Rebase candidate on origin/main",
+    "Fit the final subtitle length limit",
+    "Disclose irreversible replacement of a prepared fax during quote renewal",
+    "Refresh submission dossier and eight selected reviewer scenarios",
+    "Document annotation justifications for all 21 candidate tools"
+  ]
+}

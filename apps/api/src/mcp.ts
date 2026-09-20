@@ -854,13 +854,13 @@ export function createGuteneoMcpServer(
           renewalOf: id
             .optional()
             .describe(
-              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le remplacement est individuel, hors de toute campagne d’origine, qui conserve son manifeste. L’annoncer avant renouvellement. Idempotence serveur stable pour cet ancien devis ; nouvelle approbation séparée requise.",
+              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le renouvellement annule définitivement l’ancien envoi préparé et crée son remplacement individuel, hors de toute campagne d’origine, qui conserve son manifeste. Annoncer cette annulation avant renouvellement. Idempotence serveur stable pour cet ancien devis ; nouvelle approbation séparée requise.",
             ),
           idempotencyKey: key,
         })
         .strict(),
       outputSchema: output(dispatchSchema),
-      annotations: writeAnnotations,
+      annotations: { ...writeAnnotations, destructiveHint: true },
       _meta: oauthMetadata("dispatches:prepare"),
     },
     ({ idempotencyKey, phone, renewalOf, ...input }) =>

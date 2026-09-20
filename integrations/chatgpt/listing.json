@@ -6,7 +6,7 @@
   "pluginVersion": "0.2.1",
   "listing": {
     "name": "Guteneo",
-    "shortDescription": "Préparez vos PDF, consultez le prix et suivez vos envois.",
+    "shortDescription": "PDF, devis et suivi des envois",
     "description": "Retrouvez vos PDF Guteneo ou importez un document original. Préparez un fax, consultez son estimation et son plafond, puis suivez son statut. Les actions disponibles dépendent des canaux, des permissions et du solde de votre compte. En mode standard, vous relisez et approuvez l’envoi dans Guteneo. Un mandat expert facultatif, limité et temporaire, doit être activé par un administrateur dans son compte avant toute action déléguée. L’installation du connecteur n’active aucun mandat ni canal.",
     "category": "Productivity",
     "primaryLanguage": "fr-FR",
@@ -28,7 +28,8 @@
     ],
     "supportUrl": null,
     "termsOfServiceUrl": null,
-    "availabilityCountries": null
+    "availabilityCountries": null,
+    "demoRecordingUrl": null
   },
   "connection": {
     "mcpServerUrl": "https://guteneo.com/mcp",
@@ -44,9 +45,58 @@
     ],
     "oauthClientId": null,
     "oauthRedirectUri": null,
-    "reviewerCredentials": "not_provisioned_or_verified_for_this_submission"
+    "reviewerCredentials": "not_provisioned_or_verified_for_this_submission",
+    "domainVerification": {
+      "status": "challenge_not_obtained_before_draft",
+      "challengeBaseUrl": null,
+      "challengeUrl": null,
+      "verified": false
+    }
   },
   "currentPublicObservation": {
+    "observedOn": "2026-09-21",
+    "timezone": "Europe/Paris",
+    "observedAtUtc": "2026-09-20T22:19:53Z",
+    "method": "Public GET with curl and browser User-Agent; no authenticated tenant or provider call",
+    "sourceCommit": "ef417c7f187bd11e327881b2127eae653288ac58",
+    "sourceDirty": false,
+    "builtAt": "2026-09-20T19:44:57.804Z",
+    "applicationVersion": "0.2.0",
+    "mode": "production",
+    "urlImport": true,
+    "liveChannels": ["fax", "postal"],
+    "disabledLiveChannels": ["email"],
+    "channelQualification": "Public configuration only; account permissions, destination eligibility and reviewer workflows require separate evidence",
+    "expertApprovalAvailable": true,
+    "expertApprovalRequiresAccountOptIn": true,
+    "billingConfigured": false,
+    "chargingEnabled": false,
+    "nativeChatGptUi": false,
+    "marketplacePublicationVerified": false,
+    "publicUrlStatus": {
+      "/confidentialite/": 404,
+      "/conditions/": 404,
+      "/contact/": 404,
+      "/mentions-legales/": 200,
+      "/mcp": 401,
+      "/.well-known/oauth-protected-resource/mcp": 200
+    }
+  },
+  "unresolvedSubmissionFields": [
+    "Verified publisher identity matching the chosen display name; portal still blocks draft creation",
+    "Eligible Global project and Apps Management — Write permission",
+    "Published privacy policy covering the actual authenticated service",
+    "OAuth client and exact callback displayed by the submission portal",
+    "Reviewer account, sample data and tested credentials supplied privately",
+    "Exactly five positive and three negative reviewer cases executed with the submission account",
+    "Exact generated domain challenge token and successful Verify Domain result",
+    "Current production tool scan and a justification for each of the three required annotation values on every tool",
+    "Demo-recording URL showing the submitted use cases and supported surfaces",
+    "Published support URL and terms of service URL",
+    "Availability countries explicitly chosen for submission"
+  ],
+  "updatedAt": "2026-09-21",
+  "historicalPublicObservation": {
     "observedOn": "2026-09-17",
     "sourceCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
     "sourceDirty": false,
@@ -58,14 +108,26 @@
     "nativeChatGptUi": false,
     "marketplacePublicationVerified": false
   },
-  "unresolvedSubmissionFields": [
-    "Verified publisher identity matching the chosen display name",
-    "Eligible Global project and Apps Management — Write permission",
-    "Published privacy policy covering the actual authenticated service",
-    "OAuth client and exact callback displayed by the submission portal",
-    "Reviewer account, sample data and tested credentials supplied privately",
-    "Executed reviewer cases and exact scanned tool snapshot",
-    "Published support URL and terms of service URL",
-    "Availability countries explicitly chosen for submission"
+  "portalObservation": {
+    "observedOn": "2026-09-21",
+    "timezone": "Europe/Paris",
+    "status": "blocked_developer_verification",
+    "draftCreated": false,
+    "pluginId": null,
+    "submitted": false,
+    "published": false
+  },
+  "reviewPreparation": {
+    "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
+    "negativeTestCaseIds": ["N1", "N2", "N4"],
+    "additionalInternalCaseIds": ["P4", "P7", "N3", "N5", "N6", "N7"],
+    "executionStatus": "not_executed_with_submission_reviewer_account",
+    "toolScanStatus": "current_submission_scan_not_obtained",
+    "annotationJustificationsStatus": "required_for_each_readOnlyHint_openWorldHint_destructiveHint_value_on_every_scanned_tool",
+    "releaseNotes": "Candidat 0.2.1 : logo approuvé intégré au paquet, titres et annotations MCP précisés, renouvellement de fax déclaré destructif car il peut annuler la préparation précédente, description courte adaptée aux limites de l’annuaire. Les fonctions restent soumises aux droits, aux canaux du compte et au mode d’approbation. Cette préparation ne constitue ni un déploiement ni une publication dans l’annuaire."
+  },
+  "submissionSources": [
+    "https://developers.openai.com/plugins/deploy/submission",
+    "https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission"
   ]
 }

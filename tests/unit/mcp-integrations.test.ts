@@ -698,7 +698,8 @@ describe("distributable LLM integrations", () => {
           list_dispatches: [true, false, true, false],
           get_postal_requirements: [true, false, true, false],
           get_postal_preflight: [true, false, true, false],
-          prepare_fax: [false, false, true, false],
+          // Quote renewal cancels the superseded prepared dispatch.
+          prepare_fax: [false, true, true, false],
           prepare_dispatch: [false, false, true, false],
           preflight_postal_pdf: [false, false, true, false],
           quote_postal_draft: [false, false, true, false],
