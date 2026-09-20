@@ -1,5 +1,14 @@
 # Private ClamAV scanner
 
+20 September update: production version `8e0bffd1-43fd-4401-8663-1f4ecdb794a5`
+was verified at 100% traffic with ClamAV 1.5.4, signature database 28129 dated
+2026-09-20 06:26:26 UTC, clean/EICAR fixtures and exact hashes. The scanner remains
+private and offline at runtime. A GitHub-hosted daily refresh workflow is prepared;
+its dedicated credential and first successful hosted run are still required.
+The local Codex maintenance task is paused. See [SCANNER_CI.md](SCANNER_CI.md)
+for activation and evidence boundaries. The 16 September evidence below remains
+historical.
+
 The implementation in `apps/scanner/` runs a real ClamAV antivirus engine. It was deployed privately and qualified on Cloudflare on 2026-09-16. Its independent package and lockfile do not change the application dependency graph.
 
 ## Contract and isolation
@@ -63,7 +72,12 @@ Refresh, qualify and roll out the image daily. `npm run refresh:definitions` fro
 
 For manual local builds, pass the configured refresh value with `docker build --build-arg SIGNATURE_REFRESH=<value>`. Rebuilding with an unchanged value may reuse the Docker cache and does not count as an update. Do not increase the maximum signature age to make deployment pass.
 
-No recurring updater is configured. Successful initial deployment alone therefore does not establish an operational antivirus service. Without a refreshed image, future scans deliberately remain quarantined.
+The prepared GitHub Actions workflow removes this manual daily procedure once
+its dedicated credential and first hosted qualification are complete. It uses
+an ignored derived configuration instead of updating the tracked build timestamp
+every day. Until activated, successful deployment alone does not establish an
+operational recurring updater. Without a refreshed image, future scans deliberately
+remain quarantined. See [SCANNER_CI.md](SCANNER_CI.md).
 
 ## Hosted evidence, 2026-09-16
 
@@ -106,7 +120,8 @@ This excludes Workers requests, Durable Objects, image storage, logs, network eg
 ## Remaining activation
 
 1. Release the prepared `SCANNER` and `DOCUMENT_RENDERER` bindings with the application warmup and rescan routes. Keep provider approval/pricing gates.
-2. Establish an operational daily signature-image refresh before public imports are treated as continuously available. No updater is currently scheduled.
+2. Activate and qualify the prepared GitHub Actions signature-image refresh before
+   treating maintenance as unattended; see [SCANNER_CI.md](SCANNER_CI.md).
 3. Verify the complete application's quarantine-to-ready path after deployment; the isolated proofs above do not establish successful account registration, checkout or fax delivery.
 
 No paid-plan upgrade or external scanner subscription was performed. The private Cloudflare scanner and renderer were deployed using the existing account.

@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import json
 import os
+from pathlib import Path
 import re
 import signal
 import socket
@@ -17,6 +18,18 @@ MAX_SIGNATURE_AGE = 72 * 60 * 60
 SOCKET_PATH = "/tmp/clamav/clamd.sock"
 SCAN_SECONDS = 18
 SCAN_LOCK = threading.BoundedSemaphore(1)
+BUILD_ID_PATTERN = re.compile(r"sha-[a-f0-9]{40}-run-[1-9][0-9]{0,19}-attempt-[1-9][0-9]{0,9}")
+
+
+def load_build_id(path=Path("/app/scanner-build-id")):
+    try:
+        value = path.read_text(encoding="ascii")
+    except (FileNotFoundError, UnicodeError):
+        return None
+    return value if BUILD_ID_PATTERN.fullmatch(value) else None
+
+
+BUILD_ID = load_build_id()
 
 
 class ScanError(Exception):
@@ -128,6 +141,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(encoded)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("Connection", "close")
+        if BUILD_ID:
+            self.send_header("x-guteneo-scanner-build-id", BUILD_ID)
         self.end_headers()
         try:
             self.wfile.write(encoded)

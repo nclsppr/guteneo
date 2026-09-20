@@ -1,6 +1,7 @@
 import { observePrivateFetch } from "../../../packages/observability/src/index";
 import { Container } from "@cloudflare/containers";
 import { handleRequest } from "./handler";
+import { scannerVersionHeader } from "./version-header";
 
 export class ClamAvContainer extends Container<ScannerEnv> {
   defaultPort = 8080;
@@ -14,9 +15,10 @@ export class ClamAvContainer extends Container<ScannerEnv> {
 }
 
 export default {
-  fetch(request: Request, env: ScannerEnv) {
-    return observePrivateFetch(request, env, "scanner", () =>
+  async fetch(request: Request, env: ScannerEnv) {
+    const response = await observePrivateFetch(request, env, "scanner", () =>
       handleRequest(request, env),
     );
+    return scannerVersionHeader(response, env);
   },
 };

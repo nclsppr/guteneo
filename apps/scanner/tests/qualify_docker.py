@@ -1,12 +1,14 @@
 """Run harmless clean-PDF/EICAR qualification against the real local ClamAV image."""
 import hashlib
 import json
+import re
 import subprocess
 import time
 import uuid
 
 NAME = "guteneo-scanner-qa-" + uuid.uuid4().hex[:10]
 IMAGE = "guteneo-scanner:local"
+BUILD_ID = re.compile(r"sha-[a-f0-9]{40}-run-[1-9][0-9]{0,19}-attempt-[1-9][0-9]{0,9}")
 
 
 def clean_pdf(catalog_extra=b""):
@@ -38,12 +40,22 @@ headers = {'Content-Type': 'application/pdf'}
 if sys.argv[3] != 'none': headers['Content-Length'] = sys.argv[3]
 client.request(sys.argv[1], sys.argv[2], body if sys.argv[1] == 'POST' else None, headers)
 response = client.getresponse()
-print(json.dumps({'status': response.status, 'body': json.loads(response.read())}))
+print(json.dumps({'status': response.status, 'body': json.loads(response.read()), 'buildId': response.getheader('x-guteneo-scanner-build-id')}))
 """
     result = subprocess.run(["docker", "exec", "-i", NAME, "python3", "-B", "-c", script, "GET" if body is None else "POST", path, "none" if length is None else str(length)], input=body or b"", capture_output=True, timeout=30)
     if result.returncode:
         raise RuntimeError("Local scanner request unavailable")
     return json.loads(result.stdout)
+
+
+def qualification_build_id(*responses):
+    values = [response.get("buildId") for response in responses]
+    if not values or any(value != values[0] for value in values):
+        raise AssertionError("Local scanner image identity changed")
+    value = values[0]
+    if value is not None and (not isinstance(value, str) or not BUILD_ID.fullmatch(value)):
+        raise AssertionError("Local scanner image identity invalid")
+    return value
 
 
 def main():
@@ -73,13 +85,14 @@ def main():
         positive = request("/scan", eicar)
         assert positive["status"] == 200 and positive["body"]["verdict"] == "infected", positive
         assert positive["body"]["sha256"] == hashlib.sha256(eicar).hexdigest()
+        build_id = qualification_build_id(health, clean, positive)
         assert request("/scan", b"")["status"] == 413
         assert request("/scan", b"x", 10 * 1024 * 1024 + 1)["status"] == 413
         logs = subprocess.run(["docker", "logs", NAME], check=True, capture_output=True)
         assert not logs.stdout and not logs.stderr, "Container emitted logs"
         files = subprocess.run(["docker", "exec", NAME, "find", "/tmp/clamav", "-type", "f"], check=True, capture_output=True)
         assert not files.stdout.strip(), "Temporary scanner files remain"
-        print(json.dumps({"runtime": "local-docker-linux-amd64", "limits": {"memory": "4 GiB", "cpu": 0.5, "internet": False}, "coldReadySeconds": cold, "cleanScanSeconds": duration, "engine": health["body"]["engine"], "cleanPdf": clean["body"], "eicarVerdict": positive["body"]["verdict"], "eicarSha256": positive["body"]["sha256"], "oversizeRejected": True, "emptyRejected": True, "documentLogs": 0, "temporaryFilesRemaining": 0}, indent=2))
+        print(json.dumps({"runtime": "local-docker-linux-amd64", "buildId": build_id, "limits": {"memory": "4 GiB", "cpu": 0.5, "internet": False}, "coldReadySeconds": cold, "cleanScanSeconds": duration, "engine": health["body"]["engine"], "cleanPdf": clean["body"], "eicarVerdict": positive["body"]["verdict"], "eicarSha256": positive["body"]["sha256"], "oversizeRejected": True, "emptyRejected": True, "documentLogs": 0, "temporaryFilesRemaining": 0}, indent=2))
     finally:
         subprocess.run(["docker", "rm", "-f", NAME], capture_output=True)
 
