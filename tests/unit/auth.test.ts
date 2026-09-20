@@ -29,6 +29,7 @@ import {
   type AuthEnv,
 } from "../../apps/api/src/auth";
 import { handleMcp, type McpServices } from "../../apps/api/src/mcp";
+import { recordSuccessfulConnectionTool } from "../../apps/api/src/connection-observations";
 import { DomainService } from "../../packages/domain/src/index";
 
 let mf: Miniflare;
@@ -186,6 +187,348 @@ beforeAll(async () => {
 afterEach(() => vi.restoreAllMocks());
 afterAll(async () => {
   await mf?.dispose();
+});
+
+describe("production connection observations", () => {
+  async function fixture(clientId = `opaque-${crypto.randomUUID()}`) {
+    const flow = await signedBetaLogin();
+    const completed = await flow.complete();
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const browser = await authenticateBrowser(
+      request("/api/connections", "GET", undefined, { Cookie: cookie }),
+      flow.configured,
+    );
+    const headers = { Cookie: cookie, "X-CSRF-Token": browser.csrfToken };
+    const signAccessToken = () =>
+      token(`${origin}/mcp`, {
+        sub: flow.sub,
+        client_id: clientId,
+        client_name: "ChatGPT",
+        scope: "documents:read",
+        "https://guteneo.com/verified_account": true,
+      });
+    let bearer = await signAccessToken();
+    const authorization = () =>
+      request(
+        "/mcp",
+        "POST",
+        {},
+        {
+          Authorization: `Bearer ${bearer}`,
+        },
+      );
+    const connections = async (configured: AuthEnv = flow.configured) => {
+      const response = await handleAuthRoute(
+        request("/api/connections", "GET", undefined, headers),
+        configured,
+      );
+      return (
+        (await response!.json()) as {
+          items: Array<{
+            id: string;
+            client_id: string;
+            status: string;
+            verification: string;
+            last_successful_tool_at: string | null;
+            display_name: string | null;
+            assistant: string | null;
+          }>;
+        }
+      ).items;
+    };
+    const bind = async () => {
+      const response = await handleAuthRoute(
+        request("/api/connections", "POST", { clientId }, headers),
+        flow.configured,
+      );
+      bearer = await signAccessToken();
+      return response;
+    };
+    const services = (): McpServices => ({
+      domain: new DomainService(env.DB, { mode: "production" }),
+      documents: {
+        async importFile() {
+          throw new Error("Not used in this test");
+        },
+        async render() {
+          throw new Error("Not used in this test");
+        },
+      },
+      capabilities: () => ({ mode: "production", liveSendsEnabled: false }),
+    });
+    const rpc = async (
+      method: string,
+      params: unknown = {},
+      dependencies = services(),
+    ) => {
+      const response = await handleMcp(
+        request(
+          "/mcp",
+          "POST",
+          {
+            jsonrpc: "2.0",
+            id: crypto.randomUUID(),
+            method,
+            params,
+          },
+          {
+            Host: "localhost:8787",
+            Authorization: `Bearer ${bearer}`,
+            Accept: "application/json, text/event-stream",
+            "MCP-Protocol-Version": "2025-11-25",
+          },
+        ),
+        flow.configured,
+        dependencies,
+      );
+      const raw = await response.text();
+      const payload =
+        raw.startsWith("event:") || raw.startsWith("data:")
+          ? JSON.parse(
+              raw
+                .split("\n")
+                .find((line) => line.startsWith("data:"))!
+                .slice(5),
+            )
+          : JSON.parse(raw);
+      expect(response.status, JSON.stringify(payload)).toBe(200);
+      return payload;
+    };
+    return {
+      ...flow,
+      browser,
+      headers,
+      get authorization() {
+        return authorization();
+      },
+      connections,
+      bind,
+      services,
+      rpc,
+    };
+  }
+
+  it("verifies only a successful authenticated tool call, without guessing the host or changing authority", async () => {
+    const f = await fixture("chatgpt-looking-id");
+    expect(await f.connections()).toEqual([]);
+    await f.bind();
+    const [initial] = await f.connections();
+    expect(initial).toMatchObject({
+      status: "active",
+      verification: "unverified",
+      last_successful_tool_at: null,
+      display_name: null,
+      assistant: null,
+    });
+    await authenticateMcp(f.authorization, f.configured);
+    await f.rpc("tools/list");
+    expect(await f.connections()).toEqual([initial]);
+    for (const params of [
+      { name: "get_document", arguments: {} },
+      { name: "get_document", arguments: { documentId: crypto.randomUUID() } },
+      {
+        name: "cancel_dispatch",
+        arguments: { dispatchId: crypto.randomUUID() },
+      },
+    ]) {
+      const failed = await f.rpc("tools/call", params);
+      expect(failed.result.isError).toBe(true);
+      expect(await f.connections()).toEqual([initial]);
+    }
+    const connection = await env.DB.prepare(
+      "SELECT * FROM authorized_connections WHERE id=?",
+    )
+      .bind(initial.id)
+      .first();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO expert_approval_policies(connection_id,organization_id,user_id,enabled,revision,channels_json,max_per_dispatch_minor,max_daily_minor,max_daily_count,expires_at,created_at,updated_at) VALUES(?,?,?,1,1,'["fax"]',100,1000,10,?,?,?)`,
+    )
+      .bind(
+        initial.id,
+        f.browser.context.organizationId,
+        f.browser.context.userId,
+        new Date(Date.now() + 3600000).toISOString(),
+        now,
+        now,
+      )
+      .run();
+    const policy = await env.DB.prepare(
+      "SELECT * FROM expert_approval_policies WHERE connection_id=?",
+    )
+      .bind(initial.id)
+      .first();
+    const succeeded = await f.rpc("tools/call", {
+      name: "get_capabilities",
+      arguments: {},
+    });
+    expect(succeeded.result.structuredContent.ok).toBe(true);
+    const [verified] = await f.connections();
+    expect(verified).toMatchObject({
+      ...initial,
+      verification: "verified",
+      last_successful_tool_at: expect.any(String),
+    });
+    expect(new Date(verified.last_successful_tool_at!).toISOString()).toBe(
+      verified.last_successful_tool_at,
+    );
+    expect(
+      await env.DB.prepare("SELECT * FROM authorized_connections WHERE id=?")
+        .bind(initial.id)
+        .first(),
+    ).toEqual(connection);
+    expect(
+      await env.DB.prepare(
+        "SELECT * FROM expert_approval_policies WHERE connection_id=?",
+      )
+        .bind(initial.id)
+        .first(),
+    ).toEqual(policy);
+    expect(await f.connections()).toEqual([verified]);
+    expect(
+      await f.connections({ ...f.configured, MODE: "simulation" }),
+    ).toEqual([{ ...initial }]);
+  });
+
+  it("does not verify invalid tool output and does not make a completed operation fail when evidence storage fails", async () => {
+    const f = await fixture();
+    const dependencies = f.services();
+    vi.spyOn(dependencies.domain, "getDocument").mockResolvedValue({
+      id: crypto.randomUUID(),
+      organization_id: f.browser.context.organizationId,
+      name: "fixture.pdf",
+      sha256: "a".repeat(64),
+      size: 0.5,
+      pages: 1,
+      status: "ready",
+      source: "import",
+      storage_key: "fixture",
+      created_at: new Date().toISOString(),
+    });
+    const invalid = await f.rpc(
+      "tools/call",
+      { name: "get_document", arguments: { documentId: crypto.randomUUID() } },
+      dependencies,
+    );
+    expect(invalid.result.isError).toBe(true);
+    expect((await f.connections())[0].verification).toBe("unverified");
+    const prepare = env.DB.prepare.bind(env.DB);
+    f.configured.DB = new Proxy(env.DB, {
+      get(target, key) {
+        if (key === "prepare")
+          return (query: string) => {
+            if (query.includes("UPDATE connection_tool_observations"))
+              throw new Error("Evidence storage unavailable");
+            return prepare(query);
+          };
+        const value = Reflect.get(target, key);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const succeeded = await f.rpc("tools/call", {
+      name: "get_capabilities",
+      arguments: {},
+    });
+    expect(succeeded.result.structuredContent.ok).toBe(true);
+    expect((await f.connections())[0]).toMatchObject({
+      verification: "unverified",
+      last_successful_tool_at: null,
+    });
+  });
+
+  it("invalidates evidence on reassociation and revocation, including in-flight requests with an old revision", async () => {
+    const f = await fixture();
+    const identity = await authenticateMcp(f.authorization, f.configured);
+    await f.rpc("tools/call", { name: "get_capabilities", arguments: {} });
+    expect((await f.connections())[0].verification).toBe("verified");
+    await f.bind();
+    await recordSuccessfulConnectionTool(f.configured, identity);
+    expect((await f.connections())[0]).toMatchObject({
+      verification: "unverified",
+      last_successful_tool_at: null,
+    });
+    const refreshed = await authenticateMcp(f.authorization, f.configured);
+    const id = refreshed.connectionObservation!.connectionId;
+    const dependencies = f.services();
+    dependencies.capabilities = async () => {
+      // Renewing even at an identical clock instant advances the revision.
+      await env.DB.prepare(
+        "UPDATE authorized_connections SET updated_at=updated_at WHERE id=?",
+      )
+        .bind(id)
+        .run();
+      return { mode: "production" };
+    };
+    expect(
+      (
+        await f.rpc(
+          "tools/call",
+          { name: "get_capabilities", arguments: {} },
+          dependencies,
+        )
+      ).result.structuredContent.ok,
+    ).toBe(true);
+    expect((await f.connections())[0].verification).toBe("unverified");
+    await f.rpc("tools/call", { name: "get_capabilities", arguments: {} });
+    expect((await f.connections())[0].verification).toBe("verified");
+    await handleAuthRoute(
+      request(`/api/connections/${id}`, "DELETE", undefined, f.headers),
+      f.configured,
+    );
+    await recordSuccessfulConnectionTool(f.configured, refreshed);
+    expect((await f.connections())[0]).toMatchObject({
+      status: "revoked",
+      verification: "unverified",
+      last_successful_tool_at: null,
+    });
+    await expect(
+      authenticateMcp(f.authorization, f.configured),
+    ).rejects.toMatchObject({ code: "CONNECTION_REVOKED" });
+  });
+
+  it("keeps evidence tenant scoped and excludes simulated identities and organizations", async () => {
+    const a = await fixture("same-opaque-client");
+    const first = await authenticateMcp(a.authorization, a.configured);
+    const b = await fixture("same-opaque-client");
+    const second = await authenticateMcp(b.authorization, b.configured);
+    await recordSuccessfulConnectionTool(a.configured, {
+      ...first,
+      context: second.context,
+    });
+    await recordSuccessfulConnectionTool(
+      { ...a.configured, MODE: "simulation" },
+      first,
+    );
+    await recordSuccessfulConnectionTool(a.configured, {
+      ...first,
+      connectionObservation: undefined,
+    });
+    expect((await a.connections())[0].verification).toBe("unverified");
+    expect((await b.connections())[0].verification).toBe("unverified");
+    await recordSuccessfulConnectionTool(a.configured, first);
+    expect((await a.connections())[0].verification).toBe("verified");
+    expect((await b.connections())[0].verification).toBe("unverified");
+    await env.DB.prepare(
+      "UPDATE organizations SET mode='simulation' WHERE id=?",
+    )
+      .bind(second.context.organizationId)
+      .run();
+    await recordSuccessfulConnectionTool(b.configured, second);
+    expect((await b.connections())[0].verification).toBe("unverified");
+    const bSnapshot = second.connectionObservation!;
+    await expect(
+      env.DB.prepare(
+        "UPDATE connection_tool_observations SET organization_id=? WHERE connection_id=?",
+      )
+        .bind(first.context.organizationId, bSnapshot.connectionId)
+        .run(),
+    ).rejects.toThrow(/FOREIGN KEY/);
+    expect(
+      (await env.DB.prepare("PRAGMA foreign_key_check").all()).results,
+    ).toEqual([]);
+  });
 });
 
 describe("identity and authentication boundaries", () => {

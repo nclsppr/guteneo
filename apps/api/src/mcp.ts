@@ -19,7 +19,13 @@ import {
   type AssistantRecoveryContext,
 } from "../../../packages/contracts/src/assistant-recovery";
 import { createMcpHandler } from "agents/mcp/server";
-import { McpServer, type CallToolResult } from "@modelcontextprotocol/server";
+import {
+  McpServer,
+  type CallToolResult,
+  type ToolAnnotations,
+  type ToolCallback,
+} from "@modelcontextprotocol/server";
+import { recordSuccessfulConnectionTool } from "./connection-observations";
 import { z } from "zod";
 import { ContentError, LIMITS } from "../../../packages/contracts/src/content";
 import {
@@ -439,6 +445,43 @@ export function createGuteneoMcpServer(
       },
     ],
   });
+  function registerTool<Input extends z.ZodType, Output extends z.ZodType>(
+    name: string,
+    config: {
+      title?: string;
+      description: string;
+      inputSchema: Input;
+      outputSchema: Output;
+      annotations: ToolAnnotations;
+      _meta?: Record<string, unknown>;
+    },
+    callback: (args: z.output<Input>) => Promise<CallToolResult>,
+  ) {
+    const observed = async (args: z.output<Input>): Promise<CallToolResult> => {
+      const result = await callback(args);
+      if (
+        !result.isError &&
+        result.structuredContent !== null &&
+        typeof result.structuredContent === "object" &&
+        "ok" in result.structuredContent &&
+        result.structuredContent.ok === true &&
+        (await config.outputSchema.safeParseAsync(result.structuredContent))
+          .success
+      ) {
+        try {
+          await recordSuccessfulConnectionTool(env, identity);
+        } catch {
+          // Missing evidence stays unverified. An observation failure must not
+          // turn a completed business operation into an error inviting a retry.
+        }
+      }
+      return result;
+    };
+    // This local adapter always supplies a Zod input schema; its parsed output
+    // is the SDK's Standard Schema output. The SDK type is conditional on that
+    // schema, which TypeScript cannot resolve while Input remains generic.
+    return server.registerTool(name, config, observed as ToolCallback<Input>);
+  }
   const run = async <T>(
     scope: string | string[] | null,
     operation: () => Promise<T> | T,
@@ -476,7 +519,7 @@ export function createGuteneoMcpServer(
   if (services.postal) {
     const postal = services.postal;
     if (postal.generateAddressPage)
-      server.registerTool(
+      registerTool(
         "create_postal_address_page",
         {
           description:
@@ -505,7 +548,7 @@ export function createGuteneoMcpServer(
             };
           }),
       );
-    server.registerTool(
+    registerTool(
       "get_postal_requirements",
       {
         description:
@@ -518,7 +561,7 @@ export function createGuteneoMcpServer(
       ({ country }) =>
         run("documents:read", () => postal.requirements(identity, country)),
     );
-    server.registerTool(
+    registerTool(
       "preflight_postal_pdf",
       {
         description:
@@ -535,7 +578,7 @@ export function createGuteneoMcpServer(
           return postal.create(identity, input, idempotencyKey);
         }),
     );
-    server.registerTool(
+    registerTool(
       "get_postal_preflight",
       {
         description:
@@ -549,7 +592,7 @@ export function createGuteneoMcpServer(
         run("documents:read", () => postal.get(identity, preflightId)),
     );
     if (postal.transferExpert)
-      server.registerTool(
+      registerTool(
         "transfer_postal_draft",
         {
           description:
@@ -578,7 +621,7 @@ export function createGuteneoMcpServer(
             () => postal.transferExpert!(identity, preflightId, fingerprint),
           ),
       );
-    server.registerTool(
+    registerTool(
       "quote_postal_draft",
       {
         description:
@@ -599,7 +642,7 @@ export function createGuteneoMcpServer(
         ),
     );
   }
-  server.registerTool(
+  registerTool(
     "get_capabilities",
     {
       description:
@@ -611,7 +654,7 @@ export function createGuteneoMcpServer(
     },
     () => run(null, () => services.capabilities(identity)),
   );
-  server.registerTool(
+  registerTool(
     "get_expert_status",
     {
       title: "Vérifier mon mode expert",
@@ -635,7 +678,7 @@ export function createGuteneoMcpServer(
         }),
       ),
   );
-  server.registerTool(
+  registerTool(
     "import_document",
     {
       description:
@@ -659,7 +702,7 @@ export function createGuteneoMcpServer(
         documentSuccess,
       ),
   );
-  server.registerTool(
+  registerTool(
     "render_pdf",
     {
       description:
@@ -685,7 +728,7 @@ export function createGuteneoMcpServer(
         documentSuccess,
       ),
   );
-  server.registerTool(
+  registerTool(
     "get_document",
     {
       title: "Vérifier un PDF Guteneo",
@@ -710,7 +753,7 @@ export function createGuteneoMcpServer(
       ),
   );
   if (services.documents.rescan)
-    server.registerTool(
+    registerTool(
       "rescan_document",
       {
         title: "Relancer la vérification d’un PDF",
@@ -732,7 +775,7 @@ export function createGuteneoMcpServer(
           documentSuccess,
         ),
     );
-  server.registerTool(
+  registerTool(
     "list_documents",
     {
       title: "Retrouver un PDF déposé",
@@ -770,7 +813,7 @@ export function createGuteneoMcpServer(
         };
       }),
   );
-  server.registerTool(
+  registerTool(
     "prepare_fax",
     {
       title: "Préparer un fax PDF",
@@ -823,7 +866,7 @@ export function createGuteneoMcpServer(
         ),
       ),
   );
-  server.registerTool(
+  registerTool(
     "prepare_dispatch",
     {
       description:
@@ -878,7 +921,7 @@ export function createGuteneoMcpServer(
         ),
       ),
   );
-  server.registerTool(
+  registerTool(
     "read_document_pages",
     {
       title: "Lire les pages du PDF",
@@ -923,7 +966,7 @@ export function createGuteneoMcpServer(
         "read_document_pages",
       ),
   );
-  server.registerTool(
+  registerTool(
     "review_dispatch",
     {
       description:
@@ -1001,7 +1044,7 @@ export function createGuteneoMcpServer(
         },
       ),
   );
-  server.registerTool(
+  registerTool(
     "approve_and_send_dispatch",
     {
       description:
@@ -1040,7 +1083,7 @@ export function createGuteneoMcpServer(
         return dispatchSummary(dispatch, env.APP_ORIGIN);
       }),
   );
-  server.registerTool(
+  registerTool(
     "confirm_dispatch",
     {
       description:
@@ -1066,7 +1109,7 @@ export function createGuteneoMcpServer(
         return dispatchSummary(dispatch, env.APP_ORIGIN);
       }),
   );
-  server.registerTool(
+  registerTool(
     "get_dispatch_status",
     {
       description:
@@ -1089,7 +1132,7 @@ export function createGuteneoMcpServer(
         );
       }),
   );
-  server.registerTool(
+  registerTool(
     "list_dispatches",
     {
       description:
@@ -1126,7 +1169,7 @@ export function createGuteneoMcpServer(
         };
       }),
   );
-  server.registerTool(
+  registerTool(
     "cancel_dispatch",
     {
       description:

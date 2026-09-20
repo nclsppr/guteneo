@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { evidencePath } from "./evidence";
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
@@ -143,7 +144,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   await page.screenshot({
     path: publicApplication
       ? testInfo.outputPath("guide.png")
-      : `reports/screenshots/developers/guide-${testInfo.project.name}.png`,
+      : await evidencePath(`developers/guide-${testInfo.project.name}.png`),
   });
   await context.addCookies([
     { name: "documentation-fixture", value: "not-a-secret", url: page.url() },
@@ -200,6 +201,6 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   await page.screenshot({
     path: publicApplication
       ? testInfo.outputPath("reference.png")
-      : `reports/screenshots/developers/reference-${testInfo.project.name}.png`,
+      : await evidencePath(`developers/reference-${testInfo.project.name}.png`),
   });
 });

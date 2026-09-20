@@ -67,17 +67,23 @@ export function LoadMore<T>({
     </>
   );
 }
-export function useRoute() {
-  const [route, setRoute] = useState(
+function readRoute() {
+  return (
     window.location.hash.slice(1) ||
-      (window.location.pathname.startsWith("/app") ? "/app" : "/"),
+    (window.location.pathname.startsWith("/app") ? "/app" : "/")
   );
+}
+export function useRoute() {
+  const [route, setRoute] = useState(readRoute);
   useEffect(() => {
     const update = () => {
-      setRoute(window.location.hash.slice(1) || "/");
+      setRoute(readRoute());
       window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", update);
+    // A fragment may change after the first render but before this effect.
+    // Catch up after subscribing without changing the initial scroll position.
+    setRoute(readRoute());
     return () => window.removeEventListener("hashchange", update);
   }, []);
   useEffect(() => {

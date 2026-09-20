@@ -9,6 +9,13 @@ const paths = [
   "/journal/histoire-imprimerie-luxembourg/",
   "/mentions-legales/",
   "/developpeurs/",
+  "/assistants/",
+  "/assistants/chatgpt/",
+  "/assistants/claude/",
+  "/assistants/grok/",
+  "/assistants/copilot/",
+  "/assistants/microsoft365/",
+  "/assistants/cursor/",
 ];
 
 test("public routes expose complete initial HTML, metadata and true HTTP statuses", async ({
@@ -33,7 +40,7 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
       primary ? null : "noindex, nofollow",
     );
     expect(html.includes('type="module"')).toBe(
-      ["/", "/developpeurs/"].includes(path),
+      ["/", "/developpeurs/"].includes(path) || path.startsWith("/assistants/"),
     );
     if (path.startsWith("/journal/") && path !== "/journal/") {
       const schemas = [
@@ -74,6 +81,7 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
   for (const path of [
     "/does-not-exist/",
     "/journal/unpublished/",
+    "/assistants/unknown-assistant/",
     "/app",
     "/missing.css",
   ]) {
@@ -85,7 +93,9 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
   const urls = [...(await sitemap.text()).matchAll(/<loc>(.*?)<\/loc>/g)].map(
     (match) => match[1],
   );
-  expect(urls).toEqual(paths.map((path) => `https://guteneo.com${path}`));
+  expect(urls.sort()).toEqual(
+    paths.map((path) => `https://guteneo.com${path}`).sort(),
+  );
   const robots = await request.get("/robots.txt");
   if (new URL(robots.url()).hostname === "guteneo.com") {
     expect(await robots.text()).toContain(

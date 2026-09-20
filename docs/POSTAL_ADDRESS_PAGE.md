@@ -24,7 +24,7 @@ La génération ne transmet aucun document à Pingen et ne crée aucun accord ni
 
 ## Publication et preuves
 
-Cette note décrit une implémentation candidate, pas une publication. La migration 0032 et le moteur privé de documents doivent accompagner l’application au déploiement. Aucun courrier réel ni transfert Pingen ne sert aux tests de cette fonction. La qualification hébergée et l’essai d’une lettre réelle restent distincts des vérifications locales ci-dessous.
+Cette note décrit une implémentation candidate, pas une publication. La migration 0033 et le moteur privé de documents doivent accompagner l’application au déploiement. Aucun courrier réel ni transfert Pingen ne sert aux tests de cette fonction. La qualification hébergée et l’essai d’une lettre réelle restent distincts des vérifications locales ci-dessous.
 
 Sources : [gabarit Pingen](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements), [enveloppes à fenêtre](https://help.pingen.com/en/templates-and-postal-requirements/letter-standards). La génération est interne à Guteneo ; elle ne dépend pas des opérations de correction de PDF de l’API Pingen.
 
@@ -35,7 +35,7 @@ Sources : [gabarit Pingen](https://help.pingen.com/en/templates-and-postal-requi
 - 2 nouveaux tests MCP : droit d’écriture obligatoire, aucun consentement/profil fourni par le client, résultat distinct et absence de clé de stockage privée.
 - 39 parcours navigateur : 18 nouveaux cas et 21 cas de revue postale existants, sur Chromium, Android Chromium et iPhone WebKit, avec inspection des captures et contrôle à 320 px.
 - 148 contrôles de sécurité Node passent, dont le contrat OpenAPI autonome à 26 opérations et les limites d’authentification/exécution.
-- Vérification locale des 32 migrations : 212 objets de schéma identiques après normalisation, `quick_check=ok`, aucune violation de clé étrangère.
+- Vérification locale des 33 migrations : 216 objets de schéma identiques après normalisation, `quick_check=ok`, aucune violation de clé étrangère.
 - Typage, lint, compilation de l’application et compilation du moteur privé sans publication passent.
 
 Les tests du serveur couvrent aussi la concurrence, la reprise des octets déjà produits, le retrait d’accès pendant la génération, le changement de destinataire/mode/profil, la preuve d’analyse manquante et l’absence de dépôt fournisseur. Les preuves locales sont sous `test-results/address-page-*`, les PDF/PNG fictifs sous `test-results/postal-address-page/pdf/` et les captures d’interface sous `reports/screenshots/postal-address-page/`. Les suites générales et la CI de la branche sont suivies séparément dans la proposition de modification.

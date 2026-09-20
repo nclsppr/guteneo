@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
-  EnvelopeSimple,
-  Printer,
+  Check,
+  FileText,
   PaperPlaneTilt,
+  X,
   SquaresFour,
   Files,
   Stack,
@@ -14,7 +15,6 @@ import {
   Wrench,
   Plus,
   SignOut,
-  WarningCircle,
   Receipt,
   List,
 } from "@phosphor-icons/react";
@@ -38,7 +38,6 @@ import {
 import {
   Campaigns,
   CampaignDetail,
-  Connection,
   Senders,
   Usage,
   Admin,
@@ -50,6 +49,11 @@ import { LegalPage } from "./legal-page";
 import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
 import { articles, articlePath } from "./editorial/articles";
+import { GuidedExample } from "./landing-example";
+import { AssistantsPage } from "./assistants-page";
+import { Connection } from "./assistant-workspace";
+import { RememberDirectChoice } from "./assistant-state";
+import "./homepage.css";
 import {
   Installation,
   WelcomePricing,
@@ -61,8 +65,25 @@ import {
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
 export function Landing() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!["how", "installation", "tarifs", "faq"].includes(id)) return;
+    // Restore the fragment target after React replaces the static page,
+    // including keyboard focus on WebKit when arriving from the journal.
+    const frame = requestAnimationFrame(() => {
+      const section = document.getElementById(id);
+      section?.focus({ preventScroll: true });
+      section?.scrollIntoView({ behavior: "instant" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  function closeMenu() {
+    setMenuOpen(false);
+  }
   return (
-    <div className="landing">
+    <div className="landing homepage">
       <a
         className="skip-link"
         href="#landing-main"
@@ -74,18 +95,21 @@ export function Landing() {
       >
         {t.skip}
       </a>
-      <header className="site-header">
+      <header
+        className="site-header"
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) {
+            closeMenu();
+            menuButton.current?.focus();
+          }
+        }}
+      >
         <Brand />
         <nav aria-label="Navigation principale">
           <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
             {t.landing.navHow}
           </a>
-          <a
-            href="#installation"
-            onClick={(event) => scrollToSection(event, "installation")}
-          >
-            {t.homepage.navInstallation}
-          </a>
+          <a href="/assistants/">Assistants</a>
           <a
             href="#tarifs"
             onClick={(event) => scrollToSection(event, "tarifs")}
@@ -97,97 +121,136 @@ export function Landing() {
             <ArrowUpRight size={16} />
           </a>
         </nav>
+        <button
+          ref={menuButton}
+          className="mobile-menu-toggle"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? (
+            <X size={19} aria-hidden="true" />
+          ) : (
+            <List size={19} aria-hidden="true" />
+          )}
+          Menu
+        </button>
+        <nav
+          id="mobile-navigation"
+          className="mobile-navigation"
+          aria-label="Navigation mobile"
+          hidden={!menuOpen}
+        >
+          {[
+            ["how", t.landing.navHow],
+            ["tarifs", t.homepage.navPricing],
+          ].map(([id, label]) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              onClick={(event) => {
+                closeMenu();
+                scrollToSection(event, id);
+              }}
+            >
+              {label}
+              <ArrowRight size={17} aria-hidden="true" />
+            </a>
+          ))}
+          <a href="/assistants/" onClick={closeMenu}>
+            Assistants <ArrowRight size={17} aria-hidden="true" />
+          </a>
+          <a href="#/app" onClick={closeMenu}>
+            {publicPreview ? "Explorer la démo" : t.landing.navApp}
+            <ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+        </nav>
       </header>
       <main id="landing-main" tabIndex={-1}>
         <section className="hero">
           <div className="hero-copy">
-            <p className="eyebrow">{t.landing.eyebrow}</p>
             <h1>
               {t.landing.title}
               <br />
               <em>{t.landing.titleItalic}</em>
             </h1>
             <p className="hero-intro">{t.landing.intro}</p>
-            <a className="button primary" href="#/app">
-              {publicPreview ? "Découvrir l’atelier" : t.landing.cta}
-              <ArrowUpRight size={20} />
-            </a>
-            {publicPreview && (
-              <p className="preview-caption">
-                Aperçu interactif · Sans inscription · Aucun envoi réel
-              </p>
-            )}
+            <div className="hero-actions">
+              <a
+                className="button primary"
+                href="#installation"
+                onClick={(event) => scrollToSection(event, "installation")}
+              >
+                {t.landing.cta}
+                <ArrowRight size={19} aria-hidden="true" />
+              </a>
+              <a
+                className="text-link"
+                href="#how"
+                onClick={(event) => scrollToSection(event, "how")}
+              >
+                {t.landing.secondary}
+              </a>
+            </div>
+            <p className="hero-channels">
+              Fax <span aria-hidden="true">·</span> E-mail{" "}
+              <span aria-hidden="true">·</span> Courrier postal
+            </p>
           </div>
           <div className="hero-art">
             <img
-              src="/press-halftone.webp"
+              src="/press-halftone-transparent.webp"
+              srcSet="/press-halftone-transparent-640.webp 640w, /press-halftone-transparent.webp 1200w"
+              sizes="(max-width: 767px) 90vw, 48vw"
               alt={t.landing.imageAlt}
               width="1200"
               height="1200"
               fetchPriority="high"
             />
+            <div className="hero-dispatch-note" aria-label="Bon d’envoi fictif">
+              <p className="dispatch-note-label">
+                Bon d’envoi <span>Exemple</span>
+              </p>
+              <p className="dispatch-note-document">
+                <FileText size={18} aria-hidden="true" />
+                Correspondance.pdf <span>2 pages</span>
+              </p>
+              <dl>
+                <div>
+                  <dt>Pour</dt>
+                  <dd>
+                    Maison Exemple <small>(fictif)</small>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Canal</dt>
+                  <dd>Fax</dd>
+                </div>
+                <div>
+                  <dt>Plafond</dt>
+                  <dd>
+                    0,20 € <small>(exemple)</small>
+                  </dd>
+                </div>
+              </dl>
+              <p className="dispatch-note-status">
+                <Check size={16} aria-hidden="true" />À vérifier avant l’envoi
+              </p>
+            </div>
           </div>
         </section>
         <p className="hero-caption">{t.landing.caption}</p>
-        <section className="process" id="how" tabIndex={-1}>
-          <div className="section-heading">
-            <h2>
-              {t.landing.processTitle}
-              <br />
-              <em>{t.landing.processTitleItalic}</em>
-            </h2>
-            <p>{t.landing.processIntro}</p>
-          </div>
-          <div className="process-steps">
-            {t.landing.steps.map((step, index) => (
-              <article key={step.title}>
-                <span className="step-number" aria-hidden="true">
-                  0{index + 1}
-                </span>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        <GuidedExample />
         <Installation />
-        <section className="channel-section" id="channels">
-          <h2>
-            {t.landing.channelsTitle}
-            <br />
-            <em>{t.landing.channelsItalic}</em>
-          </h2>
-          <div className="channel-list">
-            {(["fax", "email", "postal"] as const).map((channel) => {
-              const Icon =
-                channel === "fax"
-                  ? Printer
-                  : channel === "email"
-                    ? EnvelopeSimple
-                    : PaperPlaneTilt;
-              return (
-                <article key={channel}>
-                  <Icon size={34} weight="light" aria-hidden="true" />
-                  <div>
-                    <h3>{t.channels[channel]}</h3>
-                    <p>{t.landing.channelText[channel]}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
         <WelcomePricing />
         <FrequentlyAsked />
         <JournalTeaser />
-        <aside className="landing-note">
-          <WarningCircle size={21} aria-hidden="true" />
-          <p>
-            {publicPreview
-              ? t.landing.note
-              : "Guteneo ouvre progressivement ses services. Les envois payants seront disponibles après la vérification des expéditeurs, des tarifs et de votre accord."}
+        {publicPreview && (
+          <p className="homepage-preview-note">
+            Aperçu interactif · Sans inscription · Aucun envoi réel
           </p>
-        </aside>
+        )}
       </main>
       <LuxembourgFooter />
     </div>
@@ -298,7 +361,7 @@ function Login({
               )}
               {registrationAvailable ? (
                 <a
-                  href={`/auth/signup?returnTo=${encodeURIComponent("/#/app")}`}
+                  href={`/auth/signup?returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
                   className="button primary"
                 >
                   Créer mon compte
@@ -334,10 +397,10 @@ function Login({
 
 const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
+  { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
-  { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "senders", path: "/app/senders", Icon: UserCircle },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
   { id: "billing", path: "/app/billing", Icon: Receipt },
@@ -346,6 +409,11 @@ const navigation = [
 ] as const;
 
 export function App() {
+  const publicPath = window.location.pathname;
+  if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
+    return (
+      <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
+    );
   if (window.location.pathname === "/developpeurs/") return <DeveloperPage />;
   return <WorkspaceApplication />;
 }
@@ -429,12 +497,17 @@ function WorkspaceApplication() {
   if (page === "/app/documents") content = <Documents />;
   else if (page === "/app/prepare")
     content = (
-      <PrepareDispatch
-        simulation={session.simulation}
-        initialDocument={
-          new URLSearchParams(route.split("?")[1]).get("document") ?? ""
-        }
-      />
+      <>
+        {new URLSearchParams(route.split("?")[1]).get("entry") === "direct" && (
+          <RememberDirectChoice session={session} />
+        )}
+        <PrepareDispatch
+          simulation={session.simulation}
+          initialDocument={
+            new URLSearchParams(route.split("?")[1]).get("document") ?? ""
+          }
+        />
+      </>
     );
   else if (page.startsWith("/app/postal/"))
     content = (
@@ -451,7 +524,15 @@ function WorkspaceApplication() {
   else if (page === "/app/campaigns") content = <Campaigns />;
   else if (page.startsWith("/app/campaign/"))
     content = <CampaignDetail id={page.slice("/app/campaign/".length)} />;
-  else if (page === "/app/connection") content = <Connection />;
+  else if (page === "/app/connection" || page.startsWith("/app/connection/"))
+    content = (
+      <Connection
+        session={session}
+        assistantId={
+          page.slice("/app/connection/".length).replace(/\/$/, "") || undefined
+        }
+      />
+    );
   else if (page === "/app/senders") content = <Senders />;
   else if (page === "/app/usage") content = <Usage />;
   else if (page === "/app/billing") content = <Billing session={session} />;
@@ -463,7 +544,7 @@ function WorkspaceApplication() {
         <TeamAdmin session={session} onUpdated={refreshSession} />
       </Admin>
     );
-  else content = <Overview />;
+  else content = <Overview session={session} />;
   const logout = async () => {
     setLogoutError(undefined);
     try {
@@ -544,6 +625,8 @@ function WorkspaceApplication() {
                   }}
                   aria-current={
                     page === path ||
+                    (id === "connection" &&
+                      page.startsWith("/app/connection/")) ||
                     (id === "dispatches" &&
                       (page.startsWith("/app/dispatch/") ||
                         page === "/app/prepare" ||
@@ -601,9 +684,11 @@ function WorkspaceApplication() {
                   page.startsWith("/app/dispatch/") ||
                   page.startsWith("/app/postal/")
                     ? "dispatches"
-                    : page.startsWith("/app/campaign/")
-                      ? "campaigns"
-                      : "overview")
+                    : page.startsWith("/app/connection/")
+                      ? "connection"
+                      : page.startsWith("/app/campaign/")
+                        ? "campaigns"
+                        : "overview")
               ]
             }
           </span>

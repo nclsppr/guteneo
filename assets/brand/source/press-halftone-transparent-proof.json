@@ -1,0 +1,83 @@
+{
+  "createdOn": "2026-09-20",
+  "tool": "built-in image_gen",
+  "useCase": "background-extraction",
+  "sourcePreserved": true,
+  "generatedSource": "/Users/nclsppr/.codex/generated_images/01a0c045-c4c7-7f83-88f6-4dc8ce8140f0/exec-a35fb360-b718-4433-bf5e-b9f1f5ff05f3.png",
+  "processing": "Image generation performed all extraction. Sharp only resized, encoded WebP and flattened inspection composites; alpha and colors were not manually edited.",
+  "qaBackgrounds": [
+    "#f6f5ef",
+    "#ffffff",
+    "#172033"
+  ],
+  "files": [
+    {
+      "path": "apps/web/public/press-halftone.webp",
+      "role": "unchanged-original",
+      "sha256": "1e86ef2a0c8fb02d22f8adbce19b46ca38ab3a0a5f0cbe5b8c8db2e1cb5d47d8",
+      "bytes": 410048,
+      "format": "webp",
+      "width": 1200,
+      "height": 1200,
+      "hasAlpha": false,
+      "alpha": {
+        "transparent": 0,
+        "partial": 0,
+        "opaque": 1440000,
+        "nearlyOpaque": 1440000,
+        "total": 1440000
+      }
+    },
+    {
+      "path": "assets/brand/source/press-halftone-transparent-master.png",
+      "role": "imagegen-master",
+      "sha256": "1c6378e141c2ea80b43939bfd9b67e7dd8253fe26e554b87b0183397f4085475",
+      "bytes": 2430928,
+      "format": "png",
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "alpha": {
+        "transparent": 699302,
+        "partial": 870728,
+        "opaque": 2486,
+        "nearlyOpaque": 827942,
+        "total": 1572516
+      }
+    },
+    {
+      "path": "apps/web/public/press-halftone-transparent.webp",
+      "role": "responsive-web-export",
+      "sha256": "92f97c4fff0635db938b913473291ec1e59353d156f5d8f395ed7aef5eb06c1d",
+      "bytes": 501584,
+      "format": "webp",
+      "width": 1200,
+      "height": 1200,
+      "hasAlpha": true,
+      "alpha": {
+        "transparent": 640034,
+        "partial": 796240,
+        "opaque": 3726,
+        "nearlyOpaque": 757723,
+        "total": 1440000
+      }
+    },
+    {
+      "path": "apps/web/public/press-halftone-transparent-640.webp",
+      "role": "responsive-web-export",
+      "sha256": "845e48121cd613fded63510b48a31dc30d8221c81d44c1b712e3aab69eccf7e0",
+      "bytes": 153662,
+      "format": "webp",
+      "width": 640,
+      "height": 640,
+      "hasAlpha": true,
+      "alpha": {
+        "transparent": 181359,
+        "partial": 225151,
+        "opaque": 3090,
+        "nearlyOpaque": 214867,
+        "total": 409600
+      }
+    }
+  ]
+}
