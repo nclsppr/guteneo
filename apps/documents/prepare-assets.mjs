@@ -11,6 +11,7 @@ for (const [name, source] of [
   ["pdf", scripts.pdf],
   ["pdf.worker", scripts.worker],
   ["standard-fonts", scripts.fonts],
+  ["address-font", scripts.addressFont],
 ]) {
   await writeFile(new URL(`${name}.txt`, output), source);
 }

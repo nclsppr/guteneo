@@ -1,5 +1,7 @@
 # Execution plan and handoff
 
+Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
+
 20 September: postal setup is published for every existing and future account
 through its authenticated browser administrator. PR #18's merged source
 `ef417c7f187bd11e327881b2127eae653288ac58` passed CI and public asset/capability

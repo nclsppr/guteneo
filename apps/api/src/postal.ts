@@ -25,9 +25,15 @@ import { preparePostalDraft } from "./live-providers";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
+import { postalAddressLines } from "../../../packages/contracts/src/postal-address-page";
+import {
+  addressPageForDocument,
+  addressPageProvenance,
+  assertAddressPageBinding,
+} from "./postal-address-page-binding";
 import { postalAddressGuidance } from "../../../packages/contracts/src/postal-requirements";
 
-type Profile = {
+export type PostalProfile = {
   accountId: string;
   environment: "production" | "sandbox";
   defaultCountry: string;
@@ -145,18 +151,9 @@ function sqlFailure(failure: unknown): never {
 }
 function expectedAddress(
   recipient: PostalReviewInput["recipient"],
-  profile: Profile,
+  profile: PostalProfile,
 ) {
-  const lines = [
-    recipient.name,
-    recipient.line1,
-    `${recipient.postalCode} ${recipient.city}`,
-  ];
-  if (recipient.country !== profile.defaultCountry)
-    lines.push(
-      { FR: "FRANCE", LU: "LUXEMBOURG", DE: "GERMANY" }[recipient.country],
-    );
-  return lines.join("\n");
+  return postalAddressLines(recipient, profile.defaultCountry).join("\n");
 }
 const normalized = (value: string) =>
   value
@@ -206,7 +203,7 @@ export class PostalService {
   async requirements(authority: PostalAuthority, country: "FR" | "LU" | "DE") {
     z.enum(["FR", "LU", "DE"]).parse(country);
     await authority.assertCurrent();
-    const profile = await this.profile();
+    const profile = await this.qualifiedProfile();
     let layout;
     try {
       layout = pingenLayout({
@@ -259,7 +256,7 @@ export class PostalService {
     };
   }
 
-  private async profile(): Promise<Profile> {
+  async qualifiedProfile(): Promise<PostalProfile> {
     if (
       this.env.MODE !== "production" ||
       !["production", "staging"].includes(this.env.ENVIRONMENT) ||
@@ -296,7 +293,7 @@ export class PostalService {
     };
   }
 
-  private async exactDocument(organizationId: string, documentId: string) {
+  async exactDocument(organizationId: string, documentId: string) {
     const document = await this.env.DB.prepare(
       "SELECT * FROM documents WHERE organization_id=? AND id=? AND status='ready' AND pages>0 AND size<=?",
     )
@@ -358,7 +355,18 @@ export class PostalService {
         row.sender_address
     )
       error("POSTAL_PREFLIGHT_STALE");
-    if (profile && canonicalJson(await this.profile()) !== row.profile_json)
+    await assertAddressPageBinding(this.env.DB, {
+      organizationId: row.organization_id,
+      documentId: row.document_id,
+      sha256: row.document_sha256,
+      recipient: JSON.parse(row.recipient_json),
+      printMode: JSON.parse(row.options_json).printMode,
+      profile: JSON.parse(row.profile_json),
+    });
+    if (
+      profile &&
+      canonicalJson(await this.qualifiedProfile()) !== row.profile_json
+    )
       error("POSTAL_PROFILE_CHANGED");
     await authority.assertCurrent();
     return exact;
@@ -381,6 +389,11 @@ export class PostalService {
       authority.context,
       row.document_id,
     );
+    const addressPage = await addressPageForDocument(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     const report = this.report(row);
     const superseded = this.superseded(row, report);
     const timedOut =
@@ -396,6 +409,9 @@ export class PostalService {
     return {
       id: row.id,
       fingerprint: row.request_hash,
+      ...(addressPage?.generated_document_id
+        ? { addressPage: addressPageProvenance(addressPage) }
+        : {}),
       status: superseded ? "blocked" : timedOut ? "failed" : row.status,
       document: {
         id: document.id,
@@ -525,7 +541,15 @@ export class PostalService {
       authority.context.organizationId,
       input.senderId,
     );
-    const profile = await this.profile();
+    const profile = await this.qualifiedProfile();
+    await assertAddressPageBinding(this.env.DB, {
+      organizationId: authority.context.organizationId,
+      documentId: document.id,
+      sha256: document.sha256,
+      recipient: input.recipient,
+      printMode: input.options.printMode,
+      profile,
+    });
     const options = {
       ...input.options,
       addressPosition: profile.addressPosition,

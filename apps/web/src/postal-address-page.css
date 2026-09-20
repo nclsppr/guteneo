@@ -1,0 +1,46 @@
+.postal-address-choice {
+  margin-block: 0 1.5rem;
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--line);
+  min-width: 0;
+}
+.postal-address-choice legend {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding-top: 1rem;
+}
+.postal-address-choice label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  cursor: pointer;
+  line-height: 1.45;
+}
+.postal-address-choice input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--blue);
+}
+.postal-address-choice .field-hint {
+  margin-block: 0.75rem 0;
+}
+.postal-generated-summary {
+  margin-bottom: 1.25rem;
+  overflow-wrap: anywhere;
+}
+.postal-generated-status {
+  margin-bottom: 1.5rem;
+}
+.postal-generated-status .button {
+  margin-top: 0.75rem;
+}
+.prepare-fields {
+  min-width: 0;
+}
+.postal-generated-empty {
+  padding: 1.5rem;
+  text-align: center;
+}

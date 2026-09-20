@@ -1,5 +1,11 @@
 # Executed verification — 2026-09-17
 
+## Optional postal address page — candidate, 20 September 2026
+
+The browser and MCP explicitly create a separate immutable PDF with a fixed address page; duplex adds a blank verso to preserve original page pairs. The new PDF is scanned and enters the existing exact-document review, quote and approval flow. The source is preserved and no supplier upload is performed by generation. See [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md) for the implementation, migration and proof boundaries.
+
+Focused local evidence: **17 renderer tests** (five real Chromium/PDF.js cases with unchanged original raster hashes), **18 new backend tests plus 74 existing document/domain/postal cases**, **two new MCP tests**, **39 browser cases** on desktop/Android/iPhone, **148 Node security checks**, typecheck, lint and both application/private-document Worker builds. The migration transport verifies **32 migrations / 212 schema objects**, clean integrity and no foreign-key violations. Backend tests include authority revocation, tenant isolation, idempotent retries, immutable provenance, final scan recovery and changed recipient/options/profile refusal. No merge, production deployment or real letter is a consequence of this candidate. General-suite and exact-commit CI results are tracked in its pull request.
+
 ## Public HTTPS PDF imports — local candidate
 
 Branch `fix/public-pdf-import`, based on `649c079`. The provider-domain allowlist

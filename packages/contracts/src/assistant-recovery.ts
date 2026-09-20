@@ -192,6 +192,14 @@ export function assistantRecovery(
       message:
         "Arrêtez cette revue et contactez l’assistance : l’intégrité du PDF ou sa preuve de vérification doit être rétablie avant toute approbation. Changer de format ou ouvrir le site ne résout pas ce blocage.",
     };
+  if (code.startsWith("POSTAL_ADDRESS_PAGE_"))
+    return {
+      action: "check_document",
+      tool: "get_document",
+      retry: "after_change",
+      message:
+        "Conservez le PDF source et la clé de génération. Si un nouveau document a été retourné, consultez sa vérification sans régénérer. Après une interruption temporaire, reprenez create_postal_address_page avec exactement la même clé et les mêmes paramètres. Une adresse, un format ou une limite refusés doivent être corrigés explicitement avec la personne avant une nouvelle demande ; ne tronquez pas l’adresse et ne créez aucun envoi pour contourner ce refus.",
+    };
   if (
     [
       "INVALID_PDF",

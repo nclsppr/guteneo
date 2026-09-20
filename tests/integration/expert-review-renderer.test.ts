@@ -94,7 +94,7 @@ async function run(
   pageCount = 3,
   engine = launch,
   deadlineMs?: number,
-  resources = scripts,
+  resources: Pick<typeof scripts, "pdf" | "worker" | "fonts"> = scripts,
 ) {
   const hash = (await validatePdf(bytes)).sha256;
   const response = await handleExpertReviewPages(

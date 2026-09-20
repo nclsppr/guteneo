@@ -1,5 +1,7 @@
 # Guteneo product contract
 
+Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
+
 20 September postal opening: every existing or future verified account can use
 the authenticated administrator setup in **Expéditeurs**. It records the sender's
 declared authority, not physical-address verification, and installs account-bound

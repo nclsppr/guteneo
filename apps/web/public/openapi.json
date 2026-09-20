@@ -66,11 +66,11 @@
               }
             }
           },
-          "503": {
-            "$ref": "#/components/responses/Error503"
-          },
           "500": {
             "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
           }
         }
       }
@@ -103,11 +103,11 @@
               }
             }
           },
-          "503": {
-            "$ref": "#/components/responses/Error503"
-          },
           "500": {
             "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
           }
         }
       }
@@ -440,6 +440,9 @@
           "413": {
             "$ref": "#/components/responses/Error413"
           },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          },
           "429": {
             "$ref": "#/components/responses/Error429"
           },
@@ -448,9 +451,6 @@
           },
           "503": {
             "$ref": "#/components/responses/Error503"
-          },
-          "423": {
-            "$ref": "#/components/responses/Error423"
           }
         },
         "parameters": [
@@ -512,6 +512,9 @@
           "413": {
             "$ref": "#/components/responses/Error413"
           },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          },
           "429": {
             "$ref": "#/components/responses/Error429"
           },
@@ -520,9 +523,6 @@
           },
           "503": {
             "$ref": "#/components/responses/Error503"
-          },
-          "423": {
-            "$ref": "#/components/responses/Error423"
           }
         },
         "parameters": [
@@ -1835,6 +1835,124 @@
             "$ref": "#/components/parameters/Id"
           }
         ]
+      }
+    },
+    "/api/postal/address-pages": {
+      "post": {
+        "operationId": "createPostalAddressPage",
+        "tags": [
+          "Courrier"
+        ],
+        "summary": "Ajouter une page d’adresse au PDF",
+        "description": "Action explicite : conserve le PDF original et crée un nouveau PDF contenant une page d’adresse placée selon le profil Pingen courant. En recto verso, ajoute aussi un verso blanc pour préserver les paires de pages originales. L’adresse est fournie par le client ; aucune adresse ni existence de destinataire n’est devinée. Le source doit être ready et vérifié dans ce compte. Le PDF final est de nouveau analysé : attendre document.status=ready, lire toutes ses pages puis utiliser son identifiant dans /api/postal/preflights. Les pages ajoutées sont incluses dans le devis final, sans tarif fourni par le client. Même clé et même demande reprennent la génération ; une clé réutilisée avec d’autres données est un conflit. Aucun PDF n’est transféré à Pingen, aucun consentement ni envoi n’est créé. Maximum final : 100 pages et 8 000 000 octets. Consomme les quotas de génération et stockage existants.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write"
+            ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store : document et adresse privés."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalAddressPageResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "422": {
+            "description": "Le document source ou l’adresse ne peut pas être imprimé selon les règles postales. Corriger la demande sans tronquer une adresse.",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "504": {
+            "description": "Le moteur privé n’a pas répondu à temps. Reprendre la même demande et sa clé, sans nouvel envoi.",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostalAddressPageInput"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -3535,6 +3653,9 @@
               "expertEligibilityEvaluated",
               "requiresVisualReview"
             ]
+          },
+          "addressPage": {
+            "$ref": "#/components/schemas/PostalAddressPageProvenance"
           }
         }
       },
@@ -4603,6 +4724,204 @@
           "nextAction",
           "retryAfterSeconds"
         ]
+      },
+      "PostalAddressPageInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "documentId",
+          "recipient",
+          "printMode"
+        ],
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Identifiant du PDF original vérifié. Un PDF déjà pourvu d’une page d’adresse Guteneo ne peut pas servir de source."
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "printMode": {
+            "type": "string",
+            "enum": [
+              "simplex",
+              "duplex"
+            ]
+          }
+        }
+      },
+      "PostalAddressPageProvenance": {
+        "type": "object",
+        "description": "Lien immuable entre l’original et le nouveau PDF final. Le destinataire, le profil et le mode d’impression restent liés au document généré.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceDocumentId": {
+            "type": "string"
+          },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "generatedDocumentId": {
+            "type": "string"
+          },
+          "generatedSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PostalRecipient"
+          },
+          "printMode": {
+            "type": "string",
+            "enum": [
+              "simplex",
+              "duplex"
+            ]
+          },
+          "addedPages": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Une page d’adresse en simplex ; page d’adresse et verso blanc en duplex."
+          },
+          "version": {
+            "type": "string",
+            "enum": [
+              "postal-address-page-2026-09-20-v1"
+            ]
+          },
+          "addressMode": {
+            "type": "string",
+            "enum": [
+              "generated_address_page"
+            ]
+          },
+          "profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "defaultCountry",
+              "addressPosition",
+              "version"
+            ],
+            "properties": {
+              "defaultCountry": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "addressPosition": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "sourceDocumentId",
+          "sourceSha256",
+          "generatedDocumentId",
+          "generatedSha256",
+          "addressMode",
+          "recipient",
+          "printMode",
+          "profile",
+          "addedPages"
+        ]
+      },
+      "PostalAddressPageResult": {
+        "type": "object",
+        "required": [
+          "document",
+          "provenance",
+          "canSend"
+        ],
+        "properties": {
+          "document": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "sha256",
+              "size",
+              "pages",
+              "status",
+              "source",
+              "created_at",
+              "analysis"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "quarantined",
+                  "rejected",
+                  "purged"
+                ]
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "import",
+                  "render"
+                ]
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "analysis": {
+                "$ref": "#/components/schemas/DocumentAnalysis"
+              }
+            }
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/PostalAddressPageProvenance"
+          },
+          "canSend": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "additionalProperties": false
       }
     },
     "responses": {

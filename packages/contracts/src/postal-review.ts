@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PostalAddressPageProvenance } from "./postal-address-page";
 
 export const postalReviewInputSchema = z
   .object({
@@ -26,6 +27,7 @@ export const postalReviewInputSchema = z
 export type PostalReviewInput = z.infer<typeof postalReviewInputSchema>;
 export type PostalReview = {
   id: string;
+  addressPage?: PostalAddressPageProvenance;
   /** Exact preflight reviewed by a delegated assistant; absent in historical previews. */
   fingerprint?: string;
   status: "processing" | "review_required" | "blocked" | "failed";

@@ -364,6 +364,9 @@ export class DomainService {
       storageKey: string;
       scanVerified?: boolean;
     },
+    authority?: {
+      sql(): { condition: string; values: (string | number | null)[] };
+    },
   ): Promise<DocumentRecord> {
     writable(ctx);
     await this.organization(ctx);
@@ -389,9 +392,10 @@ export class DomainService {
         409,
       );
     const id = input.id ?? uid("doc");
-    const registered = await this.db
+    const fence = authority?.sql();
+    const insert = this.db
       .prepare(
-        "INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,sha256) WHERE status<>'purged' DO UPDATE SET status=documents.status RETURNING *",
+        `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT(organization_id,sha256) WHERE status<>'purged' DO UPDATE SET status=documents.status RETURNING *`,
       )
       .bind(
         id,
@@ -404,26 +408,40 @@ export class DomainService {
         input.source,
         input.storageKey,
         this.time(),
-      )
-      .first<DocumentRecord>();
+        ...(fence?.values ?? []),
+      );
+    // Registration, promotion and exact scan evidence commit together. A retry
+    // cannot discover a ready document left between insertion and its proof.
+    const statements = [insert];
+    if (input.scanVerified && input.status === "ready") {
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND status='quarantined' AND pages=0 AND ${fence?.condition ?? "1=1"}`,
+          )
+          .bind(
+            input.pages,
+            ctx.organizationId,
+            input.sha256,
+            ...(fence?.values ?? []),
+          ),
+        this.audit(
+          ctx,
+          "document.scan_verified",
+          input.sha256,
+          { pages: input.pages },
+          fence,
+        ),
+      );
+    }
+    const results = await this.db.batch<DocumentRecord>(statements);
+    const registered = results[0].results[0];
     if (!registered)
       throw new DomainError(
         "DOCUMENT_UNAVAILABLE",
         "Document indisponible.",
         409,
       );
-    if (input.scanVerified && input.status === "ready") {
-      await this.db.batch([
-        this.db
-          .prepare(
-            "UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND id=? AND status='quarantined' AND pages=0",
-          )
-          .bind(input.pages, ctx.organizationId, registered.id),
-        this.audit(ctx, "document.scan_verified", input.sha256, {
-          pages: input.pages,
-        }),
-      ]);
-    }
     return (await this.db
       .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
       .bind(ctx.organizationId, registered.id)

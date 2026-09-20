@@ -1,5 +1,7 @@
 # Référence développeurs — 17 septembre 2026
 
+Candidat du 20 septembre : `POST /api/postal/address-pages` et `create_postal_address_page` ajoutent explicitement une page d’adresse dans un nouveau PDF, avec conservation de l’original, analyse du résultat, idempotence et aucune transmission à Pingen. Voir [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md) pour les contrats et la publication encore distincte.
+
 Release `118ce087` publishes an optional customer-only `faxPricing` projection in REST/MCP results: estimated range in nanoEUR, firm cap in centimes, frozen FX and a separate settlement status. Existing `estimated_minor` is not a final usage charge. Supplier cost projections are removed from public dispatch responses; private accounting is unchanged. These additions have no public price-write or settlement endpoint. The publication is recorded in [LIVE_RELEASE.md](LIVE_RELEASE.md); sending remains disabled and no active fax v3 tariff is installed.
 
 La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat REST de la bêta, pas une ouverture commerciale. Le domaine canonique sert l’application ; seule la démonstration séparée sur `guteneo-preview.nclsppr.workers.dev` refuse ses routes API avec `403 PREVIEW_ONLY`. Vérifier les capacités et la release réellement servies avant d’utiliser un nouveau parcours. Un compte, un crédit promotionnel ou des identifiants fournisseur ne prouvent ni un transport activé ni un test réel d’assistant.

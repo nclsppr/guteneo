@@ -12,6 +12,7 @@ import {
 } from "./components";
 import "./postal-review.css";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
+import { PostalAddressPageSummary } from "./postal-address-page";
 
 const issueLabels: Record<string, string> = {
   POSTAL_CORNER_CONTENT:
@@ -273,6 +274,12 @@ export function PostalReviewPage({ id }: { id: string }) {
                 aria-labelledby="postal-document-title"
               >
                 <h2 id="postal-document-title">Le PDF à imprimer</h2>
+                {review.addressPage && (
+                  <PostalAddressPageSummary
+                    document={review.document}
+                    provenance={review.addressPage}
+                  />
+                )}
                 <p className="postal-document-name">{review.document.name}</p>
                 <PdfPreview id={review.document.id} />
                 <p className="field-hint">
@@ -292,11 +299,15 @@ export function PostalReviewPage({ id }: { id: string }) {
               >
                 <h2 id="postal-address-title">La fenêtre de l’enveloppe</h2>
                 <p>
-                  L’adresse doit être imprimée dans le PDF, côté{" "}
+                  {review.addressPage
+                    ? "La page d’adresse générée place le destinataire côté "
+                    : "L’adresse doit être imprimée dans le PDF, côté "}
                   {review.options.addressPosition === "left"
                     ? "gauche"
                     : "droit"}
-                  . Guteneo ne la déplace pas.
+                  {review.addressPage
+                    ? ", à la position fixe de la fenêtre de l’enveloppe."
+                    : ". Guteneo ne la déplace pas."}
                 </p>
                 {hasCrop ? (
                   <figure className="postal-address-crop">
