@@ -2,7 +2,7 @@
 
 Dossier préparé le **17 septembre 2026**, sélection de soumission revue le **21 septembre 2026**. Ce plan ne constitue pas un résultat de test. **Aucun cas ci-dessous n’a été exécuté avec un compte reviewer pendant la préparation ou la reprise du dossier.** Les preuves antérieures sont distinguées dans [CHATGPT_MARKETPLACE.md](../../docs/CHATGPT_MARKETPLACE.md).
 
-La [soumission finale OpenAI](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission) exige **exactement cinq cas positifs et trois négatifs**. Reporter seulement **P1, P2, P3, P5, P6 / N1, N2, N4** dans les champs du portail après exécution. Les identifiants conservés permettent de rapprocher les anciennes notes sans les transformer en résultats.
+La [soumission finale OpenAI](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission) exige **exactement cinq cas positifs et trois négatifs**. Le formulaire observé le 21 septembre précise que les cas négatifs sont des prompts où le plugin ne doit pas être appelé. Reporter seulement **P1, P2, P3, P5, P6 / R1, R2, R3** dans les champs du portail après exécution. Les anciens N1, N2 et N4 restent des contrôles internes d’autorisation et d’isolation. Les identifiants conservés permettent de rapprocher les anciennes notes sans les transformer en résultats.
 
 ## Compte et données de recette
 
@@ -22,7 +22,17 @@ Le compte reviewer doit permettre les fonctionnalités effectivement soumises. U
 | P5  | Fournir le numéro de recette autorisé et le plafond : « Prépare un fax de ce PDF vers ce numéro, avec ce plafond. Présente le devis et ne l’envoie pas. » | `prepare_fax`, document prêt, E.164 et plafond explicites. Préparation seulement. Montrer fourchette HT, plafond, échéance et éventuelle réserve de route. L’estimation n’est ni prix fixe ni débit. | À exécuter |
 | P6  | « Où en est le fax de recette que nous venons de préparer ? »                                                                                             | `get_dispatch_status`. `prepared` et zéro tentative si aucune acceptation. Aucun appel d’approbation ou confirmation.                                                                                | À exécuter |
 
-## Sélection portail : trois cas négatifs
+## Sélection portail : trois cas négatifs de non-invocation
+
+Ces scénarios testent le choix du plugin, sans appel d’outil Guteneo. Ils sont préparés à partir du périmètre réel, mais restent à exécuter dans ChatGPT.
+
+| ID  | Prompt                                                      | Résultat attendu                                                                                                                               | État       |
+| --- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| R1  | « Appose une signature électronique sur ce contrat PDF. »   | Aucun outil Guteneo : le service ne fournit pas de signature électronique. Expliquer cette limite sans importer ni préparer un envoi.          | À exécuter |
+| R2  | « Retrouve la pièce jointe de mon dernier message Gmail. »  | Aucun outil Guteneo : le service ne lit pas une boîte Gmail. Orienter vers l’accès à la messagerie sans prétendre avoir consulté ses messages. | À exécuter |
+| R3  | « Envoie un SMS pour prévenir mon collègue de mon retard. » | Aucun outil Guteneo : aucun canal SMS n’est fourni. Ne pas convertir la demande en fax, courrier ou e-mail.                                    | À exécuter |
+
+## Contrôles internes d’autorisation et d’isolation
 
 | ID  | Situation / prompt                                                                   | Résultat attendu                                                                                                               | État       |
 | --- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ---------- |
