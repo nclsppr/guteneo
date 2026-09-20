@@ -6,11 +6,11 @@
   "pluginVersion": "0.2.1",
   "listing": {
     "name": "Guteneo",
-    "shortDescription": "PDF, devis et suivi des envois",
-    "description": "Retrouvez vos PDF Guteneo ou importez un document original. Préparez un fax, consultez son estimation et son plafond, puis suivez son statut. Les actions disponibles dépendent des canaux, des permissions et du solde de votre compte. En mode standard, vous relisez et approuvez l’envoi dans Guteneo. Un mandat expert facultatif, limité et temporaire, doit être activé par un administrateur dans son compte avant toute action déléguée. L’installation du connecteur n’active aucun mandat ni canal.",
+    "shortDescription": "PDFs, fax quotes and tracking",
+    "description": "Find your Guteneo PDFs or import an original document. Prepare a fax, review its estimate and spending limit, then track its status. Available actions depend on your account channels, permissions and balance. In standard mode, you review and approve the dispatch in Guteneo. An optional, limited and temporary expert mandate must be enabled by an administrator in their account before any delegated action. Installing the connector does not enable a mandate or a channel. The Guteneo web interface is currently in French.",
     "category": "Productivity",
-    "primaryLanguage": "fr-FR",
-    "supportedLanguages": ["fr-FR"],
+    "primaryLanguage": "en-US",
+    "supportedLanguages": ["en-US", "fr-FR"],
     "websiteUrl": "https://guteneo.com",
     "supportEmail": "guteneo@pieper.fr",
     "privacyPolicyUrl": "https://guteneo.com/confidentialite/",
@@ -36,7 +36,15 @@
     "composerIconSha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
     "composerIconWidth": 1254,
     "composerIconHeight": 1254,
-    "publicInformationStatus": "implemented_and_locally_verified_pending_production_deployment"
+    "publicInformationStatus": "implemented_and_locally_verified_pending_production_deployment",
+    "translations": [
+      {
+        "locale": "fr-FR",
+        "shortDescription": "PDF, devis et suivi des envois",
+        "description": "Retrouvez vos PDF Guteneo ou importez un document original. Préparez un fax, consultez son estimation et son plafond, puis suivez son statut. Les actions disponibles dépendent des canaux, des permissions et du solde de votre compte. En mode standard, vous relisez et approuvez l’envoi dans Guteneo. Un mandat expert facultatif, limité et temporaire, doit être activé par un administrateur dans son compte avant toute action déléguée. L’installation du connecteur n’active aucun mandat ni canal."
+      }
+    ],
+    "serviceInterfaceLanguage": "fr-FR"
   },
   "connection": {
     "mcpServerUrl": "https://guteneo.com/mcp",
@@ -52,7 +60,7 @@
     ],
     "oauthClientId": null,
     "oauthRedirectUri": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
-    "reviewerCredentials": "preparation_script_and_synthetic_pdf_ready_auth0_reauthentication_pending",
+    "reviewerCredentials": "preparation_script_and_synthetic_pdf_ready_auth0_device_login_expired_without_touch_id",
     "domainVerification": {
       "status": "empty_portal_challenge_no_verification_success",
       "challengeBaseUrl": null,
@@ -139,11 +147,16 @@
       "description",
       "category",
       "websiteUrl",
-      "publisherIdentity"
+      "publisherIdentity",
+      "supportUrl",
+      "privacyPolicyUrl",
+      "termsOfServiceUrl",
+      "englishBaseListing",
+      "frenchTranslation"
     ],
     "logoUploads": {
       "directory": "persisted_after_reload_light_dark_modes_present",
-      "composer": "persisted_after_reload_light_dark_modes_present"
+      "composer": "transparent_derivative_uploaded_both_modes_previews_checked_and_preserved_after_reload"
     },
     "mcpServerUrlEntered": "https://guteneo.com/mcp",
     "authenticationSelected": "oauth",
@@ -193,11 +206,17 @@
       "finalButtonLabel": "Submit for Review"
     },
     "unconfirmedPortalDefaults": {
-      "language": "English (US)",
       "availability": "Allow all",
-      "publisherConfirmed": false
+      "publisherConfirmed": false,
+      "language": "English base with French translation now entered"
     },
-    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo."
+    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
+    "reviewScenariosEntered": {
+      "positiveCases": 5,
+      "negativeCases": 3,
+      "missing": "Exact controlled recipient and ceiling prompt for positive case 4, reviewer credentials and execution evidence",
+      "executed": false
+    }
   },
   "reviewPreparation": {
     "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
@@ -220,7 +239,7 @@
     "selectionStatus": "adapted_negative_cases_prepared_not_executed_with_reviewer",
     "negativeCaseCompatibility": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; N1/N2/N4 remain internal authorization/isolation tests. All cases remain unexecuted with the reviewer account.",
     "candidateReleaseNotes": "Candidat 0.2.1 : logo approuvé intégré au paquet, titres et annotations MCP précisés, renouvellement de fax déclaré destructif car il peut annuler la préparation précédente, description courte adaptée aux limites de l’annuaire. Les fonctions restent soumises aux droits, aux canaux du compte et au mode d’approbation. Cette préparation ne constitue ni un déploiement ni une publication dans l’annuaire.",
-    "composerIconStatus": "generated_with_true_transparency_local_light_dark_qa_passed_portal_upload_pending",
+    "composerIconStatus": "portal_light_dark_previews_checked_and_preserved_after_reload",
     "fixture": {
       "path": "integrations/chatgpt/fixtures/reviewer-original.pdf",
       "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",

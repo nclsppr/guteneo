@@ -217,7 +217,7 @@
       "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
       "transparentPixels": 515191,
       "localLightDarkQa": "passed",
-      "portalUpload": "pending"
+      "portalUpload": "both_modes_uploaded_preview_checked_persisted_after_reload"
     },
     "reviewer": {
       "offlinePreparation": "implemented",
@@ -225,7 +225,7 @@
       "accountCreated": false,
       "oauthClientCreated": false,
       "samplePdf": "synthetic_no_recipient_do_not_send",
-      "authenticationBlocker": "Auth0 administration credential refresh requires Touch ID in Safari"
+      "authenticationBlocker": "Auth0 device login expired waiting for Touch ID"
     },
     "callbackObserved": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
     "cloudflare": {
@@ -246,7 +246,14 @@
       "newReviewerSecurityTests": 8,
       "publicStaticTests": 7,
       "publicDesktopAndIphoneTests": 8,
-      "fullCandidateCi": "pending"
-    }
+      "fullCandidateCi": {
+        "head": "5320420b5ab1b9f4444b7037decad6f8b2805cd6",
+        "run": "35543907954",
+        "result": "success",
+        "laterExactActionComparison": "local_19_tests_passed_new_ci_pending"
+      },
+      "reviewerAndAuth0SecurityTests": 19
+    },
+    "portalInfo": "Support, privacy and terms URLs, English base and French translation saved; icons and base fields confirmed after reload. Eight scenarios drafted, not executed; preparation prompt requires controlled recipient and ceiling."
   }
 }

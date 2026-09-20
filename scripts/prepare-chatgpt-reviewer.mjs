@@ -3,7 +3,7 @@ import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { cliJson, TENANT } from "./setup-auth0.mjs";
+import { actionSources, cliJson, setupPlan, TENANT } from "./setup-auth0.mjs";
 
 const CONNECTION = "Guteneo-Accounts";
 const OWNER = "guteneo-openai-review-v1";
@@ -232,16 +232,44 @@ async function qualifyLoginPolicy(state, request) {
     ownResources[0].skip_consent_for_verifiable_first_party_clients !== false
   )
     fail("RESOURCE_CONSENT_REQUIRES_REVIEW");
+  const options = { authPolicy: "verified_email" };
+  for (const [name, callbackOption] of [
+    ["Guteneo - ChatGPT", "chatgptCallback"],
+    ["Guteneo - Claude hosted", "claudeCallback"],
+  ]) {
+    const matches = state.clients.filter((client) => client.name === name);
+    if (matches.length > 1) fail("ACTION_CLIENTS_REQUIRE_REVIEW");
+    if (matches.length) {
+      if (
+        !Array.isArray(matches[0].callbacks) ||
+        matches[0].callbacks.length !== 1
+      )
+        fail("ACTION_CLIENTS_REQUIRE_REVIEW");
+      options[callbackOption] = matches[0].callbacks[0];
+    }
+  }
+  const plan = setupPlan(options);
+  const clientIds = plan.clients.map(({ body }) => {
+    const matches = state.clients.filter((client) => client.name === body.name);
+    if (
+      matches.length !== 1 ||
+      matches[0].client_metadata?.guteneo_managed_by !== "guteneo-setup-v1"
+    )
+      fail("ACTION_CLIENTS_REQUIRE_REVIEW");
+    return identifier(matches[0].client_id);
+  });
+  const expectedSources = actionSources(
+    clientIds,
+    state.connection.id,
+    plan.authPolicy,
+  );
   const actions = await pages("actions/actions", "actions", request);
   const bindings = await pages(
     "actions/triggers/post-login/bindings",
     "bindings",
     request,
   );
-  for (const name of [
-    "Guteneo - require verified identity",
-    "Guteneo - verified identity claims",
-  ]) {
+  for (const [index, name] of plan.actions.entries()) {
     const matches = actions.filter((item) => item.name === name);
     if (matches.length !== 1) fail("ACTION_NOT_QUALIFIED");
     if (!bindings.some((binding) => binding.action?.id === matches[0].id))
@@ -250,15 +278,9 @@ async function qualifyLoginPolicy(state, request) {
       "GET",
       `actions/actions/${identifier(matches[0].id)}`,
     );
-    const code = action.deployed_version?.code;
-    if (
-      typeof code !== "string" ||
-      !code.includes("https://guteneo.com/mcp") ||
-      !code.includes("S256") ||
-      !code.includes(state.connection.id) ||
-      !code.includes("event.user?.email_verified !== true") ||
-      code.includes("api.authentication.enrollWith")
-    )
+    // Exact generated source proves the guards and both signed account claims;
+    // comments, reversed predicates or a copy of the other Action cannot qualify.
+    if (action.deployed_version?.code !== expectedSources[index])
       fail("DEPLOYED_ACTION_REQUIRES_REVIEW");
   }
 }

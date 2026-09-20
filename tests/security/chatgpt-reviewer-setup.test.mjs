@@ -8,6 +8,7 @@ import {
   createUser,
   validateCallback,
 } from "../../scripts/prepare-chatgpt-reviewer.mjs";
+import { actionSources, setupPlan } from "../../scripts/setup-auth0.mjs";
 
 const callback = "https://chatgpt.com/connector/oauth/review_fixture";
 const connection = {
@@ -31,9 +32,25 @@ const client = {
 function fixture(options = {}) {
   const calls = [];
   const writes = new Map();
-  const clients = options.existingClient
-    ? [structuredClone(options.existingClient)]
-    : [];
+  const setup = setupPlan({
+    authPolicy: "verified_email",
+    ...options.setupOptions,
+  });
+  const configuredClients = setup.clients.map(({ body }, index) => ({
+    ...body,
+    client_id: `setup_client_${index}`,
+  }));
+  const sources = actionSources(
+    configuredClients.map(({ client_id }) => client_id),
+    connection.id,
+    setup.authPolicy,
+  );
+  const clients = [
+    ...configuredClients,
+    ...(options.existingClient
+      ? [structuredClone(options.existingClient)]
+      : []),
+  ];
   const associations = {
     con_guteneo: options.dedicated ?? false,
     con_other: options.other ?? false,
@@ -63,12 +80,18 @@ function fixture(options = {}) {
       return {
         bindings: options.unbound ? [] : actions.map((action) => ({ action })),
       };
-    if (method === "GET" && path.startsWith("actions/actions/"))
+    if (method === "GET" && path.startsWith("actions/actions/")) {
+      const index = actions.findIndex(
+        (action) => path === `actions/actions/${action.id}`,
+      );
       return {
         deployed_version: {
-          code: "https://guteneo.com/mcp S256 con_guteneo event.user?.email_verified !== true",
+          code: options.actionCode
+            ? options.actionCode(sources[index], index, sources)
+            : sources[index],
         },
       };
+    }
     if (method === "POST" && path === "clients") {
       if (options.unknownCreation)
         throw Object.assign(new Error("unknown outcome"), { code: "UNKNOWN" });
@@ -170,7 +193,13 @@ test("client creation changes only the new client and its own connection associa
     f.writes.get("reviewer-client-result.json").associationVerified,
     true,
   );
-  assert.equal(Object.hasOwn(f.clients[0], "client_secret"), false);
+  assert.equal(
+    Object.hasOwn(
+      f.clients.find((item) => item.client_id === result.clientId),
+      "client_secret",
+    ),
+    false,
+  );
   assert.ok(
     !JSON.stringify([...f.writes.values(), result]).includes("fixture-secret"),
   );
@@ -214,6 +243,68 @@ test("wrong grant, missing deployed binding or skipped consent fails before muta
   ]) {
     const f = fixture(options);
     await assert.rejects(createClient(callback, f), { code });
+    assert.ok(f.calls.every((call) => call.method === "GET"));
+    assert.equal(f.writes.size, 0);
+  }
+});
+
+test("complete generated deployed Actions qualify with the optional hosted clients", async () => {
+  const f = fixture({
+    setupOptions: {
+      chatgptCallback: "https://chatgpt.com/connector/oauth/existing_fixture",
+      claudeCallback: "https://claude.ai/api/mcp/auth_callback",
+    },
+  });
+  assert.equal((await createClient(callback, f)).associationVerified, true);
+});
+
+test("deployed Action drift, commented guards and reversed predicates fail before any mutation", async () => {
+  for (const actionCode of [
+    (code, index) =>
+      index === 0 ? `${code}// unreviewed deployed change\n` : code,
+    (code, index) =>
+      index === 0
+        ? `/*${code}*/\nexports.onExecutePostLogin = async () => {};\n`
+        : code,
+    (code, index) =>
+      index === 0
+        ? code.replace(
+            "if (event.user?.email_verified !== true) return;",
+            "// event.user?.email_verified !== true\n  if (event.user?.email_verified === true) return;",
+          )
+        : code,
+  ]) {
+    const f = fixture({ actionCode });
+    await assert.rejects(createClient(callback, f), {
+      code: "DEPLOYED_ACTION_REQUIRES_REVIEW",
+    });
+    assert.ok(f.calls.every((call) => call.method === "GET"));
+    assert.equal(f.writes.size, 0);
+  }
+});
+
+test("the claims Action must emit both reviewed signed claims and cannot reuse the guard Action", async () => {
+  for (const actionCode of [
+    (code, index) =>
+      index === 1
+        ? code.replace(
+            "  api.idToken.setCustomClaim('https://guteneo.com/verified_account', true);\n",
+            "",
+          )
+        : code,
+    (code, index) =>
+      index === 1
+        ? code.replace(
+            "  api.accessToken.setCustomClaim('https://guteneo.com/verified_account', true);\n",
+            "",
+          )
+        : code,
+    (code, index, sources) => (index === 1 ? sources[0] : code),
+  ]) {
+    const f = fixture({ actionCode });
+    await assert.rejects(createClient(callback, f), {
+      code: "DEPLOYED_ACTION_REQUIRES_REVIEW",
+    });
     assert.ok(f.calls.every((call) => call.method === "GET"));
     assert.equal(f.writes.size, 0);
   }

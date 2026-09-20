@@ -50,7 +50,7 @@ L’outil `image_gen` a produit un PNG carré à partir de l’original. Le fich
 
 Une page de contrôle locale a été ouverte dans le navigateur CUA, sur fonds blanc et `#212121`, aux tailles **16, 24, 32, 48, 64 et 128 px**. L’extérieur transparent supprime la tuile blanche du fichier original ; les contreformes et le cadre simplifié restent visibles. Le personnage est reconnaissable et les détails du visage restent naturellement limités à 16 px. Les captures ont été examinées pendant la session ; le rapport local est `reports/icon-qa/proof.json` et la page de contrôle `reports/icon-qa/index.html`.
 
-Le manifeste référence désormais le dérivé uniquement pour `composerIcon`. **Le contrôle du véritable aperçu du portail et l’upload restent à faire** ; ce contrôle local ne les atteste pas. Les deux fichiers respectent les contraintes de format et de dimensions documentées.
+Le manifeste référence désormais le dérivé uniquement pour `composerIcon`. **Le dérivé a ensuite été téléversé dans le portail OpenAI pour les modes clair et sombre.** Les deux aperçus réels ont été inspectés et les images sont présentes après rechargement du brouillon. Cela ne constitue pas une publication dans l’annuaire. Les deux fichiers respectent les contraintes de format et de dimensions documentées.
 
 ## Brief de référence
 
