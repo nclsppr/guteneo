@@ -163,34 +163,68 @@ for (const target of ["live", "preview"]) {
   });
 }
 
-test("the reviewed fax-only configuration publishes with matching transport metadata", async (t) => {
-  const f = await fixture(t);
+async function configureSending(f, channels, enabled = true) {
   await writeFile(
     join(f.root, "wrangler.live.jsonc"),
     JSON.stringify({
       vars: {
         ENVIRONMENT: "production",
         MODE: "production",
-        LIVE_SENDS_ENABLED: "true",
-        LIVE_SEND_CHANNELS: "fax",
+        LIVE_SENDS_ENABLED: String(enabled),
+        LIVE_SEND_CHANNELS: channels,
       },
     }),
   );
   git(f.root, "add", "wrangler.live.jsonc");
-  git(f.root, "commit", "-m", "authorize fax only");
+  git(f.root, "commit", "-m", "review transport configuration");
   git(f.root, "push", "origin", "main");
+}
+
+for (const channels of ["fax,postal", "fax", "postal", "postal,fax"]) {
+  test(`reviewed transport ${channels} publishes its exact channel metadata`, async (t) => {
+    const f = await fixture(t);
+    await configureSending(f, channels);
+    const runner = executor(f.root, "live");
+    await deployPublic("live", { root: f.root, execute: runner.execute });
+    assert.equal(runner.calls.length, 2);
+    const manifest = JSON.parse(
+      await readFile(join(f.root, "dist/web/release.json"), "utf8"),
+    );
+    assert.equal(manifest.liveSendsEnabled, true);
+    assert.deepEqual(manifest.liveSendChannels, channels.split(","));
+  });
+}
+
+test("disabling reviewed transport publishes an empty active channel list", async (t) => {
+  const f = await fixture(t);
+  await configureSending(f, "fax,postal", false);
   const runner = executor(f.root, "live");
   await deployPublic("live", { root: f.root, execute: runner.execute });
   assert.equal(runner.calls.length, 2);
   const manifest = JSON.parse(
     await readFile(join(f.root, "dist/web/release.json"), "utf8"),
   );
-  assert.equal(manifest.liveSendsEnabled, true);
-  assert.deepEqual(manifest.liveSendChannels, ["fax"]);
+  assert.equal(manifest.liveSendsEnabled, false);
+  assert.deepEqual(manifest.liveSendChannels, []);
 });
 
-for (const channels of [undefined, "", "fax,email", "postal", "fax,fax"]) {
-  test(`enabled production refuses unreviewed transport list ${channels}`, async (t) => {
+for (const channels of [
+  undefined,
+  null,
+  ["fax", "postal"],
+  "",
+  "email",
+  "fax,email",
+  "fax,postal,email",
+  "fax,sms",
+  "fax,fax",
+  "fax,postal,postal",
+  "fax, postal",
+  "fax,",
+  ",postal",
+  "fax,,postal",
+]) {
+  test(`enabled production refuses unreviewed transport list ${JSON.stringify(channels)}`, async (t) => {
     const f = await fixture(t);
     await writeFile(
       join(f.root, "wrangler.live.jsonc"),
@@ -207,6 +241,21 @@ for (const channels of [undefined, "", "fax,email", "postal", "fax,fax"]) {
       liveReleaseSending(f.root),
       /RELEASE_SENDING_CONFIGURATION_INVALID/,
     );
+  });
+}
+
+for (const channels of [[], ["fax"], ["fax", "postal", "email"]]) {
+  test(`postal activation rejects inconsistent manifest channels ${JSON.stringify(channels)}`, async (t) => {
+    const f = await fixture(t);
+    await configureSending(f, "fax,postal");
+    const runner = executor(f.root, "live", {
+      afterBuild: () => mutateManifest(f.root, { liveSendChannels: channels }),
+    });
+    await assert.rejects(
+      deployPublic("live", { root: f.root, execute: runner.execute }),
+      /RELEASE_MANIFEST_MISMATCH/,
+    );
+    assert.equal(runner.calls.length, 1);
   });
 }
 

@@ -45,5 +45,5 @@ export const customerPricing: { rates: CustomerRate[]; note: string } = {
         "Exemples pour une page en noir et blanc sur papier normal, port économique inclus, moins de 500 lettres par mois et grille locale du pays concerné. Autres routes, pages, couleur, papier et modes d’expédition sur devis.",
     },
   ],
-  note: "Montants indicatifs hors taxes, vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le devis final, les suppléments et les taxes vous seront présentés avant validation. Services en préparation ; aucun envoi réel dans l’aperçu.",
+  note: "Montants indicatifs hors taxes, vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre atelier connecté ; l’aperçu reste une démonstration sans envoi réel.",
 };

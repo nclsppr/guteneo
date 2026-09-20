@@ -38,6 +38,7 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
+import { handlePostalSetupRoute } from "./postal-setup";
 import { PostalService, cleanupPostalEvidence } from "./postal";
 import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
 import { expertPostalAuthority } from "./expert-approval";
@@ -318,6 +319,8 @@ app.use("/api/billing/*", async (c, next) => {
   return next();
 });
 app.use("/api/*", async (c, next) => {
+  const postalSetup = await handlePostalSetupRoute(c.req.raw, c.env);
+  if (postalSetup) return postalSetup;
   const account = await handleAccountRoute(c.req.raw, c.env);
   if (account) return account;
   return next();

@@ -31,6 +31,7 @@ import {
 import { validateRecipient } from "../../packages/contracts/src/content";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import type { Fetcher } from "../../packages/providers";
+import { postalRateEvidence } from "../../packages/domain/src/live-delivery-quotes";
 import { resetFixtureMemberships } from "../helpers/reset-memberships";
 
 let mf: Miniflare;
@@ -896,63 +897,103 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     expect(request.headers.get("Authorization")).toContain("AWS4-HMAC-SHA256");
   });
 
-  it("persists a Pingen non-sending draft and only submits a matching frozen, tenant-bound draft", async () => {
-    const fetcher = pingenFixtureFetch();
-    const prepared = await prepareFixtureDraft(fetcher);
-    expect(prepared).toMatchObject({
-      preparedLetterId: "letter-fixture",
-      expectedAddress,
-      documentSha256: documentSha,
-      ceilingMinor: 200,
-    });
-    expect(fetcher).toHaveBeenCalledTimes(4);
-    expect(
-      new Uint8Array(fetcher.mock.calls[2][1]?.body as ArrayBuffer),
-    ).toEqual(pdfBytes);
-    expect(
-      JSON.parse(String(fetcher.mock.calls[3][1]?.body)).data.attributes
-        .auto_send,
-    ).toBe(false);
-    await expect(prepareFixtureDraft(fetcher)).rejects.toMatchObject({
-      code: "POSTAL_PREFLIGHT_REQUIRED",
-    });
-    expect(fetcher).toHaveBeenCalledTimes(4);
-    const row = await queueFixture("postal", {
-      ...postalOptions,
-      providerDraftId: prepared.providerDraftId,
-      preparedLetterId: prepared.preparedLetterId,
-      expectedAddress,
-    });
-    expect(
-      await domain.processDispatch(
-        row.id,
-        createLiveProviderHook(env, "postal", { fetcher }),
-      ),
-    ).toMatchObject({ status: "accepted" });
-    expect(fetcher).toHaveBeenCalledTimes(8);
-    expect(
-      fetcher.mock.calls.filter(([url]) =>
-        String(url).endsWith("/file-upload"),
-      ),
-    ).toHaveLength(1);
-    const [, sent] = fetcher.mock.calls[7];
-    expect(sent?.method).toBe("PATCH");
-    expect(new Headers(sent?.headers).get("Idempotency-Key")).toBe(row.id);
-    expect(JSON.parse(String(sent?.body)).data.attributes).toEqual({
-      delivery_product: "cheap",
-      print_mode: "duplex",
-      print_spectrum: "grayscale",
-    });
-    await expect(
-      queueFixture("postal", {
+  it.each(["legacy", "public_ex_tax"] as const)(
+    "persists a Pingen non-sending draft and only submits its frozen tenant-bound %s quote",
+    async (pricing) => {
+      const fetcher = pingenFixtureFetch();
+      const prepared = await prepareFixtureDraft(fetcher);
+      expect(prepared).toMatchObject({
+        preparedLetterId: "letter-fixture",
+        expectedAddress,
+        documentSha256: documentSha,
+        ceilingMinor: 200,
+      });
+      expect(fetcher).toHaveBeenCalledTimes(4);
+      expect(
+        new Uint8Array(fetcher.mock.calls[2][1]?.body as ArrayBuffer),
+      ).toEqual(pdfBytes);
+      expect(
+        JSON.parse(String(fetcher.mock.calls[3][1]?.body)).data.attributes
+          .auto_send,
+      ).toBe(false);
+      await expect(prepareFixtureDraft(fetcher)).rejects.toMatchObject({
+        code: "POSTAL_PREFLIGHT_REQUIRED",
+      });
+      expect(fetcher).toHaveBeenCalledTimes(4);
+      if (pricing === "public_ex_tax") {
+        const now = new Date().toISOString();
+        const rate = postalRateEvidence();
+        const evidence = canonicalJson(rate);
+        const identity =
+          createLiveDeliveryQuoteConfig(env).liveDeliveryIdentity.postal!;
+        await db
+          .prepare(
+            "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,pricing_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES('policy_postal',?,'sender_postal','postal','pingen',?,?,?,?,0,0,1,'EUR','qualified_final_variable_cost','public_list_price_ex_tax',900,?,?,?,?,'qualified',?)",
+          )
+          .bind(
+            ctx.organizationId,
+            identity.accountId,
+            identity.routeId,
+            canonicalJson(postalOptions),
+            evidence,
+            rate.tariffSource,
+            await sha256(evidence),
+            now,
+            new Date(Date.now() + 3_600_000).toISOString(),
+            now,
+          )
+          .run();
+      }
+      const row = await queueFixture("postal", {
         ...postalOptions,
         providerDraftId: prepared.providerDraftId,
         preparedLetterId: prepared.preparedLetterId,
         expectedAddress,
-      }),
-    ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
-    expect(fetcher).toHaveBeenCalledTimes(8);
-  });
+      });
+      if (pricing === "public_ex_tax") {
+        const quote = await db
+          .prepare(
+            "SELECT input_json,fiscal_basis FROM live_delivery_quotes WHERE organization_id=? AND dispatch_id=?",
+          )
+          .bind(ctx.organizationId, row.id)
+          .first<{ input_json: string; fiscal_basis: string }>();
+        expect(quote?.fiscal_basis).toBe("public_list_price_ex_tax");
+        expect(JSON.parse(quote!.input_json)).toMatchObject({
+          pricingBasis: "public_list_price_ex_tax",
+        });
+        expect(JSON.parse(quote!.input_json)).not.toHaveProperty("fx");
+      }
+      expect(
+        await domain.processDispatch(
+          row.id,
+          createLiveProviderHook(env, "postal", { fetcher }),
+        ),
+      ).toMatchObject({ status: "accepted" });
+      expect(fetcher).toHaveBeenCalledTimes(8);
+      expect(
+        fetcher.mock.calls.filter(([url]) =>
+          String(url).endsWith("/file-upload"),
+        ),
+      ).toHaveLength(1);
+      const [, sent] = fetcher.mock.calls[7];
+      expect(sent?.method).toBe("PATCH");
+      expect(new Headers(sent?.headers).get("Idempotency-Key")).toBe(row.id);
+      expect(JSON.parse(String(sent?.body)).data.attributes).toEqual({
+        delivery_product: "cheap",
+        print_mode: "duplex",
+        print_spectrum: "grayscale",
+      });
+      await expect(
+        queueFixture("postal", {
+          ...postalOptions,
+          providerDraftId: prepared.providerDraftId,
+          preparedLetterId: prepared.preparedLetterId,
+          expectedAddress,
+        }),
+      ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
+      expect(fetcher).toHaveBeenCalledTimes(8);
+    },
+  );
 
   it("does not query or send a provider draft quoted from superseded preflight rules", async () => {
     const fetcher = pingenFixtureFetch();

@@ -21,6 +21,8 @@ import {
 } from "./api";
 import { fr as t } from "./i18n";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
+import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
   Definition,
@@ -803,22 +805,41 @@ export function Senders() {
   const resource = useResource<{ items: (Sender & { mode?: string })[] }>(
     "/senders",
   );
+  const [postalSetup, setPostalSetup] = useState<PostalSetup>();
+  const [setupRevision, setSetupRevision] = useState(0);
   return (
     <>
       <PageHeading
         title={t.senders.title}
         intro={t.senders.intro}
-        action={<RefreshButton onClick={resource.refresh} />}
+        action={
+          <RefreshButton
+            onClick={() => {
+              resource.refresh();
+              setSetupRevision((revision) => revision + 1);
+            }}
+          />
+        }
       />
-      <div className="notice info">
-        <ShieldCheck size={23} />
-        <p>{t.senders.note}</p>
-      </div>
+      <PostalSetupPanel
+        key={setupRevision}
+        onUpdated={resource.refresh}
+        onStatus={setPostalSetup}
+      />
+      {(isPublicPreview ||
+        resource.data?.items.some(
+          (sender) => sender.mode === "simulation",
+        )) && (
+        <div className="notice info">
+          <ShieldCheck size={23} />
+          <p>{t.senders.note}</p>
+        </div>
+      )}
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !resource.data ? (
         <Loading />
       ) : !resource.data?.items.length ? (
-        <EmptyState title={t.senders.empty} />
+        !postalSetup?.available && <EmptyState title={t.senders.empty} />
       ) : (
         <div className="table-scroll">
           <table className="responsive-table" role="table">
@@ -867,11 +888,19 @@ export function Senders() {
                     <span className="mobile-cell-label" aria-hidden="true">
                       {t.status}
                     </span>
-                    <Status
-                      status={
-                        sender.status ?? (sender.verified ? "ready" : "pending")
-                      }
-                    />
+                    {sender.id === postalSetup?.sender?.id &&
+                    postalSetup.senderVerification ===
+                      "administrator_declaration" &&
+                    sender.status === "verified" ? (
+                      <span className="status">{t.postalSetup.declared}</span>
+                    ) : (
+                      <Status
+                        status={
+                          sender.status ??
+                          (sender.verified ? "ready" : "pending")
+                        }
+                      />
+                    )}
                     {sender.mode === "simulation" && (
                       <small className="sub-label">{t.simulation}</small>
                     )}

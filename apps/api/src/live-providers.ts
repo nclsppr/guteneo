@@ -292,6 +292,7 @@ async function checkActiveDispatch(
 async function verifyFrozenContent(
   row: Dispatch,
   document: DocumentRecord | undefined,
+  pricingDisclosure: Record<string, unknown> = {},
 ): Promise<{
   recipient: Record<string, string>;
   options: Record<string, unknown>;
@@ -320,6 +321,7 @@ async function verifyFrozenContent(
       ceilingMinor: row.ceiling_minor,
       currency: row.currency,
       mode: row.mode,
+      ...pricingDisclosure,
       ...(row.quote_fingerprint
         ? { quoteFingerprint: row.quote_fingerprint }
         : {}),
@@ -411,9 +413,32 @@ export function createLiveProviderHook(
           ? await exactDocument(env, row.organization_id, row.document_id)
           : undefined;
         if (channel !== "email" && !loaded) blocked("DOCUMENT_REQUIRED");
+        // Rebuild public price terms only from the validated immutable quote.
+        // They are part of the approved fingerprint, including postal EUR
+        // quotes that have no currency conversion.
+        let pricingDisclosure: Record<string, unknown> = {};
+        if (channel !== "fax") {
+          const quote = await validateLiveDeliveryQuote(
+            env.DB,
+            row,
+            liveDeliveryIdentity[channel],
+            new Date(clock()).toISOString(),
+          );
+          if (quote.fiscal_basis === "public_list_price_ex_tax") {
+            const quotedInput = JSON.parse(quote.input_json) as Record<
+              string,
+              unknown
+            >;
+            pricingDisclosure = {
+              pricingBasis: quote.fiscal_basis,
+              ...(channel === "email" ? { fx: quotedInput.fx } : {}),
+            };
+          }
+        }
         const { recipient, options } = await verifyFrozenContent(
           row,
           loaded?.document,
+          pricingDisclosure,
         );
         if (options.kind === "marketing") blocked("MARKETING_NOT_ENABLED");
         let submit: () => Promise<ProviderResult>;

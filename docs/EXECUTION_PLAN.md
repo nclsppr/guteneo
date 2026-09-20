@@ -1,5 +1,14 @@
 # Execution plan and handoff
 
+20 September: the requested next release opens postal setup to every existing
+and future account through its authenticated browser administrator. Supplier
+funding is confirmed by the user; the first real end-to-end letter test is reserved
+for the user after publication. Implement and publish sender declaration, all
+eight EUR calculator price policies, the fax+postal transport configuration and
+fresh scanner definitions; do not make a completed postal delivery a prerequisite
+for exposing that testable workflow. See [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md)
+for the exact contract, verification and remaining operational qualifications.
+
 Local candidate, 17 September: replace the hosted PDF source-domain allowlist
 with public HTTPS imports and runtime-enforced public egress. Local URL imports
 remain disabled; multipart upload remains available. Source refusal and stored

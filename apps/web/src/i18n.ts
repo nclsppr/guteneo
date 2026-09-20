@@ -171,7 +171,7 @@ export const fr = {
         "Un crédit de bienvenue pour vos premiers envois. Ensuite, vous gardez la main sur votre budget, avant chaque validation.",
       welcomeTitle: "Offerts à l’ouverture de votre compte.",
       welcomeBody:
-        "À l’ouverture du service, 50 € de crédit de bienvenue seront attribués une seule fois à votre compte. Un même solde pour vos e-mails, fax et courriers postaux.",
+        "Votre organisation reçoit 50 € de crédit de bienvenue une seule fois à la création de son compte. Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
       welcomeTerms:
         "Aucun renouvellement mensuel. Les envois s’arrêtent lorsque le solde disponible ne couvre plus leur coût.",
       rateLabel: "Tarifs clients indicatifs des trois canaux",
@@ -190,12 +190,12 @@ export const fr = {
         {
           question: "Est-ce que Guteneo envoie déjà de vrais courriers ?",
           answer:
-            "L’aperçu public est une démonstration interactive : ses documents, ses coordonnées et ses résultats sont fictifs. Les envois réels restent fermés jusqu’à la qualification de l’identité, des expéditeurs, des prestataires et des tarifs. L’installation d’une clé fournisseur n’active pas les envois.",
+            "Le courrier postal est disponible dans votre atelier connecté après la déclaration de l’expéditeur par un administrateur. Importez votre PDF, vérifiez-le, puis approuvez le destinataire et le devis avant de confirmer l’envoi. L’aperçu de démonstration reste séparé : ses documents et résultats sont fictifs et aucun courrier n’y est expédié.",
         },
         {
           question: "Comment fonctionnent les 50 € offerts ?",
           answer:
-            "À l’ouverture du service, une seule dotation de 50 € est prévue à la création de votre compte, pour l’ensemble des canaux. Elle ne se renouvelle pas chaque mois. Avant un envoi, son montant est réservé dans votre solde ; si le crédit disponible est insuffisant, l’envoi est bloqué.",
+            "Votre organisation reçoit une seule dotation de 50 € à la création de son compte, partagée entre les canaux activés. Elle ne se renouvelle pas chaque mois. Avant un envoi, son plafond approuvé est réservé dans votre solde ; si le crédit disponible est insuffisant, l’envoi est bloqué.",
         },
         {
           question: "Que se passe-t-il quand mon crédit est épuisé ?",
@@ -495,12 +495,53 @@ export const fr = {
     intro:
       "Chaque canal utilise un expéditeur autorisé, propre à votre organisation.",
     empty: "Aucun profil d’expéditeur configuré.",
-    note: "Les profils de simulation ne permettent aucun envoi réel. L’activation d’un expéditeur réel exige une vérification côté prestataire.",
+    note: "Les profils de simulation ne permettent aucun envoi réel. Pour le courrier, un administrateur déclare l’expéditeur autorisé de l’organisation. Les autres canaux conservent leur vérification propre.",
     profile: "Profil",
     address: "Adresse d’émission",
     verified: "Vérifié",
     unverified: "À vérifier",
     unavailable: "Profil non activé",
+  },
+  postalSetup: {
+    title: "Activer le courrier postal",
+    intro:
+      "Déclarez l’expéditeur de votre organisation pour préparer vos lettres.",
+    name: "Nom de l’expéditeur",
+    address: "Adresse postale de l’expéditeur",
+    addressHint: "Indiquez la rue, le code postal, la ville et le pays.",
+    declaration:
+      "Je suis autorisé à utiliser ce nom et cette adresse pour les courriers de mon organisation.",
+    declarationNote:
+      "Cette déclaration est enregistrée sous votre responsabilité d’administrateur. Elle ne constitue pas une vérification physique de l’adresse.",
+    documentNote:
+      "L’adresse n’est pas ajoutée au PDF. Vérifiez les informations imprimées dans votre document avant chaque envoi.",
+    submit: "Activer le courrier",
+    submitting: "Activation du courrier…",
+    renew: "Actualiser la configuration postale",
+    noSend:
+      "Cette activation ne transmet aucun document et n’expédie aucune lettre. Vous vérifierez le PDF, le destinataire et le devis avant l’envoi.",
+    ready: "Votre expéditeur postal est prêt",
+    readyBody:
+      "Vous pouvez importer votre PDF puis préparer un courrier dans l’atelier.",
+    prepare: "Préparer un courrier",
+    declared: "Déclaré par l’administrateur",
+    managed: "Expéditeur configuré",
+    adminNeeded:
+      "Un administrateur de votre organisation doit déclarer l’expéditeur pour activer le courrier.",
+    stopped: "Le courrier est arrêté pour votre organisation.",
+    stoppedBody:
+      "Un administrateur peut consulter le contrôle du canal dans l’administration. Cette page ne réactive pas un canal arrêté.",
+    administration: "Ouvrir l’administration",
+    unavailable:
+      "L’activation du courrier est temporairement indisponible. Réessayez plus tard.",
+    restricted:
+      "Cette configuration postale ne peut pas être activée ici. Contactez l’administrateur de votre organisation ; une nouvelle déclaration ne peut pas lever cette restriction.",
+    saved: "Le courrier est activé pour votre organisation.",
+    required: "Déclarez d’abord l’expéditeur postal de votre organisation.",
+    setupLink: "Activer le courrier dans les expéditeurs",
+    quote: "Prix du courrier HT",
+    quoteNote:
+      "Prix du courrier hors taxes, fixé en euros pour ce PDF, ce destinataire et les options du devis. Il sera déduit de vos crédits lors de l’acceptation par le prestataire.",
   },
   usage: {
     title: "Chaque envoi compte.",

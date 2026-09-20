@@ -646,8 +646,13 @@ export function PrepareDispatch({
   );
   const senders = useResource<{ items: Sender[] }>("/senders");
   const action = useAction();
+  const route = useRoute();
   const key = useRef(crypto.randomUUID());
-  const [channel, setChannel] = useState<Channel>("fax");
+  const [channel, setChannel] = useState<Channel>(() =>
+    new URLSearchParams(route.split("?")[1]).get("channel") === "postal"
+      ? "postal"
+      : "fax",
+  );
   const [documentId, setDocumentId] = useState(initialDocument);
   const [senderId, setSenderId] = useState("");
   const [subject, setSubject] = useState("");
@@ -1035,8 +1040,15 @@ export function PrepareDispatch({
           )}
           {!simulation && !selectedSender && (
             <p id="prepare-sender-required" className="field-hint">
-              Un expéditeur doit être validé pour ce canal avant la préparation.{" "}
-              <a href="#/app/senders">Consulter les expéditeurs</a>.
+              {channel === "postal"
+                ? t.postalSetup.required
+                : "Un expéditeur doit être validé pour ce canal avant la préparation."}{" "}
+              <a href="#/app/senders">
+                {channel === "postal"
+                  ? t.postalSetup.setupLink
+                  : "Consulter les expéditeurs"}
+              </a>
+              .
             </p>
           )}
         </div>
@@ -1392,7 +1404,14 @@ export function DispatchDetailPage({
               {d.sender_address ?? t.unknown}
             </Definition>
             <Definition
-              label={faxPricing ? "Fourchette estimée HT" : t.dispatch.estimate}
+              label={
+                faxPricing
+                  ? "Fourchette estimée HT"
+                  : d.channel === "postal" &&
+                      d.quote_pricing_basis === "public_list_price_ex_tax"
+                    ? t.postalSetup.quote
+                    : t.dispatch.estimate
+              }
             >
               {faxPricing ? (
                 <>
@@ -1463,9 +1482,10 @@ export function DispatchDetailPage({
           )}
           {d.quote_pricing_basis === "public_list_price_ex_tax" && (
             <p className="field-hint">
-              Tarif de référence SES hors taxes. Le prix en euros est fixé pour
-              ce devis.
-              {d.quote_fx && (
+              {d.channel === "postal"
+                ? t.postalSetup.quoteNote
+                : "Tarif de référence SES hors taxes. Le prix en euros est fixé pour ce devis."}
+              {d.channel === "email" && d.quote_fx && (
                 <>
                   {" "}
                   Conversion du {d.quote_fx.date
