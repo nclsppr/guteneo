@@ -22,6 +22,6 @@ Le serveur reste l’autorité ; n’utilisez que les outils effectivement dispo
 
 ## Identité et publication
 
-L’icône et le logo du paquet utilisent l’emblème simple Guteneo approuvé, conservé sans modification dans `assets/guteneo-mark.png` (512 × 512). Le portrait transparent reste réservé aux surfaces du site et de connexion. Le logo du paquet ne constitue pas une preuve de publication dans ChatGPT.
+Le logo d’annuaire conserve l’emblème simple Guteneo approuvé dans `assets/guteneo-mark.png` (512 × 512). Le composer utilise son dérivé `assets/guteneo-composer.png` (1 254 × 1 254), avec un contour extérieur transparent et un cadre simplifié pour les petites tailles. Le portrait tramé reste réservé aux surfaces du site et de connexion. Ces assets ne constituent pas une preuve de publication dans ChatGPT.
 
 Le dossier de revue, les cas de test reproductibles et les prérequis encore ouverts sont décrits dans [CHATGPT_MARKETPLACE.md](https://github.com/nclsppr/guteneo/blob/main/docs/CHATGPT_MARKETPLACE.md). La création du dossier, sa soumission, l’approbation OpenAI et la mise en ligne sont des étapes distinctes.

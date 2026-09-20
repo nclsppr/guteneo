@@ -2,7 +2,19 @@
 
 **Brouillon OpenAI créé le 21 septembre 2026 ; aucune soumission ni publication effectuée.** L’identité individuelle vérifiée est désormais observée et sélectionnée dans le portail. Ce dossier distingue cette progression des blocages antérieurs et des preuves historiques. La PR [#14](https://github.com/nclsppr/guteneo/pull/14) reste un candidat ; sa préparation ne publie ni le serveur ni le plugin.
 
-## État exact du portail
+## Préparation complémentaire du 21 septembre
+
+L’éditeur a explicitement autorisé la publication des pages, la vérification du domaine, la création du compte de revue, les tests, la vidéo et la soumission. Il indique avoir lu les conditions et autorise leur validation. Cette autorisation ne remplace pas les preuves exigées pour les attestations.
+
+Les pages `/confidentialite/`, `/conditions/` et `/support/` sont maintenant implémentées avec liens partagés et HTML indexable. Les contrôles locaux ont réussi : types, lint ciblé, sept tests statiques et huit tests desktop/iPhone. Leur disponibilité publique doit encore être vérifiée après le déploiement de ce candidat. Les observations 404 ci-dessous sont historiques. Les descriptions d’import et de création PDF ainsi que le workflow et le skill fax relaient les restrictions du parcours ChatGPT ; aucun filtre automatique de contenu ni nouveau consentement serveur n’est annoncé.
+
+Le composer dispose désormais d’un [dérivé transparent contrôlé](../integrations/chatgpt/icon-audit.md), créé avec ImageGen à partir de l’emblème : PNG RGBA de 1 254 × 1 254 px, 977 001 octets, SHA-256 `2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc`. Le logo d’annuaire reste inchangé. L’aperçu réel et le remplacement dans le portail restent à faire. L’archive 0.2.1 reconstruite avec cette image pèse 1 263 178 octets, SHA-256 `e32cccb04549c3b60794d4271c24a8b68b5ffbedc73b5223b7772eeb629a013a` ; les empreintes d’archives antérieures ci-dessous restent historiques.
+
+Le portail affiche le callback exact `https://chatgpt.com/connector/oauth/aAwc9dso12_L` pour un client prédéfini public. Un script ciblé prépare un client et une identité de revue isolés, sans modifier les Actions, MFA ou réglages du tenant. Huit tests sans réseau valident ses garde-fous ; ils ne prouvent pas la connexion réelle. La reconnexion de l’administration Auth0 attend Touch ID. Aucun compte ou nouveau client n’a encore été créé.
+
+Le PDF d’exemple est synthétique et sans destinataire ; le [scénario de capture](../integrations/chatgpt/demo-recording.md) est prêt. Ni vidéo ni recette exécutée avec un compte reviewer ne sont déclarées. Cloudflare confirme le rattachement existant de `guteneo.com` au Worker `guteneo-app` ; cela ne valide pas le challenge OpenAI dont le jeton est encore absent.
+
+## État du portail avant ces préparatifs
 
 Le 17 septembre, dans Safari, sur `https://platform.openai.com/plugins`, organisation **Personal**, le parcours **Create plugin → With MCP** a ouvert la fenêtre :
 

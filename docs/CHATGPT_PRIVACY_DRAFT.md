@@ -2,6 +2,16 @@
 
 **Document de travail du 17 septembre 2026, versionné pour révision et non adopté comme politique.** Il rassemble les observations du code et les points que l’éditeur doit préciser. Ce n’est ni une analyse juridique, ni une preuve de conformité, ni un inventaire contractuel des sous-traitants. Ne pas fournir son chemin GitHub comme URL de politique dans le portail.
 
+## Actualisation du 21 septembre 2026
+
+L’éditeur a autorisé la préparation et la publication des pages publiques. Le candidat est implémenté dans `apps/web/src/information-page.tsx`, aux URL canoniques `/confidentialite/`, `/conditions/` et `/support/`, avec liens depuis les mentions légales et les pieds de page publics. Leur présence dans ce dépôt ne prouve pas encore leur publication : vérifier les réponses HTTP et le contenu après déploiement avant de les déclarer disponibles dans le portail.
+
+Le texte fixe des critères de conservation liés à l’utilisation du compte, aux opérations non résolues, aux obligations applicables et aux contestations ; les demandes de clôture et d’effacement passent par le contact publié. Il distingue la purge des fichiers PDF éligibles après 90 jours des métadonnées qui ne suivent pas une purge générale automatique. Il ne promet ni suppression instantanée, ni hébergement intégralement européen, ni conformité certifiée, ni vente ou immatriculation inexistante. Fax et courrier dépendent désormais des autorisations et capacités effectives du compte ; l’e-mail et les rechargements payants restent fermés.
+
+Sources primaires consultées le 21 septembre 2026 : [CNIL, informer les personnes](https://www.cnil.fr/fr/informer-les-personnes), [CNIL, durées de conservation](https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees), [CNIL, demandes d’accès](https://www.cnil.fr/fr/repondre-une-demande-de-droit-dacces), [RGPD, notamment articles 6, 12 à 14, 28 et 44 et suivants](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32016R0679).
+
+Limites restant à documenter dans l’exploitation : inventaire contractuel des prestataires et de leurs transferts/garanties, qualification des rôles lorsque le client est une organisation, processus effectif de clôture/effacement manuel et conservation des journaux/sauvegardes externes. Les pages n’attestent pas que ces vérifications sont terminées. La liste historique ci-dessous conserve les observations du 17 septembre ; elle ne remplace pas la description publique du candidat du 21 septembre.
+
 ## Éditeur et catégories
 
 La page légale identifie Nicolas Pieper comme éditeur, avec **guteneo@pieper.fr**, et annonce une activité non immatriculée. Le responsable des traitements, les bases juridiques, coordonnées et conditions applicables doivent être confirmés avant adoption.

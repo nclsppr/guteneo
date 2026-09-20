@@ -564,7 +564,10 @@ describe("distributable LLM integrations", () => {
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;
-      for (const property of ["composerIcon", "logo"]) {
+      for (const [property, filename] of [
+        ["composerIcon", "guteneo-composer.png"],
+        ["logo", "guteneo-mark.png"],
+      ]) {
         const asset = branding[property].replace(/^\.\//, "");
         expect(manifest.files).toContain(asset);
         expect(
@@ -575,10 +578,7 @@ describe("distributable LLM integrations", () => {
           ]),
         ).toEqual(
           await readFile(
-            new URL(
-              "../../apps/web/public/brand/guteneo-mark.png",
-              import.meta.url,
-            ),
+            new URL(`../../apps/web/public/brand/${filename}`, import.meta.url),
           ),
         );
       }

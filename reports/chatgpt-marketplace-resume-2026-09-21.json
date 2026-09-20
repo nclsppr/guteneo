@@ -152,8 +152,8 @@
   },
   "package": {
     "version": "0.2.1",
-    "bytes": 285325,
-    "sha256": "1c9fca3eca5551ccb3b34a862c84165dc5daa32fc8e745883c0f526e5c67eb79"
+    "bytes": 1263178,
+    "sha256": "e32cccb04549c3b60794d4271c24a8b68b5ffbedc73b5223b7772eeb629a013a"
   },
   "validation": {
     "targetedTestsPassed": 43,
@@ -196,5 +196,57 @@
     "negativeScenarioRequirement": "Prompts where the plugin should not be called",
     "preparedNegativeCases": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; prepared for reviewer validation, not executed. N1/N2/N4 remain internal authorization tests.",
     "reviewerAccountTests": "not_executed"
+  },
+  "additionalPreparation": {
+    "observedOnParis": "2026-09-21",
+    "publicPages": {
+      "paths": [
+        "/confidentialite/",
+        "/conditions/",
+        "/support/"
+      ],
+      "status": "candidate_implemented_not_yet_deployed",
+      "staticTestsPassed": 7,
+      "desktopAndIphoneTestsPassed": 8
+    },
+    "composerIcon": {
+      "path": "apps/web/public/brand/guteneo-composer.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 977001,
+      "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
+      "transparentPixels": 515191,
+      "localLightDarkQa": "passed",
+      "portalUpload": "pending"
+    },
+    "reviewer": {
+      "offlinePreparation": "implemented",
+      "securityTestsPassed": 8,
+      "accountCreated": false,
+      "oauthClientCreated": false,
+      "samplePdf": "synthetic_no_recipient_do_not_send",
+      "authenticationBlocker": "Auth0 administration credential refresh requires Touch ID in Safari"
+    },
+    "callbackObserved": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
+    "cloudflare": {
+      "existingDomainRouteVerified": true,
+      "hostname": "guteneo.com",
+      "worker": "guteneo-app",
+      "openaiChallengeVerified": false
+    },
+    "video": {
+      "script": "integrations/chatgpt/demo-recording.md",
+      "recorded": false
+    },
+    "authorization": "Publisher explicitly authorized pages, domain verification, reviewer account, tests, recording and submission; reported terms read and authorized acceptance.",
+    "validation": {
+      "typecheck": "passed",
+      "lint": "passed",
+      "mcpIntegrationTests": 32,
+      "newReviewerSecurityTests": 8,
+      "publicStaticTests": 7,
+      "publicDesktopAndIphoneTests": 8,
+      "fullCandidateCi": "pending"
+    }
   }
 }

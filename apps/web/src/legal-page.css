@@ -1,6 +1,9 @@
 .legal-page {
   min-height: 100vh;
 }
+.legal-page .site-header {
+  padding-inline: 40px;
+}
 .legal-back,
 .legal-copy a {
   display: inline-flex;
@@ -36,6 +39,11 @@
   font-size: 13px;
   color: var(--muted);
   margin-top: 24px;
+}
+.legal-intro .legal-label {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 .legal-layout {
   display: grid;
@@ -77,9 +85,18 @@
   line-height: 1.15;
 }
 .legal-copy p,
+.legal-copy li,
 .legal-copy address {
   font-size: 16px;
   line-height: 1.75;
+}
+.legal-copy ul {
+  padding-left: 24px;
+  margin-bottom: 24px;
+  list-style: disc;
+}
+.legal-copy li + li {
+  margin-top: 12px;
 }
 .legal-copy address {
   margin-bottom: 18px;
@@ -95,12 +112,19 @@
 }
 .legal-colophon {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 24px;
   margin: 0 40px;
   padding: 28px 0;
   border-top: 1px solid var(--line);
   font-size: 14px;
+}
+.legal-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 24px;
 }
 @media (max-width: 760px) {
   .legal-page .site-header {

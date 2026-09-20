@@ -324,6 +324,9 @@ export function LuxembourgFooter() {
           <a href="/journal/">Le journal</a>
           <a href="/developpeurs/">Développeurs</a>
           <a href="/mentions-legales/">{copy.footer.legal}</a>
+          <a href="/confidentialite/">Confidentialité</a>
+          <a href="/conditions/">Conditions</a>
+          <a href="/support/">Assistance</a>
         </nav>
       </div>
     </footer>

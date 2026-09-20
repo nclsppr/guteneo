@@ -10,6 +10,7 @@ export const packageFiles = [
   ".cursor-plugin/plugin.json",
   ".mcp.json",
   "README.md",
+  "assets/guteneo-composer.png",
   "assets/guteneo-mark.png",
   "mcp.json",
   "plugin.json",
