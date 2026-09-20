@@ -12,6 +12,7 @@ import {
 } from "./components";
 import "./postal-review.css";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
+import site from "../../../packages/contracts/src/public-site.json";
 import { PostalAddressPageSummary } from "./postal-address-page";
 
 const issueLabels: Record<string, string> = {
@@ -133,9 +134,16 @@ export function PostalReviewPage({ id }: { id: string }) {
   }, [processing, resource.loading, resource.error, resource.refresh]);
 
   const cropPath = `/api${path}/address.png`;
-  // Only our authenticated endpoint may supply the private crop; a provider URL
-  // or data URL in a response must never become a third-party image request.
-  const hasCrop = review?.address.cropUrl === cropPath && !cropFailed;
+  // The API returns the canonical absolute URL, including on an alternate host.
+  // Accept only this exact endpoint and always load it through our current
+  // authenticated origin; never use a response URL as the image's src.
+  const trustedCropUrls = [
+    cropPath,
+    `${window.location.origin}${cropPath}`,
+    `${site.origin}${cropPath}`,
+  ];
+  const hasCrop =
+    !cropFailed && trustedCropUrls.includes(review?.address.cropUrl ?? "");
   const canTransfer =
     !resource.loading &&
     !resource.error &&
