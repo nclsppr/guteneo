@@ -47,6 +47,124 @@ test("mobile navigation exposes every destination and returns focus to the opene
   await expect(toggle).toBeFocused();
 });
 
+test("mobile navigation preserves restored summary focus after deferred route frames", async ({
+  page,
+}, info) => {
+  test.skip(
+    info.project.name !== "iphone",
+    "iPhone WebKit keyboard and route-focus ordering coverage",
+  );
+  await page.goto("/#/app");
+  const toggle = page.locator(".workspace-navigation summary");
+  const nav = page.getByRole("navigation", { name: "Navigation de l’atelier" });
+  await toggle.click();
+  await expect(nav).toBeVisible();
+
+  type DeferredFrames = {
+    settleEffects(): Promise<void>;
+    runFirst(): boolean;
+    runRemaining(): void;
+    restore(): void;
+  };
+  await page.evaluate(() => {
+    const host = window as Window & {
+      guteneoDeferredFocusFrames?: DeferredFrames;
+    };
+    const nativeRequest = window.requestAnimationFrame.bind(window);
+    const nativeCancel = window.cancelAnimationFrame.bind(window);
+    const pending = new Map<number, FrameRequestCallback>();
+    let nextId = -1;
+    window.requestAnimationFrame = (callback) => {
+      const id = nextId--;
+      pending.set(id, callback);
+      return id;
+    };
+    window.cancelAnimationFrame = (id) => {
+      if (!pending.delete(id)) nativeCancel(id);
+    };
+    const runFirst = () => {
+      const first = pending.entries().next();
+      if (first.done) return false;
+      const [id, callback] = first.value;
+      pending.delete(id);
+      callback(performance.now());
+      return true;
+    };
+    host.guteneoDeferredFocusFrames = {
+      // Real frames let React commit and schedule passive effects while only
+      // application callbacks remain deferred. No elapsed-time assumption.
+      settleEffects: () =>
+        new Promise<void>((resolve) => {
+          nativeRequest(() => nativeRequest(() => resolve()));
+        }),
+      runFirst,
+      runRemaining: () => {
+        for (const id of [...pending.keys()]) {
+          const callback = pending.get(id);
+          pending.delete(id);
+          callback?.(performance.now());
+        }
+      },
+      restore: () => {
+        window.requestAnimationFrame = nativeRequest;
+        window.cancelAnimationFrame = nativeCancel;
+        delete host.guteneoDeferredFocusFrames;
+      },
+    };
+  });
+  try {
+    await nav.getByRole("link", { name: "Facturation", exact: true }).click();
+    await expect(page.locator("main h1")).toHaveText("Facturation");
+    await expect(nav).toBeHidden();
+    await page.evaluate(() =>
+      (
+        window as Window & {
+          guteneoDeferredFocusFrames?: DeferredFrames;
+        }
+      ).guteneoDeferredFocusFrames!.settleEffects(),
+    );
+    expect(
+      await page.evaluate(() =>
+        (
+          window as Window & {
+            guteneoDeferredFocusFrames?: DeferredFrames;
+          }
+        ).guteneoDeferredFocusFrames!.runFirst(),
+      ),
+    ).toBe(true);
+    await expect(page.locator("main")).toBeFocused();
+    await toggle.focus();
+    await expect(toggle).toBeFocused();
+    await page.evaluate(() =>
+      (
+        window as Window & {
+          guteneoDeferredFocusFrames?: DeferredFrames;
+        }
+      ).guteneoDeferredFocusFrames!.runRemaining(),
+    );
+    await expect(toggle).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(nav).toBeVisible();
+  } finally {
+    await page.evaluate(() =>
+      (
+        window as Window & {
+          guteneoDeferredFocusFrames?: DeferredFrames;
+        }
+      ).guteneoDeferredFocusFrames?.restore(),
+    );
+  }
+
+  // Selecting the already-open destination still closes the menu and moves
+  // focus into the page, even though no route-change effect will run.
+  await nav.getByRole("link", { name: "Facturation", exact: true }).click();
+  await expect(nav).toBeHidden();
+  await expect(page.locator("main")).toBeFocused();
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(nav).toBeVisible();
+});
+
 test("mobile tables retain all fields without horizontal scrolling at 320px and in landscape", async ({
   page,
 }, info) => {
