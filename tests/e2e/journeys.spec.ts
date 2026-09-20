@@ -1,6 +1,6 @@
+import { evidencePath } from "../preview-e2e/evidence";
 import { test, expect, type Page } from "./fixtures";
 import { PDFDocument, PDFName } from "pdf-lib";
-import { mkdir } from "node:fs/promises";
 
 test("oversized embedded images fail visibly before decode, without a partial preview", async ({
   page,
@@ -135,7 +135,6 @@ async function login(
 }
 
 async function screenshot(page: Page, name: string) {
-  await mkdir("reports/screenshots", { recursive: true });
   await page.evaluate(async () => {
     await document.fonts.ready;
     if (document.activeElement instanceof HTMLElement)
@@ -163,7 +162,7 @@ async function screenshot(page: Page, name: string) {
     JSON.stringify({ name, ...dimensions }),
   ).toBeLessThanOrEqual(dimensions.viewport);
   await page.screenshot({
-    path: `reports/screenshots/${name}.png`,
+    path: await evidencePath(`${name}.png`),
     fullPage: true,
   });
 }
@@ -174,7 +173,9 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
 }, testInfo) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Vos mots méritent de parvenir." }),
+    page.getByRole("heading", {
+      name: "Votre assistant prépare. Guteneo transmet.",
+    }),
   ).toBeVisible();
   // WebKit on macOS uses Option-Tab for links unless full keyboard navigation is enabled.
   // Keep this a real keyboard traversal; do not replace it with programmatic focus.
@@ -189,7 +190,9 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await page.keyboard.press("Enter");
   await expect(page.locator("#landing-main")).toBeFocused();
   await page
-    .getByRole("heading", { name: "Vos mots méritent de parvenir." })
+    .getByRole("heading", {
+      name: "Votre assistant prépare. Guteneo transmet.",
+    })
     .click();
   await expect
     .poll(() =>

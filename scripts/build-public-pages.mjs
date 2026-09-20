@@ -86,7 +86,10 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
       /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
       "",
     );
-  if (!["/", "/developpeurs/"].includes(pathname)) {
+  if (
+    !["/", "/developpeurs/"].includes(pathname) &&
+    !pathname.startsWith("/assistants/")
+  ) {
     html = html
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
       .replace(/<link\b[^>]*rel=["']modulepreload["'][^>]*>/gi, "");

@@ -4,6 +4,8 @@ import { LegalPage } from "../legal-page";
 import { DeveloperPage } from "../developer-page";
 import { articles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
+import { AssistantsPage } from "../assistants-page";
+import { getAssistant } from "../assistant-catalog";
 
 const origin = "https://guteneo.com";
 const publisher = {
@@ -37,6 +39,29 @@ function breadcrumbs(items: { name: string; path: string }[]) {
 }
 
 export function renderPublicPage(pathname: string) {
+  if (pathname.startsWith("/assistants/")) {
+    const id = pathname.split("/")[2];
+    const assistant = getAssistant(id);
+    if (id && !assistant) return null;
+    const title = assistant
+      ? `Connecter ${assistant.name} à Guteneo`
+      : "Vos assistants, votre correspondance";
+    return {
+      html: renderToString(<AssistantsPage assistantId={id || undefined} />),
+      title: `${title} | Guteneo`,
+      description: assistant
+        ? `Suivez le guide pour ajouter Guteneo à ${assistant.name} : prérequis, configuration, autorisation et première demande de vérification.`
+        : "Choisissez votre assistant et découvrez comment le connecter à Guteneo. Guides ChatGPT, Claude, Grok, GitHub Copilot, Microsoft 365 Copilot et Cursor.",
+      canonical: origin + pathname,
+      structuredData: [
+        breadcrumbs([
+          { name: "Accueil", path: "/" },
+          { name: "Assistants", path: "/assistants/" },
+          ...(assistant ? [{ name: assistant.name, path: pathname }] : []),
+        ]),
+      ],
+    };
+  }
   if (pathname === "/")
     return {
       html: renderToString(<Landing />),

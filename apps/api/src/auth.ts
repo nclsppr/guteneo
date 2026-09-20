@@ -52,6 +52,11 @@ export interface McpIdentity {
   clientId: string;
   expiresAt: number;
   token: string;
+  /** Trusted snapshot from production OAuth authentication, never host metadata. */
+  connectionObservation?: {
+    connectionId: string;
+    authorizationRevision: number;
+  };
 }
 export class AuthError extends Error {
   constructor(
@@ -507,11 +512,22 @@ export async function authenticateMcp(
       403,
     );
   const memberRows = await memberships(env, identity.user_id);
-  let connection = await env.DB.prepare(
-    "SELECT organization_id,status,not_before FROM authorized_connections WHERE issuer=? AND user_id=? AND client_id=?",
-  )
-    .bind(issuer, identity.user_id, clientId)
-    .first<{ organization_id: string; status: string; not_before: number }>();
+  const readConnection = () =>
+    env.DB.prepare(
+      `SELECT c.id,c.organization_id,c.status,c.not_before,o.authorization_revision
+       FROM authorized_connections c LEFT JOIN connection_tool_observations o
+         ON o.connection_id=c.id AND o.organization_id=c.organization_id AND o.user_id=c.user_id
+       WHERE c.issuer=? AND c.user_id=? AND c.client_id=?`,
+    )
+      .bind(issuer, identity.user_id, clientId)
+      .first<{
+        id: string;
+        organization_id: string;
+        status: string;
+        not_before: number;
+        authorization_revision: number | null;
+      }>();
+  let connection = await readConnection();
   if (!connection) {
     // OAuth consent selects a single personal workspace unambiguously; multi-workspace users must bind explicitly in the dashboard.
     if (memberRows.length !== 1)
@@ -534,11 +550,7 @@ export async function authenticateMcp(
         nowISO(),
       )
       .run();
-    connection = await env.DB.prepare(
-      "SELECT organization_id,status,not_before FROM authorized_connections WHERE issuer=? AND user_id=? AND client_id=?",
-    )
-      .bind(issuer, identity.user_id, clientId)
-      .first<{ organization_id: string; status: string; not_before: number }>();
+    connection = await readConnection();
   }
   if (
     !connection ||
@@ -586,6 +598,14 @@ export async function authenticateMcp(
     clientId,
     expiresAt: payload.exp,
     token,
+    ...(env.MODE === "production" && connection.authorization_revision !== null
+      ? {
+          connectionObservation: {
+            connectionId: connection.id,
+            authorizationRevision: connection.authorization_revision,
+          },
+        }
+      : {}),
   };
 }
 export function protectedResourceMetadata(env: AuthEnv): Response {
@@ -937,9 +957,21 @@ export async function handleAuthRoute(
   if (url.pathname === "/api/connections" && request.method === "GET") {
     const session = await authenticateBrowser(request, env);
     const result = await env.DB.prepare(
-      "SELECT id,client_id,organization_id,status,created_at,updated_at FROM authorized_connections WHERE user_id=? AND organization_id=? ORDER BY created_at DESC LIMIT 100",
+      `SELECT c.id,c.client_id,c.organization_id,c.status,c.created_at,c.updated_at,
+         NULL AS display_name,NULL AS assistant,
+         CASE WHEN c.status='active' AND ?='production' AND org.mode='production' THEN o.last_successful_tool_at ELSE NULL END AS last_successful_tool_at,
+         CASE WHEN c.status='active' AND ?='production' AND org.mode='production' AND o.last_successful_tool_at IS NOT NULL THEN 'verified' ELSE 'unverified' END AS verification
+       FROM authorized_connections c
+       JOIN organizations org ON org.id=c.organization_id
+       LEFT JOIN connection_tool_observations o ON o.connection_id=c.id AND o.organization_id=c.organization_id AND o.user_id=c.user_id
+       WHERE c.user_id=? AND c.organization_id=? ORDER BY c.created_at DESC,c.id LIMIT 100`,
     )
-      .bind(session.context.userId, session.context.organizationId)
+      .bind(
+        env.MODE,
+        env.MODE,
+        session.context.userId,
+        session.context.organizationId,
+      )
       .all();
     return json({ items: result.results });
   }

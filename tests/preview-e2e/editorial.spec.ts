@@ -1,3 +1,4 @@
+import { evidencePath } from "./evidence";
 import { expect, test } from "@playwright/test";
 
 const slugs = ["de-gutenberg-au-numerique", "histoire-imprimerie-luxembourg"];
@@ -39,7 +40,9 @@ for (const slug of slugs) {
       ),
     ).toBe(true);
     await page.screenshot({
-      path: `reports/screenshots/editorial/${slug}-${testInfo.project.name}.png`,
+      path: await evidencePath(
+        `editorial/${slug}-${testInfo.project.name}.png`,
+      ),
     });
     const firstChapter = page.locator(".article-copy section").first();
     const firstId = await firstChapter.getAttribute("id");
@@ -52,7 +55,9 @@ for (const slug of slugs) {
     ).toBeLessThan(100);
     await expect(firstChapter.getByRole("heading")).toBeVisible();
     await page.screenshot({
-      path: `reports/screenshots/editorial/${slug}-reading-${testInfo.project.name}.png`,
+      path: await evidencePath(
+        `editorial/${slug}-reading-${testInfo.project.name}.png`,
+      ),
     });
     const targets = await page
       .locator(".chapter-sources a")

@@ -38,7 +38,7 @@ export const fr = {
     documents: "Documents",
     dispatches: "Envois",
     campaigns: "Campagnes",
-    connection: "Connecter un assistant",
+    connection: "Assistants",
     senders: "Expéditeurs",
     usage: "Consommation",
     billing: "Facturation",
@@ -47,123 +47,19 @@ export const fr = {
   },
   landing: {
     navHow: "Le principe",
-    navChannels: "Les canaux",
-    navApp: "Ouvrir mon espace",
-    eyebrow: "DE LA CONVERSATION À LA CORRESPONDANCE",
-    title: "Vos mots méritent",
-    titleItalic: "de parvenir.",
+    navApp: "Mon espace",
+    title: "Votre assistant prépare.",
+    titleItalic: "Guteneo transmet.",
     intro:
-      "Du PDF au papier, du message à l’e-mail. Préparez, approuvez et suivez chaque envoi depuis votre assistant.",
-    cta: "Découvrir mon atelier",
-    secondary: "Comment ça fonctionne",
+      "Envoyez vos documents par fax, e-mail ou courrier postal depuis votre conversation. Vérifiez le destinataire et le prix dans Guteneo, puis confirmez l’envoi.",
+    cta: "Préparer mon premier envoi",
+    secondary: "Voir un exemple",
     imageAlt:
       "Presse typographique historique et feuilles imprimées, illustration tramée en bleu et ivoire",
     caption: "L’esprit d’une imprimerie. La simplicité d’une conversation.",
-    processTitle: "La bonne idée,",
-    processTitleItalic: "à la bonne adresse.",
-    processIntro:
-      "Vous composez. Guteneo prend le relais, avec votre accord et une trace de chaque étape.",
-    steps: [
-      {
-        title: "Composez dans votre assistant.",
-        text: "Une lettre, un PDF, un e-mail HTML. Votre document original reste votre document original.",
-      },
-      {
-        title: "Relisez. Puis donnez votre accord.",
-        text: "Le contenu, le destinataire, le canal et le plafond sont réunis dans un aperçu avant l’envoi.",
-      },
-      {
-        title: "Retrouvez le fil de chaque envoi.",
-        text: "Un identifiant durable et des résultats précis, dans la conversation comme dans votre espace.",
-      },
-    ],
-    channelsTitle: "Trois chemins.",
-    channelsItalic: "Une correspondance.",
-    channelText: {
-      fax: "Votre PDF, transmis par fax. Une version exacte, un destinataire et un résultat traçable.",
-      email:
-        "Un objet, du HTML, du texte et vos pièces jointes. Un envoi individuel pour chaque destinataire.",
-      postal:
-        "Une vraie lettre : impression, mise sous pli et remise à la poste. Les étapes restent distinctes de la livraison.",
-    },
-    note: "La démonstration utilise des connecteurs simulés. L’activation des envois réels exige des expéditeurs et des prestataires configurés.",
-    footer: "Les idées voyagent. Gardez-en la trace.",
-    footerLink: "Entrer dans l’atelier",
   },
   homepage: {
-    navInstallation: "Installation",
     navPricing: "Tarifs",
-    copied: "Copié.",
-    copyFallback: "Sélectionnez le texte ci-dessus pour le copier.",
-    install: {
-      brandIntro: "Vos assistants, une même correspondance.",
-      brandPreparing: "Connexion en préparation",
-      brandUnavailable: "Intégration non disponible",
-      title: "Votre assistant.",
-      italic: "Votre correspondance.",
-      intro:
-        "Gardez vos habitudes. Ajoutez Guteneo à votre assistant, puis préparez votre premier document dans la conversation.",
-      download: "Télécharger le guide d’installation",
-      choose: "Choisir votre assistant",
-      endpoint: "Adresse du serveur Guteneo",
-      copyEndpoint: "Copier l’adresse",
-      cursorDownload: "Télécharger la configuration Cursor",
-      copilotVscodeDownload: "Configuration VS Code",
-      copilotCliDownload: "Configuration Copilot CLI",
-      copilotCliLink: "Guide officiel Copilot CLI",
-      promptTitle: "Une première conversation, tout simplement.",
-      prompt:
-        "Avec Guteneo, vérifie les fonctions disponibles pour mon compte. Aide-moi à préparer un courrier et à choisir son canal. Demande-moi les informations manquantes, puis présente le document, le destinataire et le coût pour ma validation dans Guteneo. N’effectue aucun envoi sans cette validation.",
-      copyPrompt: "Copier ce premier message",
-      availability:
-        "La connexion des assistants est en cours de qualification. Ce guide prépare l’installation ; l’aperçu public ne connecte aucun compte et n’envoie aucun document.",
-      hosts: {
-        chatgpt: {
-          name: "ChatGPT",
-          steps: [
-            "Dans les paramètres ChatGPT, ouvrez Sécurité et connexion, puis activez le mode développeur si votre compte le permet.",
-            "Ouvrez Plugins, sélectionnez le bouton + et ajoutez Guteneo avec l’adresse du serveur ci-dessous.",
-            "Connectez votre compte Guteneo, examinez les permissions, puis ajoutez la connexion à une conversation.",
-          ],
-          url: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
-          link: "Voir les étapes officielles ChatGPT",
-          note: "La disponibilité dépend de votre compte et des règles de votre espace. Copier un message n’installe pas de plugin et ne remplace pas votre connexion.",
-        },
-        claude: {
-          name: "Claude",
-          steps: [
-            "Dans Claude, ouvrez Personnaliser → Connecteurs. Sur un compte individuel compatible, choisissez + puis Ajouter un connecteur personnalisé.",
-            "Nommez le connecteur Guteneo et indiquez l’adresse du serveur ci-dessous.",
-            "Connectez votre compte Guteneo, puis activez le connecteur dans votre conversation.",
-          ],
-          url: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
-          link: "Voir les étapes officielles Claude",
-          note: "Sur Team et Enterprise, le propriétaire de l’espace ajoute d’abord le connecteur. Pour conserver un PDF exact, déposez-le dans Guteneo puis retrouvez-le dans Claude.",
-        },
-        cursor: {
-          name: "Cursor",
-          steps: [
-            "Téléchargez la configuration Cursor ci-dessous. Elle contient uniquement l’adresse publique du serveur Guteneo.",
-            "Ajoutez l’entrée guteneo à votre fichier .cursor/mcp.json en conservant vos autres serveurs. Ouvrez les paramètres MCP de Cursor.",
-            "Connectez votre compte Guteneo, vérifiez les outils disponibles, puis reprenez votre conversation.",
-          ],
-          url: "https://cursor.com/docs/mcp",
-          link: "Voir les étapes officielles Cursor",
-          note: "Cette configuration ne lit aucun fichier local. Déposez votre PDF dans Guteneo pour l’utiliser ; l’adaptateur d’import local se configure séparément.",
-        },
-        copilot: {
-          name: "GitHub Copilot",
-          steps: [
-            "Dans VS Code avec GitHub Copilot, ajoutez l’entrée guteneo de la configuration VS Code ci-dessous à .vscode/mcp.json. Conservez vos autres serveurs.",
-            "Ouvrez MCP: List Servers, choisissez Guteneo et connectez votre compte si l’accès est disponible. Vérifiez les outils avant de commencer votre conversation.",
-            "Dans Copilot CLI, utilisez plutôt la configuration CLI dans ~/.copilot/mcp-config.json. La commande /mcp auth guteneo ouvre la connexion OAuth lorsqu’elle est nécessaire.",
-          ],
-          url: "https://code.visualstudio.com/docs/agents/reference/mcp-configuration",
-          link: "Guide officiel VS Code",
-          note: "GitHub Copilot dans VS Code et Copilot CLI uniquement ; Microsoft Copilot grand public n’est pas couvert. La connexion OAuth et les règles de votre compte restent à qualifier. Déposez votre PDF dans Guteneo : ces configurations ne donnent aucun accès au disque.",
-        },
-      },
-    },
     pricing: {
       title: "De quoi commencer.",
       italic: "Et rien de caché.",
@@ -177,9 +73,6 @@ export const fr = {
       rateLabel: "Tarifs clients indicatifs des trois canaux",
       channel: "Votre canal",
       price: "Votre tarif",
-      topup: "Ajouter du crédit",
-      topupNote:
-        "Bientôt disponible avec Stripe. Le rechargement est désactivé ; aucun paiement n’est possible pour le moment.",
     },
     faq: {
       title: "Avant le premier envoi,",
@@ -188,46 +81,31 @@ export const fr = {
         "Le document, votre accord et le suivi : les mêmes repères, quel que soit le canal.",
       items: [
         {
-          question: "Est-ce que Guteneo envoie déjà de vrais courriers ?",
+          question: "Mon PDF original est-il modifié ?",
           answer:
-            "Le courrier postal est disponible dans votre atelier connecté après la déclaration de l’expéditeur par un administrateur. Importez votre PDF, vérifiez-le, puis approuvez le destinataire et le devis avant de confirmer l’envoi. L’aperçu de démonstration reste séparé : ses documents et résultats sont fictifs et aucun courrier n’y est expédié.",
-        },
-        {
-          question: "Comment fonctionnent les 50 € offerts ?",
-          answer:
-            "Votre organisation reçoit une seule dotation de 50 € à la création de son compte, partagée entre les canaux activés. Elle ne se renouvelle pas chaque mois. Avant un envoi, son plafond approuvé est réservé dans votre solde ; si le crédit disponible est insuffisant, l’envoi est bloqué.",
-        },
-        {
-          question: "Que se passe-t-il quand mon crédit est épuisé ?",
-          answer:
-            "Les nouveaux envois sont bloqués. Il n’y a ni débit automatique ni solde négatif. Le bouton Ajouter du crédit restera désactivé jusqu’à l’ouverture du rechargement Stripe.",
+            "Votre PDF importé est conservé à l’identique. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
         },
         {
           question: "Mon assistant peut-il envoyer sans mon accord ?",
           answer:
-            "Votre assistant peut préparer un envoi. Vous examinez ensuite dans Guteneo le contenu exact, le destinataire, le canal et le coût avant de valider. Un accord donné dans une conversation ne remplace pas cette approbation.",
+            "Par défaut, votre assistant prépare l’envoi et vous validez dans Guteneo le document, le destinataire, le canal et le coût. Un accord donné dans la conversation ne remplace pas cette validation. Le mode expert est facultatif : seul un administrateur peut autoriser une délégation limitée, révocable et avec une date de fin.",
         },
         {
-          question: "Mon PDF original est-il modifié ?",
+          question: "Comment connaître le prix de mon envoi ?",
           answer:
-            "Un PDF importé reste un original immuable : ses octets ne sont pas réécrits. Composer une lettre produit un nouveau PDF. Dans l’aperçu public, seuls les deux documents fictifs fournis sont disponibles ; l’import et la composition personnalisée sont désactivés.",
-        },
-        {
-          question: "Un message copié installe-t-il Guteneo en un clic ?",
-          answer:
-            "Non. Le message proposé vous aide à démarrer une conversation une fois Guteneo connecté. L’ajout du connecteur, la connexion à votre compte et l’examen des permissions se font dans votre assistant. Les parcours ChatGPT, Claude et Cursor restent à vérifier sur des comptes réels.",
+            "Le prix ou le plafond vous est présenté avant validation, avec les options et les taxes applicables. Les tarifs ci-dessus sont indicatifs. Le crédit de bienvenue de 50 € est attribué une seule fois, sans renouvellement mensuel. Si votre solde ne couvre pas l’envoi, celui-ci est bloqué : aucun débit automatique ni solde négatif.",
         },
         {
           question: "Comment savoir si mon envoi est arrivé ?",
           answer:
-            "Chaque envoi conserve son propre suivi. L’acceptation par un prestataire, l’impression, la remise à la poste et la livraison sont des étapes différentes. Un résultat incertain reste visible et n’entraîne jamais une nouvelle expédition automatique.",
+            "Retrouvez le suivi dans votre conversation et votre espace Guteneo. Un fax transmis, un e-mail accepté par le serveur destinataire et un courrier remis à la poste sont des résultats distincts ; ils ne prouvent pas que votre destinataire a lu le document. La livraison n’est affichée que lorsqu’elle est confirmée. Un résultat incertain reste visible et ne déclenche jamais une nouvelle expédition automatique.",
         },
       ],
     },
     footer: {
       title: "Les idées voyagent.",
       italic: "Les nôtres partent d’ici.",
-      cta: "Entrer dans l’atelier",
+      cta: "Préparer mon premier envoi",
       imageAlt:
         "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en bleu et ivoire.",
       stampDescription:
