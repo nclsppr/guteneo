@@ -6,7 +6,14 @@
     "/journal/de-gutenberg-au-numerique/",
     "/journal/histoire-imprimerie-luxembourg/",
     "/mentions-legales/",
-    "/developpeurs/"
+    "/developpeurs/",
+    "/assistants/",
+    "/assistants/chatgpt/",
+    "/assistants/claude/",
+    "/assistants/grok/",
+    "/assistants/copilot/",
+    "/assistants/microsoft365/",
+    "/assistants/cursor/"
   ],
   "privatePrefixes": [
     "api",

@@ -89,7 +89,6 @@ export function JournalTeaser() {
     <section className="journal-teaser" aria-labelledby="journal-teaser-title">
       <div className="journal-section-heading">
         <div>
-          <p className="editorial-kicker">Le journal de l’atelier</p>
           <h2 id="journal-teaser-title">
             Les mots voyagent.
             <br />
@@ -100,7 +99,31 @@ export function JournalTeaser() {
           Ouvrir le journal <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
-      <ArticleList />
+      <div className="journal-compact-stories">
+        {articles.slice(0, 2).map((article) => (
+          <article key={article.slug}>
+            <a
+              className="journal-compact-image"
+              href={articlePath(article.slug)}
+              tabIndex={-1}
+              aria-hidden="true"
+            >
+              <ArticlePicture article={article} />
+            </a>
+            <div>
+              <p className="journal-reading-time">
+                {article.readingMinutes} min de lecture
+              </p>
+              <h3>
+                <a href={articlePath(article.slug)}>
+                  {article.title}
+                  <ArrowUpRight size={19} aria-hidden="true" />
+                </a>
+              </h3>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

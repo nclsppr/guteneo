@@ -66,6 +66,13 @@ describe("public preview boundary", () => {
     "/journal/histoire-imprimerie-luxembourg/",
     "/mentions-legales/",
     "/developpeurs/",
+    "/assistants/",
+    "/assistants/chatgpt/",
+    "/assistants/claude/",
+    "/assistants/grok/",
+    "/assistants/copilot/",
+    "/assistants/microsoft365/",
+    "/assistants/cursor/",
   ])(
     "serves canonical public HTML at %s without noindex on the primary domain",
     async (path) => {
@@ -88,6 +95,8 @@ describe("public preview boundary", () => {
     "/mentions-legales/",
     "/developpeurs/",
     "/image.webp",
+    "/assistants/",
+    "/assistants/chatgpt/",
   ])("keeps fallback workers.dev URL %s out of the index", async (path) => {
     const { env } = assetsEnv();
     const response = await worker.fetch(

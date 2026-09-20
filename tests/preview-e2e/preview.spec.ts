@@ -1,5 +1,5 @@
+import { evidencePath } from "./evidence";
 import { test, expect } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
 
 test("public design and every workspace page render without server data or overflow", async ({
   page,
@@ -13,22 +13,28 @@ test("public design and every workspace page render without server data or overf
   });
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Vos mots méritent de parvenir." }),
+    page.getByRole("heading", {
+      name: "Votre assistant prépare. Guteneo transmet.",
+    }),
   ).toBeVisible();
   await expect(
     page.getByText("Aperçu interactif", { exact: false }),
   ).toBeVisible();
-  await mkdir("reports/screenshots/preview", { recursive: true });
   await page.screenshot({
-    path: `reports/screenshots/preview/landing-${info.project.name}.png`,
+    path: await evidencePath(`preview/landing-${info.project.name}.png`),
     fullPage: true,
   });
-  await page.getByRole("link", { name: "Découvrir l’atelier" }).click();
+  const menu = page.getByRole("button", { name: "Menu", exact: true });
+  if (await menu.isVisible()) await menu.click();
+  await page
+    .locator(".site-header")
+    .getByRole("link", { name: "Explorer la démo" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
   await page.screenshot({
-    path: `reports/screenshots/preview/workspace-${info.project.name}.png`,
+    path: await evidencePath(`preview/workspace-${info.project.name}.png`),
     fullPage: true,
   });
   for (const route of [
@@ -59,7 +65,7 @@ test("public design and every workspace page render without server data or overf
         "La recharge sera disponible avec Stripe",
       );
       await page.screenshot({
-        path: `reports/screenshots/preview/billing-${info.project.name}.png`,
+        path: await evidencePath(`preview/billing-${info.project.name}.png`),
         fullPage: true,
       });
     }

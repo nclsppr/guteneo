@@ -1,5 +1,5 @@
+import { evidencePath } from "./evidence";
 import { expect, test, type Page } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
 
 async function fits(page: Page) {
   expect(
@@ -110,9 +110,8 @@ test("mobile PDF selection, download control and close retain their focus and pa
   });
   expect((await download.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   await fits(page);
-  await mkdir("reports/screenshots/mobile", { recursive: true });
   await page.screenshot({
-    path: "reports/screenshots/mobile/iphone-document.png",
+    path: await evidencePath("mobile/iphone-document.png"),
     fullPage: true,
   });
   await page.getByRole("button", { name: "Fermer", exact: true }).click();

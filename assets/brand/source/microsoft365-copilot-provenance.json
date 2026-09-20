@@ -1,0 +1,12 @@
+{
+  "product": "Microsoft 365 Copilot",
+  "retrievedOn": "2026-09-20",
+  "sourcePage": "https://adoption.microsoft.com/en-us/copilot/",
+  "sourceAsset": "https://adoption.microsoft.com/wp-content/uploads/2023/09/icon-copilot.svg",
+  "sourcePageAltText": "Microsoft 365 Copilot logo",
+  "localAsset": "apps/web/public/brands/microsoft365.svg",
+  "sha256": "611f64330ec6126053d0f4c00c167c0dc11197d67fc0606e1c07582c20c8e523",
+  "bytes": 4374,
+  "viewBox": "0 0 48 48",
+  "modifications": "None; exact original SVG retained. Used as product identification next to its name, not as Guteneo branding or endorsement."
+}

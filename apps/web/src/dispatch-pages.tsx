@@ -33,7 +33,9 @@ import {
   type DocumentRecord,
   type Page,
   type Sender,
+  type Session,
 } from "./api";
+import { OverviewAssistantStart } from "./assistant-workspace";
 import { fr as t } from "./i18n";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
 import {
@@ -143,12 +145,13 @@ function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
   };
 }
 
-export function Overview() {
+export function Overview({ session }: { session: Session }) {
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const dispatches = useResource<Page<Dispatch>>("/dispatches");
   return (
     <>
       <PageHeading title={t.overview.title} intro={t.overview.intro} />
+      <OverviewAssistantStart session={session} />
       <div className="overview-stats">
         <div>
           <span>{t.overview.documents}</span>
@@ -197,16 +200,6 @@ export function Overview() {
           }
         />
       )}
-      <aside className="connection-callout">
-        <div>
-          <h2>{t.overview.connectionTitle}</h2>
-          <p>{t.overview.connectionBody}</p>
-        </div>
-        <a className="button" href="#/app/connection">
-          {t.overview.connect}
-          <ArrowRight size={18} />
-        </a>
-      </aside>
     </>
   );
 }

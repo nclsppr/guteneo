@@ -1,3 +1,4 @@
+import { evidencePath } from "./evidence";
 import { expect, test } from "@playwright/test";
 
 test("legal information is public, accurate and returns to the homepage", async ({
@@ -25,13 +26,15 @@ test("legal information is public, accurate and returns to the homepage", async 
     ),
   ).toBe(true);
   await page.screenshot({
-    path: `reports/screenshots/homepage/legal-${testInfo.project.name}.png`,
+    path: await evidencePath(`homepage/legal-${testInfo.project.name}.png`),
     fullPage: true,
   });
   await page
     .getByRole("link", { name: "Retour à l’accueil", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: /Vos mots méritent/ }),
+    page.getByRole("heading", {
+      name: "Votre assistant prépare. Guteneo transmet.",
+    }),
   ).toBeVisible();
 });

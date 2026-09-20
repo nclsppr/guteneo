@@ -72,17 +72,19 @@ test("initial document contains readable content, canonical metadata and safely 
   );
 });
 
-test("only the homepage and developer reference retain the app entry; every static page reuses built CSS", () => {
+test("interactive public pages retain the app entry while every public page reuses built CSS", () => {
   for (const pathname of PUBLIC_PATHS) {
     const html = publicPageDocument(template, pathname, page(pathname));
     assert.match(html, /href="\/assets\/main-hash.css"/);
     assert.equal(
       html.includes('type="module"'),
-      ["/", "/developpeurs/"].includes(pathname),
+      ["/", "/developpeurs/"].includes(pathname) ||
+        pathname.startsWith("/assistants/"),
     );
     assert.equal(
       html.includes('rel="modulepreload"'),
-      ["/", "/developpeurs/"].includes(pathname),
+      ["/", "/developpeurs/"].includes(pathname) ||
+        pathname.startsWith("/assistants/"),
     );
     assert.equal(html.includes('type="application/ld+json"'), true);
   }
@@ -120,7 +122,7 @@ async function outputDirectory(t) {
   return output;
 }
 
-test("all six public pages and only canonical primary URLs enter the sitemap", async (t) => {
+test("all public pages and only canonical primary URLs enter the sitemap", async (t) => {
   const output = await outputDirectory(t);
   await writePublicPages({ output, renderPublicPage: page, indexable: true });
   for (const pathname of PUBLIC_PATHS) {
@@ -203,6 +205,8 @@ test("real Static Assets parsing retains noindex and security headers together",
       "/journal/",
       "/mentions-legales/",
       "/developpeurs/",
+      "/assistants/",
+      "/assistants/chatgpt/",
     ]) {
       const response = await mf.dispatchFetch(
         `http://backend-fixture.invalid${path}`,
