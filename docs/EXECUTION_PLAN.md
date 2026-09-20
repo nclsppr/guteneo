@@ -1,13 +1,15 @@
 # Execution plan and handoff
 
-20 September: the requested next release opens postal setup to every existing
-and future account through its authenticated browser administrator. Supplier
-funding is confirmed by the user; the first real end-to-end letter test is reserved
-for the user after publication. Implement and publish sender declaration, all
-eight EUR calculator price policies, the fax+postal transport configuration and
-fresh scanner definitions; do not make a completed postal delivery a prerequisite
-for exposing that testable workflow. See [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md)
-for the exact contract, verification and remaining operational qualifications.
+20 September: postal setup is published for every existing and future account
+through its authenticated browser administrator. PR #18's merged source
+`ef417c7f187bd11e327881b2127eae653288ac58` passed CI and public asset/capability
+verification on both application hosts. Fresh scanner definitions were qualified
+remotely. Supplier funding is confirmed by the user; the first real end-to-end
+letter test remains the user's action. See [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md).
+The follow-up replaces local Codex maintenance with a deterministic GitHub Actions
+workflow. Its dedicated credential and first hosted publication remain required
+before scheduled activation; see [SCANNER_CI.md](SCANNER_CI.md). Older dated
+release statements below are historical.
 
 Local candidate, 17 September: replace the hosted PDF source-domain allowlist
 with public HTTPS imports and runtime-enforced public egress. Local URL imports

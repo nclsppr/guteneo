@@ -2,12 +2,53 @@ import datetime
 import importlib.util
 import io
 from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location("scanner_server", Path(__file__).parents[1] / "container/server.py")
 server = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(server)
+
+
+class BuildIdentityTests(unittest.TestCase):
+    def test_only_exact_image_file_identity_is_accepted(self):
+        identity = "sha-" + "a" * 40 + "-run-123456-attempt-1"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scanner-build-id"
+            self.assertIsNone(server.load_build_id(path))
+            for value in ("", "unqualified", identity + "\n", "private text", identity):
+                path.write_text(value, encoding="ascii")
+                self.assertEqual(server.load_build_id(path), identity if value == identity else None)
+            path.write_bytes(b"\xff")
+            self.assertIsNone(server.load_build_id(path))
+
+    def test_successful_and_failed_responses_keep_image_identity_outside_document_contract(self):
+        identity = "sha-" + "a" * 40 + "-run-123456-attempt-1"
+        for status, payload in ((200, {"status": "ready"}), (503, {"code": "SCANNER_NOT_READY"})):
+            for value in (identity, None):
+                handler = server.Handler.__new__(server.Handler)
+                handler.send_response = Mock()
+                handler.send_header = Mock()
+                handler.end_headers = Mock()
+                handler.wfile = io.BytesIO()
+                with patch.object(server, "BUILD_ID", value):
+                    handler.send_json(status, payload)
+                headers = dict(call.args for call in handler.send_header.call_args_list)
+                self.assertEqual(headers.get("x-guteneo-scanner-build-id"), value)
+                self.assertNotIn(b"build", handler.wfile.getvalue())
+
+
+class LocalQualificationIdentityTests(unittest.TestCase):
+    def test_health_and_both_scan_results_require_one_consistent_identity(self):
+        from qualify_docker import qualification_build_id
+        identity = "sha-" + "a" * 40 + "-run-123456-attempt-1"
+        self.assertEqual(qualification_build_id(*[{"buildId": identity}] * 3), identity)
+        # Existing manual qualification remains available without claiming CI identity.
+        self.assertIsNone(qualification_build_id({}, {}, {}))
+        for values in ((identity, identity, None), (identity, identity.replace("attempt-1", "attempt-2"), identity), ("private text",) * 3):
+            with self.subTest(values=values), self.assertRaises(AssertionError):
+                qualification_build_id(*[{"buildId": value} for value in values])
 
 
 class FreshnessTests(unittest.TestCase):

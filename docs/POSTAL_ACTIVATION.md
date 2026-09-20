@@ -74,15 +74,27 @@ depuis le commit fusionné et vérifié de `main`. Les migrations sont appliqué
 contrôlées avant publication. La preuve finale doit rapprocher le commit,
 `release.json`, les assets publics, les capacités par canal et le trafic Cloudflare.
 
-L’inspection privée du 20 septembre confirme OAuth Pingen, EUR, profil LU et fenêtre
-gauche. Le contrôle du scanner publié a retourné `SIGNATURES_STALE` ; une nouvelle
-image locale a été construite avec la base ClamAV 28129 du 20 septembre à 06:26:26
-UTC. PDF propre, EICAR, limites et absence de fichiers temporaires ont été vérifiés
-localement. La preuve distante après déploiement reste nécessaire ; une image
-locale ne constitue pas une correction de production.
+La PR #18 a été fusionnée au commit
+`ef417c7f187bd11e327881b2127eae653288ac58`, avec ses CI de PR et de `main` réussies.
+Le 20 septembre à 19:46 UTC, les deux origines publiques servaient ce commit avec
+72 empreintes d'assets vérifiées, `postal:true`, `fax:true` et `email:false`.
+La configuration privée Pingen confirme OAuth, EUR, profil LU et fenêtre gauche.
+Les migrations 0030–0031 sont appliquées ; le schéma distant et son intégrité
+ont été vérifiés. Aucune déclaration d'expéditeur n'a été créée à la place d'un
+administrateur.
+
+Le scanner obsolète rencontré pendant l'audit a été remplacé. La version privée
+`8e0bffd1-43fd-4401-8663-1f4ecdb794a5`, à 100 % du trafic, utilise ClamAV 1.5.4
+et la base 28129 du 20 septembre à 06:26:26 UTC. Les PDF synthétiques propre et
+EICAR, leurs empreintes et les refus d'entrée ont été qualifiés à distance après
+déploiement. Le précontrôle postal privé et le profil Pingen en lecture seule ont
+également été vérifiés. Aucune lettre n'a été envoyée par ces contrôles.
 
 La maintenance quotidienne des signatures reste une obligation opérationnelle ;
-la limite de 72 heures n’est pas augmentée. Le nettoyage des brouillons clients
+la limite de 72 heures n'est pas augmentée. Le remplacement de la maintenance
+locale par GitHub Actions est décrit dans [SCANNER_CI.md](SCANNER_CI.md) ; son
+activation exige encore le secret dédié et un premier passage qualifié.
+Le nettoyage des brouillons clients
 abandonnés chez Pingen et les résultats de soumission incertains restent gérés
 par intervention opérateur : aucun renvoi ni remboursement automatique n’est
 autorisé par l’incertitude. Les quatre abonnements Pingen sont configurés ; la

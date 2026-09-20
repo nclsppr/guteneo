@@ -7,7 +7,7 @@
     "typecheck": "tsc --noEmit",
     "types": "wrangler types worker-configuration.d.ts --env-interface ScannerEnv --include-runtime false",
     "check": "npm run typecheck && wrangler deploy --dry-run --outdir dist",
-    "test": "node --test tests/worker.test.mjs && python3 -m unittest discover -s tests -p 'test_*.py'",
+    "test": "node --test tests/*.test.mjs && python3 -m unittest discover -s tests -p 'test_*.py'",
     "qualify:docker": "python3 tests/qualify_docker.py",
     "refresh:definitions": "node scripts/refresh-definitions.mjs"
   },

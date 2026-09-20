@@ -1,5 +1,7 @@
 const MAX_BYTES = 10 * 1024 * 1024;
 const DEADLINE_MS = 25_000;
+const BUILD_ID =
+  /^sha-[a-f0-9]{40}-run-[1-9][0-9]{0,19}-attempt-[1-9][0-9]{0,9}$/;
 const SCANNER_ERROR_CODES = new Set([
   "SCANNER_NOT_READY",
   "SCANNER_BUSY",
@@ -7,6 +9,17 @@ const SCANNER_ERROR_CODES = new Set([
   "SCAN_TIMEOUT",
   "SCAN_INCOMPLETE",
 ]);
+
+function scannerHeaders(response: Response): Headers {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+  });
+  const buildId = response.headers.get("x-guteneo-scanner-build-id");
+  if (buildId && BUILD_ID.test(buildId))
+    headers.set("x-guteneo-scanner-build-id", buildId);
+  return headers;
+}
 
 function fail(code: string, status: number): Response {
   return Response.json(
@@ -104,10 +117,7 @@ export async function handleRequest(
       if (!response.ok) return scannerFailure(response, signal);
       return new Response(response.body, {
         status: response.status,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store",
-        },
+        headers: scannerHeaders(response),
       });
     } catch {
       return fail(signal.aborted ? "SCAN_TIMEOUT" : "SCANNER_UNAVAILABLE", 503);
@@ -171,7 +181,7 @@ export async function handleRequest(
     return Response.json(
       { sha256, verdict: result.verdict, engine: result.engine },
       {
-        headers: { "Cache-Control": "no-store" },
+        headers: scannerHeaders(response),
       },
     );
   } catch (error) {

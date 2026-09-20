@@ -2,6 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { handleRequest } from "../src/handler.ts";
+import { scannerVersionHeader } from "../src/version-header.ts";
+import scannerProbe from "./scanner-remote-probe.ts";
+import { readFile } from "node:fs/promises";
+import { parse } from "jsonc-parser";
 
 const input = new TextEncoder().encode("%PDF-1.4 exact content");
 const hash = createHash("sha256").update(input).digest("hex");
@@ -236,4 +240,136 @@ test("oversized upstream JSON is rejected", async () => {
   const { env } = environment(() => new Response(" ".repeat(4097)));
   const response = await handleRequest(pdfRequest(), env);
   assert.notEqual(response.status, 200);
+});
+
+test("scanner qualification header uses only the executing Worker's valid metadata", async () => {
+  const version = "C753AFC4-9310-4738-B3F2-5110F55F611E";
+  for (const metadata of [
+    undefined,
+    {},
+    { id: "private invalid value" },
+    { id: version },
+  ]) {
+    const response = scannerVersionHeader(
+      new Response("unchanged", {
+        status: 503,
+        headers: {
+          "cache-control": "no-store",
+          "x-guteneo-worker-version": "untrusted upstream",
+        },
+      }),
+      { WRANGLER_VERSION_METADATA: metadata },
+    );
+    assert.equal(response.status, 503);
+    assert.equal(await response.text(), "unchanged");
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(
+      response.headers.get("x-guteneo-worker-version"),
+      metadata?.id === version ? version.toLowerCase() : null,
+    );
+  }
+});
+
+test("health and exact scan success relay only the actual container's validated image identity", async () => {
+  const buildId = `sha-${"a".repeat(40)}-run-123456-attempt-1`;
+  for (const pathname of ["/health", "/scan"]) {
+    for (const value of [null, "private invalid identity", buildId]) {
+      const payload =
+        pathname === "/health"
+          ? { status: "ready", engine: { name: "ClamAV" } }
+          : { sha256: hash, verdict: "clean", engine: { name: "ClamAV" } };
+      const { env } = environment(
+        () =>
+          Response.json(payload, {
+            headers: value
+              ? {
+                  "x-guteneo-scanner-build-id": value,
+                  "x-private-header": "private",
+                }
+              : {},
+          }),
+        pathname,
+      );
+      const request =
+        pathname === "/health"
+          ? new Request("https://scanner.internal/health")
+          : pdfRequest();
+      // The request cannot choose the build identity reported in the response.
+      request.headers.set("x-guteneo-scanner-build-id", "forged");
+      const response = await handleRequest(request, env);
+      assert.equal(response.status, 200);
+      assert.equal(
+        response.headers.get("x-guteneo-scanner-build-id"),
+        value === buildId ? buildId : null,
+      );
+      assert.equal(response.headers.get("x-private-header"), null);
+      assert.deepEqual(await response.json(), payload);
+    }
+  }
+});
+
+test("scanner-only bridge cannot reach document services or arbitrary remote paths", async () => {
+  const calls = [];
+  const env = {
+    SCANNER: {
+      async fetch(request) {
+        calls.push({
+          url: request.url,
+          method: request.method,
+          body: await request.text(),
+        });
+        return new Response("scanner fixture");
+      },
+    },
+  };
+  for (const [url, method, status] of [
+    ["https://public.example/scanner/health", "GET", 403],
+    ["http://127.0.0.1:8799/documents/validate", "POST", 404],
+    ["http://127.0.0.1:8799/scanner/other", "GET", 404],
+    ["http://127.0.0.1:8799/scanner/scan", "GET", 404],
+    ["http://127.0.0.1:8799/scanner/health?path=scan", "GET", 404],
+  ]) {
+    const response = await scannerProbe.fetch(
+      new Request(url, { method }),
+      env,
+    );
+    assert.equal(response.status, status);
+  }
+  assert.equal(calls.length, 0);
+  await scannerProbe.fetch(
+    new Request("http://127.0.0.1:8799/scanner/health"),
+    env,
+  );
+  await scannerProbe.fetch(
+    new Request("http://127.0.0.1:8799/scanner/scan", {
+      method: "POST",
+      body: "synthetic",
+    }),
+    env,
+  );
+  assert.deepEqual(calls, [
+    { url: "https://scanner.internal/health", method: "GET", body: "" },
+    { url: "https://scanner.internal/scan", method: "POST", body: "synthetic" },
+  ]);
+});
+
+test("scanner qualification configuration has no document or public binding", async () => {
+  const errors = [];
+  const config = parse(
+    await readFile(
+      new URL("./wrangler.scanner-remote.jsonc", import.meta.url),
+      "utf8",
+    ),
+    errors,
+    { allowTrailingComma: true },
+  );
+  assert.deepEqual(errors, []);
+  assert.deepEqual(config.services, [
+    { binding: "SCANNER", service: "guteneo-scanner", remote: true },
+  ]);
+  assert.equal(config.workers_dev, false);
+  assert.equal(config.preview_urls, false);
+  assert.deepEqual(config.routes, []);
+  assert.equal(config.observability.enabled, false);
+  assert.deepEqual(config.dev, { ip: "127.0.0.1", port: 8799 });
 });

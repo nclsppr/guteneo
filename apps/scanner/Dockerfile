@@ -8,6 +8,10 @@ COPY container/clamd.conf /etc/clamav/clamd.conf
 ARG SIGNATURE_REFRESH=2026-09-16
 RUN test -n "$SIGNATURE_REFRESH" && freshclam --stdout
 COPY --chown=clamav:clamav container/server.py /app/server.py
+# Non-secret CI identity belongs to the image, never a runtime configuration.
+# Empty remains supported for the manually qualified development image.
+ARG SCANNER_BUILD_ID=
+RUN printf '%s' "$SCANNER_BUILD_ID" > /app/scanner-build-id && chmod 0444 /app/scanner-build-id
 USER clamav
 EXPOSE 8080
 ENTRYPOINT ["python3", "-B", "/app/server.py"]
