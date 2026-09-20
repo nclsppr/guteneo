@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
 import { Brand } from "./brand";
+import { LegalLinks } from "./legal-links";
 import "./legal-page.css";
 
 export function LegalPage() {
@@ -11,7 +12,7 @@ export function LegalPage() {
       <header className="site-header">
         <Brand />
         <a className="legal-back" href="/">
-          <ArrowLeft size={18} /> Retour à l’accueil
+          <ArrowLeft size={18} aria-hidden="true" /> Retour à l’accueil
         </a>
       </header>
       <main id="legal-content" className="legal-document" tabIndex={-1}>
@@ -23,7 +24,7 @@ export function LegalPage() {
             Les informations sur l’éditeur de Guteneo, son hébergement et
             l’utilisation de ce site.
           </p>
-          <p className="legal-date">Mise à jour le 20 septembre 2026</p>
+          <p className="legal-date">Mise à jour le 21 septembre 2026</p>
         </div>
         <div className="legal-layout">
           <nav aria-label="Sur cette page" className="legal-index">
@@ -51,9 +52,8 @@ export function LegalPage() {
                 responsable de la publication.
               </p>
               <p>
-                Guteneo est actuellement un projet en préparation. L’activité
-                n’est pas encore immatriculée et aucune vente n’est ouverte sur
-                le site.
+                Guteneo est actuellement proposé en bêta. L’activité n’est pas
+                encore immatriculée et aucune vente n’est ouverte sur le site.
               </p>
               <address>
                 <span>Nicolas Pieper</span>
@@ -123,26 +123,20 @@ export function LegalPage() {
             <section id="legal-data" tabIndex={-1}>
               <h2>Vos données et vos demandes</h2>
               <p>
-                Les interactions avec la démonstration restent dans la mémoire
-                de votre onglet et sont réinitialisées au rechargement. Les
-                connexions au site passent par Cloudflare, qui traite les
-                données techniques nécessaires à l’acheminement et à la sécurité
-                des requêtes. L’application n’intègre pas de traceur
-                publicitaire.
+                Le compte connecté traite les informations nécessaires aux
+                accès, aux documents et aux envois demandés. La démonstration
+                publique est distincte et utilise des données fictives. La{" "}
+                <a href="/confidentialite/">politique de confidentialité</a>{" "}
+                détaille les traitements, les destinataires, la conservation et
+                vos droits. Les règles du service sont présentées dans les{" "}
+                <a href="/conditions/">conditions d’utilisation</a>.
               </p>
               <p>
                 Pour toute question relative au site ou à vos données, contactez
                 Nicolas Pieper à{" "}
                 <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>. Vous
-                pouvez également consulter la{" "}
-                <a
-                  href="https://www.cloudflare.com/privacypolicy/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  politique de confidentialité de Cloudflare
-                </a>{" "}
-                et exercer un recours auprès de la{" "}
+                pouvez consulter la page <a href="/support/">assistance</a> et
+                exercer un recours auprès de la{" "}
                 <a
                   href="https://www.cnil.fr/fr/adresser-une-plainte"
                   target="_blank"
@@ -158,7 +152,7 @@ export function LegalPage() {
       </main>
       <footer className="legal-colophon">
         <Brand variant="simple" compact />
-        <a href="mailto:guteneo@pieper.fr">Une question ? Écrivez-nous.</a>
+        <LegalLinks />
       </footer>
     </div>
   );

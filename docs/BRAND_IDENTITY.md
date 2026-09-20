@@ -82,6 +82,15 @@ l’icône d’application, avec le favicon simple distinct. Le serveur MCP anno
 l’emblème simple via le champ `icons` reconnu par le SDK installé ; son affichage
 dépend de l’hôte. Aucun champ de manifeste non documenté n’a été ajouté.
 
+Le candidat de soumission du 21 septembre ajoute un dérivé spécifique au
+**composer ChatGPT**, `apps/web/public/brand/guteneo-composer.png` : portrait et
+denture conservés, cadre intérieur simplifié, extérieur transparent. Le logo
+d’annuaire et les icônes du site restent l’emblème original. Le master généré et
+son prompt sont conservés dans `assets/brand/source/guteneo-composer-transparent.png`
+et son fichier `.json`. Le [contrôle des icônes](../integrations/chatgpt/icon-audit.md)
+distingue les contraintes documentées, l’alpha réel, la lecture sur fonds clair
+et sombre et l’aperçu final du portail encore à vérifier.
+
 Aucune communication réelle n’est nécessaire à cette livraison. Après fusion et
 CI du commit exact, publier depuis `main`, vérifier les URLs des nouveaux assets
 sur le domaine canonique, puis appliquer la présentation Auth0 autorisée et la

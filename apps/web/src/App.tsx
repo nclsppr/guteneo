@@ -46,6 +46,7 @@ import { Billing } from "./billing-page";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { LegalPage } from "./legal-page";
+import { InformationPage, informationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
 import { articles, articlePath } from "./editorial/articles";
@@ -410,6 +411,8 @@ const navigation = [
 
 export function App() {
   const publicPath = window.location.pathname;
+  const information = informationPages[publicPath];
+  if (information) return <InformationPage content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
     return (
       <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />

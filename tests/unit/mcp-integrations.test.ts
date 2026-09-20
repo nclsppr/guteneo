@@ -113,10 +113,12 @@ async function connected<T>(
   principal = identity,
   documentServices: Partial<McpDocuments> = {},
   onToolFailure?: McpServices["onToolFailure"],
+  postal?: McpServices["postal"],
 ) {
   const server = createGuteneoMcpServer(principal, env, {
     domain,
     onToolFailure,
+    postal,
     capabilities: () => ({ mode: "simulation", liveSendsEnabled: false }),
     documents: {
       async importFile() {
@@ -548,10 +550,38 @@ describe("distributable LLM integrations", () => {
       const manifest = JSON.parse(
         await readFile(path.join(first, "manifest.json"), "utf8"),
       );
+      const plugin = JSON.parse(
+        execFileSync(
+          "unzip",
+          ["-p", path.join(first, "guteneo-plugin.zip"), "plugin.json"],
+          { encoding: "utf8" },
+        ),
+      );
+      expect(manifest.version).toBe("0.2.1");
+      expect(manifest.version).toBe(plugin.version);
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
+      const branding = plugin.extensions["com.openai"].interface;
+      for (const [property, filename] of [
+        ["composerIcon", "guteneo-composer.png"],
+        ["logo", "guteneo-mark.png"],
+      ]) {
+        const asset = branding[property].replace(/^\.\//, "");
+        expect(manifest.files).toContain(asset);
+        expect(
+          execFileSync("unzip", [
+            "-p",
+            path.join(first, "guteneo-plugin.zip"),
+            asset,
+          ]),
+        ).toEqual(
+          await readFile(
+            new URL(`../../apps/web/public/brand/${filename}`, import.meta.url),
+          ),
+        );
+      }
       const postalSkill = execFileSync(
         "unzip",
         [
@@ -636,6 +666,83 @@ describe("distributable LLM integrations", () => {
         "ne remplace pas cette approbation",
       );
     });
+  });
+
+  it("exposes accurate action labels for every tool through the MCP transport", async () => {
+    const unused = vi.fn(async () => {
+      throw new Error("Tool discovery must not execute an operation");
+    });
+    await connected(
+      async (client) => {
+        expect(client.getServerVersion()).toMatchObject({
+          name: "guteneo",
+          version: "0.2.1",
+          icons: [
+            {
+              src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
+              mimeType: "image/png",
+              sizes: ["512x512"],
+            },
+          ],
+        });
+        const { tools } = await client.listTools();
+        // Read-only, destructive, idempotent, open-world: these labels drive
+        // host confirmations and must describe effects, including indirect sends.
+        const expected: Record<string, [boolean, boolean, boolean, boolean]> = {
+          get_capabilities: [true, false, true, false],
+          get_expert_status: [true, false, true, false],
+          get_document: [true, false, true, false],
+          list_documents: [true, false, true, false],
+          read_document_pages: [true, false, true, false],
+          get_dispatch_status: [true, false, true, false],
+          list_dispatches: [true, false, true, false],
+          get_postal_requirements: [true, false, true, false],
+          get_postal_preflight: [true, false, true, false],
+          // Quote renewal cancels the superseded prepared dispatch.
+          prepare_fax: [false, true, true, false],
+          prepare_dispatch: [false, false, true, false],
+          create_postal_address_page: [false, false, true, false],
+          preflight_postal_pdf: [false, false, true, false],
+          quote_postal_draft: [false, false, true, false],
+          import_document: [false, false, false, true],
+          render_pdf: [false, false, false, false],
+          rescan_document: [false, false, false, false],
+          review_dispatch: [false, false, false, false],
+          transfer_postal_draft: [false, true, true, true],
+          approve_and_send_dispatch: [false, true, true, true],
+          confirm_dispatch: [false, true, true, true],
+          cancel_dispatch: [false, true, true, false],
+        };
+        expect(tools.map((tool) => tool.name).sort()).toEqual(
+          Object.keys(expected).sort(),
+        );
+        for (const tool of tools) {
+          expect(tool.title, tool.name).toEqual(expect.any(String));
+          expect(tool.title!.length, tool.name).toBeGreaterThan(0);
+          expect(tool.title!.length, tool.name).toBeLessThanOrEqual(80);
+          const [readOnlyHint, destructiveHint, idempotentHint, openWorldHint] =
+            expected[tool.name];
+          expect(tool.annotations, tool.name).toEqual({
+            readOnlyHint,
+            destructiveHint,
+            idempotentHint,
+            openWorldHint,
+          });
+        }
+      },
+      identity,
+      { rescan: unused },
+      undefined,
+      {
+        requirements: unused,
+        create: unused,
+        get: unused,
+        quote: unused,
+        transferExpert: unused,
+        generateAddressPage: unused,
+      },
+    );
+    expect(unused).not.toHaveBeenCalled();
   });
 
   it("returns an OAuth challenge for missing scope without reading another document", async () => {

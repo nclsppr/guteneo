@@ -1,0 +1,261 @@
+{
+  "observedAtUtc": "2026-09-20T22:22:38.604234+00:00",
+  "observedAtParis": "2026-09-21T00:22:38.604234+02:00",
+  "candidateBaseCommit": "89d126d288b86f16f9c3be2d51182135ae6907e0",
+  "publicResponses": {
+    "/release.json": {
+      "httpStatus": 200,
+      "sourceCommit": "ef417c7f187bd11e327881b2127eae653288ac58",
+      "sourceDirty": false,
+      "mode": "production",
+      "liveSendChannels": [
+        "fax",
+        "postal"
+      ],
+      "builtAt": "2026-09-20T19:44:57.804Z"
+    },
+    "/api/capabilities": {
+      "httpStatus": 200,
+      "mode": "production",
+      "liveSending": true,
+      "documents": {
+        "import": true,
+        "render": true,
+        "exactBytes": true,
+        "urlImport": true
+      },
+      "channels": [
+        {
+          "id": "fax",
+          "liveSending": true,
+          "name": "Fax",
+          "provider": "Telnyx",
+          "status": "configured_not_live_validated"
+        },
+        {
+          "id": "email",
+          "liveSending": false,
+          "name": "E-mail",
+          "provider": "Amazon SES",
+          "status": "configured_not_live_validated"
+        },
+        {
+          "id": "postal",
+          "liveSending": true,
+          "name": "Courrier postal",
+          "provider": "Pingen",
+          "status": "configured_not_live_validated"
+        }
+      ],
+      "billing": {
+        "configured": false,
+        "mode": "unconfigured",
+        "chargingEnabled": false
+      }
+    },
+    "/confidentialite/": {
+      "httpStatus": 404
+    },
+    "/conditions/": {
+      "httpStatus": 404
+    },
+    "/contact/": {
+      "httpStatus": 404
+    },
+    "/mentions-legales/": {
+      "httpStatus": 200
+    },
+    "/.well-known/openai-apps-challenge": {
+      "httpStatus": 404
+    }
+  },
+  "portal": {
+    "observedOn": "2026-09-21",
+    "timezone": "Europe/Paris",
+    "organizationLabel": "Guteneo",
+    "status": "draft_incomplete_mcp_scan_required_before_save",
+    "identity": {
+      "kind": "individual",
+      "verifiedInPortal": true,
+      "selectedInDraft": true,
+      "legalNameStored": false
+    },
+    "draftCreated": true,
+    "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
+    "versionId": "asdk_app_v_6ab05fbc52b08191824184064aee539f",
+    "version": "0.2.1",
+    "portalUrl": "https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f",
+    "savedFields": [
+      "name",
+      "shortDescription",
+      "description",
+      "category",
+      "websiteUrl",
+      "publisherIdentity"
+    ],
+    "logoUploads": {
+      "directory": "persisted_after_reload_light_dark_modes_present",
+      "composer": "persisted_after_reload_light_dark_modes_present"
+    },
+    "mcpServerUrlEntered": "https://guteneo.com/mcp",
+    "authenticationSelected": "oauth",
+    "submitted": false,
+    "published": false,
+    "reloadedFields": [
+      "name",
+      "version",
+      "shortDescription",
+      "description",
+      "category",
+      "publisherIdentity",
+      "conversationStarters",
+      "releaseNotes",
+      "websiteUrl"
+    ],
+    "mcpConfiguration": {
+      "urlEntered": "https://guteneo.com/mcp",
+      "authenticationSelected": "oauth",
+      "draftSavedMessageObserved": true,
+      "persistedAfterReload": false,
+      "scanAttempts": 3,
+      "scanObservation": "Saving draft then Draft saved, while MCP tools scan is required remains; no OAuth connection, tool snapshot or challenge token obtained.",
+      "oauthFlowObserved": false,
+      "domainChallengeTokenPresent": false,
+      "domainVerificationSucceeded": false,
+      "cause": "Reason for no scan result not established; no save bug proven.",
+      "exitMessage": "Scan your MCP server changes before exiting.",
+      "savePrerequisite": "Portal requires scanning MCP changes before exiting; entering values alone does not complete persistence.",
+      "finalAttemptWaitedForVisibleLoadedButton": true,
+      "attemptsStopped": true,
+      "valuesLeftOnScreen": "entered_only_not_qualified_or_confirmed_persisted",
+      "domainChallengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge"
+    },
+    "submissionValidation": {
+      "submitEnabled": false,
+      "messages": [
+        "Customer support URL required",
+        "MCP server URL required",
+        "Test case scenario required",
+        "Submit confirmation required"
+      ],
+      "contractualCheckboxesSelected": false,
+      "attestationsMade": false,
+      "contractualConfirmationRequested": false,
+      "finalButtonLabel": "Submit for Review"
+    },
+    "unconfirmedPortalDefaults": {
+      "language": "English (US)",
+      "availability": "Allow all",
+      "publisherConfirmed": false
+    },
+    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo."
+  },
+  "package": {
+    "version": "0.2.1",
+    "bytes": 1265171,
+    "sha256": "18485c5a5215175f051873fb2db0c15ea145ae83ad54e8d58ac2b3b7df2885a1"
+  },
+  "validation": {
+    "targetedTestsPassed": 43,
+    "targetedTestsFailed": 0,
+    "typecheck": "passed",
+    "lint": "passed",
+    "buildIntegrations": "passed",
+    "buildWeb": "passed",
+    "reviewerAccountTests": "not_executed",
+    "targetedTestStartUtc": "2026-09-20T22:23:50.073000+00:00",
+    "metadataLimits": "passed: 30-character subtitle, three bounded prompts, exactly five positive and three negative portal cases"
+  },
+  "boundary": "Public GETs, local fixture/package checks and observed OpenAI draft creation after the holder completed identity verification. Info, logos, starter prompts and release notes persisted after reload; MCP/OAuth did not; the portal requires scanning MCP changes before exiting. No save bug proven. No observed scan, OAuth flow or domain verification success. No real communication, reviewer credentials, deployment, contractual attestation, marketplace review submission or publication. No legal name or identity-verification documents retained.",
+  "changes": [
+    "Rebase candidate on origin/main",
+    "Fit the final subtitle length limit",
+    "Disclose irreversible replacement of a prepared fax during quote renewal",
+    "Refresh submission dossier and eight selected reviewer scenarios",
+    "Document annotation justifications for all 21 candidate tools",
+    "Record verified individual identity, persisted draft metadata and logos, and the required MCP scan before configuration persistence without asserting submission"
+  ],
+  "historicalPortal": {
+    "observedOnParis": "2026-09-21",
+    "organizationLabel": "Personal",
+    "path": "Create plugin > With MCP",
+    "status": "blocked_developer_verification",
+    "message": "You need a verified developer identity before you can create or upload a plugin.",
+    "draftCreated": false,
+    "submitted": false,
+    "published": false
+  },
+  "candidateCi": {
+    "commit": "89b9bd79efc4040f3c6b05950e12203280a4fa9a",
+    "runId": "35541687278",
+    "url": "https://github.com/nclsppr/guteneo/actions/runs/35541687278",
+    "allChecks": "success",
+    "productionDeploymentProven": false
+  },
+  "reviewerPortalObservation": {
+    "negativeScenarioRequirement": "Prompts where the plugin should not be called",
+    "preparedNegativeCases": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; prepared for reviewer validation, not executed. N1/N2/N4 remain internal authorization tests.",
+    "reviewerAccountTests": "not_executed"
+  },
+  "additionalPreparation": {
+    "observedOnParis": "2026-09-21",
+    "publicPages": {
+      "paths": [
+        "/confidentialite/",
+        "/conditions/",
+        "/support/"
+      ],
+      "status": "candidate_implemented_not_yet_deployed",
+      "staticTestsPassed": 7,
+      "desktopAndIphoneTestsPassed": 8
+    },
+    "composerIcon": {
+      "path": "apps/web/public/brand/guteneo-composer.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 977001,
+      "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
+      "transparentPixels": 515191,
+      "localLightDarkQa": "passed",
+      "portalUpload": "both_modes_uploaded_preview_checked_persisted_after_reload"
+    },
+    "reviewer": {
+      "offlinePreparation": "implemented",
+      "securityTestsPassed": 8,
+      "accountCreated": false,
+      "oauthClientCreated": false,
+      "samplePdf": "synthetic_no_recipient_do_not_send",
+      "authenticationBlocker": "Auth0 device login expired waiting for Touch ID"
+    },
+    "callbackObserved": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
+    "cloudflare": {
+      "existingDomainRouteVerified": true,
+      "hostname": "guteneo.com",
+      "worker": "guteneo-app",
+      "openaiChallengeVerified": false
+    },
+    "video": {
+      "script": "integrations/chatgpt/demo-recording.md",
+      "recorded": false
+    },
+    "authorization": "Publisher explicitly authorized pages, domain verification, reviewer account, tests, recording and submission; reported terms read and authorized acceptance.",
+    "validation": {
+      "typecheck": "passed",
+      "lint": "passed",
+      "mcpIntegrationTests": 39,
+      "newReviewerSecurityTests": 8,
+      "publicStaticTests": 7,
+      "publicDesktopAndIphoneTests": 8,
+      "fullCandidateCi": {
+        "head": "5320420b5ab1b9f4444b7037decad6f8b2805cd6",
+        "run": "35543907954",
+        "result": "success",
+        "laterExactActionComparison": "local_19_tests_passed_new_ci_pending"
+      },
+      "reviewerAndAuth0SecurityTests": 19
+    },
+    "portalInfo": "Support, privacy and terms URLs, English base and French translation saved; icons and base fields confirmed after reload. Eight scenarios drafted, not executed; preparation prompt requires controlled recipient and ceiling.",
+    "reconciledMain": "406176933da9ad7d8c3d6265b26dbfa50e493c4b",
+    "toolCount": 22
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "createdAt": "2026-09-20T23:01:16.052Z",
+  "tool": "image_gen",
+  "source": "/Users/nclsppr/.codex/generated_images/01a0c108-26a0-7053-9d80-bb4bbdabd317/exec-ba76aba1-b3ce-4d72-bda2-8852c0da48c6.png",
+  "output": "apps/web/public/brand/guteneo-composer.png",
+  "bytes": 977001,
+  "sha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
+  "width": 1254,
+  "height": 1254,
+  "format": "png",
+  "hasAlpha": true,
+  "alpha": {
+    "transparent": 515191,
+    "opaque": 3287,
+    "semi": 1054038,
+    "corners": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "visibleBounds": {
+    "minX": 92,
+    "minY": 94,
+    "maxX": 1158,
+    "maxY": 1155
+  },
+  "directoryOriginalUnmodified": true,
+  "visualQa": {
+    "surface": "CUA in-app browser",
+    "backgrounds": [
+      "#ffffff",
+      "#212121"
+    ],
+    "cssSizes": [
+      16,
+      24,
+      32,
+      48,
+      64,
+      128
+    ],
+    "observed": "Exterior transparency and white portrait counterforms confirmed. Inner frame simplified. Portrait recognisable; fine facial detail limited at 16px. Portal preview not checked by this subtask."
+  },
+  "validation": {
+    "tests": "32/32 tests/unit/mcp-integrations.test.ts passed",
+    "typecheck": "passed",
+    "eslint": "passed",
+    "gitDiffCheck": "passed",
+    "archive": {
+      "name": "guteneo",
+      "version": "0.2.1",
+      "endpoint": "https://guteneo.com/mcp",
+      "archive": "guteneo-plugin.zip",
+      "sha256": "d33dc46fdee4069b9a221ef03398def9f3d764139f71004982344fab576d4c8e",
+      "bytes": 1262578,
+      "files": [
+        ".claude-plugin/plugin.json",
+        ".cursor-plugin/plugin.json",
+        ".mcp.json",
+        "README.md",
+        "assets/guteneo-composer.png",
+        "assets/guteneo-mark.png",
+        "mcp.json",
+        "plugin.json",
+        "skills/fax-pdf/SKILL.md",
+        "skills/postal-pdf/SKILL.md"
+      ],
+      "hostQualification": "pending",
+      "publishedToDirectories": false
+    }
+  }
+}
