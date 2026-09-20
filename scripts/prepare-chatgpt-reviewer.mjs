@@ -232,7 +232,7 @@ async function qualifyLoginPolicy(state, request) {
     ownResources[0].skip_consent_for_verifiable_first_party_clients !== false
   )
     fail("RESOURCE_CONSENT_REQUIRES_REVIEW");
-  const options = { authPolicy: "verified_email" };
+  const optionVariants = [{ authPolicy: "verified_email" }];
   for (const [name, callbackOption] of [
     ["Guteneo - ChatGPT", "chatgptCallback"],
     ["Guteneo - Claude hosted", "claudeCallback"],
@@ -245,31 +245,38 @@ async function qualifyLoginPolicy(state, request) {
         matches[0].callbacks.length !== 1
       )
         fail("ACTION_CLIENTS_REQUIRE_REVIEW");
-      options[callbackOption] = matches[0].callbacks[0];
+      // A hosted registration can be newer than the deployed Actions. Every
+      // accepted variant retains the three original clients and audience guard.
+      for (const options of [...optionVariants])
+        optionVariants.push({
+          ...options,
+          [callbackOption]: matches[0].callbacks[0],
+        });
     }
   }
-  const plan = setupPlan(options);
-  const clientIds = plan.clients.map(({ body }) => {
-    const matches = state.clients.filter((client) => client.name === body.name);
-    if (
-      matches.length !== 1 ||
-      matches[0].client_metadata?.guteneo_managed_by !== "guteneo-setup-v1"
-    )
-      fail("ACTION_CLIENTS_REQUIRE_REVIEW");
-    return identifier(matches[0].client_id);
+  const plans = optionVariants.map(setupPlan);
+  const expectedSourcePairs = plans.map((plan) => {
+    const clientIds = plan.clients.map(({ body }) => {
+      const matches = state.clients.filter(
+        (client) => client.name === body.name,
+      );
+      if (
+        matches.length !== 1 ||
+        matches[0].client_metadata?.guteneo_managed_by !== "guteneo-setup-v1"
+      )
+        fail("ACTION_CLIENTS_REQUIRE_REVIEW");
+      return identifier(matches[0].client_id);
+    });
+    return actionSources(clientIds, state.connection.id, plan.authPolicy);
   });
-  const expectedSources = actionSources(
-    clientIds,
-    state.connection.id,
-    plan.authPolicy,
-  );
   const actions = await pages("actions/actions", "actions", request);
   const bindings = await pages(
     "actions/triggers/post-login/bindings",
     "bindings",
     request,
   );
-  for (const [index, name] of plan.actions.entries()) {
+  const deployedSources = [];
+  for (const name of plans[0].actions) {
     const matches = actions.filter((item) => item.name === name);
     if (matches.length !== 1) fail("ACTION_NOT_QUALIFIED");
     if (!bindings.some((binding) => binding.action?.id === matches[0].id))
@@ -278,11 +285,16 @@ async function qualifyLoginPolicy(state, request) {
       "GET",
       `actions/actions/${identifier(matches[0].id)}`,
     );
-    // Exact generated source proves the guards and both signed account claims;
-    // comments, reversed predicates or a copy of the other Action cannot qualify.
-    if (action.deployed_version?.code !== expectedSources[index])
-      fail("DEPLOYED_ACTION_REQUIRES_REVIEW");
+    deployedSources.push(action.deployed_version?.code);
   }
+  // Both complete deployed sources must match the SAME canonical pair. No
+  // normalization, substring evidence or arbitrary historic client list qualifies.
+  if (
+    !expectedSourcePairs.some((pair) =>
+      pair.every((source, index) => source === deployedSources[index]),
+    )
+  )
+    fail("DEPLOYED_ACTION_REQUIRES_REVIEW");
 }
 
 function qualifyClient(client, callback) {

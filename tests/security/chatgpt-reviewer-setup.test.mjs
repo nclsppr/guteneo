@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
+import vm from "node:vm";
 import {
   createClient,
   createUser,
@@ -40,8 +41,15 @@ function fixture(options = {}) {
     ...body,
     client_id: `setup_client_${index}`,
   }));
+  const deployedPlan = setupPlan({
+    authPolicy: "verified_email",
+    ...(options.deployedSetupOptions ?? options.setupOptions),
+  });
   const sources = actionSources(
-    configuredClients.map(({ client_id }) => client_id),
+    deployedPlan.clients.map(
+      ({ body }) =>
+        configuredClients.find((item) => item.name === body.name).client_id,
+    ),
     connection.id,
     setup.authPolicy,
   );
@@ -144,7 +152,7 @@ function fixture(options = {}) {
       });
     writes.set(key, structuredClone(value));
   };
-  return { request, persist, calls, writes, clients };
+  return { request, persist, calls, writes, clients, sources };
 }
 
 test("reviewer callback is exact and rejects broad, normalized or foreign URLs before any request", async () => {
@@ -256,6 +264,115 @@ test("complete generated deployed Actions qualify with the optional hosted clien
     },
   });
   assert.equal((await createClient(callback, f)).associationVerified, true);
+});
+
+test("newer hosted registrations qualify only with a complete canonical Action pair retaining the core clients", async () => {
+  const setupOptions = {
+    chatgptCallback: "https://chatgpt.com/connector/oauth/existing_fixture",
+    claudeCallback: "https://claude.ai/api/mcp/auth_callback",
+  };
+  for (const deployedSetupOptions of [
+    {},
+    { chatgptCallback: setupOptions.chatgptCallback },
+    { claudeCallback: setupOptions.claudeCallback },
+    setupOptions,
+  ]) {
+    const f = fixture({ setupOptions, deployedSetupOptions });
+    assert.equal((await createClient(callback, f)).associationVerified, true);
+  }
+  for (const actionCode of [
+    // Each source is individually canonical, but the pair has divergent scopes.
+    (code, index) =>
+      index === 1
+        ? actionSources(
+            ["setup_client_0", "setup_client_1", "setup_client_2"],
+            connection.id,
+            "verified_email",
+          )[1]
+        : code,
+    // A canonical generator call still cannot omit one of the mandatory clients.
+    (_code, index) =>
+      actionSources(
+        ["setup_client_0", "setup_client_1"],
+        connection.id,
+        "verified_email",
+      )[index],
+    (_code, index) =>
+      actionSources(
+        [
+          "setup_client_0",
+          "setup_client_1",
+          "setup_client_2",
+          "unknown_client",
+        ],
+        connection.id,
+        "verified_email",
+      )[index],
+  ]) {
+    const f = fixture({ setupOptions, actionCode });
+    await assert.rejects(createClient(callback, f), {
+      code: "DEPLOYED_ACTION_REQUIRES_REVIEW",
+    });
+    assert.ok(f.calls.every((call) => call.method === "GET"));
+    assert.equal(f.writes.size, 0);
+  }
+});
+
+test("a new client outside the historical list still requires verified email, S256 and Guteneo connection for the exact audience", async () => {
+  const f = fixture();
+  const execute = f.sources.map((code) => {
+    const context = { exports: {}, Date };
+    vm.runInNewContext(code, context);
+    return context.exports.onExecutePostLogin;
+  });
+  const calls = [];
+  const api = {
+    access: { deny: () => calls.push("deny") },
+    authentication: {
+      challengeWithAny: () => calls.push("challenge"),
+      enrollWith: () => calls.push("enroll"),
+    },
+    idToken: {
+      setCustomClaim: (name, value) => calls.push(["id", name, value]),
+    },
+    accessToken: {
+      setCustomClaim: (name, value) => calls.push(["access", name, value]),
+    },
+  };
+  const event = {
+    client: { client_id: client.client_id },
+    resource_server: { identifier: "https://guteneo.com/mcp" },
+    connection: { id: connection.id },
+    user: { email_verified: true },
+    transaction: { protocol: "oidc-basic-profile" },
+    request: {
+      query: { code_challenge: "a".repeat(43), code_challenge_method: "S256" },
+    },
+  };
+  for (const action of execute) await action(event, api);
+  assert.deepEqual(calls, [
+    ["id", "https://guteneo.com/verified_account", true],
+    ["access", "https://guteneo.com/verified_account", true],
+  ]);
+  for (const change of [
+    { user: { email_verified: false } },
+    { connection: { id: "unrelated_connection" } },
+    { request: { query: {} } },
+    {
+      request: {
+        query: {
+          code_challenge: "a".repeat(43),
+          code_challenge_method: "plain",
+        },
+      },
+    },
+    { resource_server: { identifier: "https://unrelated.invalid/mcp" } },
+    { resource_server: undefined },
+  ]) {
+    calls.length = 0;
+    for (const action of execute) await action({ ...event, ...change }, api);
+    assert.ok(calls.every((call) => call === "deny"));
+  }
 });
 
 test("deployed Action drift, commented guards and reversed predicates fail before any mutation", async () => {
