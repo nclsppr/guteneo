@@ -38,10 +38,13 @@ test("developer guide is SSR-readable and its download is a self-contained contr
   expect(response.ok()).toBe(true);
   const spec = await response.json();
   expect(spec.openapi).toBe("3.0.3");
-  expect(Object.keys(spec.paths)).toHaveLength(22);
+  expect(Object.keys(spec.paths)).toHaveLength(23);
   expect(spec.paths["/api/documents/{id}"].get.operationId).toBe("getDocument");
   expect(spec.paths["/api/dispatches/{id}/renew-quote"].post.operationId).toBe(
     "renewFaxQuote",
+  );
+  expect(spec.paths["/api/postal/address-pages"].post.operationId).toBe(
+    "createPostalAddressPage",
   );
   expect(spec.paths["/api/dispatches/{id}/approve"]).toBeUndefined();
 });
@@ -157,7 +160,10 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   const request = await specRequest;
   expect((await request.allHeaders()).cookie).toBeUndefined();
   expect((await request.allHeaders()).authorization).toBeUndefined();
-  await expect(page.locator("#swagger-reference .opblock")).toHaveCount(25);
+  await expect(page.locator("#swagger-reference .opblock")).toHaveCount(26);
+  await expect(
+    page.locator("#operations-Courrier-createPostalAddressPage"),
+  ).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Référence ouverte", exact: true }),
   ).toBeDisabled();
