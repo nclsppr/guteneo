@@ -15,6 +15,7 @@ import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/
 import api from "../../apps/api/src/index";
 import { PostalAddressPageService } from "../../apps/api/src/postal-address-page";
 import { PostalService } from "../../apps/api/src/postal";
+import { DocumentService } from "../../apps/api/src/documents";
 import {
   postalBrowserAuthority,
   type PostalAuthority,
@@ -676,6 +677,79 @@ describe("explicit postal address-page generation", () => {
       ),
     ).rejects.toMatchObject({ code: "DOCUMENT_NOT_READY" });
   });
+  it.each([
+    { printMode: "simplex" as const, pageDifference: 0 },
+    { printMode: "simplex" as const, pageDifference: 1 },
+    { printMode: "duplex" as const, pageDifference: 0 },
+    { printMode: "duplex" as const, pageDifference: -1 },
+  ])(
+    "revalidates $printMode pagination after deferred scan promotion (difference $pageDifference)",
+    async ({ printMode, pageDifference }) => {
+      scanner.mockImplementationOnce(async () =>
+        Response.json(
+          { error: { code: "SCANNER_NOT_READY" } },
+          { status: 503 },
+        ),
+      );
+      const generationInput = { ...input, printMode };
+      const generated = await service().generate(
+        authority,
+        generationInput,
+        "deferred-pages",
+      );
+      expect(generated.document).toMatchObject({
+        status: "quarantined",
+        pages: 0,
+      });
+      const expectedPages = 2 + generated.provenance.addedPages;
+      renderer.mockImplementation(async (request: Request) => {
+        if (new URL(request.url).pathname === "/validate") {
+          const bytes = new Uint8Array(await request.arrayBuffer());
+          return Response.json({
+            sha256: await sha256(bytes),
+            pages: expectedPages + pageDifference,
+          });
+        }
+        return render(request);
+      });
+      await env.DB.prepare(
+        "UPDATE document_analysis SET next_attempt_at=0 WHERE organization_id=? AND document_id=?",
+      )
+        .bind(ctx.organizationId, generated.document.id)
+        .run();
+      expect(
+        await new DocumentService(env, domain).processPendingScans(),
+      ).toEqual({ processed: 1 });
+      expect(
+        await domain.getDocument(ctx, generated.document.id),
+      ).toMatchObject({
+        status: "ready",
+        pages: expectedPages + pageDifference,
+      });
+      const replay = service().generate(
+        authority,
+        generationInput,
+        "deferred-pages",
+      );
+      if (pageDifference === 0) {
+        await expect(replay).resolves.toMatchObject({
+          document: {
+            id: generated.document.id,
+            status: "ready",
+            pages: expectedPages,
+          },
+          provenance: generated.provenance,
+        });
+      } else {
+        await expect(replay).rejects.toMatchObject({
+          code: "POSTAL_ADDRESS_PAGE_PROOF_INVALID",
+        });
+      }
+      expect(renderCalls()).toHaveLength(1);
+      expect(scanner).toHaveBeenCalledTimes(2);
+      expect(await count("documents")).toBe(2);
+    },
+  );
   it("blocks changed recipient, print mode and provider profile before preflight rendering", async () => {
     const generated = await service().generate(authority, input, "binding");
     const postal = new PostalService(env, domain, { fetcher: profileFetch });

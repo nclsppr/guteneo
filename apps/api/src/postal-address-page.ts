@@ -102,7 +102,9 @@ export class PostalAddressPageService {
     );
     if (
       document.sha256 !== provenance.generatedSha256 ||
-      document.status === "purged"
+      document.status === "purged" ||
+      (document.status === "ready" &&
+        document.pages !== row.source_pages + row.added_pages)
     )
       fail("POSTAL_ADDRESS_PAGE_PROOF_INVALID");
     await authority.assertCurrent();
