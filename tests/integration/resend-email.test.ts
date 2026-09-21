@@ -333,7 +333,7 @@ beforeAll(async () => {
   documentSha = await sha256(pdfBytes);
   const dir = new URL("../../migrations/", import.meta.url);
   for (const filename of readdirSync(dir)
-    .filter((name) => name.endsWith(".sql") && name < "0036")
+    .filter((name) => name.endsWith(".sql") && name < "0037")
     .sort())
     await sql(readFileSync(new URL(filename, dir), "utf8"));
   await setupFixture("ses");
@@ -356,11 +356,11 @@ beforeAll(async () => {
   const before = await snapshot(),
     validBefore = await validQuotes();
   await sql(
-    readFileSync(new URL("0036_resend_email_transport.sql", dir), "utf8"),
+    readFileSync(new URL("0037_resend_email_transport.sql", dir), "utf8"),
   );
   const after34 = await snapshot(),
     validAfter34 = await validQuotes();
-  await sql(readFileSync(new URL("0037_protected_documents.sql", dir), "utf8"));
+  await sql(readFileSync(new URL("0038_protected_documents.sql", dir), "utf8"));
   migrationProof = {
     before,
     after34,

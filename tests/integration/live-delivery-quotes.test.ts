@@ -124,8 +124,8 @@ beforeAll(async () => {
         ![
           "0022_ses_public_list_prices.sql",
           "0030_postal_public_pricing.sql",
-          "0036_resend_email_transport.sql",
-          "0037_protected_documents.sql",
+          "0037_resend_email_transport.sql",
+          "0038_protected_documents.sql",
         ].includes(f),
     )
     .sort())
@@ -207,8 +207,8 @@ beforeAll(async () => {
   // Later migrations depend on the prior pricing schemas. The dedicated
   // resend-email suite proves these upgrades against populated signed quotes.
   for (const filename of [
-    "0036_resend_email_transport.sql",
-    "0037_protected_documents.sql",
+    "0037_resend_email_transport.sql",
+    "0038_protected_documents.sql",
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
 });
