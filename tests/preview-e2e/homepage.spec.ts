@@ -339,6 +339,7 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
     .getByRole("link", { name: "Assistants", exact: true })
     .click();
   await expect(page).toHaveURL(/\/assistants\/$/);
+  await page.waitForLoadState("load");
   await expect(page.locator("main h1")).toBeVisible();
   // The server-rendered heading can be visible before the stylesheet arrives.
   await expect

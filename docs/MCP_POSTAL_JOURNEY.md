@@ -77,7 +77,7 @@ répétitions identiques et les arrêts administratifs. Les fixtures ne qualifie
 ni le transfert d’une pièce jointe par tous les hôtes, ni une lettre réellement
 expédiée. Aucun envoi réel n’est nécessaire pour valider ce changement.
 
-Preuves locales du candidat : 93 tests de catalogue/transport/reprise MCP et
+Preuves locales du candidat : 129 tests de catalogue/transport/reprise et revue MCP et
 50 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
 signés de fixture et une base D1 locale. Le typage, le lint et la construction web
 passent. Les 34 migrations produisent un schéma équivalent de 217 objets, avec

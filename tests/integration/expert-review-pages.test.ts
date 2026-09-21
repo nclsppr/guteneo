@@ -795,7 +795,7 @@ describe("read-only original PDF pages through MCP", () => {
       expect(
         tools.tools.find((tool) => tool.name === "read_document_pages")
           ?.annotations,
-      ).toMatchObject({ readOnlyHint: true });
+      ).toMatchObject({ readOnlyHint: false });
       const first = await transport.client.callTool({
         name: "read_document_pages",
         arguments: { documentId: item.doc.id },

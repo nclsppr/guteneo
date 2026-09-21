@@ -729,7 +729,7 @@ describe("connection-specific expert status is read-only and current", () => {
     ).rejects.toMatchObject({ code: "EXPERT_STATUS_AUTHORITY_CHANGED" });
   });
 
-  it("returns connection-specific read-only status through the actual MCP transport without secrets", async () => {
+  it("returns connection-specific status through the actual MCP transport with truthful observation metadata", async () => {
     await grant();
     const reader = await identify("documents:read");
     const before = await snapshot();
@@ -746,7 +746,7 @@ describe("connection-specific expert status is read-only and current", () => {
       expect(
         tools.tools.find((tool) => tool.name === "get_expert_status")
           ?.annotations,
-      ).toMatchObject({ readOnlyHint: true });
+      ).toMatchObject({ readOnlyHint: false });
       const result = await client.callTool({
         name: "get_expert_status",
         arguments: {},

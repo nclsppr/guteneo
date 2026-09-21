@@ -270,9 +270,9 @@ describe("postal tools over MCP transport", () => {
             { type: "oauth2", scopes: [scope] },
           ]);
           expect(listed?.annotations).toMatchObject({
-            readOnlyHint: name === "get_postal_setup",
+            readOnlyHint: false,
             destructiveHint: false,
-            idempotentHint: true,
+            idempotentHint: false,
             openWorldHint: false,
           });
           const response = await client.callTool({ name, arguments: args });
