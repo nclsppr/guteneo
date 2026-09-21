@@ -687,17 +687,18 @@ describe("distributable LLM integrations", () => {
         });
         const { tools } = await client.listTools();
         // Read-only, destructive, idempotent, open-world: these labels drive
-        // host confirmations and must describe effects, including indirect sends.
+        // host confirmations and must describe effects, including indirect sends
+        // and persisted connection observations on successful business reads.
         const expected: Record<string, [boolean, boolean, boolean, boolean]> = {
-          get_capabilities: [true, false, true, false],
-          get_expert_status: [true, false, true, false],
-          get_document: [true, false, true, false],
-          list_documents: [true, false, true, false],
-          read_document_pages: [true, false, true, false],
-          get_dispatch_status: [true, false, true, false],
-          list_dispatches: [true, false, true, false],
-          get_postal_requirements: [true, false, true, false],
-          get_postal_preflight: [true, false, true, false],
+          get_capabilities: [false, false, true, false],
+          get_expert_status: [false, false, true, false],
+          get_document: [false, false, true, false],
+          list_documents: [false, false, true, false],
+          read_document_pages: [false, false, true, false],
+          get_dispatch_status: [false, false, true, false],
+          list_dispatches: [false, false, true, false],
+          get_postal_requirements: [false, false, true, false],
+          get_postal_preflight: [false, false, true, false],
           // Quote renewal cancels the superseded prepared dispatch.
           prepare_fax: [false, true, true, false],
           prepare_dispatch: [false, false, true, false],
@@ -708,7 +709,7 @@ describe("distributable LLM integrations", () => {
           render_pdf: [false, false, false, false],
           rescan_document: [false, false, false, false],
           review_dispatch: [false, false, false, false],
-          transfer_postal_draft: [false, true, true, true],
+          transfer_postal_draft: [false, true, true, false],
           approve_and_send_dispatch: [false, true, true, true],
           confirm_dispatch: [false, true, true, true],
           cancel_dispatch: [false, true, true, false],

@@ -366,8 +366,10 @@ test("Assistants is the second workspace destination and every private guide sur
     name: "Navigation de l’atelier",
     exact: true,
   });
+  await expect(page.locator(".workspace-navigation")).toBeVisible();
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
+  await expect(nav).toBeVisible();
   const labels = (await nav.getByRole("link").allTextContents()).map((text) =>
     text.trim(),
   );
