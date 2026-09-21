@@ -919,7 +919,6 @@ export function PrepareDispatch({
                   onChange={() => {
                     setChannel(c);
                     setSenderId("");
-                    setPostalBudget(String(Number(ceiling) / 100));
                   }}
                 />
                 <span>{t.channels[c]}</span>

@@ -38,6 +38,11 @@ compilations et navigateurs Chromium, mobile Chromium et iPhone WebKit. Ce résu
 précède l’intégration finale de la PR #28 ; la PR #27 conserve les contrôles de la
 source réconciliée. Les essais de fournisseur et de navigateur restent synthétiques.
 
+Après intégration locale du parcours postal de la PR #28, les 215 tests serveur
+ciblés et les 45 scénarios navigateur e-mail protégé/courrier passent sur les
+trois profils. Ces contrôles complètent la preuve précédente ; la CI complète
+devra encore passer sur la dernière source intégrée avant publication.
+
 Le candidat inclut une archive plugin 0.3.0 et les contrats ChatGPT/Claude. Cela
 ne constitue ni une nouvelle soumission ni une publication dans une marketplace.
 
