@@ -69,12 +69,16 @@ type SetupAuthority = PostalAuthority & {
     | {
         origin: "browser_administrator_declaration";
         clientId: null;
-        connectionId: null;
+        connectionIdSnapshot: null;
+        issuer: null;
+        authorizationRevision: null;
       }
     | {
         origin: "oauth_administrator_submission";
         clientId: string;
-        connectionId: string;
+        connectionIdSnapshot: string;
+        issuer: string;
+        authorizationRevision: number;
       };
 };
 
@@ -93,7 +97,9 @@ function browserSetupAuthority(
     submission: {
       origin: "browser_administrator_declaration",
       clientId: null,
-      connectionId: null,
+      connectionIdSnapshot: null,
+      issuer: null,
+      authorizationRevision: null,
     },
     async assertCurrent() {
       const fresh = await authenticateBrowser(captured, env, true);
@@ -180,15 +186,27 @@ export async function configurePostalSenderForMcp(
       "POSTAL_SETUP_UNAVAILABLE",
       "L’activation du courrier est indisponible dans cet environnement.",
     );
+  const observation = captured.connectionObservation;
+  if (!observation || !Number.isSafeInteger(observation.authorizationRevision))
+    fail(
+      "POSTAL_AUTHORITY_CHANGED",
+      "Cette connexion a changé. Reconnectez votre assistant.",
+      403,
+    );
+  const issuer = auth0Issuer(env);
   const base = await postalMcpAuthority(captured, env, "dispatches:prepare");
+  // Pin the revision captured by authenticateMcp, not a later revision read after
+  // an await. A rebind back to the same tenant must invalidate this invocation.
   const connection = await env.DB.prepare(
-    "SELECT id FROM authorized_connections WHERE issuer=? AND user_id=? AND client_id=? AND organization_id=? AND status='active'",
+    "SELECT c.id FROM authorized_connections c JOIN connection_tool_observations o ON o.connection_id=c.id AND o.organization_id=c.organization_id AND o.user_id=c.user_id WHERE c.issuer=? AND c.user_id=? AND c.client_id=? AND c.organization_id=? AND c.status='active' AND c.id=? AND o.authorization_revision=?",
   )
     .bind(
-      auth0Issuer(env),
+      issuer,
       base.context.userId,
       captured.clientId,
       base.context.organizationId,
+      observation.connectionId,
+      observation.authorizationRevision,
     )
     .first<{ id: string }>();
   if (!connection)
@@ -202,18 +220,38 @@ export async function configurePostalSenderForMcp(
     submission: {
       origin: "oauth_administrator_submission",
       clientId: captured.clientId,
-      connectionId: connection.id,
+      connectionIdSnapshot: connection.id,
+      issuer,
+      authorizationRevision: observation.authorizationRevision,
     },
     sql() {
       const fence = base.sql();
       return {
-        condition: `(${fence.condition}) AND EXISTS(SELECT 1 FROM memberships setup_member JOIN organizations setup_org ON setup_org.id=setup_member.organization_id WHERE setup_member.organization_id=? AND setup_member.user_id=? AND setup_member.role='admin' AND setup_org.mode='production')`,
+        condition: `(${fence.condition}) AND EXISTS(SELECT 1 FROM memberships setup_member JOIN organizations setup_org ON setup_org.id=setup_member.organization_id JOIN authorized_connections setup_connection ON setup_connection.organization_id=setup_member.organization_id AND setup_connection.user_id=setup_member.user_id JOIN connection_tool_observations setup_observation ON setup_observation.connection_id=setup_connection.id AND setup_observation.organization_id=setup_connection.organization_id AND setup_observation.user_id=setup_connection.user_id WHERE setup_member.organization_id=? AND setup_member.user_id=? AND setup_member.role='admin' AND setup_org.mode='production' AND setup_connection.id=? AND setup_connection.issuer=? AND setup_connection.client_id=? AND setup_connection.status='active' AND setup_observation.authorization_revision=?)`,
         values: [
           ...fence.values,
           base.context.organizationId,
           base.context.userId,
+          connection.id,
+          issuer,
+          captured.clientId,
+          observation.authorizationRevision,
         ],
       };
+    },
+    async assertCurrent() {
+      await base.assertCurrent();
+      const fence = authority.sql();
+      if (
+        !(await env.DB.prepare(`SELECT 1 AS allowed WHERE ${fence.condition}`)
+          .bind(...fence.values)
+          .first())
+      )
+        fail(
+          "POSTAL_AUTHORITY_CHANGED",
+          "Cette connexion a changé. Reconnectez votre assistant.",
+          403,
+        );
     },
   };
   return configure(env, authority, parsed.data, dependencies);
@@ -589,8 +627,15 @@ async function configure(
         submissionOrigin: authority.submission.origin,
         ...(authority.submission.origin === "oauth_administrator_submission"
           ? {
-              oauthClientId: authority.submission.clientId,
-              oauthConnectionId: authority.submission.connectionId,
+              oauthAuthoritySnapshot: {
+                issuer: authority.submission.issuer,
+                organizationId: org,
+                userId: authority.context.userId,
+                clientId: authority.submission.clientId,
+                connectionId: authority.submission.connectionIdSnapshot,
+                authorizationRevision:
+                  authority.submission.authorizationRevision,
+              },
               humanConsentClaimed: false,
             }
           : {}),
@@ -608,7 +653,7 @@ async function configure(
         `INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) SELECT ?,?,'postal',?,?,'verified','production',? WHERE ${marker}`,
       ).bind(senderId, org, input.name, input.address, timestamp, org, auditId),
       env.DB.prepare(
-        `INSERT INTO postal_sender_declarations(organization_id,sender_id,user_id,sender_name,sender_address,authorization_basis,physical_address_verified,profile_json,audit_id,created_at,submission_origin,oauth_client_id,oauth_connection_id) SELECT ?,?,?,?,?,'authenticated_administrator_declaration',0,?,?,?,?,?,? WHERE ${marker}`,
+        `INSERT INTO postal_sender_declarations(organization_id,sender_id,user_id,sender_name,sender_address,authorization_basis,physical_address_verified,profile_json,audit_id,created_at,submission_origin,oauth_client_id,oauth_connection_id_snapshot,oauth_issuer,oauth_authorization_revision) SELECT ?,?,?,?,?,'authenticated_administrator_declaration',0,?,?,?,?,?,?,?,? WHERE ${marker}`,
       ).bind(
         org,
         senderId,
@@ -620,7 +665,9 @@ async function configure(
         timestamp,
         authority.submission.origin,
         authority.submission.clientId,
-        authority.submission.connectionId,
+        authority.submission.connectionIdSnapshot,
+        authority.submission.issuer,
+        authority.submission.authorizationRevision,
         org,
         auditId,
       ),

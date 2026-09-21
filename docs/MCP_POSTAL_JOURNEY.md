@@ -32,6 +32,12 @@ et le même profil. Une lecture ne renouvelle rien.
 La migration `0034_postal_sender_submission.sql` conserve l’origine historique
 des déclarations navigateur et distingue les soumissions OAuth. Le client et la
 connexion sont dérivés de l’identité authentifiée, jamais d’un argument du chat.
+L’organisation, l’utilisateur, l’émetteur OAuth, le client, l’identifiant historique
+de connexion et sa révision forment un instantané immuable de l’autorité utilisée.
+L’insertion vérifie cet ensemble contre la connexion active du même compte. Cet
+instantané ne référence pas la ligne de connexion mutable : une réassociation
+ultérieure à une autre organisation conserve la preuve historique dans son
+organisation d’origine, sans bloquer le changement de compte.
 La déclaration reste immuable et `physical_address_verified` reste faux. Aucun
 booléen transmis par un assistant n’est présenté comme une preuve de consentement
 humain. Cette configuration n’accorde ni mandat expert, ni crédits, ni permission
@@ -72,10 +78,13 @@ ni le transfert d’une pièce jointe par tous les hôtes, ni une lettre réelle
 expédiée. Aucun envoi réel n’est nécessaire pour valider ce changement.
 
 Preuves locales du candidat : 93 tests de catalogue/transport/reprise MCP et
-41 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
+48 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
 signés de fixture et une base D1 locale. Le typage, le lint et la construction web
 passent. Les 34 migrations produisent un schéma équivalent de 217 objets, avec
 `quick_check=ok` et aucune violation de clé étrangère. La revue indépendante
 a fait corriger la découverte des capacités avec des scopes limités et une
-consigne qui pouvait provoquer un second import. Ces résultats ne prouvent pas
+consigne qui pouvait provoquer un second import. La provenance historique reste
+dans son compte après une réassociation OAuth ; un aller-retour entre comptes,
+même à horodatages identiques, invalide une opération devenue obsolète avant
+l’écriture. Ces résultats ne prouvent pas
 encore une conversation native ChatGPT ou Claude avec cette version.

@@ -297,7 +297,14 @@ async function expectUnconfigured() {
       .first("enabled"),
   ).toBe(0);
 }
-async function browserRequest(p: Principal) {
+async function browserRequest(
+  p: Principal,
+  {
+    organization = p.identity.context.organizationId,
+    path = "/api/postal/setup",
+    body = { ...input, authorized: true } as object,
+  } = {},
+) {
   const token = Buffer.from(
     crypto.getRandomValues(new Uint8Array(32)),
   ).toString("base64url");
@@ -309,13 +316,13 @@ async function browserRequest(p: Principal) {
     .bind(
       await hashSecret(token),
       p.identity.context.userId,
-      p.identity.context.organizationId,
+      organization,
       csrf,
       now(),
       new Date(Date.now() + 3600000).toISOString(),
     )
     .run();
-  return new Request(`${env.APP_ORIGIN}/api/postal/setup`, {
+  return new Request(`${env.APP_ORIGIN}${path}`, {
     method: "POST",
     headers: {
       Origin: env.APP_ORIGIN,
@@ -323,7 +330,24 @@ async function browserRequest(p: Principal) {
       "X-CSRF-Token": csrf,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ ...input, authorized: true }),
+    body: JSON.stringify(body),
+  });
+}
+
+async function rebind(p: Principal, organization: string) {
+  const response = await worker.fetch(
+    await browserRequest(p, {
+      organization,
+      path: "/api/connections",
+      body: { clientId: p.clientId },
+    }),
+    { ...env, DB: db },
+    {} as ExecutionContext,
+  );
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({
+    bound: true,
+    reconnectRequired: true,
   });
 }
 
@@ -435,7 +459,10 @@ describe("postal sender setup through current OAuth administrator authority", ()
       physical_address_verified: 0,
       submission_origin: "oauth_administrator_submission",
       oauth_client_id: p.clientId,
-      oauth_connection_id: p.connectionId,
+      oauth_connection_id_snapshot: p.connectionId,
+      oauth_issuer: issuer,
+      oauth_authorization_revision:
+        p.identity.connectionObservation!.authorizationRevision,
     });
     const audit = await db
       .prepare(
@@ -540,6 +567,199 @@ describe("postal sender setup through current OAuth administrator authority", ()
       input.name,
     );
   });
+
+  it("preserves historical tenant provenance when the same live OAuth connection is rebound through the browser", async () => {
+    const p = await principal();
+    const a = await configure(p);
+    const before = await db
+      .prepare(
+        "SELECT * FROM postal_sender_declarations WHERE organization_id=?",
+      )
+      .bind(org)
+      .first();
+    await db
+      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .bind(otherOrg, p.identity.context.userId, now())
+      .run();
+    await rebind(p, otherOrg);
+    expect(
+      await db
+        .prepare(
+          "SELECT organization_id FROM authorized_connections WHERE id=?",
+        )
+        .bind(p.connectionId)
+        .first("organization_id"),
+    ).toBe(otherOrg);
+    expect(
+      await db
+        .prepare(
+          "SELECT * FROM postal_sender_declarations WHERE organization_id=?",
+        )
+        .bind(org)
+        .first(),
+    ).toEqual(before);
+    await expect(configure(p)).rejects.toMatchObject({
+      code: "POSTAL_AUTHORITY_CHANGED",
+    });
+    await expect(getPostalSetupForMcp(p.identity, env)).rejects.toMatchObject({
+      code: "POSTAL_AUTHORITY_CHANGED",
+    });
+    await refresh(p);
+    expect(p.identity.context.organizationId).toBe(otherOrg);
+    expect(await getPostalSetupForMcp(p.identity, env)).toMatchObject({
+      configured: false,
+      senderVerification: null,
+    });
+    const b = await configure(p, { ...input, name: "Atelier B fictif" });
+    expect(b.sender!.id).not.toBe(a.sender!.id);
+    const after = await db
+      .prepare(
+        "SELECT * FROM postal_sender_declarations WHERE organization_id=?",
+      )
+      .bind(otherOrg)
+      .first();
+    expect(after).toMatchObject({
+      organization_id: otherOrg,
+      user_id: p.identity.context.userId,
+      oauth_issuer: issuer,
+      oauth_client_id: p.clientId,
+      oauth_connection_id_snapshot: p.connectionId,
+      oauth_authorization_revision:
+        p.identity.connectionObservation!.authorizationRevision,
+    });
+    expect(after!.oauth_authorization_revision).not.toBe(
+      before!.oauth_authorization_revision,
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT * FROM postal_sender_declarations WHERE organization_id=?",
+        )
+        .bind(org)
+        .first(),
+    ).toEqual(before);
+    const aReader = await principal({ scopes: "documents:read" });
+    expect((await getPostalSetupForMcp(aReader.identity, env)).sender!.id).toBe(
+      a.sender!.id,
+    );
+    expect(
+      (
+        await db
+          .prepare("PRAGMA foreign_key_list(postal_sender_declarations)")
+          .all<{ table: string }>()
+      ).results.some((key) => key.table === "authorized_connections"),
+    ).toBe(false);
+    expect(
+      (await db.prepare("PRAGMA foreign_key_check").all()).results,
+    ).toEqual([]);
+  });
+
+  it.each(["provider", "transaction"] as const)(
+    "rejects an A-to-B-to-A rebind during %s even when timestamps are identical",
+    async (stage) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(Date.now());
+      const p = await principal();
+      await db
+        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .bind(otherOrg, p.identity.context.userId, now())
+        .run();
+      await db
+        .prepare(
+          "UPDATE authorized_connections SET not_before=?,updated_at=? WHERE id=?",
+        )
+        .bind(Math.floor(Date.now() / 1000), now(), p.connectionId)
+        .run();
+      await refresh(p);
+      const original = await db
+        .prepare("SELECT * FROM authorized_connections WHERE id=?")
+        .bind(p.connectionId)
+        .first();
+      const originalRevision =
+        p.identity.connectionObservation!.authorizationRevision;
+      const change = async () => {
+        await rebind(p, otherOrg);
+        await rebind(p, org);
+      };
+      if (stage === "provider") beforeProfile = change;
+      else
+        env.DB = {
+          prepare: db.prepare.bind(db),
+          batch: async (statements: D1PreparedStatement[]) => {
+            await change();
+            return db.batch(statements);
+          },
+        } as D1Database;
+      await expect(configure(p)).rejects.toMatchObject({
+        code: "POSTAL_AUTHORITY_CHANGED",
+      });
+      expect(
+        await db
+          .prepare("SELECT * FROM authorized_connections WHERE id=?")
+          .bind(p.connectionId)
+          .first(),
+      ).toEqual(original);
+      expect(
+        await db
+          .prepare(
+            "SELECT authorization_revision FROM connection_tool_observations WHERE connection_id=? AND organization_id=?",
+          )
+          .bind(p.connectionId, org)
+          .first("authorization_revision"),
+      ).toBe(originalRevision + 2);
+      await expectUnconfigured();
+    },
+  );
+
+  it.each(["issuer", "connection", "revision", "tenant"] as const)(
+    "rejects a forged %s in persisted OAuth declaration snapshots",
+    async (forged) => {
+      const p = await principal();
+      const outsider = await principal({ organization: otherOrg });
+      const senderId = `sender_${crypto.randomUUID()}`;
+      const auditId = `audit_${crypto.randomUUID()}`;
+      await db.batch([
+        db
+          .prepare(
+            "INSERT INTO senders VALUES(?,?,'postal',?,?,'verified','production',?)",
+          )
+          .bind(senderId, org, input.name, input.address, now()),
+        db
+          .prepare(
+            "INSERT INTO audit_log VALUES(?,?,?,'postal.sender.declared',?,'{}',?)",
+          )
+          .bind(auditId, org, p.identity.context.userId, senderId, now()),
+      ]);
+      await expect(
+        db
+          .prepare(
+            "INSERT INTO postal_sender_declarations(organization_id,sender_id,user_id,sender_name,sender_address,authorization_basis,physical_address_verified,profile_json,audit_id,created_at,submission_origin,oauth_client_id,oauth_connection_id_snapshot,oauth_issuer,oauth_authorization_revision) VALUES(?,?,?,?,?,'authenticated_administrator_declaration',0,'{}',?,?,'oauth_administrator_submission',?,?,?,?)",
+          )
+          .bind(
+            org,
+            senderId,
+            forged === "tenant"
+              ? outsider.identity.context.userId
+              : p.identity.context.userId,
+            input.name,
+            input.address,
+            auditId,
+            now(),
+            forged === "tenant" ? outsider.clientId : p.clientId,
+            forged === "connection"
+              ? "invented"
+              : forged === "tenant"
+                ? outsider.connectionId
+                : p.connectionId,
+            forged === "issuer" ? "https://other-identity.example/" : issuer,
+            p.identity.connectionObservation!.authorizationRevision +
+              Number(forged === "revision"),
+          )
+          .run(),
+      ).rejects.toThrow("invalid_postal_sender_submission");
+      expect(await count("postal_sender_declarations")).toBe(0);
+    },
+  );
 
   it("deduplicates concurrent browser and OAuth submissions and preserves the winning provenance", async () => {
     const p = await principal();
@@ -813,7 +1033,15 @@ describe("postal sender setup through current OAuth administrator authority", ()
       .first<string>("details_json");
     expect(JSON.parse(audit!)).toMatchObject({
       authorizationBasis: "oauth_administrator_submission",
-      oauthConnectionId: p.connectionId,
+      oauthAuthoritySnapshot: {
+        issuer,
+        organizationId: org,
+        userId: p.identity.context.userId,
+        clientId: p.clientId,
+        connectionId: p.connectionId,
+        authorizationRevision:
+          p.identity.connectionObservation!.authorizationRevision,
+      },
       humanConsentClaimed: false,
     });
     await configure(p);

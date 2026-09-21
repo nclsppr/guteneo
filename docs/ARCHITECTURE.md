@@ -3,7 +3,10 @@
 21 September candidate: browser and MCP postal setup use the same transaction
 and provider/profile checks. MCP mutations require current administrator OAuth
 authority and `dispatches:prepare`, fenced again in the write. Migration 0034
-records immutable submission origin and server-derived OAuth attribution.
+records immutable submission origin and a tenant-bound snapshot of the OAuth
+issuer, user, client, connection identifier and authorization revision. The snapshot
+is verified against the active connection on insertion and does not reference its
+mutable row, so later tenant rebinding cannot move historical provenance.
 Reads do not renew pricing; explicit renewal retains the existing sender,
 profile and revocation guards. Send approvals and expert mandates are unchanged.
 See [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md).
