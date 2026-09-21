@@ -454,6 +454,7 @@ beforeEach(async () => {
   });
 
   profileCountry = "LU";
+  env.PINGEN_DEFAULT_COUNTRY = "LU";
   profilePosition = "left";
   calls = [];
   renderer = vi.fn(async (request: Request) => {
@@ -705,8 +706,8 @@ describe("server-owned postal review and consent", () => {
         authority,
         {
           ...input,
-          options: { ...input.options, addressPosition: "right" },
-        } as PostalReviewInput,
+          options: { ...input.options, addressPosition: "center" },
+        } as unknown as PostalReviewInput,
         "forged",
       ),
     ).rejects.toThrow();
@@ -881,7 +882,8 @@ describe("server-owned postal review and consent", () => {
   });
   it("changed server profile invalidates earlier consent before any file upload", async () => {
     const ready = await service().create(authority, input, "review");
-    profilePosition = "right";
+    profileCountry = "DE";
+    env.PINGEN_DEFAULT_COUNTRY = "DE";
     await expect(
       service().transfer(authority, ready.id, {
         reviewed: true,
@@ -1088,4 +1090,84 @@ it("accepts the shared idempotency key contract without an invented ASCII restri
       service().create(authority, input, invalid),
     ).rejects.toMatchObject({ code: "INVALID_IDEMPOTENCY_KEY" });
   expect(await renders()).toBe(1);
+});
+
+it("selects the right window per letter and retains it through rendering, transfer and quote", async () => {
+  const rightInput: PostalReviewInput = {
+    ...input,
+    options: { ...input.options, addressPosition: "right" },
+  };
+  const requirements = await service().requirements(authority, "LU", "right");
+  expect(requirements.profile).toMatchObject({
+    addressPosition: "right",
+    addressPositions: ["left", "right"],
+  });
+  expect(requirements.layout.address.x).toBe(118);
+  const review = await service().create(authority, rightInput, "right-window");
+  expect(review.options.addressPosition).toBe("right");
+  const renderedRequest = renderer.mock.calls[0][0] as Request;
+  expect(
+    JSON.parse(renderedRequest.headers.get("X-Guteneo-Pingen-Options")!),
+  ).toMatchObject({ addressPosition: "right" });
+  await expect(
+    service().create(
+      authority,
+      {
+        ...rightInput,
+        options: { ...rightInput.options, addressPosition: "left" },
+      },
+      "right-window",
+    ),
+  ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+  const prepared = await service().transfer(authority, review.id, {
+    reviewed: true,
+    consentToTransfer: true,
+  });
+  expect(prepared.transferStatus).toBe("prepared");
+  const created = calls.find(
+    (call) =>
+      call.method === "POST" && call.url.endsWith("/deliveries/letters"),
+  );
+  expect(JSON.parse(String(created!.body)).data.attributes).toMatchObject({
+    address_position: "right",
+    auto_send: false,
+  });
+  const prepare = vi
+    .spyOn(domain, "prepareDispatch")
+    .mockRejectedValueOnce(new Error("postal_document_not_ready"));
+  await expect(
+    service().quote(authority, review.id, "right-quote"),
+  ).rejects.toMatchObject({ code: "POSTAL_DRAFT_NOT_READY" });
+  expect(prepare.mock.calls[0][1].options).toMatchObject({
+    addressPosition: "right",
+  });
+});
+
+it("does not change a reviewed letter when only the account default window changes", async () => {
+  const review = await service().create(authority, input, "stable-window");
+  profilePosition = "right";
+  const prepared = await service().transfer(authority, review.id, {
+    reviewed: true,
+    consentToTransfer: true,
+  });
+  expect(prepared.transferStatus).toBe("prepared");
+  expect(prepared.options.addressPosition).toBe("left");
+});
+
+it("refuses a left window on a French account before rendering or uploading", async () => {
+  profileCountry = "FR";
+  profilePosition = "right";
+  env.PINGEN_DEFAULT_COUNTRY = "FR";
+  expect((await service().requirements(authority, "DE")).profile).toMatchObject(
+    { addressPosition: "right", addressPositions: ["right"] },
+  );
+  await expect(
+    service().create(
+      authority,
+      { ...input, options: { ...input.options, addressPosition: "left" } },
+      "unsupported-left",
+    ),
+  ).rejects.toMatchObject({ code: "POSTAL_PROFILE_UNQUALIFIED" });
+  expect(renderer).not.toHaveBeenCalled();
+  expect(transfers()).toHaveLength(0);
 });

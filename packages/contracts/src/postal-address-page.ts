@@ -8,6 +8,7 @@ export const postalAddressPageInputSchema = z
     documentId: z.string().min(1).max(200),
     recipient: postalReviewInputSchema.shape.recipient,
     printMode: z.enum(["simplex", "duplex"]),
+    addressPosition: z.enum(["left", "right"]).optional(),
   })
   .strict();
 export type PostalAddressPageInput = z.infer<

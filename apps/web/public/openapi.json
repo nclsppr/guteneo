@@ -34,7 +34,7 @@
     },
     {
       "name": "Courrier",
-      "description": "Contrôle du PDF, revue humaine dans Guteneo, brouillon Pingen puis devis ; aucune expédition implicite."
+      "description": "Contrôle du PDF, revue humaine dans Guteneo, brouillon postal puis devis ; aucune expédition implicite."
     }
   ],
   "paths": {
@@ -1364,7 +1364,7 @@
           "Courrier"
         ],
         "summary": "Contrôler le PDF postal",
-        "description": "Contrôle les octets exacts d’un PDF ready déjà scanné, toutes ses pages et son adresse avec le profil Pingen du serveur. Maximum 8 000 000 octets ; consomme un contrôle du quota PDF. La même clé et le même contenu reprennent le contrôle existant. Aucun PDF n’est transmis à Pingen ici ; reviewUrl mène à la revue humaine. Ni hash, ni rapport de rendu, ni consentement ne sont acceptés du client.",
+        "description": "Contrôle les octets exacts d’un PDF ready déjà scanné, toutes ses pages et son adresse avec le profil postal du serveur. Maximum 8 000 000 octets ; consomme un contrôle du quota PDF. La même clé et le même contenu reprennent le contrôle existant. Aucun PDF n’est transmis au prestataire d’impression ici ; reviewUrl mène à la revue humaine. Ni hash, ni rapport de rendu, ni consentement ne sont acceptés du client.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1444,7 +1444,7 @@
           "Courrier"
         ],
         "summary": "Lire le contrôle postal",
-        "description": "Lecture sans création de brouillon ni calcul de prix. prepared signifie uniquement que le brouillon est déposé chez Pingen. unknown interdit une nouvelle création automatique : vérifier le résultat avec Guteneo.",
+        "description": "Lecture sans création de brouillon ni calcul de prix. prepared signifie uniquement que le brouillon est déposé chez le prestataire d’impression. unknown interdit une nouvelle création automatique : vérifier le résultat avec Guteneo.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1583,7 +1583,7 @@
           "Courrier"
         ],
         "summary": "Obtenir le devis du brouillon contrôlé",
-        "description": "Uniquement après la revue humaine et le transfert explicitement consenti dans Guteneo. Aucun corps requis : document, destinataire et options viennent du contrôle immuable. Une analyse Pingen encore en cours répond 409 POSTAL_DRAFT_NOT_READY ; reprendre la même clé après analyse. Le devis ne vaut pas approbation : ouvrir /#/app/dispatch/{id} avec l’identifiant du Dispatch retourné. Aucun envoi implicite.",
+        "description": "Uniquement après la revue humaine et le transfert explicitement consenti dans Guteneo. Aucun corps requis : document, destinataire et options viennent du contrôle immuable. Une analyse du courrier encore en cours répond 409 POSTAL_DRAFT_NOT_READY ; reprendre la même clé après analyse. Le devis ne vaut pas approbation : ouvrir /#/app/dispatch/{id} avec l’identifiant du Dispatch retourné. Aucun envoi implicite.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1655,7 +1655,7 @@
           "Courrier"
         ],
         "summary": "Lire le gabarit postal avant de créer le PDF",
-        "description": "Lecture du profil actuel de l’organisation Pingen, sans PDF ni brouillon. Coordonnées en millimètres depuis le coin supérieur gauche de la page A4. qualified qualifie ici le profil, jamais une adresse, un PDF ou un envoi. Si le profil fournisseur ne peut être vérifié, POSTAL_PROFILE_UNQUALIFIED ; ne pas déduire le gabarit du pays de résidence de l’utilisateur.",
+        "description": "Lecture du profil postal actuel du compte, sans PDF ni brouillon. Coordonnées en millimètres depuis le coin supérieur gauche de la page A4. qualified qualifie ici le profil, jamais une adresse, un PDF ou un envoi. Si le profil fournisseur ne peut être vérifié, POSTAL_PROFILE_UNQUALIFIED ; ne pas déduire le gabarit du pays de résidence de l’utilisateur.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1724,6 +1724,19 @@
               ]
             },
             "description": "Pays du destinataire."
+          },
+          {
+            "name": "addressPosition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right"
+              ]
+            },
+            "description": "Position souhaitée pour le gabarit ; facultative. Consulter profile.addressPositions pour les positions disponibles."
           }
         ]
       }
@@ -1844,7 +1857,7 @@
           "Courrier"
         ],
         "summary": "Ajouter une page d’adresse au PDF",
-        "description": "Action explicite : conserve le PDF original et crée un nouveau PDF contenant une page d’adresse placée selon le profil Pingen courant. En recto verso, ajoute aussi un verso blanc pour préserver les paires de pages originales. L’adresse est fournie par le client ; aucune adresse ni existence de destinataire n’est devinée. Le source doit être ready et vérifié dans ce compte. Le PDF final est de nouveau analysé : attendre document.status=ready, lire toutes ses pages puis utiliser son identifiant dans /api/postal/preflights. Les pages ajoutées sont incluses dans le devis final, sans tarif fourni par le client. Même clé et même demande reprennent la génération ; une clé réutilisée avec d’autres données est un conflit. Aucun PDF n’est transféré à Pingen, aucun consentement ni envoi n’est créé. Maximum final : 100 pages et 8 000 000 octets. Consomme les quotas de génération et stockage existants.",
+        "description": "Action explicite : conserve le PDF original et crée un nouveau PDF contenant une page d’adresse placée selon le profil postal courant. En recto verso, ajoute aussi un verso blanc pour préserver les paires de pages originales. L’adresse est fournie par le client ; aucune adresse ni existence de destinataire n’est devinée. Le source doit être ready et vérifié dans ce compte. Le PDF final est de nouveau analysé : attendre document.status=ready, lire toutes ses pages puis utiliser son identifiant dans /api/postal/preflights. Les pages ajoutées sont incluses dans le devis final, sans tarif fourni par le client. Même clé et même demande reprennent la génération ; une clé réutilisée avec d’autres données est un conflit. Aucun PDF n’est transféré au prestataire d’impression, aucun consentement ni envoi n’est créé. Maximum final : 100 pages et 8 000 000 octets. Consomme les quotas de génération et stockage existants.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -3311,6 +3324,14 @@
               "grayscale",
               "color"
             ]
+          },
+          "addressPosition": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "description": "Fenêtre d’adresse souhaitée parmi profile.addressPositions. Si omise, utilise la position par défaut du compte. Une position indisponible est refusée."
           }
         }
       },
@@ -3708,11 +3729,26 @@
                   "left",
                   "right"
                 ]
+              },
+              "addressPositions": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 2,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "left",
+                    "right"
+                  ]
+                },
+                "description": "Positions réellement disponibles pour ce compte postal ; les comptes français nécessitent une fenêtre à droite."
               }
             },
             "required": [
               "defaultCountry",
-              "addressPosition"
+              "addressPosition",
+              "addressPositions"
             ]
           },
           "layout": {
@@ -4683,7 +4719,7 @@
           "sources",
           "sourcesVerifiedAt"
         ],
-        "description": "Instructions pour le circuit effectif de cette destination et du compte Pingen. Les champs spécifiques au pays sont optionnels dans ce schéma ; les listes automatic/manual/provider distinguent les preuves et leurs limites."
+        "description": "Instructions pour le circuit effectif de cette destination et du compte postal. Les champs spécifiques au pays sont optionnels dans ce schéma ; les listes automatic/manual/provider distinguent les preuves et leurs limites."
       },
       "DocumentAnalysis": {
         "type": "object",
@@ -4757,6 +4793,14 @@
               "simplex",
               "duplex"
             ]
+          },
+          "addressPosition": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "description": "Fenêtre d’adresse souhaitée parmi profile.addressPositions. Si omise, utilise la position par défaut du compte. Une position indisponible est refusée."
           }
         }
       },

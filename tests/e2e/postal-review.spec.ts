@@ -11,7 +11,13 @@ const canonicalCropUrl = `https://guteneo.com${cropPath}`;
 async function setup(
   page: Page,
   variant:
-    "ready" | "blocked" | "unknown" | "crop_failed" | "lost_response" = "ready",
+    | "ready"
+    | "blocked"
+    | "unknown"
+    | "crop_failed"
+    | "lost_response"
+    | "quote_network"
+    | "quote_pending" = "ready",
   cropUrl: string | null = canonicalCropUrl,
 ) {
   const pdf = await PDFDocument.create();
@@ -156,6 +162,13 @@ async function setup(
       };
     else if (request.method() === "GET" && path === "/documents/pdf-ui-fixture")
       body = readyDocument;
+    else if (path === "/postal/requirements")
+      body = {
+        profile: {
+          addressPosition: "left",
+          addressPositions: ["left", "right"],
+        },
+      };
     else if (path === "/senders")
       body = {
         items: [
@@ -179,14 +192,14 @@ async function setup(
       if (variant === "lost_response") return route.abort("failed");
       body = review;
     } else if (path.endsWith("/quote")) {
-      if (quotePending) {
+      if (variant === "quote_network") return route.abort("failed");
+      if (quotePending || variant === "quote_pending") {
         quotePending = false;
         status = 409;
         body = {
           error: {
             code: "POSTAL_DRAFT_NOT_READY",
-            message:
-              "Pingen analyse encore ce brouillon. Réessayez le devis après son analyse.",
+            message: "Le courrier est encore en cours d’analyse.",
           },
         };
       } else body = { id: "dispatch-ui" };
@@ -245,11 +258,10 @@ for (const format of ["canonical", "current-origin", "relative"] as const)
     await expect(image).toBeVisible();
     await expect(image).toHaveAttribute("src", cropPath);
     await expect(
-      page.getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ }),
+      page.getByRole("button", {
+        name: "Valider le document et obtenir le prix",
+      }),
     ).toBeEnabled();
-    await expect(
-      page.getByRole("button", { name: "Transmettre pour analyse" }),
-    ).toBeDisabled();
     expect(fixture.cropRequests).toEqual([new URL(cropPath, baseURL).href]);
     expect(fixture.mutations).toEqual([]);
     expect(fixture.unmatched).toEqual([]);
@@ -280,38 +292,28 @@ for (const [reason, cropUrl] of [
       page.getByRole("img", { name: /Extrait de la première page/ }),
     ).toHaveCount(0);
     await expect(
-      page.getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ }),
-    ).toBeDisabled();
-    await expect(
-      page.getByRole("button", { name: "Transmettre pour analyse" }),
+      page.getByRole("button", {
+        name: "Valider le document et obtenir le prix",
+      }),
     ).toBeDisabled();
     expect(fixture.cropRequests).toEqual([]);
     expect(fixture.mutations).toEqual([]);
     expect(fixture.unmatched).toEqual([]);
   });
 
-test("postal review separates document transfer, provider quote and dispatch approval", async ({
+test("one explicit review action transfers once and follows the quote automatically", async ({
   page,
 }, testInfo) => {
-  if (testInfo.project.name === "iphone-webkit")
-    await page.setViewportSize({ width: 320, height: 800 });
   const fixture = await setup(page);
-  await expect(
-    page.getByRole("heading", { name: "Votre revue est nécessaire" }),
-  ).toBeVisible();
-  const transfer = page.getByRole("button", {
-    name: "Transmettre pour analyse",
-  });
-  await expect(transfer).toBeDisabled();
-  // Review the rendered PDF before consent: its page sizing and navigation
-  // otherwise move the mobile checkboxes while WebKit is clicking them.
   await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
-  await page
-    .getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ })
-    .check();
-  await expect(transfer).toBeDisabled();
-  await page.getByRole("checkbox", { name: /J’autorise le transfert/ }).check();
+  const transfer = page.getByRole("button", {
+    name: "Valider le document et obtenir le prix",
+  });
   await expect(transfer).toBeEnabled();
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(
+    page.getByText(/Vous autorisez le transfert de ce PDF/),
+  ).toBeVisible();
   expect(fixture.mutations).toEqual([]);
   expect(
     await page.evaluate(
@@ -324,10 +326,11 @@ test("postal review separates document transfer, provider quote and dispatch app
     fullPage: true,
   });
   await transfer.click();
-  await expect(
-    page.getByRole("heading", { name: "Brouillon créé chez Pingen" }),
-  ).toBeVisible();
-  expect(fixture.mutations).toEqual([
+  await expect(page).toHaveURL(/#\/app\/dispatch\/dispatch-ui$/);
+  const transfers = fixture.mutations.filter((m) =>
+    m.path.endsWith("/transfer"),
+  );
+  expect(transfers).toEqual([
     {
       path: "/postal/preflights/postal-ui-fixture/transfer",
       body: { reviewed: true, consentToTransfer: true },
@@ -335,70 +338,79 @@ test("postal review separates document transfer, provider quote and dispatch app
       key: undefined,
     },
   ]);
-  await expect(
-    page.getByRole("button", { name: "Transmettre pour analyse" }),
-  ).toHaveCount(0);
-  await page.getByRole("button", { name: "Obtenir le devis" }).click();
-  await expect(page.getByRole("alert")).toContainText(
-    "Pingen analyse encore ce brouillon",
-  );
-  expect(fixture.mutations.at(-1)?.path).toBe(
-    "/postal/preflights/postal-ui-fixture/quote",
-  );
-  expect(fixture.mutations.at(-1)?.key).toBeTruthy();
-  const quoteKey = fixture.mutations.at(-1)?.key;
-  await page.getByRole("button", { name: "Obtenir le devis" }).click();
+  const quotes = fixture.mutations.filter((m) => m.path.endsWith("/quote"));
+  expect(quotes).toHaveLength(2);
+  expect(quotes[0].key).toBeTruthy();
+  expect(quotes[1].key).toBe(quotes[0].key);
+  await page.goto("/#/app/postal/postal-ui-fixture");
   await expect(page).toHaveURL(/#\/app\/dispatch\/dispatch-ui$/);
-  await expect(
-    page.getByRole("heading", { name: "Le bon à envoyer." }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
-  ).toBeDisabled();
-  expect(fixture.mutations.at(-1)?.key).toBe(quoteKey);
-  expect(
-    fixture.mutations.filter((m) => m.path.endsWith("/transfer")),
-  ).toHaveLength(1);
+  expect(fixture.mutations.at(-1)?.key).toBe(quotes[0].key);
   expect(
     fixture.mutations.some((m) => /send|confirm|approve/.test(m.path)),
   ).toBe(false);
   expect(fixture.unmatched).toEqual([]);
 });
 
-test("lost transfer response requires fresh server state before any further action", async ({
+test("lost transfer response reconciles before following the quote, never retransfers", async ({
   page,
 }) => {
   const fixture = await setup(page, "lost_response");
-  // Review the rendered page before confirming it: PDF sizing and navigation
-  // otherwise change the mobile layout while WebKit clicks the consent box.
   await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
-  await page
-    .getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ })
-    .check();
-  await page.getByRole("checkbox", { name: /J’autorise le transfert/ }).check();
   const transfer = page.getByRole("button", {
-    name: "Transmettre pour analyse",
+    name: "Valider le document et obtenir le prix",
   });
   await transfer.click();
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(transfer).toBeDisabled();
-  await expect(
-    page.getByRole("checkbox", { name: /J’autorise le transfert/ }),
-  ).not.toBeChecked();
-  await expect(
-    page.getByRole("checkbox", { name: /J’autorise le transfert/ }),
-  ).toBeDisabled();
   expect(fixture.mutations).toHaveLength(1);
   await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await expect(page).toHaveURL(/#\/app\/dispatch\/dispatch-ui$/);
+  expect(
+    fixture.mutations.filter((m) => m.path.endsWith("/transfer")),
+  ).toHaveLength(1);
+  expect(fixture.unmatched).toEqual([]);
+});
+
+test("an uncertain quote result stops automatic polling", async ({ page }) => {
+  const fixture = await setup(page, "quote_network");
+  await page
+    .getByRole("button", { name: "Valider le document et obtenir le prix" })
+    .click();
+  await expect(page.getByRole("alert")).toContainText("Connexion interrompue");
+  await page.clock.install();
+  await page.clock.fastForward(65000);
+  expect(
+    fixture.mutations.filter((m) => m.path.endsWith("/quote")),
+  ).toHaveLength(1);
+  expect(
+    fixture.mutations.filter((m) => m.path.endsWith("/transfer")),
+  ).toHaveLength(1);
+  expect(fixture.unmatched).toEqual([]);
+});
+
+test("quote followup is bounded and can be resumed explicitly", async ({
+  page,
+}) => {
+  await page.clock.install();
+  const fixture = await setup(page, "quote_pending");
+  await page
+    .getByRole("button", { name: "Valider le document et obtenir le prix" })
+    .click();
+  for (let i = 1; i <= 20; i++) {
+    await expect
+      .poll(
+        () => fixture.mutations.filter((m) => m.path.endsWith("/quote")).length,
+      )
+      .toBe(i);
+    await page.clock.fastForward(3001);
+  }
   await expect(
-    page.getByRole("heading", { name: "Brouillon créé chez Pingen" }),
-  ).toBeVisible();
-  await expect(transfer).toHaveCount(0);
-  await expect(page.getByRole("alert")).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "Obtenir le devis" }),
+    page.getByRole("button", { name: "Reprendre le devis" }),
   ).toBeEnabled();
-  expect(fixture.mutations).toHaveLength(1);
+  await page.clock.fastForward(65000);
+  expect(
+    fixture.mutations.filter((m) => m.path.endsWith("/quote")),
+  ).toHaveLength(20);
   expect(fixture.unmatched).toEqual([]);
 });
 
@@ -416,20 +428,10 @@ test("an unavailable address crop can recover only after refresh and explicit re
   await expect(
     page.getByRole("img", { name: /Extrait de la première page/ }),
   ).toBeVisible();
-  const consent = page.getByRole("checkbox", {
-    name: /J’autorise le transfert/,
-  });
-  await expect(consent).toBeEnabled();
-  await expect(consent).not.toBeChecked();
   await expect(
-    page.getByRole("button", { name: "Transmettre pour analyse" }),
-  ).toBeDisabled();
-  await page
-    .getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ })
-    .check();
-  await consent.check();
-  await expect(
-    page.getByRole("button", { name: "Transmettre pour analyse" }),
+    page.getByRole("button", {
+      name: "Valider le document et obtenir le prix",
+    }),
   ).toBeEnabled();
   expect(fixture.mutations).toEqual([]);
   expect(fixture.unmatched).toEqual([]);
@@ -446,14 +448,15 @@ for (const variant of ["blocked", "unknown", "crop_failed"] as const)
         "Ne recréez pas de brouillon",
       );
       await expect(
-        page.getByRole("button", { name: "Transmettre pour analyse" }),
+        page.getByRole("button", {
+          name: "Valider le document et obtenir le prix",
+        }),
       ).toHaveCount(0);
     } else {
       await expect(
-        page.getByRole("button", { name: "Transmettre pour analyse" }),
-      ).toBeDisabled();
-      await expect(
-        page.getByRole("checkbox", { name: /J’autorise le transfert/ }),
+        page.getByRole("button", {
+          name: "Valider le document et obtenir le prix",
+        }),
       ).toBeDisabled();
     }
     if (variant === "blocked")
@@ -470,7 +473,7 @@ for (const variant of ["blocked", "unknown", "crop_failed"] as const)
 
 test("postal preparation sends only document identity and selected options for server preflight", async ({
   page,
-}) => {
+}, testInfo) => {
   const fixture = await setup(page);
   await page.goto("/#/app/prepare?document=pdf-ui-fixture");
   await page.getByRole("radio", { name: "Courrier" }).check();
@@ -481,9 +484,20 @@ test("postal preparation sends only document identity and selected options for s
   await page.getByLabel("Code postal", { exact: true }).fill("L-1234");
   await page.getByLabel("Ville", { exact: true }).fill("LUXEMBOURG");
   await page.getByLabel("Pays", { exact: true }).selectOption("LU");
-  await page
-    .getByRole("button", { name: "Contrôler le PDF pour le courrier" })
-    .click();
+  await page.getByRole("radio", { name: "À droite", exact: true }).check();
+  await page.getByText("Budget maximum :", { exact: false }).click();
+  const budget = page.getByLabel("Budget maximum en euros", { exact: true });
+  await budget.fill("");
+  await budget.pressSequentially("5.25");
+  await expect(budget).toHaveValue("5.25");
+  await page.getByText("Budget maximum :", { exact: false }).click();
+  await expect(page.locator("main")).not.toContainText(/pingen/i);
+  await mkdir("reports/screenshots/postal-prepare", { recursive: true });
+  await page.screenshot({
+    path: `reports/screenshots/postal-prepare/${testInfo.project.name}.png`,
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Préparer le courrier" }).click();
   await expect(page).toHaveURL(/#\/app\/postal\/postal-ui-fixture$/);
   const mutation = fixture.mutations[0];
   expect(mutation.path).toBe("/postal/preflights");
@@ -495,8 +509,9 @@ test("postal preparation sends only document identity and selected options for s
       printMode: "simplex",
       printSpectrum: "grayscale",
       deliveryProduct: "cheap",
+      addressPosition: "right",
     },
-    ceilingMinor: 500,
+    ceilingMinor: 525,
   });
   expect(mutation.key).toBeTruthy();
   expect(fixture.mutations).toHaveLength(1);

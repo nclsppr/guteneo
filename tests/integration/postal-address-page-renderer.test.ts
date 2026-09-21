@@ -56,6 +56,13 @@ const cases = [
     printMode: "simplex",
   },
   {
+    key: "lu-right-simplex",
+    recipient: lu,
+    defaultCountry: "LU",
+    addressPosition: "right",
+    printMode: "simplex",
+  },
+  {
     key: "fr-duplex",
     recipient: {
       name: "ATELIER EXEMPLE",

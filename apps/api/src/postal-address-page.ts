@@ -163,7 +163,7 @@ export class PostalAddressPageService {
     if (await addressPageForDocument(this.env.DB, org, input.documentId))
       fail("POSTAL_ADDRESS_PAGE_RECURSIVE");
     const source = await postal.exactDocument(org, input.documentId);
-    const profile = await postal.qualifiedProfile();
+    const profile = await postal.qualifiedProfile(input.addressPosition);
     try {
       pingenLayout({
         defaultCountry: profile.defaultCountry,

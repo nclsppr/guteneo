@@ -118,7 +118,7 @@ export function assistantRecovery(
       tool: "get_postal_preflight",
       retry: "read_only",
       message:
-        "Pingen analyse encore le brouillon existant. Conservez preflightId et la clé de devis ; consultez ce contrôle, puis attendez avant de reprendre quote_postal_draft avec exactement les mêmes valeurs. Ne retransférez pas le PDF et ne créez pas un autre contrôle ou une nouvelle clé. Aucun envoi n’est encore créé par ce refus.",
+        "Le courrier existant est encore en cours d’analyse. Conservez preflightId et la clé de devis ; consultez ce contrôle, puis attendez avant de reprendre quote_postal_draft avec exactement les mêmes valeurs. Ne retransférez pas le PDF et ne créez pas un autre contrôle ou une nouvelle clé. Aucun envoi n’est encore créé par ce refus.",
     };
   if (code === "POSTAL_PREFLIGHT_NOT_FOUND")
     return {

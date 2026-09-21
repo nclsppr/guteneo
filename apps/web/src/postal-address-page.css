@@ -44,3 +44,13 @@
   padding: 1.5rem;
   text-align: center;
 }
+
+.postal-window-choice {
+  border: 0;
+  padding: 0;
+  margin-block: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2rem;
+  min-width: 0;
+}

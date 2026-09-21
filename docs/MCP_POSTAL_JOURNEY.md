@@ -52,7 +52,7 @@ automatiquement imprimée et ne constitue pas une garantie de retour du pli.
 
 Le parcours standard remet le `reviewUrl` du contrôle postal dans Guteneo. La
 personne relit le document et autorise son transfert pour analyse fournisseur,
-puis valide séparément le devis et l’envoi. Un mandat limité au fax n’empêche ni
+puis le navigateur récupère automatiquement le devis et propose un seul bouton d’envoi au prix exact. L’assistant ne recrée pas de devis en parallèle et ne rappelle pas `confirm_dispatch` après cette action. Voir [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). Un mandat limité au fax n’empêche ni
 l’import, ni la configuration postale autorisée, ni cette préparation standard.
 Une délégation postale déjà active permet le parcours expert existant ; l’assistant
 ne peut pas l’activer ni l’étendre.

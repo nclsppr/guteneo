@@ -31,7 +31,10 @@ import {
   addressPageProvenance,
   assertAddressPageBinding,
 } from "./postal-address-page-binding";
-import { postalAddressGuidance } from "../../../packages/contracts/src/postal-requirements";
+import {
+  postalAddressGuidance,
+  postalAddressPositions,
+} from "../../../packages/contracts/src/postal-requirements";
 
 export type PostalProfile = {
   accountId: string;
@@ -200,10 +203,14 @@ export class PostalService {
     } = {},
   ) {}
 
-  async requirements(authority: PostalAuthority, country: "FR" | "LU" | "DE") {
+  async requirements(
+    authority: PostalAuthority,
+    country: "FR" | "LU" | "DE",
+    addressPosition?: "left" | "right",
+  ) {
     z.enum(["FR", "LU", "DE"]).parse(country);
     await authority.assertCurrent();
-    const profile = await this.qualifiedProfile();
+    const profile = await this.qualifiedProfile(addressPosition);
     let layout;
     try {
       layout = pingenLayout({
@@ -226,6 +233,7 @@ export class PostalService {
       profile: {
         defaultCountry: profile.defaultCountry,
         addressPosition: profile.addressPosition,
+        addressPositions: postalAddressPositions(profile.defaultCountry),
       },
       layout,
       addressGuidance: postalAddressGuidance({
@@ -248,7 +256,7 @@ export class PostalService {
         "Garder 5 mm blancs sur les quatre bords de chaque page et les coins réservés. Seul le destinataire peut occuper le rectangle adresse ; le reste du rectangle postage doit rester blanc, sans logo, trait ni pixel gris.",
         "Adresse noire, sans empattement, 10–12 points, alignée à gauche, sans ligne vide, avec marge intérieure. Ajouter une dernière ligne de pays en anglais et majuscules pour un destinataire international ; suivre les exigences spécifiques du profil France domestique lorsque sélectionné.",
         "Rendre et examiner toutes les pages à au moins 144 dpi ; comparer le destinataire attendu au texte et à l’image réellement visibles. L’extraction de texte et le contrôle automatique ne prouvent pas seuls cette identité.",
-        "L’expéditeur vérifié et le traitement des retours exigent une revue distincte. Ne pas promettre un retour postal : les retours Pingen sont traités numériquement.",
+        "L’expéditeur vérifié et le traitement des retours exigent une revue distincte. Ne pas promettre un retour postal : les retours sont traités numériquement.",
         "Ne jamais corriger ou recomposer un original importé. Pour une nouvelle lettre, générer un nouveau PDF, puis appeler preflight_postal_pdf avec les octets déposés et son identifiant Guteneo.",
         "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur et un devis exact ne valent pas approbation ni acceptation d’envoi ; celles-ci suivent la voie navigateur ou un mandat expert préalable. Ce profil n’autorise aucun envoi.",
       ],
@@ -256,7 +264,9 @@ export class PostalService {
     };
   }
 
-  async qualifiedProfile(): Promise<PostalProfile> {
+  async qualifiedProfile(
+    addressPosition?: "left" | "right",
+  ): Promise<PostalProfile> {
     if (
       this.env.MODE !== "production" ||
       !["production", "staging"].includes(this.env.ENVIRONMENT) ||
@@ -281,14 +291,25 @@ export class PostalService {
       result.organisation.billingCurrency !== "EUR" ||
       !result.organisation.defaultCountry ||
       !result.organisation.defaultAddressPosition ||
+      !postalAddressPositions(result.organisation.defaultCountry).includes(
+        result.organisation.defaultAddressPosition,
+      ) ||
       result.organisation.defaultCountry !== this.env.PINGEN_DEFAULT_COUNTRY
+    )
+      error("POSTAL_PROFILE_UNQUALIFIED");
+    const selected =
+      addressPosition ?? result.organisation.defaultAddressPosition;
+    if (
+      !postalAddressPositions(result.organisation.defaultCountry).includes(
+        selected,
+      )
     )
       error("POSTAL_PROFILE_UNQUALIFIED");
     return {
       accountId: this.env.PINGEN_ORGANIZATION_ID!,
       environment: result.environment,
       defaultCountry: result.organisation.defaultCountry,
-      addressPosition: result.organisation.defaultAddressPosition,
+      addressPosition: selected,
       version: PINGEN_PREFLIGHT_VERSION,
     };
   }
@@ -365,7 +386,11 @@ export class PostalService {
     });
     if (
       profile &&
-      canonicalJson(await this.qualifiedProfile()) !== row.profile_json
+      canonicalJson(
+        await this.qualifiedProfile(
+          JSON.parse(row.options_json).addressPosition,
+        ),
+      ) !== row.profile_json
     )
       error("POSTAL_PROFILE_CHANGED");
     await authority.assertCurrent();
@@ -541,7 +566,7 @@ export class PostalService {
       authority.context.organizationId,
       input.senderId,
     );
-    const profile = await this.qualifiedProfile();
+    const profile = await this.qualifiedProfile(input.options.addressPosition);
     await assertAddressPageBinding(this.env.DB, {
       organizationId: authority.context.organizationId,
       documentId: document.id,

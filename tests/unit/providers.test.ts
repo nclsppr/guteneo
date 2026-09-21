@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { createSign } from "node:crypto";
+import { createHash, createSign } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 import {
   canonicalSnsMessage,
@@ -65,6 +65,7 @@ const pingenConfig = {
 const postal: PostalSubmission = {
   preparedLetterId: "letter-1",
   expectedAddress: "Example Test\n1 Test Street\n00000 Fiction",
+  addressPosition: "left",
   country: "FR",
   deliveryProduct: "cheap",
   printMode: "duplex",
@@ -79,6 +80,7 @@ const letter = {
     attributes: {
       status: "valid",
       address: postal.expectedAddress,
+      address_position: postal.addressPosition,
       country: "FR",
       paper_types: ["normal"],
       price_currency: "EUR",
@@ -263,17 +265,15 @@ describe("real provider request contracts (no real calls)", () => {
   ])(
     "SES projects safe rejection codes for %s/%s without retry or raw response data",
     async (status, kind, message, code) => {
-      const fetcher = vi
-        .fn<Fetcher>()
-        .mockResolvedValue(
-          new Response(JSON.stringify({ message }), {
-            status,
-            headers: {
-              "x-amzn-errortype": kind,
-              "x-request-id": "private-request-reference",
-            },
-          }),
-        );
+      const fetcher = vi.fn<Fetcher>().mockResolvedValue(
+        new Response(JSON.stringify({ message }), {
+          status,
+          headers: {
+            "x-amzn-errortype": kind,
+            "x-request-id": "private-request-reference",
+          },
+        }),
+      );
       const result = await new SesEmailProvider(sesConfig, fetcher).submit(
         email,
       );
@@ -664,5 +664,111 @@ describe("cryptographically verified callbacks", () => {
       canonical.indexOf("Timestamp\n"),
     );
     expect(canonical.endsWith("Type\nSubscriptionConfirmation\n")).toBe(true);
+  });
+});
+
+describe("postal window integrity before pricing and physical submission", () => {
+  it.each(["left", "right"] as const)(
+    "checks the %s window while preserving the existing quote evidence hash",
+    async (addressPosition) => {
+      const fetcher = vi
+        .fn<Fetcher>()
+        .mockResolvedValueOnce(
+          json({ access_token: "test-token", expires_in: 43200 }),
+        )
+        .mockResolvedValueOnce(
+          json({
+            ...letter,
+            data: {
+              ...letter.data,
+              attributes: {
+                ...letter.data.attributes,
+                address_position: addressPosition,
+              },
+            },
+          }),
+        )
+        .mockResolvedValueOnce(
+          json({ data: { attributes: { currency: "EUR", price: 1.23 } } }),
+        );
+      const result = await new PingenPostalProvider(
+        pingenConfig,
+        fetcher,
+      ).quotePrepared({ ...postal, addressPosition });
+      const historicalEvidence = JSON.stringify({
+        providerId: postal.preparedLetterId,
+        country: postal.country,
+        address: "EXAMPLE TEST 1 TEST STREET 00000 FICTION",
+        paperTypes: ["normal"],
+        options: {
+          delivery_product: postal.deliveryProduct,
+          print_mode: postal.printMode,
+          print_spectrum: postal.printSpectrum,
+        },
+        amount: { currency: "EUR", minor: 123 },
+      });
+      expect(result.evidenceSha256).toBe(
+        createHash("sha256").update(historicalEvidence).digest("hex"),
+      );
+    },
+  );
+
+  it.each(["right", null, "center"])(
+    "rejects provider window %s before calculator or send",
+    async (actualPosition) => {
+      for (const action of ["quote", "send"] as const) {
+        const fetcher = vi
+          .fn<Fetcher>()
+          .mockResolvedValueOnce(
+            json({ access_token: "test-token", expires_in: 43200 }),
+          )
+          .mockResolvedValueOnce(
+            json({
+              ...letter,
+              data: {
+                ...letter.data,
+                attributes: {
+                  ...letter.data.attributes,
+                  address_position: actualPosition,
+                },
+              },
+            }),
+          );
+        const provider = new PingenPostalProvider(pingenConfig, fetcher);
+        if (action === "quote")
+          await expect(provider.quotePrepared(postal)).rejects.toThrow(
+            "postal_address_requires_new_approval",
+          );
+        else
+          expect(await provider.submit(postal)).toMatchObject({
+            status: "rejected",
+            retryable: false,
+            errorCode: "postal_address_requires_new_approval",
+          });
+        expect(fetcher).toHaveBeenCalledTimes(2);
+        expect(
+          fetcher.mock.calls.some(([url]) =>
+            /\/(send|price-calculator)$/.test(String(url)),
+          ),
+        ).toBe(false);
+      }
+    },
+  );
+
+  it("rejects a missing expected window without contacting the provider", async () => {
+    const fetcher = vi.fn<Fetcher>();
+    const provider = new PingenPostalProvider(pingenConfig, fetcher);
+    const missing = {
+      ...postal,
+      addressPosition: undefined,
+    } as unknown as PostalSubmission;
+    await expect(provider.quotePrepared(missing)).rejects.toThrow(
+      "unsupported_postal_address_position",
+    );
+    expect(await provider.submit(missing)).toMatchObject({
+      status: "rejected",
+      errorCode: "unsupported_postal_address_position",
+    });
+    expect(fetcher).not.toHaveBeenCalled();
   });
 });

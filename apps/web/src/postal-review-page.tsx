@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
-import { api, type Dispatch } from "./api";
+import { api } from "./api";
 import {
   ErrorNotice,
   Loading,
   PageHeading,
   PdfPreview,
-  go,
   useAction,
   useResource,
 } from "./components";
@@ -14,6 +13,7 @@ import "./postal-review.css";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
 import site from "../../../packages/contracts/src/public-site.json";
 import { PostalAddressPageSummary } from "./postal-address-page";
+import { usePostalQuote } from "./postal-quote-followup";
 
 const issueLabels: Record<string, string> = {
   POSTAL_CORNER_CONTENT:
@@ -65,20 +65,18 @@ const issueLabels: Record<string, string> = {
 
 function statusLabel(review: PostalReview) {
   if (review.transferStatus === "unknown") return "Transfert à vérifier";
-  if (review.transferStatus === "prepared") return "Brouillon créé chez Pingen";
+  if (review.transferStatus === "prepared") return "Calcul du prix de l’envoi…";
   if (review.transferStatus === "preparing") return "Préparation du brouillon…";
   if (review.status === "processing") return "Vérification du PDF…";
   if (review.status === "blocked") return "Le PDF doit être corrigé";
   if (review.status === "failed") return "Le contrôle n’a pas abouti";
-  return "Votre revue est nécessaire";
+  return "Vérifiez le document et l’adresse";
 }
 
 export function PostalReviewPage({ id }: { id: string }) {
   const path = `/postal/preflights/${encodeURIComponent(id)}`;
   const resource = useResource<PostalReview>(path);
   const action = useAction();
-  const [reviewed, setReviewed] = useState(false);
-  const [consent, setConsent] = useState(false);
   const [cropFailed, setCropFailed] = useState(false);
   const [cropLoaded, setCropLoaded] = useState(false);
   const [cropAttempt, setCropAttempt] = useState(0);
@@ -87,17 +85,22 @@ export function PostalReviewPage({ id }: { id: string }) {
     null,
   );
   const polls = useRef(0);
-  const quoteKey = useRef(crypto.randomUUID());
+  const transferring = useRef(false);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const review = resource.data;
+  const quote = usePostalQuote(
+    path,
+    review?.transferStatus === "prepared" &&
+      !needsReconciliation &&
+      !resource.loading &&
+      !resource.error,
+  );
   const processing =
     review?.status === "processing" || review?.transferStatus === "preparing";
 
   function refreshReview() {
-    if (action.pending || resource.loading) return;
+    if (action.pending || resource.loading || quote.pending) return;
     action.clear();
-    setReviewed(false);
-    setConsent(false);
     setNeedsReconciliation(true);
     refreshBaseline.current = { previous: resource.data };
     setCropFailed(false);
@@ -157,9 +160,8 @@ export function PostalReviewPage({ id }: { id: string }) {
     cropLoaded;
   async function transfer(event: FormEvent) {
     event.preventDefault();
-    if (!canTransfer || !reviewed || !consent || action.pending) return;
-    setReviewed(false);
-    setConsent(false);
+    if (!canTransfer || action.pending || transferring.current) return;
+    transferring.current = true;
     setNeedsReconciliation(true);
     await action.run(async () => {
       const next = await api<PostalReview>(`${path}/transfer`, {
@@ -171,33 +173,18 @@ export function PostalReviewPage({ id }: { id: string }) {
       polls.current = 0;
       resultHeading.current?.focus();
     });
-  }
-  async function quote() {
-    if (
-      review?.transferStatus !== "prepared" ||
-      action.pending ||
-      resource.loading ||
-      resource.error ||
-      needsReconciliation
-    )
-      return;
-    await action.run(async () => {
-      const dispatch = await api<Dispatch>(`${path}/quote`, {
-        method: "POST",
-        key: quoteKey.current,
-      });
-      go(`/app/dispatch/${encodeURIComponent(dispatch.id)}`);
-    });
+    transferring.current = false;
   }
 
   return (
     <>
       <PageHeading
-        title="Le courrier, à la bonne adresse."
-        intro="Vérifiez le document avant de le confier à Pingen pour analyse. Vous approuverez l’expédition après le devis."
+        title="Vérifiez votre courrier."
+        intro="Parcourez le PDF et vérifiez l’adresse. Le prix exact sera affiché avant votre accord d’envoi."
       />
       <ErrorNotice error={resource.error} retry={refreshReview} />
       <ErrorNotice error={action.error} />
+      <ErrorNotice error={quote.error} />
       {!review && resource.loading ? (
         <Loading />
       ) : (
@@ -210,7 +197,6 @@ export function PostalReviewPage({ id }: { id: string }) {
             >
               <div className="section-toolbar">
                 <div>
-                  <p className="eyebrow">Contrôle avant impression</p>
                   <h2
                     id="postal-review-status"
                     ref={resultHeading}
@@ -222,7 +208,7 @@ export function PostalReviewPage({ id }: { id: string }) {
                 <button
                   className="button small"
                   type="button"
-                  disabled={resource.loading || action.pending}
+                  disabled={resource.loading || action.pending || quote.pending}
                   onClick={refreshReview}
                 >
                   <ArrowClockwise size={17} aria-hidden="true" />
@@ -398,25 +384,28 @@ export function PostalReviewPage({ id }: { id: string }) {
                 aria-labelledby="postal-draft-title"
               >
                 <h2 id="postal-draft-title">
-                  Le PDF est déposé, le courrier n’est pas envoyé.
+                  {quote.pending
+                    ? "Nous récupérons votre devis…"
+                    : "Votre courrier attend son devis"}
                 </h2>
                 <p>
-                  Pingen doit terminer son analyse avant de fournir un devis. Le
-                  prix, le destinataire et le contenu seront ensuite présentés
-                  pour votre accord.
+                  {quote.paused
+                    ? "L’analyse prend plus de temps que prévu. Vous pouvez reprendre la recherche du prix."
+                    : "Vous passerez automatiquement à la validation du prix dès que l’analyse sera terminée. Aucun courrier n’est encore expédié."}
                 </p>
                 <button
                   className="button primary"
                   type="button"
                   disabled={
                     action.pending ||
+                    quote.pending ||
                     resource.loading ||
                     !!resource.error ||
                     needsReconciliation
                   }
-                  onClick={() => void quote()}
+                  onClick={quote.retry}
                 >
-                  {action.pending ? "Calcul du devis…" : "Obtenir le devis"}
+                  {quote.pending ? "Calcul du devis…" : "Reprendre le devis"}
                   <ArrowRight size={18} aria-hidden="true" />
                 </button>
               </section>
@@ -427,51 +416,27 @@ export function PostalReviewPage({ id }: { id: string }) {
                   onSubmit={(event) => void transfer(event)}
                   aria-busy={action.pending}
                 >
-                  <h2>Confier ce document à Pingen</h2>
+                  <h2>Obtenir le prix de l’envoi</h2>
                   <p>
-                    Le PDF et son adresse seront transmis à Pingen pour créer un
-                    brouillon et obtenir son analyse. Cette étape n’autorise ni
-                    l’impression ni l’expédition.
+                    En cliquant ci-dessous, vous confirmez avoir vérifié toutes
+                    les pages, l’adresse visible dans la fenêtre et l’adresse de
+                    retour. Vous autorisez le transfert de ce PDF et de son
+                    adresse à notre prestataire d’impression pour établir le
+                    devis.
                   </p>
-                  <label className="postal-check">
-                    <input
-                      type="checkbox"
-                      checked={reviewed}
-                      disabled={!canTransfer || action.pending}
-                      onChange={(event) => setReviewed(event.target.checked)}
-                    />
-                    <span>
-                      J’ai parcouru toutes les pages, vérifié l’adresse visible
-                      dans la fenêtre et l’adresse de retour.
-                    </span>
-                  </label>
-                  <label className="postal-check">
-                    <input
-                      type="checkbox"
-                      checked={consent}
-                      disabled={!canTransfer || action.pending}
-                      onChange={(event) => setConsent(event.target.checked)}
-                    />
-                    <span>
-                      J’autorise le transfert de ce PDF à Pingen pour préparer
-                      le brouillon et le devis.
-                    </span>
-                  </label>
                   <button
                     className="button primary"
-                    disabled={
-                      !canTransfer || !reviewed || !consent || action.pending
-                    }
+                    disabled={!canTransfer || action.pending}
                     aria-describedby="postal-transfer-help"
                   >
                     {action.pending
                       ? "Préparation du brouillon…"
-                      : "Transmettre pour analyse"}
+                      : "Valider le document et obtenir le prix"}
                     <ArrowRight size={18} aria-hidden="true" />
                   </button>
                   <p id="postal-transfer-help" className="field-hint">
                     {canTransfer
-                      ? "Les deux confirmations sont nécessaires. Vous approuverez l’envoi à l’étape suivante, après lecture du devis."
+                      ? "Cette action ne déclenche aucun envoi. Vous déciderez après lecture du prix exact."
                       : "Le transfert reste indisponible tant que les contrôles du PDF et l’activation du service ne sont pas terminés."}
                   </p>
                 </form>

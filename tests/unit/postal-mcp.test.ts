@@ -434,6 +434,53 @@ describe("postal tools over MCP transport", () => {
     },
   );
 
+  it.each(["left", "right"] as const)(
+    "passes the chosen %s envelope window through MCP without preparing a letter",
+    async (addressPosition) => {
+      const requirements = vi.fn(async () => ({
+        qualified: true,
+        profile: { addressPosition, addressPositions: ["left", "right"] },
+        canSend: false,
+      }));
+      await connected(
+        ["documents:read"],
+        async (client, create) => {
+          const response = await client.callTool({
+            name: "get_postal_requirements",
+            arguments: { country: "LU", addressPosition },
+          });
+          expect(response.structuredContent).toMatchObject({
+            ok: true,
+            data: { profile: { addressPosition }, canSend: false },
+          });
+          expect(requirements).toHaveBeenCalledWith(
+            expect.objectContaining({ clientId: "fixture" }),
+            "LU",
+            addressPosition,
+          );
+          expect(create).not.toHaveBeenCalled();
+        },
+        { requirements },
+      );
+    },
+  );
+
+  it("rejects an unsupported window at the MCP boundary", async () => {
+    const requirements = vi.fn();
+    await connected(
+      ["documents:read"],
+      async (client) => {
+        const response = await client.callTool({
+          name: "get_postal_requirements",
+          arguments: { country: "LU", addressPosition: "center" },
+        });
+        expect(response.isError).toBe(true);
+        expect(requirements).not.toHaveBeenCalled();
+      },
+      { requirements },
+    );
+  });
+
   it("provides requirements read-only with documents:read before any preparation", async () => {
     await connected(["documents:read"], async (client, create) => {
       const response = await client.callTool({
