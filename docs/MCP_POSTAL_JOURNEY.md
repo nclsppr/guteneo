@@ -78,7 +78,7 @@ ni le transfert d’une pièce jointe par tous les hôtes, ni une lettre réelle
 expédiée. Aucun envoi réel n’est nécessaire pour valider ce changement.
 
 Preuves locales du candidat : 93 tests de catalogue/transport/reprise MCP et
-48 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
+50 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
 signés de fixture et une base D1 locale. Le typage, le lint et la construction web
 passent. Les 34 migrations produisent un schéma équivalent de 217 objets, avec
 `quick_check=ok` et aucune violation de clé étrangère. La revue indépendante
@@ -86,5 +86,7 @@ a fait corriger la découverte des capacités avec des scopes limités et une
 consigne qui pouvait provoquer un second import. La provenance historique reste
 dans son compte après une réassociation OAuth ; un aller-retour entre comptes,
 même à horodatages identiques, invalide une opération devenue obsolète avant
-l’écriture. Ces résultats ne prouvent pas
+l’écriture. Les lectures de configuration forment un seul instantané transactionnel :
+une activation concurrente ne peut pas produire un faux état de suspension, et un
+arrêt réel reste bloquant. Ces résultats ne prouvent pas
 encore une conversation native ChatGPT ou Claude avec cette version.

@@ -278,6 +278,23 @@ async function revoke(p: Principal) {
     .bind(p.connectionId)
     .run();
 }
+
+function interceptSetupWrite(
+  intercept: (statements: D1PreparedStatement[]) => Promise<D1Result[]>,
+): D1Database {
+  let writePrepared = false;
+  return {
+    prepare(query: string) {
+      if (query.startsWith("INSERT INTO audit_log(")) writePrepared = true;
+      return db.prepare(query);
+    },
+    batch(statements: D1PreparedStatement[]) {
+      if (!writePrepared) return db.batch(statements);
+      writePrepared = false;
+      return intercept(statements);
+    },
+  } as D1Database;
+}
 async function expectUnconfigured() {
   for (const table of [
     "senders",
@@ -683,13 +700,10 @@ describe("postal sender setup through current OAuth administrator authority", ()
       };
       if (stage === "provider") beforeProfile = change;
       else
-        env.DB = {
-          prepare: db.prepare.bind(db),
-          batch: async (statements: D1PreparedStatement[]) => {
-            await change();
-            return db.batch(statements);
-          },
-        } as D1Database;
+        env.DB = interceptSetupWrite(async (statements) => {
+          await change();
+          return db.batch(statements);
+        });
       await expect(configure(p)).rejects.toMatchObject({
         code: "POSTAL_AUTHORITY_CHANGED",
       });
@@ -784,6 +798,94 @@ describe("postal sender setup through current OAuth administrator authority", ()
     ).rejects.toMatchObject({ code: "POSTAL_SENDER_EXISTS" });
   });
 
+  it.each(["configured", "stopped"] as const)(
+    "reads a coherent setup when another browser request commits %s after the declaration read",
+    async (outcome) => {
+      const p = await principal();
+      const winnerRequest = await browserRequest(p);
+      let injected = false;
+      let winner: PostalSetup | undefined;
+      const commitWinner = async () => {
+        if (injected) return;
+        injected = true;
+        const response = await handlePostalSetupRoute(
+          winnerRequest,
+          { ...env, DB: db },
+          { fetcher: providerFetch },
+        );
+        winner = (await response!.json()) as PostalSetup;
+        if (outcome === "stopped")
+          await db
+            .prepare(
+              "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='postal'",
+            )
+            .bind(org)
+            .run();
+      };
+      env.DB = {
+        prepare(query: string) {
+          const statement = db.prepare(query);
+          if (!query.startsWith("SELECT sender_id,sender_name"))
+            return statement;
+          return new Proxy(statement, {
+            get(target, property) {
+              if (property !== "bind") return Reflect.get(target, property);
+              return (...args: (string | number | null)[]) => {
+                const bound = statement.bind(...args);
+                return new Proxy(bound, {
+                  get(targetBound, method) {
+                    if (method !== "first")
+                      return Reflect.get(targetBound, method);
+                    return async () => {
+                      const result = await bound.first();
+                      // Reproduces the old torn read: no declaration before commit,
+                      // but the next separate sender query can see the winner.
+                      await commitWinner();
+                      return result;
+                    };
+                  },
+                });
+              };
+            },
+          });
+        },
+        async batch(statements: D1PreparedStatement[]) {
+          const result = await db.batch(statements);
+          // The fixed reader observes the complete pre-commit snapshot instead.
+          // The winner commits only after that read transaction has completed.
+          await commitWinner();
+          return result;
+        },
+      } as D1Database;
+      if (outcome === "configured") {
+        const result = await configure(p);
+        expect(result).toMatchObject({
+          configured: true,
+          channelEnabled: true,
+          senderVerification: "administrator_declaration",
+          sender: { id: winner!.sender!.id },
+        });
+      } else {
+        await expect(configure(p)).rejects.toMatchObject({
+          code: "ACCESS_CHANGED",
+        });
+      }
+      expect(injected).toBe(true);
+      expect(await count("senders")).toBe(1);
+      expect(await count("postal_sender_declarations")).toBe(1);
+      expect(await count("postal_setup_policy_generations")).toBe(1);
+      expect(await count("trusted_delivery_costs")).toBe(8);
+      expect(
+        await db
+          .prepare(
+            "SELECT enabled FROM channel_controls WHERE organization_id=? AND channel='postal'",
+          )
+          .bind(org)
+          .first("enabled"),
+      ).toBe(Number(outcome === "configured"));
+    },
+  );
+
   it.each(["revoked", "expired", "demoted", "rebound", "revision"] as const)(
     "fails closed when OAuth authority is %s while the provider profile is inspected",
     async (change) => {
@@ -829,13 +931,10 @@ describe("postal sender setup through current OAuth administrator authority", ()
 
   it("fences a connection revocation at the SQL transaction boundary after asynchronous checks", async () => {
     const p = await principal();
-    env.DB = {
-      prepare: db.prepare.bind(db),
-      batch: async (statements: D1PreparedStatement[]) => {
-        await revoke(p);
-        return db.batch(statements);
-      },
-    } as D1Database;
+    env.DB = interceptSetupWrite(async (statements) => {
+      await revoke(p);
+      return db.batch(statements);
+    });
     await expect(configure(p)).rejects.toMatchObject({
       code: "CONNECTION_REVOKED",
     });
@@ -873,43 +972,24 @@ describe("postal sender setup through current OAuth administrator authority", ()
       await configure(p);
       const before = calls.length;
       let intercepted = false;
-      env.DB = new Proxy(db, {
-        get(target, property) {
-          if (property !== "prepare") return Reflect.get(target, property);
-          return (query: string) => {
-            const statement = db.prepare(query);
-            if (!query.startsWith("SELECT sender_id,sender_name"))
-              return statement;
-            return new Proxy(statement, {
-              get(targetStatement, key) {
-                if (key !== "bind") return Reflect.get(targetStatement, key);
-                return (...args: (string | number | null)[]) => {
-                  const bound = statement.bind(...args);
-                  return new Proxy(bound, {
-                    get(boundTarget, method) {
-                      if (method !== "first")
-                        return Reflect.get(boundTarget, method);
-                      return async () => {
-                        const value = await bound.first();
-                        if (!intercepted) {
-                          intercepted = true;
-                          await revoke(p);
-                        }
-                        return value;
-                      };
-                    },
-                  });
-                };
-              },
-            });
-          };
+      env.DB = {
+        prepare: db.prepare.bind(db),
+        async batch(statements: D1PreparedStatement[]) {
+          const result = await db.batch(statements);
+          // Revoke after the coherent read completes, before its result returns.
+          if (!intercepted) {
+            intercepted = true;
+            await revoke(p);
+          }
+          return result;
         },
-      });
+      } as D1Database;
       await expect(
         operation === "read"
           ? getPostalSetupForMcp(p.identity, env)
           : configure(p),
       ).rejects.toMatchObject({ code: "CONNECTION_REVOKED" });
+      expect(intercepted).toBe(true);
       expect(calls).toHaveLength(before);
       expect(await count("senders")).toBe(1);
     },
@@ -1073,14 +1153,12 @@ describe("postal sender setup through current OAuth administrator authority", ()
 
   it("rolls back the sender, evidence and pricing if any statement fails", async () => {
     const p = await principal();
-    env.DB = {
-      prepare: db.prepare.bind(db),
-      batch: (statements: D1PreparedStatement[]) =>
-        db.batch([
-          ...statements,
-          db.prepare("INSERT INTO missing_table VALUES(1)"),
-        ]),
-    } as D1Database;
+    env.DB = interceptSetupWrite((statements) =>
+      db.batch([
+        ...statements,
+        db.prepare("INSERT INTO missing_table VALUES(1)"),
+      ]),
+    );
     await expect(configure(p)).rejects.toThrow();
     await expectUnconfigured();
   });

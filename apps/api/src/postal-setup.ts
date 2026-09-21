@@ -291,37 +291,50 @@ async function current(
   canManage = context.role === "admin",
 ): Promise<PostalSetup> {
   const org = context.organizationId;
-  const declaration = await env.DB.prepare(
-    "SELECT sender_id,sender_name,sender_address,profile_json,submission_origin FROM postal_sender_declarations WHERE organization_id=?",
-  )
-    .bind(org)
-    .first<Declaration>();
-  const sender = declaration
-    ? await env.DB.prepare(
-        "SELECT id,name,address,status FROM senders WHERE organization_id=? AND id=? AND channel='postal' AND mode='production'",
-      )
-        .bind(org, declaration.sender_id)
-        .first<Sender>()
-    : await env.DB.prepare(
-        "SELECT id,name,address,status FROM senders WHERE organization_id=? AND channel='postal' AND mode='production' ORDER BY created_at,id LIMIT 1",
-      )
-        .bind(org)
-        .first<Sender>();
-  const channel = await env.DB.prepare(
-    "SELECT enabled FROM channel_controls WHERE organization_id=? AND channel='postal'",
-  )
-    .bind(org)
-    .first<{ enabled: number }>();
-  const stopped = await env.DB.prepare(
-    "SELECT 1 FROM audit_log WHERE organization_id=? AND action='channel.control' AND resource_id='postal' AND json_extract(details_json,'$.enabled')=0 LIMIT 1",
-  )
-    .bind(org)
-    .first();
+  // One read transaction: a competing activation/renewal must be visible in
+  // full or not at all. Separate reads can falsely combine a missing declaration
+  // with the newly committed sender and report an operator suspension.
+  const [declarations, senders, channels, stops, generations, policyRows] =
+    await env.DB.batch([
+      env.DB.prepare(
+        "SELECT sender_id,sender_name,sender_address,profile_json,submission_origin FROM postal_sender_declarations WHERE organization_id=?",
+      ).bind(org),
+      env.DB.prepare(
+        "SELECT id,name,address,status FROM senders WHERE organization_id=? AND channel='postal' AND mode='production' AND (id=(SELECT sender_id FROM postal_sender_declarations WHERE organization_id=?) OR NOT EXISTS(SELECT 1 FROM postal_sender_declarations WHERE organization_id=?)) ORDER BY created_at,id LIMIT 1",
+      ).bind(org, org, org),
+      env.DB.prepare(
+        "SELECT enabled FROM channel_controls WHERE organization_id=? AND channel='postal'",
+      ).bind(org),
+      env.DB.prepare(
+        "SELECT 1 AS stopped FROM audit_log WHERE organization_id=? AND action='channel.control' AND resource_id='postal' AND json_extract(details_json,'$.enabled')=0 LIMIT 1",
+      ).bind(org),
+      env.DB.prepare(
+        "SELECT generation,policy_ids_json,profile_json,expires_at FROM postal_setup_policy_generations WHERE organization_id=? ORDER BY generation DESC LIMIT 1",
+      ).bind(org),
+      env.DB.prepare(
+        "SELECT p.options_json,p.status,p.valid_from,p.expires_at FROM trusted_delivery_costs p WHERE p.organization_id=? AND p.sender_id=(SELECT sender_id FROM postal_sender_declarations WHERE organization_id=p.organization_id) AND p.channel='postal' AND p.provider='pingen' AND p.account_id=? AND p.route_id=? AND p.pricing_basis='public_list_price_ex_tax' AND p.source_reference=? AND p.id IN (SELECT value FROM json_each(COALESCE((SELECT policy_ids_json FROM postal_setup_policy_generations WHERE organization_id=p.organization_id ORDER BY generation DESC LIMIT 1),'[]')))",
+      ).bind(
+        org,
+        env.PINGEN_ORGANIZATION_ID ?? "",
+        env.PINGEN_ORGANIZATION_ID ?? "",
+        sourceReference,
+      ),
+    ]);
+  const declaration = declarations.results[0] as Declaration | undefined;
+  const sender = senders.results[0] as Sender | undefined;
+  const channel = channels.results[0] as { enabled: number } | undefined;
+  const stopped = stops.results.length > 0;
+  const generation = generations.results[0] as Generation | undefined;
+  const policies = policyRows.results as {
+    options_json: string;
+    status: string;
+    valid_from: string;
+    expires_at: string;
+  }[];
   let configured = false;
   let pricingExpired = false;
   let revoked = false;
   let profileChanged = false;
-  const generation = await latestGeneration(env, org);
   if (sender && declaration) {
     const profile = JSON.parse(declaration.profile_json) as Profile;
     profileChanged =
@@ -329,25 +342,6 @@ async function current(
       profile.defaultCountry !== env.PINGEN_DEFAULT_COUNTRY ||
       generation?.profile_json !== declaration.profile_json;
     const timestamp = new Date().toISOString();
-    const policies = (
-      await env.DB.prepare(
-        "SELECT options_json,status,valid_from,expires_at FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel='postal' AND provider='pingen' AND account_id=? AND route_id=? AND pricing_basis='public_list_price_ex_tax' AND source_reference=? AND id IN (SELECT value FROM json_each(?))",
-      )
-        .bind(
-          org,
-          sender.id,
-          env.PINGEN_ORGANIZATION_ID ?? "",
-          env.PINGEN_ORGANIZATION_ID ?? "",
-          sourceReference,
-          generation?.policy_ids_json ?? "[]",
-        )
-        .all<{
-          options_json: string;
-          status: string;
-          valid_from: string;
-          expires_at: string;
-        }>()
-    ).results;
     revoked = policies.some((policy) => policy.status === "revoked");
     const required = postalPolicyOptions(profile.addressPosition).map(
       canonicalJson,
