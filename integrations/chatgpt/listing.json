@@ -62,9 +62,13 @@
     "oauthRedirectUri": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
     "reviewerCredentials": "preparation_script_and_synthetic_pdf_ready_auth0_device_login_expired_without_touch_id",
     "domainVerification": {
-      "status": "empty_portal_challenge_no_verification_success",
-      "challengeBaseUrl": null,
+      "status": "issued_token_committed_pending_public_deployment_and_portal_verification",
+      "challengeBaseUrl": "https://guteneo.com",
       "challengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
+      "tokenReceived": true,
+      "tokenSourcePath": "apps/web/public/.well-known/openai-apps-challenge",
+      "tokenBytes": 43,
+      "publicDeploymentVerified": false,
       "verified": false
     },
     "clientRegistration": "pre_defined_selected_in_portal_pending_client_provisioning"
@@ -105,7 +109,7 @@
     "OAuth client and exact callback displayed by the submission portal",
     "Reviewer account, sample data and tested credentials supplied privately",
     "Five positive cases and three revised no-plugin-invocation negative cases executed with the submission account",
-    "Exact generated domain challenge token and successful Verify Domain result",
+    "Public deployment of the received domain challenge token and successful Verify Domain result",
     "Current production tool scan and a justification for each of the three required annotation values on every tool",
     "Demo-recording URL showing the submitted use cases and supported surfaces",
     "Published support URL and terms of service URL",
