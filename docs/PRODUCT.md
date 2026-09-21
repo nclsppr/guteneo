@@ -7,6 +7,14 @@ separately from a browser declaration and does not claim physical verification.
 The standard document review and final send approval remain in Guteneo. See
 [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md) for the workflow and proof boundary.
 
+Candidate, 21 September 2026: marketplace review may use real reference fax quotes
+with immutable `review_prepare_only` purpose. An explicit operator authority
+binds one tenant, sender and exact recipient for at most 30 days; actual reference
+revisions expire within 168 hours. Approval, expert acceptance, reservations and
+all provider paths reject these quotes. The live Luxembourg pilot and its
+24 September deadline are unchanged. No automatic refresh or production setup
+is performed by the migration. See [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md).
+
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
 20 September postal opening: every existing or future verified account can use

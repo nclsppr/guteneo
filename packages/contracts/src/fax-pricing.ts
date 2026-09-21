@@ -3,6 +3,7 @@ export type FaxPricing = {
   version: 3;
   currency: "EUR";
   basis: "qualified_usage_ex_tax";
+  executionScope?: "review_prepare_only";
   /** Explicit test authorization, not Telnyx Local Calling qualification. */
   routeQualification?: "operator_authorized_test";
   routeNotice?: string;
@@ -72,13 +73,21 @@ function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
     ceiling: {
       eur: ceiling,
       label: `Plafond ferme : ${ceiling.replace(".", ",")} € HT`,
-      creditLabel: `Réservation à la confirmation : ${ceiling.replace(".", ",")} € de crédit`,
+      creditLabel:
+        pricing.executionScope === "review_prepare_only"
+          ? "Aucune réservation ni consommation de crédit."
+          : `Réservation à la confirmation : ${ceiling.replace(".", ",")} € de crédit`,
     },
     explanation:
-      "L’estimation porte sur ce fax entier, transmission comprise, et varie avec la durée réelle, qui n’est pas garantie. Ce n’est ni un prix fixe par page ni un débit. Le plafond est réservé à la confirmation ; la consommation définitive est déterminée après vérification de l’usage et reste limitée à ce plafond. Les fractions de centime sont cumulées avant le débit du solde. Le statut settlement indique si la réserve est active, réglée ou libérée.",
+      pricing.executionScope === "review_prepare_only"
+        ? FAX_REVIEW_PREPARATION_NOTICE
+        : "L’estimation porte sur ce fax entier, transmission comprise, et varie avec la durée réelle, qui n’est pas garantie. Ce n’est ni un prix fixe par page ni un débit. Le plafond est réservé à la confirmation ; la consommation définitive est déterminée après vérification de l’usage et reste limitée à ce plafond. Les fractions de centime sont cumulées avant le débit du solde. Le statut settlement indique si la réserve est active, réglée ou libérée.",
     legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
   };
 }
+
+export const FAX_REVIEW_PREPARATION_NOTICE =
+  "Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun crédit n’est réservé ou débité. La capacité Local Calling reste non confirmée.";
 
 export const FAX_OPERATOR_TEST_NOTICE =
   "Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.";
@@ -91,10 +100,16 @@ export function customerFaxPricing(
     version: pricing.version,
     currency: pricing.currency,
     basis: pricing.basis,
+    ...(pricing.executionScope === "review_prepare_only"
+      ? { executionScope: "review_prepare_only" as const }
+      : {}),
     ...(pricing.routeQualification === "operator_authorized_test"
       ? {
           routeQualification: "operator_authorized_test" as const,
-          routeNotice: FAX_OPERATOR_TEST_NOTICE,
+          routeNotice:
+            pricing.executionScope === "review_prepare_only"
+              ? FAX_REVIEW_PREPARATION_NOTICE
+              : FAX_OPERATOR_TEST_NOTICE,
         }
       : {}),
     estimatedLowNanoeur: pricing.estimatedLowNanoeur,

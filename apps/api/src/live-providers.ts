@@ -1,3 +1,4 @@
+import { assertFaxDispatchSendable } from "../../../packages/domain/src/live-fax-usage";
 import { submitSesWithLimits } from "./ses-send-limits";
 import { sesTransportSandbox } from "./ses-environment";
 import { z } from "zod";
@@ -406,6 +407,7 @@ export function createLiveProviderHook(
     async submit(input) {
       let providerCallStarted = false;
       try {
+        if (channel === "fax") await assertFaxDispatchSendable(env.DB, input);
         liveGate(env, channel);
         if (input.channel !== channel) blocked("PROVIDER_CHANNEL_MISMATCH");
         const row = await checkActiveDispatch(env, input, provider);
