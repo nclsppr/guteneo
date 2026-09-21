@@ -124,6 +124,7 @@ beforeAll(async () => {
         ![
           "0022_ses_public_list_prices.sql",
           "0030_postal_public_pricing.sql",
+          "0036_postal_window_options.sql",
           "0037_resend_email_transport.sql",
           "0038_protected_documents.sql",
         ].includes(f),
@@ -189,6 +190,11 @@ beforeAll(async () => {
   await sql(
     readFileSync(new URL("0030_postal_public_pricing.sql", dir), "utf8"),
   );
+  // Later window-policy migration depends on both pricing-basis upgrades.
+  const windowMigration = readdirSync(dir).find((name) =>
+    name.endsWith("_postal_window_options.sql"),
+  )!;
+  await sql(readFileSync(new URL(windowMigration, dir), "utf8"));
   postalUpgradeProof = {
     before: postalBefore,
     after: await allQuotes(),
@@ -207,6 +213,7 @@ beforeAll(async () => {
   // Later migrations depend on the prior pricing schemas. The dedicated
   // resend-email suite proves these upgrades against populated signed quotes.
   for (const filename of [
+    "0036_postal_window_options.sql",
     "0037_resend_email_transport.sql",
     "0038_protected_documents.sql",
   ])

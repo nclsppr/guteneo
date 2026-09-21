@@ -8,10 +8,16 @@ export function PostalAddressChoice({
   mode,
   onChange,
   printMode,
+  addressPosition,
+  positions,
+  onPositionChange,
 }: {
   mode: PostalAddressMode;
   onChange: (mode: PostalAddressMode) => void;
   printMode: "simplex" | "duplex";
+  addressPosition: "left" | "right";
+  positions: ("left" | "right")[];
+  onPositionChange: (position: "left" | "right") => void;
 }) {
   return (
     <fieldset
@@ -40,14 +46,29 @@ export function PostalAddressChoice({
       <p id="postal-address-mode-help" className="field-hint">
         {mode === "document"
           ? "Le PDF reste inchangé. Son adresse doit déjà correspondre au destinataire et apparaître dans la fenêtre de l’enveloppe."
-          : "Les coordonnées du destinataire ci-dessous seront imprimées sur une nouvelle première page. La position est fixée pour la fenêtre de l’enveloppe. Votre PDF source est conservé."}
+          : "Le destinataire sera imprimé sur une nouvelle première page, dans la fenêtre choisie. Votre PDF source est conservé."}
       </p>
+      <fieldset className="postal-window-choice">
+        <legend>Fenêtre de l’enveloppe</legend>
+        {positions.map((position) => (
+          <label key={position}>
+            <input
+              type="radio"
+              name="postal-window"
+              value={position}
+              checked={addressPosition === position}
+              onChange={() => onPositionChange(position)}
+            />
+            <span>{position === "left" ? "À gauche" : "À droite"}</span>
+          </label>
+        ))}
+      </fieldset>
       {mode === "generated_address_page" && (
         <p className="field-hint" role="status">
           {printMode === "duplex"
             ? "En recto verso, 2 pages PDF sont ajoutées : la page d’adresse et son verso blanc, soit 1 feuille supplémentaire. Les rectos et versos du document source restent appariés."
             : "En recto, 1 page PDF est ajoutée, soit 1 feuille supplémentaire."}{" "}
-          Le prix du courrier complet sera confirmé après le devis Pingen.
+          Le prix du courrier complet sera affiché avant votre accord d’envoi.
         </p>
       )}
     </fieldset>

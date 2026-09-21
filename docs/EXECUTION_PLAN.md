@@ -2,6 +2,8 @@
 
 Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
 
+21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
+
 21 September candidate: `get_postal_setup`, `configure_postal_sender` and the
 `postal_pdf` MCP prompt support sender collection in the conversation. The
 candidate needs migration 0034, reviewed tests and publication, then an updated

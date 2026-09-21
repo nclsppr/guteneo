@@ -374,6 +374,7 @@ function pingenFixtureFetch() {
           id: "letter-fixture",
           attributes: {
             address: expectedAddress,
+            address_position: postalOptions.addressPosition,
             country: "FR",
             paper_types: ["normal"],
             status: "valid",
@@ -1074,7 +1075,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     ).toBe(false);
   });
 
-  it.each(["price_changed", "policy_revoked"] as const)(
+  it.each(["price_changed", "policy_revoked", "window_changed"] as const)(
     "rechecks a Pingen quote after asynchronous calculation: %s",
     async (change) => {
       const draftFetch = pingenFixtureFetch();
@@ -1103,7 +1104,18 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
             },
           });
         }
-        return base(input, init);
+        const response = await base(input, init);
+        if (
+          change === "window_changed" &&
+          String(input).endsWith("/letters/letter-fixture")
+        ) {
+          const body = (await response.json()) as {
+            data: { attributes: { address_position: string } };
+          };
+          body.data.attributes.address_position = "right";
+          return json(body);
+        }
+        return response;
       });
       expect(
         await domain.processDispatch(
@@ -1521,4 +1533,41 @@ describe("Resend signed durable delivery projection", () => {
       ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
     },
   );
+});
+
+it("rejects a provider-side window change while obtaining the frozen postal quote", async () => {
+  const prepared = await prepareFixtureDraft(pingenFixtureFetch());
+  const base = pingenFixtureFetch();
+  const fetcher = vi.fn<Fetcher>(async (input, init) => {
+    const response = await base(input, init);
+    if (String(input).endsWith("/letters/letter-fixture")) {
+      const body = (await response.json()) as {
+        data: { attributes: { address_position: string } };
+      };
+      body.data.attributes.address_position = "right";
+      return json(body);
+    }
+    return response;
+  });
+  domain = new DomainService(db, {
+    mode: "production",
+    ...createLiveDeliveryQuoteConfig(env, { fetcher }),
+  });
+  await expect(
+    queueFixture("postal", {
+      ...postalOptions,
+      providerDraftId: prepared.providerDraftId,
+      preparedLetterId: prepared.preparedLetterId,
+      expectedAddress,
+    }),
+  ).rejects.toThrow("postal_address_requires_new_approval");
+  expect(
+    fetcher.mock.calls.some(([url]) =>
+      /\/(send|price-calculator)$/.test(String(url)),
+    ),
+  ).toBe(false);
+  expect((await domain.usage(ctx)).welcomeCredit).toMatchObject({
+    reservedMinor: 0,
+    spentMinor: 0,
+  });
 });

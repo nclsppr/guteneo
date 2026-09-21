@@ -50,6 +50,7 @@ import {
   type PostalAddressMode,
 } from "./postal-address-page";
 import type { PostalAddressPageResult } from "../../../packages/contracts/src/postal-address-page";
+import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
   Definition,
@@ -682,8 +683,25 @@ export function PrepareDispatch({
     country: "FR",
   });
   const [addressMode, setAddressMode] = useState<PostalAddressMode>("document");
+  const [addressPosition, setAddressPosition] = useState<"left" | "right">();
+  const requirements = useResource<{
+    profile: {
+      addressPosition: "left" | "right";
+      addressPositions: ("left" | "right")[];
+    };
+  }>(
+    channel === "postal" && !simulation
+      ? `/postal/requirements?country=${encodeURIComponent(recipient.country ?? "FR")}`
+      : null,
+  );
+  const positions = requirements.data?.profile.addressPositions ?? [];
+  const selectedPosition =
+    addressPosition && positions.includes(addressPosition)
+      ? addressPosition
+      : requirements.data?.profile.addressPosition;
   const [generated, setGenerated] = useState<PostalAddressPageResult>();
   const [generationAttempted, setGenerationAttempted] = useState(false);
+  const [continueGenerated, setContinueGenerated] = useState(false);
   const generationKey = useRef(crypto.randomUUID());
   const submitting = useRef(false);
   const addsAddressPage =
@@ -718,6 +736,7 @@ export function PrepareDispatch({
   const selectedSender =
     matchingSenders.find((s) => s.id === senderId)?.id ??
     matchingSenders[0]?.id;
+  const handlePostalSetupStatus = useCallback(() => {}, []);
   const setAddress = (field: string, value: string) => {
     setRecipient((r) => ({ ...r, [field]: value }));
     key.current = crypto.randomUUID();
@@ -736,8 +755,7 @@ export function PrepareDispatch({
       documents.refresh();
     });
   }
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  async function prepare() {
     if (submitting.current) return;
     submitting.current = true;
     await action.run(async () => {
@@ -756,6 +774,10 @@ export function PrepareDispatch({
                 country: recipient.country ?? "FR",
               };
       if (channel === "postal" && !simulation) {
+        if (requirements.loading || requirements.error || !selectedPosition)
+          throw new Error(
+            "Les options du courrier ne sont pas encore disponibles. Réessayez leur chargement.",
+          );
         if (addsAddressPage && !generated) {
           setGenerationAttempted(true);
           const result = await api<PostalAddressPageResult>(
@@ -767,10 +789,12 @@ export function PrepareDispatch({
                 documentId,
                 recipient: target,
                 printMode,
+                addressPosition: selectedPosition,
               },
             },
           );
           setGenerated(result);
+          setContinueGenerated(true);
           return;
         }
         if (addsAddressPage && !generatedReady)
@@ -784,7 +808,12 @@ export function PrepareDispatch({
             documentId: addsAddressPage ? finalDocument!.id : documentId,
             senderId: selectedSender,
             recipient: target,
-            options: { printMode, printSpectrum, deliveryProduct },
+            options: {
+              printMode,
+              printSpectrum,
+              deliveryProduct,
+              addressPosition: selectedPosition,
+            },
             ceilingMinor: Math.round(Number(ceiling) * 100),
           },
         });
@@ -813,24 +842,63 @@ export function PrepareDispatch({
     });
     submitting.current = false;
   }
+  useEffect(() => {
+    if (
+      !continueGenerated ||
+      !addsAddressPage ||
+      !generatedReady ||
+      action.pending
+    )
+      return;
+    // The user's preparation request continues after the final PDF scan. It
+    // still stops at the exact-document review, before any external transfer.
+    setContinueGenerated(false);
+    void prepare();
+  }, [continueGenerated, addsAddressPage, generatedReady, action.pending]);
   const changed = () => {
     key.current = crypto.randomUUID();
     generationKey.current = crypto.randomUUID();
     setGenerated(undefined);
     setGenerationAttempted(false);
+    setContinueGenerated(false);
     action.clear();
   };
   return (
     <>
-      <PageHeading title={t.dispatch.title} intro={t.dispatch.intro} />
+      <PageHeading
+        title={
+          channel === "postal" ? "Préparez votre courrier." : t.dispatch.title
+        }
+        intro={
+          channel === "postal"
+            ? "Choisissez le PDF, son destinataire et la fenêtre de l’enveloppe. Vous vérifierez ensuite le document et le prix avant l’envoi."
+            : t.dispatch.intro
+        }
+      />
       <ErrorNotice
         error={
           documents.error ?? initial.error ?? senders.error ?? action.error
         }
       />
+      {channel === "postal" && !simulation && (
+        <ErrorNotice error={requirements.error} retry={requirements.refresh} />
+      )}
+      {channel === "postal" &&
+        !simulation &&
+        !senders.loading &&
+        !senders.error &&
+        !selectedSender && (
+          <PostalSetupPanel
+            onUpdated={senders.refresh}
+            onStatus={handlePostalSetupStatus}
+          />
+        )}
       <form
         className="prepare-layout"
-        onSubmit={(e) => void submit(e)}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void prepare();
+        }}
         aria-busy={action.pending}
       >
         <fieldset
@@ -851,6 +919,7 @@ export function PrepareDispatch({
                   onChange={() => {
                     setChannel(c);
                     setSenderId("");
+                    setPostalBudget(String(Number(ceiling) / 100));
                   }}
                 />
                 <span>{t.channels[c]}</span>
@@ -973,6 +1042,9 @@ export function PrepareDispatch({
               mode={addressMode}
               onChange={setAddressMode}
               printMode={printMode}
+              addressPosition={selectedPosition ?? "left"}
+              positions={positions}
+              onPositionChange={setAddressPosition}
             />
           )}
           {channel === "fax" ? (
@@ -1103,7 +1175,7 @@ export function PrepareDispatch({
               </Field>
               <Field
                 label="Distribution souhaitée"
-                hint="La disponibilité et le prix seront confirmés par le devis Pingen."
+                hint="La disponibilité et le prix seront confirmés par le devis."
               >
                 <select
                   value={deliveryProduct}
@@ -1116,27 +1188,55 @@ export function PrepareDispatch({
                 </select>
               </Field>
               <p className="field-hint">
-                La prochaine étape vérifie le PDF et son adresse. Aucun fichier
-                n’est transmis à Pingen avant votre accord.
+                Vous vérifierez le document et son adresse avant de demander le
+                prix de l’envoi.
               </p>
             </fieldset>
           )}
-          <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={ceiling}
-              onChange={(e) => setCeiling(e.target.value)}
-              min="0"
-              step="0.01"
-              max="10000"
-              required
-            />
-          </Field>
+          {channel === "postal" && !simulation ? (
+            <details className="postal-budget">
+              <summary>
+                Budget maximum : {money(Math.round(Number(ceiling) * 100))}
+              </summary>
+              <Field
+                label="Budget maximum en euros"
+                hint="Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire."
+              >
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.01"
+                  max="10000"
+                  value={ceiling}
+                  onChange={(event) => setCeiling(event.target.value)}
+                  required
+                />
+              </Field>
+            </details>
+          ) : (
+            <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={ceiling}
+                onChange={(event) => setCeiling(event.target.value)}
+                min="0"
+                step="0.01"
+                max="10000"
+                required
+              />
+            </Field>
+          )}
           <button
             className="button primary full"
             disabled={
               action.pending ||
+              (channel === "postal" &&
+                !simulation &&
+                (requirements.loading ||
+                  !!requirements.error ||
+                  !selectedPosition)) ||
               (addsAddressPage && !!generated && !generatedReady) ||
               documentUnavailable ||
               (channel !== "email" && !documentId) ||
@@ -1164,11 +1264,11 @@ export function PrepareDispatch({
               : addsAddressPage && !generated
                 ? generationAttempted
                   ? "Réessayer la création du PDF"
-                  : "Créer le PDF avec la page d’adresse"
+                  : "Préparer le courrier"
                 : addsAddressPage && !generatedReady
                   ? "Vérification du PDF final…"
                   : channel === "postal" && !simulation
-                    ? "Contrôler le PDF pour le courrier"
+                    ? "Préparer le courrier"
                     : t.dispatch.prepare}
             <ArrowRight size={18} />
           </button>
@@ -1332,16 +1432,24 @@ export function DispatchDetailPage({
     resource.data?.dispatch.id === id ? resource.data.dispatch : undefined;
   const [quoteClock, setQuoteClock] = useState(Date.now);
   const [invalidQuoteId, setInvalidQuoteId] = useState<string>();
+  const [postalReadRequired, setPostalReadRequired] = useState(false);
+  const postalSending = useRef(false);
+  const postalViewRevision = useRef(0);
   useEffect(() => {
     setConsent(false);
     setRecipientRequested(false);
     setInvalidQuoteId(undefined);
+    setPostalReadRequired(false);
+    postalViewRevision.current += 1;
     action.clear();
+    return () => {
+      postalViewRevision.current += 1;
+    };
   }, [id, d?.fingerprint]);
   useEffect(() => {
     const expiry = d?.quote_expires_at ? Date.parse(d.quote_expires_at) : NaN;
     if (
-      d?.channel !== "fax" ||
+      (d?.channel !== "fax" && d?.channel !== "postal") ||
       d.status !== "prepared" ||
       !Number.isFinite(expiry) ||
       expiry <= Date.now()
@@ -1390,6 +1498,43 @@ export function DispatchDetailPage({
   if (!d)
     return <ErrorNotice error={resource.error} retry={resource.refresh} />;
   const target = recipientOf(d);
+  let postalOptions: Record<string, unknown> | undefined;
+  if (d.channel === "postal") {
+    try {
+      const options =
+        typeof d.options_json === "string"
+          ? (JSON.parse(d.options_json) as unknown)
+          : d.options_json;
+      if (options && typeof options === "object" && !Array.isArray(options))
+        postalOptions = options as Record<string, unknown>;
+    } catch {
+      // Historical or incomplete records must not imply printing defaults.
+    }
+  }
+  const postalOptionSummary = [
+    postalOptions?.printMode === "duplex"
+      ? "Recto verso"
+      : postalOptions?.printMode === "simplex"
+        ? "Recto"
+        : undefined,
+    postalOptions?.printSpectrum === "color"
+      ? "Couleur"
+      : postalOptions?.printSpectrum === "grayscale"
+        ? "Noir et blanc"
+        : undefined,
+    postalOptions?.deliveryProduct === "fast"
+      ? "Distribution rapide"
+      : postalOptions?.deliveryProduct === "cheap"
+        ? "Distribution économique"
+        : undefined,
+    postalOptions?.addressPosition === "right"
+      ? "Fenêtre à droite"
+      : postalOptions?.addressPosition === "left"
+        ? "Fenêtre à gauche"
+        : undefined,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   const faxPricing =
     d.channel === "fax" &&
     d.mode === "production" &&
@@ -1401,7 +1546,7 @@ export function DispatchDetailPage({
   const pendingApproval =
     !reviewPreparationOnly && ["prepared", "draft"].includes(d.status);
   const quoteExpired =
-    d.channel === "fax" &&
+    (d.channel === "fax" || d.channel === "postal") &&
     d.mode === "production" &&
     !!d.quote_expires_at &&
     Date.parse(d.quote_expires_at) <= Date.now();
@@ -1410,11 +1555,12 @@ export function DispatchDetailPage({
     (quoteExpired || invalidQuoteId === d.id);
   const renewalAllowed =
     quoteBlocked &&
+    d.channel === "fax" &&
     d.status === "prepared" &&
     resource.data?.attempts.length === 0;
   const expiringSoon =
     pendingApproval &&
-    d.channel === "fax" &&
+    (d.channel === "fax" || d.channel === "postal") &&
     d.mode === "production" &&
     !quoteBlocked &&
     !!d.quote_expires_at &&
@@ -1437,6 +1583,90 @@ export function DispatchDetailPage({
     "accepted",
     "queued",
   ].includes(d.status);
+  const postalPriceUnavailable =
+    d.channel === "postal" &&
+    d.mode === "production" &&
+    (d.currency !== "EUR" ||
+      !Number.isSafeInteger(d.quote_customer_nanoeur) ||
+      (d.quote_customer_nanoeur ?? -1) < 0 ||
+      !Number.isFinite(Date.parse(d.quote_expires_at ?? "")));
+  const postalSendLabel = `${d.mode === "simulation" ? "Simuler l’envoi pour" : "Envoyer pour"} ${quotedMoney(d)}${d.quote_pricing_basis === "public_list_price_ex_tax" ? " HT" : ""}`;
+  async function readPostalOutcome(revision: number) {
+    const current = await api<DispatchDetail>(
+      `/dispatches/${encodeURIComponent(id)}`,
+    );
+    if (postalViewRevision.current !== revision) return;
+    if (current?.dispatch?.id !== id)
+      throw new Error(
+        "Le suivi de ce courrier est indisponible. Actualisez-le avant de continuer.",
+      );
+    resource.setData(current);
+    setPostalReadRequired(false);
+    return current;
+  }
+  async function sendPostal() {
+    if (
+      postalSending.current ||
+      !d ||
+      d.channel !== "postal" ||
+      !pendingApproval ||
+      postalPriceUnavailable ||
+      quoteBlocked ||
+      postalReadRequired ||
+      resource.loading ||
+      (d.mode === "production" &&
+        Date.parse(d.quote_expires_at ?? "") <= Date.now())
+    )
+      return;
+    postalSending.current = true;
+    const revision = postalViewRevision.current;
+    await action.run(async () => {
+      try {
+        if (!approved)
+          await api(`/dispatches/${encodeURIComponent(id)}/approve`, {
+            method: "POST",
+            body: { fingerprint: d.fingerprint },
+          });
+        if (postalViewRevision.current !== revision) return;
+        // The same human click approves this immutable version and requests
+        // acceptance. This stable key also protects an explicit later retry.
+        await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
+          method: "POST",
+          key: `web-confirm:${id}`,
+          body: {},
+        });
+        if (postalViewRevision.current !== revision) return;
+        setPostalReadRequired(true);
+        await readPostalOutcome(revision);
+      } catch (error) {
+        if (postalViewRevision.current !== revision) return;
+        if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID")
+          setInvalidQuoteId(id);
+        // A lost response can follow committed acceptance. Only read status;
+        // never automatically repeat approval or submission after uncertainty.
+        setPostalReadRequired(true);
+        try {
+          const current = await readPostalOutcome(revision);
+          if (
+            current &&
+            !["prepared", "draft"].includes(current.dispatch.status)
+          )
+            return;
+        } catch {
+          // Keep sending blocked until the user can read the current state.
+        }
+        throw error;
+      } finally {
+        postalSending.current = false;
+      }
+    });
+  }
+  async function checkPostalOutcome() {
+    const revision = postalViewRevision.current;
+    await action.run(async () => {
+      await readPostalOutcome(revision);
+    });
+  }
   async function approve() {
     await action.run(async () => {
       try {
@@ -1542,7 +1772,9 @@ export function DispatchDetailPage({
         action={
           <RefreshButton
             onClick={resource.refresh}
-            disabled={resource.loading}
+            disabled={
+              resource.loading || (d.channel === "postal" && action.pending)
+            }
           />
         }
       />
@@ -1568,7 +1800,9 @@ export function DispatchDetailPage({
             </strong>
             <p>
               {quoteBlocked
-                ? "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi."
+                ? d.channel === "postal"
+                  ? "Préparez un nouveau devis, puis vérifiez son prix avant l’envoi. Ce courrier ne sera pas envoyé avec le devis expiré."
+                  : "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi."
                 : "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration."}
             </p>
             {quoteBlocked && d.campaign_id && (
@@ -1589,6 +1823,14 @@ export function DispatchDetailPage({
                   : "Renouveler le devis"}
               </button>
             )}
+            {quoteBlocked && d.channel === "postal" && (
+              <a
+                className="button primary"
+                href={`#/app/prepare?channel=postal${d.document_id ? `&document=${encodeURIComponent(d.document_id)}` : ""}`}
+              >
+                Préparer un nouveau devis
+              </a>
+            )}
           </div>
         </section>
       )}
@@ -1603,6 +1845,21 @@ export function DispatchDetailPage({
           <WarningCircle size={25} />
           <p>{t.dispatch.uncertain}</p>
         </div>
+      )}
+      {postalReadRequired && (
+        <section className="notice warning" role="status">
+          <p>
+            La réponse a été interrompue. Vérifiez le suivi de ce courrier avant
+            toute nouvelle action ; il a peut-être déjà été accepté.
+          </p>
+          <button
+            className="button secondary"
+            disabled={action.pending}
+            onClick={() => void checkPostalOutcome()}
+          >
+            {action.pending ? "Vérification du suivi…" : "Vérifier le suivi"}
+          </button>
+        </section>
       )}
       <div className="dispatch-detail-layout">
         <section>
@@ -1625,6 +1882,11 @@ export function DispatchDetailPage({
             <Definition label={t.dispatch.sender}>
               {d.sender_address ?? t.unknown}
             </Definition>
+            {postalOptionSummary && (
+              <Definition label="Options du courrier">
+                {postalOptionSummary}
+              </Definition>
+            )}
             <Definition
               label={
                 faxPricing
@@ -1736,7 +1998,42 @@ export function DispatchDetailPage({
                 vérifier et l’approuver ici.
               </p>
             )}
-          {pendingApproval && !approved && (
+          {pendingApproval && d.channel === "postal" && (
+            <section className="approval-panel">
+              <p>
+                Vérifiez le PDF et l’adresse du destinataire. Ce bouton approuve
+                cette version et son prix, puis
+                {d.mode === "simulation"
+                  ? " lance sa simulation."
+                  : " déclenche son envoi."}
+              </p>
+              {postalPriceUnavailable && (
+                <p role="status">
+                  Le prix exact de ce courrier est indisponible. Actualisez le
+                  devis avant de l’envoyer.
+                </p>
+              )}
+              <button
+                className="button primary full"
+                disabled={
+                  quoteBlocked ||
+                  postalPriceUnavailable ||
+                  postalReadRequired ||
+                  action.pending ||
+                  resource.loading
+                }
+                onClick={() => void sendPostal()}
+              >
+                <ArrowRight size={18} />
+                {action.pending
+                  ? "Envoi en cours…"
+                  : postalPriceUnavailable
+                    ? "Prix indisponible"
+                    : postalSendLabel}
+              </button>
+            </section>
+          )}
+          {pendingApproval && !approved && d.channel !== "postal" && (
             <section className="approval-panel">
               <p>{t.dispatch.approvalExplain}</p>
               <label className="checkbox-label">
@@ -1787,7 +2084,7 @@ export function DispatchDetailPage({
               </button>
             </section>
           )}
-          {approved && !reviewPreparationOnly && (
+          {approved && !reviewPreparationOnly && d.channel !== "postal" && (
             <section className="approval-panel">
               <p>
                 <Check size={18} />
@@ -1810,7 +2107,9 @@ export function DispatchDetailPage({
           {cancelAllowed && (
             <button
               className="text-button cancel-button"
-              disabled={action.pending}
+              disabled={
+                action.pending || (d.channel === "postal" && postalReadRequired)
+              }
               onClick={() => void cancel()}
             >
               {t.dispatch.cancelAction}
@@ -1899,7 +2198,11 @@ export function DispatchDetailPage({
             <ul className="attempts">
               {resource.data.attempts.map((attempt) => (
                 <li key={attempt.id}>
-                  <span>{attempt.provider}</span>
+                  <span>
+                    {d.channel === "postal"
+                      ? "Service courrier Guteneo"
+                      : attempt.provider}
+                  </span>
                   <Status status={attempt.status} />
                   <time>{date(attempt.created_at)}</time>
                 </li>

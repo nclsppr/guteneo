@@ -24,18 +24,18 @@ n’a été envoyé. Les essais destinés à une boîte personnelle attendent l�
 et l’autorisation du titulaire.
 
 Preuves locales : types, lint, compilation web/Worker ; migration normalisée
-équivalente sur 38 migrations après intégration du parcours postal et des devis
-fax de revue, `quick_check=ok`, aucune violation de clé étrangère.
+équivalente sur 39 migrations après intégration du parcours postal simplifié,
+du choix de fenêtre et des devis fax de revue, `quick_check=ok`, aucune violation de clé étrangère.
 Huit tests d’intégration Resend couvrent les trois modes, les octets exacts,
 l’acceptation atomique, la révocation, l’expiration juste avant soumission et
 l’absence de double débit. Les devis SES et Pingen déjà peuplés restent identiques
 après migration. Dix-neuf tests de protection/configuration vérifient notamment
 le compte reviewer limité à la préparation. Les tests MCP et les parcours
 navigateur utilisent des données fictives et des appels fournisseurs interceptés.
-La [CI complète de `b3a710a`](https://github.com/nclsppr/guteneo/actions/runs/35550849848)
+La [CI complète de `590818a`](https://github.com/nclsppr/guteneo/actions/runs/35551544452)
 a réussi : scanner, types/lint, migrations, tests unitaires/intégration, sécurité,
 compilations et navigateurs Chromium, mobile Chromium et iPhone WebKit. Ce résultat
-précède l’intégration finale de la PR #26 ; la PR #27 conserve les contrôles de la
+précède l’intégration finale de la PR #28 ; la PR #27 conserve les contrôles de la
 source réconciliée. Les essais de fournisseur et de navigateur restent synthétiques.
 
 Le candidat inclut une archive plugin 0.3.0 et les contrats ChatGPT/Claude. Cela

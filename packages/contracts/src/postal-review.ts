@@ -16,6 +16,7 @@ export const postalReviewInputSchema = z
       .strict(),
     options: z
       .object({
+        addressPosition: z.enum(["left", "right"]).optional(),
         deliveryProduct: z.enum(["cheap", "fast"]),
         printMode: z.enum(["simplex", "duplex"]),
         printSpectrum: z.enum(["grayscale", "color"]),
