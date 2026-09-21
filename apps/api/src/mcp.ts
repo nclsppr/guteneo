@@ -963,7 +963,7 @@ export function createGuteneoMcpServer(
     {
       title: "Préparer un fax PDF",
       description:
-        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien. Sous un mandat expert déjà actif pour cette connexion, poursuivre ici avec review_dispatch puis approve_and_send_dispatch après lecture du PDF exact ; le lien n’est pas requis. Sans mandat, une approbation humaine dans Guteneo puis confirm_dispatch restent nécessaires.",
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et, pour un devis envoyable, le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien. Si faxPricing.executionScope vaut review_prepare_only, arrêter à la préparation : aucun lien d’approbation utilisable, aucune approbation ni expédition n’est autorisée ; les étapes suivantes s’appliquent uniquement aux devis envoyables. Sous un mandat expert déjà actif pour cette connexion, poursuivre ici avec review_dispatch puis approve_and_send_dispatch après lecture du PDF exact ; le lien n’est pas requis. Sans mandat, une approbation humaine dans Guteneo puis confirm_dispatch restent nécessaires.",
       inputSchema: z
         .object({
           documentId: id,
@@ -985,7 +985,7 @@ export function createGuteneoMcpServer(
           renewalOf: id
             .optional()
             .describe(
-              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le renouvellement annule définitivement l’ancien envoi préparé et crée son remplacement individuel, hors de toute campagne d’origine, qui conserve son manifeste. Annoncer cette annulation avant renouvellement. Idempotence serveur stable pour cet ancien devis ; nouvelle approbation séparée requise.",
+              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le renouvellement annule définitivement l’ancien envoi préparé et crée son remplacement individuel, hors de toute campagne d’origine, qui conserve son manifeste. Annoncer cette annulation avant renouvellement. Idempotence serveur stable pour cet ancien devis ; une nouvelle approbation séparée reste requise pour un devis envoyable ; un renouvellement review_prepare_only reste limité à la préparation et ne peut être approuvé ni expédié.",
             ),
           idempotencyKey: key,
         })
