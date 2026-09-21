@@ -1,5 +1,7 @@
 # Execution plan and handoff
 
+21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
+
 21 September candidate: `get_postal_setup`, `configure_postal_sender` and the
 `postal_pdf` MCP prompt support sender collection in the conversation. The
 candidate needs migration 0034, reviewed tests and publication, then an updated

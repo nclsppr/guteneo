@@ -1,5 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
+import { PDFDocument } from "pdf-lib";
 import type { PostalSetup } from "../../packages/contracts/src/postal-setup";
 
 // Browser fixtures only. Every API request is intercepted; setup never transfers
@@ -11,15 +12,30 @@ async function fixture(
     reason = "setup_required",
     failFirst = false,
     senderStatus,
+    withDocument = false,
   }: {
     role?: "admin" | "member" | "viewer";
     reason?: PostalSetup["reason"];
     failFirst?: boolean;
     senderStatus?: "pending" | "disabled";
+    withDocument?: boolean;
   } = {},
 ) {
   const writes: { path: string; body: unknown; csrf?: string }[] = [];
   const unmatched: string[] = [];
+  const pdf = await PDFDocument.create();
+  pdf.addPage([595.28, 841.89]);
+  const contents = Buffer.from(await pdf.save());
+  const document = {
+    id: "postal-setup-document",
+    name: "Courrier exemple.pdf",
+    sha256: "b".repeat(64),
+    size: contents.length,
+    pages: 1,
+    status: "ready",
+    source: "import",
+    created_at: "2026-09-21T10:00:00Z",
+  };
   const setup: PostalSetup = {
     available: true,
     canManage: role === "admin",
@@ -66,6 +82,13 @@ async function fixture(
         verifiedAccount: true,
       };
     else if (path === "/api/capabilities") body = {};
+    else if (path === "/api/postal/requirements")
+      body = {
+        profile: {
+          addressPosition: "left",
+          addressPositions: ["left", "right"],
+        },
+      };
     else if (path === "/api/postal/setup") {
       if (request.method() === "POST") {
         if (failFirst) {
@@ -98,7 +121,16 @@ async function fixture(
           ? [{ ...setup.sender, channel: "postal", mode: "production" }]
           : [],
       };
-    else if (path === "/api/documents") body = { items: [], nextCursor: null };
+    else if (path === "/api/documents")
+      body = { items: withDocument ? [document] : [], nextCursor: null };
+    else if (withDocument && path === `/api/documents/${document.id}`)
+      body = document;
+    else if (withDocument && path === `/api/documents/${document.id}/content`)
+      return route.fulfill({
+        status: 200,
+        contentType: "application/pdf",
+        body: contents,
+      });
     else if (path === "/api/dispatches/postal-quote-fixture")
       body = {
         dispatch: {
@@ -345,17 +377,86 @@ test("expired pricing renews only after reauthorization of the unchanged sender"
   expect(state.unmatched).toEqual([]);
 });
 
-test("missing postal sender leads to setup and a postal quote has no email exchange-rate copy", async ({
+test("a missing sender is configured inline while preserving the PDF, recipient and window choice", async ({
   page,
 }) => {
-  const state = await fixture(page);
-  await page.goto("/#/app/prepare?channel=postal");
+  const state = await fixture(page, { withDocument: true });
+  const prepareUrl =
+    "/#/app/prepare?channel=postal&document=postal-setup-document";
+  await page.goto(prepareUrl);
+  const selectedDocument = page.getByRole("combobox", {
+    name: "Document",
+    exact: true,
+  });
+  const prepare = page.getByRole("button", {
+    name: "Préparer le courrier",
+    exact: true,
+  });
+  await expect(selectedDocument).toHaveValue("postal-setup-document");
   await page
-    .getByRole("link", { name: "Activer le courrier dans les expéditeurs" })
+    .getByLabel("Nom du destinataire", { exact: true })
+    .fill("Atelier Destinataire");
+  await page.getByLabel("Adresse", { exact: true }).fill("Rue du Test 12");
+  await page.getByLabel("Code postal", { exact: true }).fill("L-1234");
+  await page.getByLabel("Ville", { exact: true }).fill("Luxembourg");
+  await page.getByLabel("Pays", { exact: true }).selectOption("LU");
+  await page.getByRole("radio", { name: "À droite", exact: true }).check();
+  await expect(prepare).toBeDisabled();
+  await page
+    .getByRole("textbox", { name: "Nom de l’expéditeur" })
+    .fill("Atelier Exemple");
+  await page
+    .getByRole("textbox", { name: "Adresse postale de l’expéditeur" })
+    .fill("12 rue des Exemples\nL-1234 Luxembourg");
+  await page.getByRole("checkbox", { name: /Je suis autorisé/ }).check();
+  await page
+    .getByRole("button", { name: "Activer le courrier", exact: true })
     .click();
+  await expect(prepare).toBeEnabled();
+  await expect(page).toHaveURL(
+    new RegExp(
+      "/#/app/prepare\\?channel=postal&document=postal-setup-document$",
+    ),
+  );
+  await expect(selectedDocument).toHaveValue("postal-setup-document");
+  await expect(
+    page.getByRole("combobox", { name: "Expéditeur", exact: true }),
+  ).toHaveValue("postal-sender-fixture");
+  await expect(
+    page.getByLabel("Nom du destinataire", { exact: true }),
+  ).toHaveValue("Atelier Destinataire");
+  await expect(page.getByLabel("Adresse", { exact: true })).toHaveValue(
+    "Rue du Test 12",
+  );
+  await expect(page.getByLabel("Code postal", { exact: true })).toHaveValue(
+    "L-1234",
+  );
+  await expect(page.getByLabel("Ville", { exact: true })).toHaveValue(
+    "Luxembourg",
+  );
+  await expect(page.getByLabel("Pays", { exact: true })).toHaveValue("LU");
+  await expect(
+    page.getByRole("radio", { name: "À droite", exact: true }),
+  ).toBeChecked();
   await expect(
     page.getByRole("textbox", { name: "Nom de l’expéditeur" }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  expect(state.writes).toEqual([
+    {
+      path: "/api/postal/setup",
+      body: {
+        name: "Atelier Exemple",
+        address: "12 rue des Exemples\nL-1234 Luxembourg",
+        authorized: true,
+      },
+      csrf: "postal-csrf-fixture",
+    },
+  ]);
+  expect(state.unmatched).toEqual([]);
+});
+
+test("a postal quote has no email exchange-rate copy", async ({ page }) => {
+  const state = await fixture(page);
   await page.goto("/#/app/dispatch/postal-quote-fixture");
   await expect(
     page.getByText("Prix du courrier HT", { exact: true }),

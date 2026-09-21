@@ -30,6 +30,7 @@ export type Dispatch = {
   subject?: string;
   html?: string;
   text?: string;
+  options_json?: string | Record<string, unknown>;
   status: string;
   mode: string;
   estimated_minor: number;

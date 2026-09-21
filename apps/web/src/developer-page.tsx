@@ -198,10 +198,10 @@ export function DeveloperPage() {
                 le PDF, utilisez <code>POST /api/postal/preflights</code> :
                 Guteneo contrôle le PDF exact et retourne un{" "}
                 <code>reviewUrl</code>. En mode standard, la personne ouvre ce
-                lien pour relire les pages et autoriser le dépôt chez Pingen. Le
-                mode expert exige un mandat postal couvrant séparément ce
-                transfert de données ; il ne déclenche aucune expédition. Après
-                l’analyse du brouillon, demandez
+                lien pour relire les pages et autoriser le dépôt chez le
+                prestataire d’impression. Le mode expert exige un mandat postal
+                couvrant séparément ce transfert de données ; il ne déclenche
+                aucune expédition. Après l’analyse du brouillon, demandez
                 <code> POST /api/postal/preflights/&#123;id&#125;/quote</code>,
                 puis faites approuver le devis. Ces étapes restent distinctes de
                 l’expédition ; un transfert incertain ne doit jamais être

@@ -440,7 +440,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
     },
   );
 
-  it("records distinct immutable OAuth provenance and eight policies without transfer, sending, budget or delegation changes", async () => {
+  it("records distinct immutable OAuth provenance and sixteen policies without transfer, sending, budget or delegation changes", async () => {
     const p = await principal();
     const grants = await count("welcome_credit_grants");
     const result = await configure(p);
@@ -456,7 +456,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       "GET /organisations/pingen_org",
     ]);
     expect(await count("senders")).toBe(1);
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     expect(await count("welcome_credit_grants")).toBe(grants);
     for (const table of [
       "dispatches",
@@ -786,7 +786,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
     ]);
     expect(results).toHaveLength(3);
     expect(await count("senders")).toBe(1);
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     expect(await count("postal_sender_declarations")).toBe(1);
     const provenance = (await getPostalSetupForMcp(p.identity, env))
       .senderVerification;
@@ -874,7 +874,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       expect(await count("senders")).toBe(1);
       expect(await count("postal_sender_declarations")).toBe(1);
       expect(await count("postal_setup_policy_generations")).toBe(1);
-      expect(await count("trusted_delivery_costs")).toBe(8);
+      expect(await count("trusted_delivery_costs")).toBe(16);
       expect(
         await db
           .prepare(
@@ -1065,7 +1065,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       await expect(configure(p)).rejects.toMatchObject({
         code: "POSTAL_SETUP_REVIEW_REQUIRED",
       });
-      expect(await count("trusted_delivery_costs")).toBe(8);
+      expect(await count("trusted_delivery_costs")).toBe(16);
     },
   );
 
@@ -1089,13 +1089,13 @@ describe("postal sender setup through current OAuth administrator authority", ()
       reason: "pricing_expired",
       senderVerification: "administrator_declaration",
     });
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     expect(calls).toHaveLength(before);
     expect(await configure(p)).toMatchObject({
       configured: true,
       senderVerification: "administrator_declaration",
     });
-    expect(await count("trusted_delivery_costs")).toBe(16);
+    expect(await count("trusted_delivery_costs")).toBe(32);
     expect(await count("postal_setup_policy_generations")).toBe(2);
     expect(
       await db
@@ -1125,7 +1125,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       humanConsentClaimed: false,
     });
     await configure(p);
-    expect(await count("trusted_delivery_costs")).toBe(16);
+    expect(await count("trusted_delivery_costs")).toBe(32);
   });
 
   it.each(["profile", "revocation"] as const)(
@@ -1147,7 +1147,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       await expect(configure(p)).rejects.toMatchObject({
         code: "POSTAL_SETUP_REVIEW_REQUIRED",
       });
-      expect(await count("trusted_delivery_costs")).toBe(8);
+      expect(await count("trusted_delivery_costs")).toBe(16);
     },
   );
 

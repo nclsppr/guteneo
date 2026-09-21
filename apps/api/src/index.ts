@@ -120,7 +120,7 @@ export function getCapabilities(env: Env) {
         id: "postal",
         liveSending: liveSendingEnabled(env, "postal"),
         name: "Courrier postal",
-        provider: "Pingen",
+        provider: "Service courrier Guteneo",
         status: env.PINGEN_CLIENT_ID
           ? "configured_not_live_validated"
           : "not_configured",
@@ -315,10 +315,11 @@ app.all("/mcp", (c) =>
           id,
           { reviewed: true, consentToTransfer: true },
         ),
-      requirements: async (identity, country) =>
+      requirements: async (identity, country, addressPosition) =>
         new PostalService(c.env, domain(c.env)).requirements(
           await postalMcpAuthority(identity, c.env, "documents:read"),
           country,
+          addressPosition,
         ),
       create: async (identity, input, key) =>
         new PostalService(c.env, domain(c.env)).create(
@@ -454,6 +455,7 @@ app.get("/api/postal/requirements", async (c) =>
     await new PostalService(c.env, domain(c.env)).requirements(
       await postalAuthority(c.req.raw, c.env, "documents:read"),
       z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
+      z.enum(["left", "right"]).optional().parse(c.req.query("addressPosition")),
     ),
   ),
 );

@@ -30,6 +30,8 @@ import { liveSendingEnabled } from "./live-providers";
 import type { Env } from "./env";
 import { postalMcpAuthority, type PostalAuthority } from "./postal-authority";
 
+import { postalAddressPositions } from "../../../packages/contracts/src/postal-requirements";
+
 const sourceReference = "https://api.pingen.com/documentation/swagger-docs";
 const json = (value: unknown, status = 200) =>
   Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
@@ -57,6 +59,8 @@ type Generation = {
   profile_json: string;
   expires_at: string;
 };
+const profilePolicyOptions = (profile: Profile) =>
+  postalAddressPositions(profile.defaultCountry).flatMap(postalPolicyOptions);
 const latestGeneration = (env: Env, org: string) =>
   env.DB.prepare(
     "SELECT generation,policy_ids_json,profile_json,expires_at FROM postal_setup_policy_generations WHERE organization_id=? ORDER BY generation DESC LIMIT 1",
@@ -343,9 +347,7 @@ async function current(
       generation?.profile_json !== declaration.profile_json;
     const timestamp = new Date().toISOString();
     revoked = policies.some((policy) => policy.status === "revoked");
-    const required = postalPolicyOptions(profile.addressPosition).map(
-      canonicalJson,
-    );
+    const required = profilePolicyOptions(profile).map(canonicalJson);
     const covered = required.every((options) =>
       policies.some(
         (policy) =>
@@ -355,7 +357,10 @@ async function current(
           policy.expires_at > timestamp,
       ),
     );
-    pricingExpired = !revoked && policies.length >= 8 && !covered;
+    pricingExpired =
+      !revoked &&
+      policies.length >= 8 &&
+      policies.every((policy) => policy.expires_at <= timestamp);
     configured =
       sender.status === "verified" &&
       sender.name === declaration.sender_name &&
@@ -373,7 +378,12 @@ async function current(
       ? "sender_disabled"
       : !channelEnabled && (Boolean(declaration) || Boolean(stopped))
         ? "channel_stopped"
-        : sender && (!declaration || !generation || revoked || profileChanged)
+        : sender &&
+            (!declaration ||
+              !generation ||
+              revoked ||
+              profileChanged ||
+              (!configured && !pricingExpired))
           ? "operator_review_required"
           : pricingExpired
             ? "pricing_expired"
@@ -557,7 +567,10 @@ async function configure(
     !provider?.configuredIdMatches ||
     provider.billingCurrency !== "EUR" ||
     provider.defaultCountry !== env.PINGEN_DEFAULT_COUNTRY ||
-    !provider.defaultAddressPosition
+    !provider.defaultAddressPosition ||
+    !postalAddressPositions(provider.defaultCountry!).includes(
+      provider.defaultAddressPosition,
+    )
   )
     fail(
       "POSTAL_PROFILE_UNQUALIFIED",
@@ -586,7 +599,7 @@ async function configure(
   await authority.assertCurrent();
   const fence = authority.sql();
   const target = renew
-    ? `EXISTS(SELECT 1 FROM postal_sender_declarations d JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel='postal' WHERE d.organization_id=? AND d.sender_id=? AND d.sender_name=? AND d.sender_address=? AND s.status='verified' AND s.name=d.sender_name AND s.address=d.sender_address AND c.enabled=1) AND (SELECT MAX(generation) FROM postal_setup_policy_generations WHERE organization_id=?)=? AND (SELECT COUNT(*) FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND id IN (SELECT value FROM json_each(?)) AND status='qualified' AND expires_at<=?)=8`
+    ? `EXISTS(SELECT 1 FROM postal_sender_declarations d JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel='postal' WHERE d.organization_id=? AND d.sender_id=? AND d.sender_name=? AND d.sender_address=? AND s.status='verified' AND s.name=d.sender_name AND s.address=d.sender_address AND c.enabled=1) AND (SELECT MAX(generation) FROM postal_setup_policy_generations WHERE organization_id=?)=? AND (SELECT COUNT(*) FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND id IN (SELECT value FROM json_each(?)) AND status='qualified' AND expires_at<=?)=?`
     : `NOT EXISTS(SELECT 1 FROM postal_sender_declarations WHERE organization_id=?) AND NOT EXISTS(SELECT 1 FROM senders WHERE organization_id=? AND channel='postal' AND mode='production') AND EXISTS(SELECT 1 FROM channel_controls c WHERE c.organization_id=? AND c.channel='postal' AND (c.enabled=1 OR NOT EXISTS(SELECT 1 FROM audit_log a WHERE a.organization_id=c.organization_id AND a.action='channel.control' AND a.resource_id='postal' AND json_extract(a.details_json,'$.enabled')=0)))`;
   const targetArgs = renew
     ? [
@@ -600,6 +613,7 @@ async function configure(
         senderId,
         previous!.policy_ids_json,
         timestamp,
+        JSON.parse(previous!.policy_ids_json).length,
       ]
     : [org, org, org];
   const marker =
@@ -673,7 +687,7 @@ async function configure(
       ).bind(org, senderId, previous!.policy_ids_json, org, auditId),
     );
   const policyIds: string[] = [];
-  for (const options of postalPolicyOptions(profile.addressPosition)) {
+  for (const options of profilePolicyOptions(profile)) {
     const policyId = `cost_${crypto.randomUUID()}`;
     policyIds.push(policyId);
     statements.push(

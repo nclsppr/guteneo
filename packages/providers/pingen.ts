@@ -36,6 +36,7 @@ export type PostalOptions = {
 export type PostalSubmission = PostalOptions & {
   preparedLetterId: string;
   expectedAddress: string;
+  addressPosition: "left" | "right";
   country: "FR" | "LU" | "DE";
   maxCost: Money;
   expectedCost?: Money;
@@ -88,6 +89,8 @@ export class PingenPostalProvider {
     const errors: string[] = [];
     if (!["FR", "LU", "DE"].includes(input.country))
       errors.push("postal_country_not_supported");
+    if (!["left", "right"].includes(input.addressPosition))
+      errors.push("unsupported_postal_address_position");
     if (!input.expectedAddress.trim())
       errors.push("postal_approved_address_required");
     if (!/^[a-zA-Z0-9_.:-]{1,64}$/.test(input.idempotencyKey))
@@ -233,12 +236,15 @@ export class PingenPostalProvider {
       PostalSubmission,
       | "preparedLetterId"
       | "expectedAddress"
+      | "addressPosition"
       | "country"
       | "deliveryProduct"
       | "printMode"
       | "printSpectrum"
     >,
   ): Promise<{ amount: Money; evidenceSha256: string }> {
+    if (!["left", "right"].includes(input.addressPosition))
+      throw new ProviderError("unsupported_postal_address_position");
     const data = asObject(
       (
         await this.get(
@@ -249,6 +255,7 @@ export class PingenPostalProvider {
     const attributes = asObject(data.attributes);
     if (
       attributes.country !== input.country ||
+      attributes.address_position !== input.addressPosition ||
       this.normalizeAddress(textField(attributes, "address")) !==
         this.normalizeAddress(input.expectedAddress)
     )
@@ -265,6 +272,9 @@ export class PingenPostalProvider {
     const quote = await this.estimate({ ...input, paperTypes });
     if (!quote.amount || quote.amount.currency !== "EUR")
       throw new ProviderError("postal_cost_requires_new_approval");
+    // The window is already bound by Guteneo's immutable options and is checked
+    // above on each quote/send. Retain the established evidence serialization so
+    // previously approved quotes keep their exact fingerprint.
     const evidence = JSON.stringify({
       providerId: input.preparedLetterId,
       country: input.country,

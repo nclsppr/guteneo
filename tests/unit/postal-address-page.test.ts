@@ -806,3 +806,49 @@ describe("explicit postal address-page generation", () => {
     expect(renderCalls()).toHaveLength(3);
   });
 });
+
+it("binds the explicitly selected right window to the generated address page", async () => {
+  const selected: PostalAddressPageInput = {
+    ...input,
+    addressPosition: "right",
+  };
+  const generated = await service().generate(
+    authority,
+    selected,
+    "right-cover",
+  );
+  expect(generated.provenance.profile.addressPosition).toBe("right");
+  const request = renderCalls()[0][0] as Request;
+  expect(
+    JSON.parse(
+      decodeURIComponent(request.headers.get("X-Guteneo-Postal-Address-Page")!),
+    ),
+  ).toMatchObject({ addressPosition: "right" });
+  await expect(
+    service().generate(
+      authority,
+      { ...selected, addressPosition: "left" },
+      "right-cover",
+    ),
+  ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+  const postal = new PostalService(env, domain, { fetcher: profileFetch });
+  await expect(
+    postal.create(
+      authority,
+      {
+        documentId: generated.document.id,
+        senderId: "sender",
+        recipient: input.recipient,
+        options: {
+          addressPosition: "left",
+          printMode: "simplex",
+          printSpectrum: "grayscale",
+          deliveryProduct: "cheap",
+        },
+        ceilingMinor: 500,
+      },
+      "wrong-cover-window",
+    ),
+  ).rejects.toMatchObject({ code: "POSTAL_ADDRESS_PAGE_BINDING_CHANGED" });
+  expect(await count("postal_preflights")).toBe(0);
+});

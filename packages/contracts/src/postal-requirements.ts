@@ -1,6 +1,13 @@
 import type { PingenPreflightOptions } from "./pingen-preflight";
 
 const help = "https://help.pingen.com/en/templates-and-postal-requirements/";
+/** The French account profile only supports right-window envelopes. */
+export function postalAddressPositions(
+  defaultCountry: string,
+): ("left" | "right")[] {
+  return defaultCountry === "FR" ? ["right"] : ["left", "right"];
+}
+
 const countries = { FR: "FRANCE", LU: "LUXEMBOURG", DE: "GERMANY" } as const;
 
 /** Public instructions only: no account ID, document content or authority is returned. */

@@ -256,8 +256,8 @@ function ConnectionSettings({
       </p>
       {policy?.channels.includes("postal") && (
         <p className="field-hint">
-          Les dépôts de brouillons Pingen ont un compteur distinct, limité au
-          même nombre par jour. Un dépôt ne constitue pas un envoi.
+          Les préparations de courriers ont un compteur distinct, limité au même
+          nombre par jour. Un dépôt ne constitue pas un envoi.
         </p>
       )}
       {editable && !editing && (
@@ -423,9 +423,10 @@ function ConnectionSettings({
                   }
                 />
                 <span>
-                  J’autorise aussi cet assistant à déposer le PDF chez Pingen en
-                  brouillon non envoyé pour obtenir le devis postal, puis à
-                  approuver l’envoi dans la conversation.
+                  J’autorise aussi cet assistant à transmettre le PDF à notre
+                  prestataire d’impression pour obtenir le devis postal, sans
+                  expédition à cette étape, puis à approuver l’envoi dans la
+                  conversation.
                 </span>
               </label>
             )}

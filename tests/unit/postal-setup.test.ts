@@ -41,7 +41,7 @@ const providerFetch: Fetcher = async (url, init) => {
         attributes: {
           billing_currency: "EUR",
           default_country: profileCountry,
-          default_address_position: "left",
+          default_address_position: profileCountry === "FR" ? "right" : "left",
         },
       },
     });
@@ -269,7 +269,7 @@ describe("self-service postal activation", () => {
     ).toBeNull();
   });
 
-  it("atomically installs the genuine declared sender, 8 calculator policies and tenant channel without funding or provider transfer", async () => {
+  it("atomically installs the genuine declared sender, 16 calculator policies and tenant channel without funding or provider transfer", async () => {
     const grants = await count("welcome_credit_grants");
     const result = (await (await setup())!.json()) as PostalSetup;
     expect(result).toMatchObject({
@@ -283,7 +283,7 @@ describe("self-service postal activation", () => {
     });
     expect(await count("senders")).toBe(1);
     expect(await count("postal_sender_declarations")).toBe(1);
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     expect(await count("welcome_credit_grants")).toBe(grants);
     expect(await count("dispatches")).toBe(0);
     expect(await count("provider_drafts")).toBe(0);
@@ -313,7 +313,7 @@ describe("self-service postal activation", () => {
         .bind(org)
         .all()
     ).results;
-    expect(new Set(policies.map((p) => p.options_json)).size).toBe(8);
+    expect(new Set(policies.map((p) => p.options_json)).size).toBe(16);
     expect(
       policies.every(
         (p) =>
@@ -357,7 +357,7 @@ describe("self-service postal activation", () => {
     expect(results.every((r) => r?.status === 200)).toBe(true);
     expect(await count("senders")).toBe(1);
     expect(await count("postal_sender_declarations")).toBe(1);
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     expect(await count("welcome_credit_grants")).toBe(1);
     const callCount = calls.length;
     await setup();
@@ -477,7 +477,7 @@ describe("self-service postal activation", () => {
     await expect(setup()).rejects.toMatchObject({
       code: "POSTAL_SETUP_REVIEW_REQUIRED",
     });
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
   });
 
   it("does not bypass pre-existing operator sender qualification", async () => {
@@ -545,7 +545,7 @@ describe("self-service postal activation", () => {
       configured: false,
       reason: "pricing_expired",
     });
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
     const result = (await (await setup())!.json()) as PostalSetup;
     expect(result).toMatchObject({
       configured: true,
@@ -554,7 +554,7 @@ describe("self-service postal activation", () => {
     });
     expect(await count("postal_sender_declarations")).toBe(1);
     expect(await count("postal_setup_policy_generations")).toBe(2);
-    expect(await count("trusted_delivery_costs")).toBe(16);
+    expect(await count("trusted_delivery_costs")).toBe(32);
     expect(await count("welcome_credit_grants")).toBe(1);
     const policies = (
       await db
@@ -564,8 +564,8 @@ describe("self-service postal activation", () => {
         .bind(org)
         .all<{ status: string }>()
     ).results;
-    expect(policies.filter((p) => p.status === "revoked")).toHaveLength(8);
-    expect(policies.filter((p) => p.status === "qualified")).toHaveLength(8);
+    expect(policies.filter((p) => p.status === "revoked")).toHaveLength(16);
+    expect(policies.filter((p) => p.status === "qualified")).toHaveLength(16);
     await setup();
     expect(await count("postal_setup_policy_generations")).toBe(2);
   });
@@ -594,7 +594,7 @@ describe("self-service postal activation", () => {
       code: "POSTAL_SETUP_REVIEW_REQUIRED",
     });
     expect(await count("postal_setup_policy_generations")).toBe(1);
-    expect(await count("trusted_delivery_costs")).toBe(8);
+    expect(await count("trusted_delivery_costs")).toBe(16);
   });
 
   it("rolls back sender, declaration, pricing and channel when the transaction fails", async () => {
@@ -626,4 +626,25 @@ describe("self-service postal activation", () => {
       channelEnabled: false,
     });
   });
+});
+
+it("installs only the eight supported right-window policies for a French account", async () => {
+  env.PINGEN_DEFAULT_COUNTRY = "FR";
+  profileCountry = "FR";
+  const result = (await (await setup())!.json()) as PostalSetup;
+  expect(result.configured).toBe(true);
+  const policies = (
+    await db
+      .prepare(
+        "SELECT options_json FROM trusted_delivery_costs WHERE organization_id=?",
+      )
+      .bind(org)
+      .all<{ options_json: string }>()
+  ).results;
+  expect(policies).toHaveLength(8);
+  expect(
+    policies.every(
+      (policy) => JSON.parse(policy.options_json).addressPosition === "right",
+    ),
+  ).toBe(true);
 });

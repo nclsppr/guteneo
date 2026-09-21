@@ -120,7 +120,10 @@ beforeAll(async () => {
   for (const f of readdirSync(dir)
     .filter(
       (f) =>
-        f.endsWith(".sql") && !f.startsWith("0022_") && !f.startsWith("0030_"),
+        f.endsWith(".sql") &&
+        !f.startsWith("0022_") &&
+        !f.startsWith("0030_") &&
+        !f.endsWith("_postal_window_options.sql"),
     )
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
@@ -183,6 +186,11 @@ beforeAll(async () => {
   await sql(
     readFileSync(new URL("0030_postal_public_pricing.sql", dir), "utf8"),
   );
+  // Later window-policy migration depends on both pricing-basis upgrades.
+  const windowMigration = readdirSync(dir).find((name) =>
+    name.endsWith("_postal_window_options.sql"),
+  )!;
+  await sql(readFileSync(new URL(windowMigration, dir), "utf8"));
   postalUpgradeProof = {
     before: postalBefore,
     after: await allQuotes(),

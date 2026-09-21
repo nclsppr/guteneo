@@ -78,6 +78,15 @@ async function setup(
       });
     if (path === "/capabilities")
       return route.fulfill({ json: { registration: { enabled: true } } });
+    if (path === "/postal/requirements")
+      return route.fulfill({
+        json: {
+          profile: {
+            addressPosition: "left",
+            addressPositions: ["left", "right"],
+          },
+        },
+      });
     if (path === "/senders")
       return route.fulfill({
         json: {
@@ -167,7 +176,7 @@ async function setup(
             printMode: body.printMode,
             profile: {
               defaultCountry: "LU",
-              addressPosition: "left",
+              addressPosition: body.addressPosition,
               version: "fixture-profile",
             },
             addedPages,
@@ -218,7 +227,7 @@ async function setup(
           previewUrl: `/api/documents/${document.id}/content`,
         },
         recipient: body.recipient,
-        options: { ...(body.options as object), addressPosition: "left" },
+        options: body.options,
         ceilingMinor: body.ceilingMinor,
         reviewUrl: "/#/app/postal/review-address-ui",
         checks: {
@@ -277,16 +286,8 @@ async function setup(
   return { mutations, contentReads, unmatched, creations, controls };
 }
 
-const generate = (page: Page) =>
-  page.getByRole("button", {
-    name: "Créer le PDF avec la page d’adresse",
-    exact: true,
-  });
-const preflight = (page: Page) =>
-  page.getByRole("button", {
-    name: "Contrôler le PDF pour le courrier",
-    exact: true,
-  });
+const prepare = (page: Page) =>
+  page.getByRole("button", { name: "Préparer le courrier", exact: true });
 
 test("existing document address remains the default and creates no derivative", async ({
   page,
@@ -295,7 +296,10 @@ test("existing document address remains the default and creates no derivative", 
   await expect(
     page.getByRole("radio", { name: "Utiliser l’adresse du document" }),
   ).toBeChecked();
-  await preflight(page).click();
+  await expect(
+    page.getByRole("radio", { name: "À gauche", exact: true }),
+  ).toBeChecked();
+  await prepare(page).click();
   await expect(page).toHaveURL(/postal\/review-address-ui$/);
   expect(fixture.mutations.map((mutation) => mutation.path)).toEqual([
     "/postal/preflights",
@@ -304,160 +308,132 @@ test("existing document address remains the default and creates no derivative", 
   expect(fixture.unmatched).toEqual([]);
 });
 
-test("generated exact PDF is previewed before a separate preflight and consent", async ({
-  page,
-}, testInfo) => {
-  if (testInfo.project.name === "iphone-webkit")
-    await page.setViewportSize({ width: 320, height: 800 });
-  const fixture = await setup(page);
-  const existing = page.getByRole("radio", {
-    name: "Utiliser l’adresse du document",
+for (const mode of ["simplex", "duplex"] as const)
+  test(`${mode}: one preparation creates, scans and previews the right-window final PDF before transfer`, async ({
+    page,
+  }, testInfo) => {
+    const fixture = await setup(page);
+    await page
+      .getByRole("radio", { name: "Ajouter une page d’adresse" })
+      .check();
+    await page.getByRole("radio", { name: "À droite", exact: true }).check();
+    await page.getByLabel("Faces imprimées").selectOption(mode);
+    if (mode === "duplex")
+      await expect(page.getByText(/2 pages PDF sont ajoutées/)).toBeVisible();
+    await prepare(page).click();
+    await expect(page).toHaveURL(/postal\/review-address-ui$/);
+    await expect(
+      page.getByText("PDF final avec page d’adresse", { exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
+    await expect(
+      page.getByText(`Page 1 / ${mode === "simplex" ? 3 : 4}`, { exact: true }),
+    ).toBeVisible();
+    expect(fixture.contentReads.at(-1)).toBe("generated-ui-1");
+    expect(fixture.mutations).toHaveLength(2);
+    expect(fixture.mutations[0].path).toBe("/postal/address-pages");
+    expect(fixture.mutations[0].body).toMatchObject({
+      documentId: "source-ui",
+      printMode: mode,
+      addressPosition: "right",
+    });
+    expect(fixture.mutations[0].csrf).toBe("ui-csrf");
+    expect(fixture.mutations[1].body).toMatchObject({
+      documentId: "generated-ui-1",
+      options: { printMode: mode, addressPosition: "right" },
+    });
+    await expect(
+      page.getByRole("link", { name: "Consulter le PDF source conservé" }),
+    ).toHaveAttribute("href", "#/app/documents?document=source-ui");
+    await expect(
+      page.getByRole("button", {
+        name: "Valider le document et obtenir le prix",
+      }),
+    ).toBeDisabled();
+    expect(
+      fixture.mutations.some((item) =>
+        /transfer|approve|send|confirm/.test(item.path),
+      ),
+    ).toBe(false);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth + 1,
+      ),
+    ).toBeTruthy();
+    if (mode === "simplex") {
+      await mkdir("reports/screenshots/postal-address-page", {
+        recursive: true,
+      });
+      await page.screenshot({
+        path: `reports/screenshots/postal-address-page/${testInfo.project.name}.png`,
+        fullPage: true,
+      });
+    }
+    expect(fixture.unmatched).toEqual([]);
   });
-  await existing.focus();
-  await page.keyboard.press("ArrowDown");
-  await expect(
-    page.getByRole("radio", { name: "Ajouter une page d’adresse" }),
-  ).toBeChecked();
-  await generate(page).click();
-  await expect(
-    page.getByText("PDF final avec page d’adresse", { exact: true }),
-  ).toBeVisible();
-  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
-  await expect(page.getByText("Page 1 / 3", { exact: true })).toBeVisible();
-  expect(fixture.contentReads.at(-1)).toBe("generated-ui-1");
-  expect(fixture.mutations).toHaveLength(1);
-  expect(fixture.mutations[0].body).toEqual({
-    documentId: "source-ui",
-    recipient: {
-      name: "ATELIER EXEMPLE",
-      line1: "Rue du Test 12",
-      postalCode: "L-1234",
-      city: "LUXEMBOURG",
-      country: "LU",
-    },
-    printMode: "simplex",
-  });
-  expect(fixture.mutations[0].csrf).toBe("ui-csrf");
-  expect(fixture.mutations[0].key).toBeTruthy();
-  await page.getByRole("button", { name: "Page suivante" }).click();
-  await expect(page.getByText("Page 2 / 3", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Page précédente" }).click();
-  await expect(page.getByText("Page 1 / 3", { exact: true })).toBeVisible();
-  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
-  await expect(preflight(page)).toBeEnabled();
-  await expect(
-    page.getByRole("link", { name: "Consulter le PDF source conservé" }),
-  ).toHaveAttribute("href", "#/app/documents?document=source-ui");
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth + 1,
-    ),
-  ).toBeTruthy();
-  await mkdir("reports/screenshots/postal-address-page", { recursive: true });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: `reports/screenshots/postal-address-page/${testInfo.project.name}.png`,
-    fullPage: true,
-  });
-  await preflight(page).click();
-  await expect(page).toHaveURL(/postal\/review-address-ui$/);
-  expect(fixture.mutations[1].body.documentId).toBe("generated-ui-1");
-  await expect(
-    page.getByText("PDF final avec page d’adresse", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("checkbox", { name: /J’ai parcouru toutes les pages/ }),
-  ).not.toBeChecked();
-  await expect(
-    page.getByRole("button", { name: "Transmettre pour analyse" }),
-  ).toBeDisabled();
-  expect(
-    fixture.mutations.some((item) =>
-      /transfer|approve|send|confirm/.test(item.path),
-    ),
-  ).toBe(false);
-  expect(fixture.unmatched).toEqual([]);
-});
 
-test("duplex adds an address sheet with a blank back and derives a new PDF after edits", async ({
-  page,
-}) => {
-  const fixture = await setup(page);
-  await page.getByRole("radio", { name: "Ajouter une page d’adresse" }).check();
-  await page.getByLabel("Faces imprimées").selectOption("duplex");
-  await expect(page.getByText(/2 pages PDF sont ajoutées/)).toBeVisible();
-  await generate(page).click();
-  await expect(page.locator(".postal-generated-summary")).toContainText(
-    "4 pages PDF · 2 feuilles",
-  );
-  await expect(page.locator(".pdf-canvas-wrap canvas")).toBeVisible();
-  await page.getByLabel("Ville", { exact: true }).fill("ESCH-SUR-ALZETTE");
-  await expect(
-    page.getByText("PDF final avec page d’adresse", { exact: true }),
-  ).toHaveCount(0);
-  await expect(preflight(page)).toHaveCount(0);
-  await generate(page).click();
-  await expect(
-    page.getByText("PDF final avec page d’adresse", { exact: true }),
-  ).toBeVisible();
-  expect(fixture.mutations[1].key).not.toBe(fixture.mutations[0].key);
-  expect(fixture.creations.size).toBe(2);
-  await page.getByLabel("Faces imprimées").selectOption("simplex");
-  await expect(preflight(page)).toHaveCount(0);
-  await generate(page).click();
-  await expect(page.locator(".postal-generated-summary")).toContainText(
-    "3 pages PDF · 3 feuilles",
-  );
-  expect(fixture.mutations[2].body.printMode).toBe("simplex");
-  await page
-    .getByRole("radio", { name: "Utiliser l’adresse du document" })
-    .check();
-  await preflight(page).click();
-  expect(fixture.mutations.at(-1)?.body.documentId).toBe("source-ui");
-  expect(fixture.unmatched).toEqual([]);
-});
-
-test("pending verification polls the same generated document without preparing or regenerating", async ({
+test("pending scan automatically continues with the same generated PDF once ready", async ({
   page,
 }) => {
   await page.clock.install();
   const fixture = await setup(page, "pending");
   await page.getByRole("radio", { name: "Ajouter une page d’adresse" }).check();
-  await generate(page).click();
+  await prepare(page).click();
   await expect(
     page.getByRole("heading", { name: "Vérification du PDF en cours" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Vérification du PDF final…" }),
-  ).toBeDisabled();
   await expect.poll(() => fixture.controls.statusReads).toBeGreaterThan(0);
+  expect(fixture.mutations).toHaveLength(1);
   fixture.controls.ready = true;
   await page.clock.fastForward(16000);
-  await expect(preflight(page)).toBeEnabled();
-  expect(fixture.controls.statusReads).toBeGreaterThan(1);
-  expect(fixture.mutations).toHaveLength(1);
+  await expect(page).toHaveURL(/postal\/review-address-ui$/);
+  expect(fixture.mutations).toHaveLength(2);
   expect(fixture.creations.size).toBe(1);
+  expect(fixture.mutations[1].body.documentId).toBe("generated-ui-1");
   expect(fixture.unmatched).toEqual([]);
 });
 
-for (const variant of ["lost", "processing"] as const) {
-  test(`${variant} generation response retries with the same request identity`, async ({
+test("editing while the scan runs cancels continuation and creates a new immutable version only on request", async ({
+  page,
+}) => {
+  await page.clock.install();
+  const fixture = await setup(page, "pending");
+  await page.getByRole("radio", { name: "Ajouter une page d’adresse" }).check();
+  await prepare(page).click();
+  await expect.poll(() => fixture.controls.statusReads).toBeGreaterThan(0);
+  await page.getByRole("radio", { name: "À droite", exact: true }).check();
+  fixture.controls.ready = true;
+  await page.clock.fastForward(16000);
+  expect(fixture.mutations).toHaveLength(1);
+  await expect(page).toHaveURL(/app\/prepare/);
+  await prepare(page).click();
+  await expect(page).toHaveURL(/postal\/review-address-ui$/);
+  expect(fixture.creations.size).toBe(2);
+  expect(fixture.mutations[1].key).not.toBe(fixture.mutations[0].key);
+  expect(fixture.mutations[1].body.addressPosition).toBe("right");
+  expect(fixture.mutations[2].body.documentId).toBe("generated-ui-2");
+  expect(fixture.unmatched).toEqual([]);
+});
+
+for (const variant of ["lost", "processing"] as const)
+  test(`${variant} generation response resumes the same request only after an explicit retry`, async ({
     page,
   }) => {
     const fixture = await setup(page, variant);
     await page
       .getByRole("radio", { name: "Ajouter une page d’adresse" })
       .check();
-    await generate(page).click();
+    await prepare(page).click();
     await expect(page.getByRole("alert")).toBeVisible();
+    expect(fixture.mutations).toHaveLength(1);
     await page
       .getByRole("button", { name: "Réessayer la création du PDF" })
       .click();
-    await expect(preflight(page)).toBeEnabled();
+    await expect(page).toHaveURL(/postal\/review-address-ui$/);
     expect(fixture.creations.size).toBe(1);
-    expect(fixture.mutations).toHaveLength(2);
+    expect(fixture.mutations).toHaveLength(3);
     expect(fixture.mutations[1].key).toBe(fixture.mutations[0].key);
     expect(fixture.mutations[1].body).toEqual(fixture.mutations[0].body);
+    expect(fixture.mutations[2].body.documentId).toBe("generated-ui-1");
     expect(fixture.unmatched).toEqual([]);
   });
-}

@@ -186,7 +186,7 @@ export function ErrorNotice({
 function postalErrorMessage(code?: string): string | undefined {
   const messages: Record<string, string> = {
     POSTAL_DRAFT_NOT_READY:
-      "Pingen analyse encore ce brouillon. Réessayez le devis après son analyse.",
+      "Le courrier est encore en cours d’analyse. Réessayez le devis dans quelques instants.",
     POSTAL_DRAFT_TRANSFER_DISABLED:
       "La préparation du courrier est actuellement indisponible. Vous pouvez consulter le suivi d’un brouillon existant.",
     POSTAL_DRAFT_RECONCILIATION_REQUIRED:
@@ -210,13 +210,13 @@ function postalErrorMessage(code?: string): string | undefined {
     POSTAL_PROFILE_CHANGED:
       "Les paramètres d’impression ont changé. Une nouvelle vérification du PDF est nécessaire.",
     POSTAL_PROFILE_UNQUALIFIED:
-      "Les paramètres postaux de Pingen ne peuvent pas être vérifiés pour le moment. Réessayez leur consultation plus tard.",
+      "Les paramètres d’impression ne peuvent pas être vérifiés pour le moment. Réessayez leur consultation plus tard.",
     POSTAL_RENDERER_UNAVAILABLE:
-      "Le contrôle du PDF est momentanément indisponible. Votre document n’a pas été transmis à Pingen.",
+      "Le contrôle du PDF est momentanément indisponible. Votre document n’a pas été transmis au prestataire d’impression.",
     POSTAL_RENDER_FAILED:
       "Le contrôle du PDF n’a pas abouti. Consultez son état avant de recommencer.",
     POSTAL_RENDER_TIMEOUT:
-      "Le contrôle du PDF a dépassé le délai prévu. Aucun transfert à Pingen n’est autorisé.",
+      "Le contrôle du PDF a dépassé le délai prévu. Aucun transfert au prestataire d’impression n’est autorisé.",
     POSTAL_RENDER_PROOF_INVALID:
       "Le résultat du contrôle du PDF est incomplet. Le transfert reste bloqué.",
   };

@@ -1,5 +1,7 @@
 # Architecture
 
+21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
+
 21 September candidate: browser and MCP postal setup use the same transaction
 and provider/profile checks. MCP mutations require current administrator OAuth
 authority and `dispatches:prepare`, fenced again in the write. Migration 0034
