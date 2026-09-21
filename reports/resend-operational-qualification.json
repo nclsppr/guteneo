@@ -1,0 +1,29 @@
+{
+  "provider": "resend",
+  "observedOn": "2026-09-21",
+  "evidenceType": "authenticated_dashboard_observation",
+  "source": "Personal Resend dashboard: team, guteneo.com domain and Usage pages inspected during this task",
+  "accountId": "nclsppr",
+  "accountIdBasis": "operator-qualified team name; not a provider-issued account UUID",
+  "domainId": "0140c1df-a406-495d-adb7-78a1204607b3",
+  "domain": "guteneo.com",
+  "domainStatus": "verified",
+  "region": "eu-west-1",
+  "plan": "Free",
+  "providerLimits": {
+    "recipientsPerDay": 100,
+    "recipientsPerMonth": 3000,
+    "requestsPerSecond": 10
+  },
+  "guteneoProposedLimits": {
+    "recipientsPer24Hours": 90,
+    "recipientsPerCalendarMonth": 2700,
+    "minimumIntervalMs": 1000
+  },
+  "qualificationExpiresAt": "2026-10-21T00:00:00.000Z",
+  "capacityNote": "Conservative headroom for independent account traffic, including future Auth0 activation. This is not a provider reservation or proof of deliverability.",
+  "billingNote": "Operational Free-plan limits are separate from the frozen commercial public-price reference documented in PROTECTED_EMAIL.md.",
+  "realSendObserved": false,
+  "productionPolicyInstalled": false,
+  "webhookCreated": false
+}

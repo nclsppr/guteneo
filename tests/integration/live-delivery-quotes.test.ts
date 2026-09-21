@@ -121,9 +121,12 @@ beforeAll(async () => {
     .filter(
       (f) =>
         f.endsWith(".sql") &&
-        !["0022_", "0030_", "0034_", "0035_"].some((prefix) =>
-          f.startsWith(prefix),
-        ),
+        ![
+          "0022_ses_public_list_prices.sql",
+          "0030_postal_public_pricing.sql",
+          "0035_resend_email_transport.sql",
+          "0036_protected_documents.sql",
+        ].includes(f),
     )
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
