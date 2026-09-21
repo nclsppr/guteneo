@@ -4,6 +4,7 @@ import {
   makeFaxUsageQuote,
   insertFaxUsageQuote,
   validateFaxUsageQuote,
+  assertFaxDispatchSendable,
   type ResolvedFaxUsageTariff,
   type FaxUsageQuote,
 } from "./live-fax-usage";
@@ -270,7 +271,9 @@ export async function validateLiveFaxQuote(
   row: Dispatch,
   identity: LiveFaxIdentity | undefined,
   now: string,
+  purpose: "send" | "prepare" = "send",
 ): Promise<LiveFaxQuote | FaxUsageQuote> {
+  if (purpose === "send") await assertFaxDispatchSendable(db, row);
   if (!identityValid(identity)) throw invalid();
   const usage = await validateFaxUsageQuote(db, row, identity, now);
   if (usage) return usage;

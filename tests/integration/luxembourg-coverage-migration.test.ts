@@ -68,7 +68,25 @@ beforeAll(async () => {
     .filter((file) => file.endsWith(".sql") && file < "0027_")
     .sort())
     await sql(readFileSync(new URL(name, directory), "utf8"));
-  fixture = await createFaxUsageFixture(db, () => Date.parse(now));
+  // Exercise migration 0027 against its historical schema. The current runtime
+  // additionally projects/checks the scope introduced by 0035; all historical
+  // rows were live. Adapt only those reads, keeping every real D1 write/guard.
+  const historicalRuntimeDb = {
+    prepare(statement: string) {
+      if (statement.includes("FROM review_only_fax_dispatches"))
+        return db.prepare("SELECT 1 WHERE ? IS NULL AND ? IS NULL AND 0");
+      return db.prepare(
+        statement.replace(
+          "t.route_qualification,t.execution_scope,",
+          "t.route_qualification,'live' AS execution_scope,",
+        ),
+      );
+    },
+    batch: (statements: D1PreparedStatement[]) => db.batch(statements),
+  } as D1Database;
+  fixture = await createFaxUsageFixture(historicalRuntimeDb, () =>
+    Date.parse(now),
+  );
   for (let i = 0; i < 17; i++)
     await insertRecord(db, "trusted_fax_usage_tariffs", {
       ...fixture.tariff,

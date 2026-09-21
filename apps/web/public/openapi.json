@@ -4059,6 +4059,11 @@
               "qualified_usage_ex_tax"
             ]
           },
+          "executionScope": {
+            "type": "string",
+            "enum": ["review_prepare_only"],
+            "description": "Devis de revue consultable uniquement ; aucun envoi, approbation ou crédit possible."
+          },
           "routeQualification": {
             "type": "string",
             "enum": [

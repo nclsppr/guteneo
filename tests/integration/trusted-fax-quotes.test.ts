@@ -352,9 +352,14 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
           .run(),
       ).rejects.toThrow("immutable_live_fax_quote");
       const tampered = {
-        prepare: () => ({
-          bind: () => ({ first: async () => ({ ...quote, [field]: value }) }),
-        }),
+        prepare: (statement: string) =>
+          statement.includes("FROM valid_live_fax_quotes")
+            ? {
+                bind: () => ({
+                  first: async () => ({ ...quote, [field]: value }),
+                }),
+              }
+            : db.prepare(statement),
       } as unknown as D1Database;
       await expect(
         validateLiveFaxQuote(

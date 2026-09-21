@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import type { FaxPricing } from "../../packages/contracts/src/fax-pricing";
+import {
+  FAX_REVIEW_PREPARATION_NOTICE,
+  type FaxPricing,
+} from "../../packages/contracts/src/fax-pricing";
 
 async function faxFixture(page: Page) {
   const writes: unknown[] = [];
@@ -164,5 +167,34 @@ test("released and legacy quotes do not claim a settled fax consumption", async 
     page.getByText(/La réservation a été libérée sans débit/),
   ).toHaveCount(0);
   await expect(page.locator(".dispatch-facts")).toContainText("0,02 €");
+  expect(writes).toEqual([]);
+});
+
+test("review preparation shows a real estimate without any approval or send control", async ({
+  page,
+}) => {
+  const { dispatch, writes } = await faxFixture(page);
+  dispatch.faxPricing!.executionScope = "review_prepare_only";
+  dispatch.faxPricing!.routeQualification = "operator_authorized_test";
+  dispatch.faxPricing!.routeNotice = FAX_REVIEW_PREPARATION_NOTICE;
+  await page.goto("/#/app/dispatch/dispatch_fax_pricing");
+  await expect(page.getByText(/Préparation de revue uniquement/)).toBeVisible();
+  await expect(
+    page.getByText(
+      /hypothèses de durée.*ajustements conditionnels non qualifiés/,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      /Aucun envoi et aucune réservation de crédit ne sont possibles/,
+    ),
+  ).toBeVisible();
+  await expect(page.locator(".dispatch-facts")).toContainText(
+    "0,010000001 € à 0,020000009 €",
+  );
+  await expect(
+    page.getByRole("button", { name: "Approuver cette version" }),
+  ).toHaveCount(0);
+  await expect(page.locator(".approval-panel")).toHaveCount(0);
   expect(writes).toEqual([]);
 });

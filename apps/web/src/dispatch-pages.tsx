@@ -1481,14 +1481,18 @@ export function DispatchDetailPage({
     d.faxPricing?.version === 3
       ? d.faxPricing
       : null;
-  const pendingApproval = ["prepared", "draft"].includes(d.status);
+  const reviewPreparationOnly =
+    faxPricing?.executionScope === "review_prepare_only";
+  const pendingApproval =
+    !reviewPreparationOnly && ["prepared", "draft"].includes(d.status);
   const quoteExpired =
     (d.channel === "fax" || d.channel === "postal") &&
     d.mode === "production" &&
     !!d.quote_expires_at &&
     Date.parse(d.quote_expires_at) <= Date.now();
   const quoteBlocked =
-    pendingApproval && (quoteExpired || invalidQuoteId === d.id);
+    (pendingApproval || reviewPreparationOnly) &&
+    (quoteExpired || invalidQuoteId === d.id);
   const renewalAllowed =
     quoteBlocked &&
     d.channel === "fax" &&
@@ -1865,16 +1869,18 @@ export function DispatchDetailPage({
           {faxPricing && (
             <div className="notice info" role="status" aria-atomic="true">
               {faxPricing.routeQualification === "operator_authorized_test" && (
-                <p>{FAX_OPERATOR_TEST_NOTICE}</p>
+                <p>{faxPricing.routeNotice ?? FAX_OPERATOR_TEST_NOTICE}</p>
               )}
               <p>
-                {faxPricing.settlement.status === "settled"
-                  ? "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde."
-                  : faxPricing.settlement.status === "released"
-                    ? "La réservation a été libérée sans débit pour cet envoi."
-                    : faxPricing.settlement.status === "reserved"
-                      ? "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax."
-                      : `Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas ${money(faxPricing.ceilingMinor)}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.`}{" "}
+                {reviewPreparationOnly
+                  ? "Cette estimation est consultable uniquement. Aucun envoi et aucune réservation de crédit ne sont possibles."
+                  : faxPricing.settlement.status === "settled"
+                    ? "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde."
+                    : faxPricing.settlement.status === "released"
+                      ? "La réservation a été libérée sans débit pour cet envoi."
+                      : faxPricing.settlement.status === "reserved"
+                        ? "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax."
+                        : `Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas ${money(faxPricing.ceilingMinor)}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.`}{" "}
                 Montants hors taxes, sur vos crédits de bêta ; aucun paiement
                 n’est prélevé.
               </p>
@@ -1997,7 +2003,7 @@ export function DispatchDetailPage({
               </button>
             </section>
           )}
-          {approved && d.channel !== "postal" && (
+          {approved && !reviewPreparationOnly && d.channel !== "postal" && (
             <section className="approval-panel">
               <p>
                 <Check size={18} />
