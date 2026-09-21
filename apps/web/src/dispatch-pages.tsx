@@ -45,6 +45,7 @@ import {
 } from "./postal-address-page";
 import type { PostalAddressPageResult } from "../../../packages/contracts/src/postal-address-page";
 import { PostalSetupPanel } from "./postal-setup-panel";
+import { PostalCutoffNotice } from "./postal-cutoff-notice";
 import {
   ChannelLabel,
   Definition,
@@ -1081,6 +1082,12 @@ export function PrepareDispatch({
                   ))}
                 </select>
               </Field>
+              {!simulation && (
+                <PostalCutoffNotice
+                  country={recipient.country}
+                  deliveryProduct={deliveryProduct}
+                />
+              )}
             </>
           )}
           {channel === "postal" && !simulation && (
@@ -1863,6 +1870,14 @@ export function DispatchDetailPage({
             )}
             <Definition label={t.created}>{date(d.created_at)}</Definition>
           </dl>
+          {pendingApproval &&
+            d.channel === "postal" &&
+            d.mode === "production" && (
+              <PostalCutoffNotice
+                country={target.country}
+                deliveryProduct={postalOptions?.deliveryProduct}
+              />
+            )}
           {d.mode === "simulation" && (
             <p className="field-hint">{t.simulationCost}</p>
           )}

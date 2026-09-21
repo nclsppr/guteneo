@@ -70,7 +70,12 @@ export function Landing() {
   const menuButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const id = window.location.hash.slice(1);
-    if (!["how", "installation", "tarifs", "faq"].includes(id)) return;
+    if (
+      !["how", "installation", "tarifs", "faq", "postal-cutoff-faq"].includes(
+        id,
+      )
+    )
+      return;
     // Restore the fragment target after React replaces the static page,
     // including keyboard focus on WebKit when arriving from the journal.
     const frame = requestAnimationFrame(() => {

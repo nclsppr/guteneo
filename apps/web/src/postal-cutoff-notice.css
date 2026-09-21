@@ -1,0 +1,20 @@
+.postal-cutoff-notice {
+  padding-block: 0.75rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+.postal-cutoff-notice p {
+  margin: 0 0 0.4rem;
+}
+.postal-cutoff-time strong {
+  color: var(--ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.postal-cutoff-notice a {
+  display: inline-block;
+  padding-block: 0.5rem;
+  text-underline-offset: 0.2em;
+}

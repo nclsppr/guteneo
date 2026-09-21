@@ -134,6 +134,9 @@ test("one explicit postal click approves the immutable version and sends at its 
   });
   await expect(send).toBeEnabled();
   await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(
+    page.getByRole("complementary", { name: "Heure limite de traitement" }),
+  ).toContainText("01 h 00");
   await expect(page.locator(".dispatch-facts")).toContainText(
     "Atelier Exemple",
   );
@@ -150,6 +153,9 @@ test("one explicit postal click approves the immutable version and sends at its 
     (element as HTMLButtonElement).click();
   });
   await expect(page.locator(".dispatch-reference")).toContainText("En file");
+  await expect(
+    page.getByRole("complementary", { name: "Heure limite de traitement" }),
+  ).toHaveCount(0);
   expect(f.writes).toEqual([
     {
       path: "/api/dispatches/postal_final/approve",

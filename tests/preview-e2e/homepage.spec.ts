@@ -117,7 +117,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
   const questions = page.locator(".faq-questions details");
-  await expect(questions).toHaveCount(4);
+  await expect(questions).toHaveCount(5);
   const firstQuestion = questions.first();
   await firstQuestion.locator("summary").focus();
   await page.keyboard.press("Enter");
