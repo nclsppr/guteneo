@@ -40,8 +40,11 @@ source réconciliée. Les essais de fournisseur et de navigateur restent synthé
 
 Après intégration locale du parcours postal de la PR #28, les 215 tests serveur
 ciblés et les 45 scénarios navigateur e-mail protégé/courrier passent sur les
-trois profils. Ces contrôles complètent la preuve précédente ; la CI complète
-devra encore passer sur la dernière source intégrée avant publication.
+trois profils. Après son correctif de fixture `9b35098`, les 33 scénarios de
+configuration postale et les trois contrôles de saisie de 5,25 € vers 525 centimes
+passent aussi. Types, lint et compilation web/plugin/Worker réussissent. Ces
+contrôles complètent la preuve précédente ; la CI complète devra encore passer
+sur la dernière source intégrée avant publication.
 
 Le candidat inclut une archive plugin 0.3.0 et les contrats ChatGPT/Claude. Cela
 ne constitue ni une nouvelle soumission ni une publication dans une marketplace.
