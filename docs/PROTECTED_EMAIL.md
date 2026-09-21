@@ -26,7 +26,7 @@ Ce service protège l’accès au document ; ce n’est pas un chiffrement de bo
 
 ## Activation et limites
 
-Migrations 0034 et 0035, secret d’envoi Resend, secret de signature des événements, identité qualifiée du compte/domaine, qualification de tarif datée, clé d’hébergement et activation explicite du canal sont nécessaires. Les limites de compte s’appliquent avant tout appel au fournisseur, avec réservations conservées pour un résultat inconnu ; aucun nouvel essai automatique n’est autorisé après une issue incertaine.
+Migrations 0035 à 0037, secret d’envoi Resend, secret de signature des événements, identité qualifiée du compte/domaine, qualification de tarif datée, clé d’hébergement et activation explicite du canal sont nécessaires. Les limites de compte s’appliquent avant tout appel au fournisseur, avec réservations conservées pour un résultat inconnu ; aucun nouvel essai automatique n’est autorisé après une issue incertaine.
 
 Compte observé le 21 septembre : offre Free, domaine guteneo.com vérifié, 100 e-mails/jour, 3 000/mois, 10 requêtes/seconde. Les plafonds Guteneo peuvent réserver une marge pour le trafic Auth0 indépendant. Un changement d’offre, de compte ou de domaine doit être qualifié à nouveau. Le fournisseur Auth0 installé séparément reste hors de cette activation métier.
 

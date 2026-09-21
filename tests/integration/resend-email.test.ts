@@ -333,7 +333,7 @@ beforeAll(async () => {
   documentSha = await sha256(pdfBytes);
   const dir = new URL("../../migrations/", import.meta.url);
   for (const filename of readdirSync(dir)
-    .filter((name) => name.endsWith(".sql") && name < "0034")
+    .filter((name) => name.endsWith(".sql") && name < "0035")
     .sort())
     await sql(readFileSync(new URL(filename, dir), "utf8"));
   await setupFixture("ses");

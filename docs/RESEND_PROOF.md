@@ -22,7 +22,7 @@ n’a été envoyé. Les essais destinés à une boîte personnelle attendent l�
 et l’autorisation du titulaire.
 
 Preuves locales : types, lint, compilation web/Worker ; migration normalisée
-équivalente sur les 36 migrations du candidat avant intégration de la migration postale 0034, `quick_check=ok`, aucune violation de clé étrangère.
+équivalente sur 37 migrations, après intégration de la migration postale 0034, `quick_check=ok`, aucune violation de clé étrangère.
 Huit tests d’intégration Resend couvrent les trois modes, les octets exacts,
 l’acceptation atomique, la révocation, l’expiration juste avant soumission et
 l’absence de double débit. Les devis SES et Pingen déjà peuplés restent identiques
