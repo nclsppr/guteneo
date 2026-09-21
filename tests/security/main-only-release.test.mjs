@@ -195,6 +195,54 @@ for (const channels of ["fax,postal", "fax", "postal", "postal,fax"]) {
   });
 }
 
+test("reviewed Resend email configuration preserves fax/postal and publishes all three channels", async (t) => {
+  const f = await fixture(t);
+  const configuration = {
+    ENVIRONMENT: "production",
+    MODE: "production",
+    LIVE_SENDS_ENABLED: "true",
+    LIVE_SEND_CHANNELS: "fax,postal,email",
+    EMAIL_PROVIDER: "resend",
+    RESEND_SENDS_ENABLED: "true",
+    RESEND_VERIFIED_DOMAIN: "guteneo.com",
+    RESEND_ACCOUNT_ID: "fictional-test-team",
+    RESEND_DOMAIN_ID: "00000000-0000-4000-8000-000000000001",
+    RESEND_TARIFF_QUALIFIED_UNTIL: "2099-01-01T00:00:00.000Z",
+  };
+  await writeFile(
+    join(f.root, "wrangler.live.jsonc"),
+    JSON.stringify({ vars: configuration }),
+  );
+  git(f.root, "add", "wrangler.live.jsonc");
+  git(f.root, "commit", "-m", "review Resend transport");
+  git(f.root, "push", "origin", "main");
+  const runner = executor(f.root, "live");
+  await deployPublic("live", { root: f.root, execute: runner.execute });
+  const manifest = JSON.parse(
+    await readFile(join(f.root, "dist/web/release.json"), "utf8"),
+  );
+  assert.deepEqual(manifest.liveSendChannels, ["fax", "postal", "email"]);
+  for (const key of [
+    "EMAIL_PROVIDER",
+    "RESEND_SENDS_ENABLED",
+    "RESEND_ACCOUNT_ID",
+    "RESEND_DOMAIN_ID",
+    "RESEND_VERIFIED_DOMAIN",
+    "RESEND_TARIFF_QUALIFIED_UNTIL",
+  ]) {
+    const vars = { ...configuration };
+    delete vars[key];
+    await writeFile(
+      join(f.root, "wrangler.live.jsonc"),
+      JSON.stringify({ vars }),
+    );
+    await assert.rejects(
+      liveReleaseSending(f.root),
+      /RELEASE_SENDING_CONFIGURATION_INVALID/,
+    );
+  }
+});
+
 test("disabling reviewed transport publishes an empty active channel list", async (t) => {
   const f = await fixture(t);
   await configureSending(f, "fax,postal", false);

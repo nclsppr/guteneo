@@ -1,3 +1,10 @@
+import { validateProtectedDocument } from "../../../packages/domain/src/protected-documents";
+import {
+  emailProvider,
+  resendIdentity,
+  assertResendSender,
+} from "./resend-environment";
+import { submitResendWithLimits } from "./resend-send-limits";
 import { submitSesWithLimits } from "./ses-send-limits";
 import { sesTransportSandbox } from "./ses-environment";
 import { z } from "zod";
@@ -23,6 +30,7 @@ import {
 import {
   PingenPostalProvider,
   SesEmailProvider,
+  ResendEmailProvider,
   TelnyxFaxProvider,
   type Fetcher,
   type ProviderResult,
@@ -107,6 +115,12 @@ function hostedProductionGate(env: LiveProviderEnv): void {
 function liveGate(env: LiveProviderEnv, channel?: Channel): void {
   hostedProductionGate(env);
   if (env.LIVE_SENDS_ENABLED !== "true") blocked("LIVE_TRANSPORT_DISABLED");
+  if (
+    channel === "email" &&
+    emailProvider(env) === "resend" &&
+    env.RESEND_SENDS_ENABLED !== "true"
+  )
+    blocked("RESEND_TRANSPORT_DISABLED");
   // Omission preserves the pre-allowlist configuration contract. A configured
   // empty/invalid list authorizes nothing, never an implicit fallback to all.
   const channels =
@@ -125,6 +139,10 @@ export function liveSendingEnabled(
   env: LiveProviderEnv,
   channel?: Channel,
 ): boolean {
+  if (channel === undefined)
+    return (["fax", "email", "postal"] as const).some((item) =>
+      liveSendingEnabled(env, item),
+    );
   try {
     liveGate(env, channel);
     return true;
@@ -272,7 +290,7 @@ async function checkActiveDispatch(
     `SELECT d.* FROM dispatches d
     JOIN attempts a ON a.id=d.active_attempt_id AND a.dispatch_id=d.id AND a.organization_id=d.organization_id
     JOIN approvals p ON p.organization_id=d.organization_id AND p.dispatch_id=d.id AND p.fingerprint=d.fingerprint
-    JOIN reservations r ON r.organization_id=d.organization_id AND r.dispatch_id=d.id AND r.status='reserved' AND r.amount_minor=d.ceiling_minor
+    JOIN reservations r ON r.organization_id=d.organization_id AND r.dispatch_id=d.id AND r.status='reserved' AND r.amount_minor=d.ceiling_minor-COALESCE(json_extract(d.options_json,'$.protectedDocument.hostingFeeMinor'),0)
     JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel=d.channel AND c.enabled=1
     JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id AND s.address=d.sender_address AND s.channel=d.channel AND s.status='verified' AND s.mode='production'
     WHERE d.organization_id=? AND d.id=? AND d.status='submitting' AND d.mode='production' AND d.provider=? AND a.provider=? AND a.status='started'`,
@@ -384,7 +402,8 @@ export function createLiveProviderHook(
   channel: Channel,
   dependencies: Dependencies = {},
 ): ProviderHook {
-  const provider = providerNames[channel];
+  const provider =
+    channel === "email" ? emailProvider(env) : providerNames[channel];
   const fetcher = dependencies.fetcher ?? fetch;
   const clock = dependencies.now ?? Date.now;
   const liveFaxIdentity =
@@ -503,27 +522,58 @@ export function createLiveProviderHook(
               .first()
           )
             blocked("RECIPIENT_SUPPRESSED");
-          const connector = new SesEmailProvider(
-            {
-              accessKeyId: required(
-                env.AWS_ACCESS_KEY_ID,
-                "SES_NOT_CONFIGURED",
-              ),
-              secretAccessKey: required(
-                env.AWS_SECRET_ACCESS_KEY,
-                "SES_NOT_CONFIGURED",
-              ),
-              sessionToken: env.AWS_SESSION_TOKEN,
-              region: required(env.AWS_REGION, "SES_NOT_CONFIGURED"),
-              configurationSet: required(
-                env.SES_CONFIGURATION_SET,
-                "SES_NOT_CONFIGURED",
-              ),
-              authorizedSenders: [row.sender_address],
-              sandbox: sesTransportSandbox(env, recipient.email),
-            },
-            fetcher,
-          );
+          if (
+            options.emailDeliveryMode === "protected_link" &&
+            (!row.document_id ||
+              !(await validateProtectedDocument(
+                env.DB,
+                row.organization_id,
+                row.document_id,
+                options.protectedDocument as import("../../../packages/domain/src/protected-documents").ProtectedDocumentDescriptor,
+                new Date(clock()).toISOString(),
+              )))
+          )
+            blocked("PROTECTED_DOCUMENT_UNAVAILABLE");
+          if (provider === "resend")
+            assertResendSender(env, row.sender_address);
+          const connector =
+            provider === "resend"
+              ? new ResendEmailProvider(
+                  {
+                    apiKey: required(
+                      env.RESEND_API_KEY,
+                      "RESEND_NOT_CONFIGURED",
+                    ),
+                    verifiedDomain: required(
+                      env.RESEND_VERIFIED_DOMAIN,
+                      "RESEND_NOT_CONFIGURED",
+                    ),
+                    authorizedSenders: [row.sender_address],
+                    sandbox: false,
+                  },
+                  fetcher,
+                )
+              : new SesEmailProvider(
+                  {
+                    accessKeyId: required(
+                      env.AWS_ACCESS_KEY_ID,
+                      "SES_NOT_CONFIGURED",
+                    ),
+                    secretAccessKey: required(
+                      env.AWS_SECRET_ACCESS_KEY,
+                      "SES_NOT_CONFIGURED",
+                    ),
+                    sessionToken: env.AWS_SESSION_TOKEN,
+                    region: required(env.AWS_REGION, "SES_NOT_CONFIGURED"),
+                    configurationSet: required(
+                      env.SES_CONFIGURATION_SET,
+                      "SES_NOT_CONFIGURED",
+                    ),
+                    authorizedSenders: [row.sender_address],
+                    sandbox: sesTransportSandbox(env, recipient.email),
+                  },
+                  fetcher,
+                );
           const email = {
             dispatchId: row.id,
             from: row.sender_address,
@@ -532,49 +582,88 @@ export function createLiveProviderHook(
             html: row.html,
             text: row.text,
             purpose: "transactional" as const,
-            attachments: loaded
-              ? [
-                  {
-                    filename: loaded.document.name,
-                    contentType: "application/pdf" as const,
-                    bytes: loaded.bytes,
-                  },
-                ]
-              : undefined,
+            ...(typeof options.replyTo === "string"
+              ? { replyTo: options.replyTo }
+              : {}),
+            attachments:
+              loaded && options.emailDeliveryMode !== "protected_link"
+                ? [
+                    {
+                      filename: loaded.document.name,
+                      contentType: "application/pdf" as const,
+                      bytes: loaded.bytes,
+                    },
+                  ]
+                : undefined,
           };
           const errors = connector.validate(email);
           if (errors.length) blocked(errors[0]);
-          submit = () =>
-            submitSesWithLimits(
-              env.DB,
-              {
-                accountId: required(env.SES_ACCOUNT_ID, "SES_ACCOUNT_REQUIRED"),
-                region: required(env.AWS_REGION, "SES_NOT_CONFIGURED"),
-                sandbox: sesTransportSandbox(env, recipient.email),
-                organizationId: row.organization_id,
-                dispatchId: row.id,
-                attemptId: row.active_attempt_id!,
-              },
-              async () => {
-                try {
-                  await checkActiveDispatch(env, row, provider);
-                  await validateLiveDeliveryQuote(
+          const send = async (): Promise<ProviderResult> => {
+            try {
+              await checkActiveDispatch(env, row, provider);
+              await validateLiveDeliveryQuote(
+                env.DB,
+                row,
+                liveDeliveryIdentity.email,
+                new Date(clock()).toISOString(),
+              );
+              if (
+                options.emailDeliveryMode === "protected_link" &&
+                (!row.document_id ||
+                  !(await validateProtectedDocument(
                     env.DB,
-                    row,
-                    liveDeliveryIdentity.email,
+                    row.organization_id,
+                    row.document_id,
+                    options.protectedDocument as import("../../../packages/domain/src/protected-documents").ProtectedDocumentDescriptor,
                     new Date(clock()).toISOString(),
+                    true,
+                  )))
+              )
+                return {
+                  status: "rejected",
+                  errorCode: "PROTECTED_DOCUMENT_UNAVAILABLE",
+                  retryable: false,
+                };
+            } catch {
+              return { status: "rejected", errorCode: "LIVE_QUOTE_INVALID" };
+            }
+            providerCallStarted = true;
+            return connector.submit(email);
+          };
+          submit =
+            provider === "resend"
+              ? () =>
+                  submitResendWithLimits(
+                    env.DB,
+                    {
+                      accountId: required(
+                        env.RESEND_ACCOUNT_ID,
+                        "RESEND_NOT_CONFIGURED",
+                      ),
+                      organizationId: row.organization_id,
+                      dispatchId: row.id,
+                      attemptId: row.active_attempt_id!,
+                    },
+                    send,
+                    { now: clock },
+                  )
+              : () =>
+                  submitSesWithLimits(
+                    env.DB,
+                    {
+                      accountId: required(
+                        env.SES_ACCOUNT_ID,
+                        "SES_ACCOUNT_REQUIRED",
+                      ),
+                      region: required(env.AWS_REGION, "SES_NOT_CONFIGURED"),
+                      sandbox: sesTransportSandbox(env, recipient.email),
+                      organizationId: row.organization_id,
+                      dispatchId: row.id,
+                      attemptId: row.active_attempt_id!,
+                    },
+                    send,
+                    { now: clock },
                   );
-                } catch {
-                  return {
-                    status: "rejected",
-                    errorCode: "LIVE_QUOTE_INVALID",
-                  };
-                }
-                providerCallStarted = true;
-                return connector.submit(email);
-              },
-              { now: clock },
-            );
         } else {
           const approvedOptions = postalOptions(options);
           const draftId = z
@@ -699,17 +788,21 @@ export function createLiveDeliveryQuoteConfig(
   postalQuote: PostalQuoteResolver;
 } {
   const liveDeliveryIdentity: LiveDeliveryIdentities = {
-    ...(env.SES_ACCOUNT_ID &&
-    env.AWS_REGION &&
-    env.SES_CONFIGURATION_SET &&
-    (env.SES_SANDBOX === "true" || env.SES_SANDBOX === "false")
-      ? {
-          email: {
-            accountId: env.SES_ACCOUNT_ID,
-            routeId: `${env.AWS_REGION}:${env.SES_CONFIGURATION_SET}:${env.SES_SANDBOX}`,
-          },
-        }
-      : {}),
+    ...(emailProvider(env) === "resend"
+      ? resendIdentity(env)
+        ? { email: resendIdentity(env)! }
+        : {}
+      : env.SES_ACCOUNT_ID &&
+          env.AWS_REGION &&
+          env.SES_CONFIGURATION_SET &&
+          (env.SES_SANDBOX === "true" || env.SES_SANDBOX === "false")
+        ? {
+            email: {
+              accountId: env.SES_ACCOUNT_ID,
+              routeId: `${env.AWS_REGION}:${env.SES_CONFIGURATION_SET}:${env.SES_SANDBOX}`,
+            },
+          }
+        : {}),
     ...(env.PINGEN_ORGANIZATION_ID
       ? {
           postal: {

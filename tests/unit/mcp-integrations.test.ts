@@ -557,10 +557,11 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.2.1");
+      expect(manifest.version).toBe("0.3.0");
       expect(manifest.version).toBe(plugin.version);
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
+      expect(manifest.files).toContain("skills/email/SKILL.md");
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;
@@ -582,6 +583,19 @@ describe("distributable LLM integrations", () => {
           ),
         );
       }
+      const emailSkill = execFileSync(
+        "unzip",
+        ["-p", path.join(first, "guteneo-plugin.zip"), "skills/email/SKILL.md"],
+        { encoding: "utf8" },
+      );
+      expect(emailSkill).toContain("prepare_dispatch");
+      expect(emailSkill).toContain("aucun `documentId`");
+      expect(emailSkill).toContain(
+        'options.emailDeliveryMode="protected_link"',
+      );
+      expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
+      expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
+      expect(emailSkill).toContain("submission_unknown");
       const postalSkill = execFileSync(
         "unzip",
         [
@@ -676,7 +690,7 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.2.1",
+          version: "0.3.0",
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,

@@ -23,6 +23,9 @@
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "false",
+    "EMAIL_PROVIDER": "resend",
+    "RESEND_VERIFIED_DOMAIN": "guteneo.com",
+    "RESEND_SENDS_ENABLED": "false",
     "AUTH0_DOMAIN": "REPLACE_AUTH0_DOMAIN",
     "AUTH0_CLIENT_ID": "REPLACE_AUTH0_CLIENT_ID",
     "AUTH0_AUDIENCE": "https://guteneo.com/mcp"

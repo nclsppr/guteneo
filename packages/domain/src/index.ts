@@ -1,4 +1,9 @@
 import {
+  validateProtectedDocument,
+  type PreparedProtectedDocument,
+  type ProtectedDocumentDescriptor,
+} from "./protected-documents";
+import {
   resolveDeliveryPrice,
   makeDeliveryQuote,
   insertDeliveryQuote,
@@ -218,6 +223,12 @@ function sqlError(error: unknown): never {
     );
   for (const [needle, code, label, status] of [
     [
+      "prepare_only_account",
+      "PREPARE_ONLY_ACCOUNT",
+      "Ce compte permet uniquement de préparer les envois. L’expédition est désactivée.",
+      403,
+    ],
+    [
       "recipient_request_required",
       "RECIPIENT_REQUEST_REQUIRED",
       "Confirmez que le destinataire a demandé cet e-mail.",
@@ -297,6 +308,14 @@ export class DomainService {
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
       postalQuote?: PostalQuoteResolver;
+      ensureEmailSender?: (
+        ctx: ActorContext,
+      ) => Promise<{ replyTo: string; senderId: string } | undefined>;
+      prepareProtectedDocument?: (
+        ctx: ActorContext,
+        input: { documentId: string; durationDays?: 1 | 7 | 30 },
+        now: string,
+      ) => Promise<PreparedProtectedDocument>;
     },
   ) {
     this.now = config.now ?? Date.now;
@@ -649,7 +668,51 @@ export class DomainService {
       return this.dispatch(ctx, existing.id);
     }
     const recipient = validateRecipient(input.channel, input.recipient);
-    const options = input.options ?? {};
+    const options: Record<string, unknown> = { ...(input.options ?? {}) };
+    if (
+      "protectedDocument" in options ||
+      "password" in options ||
+      "replyTo" in options
+    )
+      throw new DomainError(
+        "INVALID_OPTIONS",
+        "Ces options sont réservées au serveur.",
+      );
+    if (
+      input.channel !== "email" &&
+      ("emailDeliveryMode" in options || "protectedDays" in options)
+    )
+      throw new DomainError(
+        "INVALID_OPTIONS",
+        "La protection est disponible pour les e-mails.",
+      );
+    if (
+      input.channel === "email" &&
+      options.emailDeliveryMode !== undefined &&
+      !["attachment", "protected_link"].includes(
+        String(options.emailDeliveryMode),
+      )
+    )
+      throw new DomainError(
+        "INVALID_OPTIONS",
+        "Choisissez une pièce jointe ou un lien protégé.",
+      );
+    if (
+      options.protectedDays !== undefined &&
+      ![1, 7, 30].includes(options.protectedDays as number)
+    )
+      throw new DomainError(
+        "INVALID_PROTECTION_DURATION",
+        "Choisissez une durée de 1, 7 ou 30 jours.",
+      );
+    if (
+      options.protectedDays !== undefined &&
+      options.emailDeliveryMode !== "protected_link"
+    )
+      throw new DomainError(
+        "INVALID_OPTIONS",
+        "La durée nécessite un lien protégé.",
+      );
     if (canonicalJson(options).length > 8192)
       throw new DomainError("INVALID_OPTIONS", "Options trop volumineuses.");
     if (options.kind === "marketing")
@@ -678,8 +741,11 @@ export class DomainService {
       subject: string | null = null;
     if (input.channel === "email") {
       subject = safeHeader(input.subject ?? "");
-      if (subject.length > 250)
-        throw new DomainError("INVALID_SUBJECT", "Objet trop long.");
+      if (!subject || subject.length > 250)
+        throw new DomainError(
+          "INVALID_SUBJECT",
+          "Saisissez un objet de 1 à 250 caractères.",
+        );
       html = cleanHtml(input.html ?? "");
       text = input.text?.trim() || htmlToText(html);
       if (!text || new TextEncoder().encode(text).length > LIMITS.htmlBytes)
@@ -687,6 +753,8 @@ export class DomainService {
           "INVALID_EMAIL_CONTENT",
           "Version texte vide ou trop longue.",
         );
+      if (!html)
+        html = `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
       if (
         await this.db
           .prepare(
@@ -701,14 +769,53 @@ export class DomainService {
           409,
         );
     }
-    const sender = input.senderId
+    let defaultEmailSenderId: string | undefined;
+    if (input.channel === "email") {
+      const emailSender = await this.config.ensureEmailSender?.(ctx);
+      if (emailSender) {
+        options.replyTo = emailSender.replyTo;
+        defaultEmailSenderId = emailSender.senderId;
+      }
+    }
+    if (options.emailDeliveryMode === "protected_link") {
+      if (!document)
+        throw new DomainError(
+          "DOCUMENT_REQUIRED",
+          "Choisissez le PDF à protéger.",
+        );
+      if (!this.config.prepareProtectedDocument)
+        throw new DomainError(
+          "PROTECTED_DOCUMENTS_NOT_CONFIGURED",
+          "La protection des documents n’est pas configurée.",
+          409,
+        );
+      const {
+        url,
+        currency: _currency,
+        ...protection
+      } = await this.config.prepareProtectedDocument(
+        ctx,
+        {
+          documentId: document.id,
+          durationDays: options.protectedDays as 1 | 7 | 30 | undefined,
+        },
+        this.time(),
+      );
+      options.protectedDocument = protection;
+      options.protectedDays = protection.durationDays;
+      const safeUrl = url.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+      html += `<p><a href="${safeUrl}">Consulter le document protégé</a></p><p>Demandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.</p>`;
+      text += `\n\nConsulter le document protégé : ${url}\nDemandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.`;
+    }
+    const selectedSenderId = input.senderId ?? defaultEmailSenderId;
+    const sender = selectedSenderId
       ? await this.db
           .prepare(
             "SELECT * FROM senders WHERE organization_id=? AND id=? AND channel=? AND status=? AND mode=?",
           )
           .bind(
             ctx.organizationId,
-            input.senderId,
+            selectedSenderId,
             input.channel,
             "verified",
             this.config.mode,
@@ -753,12 +860,16 @@ export class DomainService {
             now: this.time(),
           })
         : undefined;
-    const estimatedMinor = tariff
+    const transportMinor = tariff
       ? tariff.customer_minor
       : deliveryPrice
         ? deliveryPrice.amountMinor
         : { fax: 20, email: 1, postal: 150 }[input.channel] *
           (input.channel === "fax" ? (document?.pages ?? 1) : 1);
+    const estimatedMinor =
+      transportMinor +
+      ((options.protectedDocument as ProtectedDocumentDescriptor | undefined)
+        ?.hostingFeeMinor ?? 0);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
     if (
       !Number.isSafeInteger(ceilingMinor) ||
@@ -1033,6 +1144,7 @@ export class DomainService {
         409,
       );
     const now = this.time();
+    await this.validateProtection(row);
     const quote =
       row.mode === "production" && row.channel === "fax"
         ? await validateLiveFaxQuote(
@@ -1188,6 +1300,7 @@ export class DomainService {
         this.config.liveDeliveryIdentity?.[row.channel],
         now,
       );
+    if (row.status === "prepared") await this.validateProtection(row);
     if (row.channel === "email" && row.status === "prepared") {
       const recipient = JSON.parse(row.recipient_json) as { email: string };
       if (
@@ -1410,8 +1523,28 @@ export class DomainService {
       .all<Dispatch>();
     return { campaign, dispatches: dispatches.results };
   }
+  private async validateProtection(row: Dispatch) {
+    const options = JSON.parse(row.options_json);
+    if (
+      options.emailDeliveryMode === "protected_link" &&
+      (!row.document_id ||
+        !(await validateProtectedDocument(
+          this.db,
+          row.organization_id,
+          row.document_id,
+          options.protectedDocument,
+          this.time(),
+        )))
+    )
+      throw new DomainError(
+        "PROTECTED_DOCUMENT_UNAVAILABLE",
+        "Le lien protégé a expiré ou a été révoqué. Préparez un nouvel envoi.",
+        409,
+      );
+  }
   async listSenders(ctx: ActorContext) {
     await this.organization(ctx);
+    if (ctx.role !== "viewer") await this.config.ensureEmailSender?.(ctx);
     return {
       items: (
         await this.db
@@ -1628,7 +1761,11 @@ export class DomainService {
     }
     if (row.mode === "production" && row.channel !== "fax") {
       try {
-        if (provider.name !== (row.channel === "email" ? "ses" : "pingen"))
+        if (
+          provider.name !==
+          (provider.liveDeliveryIdentity?.[row.channel]?.provider ??
+            (row.channel === "email" ? "ses" : "pingen"))
+        )
           throw new DomainError(
             "LIVE_QUOTE_INVALID",
             "Fournisseur incompatible.",
@@ -1922,8 +2059,13 @@ export class DomainService {
           providerId ?? null,
         ),
     ];
+    const providerSuppressed =
+      row.provider === "resend" &&
+      kind === "failed" &&
+      payload?.suppressionReason === "provider_suppression";
     if (
-      (kind === "complained" ||
+      (providerSuppressed ||
+        kind === "complained" ||
         (kind === "bounced" && payload?.bounceType === "Permanent")) &&
       row.channel === "email"
     ) {
@@ -1936,7 +2078,11 @@ export class DomainService {
           .bind(
             row.organization_id,
             email,
-            kind === "complained" ? "complaint" : "hard_bounce",
+            providerSuppressed
+              ? "provider_suppression"
+              : kind === "complained"
+                ? "complaint"
+                : "hard_bounce",
             now,
             row.id,
             providerId ?? null,

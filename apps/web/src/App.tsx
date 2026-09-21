@@ -524,7 +524,8 @@ function WorkspaceApplication() {
         simulation={session.simulation}
       />
     );
-  else if (page === "/app/campaigns") content = <Campaigns />;
+  else if (page === "/app/campaigns")
+    content = <Campaigns simulation={session.simulation} />;
   else if (page.startsWith("/app/campaign/"))
     content = <CampaignDetail id={page.slice("/app/campaign/".length)} />;
   else if (page === "/app/connection" || page.startsWith("/app/connection/"))

@@ -24,7 +24,7 @@ export async function maintainDocuments(
     }>();
   for (const doc of rows.results) {
     const result = await env.DB.prepare(
-      `UPDATE documents SET status='purged',name='Document supprimé' WHERE id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE document_id=? AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) RETURNING id`,
+      `UPDATE documents SET status='purged',name='Document supprimé' WHERE id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE document_id=? AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT EXISTS(SELECT 1 FROM protected_document_hostings h WHERE h.organization_id=documents.organization_id AND h.document_id=documents.id AND h.status='active' AND h.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) RETURNING id`,
     )
       .bind(doc.id, cutoff, doc.id)
       .first();

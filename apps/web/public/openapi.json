@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Guteneo — API développeurs",
-    "version": "0.2.0",
-    "description": "Contrat REST du candidat bêta, documenté le 17 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
+    "version": "0.3.0",
+    "description": "Contrat REST du candidat bêta, documenté le 21 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Les routes /api/dispatches/{id}/protected-document (état), /password (révélation du mot de passe) et /revoke (révocation) sont également réservées au navigateur de l’expéditeur : session authentifiée, en-tête Authorization refusé et CSRF pour les mutations. Aucun mot de passe ne doit être saisi ou lu par un assistant, un appel OAuth ou le chat. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
   },
   "servers": [
     {
@@ -609,7 +609,7 @@
           "Envois"
         ],
         "summary": "Préparer un envoi immuable",
-        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue. Pour le fax v3, faxPricing expose une fourchette HT et un plafond ferme approuvé ; la confirmation réserve le plafond et le décompte attend l’usage vérifié, sans exiger un coût final connu avant transmission.",
+        "description": "Ne provoque aucun envoi. Fax/courrier : documentId ready requis. E-mail : recipient.email, subject et texte non vide (fourni ou dérivé du HTML). Sans documentId : aucun fichier. Avec documentId ready : PDF original joint par défaut. Avec ce même PDF et options.emailDeliveryMode=protected_link : lien protégé par mot de passe, options.protectedDays parmi 1, 7 ou 30 (7 par défaut). Le serveur ajoute le lien destinataire au contenu avant l’empreinte et la revue, conserve la durée et chiffre le supplément d’hébergement de 1 € par document lorsqu’il s’applique. Le mot de passe est généré par le serveur et révélé uniquement à l’expéditeur dans son compte navigateur ; il doit être transmis séparément au destinataire. Les options internes protectedDocument, hostingId, le token du lien et tout mot de passe ne sont jamais fournis par le client. Les listes de destinataires multi-format, les pièces jointes Excel/autres fichiers et les comptes destinataires sont des évolutions prévues, pas des fonctions disponibles ici. Fax : recipient.phone ; courrier : name, line1, postalCode, city, country, sans complément line2 non vide. Expéditeur vérifié du bon canal/mode obligatoire (premier disponible si senderId absent). En production, chaque canal exige une tarification privée qualifiée et un devis encore valide : identité du compte fournisseur, expéditeur, options, source, fiscalité, devise/FX et dates doivent correspondre. Le courrier nécessite en plus un brouillon fournisseur local exact et son résultat de calcul de prix ; l’e-mail inclut les données facturables et le FX qualifié. Aucun montant fournisseur n’est accepté du client. Un plafond fourni ne constitue pas un tarif. La réponse est un Dispatch brut, sans approvalUrl : ouvrir https://guteneo.com/#/app/dispatch/{id} dans le navigateur authentifié. Une campagne doit rester draft. Pour un nouveau courrier de production, utiliser /api/postal/preflights, faire ouvrir reviewUrl pour le consentement, puis /api/postal/preflights/{id}/quote ; ne pas fabriquer de preparedLetterId ni de preuve de revue. Pour le fax v3, faxPricing expose une fourchette HT et un plafond ferme approuvé ; la confirmation réserve le plafond et le décompte attend l’usage vérifié, sans exiger un coût final connu avant transmission.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -2844,7 +2844,8 @@
             "$ref": "#/components/schemas/Recipient"
           },
           "documentId": {
-            "type": "string"
+            "type": "string",
+            "description": "PDF ready de l’organisation authentifiée. Obligatoire pour fax/courrier et e-mail avec PDF joint ou lien protégé ; omettre pour l’e-mail sans fichier."
           },
           "senderId": {
             "type": "string"
@@ -2864,7 +2865,41 @@
           "options": {
             "type": "object",
             "additionalProperties": true,
-            "description": "Objet JSON, sérialisation canonique de 8 192 caractères maximum. kind=marketing est refusé. Pour le fax réel, correspondance exacte avec les options du tarif qualifié."
+            "description": "Objet JSON, sérialisation canonique de 8 192 caractères maximum. kind=marketing est refusé. Pour le fax réel, correspondance exacte avec les options du tarif qualifié. Pour l’e-mail, utiliser uniquement kind, emailDeliveryMode et protectedDays ; protectedDocument et les données d’accès sont réservées au serveur. L’empreinte approuvée lie le contenu final, le destinataire, le mode de remise, l’expiration et le coût.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "transactional",
+                  "marketing"
+                ],
+                "description": "marketing est refusé ; correspondance transactionnelle demandée uniquement."
+              },
+              "emailDeliveryMode": {
+                "type": "string",
+                "enum": [
+                  "attachment",
+                  "protected_link"
+                ],
+                "description": "E-mail avec documentId PDF ready uniquement. Omission : PDF joint si documentId est présent, aucun fichier sinon. protected_link prépare un hébergement avec mot de passe généré côté serveur."
+              },
+              "protectedDays": {
+                "type": "integer",
+                "enum": [
+                  1,
+                  7,
+                  30
+                ],
+                "default": 7,
+                "description": "Durée du lien protégé en jours. Ne fournit jamais un mot de passe ni un accès destinataire par API OAuth."
+              },
+              "color": {
+                "type": "boolean"
+              },
+              "duplex": {
+                "type": "boolean"
+              }
+            }
           },
           "campaignId": {
             "type": "string"

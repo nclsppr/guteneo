@@ -1,5 +1,7 @@
 # Live adapter bridge and activation boundary
 
+Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+
 The real Telnyx, Amazon SES and Pingen clients are connected to a `ProviderHook` adapter in `apps/api/src/live-providers.ts`. This is executable integration code, not an authorization to send. **Real fax preparation requires qualified account-specific quote snapshots.** Migration 0013 introduced the historical fixed-price resolver; migration 0023 now adds the published fax v3 estimate, approved cap and separately verified usage settlement. No active production tariff or verified Guteneo sender has been installed, and live sending remains closed for all channels. Credentials or `LIVE_SENDS_ENABLED=true` cannot replace a trusted quote. See [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) and [LIVE_RELEASE.md](LIVE_RELEASE.md) for current deployment and separate provider qualification evidence.
 
 No real provider calls, document transfers, paid resources or physical deliveries were made while implementing this bridge. The tests use Cloudflare D1/R2 emulation and intercepted provider requests.

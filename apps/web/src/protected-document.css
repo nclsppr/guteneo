@@ -1,0 +1,109 @@
+.email-advanced {
+  margin: -4px 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.email-advanced summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.email-advanced .field {
+  margin-top: 16px;
+  color: var(--ink);
+}
+.distribution-roadmap {
+  padding: 24px 0;
+  margin: 0 0 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.distribution-roadmap .eyebrow {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.distribution-roadmap h3 {
+  margin: 8px 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+.distribution-roadmap p {
+  margin: 8px 0 0;
+  max-width: 68ch;
+  color: var(--muted);
+  font-size: 14px;
+}
+.protected-document-choice,
+.protected-document-summary {
+  padding: 20px;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.protected-document-choice .checkbox-label {
+  align-items: start;
+  margin: 0;
+}
+.protected-document-choice .field {
+  margin: 20px 0 0;
+}
+.protected-document-choice .field-hint,
+.protected-document-summary p:last-child {
+  margin-bottom: 0;
+}
+.protected-document-summary h2 {
+  font-size: 23px;
+}
+.protected-document-summary .button-group {
+  flex-wrap: wrap;
+}
+.protected-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.protected-password code {
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.protected-document-page {
+  min-height: 100vh;
+}
+.protected-document-page > main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+.protected-document-page h1 {
+  font-family: "EB Garamond", serif;
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1.08;
+}
+.protected-document-page .recipient-unlock {
+  max-width: 480px;
+  margin: 28px 0;
+}
+.protected-document-page .field input {
+  width: 100%;
+}
+.protected-document-page .document-metadata {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .protected-document-page > main {
+    padding-top: 32px;
+  }
+  .protected-document-choice,
+  .protected-document-summary {
+    padding: 16px;
+  }
+  .protected-document-summary .button-group .button {
+    width: 100%;
+  }
+}

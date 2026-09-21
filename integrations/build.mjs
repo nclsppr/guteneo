@@ -14,6 +14,7 @@ export const packageFiles = [
   "assets/guteneo-mark.png",
   "mcp.json",
   "plugin.json",
+  "skills/email/SKILL.md",
   "skills/fax-pdf/SKILL.md",
   "skills/postal-pdf/SKILL.md",
 ];

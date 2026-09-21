@@ -101,7 +101,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(page.locator(".price-qualification")).toContainText(
     "Montants indicatifs hors taxes",
   );
-  await expect(page.locator(".pricing-table")).toContainText("≈ 0,28 €");
+  await expect(page.locator(".pricing-table")).toContainText("≈ 1,56 €");
   await expect(page.locator(".pricing-table")).toContainText("≈ 0,05–0,17 €");
   await expect(page.locator(".pricing-table")).toContainText(
     "depuis notre numéro luxembourgeois",
@@ -117,7 +117,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
   const questions = page.locator(".faq-questions details");
-  await expect(questions).toHaveCount(4);
+  await expect(questions).toHaveCount(5);
   const firstQuestion = questions.first();
   await firstQuestion.locator("summary").focus();
   await page.keyboard.press("Enter");

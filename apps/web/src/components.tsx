@@ -165,7 +165,7 @@ export function ErrorNotice({
         <p>
           {error instanceof ApiError
             ? (postalErrorMessage(error.code) ??
-              sesErrorMessage(error.code) ??
+              emailErrorMessage(error.code) ??
               error.message)
             : error.message}
         </p>
@@ -221,6 +221,49 @@ function postalErrorMessage(code?: string): string | undefined {
       "Le résultat du contrôle du PDF est incomplet. Le transfert reste bloqué.",
   };
   return code ? messages[code] : undefined;
+}
+
+export function emailErrorMessage(code?: string): string | undefined {
+  if (!code) return undefined;
+  const messages: Record<string, string> = {
+    EMAIL_ATTACHMENT_TOO_LARGE:
+      "Ce PDF dépasse la limite de 10 Mo pour l’envoi par e-mail. Choisissez un PDF de 10 Mo maximum.",
+    PROTECTED_DOCUMENTS_NOT_CONFIGURED:
+      "Le partage protégé est momentanément indisponible. Vous pouvez conserver ce PDF et réessayer plus tard.",
+    PROTECTED_DOCUMENTS_PRODUCTION_REQUIRED:
+      "Le lien protégé est disponible dans votre espace réel. La démonstration ne publie aucun document.",
+    PROTECTED_DOCUMENT_UNAVAILABLE:
+      "Ce partage protégé a expiré, a été révoqué ou n’est plus disponible. Consultez le suivi avant de préparer un nouveau partage.",
+    INVALID_PROTECTION_DURATION:
+      "Choisissez une durée de 1, 7 ou 30 jours pour le lien protégé.",
+    INVALID_EMAIL_PROVIDER:
+      "Le service d’e-mail est mal configuré. Contactez l’équipe Guteneo avant de préparer un nouvel envoi.",
+    RESEND_NOT_CONFIGURED:
+      "Le raccordement e-mail Resend doit encore être vérifié par l’équipe Guteneo. Cet envoi n’a pas été transmis.",
+    RESEND_TRANSPORT_DISABLED:
+      "Les envois par Resend ne sont pas encore activés. Cet envoi n’a pas été transmis.",
+    RESEND_SENDER_DOMAIN_MISMATCH:
+      "L’adresse d’expédition doit utiliser le domaine guteneo.com vérifié. Faites corriger l’expéditeur avant de préparer un nouvel envoi.",
+    RESEND_LIMITS_NOT_CONFIGURED:
+      "Les limites d’envoi Resend doivent encore être configurées par l’équipe Guteneo. Cet envoi n’a pas été transmis.",
+    RESEND_ACCOUNT_LIMIT_OR_POLICY:
+      "La capacité d’envoi Resend est atteinte ou son autorisation doit être vérifiée. Cet envoi n’a pas été transmis. Contactez l’équipe Guteneo.",
+    RESEND_LIMITS_UNAVAILABLE:
+      "Le contrôle de capacité du service d’e-mail est temporairement indisponible. Cet envoi n’a pas été transmis.",
+    RESEND_AUTHORIZATION_FAILED:
+      "Resend a refusé l’accès au service d’envoi. L’équipe Guteneo doit vérifier le raccordement avant tout nouvel essai.",
+    RESEND_DAILY_QUOTA_EXCEEDED:
+      "La limite quotidienne d’e-mails Resend est atteinte. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
+    RESEND_MONTHLY_QUOTA_EXCEEDED:
+      "La limite mensuelle d’e-mails Resend est atteinte. Ce message a été refusé. Contactez l’équipe Guteneo.",
+    RESEND_RATE_EXCEEDED:
+      "Resend limite temporairement les demandes d’envoi. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
+    RESEND_REQUEST_REJECTED:
+      "Resend a refusé ce message. Vérifiez son contenu et ses adresses avant de préparer une nouvelle version.",
+    RESEND_RESPONSE_UNKNOWN:
+      "La réponse de Resend ne permet pas de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.",
+  };
+  return Object.hasOwn(messages, code) ? messages[code] : sesErrorMessage(code);
 }
 
 export function sesErrorMessage(code?: string): string | undefined {

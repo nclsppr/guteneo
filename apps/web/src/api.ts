@@ -26,6 +26,7 @@ export type Dispatch = {
   channel: Channel;
   recipient_json: string | Record<string, string>;
   document_id?: string;
+  options_json?: string | Record<string, unknown>;
   sender_address?: string;
   subject?: string;
   html?: string;
@@ -240,7 +241,7 @@ export function money(minor: number, currency = "EUR"): string {
 export function quotedMoney(
   dispatch: Pick<
     Dispatch,
-    "quote_customer_nanoeur" | "estimated_minor" | "currency"
+    "quote_customer_nanoeur" | "estimated_minor" | "currency" | "options_json"
   >,
 ): string {
   const nano = dispatch.quote_customer_nanoeur;
@@ -251,7 +252,25 @@ export function quotedMoney(
     nano < 0
   )
     return money(dispatch.estimated_minor, dispatch.currency);
-  return nanoMoney(nano);
+  try {
+    const options =
+      typeof dispatch.options_json === "string"
+        ? JSON.parse(dispatch.options_json)
+        : dispatch.options_json;
+    const hostingFee =
+      options?.emailDeliveryMode === "protected_link"
+        ? options.protectedDocument?.hostingFeeMinor
+        : 0;
+    if (
+      options?.emailDeliveryMode === "protected_link" &&
+      hostingFee !== 0 &&
+      hostingFee !== 100
+    )
+      return money(dispatch.estimated_minor, dispatch.currency);
+    return nanoMoney(nano + (hostingFee ?? 0) * 10_000_000);
+  } catch {
+    return money(dispatch.estimated_minor, dispatch.currency);
+  }
 }
 
 /** Preserve the same precision as the shared fractional credit ledger. */

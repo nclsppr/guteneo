@@ -120,7 +120,10 @@ beforeAll(async () => {
   for (const f of readdirSync(dir)
     .filter(
       (f) =>
-        f.endsWith(".sql") && !f.startsWith("0022_") && !f.startsWith("0030_"),
+        f.endsWith(".sql") &&
+        !["0022_", "0030_", "0034_", "0035_"].some((prefix) =>
+          f.startsWith(prefix),
+        ),
     )
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
@@ -198,6 +201,13 @@ beforeAll(async () => {
       await validateLiveDeliveryQuote(db, publicEmail, identity.email, stamp()),
     ),
   };
+  // Later migrations depend on the prior pricing schemas. The dedicated
+  // resend-email suite proves these upgrades against populated signed quotes.
+  for (const filename of [
+    "0034_resend_email_transport.sql",
+    "0035_protected_documents.sql",
+  ])
+    await sql(readFileSync(new URL(filename, dir), "utf8"));
 });
 afterAll(async () => {
   await mf?.dispose();

@@ -34,6 +34,15 @@ export interface Env {
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
   AWS_REGION?: string;
+  EMAIL_PROVIDER?: "ses" | "resend";
+  RESEND_API_KEY?: string;
+  PROTECTED_DOCUMENTS_KEY?: string;
+  RESEND_WEBHOOK_SECRET?: string;
+  RESEND_ACCOUNT_ID?: string;
+  RESEND_DOMAIN_ID?: string;
+  RESEND_VERIFIED_DOMAIN?: string;
+  RESEND_SENDS_ENABLED?: string;
+  RESEND_TARIFF_QUALIFIED_UNTIL?: string;
   SES_CONFIGURATION_SET?: string;
   SES_SNS_TOPIC_ARN?: string;
   SES_ACCOUNT_ID?: string;
@@ -54,6 +63,11 @@ export interface Env {
 export function assertBaseConfiguration(env: Env, request?: Request): void {
   if (!["local", "staging", "production"].includes(env.ENVIRONMENT))
     throw new Error("INVALID_ENVIRONMENT");
+  if (
+    env.EMAIL_PROVIDER !== undefined &&
+    !["ses", "resend"].includes(env.EMAIL_PROVIDER)
+  )
+    throw new Error("INVALID_EMAIL_PROVIDER");
   if (!["simulation", "production"].includes(env.MODE))
     throw new Error("INVALID_MODE");
   if (env.ENVIRONMENT === "production" && env.MODE !== "production")
@@ -84,6 +98,10 @@ export function assertConfiguration(env: Env, request?: Request): void {
     request?.method === "POST" &&
     pathname === "/webhooks/ses" &&
     Boolean(env.SES_SNS_TOPIC_ARN);
+  const configuredResendCallback =
+    request?.method === "POST" &&
+    pathname === "/webhooks/resend" &&
+    Boolean(env.RESEND_WEBHOOK_SECRET);
   const configuredTelnyxCallback =
     request?.method === "POST" &&
     pathname === "/webhooks/telnyx" &&
@@ -100,6 +118,7 @@ export function assertConfiguration(env: Env, request?: Request): void {
     env.ENVIRONMENT !== "local" &&
     !readiness &&
     !configuredSesCallback &&
+    !configuredResendCallback &&
     !configuredTelnyxCallback &&
     !configuredPingenCallback &&
     !configuredStripeCallback &&

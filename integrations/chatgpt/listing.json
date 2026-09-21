@@ -3,11 +3,11 @@
   "officialOpenAISchema": false,
   "preparedAt": "2026-09-17",
   "submissionStatus": "draft_incomplete_mcp_scan_required_before_save",
-  "pluginVersion": "0.2.1",
+  "pluginVersion": "0.3.0",
   "listing": {
     "name": "Guteneo",
-    "shortDescription": "PDFs, fax quotes and tracking",
-    "description": "Find your Guteneo PDFs or import an original document. Prepare a fax, review its estimate and spending limit, then track its status. Available actions depend on your account channels, permissions and balance. In standard mode, you review and approve the dispatch in Guteneo. An optional, limited and temporary expert mandate must be enabled by an administrator in their account before any delegated action. Installing the connector does not enable a mandate or a channel. The Guteneo web interface is currently in French.",
+    "shortDescription": "Emails, PDFs and delivery tracking",
+    "description": "Prepare an email without a file, with your original PDF attached, or with a password-protected link. Also prepare fax and postal quotes and track dispatches. Actions depend on enabled channels, account permissions and balance. Standard approval takes place in Guteneo; an administrator may grant a limited, expiring expert mandate beforehand. Document passwords stay in the authenticated sender browser and are shared separately. Installing the connector enables neither a channel nor a mandate. The web interface is in French.",
     "category": "Productivity",
     "primaryLanguage": "en-US",
     "supportedLanguages": ["en-US", "fr-FR"],
@@ -22,9 +22,10 @@
     "logoHeight": 512,
     "screenshots": [],
     "conversationStarters": [
-      "Quels documents ai-je dans Guteneo ?",
-      "Aide-moi à préparer ce PDF pour un fax. Montre-moi le prix et le plafond avant toute validation.",
-      "Où en est mon dernier fax Guteneo ?"
+      "Prépare cet e-mail sans pièce jointe et montre-moi le devis.",
+      "Prépare cet e-mail avec mon PDF original.",
+      "Prépare un lien protégé pour ce PDF pendant 7 jours.",
+      "Où en est mon dernier envoi Guteneo ?"
     ],
     "supportUrl": "https://guteneo.com/support/",
     "termsOfServiceUrl": "https://guteneo.com/conditions/",
@@ -40,8 +41,8 @@
     "translations": [
       {
         "locale": "fr-FR",
-        "shortDescription": "PDF, devis et suivi des envois",
-        "description": "Retrouvez vos PDF Guteneo ou importez un document original. Préparez un fax, consultez son estimation et son plafond, puis suivez son statut. Les actions disponibles dépendent des canaux, des permissions et du solde de votre compte. En mode standard, vous relisez et approuvez l’envoi dans Guteneo. Un mandat expert facultatif, limité et temporaire, doit être activé par un administrateur dans son compte avant toute action déléguée. L’installation du connecteur n’active aucun mandat ni canal."
+        "shortDescription": "E-mails, PDF et suivi des envois",
+        "description": "Préparez un e-mail sans fichier, avec le PDF original joint ou avec un lien protégé. Consultez aussi vos devis de fax et courriers, puis suivez les envois. Les actions dépendent des canaux, droits et crédits du compte. L’approbation standard a lieu dans Guteneo ; un administrateur peut accorder au préalable un mandat expert limité et temporaire. Le mot de passe reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. L’installation n’active aucun canal ni mandat."
       }
     ],
     "serviceInterfaceLanguage": "fr-FR"
@@ -242,7 +243,7 @@
     "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
     "selectionStatus": "adapted_negative_cases_prepared_not_executed_with_reviewer",
     "negativeCaseCompatibility": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; N1/N2/N4 remain internal authorization/isolation tests. All cases remain unexecuted with the reviewer account.",
-    "candidateReleaseNotes": "Candidat 0.2.1 : logo approuvé intégré au paquet, titres et annotations MCP précisés, renouvellement de fax déclaré destructif car il peut annuler la préparation précédente, description courte adaptée aux limites de l’annuaire. Les fonctions restent soumises aux droits, aux canaux du compte et au mode d’approbation. Cette préparation ne constitue ni un déploiement ni une publication dans l’annuaire.",
+    "candidateReleaseNotes": "Candidat 0.3.0 : parcours e-mail sans fichier, avec PDF joint ou lien protégé ; mode, expiration, supplément et prochaine action explicites. Mot de passe réservé au navigateur authentifié, sans outil MCP. Mandat expert et compte reviewer conservent leurs garde-fous. Archive téléchargeable et mise à jour locale du dossier ; aucune nouvelle soumission ni publication d’annuaire prouvée.",
     "composerIconStatus": "portal_light_dark_previews_checked_and_preserved_after_reload",
     "fixture": {
       "path": "integrations/chatgpt/fixtures/reviewer-original.pdf",
@@ -281,5 +282,17 @@
     "reviewerAccountAndTestsAndVideoAuthorized": true,
     "publisherSaysTermsReadAndAcceptanceAuthorized": true,
     "attestationsMustRemainEvidenceBased": true
+  },
+  "candidateCapabilities": {
+    "emailProvider": "resend",
+    "emailModes": ["none", "attachment", "protected_link"],
+    "passwordAccess": "authenticated_sender_browser_only",
+    "reviewerSendingEnabled": false,
+    "futureOnly": [
+      "multi_format_recipient_lists",
+      "excel_and_other_attachment_formats",
+      "recipient_accounts"
+    ],
+    "qualification": "requires_deployed_configuration_and_account_capabilities"
   }
 }

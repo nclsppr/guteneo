@@ -291,32 +291,22 @@ test("generates an inspectable PDF, approves the frozen email and tracks its sim
     .getByLabel("Objet", { exact: true })
     .fill("Correspondance de contrôle");
   await page
-    .getByLabel("Version HTML", { exact: true })
-    .fill("<h1>Bonjour</h1><p>Voici le document joint.</p>");
-  await page
-    .getByLabel("Version texte", { exact: true })
+    .getByLabel("Message", { exact: true })
     .fill("Bonjour. Voici le document joint.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: "Approuver et simuler l’envoi" }),
   ).toBeDisabled();
   await expect(
     page.getByText("e2e@example.invalid", { exact: true }),
   ).toBeVisible();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Approuver cette version" }).click();
-  await expect(
-    page.getByRole("button", { name: "Confirmer l’envoi simulé" }),
-  ).toBeVisible();
-  await screenshot(page, `approval-${testInfo.project.name}`);
-  await page.reload();
-  await expect(
-    page.getByRole("button", { name: "Confirmer l’envoi simulé" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Confirmer l’envoi simulé" }).click();
+  await page
+    .getByRole("button", { name: "Approuver et simuler l’envoi" })
+    .click();
   await expect(page.locator(".dispatch-reference .status")).toHaveText(
     "Remis au serveur destinataire",
     { timeout: 20000 },
@@ -402,10 +392,7 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await expect(page.getByText("Aucune erreur signalée.")).toBeVisible();
   await page.getByLabel("Objet des e-mails").fill("Campagne de démonstration");
   await page
-    .getByLabel("Contenu HTML des e-mails")
-    .fill("<p>Correspondance individuelle.</p>");
-  await page
-    .getByLabel("Version texte", { exact: true })
+    .getByLabel("Message", { exact: true })
     .fill("Correspondance individuelle.");
   await page.getByRole("button", { name: "Créer la campagne" }).click();
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();

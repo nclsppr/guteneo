@@ -1,6 +1,6 @@
 /** Provider clients never authorize a send. The caller must persist approval,
  * reservation and attempt state before calling submit. No client retries. */
-export type ProviderName = "telnyx" | "ses" | "pingen";
+export type ProviderName = "telnyx" | "ses" | "resend" | "pingen";
 export type ProviderMode = "live" | "sandbox";
 export type Fetcher = (
   input: RequestInfo | URL,

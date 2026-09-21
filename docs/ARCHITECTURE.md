@@ -1,5 +1,7 @@
 # Architecture
 
+Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
 20 September postal opening adds a browser-only administrator setup, immutable
