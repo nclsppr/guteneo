@@ -17,18 +17,22 @@
 }
 
 .assistant-picker-link {
+  --stamp-paper: var(--surface);
+  --stamp-line: #c9d3f4;
+  position: relative;
+  isolation: isolate;
   display: flex;
-  min-height: 130px;
+  min-height: 164px;
   height: 100%;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 18px;
-  padding: 20px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  padding: 26px 20px;
+  border: 0;
+  border-radius: 0;
   color: var(--ink);
-  background: var(--surface);
+  background: none;
   text-align: center;
   text-decoration: none;
   line-height: 1.35;
@@ -36,10 +40,64 @@
   font-weight: 500;
 }
 
+.assistant-picker-link::before,
+.assistant-picker-link::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Perforate the paper, leaving the link's keyboard outline intact. */
+.assistant-picker-link::before {
+  inset: 0;
+  z-index: -2;
+  background: var(--stamp-paper);
+  mask-image:
+    radial-gradient(circle at 6px 0, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 6px 100%, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 0 6px, transparent 3px, #000 3.5px),
+    radial-gradient(circle at 100% 6px, transparent 3px, #000 3.5px);
+  mask-size:
+    12px 100%,
+    12px 100%,
+    100% 12px,
+    100% 12px;
+  mask-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  mask-composite: intersect;
+}
+
+.assistant-picker-link::after {
+  inset: 9px;
+  z-index: -1;
+  border: 1px solid var(--stamp-line);
+  box-shadow:
+    inset 0 0 0 3px var(--stamp-paper),
+    inset 0 0 0 4px var(--stamp-line);
+}
+
 .assistant-picker-link:hover,
 .assistant-picker-link[aria-current="page"] {
-  border-color: var(--blue);
-  background: var(--blue-tint);
+  --stamp-line: var(--blue);
+  --stamp-paper: #f7f8fd;
+}
+
+.assistant-picker-link[aria-current="page"]::after {
+  border-width: 2px;
+}
+
+@media (forced-colors: active) {
+  .assistant-picker-link {
+    border: 1px solid ButtonText;
+  }
+
+  .assistant-picker-link[aria-current="page"] {
+    border: 3px double Highlight;
+  }
+
+  .assistant-picker-link::before,
+  .assistant-picker-link::after {
+    display: none;
+  }
 }
 
 .assistant-brand-mark {
@@ -436,8 +494,8 @@
   }
 
   .assistant-picker-link {
-    min-height: 126px;
-    padding: 18px 8px;
+    min-height: 154px;
+    padding: 24px 18px;
     font-size: 14px;
   }
 
