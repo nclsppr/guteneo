@@ -356,11 +356,11 @@ beforeAll(async () => {
   const before = await snapshot(),
     validBefore = await validQuotes();
   await sql(
-    readFileSync(new URL("0034_resend_email_transport.sql", dir), "utf8"),
+    readFileSync(new URL("0035_resend_email_transport.sql", dir), "utf8"),
   );
   const after34 = await snapshot(),
     validAfter34 = await validQuotes();
-  await sql(readFileSync(new URL("0035_protected_documents.sql", dir), "utf8"));
+  await sql(readFileSync(new URL("0036_protected_documents.sql", dir), "utf8"));
   migrationProof = {
     before,
     after34,

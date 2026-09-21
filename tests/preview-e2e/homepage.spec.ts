@@ -339,10 +339,12 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
     .getByRole("link", { name: "Assistants", exact: true })
     .click();
   await expect(page).toHaveURL(/\/assistants\/$/);
+  await page.waitForLoadState("load");
   await expect(page.locator("main h1")).toBeVisible();
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth),
-  ).toBeLessThanOrEqual(390);
+  // The server-rendered heading can be visible before the stylesheet arrives.
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(390);
 });
 
 test("decorative birds stop when reduced motion is requested", async ({

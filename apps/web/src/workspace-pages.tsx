@@ -626,10 +626,14 @@ export function Senders() {
                       {t.status}
                     </span>
                     {sender.id === postalSetup?.sender?.id &&
-                    postalSetup.senderVerification ===
-                      "administrator_declaration" &&
+                    postalSetup.senderVerification !== null &&
                     sender.status === "verified" ? (
-                      <span className="status">{t.postalSetup.declared}</span>
+                      <span className="status">
+                        {postalSetup.senderVerification ===
+                        "oauth_administrator_submission"
+                          ? t.postalSetup.submittedInChat
+                          : t.postalSetup.declared}
+                      </span>
                     ) : (
                       <Status
                         status={

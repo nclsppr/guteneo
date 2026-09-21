@@ -204,8 +204,8 @@ beforeAll(async () => {
   // Later migrations depend on the prior pricing schemas. The dedicated
   // resend-email suite proves these upgrades against populated signed quotes.
   for (const filename of [
-    "0034_resend_email_transport.sql",
-    "0035_protected_documents.sql",
+    "0035_resend_email_transport.sql",
+    "0036_protected_documents.sql",
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
 });

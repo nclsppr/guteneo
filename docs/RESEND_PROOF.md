@@ -17,12 +17,12 @@ sa présence seule a été relue. Aucune valeur secrète n’est conservée ici.
 Le webhook applicatif à six événements est préparé dans Resend, en attente de la
 confirmation de création demandée dans cette tâche. `RESEND_WEBHOOK_SECRET` n’est
 pas encore installé. La production conserve ses canaux fax/postal ; le code
-Resend et les migrations 0034–0036 ne sont pas encore publiés. Aucun e-mail réel
+Resend et les migrations 0035–0037 ne sont pas encore publiés. Aucun e-mail réel
 n’a été envoyé. Les essais destinés à une boîte personnelle attendent l’adresse
 et l’autorisation du titulaire.
 
 Preuves locales : types, lint, compilation web/Worker ; migration normalisée
-équivalente sur 36 migrations, `quick_check=ok`, aucune violation de clé étrangère.
+équivalente sur les 36 migrations du candidat avant intégration de la migration postale 0034, `quick_check=ok`, aucune violation de clé étrangère.
 Huit tests d’intégration Resend couvrent les trois modes, les octets exacts,
 l’acceptation atomique, la révocation, l’expiration juste avant soumission et
 l’absence de double débit. Les devis SES et Pingen déjà peuplés restent identiques

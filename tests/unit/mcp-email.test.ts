@@ -224,7 +224,7 @@ describe("email assistant contract", () => {
           readOnlyHint: false,
           destructiveHint: false,
           openWorldHint: false,
-          idempotentHint: true,
+          idempotentHint: false,
         });
         expect(
           tools.some((item) =>

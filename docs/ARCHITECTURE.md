@@ -2,6 +2,17 @@
 
 Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
 
+21 September candidate: browser and MCP postal setup use the same transaction
+and provider/profile checks. MCP mutations require current administrator OAuth
+authority and `dispatches:prepare`, fenced again in the write. Migration 0034
+records immutable submission origin and a tenant-bound snapshot of the OAuth
+issuer, user, client, connection identifier and authorization revision. The snapshot
+is verified against the active connection on insertion and does not reference its
+mutable row, so later tenant rebinding cannot move historical provenance.
+Reads do not renew pricing; explicit renewal retains the existing sender,
+profile and revocation guards. Send approvals and expert mandates are unchanged.
+See [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md).
+
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
 20 September postal opening adds a browser-only administrator setup, immutable

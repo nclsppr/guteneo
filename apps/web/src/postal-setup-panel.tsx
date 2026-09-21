@@ -74,7 +74,9 @@ export function PostalSetupPanel({
               {" · "}
               {setup.senderVerification === "administrator_declaration"
                 ? t.postalSetup.declared
-                : t.postalSetup.managed}
+                : setup.senderVerification === "oauth_administrator_submission"
+                  ? t.postalSetup.submittedInChat
+                  : t.postalSetup.managed}
             </p>
           )}
           <p>{t.postalSetup.readyBody}</p>

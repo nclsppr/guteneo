@@ -45,7 +45,11 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
-import { handlePostalSetupRoute } from "./postal-setup";
+import {
+  configurePostalSenderForMcp,
+  getPostalSetupForMcp,
+  handlePostalSetupRoute,
+} from "./postal-setup";
 import { PostalService, cleanupPostalEvidence } from "./postal";
 import { PostalAddressPageService } from "./postal-address-page";
 import { postalAddressPageInputSchema } from "../../../packages/contracts/src/postal-address-page";
@@ -76,7 +80,7 @@ function identityConfigured(env: Env) {
 export function getCapabilities(env: Env) {
   return {
     name: "Guteneo",
-    version: "0.2.0",
+    version: "0.2.2",
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",
@@ -178,10 +182,16 @@ export function getCapabilities(env: Env) {
     productionBlockers: [
       ...(!identityConfigured(env) ? ["identity_configuration"] : []),
       ...(!env.SCANNER ? ["malware_scanner_configuration"] : []),
-      "verified_tariffs",
-      "provider_live_tests",
       ...(!env.TELNYX_FROM ? ["verified_fax_sender"] : []),
-      "funded_sending_budget",
+    ],
+    // These are checked against the actual account, document and destination;
+    // a public configuration read cannot report them as failed prerequisites.
+    checksAtPreparation: [
+      "verified_sender",
+      "verified_document",
+      "qualified_destination_and_tariff",
+      "available_account_credit",
+      "human_approval_or_existing_delegation",
     ],
     documents: {
       import: true,
@@ -283,13 +293,33 @@ app.all("/mcp", (c) =>
     documents: new DocumentService(c.env, domain(c.env)),
     capabilities: async (identity) => {
       const capabilities = getCapabilities(c.env);
+      const canReadPostalSetup = identity.scopes.includes("documents:read");
+      const [connection, postalSetup] = await Promise.all([
+        getExpertStatus(identity, c.env),
+        canReadPostalSetup ? getPostalSetupForMcp(identity, c.env) : null,
+      ]);
       return {
         ...capabilities,
+        postal: {
+          channel: "postal",
+          setup: postalSetup,
+          setupAccess: {
+            available: canReadPostalSetup,
+            requiredScope: "documents:read",
+          },
+          importTool: "import_document",
+          setupTool: "get_postal_setup",
+          configureSenderTool: "configure_postal_sender",
+          preparationTool: "preflight_postal_pdf",
+          senderCollection: "conversation",
+          expertRequiredForPreparation: false,
+          standardReview: "use_preflight_reviewUrl",
+        },
         approval: {
           ...capabilities.approval,
           expert: {
             ...capabilities.approval.expert,
-            connection: await getExpertStatus(identity, c.env),
+            connection,
           },
         },
       };
@@ -307,6 +337,9 @@ app.all("/mcp", (c) =>
       return observation.correlationId;
     },
     postal: {
+      getSetup: (identity) => getPostalSetupForMcp(identity, c.env),
+      configureSender: (identity, input) =>
+        configurePostalSenderForMcp(identity, c.env, input),
       generateAddressPage: async (identity, input, key) =>
         new PostalAddressPageService(c.env, domain(c.env)).generate(
           await postalMcpAuthority(identity, c.env, "documents:write"),
