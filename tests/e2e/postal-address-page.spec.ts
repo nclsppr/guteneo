@@ -289,6 +289,64 @@ async function setup(
 const prepare = (page: Page) =>
   page.getByRole("button", { name: "Préparer le courrier", exact: true });
 
+test("postal timing follows the recipient and opens the FAQ without losing the draft", async ({
+  page,
+}, testInfo) => {
+  const fixture = await setup(page);
+  const timing = page.getByRole("complementary", {
+    name: "Heure limite de traitement",
+  });
+  await expect(timing).toContainText("01 h 00");
+  await expect(timing).toContainText("heure de Paris");
+  await expect(timing).toContainText("Il ne s’agit pas du délai de livraison");
+  await page.getByLabel("Pays", { exact: true }).selectOption("DE");
+  await expect(timing).toContainText("12 h 00");
+  await expect(timing).toContainText("la distribution économique");
+  await page.getByLabel("Distribution souhaitée").selectOption("fast");
+  await expect(timing).not.toContainText("la distribution économique");
+  await page.getByLabel("Pays", { exact: true }).selectOption("FR");
+  await expect(timing).toContainText("12 h 00");
+  await page.getByLabel("Pays", { exact: true }).selectOption("LU");
+  await expect(timing).toContainText("01 h 00");
+  await timing.scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: testInfo.outputPath("postal-cutoff-form.png"),
+  });
+
+  const opened = page.waitForEvent("popup");
+  await timing.getByRole("link").click();
+  const faqPage = await opened;
+  await expect(faqPage).toHaveURL(/#postal-cutoff-faq$/);
+  const faq = faqPage.locator("#postal-cutoff-faq");
+  await expect(faq).toHaveAttribute("open", "");
+  await expect(faq).toBeFocused();
+  await expect(faq).toContainText("01 h 00");
+  await expect(faq).toContainText(/vendredi/i);
+  await expect(faq).toContainText("CET");
+  await expect(faq).toContainText("CEST");
+  await expect(faq).not.toContainText(/Pingen/i);
+  expect(
+    await faq
+      .locator("th, td")
+      .evaluateAll((cells) =>
+        cells.every((cell) => cell.scrollWidth <= cell.clientWidth),
+      ),
+  ).toBe(true);
+  expect(
+    await faqPage.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await faq.screenshot({ path: testInfo.outputPath("postal-cutoff-faq.png") });
+  await faqPage.close();
+  await expect(
+    page.getByLabel("Nom du destinataire", { exact: true }),
+  ).toHaveValue("ATELIER EXEMPLE");
+  await expect(page.getByLabel("Pays", { exact: true })).toHaveValue("LU");
+  expect(fixture.mutations).toEqual([]);
+  expect(fixture.unmatched).toEqual([]);
+});
+
 test("existing document address remains the default and creates no derivative", async ({
   page,
 }) => {
