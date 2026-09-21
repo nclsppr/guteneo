@@ -1,5 +1,7 @@
 import {
   postalSetupInput,
+  postalSenderSubmissionInput,
+  type PostalSenderSubmissionInput,
   type PostalSetup,
 } from "../../../packages/contracts/src/postal-setup";
 import {
@@ -20,9 +22,13 @@ import {
   authenticateBrowser,
   authenticationPolicy,
   type AuthenticatedSession,
+  type AuthContext,
+  type McpIdentity,
+  auth0Issuer,
 } from "./auth";
 import { liveSendingEnabled } from "./live-providers";
 import type { Env } from "./env";
+import { postalMcpAuthority, type PostalAuthority } from "./postal-authority";
 
 const sourceReference = "https://api.pingen.com/documentation/swagger-docs";
 const json = (value: unknown, status = 200) =>
@@ -36,6 +42,8 @@ type Declaration = {
   sender_name: string;
   sender_address: string;
   profile_json: string;
+  submission_origin:
+    "browser_administrator_declaration" | "oauth_administrator_submission";
 };
 type Profile = {
   accountId: string;
@@ -55,6 +63,161 @@ const latestGeneration = (env: Env, org: string) =>
   )
     .bind(org)
     .first<Generation>();
+
+type SetupAuthority = PostalAuthority & {
+  readonly submission:
+    | {
+        origin: "browser_administrator_declaration";
+        clientId: null;
+        connectionId: null;
+      }
+    | {
+        origin: "oauth_administrator_submission";
+        clientId: string;
+        connectionId: string;
+      };
+};
+
+function browserSetupAuthority(
+  request: Request,
+  env: Env,
+  session: AuthenticatedSession,
+): SetupAuthority {
+  const captured = new Request(request.url, {
+    method: request.method,
+    headers: new Headers(request.headers),
+  });
+  const context = Object.freeze({ ...session.context });
+  return {
+    context,
+    submission: {
+      origin: "browser_administrator_declaration",
+      clientId: null,
+      connectionId: null,
+    },
+    async assertCurrent() {
+      const fresh = await authenticateBrowser(captured, env, true);
+      if (
+        fresh.context.organizationId !== context.organizationId ||
+        fresh.context.userId !== context.userId ||
+        fresh.context.role !== "admin" ||
+        fresh.tokenHash !== session.tokenHash
+      )
+        fail(
+          "ACCESS_CHANGED",
+          "Vos droits ont changé. Actualisez la page.",
+          403,
+        );
+    },
+    sql() {
+      return {
+        condition: `EXISTS(SELECT 1 FROM memberships m JOIN browser_sessions s ON s.organization_id=m.organization_id AND s.user_id=m.user_id JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role='admin' AND o.mode='production' AND s.token_hash=? AND s.csrf_token=? AND s.expires_at>? AND s.is_development=0 AND ${authenticationPolicy(env) === "verified_email" ? "s.verified_account=1" : "s.mfa=1"})`,
+        values: [
+          context.organizationId,
+          context.userId,
+          session.tokenHash,
+          session.csrfToken,
+          new Date().toISOString(),
+        ],
+      };
+    },
+  };
+}
+
+// Copy authority-bearing values before the first await. The caller's mutable
+// identity object is never reused after authentication or provider inspection.
+function captureIdentity(identity: McpIdentity): McpIdentity {
+  return {
+    ...identity,
+    context: { ...identity.context },
+    scopes: [...identity.scopes],
+    ...(identity.connectionObservation
+      ? { connectionObservation: { ...identity.connectionObservation } }
+      : {}),
+  };
+}
+
+export async function getPostalSetupForMcp(
+  identity: McpIdentity,
+  env: Env,
+): Promise<PostalSetup> {
+  const captured = captureIdentity(identity);
+  const authority = await postalMcpAuthority(captured, env, "documents:read");
+  const result = await current(
+    env,
+    authority.context,
+    authority.context.role === "admin" &&
+      captured.scopes.includes("dispatches:prepare"),
+  );
+  await authority.assertCurrent();
+  return result;
+}
+
+/** A scoped OAuth administrator submits identity fields, never a human-consent
+ * assertion. This prepares postal setup; transfer and approval remain separate. */
+export async function configurePostalSenderForMcp(
+  identity: McpIdentity,
+  env: Env,
+  input: PostalSenderSubmissionInput,
+  dependencies: { fetcher?: Fetcher } = {},
+): Promise<PostalSetup> {
+  const captured = captureIdentity(identity);
+  const parsed = postalSenderSubmissionInput.safeParse(input);
+  if (!parsed.success)
+    fail(
+      "INVALID_INPUT",
+      "Indiquez le nom et l’adresse complète de l’expéditeur.",
+      400,
+    );
+  if (captured.context.role !== "admin")
+    fail(
+      "POSTAL_SENDER_ADMIN_REQUIRED",
+      "Seul un administrateur de cet atelier peut ajouter un expéditeur postal.",
+      403,
+    );
+  if (env.MODE !== "production" || env.ENVIRONMENT !== "production")
+    fail(
+      "POSTAL_SETUP_UNAVAILABLE",
+      "L’activation du courrier est indisponible dans cet environnement.",
+    );
+  const base = await postalMcpAuthority(captured, env, "dispatches:prepare");
+  const connection = await env.DB.prepare(
+    "SELECT id FROM authorized_connections WHERE issuer=? AND user_id=? AND client_id=? AND organization_id=? AND status='active'",
+  )
+    .bind(
+      auth0Issuer(env),
+      base.context.userId,
+      captured.clientId,
+      base.context.organizationId,
+    )
+    .first<{ id: string }>();
+  if (!connection)
+    fail(
+      "POSTAL_AUTHORITY_CHANGED",
+      "Cette connexion n’est plus autorisée. Reconnectez votre assistant.",
+      403,
+    );
+  const authority: SetupAuthority = {
+    ...base,
+    submission: {
+      origin: "oauth_administrator_submission",
+      clientId: captured.clientId,
+      connectionId: connection.id,
+    },
+    sql() {
+      const fence = base.sql();
+      return {
+        condition: `(${fence.condition}) AND EXISTS(SELECT 1 FROM memberships setup_member JOIN organizations setup_org ON setup_org.id=setup_member.organization_id WHERE setup_member.organization_id=? AND setup_member.user_id=? AND setup_member.role='admin' AND setup_org.mode='production')`,
+        values: [
+          ...fence.values,
+          base.context.organizationId,
+          base.context.userId,
+        ],
+      };
+    },
+  };
+  return configure(env, authority, parsed.data, dependencies);
+}
 
 function available(env: Env): boolean {
   if (
@@ -86,11 +249,12 @@ function available(env: Env): boolean {
 
 async function current(
   env: Env,
-  session: AuthenticatedSession,
+  context: AuthContext,
+  canManage = context.role === "admin",
 ): Promise<PostalSetup> {
-  const org = session.context.organizationId;
+  const org = context.organizationId;
   const declaration = await env.DB.prepare(
-    "SELECT sender_id,sender_name,sender_address,profile_json FROM postal_sender_declarations WHERE organization_id=?",
+    "SELECT sender_id,sender_name,sender_address,profile_json,submission_origin FROM postal_sender_declarations WHERE organization_id=?",
   )
     .bind(org)
     .first<Declaration>();
@@ -186,11 +350,15 @@ async function current(
               : undefined;
   return {
     available: serviceAvailable,
-    canManage: session.context.role === "admin",
+    canManage,
     configured,
     channelEnabled,
     ...(sender ? { sender } : {}),
-    senderVerification: declaration ? "administrator_declaration" : null,
+    senderVerification: declaration
+      ? declaration.submission_origin === "oauth_administrator_submission"
+        ? "oauth_administrator_submission"
+        : "administrator_declaration"
+      : null,
     pricingBasis: "public_list_price_ex_tax",
     defaultCountry: env.PINGEN_DEFAULT_COUNTRY ?? "LU",
     ...(reason ? { reason } : {}),
@@ -278,7 +446,8 @@ export async function handlePostalSetupRoute(
       },
       429,
     );
-  if (request.method === "GET") return json(await current(env, session));
+  if (request.method === "GET")
+    return json(await current(env, session.context));
   if (request.method !== "POST")
     return json(
       {
@@ -296,12 +465,29 @@ export async function handlePostalSetupRoute(
       403,
     );
   const input = await readInput(request);
+  return json(
+    await configure(
+      env,
+      browserSetupAuthority(request, env, session),
+      input,
+      dependencies,
+    ),
+  );
+}
+
+async function configure(
+  env: Env,
+  authority: SetupAuthority,
+  input: PostalSenderSubmissionInput,
+  dependencies: { fetcher?: Fetcher },
+): Promise<PostalSetup> {
+  await authority.assertCurrent();
   if (!available(env))
     fail(
       "POSTAL_SETUP_UNAVAILABLE",
       "L’activation du courrier est temporairement indisponible.",
     );
-  const state = await current(env, session);
+  const state = await current(env, authority.context);
   if (
     state.sender &&
     (state.sender.name !== input.name || state.sender.address !== input.address)
@@ -319,7 +505,10 @@ export async function handlePostalSetupRoute(
       "POSTAL_SETUP_REVIEW_REQUIRED",
       "La configuration a été suspendue ou nécessite une vérification. Contactez l’administrateur.",
     );
-  if (state.configured) return json(state);
+  if (state.configured) {
+    await authority.assertCurrent();
+    return state;
+  }
   const readiness = await inspectPingenReadiness(
     {
       clientId: env.PINGEN_CLIENT_ID!,
@@ -348,7 +537,7 @@ export async function handlePostalSetupRoute(
     defaultCountry: provider.defaultCountry!,
     addressPosition: provider.defaultAddressPosition,
   };
-  const org = session.context.organizationId;
+  const org = authority.context.organizationId;
   const timestamp = new Date().toISOString();
   const expiry = new Date(Date.now() + 90 * 86400000).toISOString();
   const senderId = state.sender?.id ?? `sender_${crypto.randomUUID()}`;
@@ -362,7 +551,8 @@ export async function handlePostalSetupRoute(
     );
   const evidence = postalRateEvidence();
   const sourceHash = await sha256(canonicalJson({ rate: evidence, profile }));
-  const authority = `EXISTS(SELECT 1 FROM memberships m JOIN browser_sessions s ON s.organization_id=m.organization_id AND s.user_id=m.user_id JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role='admin' AND o.mode='production' AND s.token_hash=? AND s.csrf_token=? AND s.expires_at>? AND s.is_development=0 AND ${authenticationPolicy(env) === "verified_email" ? "s.verified_account=1" : "s.mfa=1"})`;
+  await authority.assertCurrent();
+  const fence = authority.sql();
   const target = renew
     ? `EXISTS(SELECT 1 FROM postal_sender_declarations d JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel='postal' WHERE d.organization_id=? AND d.sender_id=? AND d.sender_name=? AND d.sender_address=? AND s.status='verified' AND s.name=d.sender_name AND s.address=d.sender_address AND c.enabled=1) AND (SELECT MAX(generation) FROM postal_setup_policy_generations WHERE organization_id=?)=? AND (SELECT COUNT(*) FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND id IN (SELECT value FROM json_each(?)) AND status='qualified' AND expires_at<=?)=8`
     : `NOT EXISTS(SELECT 1 FROM postal_sender_declarations WHERE organization_id=?) AND NOT EXISTS(SELECT 1 FROM senders WHERE organization_id=? AND channel='postal' AND mode='production') AND EXISTS(SELECT 1 FROM channel_controls c WHERE c.organization_id=? AND c.channel='postal' AND (c.enabled=1 OR NOT EXISTS(SELECT 1 FROM audit_log a WHERE a.organization_id=c.organization_id AND a.action='channel.control' AND a.resource_id='postal' AND json_extract(a.details_json,'$.enabled')=0)))`;
@@ -384,24 +574,31 @@ export async function handlePostalSetupRoute(
     "EXISTS(SELECT 1 FROM audit_log WHERE organization_id=? AND id=?)";
   const statements = [
     env.DB.prepare(
-      `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,?,?,?,?,? WHERE ${authority} AND ${target}`,
+      `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,?,?,?,?,? WHERE (${fence.condition}) AND ${target}`,
     ).bind(
       auditId,
       org,
-      session.context.userId,
+      authority.context.userId,
       renew ? "postal.setup.pricing_renewed" : "postal.sender.declared",
       senderId,
       canonicalJson({
-        authorizationBasis: "authenticated_administrator_declaration",
+        authorizationBasis:
+          authority.submission.origin === "oauth_administrator_submission"
+            ? "oauth_administrator_submission"
+            : "authenticated_administrator_declaration",
+        submissionOrigin: authority.submission.origin,
+        ...(authority.submission.origin === "oauth_administrator_submission"
+          ? {
+              oauthClientId: authority.submission.clientId,
+              oauthConnectionId: authority.submission.connectionId,
+              humanConsentClaimed: false,
+            }
+          : {}),
         physicalAddressVerified: false,
         pricingBasis: "public_list_price_ex_tax",
       }),
       timestamp,
-      org,
-      session.context.userId,
-      session.tokenHash,
-      session.csrfToken,
-      timestamp,
+      ...fence.values,
       ...targetArgs,
     ),
   ];
@@ -411,16 +608,19 @@ export async function handlePostalSetupRoute(
         `INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) SELECT ?,?,'postal',?,?,'verified','production',? WHERE ${marker}`,
       ).bind(senderId, org, input.name, input.address, timestamp, org, auditId),
       env.DB.prepare(
-        `INSERT INTO postal_sender_declarations(organization_id,sender_id,user_id,sender_name,sender_address,authorization_basis,physical_address_verified,profile_json,audit_id,created_at) SELECT ?,?,?,?,?,'authenticated_administrator_declaration',0,?,?,? WHERE ${marker}`,
+        `INSERT INTO postal_sender_declarations(organization_id,sender_id,user_id,sender_name,sender_address,authorization_basis,physical_address_verified,profile_json,audit_id,created_at,submission_origin,oauth_client_id,oauth_connection_id) SELECT ?,?,?,?,?,'authenticated_administrator_declaration',0,?,?,?,?,?,? WHERE ${marker}`,
       ).bind(
         org,
         senderId,
-        session.context.userId,
+        authority.context.userId,
         input.name,
         input.address,
         canonicalJson(profile),
         auditId,
         timestamp,
+        authority.submission.origin,
+        authority.submission.clientId,
+        authority.submission.connectionId,
         org,
         auditId,
       ),
@@ -482,20 +682,23 @@ export async function handlePostalSetupRoute(
   if (!results[0].meta.changes) {
     // Concurrent identical setup succeeds idempotently; stale/revoked authority
     // must still be reauthenticated before revealing the transaction result.
-    const fresh = await authenticateBrowser(request, env, true);
-    const latest = await current(env, fresh);
+    await authority.assertCurrent();
+    const latest = await current(env, authority.context);
+    await authority.assertCurrent();
     if (
-      fresh.context.role === "admin" &&
+      authority.context.role === "admin" &&
       latest.configured &&
       latest.channelEnabled &&
       latest.sender?.name === input.name &&
       latest.sender.address === input.address
     )
-      return json(latest);
+      return latest;
     fail(
       "ACCESS_CHANGED",
       "Vos droits ou la configuration ont changé. Actualisez la page.",
     );
   }
-  return json(await current(env, session));
+  const latest = await current(env, authority.context);
+  await authority.assertCurrent();
+  return latest;
 }

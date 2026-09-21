@@ -19,6 +19,13 @@ export const postalSetupInput = z
   .strict();
 
 export type PostalSetupInput = z.infer<typeof postalSetupInput>;
+/** OAuth submits identity fields; it cannot assert a fresh human consent flag. */
+export const postalSenderSubmissionInput = postalSetupInput
+  .omit({ authorized: true })
+  .strict();
+export type PostalSenderSubmissionInput = z.infer<
+  typeof postalSenderSubmissionInput
+>;
 export type PostalSetup = {
   available: boolean;
   canManage: boolean;
@@ -31,7 +38,8 @@ export type PostalSetup = {
     status: "verified" | "pending" | "disabled";
   };
   /** Authorization to use this identity; never physical-address verification. */
-  senderVerification: "administrator_declaration" | null;
+  senderVerification:
+    "administrator_declaration" | "oauth_administrator_submission" | null;
   pricingBasis: "public_list_price_ex_tax";
   defaultCountry: string;
   reason?:

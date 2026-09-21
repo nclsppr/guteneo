@@ -557,7 +557,7 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.2.1");
+      expect(manifest.version).toBe("0.2.2");
       expect(manifest.version).toBe(plugin.version);
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
@@ -676,7 +676,7 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.2.1",
+          version: "0.2.2",
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
@@ -697,6 +697,8 @@ describe("distributable LLM integrations", () => {
           get_dispatch_status: [true, false, true, false],
           list_dispatches: [true, false, true, false],
           get_postal_requirements: [true, false, true, false],
+          get_postal_setup: [true, false, true, false],
+          configure_postal_sender: [false, false, true, false],
           get_postal_preflight: [true, false, true, false],
           // Quote renewal cancels the superseded prepared dispatch.
           prepare_fax: [false, true, true, false],
@@ -740,6 +742,8 @@ describe("distributable LLM integrations", () => {
         quote: unused,
         transferExpert: unused,
         generateAddressPage: unused,
+        getSetup: unused,
+        configureSender: unused,
       },
     );
     expect(unused).not.toHaveBeenCalled();

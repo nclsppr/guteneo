@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+21 September candidate: `get_postal_setup`, `configure_postal_sender` and the
+`postal_pdf` MCP prompt support sender collection in the conversation. The
+candidate needs migration 0034, reviewed tests and publication, then an updated
+host catalogue and a separately observed ChatGPT/Claude conversation. No real
+postal send is part of implementation validation. See
+[MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md).
+
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
 20 September: postal setup is published for every existing and future account

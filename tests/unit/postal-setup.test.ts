@@ -301,6 +301,9 @@ describe("self-service postal activation", () => {
       user_id: owner.userId,
       authorization_basis: "authenticated_administrator_declaration",
       physical_address_verified: 0,
+      submission_origin: "browser_administrator_declaration",
+      oauth_client_id: null,
+      oauth_connection_id: null,
     });
     const policies = (
       await db

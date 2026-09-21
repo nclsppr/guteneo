@@ -67,7 +67,13 @@ describe("truthful live transport capabilities", () => {
       expect(capabilities.channels[0].status).toBe(
         "configured_not_live_validated",
       );
-      expect(capabilities.productionBlockers).toContain("verified_tariffs");
+      expect(capabilities.checksAtPreparation).toContain(
+        "qualified_destination_and_tariff",
+      );
+      expect(capabilities.productionBlockers).not.toContain("verified_tariffs");
+      expect(capabilities.productionBlockers).not.toContain(
+        "funded_sending_budget",
+      );
     },
   );
 

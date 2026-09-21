@@ -6,6 +6,8 @@ export const assistantRecoverySchema = z
       "check_document",
       "check_dispatch",
       "check_mandate",
+      "check_postal_setup",
+      "check_postal_preflight",
       "reconnect",
       "review_same_dispatch",
       "read_same_document",
@@ -18,6 +20,8 @@ export const assistantRecoverySchema = z
         "get_document",
         "get_dispatch_status",
         "get_expert_status",
+        "get_postal_setup",
+        "get_postal_preflight",
         "review_dispatch",
         "read_document_pages",
       ])
@@ -27,7 +31,8 @@ export const assistantRecoverySchema = z
   .strict();
 export type AssistantRecovery = z.infer<typeof assistantRecoverySchema>;
 
-export type AssistantRecoveryContext = "read_document_pages";
+export type AssistantRecoveryContext =
+  "read_document_pages" | "postal_setup" | "postal_preflight";
 
 function readSameDocument(): AssistantRecovery {
   return {
@@ -89,6 +94,60 @@ export function assistantRecovery(
     };
   if (
     [
+      "POSTAL_SENDER_ADMIN_REQUIRED",
+      "POSTAL_SENDER_EXISTS",
+      "POSTAL_SETUP_REVIEW_REQUIRED",
+      "POSTAL_SETUP_UNAVAILABLE",
+      "POSTAL_PROFILE_UNQUALIFIED",
+      "POSTAL_DRAFT_TRANSFER_DISABLED",
+    ].includes(code) ||
+    (context === "postal_setup" && code === "FORBIDDEN") ||
+    ((context === "postal_setup" || context === "postal_preflight") &&
+      code === "SENDER_NOT_CONFIGURED")
+  )
+    return {
+      action: "check_postal_setup",
+      tool: "get_postal_setup",
+      retry: "read_only",
+      message:
+        "Consultez la configuration postale du même compte et expliquez reason et canManage. Si l’expéditeur manque, recueillez seulement son nom et son adresse dans cette conversation ; un administrateur autorisé peut demander configure_postal_sender avec ces valeurs. Si seuls les tarifs ont expiré, expliquez la revalidation et reprenez explicitement la même configuration avec le même expéditeur. Ne remplacez pas un expéditeur existant, ne restaurez aucune suspension et ne créez aucun mandat. Conservez le PDF déjà importé ; la configuration n’autorise ni transfert ni envoi.",
+    };
+  if (code === "POSTAL_DRAFT_NOT_READY")
+    return {
+      action: "check_postal_preflight",
+      tool: "get_postal_preflight",
+      retry: "read_only",
+      message:
+        "Pingen analyse encore le brouillon existant. Conservez preflightId et la clé de devis ; consultez ce contrôle, puis attendez avant de reprendre quote_postal_draft avec exactement les mêmes valeurs. Ne retransférez pas le PDF et ne créez pas un autre contrôle ou une nouvelle clé. Aucun envoi n’est encore créé par ce refus.",
+    };
+  if (code === "POSTAL_PREFLIGHT_NOT_FOUND")
+    return {
+      action: "contact_support",
+      tool: null,
+      retry: "after_change",
+      message:
+        "Ce contrôle postal est introuvable dans le compte connecté. Vérifiez l’identifiant conservé et le compte avec la personne ; ne supposez pas qu’un autre contrôle est le bon et ne recréez pas un transfert pour contourner ce refus.",
+    };
+  if (
+    [
+      "POSTAL_PREFLIGHT_EXPIRED",
+      "POSTAL_PREFLIGHT_VERSION_CHANGED",
+      "POSTAL_PREFLIGHT_STALE",
+      "POSTAL_PROFILE_CHANGED",
+      "POSTAL_PREFLIGHT_REQUIRED",
+      "POSTAL_PREPARED_DRAFT_REQUIRED",
+    ].includes(code) ||
+    (context === "postal_preflight" && code === "LIVE_QUOTE_INVALID")
+  )
+    return {
+      action: "check_postal_preflight",
+      tool: "get_postal_preflight",
+      retry: "never_resend",
+      message:
+        "Relisez le même contrôle postal et son transfert avant toute nouvelle action. Un transfert unknown exige un rapprochement, jamais une nouvelle clé ou un nouveau dépôt. Une revue expirée, modifiée ou bloquée n’autorise pas la transmission. Conservez le PDF, les options et les identifiants ; expliquez la correction nécessaire et reprenez la revue sous l’autorité actuelle sans inventer d’approbation.",
+    };
+  if (
+    [
       "LIVE_QUOTE_INVALID",
       "EXPERT_REVIEW_INVALID",
       "EXPERT_REVIEW_EXPIRED",
@@ -135,6 +194,8 @@ export function assistantRecovery(
   if (
     [
       "DOCUMENT_QUARANTINED",
+      "DOCUMENT_NOT_READY",
+      "VERIFIED_SCAN_REQUIRED",
       "SCAN_IN_PROGRESS",
       "SCAN_QUOTA_EXCEEDED",
     ].includes(code)
@@ -184,7 +245,9 @@ export function assistantRecovery(
       message:
         "Le document ne peut pas être relu fidèlement pour cet envoi. Expliquez cette limite ici ; une revue humaine reste une alternative choisie par l’utilisateur, sans ouverture automatique du site.",
     };
-  if (code === "DOCUMENT_INTEGRITY_ERROR")
+  if (
+    ["DOCUMENT_INTEGRITY_ERROR", "DOCUMENT_INTEGRITY_MISMATCH"].includes(code)
+  )
     return {
       action: "contact_support",
       tool: null,
@@ -231,14 +294,38 @@ export function assistantRecovery(
         "La source du fichier doit être autorisée par Guteneo. Conservez le diagnostic de domaine pour l’assistance, sans partager son URL temporaire ; ne multipliez pas les imports et n’inventez pas une autre URL.",
     };
   if (["CREDIT_EXHAUSTED", "QUOTA_EXCEEDED"].includes(code))
-    return {
-      action: "check_dispatch",
-      tool: "get_dispatch_status",
-      retry: "after_change",
-      message:
-        "Le budget du mandat ne remplace pas les crédits et quotas du compte. Conservez le même envoi et attendez que cette limite soit résolue ; ne créez pas un doublon et ne promettez pas de recharge disponible.",
-    };
+    return context === "postal_preflight"
+      ? {
+          action: "check_postal_preflight",
+          tool: "get_postal_preflight",
+          retry: "after_change",
+          message:
+            "Les crédits et quotas du compte restent requis. Conservez le PDF, le contrôle et la clé de devis ; consultez le même contrôle s’il existe puis attendez que cette limite soit résolue. Ne créez pas de doublon et ne promettez pas de recharge disponible.",
+        }
+      : {
+          action: "check_dispatch",
+          tool: "get_dispatch_status",
+          retry: "after_change",
+          message:
+            "Le budget du mandat ne remplace pas les crédits et quotas du compte. Conservez le même envoi et attendez que cette limite soit résolue ; ne créez pas un doublon et ne promettez pas de recharge disponible.",
+        };
   if (context === "read_document_pages") return readSameDocument();
+  if (context === "postal_setup")
+    return {
+      action: "check_postal_setup",
+      tool: "get_postal_setup",
+      retry: "read_only",
+      message:
+        "Consultez l’expéditeur et la configuration du même compte. Après une réponse perdue, conservez les valeurs fournies et vérifiez cet état avant de reprendre configure_postal_sender avec exactement le même nom et la même adresse ; ne remplacez pas l’identité, ne restaurez aucune suspension et ne renouvelez rien par une lecture. Les champs manquants se recueillent dans cette conversation.",
+    };
+  if (context === "postal_preflight")
+    return {
+      action: "check_postal_preflight",
+      tool: "get_postal_preflight",
+      retry: "never_resend",
+      message:
+        "Conservez le même PDF et le même contrôle postal. Si preflightId a été retourné, consultez-le avant toute action. Si seule la réponse de création du contrôle a été perdue, reprenez preflight_postal_pdf avec exactement les mêmes paramètres et la même clé, sans nouvelle importation. Un transfert unknown ou un envoi incertain ne se relance jamais ; aucun échec n’autorise un autre dépôt ni un autre envoi.",
+    };
   return {
     action: "check_dispatch",
     tool: "get_dispatch_status",
