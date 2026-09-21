@@ -17,7 +17,7 @@ sa présence seule a été relue. Aucune valeur secrète n’est conservée ici.
 Le webhook applicatif à six événements est préparé dans Resend, en attente de la
 confirmation de création demandée dans cette tâche. `RESEND_WEBHOOK_SECRET` n’est
 pas encore installé. La production conserve ses canaux fax/postal ; le code
-Resend et les migrations 0035–0037 ne sont pas encore publiés. Aucun e-mail réel
+Resend et les migrations 0036–0038 ne sont pas encore publiés. Aucun e-mail réel
 n’a été envoyé. Les essais destinés à une boîte personnelle attendent l’adresse
 et l’autorisation du titulaire.
 
