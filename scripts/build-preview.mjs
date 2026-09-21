@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { writeFile } from "node:fs/promises";
+import { rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { build } from "vite";
@@ -27,6 +27,8 @@ await build({
   configFile: join(root, "apps/web/vite.config.ts"),
   build: { outDir: output, emptyOutDir: true },
 });
+// Real review evidence belongs only to the production application.
+await rm(join(output, "review"), { recursive: true, force: true });
 await buildPublicPages({ root, output, indexable: true });
 if (sourceSnapshotSha256 !== (await sourceSnapshot(root, sourcePaths)))
   throw new Error(
