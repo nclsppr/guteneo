@@ -2,19 +2,21 @@
 
 ## Candidat du 21 septembre 2026
 
-Le chantier courant est `feat/resend-protected-delivery`. Le contrat est décrit dans
+Le candidat est suivi dans [la PR #27](https://github.com/nclsppr/guteneo/pull/27),
+qui consigne les validations et l’état de publication. Le contrat est décrit dans
 [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md), et les détails d’accès dans
 [PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md). L’historique du 17 septembre est
 conservé plus bas et ne décrit pas la publication courante.
 
-État externe relu : domaine Resend `guteneo.com` vérifié, équipe personnelle
+État externe observé pendant la préparation du 21 septembre : domaine Resend `guteneo.com` vérifié, équipe personnelle
 `nclsppr`, région `eu-west-1`, offre Free avec 100 e-mails/jour, 3 000/mois et
 10 requêtes/seconde. Le suivi des ouvertures et des clics n’est pas configuré.
 La clé d’envoi Worker existante reste restreinte au domaine. La clé AES-GCM
 `PROTECTED_DOCUMENTS_KEY` a été générée en mémoire et installée dans Cloudflare ;
 sa présence seule a été relue. Aucune valeur secrète n’est conservée ici.
 
-Le webhook applicatif à six événements est préparé dans Resend, en attente de la
+À cette étape de préparation, le webhook applicatif à six événements est préparé
+dans Resend, en attente de la
 confirmation de création demandée dans cette tâche. `RESEND_WEBHOOK_SECRET` n’est
 pas encore installé. La production conserve ses canaux fax/postal ; le code
 Resend et les migrations 0036–0038 ne sont pas encore publiés. Aucun e-mail réel
@@ -22,14 +24,19 @@ n’a été envoyé. Les essais destinés à une boîte personnelle attendent l�
 et l’autorisation du titulaire.
 
 Preuves locales : types, lint, compilation web/Worker ; migration normalisée
-équivalente sur 37 migrations, après intégration de la migration postale 0034, `quick_check=ok`, aucune violation de clé étrangère.
+équivalente sur 38 migrations après intégration du parcours postal et des devis
+fax de revue, `quick_check=ok`, aucune violation de clé étrangère.
 Huit tests d’intégration Resend couvrent les trois modes, les octets exacts,
 l’acceptation atomique, la révocation, l’expiration juste avant soumission et
 l’absence de double débit. Les devis SES et Pingen déjà peuplés restent identiques
 après migration. Dix-neuf tests de protection/configuration vérifient notamment
 le compte reviewer limité à la préparation. Les tests MCP et les parcours
 navigateur utilisent des données fictives et des appels fournisseurs interceptés.
-La suite complète et la validation CI finale restent à consigner.
+La [CI complète de `b3a710a`](https://github.com/nclsppr/guteneo/actions/runs/35550849848)
+a réussi : scanner, types/lint, migrations, tests unitaires/intégration, sécurité,
+compilations et navigateurs Chromium, mobile Chromium et iPhone WebKit. Ce résultat
+précède l’intégration finale de la PR #26 ; la PR #27 conserve les contrôles de la
+source réconciliée. Les essais de fournisseur et de navigateur restent synthétiques.
 
 Le candidat inclut une archive plugin 0.3.0 et les contrats ChatGPT/Claude. Cela
 ne constitue ni une nouvelle soumission ni une publication dans une marketplace.
