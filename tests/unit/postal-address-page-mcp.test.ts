@@ -123,7 +123,7 @@ describe("explicit postal address-page generation over MCP", () => {
         annotations: {
           readOnlyHint: false,
           destructiveHint: false,
-          idempotentHint: true,
+          idempotentHint: false,
           openWorldHint: false,
         },
         _meta: {

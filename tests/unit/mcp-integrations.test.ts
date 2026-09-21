@@ -557,7 +557,7 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.2.1");
+      expect(manifest.version).toBe("0.2.2");
       expect(manifest.version).toBe(plugin.version);
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
@@ -676,7 +676,7 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.2.1",
+          version: "0.2.2",
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
@@ -690,29 +690,31 @@ describe("distributable LLM integrations", () => {
         // host confirmations and must describe effects, including indirect sends
         // and persisted connection observations on successful business reads.
         const expected: Record<string, [boolean, boolean, boolean, boolean]> = {
-          get_capabilities: [false, false, true, false],
-          get_expert_status: [false, false, true, false],
-          get_document: [false, false, true, false],
-          list_documents: [false, false, true, false],
-          read_document_pages: [false, false, true, false],
-          get_dispatch_status: [false, false, true, false],
-          list_dispatches: [false, false, true, false],
-          get_postal_requirements: [false, false, true, false],
-          get_postal_preflight: [false, false, true, false],
+          get_capabilities: [false, false, false, false],
+          get_expert_status: [false, false, false, false],
+          get_document: [false, false, false, false],
+          list_documents: [false, false, false, false],
+          read_document_pages: [false, false, false, false],
+          get_dispatch_status: [false, false, false, false],
+          list_dispatches: [false, false, false, false],
+          get_postal_requirements: [false, false, false, false],
+          get_postal_setup: [false, false, false, false],
+          configure_postal_sender: [false, false, false, false],
+          get_postal_preflight: [false, false, false, false],
           // Quote renewal cancels the superseded prepared dispatch.
-          prepare_fax: [false, true, true, false],
-          prepare_dispatch: [false, false, true, false],
-          create_postal_address_page: [false, false, true, false],
-          preflight_postal_pdf: [false, false, true, false],
-          quote_postal_draft: [false, false, true, false],
+          prepare_fax: [false, true, false, false],
+          prepare_dispatch: [false, false, false, false],
+          create_postal_address_page: [false, false, false, false],
+          preflight_postal_pdf: [false, false, false, false],
+          quote_postal_draft: [false, false, false, false],
           import_document: [false, false, false, true],
           render_pdf: [false, false, false, false],
           rescan_document: [false, false, false, false],
           review_dispatch: [false, false, false, false],
-          transfer_postal_draft: [false, true, true, false],
-          approve_and_send_dispatch: [false, true, true, true],
-          confirm_dispatch: [false, true, true, true],
-          cancel_dispatch: [false, true, true, false],
+          transfer_postal_draft: [false, true, false, false],
+          approve_and_send_dispatch: [false, true, false, true],
+          confirm_dispatch: [false, true, false, true],
+          cancel_dispatch: [false, true, false, false],
         };
         expect(tools.map((tool) => tool.name).sort()).toEqual(
           Object.keys(expected).sort(),
@@ -741,6 +743,8 @@ describe("distributable LLM integrations", () => {
         quote: unused,
         transferExpert: unused,
         generateAddressPage: unused,
+        getSetup: unused,
+        configureSender: unused,
       },
     );
     expect(unused).not.toHaveBeenCalled();

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "guteneo",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Préparer ses PDF, consulter un devis et suivre ses envois avec Guteneo.",
   "author": {
     "name": "Guteneo"
@@ -14,13 +14,13 @@
       "interface": {
         "displayName": "Guteneo",
         "shortDescription": "PDF, devis et suivi des envois",
-        "longDescription": "Retrouvez vos documents Guteneo ou importez le PDF original depuis ChatGPT. Vérifiez son analyse, préparez un devis pour un canal disponible et suivez chaque étape de votre envoi. Vous validez le document, le destinataire et le plafond dans Guteneo avant tout envoi. Un mandat expert facultatif, limité et temporaire peut être accordé par un administrateur à cette connexion. La disponibilité du fax et du courrier dépend des canaux et destinations activés sur votre compte. L’installation n’active aucun canal ni mandat.",
+        "longDescription": "Retrouvez vos documents Guteneo ou importez le PDF original depuis ChatGPT. Préparez un fax ou un courrier postal. Pour le courrier, l’assistant retrouve votre expéditeur et demande les informations manquantes dans la conversation ; un administrateur connecté peut y enregistrer son expéditeur. Vous validez le document, le destinataire et le plafond dans Guteneo avant tout envoi. Un mandat expert facultatif, limité et temporaire peut être accordé par un administrateur à cette connexion. La disponibilité dépend des canaux et destinations activés sur votre compte. L’installation n’active aucun canal ni mandat.",
         "developerName": "Guteneo",
         "category": "Productivity",
         "capabilities": ["Read", "Write"],
         "websiteURL": "https://guteneo.com",
         "defaultPrompt": [
-          "Vérifie les fonctions disponibles sur mon compte Guteneo.",
+          "Envoie ce PDF par courrier postal ; demande-moi ici les informations manquantes, puis donne-moi le lien pour le valider.",
           "Aide-moi à préparer un devis de fax pour ce PDF, sans l’envoyer.",
           "Où en est mon dernier envoi Guteneo ?"
         ],

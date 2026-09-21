@@ -403,6 +403,7 @@ export const fr = {
       "Vous pouvez importer votre PDF puis préparer un courrier dans l’atelier.",
     prepare: "Préparer un courrier",
     declared: "Déclaré par l’administrateur",
+    submittedInChat: "Renseigné dans la conversation",
     managed: "Expéditeur configuré",
     adminNeeded:
       "Un administrateur de votre organisation doit déclarer l’expéditeur pour activer le courrier.",

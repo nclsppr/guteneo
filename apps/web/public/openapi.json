@@ -3186,6 +3186,14 @@
           },
           "productionBlockers": {
             "type": "array",
+            "description": "Global configuration blockers observable without an authenticated account; account-specific checks are evaluated when preparing a dispatch.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "checksAtPreparation": {
+            "type": "array",
+            "description": "Prerequisites evaluated against the actual account, document and destination; these are not reported failures.",
             "items": {
               "type": "string"
             }

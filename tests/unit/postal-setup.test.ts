@@ -301,6 +301,11 @@ describe("self-service postal activation", () => {
       user_id: owner.userId,
       authorization_basis: "authenticated_administrator_declaration",
       physical_address_verified: 0,
+      submission_origin: "browser_administrator_declaration",
+      oauth_client_id: null,
+      oauth_connection_id_snapshot: null,
+      oauth_issuer: null,
+      oauth_authorization_revision: null,
     });
     const policies = (
       await db
@@ -593,15 +598,24 @@ describe("self-service postal activation", () => {
   });
 
   it("rolls back sender, declaration, pricing and channel when the transaction fails", async () => {
+    let writePrepared = false;
     env.DB = {
-      prepare: db.prepare.bind(db),
+      prepare(query: string) {
+        if (query.startsWith("INSERT INTO audit_log(")) writePrepared = true;
+        return db.prepare(query);
+      },
       batch: (statements: D1PreparedStatement[]) =>
-        db.batch([
-          ...statements,
-          db.prepare("INSERT INTO deliberately_missing_table VALUES(1)"),
-        ]),
+        db.batch(
+          writePrepared
+            ? [
+                ...statements,
+                db.prepare("INSERT INTO deliberately_missing_table VALUES(1)"),
+              ]
+            : statements,
+        ),
     } as D1Database;
     await expect(setup()).rejects.toThrow();
+    expect(writePrepared).toBe(true);
     env.DB = db;
     expect(await count("senders")).toBe(0);
     expect(await count("postal_sender_declarations")).toBe(0);
