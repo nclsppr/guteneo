@@ -252,6 +252,9 @@ for (const format of ["canonical", "current-origin", "relative"] as const)
           ? new URL(cropPath, baseURL).href
           : cropPath;
     const fixture = await setup(page, "ready", cropUrl);
+    await expect(
+      page.getByRole("complementary", { name: "Heure limite de traitement" }),
+    ).toContainText("01 h 00");
     const image = page.getByRole("img", {
       name: /Extrait de la première page/,
     });

@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { fr as t } from "./i18n";
 import { customerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
+import { PostalCutoffFaq } from "./postal-cutoff-faq";
 import "./assistant-workspace.css";
 
 const copy = t.homepage;
@@ -164,6 +165,7 @@ export function FrequentlyAsked() {
             <p>{item.answer}</p>
           </details>
         ))}
+        <PostalCutoffFaq />
       </div>
     </section>
   );

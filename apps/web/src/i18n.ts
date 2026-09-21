@@ -124,6 +124,27 @@ export const fr = {
       legal: "Mentions légales",
     },
   },
+  postalCutoff: {
+    title: "Heure limite de traitement",
+    timeZone: "heure de Paris",
+    friday: "le vendredi",
+    handover: {
+      sameDay:
+        "Remise à la poste prévue le même jour ouvré si le courrier est transmis au service d’impression avant cette heure.",
+      nextDay:
+        "Remise à la poste prévue le jour ouvré suivant si le courrier est transmis au service d’impression avant cette heure.",
+      twoDays:
+        "Remise à la poste prévue sous deux jours ouvrés si le courrier est transmis au service d’impression avant cette heure.",
+    },
+    nonWorkingDays:
+      "Hors week-ends et jours fériés. Il ne s’agit pas du délai de livraison.",
+    germanEconomy:
+      "Vers l’Allemagne, la distribution économique peut demander un traitement supplémentaire.",
+    swissBulk:
+      "Vers la Suisse, le courrier B en nombre peut demander un traitement supplémentaire.",
+    details: "Après cette heure ? Voir les horaires et exceptions",
+    newTab: "(nouvel onglet)",
+  },
   login: {
     title: "Bienvenue à l’atelier.",
     body: "Explorez un espace de démonstration isolé. Les documents et les envois appartiennent à l’organisation choisie.",

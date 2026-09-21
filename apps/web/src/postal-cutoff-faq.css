@@ -1,0 +1,80 @@
+.postal-cutoff-faq {
+  scroll-margin-top: 32px;
+}
+
+.postal-cutoff-faq__content {
+  padding-bottom: 24px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.postal-cutoff-faq__content p {
+  margin: 0 0 16px;
+}
+
+.postal-cutoff-faq__content p:last-child {
+  margin-bottom: 0;
+}
+
+.postal-cutoff-faq__table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.postal-cutoff-faq__table caption {
+  padding-bottom: 10px;
+  text-align: left;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.postal-cutoff-faq__destination {
+  width: 40%;
+}
+
+.postal-cutoff-faq__hour {
+  width: 24%;
+}
+
+.postal-cutoff-faq__table th,
+.postal-cutoff-faq__table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.postal-cutoff-faq__table th {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.postal-cutoff-faq__table thead th {
+  padding-top: 0;
+  font-size: 13px;
+}
+
+.postal-cutoff-faq__table :is(th, td):first-child {
+  padding-left: 0;
+}
+
+.postal-cutoff-faq__table :is(th, td):last-child {
+  padding-right: 0;
+}
+
+.postal-cutoff-faq__time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.postal-cutoff-faq__friday {
+  display: block;
+  margin-top: 8px;
+}

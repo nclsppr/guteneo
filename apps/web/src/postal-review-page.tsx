@@ -14,6 +14,7 @@ import type { PostalReview } from "../../../packages/contracts/src/postal-review
 import site from "../../../packages/contracts/src/public-site.json";
 import { PostalAddressPageSummary } from "./postal-address-page";
 import { usePostalQuote } from "./postal-quote-followup";
+import { PostalCutoffNotice } from "./postal-cutoff-notice";
 
 const issueLabels: Record<string, string> = {
   POSTAL_CORNER_CONTENT:
@@ -375,6 +376,10 @@ export function PostalReviewPage({ id }: { id: string }) {
                     </dd>
                   </div>
                 </dl>
+                <PostalCutoffNotice
+                  country={review.recipient.country}
+                  deliveryProduct={review.options.deliveryProduct}
+                />
               </section>
             </div>
 
