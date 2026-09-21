@@ -189,6 +189,7 @@ const faxPricingSchema = z
     version: z.literal(3),
     currency: z.literal("EUR"),
     basis: z.literal("qualified_usage_ex_tax"),
+    executionScope: z.literal("review_prepare_only").optional(),
     routeQualification: z.literal("operator_authorized_test").optional(),
     routeNotice: z.string().optional(),
     estimatedLowNanoeur: z.number().int().nonnegative(),
@@ -338,8 +339,8 @@ export const FAX_WORKFLOW = [
   "2. Réutiliser un document Guteneo avec get_document/list_documents, importer le PDF exact avec import_document si l’hôte fournit un lien HTTPS public direct, ou upload_local_pdf si un adaptateur local est installé. Sinon ouvrir le dépôt authentifié Guteneo. Ne jamais reconstruire un original à partir de son texte, inventer une URL ou transmettre un chemin local au serveur distant." +
     CHATGPT_DOCUMENT_NOTICE,
   "3. Lire analysis et reprendre ses title/message en langage courant : ne pas présenter quarantined comme un échec ou une infection. Présenter une prochaine action concrète ; garder les identifiants internes et les empreintes dans les appels d’outils, sauf si l’utilisateur les demande. Si analysis.state=processing, le PDF est conservé et Guteneo poursuit automatiquement la vérification. Attendre retryAfterSeconds avant get_document (lecture seule), au maximum trois lectures dans cette interaction ; ne pas boucler sur rescan_document ni réimporter. Si l’attente dépasse l’interaction, proposer de dire « reprends l’envoi » ici pour consulter le même PDF, en conservant son identifiant et les paramètres déjà fournis sans demander de les recopier. documentUrl est une consultation facultative, pas une étape nécessaire ; ne le présenter que si l’utilisateur souhaite le site. Ne promettre ni notification ni envoi automatique. Si nextAction=rescan, proposer une seule relance sur le même document ; si blocked, expliquer message et l’action proposée. Seul ready autorise prepare_fax. Confirmer avec l’utilisateur le numéro international E.164 et le plafond en centimes EUR ; ne pas inventer de destinataire, de tarif ou de crédit.",
-  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Présenter le PDF, le destinataire et le coût dans la conversation ; le lien approvalUrl dépend de la voie autorisée à l’étape suivante. Si faxPricing est présent, présenter faxPricing.display.estimate.label et creditLabel, puis display.ceiling et display.explanation. Les crédits sont un solde en euros. estimatedMinor est seulement la borne haute arrondie au centime supérieur, jamais un prix fixe ni un débit. Les montants exacts restent disponibles dans display.estimate.lowEur/highEur et les nanoEUR. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
-  "4b. Afficher quoteExpiresAt, l’échéance exacte renvoyée par le serveur, sans calculer createdAt + 15 minutes. Si elle est dépassée ou si LIVE_QUOTE_INVALID est renvoyé, relire get_dispatch_status. Seulement si status=prepared et attemptCount=0 explicitement (un champ absent ne vaut pas zéro), proposer prepare_fax avec renewalOf=ancien dispatchId, les mêmes documentId, phone E.164 et ceilingMinor exacts, et une clé stable pour ce renouvellement. Le serveur conserve aussi l’expéditeur et les options, remplace l’ancien devis et ne transmet rien. Si le fax venait d’une campagne, annoncer avant le renouvellement que le nouveau devis sera individuel, hors campagne, avec une approbation séparée ; le manifeste et les autres membres restent inchangés. Présenter le nouveau devis et sa nouvelle échéance, puis obtenir une nouvelle approbation ou revue expert sous l’autorité actuelle ; aucun accord, jeton de revue ou fingerprint antérieur ne se reporte. Ne jamais démarrer un renouvellement pour queued, submitting, submission_unknown, accepted, delivered ou failed, ni un envoi avec tentative. Si la réponse d’un renouvellement déjà demandé a été perdue, récupérer cette même opération avec exactement le même renewalOf, les mêmes paramètres et la même clé : le serveur retourne le même remplacement, même si la source apparaît désormais cancelled. Ne jamais préparer librement un autre fax pour retrouver cette réponse. Un refus de configuration ou de plafond doit être expliqué, jamais contourné par un changement de numéro, de document, de tarif ou de clé.",
+  "4. Appeler prepare_fax avec documentId, phone, ceilingMinor et une clé d’idempotence stable pour cette préparation. Puis, si la réponse contient faxPricing.executionScope=review_prepare_only, présenter la notice de revue et le devis de référence sans débit et arrêter avant les étapes 5 et 6 : aucune approbation, confirmation, délégation expert ou transmission n’est permise. Présenter le PDF, le destinataire et le coût dans la conversation ; le lien approvalUrl dépend de la voie autorisée à l’étape suivante. Si faxPricing est présent, présenter faxPricing.display.estimate.label et creditLabel, puis display.ceiling et display.explanation. Les crédits sont un solde en euros. estimatedMinor est seulement la borne haute arrondie au centime supérieur, jamais un prix fixe ni un débit. Les montants exacts restent disponibles dans display.estimate.lowEur/highEur et les nanoEUR. Si routeQualification=operator_authorized_test, présenter routeNotice : le test est autorisé, mais la capacité technique du fournisseur reste non confirmée. Ne jamais inventer de frais supplémentaires ou présenter un champ absent comme zéro.",
+  "4b. Afficher quoteExpiresAt, l’échéance exacte renvoyée par le serveur, sans calculer createdAt + 15 minutes. Si elle est dépassée ou si LIVE_QUOTE_INVALID est renvoyé, relire get_dispatch_status. Seulement si status=prepared et attemptCount=0 explicitement (un champ absent ne vaut pas zéro), proposer prepare_fax avec renewalOf=ancien dispatchId, les mêmes documentId, phone E.164 et ceilingMinor exacts, et une clé stable pour ce renouvellement. Le serveur conserve aussi l’expéditeur et les options, remplace l’ancien devis et ne transmet rien. Si le fax venait d’une campagne, annoncer avant le renouvellement que le nouveau devis sera individuel, hors campagne, avec une approbation séparée ; le manifeste et les autres membres restent inchangés. Présenter le nouveau devis et sa nouvelle échéance. Si faxPricing.executionScope=review_prepare_only, il reste une préparation non envoyable : aucune approbation ni revue expert. Sinon obtenir une nouvelle approbation ou revue expert sous l’autorité actuelle ; aucun accord, jeton de revue ou fingerprint antérieur ne se reporte. Ne jamais démarrer un renouvellement pour queued, submitting, submission_unknown, accepted, delivered ou failed, ni un envoi avec tentative. Si la réponse d’un renouvellement déjà demandé a été perdue, récupérer cette même opération avec exactement le même renewalOf, les mêmes paramètres et la même clé : le serveur retourne le même remplacement, même si la source apparaît désormais cancelled. Ne jamais préparer librement un autre fax pour retrouver cette réponse. Un refus de configuration ou de plafond doit être expliqué, jamais contourné par un changement de numéro, de document, de tarif ou de clé.",
   "5. Si le titulaire a préalablement activé le mode expert pour cette connexion dans son compte, poursuivre dans la conversation : appeler review_dispatch, lire les images complètes et poursuivre avec page=review.nextPage jusqu’à review.complete et au jeton final, puis présenter la revue, respecter la confirmation de l’hôte, puis approve_and_send_dispatch avec le jeton, l’empreinte et le plafond retournés. approvalUrl n’est pas une étape de cette voie autorisée. Cette voie utilise une délégation enregistrée, jamais une affirmation de consentement humain par le modèle. Si la délégation est refusée ou le PDF exact illisible pour l’hôte, expliquer la limite ici et proposer le parcours standard comme alternative, sans l’ouvrir automatiquement ni appeler approve_and_send_dispatch. Le mode standard reste le défaut sans mandat : l’utilisateur ouvre approvalUrl, vérifie le PDF et approuve dans Guteneo. Un oui dans la conversation ne remplace pas cette approbation et ne crée pas de mandat. Le modèle ne doit jamais appeler l’API navigateur d’approbation ni activer ou étendre sa propre délégation.",
   "6. Dans le parcours standard, après cette approbation navigateur, appeler confirm_dispatch avec dispatchId et une clé d’idempotence stable. Un refus APPROVAL_REQUIRED impose de revenir à l’approbation humaine ; ne pas changer de clé pour contourner un refus.",
   "7. Consulter get_dispatch_status. Distinguer queued, accepted, delivered et failed. submission_unknown exige un rapprochement opérateur ; ne jamais relancer automatiquement un fax incertain. La livraison et le décompte sont distincts : faxPricing.settlement.status=reserved conserve le plafond jusqu’à vérification de l’usage, même après livraison ; settled donne la consommation validée et le débit agrégé, released libère la réservation sans débit. Ne pas réexpédier pour accélérer le décompte.",
@@ -442,45 +443,49 @@ export function dispatchSummary(
         }
       : {}),
     nextActions:
-      dispatch.channel === "email" && dispatch.status === "prepared"
-        ? dispatch.quote_expires_at &&
-          Date.parse(dispatch.quote_expires_at) <= Date.now()
-          ? [
-              "Devis expiré : consulter get_dispatch_status. Cet e-mail ne se renouvelle pas avec prepare_fax ; aucune transmission ni nouvelle approbation n’est déduite de l’ancien devis.",
-            ]
-          : [
-              "Présenter le message, le mode de remise, le devis et le plafond. Sans mandat expert actif pour cette connexion et le canal e-mail, ouvrir approvalUrl pour la revue et l’approbation humaines, puis confirm_dispatch. Sous mandat déjà actif, relire le message et toutes les pages du PDF éventuel avec review_dispatch, puis approve_and_send_dispatch après la confirmation de l’hôte et l’attestation réelle que le destinataire a demandé le message.",
-              ...(emailMode === "protected_link"
-                ? [
-                    "L’expéditeur consulte lui-même le mot de passe via emailDelivery.passwordAccessUrl dans son navigateur authentifié et le transmet séparément. Ne jamais lire, demander ou afficher le mot de passe dans la conversation.",
-                  ]
-                : []),
-            ]
-        : dispatch.status === "prepared"
+      dispatch.faxPricing?.executionScope === "review_prepare_only"
+        ? [
+            "Préparation de revue uniquement : consulter le PDF et ce devis, ou annuler le brouillon. Aucun envoi, approbation, mandat expert ou crédit ne sont autorisés. Le lien approvalUrl ouvre uniquement la consultation de ce devis. Un devis expiré peut être renouvelé avec les mêmes paramètres si la référence opérateur reste valide ; sinon demander sa requalification à l’opérateur.",
+          ]
+        : dispatch.channel === "email" && dispatch.status === "prepared"
           ? dispatch.quote_expires_at &&
             Date.parse(dispatch.quote_expires_at) <= Date.now()
             ? [
-                "Devis expiré : relire get_dispatch_status ; uniquement si status=prepared et attemptCount=0 explicite, renouveler avec prepare_fax et renewalOf, les mêmes PDF, numéro et plafond. Une nouvelle approbation est requise.",
+                "Devis expiré : consulter get_dispatch_status. Cet e-mail ne se renouvelle pas avec prepare_fax ; aucune transmission ni nouvelle approbation n’est déduite de l’ancien devis.",
               ]
             : [
-                "Si une délégation expert est déjà active pour cette connexion : poursuivre ici avec review_dispatch, lire le PDF exact, puis approve_and_send_dispatch ; aucun passage par approvalUrl n’est nécessaire lorsque le serveur autorise cette voie et que l’hôte lit le PDF. Respecter les confirmations de l’hôte. Sans mandat, le parcours standard reste requis : présenter approvalUrl pour une approbation humaine, puis confirm_dispatch.",
+                "Présenter le message, le mode de remise, le devis et le plafond. Sans mandat expert actif pour cette connexion et le canal e-mail, ouvrir approvalUrl pour la revue et l’approbation humaines, puis confirm_dispatch. Sous mandat déjà actif, relire le message et toutes les pages du PDF éventuel avec review_dispatch, puis approve_and_send_dispatch après la confirmation de l’hôte et l’attestation réelle que le destinataire a demandé le message.",
+                ...(emailMode === "protected_link"
+                  ? [
+                      "L’expéditeur consulte lui-même le mot de passe via emailDelivery.passwordAccessUrl dans son navigateur authentifié et le transmet séparément. Ne jamais lire, demander ou afficher le mot de passe dans la conversation.",
+                    ]
+                  : []),
               ]
-          : dispatch.status === "submission_unknown"
-            ? [
-                "Attendre le rapprochement opérateur. Ne pas réexpédier cette commande.",
-              ]
-            : dispatch.status === "accepted" || dispatch.status === "delivered"
+          : dispatch.status === "prepared"
+            ? dispatch.quote_expires_at &&
+              Date.parse(dispatch.quote_expires_at) <= Date.now()
               ? [
-                  dispatch.status === "accepted"
-                    ? "Accepté par le prestataire ; consulter le prochain résultat."
-                    : "Livré selon le prestataire ; pour un e-mail, cela indique la remise au serveur destinataire, pas l’ouverture du document.",
-                  ...(emailMode === "protected_link"
-                    ? [
-                        "L’expéditeur peut consulter le mot de passe dans son navigateur via emailDelivery.passwordAccessUrl et le transmettre séparément ; aucun mot de passe ne doit passer par la conversation.",
-                      ]
-                    : []),
+                  "Devis expiré : relire get_dispatch_status ; uniquement si status=prepared et attemptCount=0 explicite, renouveler avec prepare_fax et renewalOf, les mêmes PDF, numéro et plafond. Une nouvelle approbation est requise.",
                 ]
-              : [],
+              : [
+                  "Si une délégation expert est déjà active pour cette connexion : poursuivre ici avec review_dispatch, lire le PDF exact, puis approve_and_send_dispatch ; aucun passage par approvalUrl n’est nécessaire lorsque le serveur autorise cette voie et que l’hôte lit le PDF. Respecter les confirmations de l’hôte. Sans mandat, le parcours standard reste requis : présenter approvalUrl pour une approbation humaine, puis confirm_dispatch.",
+                ]
+            : dispatch.status === "submission_unknown"
+              ? [
+                  "Attendre le rapprochement opérateur. Ne pas réexpédier cette commande.",
+                ]
+              : dispatch.status === "accepted" || dispatch.status === "delivered"
+                ? [
+                    dispatch.status === "accepted"
+                      ? "Accepté par le prestataire ; consulter le prochain résultat."
+                      : "Livré selon le prestataire ; pour un e-mail, cela indique la remise au serveur destinataire, pas l’ouverture du document.",
+                    ...(emailMode === "protected_link"
+                      ? [
+                          "L’expéditeur peut consulter le mot de passe dans son navigateur via emailDelivery.passwordAccessUrl et le transmettre séparément ; aucun mot de passe ne doit passer par la conversation.",
+                        ]
+                      : []),
+                  ]
+                : [],
   };
 }
 function documentSummary(
@@ -861,7 +866,7 @@ export function createGuteneoMcpServer(
     {
       title: "Vérifier les services disponibles",
       description:
-        "Décrit les canaux, limites, connexions et blocages réels. Simulation est toujours explicite. En production, un appel réussi enregistre aussi la dernière utilisation réussie de cette connexion dans Guteneo.",
+        "Décrit les fonctions Guteneo de gestion de PDF, de fax, d’envoi d’e-mails et de courrier postal, avec leurs limites, connexions et blocages réels. La simulation est toujours explicite. Guteneo ne propose ni signature électronique, ni lecture d’une boîte mail, ni SMS. Pour une demande portant uniquement sur l’un de ces services exclus, expliquer directement cette limite sans appeler cet outil ni un autre outil Guteneo. En production, un appel réussi enregistre aussi la dernière utilisation réussie de cette connexion dans Guteneo.",
       inputSchema: z.object({}).strict(),
       outputSchema: output(z.unknown()),
       annotations: observedReadAnnotations,
@@ -1042,7 +1047,7 @@ export function createGuteneoMcpServer(
     {
       title: "Préparer un fax PDF",
       description:
-        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien. Sous un mandat expert déjà actif pour cette connexion, poursuivre ici avec review_dispatch puis approve_and_send_dispatch après lecture du PDF exact ; le lien n’est pas requis. Sans mandat, une approbation humaine dans Guteneo puis confirm_dispatch restent nécessaires.",
+        "Prépare le fax d’un PDF Guteneo prêt, à un numéro international E.164, avec un plafond explicite en centimes EUR. Retourne le devis et, pour un devis envoyable, le lien d’approbation humaine. En v3, présenter faxPricing.display : fourchette EUR HT et euros de crédit prête à afficher, puis plafond distinct. estimatedMinor est la borne haute arrondie au centime supérieur, jamais le prix fixe ni le débit ; le coût final attend l’usage vérifié. Ne facture et n’envoie rien. Si faxPricing.executionScope vaut review_prepare_only, arrêter à la préparation : aucun lien d’approbation utilisable, aucune approbation ni expédition n’est autorisée ; les étapes suivantes s’appliquent uniquement aux devis envoyables. Sous un mandat expert déjà actif pour cette connexion, poursuivre ici avec review_dispatch puis approve_and_send_dispatch après lecture du PDF exact ; le lien n’est pas requis. Sans mandat, une approbation humaine dans Guteneo puis confirm_dispatch restent nécessaires.",
       inputSchema: z
         .object({
           documentId: id,
@@ -1064,7 +1069,7 @@ export function createGuteneoMcpServer(
           renewalOf: id
             .optional()
             .describe(
-              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le renouvellement annule définitivement l’ancien envoi préparé et crée son remplacement individuel, hors de toute campagne d’origine, qui conserve son manifeste. Annoncer cette annulation avant renouvellement. Idempotence serveur stable pour cet ancien devis ; nouvelle approbation séparée requise.",
+              "Ancien dispatchId dont le devis fax a expiré ou est devenu invalide. Conserver exactement documentId, phone et ceilingMinor après avoir vérifié prepared et aucune tentative. Le renouvellement annule définitivement l’ancien envoi préparé et crée son remplacement individuel, hors de toute campagne d’origine, qui conserve son manifeste. Annoncer cette annulation avant renouvellement. Idempotence serveur stable pour cet ancien devis ; une nouvelle approbation séparée reste requise pour un devis envoyable ; un renouvellement review_prepare_only reste limité à la préparation et ne peut être approuvé ni expédié.",
             ),
           idempotencyKey: key,
         })

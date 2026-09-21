@@ -79,6 +79,9 @@ export type FaxUsageTariff = {
   route_allowed: number;
   local_calling_verified: number;
   route_qualification?: "provider_verified" | "operator_test";
+  execution_scope?: "live" | "review_prepare_only";
+  review_authority_id?: string | null;
+  evidence_observed_at?: string | null;
   operator_authorization_reference?: string | null;
   operator_test_ceiling_minor?: number | null;
   options_json: string;
@@ -193,7 +196,15 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
     Number.isInteger(t.operator_test_ceiling_minor) &&
     t.operator_test_ceiling_minor! >= 1 &&
     t.operator_test_ceiling_minor! <= 200 &&
-    t.expires_at <= "2026-09-24T09:00:01.620Z" &&
+    (t.execution_scope === "review_prepare_only"
+      ? !!t.review_authority_id &&
+        !!t.evidence_observed_at &&
+        timestamp.safeParse(t.evidence_observed_at).success &&
+        t.evidence_observed_at <= t.valid_from &&
+        Date.parse(t.expires_at) - Date.parse(t.evidence_observed_at) <=
+          168 * 3600_000 &&
+        t.max_pages <= 7
+      : t.expires_at <= "2026-09-24T09:00:01.620Z") &&
     Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
   );
 }
@@ -237,8 +248,17 @@ export async function resolveFaxUsageTariff(
     )
     .bind(organizationId, senderId)
     .first<{ address: string }>();
+  const reviewAuthorized =
+    t?.execution_scope !== "review_prepare_only" ||
+    !!(await db
+      .prepare(
+        "SELECT 1 FROM valid_review_fax_usage_tariffs WHERE organization_id=? AND id=? AND review_recipient_phone=?",
+      )
+      .bind(organizationId, t.id, number)
+      .first());
   if (
     !t ||
+    !reviewAuthorized ||
     t.status !== "qualified" ||
     !sender ||
     t.valid_from > now ||
@@ -589,12 +609,13 @@ export async function readFaxPricingBatch(
     throw new DomainError("INVALID_LIMIT", "Au maximum 100 envois.");
   const rows = await db
     .prepare(
-      "SELECT q.*,t.route_qualification,r.status AS reservation_status,s.customer_nanoeur,n.charged_minor,s.created_at AS settled_at FROM live_fax_quotes_v3 q JOIN trusted_fax_usage_tariffs t ON t.organization_id=q.organization_id AND t.id=q.tariff_id LEFT JOIN welcome_credit_reservations r ON r.organization_id=q.organization_id AND r.dispatch_id=q.dispatch_id LEFT JOIN fax_usage_settlements s ON s.organization_id=q.organization_id AND s.dispatch_id=q.dispatch_id LEFT JOIN delivery_charge_entries n ON n.organization_id=q.organization_id AND n.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id IN (SELECT value FROM json_each(?))",
+      "SELECT q.*,t.route_qualification,t.execution_scope,r.status AS reservation_status,s.customer_nanoeur,n.charged_minor,s.created_at AS settled_at FROM live_fax_quotes_v3 q JOIN trusted_fax_usage_tariffs t ON t.organization_id=q.organization_id AND t.id=q.tariff_id LEFT JOIN welcome_credit_reservations r ON r.organization_id=q.organization_id AND r.dispatch_id=q.dispatch_id LEFT JOIN fax_usage_settlements s ON s.organization_id=q.organization_id AND s.dispatch_id=q.dispatch_id LEFT JOIN delivery_charge_entries n ON n.organization_id=q.organization_id AND n.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id IN (SELECT value FROM json_each(?))",
     )
     .bind(organizationId, JSON.stringify(ids))
     .all<
       FaxUsageQuote & {
         route_qualification: "provider_verified" | "operator_test";
+        execution_scope: "live" | "review_prepare_only";
         reservation_status: "reserved" | "settled" | "released" | null;
         customer_nanoeur: number | null;
         charged_minor: number | null;
@@ -608,6 +629,9 @@ export async function readFaxPricingBatch(
         version: 3,
         currency: "EUR",
         basis: "qualified_usage_ex_tax",
+        ...(q.execution_scope === "review_prepare_only"
+          ? { executionScope: "review_prepare_only" as const }
+          : {}),
         ...(q.route_qualification === "operator_test"
           ? {
               routeQualification: "operator_authorized_test" as const,
@@ -641,4 +665,24 @@ export async function readFaxPricing(
   return (await readFaxPricingBatch(db, organizationId, [dispatchId])).get(
     dispatchId,
   );
+}
+
+/** Persisted tariff purpose, independent of expiry, channel switches or claimed approval. */
+export async function assertFaxDispatchSendable(
+  db: D1Database,
+  row: Pick<Dispatch, "id" | "organization_id">,
+): Promise<void> {
+  if (
+    await db
+      .prepare(
+        "SELECT 1 FROM review_only_fax_dispatches WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(row.organization_id, row.id)
+      .first()
+  )
+    throw new DomainError(
+      "FAX_REVIEW_PREPARATION_ONLY",
+      "Ce devis de revue sert uniquement à préparer et consulter le fax. Aucun envoi, aucune approbation et aucune réservation ne sont autorisés.",
+      409,
+    );
 }

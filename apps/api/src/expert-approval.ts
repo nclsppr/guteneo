@@ -1,3 +1,4 @@
+import { assertFaxDispatchSendable } from "../../../packages/domain/src/live-fax-usage";
 import type { DocumentService } from "./documents";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import {
@@ -117,8 +118,9 @@ export async function reviewExpertDispatch(
 ) {
   requireScope(identity, "dispatches:read");
   requireScope(identity, "documents:read");
-  const { authority, policy } = await expertAuthority(identity, env);
   const { dispatch } = await domain.getDispatch(identity.context, dispatchId);
+  await assertFaxDispatchSendable(env.DB, dispatch);
+  const { authority, policy } = await expertAuthority(identity, env);
   if (dispatch.status !== "prepared")
     throw new DomainError(
       "INVALID_STATE",
@@ -306,6 +308,9 @@ export async function acceptExpertDispatch(
   domain: DomainService,
   input: ExpertAcceptanceInput,
 ) {
+  const current = (await domain.getDispatch(identity.context, input.dispatchId))
+    .dispatch;
+  await assertFaxDispatchSendable(env.DB, current);
   const { authority, policy } = await expertAuthority(identity, env);
   const reviewHash = await hashSecret(input.reviewToken);
   const review = await env.DB.prepare(
@@ -326,8 +331,6 @@ export async function acceptExpertDispatch(
       "EXPERT_REVIEW_INVALID",
       "La revue exacte a expiré ou changé. Consultez le statut puis relisez l’envoi.",
     );
-  const current = (await domain.getDispatch(identity.context, input.dispatchId))
-    .dispatch;
   if (current.status === "prepared") {
     const proof: ExpertDispatchAuthority = {
       ...authority.sql(),

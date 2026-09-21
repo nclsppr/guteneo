@@ -1,3 +1,4 @@
+import { assertFaxDispatchSendable } from "./live-fax-usage";
 import {
   validateProtectedDocument,
   type PreparedProtectedDocument,
@@ -256,6 +257,12 @@ function sqlError(error: unknown): never {
       "approval_required",
       "APPROVAL_REQUIRED",
       "Approbation humaine valide requise.",
+      409,
+    ],
+    [
+      "fax_review_preparation_only",
+      "FAX_REVIEW_PREPARATION_ONLY",
+      "Ce devis de revue ne peut pas être envoyé.",
       409,
     ],
     [
@@ -605,6 +612,7 @@ export class DomainService {
             source,
             this.config.liveFaxIdentity,
             this.time(),
+            "prepare",
           );
         } catch (error) {
           if (
@@ -618,7 +626,9 @@ export class DomainService {
       if (!invalid)
         throw new DomainError(
           "QUOTE_STILL_VALID",
-          "Ce devis est encore valable. Vérifiez-le avant de l’approuver.",
+          source.faxPricing?.executionScope === "review_prepare_only"
+            ? "Ce devis de préparation est encore valable et reste non envoyable."
+            : "Ce devis est encore valable. Vérifiez-le avant de l’approuver.",
           409,
         );
     }
@@ -846,6 +856,23 @@ export class DomainService {
             this.time(),
           )
         : undefined;
+    if (
+      renewal &&
+      (!tariff ||
+        !("execution_scope" in tariff) ||
+        tariff.execution_scope !== "review_prepare_only") &&
+      (await this.db
+        .prepare(
+          "SELECT 1 FROM review_only_fax_dispatches WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(ctx.organizationId, renewal.id)
+        .first())
+    )
+      throw new DomainError(
+        "FAX_REVIEW_PREPARATION_ONLY",
+        "Le renouvellement doit rester une préparation de revue non envoyable. Une référence de revue valide est requise.",
+        409,
+      );
     const deliveryPrice =
       this.config.mode === "production" && input.channel !== "fax"
         ? await resolveDeliveryPrice(this.db, {
@@ -1271,6 +1298,7 @@ export class DomainService {
     writable(ctx);
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
+    await assertFaxDispatchSendable(this.db, row);
     if (proof && (ctx.actor !== "mcp" || ctx.role !== "admin"))
       throw new DomainError(
         "FORBIDDEN",
@@ -1665,6 +1693,13 @@ export class DomainService {
     id: string,
     provider: ProviderHook,
   ): Promise<{ processed: boolean; status: DispatchStatus | string }> {
+    const candidate = await this.db
+      .prepare(
+        "SELECT id,organization_id FROM dispatches WHERE id=? AND mode=?",
+      )
+      .bind(id, this.config.mode)
+      .first<Pick<Dispatch, "id" | "organization_id">>();
+    if (candidate) await assertFaxDispatchSendable(this.db, candidate);
     const now = this.time(),
       attemptId = uid("att"),
       lease = new Date(this.now() + 120_000).toISOString();
