@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-09-22T00:05:07.095Z",
+  "url": "https://guteneo.com/",
+  "publicCommit": "22c24d5235dd204e48effafabef417c9bafac213",
+  "publicBuiltAt": "2026-09-21T23:24:46.701Z",
+  "localCommit": "22c24d5235dd204e48effafabef417c9bafac213",
+  "capture": {
+    "file": "mobile-web.png",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "deviceScaleFactor": 3,
+    "pixelDimensions": {
+      "width": 1170,
+      "height": 2532
+    },
+    "engine": "Chromium via Playwright",
+    "emulation": "mobile viewport and touch; not native iOS app or physical-device proof",
+    "reducedMotion": true,
+    "fullPage": false,
+    "retouched": false,
+    "domChanged": false,
+    "authentication": "fresh browser context without account cookies or login"
+  },
+  "publicReads": [
+    "/api/capabilities",
+    "/api/session"
+  ],
+  "blockedRequests": [],
+  "pageErrors": [],
+  "scope": "Unmodified public website. No real account, document, communication, or native iOS application."
+}

@@ -1,0 +1,10 @@
+{
+  "/videos/guteneo-horizontal-v5.mp4": {
+    "bytes": 10349346,
+    "sha256": "bd1ece8adebfee6bf829d3ab4f34cba6824b6ddb286d215d961ded79b6435675"
+  },
+  "/videos/guteneo-vertical-v5.mp4": {
+    "bytes": 12241988,
+    "sha256": "a0612982c75a772818dfdb72c2cd60289be67a6c17bf6407b76f5700fac9e0c6"
+  }
+}

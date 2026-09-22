@@ -7,6 +7,8 @@ export default tseslint.config(
       ".wrangler/**",
       "playwright-report/**",
       "test-results/**",
+      // Independent Remotion package with its own ESLint version and checks.
+      "videos/guteneo-film/**",
     ],
   },
   ...tseslint.configs.recommended,

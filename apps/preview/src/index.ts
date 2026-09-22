@@ -1,4 +1,5 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+import { withPublicVideoRange } from "../../api/src/public-video-range";
 
 const backendPaths = site.privatePrefixes.map((prefix) => `/${prefix}`);
 
@@ -58,7 +59,11 @@ export default {
         },
       );
     if (pathname === "/health") url.pathname = "/health.json";
-    const response = await env.ASSETS.fetch(new Request(url, request));
+    const assetRequest = new Request(url, request);
+    const response = await withPublicVideoRange(
+      assetRequest,
+      await env.ASSETS.fetch(assetRequest),
+    );
     const headers = new Headers(response.headers);
     for (const [key, value] of Object.entries(securityHeaders))
       headers.set(key, value);

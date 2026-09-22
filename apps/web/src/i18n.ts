@@ -60,6 +60,24 @@ export const fr = {
   },
   homepage: {
     navPricing: "Tarifs",
+    film: {
+      title: "La suite de vos mots.",
+      italic: "En mouvement.",
+      intro:
+        "De votre première idée à sa destination. Découvrez Guteneo en 56 secondes.",
+      play: "Découvrir le film",
+      replay: "Revoir le film",
+      duration: "56 secondes · Avec le son",
+      videoLabel: "Film de présentation de Guteneo",
+      fullscreen: "Plein écran",
+      close: "Fermer le lecteur",
+      loading: "Chargement du film…",
+      error:
+        "La lecture n’a pas pu démarrer. Vérifiez votre connexion, puis réessayez.",
+      transcriptTitle: "Lire la présentation du film",
+      transcript:
+        "D’un document à plus de 10 000, Guteneo distribue vos campagnes, des plus simples aux plus personnalisées. Importez un PDF ou créez votre propre modèle. Depuis ChatGPT, Claude ou Copilot, demandez à votre assistant de générer un PDF, puis préparez son envoi avec Guteneo. Relisez le bon à tirer et vérifiez le devis avant de valider. Choisissez l’e-mail classique ou chiffré, le fax, ou l’impression et la distribution postale dans toute l’Europe. Retrouvez aussi Guteneo sur le web et dans l’application iOS. Guteneo. La suite de vos mots.",
+    },
     pricing: {
       title: "De quoi commencer.",
       italic: "Et rien de caché.",

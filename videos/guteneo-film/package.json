@@ -1,0 +1,41 @@
+{
+  "name": "guteneo-film",
+  "version": "1.0.0",
+  "description": "Guteneo — films publicitaires Remotion, formats horizontal et iPhone.",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "@remotion/fonts": "4.0.526",
+    "@remotion/media": "4.0.526",
+    "@remotion/transitions": "4.0.526",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.526"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.526",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio --no-open",
+    "render": "remotion render src/index.ts Guteneo-Film out/guteneo-film-1080p.mp4 --concurrency=4",
+    "render:review": "remotion render src/index.ts Guteneo-Film out/guteneo-film-review.mp4 --scale=0.5 --crf=22 --concurrency=4",
+    "render:vertical": "remotion render src/index.ts Guteneo-Vertical-Vision out/guteneo-vertical-vision-1080x1920.mp4 --concurrency=4",
+    "render:vertical:review": "remotion render src/index.ts Guteneo-Vertical-Vision out/guteneo-vertical-review.mp4 --scale=0.5 --crf=22 --concurrency=4",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "render:iphone:pro": "remotion render src/index.ts Guteneo-iPhone-18-Pro out/guteneo-v5-iphone-18-pro.mp4 --concurrency=4",
+    "render:iphone:pro-max": "remotion render src/index.ts Guteneo-iPhone-18-Pro-Max out/guteneo-v5-vertical-iphone.mp4 --concurrency=4",
+    "render:horizontal": "remotion render src/index.ts Guteneo-Horizontal-Vision out/guteneo-v5-horizontal-1080p.mp4 --concurrency=4"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

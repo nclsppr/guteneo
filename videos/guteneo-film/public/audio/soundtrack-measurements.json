@@ -1,0 +1,25 @@
+{
+  "duration_seconds": 46.0,
+  "sample_rate": 48000,
+  "channels": 2,
+  "pcm_bits": 16,
+  "tempo_bpm": 80,
+  "tonality": "D major",
+  "clap_onset_seconds": 40.5,
+  "clap_onset_sample": 1944000,
+  "logo_chord_onset_seconds": 41,
+  "origin": "Original deterministic synthesis from oscillators and seeded noise; no third-party samples, recording, model or service.",
+  "master": {
+    "peak_dbfs": -1.0,
+    "rms_dbfs": -16.439,
+    "sample_peak": 0.891251,
+    "clipped_samples": 0
+  },
+  "standalone_clap": {
+    "peak_dbfs": -2.0,
+    "rms_dbfs": -28.121,
+    "sample_peak": 0.794328,
+    "clipped_samples": 0
+  },
+  "last_100ms_rms_dbfs": -68.982
+}
