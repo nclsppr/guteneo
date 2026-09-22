@@ -134,7 +134,6 @@ struct OverviewView: View {
                             recentDispatches.frame(maxWidth: .infinity, alignment: .topLeading)
                             recentDocuments.frame(maxWidth: .infinity, alignment: .topLeading)
                         }
-                        .accessibilityIdentifier("atelier.twoColumns")
                     } else {
                         recentDispatches
                         recentDocuments
