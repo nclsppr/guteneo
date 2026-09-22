@@ -134,14 +134,24 @@ does not invent legal bases, durations or exceptions.
 
 ## Proposed implementation, not yet present
 
-The minimal implementation should add a dedicated deletion service, an explicit
-schema migration for deletion state and retained evidence, an operator tool and
-tests. Suggested locations are `apps/api/src/account-deletion.ts`,
-`scripts/process-account-deletion.mjs` and a subsequent numbered migration.
-These names describe future work; this document does not make them executable.
+Apple accepts a manual deletion process; full automation across the database and
+every provider is not required. The in-app request must nevertheless reach a real
+operating process, disclose its expected completion time and confirm completion.
+The user must not be required to contact support to complete the request.
+See [Apple's account deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
 
-The service should build an idempotent plan for the complete user, record a hash
-of that plan, classify every workspace and retained category, and persist progress
+One implementation option is a dedicated deletion service, the schema changes
+required for safe erasure, an operator tool and tests. Suggested locations are
+`apps/api/src/account-deletion.ts`, `scripts/process-account-deletion.mjs` and a
+subsequent numbered migration. These are design suggestions, not an architecture
+mandated by Apple. A qualified manual procedure may use existing administrative
+tools, but must actually remove the account and eligible personal data, preserve
+only justified evidence, handle interruptions safely and verify completion. No
+such complete procedure is currently qualified in this repository.
+
+If that operator tool is implemented, it should build an idempotent plan for the
+complete user, record a hash of that plan, classify every workspace and retained
+category, and persist progress
 for each database, object-storage and external-provider step. A read-only dry run
 should print opaque request references, counts and safe reason codes, never names,
 recipients, content, credentials or signed URLs. Applying a plan should require

@@ -14,6 +14,14 @@ PDF du compte et de préparer les opérations prises en charge. Les fonctionnali
 visibles et les canaux réellement disponibles doivent correspondre au compte
 fourni à App Review.
 
+La connexion utilise `ASWebAuthenticationSession`, avec une fenêtre sécurisée
+présentée par iOS depuis l'application et un retour contrôlé vers celle-ci.
+Elle ne lance pas le navigateur par défaut avec `openURL` pour demander de se
+connecter. Ce mécanisme système est décrit dans la
+[documentation d'authentification Apple](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service).
+L'ouverture du navigateur pour la validation humaine d'un envoi est un parcours
+distinct de cette connexion.
+
 L'application ne vend rien. Elle ne contient ni achat intégré, ni ajout de
 crédits, ni lien ou invitation à un achat externe. Le solde déjà disponible et
 les devis servent à informer l'utilisateur du coût d'une opération. La règle
