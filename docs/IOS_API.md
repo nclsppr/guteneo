@@ -173,7 +173,9 @@ batch semantics: [D1 batch](https://developers.cloudflare.com/d1/worker-api/d1-d
 ## Language preference
 
 The additive `0038_user_locale.sql` migration and browser locale backend commit
-`132a9c2` are required with this native candidate. `user.preferredLocale` is null
+`132a9c2` are included with this native candidate (backend cherry-pick `298f168`).
+The original native changes through `fea555d` are also reconciled on the isolated
+`codex/multilingual-ios` branch; no migration has been applied to a remote database. `user.preferredLocale` is null
 for an existing account without an explicit preference. The current user's
 preference is shared with the browser profile; it is never accepted with an
 arbitrary user or organization identifier. Native PATCH only accepts this field

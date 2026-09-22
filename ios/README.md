@@ -178,13 +178,13 @@ que les champs d’un brouillon. Le parcours navigateur d’autorisation de l’
 de validation d’un envoi a son propre catalogue explicite en quatre langues.
 Le mode d’emploi de la migration et le contrat sont dans `docs/IOS_API.md`.
 
-Validation locale avant reprise des changements natifs `24bbe2a`–`fea555d` :
-compilation simulateur, 22 tests unitaires et 6 tests
-d’interface réussis sur iPhone 17 Pro Max, iOS 27.0. Les tests couvrent les
+Validation renouvelée après reprise des changements natifs `24bbe2a`–`fea555d` :
+compilation simulateur, 23 tests unitaires et 7 tests d’interface réussis sur
+iPhone 17 Pro Max, iOS 27.0 (`run-QUTBZd/Tests.xcresult`). Les tests couvrent les
 catalogues réellement embarqués, la priorité du profil, la persistance locale,
 le retour au choix précédent après un échec serveur, l’accueil anglais puis la
 navigation conservée en allemand et luxembourgeois. Captures non retouchées dans
-`QA/Screenshots/multilingual/`. Cette preuve n’est ni un essai Auth0 en production,
+[`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md). Cette preuve n’est ni un essai Auth0 en production,
 ni un essai sur appareil physique, ni une soumission TestFlight/App Store.
 
 ## Archive inspectée sur le candidat natif initial
@@ -200,3 +200,15 @@ Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
 `--uitesting-preview` sont absents du binaire Release. Le script d’archive
 contrôle également cette exclusion lors des prochains passages. Ce contrôle
 ne constitue ni une installation sur appareil ni une validation App Store.
+
+
+## Archive multilingue intégrée
+
+L’archive locale `ios/.build/Archives/run-b967tj/Guteneo-unsigned.xcarchive`
+a été régénérée le 22 septembre 2026 depuis les sources applicatives du commit
+`ec8fe77`, après intégration des derniers changements natifs. La compilation
+Release, la présence des assets et du manifeste, ainsi que l’exclusion des trois
+marqueurs de fixtures Debug ont réussi. Le manifeste embarqué déclare également
+UserDefaults avec la raison `CA92.1` pour le choix de langue sur l’appareil.
+L’archive reste non signée et non distribuable ; les preuves de signature,
+appareil physique et publication restent distinctes.

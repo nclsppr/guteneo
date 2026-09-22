@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "ec8fe77",
+  "resultBundle": "ios/.build/TestResults/run-QUTBZd/Tests.xcresult",
+  "simulator": "iPhone 17 Pro Max",
+  "runtime": "iOS 27.0 (24A5423a)",
+  "unitTestsPassed": 23,
+  "uiTestsPassed": 7,
+  "images": [
+    {
+      "file": "iphone-account-lb.png",
+      "sha256": "6d63b1be89b1ed14aed98848416eefccbc087c250d880ebeef933b3fec331f69",
+      "sourceAttachment": "D5D1C87A-F265-42CE-90A2-4519EF28029E.png",
+      "test": "GuteneoUITests/testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile()",
+      "timestamp": 1790038561.225
+    },
+    {
+      "file": "iphone-account-de.png",
+      "sha256": "2cf03ccefe50a034a0ab279f6d351e44406c59ddf98dea3d4fa993857db99a1d",
+      "sourceAttachment": "8275B493-3C60-4D87-B49D-C8F3B4FF11AE.png",
+      "test": "GuteneoUITests/testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile()",
+      "timestamp": 1790038556.354
+    },
+    {
+      "file": "iphone-reference-fr.png",
+      "sha256": "ef2b99b9e18ebb03010103387f3ad4695cd0a323099639c912b9cd09379d310d",
+      "sourceAttachment": "89C54D1C-F02F-4284-A687-7333716F09E3.png",
+      "test": "GuteneoUITests/testReferencePreparationHasNoApprovalAction()",
+      "timestamp": 1790038600.191
+    },
+    {
+      "file": "iphone-welcome-en.png",
+      "sha256": "574d721c350d6246bf96986fa979cbbe79b2b1b569c3720e5454cb881a6aa001",
+      "sourceAttachment": "04E4E9D2-20BF-4985-96A7-C21727360675.png",
+      "test": "GuteneoUITests/testWelcomeLanguageChangesImmediatelyAndKeepsTheChoice()",
+      "timestamp": 1790038648.746
+    }
+  ]
+}

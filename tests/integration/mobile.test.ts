@@ -1073,8 +1073,8 @@ describe("native mobile boundary on actual D1 and R2", () => {
       id: `dsp_${crypto.randomUUID()}`,
     });
     const route = `${env.APP_ORIGIN}/auth/mobile/review/${prepared.id}`;
-    const browser = (action?: string) =>
-      new Request(route, {
+    const browser = (action?: string, locale = "fr") =>
+      new Request(`${route}?locale=${locale}`, {
         method: action ? "POST" : "GET",
         headers: {
           Cookie: owner.cookie,
@@ -1121,17 +1121,45 @@ describe("native mobile boundary on actual D1 and R2", () => {
       expect(page).not.toMatch(
         /value="(?:approve|confirm)"|Valider cette version|Confirmer l’envoi|plafond est réservé|crédit|recharg/i,
       );
-      for (const action of ["approve", "confirm"]) {
-        const response = (await handleMobileRoute(
-          browser(action),
+      for (const [locale, notice, denial] of [
+        [
+          "fr",
+          "Préparation de revue uniquement",
+          "Ce devis est réservé à la consultation",
+        ],
+        ["en", "For review preparation only", "This quote is for viewing only"],
+        [
+          "de",
+          "Nur zur Vorbereitung einer Prüfung",
+          "Dieses Angebot dient nur zur Ansicht",
+        ],
+        [
+          "lb",
+          "Nëmme fir eng Kontroll virzebereeden",
+          "Dësen Devis ass nëmme fir ze kucken",
+        ],
+      ]) {
+        const localized = await (await handleMobileRoute(
+          browser(undefined, locale),
           env,
           domain,
           caps,
-        ))!;
-        expect(response.status).toBe(409);
-        expect(await response.text()).toContain(
-          "Ce devis est réservé à la consultation",
-        );
+        ))!.text();
+        expect(localized).toContain(`<html lang="${locale}">`);
+        expect(localized).toContain(notice);
+        expect(localized).not.toMatch(/value="(?:approve|confirm)"/);
+        for (const action of ["approve", "confirm"]) {
+          const response = (await handleMobileRoute(
+            browser(action, locale),
+            env,
+            domain,
+            caps,
+          ))!;
+          expect(response.status).toBe(409);
+          const failure = await response.text();
+          expect(failure).toContain(`<html lang="${locale}">`);
+          expect(failure).toContain(denial);
+        }
       }
       expect(approve).not.toHaveBeenCalled();
       expect(confirm).not.toHaveBeenCalled();
