@@ -1,0 +1,76 @@
+{
+  "capturedAt": "2026-09-21T23:26:46.989Z",
+  "publicRelease": {
+    "sourceCommit": "22c24d5235dd204e48effafabef417c9bafac213",
+    "builtAt": "2026-09-21T23:24:46.701Z",
+    "version": "0.2.0"
+  },
+  "capabilities": {
+    "version": "0.2.2",
+    "mode": "production",
+    "channels": [
+      {
+        "id": "fax",
+        "liveSending": true
+      },
+      {
+        "id": "email",
+        "liveSending": false
+      },
+      {
+        "id": "postal",
+        "liveSending": true
+      }
+    ]
+  },
+  "localCommit": "22c24d5235dd204e48effafabef417c9bafac213",
+  "appChanges": null,
+  "evidence": [
+    {
+      "file": "homepage.png",
+      "url": "https://guteneo.com/",
+      "heading": "Votre assistant prépare.",
+      "fixture": false,
+      "finalUrl": "https://guteneo.com/",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "publicReads": [
+        "/api/capabilities",
+        "/api/session"
+      ],
+      "blockedBackendRequests": [],
+      "pageErrors": []
+    },
+    {
+      "file": "atelier.png",
+      "url": "http://127.0.0.1:5198/#/app",
+      "heading": "Votre correspondance, au clair.",
+      "fixture": true,
+      "finalUrl": "http://127.0.0.1:5198/#/app",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "publicReads": [],
+      "blockedBackendRequests": [],
+      "pageErrors": []
+    },
+    {
+      "file": "approval.png",
+      "url": "http://127.0.0.1:5198/#/app/prepare?channel=postal",
+      "heading": "Le bon à envoyer.",
+      "fixture": true,
+      "preparePostal": true,
+      "finalUrl": "http://127.0.0.1:5198/#/app/dispatch/preview_dispatch_129477a5-06c8-4bd8-8f8d-b2e593adaa40",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "publicReads": [],
+      "blockedBackendRequests": [],
+      "pageErrors": []
+    }
+  ]
+}

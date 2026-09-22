@@ -51,6 +51,7 @@ import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
 import { articles, articlePath } from "./editorial/articles";
 import { GuidedExample } from "./landing-example";
+import { HomepageFilm } from "./homepage-film";
 import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
@@ -247,6 +248,7 @@ export function Landing() {
           </div>
         </section>
         <p className="hero-caption">{t.landing.caption}</p>
+        <HomepageFilm />
         <GuidedExample />
         <Installation />
         <WelcomePricing />

@@ -1,5 +1,6 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import { assertBaseConfiguration, type Env } from "./env";
+import { withPublicVideoRange } from "./public-video-range";
 
 const publicPages = new Set(site.paths);
 const securityHeaders = {
@@ -69,7 +70,10 @@ export async function servePublicAssets(
   }
   let response: Response;
   try {
-    response = await env.ASSETS.fetch(request);
+    response = await withPublicVideoRange(
+      request,
+      await env.ASSETS.fetch(request),
+    );
   } catch {
     return new Response(
       request.method === "HEAD" ? null : "Static content unavailable",
@@ -116,7 +120,8 @@ export async function servePublicAssets(
     )
   )
     headers.set("Cache-Control", "no-store");
-  // Preserve every asset byte, ETag, status and redirect. Never rewrite HTML or cache across hosts.
+  // Preserve asset bytes (or the selected video range), ETag, status and redirects.
+  // Never rewrite HTML or cache across hosts.
   return new Response(request.method === "HEAD" ? null : response.body, {
     status: response.status,
     statusText: response.statusText,

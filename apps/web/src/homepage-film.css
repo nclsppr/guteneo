@@ -1,0 +1,181 @@
+.homepage-film {
+  padding: 56px 0;
+  border-bottom: 1px solid var(--line);
+}
+.homepage-film-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.homepage-film-heading h2 {
+  margin: 0;
+  font:
+    400 clamp(36px, 3.7vw, 52px)/1.08 "EB Garamond",
+    Georgia,
+    serif;
+  letter-spacing: -0.02em;
+}
+.homepage-film-heading em {
+  display: block;
+  color: var(--blue);
+  font-weight: 400;
+}
+.homepage-film-heading p {
+  max-width: 30ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.homepage-film-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--blue);
+}
+.homepage-film-frame[data-format="vertical"] {
+  aspect-ratio: 1320 / 2868;
+  max-width: 360px;
+  margin-inline: auto;
+}
+.homepage-film-poster,
+.homepage-film-poster img,
+.homepage-film-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.homepage-film-poster img {
+  object-fit: cover;
+}
+.homepage-film-video {
+  object-fit: contain;
+  background: #0a132d;
+}
+.homepage-film-video[hidden] {
+  display: none;
+}
+.homepage-film-video:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -5px;
+}
+.homepage-film-video:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.homepage-film-play {
+  position: absolute;
+  inset: auto auto 28px 28px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 68px;
+  padding: 14px 24px 14px 16px;
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--blue);
+  text-align: left;
+  font-size: 17px;
+  line-height: 1.2;
+}
+.homepage-film-play:hover {
+  background: var(--blue-tint);
+}
+.homepage-film-play:focus-visible {
+  outline-color: var(--blue);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--surface);
+}
+.homepage-film-play-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.homepage-film-play small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+.homepage-film-toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-top: 8px;
+}
+.homepage-film-toolbar button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+}
+.homepage-film-toolbar button:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.homepage-film-status,
+.homepage-film-error {
+  margin: 16px 0 0;
+  font-size: 14px;
+}
+.homepage-film-error {
+  padding: 18px;
+  border: 1px solid var(--line);
+}
+.homepage-film-error p {
+  margin-bottom: 12px;
+}
+.homepage-film-transcript {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.homepage-film-transcript summary {
+  width: fit-content;
+  min-height: 44px;
+  padding-block: 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.homepage-film-transcript p {
+  max-width: 78ch;
+  margin: 4px 0 0;
+}
+@media (max-width: 767px) {
+  .homepage-film {
+    padding-block: 36px;
+  }
+  .homepage-film-heading {
+    display: block;
+    margin-bottom: 24px;
+  }
+  .homepage-film-heading p {
+    margin-top: 16px;
+    max-width: none;
+  }
+  .homepage-film-play {
+    inset: auto 16px 20px;
+    justify-content: center;
+    padding: 13px;
+    gap: 12px;
+    font-size: 16px;
+  }
+}
+@media (max-width: 767px), (pointer: coarse) and (max-height: 500px) {
+  .homepage-film-frame:not([data-format="horizontal"]) {
+    aspect-ratio: 1320 / 2868;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+}

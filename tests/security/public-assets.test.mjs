@@ -32,6 +32,10 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     '<svg xmlns="http://www.w3.org/2000/svg"/>',
   );
   await writeFile(join(directory, "release.json"), '{"fixture":true}');
+  const filmPath = "/videos/guteneo-vertical-v5.mp4";
+  const film = await readFile(join(root, "apps/web/public", filmPath));
+  await mkdir(join(directory, "videos"));
+  await writeFile(join(directory, filmPath), film);
   await writePublicPages({
     output: directory,
     indexable: true,
@@ -87,6 +91,80 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   );
   t.after(() => mf.dispose());
   const fallbackOrigin = "https://guteneo-app.nclsppr.workers.dev";
+  // Real workerd must retain byte range framing after the production policy
+  // wraps the response. A unit stub cannot prove FixedLengthStream behavior.
+  for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
+    const full = await mf.dispatchFetch(origin + filmPath);
+    assert.equal(full.status, 200);
+    assert.equal(full.headers.get("Content-Type"), "video/mp4");
+    assert.equal(full.headers.get("Accept-Ranges"), "bytes");
+    assert.equal(full.headers.get("Content-Length"), String(film.length));
+    assert.equal(full.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    const etag = full.headers.get("ETag");
+    await full.body.cancel();
+    for (const [range, start, end] of [
+      ["bytes=0-1", 0, 1],
+      ["bytes=100000-100019", 100000, 100019],
+      ["bytes=-16", film.length - 16, film.length - 1],
+    ]) {
+      const partial = await mf.dispatchFetch(origin + filmPath, {
+        headers: { Range: range, "If-Range": etag },
+      });
+      assert.equal(partial.status, 206);
+      assert.equal(
+        partial.headers.get("Content-Range"),
+        `bytes ${start}-${end}/${film.length}`,
+      );
+      assert.equal(
+        partial.headers.get("Content-Length"),
+        String(end - start + 1),
+      );
+      assert.equal(partial.headers.get("X-Robots-Tag"), "noindex, nofollow");
+      assert.equal(partial.headers.get("X-Content-Type-Options"), "nosniff");
+      assert.match(
+        partial.headers.get("Content-Security-Policy"),
+        /frame-ancestors 'none'/,
+      );
+      assert.deepEqual(
+        Buffer.from(await partial.arrayBuffer()),
+        film.subarray(start, end + 1),
+      );
+    }
+    const head = await mf.dispatchFetch(origin + filmPath, {
+      method: "HEAD",
+      headers: { Range: "bytes=0-1" },
+    });
+    assert.equal(head.status, 200);
+    assert.equal(head.headers.get("Content-Length"), String(film.length));
+    assert.equal(await head.text(), "");
+    const unsatisfied = await mf.dispatchFetch(origin + filmPath, {
+      headers: { Range: `bytes=${film.length}-` },
+    });
+    assert.equal(unsatisfied.status, 416);
+    assert.equal(
+      unsatisfied.headers.get("Content-Range"),
+      `bytes */${film.length}`,
+    );
+    assert.equal(await unsatisfied.text(), "");
+    const stale = await mf.dispatchFetch(origin + filmPath, {
+      headers: { Range: "bytes=0-1", "If-Range": '"old-film"' },
+    });
+    assert.equal(stale.status, 200);
+    assert.equal(stale.headers.get("Content-Length"), String(film.length));
+    await stale.body.cancel();
+    const conditional = await mf.dispatchFetch(origin + filmPath, {
+      headers: { Range: "bytes=0-1", "If-None-Match": etag },
+    });
+    assert.equal(conditional.status, 304);
+    const privateFilm = await mf.dispatchFetch(
+      origin + filmPath + "?token=fixture",
+      { headers: { Range: "bytes=0-1" } },
+    );
+    assert.equal(privateFilm.status, 206);
+    assert.equal(privateFilm.headers.get("Cache-Control"), "no-store");
+    assert.equal(privateFilm.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    await privateFilm.body.cancel();
+  }
   for (const path of PUBLIC_PATHS) {
     const response = await mf.dispatchFetch(PUBLIC_ORIGIN + path);
     assert.equal(response.status, 200, path);
