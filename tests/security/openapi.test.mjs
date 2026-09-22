@@ -25,6 +25,36 @@ const operations = Object.entries(spec.paths).flatMap(([path, methods]) =>
   })),
 );
 
+test("shared account language schemas stay bounded without making private account routes OAuth operations", () => {
+  assert.deepEqual(spec.components.schemas.SupportedLocale.enum, [
+    "fr",
+    "en",
+    "de",
+    "lb",
+  ]);
+  assert.deepEqual(spec.components.schemas.PreferredLocale.enum, [
+    "fr",
+    "en",
+    "de",
+    "lb",
+    null,
+  ]);
+  assert.equal(spec.components.schemas.PreferredLocale.nullable, true);
+  assert.equal(
+    spec.components.schemas.AccountProfilePatch.additionalProperties,
+    false,
+  );
+  assert.equal(spec.components.schemas.AccountProfilePatch.minProperties, 1);
+  assert.deepEqual(
+    spec.components.schemas.AccountProfilePatch.properties.preferredLocale,
+    {
+      $ref: "#/components/schemas/SupportedLocale",
+    },
+  );
+  assert.equal(spec.paths["/api/account"], undefined);
+  assert.equal(spec.paths["/api/session"], undefined);
+});
+
 test("OpenAPI is valid, self-contained and never resolves a remote document", async () => {
   await SwaggerParser.validate(structuredClone(spec), {
     resolve: { external: false },

@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  supportedLocales,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
+import {
   expertPolicyInput,
   type ExpertApprovalAccount,
 } from "../../../packages/contracts/src/expert-approval";
@@ -21,6 +25,7 @@ const profileSchema = z
   .object({
     userName: displayName.optional(),
     organizationName: displayName.optional(),
+    preferredLocale: z.enum(supportedLocales).optional(),
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0);
@@ -176,9 +181,11 @@ function revokeStatements(
 }
 
 async function account(env: AuthEnv, session: AuthenticatedSession) {
-  const user = await env.DB.prepare("SELECT name FROM users WHERE id=?")
+  const user = await env.DB.prepare(
+    "SELECT name,preferred_locale FROM users WHERE id=?",
+  )
     .bind(session.context.userId)
-    .first<{ name: string }>();
+    .first<{ name: string; preferred_locale: SupportedLocale | null }>();
   const organization = await env.DB.prepare(
     "SELECT name FROM organizations WHERE id=?",
   )
@@ -189,6 +196,7 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
       id: session.context.userId,
       name: user!.name,
       role: session.context.role,
+      preferredLocale: user!.preferred_locale,
     },
     organization: {
       id: session.context.organizationId,
@@ -422,6 +430,12 @@ export async function handleAccountRoute(
             env.DB.prepare(
               `UPDATE organizations SET name=? WHERE id=? AND ${marker}`,
             ).bind(input.organizationName, org, org, auditId),
+          );
+        if (input.preferredLocale !== undefined)
+          statements.push(
+            env.DB.prepare(
+              `UPDATE users SET preferred_locale=? WHERE id=? AND ${marker}`,
+            ).bind(input.preferredLocale, userId, org, auditId),
           );
         return statements;
       },

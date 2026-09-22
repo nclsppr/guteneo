@@ -1,5 +1,17 @@
 {
   "openapi": "3.0.3",
+  "x-account-language": {
+    "description": "Le candidat conserve la langue de la personne dans user.preferredLocale sur GET /api/account et GET /api/session. Ces routes privées restent réservées à une session navigateur authentifiée et ne font pas partie des opérations OAuth ci-dessous. PATCH /api/account accepte AccountProfilePatch avec contrôle de session, d’origine et CSRF. Le choix concerne l’interface, jamais le contenu immuable d’un document ou d’un envoi.",
+    "supportedLocales": [
+      "fr",
+      "en",
+      "de",
+      "lb"
+    ],
+    "defaultLocale": "fr",
+    "unsetPreference": "null ; le client utilise son choix local, puis les langues du navigateur ou de l’appareil, puis le français.",
+    "loginLocale": "GET /auth/login et /auth/signup acceptent locale. La langue est liée à la transaction PKCE et initialise seulement un nouveau compte ; une préférence existante n’est jamais remplacée par la connexion. Le rendu du fournisseur d’identité dépend de ses langues configurées."
+  },
   "info": {
     "title": "Guteneo — API développeurs",
     "version": "0.2.0",
@@ -2035,6 +2047,49 @@
       }
     },
     "schemas": {
+      "SupportedLocale": {
+        "type": "string",
+        "enum": [
+          "fr",
+          "en",
+          "de",
+          "lb"
+        ],
+        "description": "Langue de l’interface : français, anglais, allemand ou luxembourgeois. Le français est le dernier recours."
+      },
+      "PreferredLocale": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "fr",
+          "en",
+          "de",
+          "lb",
+          null
+        ],
+        "description": "Préférence personnelle enregistrée. null indique qu’aucune préférence n’a encore été enregistrée ; les anciens clients peuvent omettre ce champ dans leurs mises à jour."
+      },
+      "AccountProfilePatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "description": "Corps de la route privée PATCH /api/account, avec session navigateur, origine et CSRF. Le nom de l’organisation est réservé à ses administrateurs. Une valeur preferredLocale omise reste inchangée ; null et les locales non prises en charge sont refusées. Aucun identifiant de personne ou d’organisation n’est accepté.",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "organizationName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "preferredLocale": {
+            "$ref": "#/components/schemas/SupportedLocale"
+          }
+        }
+      },
       "Error": {
         "type": "object",
         "properties": {

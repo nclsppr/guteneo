@@ -4,6 +4,11 @@ import {
   type JWTPayload,
   type JWTVerifyGetKey,
 } from "jose";
+import {
+  localeFromAcceptLanguage,
+  normalizeLocale,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
 
 export const MCP_SCOPES = [
   "documents:read",
@@ -34,12 +39,18 @@ interface Membership {
   organization_name: string;
   user_id: string;
   user_name: string;
+  preferred_locale: SupportedLocale | null;
   role: AuthContext["role"];
 }
 export interface AuthenticatedSession {
   context: AuthContext;
   organization: { id: string; name: string };
-  user: { id: string; name: string; role: AuthContext["role"] };
+  user: {
+    id: string;
+    name: string;
+    role: AuthContext["role"];
+    preferredLocale: SupportedLocale | null;
+  };
   csrfToken: string;
   simulation: boolean;
   mfa: boolean;
@@ -284,7 +295,7 @@ async function memberships(
   userId: string,
 ): Promise<Membership[]> {
   const result = await env.DB.prepare(
-    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, m.role
+    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, u.preferred_locale, m.role
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
   )
@@ -309,7 +320,12 @@ function sessionResult(
       actor: "browser",
     },
     organization: { id: row.organization_id, name: row.organization_name },
-    user: { id: row.user_id, name: row.user_name, role: row.role },
+    user: {
+      id: row.user_id,
+      name: row.user_name,
+      role: row.role,
+      preferredLocale: row.preferred_locale,
+    },
     csrfToken: row.csrf_token,
     simulation: env.MODE === "simulation",
     mfa: Boolean(row.mfa),
@@ -380,7 +396,7 @@ export async function authenticateBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,o.name organization_name,u.name user_name
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,o.name organization_name,u.name user_name,u.preferred_locale
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id WHERE s.token_hash=? AND s.expires_at>?`,
   )
@@ -636,6 +652,10 @@ export async function handleAuthRoute(
     ["/auth/login", "/auth/signup"].includes(url.pathname)
   ) {
     const config = configuredIdentity(env);
+    const preferredLocale =
+      normalizeLocale(url.searchParams.get("locale")) ??
+      normalizeLocale(url.searchParams.get("ui_locales")) ??
+      localeFromAcceptLanguage(request.headers.get("Accept-Language"));
     if (env.ENVIRONMENT !== "local") {
       const ip = request.headers.get("CF-Connecting-IP");
       if (!ip)
@@ -674,7 +694,7 @@ export async function handleAuthRoute(
       .replaceAll("/", "_")
       .replaceAll("=", "");
     await env.DB.prepare(
-      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at) VALUES(?,?,?,?,?,?)",
+      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale) VALUES(?,?,?,?,?,?,?)",
     )
       .bind(
         await hashSecret(state),
@@ -683,6 +703,7 @@ export async function handleAuthRoute(
         nonce,
         safeReturnPath(url.searchParams.get("returnTo")),
         new Date(Date.now() + 600_000).toISOString(),
+        preferredLocale,
       )
       .run();
     const destination = new URL("authorize", config.issuer);
@@ -691,7 +712,7 @@ export async function handleAuthRoute(
       response_type: "code",
       redirect_uri: `${env.APP_ORIGIN}/auth/callback`,
       scope: "openid profile email",
-      ui_locales: "fr",
+      ui_locales: preferredLocale,
       audience: config.audience,
       state,
       nonce,
@@ -716,10 +737,15 @@ export async function handleAuthRoute(
     if (!browser || !state || !code || state.length > 256 || code.length > 4096)
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const transaction = await env.DB.prepare(
-      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to",
+      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale",
     )
       .bind(await hashSecret(state), await hashSecret(browser), nowISO())
-      .first<{ code_verifier: string; nonce: string; return_to: string }>();
+      .first<{
+        code_verifier: string;
+        nonce: string;
+        return_to: string;
+        preferred_locale: SupportedLocale | null;
+      }>();
     if (!transaction)
       throw new AuthError(
         "LOGIN_STATE_INVALID",
@@ -820,7 +846,7 @@ export async function handleAuthRoute(
       try {
         await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+            "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
           ).bind(
             userId,
             typeof claims.name === "string"
@@ -830,6 +856,7 @@ export async function handleAuthRoute(
               ? claims.email.slice(0, 320)
               : "",
             createdAt,
+            transaction.preferred_locale,
           ),
           env.DB.prepare(
             "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
