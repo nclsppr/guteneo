@@ -26,6 +26,50 @@ verre à chaque vue. Le projet ne possède aucune clé de compatibilité visuell
 qui désactiverait le nouveau design.
 [Platforms State of the Union 2026](https://developer.apple.com/videos/play/wwdc2026/102/).
 
+## Fenêtre iPad et composition adaptative
+
+La revue des premières captures a identifié un problème de composition : la
+liste Atelier étirait ses lignes sur toute la fenêtre alors que les informations
+restaient à gauche. La nouvelle vue répartit l'activité récente et les documents
+en deux zones lorsque la largeur disponible et la taille de texte le permettent.
+L'accueil associe le texte à une illustration de presse typographique, distincte
+de la signature. Les contenus restent défilants et leur largeur de lecture est
+limitée. Aucun compteur total n'est inventé à partir des pages chargées.
+
+Documents et Envois utilisent `NavigationSplitView` : une liste sélectionnable
+et un détail, avec un repli système dans un espace compact. Les largeurs de
+colonne sont des préférences négociées par SwiftUI. La sélection possède son
+propre état de chargement et de présentation ; changer de document ne doit pas
+conserver le PDF ou les actions du précédent. La consultation du PDF original
+reste une action explicite, sans téléchargement décoratif de toute la liste.
+[NavigationSplitView](https://developer.apple.com/documentation/swiftui/navigationsplitview).
+
+Apple recommande de préserver les repères lors du redimensionnement et de
+vérifier aussi les largeurs intermédiaires. Une orientation paysage ne suffit
+pas à qualifier une fenêtre étroite. Les seuils et largeurs de Guteneo sont des
+choix de conception, pas des dimensions imposées par Apple. Deux colonnes ne
+constituent pas en elles-mêmes une condition d'acceptation App Review.
+[HIG Layout](https://developer.apple.com/design/human-interface-guidelines/layout),
+[HIG Split views](https://developer.apple.com/design/human-interface-guidelines/split-views).
+
+## Mouvement et retour d'action
+
+La navigation, les changements de colonne et les feuilles conservent les
+transitions système. Un retour sensoriel de succès suit uniquement le retour
+effectif d'un dépôt de document ; il ne signifie pas qu'un fax a été envoyé.
+Le contenu n'ajoute ni animation en boucle ni attente artificielle. Le masque de
+confidentialité s'applique immédiatement, sans fondu qui laisserait transparaître
+les données.
+
+Apple recommande un mouvement bref et utile, qui accompagne une action ou rend
+un changement compréhensible. Toute future animation personnalisée doit tenir
+compte de `accessibilityReduceMotion` et proposer une alternative sans déplacement.
+Le fonctionnement des composants système ne remplace pas la qualification des
+préférences d'accessibilité sur appareil.
+[HIG Motion](https://developer.apple.com/design/human-interface-guidelines/motion),
+[accessibilityReduceMotion](https://developer.apple.com/documentation/swiftui/environmentvalues/accessibilityreducemotion),
+[SensoryFeedback.success](https://developer.apple.com/documentation/swiftui/sensoryfeedback/success).
+
 ## Marque et icône
 
 La règle « au maximum une signature par écran » vient de la demande produit.
@@ -37,13 +81,17 @@ de l'accueil est masqué, visuellement et pour l'accessibilité.
 
 Le PNG source du portrait, 512 × 512, utilise une palette avec transparence
 `tRNS` : alpha de 0 à 255, 64 315 pixels entièrement transparents sur 262 144,
-quatre coins transparents. L'icône d'app distincte, 1024 × 1024, reste RGB opaque.
-L'opacité de cette icône de distribution ne justifie aucun cartouche opaque
-autour des logos dans l'interface. Les icônes multicouches Icon Composer peuvent
-utiliser des premiers plans translucides ; Apple demande un fond importé opaque
-et couvrant toute l'image. Le catalogue classique et Icon Composer sont deux
-voies documentées, sans obligation de refaire le logo en verre.
+quatre coins transparents. L'icône `AppIcon.icon` conserve ce portrait tramé en
+premier plan RGBA, sur un papier ivoire opaque couvrant le canevas. Elle ne
+duplique pas le logo. Les rendus 1024 × 1024 générés par Xcode pour iPhone et
+iPad sont opaques, tandis que les aperçus masqués par le système ont des coins
+transparents. Le projet Icon Composer, ses sources et ses aperçus sont consignés
+dans [Art/IconComposer](../Art/IconComposer/README.md). L'ancien catalogue
+classique reste dans le dépôt ; le build sélectionne `AppIcon.iconstack`.
+L'opacité de l'icône de distribution ne justifie aucun cartouche opaque autour
+des logos dans l'interface.
 [HIG App icons](https://developer.apple.com/design/human-interface-guidelines/app-icons),
+[Créer avec Icon Composer](https://developer.apple.com/documentation/xcode/creating-your-app-icon-using-icon-composer),
 [App Store Connect : ajouter une icône](https://developer.apple.com/help/app-store-connect/manage-app-information/add-an-app-icon).
 
 ## Lisibilité et accessibilité

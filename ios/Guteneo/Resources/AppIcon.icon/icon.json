@@ -1,0 +1,31 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.96471,0.96078,0.93725,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "02-portrait.png",
+          "name": "Portrait tramé Guteneo"
+        }
+      ],
+      "name": "Portrait tramé"
+    },
+    {
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "01-paper.svg",
+          "name": "Papier ivoire"
+        }
+      ],
+      "name": "Papier"
+    }
+  ],
+  "supported-platforms": {
+    "circles": [],
+    "squares": "shared"
+  }
+}
