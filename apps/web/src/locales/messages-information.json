@@ -1,0 +1,1188 @@
+{
+  "Lister les PDF et consulter leurs octets validés.": [
+    "List PDFs and read their validated bytes.",
+    "PDF-Dateien auflisten und ihre geprüften Bytes abrufen.",
+    "PDF-Dateien oplëschten an hir kontrolléiert Byte ofruffen."
+  ],
+  "Déposer, générer et réexaminer un document.": [
+    "Upload, generate and recheck a document.",
+    "Dokument hochladen, erstellen und erneut prüfen.",
+    "En Dokument eroplueden, erstellen an nach eng Kéier kontrolléieren."
+  ],
+  "Préparer un envoi, créer une campagne, valider un CSV.": [
+    "Prepare a dispatch, create a campaign, validate a CSV.",
+    "Sendung vorbereiten, Kampagne erstellen, CSV prüfen.",
+    "Eng Sendung virbereeden, eng Campagne erstellen, eng CSV-Datei kontrolléieren."
+  ],
+  "Confirmer après accord humain ou annuler avant soumission.": [
+    "Confirm after human approval or cancel before submission.",
+    "Nach menschlicher Zustimmung bestätigen oder vor der Übermittlung stornieren.",
+    "No mënschlecher Zoustëmmung bestätegen oder virun der Iwwerdroung annuléieren."
+  ],
+  "Lire les envois, campagnes, expéditeurs et consommation.": [
+    "Read dispatches, campaigns, senders and usage.",
+    "Sendungen, Kampagnen, Absender und Verbrauch lesen.",
+    "Sendungen, Campagnen, Ofsender a Verbrauch liesen."
+  ],
+  "Aller à la documentation": [
+    "Skip to documentation",
+    "Zur Dokumentation springen",
+    "Bei d’Dokumentatioun sprangen"
+  ],
+  "Les intégrations": ["Integrations", "Integrationen", "Integratiounen"],
+  "L’ATELIER / DÉVELOPPEURS": [
+    "THE WORKSHOP / DEVELOPERS",
+    "DIE WERKSTATT / ENTWICKLER",
+    "DEN ATELIER / ENTWÉCKLER"
+  ],
+  "Vos documents.": ["Your documents.", "Ihre Dokumente.", "Är Dokumenter."],
+  "Votre façon de les envoyer.": [
+    "Your way to send them.",
+    "Ihr Weg, sie zu versenden.",
+    "Äre Wee, fir se ze schécken."
+  ],
+  "Reliez votre application à Guteneo : un PDF fidèle à l’original, une préparation vérifiable et le dernier mot laissé à la personne qui l’envoie.": [
+    "Connect your app to Guteneo: a PDF faithful to the original, a preparation you can check and the final say left to the person sending it.",
+    "Verbinden Sie Ihre Anwendung mit Guteneo: ein originalgetreues PDF, eine prüfbare Vorbereitung und das letzte Wort bei der Person, die es versendet.",
+    "Verbannt Är App mat Guteneo: e PDF, deen dem Original trei bleift, eng kontrolléierbar Virbereedung an dat lescht Wuert bei der Persoun, déi et schéckt."
+  ],
+  "Lire le guide": ["Read the guide", "Anleitung lesen", "D’Uleedung liesen"],
+  "Télécharger le contrat OpenAPI": [
+    "Download the OpenAPI contract",
+    "OpenAPI-Vertrag herunterladen",
+    "Den OpenAPI-Kontrakt eroflueden"
+  ],
+  "Bêta en préparation.": [
+    "Beta in preparation.",
+    "Beta in Vorbereitung.",
+    "Beta an der Virbereedung."
+  ],
+  "Cette référence décrit le code disponible. Guteneo héberge la bêta ; consultez les capacités du service pour connaître les canaux activés. La démonstration séparée utilise des données fictives. Le crédit de bienvenue de 50 € ne remplace pas l’activation des transports ; aucune recharge n’est proposée.": [
+    "This reference describes the available code. Guteneo hosts the beta; check the service capabilities for enabled channels. The separate demo uses fictional data. The €50 welcome credit does not replace transport activation; no top-ups are offered.",
+    "Diese Referenz beschreibt den verfügbaren Code. Guteneo betreibt die Beta; prüfen Sie die Dienstfähigkeiten, um die aktivierten Kanäle zu sehen. Die separate Demonstration verwendet fiktive Daten. Das Willkommensguthaben von 50 € ersetzt nicht die Aktivierung der Versandwege; Aufladungen werden nicht angeboten.",
+    "Dës Referenz beschreift de verfügbare Code. Guteneo bedreift d’Beta; kuckt d’Fäegkeete vum Service, fir déi aktivéiert Kanäl ze gesinn. Déi getrennten Demonstratioun benotzt fiktiv Donnéeën. De Wëllkommenskredit vu 50 € ersetzt net d’Aktivéierung vun de Versandweeër; keng Opluedung gëtt ugebueden."
+  ],
+  "Contrat": ["Contract", "Vertrag", "Kontrakt"],
+  "Accès": ["Access", "Zugang", "Zougang"],
+  "Documents": ["Documents", "Dokumente", "Dokumenter"],
+  "PDF privés · SHA-256": [
+    "Private PDFs · SHA-256",
+    "Private PDFs · SHA-256",
+    "Privat PDF-Dateien · SHA-256"
+  ],
+  "Sommaire de la documentation": [
+    "Documentation contents",
+    "Inhaltsverzeichnis der Dokumentation",
+    "Inhaltsverzeechnes vun der Dokumentatioun"
+  ],
+  "Dans ce guide": [
+    "In this guide",
+    "In dieser Anleitung",
+    "An dëser Uleedung"
+  ],
+  "01 — Préparer un envoi": [
+    "01 — Prepare a dispatch",
+    "01 — Sendung vorbereiten",
+    "01 — Eng Sendung virbereeden"
+  ],
+  "02 — Se connecter": ["02 — Sign in", "02 — Anmelden", "02 — Aloggen"],
+  "03 — Garder l’original": [
+    "03 — Keep the original",
+    "03 — Original bewahren",
+    "03 — D’Original behalen"
+  ],
+  "04 — Suivre sans doubler": [
+    "04 — Track without duplicating",
+    "04 — Ohne Duplikate nachverfolgen",
+    "04 — Ouni Duplikater verfollegen"
+  ],
+  "05 — Limites et erreurs": [
+    "05 — Limits and errors",
+    "05 — Grenzen und Fehler",
+    "05 — Grenzen a Feeler"
+  ],
+  "06 — Référence API": [
+    "06 — API reference",
+    "06 — API-Referenz",
+    "06 — API-Referenz"
+  ],
+  "01 / LE PARCOURS": [
+    "01 / THE WORKFLOW",
+    "01 / DER ABLAUF",
+    "01 / DEN OFLAF"
+  ],
+  "Préparer. Vérifier. Confirmer.": [
+    "Prepare. Review. Confirm.",
+    "Vorbereiten. Prüfen. Bestätigen.",
+    "Virbereeden. Kontrolléieren. Bestätegen."
+  ],
+  "Le dépôt et la préparation ne déclenchent aucune communication. Après l’ouverture de la bêta, commencez par créer votre espace Guteneo dans le navigateur et vérifier votre adresse e-mail. Connectez ensuite un client OAuth enregistré avec les droits nécessaires.": [
+    "Uploading and preparation do not trigger any communication. Once the beta is open, first create your Guteneo workspace in the browser and verify your email address. Then connect a registered OAuth client with the required permissions.",
+    "Hochladen und Vorbereitung lösen keine Kommunikation aus. Erstellen Sie nach dem Start der Beta zunächst Ihren Guteneo-Bereich im Browser und bestätigen Sie Ihre E-Mail-Adresse. Verbinden Sie anschließend einen registrierten OAuth-Client mit den erforderlichen Berechtigungen.",
+    "Eroplueden a Virbereedung léise keng Kommunikatioun aus. Erstellt nom Start vun der Beta fir d’éischt Äre Guteneo-Beräich am Browser a bestätegt Är E-Mail-Adress. Verbannt duerno e registréierten OAuth-Client mat den néidege Berechtegungen."
+  ],
+  "Déposez le PDF.": [
+    "Upload the PDF.",
+    "Laden Sie das PDF hoch.",
+    "Lued d’PDF-Datei erop."
+  ],
+  "Envoyez le fichier original dans le champ": [
+    "Send the original file in the field",
+    "Übermitteln Sie die Originaldatei im Feld",
+    "Schéckt d’Originaldatei am Feld"
+  ],
+  ". Attendez son état": [
+    ". Wait for its status to become",
+    ". Warten Sie auf den Status",
+    ". Waart op de Status"
+  ],
+  ": une réponse 201 peut encore désigner un document en quarantaine.": [
+    ": a 201 response may still refer to a quarantined document.",
+    ": Eine 201-Antwort kann noch ein Dokument in Quarantäne bezeichnen.",
+    ": Eng 201-Äntwert kann nach en Dokument a Quarantän bezeechnen."
+  ],
+  "Préparez l’envoi.": [
+    "Prepare the dispatch.",
+    "Bereiten Sie die Sendung vor.",
+    "Bereet d’Sendung vir."
+  ],
+  "Choisissez le document et le destinataire. Conservez la réponse, son": [
+    "Choose the document and recipient. Keep the response, its",
+    "Wählen Sie Dokument und Empfänger. Bewahren Sie die Antwort, ihre",
+    "Wielt d’Dokument an den Empfänger. Behält d’Äntwert, hir"
+  ],
+  ", son empreinte et les montants retournés. Votre plafond éventuel est exprimé en centimes EUR.": [
+    ", its fingerprint and the returned amounts. Any spending limit you set is in EUR cents.",
+    ", ihren Fingerabdruck und die zurückgegebenen Beträge auf. Eine etwaige Kostenobergrenze wird in EUR-Cent angegeben.",
+    ", hire Fangerofdrock an déi zeréckginn Zommen. Eng eventuell Käschtegrenz gëtt an EUR-Cent uginn."
+  ],
+  "Validation standard.": [
+    "Standard approval.",
+    "Standardfreigabe.",
+    "Standardfräigab."
+  ],
+  "Orientez la personne vers": [
+    "Direct the person to",
+    "Leiten Sie die Person weiter zu",
+    "Leet d’Persoun weider op"
+  ],
+  ". Elle vérifie le PDF, le destinataire, les options et le coût, puis approuve dans sa session Guteneo. Le mode expert facultatif suit un mandat limité, activé au préalable dans Mon compte pour l’assistant concerné.": [
+    ". They review the PDF, recipient, options and cost, then approve in their Guteneo session. Optional expert mode follows a limited mandate enabled beforehand in My account for the relevant assistant.",
+    ". Sie prüft PDF, Empfänger, Optionen und Kosten und gibt die Sendung in ihrer Guteneo-Sitzung frei. Der optionale Expertenmodus folgt einem begrenzten Mandat, das zuvor unter Mein Konto für den betreffenden Assistenten aktiviert wurde.",
+    ". Si kontrolléiert d’PDF-Datei, den Empfänger, d’Optiounen an d’Käschten a gëtt duerno an hirer Guteneo-Sessioun d’Fräigab. De fakultativen Expertmodus follegt engem begrenzte Mandat, dat virdrun ënner Mäi Kont fir de betraffenen Assistent aktivéiert gouf."
+  ],
+  "Confirmez et suivez.": [
+    "Confirm and track.",
+    "Bestätigen und nachverfolgen.",
+    "Bestätegen a verfollegen."
+  ],
+  "Le client peut alors appeler": [
+    "The client can then call",
+    "Der Client kann anschließend Folgendes aufrufen:",
+    "De Client kann duerno Folgendes opruffen:"
+  ],
+  ", avec une clé d’idempotence propre à cette confirmation. Relisez ensuite l’état de l’envoi.": [
+    ", with an idempotency key specific to this confirmation. Then read the dispatch status again.",
+    ", mit einem eigenen Idempotenzschlüssel für diese Bestätigung. Lesen Sie anschließend den Versandstatus erneut.",
+    ", mat engem eegenen Idempotenzschlëssel fir dës Bestätegung. Liest duerno de Status vun der Sendung nach eng Kéier."
+  ],
+  "1. Déposer le fichier original": [
+    "1. Upload the original file",
+    "1. Originaldatei hochladen",
+    "1. D’Originaldatei eroplueden"
+  ],
+  "2. Préparer un fax — identifiants et numéro fictifs à remplacer": [
+    "2. Prepare a fax — replace the fictional identifiers and number",
+    "2. Fax vorbereiten — fiktive Kennungen und Nummer ersetzen",
+    "2. E Fax virbereeden — fiktiv Kennungen an Nummer ersetzen"
+  ],
+  "Ces exemples sont des modèles de requête, pas des accès fournis. La variable d’environnement contient un jeton d’accès obtenu par votre client OAuth ; ne le placez jamais dans une URL ou dans un dépôt de code. Aucun exemple n’est exécuté depuis cette page.": [
+    "These examples are request templates, not provided credentials. The environment variable contains an access token obtained by your OAuth client; never put it in a URL or code repository. No example is executed from this page.",
+    "Diese Beispiele sind Anfragevorlagen, keine bereitgestellten Zugangsdaten. Die Umgebungsvariable enthält ein von Ihrem OAuth-Client erhaltenes Zugriffstoken. Speichern Sie es niemals in einer URL oder einem Code-Repository. Kein Beispiel wird von dieser Seite aus ausgeführt.",
+    "Dës Beispiller si Ufrovirlagen, keng geliwwert Zougangsdonnéeën. D’Ëmweltvariabel enthält en Zougrëffstoken, deen Ären OAuth-Client kritt huet. Setzt en ni an eng URL oder an e Code-Repository. Kee Beispill gëtt vun dëser Säit aus ausgeféiert."
+  ],
+  "Le résultat REST est l’envoi brut. Le champ": [
+    "The REST result is the raw dispatch. The field",
+    "Das REST-Ergebnis ist die unverarbeitete Sendung. Das Feld",
+    "D’REST-Resultat ass déi onveraarbecht Sendung. D’Feld"
+  ],
+  "appartient à la réponse MCP ; en REST, construisez le lien navigateur avec l’identifiant retourné. Un « oui » dans une conversation et une autorisation d’outil ne créent ni approbation humaine ni mandat expert. Le parcours MCP expert utilise une revue récente puis l’approbation déléguée ; il respecte les limites du mandat et les confirmations de votre assistant.": [
+    "belongs to the MCP response; in REST, build the browser link using the returned identifier. A yes in a conversation and tool permission create neither human approval nor an expert mandate. The expert MCP flow uses a recent review followed by delegated approval; it respects the mandate’s limits and your assistant’s confirmations.",
+    "gehört zur MCP-Antwort. Erstellen Sie bei REST den Browserlink mit der zurückgegebenen Kennung. Ein Ja in einer Unterhaltung und eine Werkzeugberechtigung erzeugen weder eine menschliche Freigabe noch ein Expertenmandat. Der Expertenablauf über MCP verwendet eine aktuelle Prüfung und anschließend eine delegierte Freigabe; er hält die Mandatsgrenzen und die Bestätigungen Ihres Assistenten ein.",
+    "gehéiert zur MCP-Äntwert. Baut bei REST de Browserlink mat der zeréckginner Kennung. E Jo am Gespréich an eng Wierkzeugberechtegung erstellen weder eng mënschlech Fräigab nach en Expertmandat. Den Expert-Oflaf iwwer MCP benotzt eng rezent Kontroll an duerno eng delegéiert Fräigab; e respektéiert d’Grenze vum Mandat an d’Bestätegunge vun Ärem Assistent."
+  ],
+  "Pour le courrier, lisez d’abord le gabarit avec": [
+    "For postal mail, first read the template with",
+    "Lesen Sie für Briefpost zuerst die Vorlage mit",
+    "Liest fir Bréifpost als éischt d’Virlag mat"
+  ],
+  ", en indiquant le pays du destinataire. Après avoir créé et importé le PDF, utilisez": [
+    ", specifying the recipient’s country. After creating and importing the PDF, use",
+    ", mit Angabe des Empfängerlandes. Verwenden Sie nach dem Erstellen und Importieren der PDF-Datei",
+    ", mat der Angab vum Land vum Empfänger. Benotzt nom Erstellen an Importéiere vun der PDF-Datei"
+  ],
+  ": Guteneo contrôle le PDF exact et retourne un": [
+    ": Guteneo checks the exact PDF and returns a",
+    ": Guteneo prüft genau diese PDF-Datei und gibt Folgendes zurück:",
+    ": Guteneo kontrolléiert genee dës PDF-Datei a gëtt Folgendes zréck:"
+  ],
+  ". En mode standard, la personne ouvre ce lien pour relire les pages et autoriser le dépôt chez le prestataire d’impression. Le mode expert exige un mandat postal couvrant séparément ce transfert de données ; il ne déclenche aucune expédition. Après l’analyse du brouillon, demandez": [
+    ". In standard mode, the person opens this link to review the pages and authorise transfer to the printing provider. Expert mode requires a postal mandate that separately covers this data transfer; it does not trigger any dispatch. After the draft has been analysed, request",
+    ". Im Standardmodus öffnet die Person diesen Link, prüft die Seiten und genehmigt die Übertragung an den Druckanbieter. Der Expertenmodus erfordert ein Postmandat, das diese Datenübertragung gesondert abdeckt; er löst keinen Versand aus. Fordern Sie nach der Entwurfsanalyse Folgendes an:",
+    ". Am Standardmodus mécht d’Persoun dëse Link op, liest d’Säiten no an autoriséiert d’Iwwerdroung un den Drockubidder. Den Expertmodus erfuerdert e Postmandat, dat dësen Datentransfert separat ofdeckt; e léist kee Versand aus. Frot no der Analys vum Entworf Folgendes un:"
+  ],
+  ", puis faites approuver le devis. Ces étapes restent distinctes de l’expédition ; un transfert incertain ne doit jamais être relancé automatiquement.": [
+    ", then have the quote approved. These steps remain separate from sending; an uncertain transfer must never be retried automatically.",
+    ", und lassen Sie anschließend das Angebot freigeben. Diese Schritte bleiben vom Versand getrennt. Eine ungewisse Übertragung darf niemals automatisch wiederholt werden.",
+    ", a loosst duerno d’Devis fräiginn. Dës Schrëtt bleiwe vum Versand getrennt. En ongewëssen Transfert däerf ni automatesch widderholl ginn."
+  ],
+  "02 / AUTHENTIFICATION": [
+    "02 / AUTHENTICATION",
+    "02 / AUTHENTIFIZIERUNG",
+    "02 / AUTHENTIFIZÉIERUNG"
+  ],
+  "Des permissions précises.": [
+    "Precise permissions.",
+    "Gezielte Berechtigungen.",
+    "Genee Berechtegungen."
+  ],
+  "Les clients utilisent Authorization Code avec PKCE": [
+    "Clients use Authorization Code with PKCE",
+    "Clients verwenden Authorization Code mit PKCE",
+    "Cliente benotzen Authorization Code mat PKCE"
+  ],
+  ", une URI de retour enregistrée exactement et un paramètre": [
+    ", an exactly registered redirect URI and a verified parameter",
+    ", eine exakt registrierte Rückleitungs-URI und einen geprüften Parameter",
+    ", eng genee registréiert Retour-URI an e kontrolléierte Parameter"
+  ],
+  "vérifié. L’audience est": [
+    ". The audience is",
+    ". Die Audience ist",
+    ". D’Audience ass"
+  ],
+  ", aussi pour les routes REST documentées. Il n’existe pas de clé API personnelle ni de mot de passe à transmettre à un assistant.": [
+    ", including for the documented REST routes. There is no personal API key or password to share with an assistant.",
+    ", auch für die dokumentierten REST-Routen. Es gibt weder einen persönlichen API-Schlüssel noch ein Passwort, das an einen Assistenten weiterzugeben wäre.",
+    ", och fir déi dokumentéiert REST-Routen. Et gëtt weder e perséinlechen API-Schlëssel nach e Passwuert, dat un en Assistent weiderzeginn ass."
+  ],
+  "Autorisation": ["Authorisation", "Autorisierung", "Autorisatioun"],
+  "Échange du code": ["Code exchange", "Code-Austausch", "Code-Austausch"],
+  "Jeton HTTP": ["HTTP token", "HTTP-Token", "HTTP-Token"],
+  "Utilisez un jeton d’accès, jamais un ID token. Un client public ne contient aucun secret client. L’organisation est déterminée par l’adhésion et la connexion autorisée ; aucun paramètre ne permet de choisir librement un autre espace. Avec plusieurs espaces, l’association se fait dans les connexions du tableau de bord. Le rôle de lecteur interdit les écritures, même avec un scope. Pendant la bêta, un compte vérifié est requis pour tous les rôles ; la double authentification n’est pas obligatoire.": [
+    "Use an access token, never an ID token. A public client contains no client secret. The organisation is determined by membership and the authorised connection; no parameter allows freely selecting another workspace. With multiple workspaces, the link is set in the dashboard’s connections. The reader role forbids writes, even with a scope. During the beta, all roles require a verified account; two-factor authentication is not mandatory.",
+    "Verwenden Sie ein Zugriffstoken, niemals ein ID-Token. Ein öffentlicher Client enthält kein Client-Geheimnis. Die Organisation wird durch Mitgliedschaft und autorisierte Verbindung bestimmt. Kein Parameter erlaubt die freie Wahl eines anderen Bereichs. Bei mehreren Bereichen erfolgt die Zuordnung über die Verbindungen im Dashboard. Die Leserrolle verbietet Schreibzugriffe, auch mit einem Scope. Während der Beta ist für alle Rollen ein verifiziertes Konto erforderlich; Zwei-Faktor-Authentifizierung ist nicht verpflichtend.",
+    "Benotzt en Zougrëffstoken, ni en ID-Token. En ëffentleche Client enthält kee Client-Geheimnis. D’Organisatioun gëtt duerch d’Memberschaft an déi autoriséiert Verbindung bestëmmt. Kee Parameter erlaabt et, fräi en anere Beräich ze wielen. Bei méi Beräicher gëtt d’Verknëppung an de Verbindunge vum Dashboard gemaach. D’Lieserroll verbitt Schreifzougrëffer, och mat engem Scope. Wärend der Beta ass e verifizéierte Kont fir all Roll néideg; Zweefaktor-Authentifizéierung ass net obligatoresch."
+  ],
+  "Permissions OAuth": [
+    "OAuth permissions",
+    "OAuth-Berechtigungen",
+    "OAuth-Berechtegungen"
+  ],
+  "Demandez uniquement les permissions utiles.": [
+    "Request only the permissions you need.",
+    "Fordern Sie nur die benötigten Berechtigungen an.",
+    "Frot nëmmen déi néideg Berechtegungen un."
+  ],
+  "Permission": ["Permission", "Berechtigung", "Berechtegung"],
+  "Aucun scope n’autorise l’approbation humaine.": [
+    "No scope authorises human approval.",
+    "Kein Scope erlaubt eine menschliche Freigabe.",
+    "Kee Scope autoriséiert eng mënschlech Fräigab."
+  ],
+  "La route navigateur d’approbation, l’administration et la facturation ne font pas partie de cette API développeurs. Les droits accordés par OAuth ne remplacent pas les contrôles de rôle, d’expéditeur, de crédit ou de canal.": [
+    "The browser approval route, administration and billing are not part of this developer API. OAuth permissions do not replace role, sender, credit or channel checks.",
+    "Die Freigaberoute im Browser, Verwaltung und Abrechnung gehören nicht zu dieser Entwickler-API. OAuth-Berechtigungen ersetzen keine Prüfungen von Rolle, Absender, Guthaben oder Kanal.",
+    "D’Fräigabroute am Browser, d’Administratioun an d’Rechnunge gehéieren net zu dëser Entwéckler-API. OAuth-Berechtegungen ersetzen d’Kontrolle vu Roll, Ofsender, Kredit oder Kanal net."
+  ],
+  "Pour les assistants, le transport prévu est MCP Streamable HTTP sur": [
+    "For assistants, the intended transport is MCP Streamable HTTP at",
+    "Für Assistenten ist MCP Streamable HTTP als Transport vorgesehen unter",
+    "Fir Assistenten ass MCP Streamable HTTP als Transport virgesinn op"
+  ],
+  ". Les fichiers d’intégration sont disponibles depuis": [
+    ". Integration files are available in",
+    ". Integrationsdateien sind verfügbar in",
+    ". Integratiounsdateie sinn disponibel an"
+  ],
+  "les instructions d’installation": [
+    "the installation instructions",
+    "den Installationsanleitungen",
+    "den Installatiounsinstruktiounen"
+  ],
+  ". Chaque client doit encore être enregistré et testé dans son environnement réel.": [
+    ". Each client still needs to be registered and tested in its real environment.",
+    ". Jeder Client muss weiterhin registriert und in seiner tatsächlichen Umgebung getestet werden.",
+    ". All Client muss weider registréiert an a senger richteger Ëmwelt getest ginn."
+  ],
+  "03 / DOCUMENTS": ["03 / DOCUMENTS", "03 / DOKUMENTE", "03 / DOKUMENTER"],
+  "Un original reste un original.": [
+    "An original stays an original.",
+    "Ein Original bleibt ein Original.",
+    "En Original bleift en Original."
+  ],
+  "conserve les octets déposés. Le PDF est privé, identifié par son SHA-256 et soumis à une analyse ainsi qu’à une validation dans un environnement isolé.": [
+    "preserves the uploaded bytes. The PDF is private, identified by its SHA-256, and undergoes scanning and validation in an isolated environment.",
+    "bewahrt die hochgeladenen Bytes. Das PDF ist privat, durch seinen SHA-256 identifiziert und wird in einer isolierten Umgebung analysiert und geprüft.",
+    "behält déi eropgeluede Byte. De PDF ass privat, duerch säi SHA-256 identifizéiert a gëtt an enger isoléierter Ëmwelt analyséiert a kontrolléiert."
+  ],
+  "restitue uniquement un document prêt, avec l’en-tête": [
+    "returns only a ready document, with the header",
+    "liefert nur ein bereites Dokument mit dem Header",
+    "gëtt nëmmen e fäerdegt Dokument zeréck, mam Header"
+  ],
+  "et sans cache public.": [
+    "and no public caching.",
+    "und ohne öffentlichen Cache.",
+    "an ouni ëffentleche Cache."
+  ],
+  "fabrique un nouveau PDF A4 à partir de HTML nettoyé. Les scripts, styles fournis et ressources externes sont retirés. Ce rendu ne doit pas servir à reconstruire un original à partir de son texte. L’import d’une URL est réservé à l’outil MCP": [
+    "creates a new A4 PDF from sanitised HTML. Scripts, supplied styles and external resources are removed. This rendering must not be used to reconstruct an original from its text. URL import is restricted to the MCP tool",
+    "erstellt ein neues A4-PDF aus bereinigtem HTML. Skripte, mitgelieferte Stile und externe Ressourcen werden entfernt. Dieses Rendering darf nicht verwendet werden, um ein Original aus seinem Text nachzubauen. Der URL-Import ist dem MCP-Werkzeug vorbehalten:",
+    "erstellt en neien A4-PDF aus bereinegtem HTML. Skripten, matgeliwwert Stiler an extern Ressourcë ginn ewechgeholl. Dëst Rendering däerf net benotzt ginn, fir en Original aus sengem Text nozebauen. Den URL-Import ass dem MCP-Wierkzeug virbehalen:"
+  ],
+  ", sur tout domaine public en HTTPS, sans redirection ; ce n’est pas une route REST.": [
+    ", on any public HTTPS domain, without redirects; it is not a REST route.",
+    ", auf jeder öffentlichen HTTPS-Domain, ohne Weiterleitung. Es ist keine REST-Route.",
+    ", op all ëffentlecher HTTPS-Domain, ouni Ëmleedung. Et ass keng REST-Route."
+  ],
+  "Le champ": ["The field", "Das Feld", "D’Feld"],
+  "indique si la vérification est en cours, terminée, à relancer ou bloquée, avec une explication et une prochaine action. Pendant une vérification en cours, consultez": [
+    "shows whether the check is in progress, complete, needs a retry or is blocked, with an explanation and a next action. While a check is in progress, query",
+    "zeigt an, ob die Prüfung läuft, abgeschlossen ist, wiederholt werden muss oder blockiert ist, mit einer Erklärung und einer nächsten Aktion. Fragen Sie während einer laufenden Prüfung Folgendes ab:",
+    "weist, ob d’Kontroll leeft, fäerdeg ass, widderholl muss ginn oder blockéiert ass, mat enger Erklärung an enger nächster Aktioun. Frot wärend enger lafender Kontroll Folgendes of:"
+  ],
+  "toutes les 15 secondes au maximum. Le serveur gère les reprises automatiques limitées. Proposez une relance explicite via": [
+    "no more often than every 15 seconds. The server handles limited automatic retries. Offer an explicit retry via",
+    "höchstens alle 15 Sekunden. Der Server übernimmt begrenzte automatische Wiederholungen. Bieten Sie einen ausdrücklichen Neustart an über",
+    "héchstens all 15 Sekonnen. De Server geréiert begrenzt automatesch Widderhuelungen. Bitt en ausdrécklechen Neistart un iwwer"
+  ],
+  "seulement lorsque l’action retournée est": [
+    "only when the returned action is",
+    "nur wenn die zurückgegebene Aktion lautet",
+    "nëmme wann déi zeréckginn Aktioun ass"
+  ],
+  ". Conservez le même document : aucun nouveau dépôt n’est nécessaire.": [
+    ". Keep the same document: no new upload is needed.",
+    ". Behalten Sie dasselbe Dokument. Ein erneutes Hochladen ist nicht erforderlich.",
+    ". Behält datselwecht Dokument. Et muss net nei eropgeluede ginn."
+  ],
+  "04 / FIABILITÉ": [
+    "04 / RELIABILITY",
+    "04 / ZUVERLÄSSIGKEIT",
+    "04 / ZOUVERLÄSSEGKEET"
+  ],
+  "Une demande, un envoi.": [
+    "One request, one dispatch.",
+    "Eine Anfrage, eine Sendung.",
+    "Eng Ufro, eng Sendung."
+  ],
+  "L’en-tête": ["The header", "Der Header", "Den Header"],
+  "est obligatoire pour préparer et confirmer : 1 à 200 caractères, sans retour à la ligne ni caractère NUL. Gardez une clé stable par opération logique ; utilisez une autre clé pour la confirmation. Réutiliser une clé avec un contenu différent produit": [
+    "is required for preparation and confirmation: 1 to 200 characters, with no newline or NUL character. Keep a stable key for each logical operation; use a different key for confirmation. Reusing a key with different content produces",
+    "ist für Vorbereitung und Bestätigung erforderlich: 1 bis 200 Zeichen, ohne Zeilenumbruch oder NUL-Zeichen. Verwenden Sie einen festen Schlüssel je logischem Vorgang und einen anderen Schlüssel für die Bestätigung. Die Wiederverwendung eines Schlüssels mit anderem Inhalt führt zu",
+    "ass fir Virbereedung a Bestätegung néideg: 1 bis 200 Zeechen, ouni Zeilenëmbréch oder NUL-Zeechen. Behält e feste Schlëssel pro logeschem Virgank a benotzt en anere Schlëssel fir d’Bestätegung. De selwechte Schlëssel mat engem aneren Inhalt féiert zu"
+  ],
+  "L’empreinte": ["The fingerprint", "Der Fingerabdruck", "De Fangerofdrock"],
+  "lie le contenu, le destinataire, le document, les options et le coût approuvés. L’accord dure au maximum 15 minutes et peut expirer plus tôt avec le devis. La confirmation réserve le plafond et inscrit le travail à effectuer dans la même transaction.": [
+    "binds the approved content, recipient, document, options and cost. Approval lasts at most 15 minutes and may expire earlier with the quote. Confirmation reserves the spending limit and inserts the work to be done in the same transaction.",
+    "bindet die freigegebenen Inhalte, Empfänger, Dokumente, Optionen und Kosten. Die Zustimmung gilt höchstens 15 Minuten und kann mit dem Angebot früher ablaufen. Die Bestätigung reserviert die Kostenobergrenze und trägt den auszuführenden Auftrag in derselben Transaktion ein.",
+    "bënnt de fräiginnene Contenu, den Empfänger, d’Dokument, d’Optiounen an d’Käschten. D’Zoustëmmung gëllt héchstens 15 Minutten a ka mat der Devis méi fréi oflafen. D’Bestätegung reservéiert d’Käschtegrenz a schreift d’Aarbecht an der selwechter Transaktioun an."
+  ],
+  "Lire l’état avant de décider d’une nouvelle action": [
+    "Read the status before deciding on another action",
+    "Status lesen, bevor Sie eine weitere Aktion wählen",
+    "De Status liesen, ier Dir eng nei Aktioun decidéiert"
+  ],
+  ": préparation enregistrée, pas encore mise en file.": [
+    ": preparation saved, not yet queued.",
+    ": Vorbereitung gespeichert, noch nicht in der Warteschlange.",
+    ": Virbereedung gespäichert, nach net an der Warteschlaang."
+  ],
+  ": confirmation acceptée, travail en attente.": [
+    ": confirmation accepted, work pending.",
+    ": Bestätigung angenommen, Auftrag ausstehend.",
+    ": Bestätegung ugeholl, Aarbecht ausstoend."
+  ],
+  ": le fournisseur peut déjà avoir reçu la demande. Aucune relance automatique ni nouvel envoi de remplacement.": [
+    ": the provider may already have received the request. No automatic retry or new replacement dispatch.",
+    ": Der Anbieter kann die Anfrage bereits erhalten haben. Keine automatische Wiederholung und keine neue Ersatzsendung.",
+    ": Den Ubidder kann d’Ufro scho kritt hunn. Keng automatesch Widderhuelung a keng nei Ersatzsendung."
+  ],
+  ": accepté par le fournisseur ; ce n’est pas une preuve de livraison. Consultez les événements suivants.": [
+    ": accepted by the provider; this is not proof of delivery. Check the subsequent events.",
+    ": Vom Anbieter angenommen; dies ist kein Zustellnachweis. Prüfen Sie die nachfolgenden Ereignisse.",
+    ": Vum Ubidder ugeholl; dat ass kee Liwwerbeweis. Kuckt déi Evenementer duerno."
+  ],
+  "Après un délai d’attente HTTP, relisez d’abord l’envoi. Une annulation est possible seulement avant le début de la soumission, pour": [
+    "After an HTTP timeout, first read the dispatch again. Cancellation is possible only before submission starts, for",
+    "Lesen Sie nach einer HTTP-Zeitüberschreitung zunächst die Sendung erneut. Eine Stornierung ist nur vor Beginn der Übermittlung möglich, bei",
+    "Liest no engem HTTP-Timeout fir d’éischt d’Sendung nach eng Kéier. Eng Annulatioun ass nëmme virum Ufank vun der Iwwerdroung méiglech, fir"
+  ],
+  "ou": ["or", "oder", "oder"],
+  "signifie que l’annulation n’est plus garantie.": [
+    "means cancellation is no longer guaranteed.",
+    "bedeutet, dass eine Stornierung nicht mehr garantiert ist.",
+    "heescht, datt eng Annulatioun net méi garantéiert ass."
+  ],
+  "Les réponses distinguent toujours": [
+    "Responses always distinguish between",
+    "Antworten unterscheiden immer zwischen",
+    "Äntwerten ënnerscheeden ëmmer tëscht"
+  ],
+  "et": ["and", "und", "an"],
+  ". Les soldes et plafonds sont des entiers en centimes EUR. Un devis fractionnaire expose aussi": [
+    ". Balances and spending limits are integers in EUR cents. A fractional quote also exposes",
+    ". Guthaben und Obergrenzen sind Ganzzahlen in EUR-Cent. Ein anteiliges Preisangebot enthält außerdem",
+    ". Salden a Käschtegrenze si ganz Zuelen an EUR-Cent. Eng Devis mat Brochdeeler enthält och"
+  ],
+  ": 1 EUR vaut un milliard de nanoEUR. Le débit en centimes suit le cumul exact de l’organisation, sans arrondir chaque e-mail à un centime. Ces champs peuvent être absents des listes ou null ; cela ne signifie pas un prix nul.": [
+    ": 1 EUR equals one billion nanoEUR. Charges in cents follow the organisation’s exact cumulative total, without rounding each email up to one cent. These fields may be absent from lists or null; this does not mean a zero price.",
+    ": 1 EUR entspricht einer Milliarde nanoEUR. Die Abbuchung in Cent folgt der exakten kumulierten Summe der Organisation, ohne jede E-Mail auf einen Cent aufzurunden. Diese Felder können in Listen fehlen oder null sein. Das bedeutet keinen Preis von null.",
+    ": 1 EUR entsprécht enger Milliard nanoEUR. D’Ofbuchung an Cent follegt der geneeër kumuléierter Zomm vun der Organisatioun, ouni all E-Mail op een Cent opzerronnen. Dës Felder kënnen a Lëschte feelen oder null sinn. Dat heescht net, datt de Präis null ass."
+  ],
+  "Pour le fax v3,": [
+    "For fax v3,",
+    "Für Fax v3 liefert",
+    "Fir Fax v3 liwwert"
+  ],
+  "fournit la fourchette HT en nanoEUR et le plafond ferme en centimes. Le plafond est réservé à la confirmation. Consultez ensuite": [
+    "provides the price range excluding tax in nanoEUR and the firm spending limit in cents. The limit is reserved at confirmation. Then check",
+    "die Preisspanne ohne Steuern in nanoEUR und die feste Kostenobergrenze in Cent. Die Obergrenze wird bei der Bestätigung reserviert. Prüfen Sie anschließend",
+    "d’Präisspann ouni Steieren an nanoEUR an déi fest Käschtegrenz an Cent. D’Grenz gëtt bei der Bestätegung reservéiert. Kuckt duerno"
+  ],
+  ": une livraison peut être terminée alors que le décompte est encore": [
+    ": delivery may be complete while settlement is still",
+    ": Eine Zustellung kann abgeschlossen sein, während die Abrechnung noch den Status hat",
+    ": Eng Liwwerung ka fäerdeg sinn, wärend d’Ofrechnung nach dëse Status huet"
+  ],
+  ". Seul": [". Only", ". Nur", ". Nëmmen"],
+  "fournit la consommation validée et le débit du solde. Le tarif qualifié limite le fax à dix pages au maximum, même si le PDF a pu être importé.": [
+    "provides validated usage and the balance debit. The qualified rate limits faxes to a maximum of ten pages, even if the PDF was successfully imported.",
+    "liefert den bestätigten Verbrauch und die Guthabenabbuchung. Der qualifizierte Tarif begrenzt Faxe auf höchstens zehn Seiten, auch wenn die PDF-Datei importiert werden konnte.",
+    "liwwert de validéierte Verbrauch an d’Ofbuchung vum Saldo. De qualifizéierten Tarif begrenzt Faxe op héchstens zéng Säiten, och wann d’PDF-Datei importéiert konnt ginn."
+  ],
+  "En production, chaque canal exige une tarification privée qualifiée et un devis encore valide. Aucun montant fournisseur fourni par le client ne peut les remplacer. Les tarifs indicatifs de la page d’accueil ne constituent pas un devis API.": [
+    "In production, each channel requires qualified private pricing and a quote that is still valid. No provider amount supplied by the client can replace them. The indicative homepage rates are not an API quote.",
+    "Im Produktivbetrieb benötigt jeder Kanal eine qualifizierte private Preisgestaltung und ein noch gültiges Angebot. Kein vom Client übermittelter Anbieterbetrag kann diese ersetzen. Die unverbindlichen Preise auf der Startseite sind kein API-Angebot.",
+    "Am Produktivbetrib erfuerdert all Kanal eng qualifizéiert privat Präisgestaltung an eng nach gëlteg Devis. Keen Ubiddermontant, dee vum Client geliwwert gëtt, kann dës ersetzen. Déi onverbindlech Präisser op der Startsäit si keng API-Devis."
+  ],
+  "05 / LIMITES ET ERREURS": [
+    "05 / LIMITS AND ERRORS",
+    "05 / GRENZEN UND FEHLER",
+    "05 / GRENZEN A FEELER"
+  ],
+  "Prévoir les cas d’attente.": [
+    "Plan for waiting states.",
+    "Wartezustände einplanen.",
+    "Waartzoustänn aplangen."
+  ],
+  "10 Mio · 100 pages maximum": [
+    "10 MiB · 100 pages maximum",
+    "10 MiB · höchstens 100 Seiten",
+    "10 MiB · héchstens 100 Säiten"
+  ],
+  "HTML et texte e-mail": [
+    "Email HTML and text",
+    "E-Mail-HTML und -Text",
+    "E-Mail-HTML an -Text"
+  ],
+  "128 Kio UTF-8 par contenu": [
+    "128 KiB UTF-8 per content",
+    "128 KiB UTF-8 pro Inhalt",
+    "128 KiB UTF-8 pro Contenu"
+  ],
+  "256 Kio · 500 lignes maximum": [
+    "256 KiB · 500 rows maximum",
+    "256 KiB · höchstens 500 Zeilen",
+    "256 KiB · héchstens 500 Zeilen"
+  ],
+  "Listes": ["Lists", "Listen", "Lëschten"],
+  "30 éléments par défaut · 100 maximum": [
+    "30 items by default · 100 maximum",
+    "30 Elemente standardmäßig · höchstens 100",
+    "30 Elementer standardméisseg · héchstens 100"
+  ],
+  "API authentifiée": [
+    "Authenticated API",
+    "Authentifizierte API",
+    "Authentifizéiert API"
+  ],
+  "180 requêtes par minute et organisation": [
+    "180 requests per minute per organisation",
+    "180 Anfragen pro Minute und Organisation",
+    "180 Ufroe pro Minutt an Organisatioun"
+  ],
+  "Réexamens PDF": [
+    "PDF rechecks",
+    "Erneute PDF-Prüfungen",
+    "Nei PDF-Kontrollen"
+  ],
+  "10 par jour et organisation": [
+    "10 per day per organisation",
+    "10 pro Tag und Organisation",
+    "10 pro Dag an Organisatioun"
+  ],
+  "Les dépôts et rendus ont aussi des quotas quotidiens propres à l’organisation. Les listes renvoient": [
+    "Uploads and renders also have daily quotas specific to the organisation. Lists return",
+    "Für Uploads und Renderings gelten auch tägliche Kontingente je Organisation. Listen geben Folgendes zurück:",
+    "Fir Uploaden a Renderinge gëllen och deeglech Kontingenter pro Organisatioun. Lëschte ginn Folgendes zréck:"
+  ],
+  "; renvoyez ce curseur opaque sans le modifier. Les réponses de validation CSV séparent": [
+    "; send this opaque cursor back unchanged. CSV validation responses separate",
+    "; senden Sie diesen undurchsichtigen Cursor unverändert zurück. CSV-Prüfantworten trennen",
+    "; schéckt dësen opake Cursor onverännert zréck. CSV-Kontrolläntwerten trennen"
+  ],
+  ": un succès HTTP ne signifie pas que chaque ligne est valide.": [
+    ": HTTP success does not mean every row is valid.",
+    ": Ein HTTP-Erfolg bedeutet nicht, dass jede Zeile gültig ist.",
+    ": En HTTP-Erfolleg heescht net, datt all Zeil gëlteg ass."
+  ],
+  "Une erreur contient": [
+    "An error contains",
+    "Ein Fehler enthält",
+    "E Feeler enthält"
+  ],
+  ", parfois une liste": [
+    ", sometimes a list",
+    ", manchmal eine Liste",
+    ", heiansdo eng Lëscht"
+  ],
+  ". Conservez le code et": [
+    ". Keep the code and",
+    ". Bewahren Sie den Code und",
+    ". Behält de Code an"
+  ],
+  "pour le diagnostic, sans journaliser le document, le destinataire ou le jeton.": [
+    "for diagnostics, without logging the document, recipient or token.",
+    "für die Diagnose auf, ohne Dokument, Empfänger oder Token zu protokollieren.",
+    "fir d’Diagnos, ouni d’Dokument, den Empfänger oder den Token ze protokolléieren."
+  ],
+  "authentification ou permission ;": [
+    "authentication or permission;",
+    "Authentifizierung oder Berechtigung;",
+    "Authentifizéierung oder Berechtegung;"
+  ],
+  "demande d’abord une connexion au navigateur.": [
+    "requires signing in through the browser first.",
+    "erfordert zunächst eine Anmeldung im Browser.",
+    "erfuerdert fir d’éischt eng Umeldung am Browser."
+  ],
+  "approbation, devis, crédit, quota ou état incompatible. Corrigez la cause ; ne changez pas de clé pour forcer l’envoi.": [
+    "incompatible approval, quote, credit, quota or status. Correct the cause; do not change the key to force a dispatch.",
+    "Unvereinbare Freigabe, Angebot, Guthaben, Kontingent oder Status. Beheben Sie die Ursache. Ändern Sie nicht den Schlüssel, um den Versand zu erzwingen.",
+    "Onpassend Fräigab, Devis, Kredit, Kontingent oder Status. Korrigéiert d’Ursaach. Ännert de Schlëssel net, fir de Versand ze erzwingen."
+  ],
+  "contenu trop volumineux ou document non consultable.": [
+    "content too large or document cannot be viewed.",
+    "Inhalt zu groß oder Dokument nicht abrufbar.",
+    "Contenu ze grouss oder Dokument net opruffbar."
+  ],
+  "ralentissez. La limite HTTP renvoie": [
+    "slow down. The HTTP limit returns",
+    "Anfragen verlangsamen. Die HTTP-Begrenzung gibt Folgendes zurück:",
+    "Ufroe verlangsamen. D’HTTP-Grenz gëtt Folgendes zréck:"
+  ],
+  "; les quotas documentaires n’ont pas nécessairement cet en-tête.": [
+    "; document quotas do not necessarily include this header.",
+    "; Dokumentkontingente enthalten diesen Header nicht unbedingt.",
+    "; Dokumentkontingenter enthalen dësen Header net onbedéngt."
+  ],
+  "configuration ou service requis indisponible. La démonstration publique répond quant à elle": [
+    "required configuration or service unavailable. The public demo instead returns",
+    "Erforderliche Konfiguration oder Dienst nicht verfügbar. Die öffentliche Demonstration antwortet dagegen mit",
+    "Néideg Konfiguratioun oder Service net disponibel. Déi ëffentlech Demonstratioun äntwert dogéint mat"
+  ],
+  "distingue le crédit de bienvenue, les réservations et les plafonds mensuels. Le crédit ne se renouvelle pas. Une issue fournisseur inconnue conserve la réservation ; elle ne justifie jamais une nouvelle expédition automatique.": [
+    "distinguishes welcome credit, reservations and monthly limits. The credit does not renew. An unknown provider outcome keeps the reservation; it never justifies an automatic resend.",
+    "unterscheidet Willkommensguthaben, Reservierungen und Monatsobergrenzen. Das Guthaben erneuert sich nicht. Bei unbekanntem Anbieterergebnis bleibt die Reservierung bestehen; dies rechtfertigt niemals einen automatischen erneuten Versand.",
+    "ënnerscheet Wëllkommenskredit, Reservatiounen a monatlech Grenzen. De Kredit erneiert sech net. Bei engem onbekannten Ubidderresultat bleift d’Reservatioun bestoen; dat rechtfäerdegt ni en automateschen neie Versand."
+  ],
+  "06 / LE CONTRAT COMPLET": [
+    "06 / THE FULL CONTRACT",
+    "06 / DER VOLLSTÄNDIGE VERTRAG",
+    "06 / DE VOLLSTÄNNEGE KONTRAKT"
+  ],
+  "Chaque route, chaque réponse.": [
+    "Every route, every response.",
+    "Jede Route, jede Antwort.",
+    "All Route, all Äntwert."
+  ],
+  "23 opérations : documents, contrôle postal, envois, campagnes, destinataires, expéditeurs, consommation et état du service. Explorez les schémas en lecture seule. Aucun bouton d’exécution, aucune connexion OAuth, aucun jeton envoyé depuis l’explorateur.": [
+    "23 operations: documents, postal checks, dispatches, campaigns, recipients, senders, usage and service status. Explore the schemas in read-only mode. No execution button, no OAuth sign-in and no token sent from the explorer.",
+    "23 Operationen: Dokumente, Postprüfung, Sendungen, Kampagnen, Empfänger, Absender, Verbrauch und Dienststatus. Erkunden Sie die Schemas mit reinem Lesezugriff. Kein Ausführen-Knopf, keine OAuth-Anmeldung und kein vom Explorer gesendetes Token.",
+    "23 Operatiounen: Dokumenter, Postkontroll, Sendungen, Campagnen, Empfänger, Ofsender, Verbrauch a Servicestatus. Entdeckt d'Schemae mat rengem Lieszougrëff. Keen Ausféierungsknäppchen, keng OAuth-Umeldung a keen Token, dee vum Explorer geschéckt gëtt."
+  ],
+  "Chargement de la référence…": [
+    "Loading the reference…",
+    "Referenz wird geladen…",
+    "D’Referenz gëtt gelueden…"
+  ],
+  "Référence ouverte": ["Reference open", "Referenz geöffnet", "Referenz op"],
+  "Ouvrir la référence Swagger": [
+    "Open Swagger reference",
+    "Swagger-Referenz öffnen",
+    "D’Swagger-Referenz opmaachen"
+  ],
+  "Télécharger OpenAPI (.json)": [
+    "Download OpenAPI (.json)",
+    "OpenAPI herunterladen (.json)",
+    "OpenAPI eroflueden (.json)"
+  ],
+  "Le guide est disponible sans JavaScript. Pour explorer les schémas, téléchargez le contrat OpenAPI ci-dessus.": [
+    "The guide is available without JavaScript. To explore the schemas, download the OpenAPI contract above.",
+    "Die Anleitung ist ohne JavaScript verfügbar. Laden Sie den obigen OpenAPI-Vertrag herunter, um die Schemas zu erkunden.",
+    "D’Uleedung ass ouni JavaScript disponibel. Lued den OpenAPI-Kontrakt hei uewen erof, fir d'Schemaen ze entdecken."
+  ],
+  "La référence n’a pas pu être chargée. Réessayez ou téléchargez le fichier OpenAPI.": [
+    "The reference could not be loaded. Try again or download the OpenAPI file.",
+    "Die Referenz konnte nicht geladen werden. Versuchen Sie es erneut oder laden Sie die OpenAPI-Datei herunter.",
+    "D’Referenz konnt net geluede ginn. Probéiert nach eng Kéier oder lued d’OpenAPI-Datei erof."
+  ],
+  "Référence chargée. Vous pouvez déplier les opérations ci-dessous.": [
+    "Reference loaded. You can expand the operations below.",
+    "Referenz geladen. Sie können die Operationen unten aufklappen.",
+    "Referenz gelueden. Dir kënnt d’Operatiounen hei ënnen opklappen."
+  ],
+  "Chargement des schémas en lecture seule.": [
+    "Loading read-only schemas.",
+    "Schemas werden mit reinem Lesezugriff geladen.",
+    "Schemae gi mat rengem Lieszougrëff gelueden."
+  ],
+  "L’explorateur se charge uniquement à votre demande.": [
+    "The explorer loads only when you request it.",
+    "Der Explorer wird nur auf Ihre Anforderung geladen.",
+    "Den Explorer gëtt nëmmen op Är Ufro gelueden."
+  ],
+  "Vos données,": ["Your data,", "Ihre Daten,", "Är Donnéeën,"],
+  "vos droits.": ["your rights.", "Ihre Rechte.", "Är Rechter."],
+  "Les données utilisées par Guteneo, leurs destinataires, leur conservation et les moyens d’exercer vos droits.": [
+    "The data Guteneo uses, who receives it, how long it is kept and how to exercise your rights.",
+    "Die von Guteneo verwendeten Daten, ihre Empfänger, ihre Aufbewahrung und die Möglichkeiten, Ihre Rechte auszuüben.",
+    "D’Donnéeën, déi Guteneo benotzt, hir Empfänger, hir Späicherung a wéi Dir Är Rechter ausübe kënnt."
+  ],
+  "Qui vous répond": [
+    "Who responds to you",
+    "Wer Ihnen antwortet",
+    "Wien Iech äntwert"
+  ],
+  "Nicolas Pieper est responsable des traitements nécessaires au fonctionnement de Guteneo : comptes, accès, préparation et suivi des envois, sécurité et assistance. Vous pouvez le joindre à": [
+    "Nicolas Pieper is the controller for the processing necessary to operate Guteneo: accounts, access, dispatch preparation and tracking, security and support. You can contact him at",
+    "Nicolas Pieper ist Verantwortlicher für die zum Betrieb von Guteneo erforderliche Verarbeitung: Konten, Zugriffe, Vorbereitung und Nachverfolgung von Sendungen, Sicherheit und Support. Sie erreichen ihn unter",
+    "Den Nicolas Pieper ass Verantwortleche fir d’Veraarbechtung, déi fir de Betrib vu Guteneo néideg ass: Konten, Zougrëff, Virbereedung a Suivi vu Sendungen, Sécherheet a Support. Dir kënnt hien erreechen op"
+  ],
+  ", ou par courrier au 59 rue du général de Gaulle, 57330 Hettange-Grande, France.": [
+    ", or by post at 59 rue du général de Gaulle, 57330 Hettange-Grande, France.",
+    ", oder per Post an 59 rue du général de Gaulle, 57330 Hettange-Grande, Frankreich.",
+    ", oder per Post op 59 rue du général de Gaulle, 57330 Hettange-Grande, Frankräich."
+  ],
+  "Cette politique couvre le site et le service Guteneo, y compris ses connexions aux assistants. Si une organisation vous donne accès à son compte ou fournit vos coordonnées dans un document, elle demeure responsable des finalités de cette utilisation. Elle est votre premier interlocuteur pour le contenu qu’elle confie au service ; nous pouvons vous aider à identifier la demande concernée.": [
+    "This policy covers the Guteneo website and service, including its assistant connections. If an organisation gives you access to its account or includes your contact details in a document, it remains responsible for the purposes of that use. It is your first point of contact for the content it entrusts to the service; we can help you identify the relevant request.",
+    "Diese Richtlinie gilt für die Website und den Dienst Guteneo, einschließlich der Verbindungen zu Assistenten. Wenn eine Organisation Ihnen Zugang zu ihrem Konto gewährt oder Ihre Kontaktdaten in einem Dokument angibt, bleibt sie für die Zwecke dieser Nutzung verantwortlich. Sie ist Ihr erster Ansprechpartner für die Inhalte, die sie dem Dienst anvertraut. Wir können Ihnen helfen, die betreffende Anfrage zu identifizieren.",
+    "Dës Politik gëllt fir d’Websäit an de Service Guteneo, inklusiv de Verbindunge mat Assistenten. Wann eng Organisatioun Iech Zougrëff op hire Kont gëtt oder Är Kontaktdonnéeën an engem Dokument ugëtt, bleift si fir d’Zwecker vun dëser Notzung verantwortlech. Si ass Ären éischten Uspriechpartner fir den Inhalt, deen si dem Service uvertraut. Mir kënnen Iech hëllefen, déi betraffen Ufro z’identifizéieren."
+  ],
+  "Les données utilisées": [
+    "The data used",
+    "Die verwendeten Daten",
+    "Déi benotzten Donnéeën"
+  ],
+  "Compte et connexions :": [
+    "Account and connections:",
+    "Konto und Verbindungen:",
+    "Kont a Verbindungen:"
+  ],
+  "identité et adresse électronique, appartenance au compte, rôle, connexions à des assistants, permissions, sessions et éventuels mandats de délégation.": [
+    "identity and email address, account membership, role, assistant connections, permissions, sessions and any delegation mandates.",
+    "Identität und E-Mail-Adresse, Kontozugehörigkeit, Rolle, Verbindungen zu Assistenten, Berechtigungen, Sitzungen und etwaige Delegationsmandate.",
+    "Identitéit an E-Mail-Adress, Kontomemberschaft, Roll, Verbindunge mat Assistenten, Berechtegungen, Sessiounen an eventuell Delegatiounsmandater."
+  ],
+  "Documents :": ["Documents:", "Dokumente:", "Dokumenter:"],
+  "PDF transmis ou importés à votre demande, nom, taille, nombre de pages, empreinte du fichier et résultat des contrôles. Un contenu fourni pour créer un PDF, ses rendus et les images de pages demandées peuvent aussi être traités.": [
+    "PDFs sent or imported at your request, name, size, page count, file fingerprint and check results. Content supplied to create a PDF, its renderings and requested page images may also be processed.",
+    "Auf Ihre Anfrage übermittelte oder importierte PDF-Dateien, Name, Größe, Seitenzahl, Dateifingerabdruck und Prüfergebnisse. Auch Inhalte zur PDF-Erstellung, deren Renderings und angeforderte Seitenbilder können verarbeitet werden.",
+    "PDF-Dateien, déi op Är Ufro geschéckt oder importéiert goufen, Numm, Gréisst, Säitenzuel, Fangerofdrock vun der Datei a Kontrollresultater. Inhalt fir e PDF ze erstellen, seng Renderingen an ugefrote Säitebiller kënnen och verschafft ginn."
+  ],
+  "Envois :": ["Dispatches:", "Sendungen:", "Sendungen:"],
+  "expéditeur, destinataire, canal, options, devis, plafond, approbation ou délégation utilisée, statut, événements et référence du prestataire.": [
+    "sender, recipient, channel, options, quote, spending limit, approval or delegation used, status, events and provider reference.",
+    "Absender, Empfänger, Kanal, Optionen, Angebot, Kostenobergrenze, verwendete Freigabe oder Delegation, Status, Ereignisse und Anbieterreferenz.",
+    "Ofsender, Empfänger, Kanal, Optiounen, Devis, Käschtegrenz, benotzt Fräigab oder Delegatioun, Status, Evenementer an Ubidderreferenz."
+  ],
+  "Fonctionnement :": ["Operation:", "Betrieb:", "Betrib:"],
+  "crédit et réservations, consommation, traces d’accès et de sécurité, données techniques de connexion et échanges avec l’assistance.": [
+    "credit and reservations, usage, access and security logs, technical connection data and support exchanges.",
+    "Guthaben und Reservierungen, Verbrauch, Zugriffs- und Sicherheitsprotokolle, technische Verbindungsdaten und Supportaustausch.",
+    "Kredit a Reservatiounen, Verbrauch, Zougrëffs- a Sécherheetsprotokoller, technesch Verbindungsdonnéeën an Austausch mam Support."
+  ],
+  "Ces données proviennent de vous, des membres autorisés du compte, de l’assistant que vous connectez ou du prestataire qui retourne un statut. Guteneo reçoit les paramètres et fichiers transmis à ses outils ; connecter un assistant ne lui donne pas accès à toute votre conversation. Les informations retournées à cet assistant deviennent néanmoins accessibles à ce service selon ses propres règles.": [
+    "This data comes from you, authorised account members, the assistant you connect or the provider returning a status. Guteneo receives the parameters and files sent to its tools; connecting an assistant does not give it access to your entire conversation. Information returned to that assistant nevertheless becomes accessible to that service under its own rules.",
+    "Diese Daten stammen von Ihnen, autorisierten Kontomitgliedern, dem verbundenen Assistenten oder dem Anbieter, der einen Status zurückmeldet. Guteneo erhält die an seine Werkzeuge übermittelten Parameter und Dateien. Die Verbindung mit einem Assistenten gewährt keinen Zugriff auf Ihre gesamte Unterhaltung. Die an diesen Assistenten zurückgegebenen Informationen werden diesem Dienst jedoch nach seinen eigenen Regeln zugänglich.",
+    "Dës Donnéeë komme vun Iech, autoriséierte Kontomemberen, dem Assistent, deen Dir verbannt, oder dem Ubidder, deen e Status zeréckgëtt. Guteneo kritt d’Parameteren an d’Dateien, déi u seng Wierkzeuge geschéckt ginn. En Assistent ze verbannen, gëtt keen Zougrëff op Äert ganzt Gespréich. Informatiounen, déi un dësen Assistent zeréckginn, ginn deem Service awer no sengen eegene Reegelen zougänglech."
+  ],
+  "Les données de compte nécessaires à l’authentification et les informations exigées pour l’envoi sont indispensables à ces fonctions. Sans elles, la connexion ou l’envoi ne peut pas aboutir. Fournissez seulement les données utiles et assurez-vous de pouvoir utiliser les documents et coordonnées de tiers.": [
+    "Account data required for authentication and information required for dispatch are essential to those functions. Without them, sign-in or dispatch cannot be completed. Provide only necessary data and ensure you are entitled to use third-party documents and contact details.",
+    "Die zur Authentifizierung benötigten Kontodaten und die für den Versand erforderlichen Informationen sind für diese Funktionen unerlässlich. Ohne sie können Anmeldung oder Versand nicht abgeschlossen werden. Geben Sie nur erforderliche Daten an und stellen Sie sicher, dass Sie Dokumente und Kontaktdaten Dritter verwenden dürfen.",
+    "D’Kontodonnéeë fir d’Authentifizéierung an d’Informatioune fir de Versand si fir dës Funktiounen onëmgänglech. Ouni si kënnen d’Umeldung oder de Versand net ofgeschloss ginn. Gitt nëmmen néideg Donnéeën un a vergewëssert Iech, datt Dir Dokumenter a Kontaktdonnéeë vun Drëtte benotze kënnt."
+  ],
+  "Dans le connecteur ChatGPT, ne transmettez pas de données de carte de paiement soumises à PCI DSS, de données de santé protégées, d’identifiants gouvernementaux ni de secrets d’authentification. Les données personnelles sensibles ne sont pas admises dans ce parcours de la bêta. Un contrôle antivirus ne constitue pas un filtre de ces catégories.": [
+    "Do not send payment card data subject to PCI DSS, protected health information, government identifiers or authentication secrets through the ChatGPT connector. Sensitive personal data is not permitted in this beta flow. Antivirus scanning does not filter these categories.",
+    "Übermitteln Sie im ChatGPT-Konnektor keine PCI-DSS-pflichtigen Zahlungskartendaten, geschützten Gesundheitsdaten, staatlichen Identifikatoren oder Authentifizierungsgeheimnisse. Sensible personenbezogene Daten sind in diesem Beta-Ablauf nicht zulässig. Eine Virenprüfung filtert diese Kategorien nicht.",
+    "Schéckt am ChatGPT-Konnektor keng Bezuelkaartendonnéeën ënner PCI DSS, geschützt Gesondheetsdonnéeën, staatlech Identifikatoren oder Authentifizéierungsgeheimnisser. Sensibel perséinlech Donnéeë sinn an dësem Beta-Oflaf net erlaabt. Eng Virenkontroll filtert dës Kategorien net."
+  ],
+  "Pourquoi et sur quelle base": [
+    "Why and on what basis",
+    "Warum und auf welcher Grundlage",
+    "Firwat an op wéi enger Basis"
+  ],
+  "La création du compte et l’exécution des fonctions que vous demandez reposent sur l’exécution du service : importer un document, le contrôler, établir un devis, recueillir l’autorisation, transmettre l’envoi et en restituer le suivi.": [
+    "Account creation and the functions you request are based on performance of the service: importing a document, checking it, producing a quote, obtaining authorisation, transmitting the dispatch and providing its tracking.",
+    "Die Kontoerstellung und die von Ihnen angeforderten Funktionen beruhen auf der Erbringung des Dienstes: Dokument importieren und prüfen, Angebot erstellen, Genehmigung einholen, Sendung übermitteln und deren Verlauf bereitstellen.",
+    "D’Kontoerstellung an d’Funktiounen, déi Dir ufrot, baséieren op der Ausféierung vum Service: en Dokument importéieren a kontrolléieren, eng Devis erstellen, d’Autorisatioun anhuelen, d’Sendung iwwerdroen an hire Suivi zeréckginn."
+  ],
+  "La prévention des abus, la protection des accès, le diagnostic des incidents et la conservation des éléments nécessaires à une contestation reposent sur l’intérêt légitime à exploiter un service sûr et à défendre les droits des personnes concernées. Pour les coordonnées de destinataires fournies par un utilisateur, cet intérêt comprend l’acheminement de sa correspondance autorisée. Vous pouvez vous opposer à ces traitements dans les conditions prévues par la réglementation.": [
+    "Preventing abuse, protecting access, diagnosing incidents and keeping evidence needed for a dispute are based on the legitimate interest in operating a safe service and defending the rights of those concerned. For recipient contact details supplied by a user, this interest includes delivering their authorised correspondence. You may object to this processing under the conditions provided by applicable regulations.",
+    "Die Verhinderung von Missbrauch, der Schutz von Zugängen, die Diagnose von Vorfällen und die Aufbewahrung benötigter Nachweise bei Streitigkeiten beruhen auf dem berechtigten Interesse, einen sicheren Dienst zu betreiben und die Rechte der Betroffenen zu verteidigen. Bei vom Nutzer bereitgestellten Empfängerkontaktdaten umfasst dieses Interesse die Beförderung seiner autorisierten Korrespondenz. Sie können dieser Verarbeitung unter den gesetzlich vorgesehenen Voraussetzungen widersprechen.",
+    "D’Verhënnere vu Mëssbrauch, de Schutz vum Zougang, d’Diagnos vu Virfäll an d’Späichere vun néidege Beweiser bei Sträitfäll baséieren um berechtegten Interessi, e séchere Service ze bedreiwen an d’Rechter vun de Betraffenen ze verdeedegen. Bei Empfängerkontaktdonnéeën, déi e Benotzer liwwert, ëmfaasst dësen Interessi d’Befërdere vu senger autoriséierter Korrespondenz. Dir kënnt dëser Veraarbechtung ënner de gesetzlech virgesinne Bedéngunge widderspriechen."
+  ],
+  "Les demandes d’exercice de droits et les obligations légales applicables sont traitées pour respecter ces obligations. Une approbation d’envoi ou un mandat technique n’est pas un consentement général à réutiliser vos données pour d’autres finalités.": [
+    "Requests to exercise rights and applicable legal obligations are handled to comply with those obligations. A dispatch approval or technical mandate is not general consent to reuse your data for other purposes.",
+    "Anträge zur Ausübung von Rechten und geltende gesetzliche Verpflichtungen werden zur Erfüllung dieser Pflichten bearbeitet. Eine Versandfreigabe oder ein technisches Mandat ist keine allgemeine Einwilligung zur Wiederverwendung Ihrer Daten für andere Zwecke.",
+    "Ufroe fir Rechter auszeüben an applicabel gesetzlech Obligatioune gi behandelt, fir dës Flichten ze erfëllen. Eng Versandfräigab oder en technescht Mandat ass keng allgemeng Zoustëmmung, fir Är Donnéeë fir aner Zwecker nees ze benotzen."
+  ],
+  "Les contrôles de document, de droits, de crédit et de destination peuvent bloquer automatiquement une opération. Vous pouvez demander une explication à l’assistance. Guteneo n’utilise pas ces contrôles pour établir un profil publicitaire.": [
+    "Document, permission, credit and destination checks may automatically block an operation. You can ask support for an explanation. Guteneo does not use these checks to build an advertising profile.",
+    "Prüfungen von Dokumenten, Berechtigungen, Guthaben und Zielen können einen Vorgang automatisch blockieren. Sie können den Support um eine Erklärung bitten. Guteneo verwendet diese Prüfungen nicht zur Erstellung eines Werbeprofils.",
+    "Kontrolle vun Dokumenter, Berechtegungen, Kredit an Destinatioune kënnen e Virgank automatesch blockéieren. Dir kënnt de Support ëm eng Erklärung froen. Guteneo benotzt dës Kontrollen net, fir e Reklammprofil ze erstellen."
+  ],
+  "Avec qui elles sont partagées": [
+    "Who data is shared with",
+    "Mit wem Daten geteilt werden",
+    "Mat wiem Donnéeë gedeelt ginn"
+  ],
+  "Les membres autorisés de votre compte accèdent aux informations selon leurs droits. L’éditeur peut traiter les informations nécessaires à l’assistance, à la sécurité et à l’exploitation. Les prestataires interviennent uniquement pour les fonctions concernées :": [
+    "Authorised members of your account access information according to their permissions. The publisher may process information necessary for support, security and operation. Providers are involved only for the relevant functions:",
+    "Autorisierte Mitglieder Ihres Kontos greifen entsprechend ihren Berechtigungen auf Informationen zu. Der Herausgeber kann die für Support, Sicherheit und Betrieb erforderlichen Informationen verarbeiten. Dienstleister werden nur für die betreffenden Funktionen eingesetzt:",
+    "Autoriséiert Membere vun Ärem Kont kréien Zougrëff op Informatiounen no hire Berechtegungen. Den Editeur kann Informatioune verschaffen, déi fir Support, Sécherheet a Betrib néideg sinn. Ubidder ginn nëmme fir déi betraffe Funktiounen agesat:"
+  ],
+  "hébergement du site et du service, base de données, stockage de fichiers, traitements techniques et sécurité.": [
+    "website and service hosting, database, file storage, technical processing and security.",
+    "Hosting von Website und Dienst, Datenbank, Dateispeicherung, technische Verarbeitung und Sicherheit.",
+    "Hosting vun der Websäit an dem Service, Datebank, Dateispäicherung, technesch Veraarbechtung a Sécherheet."
+  ],
+  "authentification et gestion de la connexion.": [
+    "authentication and sign-in management.",
+    "Authentifizierung und Verwaltung der Anmeldung.",
+    "Authentifizéierung a Gestioun vun der Umeldung."
+  ],
+  "document et informations nécessaires à un fax lorsque ce canal est disponible et l’envoi autorisé.": [
+    "document and information needed for a fax when that channel is available and the dispatch is authorised.",
+    "Dokument und erforderliche Angaben für ein Fax, wenn dieser Kanal verfügbar und der Versand autorisiert ist.",
+    "Dokument an néideg Informatioune fir e Fax, wann dëse Kanal disponibel an de Versand autoriséiert ass."
+  ],
+  "Pingen et les opérateurs postaux concernés :": [
+    "Pingen and the relevant postal operators:",
+    "Pingen und die betreffenden Postbetreiber:",
+    "Pingen an déi betraffe Postbedreiwer:"
+  ],
+  "préparation, impression et acheminement du courrier. Le transfert d’un brouillon chez Pingen peut précéder l’ordre d’envoi ; il exige son autorisation distincte.": [
+    "preparation, printing and delivery of postal mail. A draft may be transferred to Pingen before the dispatch order; that transfer requires separate authorisation.",
+    "Vorbereitung, Druck und Beförderung von Briefpost. Ein Entwurf kann vor dem Versandauftrag an Pingen übertragen werden. Dafür ist eine gesonderte Genehmigung erforderlich.",
+    "Virbereedung, Drock a Befërderung vu Bréifpost. En Entworf ka virum Versandoptrag un Pingen iwwerdroe ginn. Dësen Transfert erfuerdert eng separat Autorisatioun."
+  ],
+  "Votre assistant connecté, par exemple ChatGPT :": [
+    "Your connected assistant, such as ChatGPT:",
+    "Ihr verbundener Assistent, zum Beispiel ChatGPT:",
+    "Äre verbonnenen Assistent, zum Beispill ChatGPT:"
+  ],
+  "résultats des outils, métadonnées, contenu ou pages de document demandés, selon les permissions accordées.": [
+    "tool results, metadata, requested document content or pages, according to the permissions granted.",
+    "Werkzeugergebnisse, Metadaten, angeforderte Dokumentinhalte oder Seiten entsprechend den erteilten Berechtigungen.",
+    "Wierkzeugresultater, Metadonnéeën, ugefroten Dokumentinhalt oder Säiten, no den accordéierte Berechtegungen."
+  ],
+  "Le destinataire final reçoit naturellement la correspondance autorisée. L’envoi d’e-mails par Guteneo et les achats de crédit ne sont pas ouverts dans cette version de la bêta.": [
+    "The final recipient naturally receives the authorised correspondence. Sending emails through Guteneo and purchasing credit are not available in this version of the beta.",
+    "Der endgültige Empfänger erhält selbstverständlich die autorisierte Korrespondenz. Der E-Mail-Versand über Guteneo und der Kauf von Guthaben sind in dieser Beta-Version nicht verfügbar.",
+    "Den definitiven Empfänger kritt selbstverständlech déi autoriséiert Korrespondenz. E-Maile mat Guteneo ze schécken a Kredit ze kafen ass an dëser Beta-Versioun net disponibel."
+  ],
+  "Les bases et le stockage de documents Guteneo utilisent les options de juridiction européenne de Cloudflare. Cela ne garantit pas que tous les traitements de Cloudflare, Auth0, des prestataires d’envoi ou de l’assistant restent dans l’Union européenne. Leur intervention peut impliquer d’autres pays, notamment les États-Unis. Pour connaître les lieux et garanties de transfert applicables à votre utilisation et obtenir les informations disponibles sur ces garanties, contactez": [
+    "Guteneo’s databases and document storage use Cloudflare’s European jurisdiction options. This does not guarantee that all processing by Cloudflare, Auth0, dispatch providers or the assistant remains within the European Union. Their involvement may include other countries, particularly the United States. To learn about the locations and transfer safeguards applicable to your use and obtain available information about those safeguards, contact",
+    "Die Datenbanken und Dokumentspeicherung von Guteneo nutzen die Optionen für europäische Gerichtsbarkeit von Cloudflare. Dies garantiert nicht, dass sämtliche Verarbeitung durch Cloudflare, Auth0, Versanddienstleister oder den Assistenten in der Europäischen Union bleibt. Ihre Mitwirkung kann andere Länder, insbesondere die USA, betreffen. Für Informationen über die für Ihre Nutzung geltenden Orte und Übermittlungsgarantien sowie verfügbare Angaben zu diesen Garantien wenden Sie sich an",
+    "D’Datebanken an d’Dokumentspäicherung vu Guteneo benotzen d’Optioune fir europäesch Juridictioun vu Cloudflare. Dat garantéiert net, datt all Veraarbechtung vu Cloudflare, Auth0, Versandubidder oder dem Assistent an der Europäescher Unioun bleift. Hir Bedeelegung kann aner Länner betreffen, besonnesch d’USA. Fir d’Plazen an d’Transfertgarantien ze kennen, déi fir Är Notzung gëllen, a fir disponibel Informatiounen iwwer dës Garantien ze kréien, kontaktéiert"
+  ],
+  ". Aucune localisation européenne intégrale n’est annoncée.": [
+    ". No claim of wholly European processing is made.",
+    ". Eine vollständig europäische Datenverarbeitung wird nicht zugesagt.",
+    ". Eng komplett europäesch Veraarbechtung gëtt net zougesot."
+  ],
+  "Combien de temps": [
+    "How long data is kept",
+    "Wie lange Daten bleiben",
+    "Wéi laang Donnéeë bleiwen"
+  ],
+  "PDF stockés par Guteneo :": [
+    "PDFs stored by Guteneo:",
+    "Von Guteneo gespeicherte PDFs:",
+    "PDF-Dateien, déi Guteneo späichert:"
+  ],
+  "leur suppression automatique devient possible 90 jours après leur création. Elle intervient lors d’un passage de maintenance, lorsque plus aucun envoi associé n’est en cours ou dans un état encore non résolu. Un envoi ouvert peut donc prolonger cette conservation. Ce mécanisme n’est pas une garantie de suppression à la minute ou au jour près ; conservez votre propre original.": [
+    "automatic deletion becomes possible 90 days after creation. It takes place during a maintenance run, when no associated dispatch is ongoing or still unresolved. An open dispatch can therefore extend retention. This mechanism does not guarantee deletion to the exact minute or day; keep your own original.",
+    "Ihre automatische Löschung wird 90 Tage nach der Erstellung möglich. Sie erfolgt bei einem Wartungslauf, wenn keine zugehörige Sendung mehr läuft oder ungeklärt ist. Eine offene Sendung kann die Aufbewahrung daher verlängern. Dieser Mechanismus garantiert keine minutengenaue oder taggenaue Löschung. Bewahren Sie Ihr eigenes Original auf.",
+    "hir automatesch Läschung gëtt 90 Deeg no der Erstellung méiglech. Si geschitt bei engem Wartungslaf, wa keng verbonne Sendung méi leeft oder ongekläert ass. Eng oppe Sendung kann d’Späicherung also verlängeren. Dëse Mechanismus garantéiert keng minutten- oder daggenee Läschung. Behält Äert eegent Original."
+  ],
+  "La suppression du fichier n’efface pas automatiquement toutes ses métadonnées ni l’historique de l’envoi. Les références, statuts, approbations, mouvements de crédit et éléments d’audit sont conservés pour gérer les opérations, répondre aux demandes et établir ce qui s’est passé en cas de contestation. Leur nécessité est examinée lors d’une demande de suppression ou de clôture : les éléments devenus inutiles sont supprimés ou anonymisés ; une obligation applicable, une opération non résolue ou un litige peut justifier une conservation limitée aux éléments concernés et à sa durée nécessaire.": [
+    "Deleting a file does not automatically delete all its metadata or dispatch history. References, statuses, approvals, credit movements and audit records are kept to manage operations, respond to requests and establish what happened in a dispute. Their necessity is reviewed when deletion or closure is requested: records no longer needed are deleted or anonymised; an applicable obligation, unresolved operation or dispute may justify retention limited to the relevant records and the time needed.",
+    "Die Dateilöschung entfernt nicht automatisch sämtliche Metadaten oder den Versandverlauf. Referenzen, Status, Freigaben, Guthabenbewegungen und Prüfprotokolle werden aufbewahrt, um Vorgänge zu verwalten, Anfragen zu beantworten und bei Streitigkeiten den Ablauf festzustellen. Ihre Notwendigkeit wird bei einem Löschungs- oder Schließungsantrag geprüft: Nicht mehr benötigte Daten werden gelöscht oder anonymisiert. Eine geltende Verpflichtung, ein ungeklärter Vorgang oder ein Rechtsstreit kann eine Aufbewahrung rechtfertigen, die auf die betroffenen Daten und die erforderliche Dauer begrenzt ist.",
+    "D’Läsche vun der Datei läscht net automatesch all hir Metadonnéeën oder de Versandverlaf. Referenzen, Statussen, Fräigaben, Kreditbeweegungen an Auditprotokoller gi versuergt, fir Operatiounen ze geréieren, Ufroen ze beäntwerten an am Sträitfall festzestellen, wat geschitt ass. Hir Noutwendegkeet gëtt bei enger Läschungs- oder Zoumaachufro gepréift: Donnéeën, déi net méi gebraucht ginn, gi geläscht oder anonymiséiert. Eng applicabel Flicht, en ongekläerte Virgank oder e Sträitfall kann eng Späicherung rechtfäerdegen, déi op déi betraffen Donnéeën an déi néideg Dauer begrenzt ass."
+  ],
+  "Les données de compte sont conservées pendant son utilisation, puis selon ces mêmes besoins résiduels à sa clôture. Les demandes d’assistance sont conservées jusqu’à leur résolution, puis seulement si leur suivi ou une contestation le nécessite. Il n’existe pas actuellement de suppression complète du compte en libre-service : adressez votre demande à": [
+    "Account data is kept while the account is in use, then according to the same remaining needs after closure. Support requests are kept until resolved, then only if follow-up or a dispute requires it. Full self-service account deletion is not currently available: send your request to",
+    "Kontodaten werden während der Nutzung aufbewahrt und nach der Schließung entsprechend denselben verbleibenden Erfordernissen. Supportanfragen bleiben bis zur Lösung gespeichert, danach nur, wenn Nachverfolgung oder Streitigkeiten dies erfordern. Eine vollständige selbstständige Kontolöschung ist derzeit nicht verfügbar. Senden Sie Ihren Antrag an",
+    "Kontodonnéeë gi wärend der Notzung gespäichert an no der Zoumaachung no de selwechte verbleiwende Besoinen. Supportufroe gi bis zur Léisung versuergt, duerno nëmmen, wann de Suivi oder e Sträitfall dat erfuerdert. Eng komplett selbststänneg Kontoläschung gëtt et de Moment net. Schéckt Är Ufro un"
+  ],
+  "Les sessions et autorisations temporaires ont une date d’expiration ; la maintenance nettoie les entrées expirées. Les compteurs journaliers de consultation de contenu sont nettoyés au-delà de 31 jours. Une copie déjà transmise à un destinataire, à un assistant ou à un prestataire suit aussi ses propres règles de conservation ; supprimer le fichier chez Guteneo ne rappelle pas un envoi.": [
+    "Sessions and temporary authorisations have expiry dates; maintenance clears expired entries. Daily content-view counters are cleared after 31 days. A copy already sent to a recipient, assistant or provider is also subject to their own retention rules; deleting the file at Guteneo does not recall a dispatch.",
+    "Sitzungen und vorübergehende Berechtigungen haben ein Ablaufdatum. Die Wartung entfernt abgelaufene Einträge. Tägliche Zähler für Inhaltsabrufe werden nach mehr als 31 Tagen bereinigt. Eine bereits an Empfänger, Assistenten oder Anbieter übermittelte Kopie unterliegt auch deren eigenen Aufbewahrungsregeln. Die Dateilöschung bei Guteneo ruft keine Sendung zurück.",
+    "Sessiounen an temporär Autorisatiounen hunn e Verfallsdatum. D’Wartung botzt ofgelafen Entréen. Deeglech Compteure fir Inhaltsopriff gi no méi wéi 31 Deeg gebotzt. Eng Kopie, déi schonn un en Empfänger, en Assistent oder en Ubidder geschéckt gouf, ënnerläit och hiren eegene Späicherreegelen. D’Läsche vun der Datei bei Guteneo rifft keng Sendung zréck."
+  ],
+  "Cookies et sécurité": [
+    "Cookies and security",
+    "Cookies und Sicherheit",
+    "Cookien a Sécherheet"
+  ],
+  "La connexion utilise des cookies de session et de protection du parcours d’authentification. Le navigateur peut aussi mémoriser votre préférence de connexion à un assistant. L’application n’intègre pas de traceur publicitaire. Les fournisseurs d’authentification et de sécurité peuvent traiter les informations techniques nécessaires à leurs fonctions.": [
+    "Sign-in uses session cookies and cookies protecting the authentication flow. The browser may also remember your assistant connection preference. The app includes no advertising tracker. Authentication and security providers may process technical information needed for their functions.",
+    "Die Anmeldung verwendet Sitzungs-Cookies und Cookies zum Schutz des Authentifizierungsablaufs. Der Browser kann sich auch Ihre Präferenz zur Assistentenverbindung merken. Die Anwendung enthält keine Werbetracker. Authentifizierungs- und Sicherheitsanbieter können technische Informationen verarbeiten, die für ihre Funktionen erforderlich sind.",
+    "D’Umeldung benotzt Sessiounscookien a Cookien, déi den Authentifizéierungsoflaf schützen. De Browser kann och Är Preferenz fir d’Verbindung mat engem Assistent späicheren. D’App enthält kee Reklammtracker. Authentifizéierungs- a Sécherheetsubidder kënnen technesch Informatioune verschaffen, déi fir hir Funktiounen néideg sinn."
+  ],
+  "L’accès au service est contrôlé par le compte, les rôles et les permissions. Les accès temporaires aux documents expirent et les PDF sont soumis aux contrôles configurés avant leur utilisation. Ces mesures réduisent les risques sans rendre tout incident impossible. N’envoyez pas de mot de passe, de jeton d’accès ni de secret à l’assistance.": [
+    "Access to the service is controlled by the account, roles and permissions. Temporary document access expires and PDFs undergo the configured checks before use. These measures reduce risks without making every incident impossible. Do not send passwords, access tokens or secrets to support.",
+    "Der Dienstzugriff wird durch Konto, Rollen und Berechtigungen kontrolliert. Vorübergehende Dokumentzugriffe laufen ab und PDFs durchlaufen vor der Nutzung die konfigurierten Prüfungen. Diese Maßnahmen verringern Risiken, machen aber nicht jeden Vorfall unmöglich. Senden Sie keine Passwörter, Zugriffstoken oder Geheimnisse an den Support.",
+    "De Servicezougrëff gëtt duerch de Kont, d’Rollen an d’Berechtegunge kontrolléiert. Temporär Dokumentzougrëffer lafen of a PDF-Dateie gi virum Gebrauch den agestallte Kontrollen ënnerzunn. Dës Moossname reduzéiere Risiken, ouni all Virfall onméiglech ze maachen. Schéckt keng Passwierder, Zougrëffstoken oder Geheimnisser un de Support."
+  ],
+  "L’aperçu public de démonstration utilise des données fictives dans la mémoire de l’onglet ; il ne transmet aucun courrier. Il est distinct du compte connecté et de ses documents persistants.": [
+    "The public demo preview uses fictional data in the tab’s memory; it sends no postal mail. It is separate from the signed-in account and its persistent documents.",
+    "Die öffentliche Demovorschau verwendet fiktive Daten im Arbeitsspeicher des Tabs und versendet keine Briefe. Sie ist vom angemeldeten Konto und seinen dauerhaft gespeicherten Dokumenten getrennt.",
+    "Déi ëffentlech Demonstratiounsvirschau benotzt fiktiv Donnéeën am Späicher vum Tab a schéckt keng Bréiwer. Si ass vum ageloggte Kont a senge bestänneg gespäicherten Dokumenter getrennt."
+  ],
+  "Exercer vos droits": [
+    "Exercise your rights",
+    "Ihre Rechte ausüben",
+    "Är Rechter ausüben"
+  ],
+  "Vous pouvez demander l’accès, la rectification, l’effacement ou la limitation du traitement de vos données, ainsi que leur portabilité lorsqu’elle s’applique. Vous pouvez vous opposer à un traitement fondé sur l’intérêt légitime pour des raisons tenant à votre situation. Ces droits peuvent être limités par les droits d’autres personnes, une obligation légale ou la nécessité de régler une opération ou une contestation.": [
+    "You may request access, rectification, erasure or restriction of processing of your data, and portability where applicable. You may object to processing based on legitimate interest for reasons relating to your situation. These rights may be limited by other people’s rights, a legal obligation or the need to resolve an operation or dispute.",
+    "Sie können Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung Ihrer Daten sowie gegebenenfalls Datenübertragbarkeit verlangen. Sie können einer Verarbeitung auf Grundlage berechtigter Interessen aus Gründen Ihrer besonderen Situation widersprechen. Diese Rechte können durch die Rechte anderer Personen, eine gesetzliche Verpflichtung oder die Notwendigkeit zur Klärung eines Vorgangs oder einer Streitigkeit begrenzt sein.",
+    "Dir kënnt Zougang, Berichtegung, Läschung oder Aschränkung vun der Veraarbechtung vun Ären Donnéeën ufroen, souwéi hir Portabilitéit, wann dat gëllt. Dir kënnt enger Veraarbechtung op Basis vum berechtegten Interessi aus Grënn vun Ärer Situatioun widderspriechen. Dës Rechter kënnen duerch d’Rechter vun anere Persounen, eng gesetzlech Flicht oder d’Noutwendegkeet, en Oflaf oder e Sträitfall ze klären, begrenzt sinn."
+  ],
+  "Écrivez à": ["Write to", "Schreiben Sie an", "Schreift un"],
+  "en précisant votre demande et le compte concerné. Une information complémentaire d’identité ne sera demandée qu’en cas de doute raisonnable, de manière proportionnée. Une réponse est apportée dans un délai d’un mois ; en cas de demande complexe ou de demandes nombreuses, une prolongation maximale de deux mois peut être nécessaire et vous sera expliquée durant le premier mois.": [
+    "with your request and the account concerned. Additional identity information will be requested only if there is reasonable doubt, in a proportionate manner. A response is provided within one month; for complex or numerous requests, an extension of up to two months may be needed and will be explained during the first month.",
+    "und geben Sie Ihr Anliegen und das betroffene Konto an. Zusätzliche Identitätsangaben werden nur bei begründeten Zweifeln und in angemessenem Umfang verlangt. Eine Antwort erfolgt innerhalb eines Monats. Bei komplexen oder zahlreichen Anfragen kann eine Verlängerung um höchstens zwei Monate erforderlich sein, die Ihnen innerhalb des ersten Monats erläutert wird.",
+    "a gitt Är Ufro an de betraffene Kont un. Zousätzlech Identitéitsinformatioune ginn nëmme bei begrënnten Zweiwelen a verhältnisméisseg gefrot. Eng Äntwert gëtt bannent engem Mount ginn. Bei komplexen oder ville Ufroe kann eng Verlängerung ëm héchstens zwee Méint néideg sinn, déi Iech am éischte Mount erkläert gëtt."
+  ],
+  "Vous pouvez consulter les": [
+    "You can read the",
+    "Sie können die",
+    "Dir kënnt déi"
+  ],
+  "explications de la CNIL sur vos droits": [
+    "CNIL’s explanation of your rights",
+    "Erläuterungen der CNIL zu Ihren Rechten lesen",
+    "Erklärunge vun der CNIL iwwer Är Rechter liesen"
+  ],
+  "adresser une réclamation à la CNIL": [
+    "lodge a complaint with the CNIL",
+    "eine Beschwerde bei der CNIL einreichen",
+    "eng Plainte bei der CNIL areechen"
+  ],
+  ". Cette politique sera actualisée si le service ou ses traitements évoluent.": [
+    ". This policy will be updated if the service or its processing changes.",
+    ". Diese Richtlinie wird aktualisiert, wenn sich der Dienst oder seine Verarbeitung ändert.",
+    ". Dës Politik gëtt aktualiséiert, wann de Service oder seng Veraarbechtung sech ännert."
+  ],
+  "Conditions d’utilisation": [
+    "Terms of use",
+    "Nutzungsbedingungen",
+    "Notzungsbedéngungen"
+  ],
+  "Un cadre": ["A framework", "Ein Rahmen", "E Kader"],
+  "pour vos envois.": [
+    "for your dispatches.",
+    "für Ihre Sendungen.",
+    "fir Är Sendungen."
+  ],
+  "Conditions d’utilisation de la bêta Guteneo : accès, documents, autorisations, crédit d’essai et limites des envois.": [
+    "Guteneo beta terms of use: access, documents, authorisations, trial credit and dispatch limits.",
+    "Nutzungsbedingungen der Guteneo-Beta: Zugang, Dokumente, Berechtigungen, Testguthaben und Versandgrenzen.",
+    "Notzungsbedéngunge vun der Guteneo-Beta: Zougang, Dokumenter, Autorisatiounen, Testkredit a Versandgrenzen."
+  ],
+  "La bêta": ["The beta", "Die Beta", "D’Beta"],
+  "Le service et sa bêta": [
+    "The service and its beta",
+    "Der Dienst und seine Beta",
+    "De Service a seng Beta"
+  ],
+  "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté. Ses coordonnées figurent dans les": [
+    "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant. His contact details appear in the",
+    "Guteneo ist ein unabhängiger, von Nicolas Pieper herausgegebener Dienst zum Vorbereiten, Autorisieren und Verfolgen von Dokumentensendungen aus der Werkstatt oder über einen verbundenen Assistenten. Seine Kontaktdaten finden Sie im",
+    "Guteneo ass en onofhängege Service vum Nicolas Pieper, fir Dokumentesendungen aus sengem Atelier oder engem verbonnenen Assistent virzebereeden, ze autoriséieren an ze verfollegen. Seng Kontaktdonnéeë fannt Dir am"
+  ],
+  "mentions légales": ["legal notice", "Impressum", "Impressum"],
+  ". Les présentes conditions décrivent la bêta accessible actuellement.": [
+    ". These terms describe the beta currently available.",
+    ". Diese Bedingungen beschreiben die derzeit verfügbare Beta.",
+    ". Dës Bedéngunge beschreiwen déi aktuell disponibel Beta."
+  ],
+  "Le fax et le courrier postal sont disponibles selon les droits du compte, les destinations, les limites et les prestataires configurés. Une fonction visible n’est pas une garantie que toute destination est ouverte. L’envoi d’e-mails et l’achat de crédit sont désactivés. Les démonstrations et simulations utilisent des résultats fictifs et n’établissent aucune preuve d’acheminement réel.": [
+    "Fax and postal mail are available depending on account permissions, destinations, limits and configured providers. A visible feature does not guarantee that every destination is available. Email sending and credit purchases are disabled. Demonstrations and simulations use fictional results and provide no evidence of real transmission.",
+    "Fax und Briefpost sind je nach Kontoberechtigungen, Zielländern, Grenzen und konfigurierten Anbietern verfügbar. Eine sichtbare Funktion garantiert nicht, dass jedes Ziel freigeschaltet ist. E-Mail-Versand und Guthabenkauf sind deaktiviert. Demonstrationen und Simulationen verwenden fiktive Ergebnisse und belegen keine tatsächliche Beförderung.",
+    "Fax a Bréifpost si jee no Kontoberechtegungen, Destinatiounen, Grenzen a konfiguréierten Ubidder disponibel. Eng siichtbar Funktioun garantéiert net, datt all Destinatioun op ass. E-Mail-Versand a Kreditkaf sinn ausgeschalt. Demonstratiounen a Simulatioune benotze fiktiv Resultater a beweisen keng richteg Befërderung."
+  ],
+  "La bêta peut évoluer, être interrompue pour maintenance ou être limitée pour traiter un incident. Aucun délai de disponibilité, d’assistance ou d’acheminement n’est garanti. Une modification importante de ces conditions sera indiquée sur cette page et, lorsqu’elle affecte l’utilisation du compte, portée à votre attention dans le service ou par un moyen adapté.": [
+    "The beta may change, be interrupted for maintenance or be limited to handle an incident. No availability, support or delivery time is guaranteed. A material change to these terms will be indicated on this page and, when it affects account use, brought to your attention in the service or through an appropriate channel.",
+    "Die Beta kann sich ändern, für Wartungsarbeiten unterbrochen oder zur Behandlung eines Vorfalls eingeschränkt werden. Es werden keine Verfügbarkeits-, Support- oder Beförderungsfristen garantiert. Eine wesentliche Änderung dieser Bedingungen wird auf dieser Seite angegeben und Ihnen, wenn sie die Kontonutzung betrifft, im Dienst oder auf einem geeigneten Weg mitgeteilt.",
+    "D’Beta ka sech änneren, fir Wartung ënnerbrach oder fir e Virfall begrenzt ginn. Keng Disponibilitéits-, Support- oder Befërderungsfrist gëtt garantéiert. Eng wesentlech Ännerung vun dëse Bedéngunge gëtt op dëser Säit uginn an, wa si d’Kontonotzung betrëfft, am Service oder iwwer e gëeegente Wee matgedeelt."
+  ],
+  "Votre compte": ["Your account", "Ihr Konto", "Äre Kont"],
+  "Votre compte et vos documents": [
+    "Your account and documents",
+    "Ihr Konto und Ihre Dokumente",
+    "Äre Kont an Är Dokumenter"
+  ],
+  "Utilisez une identité et des coordonnées exactes. Protégez vos accès, accordez seulement les permissions utiles et signalez un accès non autorisé à": [
+    "Use accurate identity and contact details. Protect your access, grant only necessary permissions and report unauthorised access to",
+    "Verwenden Sie korrekte Identitäts- und Kontaktdaten. Schützen Sie Ihre Zugänge, erteilen Sie nur benötigte Berechtigungen und melden Sie unberechtigten Zugriff an",
+    "Benotzt korrekt Identitéits- a Kontaktdonnéeën. Schützt Ären Zougang, accordéiert nëmmen néideg Berechtegungen a mellt en net autoriséierten Zougrëff un"
+  ],
+  ". Les administrateurs gèrent les membres et les connexions de leur compte.": [
+    ". Administrators manage their account’s members and connections.",
+    ". Administratoren verwalten die Mitglieder und Verbindungen ihres Kontos.",
+    ". Administrateure verwalten d’Memberen an d’Verbindunge vun hirem Kont."
+  ],
+  "Vous devez disposer du droit de transmettre le document et d’utiliser les coordonnées du destinataire. Vérifiez le contenu, les pages, l’expéditeur, le destinataire et les options avant approbation. Il est interdit d’utiliser Guteneo pour des contenus illicites, la fraude, le harcèlement, l’usurpation d’identité, des envois non autorisés ou pour contourner les contrôles du service.": [
+    "You must have the right to transmit the document and use the recipient’s contact details. Check the content, pages, sender, recipient and options before approval. Using Guteneo for unlawful content, fraud, harassment, impersonation, unauthorised dispatches or to bypass the service’s checks is prohibited.",
+    "Sie müssen berechtigt sein, das Dokument zu übermitteln und die Kontaktdaten des Empfängers zu verwenden. Prüfen Sie Inhalt, Seiten, Absender, Empfänger und Optionen vor der Freigabe. Guteneo darf nicht für rechtswidrige Inhalte, Betrug, Belästigung, Identitätsmissbrauch, unbefugte Sendungen oder zur Umgehung der Dienstkontrollen genutzt werden.",
+    "Dir musst d’Recht hunn, d’Dokument ze iwwerdroen an d’Kontaktdonnéeë vum Empfänger ze benotzen. Kontrolléiert den Inhalt, d’Säiten, den Ofsender, den Empfänger an d’Optioune virun der Fräigab. Et ass verbueden, Guteneo fir illegal Inhalter, Bedruch, Belästegung, Identitéitsmëssbrauch, net autoriséiert Sendungen oder fir d’Servicekontrollen z’ëmgoen ze benotzen."
+  ],
+  "Le parcours ChatGPT exclut les données personnelles sensibles, les données de santé protégées, les identifiants gouvernementaux, les données de carte de paiement soumises à PCI DSS et les secrets d’authentification. N’importez pas de document qui en contient dans ce connecteur.": [
+    "The ChatGPT flow excludes sensitive personal data, protected health information, government identifiers, payment card data subject to PCI DSS and authentication secrets. Do not import documents containing them through this connector.",
+    "Der ChatGPT-Ablauf schließt sensible personenbezogene Daten, geschützte Gesundheitsdaten, staatliche Identifikatoren, PCI-DSS-pflichtige Zahlungskartendaten und Authentifizierungsgeheimnisse aus. Importieren Sie über diesen Konnektor keine Dokumente mit solchen Inhalten.",
+    "Den ChatGPT-Oflaf schléisst sensibel perséinlech Donnéeën, geschützt Gesondheetsdonnéeën, staatlech Identifikatoren, Bezuelkaartendonnéeën ënner PCI DSS an Authentifizéierungsgeheimnisser aus. Importéiert keng Dokumenter mat esou Inhalter iwwer dëse Konnektor."
+  ],
+  "La déclaration d’un expéditeur postal atteste que vous êtes autorisé à utiliser cette identité et cette adresse ; elle ne constitue pas une vérification physique de l’adresse. Les contrôles techniques d’un PDF ne certifient ni l’exactitude, ni la légalité, ni l’authenticité de son contenu.": [
+    "Declaring a postal sender attests that you are authorised to use that identity and address; it is not physical verification of the address. Technical PDF checks certify neither the accuracy, lawfulness nor authenticity of its content.",
+    "Die Erklärung eines Postabsenders bestätigt, dass Sie diese Identität und Adresse verwenden dürfen. Sie stellt keine physische Überprüfung der Adresse dar. Technische PDF-Prüfungen bestätigen weder die Richtigkeit noch die Rechtmäßigkeit oder Echtheit des Inhalts.",
+    "D’Deklaratioun vun engem Postofsender bestätegt, datt Dir dës Identitéit an Adress benotzen däerft. Si ass keng physesch Kontroll vun der Adress. Technesch PDF-Kontrolle bestätege weder d’Richtegkeet nach d’Legalitéit oder d’Authentizitéit vum Inhalt."
+  ],
+  "Conservez vos originaux et les éléments dont vous avez besoin. Guteneo n’est pas un service d’archivage permanent. Les règles de traitement et de conservation figurent dans la": [
+    "Keep your originals and any records you need. Guteneo is not a permanent archiving service. Processing and retention rules are set out in the",
+    "Bewahren Sie Ihre Originale und benötigten Unterlagen auf. Guteneo ist kein dauerhafter Archivierungsdienst. Die Verarbeitungs- und Aufbewahrungsregeln finden Sie in der",
+    "Behält Är Originaler an déi Ënnerlagen, déi Dir braucht. Guteneo ass kee permanente Archivservice. D’Reegele fir d’Veraarbechtung an d’Späicherung fannt Dir an der"
+  ],
+  "Autoriser un envoi": [
+    "Authorise a dispatch",
+    "Eine Sendung autorisieren",
+    "Eng Sendung autoriséieren"
+  ],
+  "La préparation d’un document ou d’un devis ne vaut pas ordre d’envoi. L’autorisation porte sur le document exact, son destinataire, les options et le coût ou plafond présenté. Une modification de ces éléments ou l’expiration du devis peut nécessiter une nouvelle autorisation. Vérifiez également les indications de taxe et de devise du devis.": [
+    "Preparing a document or quote is not an instruction to send. Authorisation applies to the exact document, its recipient, options and the displayed cost or spending limit. Changes to these details or quote expiry may require new authorisation. Also check the quote’s tax and currency information.",
+    "Die Vorbereitung eines Dokuments oder Angebots ist kein Versandauftrag. Die Genehmigung gilt für das genaue Dokument, seinen Empfänger, die Optionen und die angezeigten Kosten oder die Obergrenze. Änderungen dieser Angaben oder der Ablauf des Angebots können eine neue Genehmigung erfordern. Prüfen Sie auch die Steuer- und Währungsangaben des Angebots.",
+    "D’Virbereedung vun engem Dokument oder enger Devis ass kee Versandoptrag. D’Autorisatioun gëllt fir dat geneet Dokument, säin Empfänger, d’Optiounen an déi ugewisen Käschten oder Grenz. Ännerunge vun dësen Donnéeën oder d’Oflaafe vun der Devis kënnen eng nei Autorisatioun erfuerderen. Kontrolléiert och d’Steier- an d’Wärungsangabe vun der Devis."
+  ],
+  "Par défaut, la validation se fait par une personne dans le parcours prévu. Un administrateur authentifié peut, dans le navigateur, donner à un assistant un mandat distinct, limité et temporaire. Les opérations effectuées dans ses limites sont enregistrées comme une approbation déléguée, pas comme une nouvelle validation humaine. L’assistant ne peut pas activer ni prolonger lui-même ce mandat. Les confirmations demandées par votre assistant et les limites du service continuent de s’appliquer.": [
+    "By default, a person approves through the designated flow. An authenticated administrator can, in the browser, give an assistant a separate, limited and temporary mandate. Operations within its limits are recorded as delegated approval, not as a new human approval. The assistant cannot enable or extend this mandate itself. Your assistant’s confirmation requests and the service’s limits continue to apply.",
+    "Standardmäßig erfolgt die Freigabe durch eine Person im vorgesehenen Ablauf. Ein authentifizierter Administrator kann einem Assistenten im Browser ein gesondertes, begrenztes und zeitlich befristetes Mandat erteilen. Vorgänge innerhalb seiner Grenzen werden als delegierte Freigabe erfasst, nicht als neue menschliche Freigabe. Der Assistent kann dieses Mandat nicht selbst aktivieren oder verlängern. Die Bestätigungsanfragen Ihres Assistenten und die Dienstgrenzen gelten weiterhin.",
+    "Standardméisseg gëtt eng Persoun d’Fräigab am virgesinnen Oflaf. En authentifizéierten Administrateur kann engem Assistent am Browser e separat, begrenzten an temporäert Mandat ginn. Operatiounen a senge Grenze ginn als delegéiert Fräigab erfaasst, net als nei mënschlech Fräigab. Den Assistent kann dëst Mandat net selwer aktivéieren oder verlängeren. D’Bestätegungsufroe vun Ärem Assistent an d’Servicegrenze gëlle weider."
+  ],
+  "Le transfert d’un brouillon postal au prestataire demande son autorisation propre, même avant l’impression ou l’acheminement. Connecter un assistant ou lui donner accès à vos documents ne l’autorise pas à lui seul à envoyer une correspondance.": [
+    "Transferring a postal draft to the provider requires its own authorisation, even before printing or delivery. Connecting an assistant or giving it access to your documents does not by itself authorise it to send correspondence.",
+    "Die Übertragung eines Postentwurfs an den Anbieter benötigt eine eigene Genehmigung, auch schon vor Druck oder Beförderung. Das Verbinden eines Assistenten oder der Zugriff auf Ihre Dokumente allein berechtigt ihn nicht zum Versand von Korrespondenz.",
+    "D’Iwwerdroung vun engem Postentworf un den Ubidder erfuerdert eng eege Autorisatioun, och scho virum Drock oder der Befërderung. En Assistent ze verbannen oder him Zougrëff op Är Dokumenter ze ginn, autoriséiert hien eleng nach net, Korrespondenz ze schécken."
+  ],
+  "Crédit et coûts": [
+    "Credit and costs",
+    "Guthaben und Kosten",
+    "Kredit a Käschten"
+  ],
+  "La bêta peut attribuer un crédit d’essai selon les conditions affichées dans votre compte. Ce crédit sert aux opérations éligibles ; il ne constitue pas une somme déposée, un moyen de paiement général ou une somme remboursable en espèces. Aucun rechargement payant n’est proposé dans cette version.": [
+    "The beta may grant trial credit under the conditions shown in your account. This credit is for eligible operations; it is not a deposit, a general means of payment or an amount redeemable for cash. This version offers no paid top-ups.",
+    "Die Beta kann unter den in Ihrem Konto angezeigten Bedingungen Testguthaben gewähren. Dieses dient berechtigten Vorgängen und ist weder eine Einlage noch ein allgemeines Zahlungsmittel oder ein in Bargeld erstattbarer Betrag. Diese Version bietet keine kostenpflichtigen Aufladungen an.",
+    "D’Beta kann Testkredit no de Bedéngunge verginn, déi an Ärem Kont stinn. Dëse Kredit déngt fir berechtegt Operatiounen. En ass weder eng deposéiert Zomm nach en allgemengt Bezuelmëttel oder e Montant, deen a Boergeld rembourséiert gëtt. Dës Versioun bitt keng bezuelten Opluedungen un."
+  ],
+  "Le devis et le plafond applicables sont présentés avant l’autorisation. Une réservation de crédit peut être créée au moment de l’acceptation, puis régularisée selon le résultat de l’opération. Un état en attente ou incertain peut retarder cette régularisation ; contactez l’assistance pour une différence ou une réservation qui vous paraît anormale.": [
+    "The applicable quote and spending limit are shown before authorisation. A credit reservation may be created at acceptance, then settled according to the operation’s outcome. A pending or uncertain status may delay settlement; contact support about any difference or reservation that seems abnormal.",
+    "Das geltende Angebot und die Kostenobergrenze werden vor der Genehmigung angezeigt. Bei der Annahme kann Guthaben reserviert und anschließend entsprechend dem Ergebnis abgerechnet werden. Ein ausstehender oder ungewisser Status kann diese Abrechnung verzögern. Wenden Sie sich bei ungewöhnlichen Abweichungen oder Reservierungen an den Support.",
+    "Déi applicabel Devis an d’Käschtegrenz gi virun der Autorisatioun gewisen. Beim Unhuele kann eng Kreditreservatioun erstallt an duerno no dem Resultat ofgerechent ginn. En ausstoenden oder ongewësse Status kann dës Ofrechnung verzögeren. Kontaktéiert de Support bei enger Differenz oder Reservatioun, déi Iech ongewéinlech virkënnt."
+  ],
+  "Suivi et annulation": [
+    "Tracking and cancellation",
+    "Nachverfolgung und Stornierung",
+    "Suivi an Annulatioun"
+  ],
+  "Suivi, annulation et limites": [
+    "Tracking, cancellation and limits",
+    "Nachverfolgung, Stornierung und Grenzen",
+    "Suivi, Annulatioun a Grenzen"
+  ],
+  "L’acceptation par Guteneo, l’acceptation par un prestataire et la remise au destinataire sont des étapes distinctes. Les statuts dépendent des informations du prestataire et peuvent arriver avec retard. La remise d’une lettre à l’opérateur postal n’atteste pas à elle seule sa réception par le destinataire.": [
+    "Acceptance by Guteneo, acceptance by a provider and delivery to the recipient are separate steps. Statuses depend on provider information and may arrive late. Handover of a letter to a postal operator does not by itself prove receipt by the recipient.",
+    "Die Annahme durch Guteneo, die Annahme durch einen Anbieter und die Übergabe an den Empfänger sind getrennte Schritte. Statusmeldungen hängen von Anbieterinformationen ab und können verzögert eintreffen. Die Übergabe eines Briefes an einen Postbetreiber allein belegt nicht den Empfang durch den Empfänger.",
+    "D’Unhuele vu Guteneo, d’Unhuele vun engem Ubidder an d’Iwwerreechung un den Empfänger si getrennte Schrëtt. Statusmeldungen hänke vun den Ubidderinformatiounen of a kënne verspéit ukommen. D’Iwwerreechung vun engem Bréif un e Postbedreiwer eleng beweist net, datt den Empfänger e kritt huet."
+  ],
+  "Une annulation n’est possible que tant que l’état de l’envoi le permet. Une correspondance déjà transmise peut ne plus être rappelable. Si le résultat est inconnu, ne recommencez pas l’envoi : vérifiez le suivi ou contactez l’assistance afin d’éviter un doublon.": [
+    "Cancellation is possible only while the dispatch status permits it. Correspondence already transmitted may no longer be recallable. If the outcome is unknown, do not send again: check tracking or contact support to avoid a duplicate.",
+    "Eine Stornierung ist nur möglich, solange der Versandstatus dies erlaubt. Bereits übermittelte Korrespondenz lässt sich möglicherweise nicht mehr zurückrufen. Wenn das Ergebnis unbekannt ist, versenden Sie nicht erneut. Prüfen Sie den Verlauf oder kontaktieren Sie den Support, um ein Duplikat zu vermeiden.",
+    "Eng Annulatioun ass nëmme méiglech, soulaang de Versandstatus dat erlaabt. Schonn iwwerdroe Korrespondenz kann eventuell net méi zeréckgeruff ginn. Wann d’Resultat onbekannt ass, schéckt net nach eng Kéier. Kontrolléiert de Suivi oder kontaktéiert de Support, fir en Duplikat ze vermeiden."
+  ],
+  "Le service ne garantit pas qu’un fax ou un courrier soit admis pour une démarche particulière, reçu avant une échéance, lu, ou doté d’une valeur de recommandé ou de signature électronique. Vérifiez les exigences du destinataire et choisissez une solution adaptée aux délais ou formalités de votre démarche.": [
+    "The service does not guarantee that a fax or letter will be accepted for a particular procedure, received before a deadline, read, or have the value of registered mail or an electronic signature. Check the recipient’s requirements and choose a solution suited to your procedure’s deadlines or formalities.",
+    "Der Dienst garantiert nicht, dass ein Fax oder Brief für ein bestimmtes Verfahren anerkannt, vor einer Frist empfangen, gelesen oder einem Einschreiben beziehungsweise einer elektronischen Signatur gleichgestellt wird. Prüfen Sie die Anforderungen des Empfängers und wählen Sie eine Lösung, die zu den Fristen und Formalitäten Ihres Anliegens passt.",
+    "De Service garantéiert net, datt e Fax oder e Bréif fir eng bestëmmten Demarche unerkannt, virun enger Frist kritt, gelies oder mat engem recommandéierte Bréif oder enger elektronescher Ënnerschrëft gläichgestallt gëtt. Kontrolléiert d’Ufuerderunge vum Empfänger a wielt eng Léisung, déi zu de Fristen oder Formalitéite vun Ärer Demarche passt."
+  ],
+  "Assistance et clôture": [
+    "Support and closure",
+    "Support und Schließung",
+    "Support a Zoumaachung"
+  ],
+  "Assistance, suspension et clôture": [
+    "Support, suspension and closure",
+    "Support, Sperrung und Schließung",
+    "Support, Spär a Zoumaachung"
+  ],
+  "Pour un incident, une contestation ou une demande de clôture, écrivez à": [
+    "For an incident, dispute or closure request, write to",
+    "Bei einem Vorfall, einer Streitigkeit oder einem Schließungsantrag schreiben Sie an",
+    "Fir e Virfall, e Sträitfall oder eng Zoumaachufro schreift un"
+  ],
+  ". La page": [". The page", ". Die Seite", ". D’Säit"],
+  "précise les informations utiles. Les données encore nécessaires au règlement d’une opération ou d’un litige suivent les règles de conservation expliquées dans la politique de confidentialité.": [
+    "sets out the useful information. Data still needed to resolve an operation or dispute follows the retention rules explained in the privacy policy.",
+    "erläutert die benötigten Angaben. Daten, die weiterhin zur Klärung eines Vorgangs oder Rechtsstreits erforderlich sind, unterliegen den Aufbewahrungsregeln der Datenschutzerklärung.",
+    "erkläert déi nëtzlech Informatiounen. Donnéeën, déi nach fir d’Klärung vun engem Virgank oder Sträitfall néideg sinn, ënnerleien de Späicherreegelen aus der Dateschutzpolitik."
+  ],
+  "Un accès ou une opération peut être suspendu en cas de risque de sécurité, d’abus, d’utilisation illicite ou de non-respect de ces conditions. Lorsque cela est possible sans compromettre la sécurité ou une obligation applicable, le motif vous est expliqué et vous pouvez le contester auprès de l’assistance.": [
+    "Access or an operation may be suspended in the event of a security risk, abuse, unlawful use or breach of these terms. Where possible without compromising security or an applicable obligation, the reason is explained and you may challenge it through support.",
+    "Ein Zugang oder Vorgang kann bei Sicherheitsrisiken, Missbrauch, rechtswidriger Nutzung oder Verstößen gegen diese Bedingungen ausgesetzt werden. Soweit dies ohne Gefährdung der Sicherheit oder einer geltenden Verpflichtung möglich ist, wird Ihnen der Grund erläutert und Sie können ihn beim Support anfechten.",
+    "En Zougang oder e Virgank ka bei Sécherheetsrisiken, Mëssbrauch, illegaler Notzung oder Verstéiss géint dës Bedéngunge gespaart ginn. Wa méiglech, ouni d'Sécherheet oder eng applicabel Flicht ze gefäerden, gëtt Iech de Grond erkläert an Dir kënnt en beim Support ufechten."
+  ],
+  "Ces conditions ne retirent aucun droit impératif que vous reconnaît la loi et n’excluent pas une responsabilité qui ne peut légalement l’être. Pour toute difficulté, nous vous invitons à nous contacter afin de rechercher une solution.": [
+    "These terms do not remove any mandatory legal rights you have or exclude liability that cannot legally be excluded. If you encounter a problem, please contact us so we can seek a solution.",
+    "Diese Bedingungen entziehen Ihnen keine zwingenden gesetzlichen Rechte und schließen keine Haftung aus, die rechtlich nicht ausgeschlossen werden kann. Bei Schwierigkeiten bitten wir Sie, uns zu kontaktieren, um eine Lösung zu finden.",
+    "Dës Bedéngungen huelen Iech keng zwéngend gesetzlech Rechter ewech a schléisse keng Haftung aus, déi gesetzlech net ausgeschloss ka ginn. Bei Schwieregkeete biede mir Iech, eis ze kontaktéieren, fir eng Léisung ze sichen."
+  ],
+  "Besoin": ["Need", "Brauchen Sie", "Braucht Dir"],
+  "d’un coup de main ?": ["a helping hand?", "Unterstützung?", "eng Hand?"],
+  "Contactez l’assistance Guteneo pour un document, un envoi, une connexion ou une demande relative à vos données.": [
+    "Contact Guteneo support about a document, dispatch, connection or data-related request.",
+    "Kontaktieren Sie den Guteneo-Support zu Dokumenten, Sendungen, Verbindungen oder Anfragen zu Ihren Daten.",
+    "Kontaktéiert de Guteneo-Support fir en Dokument, eng Sendung, eng Verbindung oder eng Ufro iwwer Är Donnéeën."
+  ],
+  "Nous écrire": ["Write to us", "Schreiben Sie uns", "Schreift eis"],
+  "Pour une question, un incident ou une demande sur votre compte, écrivez à": [
+    "For a question, incident or account request, write to",
+    "Bei einer Frage, einem Vorfall oder einem Anliegen zu Ihrem Konto schreiben Sie an",
+    "Fir eng Fro, e Virfall oder eng Ufro iwwer Äre Kont schreift un"
+  ],
+  ". Votre interlocuteur est Nicolas Pieper, éditeur de Guteneo.": [
+    ". Your contact is Nicolas Pieper, Guteneo’s publisher.",
+    ". Ihr Ansprechpartner ist Nicolas Pieper, Herausgeber von Guteneo.",
+    ". Ären Uspriechpartner ass den Nicolas Pieper, Editeur vu Guteneo."
+  ],
+  "Indiquez l’adresse du compte concerné, la référence du document ou de l’envoi, la date approximative, l’action tentée et le message d’erreur. Une capture masquant les données personnelles peut aider. Ne joignez pas le PDF original, les coordonnées complètes du destinataire ou d’autres données sensibles au premier message si ces éléments ne sont pas nécessaires. N’envoyez jamais de mot de passe, de code de connexion ou de jeton d’accès.": [
+    "Include the relevant account address, document or dispatch reference, approximate date, action attempted and error message. A screenshot with personal data hidden may help. Do not attach the original PDF, the recipient’s full contact details or other sensitive data to the first message unless necessary. Never send a password, sign-in code or access token.",
+    "Geben Sie die Adresse des betroffenen Kontos, die Dokument- oder Versandreferenz, das ungefähre Datum, die versuchte Aktion und die Fehlermeldung an. Ein Screenshot mit verdeckten personenbezogenen Daten kann helfen. Fügen Sie der ersten Nachricht weder die Original-PDF-Datei noch vollständige Empfängerkontaktdaten oder andere sensible Daten bei, sofern diese nicht erforderlich sind. Senden Sie niemals Passwörter, Anmeldecodes oder Zugriffstoken.",
+    "Gitt d’Adress vum betraffene Kont, d’Dokument- oder Versandreferenz, den ongeféieren Datum, déi versichten Aktioun an de Feelermessage un. E Screenshot mat verstoppte perséinlechen Donnéeë kann hëllefen. Hänkt am éischte Message weder déi original PDF-Datei nach déi voll Kontaktdonnéeë vum Empfänger oder aner sensibel Donnéeën un, ausser se sinn néideg. Schéckt ni e Passwuert, en Umeldungscode oder en Zougrëffstoken."
+  ],
+  "La bêta ne propose pas d’assistance d’urgence ni de délai de réponse garanti pour les demandes techniques. Si votre démarche comporte une échéance impérative, prévoyez un autre moyen adapté.": [
+    "The beta offers no emergency support or guaranteed response time for technical requests. If your procedure has a strict deadline, arrange another suitable method.",
+    "Die Beta bietet weder Notfallsupport noch garantierte Antwortzeiten für technische Anfragen. Wenn Ihr Anliegen eine verbindliche Frist hat, planen Sie einen anderen geeigneten Weg ein.",
+    "D’Beta bitt keen Noutsupport a keng garantéiert Äntwertzäit fir technesch Ufroen. Wann Är Demarche eng fest Frist huet, plangt en anere gëeegente Wee an."
+  ],
+  "Un PDF refusé": [
+    "A rejected PDF",
+    "Ein abgelehntes PDF",
+    "E refuséierte PDF"
+  ],
+  "Un PDF refusé ou indisponible": [
+    "A rejected or unavailable PDF",
+    "Ein abgelehntes oder nicht verfügbares PDF",
+    "E refuséierten oder net disponibele PDF"
+  ],
+  "Vérifiez que le fichier est un PDF lisible et que sa taille et son nombre de pages respectent les limites indiquées par le service. Pour une importation par lien, le document doit être accessible par une adresse HTTPS publique autorisée ; un lien vers un fichier local ou nécessitant une connexion ne convient pas.": [
+    "Check that the file is a readable PDF and that its size and page count meet the limits stated by the service. For a link import, the document must be accessible at an authorised public HTTPS address; a link to a local file or one requiring sign-in is not suitable.",
+    "Prüfen Sie, ob die Datei ein lesbares PDF ist und ihre Größe und Seitenzahl die angegebenen Dienstgrenzen einhalten. Beim Linkimport muss das Dokument unter einer zulässigen öffentlichen HTTPS-Adresse erreichbar sein. Ein Link auf eine lokale Datei oder mit erforderlicher Anmeldung ist ungeeignet.",
+    "Kontrolléiert, ob d’Datei e liesbare PDF ass an hir Gréisst a Säitenzuel de Servicegrenzen entspriechen. Bei engem Linkimport muss d’Dokument ënner enger erlaabter ëffentlecher HTTPS-Adress erreechbar sinn. E Link op eng lokal Datei oder mat néideger Umeldung ass net gëeegent."
+  ],
+  "Attendez la fin des contrôles avant de préparer l’envoi. Si un document est bloqué ou n’est plus conservé, le suivi peut rester visible sans que son fichier soit disponible. Conservez toujours votre original et signalez le code d’erreur à l’assistance si le blocage persiste.": [
+    "Wait for the checks to finish before preparing the dispatch. If a document is blocked or no longer retained, its tracking may remain visible even though the file is unavailable. Always keep your original and report the error code to support if the block persists.",
+    "Warten Sie das Ende der Prüfungen ab, bevor Sie die Sendung vorbereiten. Ist ein Dokument blockiert oder nicht mehr gespeichert, kann der Verlauf sichtbar bleiben, obwohl die Datei nicht verfügbar ist. Bewahren Sie immer Ihr Original auf und melden Sie dem Support den Fehlercode, wenn die Sperre bestehen bleibt.",
+    "Waart op d’Enn vun de Kontrollen, ier Dir d’Sendung virbereet. Wann en Dokument blockéiert oder net méi gespäichert ass, ka säi Suivi siichtbar bleiwen, och wann d’Datei net disponibel ass. Behält ëmmer Äert Original a mellt de Feelercode beim Support, wann d’Spär bestoe bleift."
+  ],
+  "Un envoi en attente": [
+    "A pending dispatch",
+    "Eine ausstehende Sendung",
+    "Eng ausstoend Sendung"
+  ],
+  "Un envoi en attente ou un crédit réservé": [
+    "A pending dispatch or reserved credit",
+    "Eine ausstehende Sendung oder reserviertes Guthaben",
+    "Eng ausstoend Sendung oder reservéierte Kredit"
+  ],
+  "Consultez d’abord le détail de l’envoi dans votre compte ou demandez son suivi à votre assistant. Un devis ou un brouillon n’est pas un envoi ; une acceptation n’est pas encore une remise au destinataire.": [
+    "First check the dispatch details in your account or ask your assistant to track it. A quote or draft is not a dispatch; acceptance is not yet delivery to the recipient.",
+    "Prüfen Sie zunächst die Versanddetails in Ihrem Konto oder fragen Sie Ihren Assistenten nach dem Verlauf. Ein Angebot oder Entwurf ist keine Sendung. Eine Annahme ist noch keine Übergabe an den Empfänger.",
+    "Kuckt fir d’éischt d’Versanddetailer an Ärem Kont oder frot Ären Assistent nom Suivi. Eng Devis oder en Entworf ass keng Sendung. Eng Annahm ass nach keng Iwwerreechung un den Empfänger."
+  ],
+  "Si le résultat est inconnu, ne relancez pas une seconde fois. Transmettez la référence à l’assistance pour éviter les doublons. Indiquez aussi cette référence si une réservation de crédit reste ouverte ou si le montant ne correspond pas au devis approuvé. Les achats et rechargements payants ne sont pas ouverts.": [
+    "If the outcome is unknown, do not retry. Send the reference to support to avoid duplicates. Also include that reference if a credit reservation remains open or the amount differs from the approved quote. Paid purchases and top-ups are not available.",
+    "Wenn das Ergebnis unbekannt ist, starten Sie nicht erneut. Senden Sie die Referenz an den Support, um Duplikate zu vermeiden. Geben Sie diese Referenz auch an, wenn eine Guthabenreservierung offen bleibt oder der Betrag vom freigegebenen Angebot abweicht. Kostenpflichtige Käufe und Aufladungen sind nicht verfügbar.",
+    "Wann d’Resultat onbekannt ass, start net nach eng Kéier. Schéckt d’Referenz un de Support, fir Duplikater ze vermeiden. Gitt dës Referenz och un, wann eng Kreditreservatioun op bleift oder de Montant vun der fräiginnener Devis ofwäicht. Bezuelte Kaf an Opluedunge sinn net disponibel."
+  ],
+  "Assistant et permissions": [
+    "Assistant and permissions",
+    "Assistent und Berechtigungen",
+    "Assistent a Berechtegungen"
+  ],
+  "Les": ["The", "Die", "Déi"],
+  "guides de connexion": [
+    "connection guides",
+    "Verbindungsanleitungen",
+    "Verbindungsuleedungen"
+  ],
+  "présentent les étapes propres à chaque assistant. Vérifiez le compte Guteneo utilisé et les permissions accordées. Une connexion réussie ne rend pas automatiquement tous les canaux ou toutes les destinations disponibles.": [
+    "show the steps for each assistant. Check the Guteneo account used and the permissions granted. A successful connection does not automatically make every channel or destination available.",
+    "zeigen die Schritte für jeden Assistenten. Prüfen Sie das verwendete Guteneo-Konto und die erteilten Berechtigungen. Eine erfolgreiche Verbindung macht nicht automatisch jeden Kanal oder jedes Ziel verfügbar.",
+    "weisen d’Schrëtt fir all Assistent. Kontrolléiert de benotzte Guteneo-Kont an déi accordéiert Berechtegungen. Eng erfollegräich Verbindung mécht net automatesch all Kanal oder all Destinatioun disponibel."
+  ],
+  "Un administrateur peut examiner les connexions et les mandats dans les réglages du compte. Révoquez une connexion ou une délégation devenue inutile. Si vous soupçonnez un accès non autorisé, indiquez-le explicitement à l’assistance et protégez également le compte de votre fournisseur d’identité.": [
+    "An administrator can review connections and mandates in account settings. Revoke any connection or delegation no longer needed. If you suspect unauthorised access, explicitly tell support and also secure your identity provider account.",
+    "Ein Administrator kann Verbindungen und Mandate in den Kontoeinstellungen prüfen. Widerrufen Sie nicht mehr benötigte Verbindungen oder Delegationen. Wenn Sie unberechtigten Zugriff vermuten, weisen Sie den Support ausdrücklich darauf hin und schützen Sie auch das Konto bei Ihrem Identitätsanbieter.",
+    "En Administrateur kann d’Verbindungen an d’Mandater an de Kontastellunge kontrolléieren. Widderrufft Verbindungen oder Delegatiounen, déi net méi gebraucht ginn. Wann Dir en net autoriséierten Zougrëff vermutt, sot dat dem Support ausdrécklech a schützt och de Kont bei Ärem Identitéitsubidder."
+  ],
+  "Vos données et vos droits": [
+    "Your data and rights",
+    "Ihre Daten und Rechte",
+    "Är Donnéeën a Rechter"
+  ],
+  "Pour consulter, corriger ou supprimer vos données, demander la clôture du compte ou signaler un incident de confidentialité, écrivez à": [
+    "To view, correct or delete your data, request account closure or report a privacy incident, write to",
+    "Um Ihre Daten einzusehen, zu berichtigen oder zu löschen, die Kontoschließung zu beantragen oder einen Datenschutzvorfall zu melden, schreiben Sie an",
+    "Fir Är Donnéeën ze kucken, ze korrigéieren oder ze läschen, d’Zoumaache vum Kont unzefroen oder e Dateschutzvirfall ze mellen, schreift un"
+  ],
+  ". Précisez votre demande ; une pièce d’identité n’est pas demandée systématiquement.": [
+    ". Specify your request; an identity document is not requested as a matter of course.",
+    ". Beschreiben Sie Ihr Anliegen. Ein Identitätsnachweis wird nicht grundsätzlich verlangt.",
+    ". Beschreift Är Ufro. En Identitéitsdokument gëtt net systematesch gefrot."
+  ],
+  "La": ["The", "Die", "Dës"],
+  "explique les droits, les délais de réponse applicables et la conservation des documents. Les": [
+    "explains the rights, applicable response times and document retention. The",
+    "erläutert die Rechte, geltenden Antwortfristen und die Dokumentaufbewahrung. Die",
+    "erkläert d’Rechter, déi gëlteg Äntwertfristen an d’Dokumentspäicherung. Déi"
+  ],
+  "décrivent les autorisations, le crédit d’essai et les limites du service.": [
+    "describe authorisations, trial credit and service limits.",
+    "beschreiben Berechtigungen, Testguthaben und Dienstgrenzen.",
+    "beschreiwen Autorisatiounen, Testkredit a Servicegrenzen."
+  ]
+}
