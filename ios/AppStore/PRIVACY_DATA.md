@@ -51,11 +51,12 @@ dans Fichiers.
 - Valider cette fiche sur l'archive finale et les flux du service effectivement
   déployé, y compris les journaux et sous-traitants. Le manifeste embarqué et la
   fiche App Store Connect sont deux déclarations distinctes.
-- Mettre à jour la politique publique avec les flux réels du compte, des
-  documents, de l'authentification et des fournisseurs. Ne pas réutiliser comme
-  description complète du service la seule politique de démonstration actuelle.
-- Fixer les durées, bases de conservation et traitement des comptes partagés,
-  puis qualifier la suppression effective décrite dans
+- La politique publique du 21 septembre, vérifiée à
+  `https://guteneo.com/confidentialite/`, couvre déjà le service, les comptes,
+  l'authentification et les fournisseurs. Y intégrer les particularités du
+  client natif lors de sa mise en service et qualifier ses flux déployés.
+- Appliquer les critères de conservation déjà publiés, définir le traitement
+  opérationnel des comptes partagés et qualifier la suppression effective dans
   [ACCOUNT_DELETION.md](../../docs/ACCOUNT_DELETION.md).
 - Renseigner les coordonnées et réponses réglementaires avec les informations
   du responsable du service ; aucune durée légale ou identité n'est inventée.

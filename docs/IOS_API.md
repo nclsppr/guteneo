@@ -1,6 +1,6 @@
 # Native iOS API v1
 
-Local implementation candidate. Migration `0033_native_sessions.sql` and the API
+Local implementation candidate. Migration `0037_native_sessions.sql` and the API
 must be released together before a distributed iOS application can connect.
 No production migration, release, real communication or App Store publication
 is implied by this document.
@@ -114,6 +114,20 @@ confirm sending; both POSTs require the browser's CSRF token and explicit checke
 consent. Production email approval retains its recipient-request attestation.
 Native credentials cannot authenticate this page. Never treat opening this URL
 or returning to the app as approval or as delivery evidence.
+
+`dispatch.faxPricing.executionScope === "review_prepare_only"` identifies a
+non-sendable reference quote. This optional field is preserved on preparation,
+list summaries, detail and renewal; there is no separate `quote_purpose` field.
+For that scope `approvalUrl` opens consultation only: no approval or confirmation
+control is rendered, and forged browser POSTs are refused before domain approval
+or confirmation. The page explains that no amount is reserved or debited. An
+expired, unattempted preparation may renew through the existing domain, which
+preserves this restriction and refuses fallback to a live tariff. The native UI
+must label the scope and must not present an approval/send invitation; omission
+of this optional field retains historical behavior, subject to all other gates.
+The shared fax presentation's credit labels and route notice are not native UI
+copy; the app and its dedicated browser page use wording without funding or
+top-up references.
 
 The mobile capabilities projection omits billing, funding and top-up metadata.
 There are no native routes for approvals, confirmation, expert delegation,

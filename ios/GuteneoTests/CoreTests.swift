@@ -112,6 +112,37 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertTrue(try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: "prepared").canCancel)
     }
 
+    @MainActor
+    func testReferencePreparationScopePreventsHumanApproval() throws {
+        let legacy = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#)
+        XCTAssertTrue(legacy.canHumanReview, "Legacy and normal live quotes have no executionScope")
+        XCTAssertFalse(legacy.isReviewPreparation)
+        var payload = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(legacy)) as? [String: Any])
+        payload["quote_expires_at"] = "2020-01-01T00:00:00Z"
+        payload["faxPricing"] = ["executionScope": NSNull()]
+        let expired = try JSONDecoder().decode(DispatchRecord.self, from: JSONSerialization.data(withJSONObject: payload))
+        XCTAssertTrue(expired.canHumanReview, "Browser access remains available to renew an expired ordinary quote")
+        for scope in ["review_prepare_only", "future_restricted_scope"] {
+            payload["faxPricing"] = ["executionScope": scope, "routeNotice": "UNSAFE SERVER PRESENTATION"]
+            let restricted = try JSONDecoder().decode(DispatchRecord.self, from: JSONSerialization.data(withJSONObject: payload))
+            XCTAssertFalse(restricted.canHumanReview)
+            XCTAssertEqual(restricted.isReviewPreparation, scope == "review_prepare_only")
+            XCTAssertEqual(restricted.statusTitle, scope == "review_prepare_only" ? "Préparation de référence" : "À consulter")
+            let encoded = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(restricted)) as? [String: Any])
+            XCTAssertNil((encoded["faxPricing"] as? [String: Any])?["routeNotice"])
+        }
+        XCTAssertFalse(try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: "queued").canHumanReview)
+        #if DEBUG
+        let model = AppModel(credentials: MemoryCredentials())
+        model.activatePreview()
+        XCTAssertTrue(model.dispatches.contains { $0.id == "preview-dispatch-1" })
+        XCTAssertTrue(model.dispatches.contains { $0.id == "preview-dispatch-2" })
+        let reference = try XCTUnwrap(model.dispatches.first { $0.id == "preview-dispatch-3" })
+        XCTAssertTrue(reference.isReviewPreparation)
+        XCTAssertFalse(reference.canHumanReview)
+        #endif
+    }
+
     func testDispatchDetailDecodesActualProviderEventContractAfterDelivery() throws {
         let dispatch = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: "delivered")
         let dispatchJSON = try JSONSerialization.jsonObject(with: JSONEncoder().encode(dispatch))

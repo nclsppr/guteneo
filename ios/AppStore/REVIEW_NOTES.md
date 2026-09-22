@@ -29,12 +29,26 @@ options et le coût. Le navigateur ne contient pas une WebView embarquée dans
 l'application. Les contrôles de sécurité et de disponibilité du service restent
 applicables.
 
+Un devis de référence, limité à la préparation par le serveur, ne donne pas
+accès à une validation ou à une expédition. Il doit être présenté comme tel,
+y compris lorsqu’un fournisseur ou un mandat ne permet pas la suite du parcours.
+Ce cas doit faire partie des vérifications du compte reviewer.
+
 La démonstration éventuelle doit être clairement identifiée et ne produit aucune
 communication réelle. Elle ne remplace pas une preuve de fonctionnement du
 backend mobile. Les notes finales doivent identifier précisément le parcours
 offert au reviewer et distinguer ses résultats simulés des résultats réels.
 
 Référence : [App Review Guidelines, notamment 3.1.3(f)](https://developer.apple.com/app-store/review/guidelines/).
+
+## Canal annoncé pour cette première fiche
+
+Le service de production observé le 22 septembre 2026 n’active pas l’envoi
+par email. La description et les mots-clés de cette version annoncent la
+préparation des fax, la consultation des PDF et le suivi des opérations.
+La capacité technique du client à gérer ultérieurement l’email ne constitue
+pas une disponibilité du service. La préparation du courrier postal n’est
+pas annoncée dans cette première fiche.
 
 ## Accès du reviewer — non fourni
 
@@ -48,8 +62,8 @@ Avant soumission, vérifier avec ce compte :
 1. La connexion réelle, les exigences de vérification et tout second facteur.
 2. La présence de PDF fictifs autorisés à être examinés et des états de suivi
    nécessaires à une review complète.
-3. La préparation d'un fax et/ou d'un email lorsque le canal est ouvert, et
-   l'explication claire des canaux qui ne le sont pas.
+3. La préparation d’un fax vers une destination disponible, et l’explication
+   claire des canaux qui ne le sont pas.
 4. L'ouverture de l'approbation humaine dans le navigateur système, puis le retour
    au suivi. L'app ne peut pas présenter l'approbation comme déjà donnée.
 5. Le comportement en cas de solde insuffisant, devis expiré, document encore en
@@ -66,7 +80,7 @@ lorsqu'il remplace l'accès demandé au service.
 ## Bloquants de soumission
 
 - Backend mobile non déployé et intégration de production non qualifiée.
-- Client d'authentification natif, retours, cycle de session et suppression de
+- Parcours d'authentification natif, retours, cycle de session et suppression de
   compte à vérifier de bout en bout.
 - Compte reviewer, données fictives et destinataires d'essai autorisés non
   fournis dans ce dossier.

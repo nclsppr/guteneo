@@ -55,7 +55,7 @@ struct WelcomeView: View {
                             Spacer()
                             if model.isWorking { ProgressView() }
                             else { Image(systemName: "arrow.right") }
-                        }.padding(.vertical, 9)
+                        }.padding(.vertical, 9).foregroundStyle(Brand.paper)
                     }
                     .buttonStyle(.borderedProminent).disabled(model.isWorking)
                     .accessibilityIdentifier("signIn")
@@ -109,6 +109,7 @@ struct OverviewView: View {
                         .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     Button { composing = true } label: {
                         Label("Préparer un envoi", systemImage: "plus").padding(.vertical, 5)
+                            .foregroundStyle(Brand.paper)
                     }.buttonStyle(.borderedProminent).accessibilityIdentifier("prepareDispatch")
                 }.padding(.vertical, 12)
             }.listRowBackground(Color.clear)

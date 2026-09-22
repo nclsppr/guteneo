@@ -864,6 +864,168 @@ describe("native mobile boundary on actual D1 and R2", () => {
     }
   });
 
+  it("preserves preparation-only scope in native reads and denies browser approval and confirmation", async () => {
+    const { token } = await connect();
+    const identity = await authenticateNative(
+      req(prefix + "/session", token),
+      env,
+    );
+    const prepared = await domain.prepareDispatch(
+      identity.context,
+      {
+        channel: "email",
+        recipient: { email: "fixture@example.invalid" },
+        subject: "Scope fixture",
+        text: "Content under review",
+        html: "<p>Content under review</p>",
+      },
+      `scope-review:${crypto.randomUUID()}`,
+    );
+    const actual = await domain.getDispatch(identity.context, prepared.id);
+    const pricing = {
+      version: 3 as const,
+      currency: "EUR" as const,
+      basis: "qualified_usage_ex_tax" as const,
+      executionScope: "review_prepare_only" as const,
+      routeQualification: "operator_authorized_test" as const,
+      estimatedLowNanoeur: 1000000,
+      estimatedHighNanoeur: 2000000,
+      ceilingMinor: 200,
+      fx: {
+        numerator: 1,
+        denominator: 1,
+        date: "2026-09-22",
+        source: "fixture",
+      },
+      settlement: {
+        status: "not_reserved" as const,
+        customerNanoeur: null,
+        chargedMinor: null,
+        settledAt: null,
+      },
+    };
+    const projected = {
+      ...actual,
+      dispatch: {
+        ...actual.dispatch,
+        channel: "fax" as const,
+        mode: "production" as const,
+        faxPricing: pricing,
+        quote_expires_at: "2099-01-01T00:00:00.000Z",
+      },
+    };
+    const read = vi.spyOn(domain, "getDispatch").mockResolvedValue(projected);
+    const list = vi.spyOn(domain, "listDispatches").mockResolvedValue({
+      items: [projected.dispatch],
+      nextCursor: null,
+    });
+    const approve = vi.spyOn(domain, "approveDispatch");
+    const confirm = vi.spyOn(domain, "confirmDispatch");
+    const renew = vi.spyOn(domain, "renewFaxQuote").mockResolvedValue({
+      ...projected.dispatch,
+      id: `dsp_${crypto.randomUUID()}`,
+    });
+    const route = `${env.APP_ORIGIN}/auth/mobile/review/${prepared.id}`;
+    const browser = (action?: string) =>
+      new Request(route, {
+        method: action ? "POST" : "GET",
+        headers: {
+          Cookie: owner.cookie,
+          ...(action
+            ? {
+                Origin: env.APP_ORIGIN,
+                "Content-Type": "application/x-www-form-urlencoded",
+              }
+            : {}),
+        },
+        ...(action
+          ? {
+              body: new URLSearchParams({
+                csrf: owner.csrf,
+                fingerprint: prepared.fingerprint,
+                action,
+                reviewed: "yes",
+                sendConfirmed: "yes",
+              }).toString(),
+            }
+          : {}),
+      });
+    try {
+      const nativeDetail = (await (
+        await call(`/dispatches/${prepared.id}`, token)
+      ).json()) as { dispatch: { faxPricing: typeof pricing } };
+      const nativeList = (await (await call("/dispatches", token)).json()) as {
+        items: { faxPricing: typeof pricing }[];
+      };
+      expect(nativeDetail.dispatch.faxPricing.executionScope).toBe(
+        "review_prepare_only",
+      );
+      expect(nativeList.items[0].faxPricing.executionScope).toBe(
+        "review_prepare_only",
+      );
+      const page = await (await handleMobileRoute(
+        browser(),
+        env,
+        domain,
+        caps,
+      ))!.text();
+      expect(page).toContain("ne peut être ni approuvé ni envoyé");
+      expect(page).toContain("Aucun montant n’est réservé ou débité");
+      expect(page).not.toMatch(
+        /value="(?:approve|confirm)"|Valider cette version|Confirmer l’envoi|plafond est réservé|crédit|recharg/i,
+      );
+      for (const action of ["approve", "confirm"]) {
+        const response = (await handleMobileRoute(
+          browser(action),
+          env,
+          domain,
+          caps,
+        ))!;
+        expect(response.status).toBe(409);
+        expect(await response.text()).toContain(
+          "Ce devis est réservé à la consultation",
+        );
+      }
+      expect(approve).not.toHaveBeenCalled();
+      expect(confirm).not.toHaveBeenCalled();
+      read.mockResolvedValue({
+        ...projected,
+        dispatch: {
+          ...projected.dispatch,
+          quote_expires_at: "2020-01-01T00:00:00.000Z",
+        },
+      });
+      const expired = await (await handleMobileRoute(
+        browser(),
+        env,
+        domain,
+        caps,
+      ))!.text();
+      expect(expired).toContain("Renouveler le devis</button>");
+      const renewal = (await (
+        await call(`/dispatches/${prepared.id}/renew-quote`, token, "POST", {})
+      ).json()) as { faxPricing: typeof pricing };
+      expect(renewal.faxPricing.executionScope).toBe("review_prepare_only");
+      // The real domain's non-promotion guard is exercised by fax-review-preparation.test.ts.
+      for (const table of ["approvals", "reservations", "attempts", "outbox"]) {
+        expect(
+          await db
+            .prepare(
+              `SELECT COUNT(*) AS n FROM ${table} WHERE organization_id=?`,
+            )
+            .bind(owner.org)
+            .first(),
+        ).toEqual({ n: 0 });
+      }
+    } finally {
+      read.mockRestore();
+      list.mockRestore();
+      approve.mockRestore();
+      confirm.mockRestore();
+      renew.mockRestore();
+    }
+  });
+
   it("persists an idempotent deletion request without claiming completion or deleting business evidence", async () => {
     const { token } = await connect();
     expect(

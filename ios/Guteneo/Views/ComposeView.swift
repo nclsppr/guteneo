@@ -43,8 +43,8 @@ struct ComposeView: View {
             if let preparedID {
                 Section {
                     Label("Votre envoi est préparé", systemImage: "checkmark.circle").font(.headline)
-                    Text("Il n’a pas été envoyé. Retrouvez le document, le destinataire et la validation dans son suivi.")
-                    NavigationLink("Consulter et valider l’envoi") { DispatchDetailView(id: preparedID) }
+                    Text("Il n’a pas été envoyé. Retrouvez le document, le destinataire et les conditions du devis dans son suivi.")
+                    NavigationLink("Consulter le devis") { DispatchDetailView(id: preparedID) }
                     Button("Terminer") { dismiss() }
                 }
             } else {

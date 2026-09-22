@@ -13,7 +13,8 @@ There is no in-app purchase, top-up entry, or external purchase instruction.
 
 This is a local candidate, not a deployed service or App Store release.
 Account deletion currently records an authenticated request only; its full
-processing policy and service are a submission blocker. See `IOS_API.md`,
+operational processing service remains a submission blocker. The existing public
+retention policy applies; it does not perform erasure. See `IOS_API.md`,
 `ACCOUNT_DELETION.md` and `../ios/AppStore/REVIEW_POLICY.md`.
 
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.

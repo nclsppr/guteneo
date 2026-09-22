@@ -1,8 +1,51 @@
 # Account deletion: implementation boundary and required operating process
 
 Status: design and read-only repository audit, 22 September 2026. This document
-does not establish a retention policy or certify a completed erasure. No account,
-identity, communication, document or provider resource was deleted for this audit.
+applies the existing published retention criteria; it does not create a new
+policy or certify a completed erasure. No account, identity, communication,
+document or provider resource was deleted for this audit.
+
+## Existing published commitments
+
+The real authenticated service already has a
+[public privacy policy](https://guteneo.com/confidentialite/), implemented in
+`apps/web/src/information-page.tsx`. Its public availability and current content
+were verified on 22 September 2026 with an HTTP 200 response. The 21 September
+update in `docs/CHATGPT_PRIVACY_DRAFT.md` records the editor's authorization to
+prepare and publish these pages. Its older 17 September observations do not
+supersede that update or the published policy. The legal page no longer describes
+only a demonstration.
+
+The existing policy provides the basis for the deletion implementation:
+
+- Requested account and communication functions rely on execution of the
+  service. Security, abuse prevention, incident diagnosis and necessary dispute
+  evidence rely on legitimate interest. Rights requests and applicable legal
+  duties rely on those obligations. Approval of an individual dispatch is not
+  blanket consent to reuse its data.
+- Stored PDFs become eligible for automatic deletion 90 days after creation,
+  during maintenance and only when no associated dispatch remains open or
+  unresolved. This is not a guarantee of deletion on the exact 90th day.
+- File deletion does not automatically delete metadata or dispatch history.
+  Necessity of references, statuses, approvals, financial movements and audit
+  evidence is reviewed on each deletion or closure request. Unnecessary items
+  are deleted or anonymized; an applicable obligation, unresolved operation or
+  dispute permits retention only of the relevant items for the necessary period.
+- Account data remains during account use, then only for the same residual
+  needs. Support requests remain until resolved and afterwards only when follow-up
+  or a dispute requires it. Expired sessions and temporary authorizations are
+  cleaned by maintenance; daily content-access counters are cleaned beyond
+  31 days. Copies already transmitted to recipients, assistants or providers
+  also follow their own retention rules; erasure does not recall a communication.
+- Requests use the published contact. Additional identity evidence is requested
+  only when there is reasonable doubt and must be proportionate. A response is
+  due within one month; complexity or numerous requests can require an extension
+  of at most two months, explained during the first month. This response
+  commitment is not a promise that every erasure finishes within one month.
+
+These criteria are already selected; a new arbitrary retention period or a fresh
+approval of all legal bases is not needed to start implementing them. Publication
+does not prove a working erasure process, provider qualification or backup handling.
 
 ## What exists
 
@@ -12,7 +55,7 @@ It persists a unique receipt for the user in `account_deletion_requests`, return
 HTTP 202 and exposes the receipt to that user. The iOS interface calls this a
 request. It must not describe acceptance of the request as completed deletion.
 
-Migration `0033_native_sessions.sql` includes `requested`, `processing` and
+Migration `0037_native_sessions.sql` includes `requested`, `processing` and
 `completed` states, timestamps and an operator processing reference. Those fields
 are storage for a future process; they do not perform erasure. There is currently
 no deletion processor, provider erasure integration, completion workflow or
@@ -48,25 +91,29 @@ The existing schema prevents a broad `DELETE users` operation:
 - Financial reservations, entries, frozen quotes and settlement proofs have
   their own retention and immutability constraints. Removing these to make a
   foreign-key check pass would destroy business evidence.
-- `0033_native_sessions.sql` makes native credentials depend on the browser
+- `0037_native_sessions.sql` makes native credentials depend on the browser
   session and membership. Its deletion receipt itself still references the user.
 
-The current document maintenance code removes eligible R2 content after its
-configured 90-day operational cutoff, while retaining document metadata. It
-avoids purging content attached to dispatches with unresolved outcomes. This is
-an implementation fact, not an approved legal retention period, a full account
-erasure process, or proof that every provider copy and backup is gone.
+The current document maintenance code implements the published 90-day PDF
+eligibility criterion while retaining document metadata. It avoids purging
+content attached to dispatches with unresolved outcomes. That bounded file
+maintenance is not a full account erasure process or proof that every provider
+copy and backup is gone. A request still requires the published necessity review;
+the routine maintenance cutoff alone does not decide its outcome.
 
-## Decisions required from the service owner
+## Operating responsibilities and decisions still required
 
-These decisions must be recorded before enabling and describing a completed
-erasure service. This audit does not invent legal bases, durations or exceptions.
+The remaining work applies the existing policy to real requests. The service
+owner must establish these responsibilities and resolve actual ownership or
+retention exceptions before claiming a completed erasure service. This audit
+does not invent legal bases, durations or exceptions.
 
-1. Define the data categories that are erased, retained for a specific lawful
-   purpose, or owned by another workspace member. State the basis and duration
-   for each retained category, including how retention ends. Financial evidence
-   does not automatically justify keeping message bodies, full recipients or
-   original PDFs indefinitely.
+1. Apply the published necessity review to each category in a request: erase what
+   is no longer needed, distinguish resources belonging to other members, and
+   document the actual obligation, operation or dispute for retained items.
+   Record how each exception ends, with a date where established or a review
+   criterion where the outcome is unresolved. Financial evidence does not
+   automatically justify retaining full message bodies, recipients or PDFs.
 2. Define the treatment of shared workspaces, a sole administrator, a workspace
    with only the requesting user, outstanding liabilities and unused balances.
    Choosing a successor administrator requires an explicit authorized human
@@ -75,13 +122,15 @@ erasure service. This audit does not invent legal bases, durations or exceptions
    storage, Cloudflare backups and D1 Time Travel, technical logs, and relevant
    Telnyx, Pingen and email-provider copies. Record each actual provider's erasure
    or retention capabilities and evidence requirements.
-4. Appoint an operator and establish a real processing period and a completion
-   notification channel. Publish only the period and service that the operator
-   can deliver. A pending request must have a monitored owner and an escalation
-   process.
-5. Approve an updated public privacy policy for the real authenticated service
-   and iOS app. The existing legal page's demonstration and Cloudflare explanation
-   is not a full description of authenticated account and communication data.
+4. Appoint a monitored operator and escalation path able to meet the existing
+   response commitment. Establish a completion-notification channel and give a
+   truthful account of progress and justified exceptions. Do not substitute an
+   invented global completion period for the published response deadline.
+5. Reconcile the public description with the actual iOS request route and the
+   completion process when implemented. The existing statement that complete
+   account deletion is not self-service remains accurate for a receipt-only
+   endpoint. Describe any added device-specific handling truthfully; the public
+   policy already covers the real authenticated service.
 
 ## Proposed implementation, not yet present
 
@@ -104,6 +153,9 @@ that genuinely must be retained. An appropriate design can remove the profile,
 login identity and personal authentication data while retaining only justified,
 minimized historical evidence with no active membership or login capability.
 Keeping a disabled profile unchanged and calling it deleted is insufficient.
+An opaque historical identifier that can still be linked to a person is
+pseudonymized evidence, not proof of anonymization; the retained data and its
+linkability must be considered together.
 Do not disable foreign keys or drop immutability protections as an erasure shortcut.
 
 ## Proposed operator runbook, not an available procedure
@@ -111,6 +163,8 @@ Do not disable foreign keys or drop immutability protections as an erasure short
 1. Retrieve the authenticated request, establish operator authority and enumerate
    all memberships. Produce the read-only plan and identify shared-workspace,
    last-administrator, retention, provider and unresolved-delivery blockers.
+   Track the published response deadline and any justified extension separately
+   from completion; request extra identity evidence only on the published basis.
 2. Resolve the ownership choices with the appropriate human. Preserve shared
    workspace resources and other members' access. A dedicated closure lifecycle
    is required for a sole-member workspace; no such lifecycle is implemented by
@@ -149,7 +203,9 @@ until the remaining required steps succeed.
 
 Record database foreign-key and integrity checks, preserved financial totals,
 absence of the targeted personal data and eligible content, independent provider
-evidence, the actual notification and the published truthful processing period.
+evidence, the actual notification and compliance with the published response
+commitment. Describe the actual completed work and remaining justified retention
+without promising an unqualified universal erasure deadline.
 Deterministic tests establish code behavior; they do not prove live provider
 erasure, a legal retention basis or operational readiness.
 

@@ -73,6 +73,8 @@ function safeFailure(error: unknown): string {
     return "La confirmation de sécurité n’est plus valide. Actualisez la page avant de continuer.";
   if (code === "RECIPIENT_REQUEST_REQUIRED")
     return "Confirmez que le destinataire a demandé cet e-mail avant de l’approuver.";
+  if (code === "FAX_REVIEW_PREPARATION_ONLY")
+    return "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.";
   return "L’opération n’a pas pu être confirmée. Actualisez le suivi avant de recommencer ; ne préparez pas un nouvel envoi pour remplacer un résultat incertain.";
 }
 
@@ -135,6 +137,8 @@ export async function handleMobileReview(
     );
   }
   const d = detail.dispatch;
+  const reviewPreparationOnly =
+    d.faxPricing?.executionScope === "review_prepare_only";
   const doc = d.document_id
     ? await domain.getDocument(session.context, d.document_id)
     : null;
@@ -146,6 +150,11 @@ export async function handleMobileReview(
       if (form.get("fingerprint") !== d.fingerprint)
         throw new DomainError("FINGERPRINT_MISMATCH", "", 409);
       const action = form.get("action");
+      if (
+        reviewPreparationOnly &&
+        ["approve", "confirm"].includes(String(action))
+      )
+        throw new DomainError("FAX_REVIEW_PREPARATION_ONLY", "", 409);
       if (action === "renew") {
         if (
           d.channel !== "fax" ||
@@ -259,6 +268,7 @@ export async function handleMobileReview(
     : `<pre>${escape(d.text)}</pre>`;
   const canAct =
     ["admin", "member"].includes(session.context.role) &&
+    !reviewPreparationOnly &&
     d.status === "prepared" &&
     !expired &&
     documentReady;
@@ -271,8 +281,8 @@ export async function handleMobileReview(
   return html(
     `<h1>Vérifier l’envoi</h1><p>${escape(statusLabels[d.status] ?? "Suivi en cours")}</p>${d.mode === "simulation" ? '<p class="notice">Simulation : aucune communication réelle.</p>' : ""}${notice ? `<p class="notice" role="alert">${escape(notice)}</p>` : ""}
     <section><h2>Destinataire et coût</h2><dl><dt>Canal</dt><dd>${escape({ fax: "Fax", email: "E-mail", postal: "Courrier postal" }[d.channel])}</dd><dt>Destinataire</dt><dd>${Object.values(recipient).map(escape).join("<br>")}</dd><dt>Expéditeur</dt><dd>${escape(d.sender_address)}</dd>${d.subject ? `<dt>Objet</dt><dd>${escape(d.subject)}</dd>` : ""}<dt>Estimation${d.mode === "production" ? " HT" : ""}</dt><dd>${escape(estimate)}</dd><dt>Plafond ferme${d.mode === "production" ? " HT" : ""}</dt><dd>${escape(money(d.ceiling_minor))}</dd>${d.quote_expires_at ? `<dt>Devis valable jusqu’au</dt><dd>${escape(date(d.quote_expires_at))}</dd>` : ""}${optionDetails}</dl>
-    ${d.faxPricing ? `<p>Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? '<p class="notice">Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.</p>' : ""}` : ""}
-    ${d.quote_customer_nanoeur != null ? "<p>Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.</p>" : ""}</section>
+    ${reviewPreparationOnly ? '<p class="notice">Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun montant n’est réservé ou débité. La capacité Local Calling reste non confirmée.</p>' : d.faxPricing ? `<p>Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? '<p class="notice">Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.</p>' : ""}` : ""}
+    ${!reviewPreparationOnly && d.quote_customer_nanoeur != null ? "<p>Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.</p>" : ""}</section>
     <section><h2>Contenu exact</h2>${doc ? `<p>${escape(doc.name)} · ${doc.pages} page${doc.pages > 1 ? "s" : ""}</p>${documentReady ? `<iframe title="PDF original exact" src="/api/documents/${encodeURIComponent(doc.id)}/content"></iframe><p><a href="/api/documents/${encodeURIComponent(doc.id)}/content" target="_blank" rel="noopener">Ouvrir le PDF original</a></p>` : '<p class="notice">Le PDF doit terminer sa vérification avant approbation.</p>'}<p>Empreinte SHA-256 : <code>${escape(doc.sha256)}</code></p>` : ""}${d.channel === "email" ? emailPreview : ""}</section>
     ${expired ? `<p class="notice">Le devis a expiré. ${canRenew ? "Renouvelez-le ci-dessous, puis vérifiez sa nouvelle version." : "Cet envoi ne peut pas être confirmé avec ce devis."}</p>` : ""}${canRenew ? `<form method="post" action="${escape(url.pathname)}">${fields}<input type="hidden" name="action" value="renew"><button type="submit">Renouveler le devis</button></form>` : ""}
     ${canAct && !approved ? `<section><h2>Votre validation</h2><form method="post" action="${escape(url.pathname)}">${fields}<input type="hidden" name="action" value="approve"><label><input type="checkbox" name="reviewed" value="yes" required>J’ai vérifié le contenu exact, le destinataire et les options. J’accepte le coût dans la limite de ${escape(money(d.ceiling_minor))}${d.mode === "production" ? " HT" : ""} pour cette version.</label>${d.channel === "email" && d.mode === "production" ? '<label><input type="checkbox" name="recipientRequested" value="yes" required>Ce destinataire a demandé cet e-mail et son contenu.</label>' : ""}<button type="submit">Valider cette version</button></form></section>` : ""}
