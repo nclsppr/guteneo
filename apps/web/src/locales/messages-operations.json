@@ -1,0 +1,1917 @@
+{
+  "Les factures et paiements de {0}.": [
+    "Invoices and payments for {0}.",
+    "Rechnungen und Zahlungen für {0}.",
+    "Rechnungen a Bezuelunge fir {0}."
+  ],
+  "{0} page(s) contrôlée(s) à {1} dpi. Parcourez toutes les pages pour vérifier leur contenu.": [
+    "{0} page(s) checked at {1} dpi. Review every page to check its content.",
+    "{0} Seite(n) mit {1} dpi geprüft. Sehen Sie alle Seiten durch, um ihren Inhalt zu prüfen.",
+    "{0} Säit(en) mat {1} dpi iwwerpréift. Kuckt all Säiten, fir hiren Inhalt ze iwwerpréiwen."
+  ],
+  "Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas {0}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.": [
+    "The cost depends on transmission time. Your usage will not exceed {0}. This cap will be reserved on confirmation; only credit actually used will be deducted after usage verification.",
+    "Die Kosten hängen von der Übertragungsdauer ab. Ihr Verbrauch wird {0} nicht überschreiten. Dieser Höchstbetrag wird bei der Bestätigung reserviert; nach der Nutzungsprüfung wird nur tatsächlich verbrauchtes Guthaben abgezogen.",
+    "D'Käschten hänke vun der Iwwerdroungsdauer of. Äre Verbrauch wäert {0} net iwwerschreiden. Dësen Héchstbetrag gëtt bei der Bestätegung reservéiert; nëmmen de verbrauchte Kredit gëtt no der Verbrauchsiwwerpréiwung ofgezunn."
+  ],
+  "J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de {0}, pour cette version du fax.": [
+    "I have checked the content and recipient. I accept variable usage, up to {0}, for this version of the fax.",
+    "Ich habe den Inhalt und den Empfänger geprüft. Ich akzeptiere einen variablen Verbrauch bis höchstens {0} für diese Version des Faxes.",
+    "Ech hunn den Inhalt an den Empfänger iwwerpréift. Ech akzeptéieren e variable Verbrauch bis héchstens {0} fir dës Versioun vum Fax."
+  ],
+  "Format international : + suivi de l’indicatif du pays et du numéro, sans espaces (ex. +352…).": [
+    "International format: + followed by the country code and number, without spaces (e.g. +352…).",
+    "Internationales Format: + gefolgt von Landesvorwahl und Nummer, ohne Leerzeichen (z. B. +352…).",
+    "Internationaalt Format: + gefollegt vum Lännercode an der Nummer, ouni Espacen (z. B. +352…)."
+  ],
+  "La disponibilité et le prix seront confirmés par le devis.": [
+    "Availability and price will be confirmed by the quote.",
+    "Verfügbarkeit und Preis werden durch das Angebot bestätigt.",
+    "D'Verfügbarkeet an de Präis ginn duerch d'Devis bestätegt."
+  ],
+  "Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire.": [
+    "The exact price will be shown before sending. Adjust this cap if needed.",
+    "Der genaue Preis wird Ihnen vor dem Versand angezeigt. Ändern Sie diesen Höchstbetrag bei Bedarf.",
+    "De geneeë Präis gëtt Iech virum Versand gewisen. Ännert dësen Héchstbetrag wann néideg."
+  ],
+  "Distribution rapide": [
+    "Priority delivery",
+    "Schnelle Zustellung",
+    "Séier Zoustëllung"
+  ],
+  "lance sa simulation.": [
+    "starts its simulation.",
+    "startet die Simulation.",
+    "start d'Simulatioun."
+  ],
+  "Prix indisponible": [
+    "Price unavailable",
+    "Preis nicht verfügbar",
+    "Präis net verfügbar"
+  ],
+  "Service courrier Guteneo": [
+    "Guteneo postal service",
+    "Guteneo-Postdienst",
+    "Guteneo-Postservice"
+  ],
+  "En cours": [
+    "In progress",
+    "In Bearbeitung",
+    "Amgaang"
+  ],
+  "Action requise": [
+    "Action required",
+    "Handlung erforderlich",
+    "Aktioun néideg"
+  ],
+  "En pause": [
+    "Paused",
+    "Pausiert",
+    "Pauséiert"
+  ],
+  "Demandez à l’administrateur de votre espace de consulter les factures et les paiements.": [
+    "Ask your workspace administrator to view invoices and payments.",
+    "Bitten Sie den Administrator Ihres Arbeitsbereichs, die Rechnungen und Zahlungen einzusehen.",
+    "Frot den Administrateur vun Ärem Aarbechtsberäich, d'Rechnungen an d'Bezuelungen ze kucken."
+  ],
+  "Les factures et les paiements seront regroupés ici avec votre vrai compte. Aucun paiement ni abonnement n’est créé dans cet aperçu.": [
+    "Invoices and payments will appear here with your real account. No payment or subscription is created in this preview.",
+    "Mit Ihrem echten Konto werden Rechnungen und Zahlungen hier zusammengeführt. In dieser Vorschau wird weder eine Zahlung noch ein Abonnement erstellt.",
+    "Mat Ärem reelle Kont ginn d'Rechnungen an d'Bezuelungen hei zesummegefaasst. An dëser Virschau gëtt keng Bezuelung a keen Abonnement erstallt."
+  ],
+  "HT": [
+    "excl. tax",
+    "ohne Steuern",
+    "ouni Steieren"
+  ],
+  "gauche": [
+    "left",
+    "links",
+    "lénks"
+  ],
+  "droit": [
+    "right",
+    "rechts",
+    "riets"
+  ],
+  "page": [
+    "page",
+    "Seite",
+    "Säit"
+  ],
+  "pages": [
+    "pages",
+    "Seiten",
+    "Säiten"
+  ],
+  "feuille": [
+    "sheet",
+    "Blatt",
+    "Blat"
+  ],
+  "feuilles": [
+    "sheets",
+    "Blätter",
+    "Blieder"
+  ],
+  "recto": [
+    "single-sided printing",
+    "einseitigen Druck",
+    "Drock op enger Säit"
+  ],
+  "recto verso": [
+    "double-sided printing",
+    "beidseitigen Druck",
+    "Drock op béide Säiten"
+  ],
+  "Enregistrer": [
+    "Save",
+    "Speichern",
+    "Späicheren"
+  ],
+  "Fax": [
+    "Fax",
+    "Fax",
+    "Fax"
+  ],
+  "E-mail": [
+    "Email",
+    "E-Mail",
+    "E-Mail"
+  ],
+  "Courrier postal": [
+    "Post",
+    "Post",
+    "Post"
+  ],
+  "Disponible": [
+    "Available",
+    "Verfügbar",
+    "Verfügbar"
+  ],
+  "EXEMPLE FICTIF": [
+    "FICTIONAL EXAMPLE",
+    "FIKTIVES BEISPIEL",
+    "FIKTIVT BEISPILL"
+  ],
+  "À régler": [
+    "Due",
+    "Offen",
+    "Ze bezuelen"
+  ],
+  "Réglée": [
+    "Paid",
+    "Bezahlt",
+    "Bezuelt"
+  ],
+  "Irrécouvrable": [
+    "Uncollectible",
+    "Uneinbringlich",
+    "Net méi andreiwbar"
+  ],
+  "Annulée": [
+    "Cancelled",
+    "Storniert",
+    "Annuléiert"
+  ],
+  "Reçu": [
+    "Received",
+    "Erhalten",
+    "Kritt"
+  ],
+  "Annulé": [
+    "Cancelled",
+    "Storniert",
+    "Annuléiert"
+  ],
+  "Moyen de paiement requis": [
+    "Payment method required",
+    "Zahlungsmethode erforderlich",
+    "Bezuelmethod néideg"
+  ],
+  "À confirmer": [
+    "Awaiting confirmation",
+    "Bestätigung ausstehend",
+    "Bestätegung steet aus"
+  ],
+  "À capturer": [
+    "Awaiting capture",
+    "Abbuchung ausstehend",
+    "Ofbuchung steet aus"
+  ],
+  "Période d’essai": [
+    "Trial period",
+    "Testzeitraum",
+    "Testzäitraum"
+  ],
+  "Paiement en retard": [
+    "Payment overdue",
+    "Zahlung überfällig",
+    "Bezuelung iwwerfälleg"
+  ],
+  "Impayé": [
+    "Unpaid",
+    "Unbezahlt",
+    "Net bezuelt"
+  ],
+  "À finaliser": [
+    "Incomplete",
+    "Unvollständig",
+    "Nach ofzeschléissen"
+  ],
+  "Expiré": [
+    "Expired",
+    "Abgelaufen",
+    "Ofgelaf"
+  ],
+  "Facturation": [
+    "Billing",
+    "Abrechnung",
+    "Rechnungen"
+  ],
+  "Un accès administrateur est nécessaire": [
+    "Administrator access is required",
+    "Administratorzugriff erforderlich",
+    "Administrateurszougang ass néideg"
+  ],
+  "Explorez le crédit de bienvenue et le suivi des envois dans cet atelier fictif.": [
+    "Explore welcome credit and delivery tracking in this fictional workspace.",
+    "Entdecken Sie das Startguthaben und die Versandverfolgung in diesem fiktiven Arbeitsbereich.",
+    "Entdeckt de Begréissungskredit an de Versandverlaf an dësem fiktiven Aarbechtsberäich."
+  ],
+  "Aucune facture dans la démonstration": [
+    "No invoices in the demo",
+    "Keine Rechnungen in der Demo",
+    "Keng Rechnungen an der Demo"
+  ],
+  "Voir la consommation de démonstration": [
+    "View demo usage",
+    "Demoverbrauch ansehen",
+    "Demoverbrauch kucken"
+  ],
+  "Votre dossier de facturation est prêt. Aucun paiement n’a été déclenché.": [
+    "Your billing profile is ready. No payment has been initiated.",
+    "Ihr Abrechnungsprofil ist bereit. Es wurde keine Zahlung ausgelöst.",
+    "Äre Rechnungsprofil ass prett. Keng Bezuelung gouf ausgeléist."
+  ],
+  "Votre dossier de facturation": [
+    "Your billing profile",
+    "Ihr Abrechnungsprofil",
+    "Äre Rechnungsprofil"
+  ],
+  "COMPTE RÉEL": [
+    "LIVE ACCOUNT",
+    "ECHTES KONTO",
+    "REELLE KONT"
+  ],
+  "À RACCORDER": [
+    "CONNECTION REQUIRED",
+    "VERBINDUNG ERFORDERLICH",
+    "VERBINDUNG NÉIDEG"
+  ],
+  "Le suivi sera disponible dès le raccordement du compte de paiement Guteneo. Vous pouvez déjà consulter votre consommation ci-dessous.": [
+    "Tracking will be available once Guteneo’s payment account is connected. You can already view your usage below.",
+    "Die Übersicht ist verfügbar, sobald das Guteneo-Zahlungskonto verbunden ist. Ihren Verbrauch können Sie bereits unten einsehen.",
+    "D'Iwwersiicht ass verfügbar, soubal de Guteneo-Bezuelkont verbonnen ass. Dir kënnt Äre Verbrauch schonn hei ënne kucken."
+  ],
+  "Créez votre dossier pour retrouver ici vos futures factures. Cette étape ne souscrit aucun abonnement et ne déclenche aucun paiement.": [
+    "Create your billing profile to find future invoices here. This step does not start a subscription or initiate a payment.",
+    "Erstellen Sie Ihr Abrechnungsprofil, um künftige Rechnungen hier zu finden. Dabei wird weder ein Abonnement abgeschlossen noch eine Zahlung ausgelöst.",
+    "Erstellt Äre Rechnungsprofil, fir zukünfteg Rechnungen hei ze fannen. Dobäi gëtt keen Abonnement ofgeschloss a keng Bezuelung ausgeléist."
+  ],
+  "Consultez vos documents de facturation et gérez vos informations dans le portail sécurisé Stripe.": [
+    "View your billing documents and manage your details in the secure Stripe portal.",
+    "Sehen Sie Ihre Abrechnungsunterlagen ein und verwalten Sie Ihre Angaben im sicheren Stripe-Portal.",
+    "Kuckt Är Rechnungsdokumenter a geréiert Är Donnéeën am séchere Stripe-Portal."
+  ],
+  "Les opérations Stripe affichées ici sont des essais, sans paiement réel.": [
+    "The Stripe transactions shown here are tests, with no real payment.",
+    "Die hier angezeigten Stripe-Vorgänge sind Tests ohne echte Zahlungen.",
+    "D'Stripe-Virgäng hei sinn Tester ouni reell Bezuelung."
+  ],
+  "Création en cours…": [
+    "Creating…",
+    "Wird erstellt…",
+    "Gëtt erstallt…"
+  ],
+  "Créer mon dossier de facturation": [
+    "Create my billing profile",
+    "Abrechnungsprofil erstellen",
+    "Mäi Rechnungsprofil erstellen"
+  ],
+  "Ouverture en cours…": [
+    "Opening…",
+    "Wird geöffnet…",
+    "Gëtt opgemaach…"
+  ],
+  "Ouvrir le portail de facturation": [
+    "Open billing portal",
+    "Abrechnungsportal öffnen",
+    "Rechnungsportal opmaachen"
+  ],
+  "Factures": [
+    "Invoices",
+    "Rechnungen",
+    "Rechnungen"
+  ],
+  "Les factures n’ont pas pu être actualisées.": [
+    "Invoices could not be refreshed.",
+    "Die Rechnungen konnten nicht aktualisiert werden.",
+    "D'Rechnunge konnten net aktualiséiert ginn."
+  ],
+  "Aucune facture enregistrée pour cet espace.": [
+    "No invoices recorded for this workspace.",
+    "Für diesen Arbeitsbereich sind keine Rechnungen erfasst.",
+    "Fir dësen Aarbechtsberäich si keng Rechnunge gespäichert."
+  ],
+  "Facture": [
+    "Invoice",
+    "Rechnung",
+    "Rechnung"
+  ],
+  "État": [
+    "Status",
+    "Status",
+    "Status"
+  ],
+  "Total": [
+    "Total",
+    "Gesamt",
+    "Total"
+  ],
+  "Réglé": [
+    "Paid",
+    "Bezahlt",
+    "Bezuelt"
+  ],
+  "Reste dû": [
+    "Amount due",
+    "Offener Betrag",
+    "Rescht ze bezuelen"
+  ],
+  "Actualisée le": [
+    "Updated on",
+    "Aktualisiert am",
+    "Aktualiséiert den"
+  ],
+  "Paiements": [
+    "Payments",
+    "Zahlungen",
+    "Bezuelungen"
+  ],
+  "Les paiements n’ont pas pu être actualisés.": [
+    "Payments could not be refreshed.",
+    "Die Zahlungen konnten nicht aktualisiert werden.",
+    "D'Bezuelunge konnten net aktualiséiert ginn."
+  ],
+  "Aucun paiement enregistré pour cet espace.": [
+    "No payments recorded for this workspace.",
+    "Für diesen Arbeitsbereich sind keine Zahlungen erfasst.",
+    "Fir dësen Aarbechtsberäich si keng Bezuelunge gespäichert."
+  ],
+  "Référence": [
+    "Reference",
+    "Referenz",
+    "Referenz"
+  ],
+  "Montant reçu": [
+    "Amount received",
+    "Erhaltener Betrag",
+    "Kritte Betrag"
+  ],
+  "Actualisé le": [
+    "Updated on",
+    "Aktualisiert am",
+    "Aktualiséiert den"
+  ],
+  "Montants reçus avant d’éventuels remboursements. Le portail de facturation présente les documents à jour.": [
+    "Amounts received before any refunds. The billing portal provides the latest documents.",
+    "Erhaltene Beträge vor möglichen Rückerstattungen. Aktuelle Unterlagen finden Sie im Abrechnungsportal.",
+    "Kritte Beträg viru méigleche Remboursementer. Déi aktuell Dokumenter fannt Dir am Rechnungsportal."
+  ],
+  "Abonnements": [
+    "Subscriptions",
+    "Abonnements",
+    "Abonnementer"
+  ],
+  "Aucun abonnement enregistré pour cet espace.": [
+    "No subscriptions recorded for this workspace.",
+    "Für diesen Arbeitsbereich sind keine Abonnements erfasst.",
+    "Fir dësen Aarbechtsberäich si keng Abonnementer gespäichert."
+  ],
+  "Dernière actualisation": [
+    "Last updated",
+    "Zuletzt aktualisiert",
+    "Lescht Aktualiséierung"
+  ],
+  "Résiliation à la fin de la période": [
+    "Cancellation at period end",
+    "Kündigung zum Periodenende",
+    "Kënnegung um Enn vun der Period"
+  ],
+  "Consommation de simulation": [
+    "Simulation usage",
+    "Simulierter Verbrauch",
+    "Simuléierte Verbrauch"
+  ],
+  "Budget des envois": [
+    "Delivery budget",
+    "Versandbudget",
+    "Versandbudget"
+  ],
+  "Ces compteurs servent aux essais. Les montants sont fictifs et ne seront pas facturés.": [
+    "These counters are for testing. Amounts are fictional and will not be billed.",
+    "Diese Zähler dienen Tests. Die Beträge sind fiktiv und werden nicht in Rechnung gestellt.",
+    "Dës Zielen déngen Tester. D'Beträg si fiktiv a ginn net a Rechnung gestallt."
+  ],
+  "Ces montants sont les plafonds réservés pour vos envois. Vos factures et paiements réels figurent dans les sections ci-dessus.": [
+    "These amounts are the caps reserved for your deliveries. Your actual invoices and payments appear in the sections above.",
+    "Diese Beträge sind die für Ihre Sendungen reservierten Höchstbeträge. Ihre tatsächlichen Rechnungen und Zahlungen finden Sie oben.",
+    "Dës Beträg sinn déi fir Är Sendunge reservéiert Héchstbeträg. Är reell Rechnungen a Bezuelunge fannt Dir an de Rubriken hei uewen."
+  ],
+  "Aucune consommation enregistrée sur cette période.": [
+    "No usage recorded for this period.",
+    "In diesem Zeitraum wurde kein Verbrauch erfasst.",
+    "Fir dësen Zäitraum gouf kee Verbrauch gespäichert."
+  ],
+  "En attente": [
+    "Pending",
+    "Ausstehend",
+    "Ausstoend"
+  ],
+  "de plafond réservé": [
+    "in reserved caps",
+    "an reservierten Höchstbeträgen",
+    "u reservéierten Héchstbeträg"
+  ],
+  "Envois acceptés": [
+    "Accepted deliveries",
+    "Angenommene Sendungen",
+    "Ugeholl Sendungen"
+  ],
+  "de plafond engagé": [
+    "in committed caps",
+    "an gebundenen Höchstbeträgen",
+    "u gebonnenen Héchstbeträg"
+  ],
+  "Limite autorisée": [
+    "Allowed limit",
+    "Zulässiges Limit",
+    "Erlaabt Limit"
+  ],
+  "CRÉDIT DE BIENVENUE": [
+    "WELCOME CREDIT",
+    "STARTGUTHABEN",
+    "BEGRÉISSUNGSKREDIT"
+  ],
+  "Un solde pour toute votre correspondance.": [
+    "One balance for all your correspondence.",
+    "Ein Guthaben für Ihre gesamte Korrespondenz.",
+    "Ee Saldo fir Är ganz Korrespondenz."
+  ],
+  "Fax, e-mail et courrier partagent le même crédit, offert une seule fois à votre atelier.": [
+    "Fax, email and post share the same credit, granted to your workspace once only.",
+    "Fax, E-Mail und Post nutzen dasselbe Guthaben, das Ihrem Arbeitsbereich einmalig geschenkt wird.",
+    "Fax, E-Mail a Post deelen dee selwechte Kredit, deen Ärem Aarbechtsberäich eemoleg geschenkt gëtt."
+  ],
+  "Disponible dans cet exemple": [
+    "Available in this example",
+    "In diesem Beispiel verfügbar",
+    "An dësem Beispill verfügbar"
+  ],
+  "Crédit disponible": [
+    "Available credit",
+    "Verfügbares Guthaben",
+    "Verfügbare Kredit"
+  ],
+  "Votre crédit disponible est épuisé. Les nouveaux envois sont bloqués.": [
+    "Your available credit is exhausted. New deliveries are blocked.",
+    "Ihr verfügbares Guthaben ist aufgebraucht. Neue Sendungen sind gesperrt.",
+    "Äre verfügbare Kredit ass opgebraucht. Nei Sendunge si gespaart."
+  ],
+  "Aucun crédit n’est attribué à cet atelier. Les envois nécessitant un crédit restent bloqués.": [
+    "No credit has been assigned to this workspace. Deliveries requiring credit remain blocked.",
+    "Diesem Arbeitsbereich wurde kein Guthaben zugeteilt. Sendungen, die Guthaben benötigen, bleiben gesperrt.",
+    "Dësem Aarbechtsberäich gouf kee Kredit zougedeelt. Sendungen, déi Kredit brauchen, bleiwe gespaart."
+  ],
+  "Crédit illustratif": [
+    "Example credit",
+    "Beispielguthaben",
+    "Beispillkredit"
+  ],
+  "Crédit offert": [
+    "Complimentary credit",
+    "Geschenktes Guthaben",
+    "Geschenkte Kredit"
+  ],
+  "Utilisé": [
+    "Used",
+    "Verbraucht",
+    "Verbraucht"
+  ],
+  "Réservé aux envois en cours": [
+    "Reserved for ongoing deliveries",
+    "Für laufende Sendungen reserviert",
+    "Fir lafend Sendunge reservéiert"
+  ],
+  "Ajouter du crédit": [
+    "Add credit",
+    "Guthaben aufladen",
+    "Kredit oplueden"
+  ],
+  "La recharge sera disponible avec Stripe. Aucun paiement n’est possible pour le moment.": [
+    "Top-ups will be available through Stripe. No payment is possible at present.",
+    "Aufladungen werden über Stripe verfügbar sein. Derzeit sind keine Zahlungen möglich.",
+    "Opluede gëtt mat Stripe verfügbar. De Moment ass keng Bezuelung méiglech."
+  ],
+  "Le crédit ne se renouvelle pas chaque mois. Un envoi dont le résultat est incertain conserve sa réservation.": [
+    "Credit does not renew monthly. A delivery with an uncertain outcome keeps its reservation.",
+    "Das Guthaben erneuert sich nicht monatlich. Bei einer Sendung mit ungewissem Ergebnis bleibt die Reservierung bestehen.",
+    "De Kredit erneiert sech net all Mount. Bei enger Sendung mat ongewëssem Resultat bleift d'Reservéierung bestoen."
+  ],
+  "Ces montants servent uniquement à explorer l’atelier. Ils ne constituent ni un crédit réel ni une facture.": [
+    "These amounts are only for exploring the workspace. They represent neither actual credit nor an invoice.",
+    "Diese Beträge dienen nur zum Erkunden des Arbeitsbereichs. Sie stellen weder echtes Guthaben noch eine Rechnung dar.",
+    "Dës Beträg déngen nëmmen dozou, den Aarbechtsberäich ze entdecken. Si si weder e reelle Kredit nach eng Rechnung."
+  ],
+  "L’analyse des PDF est prête.": [
+    "PDF analysis is ready.",
+    "Die PDF-Prüfung ist bereit.",
+    "D'PDF-Analys ass prett."
+  ],
+  "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.": [
+    "The service is preparing PDF analysis. Wait a few minutes, then restart the analysis from your document.",
+    "Der Dienst bereitet die PDF-Prüfung vor. Warten Sie einige Minuten und starten Sie die Prüfung dann erneut über Ihr Dokument.",
+    "De Service bereet d'PDF-Analys vir. Waart e puer Minutten a start d'Analys dann nach eng Kéier vun Ärem Dokument aus."
+  ],
+  "Analyse des documents": [
+    "Document analysis",
+    "Dokumentenprüfung",
+    "Dokumentanalys"
+  ],
+  "Préparez le service avant d’importer vos PDF. Les documents en attente restent privés jusqu’à la fin de leur vérification.": [
+    "Prepare the service before importing your PDFs. Pending documents remain private until verification is complete.",
+    "Bereiten Sie den Dienst vor dem PDF-Import vor. Ausstehende Dokumente bleiben bis zum Abschluss ihrer Prüfung privat.",
+    "Bereet de Service vir, ier Dir Är PDFen importéiert. Dokumenter, déi waarden, bleiwe privat bis zum Enn vun hirer Iwwerpréiwung."
+  ],
+  "Préparation…": [
+    "Preparing…",
+    "Wird vorbereitet…",
+    "Gëtt virbereet…"
+  ],
+  "Préparer l’analyse PDF": [
+    "Prepare PDF analysis",
+    "PDF-Prüfung vorbereiten",
+    "PDF-Analys virbereeden"
+  ],
+  "Adresse sur le courrier": [
+    "Address on the letter",
+    "Adresse auf dem Brief",
+    "Adress um Bréif"
+  ],
+  "Utiliser l’adresse du document": [
+    "Use the document’s address",
+    "Adresse aus dem Dokument verwenden",
+    "D'Adress vum Dokument benotzen"
+  ],
+  "Ajouter une page d’adresse": [
+    "Add an address page",
+    "Adressseite hinzufügen",
+    "Eng Adresssäit derbäisetzen"
+  ],
+  "Le PDF reste inchangé. Son adresse doit déjà correspondre au destinataire et apparaître dans la fenêtre de l’enveloppe.": [
+    "The PDF stays unchanged. Its address must already match the recipient and appear in the envelope window.",
+    "Das PDF bleibt unverändert. Seine Adresse muss bereits dem Empfänger entsprechen und im Umschlagfenster sichtbar sein.",
+    "De PDF bleift onverännert. Seng Adress muss scho mam Empfänger iwwereneestëmmen an an der Fënster vun der Enveloppe ze gesi sinn."
+  ],
+  "Le destinataire sera imprimé sur une nouvelle première page, dans la fenêtre choisie. Votre PDF source est conservé.": [
+    "The recipient will be printed on a new first page, in the selected window. Your source PDF is preserved.",
+    "Der Empfänger wird auf einer neuen ersten Seite im gewählten Fenster gedruckt. Ihr Quell-PDF bleibt erhalten.",
+    "Den Empfänger gëtt op enger neier éischter Säit an der gewielter Fënster gedréckt. Ären Original-PDF bleift erhalen."
+  ],
+  "Fenêtre de l’enveloppe": [
+    "Envelope window",
+    "Umschlagfenster",
+    "Fënster vun der Enveloppe"
+  ],
+  "À gauche": [
+    "On the left",
+    "Links",
+    "Lénks"
+  ],
+  "À droite": [
+    "On the right",
+    "Rechts",
+    "Riets"
+  ],
+  "En recto verso, 2 pages PDF sont ajoutées : la page d’adresse et son verso blanc, soit 1 feuille supplémentaire. Les rectos et versos du document source restent appariés.": [
+    "For double-sided printing, 2 PDF pages are added: the address page and its blank reverse, making 1 additional sheet. The front and back pages of the source document stay paired.",
+    "Beim beidseitigen Druck werden 2 PDF-Seiten hinzugefügt: die Adressseite und ihre leere Rückseite, also 1 zusätzliches Blatt. Vorder- und Rückseiten des Quelldokuments bleiben einander zugeordnet.",
+    "Beim Drock op béide Säite kommen 2 PDF-Säiten dobäi: d'Adresssäit an hir eidel Récksäit, also 1 zousätzlecht Blat. D'Viischt- an d'Récksäite vum Originaldokument bleiwen zesummen."
+  ],
+  "En recto, 1 page PDF est ajoutée, soit 1 feuille supplémentaire.": [
+    "For single-sided printing, 1 PDF page is added, making 1 additional sheet.",
+    "Beim einseitigen Druck wird 1 PDF-Seite hinzugefügt, also 1 zusätzliches Blatt.",
+    "Beim Drock op enger Säit kënnt 1 PDF-Säit dobäi, also 1 zousätzlecht Blat."
+  ],
+  "Le prix du courrier complet sera affiché avant votre accord d’envoi.": [
+    "The price of the complete letter will be shown before you approve sending.",
+    "Der Preis des vollständigen Briefs wird vor Ihrer Versandfreigabe angezeigt.",
+    "De Präis vum komplette Bréif gëtt gewisen, ier Dir Är Zoustëmmung zum Versand gitt."
+  ],
+  "PDF final avec page d’adresse": [
+    "Final PDF with address page",
+    "Endgültiges PDF mit Adressseite",
+    "Finale PDF mat Adresssäit"
+  ],
+  "PDF ·": [
+    "PDF ·",
+    "PDF ·",
+    "PDF ·"
+  ],
+  "en": [
+    "in",
+    "im",
+    "am"
+  ],
+  ". Dont": [
+    ". Including",
+    ". Davon",
+    ". Dorënner"
+  ],
+  "page ajoutée": [
+    "added page",
+    "hinzugefügte Seite",
+    "derbäigesate Säit"
+  ],
+  "pages ajoutées": [
+    "added pages",
+    "hinzugefügte Seiten",
+    "derbäigesate Säiten"
+  ],
+  ", avec un verso blanc": [
+    ", with a blank reverse",
+    ", mit leerer Rückseite",
+    ", mat enger eideler Récksäit"
+  ],
+  "Parcourez toutes les pages de ce PDF final avant de poursuivre. Le devis porte sur ce fichier complet.": [
+    "Review every page of this final PDF before continuing. The quote covers this complete file.",
+    "Prüfen Sie alle Seiten dieses endgültigen PDFs, bevor Sie fortfahren. Das Angebot gilt für diese vollständige Datei.",
+    "Kuckt all Säite vun dësem finale PDF, ier Dir weiderfuert. D'Devis gëllt fir dëse komplette Fichier."
+  ],
+  "Consulter le PDF source conservé": [
+    "View the preserved source PDF",
+    "Erhaltenes Quell-PDF ansehen",
+    "Den erhalenen Original-PDF kucken"
+  ],
+  "Laissez vide le coin réservé aux marques de traitement postal.": [
+    "Leave the corner reserved for postal processing marks empty.",
+    "Lassen Sie die für postalische Verarbeitungsvermerke reservierte Ecke frei.",
+    "Loosst den Eck fir d'postal Veraarbechtungsmarken eidel."
+  ],
+  "Un élément empiète sur la zone réservée à l’affranchissement.": [
+    "An element overlaps the area reserved for postage.",
+    "Ein Element ragt in den für die Frankierung reservierten Bereich.",
+    "En Element geet an de Beräich eran, dee fir d'Frankéierung reservéiert ass."
+  ],
+  "Éloignez le contenu des bords : une marge vide de 5 mm est nécessaire.": [
+    "Keep content away from the edges: a blank 5 mm margin is required.",
+    "Halten Sie den Inhalt vom Rand fern: Ein leerer Rand von 5 mm ist erforderlich.",
+    "Halt den Inhalt vun de Kanten ewech: En eidelen Rand vu 5 mm ass néideg."
+  ],
+  "Aucune adresse n’a été détectée dans la fenêtre de l’enveloppe.": [
+    "No address was detected in the envelope window.",
+    "Im Umschlagfenster wurde keine Adresse erkannt.",
+    "An der Fënster vun der Enveloppe gouf keng Adress erkannt."
+  ],
+  "Réorganisez l’adresse pour respecter le nombre de lignes autorisé.": [
+    "Rearrange the address to meet the allowed number of lines.",
+    "Ordnen Sie die Adresse so an, dass die zulässige Zeilenanzahl eingehalten wird.",
+    "Uerdent d'Adress esou un, datt déi erlaabt Zuel vun Zeilen agehale gëtt."
+  ],
+  "Raccourcissez une ligne d’adresse qui dépasse la longueur admise.": [
+    "Shorten an address line that exceeds the allowed length.",
+    "Kürzen Sie eine Adresszeile, die die zulässige Länge überschreitet.",
+    "Kierzt eng Adresszeil, déi méi laang ass wéi erlaabt."
+  ],
+  "Ajoutez le pays en dernière ligne de l’adresse internationale.": [
+    "Add the country on the last line of the international address.",
+    "Fügen Sie das Land in der letzten Zeile der internationalen Adresse hinzu.",
+    "Setzt d'Land an déi lescht Zeil vun der internationaler Adress."
+  ],
+  "Écrivez le nom de la ville en majuscules.": [
+    "Write the city name in capitals.",
+    "Schreiben Sie den Ortsnamen in Großbuchstaben.",
+    "Schreift den Numm vun der Uertschaft a Groussbuschtawen."
+  ],
+  "Vérifiez la ligne du code postal et de la ville.": [
+    "Check the postcode and city line.",
+    "Prüfen Sie die Zeile mit Postleitzahl und Ort.",
+    "Iwwerpréift d'Zeil mam Postcode an der Uertschaft."
+  ],
+  "Supprimez ou aplatissez les annotations avant l’export.": [
+    "Remove or flatten annotations before exporting.",
+    "Entfernen Sie Anmerkungen oder reduzieren Sie sie vor dem Export auf die Seitenebene.",
+    "Läscht d'Annotatiounen oder integréiert se fest an d'Säiten, ier Dir exportéiert."
+  ],
+  "Exportez les pages verticales sans rotation.": [
+    "Export portrait pages without rotation.",
+    "Exportieren Sie Hochformatseiten ohne Drehung.",
+    "Exportéiert d'Säiten am Héichformat ouni Dréiung."
+  ],
+  "Utilisez une page A4 verticale (210 × 297 mm).": [
+    "Use an A4 portrait page (210 × 297 mm).",
+    "Verwenden Sie eine A4-Seite im Hochformat (210 × 297 mm).",
+    "Benotzt eng A4-Säit am Héichformat (210 × 297 mm)."
+  ],
+  "Le PDF doit peser au maximum 8 Mo.": [
+    "The PDF must be no larger than 8 MB.",
+    "Das PDF darf höchstens 8 MB groß sein.",
+    "De PDF däerf héchstens 8 MB grouss sinn."
+  ],
+  "Le PDF ne peut pas être lu complètement. Exportez une nouvelle version.": [
+    "The PDF cannot be read completely. Export a new version.",
+    "Das PDF kann nicht vollständig gelesen werden. Exportieren Sie eine neue Version.",
+    "De PDF kann net komplett gelies ginn. Exportéiert eng nei Versioun."
+  ],
+  "Intégrez toutes les polices dans le PDF lors de l’export.": [
+    "Embed all fonts in the PDF when exporting.",
+    "Betten Sie beim Export alle Schriftarten in das PDF ein.",
+    "Bett all Schrëftaarte beim Export an de PDF an."
+  ],
+  "Une police ne peut pas être contrôlée. Réexportez le document avec des polices intégrées.": [
+    "A font cannot be checked. Export the document again with embedded fonts.",
+    "Eine Schriftart kann nicht geprüft werden. Exportieren Sie das Dokument erneut mit eingebetteten Schriftarten.",
+    "Eng Schrëftaart kann net iwwerpréift ginn. Exportéiert d'Dokument nach eng Kéier mat agebettene Schrëftaarte."
+  ],
+  "Aplatissez les champs de formulaire avant l’export du PDF.": [
+    "Flatten form fields before exporting the PDF.",
+    "Reduzieren Sie Formularfelder vor dem PDF-Export auf die Seitenebene.",
+    "Integréiert d'Formularfelder fest an d'Säiten, ier Dir de PDF exportéiert."
+  ],
+  "Le cadrage du PDF masque une partie de la page. Exportez la page A4 entière.": [
+    "The PDF crop hides part of the page. Export the entire A4 page.",
+    "Der PDF-Beschnitt verdeckt einen Teil der Seite. Exportieren Sie die gesamte A4-Seite.",
+    "De PDF-Ausschnëtt verstoppt en Deel vun der Säit. Exportéiert déi ganz A4-Säit."
+  ],
+  "Une partie de l’adresse dépasse la fenêtre de l’enveloppe.": [
+    "Part of the address extends beyond the envelope window.",
+    "Ein Teil der Adresse ragt über das Umschlagfenster hinaus.",
+    "En Deel vun der Adress geet iwwer d'Fënster vun der Enveloppe eraus."
+  ],
+  "Des éléments se superposent dans la zone d’adresse.": [
+    "Elements overlap in the address area.",
+    "Im Adressbereich überlagern sich Elemente.",
+    "Am Adressberäich iwwerlappe sech Elementer."
+  ],
+  "La position du texte de l’adresse demande une vérification visuelle.": [
+    "The position of the address text requires a visual check.",
+    "Die Position des Adresstexts muss visuell geprüft werden.",
+    "D'Positioun vum Adresstext muss visuell iwwerpréift ginn."
+  ],
+  "L’adresse du PDF ne correspond pas au destinataire indiqué.": [
+    "The PDF address does not match the specified recipient.",
+    "Die Adresse im PDF stimmt nicht mit dem angegebenen Empfänger überein.",
+    "D'Adress am PDF stëmmt net mam uginnene Empfänger iwwereneen."
+  ],
+  "Le rendu n’a pas pu être terminé dans le délai prévu.": [
+    "Rendering could not be completed within the time limit.",
+    "Die Darstellung konnte nicht innerhalb der vorgesehenen Zeit erstellt werden.",
+    "D'Duerstellung konnt net an der virgesinner Zäit ofgeschloss ginn."
+  ],
+  "Une image du PDF est trop grande pour être contrôlée.": [
+    "An image in the PDF is too large to check.",
+    "Ein Bild im PDF ist für die Prüfung zu groß.",
+    "E Bild am PDF ass ze grouss fir d'Iwwerpréiwung."
+  ],
+  "Les calques optionnels doivent être aplatis avant l’export.": [
+    "Optional layers must be flattened before exporting.",
+    "Optionale Ebenen müssen vor dem Export zusammengeführt werden.",
+    "Optional Ebene musse virum Export zesummegefouert ginn."
+  ],
+  "Transfert à vérifier": [
+    "Transfer needs checking",
+    "Übertragung zu prüfen",
+    "Iwwerdroung ze iwwerpréiwen"
+  ],
+  "Calcul du prix de l’envoi…": [
+    "Calculating the delivery price…",
+    "Versandpreis wird berechnet…",
+    "Versandpräis gëtt berechent…"
+  ],
+  "Préparation du brouillon…": [
+    "Preparing the draft…",
+    "Entwurf wird vorbereitet…",
+    "Entworf gëtt virbereet…"
+  ],
+  "Vérification du PDF…": [
+    "Checking the PDF…",
+    "PDF wird geprüft…",
+    "PDF gëtt iwwerpréift…"
+  ],
+  "Le PDF doit être corrigé": [
+    "The PDF needs correction",
+    "Das PDF muss korrigiert werden",
+    "De PDF muss korrigéiert ginn"
+  ],
+  "Le contrôle n’a pas abouti": [
+    "The check did not complete",
+    "Die Prüfung wurde nicht abgeschlossen",
+    "D'Iwwerpréiwung gouf net ofgeschloss"
+  ],
+  "Vérifiez le document et l’adresse": [
+    "Check the document and address",
+    "Dokument und Adresse prüfen",
+    "Dokument an Adress iwwerpréiwen"
+  ],
+  "Vérifiez votre courrier.": [
+    "Check your letter.",
+    "Prüfen Sie Ihren Brief.",
+    "Iwwerpréift Äre Bréif."
+  ],
+  "Parcourez le PDF et vérifiez l’adresse. Le prix exact sera affiché avant votre accord d’envoi.": [
+    "Review the PDF and check the address. The exact price will be shown before you approve sending.",
+    "Prüfen Sie das PDF und die Adresse. Der genaue Preis wird vor Ihrer Versandfreigabe angezeigt.",
+    "Kuckt de PDF an iwwerpréift d'Adress. De geneeë Präis gëtt gewisen, ier Dir Är Zoustëmmung zum Versand gitt."
+  ],
+  "Actualiser": [
+    "Refresh",
+    "Aktualisieren",
+    "Aktualiséieren"
+  ],
+  "L’analyse est en cours. Aucun courrier n’a été expédié.": [
+    "Analysis is in progress. No letter has been sent.",
+    "Die Prüfung läuft. Es wurde kein Brief versendet.",
+    "D'Analys leeft. Kee Bréif gouf verschéckt."
+  ],
+  "Ce contrôle n’autorise aucune expédition.": [
+    "This check does not authorise sending.",
+    "Diese Prüfung erteilt keine Versandfreigabe.",
+    "Dës Iwwerpréiwung erlaabt kee Versand."
+  ],
+  "Actualisez le suivi pour vérifier le résultat avant toute autre action. Aucun transfert ne sera relancé automatiquement.": [
+    "Refresh tracking to check the outcome before taking any other action. No transfer will be retried automatically.",
+    "Aktualisieren Sie die Verfolgung, um das Ergebnis vor weiteren Schritten zu prüfen. Keine Übertragung wird automatisch wiederholt.",
+    "Aktualiséiert de Verlaf, fir d'Resultat ze iwwerpréiwen, ier Dir eppes anescht maacht. Keng Iwwerdroung gëtt automatesch nei gestart."
+  ],
+  "Le résultat du transfert n’est pas confirmé. Ne recréez pas de brouillon : contactez l’équipe Guteneo pour vérifier celui-ci et éviter un doublon.": [
+    "The transfer outcome is unconfirmed. Do not create another draft: contact the Guteneo team to check this one and avoid a duplicate.",
+    "Das Übertragungsergebnis ist unbestätigt. Erstellen Sie keinen neuen Entwurf: Kontaktieren Sie das Guteneo-Team, um diesen zu prüfen und ein Duplikat zu vermeiden.",
+    "D'Resultat vun der Iwwerdroung ass net bestätegt. Erstellt keen neien Entworf: Kontaktéiert d'Guteneo-Ekipp, fir dësen ze iwwerpréiwen an en Duplikat ze vermeiden."
+  ],
+  "Le document n’a pas pu être contrôlé entièrement. Aucun transfert n’est possible depuis cette revue.": [
+    "The document could not be fully checked. No transfer is possible from this review.",
+    "Das Dokument konnte nicht vollständig geprüft werden. Aus dieser Prüfung ist keine Übertragung möglich.",
+    "D'Dokument konnt net komplett iwwerpréift ginn. Vun dëser Iwwerpréiwung aus ass keng Iwwerdroung méiglech."
+  ],
+  "Page": [
+    "Page",
+    "Seite",
+    "Säit"
+  ],
+  "Un contrôle du document a échoué. Consultez les règles de préparation et corrigez le PDF.": [
+    "A document check failed. Read the preparation guidelines and correct the PDF.",
+    "Eine Dokumentprüfung ist fehlgeschlagen. Lesen Sie die Vorbereitungsregeln und korrigieren Sie das PDF.",
+    "Eng Dokumentiwwerpréiwung ass feelgeschloen. Liest d'Virbereedungsreegelen a korrigéiert de PDF."
+  ],
+  "Importer un PDF corrigé": [
+    "Import a corrected PDF",
+    "Korrigiertes PDF importieren",
+    "E korrigéierte PDF importéieren"
+  ],
+  "Le PDF à imprimer": [
+    "The PDF to print",
+    "Das zu druckende PDF",
+    "De PDF fir ze drécken"
+  ],
+  "Le rendu de toutes les pages n’est pas encore confirmé.": [
+    "Rendering of all pages is not yet confirmed.",
+    "Die Darstellung aller Seiten ist noch nicht bestätigt.",
+    "D'Duerstellung vun alle Säiten ass nach net bestätegt."
+  ],
+  "Identifier cette version du PDF": [
+    "Identify this PDF version",
+    "Diese PDF-Version identifizieren",
+    "Dës PDF-Versioun identifizéieren"
+  ],
+  "Cette empreinte correspond au fichier contrôlé.": [
+    "This fingerprint identifies the checked file.",
+    "Dieser Fingerabdruck entspricht der geprüften Datei.",
+    "Dëse Fangerofdrock entsprécht dem iwwerpréifte Fichier."
+  ],
+  "La fenêtre de l’enveloppe": [
+    "The envelope window",
+    "Das Umschlagfenster",
+    "D'Fënster vun der Enveloppe"
+  ],
+  "La page d’adresse générée place le destinataire côté": [
+    "The generated address page positions the recipient on the",
+    "Die erzeugte Adressseite positioniert den Empfänger auf der Seite:",
+    "Déi generéiert Adresssäit placéiert den Empfänger op der Säit:"
+  ],
+  "L’adresse doit être imprimée dans le PDF, côté": [
+    "The address must be printed in the PDF on the",
+    "Die Adresse muss im PDF auf dieser Seite gedruckt sein:",
+    "D'Adress muss am PDF op dëser Säit gedréckt sinn:"
+  ],
+  ", à la position fixe de la fenêtre de l’enveloppe.": [
+    ", at the fixed position of the envelope window.",
+    ", an der festen Position des Umschlagfensters.",
+    ", op der fixer Positioun vun der Fënster vun der Enveloppe."
+  ],
+  ". Guteneo ne la déplace pas.": [
+    ". Guteneo does not move it.",
+    ". Guteneo verschiebt sie nicht.",
+    ". Guteneo verréckelt se net."
+  ],
+  "Extrait de la première page montrant l’adresse et la zone réservée à l’affranchissement": [
+    "First-page crop showing the address and the area reserved for postage",
+    "Ausschnitt der ersten Seite mit Adresse und dem für die Frankierung reservierten Bereich",
+    "Ausschnëtt vun der éischter Säit mat der Adress an dem Beräich fir d'Frankéierung"
+  ],
+  "Extrait du rendu contrôlé par Guteneo.": [
+    "Crop of the rendering checked by Guteneo.",
+    "Ausschnitt der von Guteneo geprüften Darstellung.",
+    "Ausschnëtt vun der Duerstellung, déi Guteneo iwwerpréift huet."
+  ],
+  "L’extrait de la zone d’adresse est indisponible. Le transfert reste bloqué tant qu’il ne peut pas être vérifié.": [
+    "The address-area crop is unavailable. Transfer remains blocked until it can be checked.",
+    "Der Ausschnitt des Adressbereichs ist nicht verfügbar. Die Übertragung bleibt gesperrt, bis er geprüft werden kann.",
+    "Den Ausschnëtt vum Adressberäich ass net verfügbar. D'Iwwerdroung bleift gespaart, bis en iwwerpréift ka ginn."
+  ],
+  "Destinataire attendu": [
+    "Expected recipient",
+    "Erwarteter Empfänger",
+    "Erwaarten Empfänger"
+  ],
+  "Texte détecté dans le PDF": [
+    "Text detected in the PDF",
+    "Im PDF erkannter Text",
+    "Am PDF erkannten Text"
+  ],
+  "Aucun texte d’adresse reconnu.": [
+    "No address text recognised.",
+    "Kein Adresstext erkannt.",
+    "Keen Adresstext erkannt."
+  ],
+  "Les textes correspondent. Vérifiez aussi dans l’image que l’adresse est visible, lisible et complète.": [
+    "The text matches. Also check the image to ensure the address is visible, legible and complete.",
+    "Die Texte stimmen überein. Prüfen Sie auch im Bild, ob die Adresse sichtbar, lesbar und vollständig ist.",
+    "D'Texter stëmmen iwwereneen. Iwwerpréift och um Bild, ob d'Adress siichtbar, liesbar a komplett ass."
+  ],
+  "Les adresses ne correspondent pas. Corrigez le PDF ou le destinataire avant de continuer.": [
+    "The addresses do not match. Correct the PDF or recipient before continuing.",
+    "Die Adressen stimmen nicht überein. Korrigieren Sie das PDF oder den Empfänger, bevor Sie fortfahren.",
+    "D'Adresse stëmmen net iwwereneen. Korrigéiert de PDF oder den Empfänger, ier Dir weiderfuert."
+  ],
+  "Impression": [
+    "Printing",
+    "Druck",
+    "Drock"
+  ],
+  "Noir et blanc": [
+    "Black and white",
+    "Schwarzweiß",
+    "Schwaarzwäiss"
+  ],
+  "Distribution demandée": [
+    "Requested delivery",
+    "Gewünschte Zustellung",
+    "Gewënscht Zoustëllung"
+  ],
+  "Économique": [
+    "Economy",
+    "Economy",
+    "Ekonomesch"
+  ],
+  "Nous récupérons votre devis…": [
+    "Fetching your quote…",
+    "Ihr Angebot wird abgerufen…",
+    "Är Devis gëtt ofgeruff…"
+  ],
+  "Votre courrier attend son devis": [
+    "Your letter is awaiting its quote",
+    "Ihr Brief wartet auf das Angebot",
+    "Äre Bréif waart op seng Devis"
+  ],
+  "L’analyse prend plus de temps que prévu. Vous pouvez reprendre la recherche du prix.": [
+    "Analysis is taking longer than expected. You can resume fetching the price.",
+    "Die Prüfung dauert länger als erwartet. Sie können den Preisabruf fortsetzen.",
+    "D'Analys dauert méi laang wéi erwaart. Dir kënnt de Präis nees ofruffen."
+  ],
+  "Vous passerez automatiquement à la validation du prix dès que l’analyse sera terminée. Aucun courrier n’est encore expédié.": [
+    "You will automatically proceed to price approval when analysis is complete. No letter has been sent yet.",
+    "Nach Abschluss der Prüfung gelangen Sie automatisch zur Preisfreigabe. Es wurde noch kein Brief versendet.",
+    "No der Analys gitt Dir automatesch bei d'Präisbestätegung weidergeleet. Et gouf nach kee Bréif verschéckt."
+  ],
+  "Calcul du devis…": [
+    "Calculating the quote…",
+    "Angebot wird berechnet…",
+    "Devis gëtt berechent…"
+  ],
+  "Reprendre le devis": [
+    "Resume quote",
+    "Angebot fortsetzen",
+    "Devis weiderféieren"
+  ],
+  "Obtenir le prix de l’envoi": [
+    "Get the delivery price",
+    "Versandpreis abrufen",
+    "Versandpräis ofruffen"
+  ],
+  "En cliquant ci-dessous, vous confirmez avoir vérifié toutes les pages, l’adresse visible dans la fenêtre et l’adresse de retour. Vous autorisez le transfert de ce PDF et de son adresse à notre prestataire d’impression pour établir le devis.": [
+    "By clicking below, you confirm that you have checked every page, the address visible in the window and the return address. You authorise transferring this PDF and its address to our printing provider to prepare the quote.",
+    "Mit dem Klick unten bestätigen Sie, dass Sie alle Seiten, die im Fenster sichtbare Adresse und die Rücksendeadresse geprüft haben. Sie erlauben die Übertragung dieses PDFs und seiner Adresse an unseren Druckdienstleister zur Angebotserstellung.",
+    "Mam Klick hei ënne bestätegt Dir, datt Dir all Säiten, d'Adress an der Fënster an d'Retouradress iwwerpréift hutt. Dir erlaabt d'Iwwerdroung vun dësem PDF a senger Adress un eisen Drockdéngschtleeschter, fir d'Devis opzestellen."
+  ],
+  "Valider le document et obtenir le prix": [
+    "Confirm the document and get the price",
+    "Dokument bestätigen und Preis abrufen",
+    "Dokument bestätegen a Präis ofruffen"
+  ],
+  "Cette action ne déclenche aucun envoi. Vous déciderez après lecture du prix exact.": [
+    "This action does not send anything. You will decide after reviewing the exact price.",
+    "Diese Aktion löst keinen Versand aus. Sie entscheiden nach Prüfung des genauen Preises.",
+    "Dës Aktioun léist kee Versand aus. Dir entscheet, nodeems Dir de geneeë Präis gelies hutt."
+  ],
+  "Le transfert reste indisponible tant que les contrôles du PDF et l’activation du service ne sont pas terminés.": [
+    "Transfer remains unavailable until the PDF checks and service activation are complete.",
+    "Die Übertragung bleibt nicht verfügbar, bis die PDF-Prüfungen und die Dienstaktivierung abgeschlossen sind.",
+    "D'Iwwerdroung bleift net verfügbar, bis d'PDF-Iwwerpréiwungen an d'Aktivéierung vum Service ofgeschloss sinn."
+  ],
+  "Choisissez au moins un canal pour cette délégation.": [
+    "Choose at least one channel for this delegation.",
+    "Wählen Sie mindestens einen Kanal für diese Bevollmächtigung.",
+    "Wielt op d'mannst ee Kanal fir dës Vollmacht."
+  ],
+  "Le plafond journalier doit être au moins égal au plafond par envoi.": [
+    "The daily cap must be at least as high as the per-delivery cap.",
+    "Der Tageshöchstbetrag muss mindestens dem Höchstbetrag pro Sendung entsprechen.",
+    "Den deeglechen Héchstbetrag muss op d'mannst esou héich si wéi den Héchstbetrag pro Sendung."
+  ],
+  "Votre délégation a été enregistrée pour cette connexion. Revenez dans ChatGPT et dites « reprends l’envoi » pour poursuivre votre demande. Cette confirmation n’a déclenché aucun envoi.": [
+    "Your delegation has been saved for this connection. Return to ChatGPT and say “resume sending” to continue your request. This confirmation did not send anything.",
+    "Ihre Bevollmächtigung wurde für diese Verbindung gespeichert. Kehren Sie zu ChatGPT zurück und sagen Sie „Versand fortsetzen“, um Ihre Anfrage weiterzuführen. Diese Bestätigung hat keinen Versand ausgelöst.",
+    "Är Vollmacht gouf fir dës Verbindung gespäichert. Gitt zeréck op ChatGPT a sot „fuert mam Versand weider“, fir Är Ufro weiderzeféieren. Dës Bestätegung huet kee Versand ausgeléist."
+  ],
+  "Délégation désactivée. Les envois déjà acceptés restent inchangés.": [
+    "Delegation disabled. Deliveries already accepted remain unchanged.",
+    "Bevollmächtigung deaktiviert. Bereits angenommene Sendungen bleiben unverändert.",
+    "Vollmacht deaktivéiert. Schonn ugeholl Sendunge bleiwen onverännert."
+  ],
+  "Connexion choisie dans ChatGPT": [
+    "Connection selected in ChatGPT",
+    "In ChatGPT ausgewählte Verbindung",
+    "A ChatGPT gewielt Verbindung"
+  ],
+  "Connexion de l’assistant": [
+    "Assistant connection",
+    "Assistentenverbindung",
+    "Assistentverbindung"
+  ],
+  "Client OAuth :": [
+    "OAuth client:",
+    "OAuth-Client:",
+    "OAuth-Client:"
+  ],
+  "Connexion révoquée": [
+    "Connection revoked",
+    "Verbindung widerrufen",
+    "Verbindung widderruff"
+  ],
+  "Inactive · rôle administrateur requis": [
+    "Inactive · administrator role required",
+    "Inaktiv · Administratorrolle erforderlich",
+    "Inaktiv · Administrateursroll néideg"
+  ],
+  "Délégation active": [
+    "Delegation active",
+    "Bevollmächtigung aktiv",
+    "Vollmacht aktiv"
+  ],
+  "Délégation expirée": [
+    "Delegation expired",
+    "Bevollmächtigung abgelaufen",
+    "Vollmacht ofgelaf"
+  ],
+  "Désactivée": [
+    "Disabled",
+    "Deaktiviert",
+    "Deaktivéiert"
+  ],
+  "Cette délégation a expiré. Vérifiez ses limites et choisissez une nouvelle date pour reprendre vos envois dans ChatGPT.": [
+    "This delegation has expired. Review its limits and choose a new date to resume sending in ChatGPT.",
+    "Diese Bevollmächtigung ist abgelaufen. Prüfen Sie die Grenzen und wählen Sie ein neues Datum, um Sendungen in ChatGPT fortzusetzen.",
+    "Dës Vollmacht ass ofgelaf. Iwwerpréift hir Grenzen a wielt en neien Datum, fir Är Sendungen a ChatGPT weiderzeféieren."
+  ],
+  "Vérifiez les limites de cette connexion, puis confirmez vous-même l’activation pour poursuivre vos envois dans ChatGPT.": [
+    "Review this connection’s limits, then personally confirm activation to continue sending in ChatGPT.",
+    "Prüfen Sie die Grenzen dieser Verbindung und bestätigen Sie die Aktivierung selbst, um Sendungen in ChatGPT fortzusetzen.",
+    "Iwwerpréift d'Grenze vun dëser Verbindung a bestätegt d'Aktivéierung selwer, fir Är Sendungen a ChatGPT weiderzeféieren."
+  ],
+  "Ouvrir ce lien n’accorde aucune autorisation.": [
+    "Opening this link does not grant any authorisation.",
+    "Das Öffnen dieses Links erteilt keine Berechtigung.",
+    "Dëse Link opzemaache gëtt keng Erlaabnis."
+  ],
+  "Canaux autorisés": [
+    "Allowed channels",
+    "Erlaubte Kanäle",
+    "Erlaabt Kanäl"
+  ],
+  "Plafond par envoi": [
+    "Cap per delivery",
+    "Höchstbetrag pro Sendung",
+    "Héchstbetrag pro Sendung"
+  ],
+  "Plafond journalier": [
+    "Daily cap",
+    "Tageshöchstbetrag",
+    "Deeglechen Héchstbetrag"
+  ],
+  "envois": [
+    "deliveries",
+    "Sendungen",
+    "Sendungen"
+  ],
+  "Expiration": [
+    "Expiry",
+    "Ablauf",
+    "Oflaf"
+  ],
+  "Aujourd’hui (UTC) :": [
+    "Today (UTC):",
+    "Heute (UTC):",
+    "Haut (UTC):"
+  ],
+  "envoi": [
+    "delivery",
+    "Sendung",
+    "Sendung"
+  ],
+  "de plafonds engagés par cette connexion. Les plafonds des envois acceptés restent comptés jusqu’à minuit UTC, même en cas d’annulation ou de modification de la délégation.": [
+    "in caps committed by this connection. Caps for accepted deliveries remain counted until midnight UTC, even if cancelled or if the delegation changes.",
+    "an durch diese Verbindung gebundenen Höchstbeträgen. Höchstbeträge angenommener Sendungen werden bis Mitternacht UTC angerechnet, auch bei Stornierung oder Änderung der Bevollmächtigung.",
+    "un Héchstbeträg, déi dës Verbindung gebonnen huet. D'Héchstbeträg vun ugehollene Sendunge ginn bis Mëtternuecht UTC matgerechent, och bei enger Annulatioun oder Ännerung vun der Vollmacht."
+  ],
+  "Les préparations de courriers ont un compteur distinct, limité au même nombre par jour. Un dépôt ne constitue pas un envoi.": [
+    "Letter preparations have a separate counter with the same daily count limit. Submitting a draft is not sending a letter.",
+    "Briefvorbereitungen haben einen eigenen Zähler mit derselben täglichen Anzahlbegrenzung. Das Hinterlegen eines Entwurfs ist kein Versand.",
+    "Bréifvirbereedungen hunn en eegene Compteur mat der selwechter deeglecher Zuel als Limit. En Entworf ofzeginn ass kee Versand."
+  ],
+  "Modifier la délégation": [
+    "Edit delegation",
+    "Bevollmächtigung ändern",
+    "Vollmacht änneren"
+  ],
+  "Renouveler la délégation": [
+    "Renew delegation",
+    "Bevollmächtigung erneuern",
+    "Vollmacht erneieren"
+  ],
+  "Configurer la délégation": [
+    "Set up delegation",
+    "Bevollmächtigung einrichten",
+    "Vollmacht ariichten"
+  ],
+  "Désactivation…": [
+    "Disabling…",
+    "Wird deaktiviert…",
+    "Gëtt deaktivéiert…"
+  ],
+  "Désactiver la délégation": [
+    "Disable delegation",
+    "Bevollmächtigung deaktivieren",
+    "Vollmacht deaktivéieren"
+  ],
+  "Plafond par envoi (€)": [
+    "Cap per delivery (€)",
+    "Höchstbetrag pro Sendung (€)",
+    "Héchstbetrag pro Sendung (€)"
+  ],
+  "De 0,01 € à 100 €.": [
+    "From €0.01 to €100.",
+    "Von 0,01 € bis 100 €.",
+    "Vun 0,01 € bis 100 €."
+  ],
+  "Plafond par jour (€)": [
+    "Daily cap (€)",
+    "Tageshöchstbetrag (€)",
+    "Deeglechen Héchstbetrag (€)"
+  ],
+  "De 0,01 € à 500 €, au moins le plafond par envoi.": [
+    "From €0.01 to €500, at least the per-delivery cap.",
+    "Von 0,01 € bis 500 €, mindestens der Höchstbetrag pro Sendung.",
+    "Vun 0,01 € bis 500 €, op d'mannst den Héchstbetrag pro Sendung."
+  ],
+  "Nombre maximal d’envois par jour": [
+    "Maximum deliveries per day",
+    "Maximale Sendungen pro Tag",
+    "Maximal Zuel vu Sendunge pro Dag"
+  ],
+  "Expiration de la délégation": [
+    "Delegation expiry",
+    "Ablauf der Bevollmächtigung",
+    "Oflaf vun der Vollmacht"
+  ],
+  "Heure locale de cet appareil. Dans 30 jours au plus.": [
+    "This device’s local time. No more than 30 days from now.",
+    "Ortszeit dieses Geräts. Höchstens 30 Tage ab jetzt.",
+    "Lokal Zäit vun dësem Apparat. Héchstens 30 Deeg vun elo un."
+  ],
+  "Les limites journalières se renouvellent à minuit UTC. Elles portent sur le nombre d’envois et leurs plafonds, même si le décompte final est inférieur. Le crédit et les autorisations des canaux restent nécessaires.": [
+    "Daily limits reset at midnight UTC. They cover the number of deliveries and their caps, even if the final charge is lower. Credit and channel permissions are still required.",
+    "Tageslimits werden um Mitternacht UTC zurückgesetzt. Sie gelten für die Anzahl der Sendungen und ihre Höchstbeträge, auch wenn die Endabrechnung niedriger ausfällt. Guthaben und Kanalberechtigungen bleiben erforderlich.",
+    "Déi deeglech Limitte ginn um Mëtternuecht UTC zeréckgesat. Si gëlle fir d'Zuel vun de Sendungen an hir Héchstbeträg, och wann d'Endofrechnung méi niddreg ass. Kredit a Kanalberechtegunge bleiwen néideg."
+  ],
+  "J’autorise aussi cet assistant à transmettre le PDF à notre prestataire d’impression pour obtenir le devis postal, sans expédition à cette étape, puis à approuver l’envoi dans la conversation.": [
+    "I also authorise this assistant to transfer the PDF to our printing provider to obtain the postal quote, with no dispatch at this stage, and then to approve sending in the conversation.",
+    "Ich erlaube diesem Assistenten außerdem, das PDF zur Erstellung des Postangebots an unseren Druckdienstleister zu übertragen, ohne Versand in diesem Schritt, und anschließend den Versand im Gespräch freizugeben.",
+    "Ech erlaben dësem Assistent och, de PDF un eisen Drockdéngschtleeschter ze iwwerdroen, fir d'Postdevis ze kréien, ouni Versand bei dësem Schrëtt, an duerno de Versand am Gespréich ze geneemegen."
+  ],
+  "Ce mandat permet à l’assistant d’approuver dans la conversation, sans retour sur le site pour chaque envoi. Il ne constitue pas une preuve de votre accord humain à chaque appel. Les règles de ChatGPT, Claude ou de votre autre assistant restent applicables. Un accès compromis à cette connexion pourrait déclencher des envois dans ces limites.": [
+    "This mandate lets the assistant approve within the conversation without returning to the website for each delivery. It is not evidence of your human consent for each call. ChatGPT, Claude or your other assistant’s rules still apply. Compromised access to this connection could trigger deliveries within these limits.",
+    "Dieses Mandat erlaubt dem Assistenten die Freigabe im Gespräch, ohne für jede Sendung zur Website zurückzukehren. Es belegt nicht Ihre menschliche Zustimmung bei jedem Aufruf. Die Regeln von ChatGPT, Claude oder Ihrem anderen Assistenten gelten weiterhin. Ein kompromittierter Zugriff auf diese Verbindung könnte Sendungen innerhalb dieser Grenzen auslösen.",
+    "Dës Vollmacht erlaabt dem Assistent, am Gespréich ze geneemegen, ouni fir all Sendung op d'Websäit zeréckzegoen. Si ass kee Beweis fir Är mënschlech Zoustëmmung bei all Opruff. D'Reegele vu ChatGPT, Claude oder Ärem aneren Assistent gëlle weider. E kompromittéierten Zougang zu dëser Verbindung kéint Sendungen an dëse Grenzen ausléisen."
+  ],
+  "J’autorise la délégation d’approbation à cet assistant, pour les canaux, limites et durée indiqués. Je peux la désactiver pour les nouveaux envois ; ceux déjà acceptés restent inchangés.": [
+    "I authorise approval delegation to this assistant for the channels, limits and duration shown. I can disable it for new deliveries; those already accepted remain unchanged.",
+    "Ich erteile diesem Assistenten die Freigabevollmacht für die angegebenen Kanäle, Grenzen und die genannte Dauer. Ich kann sie für neue Sendungen deaktivieren; bereits angenommene Sendungen bleiben unverändert.",
+    "Ech erlaben dësem Assistent d'Geneemegungsvollmacht fir déi uginn Kanäl, Grenzen an Dauer. Ech kann se fir nei Sendungen deaktivéieren; schonn ugeholl Sendunge bleiwen onverännert."
+  ],
+  "Confirmer la modification": [
+    "Confirm change",
+    "Änderung bestätigen",
+    "Ännerung bestätegen"
+  ],
+  "Confirmer le renouvellement": [
+    "Confirm renewal",
+    "Erneuerung bestätigen",
+    "Erneierung bestätegen"
+  ],
+  "Confirmer l’activation": [
+    "Confirm activation",
+    "Aktivierung bestätigen",
+    "Aktivéierung bestätegen"
+  ],
+  "Annuler": [
+    "Cancel",
+    "Abbrechen",
+    "Ofbriechen"
+  ],
+  "Option personnelle · désactivée par défaut": [
+    "Personal option · off by default",
+    "Persönliche Option · standardmäßig deaktiviert",
+    "Perséinlech Optioun · standardméisseg deaktivéiert"
+  ],
+  "Mode expert": [
+    "Expert mode",
+    "Expertenmodus",
+    "Expertmodus"
+  ],
+  "Confiez à un assistant connecté l’approbation de vos envois, dans les limites que vous choisissez. Sans cette délégation, vous continuez à approuver chaque envoi sur le site.": [
+    "Delegate delivery approval to a connected assistant within limits you choose. Without this delegation, you continue to approve each delivery on the website.",
+    "Übertragen Sie einem verbundenen Assistenten die Freigabe Ihrer Sendungen innerhalb Ihrer gewählten Grenzen. Ohne diese Bevollmächtigung geben Sie weiterhin jede Sendung auf der Website frei.",
+    "Iwwerdrot engem verbonnenen Assistent d'Geneemegung vun Äre Sendungen an de Grenzen, déi Dir wielt. Ouni dës Vollmacht geneemegt Dir weider all Sendung op der Websäit."
+  ],
+  "Aucune délégation n’est active dans cet aperçu. Dans votre compte, vous pourrez choisir une connexion d’assistant, ses canaux, ses plafonds et sa date d’expiration.": [
+    "No delegation is active in this preview. In your account, you can choose an assistant connection, its channels, caps and expiry date.",
+    "In dieser Vorschau ist keine Bevollmächtigung aktiv. In Ihrem Konto können Sie eine Assistentenverbindung, ihre Kanäle, Höchstbeträge und ihr Ablaufdatum auswählen.",
+    "An dëser Virschau ass keng Vollmacht aktiv. An Ärem Kont kënnt Dir eng Assistentverbindung, hir Kanäl, Héchstbeträg an hiren Oflafdatum wielen."
+  ],
+  "Cette connexion n’est pas disponible dans votre compte. Aucune autorisation n’a été modifiée. Choisissez l’une de vos connexions ci-dessous ou reconnectez votre assistant depuis ChatGPT.": [
+    "This connection is not available in your account. No permissions have changed. Choose one of your connections below or reconnect your assistant from ChatGPT.",
+    "Diese Verbindung ist in Ihrem Konto nicht verfügbar. Es wurden keine Berechtigungen geändert. Wählen Sie unten eine Ihrer Verbindungen oder verbinden Sie Ihren Assistenten erneut über ChatGPT.",
+    "Dës Verbindung ass an Ärem Kont net verfügbar. Keng Berechtegung gouf geännert. Wielt eng vun Äre Verbindungen hei ënnen oder verbannt Ären Assistent nach eng Kéier iwwer ChatGPT."
+  ],
+  "Seul un administrateur peut gérer la délégation de ses propres connexions. Vos autorisations sont affichées en lecture seule.": [
+    "Only an administrator can manage delegation for their own connections. Your permissions are shown read-only.",
+    "Nur ein Administrator kann die Bevollmächtigung seiner eigenen Verbindungen verwalten. Ihre Berechtigungen werden schreibgeschützt angezeigt.",
+    "Nëmmen en Administrateur kann d'Vollmacht vu sengen eegene Verbindunge geréieren. Är Berechtegunge ginn nëmmen zum Liesen ugewisen."
+  ],
+  "Vous n’avez pas encore de connexion d’assistant.": [
+    "You do not have an assistant connection yet.",
+    "Sie haben noch keine Assistentenverbindung.",
+    "Dir hutt nach keng Assistentverbindung."
+  ],
+  "Connecter un assistant": [
+    "Connect an assistant",
+    "Assistenten verbinden",
+    "En Assistent verbannen"
+  ],
+  "Vérification en cours": [
+    "Verification in progress",
+    "Prüfung läuft",
+    "Iwwerpréiwung leeft"
+  ],
+  "PDF prêt": [
+    "PDF ready",
+    "PDF bereit",
+    "PDF prett"
+  ],
+  "À vérifier": [
+    "Needs checking",
+    "Zu prüfen",
+    "Ze iwwerpréiwen"
+  ],
+  "Explorez les PDF d’exemple ci-dessous. L’import de fichiers et la création de PDF seront disponibles dans votre espace privé.": [
+    "Explore the example PDFs below. File import and PDF creation will be available in your private workspace.",
+    "Entdecken Sie die Beispiel-PDFs unten. Dateiimport und PDF-Erstellung werden in Ihrem privaten Arbeitsbereich verfügbar sein.",
+    "Entdeckt d'Beispill-PDFen hei ënnen. Fichieren importéieren a PDFen erstelle gëtt an Ärem privaten Aarbechtsberäich verfügbar."
+  ],
+  "Vérifiez le PDF avant de préparer l’envoi.": [
+    "Check the PDF before preparing the delivery.",
+    "Prüfen Sie das PDF vor der Versandvorbereitung.",
+    "Iwwerpréift de PDF, ier Dir de Versand virbereet."
+  ],
+  "Les options du courrier ne sont pas encore disponibles. Réessayez leur chargement.": [
+    "Letter options are not available yet. Try loading them again.",
+    "Die Briefoptionen sind noch nicht verfügbar. Versuchen Sie erneut, sie zu laden.",
+    "D'Bréifoptioune sinn nach net verfügbar. Probéiert se nach eng Kéier ze lueden."
+  ],
+  "Attendez la vérification du PDF final avant le contrôle postal.": [
+    "Wait for the final PDF to be verified before the postal check.",
+    "Warten Sie vor der Postprüfung auf die Prüfung des endgültigen PDFs.",
+    "Waart op d'Iwwerpréiwung vum finale PDF virun der Postkontroll."
+  ],
+  "Préparez votre courrier.": [
+    "Prepare your letter.",
+    "Bereiten Sie Ihren Brief vor.",
+    "Bereet Äre Bréif vir."
+  ],
+  "Choisissez le PDF, son destinataire et la fenêtre de l’enveloppe. Vous vérifierez ensuite le document et le prix avant l’envoi.": [
+    "Choose the PDF, its recipient and the envelope window. You will then check the document and price before sending.",
+    "Wählen Sie das PDF, den Empfänger und das Umschlagfenster. Anschließend prüfen Sie das Dokument und den Preis vor dem Versand.",
+    "Wielt de PDF, säin Empfänger an d'Fënster vun der Enveloppe. Duerno iwwerpréift Dir d'Dokument an de Präis virum Versand."
+  ],
+  "Préparation de l’envoi": [
+    "Delivery preparation",
+    "Versandvorbereitung",
+    "Versandvirbereedung"
+  ],
+  "Chargement du PDF…": [
+    "Loading PDF…",
+    "PDF wird geladen…",
+    "PDF gëtt gelueden…"
+  ],
+  "PDF à vérifier": [
+    "PDF needs checking",
+    "PDF zu prüfen",
+    "PDF ze iwwerpréiwen"
+  ],
+  "p.": [
+    "pp.",
+    "S.",
+    "S."
+  ],
+  "Ce PDF doit être vérifié avant de préparer l’envoi.": [
+    "This PDF must be verified before preparing the delivery.",
+    "Dieses PDF muss vor der Versandvorbereitung geprüft werden.",
+    "Dëse PDF muss iwwerpréift ginn, ier Dir de Versand virbereet."
+  ],
+  "Voir le suivi du PDF": [
+    "View PDF status",
+    "PDF-Status ansehen",
+    "PDF-Status kucken"
+  ],
+  "Aucun expéditeur validé pour ce canal": [
+    "No verified sender for this channel",
+    "Kein bestätigter Absender für diesen Kanal",
+    "Kee bestätegten Ofsender fir dëse Kanal"
+  ],
+  "Impression et distribution": [
+    "Printing and delivery",
+    "Druck und Zustellung",
+    "Drock an Zoustëllung"
+  ],
+  "Faces imprimées": [
+    "Printed sides",
+    "Bedruckte Seiten",
+    "Gedréckte Säiten"
+  ],
+  "Recto": [
+    "Single-sided",
+    "Einseitig",
+    "Op enger Säit"
+  ],
+  "Recto verso": [
+    "Double-sided",
+    "Beidseitig",
+    "Op béide Säiten"
+  ],
+  "Couleurs": [
+    "Colours",
+    "Farben",
+    "Faarwen"
+  ],
+  "Couleur": [
+    "Colour",
+    "Farbe",
+    "Faarf"
+  ],
+  "Distribution souhaitée": [
+    "Preferred delivery",
+    "Gewünschte Zustellung",
+    "Gewënscht Zoustëllung"
+  ],
+  "Rapide": [
+    "Priority",
+    "Schnell",
+    "Séier"
+  ],
+  "Vous vérifierez le document et son adresse avant de demander le prix de l’envoi.": [
+    "You will check the document and its address before requesting the delivery price.",
+    "Sie prüfen das Dokument und seine Adresse, bevor Sie den Versandpreis anfordern.",
+    "Dir iwwerpréift d'Dokument a seng Adress, ier Dir de Versandpräis ufrot."
+  ],
+  "Budget maximum :": [
+    "Maximum budget:",
+    "Maximales Budget:",
+    "Maximale Budget:"
+  ],
+  "Budget maximum en euros": [
+    "Maximum budget in euros",
+    "Maximales Budget in Euro",
+    "Maximale Budget an Euro"
+  ],
+  "Création du PDF final…": [
+    "Creating the final PDF…",
+    "Endgültiges PDF wird erstellt…",
+    "Finale PDF gëtt erstallt…"
+  ],
+  "Réessayer la création du PDF": [
+    "Retry PDF creation",
+    "PDF-Erstellung erneut versuchen",
+    "PDF-Erstellung nach eng Kéier probéieren"
+  ],
+  "Préparer le courrier": [
+    "Prepare the letter",
+    "Brief vorbereiten",
+    "Bréif virbereeden"
+  ],
+  "Vérification du PDF final…": [
+    "Verifying the final PDF…",
+    "Endgültiges PDF wird geprüft…",
+    "Finale PDF gëtt iwwerpréift…"
+  ],
+  "Réessayez sans modifier les champs pour retrouver la même création et éviter un doublon.": [
+    "Try again without changing the fields to retrieve the same creation and avoid a duplicate.",
+    "Versuchen Sie es ohne Feldänderungen erneut, um dieselbe Erstellung abzurufen und ein Duplikat zu vermeiden.",
+    "Probéiert nach eng Kéier ouni d'Felder z'änneren, fir déiselwecht Erstellung erëmzefannen an en Duplikat ze vermeiden."
+  ],
+  "Choisissez un document pour pouvoir préparer cet envoi.": [
+    "Choose a document to prepare this delivery.",
+    "Wählen Sie ein Dokument, um diese Sendung vorzubereiten.",
+    "Wielt en Dokument, fir dës Sendung virzebereeden."
+  ],
+  "Un expéditeur doit être validé pour ce canal avant la préparation.": [
+    "A sender must be verified for this channel before preparation.",
+    "Vor der Vorbereitung muss ein Absender für diesen Kanal bestätigt sein.",
+    "Virun der Virbereedung muss en Ofsender fir dëse Kanal bestätegt sinn."
+  ],
+  "Consulter les expéditeurs": [
+    "View senders",
+    "Absender ansehen",
+    "Ofsender kucken"
+  ],
+  "Actualiser la vérification": [
+    "Refresh verification",
+    "Prüfung aktualisieren",
+    "Iwwerpréiwung aktualiséieren"
+  ],
+  "Reprendre le suivi de ce PDF": [
+    "Resume tracking this PDF",
+    "PDF-Verfolgung fortsetzen",
+    "De Verlaf vun dësem PDF weiderverfollegen"
+  ],
+  "Créez le PDF avec la page d’adresse pour afficher l’aperçu exact du courrier complet.": [
+    "Create the PDF with the address page to display the exact preview of the complete letter.",
+    "Erstellen Sie das PDF mit der Adressseite, um die genaue Vorschau des vollständigen Briefs anzuzeigen.",
+    "Erstellt de PDF mat der Adresssäit, fir déi genee Virschau vum komplette Bréif ze weisen."
+  ],
+  "Distribution économique": [
+    "Economy delivery",
+    "Economy-Zustellung",
+    "Ekonomesch Zoustëllung"
+  ],
+  "Fenêtre à droite": [
+    "Window on the right",
+    "Fenster rechts",
+    "Fënster riets"
+  ],
+  "Fenêtre à gauche": [
+    "Window on the left",
+    "Fenster links",
+    "Fënster lénks"
+  ],
+  "Simuler l’envoi pour": [
+    "Simulate sending for",
+    "Versand simulieren für",
+    "Versand simuléiere fir"
+  ],
+  "Envoyer pour": [
+    "Send for",
+    "Senden für",
+    "Verschécke fir"
+  ],
+  "Le suivi de ce courrier est indisponible. Actualisez-le avant de continuer.": [
+    "Tracking for this letter is unavailable. Refresh it before continuing.",
+    "Die Verfolgung dieses Briefs ist nicht verfügbar. Aktualisieren Sie sie, bevor Sie fortfahren.",
+    "De Verlaf vun dësem Bréif ass net verfügbar. Aktualiséiert en, ier Dir weiderfuert."
+  ],
+  "Ce devis a expiré.": [
+    "This quote has expired.",
+    "Dieses Angebot ist abgelaufen.",
+    "Dës Devis ass ofgelaf."
+  ],
+  "Ce devis n’est plus valable.": [
+    "This quote is no longer valid.",
+    "Dieses Angebot ist nicht mehr gültig.",
+    "Dës Devis ass net méi gülteg."
+  ],
+  "Ce devis expire dans moins d’une minute.": [
+    "This quote expires in less than a minute.",
+    "Dieses Angebot läuft in weniger als einer Minute ab.",
+    "Dës Devis leeft a manner wéi enger Minutt of."
+  ],
+  "Préparez un nouveau devis, puis vérifiez son prix avant l’envoi. Ce courrier ne sera pas envoyé avec le devis expiré.": [
+    "Prepare a new quote, then check its price before sending. This letter will not be sent using the expired quote.",
+    "Erstellen Sie ein neues Angebot und prüfen Sie seinen Preis vor dem Versand. Dieser Brief wird nicht mit dem abgelaufenen Angebot versendet.",
+    "Bereet eng nei Devis vir a préift hire Präis virum Versand. Dëse Bréif gëtt net mat der ofgelafener Devis verschéckt."
+  ],
+  "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi.": [
+    "Prepare a new quote with the same PDF, recipient and cap. You must review and approve this new version before anything is sent.",
+    "Erstellen Sie ein neues Angebot mit demselben PDF, Empfänger und Höchstbetrag. Sie müssen diese neue Version vor jedem Versand prüfen und freigeben.",
+    "Bereet eng nei Devis mam selwechte PDF, Empfänger an Héchstbetrag vir. Dir musst dës nei Versioun virun all Versand iwwerpréiwen a geneemegen."
+  ],
+  "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration.": [
+    "Approve it before the displayed deadline, or renew it after it expires.",
+    "Bestätigen Sie es vor der angezeigten Frist oder erneuern Sie es nach Ablauf.",
+    "Bestätegt se virun der ugewisener Frist oder erneiert se, nodeems se ofgelaf ass."
+  ],
+  "Ce renouvellement créera un devis individuel, hors de la campagne d’origine. La campagne conservera son historique ; vous devrez approuver ce nouvel envoi séparément.": [
+    "This renewal creates an individual quote outside the original campaign. The campaign retains its history; you must approve this new delivery separately.",
+    "Diese Erneuerung erstellt ein Einzelangebot außerhalb der ursprünglichen Kampagne. Die Kampagne behält ihren Verlauf; Sie müssen diese neue Sendung gesondert freigeben.",
+    "Dës Erneierung erstellt eng eenzel Devis ausserhalb vun der ursprénglecher Campagne. D'Campagne behält hire Verlaf; Dir musst dës nei Sendung separat geneemegen."
+  ],
+  "Renouvellement du devis…": [
+    "Renewing quote…",
+    "Angebot wird erneuert…",
+    "Devis gëtt erneiert…"
+  ],
+  "Renouveler le devis": [
+    "Renew quote",
+    "Angebot erneuern",
+    "Devis erneieren"
+  ],
+  "Préparer un nouveau devis": [
+    "Prepare a new quote",
+    "Neues Angebot erstellen",
+    "Eng nei Devis virbereeden"
+  ],
+  "La réponse a été interrompue. Vérifiez le suivi de ce courrier avant toute nouvelle action ; il a peut-être déjà été accepté.": [
+    "The response was interrupted. Check this letter’s tracking before taking further action; it may already have been accepted.",
+    "Die Antwort wurde unterbrochen. Prüfen Sie die Verfolgung dieses Briefs vor weiteren Schritten; er wurde möglicherweise bereits angenommen.",
+    "D'Äntwert gouf ënnerbrach. Iwwerpréift de Verlaf vun dësem Bréif virun enger neier Aktioun; e gouf vläicht schonn ugeholl."
+  ],
+  "Vérification du suivi…": [
+    "Checking status…",
+    "Status wird geprüft…",
+    "Status gëtt iwwerpréift…"
+  ],
+  "Vérifier le suivi": [
+    "Check status",
+    "Status prüfen",
+    "Status iwwerpréiwen"
+  ],
+  "Options du courrier": [
+    "Letter options",
+    "Briefoptionen",
+    "Bréifoptiounen"
+  ],
+  "Fourchette estimée HT": [
+    "Estimated range excl. tax",
+    "Geschätzte Spanne ohne Steuern",
+    "Geschate Beräich ouni Steieren"
+  ],
+  "à": [
+    "to",
+    "bis",
+    "bis"
+  ],
+  "Crédits en réserve": [
+    "Reserved credit",
+    "Reserviertes Guthaben",
+    "Reservéierte Kredit"
+  ],
+  "Consommation validée HT": [
+    "Verified usage excl. tax",
+    "Bestätigter Verbrauch ohne Steuern",
+    "Bestätegte Verbrauch ouni Steieren"
+  ],
+  "Débit du solde": [
+    "Balance deduction",
+    "Guthabenabbuchung",
+    "Ofbuchung vum Saldo"
+  ],
+  "Devis valable jusqu’au": [
+    "Quote valid until",
+    "Angebot gültig bis",
+    "Devis gülteg bis"
+  ],
+  "Cette estimation est consultable uniquement. Aucun envoi et aucune réservation de crédit ne sont possibles.": [
+    "This estimate is for viewing only. No delivery or credit reservation is possible.",
+    "Diese Schätzung ist nur zur Ansicht. Weder Versand noch Guthabenreservierung sind möglich.",
+    "Dës Schätzung ass nëmme fir ze kucken. Kee Versand a keng Kreditreservéierung si méiglech."
+  ],
+  "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde.": [
+    "Settlement for this fax is complete. Unused reserved credit is available again. Fractions of a cent are accumulated with your other deliveries before deducting from the balance.",
+    "Die Abrechnung dieses Faxes ist abgeschlossen. Nicht verbrauchtes reserviertes Guthaben ist wieder verfügbar. Cent-Bruchteile werden vor der Guthabenabbuchung mit Ihren anderen Sendungen zusammengezählt.",
+    "D'Ofrechnung vun dësem Fax ass ofgeschloss. Net verbrauchte reservéierte Kredit ass nees verfügbar. Brochdeeler vun engem Cent gi mat Ären anere Sendungen zesummegerechent, ier se vum Saldo ofgebucht ginn."
+  ],
+  "La réservation a été libérée sans débit pour cet envoi.": [
+    "The reservation was released without a deduction for this delivery.",
+    "Die Reservierung wurde für diese Sendung ohne Abbuchung freigegeben.",
+    "D'Reservéierung gouf fir dës Sendung ouni Ofbuchung fräiginn."
+  ],
+  "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax.": [
+    "Settlement is in progress. Credit remains reserved until usage is verified, even if transmission is already complete. There is no need to resend the fax.",
+    "Die Abrechnung läuft. Das Guthaben bleibt bis zur Nutzungsprüfung reserviert, auch wenn die Übertragung bereits abgeschlossen ist. Sie müssen das Fax nicht erneut senden.",
+    "D'Ofrechnung leeft. De Kredit bleift reservéiert, bis de Verbrauch iwwerpréift ass, och wann d'Iwwerdroung schonn ofgeschloss ass. Et ass net néideg, de Fax nach eng Kéier ze verschécken."
+  ],
+  "Montants hors taxes, sur vos crédits de bêta ; aucun paiement n’est prélevé.": [
+    "Amounts exclude tax and use your beta credit; no payment is charged.",
+    "Beträge ohne Steuern, verrechnet mit Ihrem Beta-Guthaben; es wird keine Zahlung eingezogen.",
+    "Beträg ouni Steieren, op Ärem Beta-Kredit; keng Bezuelung gëtt agezunn."
+  ],
+  "Ce prix s’ajoute à vos envois précédents. La consommation totale est arrondie au centime supérieur ; les fractions de centime sont cumulées entre les envois. Le plafond affiché reste réservé jusqu’au résultat.": [
+    "This price is added to your previous deliveries. Total usage is rounded up to the next cent; fractions of a cent are accumulated across deliveries. The displayed cap remains reserved until the outcome is known.",
+    "Dieser Preis wird zu Ihren bisherigen Sendungen addiert. Der Gesamtverbrauch wird auf den nächsten Cent aufgerundet; Cent-Bruchteile werden über Sendungen hinweg zusammengezählt. Der angezeigte Höchstbetrag bleibt bis zum Ergebnis reserviert.",
+    "Dëse Präis kënnt bei Är viregt Sendungen dobäi. De Gesamtverbrauch gëtt op deen nächste Cent opgeronnt; Brochdeeler vun engem Cent ginn iwwer d'Sendungen zesummegerechent. Den ugewisenen Héchstbetrag bleift bis zum Resultat reservéiert."
+  ],
+  "Tarif de référence SES hors taxes. Le prix en euros est fixé pour ce devis.": [
+    "SES reference rate excluding tax. The euro price is fixed for this quote.",
+    "SES-Referenztarif ohne Steuern. Der Europreis steht für dieses Angebot fest.",
+    "SES-Referenztarif ouni Steieren. Den Europräis steet fir dës Devis fest."
+  ],
+  "Conversion du": [
+    "Conversion on",
+    "Umrechnung vom",
+    "Ëmrechnung vum"
+  ],
+  ": 1 USD ≈": [
+    ": USD 1 ≈",
+    ": 1 USD ≈",
+    ": 1 USD ≈"
+  ],
+  "EUR, selon le taux de référence BCE.": [
+    "EUR, using the ECB reference rate.",
+    "EUR, gemäß dem EZB-Referenzkurs.",
+    "EUR, nom Referenzkurs vun der EZB."
+  ],
+  "Cet envoi a été revu sous votre délégation expert. L’assistant doit encore en confirmer l’acceptation. Vous pouvez aussi le vérifier et l’approuver ici.": [
+    "This delivery was reviewed under your expert delegation. The assistant still needs to confirm acceptance. You can also review and approve it here.",
+    "Diese Sendung wurde unter Ihrer Expertenvollmacht geprüft. Der Assistent muss die Annahme noch bestätigen. Sie können sie auch hier prüfen und freigeben.",
+    "Dës Sendung gouf ënner Ärer Expertvollmacht iwwerpréift. Den Assistent muss d'Unnam nach bestätegen. Dir kënnt se och hei iwwerpréiwen a geneemegen."
+  ],
+  "Vérifiez le PDF et l’adresse du destinataire. Ce bouton approuve cette version et son prix, puis": [
+    "Check the PDF and the recipient’s address. This button approves this version and its price, then",
+    "Prüfen Sie das PDF und die Empfängeradresse. Diese Schaltfläche genehmigt diese Version und ihren Preis und",
+    "Iwwerpréift de PDF an d'Adress vum Empfänger. Dëse Knäppchen geneemegt dës Versioun an hire Präis an"
+  ],
+  "déclenche son envoi.": [
+    "sends it.",
+    "löst den Versand aus.",
+    "léist de Versand aus."
+  ],
+  "Le prix exact de ce courrier est indisponible. Actualisez le devis avant de l’envoyer.": [
+    "The exact price for this letter is unavailable. Refresh the quote before sending.",
+    "Der genaue Preis dieses Briefs ist nicht verfügbar. Aktualisieren Sie das Angebot vor dem Versand.",
+    "De geneeë Präis vun dësem Bréif ass net verfügbar. Aktualiséiert d'Devis virum Versand."
+  ],
+  "Envoi en cours…": [
+    "Sending…",
+    "Wird gesendet…",
+    "Gëtt verschéckt…"
+  ],
+  "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.": [
+    "I confirm that this recipient requested this email and its document. This delivery is not marketing outreach.",
+    "Ich bestätige, dass dieser Empfänger diese E-Mail und ihr Dokument angefordert hat. Diese Sendung dient nicht der Kundenakquise.",
+    "Ech bestätegen, datt dësen Empfänger dës E-Mail an hiert Dokument ugefrot huet. Dës Sendung déngt net der Clientëgewënnung."
+  ],
+  "Le courrier est encore en cours d’analyse. Réessayez le devis dans quelques instants.": [
+    "The letter is still being analysed. Try the quote again shortly.",
+    "Der Brief wird noch geprüft. Versuchen Sie das Angebot in Kürze erneut.",
+    "De Bréif gëtt nach analyséiert. Probéiert d'Devis gläich nach eng Kéier."
+  ],
+  "La préparation du courrier est actuellement indisponible. Vous pouvez consulter le suivi d’un brouillon existant.": [
+    "Letter preparation is currently unavailable. You can check the status of an existing draft.",
+    "Die Briefvorbereitung ist derzeit nicht verfügbar. Sie können den Status eines bestehenden Entwurfs einsehen.",
+    "D'Bréifvirbereedung ass de Moment net verfügbar. Dir kënnt de Verlaf vun engem bestoenden Entworf kucken."
+  ],
+  "Le résultat du transfert doit être vérifié. Contactez Guteneo avant de créer un autre brouillon.": [
+    "The transfer outcome needs checking. Contact Guteneo before creating another draft.",
+    "Das Übertragungsergebnis muss geprüft werden. Kontaktieren Sie Guteneo, bevor Sie einen weiteren Entwurf erstellen.",
+    "D'Resultat vun der Iwwerdroung muss iwwerpréift ginn. Kontaktéiert Guteneo, ier Dir en aneren Entworf erstellt."
+  ],
+  "Ce brouillon est déjà associé à un envoi. Consultez son suivi avant de continuer.": [
+    "This draft is already linked to a delivery. Check its status before continuing.",
+    "Dieser Entwurf ist bereits mit einer Sendung verknüpft. Prüfen Sie ihren Status, bevor Sie fortfahren.",
+    "Dësen Entworf ass scho mat enger Sendung verbonnen. Kuckt hire Verlaf, ier Dir weiderfuert."
+  ],
+  "L’adresse du PDF ne correspond pas au destinataire. Vérifiez les deux avant de continuer.": [
+    "The PDF address does not match the recipient. Check both before continuing.",
+    "Die Adresse im PDF stimmt nicht mit dem Empfänger überein. Prüfen Sie beides, bevor Sie fortfahren.",
+    "D'Adress am PDF stëmmt net mam Empfänger iwwereneen. Iwwerpréift béides, ier Dir weiderfuert."
+  ],
+  "L’extrait d’adresse est indisponible. Actualisez la page pour vérifier s’il est prêt.": [
+    "The address crop is unavailable. Refresh the page to check whether it is ready.",
+    "Der Adressausschnitt ist nicht verfügbar. Aktualisieren Sie die Seite, um zu prüfen, ob er bereit ist.",
+    "Den Adressausschnëtt ass net verfügbar. Aktualiséiert d'Säit, fir ze kucken, ob e prett ass."
+  ],
+  "Ce contrôle a expiré. Faites contrôler à nouveau le document avant tout transfert.": [
+    "This check has expired. Have the document checked again before any transfer.",
+    "Diese Prüfung ist abgelaufen. Lassen Sie das Dokument vor jeder Übertragung erneut prüfen.",
+    "Dës Iwwerpréiwung ass ofgelaf. Loosst d'Dokument virun all Iwwerdroung nach eng Kéier iwwerpréiwen."
+  ],
+  "Ce contrôle postal n’est pas accessible dans votre espace.": [
+    "This postal check is not accessible in your workspace.",
+    "Diese Postprüfung ist in Ihrem Arbeitsbereich nicht zugänglich.",
+    "Dës Postkontroll ass an Ärem Aarbechtsberäich net zougänglech."
+  ],
+  "Le PDF doit être contrôlé et revu dans Guteneo avant cette étape.": [
+    "The PDF must be checked and reviewed in Guteneo before this step.",
+    "Das PDF muss vor diesem Schritt in Guteneo geprüft und durchgesehen werden.",
+    "De PDF muss virun dësem Schrëtt a Guteneo kontrolléiert an duerchgekuckt ginn."
+  ],
+  "Le document ou ses autorisations ont changé. Actualisez le suivi avant de continuer.": [
+    "The document or its permissions have changed. Refresh the status before continuing.",
+    "Das Dokument oder seine Berechtigungen haben sich geändert. Aktualisieren Sie den Status, bevor Sie fortfahren.",
+    "D'Dokument oder seng Berechtegungen hu geännert. Aktualiséiert de Verlaf, ier Dir weiderfuert."
+  ],
+  "Ouvrez la revue du document pour préparer son brouillon avant de demander le devis.": [
+    "Open the document review to prepare its draft before requesting a quote.",
+    "Öffnen Sie die Dokumentprüfung, um den Entwurf vor der Angebotsanfrage vorzubereiten.",
+    "Maacht d'Dokumentiwwerpréiwung op, fir den Entworf virzebereeden, ier Dir d'Devis ufrot."
+  ],
+  "Les paramètres d’impression ont changé. Une nouvelle vérification du PDF est nécessaire.": [
+    "The print settings have changed. A new PDF check is required.",
+    "Die Druckeinstellungen haben sich geändert. Eine erneute PDF-Prüfung ist erforderlich.",
+    "D'Drockastellungen hu geännert. Eng nei PDF-Iwwerpréiwung ass néideg."
+  ],
+  "Les paramètres d’impression ne peuvent pas être vérifiés pour le moment. Réessayez leur consultation plus tard.": [
+    "The print settings cannot be checked right now. Try viewing them again later.",
+    "Die Druckeinstellungen können derzeit nicht geprüft werden. Versuchen Sie den Abruf später erneut.",
+    "D'Drockastellunge kënnen de Moment net iwwerpréift ginn. Probéiert se méi spéit nach eng Kéier ofzeruffen."
+  ],
+  "Le contrôle du PDF est momentanément indisponible. Votre document n’a pas été transmis au prestataire d’impression.": [
+    "PDF checking is temporarily unavailable. Your document has not been transferred to the printing provider.",
+    "Die PDF-Prüfung ist vorübergehend nicht verfügbar. Ihr Dokument wurde nicht an den Druckdienstleister übertragen.",
+    "D'PDF-Iwwerpréiwung ass kuerzfristeg net verfügbar. Äert Dokument gouf net un den Drockdéngschtleeschter iwwerdroen."
+  ],
+  "Le contrôle du PDF n’a pas abouti. Consultez son état avant de recommencer.": [
+    "The PDF check did not complete. Check its status before trying again.",
+    "Die PDF-Prüfung wurde nicht abgeschlossen. Prüfen Sie den Status vor einem erneuten Versuch.",
+    "D'PDF-Iwwerpréiwung gouf net ofgeschloss. Kuckt hire Status, ier Dir nach eng Kéier probéiert."
+  ],
+  "Le contrôle du PDF a dépassé le délai prévu. Aucun transfert au prestataire d’impression n’est autorisé.": [
+    "The PDF check exceeded the time limit. No transfer to the printing provider is authorised.",
+    "Die PDF-Prüfung hat die vorgesehene Zeit überschritten. Es ist keine Übertragung an den Druckdienstleister erlaubt.",
+    "D'PDF-Iwwerpréiwung huet déi virgesinn Zäit iwwerschratt. Keng Iwwerdroung un den Drockdéngschtleeschter ass erlaabt."
+  ],
+  "Le résultat du contrôle du PDF est incomplet. Le transfert reste bloqué.": [
+    "The PDF check result is incomplete. Transfer remains blocked.",
+    "Das Ergebnis der PDF-Prüfung ist unvollständig. Die Übertragung bleibt gesperrt.",
+    "D'Resultat vun der PDF-Iwwerpréiwung ass onkomplett. D'Iwwerdroung bleift gespaart."
+  ],
+  "La capacité d’envoi d’e-mails de Guteneo est atteinte. Cet envoi n’a pas été transmis. Réessayez plus tard en préparant un nouvel envoi.": [
+    "Guteneo’s email sending capacity has been reached. This delivery was not submitted. Try again later by preparing a new delivery.",
+    "Guteneos E-Mail-Versandkapazität ist erreicht. Diese Sendung wurde nicht übertragen. Versuchen Sie es später mit einer neu vorbereiteten Sendung erneut.",
+    "D'E-Mail-Versandkapazitéit vu Guteneo ass erreecht. Dës Sendung gouf net iwwerdroen. Probéiert et méi spéit mat enger nei virbereeter Sendung nach eng Kéier."
+  ],
+  "Le service d’e-mail traite déjà un envoi ou vient d’en traiter un. Cet envoi n’a pas été transmis. Patientez avant de préparer un nouvel envoi.": [
+    "The email service is already processing a delivery or has just processed one. This delivery was not submitted. Wait before preparing a new delivery.",
+    "Der E-Mail-Dienst verarbeitet bereits eine Sendung oder hat gerade eine verarbeitet. Diese Sendung wurde nicht übertragen. Warten Sie, bevor Sie eine neue Sendung vorbereiten.",
+    "Den E-Mail-Service verschafft schonn eng Sendung oder huet grad eng verschafft. Dës Sendung gouf net iwwerdroen. Waart, ier Dir eng nei Sendung virbereet."
+  ],
+  "AWS a refusé cet envoi car le quota d’e-mails sur les dernières 24 heures est atteint. Aucun envoi n’a été accepté. Réessayez plus tard en préparant un nouvel envoi.": [
+    "AWS rejected this delivery because the email quota for the last 24 hours has been reached. No delivery was accepted. Try again later by preparing a new delivery.",
+    "AWS hat diese Sendung abgelehnt, da das E-Mail-Kontingent der letzten 24 Stunden erreicht ist. Es wurde keine Sendung angenommen. Versuchen Sie es später mit einer neuen Sendung erneut.",
+    "AWS huet dës Sendung refuséiert, well d'E-Mail-Limit vun de leschte 24 Stonnen erreecht ass. Keng Sendung gouf ugeholl. Probéiert et méi spéit mat enger neier Sendung nach eng Kéier."
+  ],
+  "AWS a refusé cet envoi car les demandes sont trop rapprochées. Aucun envoi n’a été accepté. Patientez avant de préparer un nouvel envoi.": [
+    "AWS rejected this delivery because requests are too close together. No delivery was accepted. Wait before preparing a new delivery.",
+    "AWS hat diese Sendung abgelehnt, da die Anfragen zu schnell aufeinanderfolgen. Es wurde keine Sendung angenommen. Warten Sie, bevor Sie eine neue Sendung vorbereiten.",
+    "AWS huet dës Sendung refuséiert, well d'Ufroen ze séier hannertenee kommen. Keng Sendung gouf ugeholl. Waart, ier Dir eng nei Sendung virbereet."
+  ],
+  "AWS limite temporairement les demandes d’envoi. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.": [
+    "AWS is temporarily limiting sending requests. This message was rejected and will not be resent automatically.",
+    "AWS begrenzt vorübergehend Versandanfragen. Diese Nachricht wurde abgelehnt und wird nicht automatisch erneut gesendet.",
+    "AWS limitéiert d'Versandufroen temporär. Dëse Message gouf refuséiert a gëtt net automatesch nach eng Kéier verschéckt."
+  ],
+  "AWS a refusé cet envoi : une adresse ou un domaine n’est pas vérifié. Pendant la phase restreinte SES, les destinataires doivent aussi être vérifiés. Aucun envoi n’a été accepté.": [
+    "AWS rejected this delivery: an address or domain is unverified. During the restricted SES phase, recipients must also be verified. No delivery was accepted.",
+    "AWS hat diese Sendung abgelehnt: Eine Adresse oder Domain ist nicht verifiziert. In der eingeschränkten SES-Phase müssen auch Empfänger verifiziert sein. Es wurde keine Sendung angenommen.",
+    "AWS huet dës Sendung refuséiert: Eng Adress oder en Domaine ass net verifizéiert. An der limitéierter SES-Phas mussen och d'Empfänger verifizéiert sinn. Keng Sendung gouf ugeholl."
+  ],
+  "Le domaine d’expédition doit encore être vérifié auprès d’AWS. Aucun envoi n’a été accepté. Le raccordement doit être corrigé par l’équipe Guteneo.": [
+    "The sending domain still needs verification with AWS. No delivery was accepted. The Guteneo team must correct the connection.",
+    "Die Versanddomain muss noch bei AWS verifiziert werden. Es wurde keine Sendung angenommen. Das Guteneo-Team muss die Anbindung korrigieren.",
+    "De Versanddomaine muss nach bei AWS verifizéiert ginn. Keng Sendung gouf ugeholl. D'Guteneo-Ekipp muss d'Verbindung korrigéieren."
+  ],
+  "AWS a refusé le message. Aucun envoi n’a été accepté. Vérifiez son contenu et les adresses avant de préparer une nouvelle version.": [
+    "AWS rejected the message. No delivery was accepted. Check its content and addresses before preparing a new version.",
+    "AWS hat die Nachricht abgelehnt. Es wurde keine Sendung angenommen. Prüfen Sie Inhalt und Adressen, bevor Sie eine neue Version vorbereiten.",
+    "AWS huet de Message refuséiert. Keng Sendung gouf ugeholl. Iwwerpréift säin Inhalt an d'Adressen, ier Dir eng nei Versioun virbereet."
+  ],
+  "AWS a refusé la demande d’envoi. Aucun envoi n’a été accepté. Le contenu et les paramètres doivent être vérifiés avant une nouvelle préparation.": [
+    "AWS rejected the sending request. No delivery was accepted. The content and settings must be checked before preparing a new version.",
+    "AWS hat die Versandanfrage abgelehnt. Es wurde keine Sendung angenommen. Inhalt und Einstellungen müssen vor einer neuen Vorbereitung geprüft werden.",
+    "AWS huet d'Versandufro refuséiert. Keng Sendung gouf ugeholl. Den Inhalt an d'Astellunge musse virun enger neier Virbereedung iwwerpréift ginn."
+  ],
+  "AWS a suspendu les envois de ce compte. Ce message a été refusé. L’équipe Guteneo doit rétablir le service avant tout nouvel essai.": [
+    "AWS has suspended sending for this account. This message was rejected. The Guteneo team must restore the service before any further attempt.",
+    "AWS hat den Versand dieses Kontos ausgesetzt. Diese Nachricht wurde abgelehnt. Das Guteneo-Team muss den Dienst vor weiteren Versuchen wiederherstellen.",
+    "AWS huet de Versand fir dëse Kont ausgesat. Dëse Message gouf refuséiert. D'Guteneo-Ekipp muss de Service virun engem neie Versuch nees hierstellen."
+  ],
+  "L’envoi d’e-mails est actuellement suspendu chez AWS. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.": [
+    "Email sending is currently suspended at AWS. This message was rejected and will not be resent automatically.",
+    "Der E-Mail-Versand ist bei AWS derzeit ausgesetzt. Diese Nachricht wurde abgelehnt und wird nicht automatisch erneut gesendet.",
+    "Den E-Mail-Versand ass bei AWS de Moment ausgesat. Dëse Message gouf refuséiert a gëtt net automatesch nach eng Kéier verschéckt."
+  ],
+  "AWS a refusé cet envoi à cause d’une limite du service. L’équipe Guteneo doit vérifier sa configuration avant tout nouvel essai.": [
+    "AWS rejected this delivery because of a service limit. The Guteneo team must check its configuration before any further attempt.",
+    "AWS hat diese Sendung wegen einer Dienstgrenze abgelehnt. Das Guteneo-Team muss die Konfiguration vor weiteren Versuchen prüfen.",
+    "AWS huet dës Sendung wéinst enger Servicelimit refuséiert. D'Guteneo-Ekipp muss d'Konfiguratioun virun engem neie Versuch iwwerpréiwen."
+  ],
+  "La configuration d’envoi attendue est indisponible chez AWS. Ce message a été refusé. Le raccordement doit être corrigé par l’équipe Guteneo.": [
+    "The required sending configuration is unavailable at AWS. This message was rejected. The Guteneo team must correct the connection.",
+    "Die erforderliche Versandkonfiguration ist bei AWS nicht verfügbar. Diese Nachricht wurde abgelehnt. Das Guteneo-Team muss die Anbindung korrigieren.",
+    "Déi néideg Versandkonfiguratioun ass bei AWS net verfügbar. Dëse Message gouf refuséiert. D'Guteneo-Ekipp muss d'Verbindung korrigéieren."
+  ],
+  "AWS n’autorise pas ce raccordement à envoyer des e-mails. Ce message a été refusé. L’équipe Guteneo doit vérifier les accès du service.": [
+    "AWS does not authorise this connection to send emails. This message was rejected. The Guteneo team must check the service’s permissions.",
+    "AWS erlaubt dieser Anbindung keinen E-Mail-Versand. Diese Nachricht wurde abgelehnt. Das Guteneo-Team muss die Dienstberechtigungen prüfen.",
+    "AWS erlaabt dëser Verbindung net, E-Mailen ze verschécken. Dëse Message gouf refuséiert. D'Guteneo-Ekipp muss d'Zougangsrechter vum Service iwwerpréiwen."
+  ],
+  "Les limites du compte d’e-mail ne sont pas encore configurées. Cet envoi n’a pas été transmis.": [
+    "The email account limits are not configured yet. This delivery was not submitted.",
+    "Die Grenzen des E-Mail-Kontos sind noch nicht konfiguriert. Diese Sendung wurde nicht übertragen.",
+    "D'Limitte vum E-Mail-Kont sinn nach net konfiguréiert. Dës Sendung gouf net iwwerdroen."
+  ],
+  "Le contrôle de capacité du service d’e-mail est temporairement indisponible. Cet envoi n’a pas été transmis.": [
+    "The email service capacity check is temporarily unavailable. This delivery was not submitted.",
+    "Die Kapazitätsprüfung des E-Mail-Dienstes ist vorübergehend nicht verfügbar. Diese Sendung wurde nicht übertragen.",
+    "D'Kapazitéitskontroll vum E-Mail-Service ass temporär net verfügbar. Dës Sendung gouf net iwwerdroen."
+  ],
+  "Cette tentative ne peut plus être transmise. Consultez son suivi avant toute autre action.": [
+    "This attempt can no longer be submitted. Check its status before taking any other action.",
+    "Dieser Versuch kann nicht mehr übertragen werden. Prüfen Sie seinen Status vor weiteren Schritten.",
+    "Dëse Versuch kann net méi iwwerdroe ginn. Kuckt säi Verlaf, ier Dir eppes anescht maacht."
+  ],
+  "Le raccordement e-mail n’est pas encore prêt. Cet envoi n’a pas été transmis.": [
+    "The email connection is not ready yet. This delivery was not submitted.",
+    "Die E-Mail-Anbindung ist noch nicht bereit. Diese Sendung wurde nicht übertragen.",
+    "D'E-Mail-Verbindung ass nach net prett. Dës Sendung gouf net iwwerdroen."
+  ],
+  "Le compte d’envoi AWS doit être identifié avant de transmettre cet e-mail. L’équipe Guteneo doit terminer le raccordement.": [
+    "The AWS sending account must be identified before this email can be submitted. The Guteneo team must complete the connection.",
+    "Das AWS-Versandkonto muss vor der Übertragung dieser E-Mail identifiziert werden. Das Guteneo-Team muss die Anbindung abschließen.",
+    "Den AWS-Versandkont muss identifizéiert ginn, ier dës E-Mail iwwerdroe ka ginn. D'Guteneo-Ekipp muss d'Verbindung ofschléissen."
+  ],
+  "L’identité du compte e-mail et son suivi doivent encore être qualifiés. Cet envoi n’a pas été transmis.": [
+    "The email account identity and its tracking still need qualification. This delivery was not submitted.",
+    "Die Identität des E-Mail-Kontos und seine Verfolgung müssen noch qualifiziert werden. Diese Sendung wurde nicht übertragen.",
+    "D'Identitéit vum E-Mail-Kont a säi Verlaf mussen nach qualifizéiert ginn. Dës Sendung gouf net iwwerdroen."
+  ],
+  "Ce destinataire n’est pas encore autorisé pour la phase restreinte d’envoi. Son adresse doit être vérifiée auprès d’AWS et qualifiée par l’équipe Guteneo. Cet envoi n’a pas été transmis.": [
+    "This recipient is not yet authorised for the restricted sending phase. Their address must be verified with AWS and qualified by the Guteneo team. This delivery was not submitted.",
+    "Dieser Empfänger ist für die eingeschränkte Versandphase noch nicht zugelassen. Seine Adresse muss bei AWS verifiziert und vom Guteneo-Team qualifiziert werden. Diese Sendung wurde nicht übertragen.",
+    "Dësen Empfänger ass nach net fir déi limitéiert Versandphas erlaabt. Seng Adress muss bei AWS verifizéiert a vun der Guteneo-Ekipp qualifizéiert ginn. Dës Sendung gouf net iwwerdroen."
+  ],
+  "Le mode d’envoi du compte AWS doit être qualifié avant de transmettre cet e-mail.": [
+    "The AWS account’s sending mode must be qualified before this email can be submitted.",
+    "Der Versandmodus des AWS-Kontos muss vor der Übertragung dieser E-Mail qualifiziert werden.",
+    "De Versandmodus vum AWS-Kont muss qualifizéiert ginn, ier dës E-Mail iwwerdroe ka ginn."
+  ],
+  "La réponse d’AWS n’a pas permis de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.": [
+    "AWS’s response did not confirm the outcome. Do not recreate this delivery: its status must be checked to avoid a duplicate. Its credit remains reserved.",
+    "Die AWS-Antwort hat das Ergebnis nicht bestätigt. Erstellen Sie diese Sendung nicht erneut: Der Status muss geprüft werden, um ein Duplikat zu vermeiden. Das Guthaben bleibt reserviert.",
+    "D'Äntwert vun AWS huet d'Resultat net bestätegt. Erstellt dës Sendung net nei: De Verlaf muss iwwerpréift ginn, fir en Duplikat ze vermeiden. Hire Kredit bleift reservéiert."
+  ],
+  "Cette tentative a déjà été prise en charge. Ne recréez pas cet envoi : consultez son suivi pour éviter un doublon.": [
+    "This attempt has already been handled. Do not recreate this delivery: check its status to avoid a duplicate.",
+    "Dieser Versuch wurde bereits übernommen. Erstellen Sie diese Sendung nicht erneut: Prüfen Sie den Status, um ein Duplikat zu vermeiden.",
+    "Dëse Versuch gouf schonn iwwerholl. Erstellt dës Sendung net nei: Kuckt hire Verlaf, fir en Duplikat ze vermeiden."
+  ],
+  "Télécharger le PDF d’exemple": [
+    "Download the example PDF",
+    "Beispiel-PDF herunterladen",
+    "De Beispill-PDF eroflueden"
+  ],
+  "Document fictif fourni pour explorer la démonstration.": [
+    "Fictional document provided to explore the demo.",
+    "Fiktives Dokument zum Erkunden der Demo.",
+    "Fiktivt Dokument, fir d'Demo ze entdecken."
+  ]
+}
