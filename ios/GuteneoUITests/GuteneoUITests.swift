@@ -32,7 +32,19 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
         assertLogoCount(0, in: app)
         XCUIDevice.shared.press(.home)
-        XCTAssertTrue(app.wait(for: .runningBackground, timeout: 5))
+        let stateAfterHome = app.state
+        let background = NSPredicate(format: "state == %d OR state == %d",
+            XCUIApplication.State.runningBackground.rawValue,
+            XCUIApplication.State.runningBackgroundSuspended.rawValue)
+        let backgroundWait = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: background, object: app)
+        ], timeout: 5)
+        let stateAfterWait = app.state
+        let diagnostic = XCTAttachment(string: "afterHome=\(stateAfterHome.rawValue); afterWait=\(stateAfterWait.rawValue); runningBackground=\(XCUIApplication.State.runningBackground.rawValue); suspended=\(XCUIApplication.State.runningBackgroundSuspended.rawValue)")
+        diagnostic.name = "État réel après passage en arrière-plan"
+        diagnostic.lifetime = .keepAlways
+        add(diagnostic)
+        XCTAssertEqual(backgroundWait, .completed, "État reçu : \(stateAfterWait.rawValue)")
         app.activate()
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
         assertLogoCount(0, in: app)
