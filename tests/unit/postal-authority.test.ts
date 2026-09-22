@@ -58,6 +58,7 @@ beforeAll(async () => {
     "0011_account.sql",
     "0019_verified_account_sessions.sql",
     "0032_connection_tool_observations.sql",
+    "0038_user_locale.sql",
   ]) {
     const sql = await readFile(
       new URL(`../../migrations/${file}`, import.meta.url),
