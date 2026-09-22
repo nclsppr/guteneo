@@ -262,3 +262,35 @@ test("translated public and account navigation keep the literal ARIA page value"
     await expect(accountLink).toHaveAttribute("aria-current", "page");
   }
 });
+
+test("saved account language hydrates every standalone public route without replacing the guest choice", async ({
+  page,
+}) => {
+  await guestLanguage(page, "lb");
+  let sessionRequests = 0;
+  await mockAccount(
+    page,
+    { name: "Public account", preferredLocale: "en" },
+    {
+      beforeSession: () => {
+        sessionRequests += 1;
+        return Promise.resolve();
+      },
+    },
+  );
+  const paths = [
+    "/assistants/",
+    "/support/",
+    "/developpeurs/",
+    "/#/app/account",
+  ];
+  for (const [index, path] of paths.entries()) {
+    await page.goto(path);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect.poll(() => sessionRequests).toBe(index + 1);
+    expect(
+      await page.evaluate(() => localStorage.getItem("guteneo.locale")),
+    ).toBe("lb");
+  }
+  await expect(page.locator("#account-name")).toHaveValue("Public account");
+});

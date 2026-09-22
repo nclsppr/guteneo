@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -19,7 +20,8 @@ import {
   List,
 } from "@phosphor-icons/react";
 import { api, ApiError, setSession, type Session } from "./api";
-import { fr as t } from "./i18n";
+import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
+import { LanguageSelect } from "./language-select";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
@@ -46,10 +48,10 @@ import { Billing } from "./billing-page";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { LegalPage } from "./legal-page";
-import { InformationPage, informationPages } from "./information-page";
+import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
-import { articles, articlePath } from "./editorial/articles";
+import { getArticles, articlePath } from "./editorial/articles";
 import { GuidedExample } from "./landing-example";
 import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
@@ -111,11 +113,12 @@ export function Landing() {
         }}
       >
         <Brand />
-        <nav aria-label="Navigation principale">
+        <LanguageSelect />
+        <nav aria-label={msg("Navigation principale")}>
           <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
             {t.landing.navHow}
           </a>
-          <a href="/assistants/">Assistants</a>
+          <a href="/assistants/">{msg("Assistants")}</a>
           <a
             href="#tarifs"
             onClick={(event) => scrollToSection(event, "tarifs")}
@@ -123,7 +126,7 @@ export function Landing() {
             {t.homepage.navPricing}
           </a>
           <a className="button small" href="#/app">
-            {publicPreview ? "Explorer la démo" : t.landing.navApp}
+            {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={16} />
           </a>
         </nav>
@@ -140,12 +143,12 @@ export function Landing() {
           ) : (
             <List size={19} aria-hidden="true" />
           )}
-          Menu
+          {msg("Menu")}
         </button>
         <nav
           id="mobile-navigation"
           className="mobile-navigation"
-          aria-label="Navigation mobile"
+          aria-label={msg("Navigation mobile")}
           hidden={!menuOpen}
         >
           {[
@@ -165,10 +168,11 @@ export function Landing() {
             </a>
           ))}
           <a href="/assistants/" onClick={closeMenu}>
-            Assistants <ArrowRight size={17} aria-hidden="true" />
+            {msg("Assistants ")}
+            <ArrowRight size={17} aria-hidden="true" />
           </a>
           <a href="#/app" onClick={closeMenu}>
-            {publicPreview ? "Explorer la démo" : t.landing.navApp}
+            {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={17} aria-hidden="true" />
           </a>
         </nav>
@@ -200,8 +204,9 @@ export function Landing() {
               </a>
             </div>
             <p className="hero-channels">
-              Fax <span aria-hidden="true">·</span> E-mail{" "}
-              <span aria-hidden="true">·</span> Courrier postal
+              {msg("Fax ")}
+              <span aria-hidden="true">·</span> {msg(" E-mail")}{" "}
+              <span aria-hidden="true">·</span> {msg(" Courrier postal")}
             </p>
           </div>
           <div className="hero-art">
@@ -214,34 +219,41 @@ export function Landing() {
               height="1200"
               fetchPriority="high"
             />
-            <div className="hero-dispatch-note" aria-label="Bon d’envoi fictif">
+            <div
+              className="hero-dispatch-note"
+              aria-label={msg("Bon d’envoi fictif")}
+            >
               <p className="dispatch-note-label">
-                Bon d’envoi <span>Exemple</span>
+                {msg("Bon d’envoi ")}
+                <span>{msg("Exemple")}</span>
               </p>
               <p className="dispatch-note-document">
                 <FileText size={18} aria-hidden="true" />
-                Correspondance.pdf <span>2 pages</span>
+                {msg("Correspondance.pdf ")}
+                <span>{msg("2 pages")}</span>
               </p>
               <dl>
                 <div>
-                  <dt>Pour</dt>
+                  <dt>{msg("Pour")}</dt>
                   <dd>
-                    Maison Exemple <small>(fictif)</small>
+                    {msg("Maison Exemple ")}
+                    <small>{msg("(fictif)")}</small>
                   </dd>
                 </div>
                 <div>
-                  <dt>Canal</dt>
-                  <dd>Fax</dd>
+                  <dt>{msg("Canal")}</dt>
+                  <dd>{msg("Fax")}</dd>
                 </div>
                 <div>
-                  <dt>Plafond</dt>
+                  <dt>{msg("Plafond")}</dt>
                   <dd>
-                    0,20 € <small>(exemple)</small>
+                    0,20 € <small>{msg("(exemple)")}</small>
                   </dd>
                 </div>
               </dl>
               <p className="dispatch-note-status">
-                <Check size={16} aria-hidden="true" />À vérifier avant l’envoi
+                <Check size={16} aria-hidden="true" />
+                {msg("À vérifier avant l’envoi")}
               </p>
             </div>
           </div>
@@ -254,7 +266,7 @@ export function Landing() {
         <JournalTeaser />
         {publicPreview && (
           <p className="homepage-preview-note">
-            Aperçu interactif · Sans inscription · Aucun envoi réel
+            {msg("Aperçu interactif · Sans inscription · Aucun envoi réel")}
           </p>
         )}
       </main>
@@ -276,20 +288,27 @@ function Login({
     ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
   const authCode = new URLSearchParams(window.location.search).get("auth");
   const authMessages: Record<string, string> = {
-    EMAIL_VERIFICATION_REQUIRED:
+    EMAIL_VERIFICATION_REQUIRED: msg(
       "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
-    ACCOUNT_VERIFICATION_REQUIRED:
+    ),
+    ACCOUNT_VERIFICATION_REQUIRED: msg(
       "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.",
-    MFA_REQUIRED:
+    ),
+    MFA_REQUIRED: msg(
       "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.",
-    IDENTITY_NOT_CONFIGURED:
+    ),
+    IDENTITY_NOT_CONFIGURED: msg(
       "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
-    LOGIN_STATE_INVALID:
+    ),
+    LOGIN_STATE_INVALID: msg(
       "Votre connexion a expiré. Recommencez pour ouvrir votre espace.",
-    LOGIN_EXCHANGE_FAILED:
+    ),
+    LOGIN_EXCHANGE_FAILED: msg(
       "La connexion n’a pas abouti. Vous pouvez réessayer.",
-    LOGIN_RATE_LIMITED:
+    ),
+    LOGIN_RATE_LIMITED: msg(
       "Trop de tentatives de connexion. Réessayez dans une heure.",
+    ),
   };
   async function login(organization: "atelier" | "studio") {
     await action.run(async () => {
@@ -303,6 +322,7 @@ function Login({
     <div className="login-page">
       <header className="site-header">
         <Brand />
+        <LanguageSelect />
         <a href="#/">
           {t.back}
           <ArrowUpRight size={17} />
@@ -314,14 +334,16 @@ function Login({
           <p>
             {local
               ? t.login.body
-              : "Vos documents, vos envois et votre facturation réunis dans un espace personnel et protégé."}
+              : msg(
+                  "Vos documents, vos envois et votre facturation réunis dans un espace personnel et protégé.",
+                )}
           </p>
           <img src="/press-halftone.webp" width="1200" height="1200" alt="" />
         </div>
         <div className="login-panel">
           <h2>
             {publicPreview
-              ? "Explorez la démonstration"
+              ? msg("Explorez la démonstration")
               : local
                 ? t.login.local
                 : t.login.separator}
@@ -354,42 +376,47 @@ function Login({
           ) : (
             <>
               <p>
-                Un compte personnel, vos documents et le suivi de vos envois
-                dans un espace privé.
+                {msg(
+                  "Un compte personnel, vos documents et le suivi de vos envois dans un espace privé.",
+                )}
               </p>
               {authCode && (
                 <div className="notice warning" role="status">
                   <p>
                     {authMessages[authCode] ??
-                      "La connexion n’a pas abouti. Recommencez pour accéder à votre espace."}
+                      msg(
+                        "La connexion n’a pas abouti. Recommencez pour accéder à votre espace.",
+                      )}
                   </p>
                 </div>
               )}
               {registrationAvailable ? (
                 <a
-                  href={`/auth/signup?returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
+                  href={`/auth/signup?locale=${getLocale()}&returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
                   className="button primary"
                 >
-                  Créer mon compte
+                  {msg("Créer mon compte")}
                   <ArrowRight size={18} />
                 </a>
               ) : (
                 <p className="notice info" role="status">
-                  L’inscription sera disponible dès que le service de connexion
-                  sera raccordé.
+                  {msg(
+                    "L’inscription sera disponible dès que le service de connexion sera raccordé.",
+                  )}
                 </p>
               )}
-              <p>Vous avez déjà un compte ?</p>
+              <p>{msg("Vous avez déjà un compte ?")}</p>
               <a
-                href={`/auth/login?${authCode ? "fresh=1&" : ""}returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
+                href={`/auth/login?locale=${getLocale()}&${authCode ? "fresh=1&" : ""}returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
                 className="button"
               >
                 {t.login.managed}
                 <ArrowRight size={18} />
               </a>
               <p className="field-hint">
-                Adresse e-mail vérifiée requise. Aucun envoi payant sans votre
-                accord.
+                {msg(
+                  "Adresse e-mail vérifiée requise. Aucun envoi payant sans votre accord.",
+                )}
               </p>
             </>
           )}
@@ -415,18 +442,86 @@ const navigation = [
 ] as const;
 
 export function App() {
+  const locale = useLocale();
+  const [session, updateSession] = useState<Session | null>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    const languageVersion = getLocaleSelectionVersion();
+    api<Session>("/session")
+      .then((s) => {
+        if (alive) {
+          setSession(s, languageVersion === getLocaleSelectionVersion());
+          updateSession(s);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (alive) setReady(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  useEffect(() => {
+    const path = window.location.pathname;
+    const information = getInformationPages()[path];
+    const article = getArticles().find(
+      (item) => articlePath(item.slug) === path,
+    );
+    const label =
+      information?.label ??
+      article?.title ??
+      (path.startsWith("/assistants")
+        ? msg("Assistants")
+        : path === "/developpeurs/"
+          ? msg("Développeurs")
+          : path === "/mentions-legales/"
+            ? msg("Mentions légales")
+            : path === "/journal/"
+              ? msg("Le journal")
+              : `${t.landing.title} ${t.landing.titleItalic}`);
+    document.title = `${label} | Guteneo`;
+    const description =
+      information?.description ?? article?.description ?? t.landing.intro;
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", description);
+    for (const selector of [
+      'meta[property="og:title"]',
+      'meta[name="twitter:title"]',
+    ])
+      document.querySelector(selector)?.setAttribute("content", document.title);
+    document
+      .querySelector('meta[property="og:description"]')
+      ?.setAttribute("content", description);
+  }, [locale]);
   const publicPath = window.location.pathname;
-  const information = informationPages[publicPath];
+  const information = getInformationPages()[publicPath];
   if (information) return <InformationPage content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
     return (
       <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
     );
   if (window.location.pathname === "/developpeurs/") return <DeveloperPage />;
-  return <WorkspaceApplication />;
+  return (
+    <WorkspaceApplication
+      session={session}
+      updateSession={updateSession}
+      ready={ready}
+    />
+  );
 }
 
-function WorkspaceApplication() {
+function WorkspaceApplication({
+  session,
+  updateSession,
+  ready,
+}: {
+  session: Session | null;
+  updateSession: (session: Session | null) => void;
+  ready: boolean;
+}) {
   const route = useRoute();
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
@@ -446,30 +541,13 @@ function WorkspaceApplication() {
     scanner: string;
     registration?: { enabled: boolean };
   }>("/capabilities");
-  const [session, updateSession] = useState<Session | null>(null);
-  const [ready, setReady] = useState(false);
   const [logoutError, setLogoutError] = useState<Error>();
-  useEffect(() => {
-    let alive = true;
-    api<Session>("/session")
-      .then((s) => {
-        if (alive) {
-          setSession(s);
-          updateSession(s);
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (alive) setReady(true);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
   const page = route.split("?")[0] ?? "/";
   const pathname = window.location.pathname;
   if (pathname === "/journal/") return <JournalPage />;
-  const article = articles.find((item) => articlePath(item.slug) === pathname);
+  const article = getArticles().find(
+    (item) => articlePath(item.slug) === pathname,
+  );
   if (article) return <ArticlePage article={article} />;
   if (pathname === "/mentions-legales/") return <LegalPage />;
   if (page === "/mentions-legales") return <LegalPage />;
@@ -589,6 +667,9 @@ function WorkspaceApplication() {
             <small>{session.user.name}</small>
           </div>
         </div>
+        <div className="workspace-language">
+          <LanguageSelect />
+        </div>
         <details
           className="workspace-navigation"
           open={navigationOpen}
@@ -606,9 +687,9 @@ function WorkspaceApplication() {
         >
           <summary ref={navigationSummary}>
             <List size={21} aria-hidden="true" />
-            Navigation de l’atelier
+            {msg("Navigation de l’atelier")}
           </summary>
-          <nav aria-label="Navigation de l’atelier">
+          <nav aria-label={msg("Navigation de l’atelier")}>
             {navigation
               .filter(
                 (n) =>
@@ -668,8 +749,9 @@ function WorkspaceApplication() {
               {t.simulationBody}
               {publicPreview && (
                 <span className="scanner-warning">
-                  Aperçu dans cet onglet uniquement. Les données sont
-                  réinitialisées au rechargement.
+                  {msg(
+                    "Aperçu dans cet onglet uniquement. Les données sont réinitialisées au rechargement.",
+                  )}
                 </span>
               )}
               {capabilities.data?.scanner ===
