@@ -134,20 +134,24 @@ l'utilisateur doit la compléter. Relancer ensuite `doctor.sh` puis les tests.
 La liste d'appareils fournie par un outil CoreSimulator existant ne prouve pas
 que Xcode peut exécuter les tests avec son propre SDK.
 
-Après mise à jour des composants, dix-neuf tests unitaires ont réussi sur
-iPhone 17 Pro Max, iOS 26.5. Le lot final de vingt tests, incluant la portée des
-devis de référence, a réussi sur iPad Pro 13 pouces M5, iPadOS 27.0. Ces tests
-utilisent une signature ad hoc et un véritable cycle d’écriture, lecture et
-suppression dans le trousseau.
+Après mise à jour des composants, la campagne courante réussit vingt-deux tests
+unitaires et cinq tests UI sur iPhone 17e, iOS 26.5. Les contrôles comprennent la
+portée des devis de référence, le contraste des couleurs du catalogue et la
+transparence du portrait compilé. Ils utilisent une signature ad hoc et un
+véritable cycle d'écriture, lecture et suppression dans le trousseau.
 Les premiers builds de simulateur sans signature empêchaient la suppression de
 la session et affichaient une erreur ; la signature des builds et tests de
 simulateur a été corrigée, sans masquer l'erreur dans l'interface.
 
-Quatre scénarios d’interface distincts ont réussi sur iPhone ; cinq sur iPad,
-avec le mode sombre, le texte XXXL, la lecture PDF et le passage en arrière-plan,
-la préparation sans envoi et le devis de référence sans validation. Les reprises
-ont été ciblées sur les assertions corrigées. Le détail des lots, les limites et
-les captures sont dans [QA/Screenshots/README.md](QA/Screenshots/README.md).
+Cinq scénarios d'interface distincts sont couverts sur chaque format, avec le
+mode sombre sur iPadOS 27, le texte XXXL, la marque unique, le PDF et la
+préparation sans envoi. Un premier lot iPad a réussi quatre tests sur cinq ;
+son attente d'arrière-plan a échoué. Le PDF a ensuite réussi avec une assertion
+qui accepte les deux états d'arrière-plan documentés, puis deux tests de suivi
+ont réussi. La cause du premier échec reste indéterminée. Le détail des lots,
+les limites et les captures sont dans
+[QA/Screenshots/README.md](QA/Screenshots/README.md). Les choix Liquid Glass et
+les sources 2026 figurent dans [l'audit Apple UI](QA/APPLE_UI_AUDIT.md).
 
 L’archive Release non signée contient l’app universelle iPhone/iPad, le manifeste,
 les assets et les symboles de diagnostic. Aucune identité Apple Distribution utilisable
@@ -161,11 +165,13 @@ des outils ne vaut pas validation de l'application.
 ## Dernière archive inspectée
 
 Le 22 septembre 2026, l’archive locale
-`ios/.build/Archives/run-ekw9rF/Guteneo-unsigned.xcarchive` a été produite après
-la correction du contraste sombre, à partir des sources applicatives du commit
-`24bbe2a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
+`ios/.build/Archives/run-B1gx4y/Guteneo-unsigned.xcarchive` a été produite après
+l'audit de marque et de lisibilité, à partir des sources applicatives du commit
+`f39eae14198665fcb4340d209add29ff25f5cb3a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
 (build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
 de confidentialité et les symboles. Elle est explicitement non signée.
+Le SDK utilisé est iOS 27.0, avec Xcode 27.0. L'empreinte SHA-256 du binaire est
+`6d75917e563dac17a4262110e58e014f923bc41a3f6dee83876240ece6bbe7d1`.
 
 Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
 `--uitesting-preview` sont absents du binaire Release. Le script d’archive

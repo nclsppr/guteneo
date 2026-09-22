@@ -21,6 +21,9 @@ reste dans une page de navigateur authentifiée, distincte de l'app.
 - Les essais natifs, leurs résultats et captures brutes sont documentés dans
   [Screenshots/README.md](Screenshots/README.md) et [le guide iOS](../README.md).
   Les comptes, documents et résultats de ces écrans sont fictifs.
+- L'[audit Apple UI](APPLE_UI_AUDIT.md) couvre les recommandations Liquid Glass
+  actuelles, les raffinements 2026, la signature de marque unique, la
+  transparence du portrait et le contraste des couleurs du catalogue.
 - L'URL de confidentialité `https://guteneo.com/confidentialite/` a été vérifiée
   publiquement : elle décrit le service et les critères de conservation du
   21 septembre. L'app ouvre directement cette page.

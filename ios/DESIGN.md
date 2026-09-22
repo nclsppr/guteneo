@@ -7,10 +7,18 @@ encapsulé dans une WebView.
 
 ## Identité et hiérarchie
 
-Conserver le mot-symbole **guteneo** avec son `g` minuscule. Le portrait et la
-marque sont des assets distincts : le portrait accompagne le mot-symbole ; le
-symbole sert à l'accueil et à l'icône selon son cadrage validé. Ne pas inverser
-leurs rôles.
+Conserver le mot-symbole **guteneo** avec son `g` minuscule. Une seule signature
+associe le portrait tramé transparent au mot-symbole. Elle apparaît à l'accueil,
+dans l'Atelier et dans À propos, au maximum une fois par écran. Ne pas ajouter
+un deuxième symbole, un cartouche opaque ou un autre logo dans une feuille.
+Le chargement et le masque de confidentialité n'affichent aucun logo ; la
+signature de l'accueil disparaît pendant la connexion système. Le portrait
+mesure 64 points et suit Dynamic Type jusqu'à 88 points.
+
+L'icône de lancement système est une ressource distincte : le bitmap App Store
+1024 × 1024 reste opaque. Cette contrainte ne s'applique pas au portrait de
+l'interface. Une éventuelle version Icon Composer peut utiliser des calques
+translucides ; son fond importé doit rester opaque et couvrir toute l'image.
 
 Le catalogue d'assets porte les couleurs adaptatives :
 
@@ -33,6 +41,13 @@ Chaque onglet utilise une pile de navigation native. La préparation d'un envoi
 s'ouvre dans une feuille ; les champs, erreurs et actions restent visibles avec
 le clavier et lorsque le texte est agrandi.
 
+Les onglets, barres d'outils et feuilles utilisent les matériaux natifs fournis
+par SwiftUI : Liquid Glass sur les systèmes récents, rendu système compatible
+sur iOS 17. Ne pas dessiner un faux verre ou imposer un fond personnalisé aux
+barres. Les documents, listes et formulaires appartiennent à la couche de
+contenu ; ils conservent leur fond lisible. Les raffinements iOS 27 et les
+préférences de transparence sont laissés au système.
+
 L'action principale prépare une opération. La validation humaine ouvre le
 navigateur système et demeure distincte de cette préparation. Le libellé doit
 expliquer le prochain geste sans laisser croire qu'un envoi a déjà eu lieu.
@@ -47,6 +62,8 @@ infection confirmée et ne pas masquer un échec derrière un indicateur infini.
 
 Les listes distinguent l'attente, le traitement et les résultats confirmés.
 Associer une icône et un texte à chaque état : la couleur seule ne suffit pas.
+Les échecs et résultats inconnus utilisent l'encre adaptative, pour conserver
+le contraste du petit texte ; leur symbole et leur libellé portent le sens.
 Un état fournisseur inconnu ne doit pas être présenté comme un échec certain
 ni encourager un renvoi susceptible de créer un doublon.
 
