@@ -169,9 +169,11 @@ their own display language. This confers no communication or approval authority.
 
 The app starts with the last device choice, then a supported device language,
 then French. A stored account preference wins on login/restoration and refresh.
-Language selection on Welcome is local; selecting it in Account saves it to the
-server. An unconfirmed save restores the prior displayed preference. Refresh
-responses started before a save cannot overwrite its newer choice. Navigation
+Language selection on Welcome is local and stored separately from the active
+account preference; selecting it in Account saves it only to the server. Signing
+out restores the welcome choice, so one account cannot change the anonymous
+choice or the next account’s default. An unconfirmed save restores the prior displayed preference. Refresh
+responses started before or during a save cannot overwrite its newer choice. Navigation
 and draft fields are retained when the locale environment changes.
 
 Native requests send `Accept-Language`; system authentication includes the bounded

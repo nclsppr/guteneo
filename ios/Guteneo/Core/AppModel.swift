@@ -11,6 +11,7 @@ final class AppModel {
     private(set) var language: AppLanguage
     private(set) var isSavingLanguage = false
     @ObservationIgnored private let preferences: UserDefaults
+    @ObservationIgnored private let deviceLanguage: AppLanguage
     private static let languageKey = "guteneo.preferredLocale"
     private var languageGeneration = 0
     private(set) var phase: SessionPhase = .restoring
@@ -42,7 +43,8 @@ final class AppModel {
 
     init(client: APIClient = .live, credentials: any CredentialStore = KeychainCredentials(), auth: MobileAuthenticator? = nil, preferences: UserDefaults = .standard, preferredLanguages: [String] = Locale.preferredLanguages) {
         self.preferences = preferences
-        self.language = preferences.string(forKey: Self.languageKey).flatMap(AppLanguage.init(rawValue:)) ?? AppLanguage.resolve(preferredLanguages)
+        self.deviceLanguage = AppLanguage.resolve(preferredLanguages)
+        self.language = preferences.string(forKey: Self.languageKey).flatMap(AppLanguage.init(rawValue:)) ?? deviceLanguage
         self.client = client
         self.credentials = credentials
         self.auth = auth ?? MobileAuthenticator()
@@ -247,12 +249,12 @@ final class AppModel {
     func chooseWelcomeLanguage(_ value: AppLanguage) {
         guard phase != .authenticated else { return }
         languageGeneration += 1
+        preferences.set(value.rawValue, forKey: Self.languageKey)
         applyLanguage(value)
     }
 
     private func applyLanguage(_ value: AppLanguage) {
         language = value
-        preferences.set(value.rawValue, forKey: Self.languageKey)
         Task { await client.setLanguage(value) }
     }
 
@@ -265,7 +267,11 @@ final class AppModel {
         let languageVersion = languageGeneration
         isSavingLanguage = true
         applyLanguage(value)
-        defer { isSavingLanguage = false }
+        defer {
+            isSavingLanguage = false
+            // Invalidate account reads started before or during this save.
+            languageGeneration += 1
+        }
         do {
             if isPreview { return }
             await client.setLanguage(value)
@@ -310,6 +316,8 @@ final class AppModel {
     }
     private func clearAccount() {
         dataGeneration += 1
+        languageGeneration += 1
+        applyLanguage(preferences.string(forKey: Self.languageKey).flatMap(AppLanguage.init(rawValue:)) ?? deviceLanguage)
         session = nil
         documents = []
         dispatches = []

@@ -157,7 +157,8 @@ dans Compte. Le catalogue `Guteneo/Resources/Localizable.xcstrings` contient
 d’accessibilité. Le choix de l’accueil reste sur cet appareil ; la préférence du
 profil est sauvegardée pour le même utilisateur que sur le site et relue à la
 connexion ainsi qu’au retour dans l’app. En cas d’enregistrement non confirmé,
-le choix affiché précédent est rétabli. Les documents, messages et destinataires
+le choix affiché précédent est rétabli. La préférence du profil ne remplace pas
+le choix anonyme de l’accueil, qui est rétabli à la déconnexion. Les documents, messages et destinataires
 restent dans leur langue originale. Dates, tailles de fichiers et montants
 suivent la langue sélectionnée ; le clavier et les panneaux système restent
 régis par iOS.
@@ -167,8 +168,8 @@ que les champs d’un brouillon. Le parcours navigateur d’autorisation de l’
 de validation d’un envoi a son propre catalogue explicite en quatre langues.
 Le mode d’emploi de la migration et le contrat sont dans `docs/IOS_API.md`.
 
-Validation locale : compilation simulateur, 21 tests unitaires et 6 tests
-d’interface réussis sur iPhone 17 Pro Max, iOS 26.5. Les tests couvrent les
+Validation locale : compilation simulateur, 22 tests unitaires et 6 tests
+d’interface réussis sur iPhone 17 Pro Max, iOS 27.0. Les tests couvrent les
 catalogues réellement embarqués, la priorité du profil, la persistance locale,
 le retour au choix précédent après un échec serveur, l’accueil anglais puis la
 navigation conservée en allemand et luxembourgeois. Captures non retouchées dans

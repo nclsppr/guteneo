@@ -367,18 +367,61 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         NativeURLProtocol.stub.configure(status: 503, data: Data())
         do { try await model.saveLanguage(.de); XCTFail("Server refusal must be visible") } catch { }
         XCTAssertEqual(model.language, .en)
-        XCTAssertEqual(AppModel(preferences: preferences).language, .en)
-        NativeURLProtocol.stub.configure(status: 200, data: Self.validSessionWithLanguage(.lb))
-        try await model.saveLanguage(.lb)
-        XCTAssertEqual(model.language, .lb)
+        XCTAssertEqual(AppModel(preferences: preferences).language, .lb, "Account preferences never replace the welcome choice")
+        NativeURLProtocol.stub.configure(status: 200, data: Self.validSessionWithLanguage(.de))
+        try await model.saveLanguage(.de)
+        XCTAssertEqual(model.language, .de)
         let request = try XCTUnwrap(NativeURLProtocol.stub.lastRequest)
         XCTAssertEqual(request.url?.path, "/api/mobile/v1/account")
         XCTAssertEqual(request.httpMethod, "PATCH")
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "GuteneoNative test-token")
         XCTAssertNil(request.value(forHTTPHeaderField: "Cookie"))
         XCTAssertNil(request.value(forHTTPHeaderField: "Origin"))
-        XCTAssertEqual(model.session?.user.preferredLocale, .lb)
+        XCTAssertEqual(model.session?.user.preferredLocale, .de)
         XCTAssertEqual(AppModel(preferences: preferences).language, .lb)
+        NativeURLProtocol.stub.configure(status: 204, data: Data())
+        await model.signOut()
+        XCTAssertEqual(model.language, .lb, "Sign-out restores the separate welcome preference")
+    }
+
+    @MainActor
+    func testAccountReadStartedDuringLocaleSaveCannotUndoSelection() async throws {
+        let suite = "guteneo.locale.race.\(UUID().uuidString)"
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        let configuration = APIClient.sessionConfiguration()
+        configuration.protocolClasses = [NativeURLProtocol.self]
+        let network = URLSession(configuration: configuration)
+        defer { network.invalidateAndCancel() }
+        let credentials = MemoryCredentials()
+        try credentials.save(StoredCredentials(token: "test-token", expiresAt: "2099-01-01T00:00:00Z"))
+        let english = Self.validSessionWithLanguage(.en)
+        let luxembourgish = Self.validSessionWithLanguage(.lb)
+        let model = AppModel(client: APIClient(session: network), credentials: credentials, preferences: preferences, preferredLanguages: ["fr"])
+        @Sendable func fixture(_ request: URLRequest) -> (Int, Data, TimeInterval) {
+            switch request.url?.lastPathComponent {
+            case "session", "account": return (200, english, 0)
+            case "capabilities": return (200, Data(#"{"version":"1","mode":"live","simulation":false,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[],"limits":{"pdfBytes":10485760}}"#.utf8), 0)
+            case "deletion-request": return (200, Data(#"{"request":null}"#.utf8), 0)
+            default: return (200, Data(#"{"items":[],"nextCursor":null}"#.utf8), 0)
+            }
+        }
+        NativeURLProtocol.stub.configureHandler(fixture)
+        await model.restoreSession()
+        XCTAssertEqual(model.language, .en)
+        let started = expectation(description: "Language PATCH started")
+        NativeURLProtocol.stub.configureHandler { request in
+            if request.httpMethod == "PATCH" { started.fulfill(); return (200, luxembourgish, 0.15) }
+            if request.url?.lastPathComponent == "account" { return (200, english, 0.3) }
+            return fixture(request)
+        }
+        let save = Task { try await model.saveLanguage(.lb) }
+        await fulfillment(of: [started], timeout: 3)
+        await model.refresh()
+        try await save.value
+        XCTAssertEqual(model.language, .lb)
+        XCTAssertEqual(model.session?.user.preferredLocale, .lb)
+        XCTAssertEqual(AppModel(preferences: preferences, preferredLanguages: ["fr"]).language, .fr)
     }
 
     private static func validSessionWithLanguage(_ language: AppLanguage) -> Data {

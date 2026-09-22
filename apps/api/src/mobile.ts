@@ -546,7 +546,7 @@ export async function handleMobileRoute(
         JOIN organizations o ON o.id=m.organization_id
         WHERE n.token_hash=? AND n.organization_id=? AND n.user_id=? AND n.expires_at>? AND b.expires_at>?
         AND o.mode=? AND (b.is_development=0 OR ?=1)
-        AND (b.is_development=1 OR (${authenticationPolicy(env) === "verified_email" ? "b.verified_account=1" : "b.verified_account=1 AND (m.role!='admin' OR b.mfa=1)"}))
+        AND (b.is_development=1 OR (${authenticationPolicy(env) === "verified_email" ? "b.verified_account=1" : "(m.role!='admin' OR b.mfa=1)"}))
         AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=n.user_id AND d.status='completed')`,
       ).bind(
         auditId,
