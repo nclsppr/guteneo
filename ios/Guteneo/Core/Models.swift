@@ -114,6 +114,11 @@ struct DocumentRecord: Codable, Identifiable, Sendable {
 }
 
 struct DispatchRecord: Codable, Identifiable, Sendable {
+    struct FaxPricing: Codable, Sendable {
+        // Only the execution boundary is needed here. Server presentation may
+        // contain funding copy and is never decoded into native UI content.
+        let executionScope: String?
+    }
     let id: String
     let channel: Channel
     let recipient: [String: String]
@@ -126,12 +131,13 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
     let estimatedMinor: Int
     let ceilingMinor: Int
     let quoteExpiresAt: String?
+    let faxPricing: FaxPricing?
     let currency: String
     let fingerprint: String
     let createdAt: String
     let updatedAt: String
     enum CodingKeys: String, CodingKey {
-        case id, channel, subject, text, status, mode, currency, fingerprint
+        case id, channel, subject, text, status, mode, currency, fingerprint, faxPricing
         case recipient = "recipient_json", documentId = "document_id", senderAddress = "sender_address"
         case estimatedMinor = "estimated_minor", ceilingMinor = "ceiling_minor", quoteExpiresAt = "quote_expires_at"
         case createdAt = "created_at", updatedAt = "updated_at"
@@ -154,6 +160,7 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         estimatedMinor = try c.decode(Int.self, forKey: .estimatedMinor)
         ceilingMinor = try c.decode(Int.self, forKey: .ceilingMinor)
         quoteExpiresAt = try c.decodeIfPresent(String.self, forKey: .quoteExpiresAt)
+        faxPricing = try c.decodeIfPresent(FaxPricing.self, forKey: .faxPricing)
         currency = try c.decode(String.self, forKey: .currency)
         fingerprint = try c.decode(String.self, forKey: .fingerprint)
         createdAt = try c.decode(String.self, forKey: .createdAt)
@@ -163,7 +170,9 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         recipient["email"] ?? recipient["phone"] ?? [recipient["name"], recipient["city"], recipient["country"]].compactMap { $0 }.joined(separator: ", ")
     }
     var statusTitle: String {
-        switch status {
+        if isReviewPreparation { return "Préparation de référence" }
+        if status == "prepared", faxPricing?.executionScope != nil { return "À consulter" }
+        return switch status {
         case "draft", "prepared", "quoted", "pending_approval", "awaiting_approval": "À valider"
         case "approved": "Validé"
         case "queued": "En attente"
@@ -180,6 +189,10 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         default: "Suivi en cours"
         }
     }
+    var isReviewPreparation: Bool { faxPricing?.executionScope == "review_prepare_only" }
+    // Expired ordinary quotes remain accessible in the browser for renewal.
+    // An unrecognized scope cannot introduce a new approval capability.
+    var canHumanReview: Bool { status == "prepared" && faxPricing?.executionScope == nil }
     var canCancel: Bool { ["prepared", "queued"].contains(status) }
 }
 

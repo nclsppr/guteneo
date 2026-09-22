@@ -80,6 +80,8 @@ function safeFailure(error: unknown): string {
     return "La confirmation de sécurité n’est plus valide. Actualisez la page avant de continuer.";
   if (code === "RECIPIENT_REQUEST_REQUIRED")
     return "Confirmez que le destinataire a demandé cet e-mail avant de l’approuver.";
+  if (code === "FAX_REVIEW_PREPARATION_ONLY")
+    return "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.";
   return "L’opération n’a pas pu être confirmée. Actualisez le suivi avant de recommencer ; ne préparez pas un nouvel envoi pour remplacer un résultat incertain.";
 }
 
@@ -156,6 +158,8 @@ export async function handleMobileReview(
     );
   }
   const d = detail.dispatch;
+  const reviewPreparationOnly =
+    d.faxPricing?.executionScope === "review_prepare_only";
   const doc = d.document_id
     ? await domain.getDocument(session.context, d.document_id)
     : null;
@@ -167,6 +171,11 @@ export async function handleMobileReview(
       if (form.get("fingerprint") !== d.fingerprint)
         throw new DomainError("FINGERPRINT_MISMATCH", "", 409);
       const action = form.get("action");
+      if (
+        reviewPreparationOnly &&
+        ["approve", "confirm"].includes(String(action))
+      )
+        throw new DomainError("FAX_REVIEW_PREPARATION_ONLY", "", 409);
       if (action === "renew") {
         if (
           d.channel !== "fax" ||
@@ -284,6 +293,7 @@ export async function handleMobileReview(
     : `<pre>${escape(d.text)}</pre>`;
   const canAct =
     ["admin", "member"].includes(session.context.role) &&
+    !reviewPreparationOnly &&
     d.status === "prepared" &&
     !expired &&
     documentReady;
@@ -296,8 +306,8 @@ export async function handleMobileReview(
   return render(
     `<h1>${t("Vérifier l’envoi")}</h1><p>${escape(t(statusLabels[d.status] ?? "Suivi en cours"))}</p>${d.mode === "simulation" ? `<p class="notice">${t("Simulation : aucune communication réelle.")}</p>` : ""}${notice ? `<p class="notice" role="alert">${escape(notice)}</p>` : ""}
     <section><h2>${t("Destinataire et coût")}</h2><dl><dt>${t("Canal")}</dt><dd>${escape(t({ fax: "Fax", email: "E-mail", postal: "Courrier postal" }[d.channel]))}</dd><dt>${t("Destinataire")}</dt><dd>${Object.values(recipient).map(escape).join("<br>")}</dd><dt>${t("Expéditeur")}</dt><dd>${escape(d.sender_address)}</dd>${d.subject ? `<dt>${t("Objet")}</dt><dd>${escape(d.subject)}</dd>` : ""}<dt>${t("Estimation")}${d.mode === "production" ? t(" HT") : ""}</dt><dd>${escape(estimate)}</dd><dt>${t("Plafond ferme")}${d.mode === "production" ? t(" HT") : ""}</dt><dd>${escape(money(d.ceiling_minor))}</dd>${d.quote_expires_at ? `<dt>${t("Devis valable jusqu’au")}</dt><dd>${escape(date(d.quote_expires_at))}</dd>` : ""}${optionDetails}</dl>
-    ${d.faxPricing ? `<p>${t("Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.")}</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? `<p class="notice">${t("Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.")}</p>` : ""}` : ""}
-    ${d.quote_customer_nanoeur != null ? `<p>${t("Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.")}</p>` : ""}</section>
+    ${reviewPreparationOnly ? `<p class="notice">${t("Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun montant n’est réservé ou débité. La capacité Local Calling reste non confirmée.")}</p>` : d.faxPricing ? `<p>${t("Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.")}</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? `<p class="notice">${t("Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.")}</p>` : ""}` : ""}
+    ${!reviewPreparationOnly && d.quote_customer_nanoeur != null ? `<p>${t("Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.")}</p>` : ""}</section>
     <section><h2>${t("Contenu exact")}</h2>${doc ? `<p>${escape(doc.name)} · ${doc.pages} ${t(doc.pages > 1 ? "pages" : "page")}</p>${documentReady ? `<iframe title="${t("PDF original exact")}" src="/api/documents/${encodeURIComponent(doc.id)}/content"></iframe><p><a href="/api/documents/${encodeURIComponent(doc.id)}/content" target="_blank" rel="noopener">${t("Ouvrir le PDF original")}</a></p>` : `<p class="notice">${t("Le PDF doit terminer sa vérification avant approbation.")}</p>`}<p>${t("Empreinte SHA-256")} : <code>${escape(doc.sha256)}</code></p>` : ""}${d.channel === "email" ? emailPreview : ""}</section>
     ${expired ? `<p class="notice">${t("Le devis a expiré.")} ${t(canRenew ? "Renouvelez-le ci-dessous, puis vérifiez sa nouvelle version." : "Cet envoi ne peut pas être confirmé avec ce devis.")}</p>` : ""}${canRenew ? `<form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="renew"><button type="submit">${t("Renouveler le devis")}</button></form>` : ""}
     ${canAct && !approved ? `<section><h2>${t("Votre validation")}</h2><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="approve"><label><input type="checkbox" name="reviewed" value="yes" required>${escape(t("J’ai vérifié le contenu exact, le destinataire et les options. J’accepte le coût dans la limite de {amount} pour cette version.").replace("{amount}", money(d.ceiling_minor) + (d.mode === "production" ? t(" HT") : "")))}</label>${d.channel === "email" && d.mode === "production" ? `<label><input type="checkbox" name="recipientRequested" value="yes" required>${t("Ce destinataire a demandé cet e-mail et son contenu.")}</label>` : ""}<button type="submit">${t("Valider cette version")}</button></form></section>` : ""}

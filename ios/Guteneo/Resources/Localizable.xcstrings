@@ -88,6 +88,35 @@
         }
       }
     },
+    "Actions": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktionen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiounen"
+          }
+        }
+      }
+    },
     "Actualiser": {
       "extractionState": "manual",
       "localizations": {
@@ -755,6 +784,35 @@
         }
       }
     },
+    "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This limit is not an amount charged. View the detailed quote and its terms in your secure space."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Obergrenze ist kein abgebuchter Betrag. Das detaillierte Angebot und seine Bedingungen finden Sie in Ihrem sicheren Bereich."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dës Limitt ass kee verrechente Montant. Kuckt den detailléierten Devis a seng Konditiounen an Ärem séchere Beräich."
+          }
+        }
+      }
+    },
     "Ce plafond n’est pas un montant débité. Le devis détaillé et ses conditions sont présentés lors de votre validation.": {
       "extractionState": "manual",
       "localizations": {
@@ -896,6 +954,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dës Aktioun ass am Moment net disponibel. Probéiert méi spéit nach eng Kéier oder kontaktéiert d’Hëllef."
+          }
+        }
+      }
+    },
+    "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This preparation is only for viewing the document and quote. It cannot be approved or sent and does not reserve any amount."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Vorbereitung dient ausschließlich zur Ansicht des Dokuments und des Angebots. Sie kann weder freigegeben noch versandt werden und reserviert keinen Betrag."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dës Virbereedung déngt nëmme fir d’Dokument an den Devis ze kucken. Si kann weder bestätegt nach geschéckt ginn a reservéiert kee Montant."
           }
         }
       }
@@ -1335,6 +1422,64 @@
         }
       }
     },
+    "Consulter le devis": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulter le devis"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View quote"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angebot ansehen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Devis kucken"
+          }
+        }
+      }
+    },
+    "Consulter le devis de référence": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulter le devis de référence"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View reference quote"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Referenzangebot ansehen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De Referenzdevis kucken"
+          }
+        }
+      }
+    },
     "Contacter l’assistance": {
       "extractionState": "manual",
       "localizations": {
@@ -1737,6 +1882,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empfänger oder Betreff"
+          }
+        }
+      }
+    },
+    "Devis de référence": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devis de référence"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reference quote"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Referenzangebot"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Referenzdevis"
           }
         }
       }
@@ -2640,6 +2814,35 @@
         }
       }
     },
+    "Il n’a pas été envoyé. Retrouvez le document, le destinataire et les conditions du devis dans son suivi.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n’a pas été envoyé. Retrouvez le document, le destinataire et les conditions du devis dans son suivi."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It has not been sent. Find the document, recipient and quote terms in its tracking view."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sie wurde nicht versandt. Das Dokument, den Empfänger und die Angebotsbedingungen finden Sie in der Sendungsverfolgung."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si gouf net geschéckt. Dir fannt d’Dokument, den Empfänger an d’Konditioune vum Devis am Suivi."
+          }
+        }
+      }
+    },
     "Importer un PDF": {
       "extractionState": "manual",
       "localizations": {
@@ -3539,6 +3742,35 @@
         }
       }
     },
+    "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving the language could not be confirmed. Your previous preference has been restored. Refresh your profile before trying again."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Speichern der Sprache konnte nicht bestätigt werden. Ihre vorherige Einstellung wurde wiederhergestellt. Aktualisieren Sie Ihr Profil vor einem neuen Versuch."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’Späichere vun der Sprooch konnt net bestätegt ginn. Är viregt Astellung gouf restauréiert. Aktualiséiert Äre Profil, ier Dir nach eng Kéier probéiert."
+          }
+        }
+      }
+    },
     "L’opération a été annulée.": {
       "extractionState": "manual",
       "localizations": {
@@ -4289,6 +4521,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vum Fournisseur ugeholl"
+          }
+        }
+      }
+    },
+    "Préparation de référence": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation de référence"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reference preparation"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Referenzvorbereitung"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Referenzvirbereedung"
           }
         }
       }
@@ -6265,6 +6526,35 @@
         }
       }
     },
+    "À consulter": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À consulter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available to view"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zur Ansicht"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fir ze kucken"
+          }
+        }
+      }
+    },
     "À propos": {
       "extractionState": "manual",
       "localizations": {
@@ -6493,35 +6783,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sendung feelgeschloen"
-          }
-        }
-      }
-    },
-    "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saving the language could not be confirmed. Your previous preference has been restored. Refresh your profile before trying again."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das Speichern der Sprache konnte nicht bestätigt werden. Ihre vorherige Einstellung wurde wiederhergestellt. Aktualisieren Sie Ihr Profil vor einem neuen Versuch."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "D’Späichere vun der Sprooch konnt net bestätegt ginn. Är viregt Astellung gouf restauréiert. Aktualiséiert Äre Profil, ier Dir nach eng Kéier probéiert."
           }
         }
       }

@@ -8,7 +8,7 @@ struct DispatchesView: View {
     private var dispatches: [DispatchRecord] {
         model.dispatches.filter {
             (search.isEmpty || $0.recipientLabel.localizedStandardContains(search) || ($0.subject ?? "").localizedStandardContains(search))
-            && (!needsReview || $0.status == "prepared")
+            && (!needsReview || $0.canHumanReview)
         }
     }
     var body: some View {
@@ -65,19 +65,26 @@ struct DispatchDetailView: View {
                 }
                 Section("Limite de coût") {
                     LabeledContent("Plafond", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
-                    Notice(text: "Ce plafond n’est pas un montant débité. Le devis détaillé et ses conditions sont présentés lors de votre validation.")
+                    Notice(text: "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé.")
                     if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Devis valable jusqu’au", value: GuteneoDate.label(expires, locale: locale)) }
                 }
-                if detail.dispatch.canCancel {
+                if detail.dispatch.isReviewPreparation {
+                    Section("Devis de référence") {
+                        Notice(text: "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant.", symbol: "doc.text.magnifyingglass")
+                        if let url = detail.reviewURL {
+                            Button { openReview(url) } label: { Label("Consulter le devis de référence", systemImage: "safari") }
+                        }
+                    }
+                } else if detail.dispatch.canHumanReview {
                     Section("Votre validation") {
                         Notice(text: "Vérifiez le contenu, le destinataire, les options et le devis dans l’espace sécurisé avant de confirmer l’envoi.", symbol: "checkmark.shield")
-                        if detail.dispatch.status == "prepared", let url = detail.reviewURL {
-                            Button {
-                                var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-                                components.queryItems = [URLQueryItem(name: "locale", value: model.language.rawValue)]
-                                if let localizedURL = components.url { openURL(localizedURL) }
-                            } label: { Label("Ouvrir la validation sécurisée", systemImage: "safari") }
+                        if let url = detail.reviewURL {
+                            Button { openReview(url) } label: { Label("Ouvrir la validation sécurisée", systemImage: "safari") }
                         }
+                    }
+                }
+                if detail.dispatch.canCancel {
+                    Section("Actions") {
                         Button("Annuler cet envoi", role: .destructive) { confirmingCancel = true }
                             .disabled(cancelling || model.session?.user.role == "viewer")
                     }
@@ -112,6 +119,12 @@ struct DispatchDetailView: View {
                     }
                 }
             } message: { Text("Un envoi déjà pris en charge ne peut plus être annulé. Le serveur vérifiera son état.") }
+    }
+    private func openReview(_ url: URL) {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        components.queryItems = (components.queryItems ?? []).filter { $0.name != "locale" }
+            + [URLQueryItem(name: "locale", value: model.language.rawValue)]
+        if let localizedURL = components.url { openURL(localizedURL) }
     }
     private func load() async {
         do { detail = try await model.dispatchDetail(id: id); error = nil }

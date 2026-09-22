@@ -3,6 +3,19 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 // Reviewed interface copy only: document names, messages, recipient fields and
 // immutable approval data are never passed through this catalogue.
 const copy: Record<string, readonly [string, string, string]> = {
+  "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.":
+    [
+      "This quote is for viewing only. It cannot be approved or sent. No amount is reserved or charged.",
+      "Dieses Angebot dient nur zur Ansicht. Es kann weder freigegeben noch versandt werden. Es wird kein Betrag reserviert oder abgebucht.",
+      "Dësen Devis ass nëmme fir ze kucken. En kann weder bestätegt nach geschéckt ginn. Kee Montant gëtt reservéiert oder verrechent.",
+    ],
+  "Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun montant n’est réservé ou débité. La capacité Local Calling reste non confirmée.":
+    [
+      "For review preparation only. This reference range excluding tax uses real rates and duration assumptions; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No amount is reserved or charged. Local Calling capability remains unconfirmed.",
+      "Nur zur Vorbereitung einer Prüfung. Diese Referenzspanne ohne Steuern verwendet tatsächliche Tarife und Annahmen zur Dauer; nicht qualifizierte bedingte Anpassungen sind ausgeschlossen. Dieses Fax kann weder freigegeben noch versandt werden, auch nicht im Expertenmodus. Es wird kein Betrag reserviert oder abgebucht. Die Funktion Local Calling bleibt unbestätigt.",
+      "Nëmme fir eng Kontroll virzebereeden. Dëse Referenzberäich ouni Steiere benotzt reell Tariffer an Hypotheesen iwwer d’Dauer; net qualifizéiert bedéngt Upassunge sinn ausgeschloss. Dëse Fax kann weder bestätegt nach geschéckt ginn, och net am Expertmodus. Kee Montant gëtt reservéiert oder verrechent. D’Funktioun Local Calling bleift onbestätegt.",
+    ],
+
   "Actualiser le suivi": [
     "Refresh tracking",
     "Sendungsverfolgung aktualisieren",

@@ -82,7 +82,9 @@ L'approbation humaine demeure dans le navigateur système. Elle lie le contenu
 immuable, le destinataire, les options et le coût. La préparation dans l'app ne
 vaut ni accord humain ni envoi. Ne pas intégrer le tableau de bord HTML dans une
 WebView, activer une délégation experte ou contourner les contrôles existants
-pour rendre ce parcours plus court.
+pour rendre ce parcours plus court. Un devis limité à la préparation reste
+un devis de référence : l’interface ne doit pas inviter à le valider ou à
+l’expédier lorsque le serveur ne l’autorise pas.
 
 Les fonctions fax et email doivent respecter les capacités du compte et les
 blocages de production. Une option visible en démonstration ne prouve pas sa
@@ -132,7 +134,7 @@ condition doit recevoir une preuve datée correspondant au binaire final.
 | Condition | Preuve attendue avant soumission |
 | --- | --- |
 | Backend mobile | Version déployée et accessible ; contrat compatible avec le binaire ; séparation des comptes et refus d'accès vérifiés. Aucun déploiement n'est attesté par ce dossier. |
-| Authentification | Client natif enregistré, retour exact, connexion/déconnexion et expiration testées sur un vrai compte autorisé. Aucun secret embarqué. |
+| Authentification | Connexion système, consentement du navigateur et retour exact, connexion/déconnexion et expiration testées sur un vrai compte autorisé. Le client réutilise l'authentification du service ; aucun secret embarqué. |
 | Suppression du compte | Parcours complet et suppression effective des données prévues, révocation des accès, conservation légale documentée. |
 | Parcours métier | Import PDF, consultation, préparation, approbation dans le navigateur et retour vers le suivi vérifiés ; erreurs et canaux indisponibles expliqués. Aucun envoi réel sans autorisation distincte. |
 | Crédits | Absence de recharge et d'incitation d'achat vérifiée dans l'app, ses erreurs, ses liens, les pages d'approbation et les captures. |

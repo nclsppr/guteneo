@@ -13,7 +13,7 @@ The native actor can import/read documents and prepare/cancel commands through
 the same domain services. It cannot approve, confirm, manage expert mandates or
 access billing. `/auth/mobile/review/:id` preserves browser CSRF, immutable
 fingerprint review and separate explicit approval/confirmation, without a billing
-navigation surface. Migration 0033 adds native credentials and deletion requests;
+navigation surface. Migration 0037 adds native credentials and deletion requests;
 it has not been applied in production. Deletion requests are not completed deletion.
 See `IOS_API.md` and `ACCOUNT_DELETION.md` for boundaries and outstanding decisions.
 
