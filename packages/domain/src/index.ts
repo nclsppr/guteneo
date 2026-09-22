@@ -44,7 +44,7 @@ export type ActorContext = {
   organizationId: string;
   userId: string;
   role: "admin" | "member" | "viewer";
-  actor: "browser" | "mcp" | "system";
+  actor: "browser" | "native" | "mcp" | "system";
 };
 export type DomainContext = ActorContext;
 /** Server-created proof: credentials and current authority are rechecked in the acceptance transaction. */
@@ -1184,6 +1184,12 @@ export class DomainService {
     proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
     writable(ctx);
+    if (ctx.actor === "native")
+      throw new DomainError(
+        "HUMAN_APPROVAL_REQUIRED",
+        "La validation et l’expédition doivent être confirmées dans le navigateur.",
+        403,
+      );
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
     await assertFaxDispatchSendable(this.db, row);

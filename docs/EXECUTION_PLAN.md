@@ -1,5 +1,19 @@
 # Execution plan and handoff
 
+## Native iOS candidate — 22 September 2026
+
+A native iPhone/iPad client, mobile v1 API, dedicated human browser review and
+App Store preparation dossier are under `ios/`, `IOS_API.md` and
+`ACCOUNT_DELETION.md`. No production deployment, migration, live send, TestFlight
+upload or App Store submission is part of this local evidence.
+
+Before submission: complete and qualify account deletion, validate the public
+privacy policy, authorize the mobile migration/backend release, qualify real
+mobile sign-in on a physical device, provide an App Review account, and sign the
+final archive with the selected Apple Developer team. The in-app deletion request
+must not be described as an already deleted account. Local compilation and
+simulator fixtures do not prove a live account journey.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: `get_postal_setup`, `configure_postal_sender` and the

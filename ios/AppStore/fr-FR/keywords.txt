@@ -1,0 +1,1 @@
+fax,pdf,documents,envoi,suivi,email,courriel,bureau,professionnel

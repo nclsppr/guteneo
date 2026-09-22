@@ -1,5 +1,22 @@
 # Architecture
 
+## Native companion candidate — 22 September 2026
+
+`ios/` is a native SwiftUI/PDFKit client of `/api/mobile/v1`, not an HTML wrapper.
+A human browser consent issues a single-use 60-second S256-bound code; its exchange
+creates a hashed native session, bounded by one hour and its parent browser
+session. Each request checks current membership and account policy. Native tokens
+use their own authorization scheme and cannot become browser or MCP authority.
+Tokens stay in the device-only Keychain; URLSession uses no cookie or disk cache.
+
+The native actor can import/read documents and prepare/cancel commands through
+the same domain services. It cannot approve, confirm, manage expert mandates or
+access billing. `/auth/mobile/review/:id` preserves browser CSRF, immutable
+fingerprint review and separate explicit approval/confirmation, without a billing
+navigation surface. Migration 0033 adds native credentials and deletion requests;
+it has not been applied in production. Deletion requests are not completed deletion.
+See `IOS_API.md` and `ACCOUNT_DELETION.md` for boundaries and outstanding decisions.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: browser and MCP postal setup use the same transaction
