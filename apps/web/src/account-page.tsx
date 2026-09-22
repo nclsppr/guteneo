@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
   api,
@@ -261,7 +262,12 @@ export function Account({ session, onUpdated }: Props) {
                               className="button small"
                               disabled={action.pending || sessionAction.pending}
                               onClick={() => void revoke(item.id)}
-                              aria-label={`${item.current ? "Me déconnecter de" : "Révoquer"} la session ouverte le ${date(item.createdAt)}`}
+                              aria-label={msg(
+                                item.current
+                                  ? "Me déconnecter de la session ouverte le {0}"
+                                  : "Révoquer la session ouverte le {0}",
+                                date(item.createdAt),
+                              )}
                             >
                               {item.current ? "Me déconnecter" : "Révoquer"}
                             </button>
@@ -350,7 +356,7 @@ function MemberRow({
           className="button small"
           disabled={disabled || role === member.role}
           onClick={() => onRole(role)}
-          aria-label={`Enregistrer le rôle de ${member.name}`}
+          aria-label={msg("Enregistrer le rôle de {0}", member.name)}
         >
           Enregistrer le rôle
         </button>
@@ -359,7 +365,7 @@ function MemberRow({
           className="text-button"
           disabled={disabled || (!member.sessions && !member.connections)}
           onClick={onRevoke}
-          aria-label={`Déconnecter ${member.name} de cet atelier`}
+          aria-label={msg("Déconnecter {0} de cet atelier", member.name)}
         >
           Déconnecter les accès
         </button>

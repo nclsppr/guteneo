@@ -1184,5 +1184,25 @@
     "describe authorisations, trial credit and service limits.",
     "beschreiben Berechtigungen, Testguthaben und Dienstgrenzen.",
     "beschreiwen Autorisatiounen, Testkredit a Servicegrenzen."
+  ],
+  "Me déconnecter de la session ouverte le {0}": [
+    "Sign me out of the session opened on {0}",
+    "Mich von der am {0} geöffneten Sitzung abmelden",
+    "Mech aus der Sessioun ausloggen, déi den {0} opgemaach gouf"
+  ],
+  "Révoquer la session ouverte le {0}": [
+    "Revoke the session opened on {0}",
+    "Die am {0} geöffnete Sitzung widerrufen",
+    "D’Sessioun widderruffen, déi den {0} opgemaach gouf"
+  ],
+  "Enregistrer le rôle de {0}": [
+    "Save the role for {0}",
+    "Rolle von {0} speichern",
+    "D’Roll vu {0} späicheren"
+  ],
+  "Déconnecter {0} de cet atelier": [
+    "Sign {0} out of this workshop",
+    "{0} von dieser Werkstatt abmelden",
+    "{0} aus dësem Atelier ausloggen"
   ]
 }
