@@ -19,7 +19,7 @@ final class GuteneoUITests: XCTestCase {
     func testSyntheticPDFAndPreparationCanBeReadAndClosedWithoutSending() {
         let app = launch(arguments: ["--uitesting-preview"])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
-        app.tabBars.buttons["Documents"].tap()
+        selectTab("Documents", in: app)
         let document = app.staticTexts["Dossier de souscription.pdf"].firstMatch
         XCTAssertTrue(document.waitForExistence(timeout: 5))
         document.tap()
@@ -40,11 +40,37 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(prepareFax.waitForExistence(timeout: 5))
         prepareFax.tap()
         XCTAssertTrue(app.textFields["recipient"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["prepareQuote"].isEnabled)
+        let prepareQuote = app.buttons["prepareQuote"]
+        for _ in 0..<3 where !prepareQuote.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(prepareQuote.waitForExistence(timeout: 5))
+        XCTAssertFalse(prepareQuote.isEnabled)
         attachScreenshot(app, name: "Préparation — aucun envoi")
         assertNoPurchaseCallToAction(in: app)
         app.buttons["Fermer"].tap()
         XCTAssertTrue(app.navigationBars["Document"].waitForExistence(timeout: 5))
+    }
+
+    func testReferencePreparationHasNoApprovalAction() {
+        let app = launch(arguments: ["--uitesting-preview"])
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        selectTab("Envois", in: app)
+        let reference = app.staticTexts["+33 1 00 00 00 02"].firstMatch
+        XCTAssertTrue(reference.waitForExistence(timeout: 5))
+        reference.tap()
+        XCTAssertTrue(app.navigationBars["Suivi de l’envoi"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Préparation de référence"].firstMatch.waitForExistence(timeout: 5))
+        let explanation = app.staticTexts.matching(NSPredicate(
+            format: "label == %@",
+            "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant."
+        )).firstMatch
+        for _ in 0..<3 where !explanation.exists { app.swipeUp() }
+        XCTAssertTrue(explanation.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Ouvrir la validation sécurisée"].exists)
+        XCTAssertFalse(app.staticTexts["Votre validation"].exists)
+        assertNoPurchaseCallToAction(in: app)
+        attachScreenshot(app, name: "Devis de référence — aucune approbation")
     }
 
     func testAccessibilityTextSizeKeepsAccountNavigationAvailable() {
@@ -54,7 +80,7 @@ final class GuteneoUITests: XCTestCase {
         ])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         attachScreenshot(app, name: "Atelier — texte accessibilité XXXL")
-        app.tabBars.buttons["Compte"].tap()
+        selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "Compte — texte accessibilité XXXL")
         assertNoPurchaseCallToAction(in: app)
@@ -67,19 +93,37 @@ final class GuteneoUITests: XCTestCase {
         attachScreenshot(app, name: "Atelier — simulation")
         assertNoPurchaseCallToAction(in: app)
 
-        app.tabBars.buttons["Documents"].tap()
+        selectTab("Documents", in: app)
         XCTAssertTrue(app.buttons["importPDF"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "Documents — simulation")
         assertNoPurchaseCallToAction(in: app)
 
-        app.tabBars.buttons["Envois"].tap()
+        selectTab("Envois", in: app)
         XCTAssertTrue(app.navigationBars["Envois"].waitForExistence(timeout: 5))
         assertNoPurchaseCallToAction(in: app)
 
-        app.tabBars.buttons["Compte"].tap()
+        selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "Compte — simulation")
         assertNoPurchaseCallToAction(in: app)
+    }
+
+    private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let tabBarButton = app.tabBars.buttons[label]
+        if tabBarButton.exists {
+            tabBarButton.tap()
+            return
+        }
+        // iPad exposes its floating tab items as cells or other accessible elements.
+        let tabItem = app.descendants(matching: .any).matching(NSPredicate(
+            format: "label == %@ AND (elementType == %d OR elementType == %d OR elementType == %d)",
+            label,
+            XCUIElement.ElementType.button.rawValue,
+            XCUIElement.ElementType.cell.rawValue,
+            XCUIElement.ElementType.other.rawValue
+        )).firstMatch
+        XCTAssertTrue(tabItem.waitForExistence(timeout: 5), "Onglet introuvable : \(label)", file: file, line: line)
+        tabItem.tap()
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

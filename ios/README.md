@@ -70,7 +70,9 @@ Les tests d'interface vérifient le parcours de connexion, la navigation entre
 Atelier, Documents, Envois et Compte, la lecture du PDF synthétique, l'ouverture
 et la fermeture de la préparation sans envoi, la navigation en taille de texte
 d'accessibilité et l'absence d'invitation à recharger sur ces écrans. Ils joignent
-des captures au résultat de test. Cela ne remplace pas
+des captures au résultat de test. Un scénario dédié vérifie aussi qu’un devis
+de référence limité à la préparation n’offre pas de validation ou d’envoi.
+Cela ne remplace pas
 une revue de toutes les erreurs et pages web ouvertes par l'app, ni les essais
 sur appareil physique et avec VoiceOver.
 
@@ -132,19 +134,40 @@ l'utilisateur doit la compléter. Relancer ensuite `doctor.sh` puis les tests.
 La liste d'appareils fournie par un outil CoreSimulator existant ne prouve pas
 que Xcode peut exécuter les tests avec son propre SDK.
 
-Après mise à jour des composants, les dix-neuf tests unitaires du client ont été
-exécutés avec succès sur iPhone 17 Pro Max, iOS 26.5, avec signature ad hoc. Cela
-inclut un véritable cycle d'écriture, lecture et suppression dans le trousseau.
+Après mise à jour des composants, dix-neuf tests unitaires ont réussi sur
+iPhone 17 Pro Max, iOS 26.5. Le lot final de vingt tests, incluant la portée des
+devis de référence, a réussi sur iPad Pro 13 pouces M5, iPadOS 27.0. Ces tests
+utilisent une signature ad hoc et un véritable cycle d’écriture, lecture et
+suppression dans le trousseau.
 Les premiers builds de simulateur sans signature empêchaient la suppression de
 la session et affichaient une erreur ; la signature des builds et tests de
 simulateur a été corrigée, sans masquer l'erreur dans l'interface.
 
-La première archive Release
-non signée contient l'app universelle iPhone/iPad, le manifeste, les assets et
-les symboles de diagnostic. Aucune identité Apple Distribution utilisable
+Quatre scénarios d’interface distincts ont réussi sur iPhone ; cinq sur iPad,
+avec le mode sombre, le texte XXXL, la lecture PDF et le passage en arrière-plan,
+la préparation sans envoi et le devis de référence sans validation. Les reprises
+ont été ciblées sur les assertions corrigées. Le détail des lots, les limites et
+les captures sont dans [QA/Screenshots/README.md](QA/Screenshots/README.md).
+
+L’archive Release non signée contient l’app universelle iPhone/iPad, le manifeste,
+les assets et les symboles de diagnostic. Aucune identité Apple Distribution utilisable
 n'était présente dans le trousseau lors du contrôle ; une identité Apple
 Development était présente. Cela laisse l'export de distribution à qualifier.
 
 Les résultats de compilation, d'exécution, de capture et de distribution doivent
 être rapportés séparément, avec le build concerné. Le succès de la réparation
 des outils ne vaut pas validation de l'application.
+
+## Dernière archive inspectée
+
+Le 22 septembre 2026, l’archive locale
+`ios/.build/Archives/run-ekw9rF/Guteneo-unsigned.xcarchive` a été produite après
+la correction du contraste sombre, à partir des sources applicatives du commit
+`24bbe2a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
+(build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
+de confidentialité et les symboles. Elle est explicitement non signée.
+
+Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
+`--uitesting-preview` sont absents du binaire Release. Le script d’archive
+contrôle également cette exclusion lors des prochains passages. Ce contrôle
+ne constitue ni une installation sur appareil ni une validation App Store.

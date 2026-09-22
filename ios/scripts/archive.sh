@@ -40,6 +40,13 @@ app_path="$archive_path/Products/Applications/Guteneo.app"
   printf '%s\n' 'Archive incomplète : Info.plist, manifeste de confidentialité ou catalogue manquant.' >&2
   exit 65
 }
+release_strings="$(/usr/bin/strings "$app_path/Guteneo")"
+if [[ "$release_strings" == *'Atelier Horizon'* || "$release_strings" == *'Dossier de souscription'* || "$release_strings" == *'--uitesting-preview'* ]]; then
+  printf '%s\n' 'Archive Release invalide : une chaîne réservée aux fixtures Debug est présente dans le binaire.' >&2
+  exit 65
+fi
+unset release_strings
+printf '%s\n' 'Contrôle Release : les trois marqueurs connus des fixtures Debug sont absents du binaire.'
 if [[ "$mode" == --signed ]]; then
   /usr/bin/codesign --verify --deep --strict "$app_path"
 else
