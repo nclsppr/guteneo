@@ -12,7 +12,7 @@ It persists a unique receipt for the user in `account_deletion_requests`, return
 HTTP 202 and exposes the receipt to that user. The iOS interface calls this a
 request. It must not describe acceptance of the request as completed deletion.
 
-Migration `0033_native_sessions.sql` includes `requested`, `processing` and
+Migration `0037_native_sessions.sql` includes `requested`, `processing` and
 `completed` states, timestamps and an operator processing reference. Those fields
 are storage for a future process; they do not perform erasure. There is currently
 no deletion processor, provider erasure integration, completion workflow or
@@ -48,7 +48,7 @@ The existing schema prevents a broad `DELETE users` operation:
 - Financial reservations, entries, frozen quotes and settlement proofs have
   their own retention and immutability constraints. Removing these to make a
   foreign-key check pass would destroy business evidence.
-- `0033_native_sessions.sql` makes native credentials depend on the browser
+- `0037_native_sessions.sql` makes native credentials depend on the browser
   session and membership. Its deletion receipt itself still references the user.
 
 The current document maintenance code removes eligible R2 content after its

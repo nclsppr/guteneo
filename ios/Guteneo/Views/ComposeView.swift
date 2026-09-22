@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ComposeView: View {
+    @Environment(\.locale) private var locale
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     var documentID: String?
@@ -10,7 +11,7 @@ struct ComposeView: View {
     @State private var selectedSender = ""
     @State private var subject = ""
     @State private var message = ""
-    @State private var ceiling = "2,00"
+    @State private var ceiling = ""
     @State private var requestKey = UUID().uuidString
     @State private var working = false
     @State private var error: String?
@@ -57,16 +58,16 @@ struct ComposeView: View {
                 } else {
                     Section("Envoi") {
                         Picker("Mode d’envoi", selection: $channel) {
-                            ForEach(channels) { Text($0.title).tag($0) }
+                            ForEach(channels) { Text(LocalizedStringKey($0.title)).tag($0) }
                         }
                         Picker("Expéditeur", selection: $selectedSender) {
                             Text("Choisir un expéditeur").tag("")
-                            ForEach(senders) { Text($0.displayName).tag($0.id) }
+                            ForEach(senders) { Text($0.name ?? $0.address ?? L10n.text($0.channel.title, locale: locale)).tag($0.id) }
                         }
                         if senders.isEmpty { Notice(text: "Aucun expéditeur n’est configuré pour ce mode d’envoi.") }
                     }
                     Section("Destinataire") {
-                        TextField(channel == .fax ? "Numéro international (+33…)" : "Adresse e-mail", text: $recipient)
+                        TextField(LocalizedStringKey(channel == .fax ? "Numéro international (+33…)" : "Adresse e-mail"), text: $recipient)
                             .keyboardType(channel == .fax ? .phonePad : .emailAddress)
                             .textContentType(channel == .fax ? .telephoneNumber : .emailAddress)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -122,6 +123,7 @@ struct ComposeView: View {
         .onChange(of: signature) { _, _ in requestKey = UUID().uuidString }
         .onChange(of: channel) { _, _ in selectedSender = senders.count == 1 ? senders[0].id : "" }
         .task {
+            if ceiling.isEmpty { ceiling = Decimal(2).formatted(.number.precision(.fractionLength(2)).locale(locale)) }
             selectedDocument = documentID ?? ""
             if !channels.contains(channel), let first = channels.first { channel = first }
             if senders.count == 1 { selectedSender = senders[0].id }

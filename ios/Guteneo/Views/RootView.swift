@@ -28,7 +28,15 @@ struct WelcomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
-                    Wordmark().padding(.bottom, 18)
+                    HStack {
+                        Wordmark()
+                        Spacer()
+                        Picker("Langue", selection: Binding(get: { model.language }, set: model.chooseWelcomeLanguage)) {
+                            ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
+                        }
+                        .pickerStyle(.menu).accessibilityIdentifier("welcomeLanguage")
+                        .disabled(model.isWorking)
+                    }.padding(.bottom, 18)
                     Image("BrandMark").resizable().scaledToFit()
                         .frame(width: 106, height: 106).accessibilityHidden(true)
                     Text("Votre atelier,\nà portée de main.")
@@ -62,7 +70,7 @@ struct WelcomeView: View {
                     Text("La connexion sécurisée s’ouvre dans le navigateur système.")
                         .font(.footnote).foregroundStyle(.secondary)
                     HStack(spacing: 24) {
-                        Link("Confidentialité", destination: Brand.legalURL)
+                        Link("Confidentialité", destination: Brand.siteURL("/confidentialite/", locale: model.language.locale))
                         Link("Assistance", destination: Brand.supportURL)
                     }.font(.footnote).padding(.vertical, 6)
                 }

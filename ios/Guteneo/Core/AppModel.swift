@@ -8,6 +8,11 @@ enum SessionPhase: Equatable { case restoring, signedOut, authenticated, expired
 
 @MainActor @Observable
 final class AppModel {
+    private(set) var language: AppLanguage
+    private(set) var isSavingLanguage = false
+    @ObservationIgnored private let preferences: UserDefaults
+    private static let languageKey = "guteneo.preferredLocale"
+    private var languageGeneration = 0
     private(set) var phase: SessionPhase = .restoring
     private(set) var session: MobileSession?
     private(set) var documents: [DocumentRecord] = []
@@ -35,7 +40,9 @@ final class AppModel {
     private var loadingMoreDocuments = false
     private var loadingMoreDispatches = false
 
-    init(client: APIClient = .live, credentials: any CredentialStore = KeychainCredentials(), auth: MobileAuthenticator? = nil) {
+    init(client: APIClient = .live, credentials: any CredentialStore = KeychainCredentials(), auth: MobileAuthenticator? = nil, preferences: UserDefaults = .standard, preferredLanguages: [String] = Locale.preferredLanguages) {
+        self.preferences = preferences
+        self.language = preferences.string(forKey: Self.languageKey).flatMap(AppLanguage.init(rawValue:)) ?? AppLanguage.resolve(preferredLanguages)
         self.client = client
         self.credentials = credentials
         self.auth = auth ?? MobileAuthenticator()
@@ -47,12 +54,14 @@ final class AppModel {
         do {
             guard let stored = try credentials.load() else { phase = .signedOut; return }
             guard !stored.hasExpired else { try credentials.delete(); phase = .expired; return }
+            await client.setLanguage(language)
             await client.setToken(stored.token)
             let current = try await client.session()
             try Task.checkCancellation()
             guard generation == sessionGeneration else { return }
             guard !current.simulation else { throw APIError(code: "SIMULATION_UNAVAILABLE") }
             session = current
+            if let preferred = current.user.preferredLocale { applyLanguage(preferred) }
             phase = .authenticated
             await refresh()
         } catch is CancellationError {
@@ -72,7 +81,8 @@ final class AppModel {
         sessionGeneration += 1
         let generation = sessionGeneration
         do {
-            let authorization = try await auth.authenticate()
+            await client.setLanguage(language)
+            let authorization = try await auth.authenticate(language: language)
             let exchange = try await client.exchange(code: authorization.code, verifier: authorization.verifier)
             try Task.checkCancellation()
             guard generation == sessionGeneration else { return }
@@ -82,6 +92,7 @@ final class AppModel {
             try credentials.save(stored)
             await client.setToken(exchange.token)
             session = exchange.session
+            if let preferred = exchange.session.user.preferredLocale { applyLanguage(preferred) }
             phase = .authenticated
             await refresh()
         } catch is CancellationError { }
@@ -120,15 +131,21 @@ final class AppModel {
         isLoading = true
         defer { if dataVersion == dataGeneration { isLoading = false } }
         do {
+            let languageVersion = languageGeneration
+            async let nextAccount = client.account()
             async let nextDocuments = client.documents()
             async let nextDispatches = client.dispatches()
             async let nextSenders = client.senders()
             async let nextCapabilities = client.capabilities()
             async let nextDeletionRequest = client.accountDeletionRequest()
-            let (docPage, dispatchPage, senderList, currentCapabilities, deletion) = try await (nextDocuments, nextDispatches, nextSenders, nextCapabilities, nextDeletionRequest)
+            let (docPage, dispatchPage, senderList, currentCapabilities, deletion, account) = try await (nextDocuments, nextDispatches, nextSenders, nextCapabilities, nextDeletionRequest, nextAccount)
             try Task.checkCancellation()
             guard generation == sessionGeneration, dataVersion == dataGeneration else { return }
             guard !currentCapabilities.simulation, currentCapabilities.version == "1" else { throw APIError(code: "SIMULATION_UNAVAILABLE") }
+            if languageVersion == languageGeneration, !isSavingLanguage {
+                session = account
+                if let preferred = account.user.preferredLocale { applyLanguage(preferred) }
+            }
             documents = docPage.items
             dispatches = dispatchPage.items
             senders = senderList
@@ -225,6 +242,41 @@ final class AppModel {
         let result = try await perform { try await self.client.requestAccountDeletion() }
         accountDeletionRequest = result
         return result
+    }
+
+    func chooseWelcomeLanguage(_ value: AppLanguage) {
+        guard phase != .authenticated else { return }
+        languageGeneration += 1
+        applyLanguage(value)
+    }
+
+    private func applyLanguage(_ value: AppLanguage) {
+        language = value
+        preferences.set(value.rawValue, forKey: Self.languageKey)
+        Task { await client.setLanguage(value) }
+    }
+
+    func saveLanguage(_ value: AppLanguage) async throws {
+        guard !isSavingLanguage else { return }
+        guard phase == .authenticated else { throw APIError(code: "SESSION_EXPIRED", status: 401) }
+        let previous = language
+        let generation = sessionGeneration
+        languageGeneration += 1
+        let languageVersion = languageGeneration
+        isSavingLanguage = true
+        applyLanguage(value)
+        defer { isSavingLanguage = false }
+        do {
+            if isPreview { return }
+            await client.setLanguage(value)
+            let account = try await perform { try await self.client.updateLanguage(value) }
+            guard generation == sessionGeneration else { throw CancellationError() }
+            guard account.user.preferredLocale == value else { throw APIError(code: "INVALID_RESPONSE") }
+            session = account
+        } catch {
+            if languageVersion == languageGeneration { applyLanguage(previous) }
+            throw error
+        }
     }
 
     private func upsert(_ document: DocumentRecord) {

@@ -148,3 +148,29 @@ Development était présente. Cela laisse l'export de distribution à qualifier.
 Les résultats de compilation, d'exécution, de capture et de distribution doivent
 être rapportés séparément, avec le build concerné. Le succès de la réparation
 des outils ne vaut pas validation de l'application.
+
+## Langues — candidat du 22 septembre 2026
+
+Français, anglais, allemand et luxembourgeois sont proposés dès l’accueil puis
+dans Compte. Le catalogue `Guteneo/Resources/Localizable.xcstrings` contient
+225 entrées dans les quatre langues, dont les erreurs, les états et les textes
+d’accessibilité. Le choix de l’accueil reste sur cet appareil ; la préférence du
+profil est sauvegardée pour le même utilisateur que sur le site et relue à la
+connexion ainsi qu’au retour dans l’app. En cas d’enregistrement non confirmé,
+le choix affiché précédent est rétabli. Les documents, messages et destinataires
+restent dans leur langue originale. Dates, tailles de fichiers et montants
+suivent la langue sélectionnée ; le clavier et les panneaux système restent
+régis par iOS.
+
+Le changement utilise l’environnement SwiftUI et conserve la navigation ainsi
+que les champs d’un brouillon. Le parcours navigateur d’autorisation de l’app et
+de validation d’un envoi a son propre catalogue explicite en quatre langues.
+Le mode d’emploi de la migration et le contrat sont dans `docs/IOS_API.md`.
+
+Validation locale : compilation simulateur, 21 tests unitaires et 6 tests
+d’interface réussis sur iPhone 17 Pro Max, iOS 26.5. Les tests couvrent les
+catalogues réellement embarqués, la priorité du profil, la persistance locale,
+le retour au choix précédent après un échec serveur, l’accueil anglais puis la
+navigation conservée en allemand et luxembourgeois. Captures non retouchées dans
+`QA/Screenshots/multilingual/`. Cette preuve n’est ni un essai Auth0 en production,
+ni un essai sur appareil physique, ni une soumission TestFlight/App Store.

@@ -238,6 +238,125 @@ async function connect(principal = owner) {
 }
 
 describe("native mobile boundary on actual D1 and R2", () => {
+  it("persists only the current native user's locale and exposes changes to every session", async () => {
+    const { token } = await connect();
+    const second = await connect();
+    const other = await connect(outsider);
+    expect(
+      (
+        (await (await call("/session", token)).json()) as {
+          user: { preferredLocale: string | null };
+        }
+      ).user.preferredLocale,
+    ).toBeNull();
+    for (const locale of ["fr", "en", "de", "lb"]) {
+      const updated = await call("/account", token, "PATCH", {
+        preferredLocale: locale,
+      });
+      expect(updated.status).toBe(200);
+      expect(
+        ((await updated.json()) as { user: { preferredLocale: string | null } })
+          .user.preferredLocale,
+      ).toBe(locale);
+      expect(
+        (
+          (await (await call("/session", second.token)).json()) as {
+            user: { preferredLocale: string | null };
+          }
+        ).user.preferredLocale,
+      ).toBe(locale);
+    }
+    expect(
+      (
+        (await (await call("/account", other.token)).json()) as {
+          user: { preferredLocale: string | null };
+        }
+      ).user.preferredLocale,
+    ).toBeNull();
+    for (const invalid of [
+      { preferredLocale: "es" },
+      { preferredLocale: null },
+      { preferredLocale: "de-DE" },
+      { preferredLocale: "de", userId: outsider.userId },
+      { userName: "other" },
+    ]) {
+      await expect(call("/account", token, "PATCH", invalid)).rejects.toThrow();
+    }
+    const audits = await db
+      .prepare(
+        "SELECT details_json FROM audit_log WHERE organization_id=? AND user_id=? AND action='account.profile.updated'",
+      )
+      .bind(owner.org, owner.userId)
+      .all<{ details_json: string }>();
+    expect(audits.results).toHaveLength(4);
+    expect(
+      audits.results.every(
+        (row) =>
+          row.details_json ===
+          JSON.stringify({ fields: ["preferredLocale"], actor: "native" }),
+      ),
+    ).toBe(true);
+    await db
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
+      .bind(owner.org, outsider.userId, now())
+      .run();
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+      )
+      .bind(owner.org, owner.userId)
+      .run();
+    expect(
+      (await call("/account", token, "PATCH", { preferredLocale: "en" }))
+        .status,
+    ).toBe(200);
+    await db
+      .prepare(
+        "UPDATE native_sessions SET expires_at='2000-01-01T00:00:00Z' WHERE token_hash=?",
+      )
+      .bind(await hashSecret(token))
+      .run();
+    await expect(
+      call("/account", token, "PATCH", { preferredLocale: "de" }),
+    ).rejects.toMatchObject({ code: "SESSION_EXPIRED" });
+  });
+
+  it("retains the chosen locale through native system login without asserting consent", async () => {
+    for (const [locale, title] of [
+      ["en", "Connect the iOS app"],
+      ["de", "iOS-App verbinden"],
+      ["lb", "D’iOS-App verbannen"],
+    ]) {
+      const source = authorizeReq(owner);
+      const url = new URL(source.url);
+      url.searchParams.set("locale", locale);
+      const response = (await handleMobileRoute(
+        new Request(url, { headers: source.headers }),
+        env,
+        domain,
+        caps,
+      ))!;
+      const html = await response.text();
+      expect(html).toContain(`<html lang="${locale}">`);
+      expect(html).toContain(title);
+      expect(html).toContain(`name="locale" value="${locale}"`);
+      expect(html).toContain('name="csrf"');
+      const signedOut = (await handleMobileRoute(
+        new Request(url),
+        env,
+        domain,
+        caps,
+      ))!;
+      const redirect = new URL(signedOut.headers.get("Location")!);
+      expect(redirect.searchParams.get("locale")).toBe(locale);
+      expect(redirect.searchParams.get("returnTo")).toContain(
+        `locale=${locale}`,
+      );
+    }
+  });
+
   it("redirects an unauthenticated native login through existing Auth0 with the exact safe return path", async () => {
     const url = new URL(authorizeReq(owner).url);
     const response = (await handleMobileRoute(
@@ -685,6 +804,34 @@ describe("native mobile boundary on actual D1 and R2", () => {
       });
     const review = async (request: Request) =>
       (await handleMobileRoute(request, env, domain, caps))!;
+    for (const [locale, heading, approve] of [
+      ["en", "Review dispatch", "Approve this version"],
+      ["de", "Sendung prüfen", "Diese Version freigeben"],
+      ["lb", "D’Sendung préiwen", "Dës Versioun bestätegen"],
+    ]) {
+      const localized = new URL(preparation.approvalUrl);
+      localized.searchParams.set("locale", locale);
+      const response = await review(
+        new Request(localized, { headers: { Cookie: owner.cookie } }),
+      );
+      const html = await response.text();
+      expect(response.status).toBe(200);
+      expect(html).toContain(`<html lang="${locale}">`);
+      expect(html).toContain(heading);
+      expect(html).toContain(approve);
+      expect(html).toContain(preparation.fingerprint);
+      expect(html).toContain('name="reviewed"');
+      expect(html).toContain('name="csrf"');
+      expect(html).not.toContain("Valider cette version");
+    }
+    await call("/account", token, "PATCH", { preferredLocale: "de" });
+    const preferred = await review(
+      new Request(preparation.approvalUrl + "?locale=en", {
+        headers: { Cookie: owner.cookie },
+      }),
+    );
+    expect(await preferred.text()).toContain('<html lang="de">');
+    await call("/account", token, "PATCH", { preferredLocale: "fr" });
     const page = await review(browserRequest());
     const text = await page.text();
     expect(text).toContain("Valider cette version");
@@ -841,7 +988,7 @@ describe("native mobile boundary on actual D1 and R2", () => {
         caps,
       ))!;
       expect(response.headers.get("Location")).toBe(
-        `${env.APP_ORIGIN}/auth/mobile/review/${renewed.id}`,
+        `${env.APP_ORIGIN}/auth/mobile/review/${renewed.id}?locale=fr`,
       );
       expect(renew).toHaveBeenCalledWith(
         expect.objectContaining({ actor: "browser", userId: owner.userId }),

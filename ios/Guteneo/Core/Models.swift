@@ -13,7 +13,7 @@ enum Channel: String, Codable, CaseIterable, Identifiable, Sendable {
 
 struct MobileSession: Codable, Sendable {
     struct Organization: Codable, Sendable { let id: String; let name: String }
-    struct User: Codable, Sendable { let id: String; let name: String; let role: String }
+    struct User: Codable, Sendable { let id: String; let name: String; let role: String; let preferredLocale: AppLanguage? }
     let organization: Organization
     let user: User
     let simulation: Bool
@@ -305,8 +305,8 @@ enum GuteneoDate {
         formatter.formatOptions = [.withInternetDateTime]
         return formatter.date(from: full)
     }
-    static func label(_ value: String) -> String {
-        guard let date = parse(value) else { return "Date indisponible" }
-        return date.formatted(.dateTime.day().month(.abbreviated).year().hour().minute().locale(Locale(identifier: "fr_FR")))
+    static func label(_ value: String, locale: Locale = Locale(identifier: "fr_FR")) -> String {
+        guard let date = parse(value) else { return L10n.text("Date indisponible", locale: locale) }
+        return date.formatted(.dateTime.day().month(.abbreviated).year().hour().minute().locale(locale))
     }
 }
