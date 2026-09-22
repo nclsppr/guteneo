@@ -82,11 +82,19 @@ const betaEnv = () => ({
 async function signedBetaLogin(
   idChanges: Record<string, unknown> = {},
   accessChanges: Record<string, unknown> = {},
+  options: {
+    path?: string;
+    subject?: string;
+    headers?: Record<string, string>;
+  } = {},
 ) {
   const configured = betaEnv();
-  const started = await handleAuthRoute(request("/auth/signup"), configured);
+  const started = await handleAuthRoute(
+    request(options.path ?? "/auth/signup", "GET", undefined, options.headers),
+    configured,
+  );
   const destination = new URL(started!.headers.get("Location")!);
-  const sub = `auth0|beta-${crypto.randomUUID()}`;
+  const sub = options.subject ?? `auth0|beta-${crypto.randomUUID()}`;
   const claims = {
     sub,
     email: "verified-fixture@example.test",
@@ -122,6 +130,7 @@ async function signedBetaLogin(
   return {
     configured,
     sub,
+    destination,
     callback,
     complete: () => handleAuthRoute(callback, configured),
   };
@@ -1056,6 +1065,93 @@ describe("identity and authentication boundaries", () => {
     expect(() => authenticationPolicy({ AUTH0_AUTH_POLICY: "typo" })).toThrow(
       AuthError,
     );
+  });
+  it.each(["fr", "en", "de", "lb"])(
+    "binds %s to the signup transaction and new account",
+    async (locale) => {
+      const flow = await signedBetaLogin(
+        {},
+        {},
+        { path: `/auth/signup?locale=${locale}` },
+      );
+      expect(flow.destination.searchParams.get("ui_locales")).toBe(locale);
+      expect(
+        await env.DB.prepare(
+          "SELECT preferred_locale FROM auth_transactions WHERE state_hash=?",
+        )
+          .bind(await hashSecret(flow.destination.searchParams.get("state")!))
+          .first(),
+      ).toEqual({ preferred_locale: locale });
+      const completed = await flow.complete();
+      expect(completed!.status).toBe(302);
+      const account = await env.DB.prepare(
+        "SELECT u.preferred_locale FROM users u JOIN auth_identities i ON i.user_id=u.id WHERE i.issuer=? AND i.subject=?",
+      )
+        .bind(issuer, flow.sub)
+        .first();
+      expect(account).toEqual({ preferred_locale: locale });
+      const sessionCookie = completed!.headers
+        .get("Set-Cookie")!
+        .match(/guteneo_session=[^;,]+/)![0];
+      const session = await handleAuthRoute(
+        request("/api/session", "GET", undefined, { Cookie: sessionCookie }),
+        flow.configured,
+      );
+      expect(await session!.json()).toMatchObject({
+        user: { preferredLocale: locale },
+      });
+    },
+  );
+  it("keeps an existing account preference when a subsequent login requests another interface language", async () => {
+    const first = await signedBetaLogin(
+      {},
+      {},
+      { path: "/auth/signup?locale=lb" },
+    );
+    await first.complete();
+    const second = await signedBetaLogin(
+      {},
+      {},
+      {
+        path: "/auth/login?locale=en",
+        subject: first.sub,
+      },
+    );
+    await second.complete();
+    expect(
+      await env.DB.prepare(
+        "SELECT u.preferred_locale FROM users u JOIN auth_identities i ON i.user_id=u.id WHERE i.issuer=? AND i.subject=?",
+      )
+        .bind(issuer, first.sub)
+        .first(),
+    ).toEqual({ preferred_locale: "lb" });
+  });
+  it("negotiates new account language from browser preferences and bounds unsupported login hints", async () => {
+    const flow = await signedBetaLogin(
+      {},
+      {},
+      {
+        headers: { "Accept-Language": "es-ES, de-LU;q=0.9, en;q=0.8" },
+      },
+    );
+    expect(flow.destination.searchParams.get("ui_locales")).toBe("de");
+    await flow.complete();
+    expect(
+      await env.DB.prepare(
+        "SELECT u.preferred_locale FROM users u JOIN auth_identities i ON i.user_id=u.id WHERE i.issuer=? AND i.subject=?",
+      )
+        .bind(issuer, flow.sub)
+        .first(),
+    ).toEqual({ preferred_locale: "de" });
+    const response = await handleAuthRoute(
+      request("/auth/login?locale=unknown%20en"),
+      realEnv(),
+    );
+    expect(
+      new URL(response!.headers.get("Location")!).searchParams.get(
+        "ui_locales",
+      ),
+    ).toBe("fr");
   });
   it("requests real signup and fresh authentication using the same PKCE flow", async () => {
     const response = await handleAuthRoute(
