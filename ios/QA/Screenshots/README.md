@@ -1,6 +1,6 @@
 # Preuves visuelles locales — 22 septembre 2026
 
-Les huit captures sélectionnées proviennent de l'application SwiftUI exécutée
+Les treize captures sélectionnées proviennent de l'application SwiftUI exécutée
 par XCTest, sans retouche, recadrage ou montage. Les écrans connectés utilisent
 exclusivement les fixtures Debug locales : noms, documents, destinataires et
 états sont fictifs. Aucune communication réelle n'a été envoyée.
@@ -10,7 +10,44 @@ Store. La configuration Release n'inclut pas ce mode de simulation. Les captures
 de soumission devront correspondre au binaire et au service qualifiés, avec un
 compte reviewer autorisé et des données fictives identifiées.
 
-## Sources et environnement
+## Composition adaptative et icône — campagne la plus récente
+
+- Source applicative : `b7e0d4d0865b635ec53a056d668d3d69ade9122e`. Les
+  fichiers applicatifs et l'icône testés étaient identiques avant leur commit ;
+  la documentation a été ajoutée ensuite. Les tests UI proviennent de
+  `d2ccf4321ff60fcb18ed244f0a9b7218c7966868`.
+- `run-BaJ3lc/Tests.xcresult` : **6 tests UI iPad réussis sur 6** sous iPadOS
+  27.0, avec le document Icon Composer intégré au binaire Debug. Le lien
+  « Tous les documents » sélectionne bien l'onglet natif Documents ; le détail
+  sélectionné résiste à une rotation. Le diagnostic de la campagne précédente
+  avait révélé qu'un identifiant placé sur le conteneur écrasait celui des
+  boutons enfants ; il a été retiré avant ce lot complet.
+- `run-4MIZfU/Tests.xcresult` : **22 tests unitaires et 6 UI iPhone réussis**
+  sur iOS 26.5, source applicative `8b7dc0f`. Les changements postérieurs
+  touchent le lien Atelier, ses cibles tactiles, un identifiant d'accessibilité
+  iPad et l'icône ; le nouveau résultat iPad couvre la navigation, tandis que
+  le workflow distant doit être examiné séparément sur la tête de la PR.
+
+| Capture brute retenue | Ce qu'elle qualifie |
+| --- | --- |
+| [Accueil iPad](ipad-accueil-redesign.png) | Deux zones utiles, presse illustrée au bleu du logo, une seule signature. |
+| [Atelier iPad](ipad-atelier-redesign.png) | Envois et documents côte à côte, contenu réel des fixtures, action principale visible. |
+| [Documents iPad paysage](ipad-documents-paysage.png) | Capture de l'écran complet par `XCUIScreen` après géométrie paysage confirmée ; liste et détail entièrement visibles. |
+| [Accueil iPhone](iphone-accueil-redesign.png) | Texte et connexion d'abord, illustration plus compacte ensuite. |
+| [Atelier iPhone](iphone-atelier-redesign.png) | Défilement vertical compact avec la marque affichée une fois. |
+
+Les deux captures iPhone viennent du premier lot de composition. Les trois
+captures iPad viennent du lot complet le plus récent. Les cinq fichiers sont des
+copies binaires des pièces jointes XCTest. Le manifeste donne leur empreinte,
+horodatage, appareil, test et provenance. La capture `app.screenshot()` du détail
+après rotation garde une bande noire et un cadrage erroné ; le diagnostic donne
+une géométrie paysage réelle, et seule la capture `XCUIScreen` complète est
+retenue pour la preuve visuelle. Il reste à essayer une vraie fenêtre iPad
+redimensionnée étroite et un appareil physique. Le PNG paysage conserve ses
+pixels bruts 2064 × 2752 et son orientation EXIF 8 ; aucune rotation du fichier
+n'a été appliquée.
+
+## Sources de la campagne de marque précédente
 
 - Sources applicatives : `f39eae14198665fcb4340d209add29ff25f5cb3a`.
 - Ajustement du seul test d'arrière-plan :

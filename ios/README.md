@@ -72,9 +72,13 @@ et la fermeture de la préparation sans envoi, la navigation en taille de texte
 d'accessibilité et l'absence d'invitation à recharger sur ces écrans. Ils joignent
 des captures au résultat de test. Un scénario dédié vérifie aussi qu’un devis
 de référence limité à la préparation n’offre pas de validation ou d’envoi.
-Cela ne remplace pas
-une revue de toutes les erreurs et pages web ouvertes par l'app, ni les essais
-sur appareil physique et avec VoiceOver.
+Un sixième scénario change la sélection d'un document prêt à un document en
+vérification, puis d'un envoi préparé à un envoi distribué : le détail et ses
+actions doivent être remplacés. Sur iPad, il vérifie aussi la conservation de
+la sélection après une rotation paysage puis portrait. Le lien de l'Atelier
+vers tous les documents doit sélectionner le véritable onglet de bibliothèque.
+Cela ne remplace pas une revue de toutes les erreurs et pages web ouvertes par
+l'app, ni les essais sur appareil physique et avec VoiceOver.
 
 `bash ios/scripts/export-screenshots.sh` suivi du chemin d'un résultat
 `.xcresult` exporte ses captures et leur manifeste dans un nouveau dossier de
@@ -134,8 +138,10 @@ l'utilisateur doit la compléter. Relancer ensuite `doctor.sh` puis les tests.
 La liste d'appareils fournie par un outil CoreSimulator existant ne prouve pas
 que Xcode peut exécuter les tests avec son propre SDK.
 
-Après mise à jour des composants, la campagne courante réussit vingt-deux tests
-unitaires et cinq tests UI sur iPhone 17e, iOS 26.5. Les contrôles comprennent la
+Après mise à jour des composants, la campagne de composition adaptative réussit
+vingt-deux tests unitaires et six tests UI sur iPhone 17e, iOS 26.5, puis six
+tests UI sur iPadOS 27 en mode sombre. Le lot iPad le plus récent réussit aussi
+les six scénarios en mode clair, avec l'icône Icon Composer intégrée. Les contrôles comprennent la
 portée des devis de référence, le contraste des couleurs du catalogue et la
 transparence du portrait compilé. Ils utilisent une signature ad hoc et un
 véritable cycle d'écriture, lecture et suppression dans le trousseau.
@@ -143,13 +149,15 @@ Les premiers builds de simulateur sans signature empêchaient la suppression de
 la session et affichaient une erreur ; la signature des builds et tests de
 simulateur a été corrigée, sans masquer l'erreur dans l'interface.
 
-Cinq scénarios d'interface distincts sont couverts sur chaque format, avec le
-mode sombre sur iPadOS 27, le texte XXXL, la marque unique, le PDF et la
-préparation sans envoi. Un premier lot iPad a réussi quatre tests sur cinq ;
-son attente d'arrière-plan a échoué. Le PDF a ensuite réussi avec une assertion
-qui accepte les deux états d'arrière-plan documentés, puis deux tests de suivi
-ont réussi. La cause du premier échec reste indéterminée. Le détail des lots,
-les limites et les captures sont dans
+Les six scénarios d'interface couvrent le texte XXXL, la marque unique, le PDF,
+la préparation sans envoi et le remplacement du détail sélectionné. La rotation
+iPad vérifie la conservation de la sélection. Une capture paysage initiale mal
+cadrée reste distincte du résultat fonctionnel. Le diagnostic confirme une
+géométrie paysage et une capture brute correcte par `XCUIScreen`, tandis que
+`app.screenshot()` reste mal cadré dans ce contexte. Seule la capture d'écran
+entier sert de preuve paysage retenue. Le redimensionnement
+d'une véritable fenêtre iPad étroite reste à qualifier. Le détail des lots, les
+limites et les captures sont dans
 [QA/Screenshots/README.md](QA/Screenshots/README.md). Les choix Liquid Glass et
 les sources 2026 figurent dans [l'audit Apple UI](QA/APPLE_UI_AUDIT.md).
 
@@ -165,13 +173,16 @@ des outils ne vaut pas validation de l'application.
 ## Dernière archive inspectée
 
 Le 22 septembre 2026, l’archive locale
-`ios/.build/Archives/run-B1gx4y/Guteneo-unsigned.xcarchive` a été produite après
-l'audit de marque et de lisibilité, à partir des sources applicatives du commit
-`f39eae14198665fcb4340d209add29ff25f5cb3a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
+`ios/.build/Archives/run-HJxTTP/Guteneo-unsigned.xcarchive` a été produite après
+la composition adaptative et l'icône Icon Composer, à partir des sources
+applicatives du commit `b7e0d4d0865b635ec53a056d668d3d69ade9122e`.
+Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
 (build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
-de confidentialité et les symboles. Elle est explicitement non signée.
+de confidentialité et les symboles. Le catalogue validé contient
+`AppIcon.iconstack` à trois plans, référencé comme icône primaire iPhone/iPad.
+Elle est explicitement non signée.
 Le SDK utilisé est iOS 27.0, avec Xcode 27.0. L'empreinte SHA-256 du binaire est
-`6d75917e563dac17a4262110e58e014f923bc41a3f6dee83876240ece6bbe7d1`.
+`13aaafb9f4175f536bdbcda2daa9f0fc348bf0b9f2e0bc74db8a774bc29c237c`.
 
 Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
 `--uitesting-preview` sont absents du binaire Release. Le script d’archive

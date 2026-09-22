@@ -21,9 +21,17 @@ reste dans une page de navigateur authentifiée, distincte de l'app.
 - Les essais natifs, leurs résultats et captures brutes sont documentés dans
   [Screenshots/README.md](Screenshots/README.md) et [le guide iOS](../README.md).
   Les comptes, documents et résultats de ces écrans sont fictifs.
+- La campagne iPad de composition la plus récente réussit les 6 scénarios UI
+  sur 6, y compris l'ouverture du véritable onglet Documents, le remplacement
+  du détail et la rotation. L'archive Release non signée du même source
+  applicatif contient l'icône `AppIcon.iconstack` et le manifeste de confidentialité.
 - L'[audit Apple UI](APPLE_UI_AUDIT.md) couvre les recommandations Liquid Glass
   actuelles, les raffinements 2026, la signature de marque unique, la
   transparence du portrait et le contraste des couleurs du catalogue.
+- L'[icône Icon Composer](../Art/IconComposer/README.md) utilise le portrait
+  tramé officiel sur papier ivoire. Son document natif, ses aperçus et son
+  intégration dans le catalogue compilé sont vérifiés localement ; une archive
+  signée et une installation physique restent à qualifier.
 - L'URL de confidentialité `https://guteneo.com/confidentialite/` a été vérifiée
   publiquement : elle décrit le service et les critères de conservation du
   21 septembre. L'app ouvre directement cette page.
