@@ -1,9 +1,11 @@
 import XCTest
+import UIKit
 
 @MainActor
 final class GuteneoUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
     }
 
     func testWelcomeExplainsSignInAndOffersNoPurchase() {
@@ -21,7 +23,7 @@ final class GuteneoUITests: XCTestCase {
         let app = launch(arguments: ["--uitesting-preview"])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         selectTab("Documents", in: app)
-        let document = app.staticTexts["Dossier de souscription.pdf"].firstMatch
+        let document = element("document.row.preview-document-1", in: app)
         XCTAssertTrue(document.waitForExistence(timeout: 5))
         document.tap()
 
@@ -65,14 +67,14 @@ final class GuteneoUITests: XCTestCase {
         attachScreenshot(app, name: "Préparation — aucun envoi")
         assertNoPurchaseCallToAction(in: app)
         app.buttons["Fermer"].tap()
-        XCTAssertTrue(app.navigationBars["Document"].waitForExistence(timeout: 5))
+        XCTAssertTrue(element("document.detail", in: app).waitForExistence(timeout: 5))
     }
 
     func testReferencePreparationHasNoApprovalAction() {
         let app = launch(arguments: ["--uitesting-preview"])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         selectTab("Envois", in: app)
-        let reference = app.staticTexts["+33 1 00 00 00 02"].firstMatch
+        let reference = element("dispatch.row.preview-dispatch-3", in: app)
         XCTAssertTrue(reference.waitForExistence(timeout: 5))
         reference.tap()
         XCTAssertTrue(app.navigationBars["Suivi de l’envoi"].waitForExistence(timeout: 5))
@@ -136,6 +138,72 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["À propos"].waitForExistence(timeout: 5))
         assertLogoCount(1, in: app)
         attachScreenshot(app, name: "À propos — marque unique")
+    }
+
+    func testChangingSelectionReplacesDetailsAndPreservesSelectionAfterRotation() {
+        let app = launch(arguments: ["--uitesting-preview"])
+        defer { XCUIDevice.shared.orientation = .portrait }
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        selectTab("Documents", in: app)
+        let readyRow = element("document.row.preview-document-1", in: app)
+        XCTAssertTrue(readyRow.waitForExistence(timeout: 5))
+        readyRow.tap()
+        var detail = element("document.detail", in: app)
+        XCTAssertTrue(detail.staticTexts["Dossier de souscription.pdf"].waitForExistence(timeout: 5))
+        XCTAssertTrue(detail.buttons["Lire le PDF original"].exists)
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            XCTAssertTrue(detail.staticTexts["Dossier de souscription.pdf"].waitForExistence(timeout: 5))
+        }
+        revealListIfCollapsed("Documents", detailTitle: "Document",
+            targetRow: "document.row.preview-document-2", in: app)
+        element("document.row.preview-document-2", in: app).tap()
+        detail = element("document.detail", in: app)
+        XCTAssertTrue(detail.staticTexts["Attestation de domicile.pdf"].waitForExistence(timeout: 5))
+        XCTAssertTrue(detail.staticTexts["Vérification en cours"].firstMatch.exists)
+        XCTAssertFalse(detail.staticTexts["Dossier de souscription.pdf"].exists)
+        XCTAssertFalse(detail.buttons["Lire le PDF original"].exists)
+        XCTAssertFalse(detail.buttons["Préparer un fax"].exists)
+        assertLogoCount(0, in: app)
+        attachScreenshot(app, name: "Documents — sélection remplacée")
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .portrait
+            XCTAssertTrue(detail.staticTexts["Attestation de domicile.pdf"].waitForExistence(timeout: 5))
+            XCTAssertFalse(detail.buttons["Lire le PDF original"].exists)
+        }
+
+        selectTab("Envois", in: app)
+        let preparedRow = element("dispatch.row.preview-dispatch-2", in: app)
+        XCTAssertTrue(preparedRow.waitForExistence(timeout: 5))
+        preparedRow.tap()
+        var dispatchDetail = element("dispatch.detail", in: app)
+        let approvalSection = dispatchDetail.staticTexts["Votre validation"]
+        for _ in 0..<3 where !approvalSection.exists { dispatchDetail.swipeUp() }
+        XCTAssertTrue(approvalSection.waitForExistence(timeout: 5))
+        revealListIfCollapsed("Envois", detailTitle: "Suivi de l’envoi",
+            targetRow: "dispatch.row.preview-dispatch-1", in: app)
+        element("dispatch.row.preview-dispatch-1", in: app).tap()
+        dispatchDetail = element("dispatch.detail", in: app)
+        XCTAssertTrue(dispatchDetail.staticTexts["Distribué"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(dispatchDetail.buttons["Ouvrir la validation sécurisée"].exists)
+        XCTAssertFalse(dispatchDetail.staticTexts["Votre validation"].exists)
+        assertNoPurchaseCallToAction(in: app)
+        attachScreenshot(app, name: "Envois — actions remplacées")
+    }
+
+    private func element(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    private func revealListIfCollapsed(_ listTitle: String, detailTitle: String,
+        targetRow: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        if element(targetRow, in: app).isHittable { return }
+        let back = app.navigationBars[detailTitle].buttons[listTitle]
+        XCTAssertTrue(back.waitForExistence(timeout: 5), "Retour natif vers \(listTitle) introuvable", file: file, line: line)
+        back.tap()
+        XCTAssertTrue(element(targetRow, in: app).waitForExistence(timeout: 5), file: file, line: line)
     }
 
     private func assertLogoCount(_ count: Int, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {

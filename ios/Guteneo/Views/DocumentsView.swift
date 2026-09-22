@@ -2,39 +2,66 @@ import SwiftUI
 import PDFKit
 import UniformTypeIdentifiers
 
+struct DocumentsWorkspaceView: View {
+    @State private var selectedDocumentID: String?
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+    var body: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            DocumentsView(selection: $selectedDocumentID)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+        } detail: {
+            NavigationStack {
+                if let selectedDocumentID {
+                    DocumentDetailView(id: selectedDocumentID)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 22) {
+                            Image(systemName: "doc.text.magnifyingglass")
+                                .font(.largeTitle).foregroundStyle(Brand.cobalt)
+                                .accessibilityHidden(true)
+                            Text("Chaque original,\nà sa place.")
+                                .font(.system(.largeTitle, design: .serif))
+                                .foregroundStyle(Brand.ink)
+                            Text("Choisissez un document dans la liste pour consulter sa vérification, lire le PDF original ou préparer un fax.")
+                                .font(.title3).foregroundStyle(.secondary)
+                            Text("Pour ajouter un document, utilisez « Importer un PDF » dans la liste.")
+                                .foregroundStyle(.secondary)
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 460, alignment: .leading).padding(32)
+                        .frame(maxWidth: .infinity)
+                    }
+                    .background(Brand.paper)
+                    .accessibilityIdentifier("documents.emptyDetail")
+                }
+            }
+            // A new selection owns new loading and presentation state. A row
+            // absent from a refreshed page is not proof that it was deleted.
+            .id(selectedDocumentID)
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+}
+
 struct DocumentsView: View {
     @Environment(AppModel.self) private var model
+    var selection: Binding<String?>? = nil
     @State private var search = ""
     @State private var importing = false
     @State private var uploading = false
+    @State private var importedDocumentID: String?
     @State private var error: String?
     private var documents: [DocumentRecord] {
         model.documents.filter { search.isEmpty || $0.name.localizedStandardContains(search) }
     }
     var body: some View {
-        List {
-            if let error = error ?? model.errorMessage {
-                Section { Notice(text: error, symbol: "exclamationmark.circle") }
-            }
-            if uploading { Section { ProgressView("Dépôt du PDF…") } }
-            if documents.isEmpty && !model.isLoading {
-                ContentUnavailableView(search.isEmpty ? "Vos PDF, ici" : "Aucun document trouvé", systemImage: "doc.text", description: Text(search.isEmpty ? "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation." : "Essayez un autre nom ou chargez les documents suivants."))
-                    .listRowBackground(Color.clear)
-            }
-            ForEach(documents) { document in
-                NavigationLink { DocumentDetailView(id: document.id) } label: { DocumentRow(document: document) }
-            }
-            if model.hasMoreDocuments {
-                Button("Charger les documents suivants") { Task { await model.loadMoreDocuments() } }
-                    .disabled(model.isLoading)
-            }
-            Section {
-                Notice(text: "Les PDF restent privés à votre organisation. Leur vérification peut prendre quelques minutes.", symbol: "lock.doc")
-            }
-        }
+        documentList
         .paperList().navigationTitle("Documents")
+        .accessibilityIdentifier("documents.list")
         .searchable(text: $search, prompt: "Rechercher un document")
         .refreshable { await model.refresh() }
+        .sensoryFeedback(.success, trigger: importedDocumentID)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { importing = true } label: { Label("Importer un PDF", systemImage: "plus") }
@@ -48,13 +75,55 @@ struct DocumentsView: View {
                 uploading = true; error = nil
                 Task {
                     defer { uploading = false }
-                    do { _ = try await model.uploadPDF(at: url) }
+                    do {
+                        let document = try await model.uploadPDF(at: url)
+                        importedDocumentID = document.id
+                        selection?.wrappedValue = document.id
+                    }
                     catch is CancellationError { }
                     catch { self.error = APIError.safeMessage(for: error) }
                 }
             case .failure:
                 error = "Le fichier n’a pas pu être ouvert. Choisissez de nouveau le PDF dans Fichiers."
             }
+        }
+    }
+
+    @ViewBuilder
+    private var documentList: some View {
+        if let selection {
+            List(selection: selection) { listContent }
+        } else {
+            List { listContent }
+        }
+    }
+
+    @ViewBuilder
+    private var listContent: some View {
+        if let error = error ?? model.errorMessage {
+            Section { Notice(text: error, symbol: "exclamationmark.circle") }
+        }
+        if uploading { Section { ProgressView("Dépôt du PDF…") } }
+        if documents.isEmpty && !model.isLoading {
+            ContentUnavailableView(search.isEmpty ? "Vos PDF, ici" : "Aucun document trouvé", systemImage: "doc.text", description: Text(search.isEmpty ? "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation." : "Essayez un autre nom ou chargez les documents suivants."))
+                .listRowBackground(Color.clear)
+        }
+        ForEach(documents) { document in
+            Group {
+                if selection != nil {
+                    NavigationLink(value: document.id) { DocumentRow(document: document) }
+                } else {
+                    NavigationLink { DocumentDetailView(id: document.id) } label: { DocumentRow(document: document) }
+                }
+            }
+            .accessibilityIdentifier("document.row.\(document.id)")
+        }
+        if model.hasMoreDocuments {
+            Button("Charger les documents suivants") { Task { await model.loadMoreDocuments() } }
+                .disabled(model.isLoading)
+        }
+        Section {
+            Notice(text: "Les PDF restent privés à votre organisation. Leur vérification peut prendre quelques minutes.", symbol: "lock.doc")
         }
     }
 }
@@ -109,6 +178,7 @@ struct DocumentDetailView: View {
             } else if error == nil { ProgressView("Ouverture du document…") }
             Button("Actualiser") { Task { await load() } }.disabled(working)
         }.paperList().navigationTitle("Document").navigationBarTitleDisplayMode(.inline)
+            .accessibilityIdentifier("document.detail")
             .task { await load() }
             .refreshable { await load() }
             .sheet(isPresented: $reading) { NavigationStack { PDFReaderView(id: id, name: document?.name ?? "Document") }.privacyShield() }

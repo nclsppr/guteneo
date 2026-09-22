@@ -1,8 +1,50 @@
 import SwiftUI
 
+struct DispatchesWorkspaceView: View {
+    @Binding var composing: Bool
+    @State private var selectedDispatchID: String?
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+    var body: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            DispatchesView(composing: $composing, selection: $selectedDispatchID)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+        } detail: {
+            NavigationStack {
+                if let selectedDispatchID {
+                    DispatchDetailView(id: selectedDispatchID)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 22) {
+                            Image(systemName: "paperplane")
+                                .font(.largeTitle).foregroundStyle(Brand.cobalt)
+                                .accessibilityHidden(true)
+                            Text("Le parcours\nde chaque envoi.")
+                                .font(.system(.largeTitle, design: .serif))
+                                .foregroundStyle(Brand.ink)
+                            Text("Choisissez un envoi pour retrouver son destinataire, le document joint et les derniers événements connus.")
+                                .font(.title3).foregroundStyle(.secondary)
+                            Text("Le filtre « À valider uniquement » vous aide à retrouver les préparations qui attendent votre vérification.")
+                                .foregroundStyle(.secondary)
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 460, alignment: .leading).padding(32)
+                        .frame(maxWidth: .infinity)
+                    }
+                    .background(Brand.paper)
+                    .accessibilityIdentifier("dispatches.emptyDetail")
+                }
+            }
+            .id(selectedDispatchID)
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+}
+
 struct DispatchesView: View {
     @Environment(AppModel.self) private var model
     @Binding var composing: Bool
+    var selection: Binding<String?>? = nil
     @State private var search = ""
     @State private var needsReview = false
     private var dispatches: [DispatchRecord] {
@@ -12,22 +54,9 @@ struct DispatchesView: View {
         }
     }
     var body: some View {
-        List {
-            Section { Toggle("À valider uniquement", isOn: $needsReview) }
-            if let error = model.errorMessage { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
-            if dispatches.isEmpty && !model.isLoading {
-                ContentUnavailableView("Aucun envoi à afficher", systemImage: "paperplane", description: Text("Vos envois apparaîtront ici avec leur dernier état connu."))
-                    .listRowBackground(Color.clear)
-            }
-            ForEach(dispatches) { dispatch in
-                NavigationLink { DispatchDetailView(id: dispatch.id) } label: { DispatchRow(dispatch: dispatch) }
-            }
-            if model.hasMoreDispatches {
-                Button("Charger les envois suivants") { Task { await model.loadMoreDispatches() } }
-                    .disabled(model.isLoading)
-            }
-        }
+        dispatchList
         .paperList().navigationTitle("Envois")
+        .accessibilityIdentifier("dispatches.list")
         .searchable(text: $search, prompt: "Destinataire ou objet")
         .refreshable { await model.refresh() }
         .toolbar {
@@ -35,6 +64,39 @@ struct DispatchesView: View {
                 Button { composing = true } label: { Label("Préparer un envoi", systemImage: "plus") }
                     .disabled(model.session?.user.role == "viewer")
             }
+        }
+    }
+
+    @ViewBuilder
+    private var dispatchList: some View {
+        if let selection {
+            List(selection: selection) { listContent }
+        } else {
+            List { listContent }
+        }
+    }
+
+    @ViewBuilder
+    private var listContent: some View {
+        Section { Toggle("À valider uniquement", isOn: $needsReview) }
+        if let error = model.errorMessage { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
+        if dispatches.isEmpty && !model.isLoading {
+            ContentUnavailableView("Aucun envoi à afficher", systemImage: "paperplane", description: Text("Vos envois apparaîtront ici avec leur dernier état connu."))
+                .listRowBackground(Color.clear)
+        }
+        ForEach(dispatches) { dispatch in
+            Group {
+                if selection != nil {
+                    NavigationLink(value: dispatch.id) { DispatchRow(dispatch: dispatch) }
+                } else {
+                    NavigationLink { DispatchDetailView(id: dispatch.id) } label: { DispatchRow(dispatch: dispatch) }
+                }
+            }
+            .accessibilityIdentifier("dispatch.row.\(dispatch.id)")
+        }
+        if model.hasMoreDispatches {
+            Button("Charger les envois suivants") { Task { await model.loadMoreDispatches() } }
+                .disabled(model.isLoading)
         }
     }
 }
@@ -106,6 +168,7 @@ struct DispatchDetailView: View {
             } else if error == nil { ProgressView("Chargement de l’envoi…") }
             Button("Actualiser le suivi") { Task { await load() } }
         }.paperList().navigationTitle("Suivi de l’envoi").navigationBarTitleDisplayMode(.inline)
+            .accessibilityIdentifier("dispatch.detail")
             .task { await load() }.refreshable { await load() }
             .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await load() } } }
             .confirmationDialog("Annuler cet envoi ?", isPresented: $confirmingCancel, titleVisibility: .visible) {
