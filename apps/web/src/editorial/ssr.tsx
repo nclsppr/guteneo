@@ -1,9 +1,9 @@
 import { renderToString } from "react-dom/server";
 import { Landing } from "../App";
 import { LegalPage } from "../legal-page";
-import { InformationPage, informationPages } from "../information-page";
+import { InformationPage, getInformationPages } from "../information-page";
 import { DeveloperPage } from "../developer-page";
-import { articles, articlePath } from "./articles";
+import { getArticles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 import { AssistantsPage } from "../assistants-page";
 import { getAssistant } from "../assistant-catalog";
@@ -40,7 +40,7 @@ function breadcrumbs(items: { name: string; path: string }[]) {
 }
 
 export function renderPublicPage(pathname: string) {
-  const information = informationPages[pathname];
+  const information = getInformationPages()[pathname];
   if (information)
     return {
       html: renderToString(<InformationPage content={information} />),
@@ -150,7 +150,9 @@ export function renderPublicPage(pathname: string) {
         "Informations sur Nicolas Pieper, éditeur de Guteneo, l’hébergement Cloudflare, les contenus et les données personnelles du site.",
       canonical: origin + pathname,
     };
-  const article = articles.find((item) => articlePath(item.slug) === pathname);
+  const article = getArticles().find(
+    (item) => articlePath(item.slug) === pathname,
+  );
   if (!article) return null;
   return {
     html: renderToString(<ArticlePage article={article} />),

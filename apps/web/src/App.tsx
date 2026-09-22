@@ -570,7 +570,7 @@ function WorkspaceApplication({
   const refreshSession = async () => {
     try {
       const updated = await api<Session>("/session");
-      setSession(updated);
+      setSession(updated, updated.user.id !== session.user.id);
       updateSession(updated);
     } catch (error) {
       if (error instanceof ApiError && [401, 403].includes(error.status)) {

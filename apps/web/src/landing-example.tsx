@@ -1,3 +1,5 @@
+import { formatLocale } from "./locale";
+import { msg } from "./messages";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Check, FilePdf } from "@phosphor-icons/react";
 import { scrollToSection } from "./landing-sections";
@@ -6,123 +8,137 @@ import "./landing-example.css";
 type ExampleStep = "request" | "review" | "tracking";
 type ExampleChannel = "fax" | "email" | "postal";
 
-const steps: { id: ExampleStep; label: string; description: string }[] = [
-  {
-    id: "request",
-    label: "Demande",
-    description: "Vous composez dans votre assistant.",
-  },
-  {
-    id: "review",
-    label: "Vérification",
-    description: "Vous relisez les détails dans Guteneo.",
-  },
-  {
-    id: "tracking",
-    label: "Suivi",
-    description: "Vous retrouvez le résultat de chaque étape.",
-  },
-];
-
-const channels: Record<
-  ExampleChannel,
-  {
-    label: string;
-    request: string;
-    recipient: string;
-    recipientDetail: string;
-    costLabel: string;
-    amountMinor: number;
-    tracking: { title: string; detail: string; confirmed: boolean }[];
-  }
-> = {
-  fax: {
-    label: "Fax",
-    request: "Prépare l’envoi de Correspondance.pdf par fax à Maison Exemple.",
-    recipient: "Maison Exemple",
-    recipientDetail: "Destinataire et numéro de fax fictifs",
-    costLabel: "Plafond d’exemple",
-    amountMinor: 20,
-    tracking: [
-      {
-        title: "Prise en charge",
-        detail: "Le prestataire a accepté la demande de fax.",
-        confirmed: true,
-      },
-      {
-        title: "Transmission terminée",
-        detail: "Les 2 pages ont été transmises au télécopieur destinataire.",
-        confirmed: true,
-      },
-      {
-        title: "Réception technique confirmée",
-        detail: "Cet accusé ne prouve pas la lecture du document.",
-        confirmed: true,
-      },
-    ],
-  },
-  email: {
-    label: "E-mail",
-    request:
-      "Prépare un e-mail à Maison Exemple avec Correspondance.pdf en pièce jointe.",
-    recipient: "bonjour@maison-exemple.test",
-    recipientDetail: "Adresse fictive réservée à cet exemple",
-    costLabel: "Prix d’exemple",
-    amountMinor: 4,
-    tracking: [
-      {
-        title: "Prise en charge",
-        detail: "Le prestataire a accepté le message et sa pièce jointe.",
-        confirmed: true,
-      },
-      {
-        title: "Message remis au serveur",
-        detail: "Le serveur de messagerie destinataire a accepté l’e-mail.",
-        confirmed: true,
-      },
-      {
-        title: "Lecture non confirmée",
-        detail: "La remise technique ne prouve pas l’ouverture ou la lecture.",
-        confirmed: false,
-      },
-    ],
-  },
-  postal: {
-    label: "Courrier",
-    request:
-      "Prépare l’envoi de Correspondance.pdf par courrier à Maison Exemple.",
-    recipient: "Maison Exemple · Ville Exemple",
-    recipientDetail: "Destinataire et adresse postale fictifs",
-    costLabel: "Prix d’exemple",
-    amountMinor: 320,
-    tracking: [
-      {
-        title: "Prise en charge",
-        detail: "Le prestataire a accepté le document pour impression.",
-        confirmed: true,
-      },
-      {
-        title: "Remise à la poste",
-        detail:
-          "La lettre a été imprimée, mise sous pli puis remise au réseau postal.",
-        confirmed: true,
-      },
-      {
-        title: "Livraison non confirmée",
-        detail:
-          "La remise à la poste ne prouve pas la réception par le destinataire.",
-        confirmed: false,
-      },
-    ],
-  },
-};
-
-const exampleCurrency = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "EUR",
-});
-
 export function GuidedExample() {
+  const steps: { id: ExampleStep; label: string; description: string }[] = [
+    {
+      id: "request",
+      label: msg("Demande"),
+      description: msg("Vous composez dans votre assistant."),
+    },
+    {
+      id: "review",
+      label: msg("Vérification"),
+      description: msg("Vous relisez les détails dans Guteneo."),
+    },
+    {
+      id: "tracking",
+      label: msg("Suivi"),
+      description: msg("Vous retrouvez le résultat de chaque étape."),
+    },
+  ];
+
+  const channels: Record<
+    ExampleChannel,
+    {
+      label: string;
+      request: string;
+      recipient: string;
+      recipientDetail: string;
+      costLabel: string;
+      amountMinor: number;
+      tracking: { title: string; detail: string; confirmed: boolean }[];
+    }
+  > = {
+    fax: {
+      label: msg("Fax"),
+      request: msg(
+        "Prépare l’envoi de Correspondance.pdf par fax à Maison Exemple.",
+      ),
+      recipient: msg("Maison Exemple"),
+      recipientDetail: msg("Destinataire et numéro de fax fictifs"),
+      costLabel: msg("Plafond d’exemple"),
+      amountMinor: 20,
+      tracking: [
+        {
+          title: msg("Prise en charge"),
+          detail: msg("Le prestataire a accepté la demande de fax."),
+          confirmed: true,
+        },
+        {
+          title: msg("Transmission terminée"),
+          detail: msg(
+            "Les 2 pages ont été transmises au télécopieur destinataire.",
+          ),
+          confirmed: true,
+        },
+        {
+          title: msg("Réception technique confirmée"),
+          detail: msg("Cet accusé ne prouve pas la lecture du document."),
+          confirmed: true,
+        },
+      ],
+    },
+    email: {
+      label: msg("E-mail"),
+      request: msg(
+        "Prépare un e-mail à Maison Exemple avec Correspondance.pdf en pièce jointe.",
+      ),
+      recipient: "bonjour@maison-exemple.test",
+      recipientDetail: msg("Adresse fictive réservée à cet exemple"),
+      costLabel: msg("Prix d’exemple"),
+      amountMinor: 4,
+      tracking: [
+        {
+          title: msg("Prise en charge"),
+          detail: msg(
+            "Le prestataire a accepté le message et sa pièce jointe.",
+          ),
+          confirmed: true,
+        },
+        {
+          title: msg("Message remis au serveur"),
+          detail: msg(
+            "Le serveur de messagerie destinataire a accepté l’e-mail.",
+          ),
+          confirmed: true,
+        },
+        {
+          title: msg("Lecture non confirmée"),
+          detail: msg(
+            "La remise technique ne prouve pas l’ouverture ou la lecture.",
+          ),
+          confirmed: false,
+        },
+      ],
+    },
+    postal: {
+      label: msg("Courrier"),
+      request: msg(
+        "Prépare l’envoi de Correspondance.pdf par courrier à Maison Exemple.",
+      ),
+      recipient: msg("Maison Exemple · Ville Exemple"),
+      recipientDetail: msg("Destinataire et adresse postale fictifs"),
+      costLabel: msg("Prix d’exemple"),
+      amountMinor: 320,
+      tracking: [
+        {
+          title: msg("Prise en charge"),
+          detail: msg("Le prestataire a accepté le document pour impression."),
+          confirmed: true,
+        },
+        {
+          title: msg("Remise à la poste"),
+          detail: msg(
+            "La lettre a été imprimée, mise sous pli puis remise au réseau postal.",
+          ),
+          confirmed: true,
+        },
+        {
+          title: msg("Livraison non confirmée"),
+          detail: msg(
+            "La remise à la poste ne prouve pas la réception par le destinataire.",
+          ),
+          confirmed: false,
+        },
+      ],
+    },
+  };
+
+  const exampleCurrency = new Intl.NumberFormat(formatLocale(), {
+    style: "currency",
+    currency: "EUR",
+  });
+
   const instanceId = useId();
   const [step, setStep] = useState<ExampleStep>("review");
   const [channel, setChannel] = useState<ExampleChannel>("fax");
@@ -173,20 +189,21 @@ export function GuidedExample() {
     >
       <div className="guided-example-intro">
         <h2 id="guided-example-title">
-          Une demande.
+          {msg("Une demande.")}
           <br />
-          Une vérification.
+          {msg("Une vérification.")}
           <br />
-          <em>Un envoi.</em>
+          <em>{msg("Un envoi.")}</em>
         </h2>
         <p>
-          Vous composez. Guteneo réunit les détails pour votre accord, puis vous
-          permet de suivre chaque étape.
+          {msg(
+            "Vous composez. Guteneo réunit les détails pour votre accord, puis vous permet de suivre chaque étape.",
+          )}
         </p>
         <div
           className="guided-example-tabs"
           role="tablist"
-          aria-label="Étapes de la démonstration"
+          aria-label={msg("Étapes de la démonstration")}
         >
           {steps.map((item, index) => (
             <button
@@ -222,14 +239,14 @@ export function GuidedExample() {
 
       <div className="guided-example-proof">
         <p className="guided-example-notice">
-          Démonstration — aucun envoi réel
+          {msg("Démonstration — aucun envoi réel")}
         </p>
         <div className="guided-example-channel-row">
-          <span>Choisir un canal</span>
+          <span>{msg("Choisir un canal")}</span>
           <div
             className="guided-example-channels"
             role="group"
-            aria-label="Canal de démonstration"
+            aria-label={msg("Canal de démonstration")}
           >
             {(["fax", "email", "postal"] as const).map((item) => (
               <button
@@ -253,30 +270,32 @@ export function GuidedExample() {
         >
           {step === "request" && (
             <div className="guided-example-request">
-              <h3>Tout commence avec vos mots.</h3>
+              <h3>{msg("Tout commence avec vos mots.")}</h3>
               <ol className="guided-example-conversation">
                 <li>
-                  <span>Vous</span>
+                  <span>{msg("Vous")}</span>
                   <p>{example.request}</p>
                 </li>
                 <li>
-                  <span>Guteneo</span>
+                  <span>{msg("Guteneo")}</span>
                   <p>
-                    Le PDF de 2 pages est prêt. Vérifiez le destinataire, le
-                    canal et {channel === "fax" ? "le plafond" : "le prix"} dans
-                    Guteneo avant de donner votre accord.
+                    {msg(
+                      "Le PDF de 2 pages est prêt. Vérifiez le destinataire, le canal et ",
+                    )}
+                    {channel === "fax" ? msg("le plafond") : msg("le prix")}{" "}
+                    {msg(" dans Guteneo avant de donner votre accord.")}
                   </p>
                 </li>
               </ol>
               <p className="guided-example-detail">
-                Conversation, document et destinataire fictifs.
+                {msg("Conversation, document et destinataire fictifs.")}
               </p>
               <button
                 type="button"
                 className="button"
                 onClick={() => selectStep("review")}
               >
-                Voir la vérification
+                {msg("Voir la vérification")}
                 <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
@@ -284,27 +303,27 @@ export function GuidedExample() {
 
           {step === "review" && (
             <div className="guided-example-review">
-              <h3>L’épreuve avant l’envoi.</h3>
+              <h3>{msg("L’épreuve avant l’envoi.")}</h3>
               <dl className="guided-example-fields">
                 <div>
-                  <dt>Document</dt>
+                  <dt>{msg("Document")}</dt>
                   <dd className="guided-example-document">
                     <FilePdf size={27} weight="light" aria-hidden="true" />
                     <span>
-                      Correspondance.pdf
-                      <small>2 pages · document fictif</small>
+                      {msg("Correspondance.pdf")}
+                      <small>{msg("2 pages · document fictif")}</small>
                     </span>
                   </dd>
                 </div>
                 <div>
-                  <dt>Destinataire</dt>
+                  <dt>{msg("Destinataire")}</dt>
                   <dd>
                     {example.recipient}
                     <small>{example.recipientDetail}</small>
                   </dd>
                 </div>
                 <div>
-                  <dt>Canal</dt>
+                  <dt>{msg("Canal")}</dt>
                   <dd>{example.label}</dd>
                 </div>
                 <div className="guided-example-cost">
@@ -313,7 +332,7 @@ export function GuidedExample() {
                     <strong>
                       {exampleCurrency.format(example.amountMinor / 100)}
                     </strong>
-                    <small>Montant fictif, aucun tarif réel</small>
+                    <small>{msg("Montant fictif, aucun tarif réel")}</small>
                   </dd>
                 </div>
               </dl>
@@ -322,7 +341,7 @@ export function GuidedExample() {
                 className="button primary"
                 onClick={() => selectStep("tracking")}
               >
-                Simuler la validation
+                {msg("Simuler la validation")}
                 <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
@@ -330,9 +349,10 @@ export function GuidedExample() {
 
           {step === "tracking" && (
             <div className="guided-example-tracking">
-              <h3>Chaque étape laisse une trace.</h3>
+              <h3>{msg("Chaque étape laisse une trace.")}</h3>
               <p className="guided-example-tracking-caption">
-                Suivi fictif · {example.label} · Correspondance.pdf
+                {msg("Suivi fictif · ")}
+                {example.label} {msg(" · Correspondance.pdf")}
               </p>
               <ol className="guided-example-timeline">
                 {example.tracking.map((item) => (
@@ -353,7 +373,9 @@ export function GuidedExample() {
                 ))}
               </ol>
               <p className="guided-example-detail">
-                Ce résultat illustre le suivi. Aucun document n’a été transmis.
+                {msg(
+                  "Ce résultat illustre le suivi. Aucun document n’a été transmis.",
+                )}
               </p>
             </div>
           )}
@@ -365,7 +387,7 @@ export function GuidedExample() {
             href="#installation"
             onClick={(event) => scrollToSection(event, "installation")}
           >
-            Préparer mon premier envoi
+            {msg("Préparer mon premier envoi")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>
         </div>

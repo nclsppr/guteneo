@@ -9,7 +9,7 @@ import {
   useAction,
   useResource,
 } from "./components";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 
 export function PostalSetupPanel({
   onUpdated,

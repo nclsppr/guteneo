@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -17,7 +18,7 @@ import {
   type Page,
   type Sender,
 } from "./api";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
@@ -272,7 +273,7 @@ export function Campaigns() {
                 <ul className="validation-errors">
                   {validated.errors.map((error, index) => (
                     <li key={index}>
-                      {t.campaigns.row} {error.line} : {error.message}
+                      {t.campaigns.row} {error.line} : {msg(error.message)}
                     </li>
                   ))}
                 </ul>
@@ -721,8 +722,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       });
       setScannerMessage(
         response.status === "ready"
-          ? "L’analyse des PDF est prête."
-          : "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+          ? msg("L’analyse des PDF est prête.")
+          : msg(
+              "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+            ),
       );
     });
   }
@@ -803,17 +806,20 @@ export function Admin({ children }: { children?: ReactNode }) {
       )}
       {!isPublicPreview && (
         <section className="form-panel">
-          <h2>Analyse des documents</h2>
+          <h2>{msg("Analyse des documents")}</h2>
           <p>
-            Préparez le service avant d’importer vos PDF. Les documents en
-            attente restent privés jusqu’à la fin de leur vérification.
+            {msg(
+              "Préparez le service avant d’importer vos PDF. Les documents en attente restent privés jusqu’à la fin de leur vérification.",
+            )}
           </p>
           <button
             className="button"
             onClick={() => void warmScanner()}
             disabled={scannerAction.pending}
           >
-            {scannerAction.pending ? "Préparation…" : "Préparer l’analyse PDF"}
+            {scannerAction.pending
+              ? msg("Préparation…")
+              : msg("Préparer l’analyse PDF")}
           </button>
           <ErrorNotice error={scannerAction.error} />
           {scannerMessage && <p role="status">{scannerMessage}</p>}

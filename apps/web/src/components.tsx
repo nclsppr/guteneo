@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import {
   useCallback,
   useEffect,
@@ -27,7 +28,7 @@ import {
   getDocumentContent,
   isPublicPreview,
 } from "./api";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 
 export function go(path: string) {
   window.location.hash = path;
@@ -166,8 +167,9 @@ export function ErrorNotice({
           {error instanceof ApiError
             ? (postalErrorMessage(error.code) ??
               sesErrorMessage(error.code) ??
-              error.message)
-            : error.message}
+              generalErrorMessage(error.code) ??
+              msg(error.message))
+            : msg(error.message)}
         </p>
         {error instanceof ApiError && (
           <small className="mono">{error.code}</small>
@@ -185,40 +187,57 @@ export function ErrorNotice({
 /** Fixed copy only: provider response bodies can contain private identities. */
 function postalErrorMessage(code?: string): string | undefined {
   const messages: Record<string, string> = {
-    POSTAL_DRAFT_NOT_READY:
+    POSTAL_DRAFT_NOT_READY: msg(
       "Le courrier est encore en cours d’analyse. Réessayez le devis dans quelques instants.",
-    POSTAL_DRAFT_TRANSFER_DISABLED:
+    ),
+    POSTAL_DRAFT_TRANSFER_DISABLED: msg(
       "La préparation du courrier est actuellement indisponible. Vous pouvez consulter le suivi d’un brouillon existant.",
-    POSTAL_DRAFT_RECONCILIATION_REQUIRED:
+    ),
+    POSTAL_DRAFT_RECONCILIATION_REQUIRED: msg(
       "Le résultat du transfert doit être vérifié. Contactez Guteneo avant de créer un autre brouillon.",
-    POSTAL_DRAFT_ALREADY_USED:
+    ),
+    POSTAL_DRAFT_ALREADY_USED: msg(
       "Ce brouillon est déjà associé à un envoi. Consultez son suivi avant de continuer.",
-    POSTAL_ADDRESS_MISMATCH:
+    ),
+    POSTAL_ADDRESS_MISMATCH: msg(
       "L’adresse du PDF ne correspond pas au destinataire. Vérifiez les deux avant de continuer.",
-    POSTAL_ADDRESS_PREVIEW_UNAVAILABLE:
+    ),
+    POSTAL_ADDRESS_PREVIEW_UNAVAILABLE: msg(
       "L’extrait d’adresse est indisponible. Actualisez la page pour vérifier s’il est prêt.",
-    POSTAL_PREFLIGHT_EXPIRED:
+    ),
+    POSTAL_PREFLIGHT_EXPIRED: msg(
       "Ce contrôle a expiré. Faites contrôler à nouveau le document avant tout transfert.",
-    POSTAL_PREFLIGHT_NOT_FOUND:
+    ),
+    POSTAL_PREFLIGHT_NOT_FOUND: msg(
       "Ce contrôle postal n’est pas accessible dans votre espace.",
-    POSTAL_PREFLIGHT_REQUIRED:
+    ),
+    POSTAL_PREFLIGHT_REQUIRED: msg(
       "Le PDF doit être contrôlé et revu dans Guteneo avant cette étape.",
-    POSTAL_PREFLIGHT_STALE:
+    ),
+    POSTAL_PREFLIGHT_STALE: msg(
       "Le document ou ses autorisations ont changé. Actualisez le suivi avant de continuer.",
-    POSTAL_PREPARED_DRAFT_REQUIRED:
+    ),
+    POSTAL_PREPARED_DRAFT_REQUIRED: msg(
       "Ouvrez la revue du document pour préparer son brouillon avant de demander le devis.",
-    POSTAL_PROFILE_CHANGED:
+    ),
+    POSTAL_PROFILE_CHANGED: msg(
       "Les paramètres d’impression ont changé. Une nouvelle vérification du PDF est nécessaire.",
-    POSTAL_PROFILE_UNQUALIFIED:
+    ),
+    POSTAL_PROFILE_UNQUALIFIED: msg(
       "Les paramètres d’impression ne peuvent pas être vérifiés pour le moment. Réessayez leur consultation plus tard.",
-    POSTAL_RENDERER_UNAVAILABLE:
+    ),
+    POSTAL_RENDERER_UNAVAILABLE: msg(
       "Le contrôle du PDF est momentanément indisponible. Votre document n’a pas été transmis au prestataire d’impression.",
-    POSTAL_RENDER_FAILED:
+    ),
+    POSTAL_RENDER_FAILED: msg(
       "Le contrôle du PDF n’a pas abouti. Consultez son état avant de recommencer.",
-    POSTAL_RENDER_TIMEOUT:
+    ),
+    POSTAL_RENDER_TIMEOUT: msg(
       "Le contrôle du PDF a dépassé le délai prévu. Aucun transfert au prestataire d’impression n’est autorisé.",
-    POSTAL_RENDER_PROOF_INVALID:
+    ),
+    POSTAL_RENDER_PROOF_INVALID: msg(
       "Le résultat du contrôle du PDF est incomplet. Le transfert reste bloqué.",
+    ),
   };
   return code ? messages[code] : undefined;
 }
@@ -226,54 +245,78 @@ function postalErrorMessage(code?: string): string | undefined {
 export function sesErrorMessage(code?: string): string | undefined {
   if (!code) return undefined;
   const messages: Record<string, string> = {
-    SES_ACCOUNT_DAILY_LIMIT:
+    SES_ACCOUNT_DAILY_LIMIT: msg(
       "La capacité d’envoi d’e-mails de Guteneo est atteinte. Cet envoi n’a pas été transmis. Réessayez plus tard en préparant un nouvel envoi.",
-    SES_ACCOUNT_RATE_LIMIT:
+    ),
+    SES_ACCOUNT_RATE_LIMIT: msg(
       "Le service d’e-mail traite déjà un envoi ou vient d’en traiter un. Cet envoi n’a pas été transmis. Patientez avant de préparer un nouvel envoi.",
-    SES_DAILY_QUOTA_EXCEEDED:
+    ),
+    SES_DAILY_QUOTA_EXCEEDED: msg(
       "AWS a refusé cet envoi car le quota d’e-mails sur les dernières 24 heures est atteint. Aucun envoi n’a été accepté. Réessayez plus tard en préparant un nouvel envoi.",
-    SES_RATE_EXCEEDED:
+    ),
+    SES_RATE_EXCEEDED: msg(
       "AWS a refusé cet envoi car les demandes sont trop rapprochées. Aucun envoi n’a été accepté. Patientez avant de préparer un nouvel envoi.",
-    SES_THROTTLED:
+    ),
+    SES_THROTTLED: msg(
       "AWS limite temporairement les demandes d’envoi. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
-    SES_IDENTITY_NOT_VERIFIED:
+    ),
+    SES_IDENTITY_NOT_VERIFIED: msg(
       "AWS a refusé cet envoi : une adresse ou un domaine n’est pas vérifié. Pendant la phase restreinte SES, les destinataires doivent aussi être vérifiés. Aucun envoi n’a été accepté.",
-    SES_SENDER_NOT_VERIFIED:
+    ),
+    SES_SENDER_NOT_VERIFIED: msg(
       "Le domaine d’expédition doit encore être vérifié auprès d’AWS. Aucun envoi n’a été accepté. Le raccordement doit être corrigé par l’équipe Guteneo.",
-    SES_MESSAGE_REJECTED:
+    ),
+    SES_MESSAGE_REJECTED: msg(
       "AWS a refusé le message. Aucun envoi n’a été accepté. Vérifiez son contenu et les adresses avant de préparer une nouvelle version.",
-    SES_REQUEST_REJECTED:
+    ),
+    SES_REQUEST_REJECTED: msg(
       "AWS a refusé la demande d’envoi. Aucun envoi n’a été accepté. Le contenu et les paramètres doivent être vérifiés avant une nouvelle préparation.",
-    SES_ACCOUNT_SUSPENDED:
+    ),
+    SES_ACCOUNT_SUSPENDED: msg(
       "AWS a suspendu les envois de ce compte. Ce message a été refusé. L’équipe Guteneo doit rétablir le service avant tout nouvel essai.",
-    SES_SENDING_PAUSED:
+    ),
+    SES_SENDING_PAUSED: msg(
       "L’envoi d’e-mails est actuellement suspendu chez AWS. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.",
-    SES_RESOURCE_LIMIT:
+    ),
+    SES_RESOURCE_LIMIT: msg(
       "AWS a refusé cet envoi à cause d’une limite du service. L’équipe Guteneo doit vérifier sa configuration avant tout nouvel essai.",
-    SES_CONFIGURATION_MISSING:
+    ),
+    SES_CONFIGURATION_MISSING: msg(
       "La configuration d’envoi attendue est indisponible chez AWS. Ce message a été refusé. Le raccordement doit être corrigé par l’équipe Guteneo.",
-    SES_AUTHORIZATION_FAILED:
+    ),
+    SES_AUTHORIZATION_FAILED: msg(
       "AWS n’autorise pas ce raccordement à envoyer des e-mails. Ce message a été refusé. L’équipe Guteneo doit vérifier les accès du service.",
-    SES_LIMITS_NOT_CONFIGURED:
+    ),
+    SES_LIMITS_NOT_CONFIGURED: msg(
       "Les limites du compte d’e-mail ne sont pas encore configurées. Cet envoi n’a pas été transmis.",
-    SES_LIMITS_UNAVAILABLE:
+    ),
+    SES_LIMITS_UNAVAILABLE: msg(
       "Le contrôle de capacité du service d’e-mail est temporairement indisponible. Cet envoi n’a pas été transmis.",
-    SES_ACTIVE_ATTEMPT_REQUIRED:
+    ),
+    SES_ACTIVE_ATTEMPT_REQUIRED: msg(
       "Cette tentative ne peut plus être transmise. Consultez son suivi avant toute autre action.",
-    SES_NOT_CONFIGURED:
+    ),
+    SES_NOT_CONFIGURED: msg(
       "Le raccordement e-mail n’est pas encore prêt. Cet envoi n’a pas été transmis.",
-    SES_ACCOUNT_REQUIRED:
+    ),
+    SES_ACCOUNT_REQUIRED: msg(
       "Le compte d’envoi AWS doit être identifié avant de transmettre cet e-mail. L’équipe Guteneo doit terminer le raccordement.",
-    SES_IDENTITY_REQUIRED:
+    ),
+    SES_IDENTITY_REQUIRED: msg(
       "L’identité du compte e-mail et son suivi doivent encore être qualifiés. Cet envoi n’a pas été transmis.",
-    SES_RECIPIENT_NOT_QUALIFIED:
+    ),
+    SES_RECIPIENT_NOT_QUALIFIED: msg(
       "Ce destinataire n’est pas encore autorisé pour la phase restreinte d’envoi. Son adresse doit être vérifiée auprès d’AWS et qualifiée par l’équipe Guteneo. Cet envoi n’a pas été transmis.",
-    SES_MODE_REQUIRED:
+    ),
+    SES_MODE_REQUIRED: msg(
       "Le mode d’envoi du compte AWS doit être qualifié avant de transmettre cet e-mail.",
-    SES_RESPONSE_UNKNOWN:
+    ),
+    SES_RESPONSE_UNKNOWN: msg(
       "La réponse d’AWS n’a pas permis de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.",
-    SES_ATTEMPT_ALREADY_RESERVED:
+    ),
+    SES_ATTEMPT_ALREADY_RESERVED: msg(
       "Cette tentative a déjà été prise en charge. Ne recréez pas cet envoi : consultez son suivi pour éviter un doublon.",
+    ),
   };
   return Object.hasOwn(messages, code) ? messages[code] : undefined;
 }
@@ -482,7 +525,8 @@ export function PdfPreview({
             onClick={() => void downloadSample()}
             disabled={download.pending}
           >
-            Télécharger le PDF d’exemple <ArrowRight size={15} />
+            {msg("Télécharger le PDF d’exemple ")}
+            <ArrowRight size={15} />
           </button>
         ) : (
           <a
@@ -501,7 +545,7 @@ export function PdfPreview({
       <ErrorNotice error={download.error} />
       <p className="field-hint">
         {isPublicPreview
-          ? "Document fictif fourni pour explorer la démonstration."
+          ? msg("Document fictif fourni pour explorer la démonstration.")
           : t.documents.pdfFallback}
       </p>
     </div>
@@ -557,4 +601,21 @@ export function Definition({
       <dd>{children}</dd>
     </div>
   );
+}
+
+function generalErrorMessage(code: string): string | undefined {
+  const labels: Record<string, string> = {
+    INVALID_INPUT: msg("Vérifiez les champs du formulaire."),
+    AUTH_REJECTED: msg(
+      "Votre session a expiré. Reconnectez-vous avant de continuer.",
+    ),
+    UNAUTHORIZED: msg(
+      "Votre session a expiré. Reconnectez-vous avant de continuer.",
+    ),
+    FORBIDDEN: msg("Cette action n’est pas autorisée pour votre compte."),
+    CSRF_REJECTED: msg(
+      "Votre session a changé. Actualisez la page avant de réessayer.",
+    ),
+  };
+  return labels[code] ? msg(labels[code]) : undefined;
 }

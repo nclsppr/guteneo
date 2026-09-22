@@ -1,0 +1,104 @@
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.language-selector label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.language-selector select {
+  width: auto;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 28px 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 16px;
+}
+.site-header > .language-selector {
+  margin-inline-start: auto;
+}
+.workspace-language .language-selector {
+  flex-wrap: wrap;
+  margin-block: 8px 16px;
+}
+.language-preference select {
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .site-header > .language-selector label span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .site-header > .language-selector {
+    gap: 4px;
+  }
+  .site-header > .language-selector select {
+    max-width: 150px;
+  }
+}
+@media (max-width: 380px) {
+  .site-header > .language-selector label svg {
+    display: none;
+  }
+  .site-header > .language-selector select {
+    max-width: 133px;
+    padding-inline: 6px 16px;
+  }
+}
+
+.workspace-language {
+  grid-column: 1 / -1;
+  padding-inline: 16px;
+}
+@media (max-width: 767px) {
+  .site-header {
+    flex-wrap: wrap;
+  }
+  .homepage .site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 8px;
+    padding-block: 16px;
+  }
+  .homepage .site-header > .brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .homepage .site-header > .mobile-menu-toggle {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .homepage .site-header > nav:first-of-type {
+    display: none;
+  }
+  .homepage .site-header > .language-selector {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: end;
+    gap: 8px;
+  }
+  .homepage .site-header > .language-selector label span {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+  .homepage .site-header > .language-selector select {
+    max-width: 210px;
+  }
+  .homepage .site-header > .language-selector label svg {
+    display: block;
+  }
+}

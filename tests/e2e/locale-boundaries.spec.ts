@@ -294,3 +294,24 @@ test("saved account language hydrates every standalone public route without repl
   }
   await expect(page.locator("#account-name")).toHaveValue("Public account");
 });
+
+test("saving a name preserves the temporary interface language and the saved account preference", async ({
+  page,
+}) => {
+  const account: AccountFixture = { name: "Camille", preferredLocale: "en" };
+  const { updates } = await mockAccount(page, account);
+  await page.goto("/#/app/account");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page
+    .locator('.workspace-language select[name="language"]')
+    .selectOption("de");
+  await page.locator("#account-name").fill("Camille Example");
+  await page.locator('form.form-panel button[type="submit"]').click();
+  await expect(
+    page.locator('form.form-panel button[type="submit"]'),
+  ).toBeDisabled();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(page.locator(".language-preference select")).toHaveValue("en");
+  expect(updates).toEqual([{ userName: "Camille Example" }]);
+  expect(account.preferredLocale).toBe("en");
+});

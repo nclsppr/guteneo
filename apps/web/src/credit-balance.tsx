@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useId } from "react";
 import { Plus } from "@phosphor-icons/react";
 import { money } from "./api";
@@ -24,49 +25,60 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
     <section className="credit-balance" aria-labelledby={`${id}-title`}>
       <div className="credit-balance-main">
         <span className="mono">
-          {simulation ? "EXEMPLE FICTIF" : "CRÉDIT DE BIENVENUE"}
+          {simulation ? msg("EXEMPLE FICTIF") : msg("CRÉDIT DE BIENVENUE")}
         </span>
-        <h2 id={`${id}-title`}>Un solde pour toute votre correspondance.</h2>
+        <h2 id={`${id}-title`}>
+          {msg("Un solde pour toute votre correspondance.")}
+        </h2>
         <p>
-          Fax, e-mail et courrier partagent le même crédit, offert une seule
-          fois à votre atelier.
+          {msg(
+            "Fax, e-mail et courrier partagent le même crédit, offert une seule fois à votre atelier.",
+          )}
         </p>
         <dl className="credit-balance-amount">
-          <dt>{simulation ? "Disponible dans cet exemple" : "Disponible"}</dt>
+          <dt>
+            {simulation
+              ? msg("Disponible dans cet exemple")
+              : msg("Disponible")}
+          </dt>
           <dd>{amount(credit.availableMinor)}</dd>
         </dl>
         {credit.grantedMinor > 0 && (
           <progress
             max={credit.grantedMinor}
             value={credit.availableMinor}
-            aria-label="Crédit disponible"
+            aria-label={msg("Crédit disponible")}
           />
         )}
         {credit.status === "exhausted" && (
           <p className="credit-balance-stop" role="status">
-            Votre crédit disponible est épuisé. Les nouveaux envois sont
-            bloqués.
+            {msg(
+              "Votre crédit disponible est épuisé. Les nouveaux envois sont bloqués.",
+            )}
           </p>
         )}
         {credit.status === "not_granted" && (
           <p className="credit-balance-stop">
-            Aucun crédit n’est attribué à cet atelier. Les envois nécessitant un
-            crédit restent bloqués.
+            {msg(
+              "Aucun crédit n’est attribué à cet atelier. Les envois nécessitant un crédit restent bloqués.",
+            )}
           </p>
         )}
       </div>
       <div className="credit-balance-detail">
         <dl>
           <div>
-            <dt>{simulation ? "Crédit illustratif" : "Crédit offert"}</dt>
+            <dt>
+              {simulation ? msg("Crédit illustratif") : msg("Crédit offert")}
+            </dt>
             <dd>{amount(credit.grantedMinor)}</dd>
           </div>
           <div>
-            <dt>Utilisé</dt>
+            <dt>{msg("Utilisé")}</dt>
             <dd>{amount(credit.spentMinor)}</dd>
           </div>
           <div>
-            <dt>Réservé aux envois en cours</dt>
+            <dt>{msg("Réservé aux envois en cours")}</dt>
             <dd>{amount(credit.reservedMinor)}</dd>
           </div>
         </dl>
@@ -77,20 +89,23 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
           aria-describedby={`${id}-topup`}
         >
           <Plus size={18} aria-hidden="true" />
-          Ajouter du crédit
+          {msg("Ajouter du crédit")}
         </button>
         <p id={`${id}-topup`} className="field-hint">
-          La recharge sera disponible avec Stripe. Aucun paiement n’est possible
-          pour le moment.
+          {msg(
+            "La recharge sera disponible avec Stripe. Aucun paiement n’est possible pour le moment.",
+          )}
         </p>
         <p className="field-hint">
-          Le crédit ne se renouvelle pas chaque mois. Un envoi dont le résultat
-          est incertain conserve sa réservation.
+          {msg(
+            "Le crédit ne se renouvelle pas chaque mois. Un envoi dont le résultat est incertain conserve sa réservation.",
+          )}
         </p>
         {simulation && (
           <p className="field-hint">
-            Ces montants servent uniquement à explorer l’atelier. Ils ne
-            constituent ni un crédit réel ni une facture.
+            {msg(
+              "Ces montants servent uniquement à explorer l’atelier. Ils ne constituent ni un crédit réel ni une facture.",
+            )}
           </p>
         )}
       </div>

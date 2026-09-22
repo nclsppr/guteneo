@@ -1,3 +1,5 @@
+import { msg } from "./messages";
+import { formatLocale } from "./locale";
 import { useRef, useState } from "react";
 import { ArrowSquareOut, CreditCard, ShieldCheck } from "@phosphor-icons/react";
 import {
@@ -20,7 +22,7 @@ import {
   useAction,
   useResource,
 } from "./components";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 
 type Usage = {
@@ -73,27 +75,27 @@ type Payment = {
   created: number;
   synced_at: string;
 };
-const labels: Record<string, string> = {
-  draft: "Brouillon",
-  open: "À régler",
-  paid: "Réglée",
-  uncollectible: "Irrécouvrable",
-  void: "Annulée",
-  succeeded: "Reçu",
-  processing: "En cours",
-  canceled: "Annulé",
-  requires_payment_method: "Moyen de paiement requis",
-  requires_confirmation: "À confirmer",
-  requires_action: "Action requise",
-  requires_capture: "À capturer",
-  active: "Actif",
-  trialing: "Période d’essai",
-  past_due: "Paiement en retard",
-  unpaid: "Impayé",
-  incomplete: "À finaliser",
-  incomplete_expired: "Expiré",
-  paused: "En pause",
-};
+const getLabels = (): Record<string, string> => ({
+  draft: msg("Brouillon"),
+  open: msg("À régler"),
+  paid: msg("Réglée"),
+  uncollectible: msg("Irrécouvrable"),
+  void: msg("Annulée"),
+  succeeded: msg("Reçu"),
+  processing: msg("En cours"),
+  canceled: msg("Annulé"),
+  requires_payment_method: msg("Moyen de paiement requis"),
+  requires_confirmation: msg("À confirmer"),
+  requires_action: msg("Action requise"),
+  requires_capture: msg("À capturer"),
+  active: msg("Actif"),
+  trialing: msg("Période d’essai"),
+  past_due: msg("Paiement en retard"),
+  unpaid: msg("Impayé"),
+  incomplete: msg("À finaliser"),
+  incomplete_expired: msg("Expiré"),
+  paused: msg("En pause"),
+});
 // Stripe's API uses two decimals except these zero-decimal charge currencies.
 // ISK and UGX intentionally stay /100 for Stripe's backwards compatibility.
 const zeroDecimal = new Set([
@@ -115,23 +117,25 @@ const zeroDecimal = new Set([
 ]);
 function billedMoney(value: number, currency: string) {
   const code = currency.toUpperCase();
-  return new Intl.NumberFormat("fr-FR", {
+  return new Intl.NumberFormat(formatLocale(), {
     style: "currency",
     currency: code,
   }).format(value / (zeroDecimal.has(code) ? 1 : 100));
 }
 const stamp = (seconds: number) => date(new Date(seconds * 1000).toISOString());
-const state = (value: string) => labels[value] ?? value;
+const state = (value: string) => getLabels()[value] ?? value;
 
 export function Billing({ session }: { session: Session }) {
   if (isPublicPreview) return <PreviewBilling key={session.organization.id} />;
   if (session.user.role !== "admin")
     return (
       <>
-        <PageHeading title="Facturation" />
+        <PageHeading title={msg("Facturation")} />
         <EmptyState
-          title="Un accès administrateur est nécessaire"
-          text="Demandez à l’administrateur de votre espace de consulter les factures et les paiements."
+          title={msg("Un accès administrateur est nécessaire")}
+          text={msg(
+            "Demandez à l’administrateur de votre espace de consulter les factures et les paiements.",
+          )}
         />
       </>
     );
@@ -143,18 +147,22 @@ function PreviewBilling() {
   return (
     <>
       <PageHeading
-        title="Facturation"
-        intro="Explorez le crédit de bienvenue et le suivi des envois dans cet atelier fictif."
+        title={msg("Facturation")}
+        intro={msg(
+          "Explorez le crédit de bienvenue et le suivi des envois dans cet atelier fictif.",
+        )}
       />
       <ErrorNotice error={overview.error} retry={overview.refresh} />
       {overview.loading && !overview.data && <Loading />}
       {overview.data && <CreditBalance credit={overview.data.welcomeCredit} />}
       <EmptyState
-        title="Aucune facture dans la démonstration"
-        text="Les factures et les paiements seront regroupés ici avec votre vrai compte. Aucun paiement ni abonnement n’est créé dans cet aperçu."
+        title={msg("Aucune facture dans la démonstration")}
+        text={msg(
+          "Les factures et les paiements seront regroupés ici avec votre vrai compte. Aucun paiement ni abonnement n’est créé dans cet aperçu.",
+        )}
         action={
           <a className="button subtle" href="#/app/usage">
-            Voir la consommation de démonstration
+            {msg("Voir la consommation de démonstration")}
           </a>
         }
       />
@@ -199,8 +207,11 @@ function BillingWorkspace({ session }: { session: Session }) {
   return (
     <>
       <PageHeading
-        title="Facturation"
-        intro={`Les factures et paiements de ${session.organization.name}.`}
+        title={msg("Facturation")}
+        intro={msg(
+          "Les factures et paiements de {0}.",
+          session.organization.name,
+        )}
         action={
           <RefreshButton
             onClick={refresh}
@@ -216,7 +227,7 @@ function BillingWorkspace({ session }: { session: Session }) {
       />
       {notice && (
         <p className="notice info" role="status">
-          {notice}
+          {msg(notice)}
         </p>
       )}
       {overview.loading && !data && <Loading />}
@@ -228,26 +239,35 @@ function BillingWorkspace({ session }: { session: Session }) {
             aria-labelledby="billing-account-title"
           >
             <div className="section-toolbar">
-              <h2 id="billing-account-title">Votre dossier de facturation</h2>
+              <h2 id="billing-account-title">
+                {msg("Votre dossier de facturation")}
+              </h2>
               <span className="mono">
                 {data.mode === "live"
-                  ? "COMPTE RÉEL"
+                  ? msg("COMPTE RÉEL")
                   : data.mode === "test"
                     ? "ENVIRONNEMENT DE TEST"
-                    : "À RACCORDER"}
+                    : msg("À RACCORDER")}
               </span>
             </div>
             <p>
               {data.status === "configuration_required"
-                ? "Le suivi sera disponible dès le raccordement du compte de paiement Guteneo. Vous pouvez déjà consulter votre consommation ci-dessous."
+                ? msg(
+                    "Le suivi sera disponible dès le raccordement du compte de paiement Guteneo. Vous pouvez déjà consulter votre consommation ci-dessous.",
+                  )
                 : data.status === "customer_required"
-                  ? "Créez votre dossier pour retrouver ici vos futures factures. Cette étape ne souscrit aucun abonnement et ne déclenche aucun paiement."
-                  : "Consultez vos documents de facturation et gérez vos informations dans le portail sécurisé Stripe."}
+                  ? msg(
+                      "Créez votre dossier pour retrouver ici vos futures factures. Cette étape ne souscrit aucun abonnement et ne déclenche aucun paiement.",
+                    )
+                  : msg(
+                      "Consultez vos documents de facturation et gérez vos informations dans le portail sécurisé Stripe.",
+                    )}
             </p>
             {data.mode === "test" && (
               <p className="field-hint">
-                Les opérations Stripe affichées ici sont des essais, sans
-                paiement réel.
+                {msg(
+                  "Les opérations Stripe affichées ici sont des essais, sans paiement réel.",
+                )}
               </p>
             )}
             {data.status === "customer_required" && (
@@ -259,8 +279,8 @@ function BillingWorkspace({ session }: { session: Session }) {
               >
                 <CreditCard size={18} aria-hidden="true" />
                 {action.pending
-                  ? "Création en cours…"
-                  : "Créer mon dossier de facturation"}
+                  ? msg("Création en cours…")
+                  : msg("Créer mon dossier de facturation")}
               </button>
             )}
             {data.portalAvailable && (
@@ -271,8 +291,8 @@ function BillingWorkspace({ session }: { session: Session }) {
                 onClick={() => void openPortal()}
               >
                 {action.pending
-                  ? "Ouverture en cours…"
-                  : "Ouvrir le portail de facturation"}
+                  ? msg("Ouverture en cours…")
+                  : msg("Ouvrir le portail de facturation")}
                 <ArrowSquareOut size={18} aria-hidden="true" />
               </button>
             )}
@@ -283,14 +303,14 @@ function BillingWorkspace({ session }: { session: Session }) {
             aria-labelledby="billing-invoices-title"
           >
             <div className="section-toolbar">
-              <h2 id="billing-invoices-title">Factures</h2>
+              <h2 id="billing-invoices-title">{msg("Factures")}</h2>
             </div>
             {invoices.loading && !invoices.data ? (
               <Loading />
             ) : invoices.error ? (
-              <p>Les factures n’ont pas pu être actualisées.</p>
+              <p>{msg("Les factures n’ont pas pu être actualisées.")}</p>
             ) : !invoices.data?.items.length ? (
-              <p>Aucune facture enregistrée pour cet espace.</p>
+              <p>{msg("Aucune facture enregistrée pour cet espace.")}</p>
             ) : (
               <>
                 <div className="table-scroll">
@@ -298,19 +318,19 @@ function BillingWorkspace({ session }: { session: Session }) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          Facture
+                          {msg("Facture")}
                         </th>
                         <th role="columnheader" scope="col">
-                          État
+                          {msg("État")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Total
+                          {msg("Total")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Réglé
+                          {msg("Réglé")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Reste dû
+                          {msg("Reste dû")}
                         </th>
                       </tr>
                     </thead>
@@ -322,14 +342,15 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Facture
+                              {msg("Facture")}
                             </span>
                             {item.number ?? item.id}
                             <span className="reference">
                               {stamp(item.created)}
                             </span>
                             <span className="reference">
-                              Actualisée le {date(item.synced_at)}
+                              {msg("Actualisée le ")}
+                              {date(item.synced_at)}
                             </span>
                           </th>
                           <td role="cell">
@@ -337,7 +358,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              État
+                              {msg("État")}
                             </span>
                             {state(item.status)}
                           </td>
@@ -346,7 +367,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Total
+                              {msg("Total")}
                             </span>
                             {billedMoney(item.total_minor, item.currency)}
                           </td>
@@ -355,7 +376,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Réglé
+                              {msg("Réglé")}
                             </span>
                             {billedMoney(item.amount_paid_minor, item.currency)}
                           </td>
@@ -364,7 +385,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Reste dû
+                              {msg("Reste dû")}
                             </span>
                             {billedMoney(
                               item.amount_remaining_minor,
@@ -390,14 +411,14 @@ function BillingWorkspace({ session }: { session: Session }) {
             aria-labelledby="billing-payments-title"
           >
             <div className="section-toolbar">
-              <h2 id="billing-payments-title">Paiements</h2>
+              <h2 id="billing-payments-title">{msg("Paiements")}</h2>
             </div>
             {payments.loading && !payments.data ? (
               <Loading />
             ) : payments.error ? (
-              <p>Les paiements n’ont pas pu être actualisés.</p>
+              <p>{msg("Les paiements n’ont pas pu être actualisés.")}</p>
             ) : !payments.data?.items.length ? (
-              <p>Aucun paiement enregistré pour cet espace.</p>
+              <p>{msg("Aucun paiement enregistré pour cet espace.")}</p>
             ) : (
               <>
                 <div className="table-scroll">
@@ -405,13 +426,13 @@ function BillingWorkspace({ session }: { session: Session }) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          Référence
+                          {msg("Référence")}
                         </th>
                         <th role="columnheader" scope="col">
-                          État
+                          {msg("État")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Montant reçu
+                          {msg("Montant reçu")}
                         </th>
                       </tr>
                     </thead>
@@ -423,14 +444,15 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Référence
+                              {msg("Référence")}
                             </span>
                             <span className="mono">{item.id}</span>
                             <span className="reference">
                               {stamp(item.created)}
                             </span>
                             <span className="reference">
-                              Actualisé le {date(item.synced_at)}
+                              {msg("Actualisé le ")}
+                              {date(item.synced_at)}
                             </span>
                           </th>
                           <td role="cell">
@@ -438,7 +460,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              État
+                              {msg("État")}
                             </span>
                             {state(item.status)}
                           </td>
@@ -447,7 +469,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Montant reçu
+                              {msg("Montant reçu")}
                             </span>
                             {billedMoney(
                               item.amount_received_minor,
@@ -465,8 +487,9 @@ function BillingWorkspace({ session }: { session: Session }) {
                   onLoaded={payments.setData}
                 />
                 <p className="field-hint">
-                  Montants reçus avant d’éventuels remboursements. Le portail de
-                  facturation présente les documents à jour.
+                  {msg(
+                    "Montants reçus avant d’éventuels remboursements. Le portail de facturation présente les documents à jour.",
+                  )}
                 </p>
               </>
             )}
@@ -477,23 +500,23 @@ function BillingWorkspace({ session }: { session: Session }) {
             aria-labelledby="billing-subscriptions-title"
           >
             <div className="section-toolbar">
-              <h2 id="billing-subscriptions-title">Abonnements</h2>
+              <h2 id="billing-subscriptions-title">{msg("Abonnements")}</h2>
             </div>
             {!data.subscriptions.length ? (
-              <p>Aucun abonnement enregistré pour cet espace.</p>
+              <p>{msg("Aucun abonnement enregistré pour cet espace.")}</p>
             ) : (
               <div className="table-scroll">
                 <table className="responsive-table" role="table">
                   <thead role="rowgroup">
                     <tr role="row">
                       <th role="columnheader" scope="col">
-                        Référence
+                        {msg("Référence")}
                       </th>
                       <th role="columnheader" scope="col">
-                        État
+                        {msg("État")}
                       </th>
                       <th role="columnheader" scope="col">
-                        Dernière actualisation
+                        {msg("Dernière actualisation")}
                       </th>
                     </tr>
                   </thead>
@@ -505,7 +528,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                             className="mobile-cell-label"
                             aria-hidden="true"
                           >
-                            Référence
+                            {msg("Référence")}
                           </span>
                           {item.id}
                         </th>
@@ -514,12 +537,12 @@ function BillingWorkspace({ session }: { session: Session }) {
                             className="mobile-cell-label"
                             aria-hidden="true"
                           >
-                            État
+                            {msg("État")}
                           </span>
                           {state(item.status)}
                           {Boolean(item.cancel_at_period_end) && (
                             <span className="reference">
-                              Résiliation à la fin de la période
+                              {msg("Résiliation à la fin de la période")}
                             </span>
                           )}
                         </td>
@@ -528,7 +551,7 @@ function BillingWorkspace({ session }: { session: Session }) {
                             className="mobile-cell-label"
                             aria-hidden="true"
                           >
-                            Dernière actualisation
+                            {msg("Dernière actualisation")}
                           </span>
                           {date(item.synced_at)}
                         </td>
@@ -544,8 +567,8 @@ function BillingWorkspace({ session }: { session: Session }) {
             <div className="section-toolbar">
               <h2 id="billing-usage-title">
                 {data.usageLedger.kind === "simulation"
-                  ? "Consommation de simulation"
-                  : "Budget des envois"}
+                  ? msg("Consommation de simulation")
+                  : msg("Budget des envois")}
               </h2>
               <span className="mono">{data.usageLedger.period}</span>
             </div>
@@ -553,33 +576,37 @@ function BillingWorkspace({ session }: { session: Session }) {
               <ShieldCheck size={22} aria-hidden="true" />
               <p>
                 {data.usageLedger.kind === "simulation"
-                  ? "Ces compteurs servent aux essais. Les montants sont fictifs et ne seront pas facturés."
-                  : "Ces montants sont les plafonds réservés pour vos envois. Vos factures et paiements réels figurent dans les sections ci-dessus."}
+                  ? msg(
+                      "Ces compteurs servent aux essais. Les montants sont fictifs et ne seront pas facturés.",
+                    )
+                  : msg(
+                      "Ces montants sont les plafonds réservés pour vos envois. Vos factures et paiements réels figurent dans les sections ci-dessus.",
+                    )}
               </p>
             </aside>
             {!data.usageLedger.channels.length ? (
-              <p>Aucune consommation enregistrée sur cette période.</p>
+              <p>{msg("Aucune consommation enregistrée sur cette période.")}</p>
             ) : (
               <div className="usage-ledger">
                 {data.usageLedger.channels.map((item) => (
                   <section key={item.channel}>
                     <h3>{t.channels[item.channel]}</h3>
                     <dl>
-                      <Definition label="En attente">
+                      <Definition label={msg("En attente")}>
                         <strong>{item.reserved_count}</strong>
                         <span>
-                          {money(item.reserved_minor, item.currency)} de plafond
-                          réservé
+                          {money(item.reserved_minor, item.currency)}{" "}
+                          {msg(" de plafond réservé")}
                         </span>
                       </Definition>
-                      <Definition label="Envois acceptés">
+                      <Definition label={msg("Envois acceptés")}>
                         <strong>{item.confirmed_count}</strong>
                         <span>
-                          {money(item.confirmed_minor, item.currency)} de
-                          plafond engagé
+                          {money(item.confirmed_minor, item.currency)}{" "}
+                          {msg(" de plafond engagé")}
                         </span>
                       </Definition>
-                      <Definition label="Limite autorisée">
+                      <Definition label={msg("Limite autorisée")}>
                         <strong>{item.limit_count}</strong>
                         <span>{money(item.limit_minor, item.currency)}</span>
                       </Definition>

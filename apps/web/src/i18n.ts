@@ -1,4 +1,4 @@
-// All product copy lives here so an English dictionary can be added without editing views.
+// The French source defines the shape required from every supported catalog.
 export const fr = {
   skip: "Aller au contenu",
   atelier: "L’ATELIER",
@@ -522,3 +522,11 @@ export const fr = {
     simulation: "Simulation",
   } as Record<string, string>,
 };
+
+/** Widen source literals while retaining catalog keys and nested structure. */
+export type Copy = Widen<typeof fr>;
+type Widen<T> = T extends string
+  ? string
+  : T extends readonly (infer U)[]
+    ? Widen<U>[]
+    : { -readonly [K in keyof T]: Widen<T[K]> };

@@ -1,3 +1,5 @@
+import { msg } from "./messages";
+import { formatLocale } from "./locale";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
   useCallback,
@@ -36,7 +38,7 @@ import {
   type Session,
 } from "./api";
 import { OverviewAssistantStart } from "./assistant-workspace";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
 import {
   PostalAddressChoice,
@@ -76,10 +78,10 @@ function analysisOf(document: DocumentRecord) {
 function DocumentStatus({ document }: { document: DocumentRecord }) {
   const analysis = analysisOf(document);
   const labels = {
-    processing: "Vérification en cours",
-    ready: "PDF prêt",
-    retryable: "À vérifier",
-    blocked: "PDF indisponible",
+    processing: msg("Vérification en cours"),
+    ready: msg("PDF prêt"),
+    retryable: msg("À vérifier"),
+    blocked: msg("PDF indisponible"),
   };
   return (
     <span className={`status status-document-${analysis.state}`}>
@@ -338,8 +340,9 @@ export function Documents() {
       />
       {isPublicPreview && (
         <p className="notice info">
-          Explorez les PDF d’exemple ci-dessous. L’import de fichiers et la
-          création de PDF seront disponibles dans votre espace privé.
+          {msg(
+            "Explorez les PDF d’exemple ci-dessous. L’import de fichiers et la création de PDF seront disponibles dans votre espace privé.",
+          )}
         </p>
       )}
       <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -454,8 +457,8 @@ export function Documents() {
             )}
             <div>
               <div role="status" aria-live="polite" aria-atomic="true">
-                <h3>{analysis.title}</h3>
-                <p>{analysis.message}</p>
+                <h3>{msg(analysis.title)}</h3>
+                <p>{msg(analysis.message)}</p>
               </div>
               {analysis.state === "processing" && !followup.issue && (
                 <p className="document-followup-hint">
@@ -734,7 +737,7 @@ export function PrepareDispatch({
     submitting.current = true;
     await action.run(async () => {
       if (documentUnavailable)
-        throw new Error("Vérifiez le PDF avant de préparer l’envoi.");
+        throw new Error(msg("Vérifiez le PDF avant de préparer l’envoi."));
       const target =
         channel === "fax"
           ? { phone: recipient.phone ?? "" }
@@ -750,7 +753,9 @@ export function PrepareDispatch({
       if (channel === "postal" && !simulation) {
         if (requirements.loading || requirements.error || !selectedPosition)
           throw new Error(
-            "Les options du courrier ne sont pas encore disponibles. Réessayez leur chargement.",
+            msg(
+              "Les options du courrier ne sont pas encore disponibles. Réessayez leur chargement.",
+            ),
           );
         if (addsAddressPage && !generated) {
           setGenerationAttempted(true);
@@ -773,7 +778,9 @@ export function PrepareDispatch({
         }
         if (addsAddressPage && !generatedReady)
           throw new Error(
-            "Attendez la vérification du PDF final avant le contrôle postal.",
+            msg(
+              "Attendez la vérification du PDF final avant le contrôle postal.",
+            ),
           );
         const review = await api<PostalReview>("/postal/preflights", {
           method: "POST",
@@ -837,11 +844,15 @@ export function PrepareDispatch({
     <>
       <PageHeading
         title={
-          channel === "postal" ? "Préparez votre courrier." : t.dispatch.title
+          channel === "postal"
+            ? msg("Préparez votre courrier.")
+            : t.dispatch.title
         }
         intro={
           channel === "postal"
-            ? "Choisissez le PDF, son destinataire et la fenêtre de l’enveloppe. Vous vérifierez ensuite le document et le prix avant l’envoi."
+            ? msg(
+                "Choisissez le PDF, son destinataire et la fenêtre de l’enveloppe. Vous vérifierez ensuite le document et le prix avant l’envoi.",
+              )
             : t.dispatch.intro
         }
       />
@@ -876,7 +887,7 @@ export function PrepareDispatch({
           disabled={action.pending}
           onChange={changed}
         >
-          <legend className="sr-only">Préparation de l’envoi</legend>
+          <legend className="sr-only">{msg("Préparation de l’envoi")}</legend>
           <fieldset className="channel-selector">
             <legend>{t.channel}</legend>
             {(["fax", "email", "postal"] as const).map((c) => (
@@ -912,23 +923,25 @@ export function PrepareDispatch({
               {initialDocument &&
                 !available.some((d) => d.id === initialDocument) && (
                   <option value={initialDocument} disabled>
-                    {initial.loading ? "Chargement du PDF…" : "PDF à vérifier"}
+                    {initial.loading
+                      ? msg("Chargement du PDF…")
+                      : msg("PDF à vérifier")}
                   </option>
                 )}
               {available.map((d) => (
                 <option value={d.id} key={d.id}>
-                  {d.name} · {d.pages} p.
+                  {d.name} · {d.pages} {msg(" p.")}
                 </option>
               ))}
             </select>
           </Field>
           {documentUnavailable && !initial.loading && (
             <p className="field-hint" id="prepare-document-unavailable">
-              Ce PDF doit être vérifié avant de préparer l’envoi.{" "}
+              {msg("Ce PDF doit être vérifié avant de préparer l’envoi.")}{" "}
               <a
                 href={`#/app/documents?document=${encodeURIComponent(documentId)}`}
               >
-                Voir le suivi du PDF
+                {msg("Voir le suivi du PDF")}
               </a>
             </p>
           )}
@@ -958,7 +971,7 @@ export function PrepareDispatch({
                 <option value="">
                   {simulation
                     ? t.dispatch.defaultSender
-                    : "Aucun expéditeur validé pour ce canal"}
+                    : msg("Aucun expéditeur validé pour ce canal")}
                 </option>
               )}
             </select>
@@ -977,7 +990,9 @@ export function PrepareDispatch({
           {channel === "fax" ? (
             <Field
               label={t.dispatch.phone}
-              hint="Format international : + suivi de l’indicatif du pays et du numéro, sans espaces (ex. +352…)."
+              hint={msg(
+                "Format international : + suivi de l’indicatif du pays et du numéro, sans espaces (ex. +352…).",
+              )}
             >
               <input
                 type="tel"
@@ -1092,19 +1107,19 @@ export function PrepareDispatch({
           )}
           {channel === "postal" && !simulation && (
             <fieldset className="postal-form-options">
-              <legend>Impression et distribution</legend>
-              <Field label="Faces imprimées">
+              <legend>{msg("Impression et distribution")}</legend>
+              <Field label={msg("Faces imprimées")}>
                 <select
                   value={printMode}
                   onChange={(event) =>
                     setPrintMode(event.target.value as "simplex" | "duplex")
                   }
                 >
-                  <option value="simplex">Recto</option>
-                  <option value="duplex">Recto verso</option>
+                  <option value="simplex">{msg("Recto")}</option>
+                  <option value="duplex">{msg("Recto verso")}</option>
                 </select>
               </Field>
-              <Field label="Couleurs">
+              <Field label={msg("Couleurs")}>
                 <select
                   value={printSpectrum}
                   onChange={(event) =>
@@ -1113,13 +1128,15 @@ export function PrepareDispatch({
                     )
                   }
                 >
-                  <option value="grayscale">Noir et blanc</option>
-                  <option value="color">Couleur</option>
+                  <option value="grayscale">{msg("Noir et blanc")}</option>
+                  <option value="color">{msg("Couleur")}</option>
                 </select>
               </Field>
               <Field
-                label="Distribution souhaitée"
-                hint="La disponibilité et le prix seront confirmés par le devis."
+                label={msg("Distribution souhaitée")}
+                hint={msg(
+                  "La disponibilité et le prix seront confirmés par le devis.",
+                )}
               >
                 <select
                   value={deliveryProduct}
@@ -1127,22 +1144,28 @@ export function PrepareDispatch({
                     setDeliveryProduct(event.target.value as "cheap" | "fast")
                   }
                 >
-                  <option value="cheap">Économique</option>
-                  <option value="fast">Rapide</option>
+                  <option value="cheap">{msg("Économique")}</option>
+                  <option value="fast">{msg("Rapide")}</option>
                 </select>
               </Field>
               <p className="field-hint">
-                Vous vérifierez le document et son adresse avant de demander le
-                prix de l’envoi.
+                {msg(
+                  "Vous vérifierez le document et son adresse avant de demander le prix de l’envoi.",
+                )}
               </p>
             </fieldset>
           )}
           {channel === "postal" && !simulation ? (
             <details className="postal-budget">
-              <summary>Budget maximum : {money(Number(ceiling))}</summary>
+              <summary>
+                {msg("Budget maximum : ")}
+                {money(Number(ceiling))}
+              </summary>
               <Field
-                label="Budget maximum en euros"
-                hint="Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire."
+                label={msg("Budget maximum en euros")}
+                hint={msg(
+                  "Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire.",
+                )}
               >
                 <input
                   type="number"
@@ -1206,16 +1229,16 @@ export function PrepareDispatch({
           >
             {action.pending
               ? addsAddressPage && !generated
-                ? "Création du PDF final…"
+                ? msg("Création du PDF final…")
                 : t.dispatch.preparing
               : addsAddressPage && !generated
                 ? generationAttempted
-                  ? "Réessayer la création du PDF"
-                  : "Préparer le courrier"
+                  ? msg("Réessayer la création du PDF")
+                  : msg("Préparer le courrier")
                 : addsAddressPage && !generatedReady
-                  ? "Vérification du PDF final…"
+                  ? msg("Vérification du PDF final…")
                   : channel === "postal" && !simulation
-                    ? "Préparer le courrier"
+                    ? msg("Préparer le courrier")
                     : t.dispatch.prepare}
             <ArrowRight size={18} />
           </button>
@@ -1224,24 +1247,27 @@ export function PrepareDispatch({
             !generated &&
             !action.pending && (
               <p className="field-hint">
-                Réessayez sans modifier les champs pour retrouver la même
-                création et éviter un doublon.
+                {msg(
+                  "Réessayez sans modifier les champs pour retrouver la même création et éviter un doublon.",
+                )}
               </p>
             )}
           {channel !== "email" && !documentId && (
             <p id="prepare-document-required" className="field-hint">
-              Choisissez un document pour pouvoir préparer cet envoi.
+              {msg("Choisissez un document pour pouvoir préparer cet envoi.")}
             </p>
           )}
           {!simulation && !selectedSender && (
             <p id="prepare-sender-required" className="field-hint">
               {channel === "postal"
                 ? t.postalSetup.required
-                : "Un expéditeur doit être validé pour ce canal avant la préparation."}{" "}
+                : msg(
+                    "Un expéditeur doit être validé pour ce canal avant la préparation.",
+                  )}{" "}
               <a href="#/app/senders">
                 {channel === "postal"
                   ? t.postalSetup.setupLink
-                  : "Consulter les expéditeurs"}
+                  : msg("Consulter les expéditeurs")}
               </a>
               .
             </p>
@@ -1257,8 +1283,8 @@ export function PrepareDispatch({
                   role="status"
                   aria-live="polite"
                 >
-                  <h2>{generatedAnalysis.title}</h2>
-                  <p>{generatedAnalysis.message}</p>
+                  <h2>{msg(generatedAnalysis.title)}</h2>
+                  <p>{msg(generatedAnalysis.message)}</p>
                   {generatedFollowup.issue && (
                     <p>
                       {generatedFollowup.issue === "network"
@@ -1273,7 +1299,7 @@ export function PrepareDispatch({
                       onClick={generatedFollowup.refresh}
                       disabled={generatedFollowup.loading}
                     >
-                      Actualiser la vérification
+                      {msg("Actualiser la vérification")}
                     </button>
                   )}
                   {(generatedAnalysis.state === "retryable" ||
@@ -1282,7 +1308,7 @@ export function PrepareDispatch({
                       <a
                         href={`#/app/documents?document=${encodeURIComponent(finalDocument.id)}`}
                       >
-                        Reprendre le suivi de ce PDF
+                        {msg("Reprendre le suivi de ce PDF")}
                       </a>
                     </p>
                   )}
@@ -1301,8 +1327,9 @@ export function PrepareDispatch({
               <div className="preview-empty postal-generated-empty">
                 <FileText size={54} weight="light" aria-hidden="true" />
                 <p>
-                  Créez le PDF avec la page d’adresse pour afficher l’aperçu
-                  exact du courrier complet.
+                  {msg(
+                    "Créez le PDF avec la page d’adresse pour afficher l’aperçu exact du courrier complet.",
+                  )}
                 </p>
               </div>
             )
@@ -1460,24 +1487,24 @@ export function DispatchDetailPage({
   }
   const postalOptionSummary = [
     postalOptions?.printMode === "duplex"
-      ? "Recto verso"
+      ? msg("Recto verso")
       : postalOptions?.printMode === "simplex"
-        ? "Recto"
+        ? msg("Recto")
         : undefined,
     postalOptions?.printSpectrum === "color"
-      ? "Couleur"
+      ? msg("Couleur")
       : postalOptions?.printSpectrum === "grayscale"
-        ? "Noir et blanc"
+        ? msg("Noir et blanc")
         : undefined,
     postalOptions?.deliveryProduct === "fast"
-      ? "Distribution rapide"
+      ? msg("Distribution rapide")
       : postalOptions?.deliveryProduct === "cheap"
-        ? "Distribution économique"
+        ? msg("Distribution économique")
         : undefined,
     postalOptions?.addressPosition === "right"
-      ? "Fenêtre à droite"
+      ? msg("Fenêtre à droite")
       : postalOptions?.addressPosition === "left"
-        ? "Fenêtre à gauche"
+        ? msg("Fenêtre à gauche")
         : undefined,
   ]
     .filter(Boolean)
@@ -1537,7 +1564,7 @@ export function DispatchDetailPage({
       !Number.isSafeInteger(d.quote_customer_nanoeur) ||
       (d.quote_customer_nanoeur ?? -1) < 0 ||
       !Number.isFinite(Date.parse(d.quote_expires_at ?? "")));
-  const postalSendLabel = `${d.mode === "simulation" ? "Simuler l’envoi pour" : "Envoyer pour"} ${quotedMoney(d)}${d.quote_pricing_basis === "public_list_price_ex_tax" ? " HT" : ""}`;
+  const postalSendLabel = `${d.mode === "simulation" ? msg("Simuler l’envoi pour") : msg("Envoyer pour")} ${quotedMoney(d)}${d.quote_pricing_basis === "public_list_price_ex_tax" ? msg(" HT") : ""}`;
   async function readPostalOutcome(revision: number) {
     const current = await api<DispatchDetail>(
       `/dispatches/${encodeURIComponent(id)}`,
@@ -1545,7 +1572,9 @@ export function DispatchDetailPage({
     if (postalViewRevision.current !== revision) return;
     if (current?.dispatch?.id !== id)
       throw new Error(
-        "Le suivi de ce courrier est indisponible. Actualisez-le avant de continuer.",
+        msg(
+          "Le suivi de ce courrier est indisponible. Actualisez-le avant de continuer.",
+        ),
       );
     resource.setData(current);
     setPostalReadRequired(false);
@@ -1728,23 +1757,29 @@ export function DispatchDetailPage({
           <div>
             <strong>
               {quoteExpired
-                ? "Ce devis a expiré."
+                ? msg("Ce devis a expiré.")
                 : quoteBlocked
-                  ? "Ce devis n’est plus valable."
-                  : "Ce devis expire dans moins d’une minute."}
+                  ? msg("Ce devis n’est plus valable.")
+                  : msg("Ce devis expire dans moins d’une minute.")}
             </strong>
             <p>
               {quoteBlocked
                 ? d.channel === "postal"
-                  ? "Préparez un nouveau devis, puis vérifiez son prix avant l’envoi. Ce courrier ne sera pas envoyé avec le devis expiré."
-                  : "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi."
-                : "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration."}
+                  ? msg(
+                      "Préparez un nouveau devis, puis vérifiez son prix avant l’envoi. Ce courrier ne sera pas envoyé avec le devis expiré.",
+                    )
+                  : msg(
+                      "Préparez un nouveau devis avec le même PDF, le même destinataire et le même plafond. Vous devrez vérifier et approuver cette nouvelle version avant tout envoi.",
+                    )
+                : msg(
+                    "Validez-le avant l’échéance affichée, ou renouvelez-le après son expiration.",
+                  )}
             </p>
             {quoteBlocked && d.campaign_id && (
               <p>
-                Ce renouvellement créera un devis individuel, hors de la
-                campagne d’origine. La campagne conservera son historique ; vous
-                devrez approuver ce nouvel envoi séparément.
+                {msg(
+                  "Ce renouvellement créera un devis individuel, hors de la campagne d’origine. La campagne conservera son historique ; vous devrez approuver ce nouvel envoi séparément.",
+                )}
               </p>
             )}
             {renewalAllowed && (
@@ -1754,8 +1789,8 @@ export function DispatchDetailPage({
                 onClick={() => void renewQuote()}
               >
                 {action.pending
-                  ? "Renouvellement du devis…"
-                  : "Renouveler le devis"}
+                  ? msg("Renouvellement du devis…")
+                  : msg("Renouveler le devis")}
               </button>
             )}
             {quoteBlocked && d.channel === "postal" && (
@@ -1763,7 +1798,7 @@ export function DispatchDetailPage({
                 className="button primary"
                 href={`#/app/prepare?channel=postal${d.document_id ? `&document=${encodeURIComponent(d.document_id)}` : ""}`}
               >
-                Préparer un nouveau devis
+                {msg("Préparer un nouveau devis")}
               </a>
             )}
           </div>
@@ -1784,15 +1819,18 @@ export function DispatchDetailPage({
       {postalReadRequired && (
         <section className="notice warning" role="status">
           <p>
-            La réponse a été interrompue. Vérifiez le suivi de ce courrier avant
-            toute nouvelle action ; il a peut-être déjà été accepté.
+            {msg(
+              "La réponse a été interrompue. Vérifiez le suivi de ce courrier avant toute nouvelle action ; il a peut-être déjà été accepté.",
+            )}
           </p>
           <button
             className="button secondary"
             disabled={action.pending}
             onClick={() => void checkPostalOutcome()}
           >
-            {action.pending ? "Vérification du suivi…" : "Vérifier le suivi"}
+            {action.pending
+              ? msg("Vérification du suivi…")
+              : msg("Vérifier le suivi")}
           </button>
         </section>
       )}
@@ -1818,14 +1856,14 @@ export function DispatchDetailPage({
               {d.sender_address ?? t.unknown}
             </Definition>
             {postalOptionSummary && (
-              <Definition label="Options du courrier">
+              <Definition label={msg("Options du courrier")}>
                 {postalOptionSummary}
               </Definition>
             )}
             <Definition
               label={
                 faxPricing
-                  ? "Fourchette estimée HT"
+                  ? msg("Fourchette estimée HT")
                   : d.channel === "postal" &&
                       d.quote_pricing_basis === "public_list_price_ex_tax"
                     ? t.postalSetup.quote
@@ -1834,7 +1872,7 @@ export function DispatchDetailPage({
             >
               {faxPricing ? (
                 <>
-                  {nanoMoney(faxPricing.estimatedLowNanoeur)} à{" "}
+                  {nanoMoney(faxPricing.estimatedLowNanoeur)} {msg(" à")}{" "}
                   {nanoMoney(faxPricing.estimatedHighNanoeur)}
                 </>
               ) : (
@@ -1845,18 +1883,18 @@ export function DispatchDetailPage({
               {money(d.ceiling_minor, d.currency)}
             </Definition>
             {faxPricing?.settlement.status === "reserved" && (
-              <Definition label="Crédits en réserve">
+              <Definition label={msg("Crédits en réserve")}>
                 {money(faxPricing.ceilingMinor)}
               </Definition>
             )}
             {faxPricing?.settlement.status === "settled" && (
               <>
-                <Definition label="Consommation validée HT">
+                <Definition label={msg("Consommation validée HT")}>
                   {faxPricing.settlement.customerNanoeur == null
                     ? t.unknown
                     : nanoMoney(faxPricing.settlement.customerNanoeur)}
                 </Definition>
-                <Definition label="Débit du solde">
+                <Definition label={msg("Débit du solde")}>
                   {faxPricing.settlement.chargedMinor == null
                     ? t.unknown
                     : money(faxPricing.settlement.chargedMinor)}
@@ -1864,7 +1902,7 @@ export function DispatchDetailPage({
               </>
             )}
             {d.quote_expires_at && (
-              <Definition label="Devis valable jusqu’au">
+              <Definition label={msg("Devis valable jusqu’au")}>
                 {date(d.quote_expires_at)}
               </Definition>
             )}
@@ -1884,48 +1922,59 @@ export function DispatchDetailPage({
           {faxPricing && (
             <div className="notice info" role="status" aria-atomic="true">
               {faxPricing.routeQualification === "operator_authorized_test" && (
-                <p>{faxPricing.routeNotice ?? FAX_OPERATOR_TEST_NOTICE}</p>
+                <p>{msg(faxPricing.routeNotice ?? FAX_OPERATOR_TEST_NOTICE)}</p>
               )}
               <p>
                 {reviewPreparationOnly
-                  ? "Cette estimation est consultable uniquement. Aucun envoi et aucune réservation de crédit ne sont possibles."
+                  ? msg(
+                      "Cette estimation est consultable uniquement. Aucun envoi et aucune réservation de crédit ne sont possibles.",
+                    )
                   : faxPricing.settlement.status === "settled"
-                    ? "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde."
+                    ? msg(
+                        "Le décompte de ce fax est terminé. Les crédits réservés non consommés sont à nouveau disponibles. Les fractions de centime sont cumulées avec vos autres envois avant le débit du solde.",
+                      )
                     : faxPricing.settlement.status === "released"
-                      ? "La réservation a été libérée sans débit pour cet envoi."
+                      ? msg(
+                          "La réservation a été libérée sans débit pour cet envoi.",
+                        )
                       : faxPricing.settlement.status === "reserved"
-                        ? "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax."
-                        : `Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas ${money(faxPricing.ceilingMinor)}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.`}{" "}
-                Montants hors taxes, sur vos crédits de bêta ; aucun paiement
-                n’est prélevé.
+                        ? msg(
+                            "Le décompte est en cours. Les crédits restent réservés jusqu’à la vérification de l’usage, même si la transmission est déjà terminée. Il n’est pas nécessaire de renvoyer le fax.",
+                          )
+                        : msg(
+                            "Le coût dépend de la durée de transmission. Votre consommation ne dépassera pas {0}. Ce plafond sera réservé à la confirmation ; seuls les crédits consommés seront déduits après vérification de l’usage.",
+                            money(faxPricing.ceilingMinor),
+                          )}{" "}
+                {msg(
+                  "Montants hors taxes, sur vos crédits de bêta ; aucun paiement n’est prélevé.",
+                )}
               </p>
             </div>
           )}
           {d.mode === "production" && d.quote_customer_nanoeur != null && (
             <p className="field-hint">
-              Ce prix s’ajoute à vos envois précédents. La consommation totale
-              est arrondie au centime supérieur ; les fractions de centime sont
-              cumulées entre les envois. Le plafond affiché reste réservé
-              jusqu’au résultat.
+              {msg(
+                "Ce prix s’ajoute à vos envois précédents. La consommation totale est arrondie au centime supérieur ; les fractions de centime sont cumulées entre les envois. Le plafond affiché reste réservé jusqu’au résultat.",
+              )}
             </p>
           )}
           {d.quote_pricing_basis === "public_list_price_ex_tax" && (
             <p className="field-hint">
               {d.channel === "postal"
                 ? t.postalSetup.quoteNote
-                : "Tarif de référence SES hors taxes. Le prix en euros est fixé pour ce devis."}
+                : msg(
+                    "Tarif de référence SES hors taxes. Le prix en euros est fixé pour ce devis.",
+                  )}
               {d.channel === "email" && d.quote_fx && (
                 <>
                   {" "}
-                  Conversion du {d.quote_fx.date
-                    .split("-")
-                    .reverse()
-                    .join("/")}{" "}
-                  : 1 USD ≈{" "}
-                  {new Intl.NumberFormat("fr-FR", {
+                  {msg("Conversion du ")}
+                  {d.quote_fx.date.split("-").reverse().join("/")}{" "}
+                  {msg(": 1 USD ≈")}{" "}
+                  {new Intl.NumberFormat(formatLocale(), {
                     maximumFractionDigits: 8,
                   }).format(d.quote_fx.numerator / d.quote_fx.denominator)}{" "}
-                  EUR, selon le taux de référence BCE.
+                  {msg("EUR, selon le taux de référence BCE.")}
                 </>
               )}
             </p>
@@ -1933,24 +1982,26 @@ export function DispatchDetailPage({
           {pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (
               <p className="notice info">
-                Cet envoi a été revu sous votre délégation expert. L’assistant
-                doit encore en confirmer l’acceptation. Vous pouvez aussi le
-                vérifier et l’approuver ici.
+                {msg(
+                  "Cet envoi a été revu sous votre délégation expert. L’assistant doit encore en confirmer l’acceptation. Vous pouvez aussi le vérifier et l’approuver ici.",
+                )}
               </p>
             )}
           {pendingApproval && d.channel === "postal" && (
             <section className="approval-panel">
               <p>
-                Vérifiez le PDF et l’adresse du destinataire. Ce bouton approuve
-                cette version et son prix, puis
+                {msg(
+                  "Vérifiez le PDF et l’adresse du destinataire. Ce bouton approuve cette version et son prix, puis",
+                )}
                 {d.mode === "simulation"
-                  ? " lance sa simulation."
-                  : " déclenche son envoi."}
+                  ? msg(" lance sa simulation.")
+                  : msg(" déclenche son envoi.")}
               </p>
               {postalPriceUnavailable && (
                 <p role="status">
-                  Le prix exact de ce courrier est indisponible. Actualisez le
-                  devis avant de l’envoyer.
+                  {msg(
+                    "Le prix exact de ce courrier est indisponible. Actualisez le devis avant de l’envoyer.",
+                  )}
                 </p>
               )}
               <button
@@ -1966,9 +2017,9 @@ export function DispatchDetailPage({
               >
                 <ArrowRight size={18} />
                 {action.pending
-                  ? "Envoi en cours…"
+                  ? msg("Envoi en cours…")
                   : postalPriceUnavailable
-                    ? "Prix indisponible"
+                    ? msg("Prix indisponible")
                     : postalSendLabel}
               </button>
             </section>
@@ -1985,7 +2036,10 @@ export function DispatchDetailPage({
                 />
                 <span>
                   {faxPricing
-                    ? `J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de ${money(faxPricing.ceilingMinor)}, pour cette version du fax.`
+                    ? msg(
+                        "J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de {0}, pour cette version du fax.",
+                        money(faxPricing.ceilingMinor),
+                      )
                     : t.dispatch.approvalCheck}
                 </span>
               </label>
@@ -1997,8 +2051,9 @@ export function DispatchDetailPage({
                     onChange={(e) => setRecipientRequested(e.target.checked)}
                   />
                   <span>
-                    Je confirme que ce destinataire a demandé cet e-mail et son
-                    document. Cet envoi ne constitue pas une prospection.
+                    {msg(
+                      "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.",
+                    )}
                   </span>
                 </label>
               )}
@@ -2134,7 +2189,7 @@ export function DispatchDetailPage({
                 <li key={attempt.id}>
                   <span>
                     {d.channel === "postal"
-                      ? "Service courrier Guteneo"
+                      ? msg("Service courrier Guteneo")
                       : attempt.provider}
                   </span>
                   <Status status={attempt.status} />
