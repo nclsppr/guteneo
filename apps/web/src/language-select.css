@@ -62,7 +62,12 @@
   padding-inline: 16px;
 }
 @media (max-width: 767px) {
-  .site-header {
+  .landing > .site-header,
+  .legal-page > .site-header,
+  .login-page > .site-header {
+    height: auto;
+    min-height: 77px;
+    padding-block: 16px;
     flex-wrap: wrap;
   }
   .homepage .site-header {

@@ -25,6 +25,12 @@ test("home language is visible, survives reload and works on mobile", async ({
   const brand = await page.locator("header > .brand").boundingBox();
   const language = await picker.boundingBox();
   const menu = await page.locator(".mobile-menu-toggle").boundingBox();
+  const header = await page.locator("header.site-header").boundingBox();
+  if (header && language)
+    expect(language.y + language.height).toBeLessThanOrEqual(
+      header.y + header.height,
+    );
+
   if (brand && language && menu) {
     expect(
       language.y >= brand.y + brand.height ||
