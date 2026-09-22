@@ -272,7 +272,24 @@ test("plays and seeks the delivered movie without browser API mocks", async ({
         player.evaluate((element) => (element as HTMLVideoElement).currentTime),
       { timeout: 20000 },
     )
-    .toBeGreaterThan(40.2);
+    .toBeGreaterThan(39.5);
+  await expect
+    .poll(
+      () =>
+        player.evaluate((element) => (element as HTMLVideoElement).readyState),
+      { timeout: 20000 },
+    )
+    .toBeGreaterThan(1);
+  // Native iPhone controls may pause a video after a scripted seek. The film
+  // must still decode the requested frame; desktop continues playback.
+  if (!phone)
+    await expect
+      .poll(
+        () =>
+          player.evaluate((element) => (element as HTMLVideoElement).currentTime),
+        { timeout: 20000 },
+      )
+      .toBeGreaterThan(40.2);
   await player.evaluate(async (element) => {
     if (document.fullscreenElement) await document.exitFullscreen();
     const video = element as HTMLVideoElement & {
