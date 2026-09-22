@@ -559,7 +559,7 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
     const other = `replacement_${f.ctx.userId}`;
     await db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','replacement@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','replacement@example.invalid',?)",
       )
       .bind(other, stamp())
       .run();

@@ -120,7 +120,7 @@ beforeEach(async () => {
       .bind(ctx.organizationId, date),
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(ctx.userId, date),
     db
@@ -524,7 +524,7 @@ describe("connection-specific expert status is read-only and current", () => {
     await db.batch([
       db
         .prepare(
-          "INSERT INTO users VALUES(?,'Backup','backup@example.invalid',?)",
+          "INSERT INTO users(id,name,email,created_at) VALUES(?,'Backup','backup@example.invalid',?)",
         )
         .bind(backup, now()),
       db

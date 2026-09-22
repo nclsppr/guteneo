@@ -255,7 +255,9 @@ async function setupFixture() {
       .prepare("INSERT INTO organizations VALUES(?,'Fixture','production',?)")
       .bind(ctx.organizationId, stamp()),
     db
-      .prepare("INSERT INTO users VALUES(?,'Fixture','test@example.invalid',?)")
+      .prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','test@example.invalid',?)",
+      )
       .bind(ctx.userId, stamp()),
     db
       .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
