@@ -105,6 +105,13 @@ n'établit pas, à elle seule, qu'un login social est proposé. La règle 4.8 do
 rester facilement accessible, conformément à 5.1.1.
 [Règles de connexion et de confidentialité](https://developer.apple.com/app-store/review/guidelines/)
 
+Le client utilise `ASWebAuthenticationSession`, présenté par iOS depuis l'app,
+avec retour contrôlé vers l'app. Il ne renvoie pas vers le navigateur par défaut
+avec `openURL` pour se connecter. Apple documente ce mécanisme système pour
+l'authentification web ; la critique du renvoi au navigateur par défaut dans
+sa FAQ sur la suppression de compte ne décrit pas ce parcours.
+[Authentification système](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service)
+
 Si l'app permet la création d'un compte, y compris via le navigateur, elle doit
 permettre d'en lancer la suppression. Une désactivation, une déconnexion ou un
 mail obligatoire au support ne suffit pas pour une app ordinaire. Une
