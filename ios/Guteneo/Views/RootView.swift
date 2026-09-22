@@ -31,7 +31,7 @@ struct WorkspaceView: View {
     var body: some View {
         TabView(selection: $tab) {
             NavigationStack {
-                OverviewView(composing: $composing)
+                OverviewView(composing: $composing, openDocuments: { tab = .documents })
             }.tabItem { Label("Atelier", systemImage: "square.grid.2x2") }.tag(WorkspaceTab.atelier)
             DocumentsWorkspaceView()
                 .tabItem { Label("Documents", systemImage: "doc.on.doc") }.tag(WorkspaceTab.documents)

@@ -55,9 +55,9 @@ struct WelcomeView: View {
                             if !typeSize.isAccessibilitySize { PrintWorkshopArtwork(height: 150) }
                         }
                         HStack(spacing: 24) {
-                            Link("Confidentialité", destination: Brand.legalURL)
-                            Link("Assistance", destination: Brand.supportURL)
-                        }.font(.footnote).frame(minHeight: 44)
+                            Link(destination: Brand.legalURL) { Text("Confidentialité").frame(minHeight: 44) }
+                            Link(destination: Brand.supportURL) { Text("Assistance").frame(minHeight: 44) }
+                        }.font(.footnote)
                     }
                     .frame(maxWidth: 1120, alignment: .leading)
                     .padding(wide ? 40 : 24)
@@ -113,6 +113,7 @@ struct OverviewView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var typeSize
     @Binding var composing: Bool
+    let openDocuments: () -> Void
     var body: some View {
         GeometryReader { geometry in
             let wide = sizeClass == .regular && geometry.size.width >= 800 && !typeSize.isAccessibilitySize
@@ -221,7 +222,7 @@ struct OverviewView: View {
                     }
                 }
             }
-            NavigationLink { DocumentsView() } label: {
+            Button(action: openDocuments) {
                 Label("Tous les documents", systemImage: "arrow.right")
                     .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
             }

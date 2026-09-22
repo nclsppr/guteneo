@@ -14,6 +14,14 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["La connexion sécurisée s’ouvre dans le navigateur système."].exists)
         let storageError = NSPredicate(format: "label == %@", "Le retrait de la session du stockage sécurisé n’a pas pu être confirmé. Déverrouillez votre appareil avant de relancer l’application.")
         XCTAssertFalse(app.staticTexts.matching(storageError).firstMatch.exists)
+        for label in ["Confidentialité", "Assistance"] {
+            let link = app.descendants(matching: .any).matching(NSPredicate(
+                format: "label == %@ AND (elementType == %d OR elementType == %d)",
+                label, XCUIElement.ElementType.button.rawValue, XCUIElement.ElementType.link.rawValue
+            )).firstMatch
+            XCTAssertTrue(link.waitForExistence(timeout: 5))
+            XCTAssertGreaterThanOrEqual(link.frame.height, 44, "Zone tactile trop petite : \(label)")
+        }
         assertLogoCount(1, in: app)
         attachScreenshot(app, name: "Accueil — déconnecté")
         assertNoPurchaseCallToAction(in: app)
@@ -114,6 +122,15 @@ final class GuteneoUITests: XCTestCase {
         attachScreenshot(app, name: "Atelier — simulation")
         assertNoPurchaseCallToAction(in: app)
 
+        let openDocuments = app.buttons["atelier.openDocuments"]
+        for _ in 0..<3 where !openDocuments.isHittable { app.swipeUp() }
+        XCTAssertTrue(openDocuments.waitForExistence(timeout: 5))
+        openDocuments.tap()
+        XCTAssertTrue(element("documents.list", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(tabElement("Documents", in: app).isSelected)
+        selectTab("Atelier", in: app)
+        XCTAssertTrue(app.buttons["prepareDispatch"].exists)
+
         selectTab("Documents", in: app)
         XCTAssertTrue(app.buttons["importPDF"].waitForExistence(timeout: 5))
         assertLogoCount(0, in: app)
@@ -154,6 +171,7 @@ final class GuteneoUITests: XCTestCase {
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             XCUIDevice.shared.orientation = .landscapeLeft
+            waitForLayout(landscape: true, in: app)
             XCTAssertTrue(detail.staticTexts["Dossier de souscription.pdf"].waitForExistence(timeout: 5))
         }
         revealListIfCollapsed("Documents", detailTitle: "Document",
@@ -169,7 +187,17 @@ final class GuteneoUITests: XCTestCase {
         attachScreenshot(app, name: "Documents — sélection remplacée")
 
         if UIDevice.current.userInterfaceIdiom == .pad {
+            let screenCapture = XCUIScreen.main.screenshot()
+            let attachment = XCTAttachment(screenshot: screenCapture)
+            attachment.name = "Documents — paysage écran complet"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            let diagnostic = XCTAttachment(string: "deviceOrientation=\(XCUIDevice.shared.orientation.rawValue); appFrame=\(app.frame); screenImageSize=\(screenCapture.image.size); screenImageOrientation=\(screenCapture.image.imageOrientation.rawValue)")
+            diagnostic.name = "Géométrie réelle au moment de la capture paysage"
+            diagnostic.lifetime = .keepAlways
+            add(diagnostic)
             XCUIDevice.shared.orientation = .portrait
+            waitForLayout(landscape: false, in: app)
             XCTAssertTrue(detail.staticTexts["Attestation de domicile.pdf"].waitForExistence(timeout: 5))
             XCTAssertFalse(detail.buttons["Lire le PDF original"].exists)
         }
@@ -197,6 +225,19 @@ final class GuteneoUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
 
+    private func waitForLayout(landscape: Bool, in app: XCUIApplication,
+        file: StaticString = #filePath, line: UInt = #line) {
+        let predicate = NSPredicate { object, _ in
+            guard let application = object as? XCUIApplication else { return false }
+            let frame = application.frame
+            return landscape ? frame.width > frame.height : frame.height > frame.width
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: predicate, object: app)
+        ], timeout: 5)
+        XCTAssertEqual(result, .completed, "Géométrie reçue : \(app.frame)", file: file, line: line)
+    }
+
     private func revealListIfCollapsed(_ listTitle: String, detailTitle: String,
         targetRow: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         if element(targetRow, in: app).isHittable { return }
@@ -212,10 +253,13 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        tabElement(label, in: app, file: file, line: line).tap()
+    }
+
+    private func tabElement(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
         let tabBarButton = app.tabBars.buttons[label]
         if tabBarButton.exists {
-            tabBarButton.tap()
-            return
+            return tabBarButton
         }
         // iPad exposes its floating tab items as cells or other accessible elements.
         let tabItem = app.descendants(matching: .any).matching(NSPredicate(
@@ -226,7 +270,7 @@ final class GuteneoUITests: XCTestCase {
             XCUIElement.ElementType.other.rawValue
         )).firstMatch
         XCTAssertTrue(tabItem.waitForExistence(timeout: 5), "Onglet introuvable : \(label)", file: file, line: line)
-        tabItem.tap()
+        return tabItem
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {
