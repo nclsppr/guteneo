@@ -1,10 +1,61 @@
 import Foundation
 import PDFKit
 import Security
+import UIKit
 import XCTest
 @testable import Guteneo
 
 final class CoreTests: XCTestCase, @unchecked Sendable {
+    @MainActor
+    func testBundledTextColorsMeetSmallTextContrastInBothAppearances() throws {
+        let pairs = [("Ink", "Paper"), ("Ink", "Surface"), ("Cobalt", "Paper"), ("Cobalt", "Surface"), ("Paper", "Cobalt")]
+        func luminance(_ name: String, traits: UITraitCollection) throws -> Double {
+            let color = try XCTUnwrap(UIColor(named: name, in: .main, compatibleWith: traits)).resolvedColor(with: traits)
+            var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+            XCTAssertTrue(color.getRed(&red, green: &green, blue: &blue, alpha: &alpha))
+            XCTAssertEqual(alpha, 1)
+            func linear(_ channel: CGFloat) -> Double {
+                let value = Double(channel)
+                return value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
+        }
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            for contrast in [UIAccessibilityContrast.normal, .high] {
+                let traits = UITraitCollection(traitsFrom: [
+                    UITraitCollection(userInterfaceStyle: style),
+                    UITraitCollection(accessibilityContrast: contrast)
+                ])
+                for (foreground, background) in pairs {
+                    let values = try [luminance(foreground, traits: traits), luminance(background, traits: traits)].sorted()
+                    let ratio = (values[1] + 0.05) / (values[0] + 0.05)
+                    XCTAssertGreaterThanOrEqual(ratio, 4.5, "\(foreground)/\(background), style \(style.rawValue), contraste \(contrast.rawValue) : \(ratio)")
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testBundledPortraitPreservesTransparencyAndVisibleArtwork() throws {
+        let image = try XCTUnwrap(UIImage(named: "BrandPortrait", in: .main, compatibleWith: nil)?.cgImage)
+        let width = image.width, height = image.height
+        var rgba = [UInt8](repeating: 0, count: width * height * 4)
+        try rgba.withUnsafeMutableBytes { bytes in
+            let context = try XCTUnwrap(CGContext(
+                data: bytes.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+            ))
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        }
+        let alpha = stride(from: 3, to: rgba.count, by: 4).map { rgba[$0] }
+        XCTAssertTrue(alpha.contains(0), "Le portrait ne doit pas recevoir de fond opaque.")
+        XCTAssertTrue(alpha.contains { $0 > 0 }, "Le portrait doit conserver son illustration.")
+        for (x, y) in [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)] {
+            XCTAssertEqual(rgba[(y * width + x) * 4 + 3], 0, "Le coin du portrait doit rester transparent.")
+        }
+    }
+
     func testRFC7636ChallengeAndExactCallbackBinding() throws {
         let challenge = AuthorizationChallenge(verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk", state: String(repeating: "s", count: 43))
         XCTAssertEqual(challenge.challenge, "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")

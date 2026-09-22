@@ -7,7 +7,7 @@ struct RootView: View {
         Group {
             switch model.phase {
             case .restoring:
-                VStack(spacing: 24) { Wordmark(); ProgressView("Ouverture de votre atelier…") }
+                ProgressView("Ouverture de votre atelier…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity).background(Brand.paper)
             case .signedOut, .expired: WelcomeView()
             case .authenticated: WorkspaceView()
@@ -28,9 +28,10 @@ struct WelcomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
-                    Wordmark().padding(.bottom, 18)
-                    Image("BrandMark").resizable().scaledToFit()
-                        .frame(width: 106, height: 106).accessibilityHidden(true)
+                    Wordmark()
+                        .opacity(model.isWorking ? 0 : 1)
+                        .accessibilityHidden(model.isWorking)
+                        .padding(.bottom, 18)
                     Text("Votre atelier,\nà portée de main.")
                         .font(.system(.largeTitle, design: .serif)).foregroundStyle(Brand.ink)
                         .fixedSize(horizontal: false, vertical: true)

@@ -5,12 +5,20 @@ import SwiftUI
 private struct PrivacyShield: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     func body(content: Content) -> some View {
-        content.overlay {
-            if scenePhase != .active {
-                Brand.paper.ignoresSafeArea().overlay { Wordmark() }
+        content
+            .opacity(scenePhase == .active ? 1 : 0)
+            .accessibilityHidden(scenePhase != .active)
+            .allowsHitTesting(scenePhase == .active)
+            .overlay {
+                if scenePhase != .active {
+                    Brand.paper.ignoresSafeArea().overlay {
+                        Label("Contenu masqué", systemImage: "lock.fill")
+                            .font(.headline).foregroundStyle(Brand.ink)
+                    }
+                    .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("privacyShield")
+                }
             }
-        }
     }
 }
 
@@ -28,14 +36,17 @@ enum Brand {
 }
 
 struct Wordmark: View {
+    @ScaledMetric(relativeTo: .title) private var logoSize = 64.0
     var body: some View {
-        HStack(spacing: 10) {
-            Image("BrandPortrait").resizable().scaledToFit().frame(width: 42, height: 42)
+        HStack(spacing: 14) {
+            Image("BrandPortrait").resizable().scaledToFit()
+                .frame(width: min(logoSize, 88), height: min(logoSize, 88))
                 .accessibilityHidden(true)
             Text("guteneo").font(.system(.title, design: .serif)).fontWeight(.semibold)
         }
         .foregroundStyle(Brand.ink)
         .accessibilityElement(children: .ignore).accessibilityLabel("Guteneo")
+        .accessibilityIdentifier("guteneo.logo")
     }
 }
 
@@ -65,7 +76,7 @@ struct StatusLabel: View {
     }
     var body: some View {
         Label(title, systemImage: symbol).font(.caption).fontWeight(.medium)
-            .foregroundStyle(status == "failed" || status == "unknown" ? Color.orange : Brand.cobalt)
+            .foregroundStyle(status == "failed" || status == "unknown" ? Brand.ink : Brand.cobalt)
             .fixedSize(horizontal: false, vertical: true)
     }
 }

@@ -12,6 +12,7 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["La connexion sécurisée s’ouvre dans le navigateur système."].exists)
         let storageError = NSPredicate(format: "label == %@", "Le retrait de la session du stockage sécurisé n’a pas pu être confirmé. Déverrouillez votre appareil avant de relancer l’application.")
         XCTAssertFalse(app.staticTexts.matching(storageError).firstMatch.exists)
+        assertLogoCount(1, in: app)
         attachScreenshot(app, name: "Accueil — déconnecté")
         assertNoPurchaseCallToAction(in: app)
     }
@@ -29,10 +30,12 @@ final class GuteneoUITests: XCTestCase {
         readPDF.tap()
         let nativePDF = app.descendants(matching: .any).matching(identifier: "nativePDF").firstMatch
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
+        assertLogoCount(0, in: app)
         XCUIDevice.shared.press(.home)
         XCTAssertTrue(app.wait(for: .runningBackground, timeout: 5))
         app.activate()
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
+        assertLogoCount(0, in: app)
         attachScreenshot(app, name: "PDF synthétique — lecteur natif")
         app.buttons["Fermer"].tap()
 
@@ -46,6 +49,7 @@ final class GuteneoUITests: XCTestCase {
         }
         XCTAssertTrue(prepareQuote.waitForExistence(timeout: 5))
         XCTAssertFalse(prepareQuote.isEnabled)
+        assertLogoCount(0, in: app)
         attachScreenshot(app, name: "Préparation — aucun envoi")
         assertNoPurchaseCallToAction(in: app)
         app.buttons["Fermer"].tap()
@@ -80,9 +84,11 @@ final class GuteneoUITests: XCTestCase {
         ])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         attachScreenshot(app, name: "Atelier — texte accessibilité XXXL")
+        assertLogoCount(1, in: app)
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "Compte — texte accessibilité XXXL")
+        assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
     }
 
@@ -90,22 +96,39 @@ final class GuteneoUITests: XCTestCase {
         let app = launch(arguments: ["--uitesting-preview"])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Simulation · aucun envoi réel."].exists)
+        assertLogoCount(1, in: app)
         attachScreenshot(app, name: "Atelier — simulation")
         assertNoPurchaseCallToAction(in: app)
 
         selectTab("Documents", in: app)
         XCTAssertTrue(app.buttons["importPDF"].waitForExistence(timeout: 5))
+        assertLogoCount(0, in: app)
         attachScreenshot(app, name: "Documents — simulation")
         assertNoPurchaseCallToAction(in: app)
 
         selectTab("Envois", in: app)
         XCTAssertTrue(app.navigationBars["Envois"].waitForExistence(timeout: 5))
+        assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
 
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
         attachScreenshot(app, name: "Compte — simulation")
+        assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
+
+        let about = app.buttons["À propos de Guteneo"]
+        for _ in 0..<3 where !about.isHittable { app.swipeUp() }
+        XCTAssertTrue(about.waitForExistence(timeout: 5))
+        about.tap()
+        XCTAssertTrue(app.navigationBars["À propos"].waitForExistence(timeout: 5))
+        assertLogoCount(1, in: app)
+        attachScreenshot(app, name: "À propos — marque unique")
+    }
+
+    private func assertLogoCount(_ count: Int, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let logos = app.descendants(matching: .any).matching(identifier: "guteneo.logo")
+        XCTAssertEqual(logos.count, count, "Nombre de signatures de marque accessibles à l’écran", file: file, line: line)
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
