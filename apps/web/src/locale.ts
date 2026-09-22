@@ -32,6 +32,7 @@ export const localeLabels = {
   fr: {
     language: "Langue",
     preference: "Langue préférée",
+    choose: "Choisissez une langue",
     hint: "Cette langue sera utilisée dans votre compte sur le site et dans l’application iOS.",
     saved: "Votre langue préférée a été enregistrée.",
     saving: "Enregistrement…",
@@ -42,6 +43,7 @@ export const localeLabels = {
   en: {
     language: "Language",
     preference: "Preferred language",
+    choose: "Choose a language",
     hint: "Your account will use this language on the website and in the iOS app.",
     saved: "Your preferred language has been saved.",
     saving: "Saving…",
@@ -52,6 +54,7 @@ export const localeLabels = {
   de: {
     language: "Sprache",
     preference: "Bevorzugte Sprache",
+    choose: "Sprache auswählen",
     hint: "Ihr Konto verwendet diese Sprache auf der Website und in der iOS-App.",
     saved: "Ihre bevorzugte Sprache wurde gespeichert.",
     saving: "Wird gespeichert…",
@@ -62,6 +65,7 @@ export const localeLabels = {
   lb: {
     language: "Sprooch",
     preference: "Bevirzuchte Sprooch",
+    choose: "Wielt eng Sprooch",
     hint: "Äre Kont benotzt dës Sprooch op der Websäit an an der iOS-App.",
     saved: "Är bevirzuchte Sprooch gouf gespäichert.",
     saving: "Gëtt gespäichert…",

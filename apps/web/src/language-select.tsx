@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { Globe } from "@phosphor-icons/react";
+import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import {
   languageCopy,
   localeNames,
@@ -16,7 +17,7 @@ export function LanguageSelect({
   disabled,
   profile = false,
 }: {
-  value?: SupportedLocale;
+  value?: SupportedLocale | "";
   onChange?: (locale: SupportedLocale) => void;
   disabled?: boolean;
   profile?: boolean;
@@ -38,10 +39,16 @@ export function LanguageSelect({
         value={value ?? locale}
         disabled={disabled}
         aria-describedby={profile ? `${id}-hint` : undefined}
-        onChange={(event) =>
-          (onChange ?? setLocale)(event.target.value as SupportedLocale)
-        }
+        onChange={(event) => {
+          const selected = event.target.value;
+          if (isSupportedLocale(selected)) (onChange ?? setLocale)(selected);
+        }}
       >
+        {profile && value === "" && (
+          <option value="" disabled>
+            {copy.choose}
+          </option>
+        )}
         {supportedLocales.map((code) => (
           <option key={code} value={code} lang={code}>
             {localeNames[code]}

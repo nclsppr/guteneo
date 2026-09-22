@@ -120,7 +120,7 @@ test("legacy name-only saves leave the language unset and preserve customer name
   await expect(page.locator("#account-organization")).toHaveValue(
     "Courrier postal",
   );
-  await expect(page.locator(".language-preference select")).toHaveValue("en");
+  await expect(page.locator(".language-preference select")).toHaveValue("");
   const save = page.getByRole("button", { name: "Save changes", exact: true });
   await expect(save).toBeDisabled();
   await page.locator("#account-name").fill("Enregistrer les modifications");
@@ -138,6 +138,40 @@ test("legacy name-only saves leave the language unset and preserve customer name
   const document = page.locator(".row-link.text-button");
   await expect(document).toContainText("Préparer le courrier");
   await expect(document).not.toContainText("Prepare the letter");
+  expect(writes).toEqual(["PATCH /api/account"]);
+});
+
+test("an unset account preference can explicitly save the current browser language", async ({
+  page,
+}) => {
+  const account: AccountFixture = { name: "Camille", preferredLocale: null };
+  const { updates, writes } = await mockAccount(page, account);
+  await page.goto("/#/app/account");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  const picker = page.getByLabel("Preferred language", { exact: true });
+  const placeholder = picker.locator('option[value=""]');
+  await expect(picker).toHaveValue("");
+  await expect(placeholder).toHaveText("Choose a language");
+  await expect(placeholder).toBeDisabled();
+  const interfacePicker = page.locator(
+    '.workspace-language select[name="language"]',
+  );
+  await expect(interfacePicker).toHaveValue("en");
+  await expect(interfacePicker.locator('option[value=""]')).toHaveCount(0);
+  const save = page.getByRole("button", { name: "Save changes", exact: true });
+  await expect(save).toBeDisabled();
+  await picker.selectOption("en");
+  await expect(save).toBeEnabled();
+  await save.click();
+  await expect(save).toBeDisabled();
+  expect(updates).toEqual([{ userName: "Camille", preferredLocale: "en" }]);
+  expect(account.preferredLocale).toBe("en");
+  expect(
+    await page.evaluate(() => localStorage.getItem("guteneo.locale")),
+  ).toBeNull();
+  await page.reload();
+  await expect(picker).toHaveValue("en");
+  await expect(placeholder).toHaveCount(0);
   expect(writes).toEqual(["PATCH /api/account"]);
 });
 

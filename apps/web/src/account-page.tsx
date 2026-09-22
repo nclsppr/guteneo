@@ -17,12 +17,7 @@ import {
   useAction,
   useResource,
 } from "./components";
-import {
-  getLocale,
-  setLocale,
-  languageCopy,
-  type SupportedLocale,
-} from "./locale";
+import { setLocale, languageCopy, type SupportedLocale } from "./locale";
 import { LanguageSelect } from "./language-select";
 import { ExpertApproval } from "./expert-approval";
 
@@ -67,8 +62,8 @@ export function Account({ session, onUpdated }: Props) {
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
   );
-  const [preferredLocale, setPreferredLocale] = useState<SupportedLocale>(
-    session.user.preferredLocale ?? getLocale(),
+  const [preferredLocale, setPreferredLocale] = useState<SupportedLocale | "">(
+    session.user.preferredLocale ?? "",
   );
   const [languageEdited, setLanguageEdited] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -81,7 +76,7 @@ export function Account({ session, onUpdated }: Props) {
   );
   const isAdmin = session.user.role === "admin";
   const changed =
-    languageEdited ||
+    (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -92,11 +87,11 @@ export function Account({ session, onUpdated }: Props) {
         method: "PATCH",
         body: {
           userName,
-          ...(languageEdited ? { preferredLocale } : {}),
+          ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
           ...(isAdmin ? { organizationName } : {}),
         },
       });
-      if (languageEdited) setLocale(preferredLocale, false);
+      if (languageEdited && preferredLocale) setLocale(preferredLocale, false);
       await onUpdated();
       setLanguageEdited(false);
       setSaved(true);
