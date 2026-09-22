@@ -160,7 +160,7 @@ beforeEach(async () => {
       db.prepare("INSERT INTO channel_controls VALUES(?,'postal',0)").bind(id),
       db
         .prepare(
-          "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+          "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
         )
         .bind(backup, now()),
       db
@@ -226,7 +226,7 @@ async function principal({
   await db.batch([
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(userId, timestamp),
     db

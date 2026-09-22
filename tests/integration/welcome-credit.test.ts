@@ -103,7 +103,7 @@ async function tenant(mode = "production"): Promise<ActorContext> {
       .bind(actor.organizationId, mode, stamp()),
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(actor.userId, stamp()),
     db

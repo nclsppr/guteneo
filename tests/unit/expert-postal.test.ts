@@ -204,7 +204,7 @@ beforeEach(async () => {
       .bind(ctx.organizationId, date),
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(ctx.userId, date),
     db
@@ -453,7 +453,7 @@ describe("expert postal transfer authority", () => {
         await db.batch([
           db
             .prepare(
-              "INSERT INTO users VALUES(?,'Second admin','second@example.invalid',?)",
+              "INSERT INTO users(id,name,email,created_at) VALUES(?,'Second admin','second@example.invalid',?)",
             )
             .bind(otherAdmin, now()),
           db
