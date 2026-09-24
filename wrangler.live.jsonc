@@ -23,7 +23,13 @@
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "true",
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
-    "LIVE_SEND_CHANNELS": "fax,postal",
+    "LIVE_SEND_CHANNELS": "fax,postal,email",
+    "EMAIL_PROVIDER": "resend",
+    "RESEND_SENDS_ENABLED": "true",
+    "RESEND_ACCOUNT_ID": "nclsppr",
+    "RESEND_DOMAIN_ID": "0140c1df-a406-495d-adb7-78a1204607b3",
+    "RESEND_VERIFIED_DOMAIN": "guteneo.com",
+    "RESEND_TARIFF_QUALIFIED_UNTIL": "2026-10-21T00:00:00.000Z",
     // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
     "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",

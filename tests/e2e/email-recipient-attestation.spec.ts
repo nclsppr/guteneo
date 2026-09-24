@@ -52,7 +52,7 @@ test("real email approval requires a deliberate recipient attestation and resets
     });
   });
   await page.goto("/#/app/dispatch/dispatch_attestation");
-  const approve = page.getByRole("button", { name: "Approuver cette version" });
+  const approve = page.getByRole("button", { name: "Approuver et envoyer" });
   const recipient = page.getByRole("checkbox", {
     name: /ce destinataire a demandé/,
   });
@@ -65,13 +65,16 @@ test("real email approval requires a deliberate recipient attestation and resets
   await recipient.check();
   await expect(approve).toBeEnabled();
   await approve.click();
+  await expect.poll(() => writes.length).toBe(2);
+  await expect(approve).toBeEnabled();
   expect(writes).toEqual([
     { fingerprint: "a".repeat(64), recipientRequested: true },
+    {},
   ]);
   fingerprint = "b".repeat(64);
   await page.getByRole("button", { name: /Actualiser/ }).click();
   await expect(recipient).not.toBeChecked();
   await expect(content).not.toBeChecked();
   await expect(approve).toBeDisabled();
-  expect(writes).toHaveLength(1);
+  expect(writes).toHaveLength(2);
 });

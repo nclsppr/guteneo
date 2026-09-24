@@ -487,6 +487,14 @@ test("reviewer creation remains unverified and keeps generated credentials out o
     assert.ok(post.body.password.length >= 40);
     assert.equal(result.verified, false);
     assert.equal(result.loginQualified, false);
+    assert.deepEqual(result.deliveryRestriction, {
+      policy: "prepare_only",
+      table: "restricted_delivery_identities",
+      exactIdentityFields: ["issuer", "subject"],
+      verification: "not_checked_by_this_script",
+      requiredBeforeCredentialHandoff: true,
+      credentialHandoffQualified: false,
+    });
     assert.ok(!JSON.stringify(result).includes(post.body.password));
     assert.ok(!JSON.stringify(result).includes(post.body.email));
     assert.deepEqual(

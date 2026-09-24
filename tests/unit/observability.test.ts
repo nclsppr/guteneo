@@ -355,6 +355,7 @@ describe("private operational observations", () => {
 
   it("records a complete cron heartbeat and aggregate counts without extra database queries", async () => {
     const db = {
+      batch: async () => [],
       prepare: () => ({
         bind: () => ({
           all: async () => ({ results: [] }),

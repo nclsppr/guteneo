@@ -1,7 +1,7 @@
 {
   "name": "guteneo",
-  "version": "0.2.2",
-  "description": "Préparer ses PDF, consulter un devis et suivre ses envois avec Guteneo.",
+  "version": "0.3.0",
+  "description": "Préparer des e-mails avec ou sans PDF, des fax et des courriers, puis suivre les envois Guteneo.",
   "author": {
     "name": "Guteneo"
   },

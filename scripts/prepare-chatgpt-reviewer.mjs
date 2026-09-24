@@ -10,6 +10,17 @@ const OWNER = "guteneo-openai-review-v1";
 const CLIENT_NAME = "Guteneo - OpenAI Review";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const PRIVATE = resolve(homedir(), ".local/share/guteneo-openai-review");
+// Auth0 setup alone never qualifies the review account for credential handoff.
+// An operator must separately verify the exact authenticated issuer and subject
+// against the durable D1 restriction; names and client metadata are not a fence.
+const deliveryRestriction = () => ({
+  policy: "prepare_only",
+  table: "restricted_delivery_identities",
+  exactIdentityFields: ["issuer", "subject"],
+  verification: "not_checked_by_this_script",
+  requiredBeforeCredentialHandoff: true,
+  credentialHandoffQualified: false,
+});
 const fail = (code) => {
   const error = new Error(code);
   error.code = code;
@@ -154,6 +165,7 @@ export async function inspect({ configPath } = {}) {
         tokenEndpointAuthMethod: item.token_endpoint_auth_method,
       })),
     ...(account ? { account } : {}),
+    deliveryRestriction: deliveryRestriction(),
     changed: false,
   };
 }
@@ -206,6 +218,7 @@ export async function createUser(
     emailVerified: false,
     verificationEmailRequested: false,
     credentialsPath,
+    deliveryRestriction: deliveryRestriction(),
   });
   return {
     created: true,
@@ -213,6 +226,7 @@ export async function createUser(
     verified: false,
     loginQualified: false,
     emailRequested: false,
+    deliveryRestriction: deliveryRestriction(),
   };
 }
 
@@ -359,6 +373,7 @@ export async function createClient(
       callback,
       associationVerified: true,
       authenticationTested: false,
+      deliveryRestriction: deliveryRestriction(),
       changes: [],
     };
   }
@@ -413,6 +428,7 @@ export async function createClient(
     associationVerified: true,
     authenticationTested: false,
     tenantWideSettingsChanged: false,
+    deliveryRestriction: deliveryRestriction(),
   });
   return {
     created: true,
@@ -421,6 +437,7 @@ export async function createClient(
     associationVerified: true,
     authenticationTested: false,
     tenantWideSettingsChanged: false,
+    deliveryRestriction: deliveryRestriction(),
   };
 }
 
@@ -447,6 +464,9 @@ if (
         },
         identityPolicy:
           "Create an unverified dedicated database user without sending verification email. Never mark email verified. Real browser login remains separate.",
+        deliveryRestriction: deliveryRestriction(),
+        credentialHandoffPrerequisite:
+          "Before sharing review credentials or qualifying the review account, the operator must register and verify its exact authenticated issuer and subject with policy prepare_only in D1. This script neither changes nor checks D1. The reviewer stays prepare-only; real delivery qualification requires a separate authorized account.",
         noTenantWideChanges: true,
       };
     else if (mode === "--inspect")

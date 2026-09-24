@@ -1,5 +1,7 @@
 # Connecteurs et raccordement
 
+Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+
 Vérification documentaire initiale : **16 septembre 2026** ; état de raccordement actualisé le **17 septembre**. Code : `packages/providers/`. HTTP callbacks : `apps/api/src/webhooks.ts`. La qualification initiale des requêtes et signatures utilisait uniquement des fixtures et D1 local. Les lectures de comptes, la confirmation SNS, le brouillon Pingen fictif non envoyé puis supprimé et les quatre abonnements Pingen ont depuis été vérifiés séparément sur les ressources configurées. Aucun envoi métier Guteneo n'est qualifié ; `LIVE_SENDS_ENABLED=false` reste en place. Les preuves exactes et leurs limites sont dans [LIVE_RELEASE.md](LIVE_RELEASE.md), [SES_STATUS.md](SES_STATUS.md), [TELNYX_READINESS.md](TELNYX_READINESS.md) et [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
 
 ## Contrat commun et garanties

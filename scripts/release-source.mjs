@@ -24,13 +24,26 @@ export async function liveReleaseSending(root) {
     typeof vars.LIVE_SEND_CHANNELS === "string"
       ? vars.LIVE_SEND_CHANNELS.split(",")
       : [];
-  // Fax and postal transport are reviewed. Narrowing or disabling remains a rollback.
+  // Fax, postal and Resend email transport are reviewed. Narrowing or disabling remains a rollback.
   // Further channels require a source review, not only a configuration change.
   if (
     enabled &&
     (!channels.length ||
-      channels.some((channel) => !["fax", "postal"].includes(channel)) ||
+      channels.some(
+        (channel) => !["fax", "postal", "email"].includes(channel),
+      ) ||
       new Set(channels).size !== channels.length)
+  )
+    throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
+  if (
+    enabled &&
+    channels.includes("email") &&
+    (vars.EMAIL_PROVIDER !== "resend" ||
+      vars.RESEND_SENDS_ENABLED !== "true" ||
+      vars.RESEND_VERIFIED_DOMAIN !== "guteneo.com" ||
+      !vars.RESEND_ACCOUNT_ID ||
+      !vars.RESEND_DOMAIN_ID ||
+      !vars.RESEND_TARIFF_QUALIFIED_UNTIL)
   )
     throw new Error("RELEASE_SENDING_CONFIGURATION_INVALID");
   return {
