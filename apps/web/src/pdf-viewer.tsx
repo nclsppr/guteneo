@@ -6,14 +6,17 @@ import {
   type PDFDocumentProxy,
   type PDFDocumentLoadingTask,
   type RenderTask,
-} from "pdfjs-dist";
-import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+} from "pdfjs-dist/legacy/build/pdf.mjs";
+import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 import { PDFDocument, PDFName, PDFNumber, PDFStream } from "pdf-lib";
 import { fr as t } from "./i18n";
 import { getDocumentContent } from "./api";
 
 // Library and worker are bundled from the same pinned dependency; no CDN or
-// document-controlled URL enters the renderer. Canvas only: no PDF scripting,
+// document-controlled URL enters the renderer. The legacy build carries the
+// polyfills for recent built-ins (for example Map.prototype.getOrInsertComputed)
+// that the modern build calls directly: without them the exact-PDF preview
+// fails on browsers that are only a few releases old. Canvas only: no PDF scripting,
 // annotations, forms or XFA execution. The original bytes are never rewritten.
 GlobalWorkerOptions.workerSrc = workerUrl;
 
