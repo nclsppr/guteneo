@@ -455,7 +455,10 @@ app.get("/api/postal/requirements", async (c) =>
     await new PostalService(c.env, domain(c.env)).requirements(
       await postalAuthority(c.req.raw, c.env, "documents:read"),
       z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
-      z.enum(["left", "right"]).optional().parse(c.req.query("addressPosition")),
+      z
+        .enum(["left", "right"])
+        .optional()
+        .parse(c.req.query("addressPosition")),
     ),
   ),
 );
@@ -594,7 +597,11 @@ app.post("/api/admin/scanner/warm", async (c) =>
 );
 app.get("/api/dispatches", async (c) =>
   c.json(
-    await domain(c.env).listDispatches(c.get("actor"), ...page(c.req.url)),
+    await domain(c.env).listDispatches(
+      c.get("actor"),
+      ...page(c.req.url),
+      new URL(c.req.url).searchParams.get("group") ?? undefined,
+    ),
   ),
 );
 app.get("/api/dispatches/:id", async (c) =>
@@ -702,6 +709,9 @@ app.get("/api/senders", async (c) =>
 );
 app.get("/api/usage", async (c) =>
   c.json(await domain(c.env).usage(c.get("actor"))),
+);
+app.get("/api/overview", async (c) =>
+  c.json(await domain(c.env).dispatchOverview(c.get("actor"))),
 );
 app.get("/api/admin", async (c) =>
   c.json({

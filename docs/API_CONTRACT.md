@@ -64,7 +64,7 @@ Limites actuelles : PDF 10 Mio et 100 pages ; HTML 128 Kio UTF-8 ; nom de rendu 
 | Méthode et chemin                       | Entrée et résultat                                                                                       |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `POST /api/dispatches`                  | Corps ci-dessous et `Idempotency-Key` ; `201 Dispatch` au statut `prepared`.                             |
-| `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`.                                                            |
+| `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`. `group` facultatif (`approval`, `in_progress`, `attention`, `done`) filtré côté serveur sur toute l’organisation ; autre valeur : `400 INVALID_GROUP`. Groupes : `packages/contracts/src/dispatch-groups.ts`. |
 | `GET /api/dispatches/:id`               | `{dispatch,events,attempts,approval}`.                                                                   |
 | `POST /api/dispatches/:id/approve`      | Session humaine + CSRF ; JSON strict `{fingerprint}` (SHA-256 hexadécimal). Retourne `Dispatch`.         |
 | `POST /api/dispatches/:id/confirm`      | `Idempotency-Key` requis ; aucun paramètre de corps utilisé. Retourne le `Dispatch` accepté durablement. |
@@ -114,6 +114,7 @@ Les statuts sont `prepared`, `queued`, `submitting`, `submission_unknown`, `acce
 | `GET /api/campaigns/:id`               | `{campaign,dispatches:Dispatch[]}` ; détail borné à 500 envois.                                                                                           |
 | `POST /api/recipients/validate`        | JSON strict `{csv}` ; `{rows,errors,duplicates,valid}`. Validation sans création d’envoi.                                                                 |
 | `GET /api/senders`                     | `{items:[{id,channel,name,address,status,mode}]}`. Lecture uniquement.                                                                                    |
+| `GET /api/overview`                    | Synthèse navigateur `{documents,dispatches:{total,approval,in_progress,attention,done}}` : compteurs de toute l’organisation, non bornés à une page. |
 | `GET /api/usage`                       | `{items:[{channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency}]}` ; mois UTC courant `YYYY-MM`. |
 | `GET /api/admin`                       | Rôle `admin` ; `{states,outbox,uncertain,audit,controls,deadLetters,simulation,capabilities}` limité à l’organisation.                                    |
 | `POST /api/admin/channels/:channel`    | Session navigateur `admin` + CSRF ; JSON strict `{enabled:boolean}` ; arrêt/reprise audité du canal, réponse `{channel,enabled}`.                         |

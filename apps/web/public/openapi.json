@@ -600,6 +600,9 @@
           },
           {
             "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/DispatchGroup"
           }
         ]
       },
@@ -2031,6 +2034,21 @@
           "minimum": 1,
           "maximum": 100,
           "default": 30
+        }
+      },
+      "DispatchGroup": {
+        "name": "group",
+        "in": "query",
+        "required": false,
+        "description": "Filtre facultatif par groupe d’états, appliqué par le serveur à toute l’organisation : approval (à approuver), in_progress (en cours), attention (résultat incertain ou négatif, à vérifier avant toute nouvelle action), done (clôturés). Une autre valeur renvoie 400 INVALID_GROUP.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "approval",
+            "in_progress",
+            "attention",
+            "done"
+          ]
         }
       }
     },
