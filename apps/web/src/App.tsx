@@ -17,8 +17,17 @@ import {
   SignOut,
   Receipt,
   List,
+  AddressBook,
+  WarningCircle,
 } from "@phosphor-icons/react";
-import { api, ApiError, setSession, type Session } from "./api";
+import {
+  api,
+  ApiError,
+  canAdminister,
+  SESSION_EXPIRED_EVENT,
+  setSession,
+  type Session,
+} from "./api";
 import { fr as t } from "./i18n";
 import { Brand } from "./brand";
 import {
@@ -403,13 +412,47 @@ function Login({
   );
 }
 
+function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
+  const local =
+    publicPreview ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+  const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
+  return (
+    <div className="session-expired" role="alert">
+      <WarningCircle size={22} aria-hidden="true" />
+      <div>
+        <strong>{t.sessionExpired.title}</strong>
+        <p>{t.sessionExpired.body}</p>
+      </div>
+      {local ? (
+        <button
+          type="button"
+          className="button small primary"
+          onClick={onReconnect}
+        >
+          {t.sessionExpired.action}
+          <ArrowRight size={16} aria-hidden="true" />
+        </button>
+      ) : (
+        <a
+          className="button small primary"
+          href={`/auth/login?returnTo=${returnTo}`}
+        >
+          {t.sessionExpired.action}
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+      )}
+    </div>
+  );
+}
+
 const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
-  { id: "senders", path: "/app/senders", Icon: UserCircle },
+  { id: "senders", path: "/app/senders", Icon: AddressBook },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
   { id: "billing", path: "/app/billing", Icon: Receipt },
   { id: "account", path: "/app/account", Icon: UserCircle },
@@ -451,6 +494,32 @@ function WorkspaceApplication() {
   const [session, updateSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const [logoutError, setLogoutError] = useState<Error>();
+  const [sessionExpired, setSessionExpired] = useState(false);
+  useEffect(() => {
+    const expire = () => setSessionExpired(true);
+    window.addEventListener(SESSION_EXPIRED_EVENT, expire);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, expire);
+  }, []);
+  useEffect(() => {
+    if (!sessionExpired) return;
+    // A reconnection in another tab restores this one without a reload.
+    const recheck = () => {
+      if (document.visibilityState !== "visible") return;
+      api<Session>("/session")
+        .then((current) => {
+          setSession(current);
+          updateSession(current);
+          setSessionExpired(false);
+        })
+        .catch(() => undefined);
+    };
+    window.addEventListener("focus", recheck);
+    document.addEventListener("visibilitychange", recheck);
+    return () => {
+      window.removeEventListener("focus", recheck);
+      document.removeEventListener("visibilitychange", recheck);
+    };
+  }, [sessionExpired]);
   useEffect(() => {
     let alive = true;
     api<Session>("/session")
@@ -485,7 +554,10 @@ function WorkspaceApplication() {
   if (!session)
     return (
       <Login
-        onLogin={updateSession}
+        onLogin={(current) => {
+          setSessionExpired(false);
+          updateSession(current);
+        }}
         registrationAvailable={
           capabilities.data?.registration?.enabled === true
         }
@@ -561,6 +633,7 @@ function WorkspaceApplication() {
       await api("/logout", { method: "POST", body: {} });
       setSession(null);
       updateSession(null);
+      setSessionExpired(false);
     } catch (e) {
       setLogoutError(e as Error);
     }
@@ -615,9 +688,7 @@ function WorkspaceApplication() {
               .filter(
                 (n) =>
                   !["admin", "billing"].includes(n.id) ||
-                  ["admin", "owner", "platform_operator"].includes(
-                    session.user.role,
-                  ),
+                  canAdminister(session),
               )
               .map(({ id, path, Icon }) => (
                 <a
@@ -653,6 +724,14 @@ function WorkspaceApplication() {
                 </a>
               ))}
           </nav>
+          <button
+            type="button"
+            className="navigation-logout"
+            onClick={() => void logout()}
+          >
+            <SignOut size={19} aria-hidden="true" />
+            {t.login.logout}
+          </button>
         </details>
         <div className="sidebar-footer">
           <p>{t.tagline}</p>
@@ -681,14 +760,18 @@ function WorkspaceApplication() {
             </p>
           </div>
         )}
+        {sessionExpired && (
+          <SessionExpiredNotice
+            onReconnect={() => {
+              // Local and preview sign-in happen in this page; the hash keeps
+              // the current route for the next session.
+              setSession(null);
+              updateSession(null);
+              setSessionExpired(false);
+            }}
+          />
+        )}
         <div className="app-topbar">
-          <button
-            className="mobile-logout icon-link"
-            aria-label={t.login.logout}
-            onClick={() => void logout()}
-          >
-            <SignOut size={19} />
-          </button>
           <span>
             {
               t.nav[
@@ -705,10 +788,12 @@ function WorkspaceApplication() {
               ]
             }
           </span>
-          <a className="button small primary" href="#/app/prepare">
-            <Plus size={16} />
-            {t.dispatch.new}
-          </a>
+          {page !== "/app/prepare" && (
+            <a className="button small primary" href="#/app/prepare">
+              <Plus size={16} aria-hidden="true" />
+              {t.dispatch.new}
+            </a>
+          )}
         </div>
         <main id="main-content" tabIndex={-1}>
           <ErrorNotice error={logoutError} />

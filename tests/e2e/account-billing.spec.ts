@@ -149,6 +149,7 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
       name: `Déconnecter ${session.user.name} de cet atelier`,
     })
     .click();
+  await team.getByRole("button", { name: "Oui, déconnecter" }).click();
   await expect(
     page.getByRole("button", { name: "Entrer dans l’Atelier" }),
   ).toBeVisible();

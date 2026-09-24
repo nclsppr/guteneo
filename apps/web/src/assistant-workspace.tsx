@@ -8,6 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import { api, date, isPublicPreview, type Session } from "./api";
 import {
+  ConfirmAction,
   ErrorNotice,
   Field,
   Loading,
@@ -220,13 +221,14 @@ export function Connection({
                   </details>
                 </div>
                 {connection.status === "active" && (
-                  <button
+                  <ConfirmAction
                     className="text-button"
                     disabled={action.pending || isPublicPreview}
-                    onClick={() => void revoke(connection.id)}
-                  >
-                    {t.connection.revoke}
-                  </button>
+                    label={t.connection.revoke}
+                    question={t.connection.revokeQuestion}
+                    confirmLabel={t.connection.revokeConfirm}
+                    onConfirm={() => void revoke(connection.id)}
+                  />
                 )}
               </li>
             );

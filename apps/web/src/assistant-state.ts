@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Session } from "./api";
-import { useResource } from "./components";
+import { useRefreshOnFocus, useResource } from "./components";
 
 export type AssistantConnection = {
   id: string;
@@ -17,17 +17,7 @@ export function useAssistantConnections() {
   const resource = useResource<{ items: AssistantConnection[] }>(
     "/connections",
   );
-  useEffect(() => {
-    const refresh = () => {
-      if (document.visibilityState === "visible") resource.refresh();
-    };
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, [resource.refresh]);
+  useRefreshOnFocus(resource.refresh);
   return resource;
 }
 

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import {
+  canAdminister,
   api,
   ApiError,
   date,
@@ -8,6 +9,7 @@ import {
   type Session,
 } from "./api";
 import {
+  ConfirmAction,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -65,7 +67,7 @@ export function Account({ session, onUpdated }: Props) {
   const sessions = useResource<{ items: SessionItem[]; hasMore: boolean }>(
     isPublicPreview ? null : "/account/sessions",
   );
-  const isAdmin = session.user.role === "admin";
+  const isAdmin = canAdminister(session);
   const changed =
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
@@ -354,15 +356,19 @@ function MemberRow({
         >
           Enregistrer le rôle
         </button>
-        <button
-          type="button"
+        <ConfirmAction
           className="text-button"
           disabled={disabled || (!member.sessions && !member.connections)}
-          onClick={onRevoke}
-          aria-label={`Déconnecter ${member.name} de cet atelier`}
-        >
-          Déconnecter les accès
-        </button>
+          onConfirm={onRevoke}
+          ariaLabel={`Déconnecter ${member.name} de cet atelier`}
+          label="Déconnecter les accès"
+          question={
+            member.id === currentUserId
+              ? "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter."
+              : `Déconnecter les sessions et assistants de ${member.name} ? La personne reste membre et pourra se reconnecter.`
+          }
+          confirmLabel="Oui, déconnecter"
+        />
       </td>
     </tr>
   );
@@ -370,7 +376,7 @@ function MemberRow({
 
 export function TeamAdmin({ session, onUpdated }: Props) {
   const members = useResource<Page<Member>>(
-    isPublicPreview || session.user.role !== "admin" ? null : "/admin/members",
+    isPublicPreview || !canAdminister(session) ? null : "/admin/members",
   );
   const action = useAction();
   const [message, setMessage] = useState("");
@@ -397,7 +403,7 @@ export function TeamAdmin({ session, onUpdated }: Props) {
       <h2 id="team-admin-title">Membres de l’atelier</h2>
       {isPublicPreview ? (
         <PreviewNotice />
-      ) : session.user.role !== "admin" ? (
+      ) : !canAdminister(session) ? (
         <p>
           La gestion des membres est réservée aux administrateurs de cet
           atelier.

@@ -46,6 +46,17 @@ async function fixture(page: Page, initialItems: AssistantConnection[] = []) {
       } else body = { items, nextCursor: null };
     } else if (["/documents", "/dispatches", "/senders"].includes(path)) {
       body = { items: [], nextCursor: null };
+    } else if (path === "/overview") {
+      body = {
+        documents: 0,
+        dispatches: {
+          total: 0,
+          approval: 0,
+          in_progress: 0,
+          attention: 0,
+          done: 0,
+        },
+      };
     } else if (path === "/capabilities") {
       body = { simulation: true };
     } else {

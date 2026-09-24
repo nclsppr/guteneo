@@ -1,4 +1,5 @@
 import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 export default tseslint.config(
   {
     ignores: [
@@ -19,6 +20,16 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+    },
+  },
+  {
+    // Stale closures in effects can repeat or skip a read after a state
+    // change; keep the two classic hook rules blocking for the web app.
+    files: ["apps/web/src/**/*.ts", "apps/web/src/**/*.tsx"],
+    plugins: { "react-hooks": reactHooks },
+    rules: {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
     },
   },
 );

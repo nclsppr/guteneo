@@ -23,6 +23,7 @@ import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
+  ConfirmAction,
   Definition,
   DispatchTable,
   EmptyState,
@@ -747,16 +748,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       diagnostics.refresh();
     });
   }
-  const dispatches = useResource<Page<Dispatch>>("/dispatches");
-  const incidents =
-    dispatches.data?.items.filter((d) =>
-      [
-        "submission_unknown",
-        "reconciliation_required",
-        "failed",
-        "rejected",
-      ].includes(d.status),
-    ) ?? [];
+  // Filtered by the server across the whole organization, not one page.
+  const incidentsPath = "/dispatches?group=attention";
+  const dispatches = useResource<Page<Dispatch>>(incidentsPath);
+  const incidents = dispatches.data?.items ?? [];
   return (
     <>
       <PageHeading
@@ -788,15 +783,24 @@ export function Admin({ children }: { children?: ReactNode }) {
               >
                 {control.enabled ? t.admin.enabled : t.admin.paused}
               </span>
-              <button
-                className="button small"
-                disabled={controlAction.pending}
-                onClick={() =>
-                  void setChannel(control.channel, !control.enabled)
-                }
-              >
-                {control.enabled ? t.admin.pause : t.admin.resume}
-              </button>
+              {control.enabled ? (
+                <ConfirmAction
+                  disabled={controlAction.pending}
+                  label={t.admin.pause}
+                  ariaLabel={`${t.admin.pause} · ${t.channels[control.channel]}`}
+                  question={t.admin.pauseQuestion}
+                  confirmLabel={t.admin.pauseConfirm}
+                  onConfirm={() => void setChannel(control.channel, false)}
+                />
+              ) : (
+                <button
+                  className="button small"
+                  disabled={controlAction.pending}
+                  onClick={() => void setChannel(control.channel, true)}
+                >
+                  {t.admin.resume}
+                </button>
+              )}
             </div>
           ))}
         </section>
@@ -825,8 +829,13 @@ export function Admin({ children }: { children?: ReactNode }) {
       ) : incidents.length ? (
         <DispatchTable items={incidents} />
       ) : (
-        <p className="empty-inline">{t.admin.noIncidents}</p>
+        dispatches.data && <p className="empty-inline">{t.admin.noIncidents}</p>
       )}
+      <LoadMore
+        path={incidentsPath}
+        data={dispatches.data}
+        onLoaded={dispatches.setData}
+      />
       <div className="notice warning">
         <WarningCircle size={24} />
         <p>{t.admin.note}</p>

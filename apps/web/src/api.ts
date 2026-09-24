@@ -10,6 +10,10 @@ export type Session = {
   simulation: boolean;
   verifiedAccount?: boolean;
 };
+/** Billing, members and administration are reserved to the admin role. */
+export function canAdminister(session: Pick<Session, "user">): boolean {
+  return session.user.role === "admin";
+}
 export type DocumentRecord = {
   id: string;
   name: string;
@@ -97,6 +101,19 @@ export type ExpertApprovalPolicy = NonNullable<
 
 export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
+/**
+ * Browser sessions expire server-side. Any later 401 is announced once to the
+ * workspace so it can offer a reconnection that returns to the current page,
+ * instead of leaving every screen with a technical error.
+ */
+export const SESSION_EXPIRED_EVENT = "guteneo:session-expired";
+const sessionProbePaths = ["/session", "/logout", "/dev/login"];
+function announceSessionExpiry(path: string, status: number) {
+  if (status !== 401 || sessionProbePaths.includes(path.split("?")[0] ?? ""))
+    return;
+  window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
+}
+
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
@@ -115,12 +132,14 @@ export async function getDocumentContent(
       signal,
     },
   );
-  if (!response.ok)
+  if (!response.ok) {
+    announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
       "Ce document ne peut pas être affiché.",
       response.status,
     );
+  }
   return new Uint8Array(await response.arrayBuffer());
 }
 
@@ -188,6 +207,7 @@ export async function api<T>(
   }
   const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {
+    announceSessionExpiry(path, response.status);
     const failure = data as {
       error?: { code?: string; message?: string };
     } | null;
@@ -230,6 +250,17 @@ export function date(value?: string): string {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(d);
+}
+/** Euros typed by a person, to integer cents; null when not a valid amount. */
+export function euroToMinor(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!/^\d{1,5}(\.\d{1,2})?$/.test(normalized)) return null;
+  const minor = Math.round(Number(normalized) * 100);
+  return Number.isSafeInteger(minor) && minor <= 1_000_000 ? minor : null;
+}
+/** Separators are accepted while typing; the prepared number has none. */
+export function normalizeFaxNumber(value: string): string {
+  return value.replace(/[\s.\-]/g, "");
 }
 export function money(minor: number, currency = "EUR"): string {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(

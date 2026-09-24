@@ -9,6 +9,11 @@ import type {
   Session,
 } from "./api";
 import type { WelcomeCredit } from "./credit-balance";
+import {
+  DISPATCH_GROUPS,
+  isDispatchGroup,
+  type DispatchOverview,
+} from "../../../packages/contracts/src/dispatch-groups";
 
 // This isolated design model has no transport or storage. It is never the
 // authenticated API, the domain simulator, or evidence of provider delivery.
@@ -485,8 +490,41 @@ export function createPreviewApi() {
       if (route === "/billing")
         return { welcomeCredit: previewCredit(state), topUpAvailable: false };
       if (route === "/documents") return copy(page(state.documents));
-      if (route === "/dispatches")
-        return copy(page(state.dispatches.map((detail) => detail.dispatch)));
+      if (route === "/dispatches") {
+        const group = new URLSearchParams(path.split("?")[1]).get("group");
+        if (group !== null && !isDispatchGroup(group))
+          fail("INVALID_GROUP", "Filtre d’envois inconnu.");
+        const members: readonly string[] | undefined =
+          group === null
+            ? undefined
+            : DISPATCH_GROUPS[group as keyof typeof DISPATCH_GROUPS];
+        return copy(
+          page(
+            state.dispatches
+              .map((detail) => detail.dispatch)
+              .filter(
+                (dispatch) => !members || members.includes(dispatch.status),
+              ),
+          ),
+        );
+      }
+      if (route === "/overview") {
+        const dispatches: DispatchOverview["dispatches"] = {
+          total: state.dispatches.length,
+          approval: 0,
+          in_progress: 0,
+          attention: 0,
+          done: 0,
+        };
+        for (const { dispatch } of state.dispatches)
+          for (const [group, members] of Object.entries(DISPATCH_GROUPS))
+            if ((members as readonly string[]).includes(dispatch.status))
+              dispatches[group as keyof typeof DISPATCH_GROUPS] += 1;
+        return {
+          documents: state.documents.length,
+          dispatches,
+        } satisfies DispatchOverview;
+      }
       if (route === "/campaigns") return copy(page(state.campaigns));
       if (route === "/senders")
         return page(

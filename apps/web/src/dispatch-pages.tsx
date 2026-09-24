@@ -5,8 +5,14 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import { documentAnalysis } from "../../../packages/contracts/src/document-analysis";
+import {
+  dispatchGroupNames,
+  isDispatchGroup,
+  type DispatchOverview,
+} from "../../../packages/contracts/src/dispatch-groups";
 import {
   ArrowRight,
   Plus,
@@ -22,8 +28,10 @@ import {
   ApiError,
   bytes,
   date,
+  euroToMinor,
   money,
   nanoMoney,
+  normalizeFaxNumber,
   quotedMoney,
   isPublicPreview,
   recipientOf,
@@ -48,6 +56,7 @@ import { PostalSetupPanel } from "./postal-setup-panel";
 import { PostalCutoffNotice } from "./postal-cutoff-notice";
 import {
   ChannelLabel,
+  ConfirmAction,
   Definition,
   DispatchTable,
   EmailPreview,
@@ -63,6 +72,7 @@ import {
   Status,
   sesErrorMessage,
   useAction,
+  useRefreshOnFocus,
   useResource,
   useRoute,
 } from "./components";
@@ -154,42 +164,76 @@ function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
 }
 
 export function Overview({ session }: { session: Session }) {
-  const documents = useResource<Page<DocumentRecord>>("/documents");
-  const dispatches = useResource<Page<Dispatch>>("/dispatches");
+  const overview = useResource<DispatchOverview>("/overview");
+  const dispatches = useResource<Page<Dispatch>>("/dispatches?limit=6");
+  const refreshOverview = overview.refresh;
+  const refreshDispatches = dispatches.refresh;
+  const refresh = useCallback(() => {
+    refreshOverview();
+    refreshDispatches();
+  }, [refreshOverview, refreshDispatches]);
+  useRefreshOnFocus(refresh);
+  const counts = overview.data;
+  const attention = counts?.dispatches.attention ?? 0;
+  const stats = [
+    {
+      href: "#/app/documents",
+      label: t.overview.documents,
+      value: counts?.documents,
+    },
+    {
+      href: "#/app/dispatches?group=approval",
+      label: t.overview.waiting,
+      value: counts?.dispatches.approval,
+    },
+    {
+      href: "#/app/dispatches?group=attention",
+      label: t.overview.attention,
+      value: counts?.dispatches.attention,
+      warning: attention > 0,
+    },
+    {
+      href: "#/app/dispatches",
+      label: t.overview.tracked,
+      value: counts?.dispatches.total,
+    },
+  ];
   return (
     <>
       <PageHeading title={t.overview.title} intro={t.overview.intro} />
+      {attention > 0 && (
+        <div className="notice warning overview-attention" role="status">
+          <WarningCircle size={22} aria-hidden="true" />
+          <div>
+            <strong>{t.overview.attentionTitle}</strong>
+            <p>{t.overview.attentionBody}</p>
+            <a className="text-link" href="#/app/dispatches?group=attention">
+              {t.overview.attentionAction}
+              <ArrowRight size={17} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      )}
+      <ul className="overview-stats" aria-label={t.overview.statsLabel}>
+        {stats.map((stat) => (
+          <li key={stat.href}>
+            <a
+              href={stat.href}
+              className={stat.warning ? "stat-warning" : undefined}
+            >
+              <span>{stat.label}</span>
+              <strong>{stat.value ?? "·"}</strong>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <ErrorNotice error={overview.error ?? dispatches.error} retry={refresh} />
       <OverviewAssistantStart session={session} />
-      <div className="overview-stats">
-        <div>
-          <span>{t.overview.documents}</span>
-          <strong>{documents.data?.items.length ?? "·"}</strong>
-        </div>
-        <div>
-          <span>{t.overview.waiting}</span>
-          <strong>
-            {dispatches.data?.items.filter((d) =>
-              ["prepared", "draft"].includes(d.status),
-            ).length ?? "·"}
-          </strong>
-        </div>
-        <div>
-          <span>{t.overview.tracked}</span>
-          <strong>{dispatches.data?.items.length ?? "·"}</strong>
-        </div>
-      </div>
-      <ErrorNotice
-        error={documents.error ?? dispatches.error}
-        retry={() => {
-          documents.refresh();
-          dispatches.refresh();
-        }}
-      />
       <div className="section-toolbar">
         <h2>{t.overview.recent}</h2>
         <a href="#/app/dispatches" className="text-link">
           {t.overview.all}
-          <ArrowRight size={17} />
+          <ArrowRight size={17} aria-hidden="true" />
         </a>
       </div>
       {dispatches.loading && !dispatches.data ? (
@@ -203,7 +247,7 @@ export function Overview({ session }: { session: Session }) {
           action={
             <a className="button primary" href="#/app/documents">
               {t.documents.import}
-              <ArrowRight size={18} />
+              <ArrowRight size={18} aria-hidden="true" />
             </a>
           }
         />
@@ -246,9 +290,10 @@ export function Documents() {
   const file = useRef<HTMLInputElement>(null);
   const documentHeading = useRef<HTMLHeadingElement>(null);
   const documentTrigger = useRef<HTMLButtonElement | null>(null);
+  const loadedDocumentId = selected?.id;
   useEffect(() => {
-    if (selected) documentHeading.current?.focus();
-  }, [selected?.id]);
+    if (loadedDocumentId) documentHeading.current?.focus();
+  }, [loadedDocumentId]);
   useEffect(() => {
     if (tab === "import") file.current?.focus();
   }, [tab]);
@@ -659,8 +704,9 @@ export function PrepareDispatch({
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
   const [text, setText] = useState("");
-  const [ceiling, setCeiling] = useState("500");
-  const [postalBudget, setPostalBudget] = useState("5");
+  // One budget in euros for every channel; the API receives integer cents.
+  const [budget, setBudget] = useState("5");
+  const ceilingMinor = euroToMinor(budget);
   const [printMode, setPrintMode] = useState<"simplex" | "duplex">("simplex");
   const [printSpectrum, setPrintSpectrum] = useState<"grayscale" | "color">(
     "grayscale",
@@ -735,9 +781,10 @@ export function PrepareDispatch({
     await action.run(async () => {
       if (documentUnavailable)
         throw new Error("Vérifiez le PDF avant de préparer l’envoi.");
+      if (ceilingMinor === null) throw new Error(t.dispatch.ceilingInvalid);
       const target =
         channel === "fax"
-          ? { phone: recipient.phone ?? "" }
+          ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
           : channel === "email"
             ? { email: recipient.email ?? "" }
             : {
@@ -788,7 +835,7 @@ export function PrepareDispatch({
               deliveryProduct,
               addressPosition: selectedPosition,
             },
-            ceilingMinor: Number(ceiling),
+            ceilingMinor,
           },
         });
         go(`/app/postal/${encodeURIComponent(review.id)}`);
@@ -805,7 +852,7 @@ export function PrepareDispatch({
           subject: channel === "email" ? subject : undefined,
           html: channel === "email" ? html : undefined,
           text: channel === "email" ? text : undefined,
-          ceilingMinor: Number(ceiling),
+          ceilingMinor,
         },
       });
       go(`/app/dispatch/${dispatch.id}`);
@@ -824,6 +871,8 @@ export function PrepareDispatch({
     // still stops at the exact-document review, before any external transfer.
     setContinueGenerated(false);
     void prepare();
+    // Runs on these transitions only; `prepare` is this render's closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [continueGenerated, addsAddressPage, generatedReady, action.pending]);
   const changed = () => {
     key.current = crypto.randomUUID();
@@ -889,7 +938,6 @@ export function PrepareDispatch({
                   onChange={() => {
                     setChannel(c);
                     setSenderId("");
-                    setPostalBudget(String(Number(ceiling) / 100));
                   }}
                 />
                 <span>{t.channels[c]}</span>
@@ -977,13 +1025,13 @@ export function PrepareDispatch({
           {channel === "fax" ? (
             <Field
               label={t.dispatch.phone}
-              hint="Format international : + suivi de l’indicatif du pays et du numéro, sans espaces (ex. +352…)."
+              hint="Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …). Les espaces, points et tirets sont retirés à la préparation."
             >
               <input
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                pattern="\+[1-9][0-9]{7,14}"
+                pattern="\+[1-9](?:[ .\-]?[0-9]){7,14}"
                 placeholder={t.dispatch.phonePlaceholder}
                 value={recipient.phone ?? ""}
                 onChange={(e) => setAddress("phone", e.target.value)}
@@ -1139,7 +1187,10 @@ export function PrepareDispatch({
           )}
           {channel === "postal" && !simulation ? (
             <details className="postal-budget">
-              <summary>Budget maximum : {money(Number(ceiling))}</summary>
+              <summary>
+                Budget maximum :{" "}
+                {ceilingMinor === null ? "à préciser" : money(ceilingMinor)}
+              </summary>
               <Field
                 label="Budget maximum en euros"
                 hint="Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire."
@@ -1150,13 +1201,8 @@ export function PrepareDispatch({
                   min="0"
                   step="0.01"
                   max="10000"
-                  value={postalBudget}
-                  onChange={(event) => {
-                    setPostalBudget(event.target.value);
-                    setCeiling(
-                      String(Math.round(Number(event.target.value) * 100)),
-                    );
-                  }}
+                  value={budget}
+                  onChange={(event) => setBudget(event.target.value)}
                   required
                 />
               </Field>
@@ -1165,12 +1211,12 @@ export function PrepareDispatch({
             <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
               <input
                 type="number"
-                inputMode="numeric"
-                value={ceiling}
-                onChange={(e) => setCeiling(e.target.value)}
+                inputMode="decimal"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
                 min="0"
-                step="1"
-                max="1000000"
+                step="0.01"
+                max="10000"
                 required
               />
             </Field>
@@ -1330,7 +1376,10 @@ export function PrepareDispatch({
 }
 
 export function DispatchList() {
-  const resource = useResource<Page<Dispatch>>("/dispatches");
+  const route = useRoute();
+  const requested = new URLSearchParams(route.split("?")[1]).get("group");
+  const group = isDispatchGroup(requested) ? requested : undefined;
+  const path = group ? `/dispatches?group=${group}` : "/dispatches";
   return (
     <>
       <PageHeading
@@ -1338,26 +1387,60 @@ export function DispatchList() {
         intro={t.dispatch.listIntro}
         action={
           <a className="button primary" href="#/app/prepare">
-            <Plus size={18} />
+            <Plus size={18} aria-hidden="true" />
             {t.dispatch.new}
           </a>
         }
       />
+      {/* A new key per filter: never show the previous selection's rows. */}
+      <DispatchListResults key={path} path={path} filtered={!!group}>
+        <nav className="dispatch-filter" aria-label={t.dispatch.filterLabel}>
+          {([undefined, ...dispatchGroupNames] as const).map((item) => (
+            <a
+              key={item ?? "all"}
+              href={
+                item ? `#/app/dispatches?group=${item}` : "#/app/dispatches"
+              }
+              aria-current={item === group ? "page" : undefined}
+            >
+              {t.dispatch.groups[item ?? "all"]}
+            </a>
+          ))}
+        </nav>
+      </DispatchListResults>
+    </>
+  );
+}
+
+function DispatchListResults({
+  path,
+  filtered,
+  children,
+}: {
+  path: string;
+  filtered: boolean;
+  children: ReactNode;
+}) {
+  const resource = useResource<Page<Dispatch>>(path);
+  useRefreshOnFocus(resource.refresh);
+  return (
+    <>
       <div className="section-toolbar">
-        <span>{t.nav.dispatches}</span>
+        {children}
         <RefreshButton onClick={resource.refresh} disabled={resource.loading} />
       </div>
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !resource.data ? (
         <Loading />
       ) : (
-        resource.data && <DispatchTable items={resource.data.items} />
+        resource.data &&
+        (filtered && !resource.data.items.length ? (
+          <p className="empty-inline">{t.dispatch.groupEmpty}</p>
+        ) : (
+          <DispatchTable items={resource.data.items} />
+        ))
       )}
-      <LoadMore
-        path="/dispatches"
-        data={resource.data}
-        onLoaded={resource.setData}
-      />
+      <LoadMore path={path} data={resource.data} onLoaded={resource.setData} />
     </>
   );
 }
@@ -1382,17 +1465,19 @@ export function DispatchDetailPage({
   const [postalReadRequired, setPostalReadRequired] = useState(false);
   const postalSending = useRef(false);
   const postalViewRevision = useRef(0);
+  const clearAction = action.clear;
+  const fingerprint = d?.fingerprint;
   useEffect(() => {
     setConsent(false);
     setRecipientRequested(false);
     setInvalidQuoteId(undefined);
     setPostalReadRequired(false);
     postalViewRevision.current += 1;
-    action.clear();
+    clearAction();
     return () => {
       postalViewRevision.current += 1;
     };
-  }, [id, d?.fingerprint]);
+  }, [id, fingerprint, clearAction]);
   useEffect(() => {
     const expiry = d?.quote_expires_at ? Date.parse(d.quote_expires_at) : NaN;
     if (
@@ -1426,21 +1511,25 @@ export function DispatchDetailPage({
     const timeout = window.setTimeout(resource.refresh, delay);
     return () => window.clearTimeout(timeout);
   }, [resource.data?.approval?.expires_at, resource.refresh]);
+  const dispatchStatus = d?.status;
+  const settlementStatus = d?.faxPricing?.settlement.status;
   useEffect(() => {
     if (
-      !d ||
+      !dispatchStatus ||
       (!["accepted", "queued", "submitting", "submitted", "sending"].includes(
-        d.status,
+        dispatchStatus,
       ) &&
-        d.faxPricing?.settlement.status !== "reserved")
+        settlementStatus !== "reserved")
     )
       return;
     const interval = window.setInterval(
       resource.refresh,
-      ["delivered", "failed", "cancelled"].includes(d.status) ? 15000 : 3000,
+      ["delivered", "failed", "cancelled"].includes(dispatchStatus)
+        ? 15000
+        : 3000,
     );
     return () => window.clearInterval(interval);
-  }, [d?.status, d?.faxPricing?.settlement.status, resource.refresh]);
+  }, [dispatchStatus, settlementStatus, resource.refresh]);
   if (!d && !resource.error) return <Loading />;
   if (!d)
     return <ErrorNotice error={resource.error} retry={resource.refresh} />;
@@ -1523,13 +1612,8 @@ export function DispatchDetailPage({
   const uncertain = ["submission_unknown", "reconciliation_required"].includes(
     d.status,
   );
-  const cancelAllowed = [
-    "prepared",
-    "draft",
-    "approved",
-    "accepted",
-    "queued",
-  ].includes(d.status);
+  // The server only honours a cancellation before provider submission.
+  const cancelAllowed = ["prepared", "queued"].includes(d.status);
   const postalPriceUnavailable =
     d.channel === "postal" &&
     d.mode === "production" &&
@@ -2039,15 +2123,19 @@ export function DispatchDetailPage({
             </section>
           )}
           {cancelAllowed && (
-            <button
-              className="text-button cancel-button"
-              disabled={
-                action.pending || (d.channel === "postal" && postalReadRequired)
-              }
-              onClick={() => void cancel()}
-            >
-              {t.dispatch.cancelAction}
-            </button>
+            <div className="cancel-button">
+              <ConfirmAction
+                className="text-button"
+                disabled={
+                  action.pending ||
+                  (d.channel === "postal" && postalReadRequired)
+                }
+                label={t.dispatch.cancelAction}
+                question={t.dispatch.cancelQuestion}
+                confirmLabel={t.dispatch.cancelConfirm}
+                onConfirm={() => void cancel()}
+              />
+            </div>
           )}
           <details className="technical-details">
             <summary>{t.dispatch.version}</summary>

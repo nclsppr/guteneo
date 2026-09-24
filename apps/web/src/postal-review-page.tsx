@@ -77,6 +77,7 @@ function statusLabel(review: PostalReview) {
 export function PostalReviewPage({ id }: { id: string }) {
   const path = `/postal/preflights/${encodeURIComponent(id)}`;
   const resource = useResource<PostalReview>(path);
+  const readReview = resource.refresh;
   const action = useAction();
   const [cropFailed, setCropFailed] = useState(false);
   const [cropLoaded, setCropLoaded] = useState(false);
@@ -132,10 +133,10 @@ export function PostalReviewPage({ id }: { id: string }) {
       return;
     const timer = window.setTimeout(() => {
       polls.current += 1;
-      resource.refresh();
+      readReview();
     }, 5000);
     return () => window.clearTimeout(timer);
-  }, [processing, resource.loading, resource.error, resource.refresh]);
+  }, [processing, resource.loading, resource.error, readReview]);
 
   const cropPath = `/api${path}/address.png`;
   // The API returns the canonical absolute URL, including on an alternate host.

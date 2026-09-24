@@ -52,7 +52,7 @@ export function LoadMore<T>({
         onClick={() =>
           void action.run(async () => {
             const next = await api<Page<T>>(
-              `${path}?cursor=${encodeURIComponent(data.nextCursor ?? "")}`,
+              `${path}${path.includes("?") ? "&" : "?"}cursor=${encodeURIComponent(data.nextCursor ?? "")}`,
             );
             onLoaded({
               items: [...data.items, ...next.items],
@@ -129,10 +129,28 @@ export function useResource<T>(path: string | null) {
   }, [path, version]);
   return { data, error, loading, refresh, setData };
 }
+/**
+ * Re-read a resource when the person comes back to this tab, for example
+ * after preparing a send in their assistant. Reads only; never repeats writes.
+ */
+export function useRefreshOnFocus(refresh: () => void) {
+  useEffect(() => {
+    const wake = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", wake);
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      window.removeEventListener("focus", wake);
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [refresh]);
+}
 export function useAction() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<Error>();
-  const run = async (action: () => Promise<void>) => {
+  // Stable callbacks: effects may depend on them without re-running.
+  const run = useCallback(async (action: () => Promise<void>) => {
     setPending(true);
     setError(undefined);
     try {
@@ -142,8 +160,9 @@ export function useAction() {
     } finally {
       setPending(false);
     }
-  };
-  return { pending, error, run, clear: () => setError(undefined) };
+  }, []);
+  const clear = useCallback(() => setError(undefined), []);
+  return { pending, error, run, clear };
 }
 export function ErrorNotice({
   error,
@@ -517,6 +536,92 @@ export function EmailPreview({ html }: { html: string }) {
       srcDoc={content}
       title={t.dispatch.htmlPreview}
     />
+  );
+}
+/**
+ * Two-step inline confirmation for consequential actions (cancel, pause,
+ * revoke). No modal: the question and both choices stay in the page flow,
+ * focus moves to the confirmation and Escape returns to the trigger.
+ */
+export function ConfirmAction({
+  label,
+  question,
+  confirmLabel,
+  onConfirm,
+  disabled,
+  className = "button small",
+  ariaLabel,
+  dismissLabel = t.confirmDismiss,
+}: {
+  label: ReactNode;
+  question: string;
+  confirmLabel: string;
+  dismissLabel?: string;
+  onConfirm: () => void;
+  disabled?: boolean;
+  className?: string;
+  ariaLabel?: string;
+}) {
+  const [asking, setAsking] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const confirmButton = useRef<HTMLButtonElement>(null);
+  const questionId = useId();
+  const returnFocus = useRef(false);
+  useEffect(() => {
+    if (asking) confirmButton.current?.focus();
+    else if (returnFocus.current) {
+      returnFocus.current = false;
+      trigger.current?.focus();
+    }
+  }, [asking]);
+  const close = () => {
+    returnFocus.current = true;
+    setAsking(false);
+  };
+  if (!asking)
+    return (
+      <button
+        ref={trigger}
+        type="button"
+        className={className}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        onClick={() => setAsking(true)}
+      >
+        {label}
+      </button>
+    );
+  return (
+    <span
+      className="confirm-action"
+      role="group"
+      aria-labelledby={questionId}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          close();
+        }
+      }}
+    >
+      <span id={questionId} className="confirm-action-question">
+        {question}
+      </span>
+      <button
+        ref={confirmButton}
+        type="button"
+        className="button small danger"
+        disabled={disabled}
+        onClick={() => {
+          setAsking(false);
+          onConfirm();
+        }}
+      >
+        {confirmLabel}
+      </button>
+      <button type="button" className="button small subtle" onClick={close}>
+        {dismissLabel}
+      </button>
+    </span>
   );
 }
 export function Field({
