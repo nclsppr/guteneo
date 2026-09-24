@@ -27,7 +27,7 @@ export interface AuthContext {
   organizationId: string;
   userId: string;
   role: "admin" | "member" | "viewer";
-  actor: "browser" | "mcp" | "system";
+  actor: "browser" | "native" | "mcp" | "system";
 }
 interface Membership {
   organization_id: string;

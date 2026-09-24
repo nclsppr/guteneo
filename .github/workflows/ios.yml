@@ -1,0 +1,63 @@
+name: Guteneo iOS
+on:
+  pull_request:
+    paths:
+      - 'ios/**'
+      - 'apps/api/src/mobile*.ts'
+      - 'packages/contracts/**'
+      - '.github/workflows/ios.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'apps/api/src/mobile*.ts'
+      - 'packages/contracts/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Select the installed stable toolchain and an iPhone simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'DEVELOPER_DIR=%s\n' "$(xcode-select -p)" >> "$GITHUB_ENV"
+          xcodebuild -version
+          xcrun simctl list devices available -j > "$RUNNER_TEMP/guteneo-devices.json"
+          python3 - <<'PY'
+          import json, os, re
+          with open(os.path.join(os.environ['RUNNER_TEMP'], 'guteneo-devices.json')) as f:
+              devices = json.load(f)['devices']
+          candidates = []
+          for runtime, entries in devices.items():
+              match = re.search(r'iOS-(\d+)-(\d+)', runtime)
+              if not match or int(match[1]) < 26:
+                  continue
+              for device in entries:
+                  if device['isAvailable'] and device['name'].startswith('iPhone'):
+                      candidates.append(((int(match[1]), int(match[2])), device['udid']))
+          if not candidates:
+              raise SystemExit('An iOS 26 or newer iPhone simulator is required.')
+          identifier = sorted(candidates)[-1][1]
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write(f'GUTENEO_TEST_DESTINATION=platform=iOS Simulator,id={identifier}\n')
+          PY
+      - run: bash ios/scripts/test.sh
+      - run: bash ios/scripts/archive.sh --unsigned
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-local-validation
+          path: |
+            ios/.build/TestResults/
+            ios/.build/Archives/
+          if-no-files-found: warn
+          retention-days: 7

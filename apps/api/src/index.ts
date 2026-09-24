@@ -38,6 +38,7 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
+import { handleMobileRoute } from "./mobile";
 import {
   configurePostalSenderForMcp,
   getPostalSetupForMcp,
@@ -351,6 +352,14 @@ app.use("*", async (c, next) => {
   await next();
 });
 app.use("*", async (c, next) => {
+  const mobile = await handleMobileRoute(
+    c.req.raw,
+    c.env,
+    domain(c.env),
+    getCapabilities(c.env),
+    () => publishOutbox(c.env, domain(c.env)),
+  );
+  if (mobile) return mobile;
   const auth = await handleAuthRoute(c.req.raw, c.env);
   if (auth) return auth;
   return next();

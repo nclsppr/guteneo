@@ -1,5 +1,22 @@
 # Guteneo product contract
 
+## Native iOS candidate — 22 September 2026
+
+The local `ios/` client uses SwiftUI, PDFKit and the system authentication browser.
+It preserves the established ivory/cobalt identity and native iPhone/iPad navigation.
+PDF import, inspection, search, fax/email preparation and dispatch tracking use the
+versioned mobile API. Channel availability remains server controlled; postal
+preparation and assistant/account administration remain web capabilities.
+Final approval and confirmation use a dedicated authenticated browser page,
+without billing navigation. Native sessions cannot approve or send.
+There is no in-app purchase, top-up entry, or external purchase instruction.
+
+This is a local candidate, not a deployed service or App Store release.
+Account deletion currently records an authenticated request only; its full
+operational processing service remains a submission blocker. The existing public
+retention policy applies; it does not perform erasure. See `IOS_API.md`,
+`ACCOUNT_DELETION.md` and `../ios/AppStore/REVIEW_POLICY.md`.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: postal preparation collects missing sender details in
