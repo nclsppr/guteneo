@@ -684,6 +684,14 @@ ol {
   color: var(--blue);
   font-weight: 500;
 }
+@media (max-width: 1024px) {
+  /* Same touch height and text size as the refresh button next to them. */
+  .dispatch-filter a {
+    min-height: 44px;
+    padding-inline: 14px;
+    font-size: 14px;
+  }
+}
 .overview-stats span {
   font-size: 12px;
   color: var(--muted);
@@ -960,6 +968,15 @@ ol {
 .field > small {
   font-weight: 400;
 }
+/* A hint placed after a field describes it: keep it at the field's own hint
+   distance and the usual rhythm before the next field. */
+.field + .field-hint {
+  margin-top: -13px;
+  margin-bottom: 21px;
+}
+.button.full + .field-hint {
+  margin-top: 8px;
+}
 .field input,
 .field select,
 .field textarea {
@@ -1142,6 +1159,12 @@ ol {
 }
 .channel-selector legend {
   font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+/* Same heading as the postal address choice just above it. */
+.postal-form-options legend {
+  font-size: 14px;
   font-weight: 500;
   margin-bottom: 12px;
 }
@@ -2254,6 +2277,16 @@ ol {
     text-align: left;
   }
 }
+@media (max-width: 767px) {
+  /* Same icon size and spacing as the menu links above it. */
+  .workspace-navigation .navigation-logout {
+    gap: 7px;
+  }
+  .workspace-navigation .navigation-logout svg {
+    width: 16px;
+    height: 16px;
+  }
+}
 .session-expired {
   display: flex;
   align-items: center;
@@ -2283,6 +2316,7 @@ ol {
 @media (max-width: 767px) {
   .session-expired {
     flex-wrap: wrap;
+    align-items: flex-start;
     padding: 12px 20px;
   }
   .session-expired .button {
@@ -2339,6 +2373,25 @@ ol {
 .channel-control > .status {
   white-space: normal;
 }
+/* An open confirmation keeps the place of the action it replaces. */
+.channel-control {
+  flex-wrap: wrap;
+}
+.channel-control > .confirm-action {
+  margin-left: auto;
+  justify-content: flex-end;
+  text-align: right;
+}
+/* Member actions: one row with room between them, or stacked when narrow. */
+.member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+.team-admin .table-scroll {
+  margin-top: 16px;
+}
 @media (max-width: 767px) {
   .channel-control > strong {
     min-width: 80px;
@@ -2346,6 +2399,16 @@ ol {
   }
   .channel-control {
     gap: 8px;
+  }
+  .channel-control > .confirm-action {
+    flex-basis: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+    text-align: left;
+  }
+  /* The role list needs the full width to show "Administrateur". */
+  .workspace .responsive-table tbody .member-role-cell {
+    grid-column: 1 / -1;
   }
   .scanner-warning {
     font-size: 8px;
@@ -3244,7 +3307,8 @@ ol {
     overflow-wrap: anywhere;
     text-align: left;
   }
-  .workspace .responsive-table tbody :is(td, th):first-child {
+  .workspace .responsive-table tbody :is(td, th):first-child,
+  .workspace .responsive-table tbody .member-actions-cell {
     grid-column: 1 / -1;
   }
   .workspace .mobile-cell-label {

@@ -251,6 +251,18 @@ export function date(value?: string): string {
         timeStyle: "short",
       }).format(d);
 }
+/**
+ * Native validation for a euro amount typed with either decimal mark, the
+ * format euroToMinor() reads. Amount fields are text fields: a number field
+ * drops the comma in some browsers, so Chromium turns "1,5" into "15".
+ */
+export const EURO_INPUT_PATTERN = "\\s*\\d{1,5}(?:[.,]\\d{1,2})?\\s*";
+/** Integer cents shown in an amount field, with the French decimal comma. */
+export function minorToEuroInput(minor: number): string {
+  return Number.isInteger(minor / 100)
+    ? String(minor / 100)
+    : (minor / 100).toFixed(2).replace(".", ",");
+}
 /** Euros typed by a person, to integer cents; null when not a valid amount. */
 export function euroToMinor(value: string): number | null {
   const normalized = value.trim().replace(",", ".");
@@ -258,10 +270,14 @@ export function euroToMinor(value: string): number | null {
   const minor = Math.round(Number(normalized) * 100);
   return Number.isSafeInteger(minor) && minor <= 1_000_000 ? minor : null;
 }
-/** Separators are accepted while typing; the prepared number has none. */
-export function normalizeFaxNumber(value: string): string {
-  return value.replace(/[\s.\-]/g, "");
-}
+// Separators are accepted while typing; the server applies the same rule.
+export { normalizeFaxNumber } from "../../../packages/contracts/src/fax-number";
+/**
+ * Native validation while typing: "+", then digits with optional spaces,
+ * dots, dashes or a "(0)" trunk prefix. The server has the final word.
+ */
+export const FAX_INPUT_PATTERN =
+  "\\s*\\+[1-9](?:[ .\\-\\u00a0\\u202f]?(?:[0-9]|\\(0\\))){7,16}\\s*";
 export function money(minor: number, currency = "EUR"): string {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(
     minor / 100,

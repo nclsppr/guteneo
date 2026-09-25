@@ -312,7 +312,7 @@ function MemberRow({
         {member.name}
         {member.id === currentUserId ? " (vous)" : ""}
       </th>
-      <td role="cell">
+      <td role="cell" className="member-role-cell">
         <span className="mobile-cell-label" aria-hidden="true">
           Rôle
         </span>
@@ -343,32 +343,34 @@ function MemberRow({
         {member.connections} connexion{member.connections > 1 ? "s" : ""}{" "}
         assistant
       </td>
-      <td role="cell">
+      <td role="cell" className="member-actions-cell">
         <span className="mobile-cell-label" aria-hidden="true">
           Actions
         </span>
-        <button
-          type="button"
-          className="button small"
-          disabled={disabled || role === member.role}
-          onClick={() => onRole(role)}
-          aria-label={`Enregistrer le rôle de ${member.name}`}
-        >
-          Enregistrer le rôle
-        </button>
-        <ConfirmAction
-          className="text-button"
-          disabled={disabled || (!member.sessions && !member.connections)}
-          onConfirm={onRevoke}
-          ariaLabel={`Déconnecter ${member.name} de cet atelier`}
-          label="Déconnecter les accès"
-          question={
-            member.id === currentUserId
-              ? "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter."
-              : `Déconnecter les sessions et assistants de ${member.name} ? La personne reste membre et pourra se reconnecter.`
-          }
-          confirmLabel="Oui, déconnecter"
-        />
+        <div className="member-actions">
+          <button
+            type="button"
+            className="button small"
+            disabled={disabled || role === member.role}
+            onClick={() => onRole(role)}
+            aria-label={`Enregistrer le rôle de ${member.name}`}
+          >
+            Enregistrer le rôle
+          </button>
+          <ConfirmAction
+            className="text-button"
+            disabled={disabled || (!member.sessions && !member.connections)}
+            onConfirm={onRevoke}
+            ariaLabel={`Déconnecter ${member.name} de cet atelier`}
+            label="Déconnecter les accès"
+            question={
+              member.id === currentUserId
+                ? "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter."
+                : `Déconnecter les sessions et assistants de ${member.name} ? La personne reste membre et pourra se reconnecter.`
+            }
+            confirmLabel="Oui, déconnecter"
+          />
+        </div>
       </td>
     </tr>
   );
@@ -399,7 +401,10 @@ export function TeamAdmin({ session, onUpdated }: Props) {
     });
   }
   return (
-    <section className="form-panel" aria-labelledby="team-admin-title">
+    <section
+      className="form-panel team-admin"
+      aria-labelledby="team-admin-title"
+    >
       <h2 id="team-admin-title">Membres de l’atelier</h2>
       {isPublicPreview ? (
         <PreviewNotice />

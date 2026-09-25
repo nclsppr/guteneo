@@ -1,5 +1,7 @@
 # Execution plan and handoff
 
+25 September candidate: organization-wide overview counters and server-side dispatch status groups (`GET /api/overview`, browser only, and `?group=` on `GET /api/dispatches` and `list_dispatches`), a filtered dispatch list, an attention notice for uncertain or failed sends, focus re-reads that keep loaded pages, euro ceilings that accept the French decimal comma (preparation and expert delegation caps), one shared fax-number normalization that refuses a national 0 kept after the country code, inline confirmations, and session-expiry recovery, including a reconnection to another account in another tab. The local development server now starts on Windows. Executed evidence and its Windows limits are in [TEST_RESULTS.md](TEST_RESULTS.md). Not deployed; exact-source CI remains to be run.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: `get_postal_setup`, `configure_postal_sender` and the

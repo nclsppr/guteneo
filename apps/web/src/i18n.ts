@@ -295,7 +295,8 @@ export const fr = {
     none: "Sans pièce jointe",
     ceiling: "Plafond de cet envoi, en euros",
     ceilingHelp:
-      "Montant maximum autorisé, au centime près. Le plafond est vérifié avec le contenu et les paramètres.",
+      "Montant maximum autorisé, au centime près (ex. 5 ou 5,25). Le plafond est vérifié avec le contenu et les paramètres.",
+    ceilingFormat: "Montant en euros, par exemple 5 ou 5,25.",
     ceilingInvalid: "Indiquez un plafond en euros, entre 0 et 10 000 €.",
     prepare: "Vérifier et préparer",
     preparing: "Préparation…",

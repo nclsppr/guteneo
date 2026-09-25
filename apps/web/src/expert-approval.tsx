@@ -2,7 +2,10 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import {
   api,
   date,
+  EURO_INPUT_PATTERN,
+  euroToMinor,
   isPublicPreview,
+  minorToEuroInput,
   money,
   type Channel,
   type ExpertApprovalConnection,
@@ -27,10 +30,6 @@ function localDateTime(value: Date) {
   return new Date(value.getTime() - value.getTimezoneOffset() * 60_000)
     .toISOString()
     .slice(0, 16);
-}
-
-function toMinor(value: string) {
-  return Math.round(Number(value) * 100);
 }
 
 function ConnectionSettings({
@@ -64,10 +63,10 @@ function ConnectionSettings({
     policy?.channels ?? ["fax"],
   );
   const [perDispatch, setPerDispatch] = useState(
-    String((policy?.maxPerDispatchMinor ?? 500) / 100),
+    minorToEuroInput(policy?.maxPerDispatchMinor ?? 500),
   );
   const [daily, setDaily] = useState(
-    String((policy?.maxDailyMinor ?? 2500) / 100),
+    minorToEuroInput(policy?.maxDailyMinor ?? 2500),
   );
   const [count, setCount] = useState(String(policy?.maxDailyCount ?? 20));
   const [expires, setExpires] = useState(
@@ -113,8 +112,8 @@ function ConnectionSettings({
   function startEditing() {
     changed();
     setChannels(policy?.channels ?? ["fax"]);
-    setPerDispatch(String((policy?.maxPerDispatchMinor ?? 500) / 100));
-    setDaily(String((policy?.maxDailyMinor ?? 2500) / 100));
+    setPerDispatch(minorToEuroInput(policy?.maxPerDispatchMinor ?? 500));
+    setDaily(minorToEuroInput(policy?.maxDailyMinor ?? 2500));
     setCount(String(policy?.maxDailyCount ?? 20));
     setExpires(
       localDateTime(
@@ -134,7 +133,24 @@ function ConnectionSettings({
       document.getElementById(`${id}-fax`)?.focus();
       return;
     }
-    if (toMinor(daily) < toMinor(perDispatch)) {
+    // Same bounds as the server; a comma or a point marks the decimals.
+    const perDispatchMinor = euroToMinor(perDispatch);
+    const dailyMinor = euroToMinor(daily);
+    if (
+      perDispatchMinor === null ||
+      perDispatchMinor < 1 ||
+      perDispatchMinor > 10_000
+    ) {
+      setValidation("Indiquez un plafond par envoi de 0,01 € à 100 €.");
+      document.getElementById(`${id}-per-dispatch`)?.focus();
+      return;
+    }
+    if (dailyMinor === null || dailyMinor < 1 || dailyMinor > 50_000) {
+      setValidation("Indiquez un plafond par jour de 0,01 € à 500 €.");
+      document.getElementById(`${id}-daily`)?.focus();
+      return;
+    }
+    if (dailyMinor < perDispatchMinor) {
       setValidation(
         "Le plafond journalier doit être au moins égal au plafond par envoi.",
       );
@@ -151,8 +167,8 @@ function ConnectionSettings({
           body: {
             enabled: true,
             channels,
-            maxPerDispatchMinor: toMinor(perDispatch),
-            maxDailyMinor: toMinor(daily),
+            maxPerDispatchMinor: perDispatchMinor,
+            maxDailyMinor: dailyMinor,
             maxDailyCount: Number(count),
             expiresAt: new Date(expires).toISOString(),
             acknowledgement: "delegate-approval-v1",
@@ -329,13 +345,14 @@ function ConnectionSettings({
                 </label>
                 <input
                   id={`${id}-per-dispatch`}
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  min="0.01"
-                  max="100"
-                  step="0.01"
+                  autoComplete="off"
+                  pattern={EURO_INPUT_PATTERN}
+                  title="Montant en euros, par exemple 5 ou 2,35."
                   required
                   value={perDispatch}
+                  aria-describedby={validation ? `${id}-validation` : undefined}
                   onChange={(event) => {
                     changed();
                     setPerDispatch(event.target.value);
@@ -347,11 +364,11 @@ function ConnectionSettings({
                 <label htmlFor={`${id}-daily`}>Plafond par jour (€)</label>
                 <input
                   id={`${id}-daily`}
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  min="0.01"
-                  max="500"
-                  step="0.01"
+                  autoComplete="off"
+                  pattern={EURO_INPUT_PATTERN}
+                  title="Montant en euros, par exemple 25 ou 12,50."
                   required
                   value={daily}
                   aria-invalid={

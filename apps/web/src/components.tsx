@@ -132,11 +132,19 @@ export function useResource<T>(path: string | null) {
 /**
  * Re-read a resource when the person comes back to this tab, for example
  * after preparing a send in their assistant. Reads only; never repeats writes.
+ * Coming back fires both `visibilitychange` and `focus`: one read covers both.
+ * `enabled = false` keeps what the person loaded until an explicit refresh.
  */
-export function useRefreshOnFocus(refresh: () => void) {
+export function useRefreshOnFocus(refresh: () => void, enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
+    let last = 0;
     const wake = () => {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState !== "visible") return;
+      const now = Date.now();
+      if (now - last < 1000) return;
+      last = now;
+      refresh();
     };
     window.addEventListener("focus", wake);
     document.addEventListener("visibilitychange", wake);
@@ -144,7 +152,7 @@ export function useRefreshOnFocus(refresh: () => void) {
       window.removeEventListener("focus", wake);
       document.removeEventListener("visibilitychange", wake);
     };
-  }, [refresh]);
+  }, [refresh, enabled]);
 }
 export function useAction() {
   const [pending, setPending] = useState(false);

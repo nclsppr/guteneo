@@ -24,7 +24,7 @@ const uploadExample = `curl 'https://guteneo.com/api/documents' \\\n  --header "
 const prepareExample = `curl 'https://guteneo.com/api/dispatches' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN" \\\n  --header 'Content-Type: application/json' \\\n  --header 'Idempotency-Key: ma-preparation-unique-001' \\\n  --data '{
     "channel": "fax",
     "documentId": "doc_identifiant_recu",
-    "recipient": { "phone": "+352000000000" }
+    "recipient": { "phone": "+33199001234" }
   }'`;
 const readExample = `curl 'https://guteneo.com/api/dispatches/dsp_identifiant_recu' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN"`;
 

@@ -1,6 +1,7 @@
 import sanitizeHtml from "sanitize-html";
 import Papa from "papaparse";
 import { z } from "zod";
+import { faxNumberProblem, normalizeFaxNumber } from "./fax-number";
 
 export class ContentError extends Error {
   constructor(
@@ -112,12 +113,9 @@ export function validateRecipient(
     return { email };
   }
   if (channel === "fax") {
-    const phone = String(recipient.phone ?? "").replace(/[ ()-]/g, "");
-    if (!/^\+(33|352|49)\d{6,12}$/.test(phone))
-      throw new ContentError(
-        "INVALID_PHONE",
-        "Numéro international requis, destination FR, LU ou DE.",
-      );
+    const phone = normalizeFaxNumber(String(recipient.phone ?? ""));
+    const problem = faxNumberProblem(phone);
+    if (problem) throw new ContentError("INVALID_PHONE", problem);
     return { phone };
   }
   if (channel === "postal") {

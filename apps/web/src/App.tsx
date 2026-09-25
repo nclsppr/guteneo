@@ -32,6 +32,7 @@ import { fr as t } from "./i18n";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
+  go,
   Loading,
   useAction,
   useRoute,
@@ -507,6 +508,12 @@ function WorkspaceApplication() {
       if (document.visibilityState !== "visible") return;
       api<Session>("/session")
         .then((current) => {
+          // Another account or workshop: never keep the previous one's page.
+          if (
+            current.user.id !== session?.user.id ||
+            current.organization.id !== session?.organization.id
+          )
+            go("/app");
           setSession(current);
           updateSession(current);
           setSessionExpired(false);
@@ -519,7 +526,7 @@ function WorkspaceApplication() {
       window.removeEventListener("focus", recheck);
       document.removeEventListener("visibilitychange", recheck);
     };
-  }, [sessionExpired]);
+  }, [sessionExpired, session]);
   useEffect(() => {
     let alive = true;
     api<Session>("/session")
@@ -729,7 +736,7 @@ function WorkspaceApplication() {
             className="navigation-logout"
             onClick={() => void logout()}
           >
-            <SignOut size={19} aria-hidden="true" />
+            <SignOut size={21} aria-hidden="true" />
             {t.login.logout}
           </button>
         </details>
@@ -788,14 +795,20 @@ function WorkspaceApplication() {
               ]
             }
           </span>
-          {page !== "/app/prepare" && (
+          {/* These pages already lead to the preparation form themselves. */}
+          {!["/app/prepare", "/app/dispatches"].includes(page) && (
             <a className="button small primary" href="#/app/prepare">
               <Plus size={16} aria-hidden="true" />
               {t.dispatch.new}
             </a>
           )}
         </div>
-        <main id="main-content" tabIndex={-1}>
+        {/* A new identity starts from fresh pages, without the previous state. */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          key={`${session.organization.id}:${session.user.id}`}
+        >
           <ErrorNotice error={logoutError} />
           {content}
         </main>

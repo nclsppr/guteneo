@@ -28,7 +28,9 @@ import {
   ApiError,
   bytes,
   date,
+  EURO_INPUT_PATTERN,
   euroToMinor,
+  FAX_INPUT_PATTERN,
   money,
   nanoMoney,
   normalizeFaxNumber,
@@ -214,6 +216,9 @@ export function Overview({ session }: { session: Session }) {
           </div>
         </div>
       )}
+      {/* The starting choice comes before the statistics, so a new workshop
+          does not open on empty counters (docs/ASSISTANT_HUB.md). */}
+      <OverviewAssistantStart session={session} />
       <ul className="overview-stats" aria-label={t.overview.statsLabel}>
         {stats.map((stat) => (
           <li key={stat.href}>
@@ -228,7 +233,6 @@ export function Overview({ session }: { session: Session }) {
         ))}
       </ul>
       <ErrorNotice error={overview.error ?? dispatches.error} retry={refresh} />
-      <OverviewAssistantStart session={session} />
       <div className="section-toolbar">
         <h2>{t.overview.recent}</h2>
         <a href="#/app/dispatches" className="text-link">
@@ -1025,13 +1029,13 @@ export function PrepareDispatch({
           {channel === "fax" ? (
             <Field
               label={t.dispatch.phone}
-              hint="Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …). Les espaces, points et tirets sont retirés à la préparation."
+              hint="Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …), sans le 0 national. Les espaces, points et tirets sont retirés à la préparation."
             >
               <input
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                pattern="\+[1-9](?:[ .\-]?[0-9]){7,14}"
+                pattern={FAX_INPUT_PATTERN}
                 placeholder={t.dispatch.phonePlaceholder}
                 value={recipient.phone ?? ""}
                 onChange={(e) => setAddress("phone", e.target.value)}
@@ -1196,11 +1200,11 @@ export function PrepareDispatch({
                 hint="Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire."
               >
                 <input
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  max="10000"
+                  autoComplete="off"
+                  pattern={EURO_INPUT_PATTERN}
+                  title={t.dispatch.ceilingFormat}
                   value={budget}
                   onChange={(event) => setBudget(event.target.value)}
                   required
@@ -1210,13 +1214,13 @@ export function PrepareDispatch({
           ) : (
             <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
               <input
-                type="number"
+                type="text"
                 inputMode="decimal"
+                autoComplete="off"
+                pattern={EURO_INPUT_PATTERN}
+                title={t.dispatch.ceilingFormat}
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
-                min="0"
-                step="0.01"
-                max="10000"
                 required
               />
             </Field>
@@ -1422,14 +1426,22 @@ function DispatchListResults({
   children: ReactNode;
 }) {
   const resource = useResource<Page<Dispatch>>(path);
-  useRefreshOnFocus(resource.refresh);
+  // Pages added with "load more" stay until an explicit refresh: re-reading
+  // the first page on focus would drop them and move the reading position.
+  const [extended, setExtended] = useState(false);
+  const refresh = resource.refresh;
+  const reload = useCallback(() => {
+    setExtended(false);
+    refresh();
+  }, [refresh]);
+  useRefreshOnFocus(refresh, !extended);
   return (
     <>
       <div className="section-toolbar">
         {children}
-        <RefreshButton onClick={resource.refresh} disabled={resource.loading} />
+        <RefreshButton onClick={reload} disabled={resource.loading} />
       </div>
-      <ErrorNotice error={resource.error} retry={resource.refresh} />
+      <ErrorNotice error={resource.error} retry={reload} />
       {resource.loading && !resource.data ? (
         <Loading />
       ) : (
@@ -1440,7 +1452,14 @@ function DispatchListResults({
           <DispatchTable items={resource.data.items} />
         ))
       )}
-      <LoadMore path={path} data={resource.data} onLoaded={resource.setData} />
+      <LoadMore
+        path={path}
+        data={resource.data}
+        onLoaded={(page) => {
+          setExtended(true);
+          resource.setData(page);
+        }}
+      />
     </>
   );
 }

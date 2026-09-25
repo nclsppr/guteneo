@@ -89,7 +89,7 @@ Le corps de préparation est strict au premier niveau :
 
 | Canal    | Destinataire et contenu                                                                                                                                                                                                                       |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fax`    | `{phone}` international ; normalisation des espaces, parenthèses et tirets. Indicatifs autorisés `+33`, `+352`, `+49`. `documentId` prêt requis. Aucune destination réelle n’est préremplie.                                                  |
+| `fax`    | `{phone}` international ; espaces (y compris insécables), points, parenthèses et tirets retirés, `(0)` après l’indicatif supprimé. Indicatifs autorisés `+33`, `+352`, `+49` ; un 0 restant juste après l’indicatif est refusé (`INVALID_PHONE`). `documentId` prêt requis. Aucune destination réelle n’est préremplie. |
 | `email`  | `{email}` normalisé en minuscules ; objet et HTML final filtré, texte explicite ou dérivé. `documentId` facultatif pour joindre un PDF prêt. Chaque commande vise un seul destinataire.                                                       |
 | `postal` | `{name,line1,postalCode,city,country}` ; pays `FR`, `LU`, `DE`. `documentId` prêt requis. Le modèle courant persiste une seule ligne de rue ; un `line2` non vide est refusé par `ADDRESS_LINE_UNSUPPORTED`, jamais supprimé silencieusement. |
 
@@ -114,7 +114,7 @@ Les statuts sont `prepared`, `queued`, `submitting`, `submission_unknown`, `acce
 | `GET /api/campaigns/:id`               | `{campaign,dispatches:Dispatch[]}` ; détail borné à 500 envois.                                                                                           |
 | `POST /api/recipients/validate`        | JSON strict `{csv}` ; `{rows,errors,duplicates,valid}`. Validation sans création d’envoi.                                                                 |
 | `GET /api/senders`                     | `{items:[{id,channel,name,address,status,mode}]}`. Lecture uniquement.                                                                                    |
-| `GET /api/overview`                    | Synthèse navigateur `{documents,dispatches:{total,approval,in_progress,attention,done}}` : compteurs de toute l’organisation, non bornés à une page. |
+| `GET /api/overview`                    | Synthèse navigateur `{documents,dispatches:{total,approval,in_progress,attention,done}}` : compteurs de toute l’organisation, non bornés à une page. Session navigateur uniquement : un jeton OAuth reçoit `403 BROWSER_REQUIRED`. |
 | `GET /api/usage`                       | `{items:[{channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency}]}` ; mois UTC courant `YYYY-MM`. |
 | `GET /api/admin`                       | Rôle `admin` ; `{states,outbox,uncertain,audit,controls,deadLetters,simulation,capabilities}` limité à l’organisation.                                    |
 | `POST /api/admin/channels/:channel`    | Session navigateur `admin` + CSRF ; JSON strict `{enabled:boolean}` ; arrêt/reprise audité du canal, réponse `{channel,enabled}`.                         |
@@ -147,7 +147,7 @@ Réponse usuelle : `200 {received:true}` ; événement durable dont la projectio
 | `prepare_dispatch`    | Champs de préparation et `idempotencyKey`             | `dispatches:prepare`   |
 | `confirm_dispatch`    | `{dispatchId,idempotencyKey}`                         | `dispatches:send`      |
 | `get_dispatch_status` | `{dispatchId}`                                        | `dispatches:read`      |
-| `list_dispatches`     | `{cursor?,limit?}`, défaut 20, maximum 50             | `dispatches:read`      |
+| `list_dispatches`     | `{cursor?,limit?,group?}`, défaut 20, maximum 50 ; `group` comme `GET /api/dispatches` | `dispatches:read`      |
 | `cancel_dispatch`     | `{dispatchId}`                                        | `dispatches:send`      |
 
 `import_document` déclare `_meta["openai/fileParams"]:["file"]` et les quatre propriétés de fichier ; seules `download_url` et `file_id` sont obligatoires. Il importe les octets avant de rendre un identifiant durable, jamais un chemin du disque distant. L’utilisation effective d’un PDF généré dans ChatGPT reste non vérifiée. Voir [Identité et MCP](IDENTITY_MCP.md) et [Adaptateur Cursor](CURSOR.md).

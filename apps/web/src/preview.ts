@@ -14,6 +14,10 @@ import {
   isDispatchGroup,
   type DispatchOverview,
 } from "../../../packages/contracts/src/dispatch-groups";
+import {
+  faxNumberProblem,
+  normalizeFaxNumber,
+} from "../../../packages/contracts/src/fax-number";
 
 // This isolated design model has no transport or storage. It is never the
 // authenticated API, the domain simulator, or evidence of provider delivery.
@@ -98,12 +102,9 @@ function recipient(channel: Channel, input: Record<string, unknown>) {
     return { email };
   }
   if (channel === "fax") {
-    const phone = text("phone").replace(/[ ()-]/g, "");
-    if (!/^\+(33|352|49)\d{6,12}$/.test(phone))
-      fail(
-        "INVALID_PHONE",
-        "Numéro international requis : France, Luxembourg ou Allemagne.",
-      );
+    const phone = normalizeFaxNumber(text("phone"));
+    const problem = faxNumberProblem(phone);
+    if (problem) fail("INVALID_PHONE", problem);
     return { phone };
   }
   const result: Record<string, string> = {};

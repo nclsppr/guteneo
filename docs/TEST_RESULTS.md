@@ -1,5 +1,33 @@
 # Executed verification — 2026-09-17
 
+## Workspace dashboard corrections — candidate, 25 September 2026
+
+Branch commits `db0cf26`, `19edc3c` and `83ec407` add organization-wide overview counters, server-side dispatch status groups, filtered lists, an attention notice, focus re-reads, euro ceilings, session-expiry recovery, inline confirmations and the legacy PDF.js build. The continuation on the same branch corrects what executing the complete suites showed:
+
+- Amount fields are text fields with `inputmode="decimal"` and one shared parser. A Chromium number field drops the comma, so a ceiling typed `1,5` was prepared as 15 €; the expert delegation caps had the same defect.
+- Fax numbers use one normalization (`packages/contracts/src/fax-number.ts`) in the browser, REST, MCP and the preview fixture. `(0)` after the country code is dropped; a national 0 kept after it (`+33 06…`, `+49 030…`) is refused with its correction instead of reaching the provider.
+- Returning to the tab performs one read, and pages added with "Afficher la suite" stay until an explicit refresh.
+- `GET /api/overview` is browser-only (`403 BROWSER_REQUIRED` for OAuth): its document count is not a `dispatches:read` fact. `list_dispatches` accepts the same optional `group`.
+- A reconnection to another account or workshop in another tab returns to the overview with fresh pages.
+- The overview keeps the documented order (starting choice before statistics, [ASSISTANT_HUB.md](ASSISTANT_HUB.md)); the branch had inverted it and broke `assistant-hub.spec.ts` on the three browser projects.
+- Layout: one "Nouvel envoi" action on the dispatch list, open confirmations in the place of their action, spaced member actions and a full-width role list on phones, 44 px filter chips on touch widths, field hints attached to their field, mobile sign-out aligned with the menu links.
+- `scripts/dev.mjs` starts Wrangler through Node: `npx` cannot be spawned without a shell on Windows, so `npm run dev`, `npm run demo` and the Playwright web server did not start there.
+
+Executed locally on Windows 11 with Node 24.15.0 and Playwright Chromium/WebKit. The Linux CI remains the reference and has not run this exact source.
+
+Evidence, 25 September 2026:
+
+- `npm run typecheck`, `npm run lint` and Prettier on the changed files pass. `npm run build:web`, `npm run build:preview`, `npm run build:live` and the Wrangler dry-runs of the application, private-document and live Workers pass.
+- New tests: `tests/unit/form-values.test.ts` (euro parser, native pattern and French-comma display), `tests/unit/content.test.ts` (fax normalization and trunk-prefix refusal), `tests/unit/mcp-dispatch-groups.test.ts` (MCP `group` passed as-is, raw statuses and SQL-shaped values refused before the domain), and `tests/e2e/dashboard.spec.ts` (comma typed key by key, `(0)` fax notation, one focus re-read keeping loaded pages, browser-only overview, reconnection to another workshop).
+- Vitest, renderer files excluded as in CI: **1,295/1,322 tests pass in 62/66 files**; the three Chromium renderer files pass 33/34 (one real-Chromium composition exceeds the default 30 s timeout). The remaining failures reproduce identically on the unmodified branch HEAD in a separate worktree: `ses-send-limits` (18, the first test exceeds the 30 s timeout on Windows Miniflare, then cleanup fails on foreign keys), `live-delivery-quotes` (3 to 4 timeouts, including the 51 concurrent acceptances), `cursor-upload` (4, symlinks need Windows Developer Mode). The two deadline cases of `expert-approval` pass in a targeted rerun. An earlier run that overlapped these edits also reported a stale `content.test.ts` result; the file passes on its own and in the final run.
+- Node security tests: 157/160 outside `public-assets.test.mjs`. The two `CONFIG_PERMISSIONS_REQUIRED` failures (a POSIX file-mode check) and the `public-assets` failure (`EBUSY` removing its temporary asset directory, then no exit) reproduce on the unmodified HEAD; the third is an `EPERM` symlink creation in the release-guard fixture.
+- Playwright application suite, fresh local D1/R2 state, server started by Playwright through `scripts/dev.mjs`: **318 of 327 cases pass, with four intentional skips**. Three failures were the expert form assertion updated for the comma display after that run had loaded it, and one was a `Network connection lost` from the local Wrangler proxy during PDF rendering; those 18 cases (two specs on three projects) pass on rerun. `journeys.spec.ts:170` fails only on iPhone WebKit: Playwright WebKit on Windows never moves focus to links with Tab or Alt+Tab, and the test deliberately requires real keyboard traversal. It passes on the two Chromium projects.
+- Public preview suite: **71 cases pass, six intentional skips**. `homepage-film.spec.ts:237` fails on iPhone WebKit, which reports the 346 px fallback size of a film it does not decode on Windows; no film code changed.
+
+The Linux CI has not run this source. Windows limits are environmental and are not treated as proof for or against the change.
+
+No deployment, real communication, assistant connection or merge is part of this candidate.
+
 ## Optional postal address page — candidate, 20 September 2026
 
 The browser and MCP explicitly create a separate immutable PDF with a fixed address page; duplex adds a blank verso to preserve original page pairs. The new PDF is scanned and enters the existing exact-document review, quote and approval flow. The source is preserved and no supplier upload is performed by generation. See [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md) for the implementation, migration and proof boundaries.

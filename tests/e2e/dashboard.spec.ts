@@ -202,6 +202,34 @@ test("an expired session offers a reconnection back to the same page", async ({
   ).toHaveCount(0);
 });
 
+test("a reconnection to another workshop in another tab starts from its overview", async ({
+  page,
+  context,
+}) => {
+  await login(page);
+  await page.goto("/#/app/dispatches?group=approval");
+  await expect(
+    page.getByRole("navigation", { name: "Afficher" }),
+  ).toBeVisible();
+  await context.clearCookies();
+  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Votre session a expiré." }),
+  ).toBeVisible();
+  // Another tab of this browser signs in to the other fictional workshop.
+  const other = await page.request.post("/api/dev/login", {
+    headers: { Origin: origin },
+    data: { organization: "studio" },
+  });
+  expect(other.status()).toBe(200);
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(page).toHaveURL(/#\/app$/);
+  await expect(page.locator(".sidebar")).toContainText("Studio Papier");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Votre session a expiré." }),
+  ).toHaveCount(0);
+});
+
 test("cancelling a prepared send asks for confirmation first", async ({
   page,
 }) => {
@@ -234,14 +262,19 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   await login(page);
   const document = await importPdf(page, "ceiling-euros.pdf");
   await page.goto(`/#/app/prepare?document=${document.id}`);
+  // "(0)" is the optional trunk prefix: accepted while typing, then dropped.
   await page
     .getByLabel("Numéro de fax international")
-    .fill("+33 1 00 00 00 00");
+    .fill("+33 (0)1 00 00 00 00");
   const ceiling = page.getByLabel("Plafond de cet envoi, en euros", {
     exact: true,
   });
   await expect(ceiling).toHaveValue("5");
-  await ceiling.fill("1.5");
+  // A French decimal comma typed key by key: a number field would drop it
+  // and turn 1,5 € into 15 €.
+  await ceiling.fill("");
+  await ceiling.pressSequentially("1,5");
+  await expect(ceiling).toHaveValue("1,5");
   const request = page.waitForRequest(
     (candidate) =>
       candidate.url().endsWith("/api/dispatches") &&
@@ -254,6 +287,79 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   };
   expect(body.recipient.phone).toBe("+33100000000");
   expect(body.ceilingMinor).toBe(150);
+});
+
+test("coming back to the tab re-reads the list once and keeps loaded pages", async ({
+  page,
+}) => {
+  await login(page);
+  const before = (await (await page.request.get("/api/overview")).json()) as {
+    dispatches: { total: number };
+  };
+  for (let index = before.dispatches.total; index < 32; index++)
+    await prepareEmail(page, `focus-${index}`);
+  const { dispatches } = (await (
+    await page.request.get("/api/overview")
+  ).json()) as { dispatches: { total: number } };
+  await page.goto("/#/app/dispatches");
+  const rows = page.locator("tbody tr");
+  await expect(rows).toHaveCount(30);
+  const firstPageReads: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === "/api/dispatches" && !url.searchParams.has("cursor"))
+      firstPageReads.push(url.search);
+  });
+  // Returning to a tab fires both events; one read covers them.
+  const comeBack = () =>
+    page.evaluate(() => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      window.dispatchEvent(new Event("focus"));
+    });
+  await comeBack();
+  await expect.poll(() => firstPageReads.length).toBe(1);
+
+  await page.getByRole("button", { name: "Afficher la suite" }).click();
+  const loaded = Math.min(dispatches.total, 60);
+  await expect(rows).toHaveCount(loaded);
+  await page.waitForTimeout(1100);
+  await comeBack();
+  // Absence check: the extra rows must survive a background re-read.
+  await page.waitForTimeout(500);
+  expect(firstPageReads).toHaveLength(1);
+  await expect(rows).toHaveCount(loaded);
+
+  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await expect(rows).toHaveCount(30);
+  expect(firstPageReads).toHaveLength(2);
+});
+
+test("assistants read filtered lists but not the workspace summary", async ({
+  page,
+}) => {
+  await login(page);
+  const minted = await page.request.post("/api/dev/mcp-token", {
+    headers: { Origin: origin, "X-CSRF-Token": await csrf(page) },
+    data: {},
+  });
+  expect(minted.status()).toBe(200);
+  const { token } = (await minted.json()) as { token: string };
+  const bearer = { Authorization: `Bearer ${token}` };
+  const summary = await page.request.get("/api/overview", { headers: bearer });
+  expect(summary.status()).toBe(403);
+  expect(
+    ((await summary.json()) as { error: { code: string } }).error.code,
+  ).toBe("BROWSER_REQUIRED");
+  const filtered = await page.request.get("/api/dispatches?group=approval", {
+    headers: bearer,
+  });
+  expect(filtered.status()).toBe(200);
+  for (const item of (
+    (await filtered.json()) as {
+      items: { status: string }[];
+    }
+  ).items)
+    expect(["prepared", "draft"]).toContain(item.status);
 });
 
 test("sign-out lives in the navigation menu on small screens", async ({

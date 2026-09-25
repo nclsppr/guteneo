@@ -710,9 +710,16 @@ app.get("/api/senders", async (c) =>
 app.get("/api/usage", async (c) =>
   c.json(await domain(c.env).usage(c.get("actor"))),
 );
-app.get("/api/overview", async (c) =>
-  c.json(await domain(c.env).dispatchOverview(c.get("actor"))),
-);
+app.get("/api/overview", async (c) => {
+  // Workspace summary only: its document count is not a dispatches:read fact.
+  if (c.get("actor").actor !== "browser")
+    throw new ContentError(
+      "BROWSER_REQUIRED",
+      "Ouvrez Guteneo dans votre navigateur pour consulter cette synthèse.",
+      403,
+    );
+  return c.json(await domain(c.env).dispatchOverview(c.get("actor")));
+});
 app.get("/api/admin", async (c) =>
   c.json({
     ...(await domain(c.env).admin(c.get("actor"))),
