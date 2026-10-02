@@ -249,3 +249,9 @@ Les tests backend réussissent (82/82). L’application et les cibles de tests
 compilent pour simulateur avec Xcode 27.0. Le script d’exécution XCTest reste
 arrêté par la configuration initiale incomplète signalée par Xcode.
 Voir [QA/READINESS.md](QA/READINESS.md) pour la portée exacte de ces preuves.
+
+Une exécution directe supplémentaire de `xcodebuild test-without-building`
+réussit sur le binaire du commit `5296838` : 25 tests unitaires et 8 scénarios UI
+sur iPhone 17 Pro Max / iOS 27.0, zéro échec. Elle est distinguée du script
+officiel, dont le contrôle initial Xcode renvoie toujours 69. Le résultat exact
+est `/tmp/guteneo-native-direct-xctests-20261002.xcresult`.

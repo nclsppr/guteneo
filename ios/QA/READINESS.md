@@ -23,8 +23,17 @@ les destinataires, les montants métier ou les droits d’approbation.
   `build-for-testing` réussit aussi, pour les cibles XCTest et UI.
 - Le script officiel `ios/scripts/test.sh` refuse actuellement l’exécution,
   car `xcodebuild -checkFirstLaunchStatus` signale une configuration initiale
-  incomplète. Aucun composant système n’a été remplacé et ce garde-fou n’a pas
-  été contourné. La compilation ne prouve pas l’exécution de ces tests.
+  incomplète. Aucun composant système n’a été remplacé et
+  le script n’a pas été modifié pour ignorer ce contrôle.
+- Exécution directe demandée ensuite, sur le binaire déjà compilé du commit
+  `5296838` : `xcodebuild test-without-building` réussit sur iPhone 17 Pro Max,
+  iOS 27.0 (24A5423a), avec 25 tests unitaires et 8 tests UI, zéro échec et zéro
+  exclusion. Le résultat est conservé dans
+  `/tmp/guteneo-native-direct-xctests-20261002.xcresult` ; son résumé
+  `xcresulttool get test-results summary` confirme 33/33 réussis.
+  Cette exécution directe ne valide pas le garde-fou du script officiel :
+  `xcodebuild -checkFirstLaunchStatus` renvoie toujours 69. Elle n’exécute aucun
+  installateur et n’établit aucune preuve sur appareil physique ou sur iPad.
 - La vérification TypeScript complète du candidat isolé dépend encore des
   textes du film d’accueil dans les catalogues web ; elle doit être relancée
   sur le candidat global avant publication.
