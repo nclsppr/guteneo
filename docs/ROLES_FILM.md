@@ -36,6 +36,17 @@ Les exports sont `apps/web/public/videos/guteneo-roles-v1-{fr,en,de,lb}.mp4`,
 H.264/AAC stéréo, 1920 × 1080, 30 images/s, avec posters WebP et démarrage rapide.
 Le manifeste commun inclut ces quatre vidéos dans sa liste publique exacte.
 
+Les tests du lecteur vérifient les fichiers réels, leur progression et le saut
+vers la conclusion dans chaque langue. Sous Linux, la CI utilise le sélecteur
+WebKit officiel `WEBKIT_GST_USE_PLAYBIN3=1` : le pipeline GStreamer historique
+bloquait trois fichiers à environ 0,14 seconde malgré leur décodage complet par
+FFmpeg et leur lecture dans Safari natif. Le pipeline actuel lit les octets
+originaux ; les assertions et les médias restent identiques. Ce réglage concerne
+le navigateur de test Linux, pas le lecteur publié ni Safari macOS/iOS.
+
+Source du sélecteur :
+[`MediaPlayerPrivateGStreamer.cpp`](https://github.com/WebKit/WebKit/blob/4d05d732e5a84f32675bef4cc135a2e7a9269a87/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp).
+
 Les rôles et invitations sont déjà publiés dans la version `8b060bb` (PR #37).
 Cette mise à jour ajoute les médias localisés et leur lecture à cette base,
 sans modifier les permissions ni ajouter de migration. Les migrations 0042 et
