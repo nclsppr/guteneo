@@ -440,7 +440,13 @@ test("profile pages preserve late headers and comma-separated exclusions", async
       level: 1,
     }),
   ).toBeVisible();
-  await page.getByLabel("Ligne des en-têtes", { exact: true }).fill("40");
+  const headerRow = page.getByLabel("Ligne des en-têtes", { exact: true });
+  // WebKit can leave an off-screen number input unchanged during fill while
+  // the surrounding form renders. Enter through the visible, focused control.
+  await headerRow.scrollIntoViewIfNeeded();
+  await headerRow.click();
+  await headerRow.fill("40");
+  await expect(headerRow).toHaveValue("40");
   await expect(
     page
       .getByLabel("Clé du document / client", { exact: true })
