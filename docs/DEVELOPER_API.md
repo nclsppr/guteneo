@@ -8,7 +8,7 @@ La page `/developpeurs/` et le fichier `/openapi.json` décrivent le contrat RES
 
 ## Périmètre exact
 
-OpenAPI 3.0.3, version métier 0.2.0 : **20 chemins, 23 opérations**. Source de vérité : `apps/api/src/index.ts`, `apps/api/src/auth.ts`, `apps/api/src/documents.ts`, `apps/api/src/postal.ts`, `packages/domain/src/index.ts` et les contrats partagés de contenu/revue postale.
+OpenAPI 3.0.3, version métier 0.2.0 : **55 chemins, 64 opérations** après intégration du studio. La table ci-dessous récapitule le socle documentaire et d’envoi ; les opérations du studio figurent dans `/openapi.json` et [leur contrat dédié](TEMPLATES_DATA_DISTRIBUTION.md). Source de vérité : `apps/api/src/index.ts`, `apps/api/src/auth.ts`, `apps/api/src/documents.ts`, `apps/api/src/postal.ts`, `apps/api/src/template-workflow-routes.ts`, `packages/domain/src/index.ts` et les contrats partagés.
 
 | Route                                                         | Méthode               | Scope OAuth                                      |
 | ------------------------------------------------------------- | --------------------- | ------------------------------------------------ |
@@ -46,6 +46,22 @@ Client enregistré, Authorization Code + PKCE S256, `state` vérifié, retour en
 Le parcours navigateur préalable crée l’espace après vérification de l’e-mail et de la preuve signée du compte. La bêta reste sur Auth0 Free avec la politique `verified_email` ; la MFA n’est pas obligatoire. L’API retrouve ensuite l’adhésion et la connexion OAuth : ni le corps de requête ni un en-tête arbitraire ne choisit le tenant. Une seule adhésion permet l’association implicite à cet espace ; plusieurs adhésions nécessitent une sélection dans les connexions. Les rôles sont `admin`, `supervisor`, `member` (opérateur) et `viewer` (observateur). Le rôle `member` prépare sans approuver, confirmer ni annuler ; le rôle `viewer` interdit les écritures même avec le scope. Le superviseur reçoit séparément les droits `supervisorCanApprove` et `supervisorCanReport` ; sans activation explicite ces droits restent désactivés. `/api/usage` exige le droit de reporting ; les scopes OAuth restent également obligatoires. Voir [la matrice et le contrat de gestion des membres](WORKSPACE_ROLES.md). Pour l’authentification, les mêmes contrôles de compte vérifié s’appliquent à un administrateur. Le claim signé `https://guteneo.com/verified_account=true` est obligatoire dans les jetons ID et d’accès du callback en mode bêta, puis la preuve `verifiedAccount` est persistée dans la session. Une ancienne session sans cette preuve doit se reconnecter. La politique historique `verified_email_and_mfa`, conservée par défaut en l’absence de configuration explicite, exige toujours la MFA pour l’administrateur. La présence des URL OAuth dans le contrat ne garantit pas l’enregistrement d’un client donné.
 
 ## Documents et fiabilité
+
+Le studio ajoute huit droits dédiés : `templates:read`, `templates:write`,
+`templates:publish`, `templates:share`, `datasets:read`, `datasets:write`,
+`generations:read` et `generations:write`. Le guide d’auteur, les schémas et cinq
+exemples complets sont découvrables en REST/MCP ; voir
+[le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md). Une connexion OAuth
+existante doit obtenir les nouveaux droits par un nouveau consentement avant de
+les utiliser ; leur déclaration dans Auth0 ne les ajoute pas aux jetons existants.
+
+Les PDF du studio restent privés au créateur. Une demande préparée permet une
+revue ciblée par un administrateur ou un superviseur actuellement habilité à
+approuver. Fournir le `dispatchId` exact à `GET /api/documents/{id}`,
+`GET /api/documents/{id}/content`, `get_document` ou `read_document_pages`.
+L’identifiant doit désigner une demande du même atelier liée à ce PDF. Cette
+lecture exige aussi `dispatches:read` en OAuth et réévalue les droits actuels ;
+elle ne rend pas le PDF visible dans `list_documents` ni dans la bibliothèque.
 
 PDF original : 10 Mio et 100 pages maximum après validation. Les octets et le SHA-256 restent liés au document. Une création `201` peut retourner `quarantined`, avec zéro page ; seul `ready` autorise la consultation et la préparation. Le rendu HTML crée un nouveau document A4 nettoyé et ne reconstitue pas un original. La consultation PDF est privée, sans cache, sans URL signée. Le réexamen ne remplace pas une preuve d’analyse : un résultat incertain conserve la quarantaine.
 

@@ -196,3 +196,31 @@ estimations arrondies. La lecture REST et la revue experte exposent la même
 projection. Les montants nanoEUR, les empreintes, le plafond approuvé et
 `settlement` gardent leur rôle actuel ; aucun nouveau prix client n’est accepté.
 Voir [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md#customer-quote-presentation-17-september-2026).
+
+## Document studio contracts (local candidate)
+
+The additive templates, datasets, mappings, generation-jobs and
+distribution-plans routes are specified in `apps/web/public/openapi.json`.
+The shared TypeScript/Zod contracts live in `packages/contracts/src/` and the
+[MCP/API/web parity matrix](TEMPLATES_DATA_DISTRIBUTION.md#parité-des-interfaces)
+lists the actual operations and scopes. Examples with delegated OAuth are in
+`examples/template-workflow/`; executed local development bearer evidence is
+separate from production machine-authentication qualification.
+
+Authoring discovery requires `templates:read`: `GET /api/templates/authoring-guide`
+returns the current envelope/binding/patch JSON schemas, semantic rules, bounds
+and a complete minimal envelope. `GET /api/templates/examples` returns five
+synthetic example descriptors; `GET /api/templates/examples/{exampleId}` returns
+`{id,envelope}` without saving anything. MCP equivalents are
+`get_template_authoring_guide`, `list_template_examples` and
+`get_template_example`. The same `create_template`/`POST /api/templates`
+operation saves a private editable copy. No internal OpenAI call is required.
+
+`DELETE /api/templates/{id}` accepts `{expectedRevision}` and requires
+`templates:write` plus current ownership and a non-viewer membership. The MCP
+equivalent `delete_template` takes `{id,expectedRevision}` and is annotated as
+destructive. `TemplateView.canDelete` describes this separate ownership right;
+edit/publish/share grants cannot confer it. Success returns `{id,deleted:true}`.
+The model then disappears for all users, and its direct template reads return
+404. Existing PDF and generation-history access rules are preserved. This is
+library removal, not erasure of historical documents. Migration 0047 is required.

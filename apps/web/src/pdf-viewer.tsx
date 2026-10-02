@@ -48,7 +48,13 @@ async function preflightImageDimensions(bytes: Uint8Array) {
   }
 }
 
-export default function PdfViewer({ id }: { id: string }) {
+export default function PdfViewer({
+  id,
+  dispatchId,
+}: {
+  id: string;
+  dispatchId?: string;
+}) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [document, setDocument] = useState<PDFDocumentProxy>();
@@ -83,7 +89,7 @@ export default function PdfViewer({ id }: { id: string }) {
     setError(undefined);
     setRendering(true);
     void (async () => {
-      const bytes = await getDocumentContent(id, controller.signal);
+      const bytes = await getDocumentContent(id, controller.signal, dispatchId);
       await preflightImageDimensions(bytes);
       if (closed) return;
       loading = getDocument({
@@ -118,7 +124,7 @@ export default function PdfViewer({ id }: { id: string }) {
       controller.abort();
       void loading?.destroy();
     };
-  }, [id]);
+  }, [id, dispatchId]);
 
   useEffect(() => {
     if (!document || !canvas.current) return;

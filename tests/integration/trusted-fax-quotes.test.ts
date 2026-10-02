@@ -607,6 +607,12 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         for (const row of rows.results) {
           // Personal language preferences were added after this historical schema.
           if (table === "users") delete row.preferred_locale;
+          if (table === "documents") {
+            // These are historical organization-visible imports. A private PDF
+            // must never be projected into a schema without owner access rules.
+            expect(row.access_owner_id).toBeNull();
+            delete row.access_owner_id;
+          }
           // Supervisor options did not exist in the pre-v2 membership schema.
           if (table === "memberships") {
             delete row.supervisor_can_approve;

@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "name": "Clients et articles synthétiques",
+  "sourceSheet": "Clients",
+  "headerRow": 2,
+  "recordKey": [
+    "ID"
+  ],
+  "fields": [
+    {
+      "source": "Nom",
+      "target": "customer.name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "source": "Code postal",
+      "target": "customer.postalCode",
+      "type": "text",
+      "required": true
+    },
+    {
+      "source": "Email",
+      "target": "customer.email",
+      "type": "text",
+      "required": true
+    },
+    {
+      "source": "Date",
+      "target": "date",
+      "type": "date",
+      "required": true,
+      "dateOrder": "DMY"
+    }
+  ],
+  "joins": [
+    {
+      "sheet": "Articles",
+      "headerRow": 2,
+      "parentKey": "ID",
+      "childKey": "Client",
+      "target": "items",
+      "cardinality": "one-to-many",
+      "fields": [
+        {
+          "source": "Description",
+          "target": "description",
+          "type": "text",
+          "required": true
+        },
+        {
+          "source": "Quantité",
+          "target": "quantity",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "source": "Prix",
+          "target": "unitPriceMinor",
+          "type": "minor",
+          "required": true,
+          "decimalSeparator": ",",
+          "scale": 2
+        }
+      ],
+      "expectedHeaders": [
+        "Client",
+        "Description",
+        "Quantité",
+        "Prix"
+      ]
+    }
+  ],
+  "excludeRows": [],
+  "includeHidden": false,
+  "formulaPolicy": "reject",
+  "expectedHeaders": [
+    "ID",
+    "Nom",
+    "Code postal",
+    "Date",
+    "Email"
+  ]
+}

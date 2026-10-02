@@ -117,10 +117,16 @@ dans la boîte du destinataire ni l’acceptation de l’invitation.
 
 ## Portée et limites
 
-Tous les membres lisent les documents, les destinataires et l’historique de leur
-atelier. Il n’existe pas de cloisonnement par dossier, par créateur ou par équipe,
-ni de rôle invité à accès documentaire restreint. Ne pas présenter « Observateur »
-comme une restriction de confidentialité à l’intérieur d’un atelier.
+Les documents ordinaires, les destinataires et leur historique sont partagés dans
+l’atelier. Les PDF générés par le studio restent privés à leur créateur. Après
+préparation d’une demande, un administrateur ou un superviseur actuellement
+habilité à approuver peut lire le PDF exact dans le contexte de cette demande.
+Cette exception ne rend pas le PDF visible dans la bibliothèque générale ; les
+autres opérateurs et les observateurs n’y gagnent aucun accès. Le retrait du droit
+d’approbation coupe cet accès de revue, y compris pour une demande historique.
+Il n’existe pas de cloisonnement général par dossier ou par équipe, ni de rôle
+invité à accès documentaire restreint. Ne pas présenter « Observateur » comme une
+restriction de confidentialité des documents ordinaires de l’atelier.
 
 Le superviseur avec approbation peut approuver ses propres demandes. La séparation
 obligatoire entre préparateur et approbateur, les doubles validations, les plafonds

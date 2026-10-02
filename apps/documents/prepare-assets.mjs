@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { loadTemplateScript } from "./template-assets.mjs";
 import { loadPdfScripts } from "./pdfjs-assets.mjs";
 
 // Package-owned, lockfile-pinned compatibility scripts; no CDN request or runtime
@@ -15,3 +16,10 @@ for (const [name, source] of [
 ]) {
   await writeFile(new URL(`${name}.txt`, output), source);
 }
+
+const templateOutput = new URL("./dist/pdfme/", import.meta.url);
+await mkdir(templateOutput, { recursive: true });
+await writeFile(
+  new URL("template.txt", templateOutput),
+  await loadTemplateScript(),
+);

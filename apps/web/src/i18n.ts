@@ -42,6 +42,9 @@ export const fr = {
   nav: {
     overview: "Vue d’ensemble",
     documents: "Documents",
+    templates: "Modèles",
+    datasets: "Mes données",
+    generations: "Générations",
     dispatches: "Envois",
     campaigns: "Campagnes",
     connection: "Assistants",

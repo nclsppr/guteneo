@@ -149,6 +149,7 @@ function announceSessionExpiry(path: string, status: number) {
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
+  dispatchId?: string,
 ): Promise<Uint8Array> {
   if (isPublicPreview) {
     signal?.throwIfAborted();
@@ -158,7 +159,7 @@ export async function getDocumentContent(
     return bytes;
   }
   const response = await fetch(
-    `/api/documents/${encodeURIComponent(id)}/content`,
+    `/api/documents/${encodeURIComponent(id)}/content${dispatchId ? `?dispatchId=${encodeURIComponent(dispatchId)}` : ""}`,
     {
       credentials: "same-origin",
       signal,

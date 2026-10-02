@@ -234,6 +234,22 @@ export function Overview({ session }: { session: Session }) {
       {permissions.prepareDispatches && (
         <OverviewAssistantStart session={session} />
       )}
+      {!isPublicPreview && permissions.prepareDispatches && (
+        <nav
+          className="studio-entry-links"
+          aria-label={msg("Créer des documents personnalisés")}
+        >
+          <a className="button" href="#/app/templates?new=blank">
+            {msg("Créer un document")} <ArrowRight size={17} />
+          </a>
+          <a className="button" href="#/app/templates">
+            {msg("Utiliser un modèle")} <ArrowRight size={17} />
+          </a>
+          <a className="button" href="#/app/datasets">
+            {msg("Importer mes données")} <ArrowRight size={17} />
+          </a>
+        </nav>
+      )}
       {permissions.viewReports && (
         <ul className="overview-stats" aria-label={t.overview.statsLabel}>
           {stats.map((stat) => (
@@ -380,6 +396,11 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
         action={
           canPrepare && (
             <div className="button-group">
+              {!isPublicPreview && (
+                <a className="button" href="#/app/templates">
+                  {msg("Utiliser un modèle")}
+                </a>
+              )}
               <button
                 className="button"
                 disabled={isPublicPreview}
@@ -2373,7 +2394,11 @@ export function DispatchDetailPage({
             </>
           )}
           {d.document_id && (
-            <PdfPreview id={d.document_id} title={t.dispatch.documentPreview} />
+            <PdfPreview
+              id={d.document_id}
+              dispatchId={d.id}
+              title={t.dispatch.documentPreview}
+            />
           )}
         </section>
       </div>

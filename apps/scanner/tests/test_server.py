@@ -170,6 +170,27 @@ class DiagnosticTests(unittest.TestCase):
         scan.assert_not_called()
         lock.release.assert_not_called()
 
+    def test_source_route_keeps_opaque_exact_bytes_and_strict_separate_gate(self):
+        for content_type, expected_status in (("application/octet-stream", 200), ("application/pdf", 415)):
+            handler = self.handler("/scan-source")
+            handler.headers["Content-Type"] = content_type
+            result = {"sha256": "exact-hash", "verdict": "clean"}
+            with patch.object(server, "scan_bytes", return_value=result) as scan:
+                handler.do_POST()
+            self.assertEqual(handler.send_json.call_args.args[0], expected_status)
+            if expected_status == 200:
+                scan.assert_called_once_with(b"exact")
+            else:
+                scan.assert_not_called()
+
+    def test_source_route_rejects_over_five_megabytes_before_engine(self):
+        handler = self.handler("/scan-source")
+        handler.headers = {"Content-Type": "application/octet-stream", "Content-Length": str(server.MAX_SOURCE_BYTES + 1)}
+        with patch.object(server, "scan_bytes") as scan:
+            handler.do_POST()
+        handler.send_json.assert_called_once_with(413, {"verdict": "error", "code": "INVALID_SIZE"})
+        scan.assert_not_called()
+
     def test_health_failures_are_not_ready_and_do_not_expose_exception_text(self):
         handler = self.handler("/health")
         with patch.object(server, "engine_version", side_effect=server.ScanError("SIGNATURES_STALE")):

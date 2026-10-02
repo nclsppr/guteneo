@@ -88,6 +88,11 @@ beforeAll(async () => {
   fixture = await createFaxUsageFixture(
     historicalRoleProjection(historicalRuntimeDb),
     () => Date.parse(now),
+    {},
+    2,
+    {
+      legacyDocumentSchema: true,
+    },
   );
   for (let i = 0; i < 17; i++)
     await insertRecord(db, "trusted_fax_usage_tariffs", {

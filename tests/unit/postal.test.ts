@@ -697,7 +697,7 @@ describe("server-owned postal review and consent", () => {
         code: "POSTAL_PREFLIGHT_NOT_FOUND",
       });
     await expect(service().create(other, input, "other")).rejects.toMatchObject(
-      { code: "DOCUMENT_NOT_READY" },
+      { code: "NOT_FOUND", status: 404 },
     );
   });
   it("rejects forged browser proof/options and tampered bytes before render/consumption", async () => {

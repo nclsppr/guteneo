@@ -1,5 +1,16 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { evidencePath } from "./evidence";
+
+const sourceSpec = JSON.parse(
+  readFileSync(
+    new URL("../../apps/web/public/openapi.json", import.meta.url),
+    "utf8",
+  ),
+);
+const expectedOperations = Object.values(sourceSpec.paths).flatMap((methods) =>
+  Object.keys(methods as object),
+).length;
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
@@ -39,7 +50,7 @@ test("developer guide is SSR-readable and its download is a self-contained contr
   expect(response.ok()).toBe(true);
   const spec = await response.json();
   expect(spec.openapi).toBe("3.0.3");
-  expect(Object.keys(spec.paths)).toHaveLength(23);
+  expect(Object.keys(spec.paths)).toEqual(Object.keys(sourceSpec.paths));
   expect(spec.paths["/api/documents/{id}"].get.operationId).toBe("getDocument");
   expect(spec.paths["/api/dispatches/{id}/renew-quote"].post.operationId).toBe(
     "renewFaxQuote",
@@ -203,7 +214,9 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   const request = await specRequest;
   expect((await request.allHeaders()).cookie).toBeUndefined();
   expect((await request.allHeaders()).authorization).toBeUndefined();
-  await expect(page.locator("#swagger-reference .opblock")).toHaveCount(26);
+  await expect(page.locator("#swagger-reference .opblock")).toHaveCount(
+    expectedOperations,
+  );
   await expect(
     page.locator("#operations-Courrier-createPostalAddressPage"),
   ).toHaveCount(1);

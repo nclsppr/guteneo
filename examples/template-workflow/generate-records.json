@@ -1,0 +1,43 @@
+{
+  "templateId": "REPLACE_TEMPLATE_ID",
+  "templateVersion": 1,
+  "mode": "generate_only",
+  "records": [
+    {
+      "recordId": "customer-001",
+      "data": {
+        "customer": {
+          "name": "Entreprise Exemple A"
+        },
+        "reference": "EX-001",
+        "date": "2026-09-21",
+        "items": [
+          {
+            "description": "Conseil et préparation documentaire",
+            "quantity": 2,
+            "unitPriceMinor": 1250
+          }
+        ],
+        "fax": "+33123456789"
+      }
+    },
+    {
+      "recordId": "customer-002",
+      "data": {
+        "customer": {
+          "name": "Entreprise Exemple B"
+        },
+        "reference": "EX-002",
+        "date": "2026-09-21",
+        "items": [
+          {
+            "description": "Conseil et préparation documentaire",
+            "quantity": 2,
+            "unitPriceMinor": 1250
+          }
+        ],
+        "fax": "+33123456788"
+      }
+    }
+  ]
+}

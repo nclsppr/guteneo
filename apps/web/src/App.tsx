@@ -1,5 +1,5 @@
 import { msg } from "./messages";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -72,6 +72,7 @@ import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
 import "./homepage.css";
+import "./document-studio.css";
 import {
   Installation,
   WelcomePricing,
@@ -81,6 +82,7 @@ import {
 } from "./landing-sections";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+const DocumentStudio = lazy(() => import("./document-studio"));
 
 export function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -491,6 +493,9 @@ const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
+  { id: "templates", path: "/app/templates", Icon: FileText },
+  { id: "datasets", path: "/app/datasets", Icon: Stack },
+  { id: "generations", path: "/app/generations", Icon: SquaresFour },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
@@ -688,7 +693,17 @@ function WorkspaceApplication({
   };
   const permissions = permissionsFor(session);
   let content;
-  if (page === "/app/documents")
+  if (
+    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
+      page,
+    )
+  )
+    content = (
+      <Suspense fallback={<Loading />}>
+        <DocumentStudio route={route} session={session} />
+      </Suspense>
+    );
+  else if (page === "/app/documents")
     content = <Documents canPrepare={permissions.prepareDispatches} />;
   else if (page === "/app/prepare" && !permissions.prepareDispatches)
     content = <RolePermissionNotice />;
@@ -842,6 +857,11 @@ function WorkspaceApplication({
                     canAdminister(session)) &&
                   (n.id !== "usage" || permissions.viewReports),
               )
+              .filter(
+                (n) =>
+                  !publicPreview ||
+                  !["templates", "datasets", "generations"].includes(n.id),
+              )
               .map(({ id, path, Icon }) => (
                 <a
                   key={id}
@@ -861,6 +881,11 @@ function WorkspaceApplication({
                   }}
                   aria-current={
                     page === path ||
+                    (id === "templates" && page.startsWith("/app/template/")) ||
+                    (id === "datasets" && page.startsWith("/app/dataset/")) ||
+                    (id === "generations" &&
+                      (page.startsWith("/app/generation/") ||
+                        page.startsWith("/app/distribution/"))) ||
                     (id === "connection" &&
                       page.startsWith("/app/connection/")) ||
                     (id === "dispatches" &&
@@ -933,11 +958,18 @@ function WorkspaceApplication({
                   page.startsWith("/app/dispatch/") ||
                   page.startsWith("/app/postal/")
                     ? "dispatches"
-                    : page.startsWith("/app/connection/")
-                      ? "connection"
-                      : page.startsWith("/app/campaign/")
-                        ? "campaigns"
-                        : "overview")
+                    : page.startsWith("/app/template/")
+                      ? "templates"
+                      : page.startsWith("/app/dataset/")
+                        ? "datasets"
+                        : page.startsWith("/app/generation/") ||
+                            page.startsWith("/app/distribution/")
+                          ? "generations"
+                          : page.startsWith("/app/connection/")
+                            ? "connection"
+                            : page.startsWith("/app/campaign/")
+                              ? "campaigns"
+                              : "overview")
               ]
             }
           </span>

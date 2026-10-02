@@ -64,8 +64,12 @@ beforeAll(async () => {
   for (const file of migrations.filter((n) => n < "0035"))
     await applyMigration(file);
   // Populate real historical domain records before migration; hashes must not change.
-  const old = await createFaxUsageFixture(historicalRoleProjection(db), () =>
-    Date.parse("2026-09-21T00:00:00.000Z"),
+  const old = await createFaxUsageFixture(
+    historicalRoleProjection(db),
+    () => Date.parse("2026-09-21T00:00:00.000Z"),
+    {},
+    2,
+    { legacyDocumentSchema: true },
   );
   // Preparation commits the old-schema quote before the new projection reads its added column.
   await expect(

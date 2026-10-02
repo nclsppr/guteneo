@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clients>
+  <client id="0001">
+    <name>Élodie Müller</name>
+    <address><line1>12 rue Exemple</line1><postal>00120</postal><city>Paris</city><country>FR</country></address>
+    <delivery><channel>postal</channel><email>elodie@example.test</email><fax>+33123456789</fax></delivery>
+    <amount currency="EUR">12.0050</amount>
+    <items><item><description>Conseil</description><quantity>02</quantity></item><item><description>Livraison</description><quantity>01</quantity></item></items>
+  </client>
+  <client id="0002">
+    <name>Atelier Exemple &amp; fils</name>
+    <address><line1>3 avenue Exemple</line1><postal>00200</postal><city>Lyon</city><country>FR</country></address>
+    <delivery><channel>email</channel><email>atelier@example.test</email><fax>+33412345678</fax></delivery>
+    <amount currency="EUR">9007199254740993.01</amount>
+    <items><item><description>Service</description><quantity>03</quantity></item></items>
+  </client>
+</clients>

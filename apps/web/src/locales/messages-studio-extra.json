@@ -1,0 +1,137 @@
+{
+  "Choisissez les canaux présents dans vos données.": [
+    "Choose the channels present in your data.",
+    "Wählen Sie die in Ihren Daten enthaltenen Kanäle.",
+    "Wielt déi Kanäl, déi an Ären Donnéeë virkommen."
+  ],
+  "Depuis les données": ["From the data", "Aus den Daten", "Aus den Donnéeën"],
+  "Champ du canal": ["Channel field", "Kanalfeld", "Kanalfeld"],
+  "Chemin dans les données figées contenant exactement fax, email ou postal, par exemple delivery.channel.": [
+    "Path in the frozen data containing exactly fax, email or postal, for example delivery.channel.",
+    "Pfad in den unveränderlichen Daten mit genau fax, email oder postal, zum Beispiel delivery.channel.",
+    "Pad an de fixéierten Donnéeë mat genee fax, email oder postal, zum Beispill delivery.channel."
+  ],
+  "Choisissez les canaux présents dans vos données. Pour chaque canal, reliez ses champs de destinataire ; ils ne seront lus que pour les lignes qui utilisent ce canal.": [
+    "Choose the channels present in your data. Map each channel’s recipient fields; they are only read for records using that channel.",
+    "Wählen Sie die in Ihren Daten enthaltenen Kanäle. Ordnen Sie die Empfängerfelder je Kanal zu; sie werden nur für Datensätze dieses Kanals gelesen.",
+    "Wielt déi Kanäl, déi an Ären Donnéeë virkommen. Verknëppt d’Empfängerfelder fir all Kanal; se ginn nëmme fir d’Date vun deem Kanal gelies."
+  ],
+  "Destinataires {0}": [
+    "{0} recipients",
+    "Empfänger für {0}",
+    "Empfänger fir {0}"
+  ],
+  "Expéditeur {0}": ["{0} sender", "Absender für {0}", "Sender fir {0}"],
+  "L’IA est indisponible tant que le fournisseur, l’autorisation de transfert et le quota de l’atelier ne sont pas prêts. Vous pouvez créer et modifier votre modèle manuellement.": [
+    "AI is unavailable until the provider, transfer permission and workshop quota are ready. You can create and edit your template manually.",
+    "KI ist erst verfügbar, wenn Anbieter, Übertragungsfreigabe und Kontingent des Arbeitsbereichs bereit sind. Sie können Ihre Vorlage manuell erstellen und bearbeiten.",
+    "D’KI ass eréischt disponibel, wann de Fournisseur, d’Iwwerdroungserlaabnis an de Kontingent vum Atelier prett sinn. Dir kënnt Är Virlag manuell erstellen an änneren."
+  ],
+  "Créer des documents personnalisés": [
+    "Create personalised documents",
+    "Personalisierte Dokumente erstellen",
+    "Personaliséiert Dokumenter erstellen"
+  ],
+  "Utiliser un modèle": [
+    "Use a template",
+    "Vorlage verwenden",
+    "Virlag benotzen"
+  ],
+  "Pour un PDF personnalisé par client,": [
+    "For a personalised PDF per customer,",
+    "Für ein personalisiertes PDF pro Kunde",
+    "Fir e personaliséierte PDF pro Client"
+  ],
+  "importez vos données dans le studio documentaire": [
+    "import your data into the document studio",
+    "importieren Sie Ihre Daten in das Dokumentenstudio",
+    "importéiert Är Donnéeën an den Dokumentestudio"
+  ],
+  "Brouillon": ["Draft", "Entwurf", "Entworf"],
+  "Publié": ["Published", "Veröffentlicht", "Verëffentlecht"],
+  "Archivé": ["Archived", "Archiviert", "Archivéiert"],
+  "Utiliser": ["Use", "Verwenden", "Benotzen"],
+  "Modifier": ["Edit", "Bearbeiten", "Änneren"],
+  "Publier": ["Publish", "Veröffentlichen", "Verëffentlechen"],
+  "Partager": ["Share", "Teilen", "Deelen"],
+  "En attente": ["Pending", "Ausstehend", "Ausstoend"],
+  "Génération en cours": ["Generating", "Wird generiert", "Gëtt generéiert"],
+  "Terminée": ["Completed", "Abgeschlossen", "Ofgeschloss"],
+  "Résultat partiel": ["Partial result", "Teilergebnis", "Deelresultat"],
+  "Échec": ["Failed", "Fehlgeschlagen", "Feelgeschloen"],
+  "Annulée": ["Cancelled", "Abgebrochen", "Ofgebrach"],
+  "PDF généré": ["PDF generated", "PDF generiert", "PDF generéiert"],
+  "Entier": ["Integer", "Ganzzahl", "Ganz Zuel"],
+  "Décimal": ["Decimal", "Dezimalzahl", "Dezimalzuel"],
+  "Montant en centimes": ["Amount in cents", "Betrag in Cent", "Betrag a Cent"],
+  "Numéro international": [
+    "International number",
+    "Internationale Nummer",
+    "International Nummer"
+  ],
+  "Adresse e-mail": ["Email address", "E-Mail-Adresse", "E-Mail-Adress"],
+  "Nom": ["Name", "Name", "Numm"],
+  "Adresse": ["Address", "Adresse", "Adress"],
+  "Code postal": ["Postal code", "Postleitzahl", "Postcode"],
+  "Ville": ["City", "Ort", "Uertschaft"],
+  "Pays (FR, LU ou DE)": [
+    "Country (FR, LU or DE)",
+    "Land (FR, LU oder DE)",
+    "Land (FR, LU oder DE)"
+  ],
+  "Modifier le texte": ["Edit text", "Text bearbeiten", "Text änneren"],
+  "Déplacer le bloc": ["Move block", "Block verschieben", "Block verréckelen"],
+  "Supprimer le bloc": ["Remove block", "Block entfernen", "Block läschen"],
+  "Modifier la liaison métier": [
+    "Edit business binding",
+    "Fachliche Verknüpfung bearbeiten",
+    "Fachlech Verknëppung änneren"
+  ],
+  "Ajouter une colonne": [
+    "Add column",
+    "Spalte hinzufügen",
+    "Spalt derbäisetzen"
+  ],
+  "Décimal exact (texte)": [
+    "Exact decimal (text)",
+    "Exakte Dezimalzahl (Text)",
+    "Exakt Dezimalzuel (Text)"
+  ],
+  "Unités mineures entières": [
+    "Integer minor units",
+    "Ganze Währungsuntereinheiten",
+    "Ganz kleng Wärungsunitéiten"
+  ],
+  "Oui / non": ["Yes / no", "Ja / nein", "Jo / nee"],
+  "Courrier professionnel": [
+    "Business letter",
+    "Geschäftsbrief",
+    "Geschäftsbréif"
+  ],
+  "Un courrier personnalisable avec adresse, objet et paragraphes. Les exemples sont fictifs.": [
+    "A customisable letter with address, subject and paragraphs. Examples are fictional.",
+    "Ein anpassbarer Brief mit Adresse, Betreff und Absätzen. Die Beispiele sind fiktiv.",
+    "En upassbare Bréif mat Adress, Betreff an Abschnëtter. D’Beispiller si fiktiv."
+  ],
+  "Facture de démonstration": ["Demo invoice", "Demorechnung", "Demofacture"],
+  "Exemple de lignes variables et total calculé en unités mineures entières. Aucune certification de conformité fiscale.": [
+    "An example with variable line items and a total calculated in integer minor units. No certification of tax compliance.",
+    "Beispiel mit variablen Positionen und einer Summe in ganzen Währungsuntereinheiten. Keine steuerliche Konformitätszertifizierung.",
+    "E Beispill mat variable Positiounen an engem Total a ganze klenge Wärungsunitéiten. Keng Zertifizéierung vun der Steierkonformitéit."
+  ],
+  "Relevé tabulaire": [
+    "Tabular statement",
+    "Tabellarische Übersicht",
+    "Tabellaresch Iwwersiicht"
+  ],
+  "Un tableau multipage avec des lignes regroupées par destinataire.": [
+    "A multipage table with rows grouped by recipient.",
+    "Eine mehrseitige Tabelle mit nach Empfänger gruppierten Zeilen.",
+    "Eng Tabell iwwer méi Säite mat Reien no Empfänger gruppéiert."
+  ],
+  "Quitter le studio et perdre les modifications non enregistrées ?": [
+    "Leave the studio and lose unsaved changes?",
+    "Studio verlassen und ungespeicherte Änderungen verwerfen?",
+    "De Studio verloossen an net gespäichert Ännerunge verléieren?"
+  ]
+}

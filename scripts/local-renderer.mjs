@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { chromium } from "@playwright/test";
 import { existsSync } from "node:fs";
+import { loadTemplateScript } from "../apps/documents/template-assets.mjs";
 import { loadPdfScripts } from "../apps/documents/pdfjs-assets.mjs";
 import { Readable } from "node:stream";
 import bundledChromium from "@sparticuz/chromium";
@@ -15,6 +16,11 @@ const { handlePostalAddressPage } = await tsImport(
   import.meta.url,
 );
 const reviewScripts = await loadPdfScripts();
+const templateScript = await loadTemplateScript();
+const { handleTemplateRender } = await tsImport(
+  "../apps/documents/src/template-render.ts",
+  import.meta.url,
+);
 const fallback =
   process.platform === "linux" && !existsSync(chromium.executablePath());
 const port = Number(process.env.GUTENEO_LOCAL_RENDERER_PORT ?? 8788);
@@ -41,7 +47,12 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
   if (
     req.method !== "POST" ||
-    !["/render", "/review-pages", "/postal-address-page"].includes(url.pathname)
+    ![
+      "/render",
+      "/review-pages",
+      "/postal-address-page",
+      "/render/template",
+    ].includes(url.pathname)
   ) {
     res.writeHead(404);
     res.end();
@@ -55,7 +66,11 @@ const server = createServer(async (req, res) => {
   active++;
   let context;
   try {
-    if (["/review-pages", "/postal-address-page"].includes(url.pathname)) {
+    if (
+      ["/review-pages", "/postal-address-page", "/render/template"].includes(
+        url.pathname,
+      )
+    ) {
       const controller = new AbortController();
       req.once("aborted", () => controller.abort());
       const headers = new Headers();
@@ -67,7 +82,9 @@ const server = createServer(async (req, res) => {
       const handler =
         url.pathname === "/postal-address-page"
           ? handlePostalAddressPage
-          : handleExpertReviewPages;
+          : url.pathname === "/render/template"
+            ? handleTemplateRender
+            : handleExpertReviewPages;
       const result = await handler(
         new Request(url, {
           method: "POST",
@@ -98,6 +115,7 @@ const server = createServer(async (req, res) => {
             }),
           scripts: reviewScripts,
           fontBase64: reviewScripts.addressFont,
+          script: templateScript,
         },
       );
       res.writeHead(result.status, {

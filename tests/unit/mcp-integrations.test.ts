@@ -25,6 +25,10 @@ import {
 } from "../../packages/contracts/src/assistant-recovery";
 import { ContentError } from "../../packages/contracts/src/content";
 import {
+  prepareTemplateRender,
+  validateTemplateEnvelope,
+} from "../../packages/contracts/src/templates";
+import {
   DomainError,
   DomainService,
   type Dispatch,
@@ -363,6 +367,7 @@ describe("distributable LLM integrations", () => {
           identity.context,
           documentId,
           1,
+          undefined,
         );
       },
       reader,
@@ -445,6 +450,7 @@ describe("distributable LLM integrations", () => {
         expect(get).toHaveBeenCalledExactlyOnceWith(
           identity.context,
           documentId,
+          undefined,
         );
         expect(rescan).not.toHaveBeenCalled();
         expect(importFile).not.toHaveBeenCalled();
@@ -623,6 +629,25 @@ describe("distributable LLM integrations", () => {
       expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
       expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
       expect(emailSkill).toContain("submission_unknown");
+      expect(manifest.files).toContain("skills/document-studio/SKILL.md");
+      const authoringPath =
+        "skills/document-studio/references/template-authoring.md";
+      expect(manifest.files).toContain(authoringPath);
+      const authoringReference = execFileSync(
+        "unzip",
+        ["-p", path.join(first, "guteneo-plugin.zip"), authoringPath],
+        { encoding: "utf8" },
+      );
+      expect(authoringReference).toContain("get_template_authoring_guide");
+      expect(authoringReference).toContain("get_template_example");
+      expect(authoringReference).toContain("delete_template");
+      const example = authoringReference.match(/```json\n([\s\S]*?)\n```/);
+      expect(example).not.toBeNull();
+      const creation = JSON.parse(example![1]);
+      const envelope = validateTemplateEnvelope(creation.envelope);
+      expect(
+        prepareTemplateRender(envelope, envelope.sampleData).inputs,
+      ).toHaveLength(1);
       const postalSkill = execFileSync(
         "unzip",
         [

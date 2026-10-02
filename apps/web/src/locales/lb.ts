@@ -40,6 +40,9 @@ export const lb: Copy = {
   nav: {
     overview: "Iwwersiicht",
     documents: "Dokumenter",
+    templates: "Virlagen",
+    datasets: "Meng Donnéeën",
+    generations: "Generatiounen",
     dispatches: "Sendungen",
     campaigns: "Campagnen",
     connection: "Assistenten",

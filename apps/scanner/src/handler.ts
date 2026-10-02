@@ -1,4 +1,5 @@
 const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_SOURCE_BYTES = 5 * 1024 * 1024;
 const DEADLINE_MS = 25_000;
 const BUILD_ID =
   /^sha-[a-f0-9]{40}-run-[1-9][0-9]{0,19}-attempt-[1-9][0-9]{0,9}$/;
@@ -123,17 +124,23 @@ export async function handleRequest(
       return fail(signal.aborted ? "SCAN_TIMEOUT" : "SCANNER_UNAVAILABLE", 503);
     }
   }
-  if (request.method !== "POST" || pathname !== "/scan")
-    return fail("NOT_FOUND", 404);
   if (
-    request.headers.get("content-type")?.split(";")[0].trim() !==
-    "application/pdf"
+    request.method !== "POST" ||
+    !["/scan", "/scan-source"].includes(pathname)
   )
-    return fail("PDF_CONTENT_TYPE_REQUIRED", 415);
+    return fail("NOT_FOUND", 404);
+  const source = pathname === "/scan-source";
+  const mediaType = source ? "application/octet-stream" : "application/pdf";
+  const maxBytes = source ? MAX_SOURCE_BYTES : MAX_BYTES;
+  if (request.headers.get("content-type")?.split(";")[0].trim() !== mediaType)
+    return fail(
+      source ? "SOURCE_CONTENT_TYPE_REQUIRED" : "PDF_CONTENT_TYPE_REQUIRED",
+      415,
+    );
   const declaredLength = request.headers.get("content-length");
   if (
     declaredLength !== null &&
-    (!/^\d+$/.test(declaredLength) || Number(declaredLength) > MAX_BYTES)
+    (!/^\d+$/.test(declaredLength) || Number(declaredLength) > maxBytes)
   )
     return fail("BODY_TOO_LARGE", 413);
   const signal = AbortSignal.any([
@@ -141,17 +148,17 @@ export async function handleRequest(
     AbortSignal.timeout(DEADLINE_MS),
   ]);
   try {
-    const bytes = await readBounded(request, signal);
+    const bytes = await readBounded(request, signal, maxBytes);
     const sha256 = Array.from(
       new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
     )
       .map((byte) => byte.toString(16).padStart(2, "0"))
       .join("");
     const response = await env.SCANNER_CONTAINER.getByName("scanner-v1").fetch(
-      new Request("http://scanner.internal/scan", {
+      new Request(`http://scanner.internal${pathname}`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/pdf",
+          "Content-Type": mediaType,
           "Content-Length": String(bytes.length),
         },
         body: bytes,

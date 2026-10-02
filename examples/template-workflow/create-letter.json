@@ -1,0 +1,226 @@
+{
+  "envelope": {
+    "schemaVersion": 1,
+    "engine": "pdfme",
+    "engineVersion": "6.1.13",
+    "name": "Courrier professionnel",
+    "description": "Un courrier personnalisable avec adresse, objet et paragraphes. Les exemples sont fictifs.",
+    "locale": "fr-FR",
+    "definition": {
+      "basePdf": {
+        "width": 210,
+        "height": 297,
+        "padding": [
+          22,
+          20,
+          20,
+          20
+        ],
+        "staticSchema": [
+          {
+            "name": "header",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 10
+            },
+            "width": 170,
+            "height": 6,
+            "content": "ENTREPRISE EXEMPLE",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 8,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "footer",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 283
+            },
+            "width": 170,
+            "height": 6,
+            "content": "Données fictives · Page {currentPage} / {totalPages}",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 8,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          }
+        ]
+      },
+      "schemas": [
+        [
+          {
+            "name": "recipient",
+            "type": "text",
+            "position": {
+              "x": 112,
+              "y": 35
+            },
+            "width": 78,
+            "height": 25,
+            "content": "Entreprise Exemple\n12 rue des Ateliers\n75002 Paris",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "reference",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 76
+            },
+            "width": 170,
+            "height": 12,
+            "content": "Objet du courrier",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 16,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "body",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 96
+            },
+            "width": 170,
+            "height": 60,
+            "content": "Madame, Monsieur,\n\nVotre courrier personnalisé commence ici.\n\nCordialement,",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "signature",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 165
+            },
+            "width": 170,
+            "height": 15,
+            "content": "L’équipe Exemple",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          }
+        ]
+      ],
+      "pdfmeVersion": "6.1.13"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "recipient": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "string",
+              "title": "Nom et adresse",
+              "maxLength": 600
+            }
+          },
+          "required": [
+            "address"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "title": "Objet",
+          "maxLength": 300
+        },
+        "body": {
+          "type": "string",
+          "title": "Courrier"
+        },
+        "signature": {
+          "type": "string",
+          "title": "Signature",
+          "default": "L’équipe Exemple"
+        }
+      },
+      "required": [
+        "recipient",
+        "subject",
+        "body"
+      ]
+    },
+    "bindings": [
+      {
+        "block": "recipient",
+        "kind": "value",
+        "path": "recipient.address",
+        "format": "text",
+        "required": true
+      },
+      {
+        "block": "reference",
+        "kind": "value",
+        "path": "subject",
+        "format": "text",
+        "required": true
+      },
+      {
+        "block": "body",
+        "kind": "value",
+        "path": "body",
+        "format": "text",
+        "required": true
+      },
+      {
+        "block": "signature",
+        "kind": "value",
+        "path": "signature",
+        "format": "text",
+        "required": false
+      }
+    ],
+    "sampleData": {
+      "recipient": {
+        "address": "Entreprise Exemple\n12 rue des Ateliers\n75002 Paris"
+      },
+      "subject": "Votre compte rendu personnalisé",
+      "body": "Madame, Monsieur,\n\nVeuillez trouver notre compte rendu. Les caractères français et allemands sont conservés : é è ê ç œ — Ä Ö Ü ß — 125,00 €.\n\nCordialement,",
+      "signature": "L’équipe Exemple"
+    },
+    "sampleDataSynthetic": true,
+    "resources": []
+  }
+}

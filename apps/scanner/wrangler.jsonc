@@ -4,7 +4,9 @@
   "account_id": "39ac9fada6cba44d9ecf09d467609e69",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-16",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": false,
   "preview_urls": false,
   "routes": [],
@@ -13,33 +15,35 @@
       "class_name": "ClamAvContainer",
       "image": "./Dockerfile",
       "image_vars": {
-        "SIGNATURE_REFRESH": "2026-09-20T19:19:02.312Z",
+        "SIGNATURE_REFRESH": "2026-10-02T16:20:53.227Z"
       },
       "instance_type": "standard-1",
       "max_instances": 1,
       "constraints": {
-        "jurisdiction": "eu",
-      },
-    },
+        "jurisdiction": "eu"
+      }
+    }
   ],
   "durable_objects": {
     "bindings": [
       {
         "name": "SCANNER_CONTAINER",
-        "class_name": "ClamAvContainer",
-      },
-    ],
+        "class_name": "ClamAvContainer"
+      }
+    ]
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["ClamAvContainer"],
-    },
+      "new_sqlite_classes": [
+        "ClamAvContainer"
+      ]
+    }
   ],
   "observability": {
     "enabled": false
   },
   "version_metadata": {
     "binding": "WRANGLER_VERSION_METADATA"
-  },
+  }
 }

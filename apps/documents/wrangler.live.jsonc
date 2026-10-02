@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "build": { "command": "node apps/documents/prepare-assets.mjs", "cwd": "." },
   "rules": [
-    { "type": "Text", "globs": ["**/dist/pdfjs/*.txt"], "fallthrough": true },
+    { "type": "Text", "globs": ["**/dist/pdfjs/*.txt", "**/dist/pdfme/*.txt"], "fallthrough": true },
   ],
   "compatibility_date": "2026-09-16",
   "compatibility_flags": ["nodejs_compat"],

@@ -8,6 +8,8 @@ import { validatePdf } from "../../../packages/contracts/src/pdf";
 import { handlePingenPreflight } from "./pingen-preflight";
 import { handleExpertReviewPages } from "./expert-review";
 import { handlePostalAddressPage } from "./postal-address-page";
+import { handleTemplateRender } from "./template-render";
+import templateSource from "../dist/pdfme/template.txt";
 import pdfSource from "../dist/pdfjs/pdf.txt";
 import pdfWorkerSource from "../dist/pdfjs/pdf.worker.txt";
 import standardFontSource from "../dist/pdfjs/standard-fonts.txt";
@@ -31,6 +33,11 @@ async function handleDocumentRequest(
     return handlePostalAddressPage(request, {
       launch: () => puppeteer.launch(env.BROWSER),
       fontBase64: addressFontSource,
+    });
+  if (new URL(request.url).pathname === "/render/template")
+    return handleTemplateRender(request, {
+      launch: () => puppeteer.launch(env.BROWSER),
+      script: templateSource,
     });
   if (new URL(request.url).pathname === "/review-pages")
     return handleExpertReviewPages(request, {
