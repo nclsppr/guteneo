@@ -358,67 +358,23 @@ test("a playback failure is announced and can be retried", async ({ page }) => {
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-for (const locale of supportedLocales) {
-  for (const film of ["introduction", "roles"] as const) {
-    test(`${film} ${locale} decodes and seeks its delivered final card without browser API mocks`, async ({
-      page,
-    }) => {
-      await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
-      const section = page.locator(`[data-film="${film}"]`);
-      const portrait =
-        film === "introduction" && page.viewportSize()!.width <= 767;
-      const format = portrait ? "vertical" : "horizontal";
-      const player = section.locator("video");
-      await section.locator(".homepage-film-play").click();
-      await expect
-        .poll(
-          () =>
-            player.evaluate(
-              (element) => (element as HTMLVideoElement).currentTime,
-            ),
-          { timeout: 20000 },
-        )
-        .toBeGreaterThan(0.2);
-      const media = await player.evaluate((element) => {
-        const video = element as HTMLVideoElement;
-        return {
-          width: video.videoWidth,
-          height: video.videoHeight,
-          duration: video.duration,
-          source: video.getAttribute("src"),
-        };
-      });
-      expect(media.width).toBe(portrait ? 1320 : 1920);
-      expect(media.height).toBe(portrait ? 2868 : 1080);
-      expect(
-        Math.abs(media.duration - (film === "roles" ? 36 : 56)),
-      ).toBeLessThan(0.1);
-      expect(media.source).toBe(publicFilmAsset(film, locale, format).movie);
-      const finalCard = film === "roles" ? 33 : 53;
-      await player.evaluate((element, time) => {
-        (element as HTMLVideoElement).currentTime = time;
-      }, finalCard);
-      await expect
-        .poll(
-          () =>
-            player.evaluate(
-              (element) => (element as HTMLVideoElement).currentTime,
-            ),
-          { timeout: 20000 },
-        )
-        .toBeGreaterThan(finalCard - 0.5);
-      await expect
-        .poll(
-          () =>
-            player.evaluate(
-              (element) => (element as HTMLVideoElement).readyState,
-            ),
-          { timeout: 20000 },
-        )
-        .toBeGreaterThan(1);
-      // Native iPhone controls may pause after a scripted seek. It must still
-      // decode the final card; desktop also continues playback from that frame.
-      if (page.viewportSize()!.width > 767)
+test.describe("delivered public media", () => {
+  // These cases play audible media and request native fullscreen. Keep them
+  // in one worker so another real-media case cannot change focus or audio.
+  test.describe.configure({ mode: "default" });
+
+  for (const locale of supportedLocales) {
+    for (const film of ["introduction", "roles"] as const) {
+      test(`${film} ${locale} decodes and seeks its delivered final card without browser API mocks`, async ({
+        page,
+      }) => {
+        await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
+        const section = page.locator(`[data-film="${film}"]`);
+        const portrait =
+          film === "introduction" && page.viewportSize()!.width <= 767;
+        const format = portrait ? "vertical" : "horizontal";
+        const player = section.locator("video");
+        await section.locator(".homepage-film-play").click();
         await expect
           .poll(
             () =>
@@ -427,18 +383,68 @@ for (const locale of supportedLocales) {
               ),
             { timeout: 20000 },
           )
-          .toBeGreaterThan(finalCard + 0.2);
-      await player.evaluate(async (element) => {
-        if (document.fullscreenElement) await document.exitFullscreen();
-        const video = element as HTMLVideoElement & {
-          webkitDisplayingFullscreen?: boolean;
-          webkitExitFullscreen?: () => void;
-        };
-        if (video.webkitDisplayingFullscreen) video.webkitExitFullscreen?.();
+          .toBeGreaterThan(0.2);
+        const media = await player.evaluate((element) => {
+          const video = element as HTMLVideoElement;
+          return {
+            width: video.videoWidth,
+            height: video.videoHeight,
+            duration: video.duration,
+            source: video.getAttribute("src"),
+          };
+        });
+        expect(media.width).toBe(portrait ? 1320 : 1920);
+        expect(media.height).toBe(portrait ? 2868 : 1080);
+        expect(
+          Math.abs(media.duration - (film === "roles" ? 36 : 56)),
+        ).toBeLessThan(0.1);
+        expect(media.source).toBe(publicFilmAsset(film, locale, format).movie);
+        const finalCard = film === "roles" ? 33 : 53;
+        await player.evaluate((element, time) => {
+          (element as HTMLVideoElement).currentTime = time;
+        }, finalCard);
+        await expect
+          .poll(
+            () =>
+              player.evaluate(
+                (element) => (element as HTMLVideoElement).currentTime,
+              ),
+            { timeout: 20000 },
+          )
+          .toBeGreaterThan(finalCard - 0.5);
+        await expect
+          .poll(
+            () =>
+              player.evaluate(
+                (element) => (element as HTMLVideoElement).readyState,
+              ),
+            { timeout: 20000 },
+          )
+          .toBeGreaterThan(1);
+        // Native iPhone controls may pause after a scripted seek. It must still
+        // decode the final card; desktop also continues playback from that frame.
+        if (page.viewportSize()!.width > 767)
+          await expect
+            .poll(
+              () =>
+                player.evaluate(
+                  (element) => (element as HTMLVideoElement).currentTime,
+                ),
+              { timeout: 20000 },
+            )
+            .toBeGreaterThan(finalCard + 0.2);
+        await player.evaluate(async (element) => {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          const video = element as HTMLVideoElement & {
+            webkitDisplayingFullscreen?: boolean;
+            webkitExitFullscreen?: () => void;
+          };
+          if (video.webkitDisplayingFullscreen) video.webkitExitFullscreen?.();
+        });
+        await section.locator(".homepage-film-toolbar button").last().click();
+        await expect(player).not.toHaveAttribute("src");
+        await expect(section.locator(".homepage-film-play")).toBeFocused();
       });
-      await section.locator(".homepage-film-toolbar button").last().click();
-      await expect(player).not.toHaveAttribute("src");
-      await expect(section.locator(".homepage-film-play")).toBeFocused();
-    });
+    }
   }
-}
+});
