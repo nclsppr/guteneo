@@ -31,6 +31,7 @@ describe("public preview boundary", () => {
     "/webhooks/provider",
     "/media/document.pdf",
     "/.well-known/oauth-authorization-server",
+    "/.well-known/openai-apps-challenge",
     "/api%2Fdocuments",
   ])("rejects backend endpoint %s before accessing assets", async (path) => {
     const { env, fetch } = assetsEnv();
