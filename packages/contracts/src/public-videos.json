@@ -12,11 +12,11 @@
     },
     "en": {
       "horizontal": {
-        "movie": "/videos/guteneo-horizontal-v5-en.mp4",
+        "movie": "/videos/guteneo-horizontal-v6-en.mp4",
         "poster": "/videos/guteneo-horizontal-v5-en.webp"
       },
       "vertical": {
-        "movie": "/videos/guteneo-vertical-v5-en.mp4",
+        "movie": "/videos/guteneo-vertical-v6-en.mp4",
         "poster": "/videos/guteneo-vertical-v5-en.webp"
       }
     },
@@ -47,7 +47,7 @@
       "poster": "/videos/guteneo-roles-v1-fr.webp"
     },
     "en": {
-      "movie": "/videos/guteneo-roles-v1-en.mp4",
+      "movie": "/videos/guteneo-roles-v2-en.mp4",
       "poster": "/videos/guteneo-roles-v1-en.webp"
     },
     "de": {

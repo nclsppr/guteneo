@@ -23,12 +23,12 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
     const suffix = locale === "fr" ? "" : `-${locale}`;
     for (const format of ["horizontal", "vertical"]) {
       assert.deepEqual(catalog.introduction[locale][format], {
-        movie: `/videos/guteneo-${format}-v5${suffix}.mp4`,
+        movie: `/videos/guteneo-${format}-v${locale === "en" ? 6 : 5}${suffix}.mp4`,
         poster: `/videos/guteneo-${format}-v5${suffix}.webp`,
       });
     }
     assert.deepEqual(catalog.roles[locale], {
-      movie: `/videos/guteneo-roles-v1-${locale}.mp4`,
+      movie: `/videos/guteneo-roles-v${locale === "en" ? 2 : 1}-${locale}.mp4`,
       poster: `/videos/guteneo-roles-v1-${locale}.webp`,
     });
     assets.push(
@@ -52,7 +52,7 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
   for (const asset of assets) {
     assert.match(
       asset.movie,
-      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-v5(?:-(?:en|de|lb))?|roles-v1-(?:fr|en|de|lb))\.mp4$/,
+      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-(?:v5(?:-(?:de|lb))?|v6-en)|roles-(?:v1-(?:fr|de|lb)|v2-en))\.mp4$/,
     );
     const poster = await readFile(
       new URL(`apps/web/public${asset.poster}`, root),

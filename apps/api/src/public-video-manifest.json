@@ -11,10 +11,6 @@
     "bytes": 2093120,
     "sha256": "699a6722f00380621f11b30c29bc20704fe2c4730a0d641001bf38bcd1e15f7c"
   },
-  "/videos/guteneo-roles-v1-en.mp4": {
-    "bytes": 2052383,
-    "sha256": "5570d722fb8501e8925af848bb7fd95725f0cebcd00cf4618b9bdfa698034446"
-  },
   "/videos/guteneo-roles-v1-de.mp4": {
     "bytes": 2147218,
     "sha256": "70629c6dc7669e9332e7b7275114ea6746c2bfbdab851279902fdab441ed801b"
@@ -22,14 +18,6 @@
   "/videos/guteneo-roles-v1-lb.mp4": {
     "bytes": 2156099,
     "sha256": "242391018b1949911b322cb454edfceae13068b2ef2234d9437ae69a39bca09e"
-  },
-  "/videos/guteneo-horizontal-v5-en.mp4": {
-    "bytes": 10274392,
-    "sha256": "c169988b0362adfecbb7b96e0ca944cfb67c6f2bae9ba65410a8d94e6855162f"
-  },
-  "/videos/guteneo-vertical-v5-en.mp4": {
-    "bytes": 12165868,
-    "sha256": "67b4f7b1624df47545ca10e1865ef87f7acb9b52add5957adf3cf3786d5fc45f"
   },
   "/videos/guteneo-horizontal-v5-de.mp4": {
     "bytes": 10354876,
@@ -46,5 +34,17 @@
   "/videos/guteneo-vertical-v5-lb.mp4": {
     "bytes": 12342797,
     "sha256": "c3fd62fc5425ec998632f6ad80b7dc74b14c978f17018a2553f4981130a1c156"
+  },
+  "/videos/guteneo-horizontal-v6-en.mp4": {
+    "bytes": 10270654,
+    "sha256": "f40d811d4123c383cda80ad6db241d11987b26af85cd6f12c5554d1601b6fc2b"
+  },
+  "/videos/guteneo-vertical-v6-en.mp4": {
+    "bytes": 12162130,
+    "sha256": "93b75943f6128d5bef295bbee9ad10486f24aff21d2ca62ddd1be8991973147e"
+  },
+  "/videos/guteneo-roles-v2-en.mp4": {
+    "bytes": 2052663,
+    "sha256": "2cf94bce41d9981ef95342cf8a44d8fd9bafda2b5585b9b015e962ef31751a5c"
   }
 }

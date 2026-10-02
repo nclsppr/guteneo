@@ -26,13 +26,16 @@ Les sources éditables sont `videos/guteneo-film/src/roles/`, avec quatre
 compositions `Guteneo-Roles-FR`, `EN`, `DE` et `LB`. La séquence finale réutilise
 directement `src/landscape/End.tsx` ; le logo est le même composant et le même
 média que dans le spot V5. La musique est un montage reproductible de la partition
-originale de Guteneo, avec sa cadence de fin, sans voix.
+originale de Guteneo, avec sa cadence de fin. La version anglaise ajoute la
+narration masculine ElevenLabs en génération 2 ; les autres langues restent
+instrumentales. Voir [VIDEO_NARRATION_EN.md](VIDEO_NARRATION_EN.md).
 
 ```sh
 npm run videos:render -- --kind roles
 ```
 
-Les exports sont `apps/web/public/videos/guteneo-roles-v1-{fr,en,de,lb}.mp4`,
+Les exports actifs sont `apps/web/public/videos/guteneo-roles-v1-{fr,de,lb}.mp4`
+et `guteneo-roles-v2-en.mp4`,
 H.264/AAC stéréo, 1920 × 1080, 30 images/s, avec posters WebP et démarrage rapide.
 Le manifeste commun inclut ces quatre vidéos dans sa liste publique exacte.
 
