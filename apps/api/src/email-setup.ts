@@ -59,18 +59,50 @@ export async function ensureEmailSender(
     return;
   const sourceHash = await sha256(canonicalJson(RESEND_RATE));
   const senderId = `snd_email_${(await sha256(ctx.organizationId)).slice(0, 24)}`;
-  const policyId = `resend_${(await sha256(canonicalJson({ organizationId: ctx.organizationId, identity, sourceHash, until }))).slice(0, 32)}`;
+  const automaticPolicyId = async (sourceHash: string, until: string) =>
+    `resend_${(await sha256(canonicalJson({ organizationId: ctx.organizationId, identity, sourceHash, until }))).slice(0, 32)}`;
+  const policyId = await automaticPolicyId(sourceHash, until);
   const components = emailRateComponents(RESEND_RATE);
   const allowed =
     "EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=?) AND NOT EXISTS(SELECT 1 FROM audit_log WHERE organization_id=? AND action='channel.control' AND resource_id='email' AND json_extract(details_json,'$.enabled')=0)";
   const scope = [ctx.organizationId, ctx.userId, ctx.role, ctx.organizationId];
+  const expired = await env.DB.prepare(
+    `SELECT id,source_sha256,expires_at FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel='email' AND provider='resend' AND account_id=? AND route_id=? AND options_json='{}' AND status='qualified' AND expires_at<=? AND ${allowed}`,
+  )
+    .bind(
+      ctx.organizationId,
+      senderId,
+      identity.accountId,
+      identity.routeId,
+      now,
+      ...scope,
+    )
+    .first<{ id: string; source_sha256: string; expires_at: string }>();
+  // Recognize the automatic ID from its original evidence, including an older
+  // tariff hash. A manual policy in the same route must not be superseded.
+  const expiredAutomatic =
+    expired &&
+    expired.id ===
+      (await automaticPolicyId(expired.source_sha256, expired.expires_at));
   await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) SELECT ?,?,'email','Guteneo','documents@guteneo.com','verified','production',? WHERE ${allowed} ON CONFLICT(id) DO NOTHING`,
     ).bind(senderId, ctx.organizationId, now, ...scope),
-    env.DB.prepare(
-      `UPDATE trusted_delivery_costs SET status='revoked' WHERE organization_id=? AND sender_id=? AND channel='email' AND provider='resend' AND status='qualified' AND source_sha256=? AND expires_at<=? AND ${allowed}`,
-    ).bind(ctx.organizationId, senderId, sourceHash, now, ...scope),
+    ...(expiredAutomatic
+      ? [
+          env.DB.prepare(
+            `UPDATE trusted_delivery_costs SET status='revoked' WHERE id=? AND organization_id=? AND sender_id=? AND channel='email' AND provider='resend' AND account_id=? AND route_id=? AND options_json='{}' AND status='qualified' AND expires_at<=? AND ${allowed}`,
+          ).bind(
+            expired.id,
+            ctx.organizationId,
+            senderId,
+            identity.accountId,
+            identity.routeId,
+            now,
+            ...scope,
+          ),
+        ]
+      : []),
     env.DB.prepare(
       `INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at,pricing_basis) SELECT ?,?,?,'email','resend',?,?,'{}',?,?,?,?,'EUR','qualified_final_variable_cost',900,?,?,?,?,'qualified',?,'public_list_price_ex_tax' WHERE ${allowed} AND EXISTS(SELECT 1 FROM senders WHERE organization_id=? AND id=? AND status='verified' AND address='documents@guteneo.com') AND NOT EXISTS(SELECT 1 FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel='email' AND provider='resend' AND account_id=? AND route_id=? AND options_json='{}' AND status='qualified') ON CONFLICT(id) DO NOTHING`,
     ).bind(

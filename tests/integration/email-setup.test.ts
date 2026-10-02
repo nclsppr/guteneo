@@ -7,7 +7,11 @@ import {
   resendIdentity,
 } from "../../apps/api/src/resend-environment";
 import { resolveDeliveryPrice } from "../../packages/domain/src/live-delivery-quotes";
-import type { ActorContext } from "../../packages/domain/src/index";
+import {
+  canonicalJson,
+  sha256,
+  type ActorContext,
+} from "../../packages/domain/src/index";
 import type { Env } from "../../apps/api/src/env";
 
 let mf: Miniflare, db: D1Database, ctx: ActorContext, env: Env;
@@ -121,6 +125,52 @@ const enabled = async () =>
     )
     .bind(ctx.organizationId)
     .first<{ enabled: number }>())!.enabled;
+const policy = (id: string) =>
+  db
+    .prepare("SELECT * FROM trusted_delivery_costs WHERE id=?")
+    .bind(id)
+    .first();
+async function insertPolicy(
+  source: Record<string, unknown>,
+  patch: Record<string, unknown>,
+) {
+  const row = { ...source, ...patch };
+  const columns = Object.keys(row);
+  await db
+    .prepare(
+      `INSERT INTO trusted_delivery_costs(${columns.join(",")}) VALUES(${columns.map(() => "?").join(",")})`,
+    )
+    .bind(...columns.map((column) => row[column]))
+    .run();
+  return (await policy(row.id as string))!;
+}
+async function priorTariffPolicy(manual = false) {
+  const sender = (await setup())!;
+  const template = (await rows("trusted_delivery_costs")).results[0];
+  const rate = {
+    ...RESEND_RATE,
+    tariffDate: "2026-09-20",
+    fxDate: "2026-09-15",
+  };
+  const sourceHash = await sha256(canonicalJson(rate));
+  const id = manual
+    ? `manual_${ctx.organizationId}`
+    : `resend_${(await sha256(canonicalJson({ organizationId: ctx.organizationId, identity: resendIdentity(env)!, sourceHash, until }))).slice(0, 32)}`;
+  // Seed a policy created by the previous release, without rewriting immutable
+  // evidence on an existing policy or disabling any database guard.
+  await db
+    .prepare(
+      "DELETE FROM trusted_delivery_costs WHERE organization_id=? AND id=?",
+    )
+    .bind(ctx.organizationId, template.id)
+    .run();
+  const old = await insertPolicy(template, {
+    id,
+    source_sha256: sourceHash,
+    rate_json: canonicalJson(rate),
+  });
+  return { senderId: sender.senderId, old };
+}
 
 describe("automatic tenant Resend setup on local D1", () => {
   it("creates one usable Guteneo sender and dated policy concurrently, taking reply-to only from membership user", async () => {
@@ -265,6 +315,135 @@ describe("automatic tenant Resend setup on local D1", () => {
     expect(policies.find((p) => p.status === "qualified")).toMatchObject({
       expires_at: "2026-11-21T02:00:00.000Z",
     });
+  });
+  it("renews an expired previous-tariff automatic policy without changing evidence or disjoint scopes", async () => {
+    const { senderId, old } = await priorTariffPolicy();
+    const renewal = "2026-10-22T02:00:00.000Z";
+    const otherOrganization = `other_${ctx.organizationId}`;
+    const otherSender = `other_${senderId}`;
+    await db.batch([
+      db
+        .prepare(
+          "INSERT INTO organizations VALUES(?,'Other fixture','production',?)",
+        )
+        .bind(otherOrganization, now),
+      db
+        .prepare(
+          "INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'email','Other fixture','documents@guteneo.com','verified','production',?)",
+        )
+        .bind(otherSender, ctx.organizationId, now),
+      db
+        .prepare(
+          "INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'email','Other tenant','documents@guteneo.com','verified','production',?)",
+        )
+        .bind(`tenant_${senderId}`, otherOrganization, now),
+    ]);
+    const untouched = await Promise.all([
+      insertPolicy(old, {
+        id: `other_tenant_${old.id}`,
+        organization_id: otherOrganization,
+        sender_id: `tenant_${senderId}`,
+      }),
+      insertPolicy(old, {
+        id: `other_sender_${old.id}`,
+        sender_id: otherSender,
+      }),
+      insertPolicy(old, {
+        id: `other_account_${old.id}`,
+        account_id: "other-account",
+      }),
+      insertPolicy(old, {
+        id: `other_route_${old.id}`,
+        route_id: "other-route",
+      }),
+      insertPolicy(old, {
+        id: `other_options_${old.id}`,
+        options_json: '{"emailDeliveryMode":"inline"}',
+        pricing_basis: "qualified_final_variable_cost",
+        rate_json: '{"attachmentBasis":"included_pdf"}',
+      }),
+      insertPolicy(old, {
+        id: `other_provider_${old.id}`,
+        provider: "ses",
+        pricing_basis: "qualified_final_variable_cost",
+        rate_json: '{"attachmentBasis":"no_attachments"}',
+      }),
+      insertPolicy(old, { id: `already_revoked_${old.id}`, status: "revoked" }),
+    ]);
+    expect(await setup(ctx, env, renewal)).toBeUndefined();
+    expect(await policy(old.id as string)).toEqual(old);
+    await setup(
+      ctx,
+      { ...env, RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z" },
+      renewal,
+    );
+    expect(await policy(old.id as string)).toEqual({
+      ...old,
+      status: "revoked",
+    });
+    expect(
+      await Promise.all(untouched.map((row) => policy(row.id as string))),
+    ).toEqual(untouched);
+    const active = (await rows("trusted_delivery_costs")).results.find(
+      (row) =>
+        row.sender_id === senderId &&
+        row.provider === "resend" &&
+        row.account_id === "fixture" &&
+        row.route_id === resendIdentity(env)!.routeId &&
+        row.options_json === "{}" &&
+        row.status === "qualified",
+    )!;
+    expect(active).toMatchObject({
+      expires_at: "2026-11-21T02:00:00.000Z",
+      source_sha256: await sha256(canonicalJson(RESEND_RATE)),
+    });
+    expect(JSON.parse(active.rate_json as string)).toEqual(RESEND_RATE);
+    const price = await resolveDeliveryPrice(db, {
+      organizationId: ctx.organizationId,
+      senderId,
+      channel: "email",
+      recipient: { email: "recipient@example.invalid" },
+      options: {},
+      identity: resendIdentity(env)!,
+      now: renewal,
+      document: { id: "doc", sha256: "a".repeat(64), size: 500 },
+    });
+    expect(price.policy.id).toBe(active.id);
+    expect(price.amountMinor).toBe(1);
+    expect(price.attachmentBytes).toBe(500);
+    expect(await enabled()).toBe(1);
+    expect((await rows("dispatches")).results).toHaveLength(0);
+    expect((await rows("usage")).results[0]).toMatchObject({
+      reserved_count: 0,
+      confirmed_count: 0,
+      reserved_minor: 0,
+      confirmed_minor: 0,
+    });
+  });
+  it("preserves an unexpired automatic policy from the previous tariff", async () => {
+    const { old } = await priorTariffPolicy();
+    await setup(
+      ctx,
+      { ...env, RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z" },
+      "2026-10-20T02:00:00.000Z",
+    );
+    expect((await rows("trusted_delivery_costs")).results).toEqual([old]);
+  });
+  it("preserves an expired manual policy with the same automatic sender, route and previous tariff evidence", async () => {
+    const { old } = await priorTariffPolicy(true);
+    await db
+      .prepare(
+        "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='email'",
+      )
+      .bind(ctx.organizationId)
+      .run();
+    await setup(
+      ctx,
+      { ...env, RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z" },
+      "2026-10-22T02:00:00.000Z",
+    );
+    expect((await rows("trusted_delivery_costs")).results).toEqual([old]);
+    expect(await enabled()).toBe(0);
   });
   it("does not resurrect a revoked policy or disabled sender", async () => {
     await setup();
