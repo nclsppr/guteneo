@@ -1,7 +1,11 @@
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 
 export const NANO_EUR_PER_CENT = 10_000_000;
-export type LiveDeliveryIdentity = { accountId: string; routeId: string };
+export type LiveDeliveryIdentity = {
+  accountId: string;
+  routeId: string;
+  provider?: "ses" | "resend" | "pingen";
+};
 export type LiveDeliveryIdentities = Partial<
   Record<"email" | "postal", LiveDeliveryIdentity>
 >;
@@ -10,7 +14,7 @@ export type EmailRateEvidence = {
   eurPerUsdNumerator: number;
   eurPerUsdDenominator: number;
 } & (
-  | { attachmentBasis: "no_attachments" }
+  | { attachmentBasis: "no_attachments" | "included_pdf" }
   | {
       attachmentBasis: "raw_pdf_bytes";
       usdMicrosPerGb: number;
@@ -18,13 +22,14 @@ export type EmailRateEvidence = {
     }
 );
 export type PublicEmailRateEvidence = EmailRateEvidence & {
-  attachmentBasis: "no_attachments";
+  attachmentBasis: "no_attachments" | "included_pdf";
   pricingBasis: "public_list_price_ex_tax";
-  plan: "Essentials";
-  tier: "0-10000000";
+  plan: "Essentials" | "Pro";
+  tier: "0-10000000" | "additional_emails";
   unit: "recipient";
   currency: "USD";
-  tariffSource: "https://aws.amazon.com/ses/pricing/";
+  tariffSource:
+    "https://aws.amazon.com/ses/pricing/" | "https://resend.com/pricing";
   tariffDate: string;
   fxBasis: "commercial_fixed_reference";
   fxSource: "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
@@ -102,7 +107,7 @@ type Policy = {
   organization_id: string;
   sender_id: string;
   channel: "email" | "postal";
-  provider: "ses" | "pingen";
+  provider: "ses" | "resend" | "pingen";
   account_id: string;
   route_id: string;
   options_json: string;
@@ -137,7 +142,7 @@ export type LiveDeliveryQuote = {
   organization_id: string;
   policy_id: string;
   channel: "email" | "postal";
-  provider: "ses" | "pingen";
+  provider: "ses" | "resend" | "pingen";
   account_id: string;
   route_id: string;
   fingerprint: string;
@@ -225,7 +230,8 @@ export function emailRateComponents(rate: EmailRateEvidence) {
     bytesPerGb = rate.bytesPerGb;
     usdMicrosPerGb = rate.usdMicrosPerGb;
   } else if (
-    rate.attachmentBasis !== "no_attachments" ||
+    (rate.attachmentBasis !== "no_attachments" &&
+      rate.attachmentBasis !== "included_pdf") ||
     "usdMicrosPerGb" in rate ||
     "bytesPerGb" in rate
   )
@@ -267,16 +273,24 @@ function qualifiedEmailRate(policy: Policy, documentPresent: boolean) {
       date <= policy.valid_from.slice(0, 10);
     if (
       policy.channel !== "email" ||
-      policy.provider !== "ses" ||
+      !(
+        (policy.provider === "ses" &&
+          rate.attachmentBasis === "no_attachments" &&
+          rate.plan === "Essentials" &&
+          rate.tier === "0-10000000" &&
+          rate.tariffSource === "https://aws.amazon.com/ses/pricing/") ||
+        (policy.provider === "resend" &&
+          rate.attachmentBasis === "included_pdf" &&
+          rate.plan === "Pro" &&
+          rate.tier === "additional_emails" &&
+          rate.tariffSource === "https://resend.com/pricing" &&
+          rate.usdMicrosPerMessage === 900)
+      ) ||
       policy.options_json !== "{}" ||
       rate.usdMicrosPerMessage <= 0 ||
-      rate.attachmentBasis !== "no_attachments" ||
       rate.pricingBasis !== "public_list_price_ex_tax" ||
-      rate.plan !== "Essentials" ||
-      rate.tier !== "0-10000000" ||
       rate.unit !== "recipient" ||
       rate.currency !== "USD" ||
-      rate.tariffSource !== "https://aws.amazon.com/ses/pricing/" ||
       rate.fxBasis !== "commercial_fixed_reference" ||
       rate.fxSource !==
         "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml" ||
@@ -362,6 +376,9 @@ export async function resolveDeliveryPrice(
   },
 ): Promise<DeliveryPrice> {
   if (!identityValid(request.identity)) throw unqualified();
+  const expectedProvider =
+    request.identity.provider ??
+    (request.channel === "email" ? "ses" : "pingen");
   const matchingOptions =
     request.channel === "postal"
       ? Object.fromEntries(
@@ -372,15 +389,18 @@ export async function resolveDeliveryPrice(
             "printSpectrum",
           ].map((k) => [k, request.options[k]]),
         )
-      : request.options;
+      : expectedProvider === "resend"
+        ? {}
+        : request.options;
   const policy = await db
     .prepare(
-      "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel=? AND account_id=? AND route_id=? AND status='qualified' AND options_json=?",
+      "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel=? AND provider=? AND account_id=? AND route_id=? AND status='qualified' AND options_json=?",
     )
     .bind(
       request.organizationId,
       request.senderId,
       request.channel,
+      expectedProvider,
       request.identity.accountId,
       request.identity.routeId,
       canonicalJson(matchingOptions),
@@ -393,25 +413,30 @@ export async function resolveDeliveryPrice(
     !/^[a-f0-9]{64}$/.test(policy.source_sha256)
   )
     throw unqualified();
-  const attachmentBytes = request.document?.size ?? 0;
+  const protectedLink =
+    request.channel === "email" &&
+    request.options.emailDeliveryMode === "protected_link";
+  const attachmentBytes = protectedLink ? 0 : (request.document?.size ?? 0);
   let numerator: bigint,
     denominator: bigint,
     providerDraftId: string | null = null,
     preparedLetterId: string | null = null,
     evidenceSha256 = policy.source_sha256;
   if (request.channel === "email") {
-    if (canonicalJson(request.options) !== policy.options_json)
+    if (canonicalJson(matchingOptions) !== policy.options_json)
       throw unqualified();
     const components = qualifiedEmailRate(
       policy,
-      request.document !== undefined,
+      !protectedLink && request.document !== undefined,
     );
-    if (
-      !Number.isSafeInteger(attachmentBytes) ||
-      attachmentBytes < 0 ||
-      attachmentBytes > 10_000_000
-    )
+    if (!Number.isSafeInteger(attachmentBytes) || attachmentBytes < 0)
       throw unqualified();
+    if (attachmentBytes > 10_000_000)
+      throw new DomainError(
+        "EMAIL_ATTACHMENT_TOO_LARGE",
+        "La pièce jointe doit faire au maximum 10 Mo. Utilisez un lien protégé pour ce PDF.",
+        413,
+      );
     numerator =
       BigInt(components.base_numerator) +
       BigInt(components.byte_numerator) * BigInt(attachmentBytes);
@@ -481,7 +506,14 @@ export async function makeDeliveryQuote(
   price: DeliveryPrice,
   now: string,
 ): Promise<LiveDeliveryQuote> {
-  if (frozen.estimatedMinor !== price.amountMinor) throw invalid();
+  const protection = (
+    frozen.options as { protectedDocument?: { hostingFeeMinor?: number } }
+  ).protectedDocument;
+  if (
+    frozen.estimatedMinor !==
+    price.amountMinor + (protection?.hostingFeeMinor ?? 0)
+  )
+    throw invalid();
   const input = canonicalJson(frozen),
     p = price.policy;
   const quote: LiveDeliveryQuote = {
@@ -558,7 +590,13 @@ export async function validateLiveDeliveryQuote(
     )
     .first<LiveDeliveryQuote>();
   // SELECT explicitly strips view-only columns from the signed material.
-  if (!quote) throw invalid();
+  if (
+    !quote ||
+    quote.provider !==
+      (identity.provider ?? (row.channel === "email" ? "ses" : "pingen")) ||
+    (row.provider !== null && row.provider !== quote.provider)
+  )
+    throw invalid();
   if (quote.channel === "email" || quote.channel === "postal") {
     // Repeat the scope check for reads and immediately before supplier submission,
     // including during a rolling deployment with an older SQL view.
@@ -574,9 +612,10 @@ export async function validateLiveDeliveryQuote(
       else
         qualifiedEmailRate(
           policy,
-          row.document_id !== null ||
-            JSON.parse(quote.input_json).documentId !== null ||
-            quote.attachment_bytes !== 0,
+          JSON.parse(row.options_json).emailDeliveryMode !== "protected_link" &&
+            (row.document_id !== null ||
+              JSON.parse(quote.input_json).documentId !== null ||
+              quote.attachment_bytes !== 0),
         );
       if (policy.pricing_basis === "public_list_price_ex_tax") {
         const input = JSON.parse(quote.input_json);

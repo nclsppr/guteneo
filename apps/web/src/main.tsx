@@ -10,6 +10,7 @@ import "@fontsource/eb-garamond/latin-400-italic.css";
 import { initializeLocale } from "./locale";
 import { App } from "./App";
 import "./styles.css";
+import "./protected-document.css";
 
 initializeLocale();
 

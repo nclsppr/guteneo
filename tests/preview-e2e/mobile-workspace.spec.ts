@@ -276,10 +276,7 @@ test("mobile forms expose native validation, review and errors without a provide
     .fill("mobile@example.invalid");
   await page.getByLabel("Objet", { exact: true }).fill("Relecture mobile");
   await page
-    .getByLabel("Version HTML", { exact: true })
-    .fill("<p>Une correspondance relue sur téléphone.</p>");
-  await page
-    .getByLabel("Version texte", { exact: true })
+    .getByLabel("Message", { exact: true })
     .fill("Une correspondance relue sur téléphone.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
@@ -287,13 +284,15 @@ test("mobile forms expose native validation, review and errors without a provide
   ).toBeVisible();
   await fits(page);
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: "Approuver et simuler l’envoi" }),
   ).toBeDisabled();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Approuver cette version" }).click();
-  await expect(
-    page.getByRole("button", { name: "Confirmer l’envoi simulé" }),
-  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Approuver et simuler l’envoi" })
+    .click();
+  await expect(page.locator(".dispatch-reference .status")).toContainText(
+    /Remis|Accepté|livré|remis/,
+  );
   await page.goto("/#/app/dispatch/mobile-missing");
   await expect(page.getByRole("alert")).toBeFocused();
   await fits(page);

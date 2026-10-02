@@ -1,0 +1,337 @@
+{
+  "Personnaliser la version HTML (facultatif)": [
+    "Customise the HTML version (optional)",
+    "HTML-Version anpassen (optional)",
+    "HTML-Versioun upassen (optional)"
+  ],
+  "Sans HTML personnalisé, votre message est mis en forme automatiquement. Le message ci-dessus reste la version texte accessible.": [
+    "Without custom HTML, your message is formatted automatically. The message above remains the accessible plain-text version.",
+    "Ohne eigenes HTML wird Ihre Nachricht automatisch formatiert. Die Nachricht oben bleibt die barrierefreie Textversion.",
+    "Ouni eegent HTML gëtt Äre Message automatesch formatéiert. De Message uewen bleift déi zougänglech Textversioun."
+  ],
+  "Bientôt": [
+    "Coming soon",
+    "Demnächst",
+    "Geschwënn"
+  ],
+  "Une liste, tous vos destinataires.": [
+    "One list, all your recipients.",
+    "Eine Liste, alle Ihre Empfänger.",
+    "Eng Lëscht, all Är Empfänger."
+  ],
+  "L’import de listes de destinataires dans tous les formats et la distribution de PDF, de fichiers Excel et d’autres documents sont prévus. Ces possibilités ne sont pas encore disponibles.": [
+    "Importing recipient lists in all formats and distributing PDFs, Excel files and other documents are planned. These features are not yet available.",
+    "Der Import von Empfängerlisten in allen Formaten und die Verteilung von PDFs, Excel-Dateien und anderen Dokumenten sind geplant. Diese Funktionen sind noch nicht verfügbar.",
+    "Den Import vun Empfängerlëschten an alle Formater an d’Verdeelung vu PDFen, Excel-Dateien an aneren Dokumenter si geplangt. Dës Funktioune sinn nach net disponibel."
+  ],
+  "Plus tard, chaque destinataire pourra retrouver ses documents dans son propre compte protégé par mot de passe.": [
+    "Later, each recipient will be able to find their documents in their own password-protected account.",
+    "Später kann jeder Empfänger seine Dokumente in einem eigenen passwortgeschützten Konto finden.",
+    "Spéider kann all Empfänger seng Dokumenter a sengem eegene passwuertgeschützte Kont fannen."
+  ],
+  "Accès au PDF": [
+    "PDF access",
+    "PDF-Zugriff",
+    "Zougang zum PDF"
+  ],
+  "Envoyer un lien protégé par mot de passe": [
+    "Send a password-protected link",
+    "Passwortgeschützten Link senden",
+    "E passwuertgeschützte Link schécken"
+  ],
+  "1 € par document hébergé, en plus de l’envoi de l’e-mail.": [
+    "€1 per hosted document, in addition to the email dispatch.",
+    "1 € pro bereitgestelltem Dokument, zusätzlich zum E-Mail-Versand.",
+    "1 € pro gehostem Dokument, zousätzlech zum E-Mail-Versand."
+  ],
+  "Expiration du lien": [
+    "Link expiry",
+    "Ablauf des Links",
+    "Oflaf vum Link"
+  ],
+  "Après 1 jour": [
+    "After 1 day",
+    "Nach 1 Tag",
+    "No 1 Dag"
+  ],
+  "Après 7 jours": [
+    "After 7 days",
+    "Nach 7 Tagen",
+    "No 7 Deeg"
+  ],
+  "Après 30 jours": [
+    "After 30 days",
+    "Nach 30 Tagen",
+    "No 30 Deeg"
+  ],
+  "L’e-mail contient un lien, sans pièce jointe. Le destinataire saisit le mot de passe sans créer de compte. Vous pourrez copier ce mot de passe à la prochaine étape et le transmettre par un autre canal.": [
+    "The email contains a link, with no attachment. The recipient enters the password without creating an account. You can copy this password at the next step and share it through another channel.",
+    "Die E-Mail enthält einen Link ohne Anhang. Der Empfänger gibt das Passwort ohne Kontoerstellung ein. Sie können das Passwort im nächsten Schritt kopieren und über einen anderen Kanal mitteilen.",
+    "D’E-Mail enthält e Link ouni Unhang. Den Empfänger gëtt d’Passwuert an, ouni e Kont ze erstellen. Dir kënnt d’Passwuert am nächste Schrëtt kopéieren an iwwer en anere Kanal matdeelen."
+  ],
+  "L’accès est protégé ; ce n’est pas un chiffrement de bout en bout. Une copie téléchargée reste accessible après révocation du lien.": [
+    "Access is protected; this is not end-to-end encryption. A downloaded copy remains accessible after the link is revoked.",
+    "Der Zugriff ist geschützt; es handelt sich nicht um Ende-zu-Ende-Verschlüsselung. Eine heruntergeladene Kopie bleibt nach Widerruf des Links zugänglich.",
+    "Den Zougang ass geschützt; dëst ass keng Enn-zu-Enn-Verschlësselung. Eng erofgeluede Kopie bleift nom Réckruff vum Link zougänglech."
+  ],
+  "Lien protégé par mot de passe": [
+    "Password-protected link",
+    "Passwortgeschützter Link",
+    "Passwuertgeschützte Link"
+  ],
+  "Hébergement déjà payé pour ce document : aucun nouveau frais d’hébergement.": [
+    "Hosting for this document is already paid: no new hosting charge.",
+    "Die Bereitstellung dieses Dokuments ist bereits bezahlt: keine neue Bereitstellungsgebühr.",
+    "D’Hosting vun dësem Dokument ass scho bezuelt: keng nei Hostingkäschten."
+  ],
+  "Hébergement de ce document : {0}, en plus de l’envoi de l’e-mail.": [
+    "Hosting this document: {0}, in addition to the email dispatch.",
+    "Bereitstellung dieses Dokuments: {0}, zusätzlich zum E-Mail-Versand.",
+    "Hosting vun dësem Dokument: {0}, zousätzlech zum E-Mail-Versand."
+  ],
+  "Période d’hébergement : {0} jour(s), jusqu’au {1}.": [
+    "Hosting period: {0} day(s), until {1}.",
+    "Bereitstellungszeitraum: {0} Tag(e), bis {1}.",
+    "Hostingdauer: {0} Dag/Deeg, bis den {1}."
+  ],
+  "L’e-mail contient un lien, sans pièce jointe. Transmettez le mot de passe par téléphone ou une autre messagerie.": [
+    "The email contains a link, with no attachment. Share the password by phone or another messaging service.",
+    "Die E-Mail enthält einen Link ohne Anhang. Teilen Sie das Passwort telefonisch oder über einen anderen Nachrichtendienst mit.",
+    "D’E-Mail enthält e Link ouni Unhang. Deelt d’Passwuert iwwer Telefon oder en anere Messagedéngscht mat."
+  ],
+  "Le même lien et le même mot de passe servent à tous les destinataires de cet hébergement. Une révocation coupe l’accès pour tous.": [
+    "All recipients of this hosted document use the same link and password. Revoking access affects everyone.",
+    "Alle Empfänger dieses bereitgestellten Dokuments verwenden denselben Link und dasselbe Passwort. Ein Widerruf sperrt den Zugriff für alle.",
+    "All Empfänger vun dësem gehosten Dokument benotzen dee selwechte Link an dat selwecht Passwuert. E Réckruff späert den Zougang fir jiddereen."
+  ],
+  "L’hébergement est facturé à l’activation pour cette période, même si l’e-mail échoue ou est annulé ensuite. Sa révocation ne donne pas lieu à un remboursement.": [
+    "Hosting is charged when activated for this period, even if the email later fails or is cancelled. Revoking it does not issue a refund.",
+    "Die Bereitstellung wird bei Aktivierung für diesen Zeitraum berechnet, auch wenn die E-Mail später fehlschlägt oder abgebrochen wird. Ein Widerruf führt nicht zu einer Erstattung.",
+    "D’Hosting gëtt bei der Aktivéierung fir dës Period berechent, och wann d’E-Mail duerno feelt oder annuléiert gëtt. E Réckruff féiert net zu engem Remboursement."
+  ],
+  "Le lien sera accessible après confirmation de l’envoi.": [
+    "The link will be accessible after the dispatch is confirmed.",
+    "Der Link ist nach Bestätigung des Versands zugänglich.",
+    "De Link ass no der Bestätegung vum Versand zougänglech."
+  ],
+  "L’accès à ce document est révoqué.": [
+    "Access to this document has been revoked.",
+    "Der Zugriff auf dieses Dokument wurde widerrufen.",
+    "Den Zougang zu dësem Dokument gouf zréckgezunn."
+  ],
+  "Le lien a expiré.": [
+    "The link has expired.",
+    "Der Link ist abgelaufen.",
+    "De Link ass ofgelaf."
+  ],
+  "Afficher le mot de passe": [
+    "Show the password",
+    "Passwort anzeigen",
+    "Passwuert weisen"
+  ],
+  "Mot de passe du document": [
+    "Document password",
+    "Dokumentpasswort",
+    "Passwuert vum Dokument"
+  ],
+  "Copié": [
+    "Copied",
+    "Kopiert",
+    "Kopéiert"
+  ],
+  "Copier le mot de passe": [
+    "Copy the password",
+    "Passwort kopieren",
+    "Passwuert kopéieren"
+  ],
+  "Masquer": [
+    "Hide",
+    "Ausblenden",
+    "Verstoppen"
+  ],
+  "Mot de passe copié.": [
+    "Password copied.",
+    "Passwort kopiert.",
+    "Passwuert kopéiert."
+  ],
+  "Révoquer l’accès pour tous les destinataires de cet hébergement ? Les copies déjà téléchargées restent accessibles.": [
+    "Revoke access for all recipients of this hosted document? Copies already downloaded remain accessible.",
+    "Zugriff für alle Empfänger dieses bereitgestellten Dokuments widerrufen? Bereits heruntergeladene Kopien bleiben zugänglich.",
+    "Den Zougang fir all Empfänger vun dësem gehosten Dokument zréckzéien? Scho erofgeluede Kopie bleiwen zougänglech."
+  ],
+  "Révoquer l’accès au document": [
+    "Revoke document access",
+    "Dokumentzugriff widerrufen",
+    "Zougang zum Dokument zréckzéien"
+  ],
+  "Conserver l’accès": [
+    "Keep access",
+    "Zugriff beibehalten",
+    "Zougang behalen"
+  ],
+  "Cette protection contrôle l’accès au PDF. Le fichier téléchargé n’est pas protégé par ce mot de passe.": [
+    "This protection controls access to the PDF. The downloaded file is not protected by this password.",
+    "Dieser Schutz kontrolliert den Zugriff auf das PDF. Die heruntergeladene Datei ist nicht durch dieses Passwort geschützt.",
+    "Dëse Schutz kontrolléiert den Zougang zum PDF. Déi erofgeluede Datei ass net mat dësem Passwuert geschützt."
+  ],
+  "Ou importer un PDF": [
+    "Or import a PDF",
+    "Oder ein PDF importieren",
+    "Oder e PDF importéieren"
+  ],
+  "Votre fichier est vérifié ici, sans quitter la préparation.": [
+    "Your file is checked here, without leaving preparation.",
+    "Ihre Datei wird hier geprüft, ohne die Vorbereitung zu verlassen.",
+    "Är Datei gëtt hei gepréift, ouni d’Virbereedung ze verloossen."
+  ],
+  "Total estimé, e-mail et hébergement": [
+    "Estimated total, email and hosting",
+    "Geschätzte Summe, E-Mail und Bereitstellung",
+    "Geschaten Total, E-Mail an Hosting"
+  ],
+  "Approuver et simuler l’envoi": [
+    "Approve and simulate the dispatch",
+    "Genehmigen und Versand simulieren",
+    "Geneemegen an de Versand simuléieren"
+  ],
+  "Approuver et envoyer": [
+    "Approve and send",
+    "Genehmigen und senden",
+    "Geneemegen a schécken"
+  ],
+  "Tarif de référence e-mail hors taxes. Le prix en euros est fixé pour ce devis.": [
+    "Reference email rate excluding tax. The euro price is fixed for this quote.",
+    "E-Mail-Referenztarif ohne Steuern. Der Europreis steht für dieses Angebot fest.",
+    "E-Mail-Referenztarif ouni Steieren. Den Europräis ass fir dësen Devis festgeluecht."
+  ],
+  "Un destinataire, avec ou sans PDF joint": [
+    "One recipient, with or without a PDF attachment",
+    "Ein Empfänger, mit oder ohne PDF-Anhang",
+    "Een Empfänger, mat oder ouni PDF-Unhang"
+  ],
+  "≈ 1,56 €": [
+    "≈ €1.56",
+    "≈ 1,56 €",
+    "≈ 1,56 €"
+  ],
+  "1 €": [
+    "€1",
+    "1 €",
+    "1 €"
+  ],
+  "par document hébergé avec mot de passe, en option": [
+    "per optional password-protected hosted document",
+    "pro optional bereitgestelltem passwortgeschütztem Dokument",
+    "pro optionalem passwuertgeschützt gehostem Dokument"
+  ],
+  "Le PDF joint n’ajoute pas de supplément de transport. L’option de lien protégé remplace la pièce jointe ; son hébergement s’ajoute au prix de l’e-mail. Montants hors taxes.": [
+    "A PDF attachment adds no transport surcharge. The protected-link option replaces the attachment; its hosting adds to the email price. Amounts exclude tax.",
+    "Ein PDF-Anhang verursacht keinen Versandaufschlag. Der geschützte Link ersetzt den Anhang; die Bereitstellung wird zusätzlich zum E-Mail-Preis berechnet. Beträge ohne Steuern.",
+    "E PDF-Unhang verursaacht keng zousätzlech Transportkäschten. Déi geschützte Linkoptioun ersetzt den Unhang; d’Hosting kënnt zum E-Mail-Präis dobäi. Beträg ouni Steieren."
+  ],
+  "Ce document n’est plus accessible.": [
+    "This document is no longer accessible.",
+    "Dieses Dokument ist nicht mehr zugänglich.",
+    "Dëst Dokument ass net méi zougänglech."
+  ],
+  "Votre document est prêt.": [
+    "Your document is ready.",
+    "Ihr Dokument ist bereit.",
+    "Äert Dokument ass prett."
+  ],
+  "Un document vous attend.": [
+    "A document is waiting for you.",
+    "Ein Dokument wartet auf Sie.",
+    "En Dokument waart op Iech."
+  ],
+  "Ce lien est invalide, a expiré ou son accès a été révoqué.": [
+    "This link is invalid, has expired or its access has been revoked.",
+    "Dieser Link ist ungültig, abgelaufen oder der Zugriff wurde widerrufen.",
+    "Dëse Link ass ongëlteg, ofgelaf oder säin Zougang gouf zréckgezunn."
+  ],
+  "Contactez l’expéditeur pour demander un nouveau lien.": [
+    "Contact the sender to request a new link.",
+    "Fordern Sie beim Absender einen neuen Link an.",
+    "Kontaktéiert den Ofsender, fir en neie Link ze froen."
+  ],
+  "Le mot de passe a été vérifié. Vous pouvez consulter ou télécharger votre PDF.": [
+    "The password has been verified. You can view or download your PDF.",
+    "Das Passwort wurde geprüft. Sie können Ihr PDF ansehen oder herunterladen.",
+    "D’Passwuert gouf gepréift. Dir kënnt Äre PDF kucken oder eroflueden."
+  ],
+  "Consulter le PDF": [
+    "View the PDF",
+    "PDF ansehen",
+    "PDF kucken"
+  ],
+  "Télécharger le PDF": [
+    "Download the PDF",
+    "PDF herunterladen",
+    "PDF eroflueden"
+  ],
+  "Votre accès reste ouvert jusqu’à quinze minutes, dans la limite de validité du lien. Ensuite, le mot de passe vous sera à nouveau demandé.": [
+    "Your access remains open for up to fifteen minutes, within the link’s validity period. Afterwards, you will be asked for the password again.",
+    "Ihr Zugriff bleibt bis zu fünfzehn Minuten innerhalb der Gültigkeitsdauer des Links geöffnet. Danach wird das Passwort erneut abgefragt.",
+    "Ären Zougang bleift bis zu fofzéng Minutten op, bannent der Gültegkeetsdauer vum Link. Duerno gëtt d’Passwuert nees gefrot."
+  ],
+  "Le PDF téléchargé n’est pas protégé par ce mot de passe. Conservez-le dans un endroit sûr.": [
+    "The downloaded PDF is not protected by this password. Keep it in a safe place.",
+    "Das heruntergeladene PDF ist nicht durch dieses Passwort geschützt. Bewahren Sie es sicher auf.",
+    "De erofgeluedene PDF ass net mat dësem Passwuert geschützt. Späichert en op enger sécherer Plaz."
+  ],
+  "L’expéditeur vous a partagé un PDF protégé. Saisissez le mot de passe qu’il vous a communiqué séparément.": [
+    "The sender has shared a protected PDF with you. Enter the password they provided separately.",
+    "Der Absender hat ein geschütztes PDF mit Ihnen geteilt. Geben Sie das separat mitgeteilte Passwort ein.",
+    "Den Ofsender huet e geschützte PDF mat Iech gedeelt. Gitt d’Passwuert an, dat hien Iech separat matgedeelt huet."
+  ],
+  "Aucun compte Guteneo n’est nécessaire.": [
+    "No Guteneo account is needed.",
+    "Kein Guteneo-Konto erforderlich.",
+    "Kee Guteneo-Kont ass néideg."
+  ],
+  "Ouvrir le document": [
+    "Open the document",
+    "Dokument öffnen",
+    "Dokument opmaachen"
+  ],
+  "Vous n’avez pas le mot de passe ? Demandez-le directement à l’expéditeur.": [
+    "Don’t have the password? Ask the sender directly.",
+    "Sie haben das Passwort nicht? Fragen Sie direkt beim Absender nach.",
+    "Dir hutt d’Passwuert net? Frot et direkt beim Ofsender."
+  ],
+  "guteneo, accueil": [
+    "guteneo, home",
+    "guteneo, Startseite",
+    "guteneo, Startsäit"
+  ],
+  "Document privé": [
+    "Private document",
+    "Privates Dokument",
+    "Privat Dokument"
+  ],
+  "Partage protégé": [
+    "Protected sharing",
+    "Geschützte Freigabe",
+    "Geschützt Deelen"
+  ],
+  "Le lien et le mot de passe sont réservés aux destinataires prévus. La consultation de ce document est gratuite.": [
+    "The link and password are reserved for the intended recipients. Viewing this document is free.",
+    "Link und Passwort sind den vorgesehenen Empfängern vorbehalten. Die Ansicht dieses Dokuments ist kostenlos.",
+    "De Link an d’Passwuert si fir déi virgesinn Empfänger reservéiert. Dëst Dokument kucken ass gratis."
+  ],
+  "Ce mot de passe ne permet pas d’ouvrir le document.": [
+    "This password does not unlock the document.",
+    "Dieses Passwort öffnet das Dokument nicht.",
+    "Dëst Passwuert mécht d’Dokument net op."
+  ],
+  "Trop de tentatives. Réessayez dans quinze minutes.": [
+    "Too many attempts. Try again in fifteen minutes.",
+    "Zu viele Versuche. Versuchen Sie es in fünfzehn Minuten erneut.",
+    "Ze vill Versich. Probéiert et a fofzéng Minutten nach eng Kéier."
+  ],
+  "Accès protégé": [
+    "Protected access",
+    "Geschützter Zugriff",
+    "Geschützten Zougang"
+  ]
+}

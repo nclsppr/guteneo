@@ -5,6 +5,7 @@ import {
   ProviderError,
   textField,
   verifyPingenWebhook,
+  verifyResendWebhook,
   verifySnsWebhook,
   verifyTelnyxWebhook,
   type ProviderEvent,
@@ -79,7 +80,7 @@ export async function handleWebhook(
   env: Env,
   domain: EventSink,
 ): Promise<Response | null> {
-  const match = /^\/webhooks\/(telnyx|ses|pingen)$/.exec(
+  const match = /^\/webhooks\/(telnyx|ses|resend|pingen)$/.exec(
     new URL(request.url).pathname,
   );
   if (!match) return null;
@@ -103,6 +104,15 @@ export async function handleWebhook(
       const data = asObject(asObject(JSON.parse(body)).data);
       eventId = textField(data, "id");
       metadata = { type: textField(data, "event_type") };
+    } else if (provider === "resend") {
+      event = await verifyResendWebhook(
+        body,
+        request.headers,
+        configured(env.RESEND_WEBHOOK_SECRET),
+      );
+      eventId = request.headers.get("svix-id") ?? "";
+      // Unknown authenticated types retain only a fixed reason, never content.
+      metadata = { reason: "unrecognized_resend_payload" };
     } else if (provider === "pingen") {
       event = await verifyPingenWebhook(
         body,

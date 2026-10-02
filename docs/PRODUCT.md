@@ -7,6 +7,8 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
+Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+
 ## Native iOS candidate — 22 September 2026
 
 The local `ios/` client uses SwiftUI, PDFKit and the system authentication browser.

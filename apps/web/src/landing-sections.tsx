@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { DistributionRoadmap } from "./email-composer";
 import { useId, type MouseEvent } from "react";
 import { ArrowRight, ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { t } from "./locale";
@@ -138,6 +139,7 @@ export function WelcomePricing() {
           </table>
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
+        <DistributionRoadmap />
       </div>
     </section>
   );

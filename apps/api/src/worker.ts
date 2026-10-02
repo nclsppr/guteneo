@@ -8,6 +8,7 @@ import {
   inspectPingenUploadOrigin,
 } from "../../../packages/providers/pingen-readiness";
 import type { Env } from "./env";
+import { inspectResendReadiness } from "./resend-readiness";
 import { inspectSesPrincipal } from "./provider-principal";
 import { qualifyPingenSynthetic } from "../../../packages/providers/pingen-qualification";
 import { configurePingenWebhooks } from "../../../packages/providers/pingen-webhook-setup";
@@ -104,6 +105,10 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
         ? await telnyxAccountReference(this.env.TELNYX_PUBLIC_KEY)
         : null,
     };
+  }
+
+  async inspectResend() {
+    return inspectResendReadiness(this.env);
   }
 
   async inspectSes() {

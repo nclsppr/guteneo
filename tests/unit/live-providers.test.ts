@@ -1,3 +1,8 @@
+import { createHmac } from "node:crypto";
+import {
+  handleWebhook,
+  reconcileWebhookReceipts,
+} from "../../apps/api/src/webhooks";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   afterAll,
@@ -112,7 +117,10 @@ beforeEach(async () => {
     "document_access_grants",
     "provider_drafts",
     "provider_events",
+    "provider_receipts",
     "ses_send_reservations",
+    "resend_send_reservations",
+    "resend_send_limit_policies",
     "attempts",
     "outbox",
     "reservations",
@@ -235,6 +243,8 @@ async function queueFixture(
   channel: Channel,
   options: Record<string, unknown> = {},
   recipientOverride?: Record<string, unknown>,
+  campaignId?: string,
+  senderOverride?: string,
 ): Promise<Dispatch> {
   if (channel === "fax") {
     const now = new Date().toISOString();
@@ -272,6 +282,11 @@ async function queueFixture(
         ? { email: "recipient@example.invalid" }
         : postalRecipient),
   );
+  const senderId =
+    senderOverride ??
+    (channel === "email" && env.EMAIL_PROVIDER === "resend"
+      ? "sender_resend"
+      : "sender_" + channel);
   const now = new Date().toISOString();
   const priceOptions = channel === "postal" ? postalOptions : options;
   const rate = {
@@ -292,9 +307,9 @@ async function queueFixture(
     .bind(
       "policy_" + channel,
       ctx.organizationId,
-      "sender_" + channel,
+      senderId,
       channel,
-      channel === "email" ? "ses" : "pingen",
+      identity.provider ?? (channel === "email" ? "ses" : "pingen"),
       identity.accountId,
       identity.routeId,
       canonicalJson(priceOptions),
@@ -313,8 +328,9 @@ async function queueFixture(
     {
       channel,
       recipient,
+      campaignId,
       documentId: "doc_fixture",
-      senderId: "sender_" + channel,
+      senderId,
       subject: channel === "email" ? "Fixture subject" : undefined,
       html: channel === "email" ? "<p>Approved HTML.</p>" : undefined,
       text: channel === "email" ? "Approved text." : undefined,
@@ -1155,6 +1171,368 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       ),
     ).rejects.toMatchObject({ code: "LIVE_PRICING_REQUIRED" });
   });
+});
+
+describe("Resend durable transport", () => {
+  async function selectResend(limits = true) {
+    Object.assign(env, {
+      EMAIL_PROVIDER: "resend",
+      RESEND_API_KEY: "re_fixture_only",
+      RESEND_WEBHOOK_SECRET: "whsec_fixture_only",
+      RESEND_ACCOUNT_ID: "resend-account-fixture",
+      RESEND_DOMAIN_ID: "domain-fixture",
+      RESEND_VERIFIED_DOMAIN: "guteneo.com",
+      RESEND_SENDS_ENABLED: "true",
+      AWS_ACCESS_KEY_ID: undefined,
+      AWS_SECRET_ACCESS_KEY: undefined,
+    });
+    await db
+      .prepare(
+        "INSERT INTO senders VALUES('sender_resend',?,'email','Fixture','documents@guteneo.com','verified','production',?)",
+      )
+      .bind(ctx.organizationId, new Date().toISOString())
+      .run();
+    domain = new DomainService(db, {
+      mode: "production",
+      ...createLiveDeliveryQuoteConfig(env),
+    });
+    if (limits)
+      await db
+        .prepare(
+          "INSERT INTO resend_send_limit_policies(account_id,max_recipients_24h,min_interval_ms,qualified_at_ms,expires_at_ms,source_sha256,status) VALUES(?,100,1000,?,?,?,'qualified')",
+        )
+        .bind(
+          env.RESEND_ACCOUNT_ID,
+          Date.now() - 1000,
+          Date.now() + 3600000,
+          "c".repeat(64),
+        )
+        .run();
+  }
+  it("sends exact approved PDF/content once using a Resend-specific quote without AWS configuration", async () => {
+    await selectResend();
+    const campaign = await domain.createCampaign(ctx, {
+      name: "Transactional fixture campaign",
+    });
+    const row = await queueFixture(
+      "email",
+      {},
+      undefined,
+      campaign.id as string,
+    );
+    const fetcher = vi.fn<Fetcher>(async () =>
+      json({ id: "12345678-1234-1234-1234-123456789abc" }),
+    );
+    const hook = createLiveProviderHook(env, "email", { fetcher });
+    expect(await domain.processDispatch(row.id, hook)).toMatchObject({
+      status: "accepted",
+    });
+    expect(await domain.processDispatch(row.id, hook)).toMatchObject({
+      processed: false,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(String(fetcher.mock.calls[0][0])).toBe(
+      "https://api.resend.com/emails",
+    );
+    const body = JSON.parse(fetcher.mock.calls[0][1]!.body as string);
+    expect(body).toMatchObject({
+      from: "documents@guteneo.com",
+      to: ["recipient@example.invalid"],
+      subject: "Fixture subject",
+      html: "<p>Approved HTML.</p>",
+      text: "Approved text.",
+    });
+    expect(Buffer.from(body.attachments[0].content, "base64")).toEqual(
+      Buffer.from(pdfBytes),
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT provider FROM live_delivery_quotes WHERE dispatch_id=?",
+        )
+        .bind(row.id)
+        .first(),
+    ).toEqual({ provider: "resend" });
+    expect(
+      await db.prepare("SELECT status FROM resend_send_reservations").first(),
+    ).toEqual({ status: "accepted" });
+  });
+  it("does not redirect an accepted SES command after a provider configuration switch", async () => {
+    const row = await queueFixture("email");
+    await selectResend();
+    const fetcher = vi.fn<Fetcher>();
+    expect(
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "email", { fetcher }),
+      ),
+    ).toMatchObject({ status: "failed" });
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(
+      await db
+        .prepare(
+          "SELECT provider FROM live_delivery_quotes WHERE dispatch_id=?",
+        )
+        .bind(row.id)
+        .first(),
+    ).toEqual({ provider: "ses" });
+  });
+  it("does not redirect an accepted Resend command when SES is restored", async () => {
+    await selectResend();
+    const row = await queueFixture("email");
+    env.EMAIL_PROVIDER = "ses";
+    const fetcher = vi.fn<Fetcher>();
+    expect(
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "email", { fetcher }),
+      ),
+    ).toMatchObject({ status: "failed" });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it("retains money and account quota after an unknown response without retry", async () => {
+    await selectResend();
+    const row = await queueFixture("email");
+    const fetcher = vi.fn<Fetcher>(async () => {
+      throw new Error("fixture lost response");
+    });
+    const hook = createLiveProviderHook(env, "email", { fetcher });
+    expect(await domain.processDispatch(row.id, hook)).toMatchObject({
+      status: "submission_unknown",
+    });
+    expect(await domain.processDispatch(row.id, hook)).toMatchObject({
+      processed: false,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(
+      await db.prepare("SELECT status FROM resend_send_reservations").first(),
+    ).toEqual({ status: "unknown" });
+    expect((await domain.usage(ctx)).welcomeCredit).toMatchObject({
+      reservedMinor: 200,
+      spentMinor: 0,
+    });
+  });
+  it.each(["limits", "webhook", "domain", "activation", "account"])(
+    "fails closed for missing/mismatched %s",
+    async (gate) => {
+      await selectResend(gate !== "limits");
+      const row = await queueFixture("email");
+      if (gate === "webhook") env.RESEND_WEBHOOK_SECRET = undefined;
+      if (gate === "domain") env.RESEND_VERIFIED_DOMAIN = "another.example";
+      if (gate === "activation") env.RESEND_SENDS_ENABLED = "false";
+      if (gate === "account") env.RESEND_ACCOUNT_ID = "other-account";
+      const fetcher = vi.fn<Fetcher>();
+      expect(
+        await domain.processDispatch(
+          row.id,
+          createLiveProviderHook(env, "email", { fetcher }),
+        ),
+      ).toMatchObject({ status: "failed" });
+      expect(fetcher).not.toHaveBeenCalled();
+    },
+  );
+  it("atomically enforces the qualified account quota across concurrent commands", async () => {
+    await selectResend();
+    await db
+      .prepare("UPDATE resend_send_limit_policies SET max_recipients_24h=1")
+      .run();
+    const first = await queueFixture("email");
+    const second = await queueFixture("email");
+    const fetcher = vi.fn<Fetcher>(async () =>
+      json({ id: "12345678-1234-1234-1234-123456789abc" }),
+    );
+    const hook = createLiveProviderHook(env, "email", { fetcher });
+    const results = await Promise.all([
+      domain.processDispatch(first.id, hook),
+      domain.processDispatch(second.id, hook),
+    ]);
+    expect(results.map((result) => result.status).sort()).toEqual([
+      "accepted",
+      "failed",
+    ]);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(
+      await db
+        .prepare("SELECT COUNT(*) AS n FROM resend_send_reservations")
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+  it("never authorizes a different sender domain or marketing content", async () => {
+    await selectResend();
+    await db
+      .prepare(
+        "INSERT INTO senders VALUES('sender_bad',?,'email','Fixture','sender@example.invalid','verified','production',?)",
+      )
+      .bind(ctx.organizationId, new Date().toISOString())
+      .run();
+    const row = await queueFixture(
+      "email",
+      {},
+      undefined,
+      undefined,
+      "sender_bad",
+    );
+    const fetcher = vi.fn<Fetcher>();
+    expect(
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "email", { fetcher }),
+      ),
+    ).toMatchObject({ status: "failed" });
+    expect(fetcher).not.toHaveBeenCalled();
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        {
+          channel: "email",
+          recipient: { email: "recipient@example.invalid" },
+          subject: "Fixture",
+          html: "<p>Fixture</p>",
+          text: "Fixture",
+          options: { kind: "marketing" },
+        },
+        "marketing-fixture",
+      ),
+    ).rejects.toMatchObject({ code: "MARKETING_NOT_ENABLED" });
+  });
+});
+
+describe("Resend signed durable delivery projection", () => {
+  it.each([
+    ["email.bounced", "bounced", "hard_bounce"],
+    ["email.suppressed", "failed", "provider_suppression"],
+  ])(
+    "persists before 2xx, recovers a failed projection, and applies %s suppression once",
+    async (eventType, status, reason) => {
+      Object.assign(env, {
+        EMAIL_PROVIDER: "resend",
+        RESEND_API_KEY: "re_fixture_only",
+        RESEND_ACCOUNT_ID: "resend-account-fixture",
+        RESEND_DOMAIN_ID: "domain-fixture",
+        RESEND_VERIFIED_DOMAIN: "guteneo.com",
+        RESEND_SENDS_ENABLED: "true",
+        RESEND_WEBHOOK_SECRET: `whsec_${Buffer.from("fixture-only-signature-key").toString("base64")}`,
+      });
+      await db
+        .prepare(
+          "INSERT INTO senders VALUES('sender_resend',?,'email','Fixture','documents@guteneo.com','verified','production',?)",
+        )
+        .bind(ctx.organizationId, new Date().toISOString())
+        .run();
+      await db
+        .prepare(
+          "INSERT INTO resend_send_limit_policies(account_id,max_recipients_24h,min_interval_ms,qualified_at_ms,expires_at_ms,source_sha256,status) VALUES(?,100,1000,?,?,?,'qualified')",
+        )
+        .bind(
+          env.RESEND_ACCOUNT_ID,
+          Date.now() - 1000,
+          Date.now() + 3600000,
+          "c".repeat(64),
+        )
+        .run();
+      domain = new DomainService(db, {
+        mode: "production",
+        ...createLiveDeliveryQuoteConfig(env),
+      });
+      const row = await queueFixture("email");
+      const fetcher = vi.fn<Fetcher>(async () => {
+        throw new Error("fixture unknown");
+      });
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "email", { fetcher }),
+      );
+      const time = String(Math.floor(Date.now() / 1000));
+      const body = JSON.stringify({
+        type: eventType,
+        created_at: new Date().toISOString(),
+        data: {
+          email_id: "12345678-1234-1234-1234-123456789abc",
+          to: ["private@example.invalid"],
+          subject: "PRIVATE TEST SENTINEL",
+          tags: { "guteneo-dispatch": row.id },
+        },
+      });
+      const signature = createHmac("sha256", "fixture-only-signature-key")
+        .update(`event_resend_fixture.${time}.${body}`)
+        .digest("base64");
+      const callback = (signed = true) =>
+        new Request("https://guteneo.example/webhooks/resend", {
+          method: "POST",
+          body,
+          headers: {
+            "svix-id": "event_resend_fixture",
+            "svix-timestamp": time,
+            "svix-signature": signed ? `v1,${signature}` : "v1,ZmFrZQ==",
+          },
+        });
+      expect((await handleWebhook(callback(false), env, domain))!.status).toBe(
+        401,
+      );
+      expect(
+        await db.prepare("SELECT COUNT(*) AS n FROM provider_receipts").first(),
+      ).toEqual({ n: 0 });
+      const unavailable = {
+        ingestEvent: vi
+          .fn()
+          .mockRejectedValue(new Error("fixture temporary projection")),
+      };
+      expect((await handleWebhook(callback(), env, unavailable))!.status).toBe(
+        202,
+      );
+      const receipt = await db
+        .prepare("SELECT payload_json,status FROM provider_receipts")
+        .first<{ payload_json: string; status: string }>();
+      expect(receipt?.status).toBe("pending");
+      expect(receipt?.payload_json).not.toContain("PRIVATE TEST SENTINEL");
+      expect(receipt?.payload_json).not.toContain("private@example.invalid");
+      expect(await reconcileWebhookReceipts(db, domain)).toEqual({
+        projected: 1,
+        pending: 0,
+      });
+      expect((await handleWebhook(callback(), env, domain))!.status).toBe(200);
+      expect(
+        await db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM provider_events WHERE provider='resend'",
+          )
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare("SELECT status FROM dispatches WHERE id=?")
+          .bind(row.id)
+          .first(),
+      ).toEqual({ status });
+      expect(
+        await db
+          .prepare(
+            "SELECT reason FROM suppressions WHERE organization_id=? AND email='recipient@example.invalid'",
+          )
+          .bind(ctx.organizationId)
+          .first(),
+      ).toEqual({ reason });
+      expect(
+        await db.prepare("SELECT status FROM resend_send_reservations").first(),
+      ).toEqual({ status: "accepted" });
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      await expect(
+        domain.prepareDispatch(
+          ctx,
+          {
+            channel: "email",
+            recipient: { email: "recipient@example.invalid" },
+            senderId: "sender_resend",
+            html: "<p>Fixture</p>",
+            text: "Fixture",
+            subject: "Fixture",
+            ceilingMinor: 200,
+          },
+          crypto.randomUUID(),
+        ),
+      ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    },
+  );
 });
 
 it("rejects a provider-side window change while obtaining the frozen postal quote", async () => {

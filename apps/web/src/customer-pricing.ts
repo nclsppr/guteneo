@@ -17,11 +17,12 @@ export function getCustomerPricing(): { rates: CustomerRate[]; note: string } {
       {
         id: "email",
         channel: msg("E-mail"),
-        scope: msg("Un destinataire par e-mail"),
-        prices: [{ amount: msg("≈ 0,28 €"), unit: msg("pour 1 000 e-mails") }],
-        supplement: msg(
-          "Pièces jointes : environ 0,21 € par Go en supplément. Un destinataire par e-mail, offre Essentials. Montants hors taxes.",
-        ),
+        scope: msg("Un destinataire, avec ou sans PDF joint"),
+        prices: [
+          { amount: msg("≈ 1,56 €"), unit: msg("pour 1 000 e-mails") },
+          { amount: msg("1 €"), unit: msg("par document hébergé avec mot de passe, en option") },
+        ],
+        supplement: msg("Le PDF joint n’ajoute pas de supplément de transport. L’option de lien protégé remplace la pièce jointe ; son hébergement s’ajoute au prix de l’e-mail. Montants hors taxes."),
       },
       {
         id: "fax",
@@ -54,7 +55,7 @@ export function getCustomerPricing(): { rates: CustomerRate[]; note: string } {
       },
     ],
     note: msg(
-      "Montants indicatifs hors taxes, vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre atelier connecté ; l’aperçu reste une démonstration sans envoi réel.",
+      "Montants indicatifs hors taxes. Tarifs e-mail révisés le 21 septembre 2026 ; fax et courrier vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre atelier connecté ; l’aperçu reste une démonstration sans envoi réel.",
     ),
   };
 }

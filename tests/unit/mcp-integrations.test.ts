@@ -557,13 +557,41 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.2.2");
+      expect(manifest.version).toBe("0.3.1");
       expect(manifest.version).toBe(plugin.version);
+      expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
+      expect(manifest.files).toContain("skills/email/SKILL.md");
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;
+      expect(branding.supportURL).toBe("https://guteneo.com/support/");
+      expect(branding.privacyPolicyURL).toBe(
+        "https://guteneo.com/confidentialite/",
+      );
+      expect(branding.termsOfServiceURL).toBe(
+        "https://guteneo.com/conditions/",
+      );
+      expect(branding.shortDescription.length).toBeLessThanOrEqual(30);
+      expect(new Set(branding.defaultPrompt).size).toBe(
+        branding.defaultPrompt.length,
+      );
+      for (const prompt of branding.defaultPrompt) {
+        expect(prompt.length).toBeLessThanOrEqual(128);
+        expect(prompt).not.toContain("@");
+      }
+      const onboarding = plugin.extensions[
+        "com.openai"
+      ].onboardingSkill.replace(/^\.\//, "");
+      expect(manifest.files).toContain(onboarding);
+      // Private reviewer access and legal consent must remain outside the public ZIP.
+      expect(plugin.extensions["com.openai"].review).not.toHaveProperty(
+        "test_credentials",
+      );
+      expect(plugin.extensions["com.openai"].review).not.toHaveProperty(
+        "reviewer_instructions",
+      );
       for (const [property, filename] of [
         ["composerIcon", "guteneo-composer.png"],
         ["logo", "guteneo-mark.png"],
@@ -582,6 +610,19 @@ describe("distributable LLM integrations", () => {
           ),
         );
       }
+      const emailSkill = execFileSync(
+        "unzip",
+        ["-p", path.join(first, "guteneo-plugin.zip"), "skills/email/SKILL.md"],
+        { encoding: "utf8" },
+      );
+      expect(emailSkill).toContain("prepare_dispatch");
+      expect(emailSkill).toContain("aucun `documentId`");
+      expect(emailSkill).toContain(
+        'options.emailDeliveryMode="protected_link"',
+      );
+      expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
+      expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
+      expect(emailSkill).toContain("submission_unknown");
       const postalSkill = execFileSync(
         "unzip",
         [
@@ -676,7 +717,7 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.2.2",
+          version: "0.3.0",
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,

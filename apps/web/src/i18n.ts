@@ -110,6 +110,11 @@ export const fr = {
             "Votre PDF importé est conservé à l’identique. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
         },
         {
+          question: "Puis-je partager un PDF protégé par mot de passe ?",
+          answer:
+            "Oui. Choisissez l’option de lien protégé : le destinataire reçoit un e-mail sans pièce jointe, puis saisit le mot de passe sur Guteneo sans créer de compte. L’hébergement coûte 1 € par document, en plus de l’e-mail. Transmettez le mot de passe par un autre canal. Le lien expire après la durée choisie et peut être révoqué ; les copies déjà téléchargées restent accessibles. Cette option protège l’accès et ne constitue pas un chiffrement de bout en bout.",
+        },
+        {
           question: "Mon assistant peut-il envoyer sans mon accord ?",
           answer:
             "Par défaut, votre assistant prépare l’envoi et vous validez dans Guteneo le document, le destinataire, le canal et le coût. Un accord donné dans la conversation ne remplace pas cette validation. Le mode expert est facultatif : seul un administrateur peut autoriser une délégation limitée, révocable et avec une date de fin.",
