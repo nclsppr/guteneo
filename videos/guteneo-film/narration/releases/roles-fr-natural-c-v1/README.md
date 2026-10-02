@@ -13,14 +13,24 @@ the gaps between blocks are represented by the video edit. `enhancement.json`
 records the original and enhanced text, and `provider-receipts/` records the real
 selected outputs. The enhancement tags do not appear in the captions.
 
-The decoded source samples are preserved in full, once each and in order. Every
-WAV is an exact PCM slice of its source MP3, without speeding up, clipping words
+The canonical decoded source samples are preserved in full, once each and in order.
+Every WAV is an exact slice of the original FFmpeg 9 canonical PCM, without speeding up, clipping words
 or re-encoding to MP3. `library.json` records file hashes, full decoded hashes,
 sample bounds and a derived fingerprint binding the source hash, enhanced prompt,
 cue text, voice, language and sample bounds. `cut-proof.json` records the cuts.
 The offline ASR proof in `alignment/` uses no expected-text prompt, has 20 ms word
 timestamp resolution and explicitly lists homophone/proper-name limitations.
 Portable proof copies retain their original proof hashes as provenance.
+
+Floating-point MP3 decoders can differ in their least-significant PCM24 bits.
+Mac FFmpeg 9.0.1 and Ubuntu FFmpeg 6.1.1 were measured with identical sample counts
+and a maximum difference of 3 units; `decoder-equivalence.json` records all three
+blocks. Replay keeps every MP3/WAV hash strict, reconstructs the full canonical
+PCM hash from the WAVs, then compares every decoded MP3 sample with a maximum
+portability bound of 8 units on the 24-bit scale. A missing sample or larger
+difference is rejected. `decoder-proof.json` records the actual replay differences.
+This permits decoder rounding differences while preserving the canonical voice
+clips and all scene limits exactly.
 
 The six scenes follow the actual voice duration. `timeline.json` and `scripts.json`
 describe 1,346 frames at 30 fps (44.8667 seconds), including the original logo card

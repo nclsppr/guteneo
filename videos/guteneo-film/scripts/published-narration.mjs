@@ -99,6 +99,11 @@ export async function preparePublishedNarration({jobs, filmRoot, repositoryRoot,
   const outputDir = await mkdtemp(path.join(outputRoot, 'narration-'));
   try {
     await writeFile(path.join(outputDir, 'generation.json'), `${JSON.stringify(generation, null, 2)}\n`);
+    const decoderQualifications = libraries.filter((entry) => entry.decoderQualification).map((entry) => ({
+      library: path.basename(entry.library), sources: entry.decoderQualification,
+    }));
+    if (decoderQualifications.length) await writeFile(path.join(outputDir, 'decoder-proof.json'),
+      `${JSON.stringify({schemaVersion: 1, decoderQualifications}, null, 2)}\n`);
     for (const {library} of libraries) await cp(path.join(library, 'clips'), path.join(outputDir, 'clips'), {recursive: true});
     // Qualify every recorded hash, fingerprint, G2 selection and measured timing
     // before the renderer can replace any source or public asset. This writes

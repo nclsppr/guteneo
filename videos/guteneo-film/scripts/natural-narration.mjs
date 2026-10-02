@@ -37,6 +37,23 @@ export async function decodePcm24(file) {
   return stdout;
 }
 
+export function compareDecodedPcm24(canonicalPcm, decodedPcm) {
+  if (!canonicalPcm.length || canonicalPcm.length % 3 || canonicalPcm.length !== decodedPcm.length) {
+    throw new Error('Natural narration decoder must retain exactly the complete source sample count.');
+  }
+  let maximumAbsoluteDelta = 0;
+  let differentSamples = 0;
+  for (let offset = 0; offset < canonicalPcm.length; offset += 3) {
+    const delta = Math.abs(canonicalPcm.readIntLE(offset, 3) - decodedPcm.readIntLE(offset, 3));
+    maximumAbsoluteDelta = Math.max(maximumAbsoluteDelta, delta);
+    if (delta) differentSamples++;
+    // Floating-point MP3 decoders vary by a few least-significant PCM24 bits.
+    // This is a quantization bound, not a trim, timing or cache-hash tolerance.
+    if (delta > 8) throw new Error('Natural narration decoder exceeds the 8-LSB PCM24 portability bound.');
+  }
+  return {decodedSamples: canonicalPcm.length / 3, differentSamples, maximumAbsoluteDelta, toleranceLsb: 8};
+}
+
 export async function qualifyNaturalVideo({repositoryRoot, timeline}) {
   const file = path.join(repositoryRoot, 'apps/web/public', naturalFrenchRoles.source.slice(1));
   const media = await probeMedia(file);
@@ -119,13 +136,14 @@ export async function qualifyNaturalNarration(library) {
       throw new Error('Natural narration source does not match its selected plugin variation and enhanced text.');
     }
     const pcm = await checkedMedia(library, source, 'mp3');
-    if (pcm.length / 3 !== source.decodedSamples || digest(pcm) !== source.decodedPcmSha256) {
-      throw new Error('Natural narration source has changed its complete decoded signal.');
+    if (pcm.length / 3 !== source.decodedSamples) {
+      throw new Error('Natural narration source has changed its complete decoded sample count.');
     }
     decoded.set(source.blockId, pcm);
   }
   const clips = [];
   const previousEnd = new Map(saved.sources.map((source) => [source.blockId, 0]));
+  const canonicalParts = new Map(saved.sources.map((source) => [source.blockId, []]));
   for (let index = 0; index < cues.length; index++) {
     const clip = saved.clips[index];
     const cue = narration.cues[index];
@@ -136,8 +154,10 @@ export async function qualifyNaturalNarration(library) {
       || clip.sourceStartSample !== previousEnd.get(source.blockId) || clip.sourceEndSample <= clip.sourceStartSample
       || clip.sourceEndSample > source.decodedSamples) throw new Error('Natural narration cuts must preserve the complete native-pace blocks.');
     const pcm = await checkedMedia(library, clip, 'pcm_s24le');
-    const expected = decoded.get(source.blockId).subarray(clip.sourceStartSample * 3, clip.sourceEndSample * 3);
-    if (!pcm.equals(expected) || digest(pcm) !== clip.pcmSha256) throw new Error('Natural narration WAV is not an exact source PCM cut.');
+    if (pcm.length / 3 !== clip.sourceEndSample - clip.sourceStartSample || digest(pcm) !== clip.pcmSha256) {
+      throw new Error('Natural narration WAV is not an exact source PCM cut.');
+    }
+    canonicalParts.get(source.blockId).push(pcm);
     previousEnd.set(source.blockId, clip.sourceEndSample);
     const fingerprint = derivedClipFingerprint({source, clip, text: cue.text, voiceId: saved.voice.voiceId});
     if (typeof cue.text !== 'string' || !cue.text.trim()) throw new Error('Natural narration cue text is missing.');
@@ -157,7 +177,14 @@ export async function qualifyNaturalNarration(library) {
   if (saved.sources.some((source) => previousEnd.get(source.blockId) !== source.decodedSamples)) {
     throw new Error('Natural narration must retain every source sample.');
   }
+  const decoderQualification = saved.sources.map((source) => {
+    const canonicalPcm = Buffer.concat(canonicalParts.get(source.blockId));
+    if (digest(canonicalPcm) !== source.decodedPcmSha256) throw new Error('Natural narration cuts do not reconstruct the exact canonical source PCM.');
+    const actualPcm = decoded.get(source.blockId);
+    return {blockId: source.blockId, sourceSha256: source.sha256, canonicalPcmSha256: source.decodedPcmSha256,
+      decodedPcmSha256: digest(actualPcm), ...compareDecodedPcm24(canonicalPcm, actualPcm)};
+  });
   validateMixCues(narration, clips.map((clip) => ({...clip, durationSeconds: clip.actualDurationSeconds})));
-  return {manifest, generation, metadata: saved, timeline,
+  return {manifest, generation, metadata: saved, timeline, decoderQualification,
     plan: {schemaVersion: 1, modelId: saved.modelId, outputFormat: 'pcm_s24le', clips}};
 }

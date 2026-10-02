@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import {buildPlan} from '../scripts/generate-narration.mjs';
-import {qualifyNaturalNarration} from '../scripts/natural-narration.mjs';
+import {compareDecodedPcm24, qualifyNaturalNarration} from '../scripts/natural-narration.mjs';
 import {buildRenderJobs, naturalFrenchRoles} from '../scripts/render-catalog.mjs';
 import {canReuseRenderedJob, preparePublishedNarration, publishNarratedJobs} from '../scripts/published-narration.mjs';
 import {videoStreamHash} from '../scripts/mix-narration.mjs';
@@ -15,6 +15,19 @@ const filmRoot = path.join(repositoryRoot, 'videos/guteneo-film');
 const library = path.join(filmRoot, 'narration/releases/roles-fr-natural-c-v1');
 const json = async (file) => JSON.parse(await readFile(file, 'utf8'));
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+test('PCM24 decoder quantization is bounded while every source sample is retained', () => {
+  const canonical = Buffer.alloc(9);
+  canonical.writeIntLE(-8000000, 0, 3);
+  canonical.writeIntLE(0, 3, 3);
+  canonical.writeIntLE(8000000, 6, 3);
+  const bounded = Buffer.from(canonical);
+  bounded.writeIntLE(8, 3, 3);
+  assert.deepEqual(compareDecodedPcm24(canonical, bounded), {decodedSamples: 3, differentSamples: 1, maximumAbsoluteDelta: 8, toleranceLsb: 8});
+  bounded.writeIntLE(9, 3, 3);
+  assert.throws(() => compareDecodedPcm24(canonical, bounded), /8-LSB/);
+  assert.throws(() => compareDecodedPcm24(canonical, canonical.subarray(3)), /sample count/);
+});
 
 test('natural C qualifies all selected plugin blocks and exact PCM24 cuts at their native pace', async () => {
   const before = await readFile(path.join(library, 'library.json'));
