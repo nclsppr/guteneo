@@ -73,7 +73,7 @@ export const fr = {
       title: "La suite de vos mots.",
       italic: "En mouvement.",
       intro:
-        "De votre première idée à sa destination. Découvrez Guteneo en 56 secondes.",
+        "Ce film de 56 secondes présente Guteneo, de la préparation d’un document à son envoi par fax, e-mail ou courrier postal.",
       play: "Découvrir le film",
       replay: "Revoir le film",
       duration: "56 secondes · Avec le son",
@@ -91,7 +91,7 @@ export const fr = {
       title: "De quoi commencer.",
       italic: "Et rien de caché.",
       intro:
-        "Un crédit de bienvenue pour vos premiers envois. Ensuite, vous gardez la main sur votre budget, avant chaque validation.",
+        "Votre organisation reçoit une seule fois 50 € de crédit de bienvenue à l’ouverture de son compte. Le prix ou le plafond de chaque envoi vous est présenté avant validation.",
       welcomeTitle: "Offerts à l’ouverture de votre compte.",
       welcomeBody:
         "Votre organisation reçoit 50 € de crédit de bienvenue une seule fois à la création de son compte. Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
@@ -105,12 +105,12 @@ export const fr = {
       title: "Avant le premier envoi,",
       italic: "quelques réponses.",
       intro:
-        "Le document, votre accord et le suivi : les mêmes repères, quel que soit le canal.",
+        "Avant le premier envoi, vérifiez le document, le destinataire, le canal et le coût dans Guteneo. Retrouvez ensuite le suivi dans votre conversation et votre espace.",
       items: [
         {
           question: "Mon PDF original est-il modifié ?",
           answer:
-            "Votre PDF importé est conservé à l’identique. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
+            "Votre PDF importé est conservé à l’identique. L’import est limité à 10 Mio et 100 pages. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
         },
         {
           question: "Puis-je partager un PDF protégé par mot de passe ?",
@@ -139,7 +139,7 @@ export const fr = {
       italic: "Les nôtres partent d’ici.",
       cta: "Préparer mon premier envoi",
       imageAlt:
-        "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en bleu et ivoire.",
+        "Toits du Grund, falaises et ponts de Luxembourg, gravure tramée en bleu et ivoire.",
       stampDescription:
         "Timbre Gutenberg et cachet décoratif Luxembourg, premier jour de guteneo :",
       foundingDate: "16 septembre 2026",

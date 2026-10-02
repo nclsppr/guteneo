@@ -1,4 +1,9 @@
 {
+  "Préparez votre premier envoi depuis une conversation ou directement avec votre document. Dans les deux cas, vous vérifiez les détails avant de confirmer.": [
+    "Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.",
+    "Bereiten Sie Ihre erste Sendung aus einem Gespräch oder direkt mit Ihrem Dokument vor. In beiden Fällen prüfen Sie die Details vor der Bestätigung.",
+    "Bereet Är éischt Sendung aus engem Gespréich oder direkt mat Ärem Dokument vir. A béide Fäll kontrolléiert Dir d’Detailer, ier Dir bestätegt."
+  ],
   "Navigation principale": [
     "Main navigation",
     "Hauptnavigation",
@@ -259,11 +264,6 @@
     "Är éischt Sendung."
   ],
   "À votre façon.": ["Your way.", "Auf Ihre Weise.", "Op Är Manéier."],
-  "Depuis une conversation ou directement avec votre document, vous gardez la main sur chaque envoi.": [
-    "From a conversation or directly with your document, you stay in control of every delivery.",
-    "Aus einer Unterhaltung oder direkt mit Ihrem Dokument: Sie behalten die Kontrolle über jede Sendung.",
-    "Aus engem Gespréich oder direkt mat Ärem Dokument: Dir behält d’Kontroll iwwer all Sendung."
-  ],
   "Depuis votre assistant": [
     "From your assistant",
     "Über Ihren Assistenten",

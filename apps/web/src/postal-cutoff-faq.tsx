@@ -36,9 +36,11 @@ export function PostalCutoffFaq() {
       tabIndex={-1}
     >
       <summary>
-        {msg(
-          "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
-        )}
+        <h3>
+          {msg(
+            "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
+          )}
+        </h3>
         <Plus size={19} aria-hidden="true" />
       </summary>
       <div className="postal-cutoff-faq__content">

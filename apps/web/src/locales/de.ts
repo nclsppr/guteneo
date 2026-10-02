@@ -71,7 +71,7 @@ export const de: Copy = {
       title: "Alles für den Anfang.",
       italic: "Ohne versteckte Kosten.",
       intro:
-        "Ein Willkommensguthaben für Ihre ersten Sendungen. Danach behalten Sie vor jeder Freigabe die Kontrolle über Ihr Budget.",
+        "Ihre Organisation erhält bei der Kontoerstellung einmalig 50 € Willkommensguthaben. Der Preis oder die Kostenobergrenze jeder Sendung wird vor der Freigabe angezeigt.",
       welcomeTitle: "Als Geschenk zur Kontoeröffnung.",
       welcomeBody:
         "Ihre Organisation erhält bei der Kontoerstellung einmalig 50 € Willkommensguthaben. Dieses Guthaben wird gemeinsam für die aktivierten Kanäle genutzt: Fax, E-Mail und Briefpost.",
@@ -85,12 +85,12 @@ export const de: Copy = {
       title: "Vor der ersten Sendung",
       italic: "ein paar Antworten.",
       intro:
-        "Das Dokument, Ihre Zustimmung und die Nachverfolgung: die gleichen Grundlagen für jeden Kanal.",
+        "Prüfen Sie vor der ersten Sendung Dokument, Empfänger, Kanal und Kosten in Guteneo. Verfolgen Sie anschließend die Sendung im Gespräch und in Ihrem Bereich.",
       items: [
         {
           question: "Wird meine ursprüngliche PDF-Datei verändert?",
           answer:
-            "Ihre importierte PDF-Datei bleibt unverändert erhalten. Wenn Sie mit Ihrem Assistenten einen Brief verfassen, wird ein neues Dokument erstellt. Sie können es vor der Versandvorbereitung prüfen.",
+            "Ihre importierte PDF-Datei bleibt unverändert erhalten. Der Import ist auf 10 MiB und 100 Seiten begrenzt. Wenn Sie mit Ihrem Assistenten einen Brief verfassen, wird ein neues Dokument erstellt. Sie können es vor der Versandvorbereitung prüfen.",
         },
         {
           question: "Kann ich ein passwortgeschütztes PDF teilen?",
@@ -119,7 +119,7 @@ export const de: Copy = {
       italic: "Unsere starten hier.",
       cta: "Meine erste Sendung vorbereiten",
       imageAlt:
-        "Illustrierte Ansicht von Luxemburg: Dächer des Grund, Felsen und Brücken der Altstadt, gerasterter Stich in Blau und Elfenbein.",
+        "Dächer des Grund, Felsen und Brücken von Luxemburg, gerasterter Stich in Blau und Elfenbein.",
       stampDescription:
         "Gutenberg-Briefmarke und dekorativer Luxemburger Poststempel, erster Tag von guteneo:",
       foundingDate: "16. September 2026",
@@ -134,7 +134,7 @@ export const de: Copy = {
       title: "Der nächste Weg Ihrer Worte.",
       italic: "In Bewegung.",
       intro:
-        "Von Ihrer ersten Idee bis zum Ziel. Entdecken Sie Guteneo in 56 Sekunden.",
+        "Dieser 56 Sekunden lange Film stellt Guteneo vor: von der Vorbereitung eines Dokuments bis zum Versand per Fax, E-Mail oder Briefpost.",
       play: "Film ansehen",
       replay: "Film erneut ansehen",
       duration: "56 Sekunden · Mit Ton",
