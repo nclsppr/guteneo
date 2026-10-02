@@ -110,6 +110,8 @@ final class GuteneoUITests: XCTestCase {
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Votre identité"].waitForExistence(timeout: 5))
+        assertLogoCount(0, in: app)
+        assertNoPurchaseCallToAction(in: app)
         let language = app.buttons["accountLanguage"]
         for _ in 0..<5 where !language.isHittable { app.swipeUp() }
         XCTAssertTrue(language.isHittable, "Le choix de langue doit rester accessible au plus grand texte")
