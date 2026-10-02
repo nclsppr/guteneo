@@ -1,10 +1,10 @@
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { fileURLToPath } from "node:url";
 import { test, expect } from "./fixtures";
 import type { Session } from "../../apps/web/src/api";
 import type { TemplateView } from "../../packages/contracts/src/template-workflow";
 import type { DocxImportResult } from "../../packages/templates/docx";
+import { syntheticDocxFixture } from "../../scripts/pdfme-docx-fixture";
 
 test("Word import exposes conversion warnings, supports native visual editing and renders an actual PDF", async ({
   page,
@@ -22,14 +22,14 @@ test("Word import exposes conversion warnings, supports native visual editing an
   ).json()) as Session;
   expect(session.simulation).toBe(true);
   await page.goto("/#/app/templates");
-  const sourcePath = fileURLToPath(
-    new URL("../../reports/template-engine/word-source.docx", import.meta.url),
-  );
-  const sourceBytes = await readFile(sourcePath);
+  const sourceBytes = Buffer.from(syntheticDocxFixture());
   expect(sourceBytes.subarray(0, 2).toString()).toBe("PK");
-  await page
-    .getByLabel("Fichier Word (.docx)", { exact: true })
-    .setInputFiles(sourcePath);
+  await page.getByLabel("Fichier Word (.docx)", { exact: true }).setInputFiles({
+    name: "word-source.docx",
+    mimeType:
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    buffer: sourceBytes,
+  });
   const importedResponse = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/templates/import-docx") &&
