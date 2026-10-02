@@ -21,15 +21,20 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
       "vertical",
     ]);
     const suffix = locale === "fr" ? "" : `-${locale}`;
+    const narrated = locale === "fr" || locale === "en";
     for (const format of ["horizontal", "vertical"]) {
       assert.deepEqual(catalog.introduction[locale][format], {
-        movie: `/videos/guteneo-${format}-v${locale === "en" ? 6 : 5}${suffix}.mp4`,
+        movie: `/videos/guteneo-${format}-v${narrated ? 6 : 5}-${locale}.mp4`,
         poster: `/videos/guteneo-${format}-v5${suffix}.webp`,
+        ...(narrated ? { captions: `/videos/guteneo-v6.${locale}.vtt` } : {}),
       });
     }
     assert.deepEqual(catalog.roles[locale], {
-      movie: `/videos/guteneo-roles-v${locale === "en" ? 2 : 1}-${locale}.mp4`,
+      movie: `/videos/guteneo-roles-v${narrated ? 2 : 1}-${locale}.mp4`,
       poster: `/videos/guteneo-roles-v1-${locale}.webp`,
+      ...(narrated
+        ? { captions: `/videos/guteneo-roles-v2.${locale}.vtt` }
+        : {}),
     });
     assets.push(
       ...Object.values(catalog.introduction[locale]),
@@ -52,7 +57,7 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
   for (const asset of assets) {
     assert.match(
       asset.movie,
-      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-(?:v5(?:-(?:de|lb))?|v6-en)|roles-(?:v1-(?:fr|de|lb)|v2-en))\.mp4$/,
+      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-(?:v5-(?:de|lb)|v6-(?:fr|en))|roles-(?:v1-(?:de|lb)|v2-(?:fr|en)))\.mp4$/,
     );
     const poster = await readFile(
       new URL(`apps/web/public${asset.poster}`, root),
@@ -67,6 +72,13 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
       "WEBP",
       `${asset.poster} is WebP`,
     );
+    if (asset.captions) {
+      const captions = await readFile(
+        new URL(`apps/web/public${asset.captions}`, root),
+        "utf8",
+      );
+      assert.ok(captions.startsWith("WEBVTT\n"), `${asset.captions} is WebVTT`);
+    }
   }
   for (const [path, asset] of Object.entries(manifest)) {
     const bytes = await readFile(new URL(`apps/web/public${path}`, root));
