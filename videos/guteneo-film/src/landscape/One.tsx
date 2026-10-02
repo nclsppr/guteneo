@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import {
   Brand,
@@ -13,6 +14,7 @@ import {
 } from "./components";
 
 export const One = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
@@ -21,12 +23,13 @@ export const One = () => {
       </div>
       <div style={{ position: "absolute", left: 120, top: 350 }}>
         <Lift>
-          <Kicker>La suite de vos mots</Kicker>
+          <Kicker>{t("La suite de vos mots")}</Kicker>
         </Lift>
         <Head size={160} style={{ marginTop: 45 }}>
-          Tout part
+          {t("Tout part")}
           <br />
-          d’un <em style={{ color: C.blue }}>document.</em>
+          {t("d’un") + " "}
+          <em style={{ color: C.blue }}>{t("document.")}</em>
         </Head>
       </div>
       <div

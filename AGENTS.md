@@ -10,6 +10,8 @@ Acceptance, quota reservation and outbox insertion are atomic. Unknown provider 
 Use integer minor currency units; never log content, recipients, tokens or signed URLs.
 Keep real, sandbox and deterministic simulation evidence separate.
 
+Every public video and its poster must match the user's resolved interface language (French, English, German or Luxembourgish), including the personal account preference. A language change stops the previous movie. Keep every supported language in the shared public-video catalog and regenerate its media before release; never present a French movie as a localized version. Promotional and role films end with the same official V5 halftone stamp, postmark and lowercase guteneo.com card. Preserve the validated montage and use the checked-in Remotion sources and locked dependencies for regeneration.
+
 Commands: npm ci; npm run db:migrate; npm run db:seed; npm run demo; npm run typecheck; npm run lint; npm test; npm run test:e2e; npm run build.
 Public design preview: npm run build:preview; npm run test:preview; npm run deploy:preview. Read docs/PUBLIC_PREVIEW.md before releasing. It is a separate browser-only fixture model, with no business bindings; never expose local development authentication on it.
 Read docs/EXECUTION_PLAN.md, docs/PRODUCT.md and docs/ARCHITECTURE.md before changing invariants. Update proof and known gaps honestly. Coordinate file ownership between agents.

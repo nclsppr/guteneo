@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -21,17 +22,18 @@ import {
 import { usePortraitLayout } from "./layout";
 
 export const Assistants = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 82, top: y(180) }}>
-        <Kicker>Votre assistant, votre façon</Kicker>
+        <Kicker>{t("Votre assistant, votre façon")}</Kicker>
         <Lift>
           <Head size={153} style={{ marginTop: 68 }}>
-            Dites-le
+            {t("Dites-le")}
             <br />
-            <em style={{ color: C.blue }}>à votre IA.</em>
+            <em style={{ color: C.blue }}>{t("à votre IA.")}</em>
           </Head>
         </Lift>
       </div>
@@ -77,26 +79,29 @@ export const Assistants = () => {
       <Label
         style={{ position: "absolute", left: 82, top: y(1500), width: 790 }}
       >
-        Créez. Personnalisez.
+        {t("Créez. Personnalisez.")}
         <br />
-        Envoyez, avec votre IA.
+        {t("Envoyez, avec votre IA.")}
       </Label>
     </Frame>
   );
 };
 
 export const Generate = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
-  const prompt = "Crée une lettre en PDF, puis prépare son envoi avec Guteneo.";
+  const prompt = t(
+    "Crée une lettre en PDF, puis prépare son envoi avec Guteneo.",
+  );
   return (
     <Frame dark>
       <div style={{ position: "absolute", left: 82, top: y(165) }}>
-        <Kicker light>De l’idée au document</Kicker>
+        <Kicker light>{t("De l’idée au document")}</Kicker>
         <Head size={123} style={{ marginTop: 65 }}>
-          « Crée mon PDF.
+          {t("« Crée mon PDF.")}
           <br />
-          <em>Prépare l’envoi. »</em>
+          <em>{t("Prépare l’envoi. »")}</em>
         </Head>
       </div>
       <div
@@ -153,9 +158,9 @@ export const Generate = () => {
           {prompt.slice(0, Math.max(0, Math.floor((f - 10) * 2.1)))}
         </div>
         <Lift at={48} style={{ marginTop: 45, fontSize: 36, lineHeight: 1.4 }}>
-          Le PDF est créé.
+          {t("Le PDF est créé.")}
           <br />
-          Vous pouvez le relire avant l’envoi.
+          {t("Vous pouvez le relire avant l’envoi.")}
         </Lift>
         <Lift
           at={68}
@@ -171,9 +176,9 @@ export const Generate = () => {
         >
           <div style={{ fontSize: 31, color: C.blue }}>PDF</div>
           <div style={{ fontSize: 33 }}>
-            Votre-lettre.pdf
+            {t("Votre-lettre.pdf")}
             <div style={{ fontSize: 25, color: "#72796f", marginTop: 10 }}>
-              1 page · prêt à être relu
+              {t("1 page · prêt à être relu")}
             </div>
           </div>
           <Check />
@@ -191,7 +196,7 @@ export const Generate = () => {
           <div>
             <div style={{ fontFamily: serif, fontSize: 48 }}>guteneo</div>
             <div style={{ fontSize: 28, color: "#72796f" }}>
-              Préparer ce document ↗
+              {t("Préparer ce document ↗")}
             </div>
           </div>
         </Lift>
@@ -201,25 +206,26 @@ export const Generate = () => {
 };
 
 export const Review = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   const phase = f >= 85;
   return (
     <Frame>
       <div style={{ position: "absolute", left: 82, top: y(170) }}>
-        <Kicker>Le dernier mot vous appartient</Kicker>
+        <Kicker>{t("Le dernier mot vous appartient")}</Kicker>
         <Head size={133} style={{ marginTop: 59 }}>
           {phase ? (
             <>
-              Le bon PDF.
+              {t("Le bon PDF.")}
               <br />
-              <em style={{ color: C.blue }}>Le bon devis.</em>
+              <em style={{ color: C.blue }}>{t("Le bon devis.")}</em>
             </>
           ) : (
             <>
-              Relisez.
+              {t("Relisez.")}
               <br />
-              <em style={{ color: C.blue }}>Puis validez.</em>
+              <em style={{ color: C.blue }}>{t("Puis validez.")}</em>
             </>
           )}
         </Head>
@@ -245,18 +251,18 @@ export const Review = () => {
             padding: 35,
           }}
         >
-          <div style={{ fontSize: 27, color: C.blue }}>BON À TIRER</div>
+          <div style={{ fontSize: 27, color: C.blue }}>{t("BON À TIRER")}</div>
           <div style={{ fontFamily: serif, fontSize: 55, marginTop: 20 }}>
-            Votre campagne.
+            {t("Votre campagne.")}
           </div>
           <div
             style={{ fontSize: 29, lineHeight: 1.5, marginTop: 22, width: 290 }}
           >
-            Original vérifié.
+            {t("Original vérifié.")}
             <br />
-            Destinataires relus.
+            {t("Destinataires relus.")}
             <br />
-            Devis confirmé.
+            {t("Devis confirmé.")}
           </div>
           <div
             style={{
@@ -283,14 +289,14 @@ export const Review = () => {
             fontSize: 26,
           }}
         >
-          Tout est clair avant l’envoi.
+          {t("Tout est clair avant l’envoi.")}
         </div>
       </div>
       <div style={{ position: "absolute", left: 85, top: y(1290), width: 795 }}>
         {[
-          "Document & destinataire",
-          "Tarif & plafond",
-          "Votre accord avant l’envoi",
+          t("Document & destinataire"),
+          t("Tarif & plafond"),
+          t("Votre accord avant l’envoi"),
         ].map((text, i) => (
           <div
             key={text}

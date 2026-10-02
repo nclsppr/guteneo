@@ -6,9 +6,11 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@remotion/bundler": "4.0.526",
     "@remotion/cli": "4.0.526",
     "@remotion/fonts": "4.0.526",
     "@remotion/media": "4.0.526",
+    "@remotion/renderer": "4.0.526",
     "@remotion/transitions": "4.0.526",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -33,7 +35,8 @@
     "lint": "eslint src && tsc",
     "render:iphone:pro": "remotion render src/index.ts Guteneo-iPhone-18-Pro out/guteneo-v5-iphone-18-pro.mp4 --concurrency=4",
     "render:iphone:pro-max": "remotion render src/index.ts Guteneo-iPhone-18-Pro-Max out/guteneo-v5-vertical-iphone.mp4 --concurrency=4",
-    "render:horizontal": "remotion render src/index.ts Guteneo-Horizontal-Vision out/guteneo-v5-horizontal-1080p.mp4 --concurrency=4"
+    "render:horizontal": "remotion render src/index.ts Guteneo-Horizontal-Vision out/guteneo-v5-horizontal-1080p.mp4 --concurrency=4",
+    "render:localized": "node scripts/render-localized.mjs"
   },
   "sideEffects": [
     "*.css"

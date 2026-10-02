@@ -1,22 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ArrowsOut, Play, X } from "@phosphor-icons/react";
-import { t } from "./locale";
+import { t, useLocale, type SupportedLocale } from "./locale";
+import {
+  publicFilmAsset,
+  type FilmFormat as Format,
+  type PublicFilm,
+} from "../../../packages/contracts/src/public-videos";
+import { rolesFilmCopy } from "./roles-film-copy";
 import "./homepage-film.css";
 
 const phoneQuery =
   "(max-width: 767px), (pointer: coarse) and (max-height: 500px)";
-type Format = "horizontal" | "vertical";
 type SafariVideo = HTMLVideoElement & {
   webkitEnterFullscreen?: () => void;
   webkitExitFullscreen?: () => void;
   webkitDisplayingFullscreen?: boolean;
 };
-const movie = (format: Format) => `/videos/guteneo-${format}-v5.mp4`;
-const poster = (format: Format) => `/videos/guteneo-${format}-v5.webp`;
-
 export function HomepageFilm() {
-  const copy = t.homepage.film;
+  const locale = useLocale();
+  return <LocalizedFilm key={locale} film="introduction" locale={locale} />;
+}
+
+export function RolesFilm() {
+  const locale = useLocale();
+  return <LocalizedFilm key={locale} film="roles" locale={locale} />;
+}
+
+function LocalizedFilm({
+  film,
+  locale,
+}: {
+  film: PublicFilm;
+  locale: SupportedLocale;
+}) {
+  const copy =
+    film === "roles"
+      ? { ...t.homepage.film, ...rolesFilmCopy[locale] }
+      : t.homepage.film;
+  const movie = (format: Format) => publicFilmAsset(film, locale, format).movie;
+  const poster = (format: Format) =>
+    publicFilmAsset(film, locale, format).poster;
+  const id = film === "roles" ? "roles-film" : "homepage-film";
   const video = useRef<SafariVideo>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const selectedFormat = useRef<Format | null>(null);
@@ -53,6 +78,19 @@ export function HomepageFilm() {
     document.addEventListener("fullscreenchange", fullscreenChange);
     player.addEventListener("webkitendfullscreen", nativeFullscreenEnd);
     return () => {
+      // Changing the resolved language unmounts this player. Stop its old
+      // source and pending promise before the replacement can be started.
+      playbackAttempt.current += 1;
+      wantsFullscreen.current = false;
+      retryNativeFullscreen.current = false;
+      if (document.fullscreenElement === player) {
+        void document.exitFullscreen().catch(() => undefined);
+      } else if (player.webkitDisplayingFullscreen) {
+        player.webkitExitFullscreen?.();
+      }
+      player.pause();
+      player.removeAttribute("src");
+      player.load();
       document.removeEventListener("fullscreenchange", fullscreenChange);
       player.removeEventListener("webkitendfullscreen", nativeFullscreenEnd);
     };
@@ -107,7 +145,9 @@ export function HomepageFilm() {
     // before this point, and rotation never replaces a playing movie.
     const nextFormat =
       selectedFormat.current ??
-      (window.matchMedia(phoneQuery).matches ? "vertical" : "horizontal");
+      (film !== "roles" && window.matchMedia(phoneQuery).matches
+        ? "vertical"
+        : "horizontal");
     selectedFormat.current = nextFormat;
     if (!player.getAttribute("src")) player.src = movie(nextFormat);
     else if (player.error) player.load();
@@ -117,8 +157,10 @@ export function HomepageFilm() {
       setStatus("loading");
     });
     // Both browser APIs run within the original click/keyboard activation.
+    // Start audible playback before fullscreen consumes that activation.
+    const playback = player.play();
     enterFullscreen();
-    void player.play().catch(() => {
+    void playback.catch(() => {
       if (attempt !== playbackAttempt.current) return;
       if (player.getAttribute("src")) setStatus("error");
       exitFullscreen();
@@ -143,9 +185,15 @@ export function HomepageFilm() {
   }
 
   return (
-    <section className="homepage-film" aria-labelledby="homepage-film-title">
+    <section
+      className={`homepage-film${film === "roles" ? " roles-film" : ""}`}
+      aria-labelledby={`${id}-title`}
+      lang={locale}
+      data-film={film}
+      data-locale={locale}
+    >
       <div className="homepage-film-heading">
-        <h2 id="homepage-film-title">
+        <h2 id={`${id}-title`}>
           {copy.title} <em>{copy.italic}</em>
         </h2>
         <p>{copy.intro}</p>
@@ -155,10 +203,12 @@ export function HomepageFilm() {
           ref={video}
           className="homepage-film-video"
           controls={format !== null}
+          playsInline
           preload="none"
           tabIndex={format ? 0 : -1}
           aria-label={copy.videoLabel}
-          aria-describedby="homepage-film-transcript"
+          aria-describedby={`${id}-transcript`}
+          lang={locale}
           hidden={!format}
           onPlaying={() => {
             setStatus("ready");
@@ -177,7 +227,9 @@ export function HomepageFilm() {
         />
         {!format && (
           <picture className="homepage-film-poster">
-            <source media={phoneQuery} srcSet={poster("vertical")} />
+            {film !== "roles" && (
+              <source media={phoneQuery} srcSet={poster("vertical")} />
+            )}
             <img
               src={poster("horizontal")}
               alt=""
@@ -231,10 +283,7 @@ export function HomepageFilm() {
           </button>
         </div>
       )}
-      <details
-        className="homepage-film-transcript"
-        id="homepage-film-transcript"
-      >
+      <details className="homepage-film-transcript" id={`${id}-transcript`}>
         <summary>{copy.transcriptTitle}</summary>
         <p>{copy.transcript}</p>
       </details>

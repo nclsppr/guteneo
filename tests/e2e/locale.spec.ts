@@ -1,5 +1,45 @@
 import { expect, test } from "@playwright/test";
 
+test("the saved account language selects the public film ahead of the browser choice", async ({
+  page,
+}) => {
+  await page.route("**/api/**", (route) =>
+    route.fulfill({
+      json:
+        new URL(route.request().url()).pathname === "/api/session"
+          ? {
+              user: {
+                id: "film-locale-user",
+                role: "member",
+                name: "Example",
+                preferredLocale: "de",
+              },
+              organization: { id: "film-locale-org", name: "Example" },
+              csrfToken: "local-fixture",
+              simulation: true,
+            }
+          : {},
+    }),
+  );
+  await page.goto("/?lang=en");
+  const film = page.locator('[data-film="introduction"]');
+  await expect(film).toHaveAttribute("data-locale", "de");
+  await expect(film.locator("video")).toHaveAttribute("lang", "de");
+  await expect(film.locator("video")).not.toHaveAttribute("src");
+  await expect(film.locator(".homepage-film-poster img")).toHaveAttribute(
+    "src",
+    "/videos/guteneo-horizontal-v5-de.webp",
+  );
+  await page.goto("/roles/?lang=en");
+  await expect(page.locator('[data-film="roles"]')).toHaveAttribute(
+    "data-locale",
+    "de",
+  );
+  await expect(
+    page.locator('[data-film="roles"] .homepage-film-poster img'),
+  ).toHaveAttribute("src", "/videos/guteneo-roles-v1-de.webp");
+});
+
 test.use({ locale: "en-GB" });
 test("home language is visible, survives reload and works on mobile", async ({
   page,

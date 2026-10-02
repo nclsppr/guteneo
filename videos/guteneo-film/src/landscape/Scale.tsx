@@ -1,7 +1,9 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import { C, clamp, Frame, Head, Kicker, serif } from "./components";
 
 export const Scale = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const value =
     f < 13
@@ -16,9 +18,10 @@ export const Scale = () => {
   return (
     <Frame blue>
       <div style={{ position: "absolute", left: 120, top: 105 }}>
-        <Kicker light>De 1 à 10 000+ documents</Kicker>
+        <Kicker light>{t("De 1 à 10 000+ documents")}</Kicker>
         <Head size={125} style={{ marginTop: 37 }}>
-          Changez <em>d’échelle.</em>
+          {t("Changez") + " "}
+          <em>{t("d’échelle.")}</em>
         </Head>
       </div>
       <div
@@ -38,7 +41,7 @@ export const Scale = () => {
         {value}
       </div>
       <div style={{ position: "absolute", left: 120, top: 655, fontSize: 40 }}>
-        documents par campagne
+        {t("documents par campagne")}
       </div>
       <div
         style={{
@@ -50,9 +53,9 @@ export const Scale = () => {
           color: "#dce5ff",
         }}
       >
-        Un envoi unique.
+        {t("Un envoi unique.")}
         <br />
-        Ou des milliers d’attentions.
+        {t("Ou des milliers d’attentions.")}
       </div>
       <div
         style={{

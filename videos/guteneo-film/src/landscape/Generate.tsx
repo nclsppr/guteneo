@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -18,19 +19,22 @@ import {
 } from "./components";
 
 export const Generate = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
-  const prompt = "Crée une lettre en PDF, puis prépare son envoi avec Guteneo.";
+  const prompt = t(
+    "Crée une lettre en PDF, puis prépare son envoi avec Guteneo.",
+  );
   return (
     <Frame dark>
       <div style={{ position: "absolute", left: 120, top: 207, width: 790 }}>
-        <Kicker light>De l’idée au document</Kicker>
+        <Kicker light>{t("De l’idée au document")}</Kicker>
         <Head size={111} style={{ marginTop: 59 }}>
-          « Crée mon PDF.
+          {t("« Crée mon PDF.")}
           <br />
           <em>
-            Prépare
+            {t("Prépare")}
             <br />
-            l’envoi. »
+            {t("l’envoi. »")}
           </em>
         </Head>
       </div>
@@ -88,9 +92,9 @@ export const Generate = () => {
           {prompt.slice(0, Math.max(0, Math.floor((f - 10) * 2.1)))}
         </div>
         <Lift at={48} style={{ marginTop: 35, fontSize: 32, lineHeight: 1.4 }}>
-          Le PDF est créé.
+          {t("Le PDF est créé.")}
           <br />
-          Vous pouvez le relire avant l’envoi.
+          {t("Vous pouvez le relire avant l’envoi.")}
         </Lift>
         <Lift
           at={68}
@@ -106,9 +110,9 @@ export const Generate = () => {
         >
           <div style={{ fontSize: 29, color: C.blue }}>PDF</div>
           <div style={{ fontSize: 30 }}>
-            Votre-lettre.pdf
+            {t("Votre-lettre.pdf")}
             <div style={{ fontSize: 23, color: "#72796f", marginTop: 9 }}>
-              1 page · prêt à être relu
+              {t("1 page · prêt à être relu")}
             </div>
           </div>
           <Check />
@@ -126,7 +130,7 @@ export const Generate = () => {
           <div>
             <div style={{ fontFamily: serif, fontSize: 43 }}>guteneo</div>
             <div style={{ fontSize: 26, color: "#72796f" }}>
-              Préparer ce document ↗
+              {t("Préparer ce document ↗")}
             </div>
           </div>
         </Lift>

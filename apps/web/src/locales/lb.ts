@@ -137,7 +137,7 @@ export const lb: Copy = {
         "Vun Ärer éischter Iddi bis op hir Destinatioun. Entdeckt Guteneo a 56 Sekonnen.",
       play: "De Film kucken",
       replay: "De Film nach eng Kéier kucken",
-      duration: "56 Sekonnen · Toun op Franséisch",
+      duration: "56 Sekonnen · Mat Toun",
       videoLabel: "Presentatiounsfilm vu Guteneo",
       fullscreen: "Vollbild",
       close: "De Player zoumaachen",

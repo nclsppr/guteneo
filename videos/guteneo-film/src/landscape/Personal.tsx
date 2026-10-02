@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -17,6 +18,7 @@ import {
 } from "./components";
 
 export const Personal = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame dark>
@@ -44,16 +46,16 @@ export const Personal = () => {
         }}
       />
       <div style={{ position: "absolute", left: 120, top: 155 }}>
-        <Kicker light>Votre campagne. Votre style.</Kicker>
+        <Kicker light>{t("Votre campagne. Votre style.")}</Kicker>
         <Lift at={4}>
           <Head size={150} style={{ marginTop: 60 }}>
-            Du simple.
+            {t("Du simple.")}
             <br />
-            <em>Au personnel.</em>
+            <em>{t("Au personnel.")}</em>
           </Head>
         </Lift>
         <Label light style={{ marginTop: 46 }}>
-          Simple ou ultra-personnalisée.
+          {t("Simple ou ultra-personnalisée.")}
         </Label>
       </div>
       {["Camille", "Noor", "Alex"].map((name, i) => (
@@ -80,15 +82,17 @@ export const Personal = () => {
             ),
           }}
         >
-          Bonjour <em>{name}</em>,
+          {t("Bonjour") + " "}
+          <em>{name}</em>,
         </div>
       ))}
       <Label
         light
         style={{ position: "absolute", left: 120, top: 817, fontSize: 36 }}
       >
-        Une même campagne.
-        <br />À chacun sa version.
+        {t("Une même campagne.")}
+        <br />
+        {t("À chacun sa version.")}
       </Label>
     </Frame>
   );

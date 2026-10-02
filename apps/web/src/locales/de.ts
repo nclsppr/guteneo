@@ -137,7 +137,7 @@ export const de: Copy = {
         "Von Ihrer ersten Idee bis zum Ziel. Entdecken Sie Guteneo in 56 Sekunden.",
       play: "Film ansehen",
       replay: "Film erneut ansehen",
-      duration: "56 Sekunden · Ton auf Französisch",
+      duration: "56 Sekunden · Mit Ton",
       videoLabel: "Vorstellungsfilm von Guteneo",
       fullscreen: "Vollbild",
       close: "Player schließen",

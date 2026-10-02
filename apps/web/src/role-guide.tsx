@@ -3,6 +3,7 @@ import {
   type WorkspaceRole,
 } from "../../../packages/contracts/src/roles";
 import { msg } from "./messages";
+import { RolesFilm } from "./homepage-film";
 import "./role-guide.css";
 
 export function roleLabel(role: string): string {
@@ -81,6 +82,7 @@ export function getRoleGuide() {
         label: msg("Les quatre rôles"),
         content: (
           <>
+            <RolesFilm />
             <h2>{msg("Les quatre rôles")}</h2>
             <RolesOverview />
             <p>

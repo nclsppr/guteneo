@@ -1,8 +1,10 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import { Swallows } from "../vertical/PostalMotifs";
 import { clamp, Frame, Head, Lift } from "./components";
 
 export const Signature = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame blue>
@@ -26,7 +28,8 @@ export const Signature = () => {
       >
         <Lift>
           <Head size={215} style={{ textAlign: "center" }}>
-            La suite <em>de vos mots.</em>
+            {t("La suite") + " "}
+            <em>{t("de vos mots.")}</em>
           </Head>
         </Lift>
       </div>

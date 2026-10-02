@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   AbsoluteFill,
   CanvasImage,
@@ -8,16 +9,18 @@ import {
 import { clamp, ease, Frame, Head, Kicker } from "./components";
 
 export const PhysicalBurst = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const index = f < 40 ? 0 : f < 80 ? 1 : 2;
   const local = f % 40;
   const shots = [
-    { file: "printed-paper.png", text: <>Du numérique.</> },
+    { file: "printed-paper.png", text: <>{t("Du numérique.")}</> },
     {
       file: "courier.png",
       text: (
         <>
-          Au <em>réel.</em>
+          {t("Au") + " "}
+          <em>{t("réel.")}</em>
         </>
       ),
     },
@@ -25,7 +28,8 @@ export const PhysicalBurst = () => {
       file: "fax.png",
       text: (
         <>
-          Avec <em>guteneo.</em>
+          {t("Avec") + " "}
+          <em>guteneo.</em>
         </>
       ),
     },
@@ -52,7 +56,7 @@ export const PhysicalBurst = () => {
         }}
       />
       <div style={{ position: "absolute", left: 120, top: 118 }}>
-        <Kicker light>La suite de vos mots</Kicker>
+        <Kicker light>{t("La suite de vos mots")}</Kicker>
       </div>
       <Head size={157} style={{ position: "absolute", left: 120, top: 788 }}>
         {shots[index].text}

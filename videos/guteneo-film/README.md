@@ -1,5 +1,13 @@
 # guteneo — Vos mots. Dans le monde réel.
 
+Les films V5 existent en français, anglais, allemand et luxembourgeois, en
+horizontal et au format iPhone. Une présentation commune des quatre rôles dure
+36 secondes dans chaque langue et réutilise leur conclusion officielle.
+Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters et
+manifeste. FFmpeg, ffprobe et cwebp sont requis. Les sources React, les polices,
+les médias locaux et le verrouillage npm sont conservés ; aucun service distant
+n’est nécessaire. Voir `docs/HOMEPAGE_FILM.md` et `docs/ROLES_FILM.md` à la racine.
+
 Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
 
 Le fichier de diffusion est `out/guteneo-film-1080p.mp4`. Le dossier `out/` et `node_modules/` ne sont pas suivis par Git. Les sources, médias, polices locales et fichiers de verrouillage permettent de refaire le rendu.

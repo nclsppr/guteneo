@@ -5,16 +5,69 @@ import test from "node:test";
 
 test("public film manifest describes the exact deployed MP4 bytes and fast-start layout", async () => {
   const root = new URL("../../", import.meta.url);
+  const catalog = JSON.parse(
+    await readFile(
+      new URL("packages/contracts/src/public-videos.json", root),
+      "utf8",
+    ),
+  );
+  const locales = ["fr", "en", "de", "lb"];
+  assert.deepEqual(Object.keys(catalog.introduction), locales);
+  assert.deepEqual(Object.keys(catalog.roles), locales);
+  const assets = [];
+  for (const locale of locales) {
+    assert.deepEqual(Object.keys(catalog.introduction[locale]), [
+      "horizontal",
+      "vertical",
+    ]);
+    const suffix = locale === "fr" ? "" : `-${locale}`;
+    for (const format of ["horizontal", "vertical"]) {
+      assert.deepEqual(catalog.introduction[locale][format], {
+        movie: `/videos/guteneo-${format}-v5${suffix}.mp4`,
+        poster: `/videos/guteneo-${format}-v5${suffix}.webp`,
+      });
+    }
+    assert.deepEqual(catalog.roles[locale], {
+      movie: `/videos/guteneo-roles-v1-${locale}.mp4`,
+      poster: `/videos/guteneo-roles-v1-${locale}.webp`,
+    });
+    assets.push(
+      ...Object.values(catalog.introduction[locale]),
+      catalog.roles[locale],
+    );
+  }
+  const movies = assets.map((asset) => asset.movie);
+  assert.equal(
+    new Set(movies).size,
+    12,
+    "each language and film has its own explicit movie",
+  );
   const manifest = JSON.parse(
     await readFile(
       new URL("apps/api/src/public-video-manifest.json", root),
       "utf8",
     ),
   );
-  assert.deepEqual(Object.keys(manifest).sort(), [
-    "/videos/guteneo-horizontal-v5.mp4",
-    "/videos/guteneo-vertical-v5.mp4",
-  ]);
+  assert.deepEqual(Object.keys(manifest).sort(), movies.sort());
+  for (const asset of assets) {
+    assert.match(
+      asset.movie,
+      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-v5(?:-(?:en|de|lb))?|roles-v1-(?:fr|en|de|lb))\.mp4$/,
+    );
+    const poster = await readFile(
+      new URL(`apps/web/public${asset.poster}`, root),
+    );
+    assert.equal(
+      poster.toString("ascii", 0, 4),
+      "RIFF",
+      `${asset.poster} is WebP`,
+    );
+    assert.equal(
+      poster.toString("ascii", 8, 12),
+      "WEBP",
+      `${asset.poster} is WebP`,
+    );
+  }
   for (const [path, asset] of Object.entries(manifest)) {
     const bytes = await readFile(new URL(`apps/web/public${path}`, root));
     assert.ok(
