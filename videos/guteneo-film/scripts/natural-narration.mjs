@@ -4,12 +4,15 @@ import {readFile, stat} from 'node:fs/promises';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import {probeMedia, validateMixCues} from './mix-narration.mjs';
-import {naturalFrenchRoles} from './render-catalog.mjs';
+import {naturalFilmSpec} from './render-catalog.mjs';
 
 const run = promisify(execFile);
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 const readJson = async (file) => JSON.parse(await readFile(file, 'utf8'));
-const cues = ['intro', 'administrator', 'supervisor', 'operator', 'observer', 'review'];
+const cueIds = {
+  roles: ['intro', 'administrator', 'supervisor', 'operator', 'observer', 'review'],
+  introduction: ['one', 'scale', 'personal', 'sources', 'assistants', 'generate', 'review', 'channels', 'europe', 'physical', 'access'],
+};
 const canonical = (value) => Array.isArray(value) ? value.map(canonical)
   : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])])) : value;
 
@@ -23,7 +26,7 @@ function mediaPath(root, relative) {
 export function derivedClipFingerprint({source, clip, text, voiceId}) {
   return digest(JSON.stringify(canonical({
     derivation: 'exact-pcm24-cut-v1', sourceSha256: source.sha256, enhancedText: source.prompt,
-    cueId: clip.cueId, cueText: text, voiceId, modelId: 'eleven_v4', languageCode: 'fr',
+    cueId: clip.cueId, cueText: text, voiceId, modelId: 'eleven_v4', languageCode: source.languageCode,
     variationIndex: 2, sampleRate: 44100, channels: 1, sampleFormat: 's24le', tempo: 1,
     sourceStartSample: clip.sourceStartSample, sourceEndSample: clip.sourceEndSample,
   })));
@@ -54,12 +57,12 @@ export function compareDecodedPcm24(canonicalPcm, decodedPcm) {
   return {decodedSamples: canonicalPcm.length / 3, differentSamples, maximumAbsoluteDelta, toleranceLsb: 8};
 }
 
-export async function qualifyNaturalVideo({repositoryRoot, timeline}) {
-  const file = path.join(repositoryRoot, 'apps/web/public', naturalFrenchRoles.source.slice(1));
+export async function qualifyNaturalVideo({repositoryRoot, timeline, spec = naturalFilmSpec('roles', 'fr')}) {
+  const file = path.join(repositoryRoot, 'apps/web/public', spec.source.slice(1));
   const media = await probeMedia(file);
   const video = media.streams.find((stream) => stream.codec_type === 'video');
   const audio = media.streams.find((stream) => stream.codec_type === 'audio');
-  if (media.streams.length !== 2 || video?.codec_name !== 'h264' || video.width !== timeline.width || video.height !== timeline.height
+  if (media.streams.length !== 2 || video?.codec_name !== 'h264' || video.width !== spec.width || video.height !== spec.height
     || video.avg_frame_rate !== '30/1' || Number(video.nb_frames) !== timeline.durationInFrames
     || audio?.codec_name !== 'aac' || audio.channels !== 2 || Number(audio.sample_rate) !== 48000
     || Math.abs(Number(media.format.duration) - timeline.durationInFrames / timeline.fps) > 0.1
@@ -69,7 +72,10 @@ export async function qualifyNaturalVideo({repositoryRoot, timeline}) {
 
 async function checkedMedia(root, record, codec) {
   const file = mediaPath(root, record.path);
-  if (digest(await readFile(file)) !== record.sha256) throw new Error('Natural narration media hash mismatch.');
+  const bytes = await readFile(file);
+  if (digest(bytes) !== record.sha256 || (record.bytes !== undefined && record.bytes !== bytes.length)) {
+    throw new Error('Natural narration media hash or byte count mismatch.');
+  }
   const media = await probeMedia(file);
   const audio = media.streams[0];
   if (media.streams.length !== 1 || audio.codec_type !== 'audio' || audio.codec_name !== codec
@@ -89,30 +95,43 @@ export async function qualifyNaturalNarration(library) {
     readJson(path.join(library, 'timeline.json')), readJson(path.join(library, 'source-video.json')),
   ]);
   const narration = manifest.narrations?.[0];
-  if (saved.schemaVersion !== 1 || saved.id !== 'roles-fr-natural-c-v1' || saved.source !== 'elevenlabs-creative-plugin'
-    || saved.modelId !== 'eleven_v4' || saved.languageCode !== 'fr' || saved.selectedVariationNumber !== 2
+  if (!['roles', 'introduction'].includes(narration?.kind) || !['fr', 'en', 'de', 'lb'].includes(narration.locale)) {
+    throw new Error('Unsupported natural narration kind or language.');
+  }
+  const kind = narration.kind;
+  const locale = narration.locale;
+  const cues = cueIds[kind];
+  const spec = naturalFilmSpec(kind, locale);
+  if (saved.schemaVersion !== 1 || saved.id !== spec.library || saved.source !== 'elevenlabs-creative-plugin'
+    || saved.modelId !== 'eleven_v4' || saved.languageCode !== locale || saved.selectedVariationNumber !== 2
     || saved.musicPolicy?.mode !== 'constant' || saved.musicPolicy.gain !== 0.22
-    || saved.voice?.voiceId !== 'm5U7XCsc8v988k2RJAqN' || saved.method !== 'C-three-blocks'
+    || typeof saved.voice?.voiceId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(saved.voice.voiceId) || saved.method !== 'C-three-blocks'
     || saved.webGeneration !== undefined || generation.schemaVersion !== 1
     || manifest.schemaVersion !== 1 || manifest.modelId !== saved.modelId || manifest.outputFormat !== 'wav_pcm_s24le_44100_mono'
-    || manifest.narrations?.length !== 1 || narration?.id !== 'roles-fr-natural-c' || narration.kind !== 'roles' || narration.locale !== 'fr'
+    || manifest.narrations?.length !== 1 || narration?.id !== `${kind}-${locale}-natural-c`
     || !Number.isFinite(narration.durationSeconds) || !Number.isFinite(narration.endCardStartSeconds)
     || Math.abs(narration.durationSeconds - narration.endCardStartSeconds - 5) > 0.000001
     || JSON.stringify(narration.cues?.map((cue) => cue.id)) !== JSON.stringify(cues)
-    || !Array.isArray(saved.sources) || saved.sources.length !== 3 || !Array.isArray(saved.clips) || saved.clips.length !== 6
+    || !Array.isArray(saved.sources) || saved.sources.length !== 3 || !Array.isArray(saved.clips) || saved.clips.length !== cues.length
     || enhancement.source !== 'elevenlabs-native-enhance' || enhancement.spokenTextUnchanged !== true
+    || enhancement.locale !== locale || enhancement.modelId !== saved.modelId
     || enhancement.voice?.voiceId !== saved.voice.voiceId) throw new Error('Unsupported or mislabeled natural narration library.');
   const spoken = (text) => text.replace(/\[[^\]]+\]/g, '').replace(/\s+/g, ' ').trim();
   if (spoken(enhancement.originalText) !== spoken(enhancement.enhancedText)
     || spoken(enhancement.originalText) !== narration.cues.map((cue) => cue.text).join(' ')
-    || timeline.fps !== 30 || timeline.width !== 1920 || timeline.height !== 1080
-    || timeline.compositionId !== naturalFrenchRoles.composition || !Number.isSafeInteger(timeline.durationInFrames)
+    || timeline.fps !== 30 || !Number.isSafeInteger(timeline.durationInFrames)
+    || (timeline.compositionId !== undefined && timeline.compositionId !== spec.composition)
     || timeline.endCardDurationInFrames !== 150 || timeline.durationInFrames - timeline.endCardStartFrame !== 150
     || timeline.scenes?.at(-1)?.startFrame !== timeline.endCardStartFrame || timeline.scenes.at(-1).durationInFrames !== 150
     || narration.durationSeconds !== timeline.durationInFrames / 30 || narration.endCardStartSeconds !== timeline.endCardStartFrame / 30
-    || JSON.stringify(timeline.scenes?.map((scene) => scene.id)) !== JSON.stringify([...cues, 'logo'])
-    || sourceCatalog.roles?.fr?.movie !== naturalFrenchRoles.source || sourceCatalog.roles.fr.poster !== naturalFrenchRoles.poster) {
+    || JSON.stringify(timeline.scenes?.map((scene) => scene.id)) !== JSON.stringify([...cues, ...(kind === 'introduction' ? ['signature'] : []), 'logo'])
+    || (kind === 'introduction' && timeline.scenes.at(-2).durationInFrames !== 60)) {
     throw new Error('Natural narration text, source catalog and timeline must agree.');
+  }
+  for (const format of kind === 'introduction' ? ['horizontal', 'vertical'] : ['horizontal']) {
+    const expected = naturalFilmSpec(kind, locale, format);
+    const asset = kind === 'introduction' ? sourceCatalog.introduction?.[locale]?.[format] : sourceCatalog.roles?.[locale];
+    if (asset?.movie !== expected.source || asset.poster !== expected.poster) throw new Error('Natural narration source catalog must keep its distinct instrumental paths.');
   }
   let previousSceneEnd = 0;
   for (const [index, scene] of timeline.scenes.entries()) {
@@ -129,7 +148,7 @@ export async function qualifyNaturalNarration(library) {
   for (const source of saved.sources) {
     const block = enhancement.blocks.find((entry) => entry.id === source.blockId);
     if (decoded.has(source.blockId) || source.variationIndex !== 2 || source.modelId !== saved.modelId
-      || source.languageCode !== 'fr' || source.voiceId !== saved.voice.voiceId || !source.path.endsWith('.mp3')
+      || source.languageCode !== locale || source.voiceId !== saved.voice.voiceId || !source.path.endsWith('.mp3')
       || source.source !== saved.source || source.outputFormat !== 'mp3_44100_128'
       || source.prompt !== block?.prompt || source.requestTextSha256 !== digest(source.prompt)
       || spoken(source.prompt) !== block.cueIds.map((id) => narration.cues.find((cue) => cue.id === id)?.text).join(' ')) {
@@ -169,7 +188,7 @@ export async function qualifyNaturalNarration(library) {
       || record.durationSeconds !== durationSeconds || record.timingFit !== true) {
       throw new Error('Natural narration derived receipt is stale or mislabeled.');
     }
-    clips.push({narrationId: narration.id, cueId: cue.id, kind: 'roles', locale: 'fr',
+    clips.push({narrationId: narration.id, cueId: cue.id, kind, locale,
       durationSeconds: narration.durationSeconds, endCardStartSeconds: narration.endCardStartSeconds,
       startSeconds: cue.startSeconds, endSeconds: cue.endSeconds, text: cue.text,
       relativePath: clip.path, fingerprint, actualDurationSeconds: durationSeconds});

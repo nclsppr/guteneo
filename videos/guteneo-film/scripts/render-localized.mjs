@@ -6,8 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { bundle } from "@remotion/bundler";
-import { getCompositions, renderMedia } from "@remotion/renderer";
-import {buildRenderJobs, isNaturalFrenchRoles, validateRenderCatalogs} from './render-catalog.mjs';
+import { renderMedia, selectComposition } from "@remotion/renderer";
+import {buildRenderJobs, isNaturalFrenchRoles, isNaturalNarration, validateRenderCatalogs} from './render-catalog.mjs';
 import {canReuseRenderedJob, preparePublishedNarration, publishNarratedJobs} from './published-narration.mjs';
 
 const filmRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,14 +42,17 @@ await mkdir(path.join(repoRoot, "apps/web/public/videos"), { recursive: true });
 execFileSync("ffmpeg", ["-v", "error", "-y", "-i", path.join(filmRoot, "public/audio/vertical-soundtrack.wav"),
   "-filter_complex", "[0:a]atrim=0:31.2,asetpts=PTS-STARTPTS[a];[0:a]atrim=51:56,asetpts=PTS-STARTPTS[b];[a][b]acrossfade=d=0.2:c1=tri:c2=tri[out]",
   "-map", "[out]", "-c:a", "pcm_s16le", path.join(filmRoot, "public/audio/roles-soundtrack.wav")]);
-if (jobs.some(isNaturalFrenchRoles)) {
-  const natural = preparedNarration.manifest.narrations.find((entry) => entry.id === 'roles-fr-natural-c');
-  execFileSync(process.execPath, [path.join(filmRoot, 'scripts/create-natural-roles-soundtrack.mjs'),
-    '--end-card-start-frame', String(Math.round(natural.endCardStartSeconds * 30))], {stdio: 'inherit'});
+const naturalMusic = new Map((preparedNarration?.naturalDefinitions ?? []).map((definition) => [definition.spec.library, definition]));
+for (const {spec, timeline} of naturalMusic.values()) {
+  const originalFrenchRoles = spec.kind === 'roles' && spec.locale === 'fr';
+  const script = originalFrenchRoles ? 'create-natural-roles-soundtrack.mjs' : 'create-natural-soundtrack.mjs';
+  const args = [path.join(filmRoot, 'scripts', script), '--end-card-start-frame', String(timeline.endCardStartFrame)];
+  if (!originalFrenchRoles) args.push('--signature-frames', spec.kind === 'introduction' ? '60' : '0',
+    '--output', path.join(filmRoot, 'public/audio', `${spec.kind}-natural-c-${spec.locale}-soundtrack.wav`));
+  execFileSync(process.execPath, args, {stdio: 'inherit'});
 }
 
 const serveUrl = await bundle({ entryPoint: path.join(filmRoot, "src/index.ts"), publicDir: path.join(filmRoot, "public"), outDir: path.join(out, "bundle"), rspack: true });
-const compositions = await getCompositions(serveUrl);
 const sourceFiles = [];
 async function hashTree(directory) {
   for (const item of (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -67,13 +70,20 @@ for (const name of ["package-lock.json", "scripts/render-localized.mjs", 'script
 }
 if (jobs.some(isNaturalFrenchRoles)) sourceFiles.push({path: 'scripts/create-natural-roles-soundtrack.mjs',
   sha256: createHash('sha256').update(await readFile(path.join(filmRoot, 'scripts/create-natural-roles-soundtrack.mjs'))).digest('hex')});
+if (jobs.some((job) => isNaturalNarration(job) && !isNaturalFrenchRoles(job))) sourceFiles.push({path: 'scripts/create-natural-soundtrack.mjs',
+  sha256: createHash('sha256').update(await readFile(path.join(filmRoot, 'scripts/create-natural-soundtrack.mjs'))).digest('hex')});
 const proof = { generatedAt: new Date().toISOString(), remotion: "4.0.526", sourceFiles, assets: [] };
 for (const job of jobs) {
   const movie = path.join(repoRoot, "apps/web/public", job.asset.movie.slice(1));
   const activeMovie = path.join(repoRoot, 'apps/web/public', job.activeAsset.movie.slice(1));
   const poster = path.join(repoRoot, "apps/web/public", job.asset.poster.slice(1));
-  const composition = compositions.find(({ id }) => id === job.id);
-  if (!composition) throw new Error(`Missing composition ${job.id}.`);
+  const definition = preparedNarration?.naturalDefinitions.find((entry) => entry.spec.source === job.asset.movie);
+  const inputProps = definition ? {locale: job.locale, timeline: definition.timeline,
+    musicFile: `audio/${job.kind}-natural-c-${job.locale}-soundtrack.wav`} : undefined;
+  const composition = await selectComposition({serveUrl, id: job.id, inputProps});
+  if (definition && composition.durationInFrames !== definition.timeline.durationInFrames) {
+    throw new Error(`${job.id} differs from its qualified narration timeline.`);
+  }
   let reused = false;
   if (values["skip-existing"]) {
     reused = await canReuseRenderedJob({job, repositoryRoot: repoRoot, manifest: previousManifest, prepared: preparedNarration});
@@ -82,7 +92,7 @@ for (const job of jobs) {
     console.log(`Rendering ${job.id}`);
     const master = path.join(out, `${job.id}.mp4`);
     let lastLog = 0;
-    await renderMedia({ composition, serveUrl, codec: "h264", outputLocation: master, crf: 16, imageFormat: "jpeg", pixelFormat: "yuv420p", audioCodec: "aac", audioBitrate: "192k", concurrency, overwrite: true,
+    await renderMedia({ composition, serveUrl, inputProps, codec: "h264", outputLocation: master, crf: 16, imageFormat: "jpeg", pixelFormat: "yuv420p", audioCodec: "aac", audioBitrate: "192k", concurrency, overwrite: true,
       onProgress: ({ progress }) => { if (Date.now() - lastLog > 20_000 || progress === 1) { console.log(`${job.id}: ${Math.round(progress * 100)}%`); lastLog = Date.now(); } },
     });
     const staged = `${movie}.tmp.mp4`;
@@ -91,8 +101,8 @@ for (const job of jobs) {
     const stagedPoster = `${poster}.tmp.webp`;
     const posterFrame = path.join(out, `${job.id}-poster.png`);
     // Role posters include the first role, while introduction posters retain V5's opening.
-    const firstRole = isNaturalFrenchRoles(job)
-      ? preparedNarration.manifest.narrations.find((entry) => entry.id === 'roles-fr-natural-c').cues.find((cue) => cue.id === 'administrator').startSeconds + 1 : 5;
+    const firstRole = definition && job.kind === 'roles'
+      ? preparedNarration.manifest.narrations.find((entry) => entry.id === `roles-${job.locale}-natural-c`).cues.find((cue) => cue.id === 'administrator').startSeconds + 1 : 5;
     execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", String(job.kind === "roles" ? firstRole : 2), "-i", staged, "-frames:v", "1", posterFrame]);
     execFileSync("cwebp", ["-quiet", "-q", "90", posterFrame, "-o", stagedPoster]);
     await rename(staged, movie);
