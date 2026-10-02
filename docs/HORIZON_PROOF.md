@@ -118,9 +118,15 @@ ESLint and the Worker dry run passed on the reconciled source.
 
 The 81 affected application browser cases passed again on all three projects,
 including studio observer permissions, private-PDF dispatch review and unsaved
-edits during language changes. Full CI on the final PR head remains the complete
-96-file inventory proof; results from the earlier 85-file inventory above are
-preserved as historical local evidence.
+edits during language changes. The full preview passed 76 cases with six planned
+desktop skips. After the final OpenAPI description update, a fresh preview build
+passed all six developer-contract and no-business boundary cases; its source and
+served asset hashes were checked. These runs used the branch's own isolated
+servers, which were stopped afterward.
+
+The PR workflow separately executes the complete 96-file inventory on its exact
+head. Results from the earlier 85-file inventory above are preserved as historical
+local evidence; they do not substitute for the reconciled PR's CI.
 
 ## Before a public launch
 
