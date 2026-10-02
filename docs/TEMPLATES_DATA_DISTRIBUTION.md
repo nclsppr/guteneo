@@ -6,6 +6,37 @@ du snapshot `20d7b8249b1aa8d942c45b59d56ec9e768503b8e` (base `c5319253`).
 Ses anciens rapports ne prouvent pas la validation de cette réconciliation.
 Le candidat reste local, sans merge, déploiement, activation IA ni envoi réel.
 
+## Publication coordonnée autorisée le 2 octobre 2026
+
+La demande ultérieure de déploiement autorise la fusion et la publication de ce
+candidat après validation de la PR et du commit fusionné. Les preuves locales
+ci-dessous restent distinctes de la publication, identifiable par le manifeste
+public et la version Cloudflare.
+
+La publication requiert les migrations 0042–0047 et les deux services privés :
+le renderer pour `/render/template` et le scanner, conteneur compris, pour
+`/scan-source`. Publier et qualifier les services privés avant de coordonner
+les migrations et l’application. Utiliser les lots atomiques produits par
+`scripts/migrate-remote.mjs`, conserver un bookmark D1 et vérifier schéma,
+ledger et intégrité. Appliquer uniquement les migrations absentes.
+
+La migration 0043 remplace l’index de déduplication pour distinguer les PDF privés.
+Le prédicat SQL de l’ancienne application devient incompatible : la fenêtre
+entre cette migration et la publication applicative doit être courte et
+coordonnée, les imports/rendus pouvant alors échouer. Après création de PDF
+privés, ne pas revenir à une application antérieure aux contrôles
+`access_owner_id` : elle ne protège pas ces documents. Toute version de repli
+doit conserver les nouveaux contrôles d’accès et la compatibilité du schéma.
+
+Les signatures du scanner ont été rafraîchies et qualifiées localement le
+2 octobre : ClamAV 1.5.4, base 28141 du 2 octobre à 06:26:12 UTC, PDF propre et
+EICAR inoffensif reconnus avec empreintes exactes. Cette preuve Docker ne
+remplace pas les contrôles distants du renderer et de `/scan-source`.
+La qualification de déploiement est conservée séparément dans
+`/Users/nclsppr/Developer/.artifacts/guteneo-templates-deploy-20261002`.
+Les canaux déjà configurés restent inchangés ; aucun envoi réel, activation IA
+ou mandat de délégation ne fait partie de cette publication.
+
 ## Complément : démonstrations, suppression et création par les LLM
 
 La galerie contient cinq bases fictives : courrier professionnel, facture de
