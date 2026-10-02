@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+  "bytes": 256242,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "oxh5cKe5PdlyUnC2eusK",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Mit guteneo beginnt alles mit einem Dokument. [short pause] Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. [short pause] Dabei kann jeder Empfänger sein persönliches Dokument erhalten. [short pause] Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage.",
+  "requestTextSha256": "c5dccc280420ce25ace3721093515411ba70f72a426b4eef57a08c886bfa0b99",
+  "providerDurationSeconds": 14.88,
+  "decodedSamples": 656208,
+  "decodedPcmSha256": "8fdec798bc998c4568580f5c34e09bb1c8dd3da91054fbebc02342fe62be7a65"
+}

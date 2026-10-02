@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+  "bytes": 287171,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "XhZoYnMjyXPmRnhhPfSN",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Avec guteneo, tout commence par un document à transmettre. [short pause] Préparez un envoi unique, ou organisez toute une campagne de documents. [short pause] Personnalisez chaque version pour qu’elle corresponde à son destinataire. [short pause] Importez votre PDF original, ou utilisez un modèle pour créer votre document.",
+  "requestTextSha256": "0e919b577ef8c8a8ea8e1015c03f297d8fb7083a7fe57c0a39c5340476f26fb9",
+  "providerDurationSeconds": 16.8,
+  "decodedSamples": 740880,
+  "decodedPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f"
+}

@@ -1,0 +1,528 @@
+{
+  "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+  "parameters": {
+    "language": "fr",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.9718352909985697,
+  "result": {
+    "text": " Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. Demandez lui de créer votre PDF, puis de préparer son envoi. Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. Votre message peut voyager par fax, par courrier postal ou par email.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 1.88,
+        "text": " Expliquez votre besoin à votre assistant.",
+        "tokens": [
+          50364,
+          12514,
+          1925,
+          89,
+          10087,
+          19207,
+          1531,
+          10087,
+          10994,
+          13,
+          50464
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Expliquez",
+            "start": 0,
+            "end": 0.58,
+            "probability": 0.79150390625
+          },
+          {
+            "word": " votre",
+            "start": 0.58,
+            "end": 0.72,
+            "probability": 0.9921875
+          },
+          {
+            "word": " besoin",
+            "start": 0.72,
+            "end": 1.16,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " à",
+            "start": 1.16,
+            "end": 1.3,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " votre",
+            "start": 1.3,
+            "end": 1.44,
+            "probability": 0.98779296875
+          },
+          {
+            "word": " assistant.",
+            "start": 1.44,
+            "end": 1.88,
+            "probability": 0.8544921875
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.4,
+        "end": 4.4,
+        "text": " Il vous aide à préparer votre correspondance.",
+        "tokens": [
+          50464,
+          4416,
+          2630,
+          40890,
+          1531,
+          38286,
+          260,
+          10087,
+          6805,
+          719,
+          13,
+          50564
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Il",
+            "start": 2.4,
+            "end": 2.52,
+            "probability": 0.83984375
+          },
+          {
+            "word": " vous",
+            "start": 2.52,
+            "end": 2.68,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " aide",
+            "start": 2.68,
+            "end": 2.86,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " à",
+            "start": 2.86,
+            "end": 2.98,
+            "probability": 0.990234375
+          },
+          {
+            "word": " préparer",
+            "start": 2.98,
+            "end": 3.38,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " votre",
+            "start": 3.38,
+            "end": 3.52,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " correspondance.",
+            "start": 3.52,
+            "end": 4.4,
+            "probability": 0.99072265625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 4.82,
+        "end": 8.24,
+        "text": " Demandez lui de créer votre PDF, puis de préparer son envoi.",
+        "tokens": [
+          50564,
+          4686,
+          37003,
+          8783,
+          368,
+          32062,
+          10087,
+          17752,
+          11,
+          9093,
+          368,
+          38286,
+          260,
+          1872,
+          2267,
+          4869,
+          13,
+          50764
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Demandez",
+            "start": 4.82,
+            "end": 5.22,
+            "probability": 0.8408203125
+          },
+          {
+            "word": " lui",
+            "start": 5.22,
+            "end": 5.44,
+            "probability": 0.59326171875
+          },
+          {
+            "word": " de",
+            "start": 5.44,
+            "end": 5.58,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " créer",
+            "start": 5.58,
+            "end": 5.82,
+            "probability": 0.99951171875
+          },
+          {
+            "word": " votre",
+            "start": 5.82,
+            "end": 6.06,
+            "probability": 0.98583984375
+          },
+          {
+            "word": " PDF,",
+            "start": 6.06,
+            "end": 6.52,
+            "probability": 0.67236328125
+          },
+          {
+            "word": " puis",
+            "start": 7.08,
+            "end": 7.12,
+            "probability": 0.9873046875
+          },
+          {
+            "word": " de",
+            "start": 7.12,
+            "end": 7.26,
+            "probability": 0.994140625
+          },
+          {
+            "word": " préparer",
+            "start": 7.26,
+            "end": 7.74,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " son",
+            "start": 7.74,
+            "end": 7.86,
+            "probability": 0.998046875
+          },
+          {
+            "word": " envoi.",
+            "start": 7.86,
+            "end": 8.24,
+            "probability": 0.740234375
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 8.84,
+        "end": 12.86,
+        "text": " Vérifiez le document, le destinataire, les options et le coût.",
+        "tokens": [
+          50764,
+          691,
+          4198,
+          351,
+          18812,
+          476,
+          4166,
+          11,
+          476,
+          40254,
+          3274,
+          621,
+          11,
+          1512,
+          3956,
+          1030,
+          476,
+          598,
+          30692,
+          13,
+          50964
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Vérifiez",
+            "start": 8.84,
+            "end": 9.22,
+            "probability": 0.9541015625
+          },
+          {
+            "word": " le",
+            "start": 9.22,
+            "end": 9.34,
+            "probability": 0.994140625
+          },
+          {
+            "word": " document,",
+            "start": 9.34,
+            "end": 9.72,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " le",
+            "start": 10.12,
+            "end": 10.2,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " destinataire,",
+            "start": 10.2,
+            "end": 11.08,
+            "probability": 0.97119140625
+          },
+          {
+            "word": " les",
+            "start": 11.28,
+            "end": 11.38,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " options",
+            "start": 11.38,
+            "end": 11.8,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " et",
+            "start": 11.8,
+            "end": 12.1,
+            "probability": 0.93408203125
+          },
+          {
+            "word": " le",
+            "start": 12.1,
+            "end": 12.24,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " coût.",
+            "start": 12.24,
+            "end": 12.86,
+            "probability": 0.93701171875
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "seek": 0,
+        "start": 13.04,
+        "end": 14,
+        "text": " Puis approuvez dans le navigateur.",
+        "tokens": [
+          50964,
+          30033,
+          724,
+          13122,
+          10941,
+          2680,
+          476,
+          12350,
+          374,
+          13,
+          51064
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Puis",
+            "start": 13.04,
+            "end": 13.1,
+            "probability": 0.94189453125
+          },
+          {
+            "word": " approuvez",
+            "start": 13.1,
+            "end": 13.72,
+            "probability": 0.66552734375
+          },
+          {
+            "word": " dans",
+            "start": 13.72,
+            "end": 13.82,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " le",
+            "start": 13.82,
+            "end": 13.94,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " navigateur.",
+            "start": 13.94,
+            "end": 14.18,
+            "probability": 0.97900390625
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "seek": 0,
+        "start": 15.04,
+        "end": 18.64,
+        "text": " Votre message peut voyager par fax, par courrier postal ou par email.",
+        "tokens": [
+          51064,
+          691,
+          310,
+          265,
+          3636,
+          5977,
+          7552,
+          3557,
+          971,
+          2050,
+          87,
+          11,
+          971,
+          1005,
+          7326,
+          49645,
+          2820,
+          971,
+          3796,
+          13,
+          51314
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17336068404348273,
+        "compression_ratio": 1.4953703703703705,
+        "no_speech_prob": 0.022246042266488075,
+        "words": [
+          {
+            "word": " Votre",
+            "start": 15.04,
+            "end": 15.26,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " message",
+            "start": 15.26,
+            "end": 15.6,
+            "probability": 0.97607421875
+          },
+          {
+            "word": " peut",
+            "start": 15.6,
+            "end": 15.82,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " voyager",
+            "start": 15.82,
+            "end": 16.18,
+            "probability": 0.97216796875
+          },
+          {
+            "word": " par",
+            "start": 16.18,
+            "end": 16.4,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " fax,",
+            "start": 16.4,
+            "end": 16.88,
+            "probability": 0.8564453125
+          },
+          {
+            "word": " par",
+            "start": 17.02,
+            "end": 17.16,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " courrier",
+            "start": 17.16,
+            "end": 17.48,
+            "probability": 0.98828125
+          },
+          {
+            "word": " postal",
+            "start": 17.48,
+            "end": 17.82,
+            "probability": 0.6083984375
+          },
+          {
+            "word": " ou",
+            "start": 17.82,
+            "end": 18.28,
+            "probability": 0.896484375
+          },
+          {
+            "word": " par",
+            "start": 18.28,
+            "end": 18.46,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " email.",
+            "start": 18.46,
+            "end": 18.64,
+            "probability": 0.57080078125
+          }
+        ]
+      }
+    ],
+    "language": "fr"
+  },
+  "originalProofSha256": "5f6257c93fd875dca27593cf49cfae4a719c48e06b67a9f9956c8e26326d78f5"
+}

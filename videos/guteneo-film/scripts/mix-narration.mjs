@@ -32,7 +32,7 @@ function confinedPath(root, relative) {
 
 export function validateMixCues(narration, clips) {
   if (!Number.isFinite(narration.durationSeconds) || !Number.isFinite(narration.endCardStartSeconds)
-    || narration.durationSeconds - narration.endCardStartSeconds < 5) throw new Error('The final card needs at least five seconds without narration.');
+    || narration.durationSeconds - narration.endCardStartSeconds < 5 - 0.000001) throw new Error('The final card needs at least five seconds without narration.');
   let previousEnd = 0;
   for (const clip of clips) {
     const {startSeconds: start, endSeconds: end, durationSeconds: duration} = clip;

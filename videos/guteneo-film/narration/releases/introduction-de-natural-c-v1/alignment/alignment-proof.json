@@ -1,0 +1,1727 @@
+{
+  "schemaVersion": 1,
+  "sourceEnhancementSha256": "600be8796d533d1d3d97f7234a738883f8ff0b1f86307e42bf5036bf6408b410",
+  "providerReceiptsSha256": "63f7d7c1a8012f870370b1441aa15bfa06a7ed1a2e9960101e81df2bac0a6ecb",
+  "offlineInference": true,
+  "initialPrompt": null,
+  "forcedAlignment": false,
+  "wordTimestampResolutionSeconds": 0.02,
+  "inputQuietGuardSeconds": 0.066,
+  "lexicalAnchorPolicy": "Three exact recognized anchors with probability >=0.5 within six edge words on each side, including both edge words",
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "de",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources-manon/bloc-1-prise-2.mp3",
+      "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+      "receipt": {
+        "generationId": "oxh5cKe5PdlyUnC2eusK",
+        "blockId": "bloc-1",
+        "variationIndex": 2,
+        "providerDurationSeconds": 14.88,
+        "filename": "bloc-1-prise-2.mp3",
+        "bytes": 256242,
+        "sha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+        "containerDurationSeconds": 14.88,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "voiceName": "Manon",
+        "prompt": "[thoughtful] Mit guteneo beginnt alles mit einem Dokument. [short pause] Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. [short pause] Dabei kann jeder Empfänger sein persönliches Dokument erhalten. [short pause] Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage.",
+        "audioPath": "sources-manon/bloc-1-prise-2.mp3",
+        "language": "de",
+        "outputFormat": "mp3_44100_128",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "requestTextSha256": "c5dccc280420ce25ace3721093515411ba70f72a426b4eef57a08c886bfa0b99"
+      },
+      "requestTextSha256": "c5dccc280420ce25ace3721093515411ba70f72a426b4eef57a08c886bfa0b99",
+      "decodedSamples": 656208,
+      "durationSeconds": 14.88,
+      "recognizedText": " Mit gutem Neo beginnt alles mit einem Dokument. Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. Dabei kann jeder Empfänger sein persönliches Dokument erhalten. Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage.",
+      "asrProofPath": "alignment/bloc-1.asr.json",
+      "asrProofSha256": "a76efaf17c3586f759fd9271443823c1f5b66832a1d75e1e6b5db0c8558a66dc",
+      "editDistance": 2,
+      "lexicalDifferences": [
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 1,
+          "expected": null,
+          "recognized": {
+            "word": " gutem",
+            "start": 0.3,
+            "end": 0.84,
+            "probability": 0.72216796875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 2,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " Neo",
+            "start": 0.84,
+            "end": 1.06,
+            "probability": 0.4443359375
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 1
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 33
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 34
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "one",
+          "nextCueId": "scale",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.368956916099773,
+          "cutSample": 148571,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.048231,
+            "endSeconds": 3.689683
+          },
+          "previousLastWord": {
+            "word": " Dokument.",
+            "start": 2.3,
+            "end": 2.86,
+            "probability": 0.9931640625
+          },
+          "nextFirstWord": {
+            "word": " Sie",
+            "start": 3.48,
+            "end": 3.8,
+            "probability": 0.98681640625
+          },
+          "previousWordGuardSeconds": 0.5089569160997733,
+          "nextWordGuardSeconds": 0.11104308390022677,
+          "anchors": [
+            {
+              "expectedIndex": 4,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 5,
+              "recognized": {
+                "word": " mit",
+                "start": 1.84,
+                "end": 2.08,
+                "probability": 0.9951171875
+              }
+            },
+            {
+              "expectedIndex": 5,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 6,
+              "recognized": {
+                "word": " einem",
+                "start": 2.08,
+                "end": 2.3,
+                "probability": 0.9931640625
+              }
+            },
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": " Dokument.",
+                "start": 2.3,
+                "end": 2.86,
+                "probability": 0.9931640625
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": " Sie",
+                "start": 3.48,
+                "end": 3.8,
+                "probability": 0.98681640625
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": " können",
+                "start": 3.8,
+                "end": 4.04,
+                "probability": 0.99658203125
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " eine",
+                "start": 4.04,
+                "end": 4.32,
+                "probability": 0.99267578125
+              }
+            }
+          ]
+        },
+        {
+          "previousCueId": "scale",
+          "nextCueId": "personal",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 7.720498866213152,
+          "cutSample": 340474,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.497256,
+            "endSeconds": 7.943764
+          },
+          "previousLastWord": {
+            "word": " vorbereiten.",
+            "start": 6.76,
+            "end": 7.42,
+            "probability": 0.99853515625
+          },
+          "nextFirstWord": {
+            "word": " Dabei",
+            "start": 7.9,
+            "end": 8.1,
+            "probability": 0.99755859375
+          },
+          "previousWordGuardSeconds": 0.300498866213152,
+          "nextWordGuardSeconds": 0.1795011337868484,
+          "anchors": [
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": " ganze",
+                "start": 5.88,
+                "end": 6.18,
+                "probability": 0.99658203125
+              }
+            },
+            {
+              "expectedIndex": 15,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 16,
+              "recognized": {
+                "word": " Kampagne",
+                "start": 6.18,
+                "end": 6.76,
+                "probability": 0.984375
+              }
+            },
+            {
+              "expectedIndex": 16,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": " vorbereiten.",
+                "start": 6.76,
+                "end": 7.42,
+                "probability": 0.99853515625
+              }
+            },
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " Dabei",
+                "start": 7.9,
+                "end": 8.1,
+                "probability": 0.99755859375
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " kann",
+                "start": 8.1,
+                "end": 8.38,
+                "probability": 0.99951171875
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": " jeder",
+                "start": 8.38,
+                "end": 8.64,
+                "probability": 0.9951171875
+              }
+            }
+          ]
+        },
+        {
+          "previousCueId": "personal",
+          "nextCueId": "sources",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 11.252789115646259,
+          "cutSample": 496248,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 11.088503,
+            "endSeconds": 11.417075
+          },
+          "previousLastWord": {
+            "word": " erhalten.",
+            "start": 10.5,
+            "end": 10.92,
+            "probability": 0.99365234375
+          },
+          "nextFirstWord": {
+            "word": " Nutzen",
+            "start": 11.42,
+            "end": 11.74,
+            "probability": 0.98583984375
+          },
+          "previousWordGuardSeconds": 0.3327891156462588,
+          "nextWordGuardSeconds": 0.1672108843537412,
+          "anchors": [
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": " persönliches",
+                "start": 9.42,
+                "end": 10.12,
+                "probability": 0.98828125
+              }
+            },
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 24,
+              "recognized": {
+                "word": " Dokument",
+                "start": 10.12,
+                "end": 10.5,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 24,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 25,
+              "recognized": {
+                "word": " erhalten.",
+                "start": 10.5,
+                "end": 10.92,
+                "probability": 0.99365234375
+              }
+            },
+            {
+              "expectedIndex": 25,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 26,
+              "recognized": {
+                "word": " Nutzen",
+                "start": 11.42,
+                "end": 11.74,
+                "probability": 0.98583984375
+              }
+            },
+            {
+              "expectedIndex": 27,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 28,
+              "recognized": {
+                "word": " Ihr",
+                "start": 11.88,
+                "end": 12.06,
+                "probability": 0.83349609375
+              }
+            },
+            {
+              "expectedIndex": 28,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 29,
+              "recognized": {
+                "word": " eigenes",
+                "start": 12.06,
+                "end": 12.54,
+                "probability": 0.99609375
+              }
+            }
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources-manon/bloc-1-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-2",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources-manon/bloc-2-prise-2.mp3",
+      "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+      "receipt": {
+        "generationId": "dv3QRJy9J2yRcPmvgHZa",
+        "blockId": "bloc-2",
+        "variationIndex": 2,
+        "providerDurationSeconds": 19.6,
+        "filename": "bloc-2-prise-2.mp3",
+        "bytes": 331603,
+        "sha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+        "containerDurationSeconds": 19.6,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "voiceName": "Manon",
+        "prompt": "[thoughtful] Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. [short pause] Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. [short pause] Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. [short pause] Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.",
+        "audioPath": "sources-manon/bloc-2-prise-2.mp3",
+        "language": "de",
+        "outputFormat": "mp3_44100_128",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "requestTextSha256": "64583f557c09757d46b65d8a4ddc31422dd0c075b5fa8672dc149baa942a7565"
+      },
+      "requestTextSha256": "64583f557c09757d46b65d8a4ddc31422dd0c075b5fa8672dc149baa942a7565",
+      "decodedSamples": 864360,
+      "durationSeconds": 19.6,
+      "recognizedText": " Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. Erstellen Sie das PDF und bereiten Sie den Versand in guten Neo vor. Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.",
+      "asrProofPath": "alignment/bloc-2.asr.json",
+      "asrProofSha256": "aeff111902f2af42686c6775aff9d8481285901ad92af1fcb60cb1456761e58f",
+      "editDistance": 2,
+      "lexicalDifferences": [
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 20,
+          "expected": null,
+          "recognized": {
+            "word": " guten",
+            "start": 7.5,
+            "end": 7.72,
+            "probability": 0.5703125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 21,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " Neo",
+            "start": 7.72,
+            "end": 8.02,
+            "probability": 0.66748046875
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 20
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 33
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 34
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 34,
+          "observedIndex": 35
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 35,
+          "observedIndex": 36
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 36,
+          "observedIndex": 37
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 37,
+          "observedIndex": 38
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 38,
+          "observedIndex": 39
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 39,
+          "observedIndex": 40
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 40,
+          "observedIndex": 41
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 41,
+          "observedIndex": 42
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 42,
+          "observedIndex": 43
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 43,
+          "observedIndex": 44
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 44,
+          "observedIndex": 45
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 45,
+          "observedIndex": 46
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 46,
+          "observedIndex": 47
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 47,
+          "observedIndex": 48
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 48,
+          "observedIndex": 49
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "assistants",
+          "nextCueId": "generate",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 4.4091383219954645,
+          "cutSample": 194443,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 4.042834,
+            "endSeconds": 4.77542
+          },
+          "previousLastWord": {
+            "word": " vorzubereiten.",
+            "start": 3.08,
+            "end": 3.98,
+            "probability": 0.9970703125
+          },
+          "nextFirstWord": {
+            "word": " Erstellen",
+            "start": 4.7,
+            "end": 5.08,
+            "probability": 0.91796875
+          },
+          "previousWordGuardSeconds": 0.42913832199546453,
+          "nextWordGuardSeconds": 0.29086167800453566,
+          "anchors": [
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": " einen",
+                "start": 2.44,
+                "end": 2.68,
+                "probability": 0.994140625
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": " Entwurf",
+                "start": 2.68,
+                "end": 3.08,
+                "probability": 0.9931640625
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": " vorzubereiten.",
+                "start": 3.08,
+                "end": 3.98,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " Erstellen",
+                "start": 4.7,
+                "end": 5.08,
+                "probability": 0.91796875
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": " Sie",
+                "start": 5.08,
+                "end": 5.28,
+                "probability": 0.9873046875
+              }
+            },
+            {
+              "expectedIndex": 12,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": " das",
+                "start": 5.28,
+                "end": 5.42,
+                "probability": 0.99755859375
+              }
+            }
+          ]
+        },
+        {
+          "previousCueId": "generate",
+          "nextCueId": "review",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 8.607120181405895,
+          "cutSample": 379574,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 8.388798,
+            "endSeconds": 8.82542
+          },
+          "previousLastWord": {
+            "word": " vor.",
+            "start": 8.02,
+            "end": 8.34,
+            "probability": 0.9951171875
+          },
+          "nextFirstWord": {
+            "word": " Prüfen",
+            "start": 8.78,
+            "end": 9.12,
+            "probability": 0.9912109375
+          },
+          "previousWordGuardSeconds": 0.267120181405895,
+          "nextWordGuardSeconds": 0.1728798185941045,
+          "anchors": [
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " Versand",
+                "start": 6.98,
+                "end": 7.36,
+                "probability": 0.9931640625
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " in",
+                "start": 7.36,
+                "end": 7.5,
+                "probability": 0.98974609375
+              }
+            },
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": " vor.",
+                "start": 8.02,
+                "end": 8.34,
+                "probability": 0.9951171875
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": " Prüfen",
+                "start": 8.78,
+                "end": 9.12,
+                "probability": 0.9912109375
+              }
+            },
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 24,
+              "recognized": {
+                "word": " Sie",
+                "start": 9.12,
+                "end": 9.28,
+                "probability": 0.99560546875
+              }
+            },
+            {
+              "expectedIndex": 24,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 25,
+              "recognized": {
+                "word": " Dokument,",
+                "start": 9.28,
+                "end": 9.82,
+                "probability": 0.9658203125
+              }
+            }
+          ]
+        },
+        {
+          "previousCueId": "review",
+          "nextCueId": "channels",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 15.943174603174603,
+          "cutSample": 703094,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 15.77746,
+            "endSeconds": 16.108889
+          },
+          "previousLastWord": {
+            "word": " Browser.",
+            "start": 15.24,
+            "end": 15.68,
+            "probability": 0.9921875
+          },
+          "nextFirstWord": {
+            "word": " Wählen",
+            "start": 16.1,
+            "end": 16.4,
+            "probability": 0.98974609375
+          },
+          "previousWordGuardSeconds": 0.26317460317460295,
+          "nextWordGuardSeconds": 0.15682539682539876,
+          "anchors": [
+            {
+              "expectedIndex": 36,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 37,
+              "recognized": {
+                "word": " selbst",
+                "start": 14.7,
+                "end": 14.98,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 37,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 38,
+              "recognized": {
+                "word": " im",
+                "start": 14.98,
+                "end": 15.24,
+                "probability": 0.998046875
+              }
+            },
+            {
+              "expectedIndex": 38,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 39,
+              "recognized": {
+                "word": " Browser.",
+                "start": 15.24,
+                "end": 15.68,
+                "probability": 0.9921875
+              }
+            },
+            {
+              "expectedIndex": 39,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 40,
+              "recognized": {
+                "word": " Wählen",
+                "start": 16.1,
+                "end": 16.4,
+                "probability": 0.98974609375
+              }
+            },
+            {
+              "expectedIndex": 40,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 41,
+              "recognized": {
+                "word": " Sie",
+                "start": 16.4,
+                "end": 16.54,
+                "probability": 0.98291015625
+              }
+            },
+            {
+              "expectedIndex": 41,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 42,
+              "recognized": {
+                "word": " für",
+                "start": 16.54,
+                "end": 16.7,
+                "probability": 0.998046875
+              }
+            }
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources-manon/bloc-2-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-3",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources-manon/bloc-3-prise-2.mp3",
+      "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+      "receipt": {
+        "generationId": "tSNHyigNJcleIkdXcLx0",
+        "blockId": "bloc-3",
+        "variationIndex": 2,
+        "providerDurationSeconds": 11.04,
+        "filename": "bloc-3-prise-2.mp3",
+        "bytes": 194802,
+        "sha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+        "containerDurationSeconds": 11.04,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "modelId": "eleven_v4",
+        "languageCode": "de",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "voiceName": "Manon",
+        "prompt": "[thoughtful] Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. [short pause] So kann ein digitales Dokument auch im Briefkasten ankommen. [short pause] Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
+        "audioPath": "sources-manon/bloc-3-prise-2.mp3",
+        "language": "de",
+        "outputFormat": "mp3_44100_128",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "requestTextSha256": "f12bc497c5ab1bc3129fa9968e00a9d9029b4c855d8ce0ddc17da69c7167c7dd"
+      },
+      "requestTextSha256": "f12bc497c5ab1bc3129fa9968e00a9d9029b4c855d8ce0ddc17da69c7167c7dd",
+      "decodedSamples": 486864,
+      "durationSeconds": 11.04,
+      "recognizedText": " Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. So kann ein digitales Dokument auch im Briefkasten ankommen. Ihr Arbeitsbereich begleitet sie, auch wenn sie unterwegs sind.",
+      "asrProofPath": "alignment/bloc-3.asr.json",
+      "asrProofSha256": "db119b0d287ed00c7f7e93bbcb2b2a8f8f7a2f6d2bb5c6672ff1ebbe6160b91e",
+      "editDistance": 0,
+      "lexicalDifferences": [],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "europe",
+          "nextCueId": "physical",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.7295238095238097,
+          "cutSample": 164472,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.449184,
+            "endSeconds": 4.009864
+          },
+          "previousLastWord": {
+            "word": " hinweg.",
+            "start": 2.88,
+            "end": 3.28,
+            "probability": 0.99609375
+          },
+          "nextFirstWord": {
+            "word": " So",
+            "start": 3.98,
+            "end": 4.22,
+            "probability": 0.970703125
+          },
+          "previousWordGuardSeconds": 0.4495238095238099,
+          "nextWordGuardSeconds": 0.2504761904761903,
+          "anchors": [
+            {
+              "expectedIndex": 5,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 5,
+              "recognized": {
+                "word": " über",
+                "start": 1.86,
+                "end": 2.1,
+                "probability": 0.99755859375
+              }
+            },
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 6,
+              "recognized": {
+                "word": " Landesgrenzen",
+                "start": 2.1,
+                "end": 2.88,
+                "probability": 0.99560546875
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": " hinweg.",
+                "start": 2.88,
+                "end": 3.28,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": " So",
+                "start": 3.98,
+                "end": 4.22,
+                "probability": 0.970703125
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": " kann",
+                "start": 4.22,
+                "end": 4.46,
+                "probability": 0.99755859375
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " ein",
+                "start": 4.46,
+                "end": 4.58,
+                "probability": 0.99951171875
+              }
+            }
+          ]
+        },
+        {
+          "previousCueId": "physical",
+          "nextCueId": "access",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 7.432312925170068,
+          "cutSample": 327765,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.226122,
+            "endSeconds": 7.638503
+          },
+          "previousLastWord": {
+            "word": " ankommen.",
+            "start": 6.64,
+            "end": 7.1,
+            "probability": 0.9326171875
+          },
+          "nextFirstWord": {
+            "word": " Ihr",
+            "start": 7.64,
+            "end": 7.74,
+            "probability": 0.9970703125
+          },
+          "previousWordGuardSeconds": 0.3323129251700685,
+          "nextWordGuardSeconds": 0.20768707482993154,
+          "anchors": [
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 14,
+              "recognized": {
+                "word": " im",
+                "start": 5.9,
+                "end": 6.04,
+                "probability": 0.9892578125
+              }
+            },
+            {
+              "expectedIndex": 15,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": " Briefkasten",
+                "start": 6.04,
+                "end": 6.64,
+                "probability": 0.98779296875
+              }
+            },
+            {
+              "expectedIndex": 16,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 16,
+              "recognized": {
+                "word": " ankommen.",
+                "start": 6.64,
+                "end": 7.1,
+                "probability": 0.9326171875
+              }
+            },
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": " Ihr",
+                "start": 7.64,
+                "end": 7.74,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " Arbeitsbereich",
+                "start": 7.74,
+                "end": 8.44,
+                "probability": 0.994140625
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " begleitet",
+                "start": 8.44,
+                "end": 9,
+                "probability": 0.99169921875
+              }
+            }
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources-manon/bloc-3-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    }
+  ],
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "originalProofSha256": "ecf08115f92650124f96ff1e4f345aa88aef53541698d868d9ed48f7089386ae"
+}

@@ -1,0 +1,287 @@
+{
+  "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+  "parameters": {
+    "language": "de",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.6874116249964572,
+  "result": {
+    "text": " Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. So kann ein digitales Dokument auch im Briefkasten ankommen. Ihr Arbeitsbereich begleitet sie, auch wenn sie unterwegs sind.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.28,
+        "text": " Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg.",
+        "tokens": [
+          50364,
+          26247,
+          343,
+          12752,
+          39464,
+          8397,
+          2168,
+          4502,
+          22031,
+          45968,
+          2904,
+          14102,
+          12517,
+          13,
+          50539
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17561114564233896,
+        "compression_ratio": 1.289655172413793,
+        "no_speech_prob": 0.15675801038742065,
+        "words": [
+          {
+            "word": " Ihre",
+            "start": 0,
+            "end": 0.24,
+            "probability": 0.93994140625
+          },
+          {
+            "word": " Worte",
+            "start": 0.24,
+            "end": 0.7,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " erreichen",
+            "start": 0.7,
+            "end": 1.12,
+            "probability": 0.9921875
+          },
+          {
+            "word": " Menschen",
+            "start": 1.12,
+            "end": 1.54,
+            "probability": 0.97900390625
+          },
+          {
+            "word": " auch",
+            "start": 1.54,
+            "end": 1.86,
+            "probability": 0.98388671875
+          },
+          {
+            "word": " über",
+            "start": 1.86,
+            "end": 2.1,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " Landesgrenzen",
+            "start": 2.1,
+            "end": 2.88,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " hinweg.",
+            "start": 2.88,
+            "end": 3.28,
+            "probability": 0.99609375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 3.98,
+        "end": 7.1,
+        "text": " So kann ein digitales Dokument auch im Briefkasten ankommen.",
+        "tokens": [
+          50564,
+          407,
+          4028,
+          1343,
+          4562,
+          279,
+          29768,
+          2206,
+          2168,
+          566,
+          39805,
+          74,
+          47552,
+          364,
+          13675,
+          13,
+          50739
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17561114564233896,
+        "compression_ratio": 1.289655172413793,
+        "no_speech_prob": 0.15675801038742065,
+        "words": [
+          {
+            "word": " So",
+            "start": 3.98,
+            "end": 4.22,
+            "probability": 0.970703125
+          },
+          {
+            "word": " kann",
+            "start": 4.22,
+            "end": 4.46,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " ein",
+            "start": 4.46,
+            "end": 4.58,
+            "probability": 0.99951171875
+          },
+          {
+            "word": " digitales",
+            "start": 4.58,
+            "end": 5.18,
+            "probability": 0.986328125
+          },
+          {
+            "word": " Dokument",
+            "start": 5.18,
+            "end": 5.66,
+            "probability": 0.984375
+          },
+          {
+            "word": " auch",
+            "start": 5.66,
+            "end": 5.9,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " im",
+            "start": 5.9,
+            "end": 6.04,
+            "probability": 0.9892578125
+          },
+          {
+            "word": " Briefkasten",
+            "start": 6.04,
+            "end": 6.64,
+            "probability": 0.98779296875
+          },
+          {
+            "word": " ankommen.",
+            "start": 6.64,
+            "end": 7.1,
+            "probability": 0.9326171875
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 7.64,
+        "end": 10.76,
+        "text": " Ihr Arbeitsbereich begleitet sie, auch wenn sie unterwegs sind.",
+        "tokens": [
+          50739,
+          14773,
+          23262,
+          48422,
+          4612,
+          306,
+          16341,
+          2804,
+          11,
+          2168,
+          4797,
+          2804,
+          36258,
+          3290,
+          13,
+          50914
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.17561114564233896,
+        "compression_ratio": 1.289655172413793,
+        "no_speech_prob": 0.15675801038742065,
+        "words": [
+          {
+            "word": " Ihr",
+            "start": 7.64,
+            "end": 7.74,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " Arbeitsbereich",
+            "start": 7.74,
+            "end": 8.44,
+            "probability": 0.994140625
+          },
+          {
+            "word": " begleitet",
+            "start": 8.44,
+            "end": 9,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " sie,",
+            "start": 9,
+            "end": 9.24,
+            "probability": 0.494384765625
+          },
+          {
+            "word": " auch",
+            "start": 9.52,
+            "end": 9.7,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " wenn",
+            "start": 9.7,
+            "end": 9.9,
+            "probability": 0.98876953125
+          },
+          {
+            "word": " sie",
+            "start": 9.9,
+            "end": 10.02,
+            "probability": 0.95947265625
+          },
+          {
+            "word": " unterwegs",
+            "start": 10.02,
+            "end": 10.38,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " sind.",
+            "start": 10.38,
+            "end": 10.76,
+            "probability": 0.99951171875
+          }
+        ]
+      }
+    ],
+    "language": "de"
+  },
+  "originalProofSha256": "db119b0d287ed00c7f7e93bbcb2b2a8f8f7a2f6d2bb5c6672ff1ebbe6160b91e"
+}

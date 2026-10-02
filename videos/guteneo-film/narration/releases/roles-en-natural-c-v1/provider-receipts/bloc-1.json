@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+  "bytes": 186025,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "YbeLHp4sXryrIr1xP6GR",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "en",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Let’s look at the four roles in guteneo and what each one can do. [short pause] The administrator manages the workspace. They prepare and approve outgoing messages, and view reports.",
+  "requestTextSha256": "cfdfb24d40684a8e01a5827853fbfd908eaa130270ea5f80d870d1aff0d86c28",
+  "providerDurationSeconds": 10.48,
+  "decodedSamples": 462168,
+  "decodedPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55"
+}

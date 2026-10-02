@@ -1,0 +1,14 @@
+{
+  "introduction": {
+    "en": {
+      "horizontal": {
+        "movie": "/videos/guteneo-horizontal-natural-c-v1-en-music.mp4",
+        "poster": "/videos/guteneo-horizontal-v8-en.webp"
+      },
+      "vertical": {
+        "movie": "/videos/guteneo-vertical-natural-c-v1-en-music.mp4",
+        "poster": "/videos/guteneo-vertical-v8-en.webp"
+      }
+    }
+  }
+}

@@ -63,6 +63,8 @@ test('speech outside a scene, overlap and shortened final card are rejected', ()
   assert.throws(() => validateMixCues(narration, [cue, {...cue, cueId: 'other'}]), /does not fit/);
   assert.throws(() => validateMixCues(narration, [{...cue, startSeconds: 30.8, endSeconds: 31.5, durationSeconds: 0.5}]), /does not fit/);
   assert.throws(() => validateMixCues({...narration, endCardStartSeconds: 32}, [cue]), /five seconds/);
+  assert.doesNotThrow(() => validateMixCues({...narration, durationSeconds: 1946 / 30, endCardStartSeconds: 1796 / 30}, [cue]),
+    'Exactly 150 frames must remain valid despite binary floating-point subtraction.');
 });
 
 test('music ducking uses actual speech and has fully released before the logo', () => {

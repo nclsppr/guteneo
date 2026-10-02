@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "de",
+  "kind": "roles",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Sehen wir uns die vier Rollen in guteneo und ihre Rechte an.\n\nDer Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.\n\nDer Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert.\n\nDer Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen.\n\nDer Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen.\n\nIm normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+  "nativeEnhancedText": "[thoughtful] Sehen wir uns die vier Rollen in guteneo und ihre Rechte an. [short pause] Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte. [short pause] Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert. [short pause] Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen. [short pause] Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. [short pause] Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+  "nativeOutputSha256": "204c7e29a46a24df49ddb1be3c3358defa442ebe6655a6394f08ad7672ec1fc7",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Sehen wir uns die vier Rollen in guteneo und ihre Rechte an. [short pause] Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte. [short pause] Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert. [short pause] Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen. [short pause] Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. [short pause] Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "intro",
+        "administrator"
+      ],
+      "prompt": "[thoughtful] Sehen wir uns die vier Rollen in guteneo und ihre Rechte an. [short pause] Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "supervisor",
+        "operator"
+      ],
+      "prompt": "[thoughtful] Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert. [short pause] Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "observer",
+        "review"
+      ],
+      "prompt": "[thoughtful] Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. [short pause] Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser."
+    }
+  ],
+  "criticalListening": "pending"
+}

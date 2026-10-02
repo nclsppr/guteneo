@@ -36,7 +36,8 @@ export async function renderNaturalSources({libraries, outputDir = path.join(fil
     execFileSync(process.execPath, [path.join(filmRoot, 'scripts/create-natural-soundtrack.mjs'),
       '--end-card-start-frame', String(entry.timeline.endCardStartFrame),
       '--signature-frames', narration.kind === 'introduction' ? '60' : '0',
-      '--output', path.join(filmRoot, 'public/audio', `${narration.kind}-natural-c-${narration.locale}-soundtrack.wav`)], {stdio: 'inherit'});
+      '--output', path.join(filmRoot, 'public/audio', `${narration.kind}-natural-c-${narration.locale}-soundtrack.wav`),
+      '--proof', path.join(target, `${narration.kind}-${narration.locale}-music-proof.json`)], {stdio: 'inherit'});
   }
   const serveUrl = await bundle({entryPoint: path.join(filmRoot, 'src/index.ts'), publicDir: path.join(filmRoot, 'public'),
     outDir: path.join(target, 'bundle'), rspack: true});

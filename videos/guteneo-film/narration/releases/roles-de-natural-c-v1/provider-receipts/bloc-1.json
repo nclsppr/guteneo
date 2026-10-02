@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+  "bytes": 190751,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "Fz9QgXrQq0VId0zZU1Yj",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Sehen wir uns die vier Rollen in guteneo und ihre Rechte an. [short pause] Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.",
+  "requestTextSha256": "70f112c34546659fbca72d020bb3ce38fad007d837d71dfcb41148cdfaa2c867",
+  "providerDurationSeconds": 10.8,
+  "decodedSamples": 476280,
+  "decodedPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e"
+}

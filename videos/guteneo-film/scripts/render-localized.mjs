@@ -48,7 +48,8 @@ for (const {spec, timeline} of naturalMusic.values()) {
   const script = originalFrenchRoles ? 'create-natural-roles-soundtrack.mjs' : 'create-natural-soundtrack.mjs';
   const args = [path.join(filmRoot, 'scripts', script), '--end-card-start-frame', String(timeline.endCardStartFrame)];
   if (!originalFrenchRoles) args.push('--signature-frames', spec.kind === 'introduction' ? '60' : '0',
-    '--output', path.join(filmRoot, 'public/audio', `${spec.kind}-natural-c-${spec.locale}-soundtrack.wav`));
+    '--output', path.join(filmRoot, 'public/audio', `${spec.kind}-natural-c-${spec.locale}-soundtrack.wav`),
+    '--proof', path.join(out, `${spec.kind}-${spec.locale}-music-proof.json`));
   execFileSync(process.execPath, args, {stdio: 'inherit'});
 }
 

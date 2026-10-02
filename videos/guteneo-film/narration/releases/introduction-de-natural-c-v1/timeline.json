@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "locale": "de",
+  "fps": 30,
+  "durationInFrames": 1946,
+  "durationSeconds": 64.86666666666666,
+  "endCardStartFrame": 1796,
+  "endCardStartSeconds": 59.86666666666667,
+  "endCardDurationInFrames": 150,
+  "endCardDurationSeconds": 5,
+  "preRollFrames": 12,
+  "postRollMinimumFrames": 15,
+  "sourceVoiceDurationSeconds": 45.52,
+  "method": "C-three-blocks",
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "de",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "scenes": [
+    {
+      "id": "one",
+      "startFrame": 0,
+      "durationInFrames": 129
+    },
+    {
+      "id": "scale",
+      "startFrame": 129,
+      "durationInFrames": 158
+    },
+    {
+      "id": "personal",
+      "startFrame": 287,
+      "durationInFrames": 133
+    },
+    {
+      "id": "sources",
+      "startFrame": 420,
+      "durationInFrames": 136
+    },
+    {
+      "id": "assistants",
+      "startFrame": 556,
+      "durationInFrames": 160
+    },
+    {
+      "id": "generate",
+      "startFrame": 716,
+      "durationInFrames": 153
+    },
+    {
+      "id": "review",
+      "startFrame": 869,
+      "durationInFrames": 248
+    },
+    {
+      "id": "channels",
+      "startFrame": 1117,
+      "durationInFrames": 180
+    },
+    {
+      "id": "europe",
+      "startFrame": 1297,
+      "durationInFrames": 150
+    },
+    {
+      "id": "physical",
+      "startFrame": 1447,
+      "durationInFrames": 139
+    },
+    {
+      "id": "access",
+      "startFrame": 1586,
+      "durationInFrames": 150
+    },
+    {
+      "id": "signature",
+      "startFrame": 1736,
+      "durationInFrames": 60
+    },
+    {
+      "id": "logo",
+      "startFrame": 1796,
+      "durationInFrames": 150
+    }
+  ],
+  "criticalListening": "pending"
+}

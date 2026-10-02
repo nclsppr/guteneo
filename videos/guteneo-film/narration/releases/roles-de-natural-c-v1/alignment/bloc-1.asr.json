@@ -1,0 +1,302 @@
+{
+  "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+  "parameters": {
+    "language": "de",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.8486818749952363,
+  "result": {
+    "text": " Sehen wir uns die vier Rollen in gute Neo und ihre Rechte an. Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.4,
+        "text": " Sehen wir uns die vier Rollen in gute Neo und ihre Rechte an.",
+        "tokens": [
+          50364,
+          1100,
+          2932,
+          1987,
+          2693,
+          978,
+          17634,
+          9926,
+          268,
+          294,
+          21476,
+          1734,
+          78,
+          674,
+          14280,
+          1300,
+          10553,
+          364,
+          13,
+          50539
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.21634514515216535,
+        "compression_ratio": 1.3181818181818181,
+        "no_speech_prob": 0.016349952667951584,
+        "words": [
+          {
+            "word": " Sehen",
+            "start": 0,
+            "end": 0.42,
+            "probability": 0.91552734375
+          },
+          {
+            "word": " wir",
+            "start": 0.42,
+            "end": 0.52,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " uns",
+            "start": 0.52,
+            "end": 0.66,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " die",
+            "start": 0.66,
+            "end": 0.86,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " vier",
+            "start": 0.86,
+            "end": 1.14,
+            "probability": 0.9052734375
+          },
+          {
+            "word": " Rollen",
+            "start": 1.14,
+            "end": 1.56,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " in",
+            "start": 1.56,
+            "end": 1.66,
+            "probability": 0.75927734375
+          },
+          {
+            "word": " gute",
+            "start": 1.66,
+            "end": 1.9,
+            "probability": 0.4169921875
+          },
+          {
+            "word": " Neo",
+            "start": 1.9,
+            "end": 2.38,
+            "probability": 0.49853515625
+          },
+          {
+            "word": " und",
+            "start": 2.38,
+            "end": 2.58,
+            "probability": 0.91748046875
+          },
+          {
+            "word": " ihre",
+            "start": 2.58,
+            "end": 2.78,
+            "probability": 0.95556640625
+          },
+          {
+            "word": " Rechte",
+            "start": 2.78,
+            "end": 3.2,
+            "probability": 0.99609375
+          },
+          {
+            "word": " an.",
+            "start": 3.2,
+            "end": 3.4,
+            "probability": 0.9970703125
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.16,
+        "end": 6.6,
+        "text": " Der Administrator verwaltet den Arbeitsbereich.",
+        "tokens": [
+          50564,
+          5618,
+          13322,
+          19802,
+          24615,
+          39931,
+          1441,
+          23262,
+          48422,
+          13,
+          50714
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.21634514515216535,
+        "compression_ratio": 1.3181818181818181,
+        "no_speech_prob": 0.016349952667951584,
+        "words": [
+          {
+            "word": " Der",
+            "start": 4.16,
+            "end": 4.26,
+            "probability": 0.9921875
+          },
+          {
+            "word": " Administrator",
+            "start": 4.26,
+            "end": 5.06,
+            "probability": 0.9501953125
+          },
+          {
+            "word": " verwaltet",
+            "start": 5.06,
+            "end": 5.62,
+            "probability": 0.9384765625
+          },
+          {
+            "word": " den",
+            "start": 5.62,
+            "end": 5.8,
+            "probability": 0.998046875
+          },
+          {
+            "word": " Arbeitsbereich.",
+            "start": 5.8,
+            "end": 6.6,
+            "probability": 0.9931640625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 7.12,
+        "end": 10.48,
+        "text": " Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.",
+        "tokens": [
+          50714,
+          3300,
+          13375,
+          16341,
+          17908,
+          5084,
+          4245,
+          11,
+          12186,
+          8587,
+          5828,
+          2804,
+          674,
+          375,
+          377,
+          978,
+          5637,
+          18972,
+          13,
+          50889
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.21634514515216535,
+        "compression_ratio": 1.3181818181818181,
+        "no_speech_prob": 0.016349952667951584,
+        "words": [
+          {
+            "word": " Er",
+            "start": 7.12,
+            "end": 7.24,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " bereitet",
+            "start": 7.24,
+            "end": 7.64,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " Sendungen",
+            "start": 7.64,
+            "end": 8.06,
+            "probability": 0.984375
+          },
+          {
+            "word": " vor,",
+            "start": 8.06,
+            "end": 8.36,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " genehmigt",
+            "start": 8.66,
+            "end": 9.16,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " sie",
+            "start": 9.16,
+            "end": 9.34,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " und",
+            "start": 9.34,
+            "end": 9.66,
+            "probability": 0.98095703125
+          },
+          {
+            "word": " liest",
+            "start": 9.66,
+            "end": 9.96,
+            "probability": 0.76904296875
+          },
+          {
+            "word": " die",
+            "start": 9.96,
+            "end": 10.06,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " Berichte.",
+            "start": 10.06,
+            "end": 10.48,
+            "probability": 0.99658203125
+          }
+        ]
+      }
+    ],
+    "language": "de"
+  },
+  "originalProofSha256": "fe97f9d5d0358ac24900b735079d61ec27e47cc3322fc06c5d55f54f24be429c"
+}

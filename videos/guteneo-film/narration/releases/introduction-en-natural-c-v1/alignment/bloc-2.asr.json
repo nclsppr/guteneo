@@ -1,0 +1,432 @@
+{
+  "sourceSha256": "4c4f39bae42bb71e87678e9f5cf42ad1bda622e42af35c3d5fc3507c5b578d8a",
+  "parameters": {
+    "language": "en",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.7585352910027723,
+  "result": {
+    "text": " Tell your assistant what you need. It helps you prepare your correspondence. Ask it to create your PDF, then prepare its delivery. Check the document, recipient, options and cost, then approve in the browser. Your message can travel by fax, by post or by email.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.48,
+        "text": " Tell your assistant what you need. It helps you prepare your correspondence.",
+        "tokens": [
+          50364,
+          5115,
+          428,
+          10994,
+          437,
+          291,
+          643,
+          13,
+          467,
+          3665,
+          291,
+          5940,
+          428,
+          38135,
+          13,
+          50548
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16419049776517428,
+        "compression_ratio": 1.45,
+        "no_speech_prob": 0.007214200682938099,
+        "words": [
+          {
+            "word": " Tell",
+            "start": 0,
+            "end": 0.26,
+            "probability": 0.86474609375
+          },
+          {
+            "word": " your",
+            "start": 0.26,
+            "end": 0.46,
+            "probability": 0.99609375
+          },
+          {
+            "word": " assistant",
+            "start": 0.46,
+            "end": 0.8,
+            "probability": 0.908203125
+          },
+          {
+            "word": " what",
+            "start": 0.8,
+            "end": 1.08,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " you",
+            "start": 1.08,
+            "end": 1.24,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " need.",
+            "start": 1.24,
+            "end": 1.52,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " It",
+            "start": 2.02,
+            "end": 2.1,
+            "probability": 0.98828125
+          },
+          {
+            "word": " helps",
+            "start": 2.1,
+            "end": 2.32,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " you",
+            "start": 2.32,
+            "end": 2.48,
+            "probability": 0.99462890625
+          },
+          {
+            "word": " prepare",
+            "start": 2.48,
+            "end": 2.76,
+            "probability": 0.990234375
+          },
+          {
+            "word": " your",
+            "start": 2.76,
+            "end": 2.92,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " correspondence.",
+            "start": 2.92,
+            "end": 3.48,
+            "probability": 0.9853515625
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.44,
+        "end": 7.5,
+        "text": " Ask it to create your PDF, then prepare its delivery.",
+        "tokens": [
+          50584,
+          12320,
+          309,
+          281,
+          1884,
+          428,
+          17752,
+          11,
+          550,
+          5940,
+          1080,
+          8982,
+          13,
+          50760
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16419049776517428,
+        "compression_ratio": 1.45,
+        "no_speech_prob": 0.007214200682938099,
+        "words": [
+          {
+            "word": " Ask",
+            "start": 4.44,
+            "end": 4.7,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " it",
+            "start": 4.7,
+            "end": 4.88,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " to",
+            "start": 4.88,
+            "end": 5,
+            "probability": 0.99609375
+          },
+          {
+            "word": " create",
+            "start": 5,
+            "end": 5.26,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " your",
+            "start": 5.26,
+            "end": 5.42,
+            "probability": 0.994140625
+          },
+          {
+            "word": " PDF,",
+            "start": 5.42,
+            "end": 5.8,
+            "probability": 0.88232421875
+          },
+          {
+            "word": " then",
+            "start": 6.3,
+            "end": 6.5,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " prepare",
+            "start": 6.5,
+            "end": 6.84,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " its",
+            "start": 6.84,
+            "end": 7.08,
+            "probability": 0.962890625
+          },
+          {
+            "word": " delivery.",
+            "start": 7.08,
+            "end": 7.5,
+            "probability": 0.99609375
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.04,
+        "end": 12.7,
+        "text": " Check the document, recipient, options and cost, then approve in the browser.",
+        "tokens": [
+          50760,
+          6881,
+          264,
+          4166,
+          11,
+          26216,
+          11,
+          3956,
+          293,
+          2063,
+          11,
+          550,
+          18827,
+          294,
+          264,
+          11185,
+          13,
+          51016
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16419049776517428,
+        "compression_ratio": 1.45,
+        "no_speech_prob": 0.007214200682938099,
+        "words": [
+          {
+            "word": " Check",
+            "start": 8.04,
+            "end": 8.2,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " the",
+            "start": 8.2,
+            "end": 8.38,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " document,",
+            "start": 8.38,
+            "end": 8.74,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " recipient,",
+            "start": 9.12,
+            "end": 9.56,
+            "probability": 0.9892578125
+          },
+          {
+            "word": " options",
+            "start": 9.92,
+            "end": 10.28,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " and",
+            "start": 10.28,
+            "end": 10.6,
+            "probability": 0.7529296875
+          },
+          {
+            "word": " cost,",
+            "start": 10.6,
+            "end": 11,
+            "probability": 0.97314453125
+          },
+          {
+            "word": " then",
+            "start": 11.44,
+            "end": 11.66,
+            "probability": 0.990234375
+          },
+          {
+            "word": " approve",
+            "start": 11.66,
+            "end": 12.04,
+            "probability": 0.96142578125
+          },
+          {
+            "word": " in",
+            "start": 12.04,
+            "end": 12.26,
+            "probability": 0.98583984375
+          },
+          {
+            "word": " the",
+            "start": 12.26,
+            "end": 12.34,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " browser.",
+            "start": 12.34,
+            "end": 12.7,
+            "probability": 0.9970703125
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 13.26,
+        "end": 16.38,
+        "text": " Your message can travel by fax, by post or by email.",
+        "tokens": [
+          51016,
+          2260,
+          3636,
+          393,
+          3147,
+          538,
+          2050,
+          87,
+          11,
+          538,
+          2183,
+          420,
+          538,
+          3796,
+          13,
+          51204
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16419049776517428,
+        "compression_ratio": 1.45,
+        "no_speech_prob": 0.007214200682938099,
+        "words": [
+          {
+            "word": " Your",
+            "start": 13.26,
+            "end": 13.34,
+            "probability": 0.9892578125
+          },
+          {
+            "word": " message",
+            "start": 13.34,
+            "end": 13.64,
+            "probability": 0.9873046875
+          },
+          {
+            "word": " can",
+            "start": 13.64,
+            "end": 13.9,
+            "probability": 0.998046875
+          },
+          {
+            "word": " travel",
+            "start": 13.9,
+            "end": 14.14,
+            "probability": 0.9892578125
+          },
+          {
+            "word": " by",
+            "start": 14.14,
+            "end": 14.38,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " fax,",
+            "start": 14.38,
+            "end": 14.92,
+            "probability": 0.9287109375
+          },
+          {
+            "word": " by",
+            "start": 15.14,
+            "end": 15.18,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " post",
+            "start": 15.18,
+            "end": 15.6,
+            "probability": 0.994140625
+          },
+          {
+            "word": " or",
+            "start": 15.6,
+            "end": 15.96,
+            "probability": 0.7294921875
+          },
+          {
+            "word": " by",
+            "start": 15.96,
+            "end": 16.14,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " email.",
+            "start": 16.14,
+            "end": 16.38,
+            "probability": 0.94091796875
+          }
+        ]
+      }
+    ],
+    "language": "en"
+  },
+  "originalProofSha256": "5d61e4017086ee9daec74f1fe41550fd0b382751552a5bd750ffbd969ee47e46"
+}

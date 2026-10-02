@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "introduction-de-natural-c",
+      "kind": "introduction",
+      "locale": "de",
+      "durationSeconds": 64.86666666666666,
+      "endCardStartSeconds": 59.86666666666667,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 3.8,
+          "text": "Mit guteneo beginnt alles mit einem Dokument."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 4.7,
+          "endSeconds": 9.066666666666666,
+          "text": "Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 9.966666666666667,
+          "endSeconds": 13.5,
+          "text": "Dabei kann jeder Empfänger sein persönliches Dokument erhalten."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 14.4,
+          "endSeconds": 18.033333333333335,
+          "text": "Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 18.933333333333334,
+          "endSeconds": 23.366666666666667,
+          "text": "Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 24.266666666666666,
+          "endSeconds": 28.466666666666665,
+          "text": "Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor."
+        },
+        {
+          "id": "review",
+          "startSeconds": 29.366666666666667,
+          "endSeconds": 36.733333333333334,
+          "text": "Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 37.63333333333333,
+          "endSeconds": 42.733333333333334,
+          "text": "Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 43.63333333333333,
+          "endSeconds": 47.733333333333334,
+          "text": "Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 48.63333333333333,
+          "endSeconds": 52.36666666666667,
+          "text": "So kann ein digitales Dokument auch im Briefkasten ankommen."
+        },
+        {
+          "id": "access",
+          "startSeconds": 53.266666666666666,
+          "endSeconds": 57.36666666666667,
+          "text": "Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind."
+        }
+      ]
+    }
+  ]
+}
