@@ -92,6 +92,17 @@ for (const locale of supportedLocales) {
       await expect(section).toHaveAttribute("lang", locale);
       await expect(player).toHaveAttribute("lang", locale);
       await expect(player).not.toHaveAttribute("src");
+      if (film === "introduction") {
+        const captions = player.locator('track[kind="captions"]');
+        await expect(captions).toHaveAttribute(
+          "src",
+          `/videos/guteneo-v5.${locale}.vtt`,
+        );
+        await expect(captions).toHaveAttribute("srclang", locale);
+      }
+      // The poster is intentionally lazy: make it visible before requiring
+      // decoded pixels instead of depending on browser prefetch distance.
+      await section.locator(".homepage-film-poster img").scrollIntoViewIfNeeded();
       await expect
         .poll(() =>
           section
@@ -159,6 +170,11 @@ for (const film of ["introduction", "roles"] as const) {
     await expect(section).toHaveAttribute("data-locale", "de");
     await expect(section.locator("video")).not.toHaveAttribute("src");
     await expect(section.locator("video")).toBeHidden();
+    if (film === "introduction")
+      await expect(section.locator('track[kind="captions"]')).toHaveAttribute(
+        "src",
+        "/videos/guteneo-v5.de.vtt",
+      );
     expect(
       await page.evaluate(() =>
         (window as unknown as FilmWindow).filmCalls.some(
@@ -202,6 +218,9 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
     page.getByRole("button", { name: /Découvrir le film/ }),
   ).toBeVisible();
   await expect(player).not.toHaveAttribute("src");
+  const captions = player.locator('track[kind="captions"]');
+  await expect(captions).toHaveAttribute("src", "/videos/guteneo-v5.fr.vtt");
+  await expect(captions).toHaveAttribute("srclang", "fr");
   expect(requests).toEqual([]);
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(player).toHaveAttribute(
@@ -412,6 +431,10 @@ test.describe("delivered public media", () => {
         const format = portrait ? "vertical" : "horizontal";
         const player = section.locator("video");
         await expect(player).toHaveAttribute("playsinline", "");
+        if (film === "introduction")
+          await player.evaluate((element) => {
+            (element as HTMLVideoElement).textTracks[0].mode = "hidden";
+          });
         await player.evaluate((element) => {
           const video = element as HTMLVideoElement & {
             publicMediaEvents?: Array<Record<string, unknown>>;
@@ -457,6 +480,15 @@ test.describe("delivered public media", () => {
             { timeout: 20000 },
           )
           .toBeGreaterThan(0.2);
+        if (film === "introduction")
+          await expect
+            .poll(() =>
+              player.evaluate(
+                (element) =>
+                  (element as HTMLVideoElement).textTracks[0].cues?.length,
+              ),
+            )
+            .toBeGreaterThan(0);
         const media = await player.evaluate((element) => {
           const video = element as HTMLVideoElement;
           return {

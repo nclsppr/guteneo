@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ArrowsOut, Play, X } from "@phosphor-icons/react";
-import { t, useLocale, type SupportedLocale } from "./locale";
+import { localeNames, t, useLocale, type SupportedLocale } from "./locale";
 import {
   publicFilmAsset,
   type FilmFormat as Format,
@@ -224,7 +224,16 @@ function LocalizedFilm({
             setStatus("error");
             exitFullscreen();
           }}
-        />
+        >
+          {film === "introduction" && (
+            <track
+              kind="captions"
+              src={`/videos/guteneo-v5.${locale}.vtt`}
+              srcLang={locale}
+              label={localeNames[locale]}
+            />
+          )}
+        </video>
         {!format && (
           <picture className="homepage-film-poster">
             {film !== "roles" && (

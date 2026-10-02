@@ -189,15 +189,13 @@ export function GuidedExample() {
     >
       <div className="guided-example-intro">
         <h2 id="guided-example-title">
-          {msg("Une demande.")}
-          <br />
-          {msg("Une vérification.")}
-          <br />
+          {msg("Une demande.")} <br />
+          {msg("Une vérification.")} <br />
           <em>{msg("Un envoi.")}</em>
         </h2>
         <p>
           {msg(
-            "Vous composez. Guteneo réunit les détails pour votre accord, puis vous permet de suivre chaque étape.",
+            "Cette démonstration suit 3 étapes : vous composez votre demande, vérifiez les détails dans Guteneo pour donner votre accord, puis suivez l’envoi.",
           )}
         </p>
         <div
@@ -304,6 +302,11 @@ export function GuidedExample() {
           {step === "review" && (
             <div className="guided-example-review">
               <h3>{msg("L’épreuve avant l’envoi.")}</h3>
+              <p>
+                {msg(
+                  "Vérifiez le document, le destinataire, le canal et le montant avant de donner votre accord.",
+                )}
+              </p>
               <dl className="guided-example-fields">
                 <div>
                   <dt>{msg("Document")}</dt>

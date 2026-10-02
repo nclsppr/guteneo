@@ -71,7 +71,7 @@ export const en: Copy = {
       title: "A little to get you started.",
       italic: "And nothing hidden.",
       intro:
-        "Welcome credit for your first dispatches. After that, you stay in control of your budget before every approval.",
+        "Your organisation receives a one-off €50 welcome credit when its account is created. The price or spending limit for each dispatch is shown before approval.",
       welcomeTitle: "Included when you open your account.",
       welcomeBody:
         "Your organisation receives a one-off €50 welcome credit when its account is created. This balance is shared across enabled channels: fax, email and postal mail.",
@@ -85,12 +85,12 @@ export const en: Copy = {
       title: "Before your first dispatch,",
       italic: "a few answers.",
       intro:
-        "The document, your approval and tracking: the same essentials, whatever the channel.",
+        "Before your first dispatch, check the document, recipient, channel and cost in Guteneo. Then track it in your conversation and workspace.",
       items: [
         {
           question: "Will my original PDF be changed?",
           answer:
-            "Your imported PDF is kept exactly as it is. If you compose a letter with your assistant, a new document is created. You can review it before preparing its dispatch.",
+            "Your imported PDF is kept exactly as it is. Imports are limited to 10 MiB and 100 pages. If you compose a letter with your assistant, a new document is created. You can review it before preparing its dispatch.",
         },
         {
           question: "Can I share a password-protected PDF?",
@@ -119,7 +119,7 @@ export const en: Copy = {
       italic: "Ours start here.",
       cta: "Prepare my first dispatch",
       imageAlt:
-        "Illustrated view of Luxembourg: the rooftops of the Grund, cliffs and bridges of the old town, halftone engraving in blue and ivory.",
+        "Rooftops of the Grund, cliffs and bridges of Luxembourg, halftone engraving in blue and ivory.",
       stampDescription:
         "Gutenberg stamp and decorative Luxembourg postmark, guteneo’s first day:",
       foundingDate: "16 September 2026",
@@ -134,7 +134,7 @@ export const en: Copy = {
       title: "Where your words go next.",
       italic: "In motion.",
       intro:
-        "From your first idea to its destination. Discover Guteneo in 56 seconds.",
+        "This 56-second film introduces Guteneo, from preparing a document to sending it by fax, email or post.",
       play: "Watch the film",
       replay: "Watch again",
       duration: "56 seconds · With sound",

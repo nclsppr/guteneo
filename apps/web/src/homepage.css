@@ -227,6 +227,12 @@
     serif;
   margin: 0;
 }
+.journal-compact-intro {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
 .journal-compact-stories h3 a {
   text-decoration: none;
 }
@@ -395,4 +401,11 @@
   .assistant-stamp:hover {
     transform: none;
   }
+}
+
+.homepage .faq-questions summary h3 {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
 }

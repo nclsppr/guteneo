@@ -20,6 +20,38 @@ function assetsEnv() {
 }
 
 describe("public preview boundary", () => {
+  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+    "serves browser entry %s privately without opening a backend",
+    async (path) => {
+      for (const method of ["GET", "HEAD"]) {
+        const { env, fetch } = assetsEnv();
+        const response = await worker.fetch(
+          new Request(`https://guteneo.com${path}`, { method }),
+          env,
+        );
+        expect(response.status).toBe(200);
+        expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+        expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(await response.text()).toBe(
+          method === "HEAD" ? "" : "preview asset",
+        );
+        const forwarded = fetch.mock.calls[0]?.[0] as Request;
+        expect(forwarded.url).toBe("https://guteneo.com/");
+        expect(forwarded.method).toBe(method);
+      }
+      const { env, fetch } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://guteneo.com${path}`, { method: "POST" }),
+        env,
+      );
+      expect(response.status).toBe(403);
+      expect(await response.json()).toMatchObject({
+        error: { code: "PREVIEW_ONLY" },
+      });
+      expect(fetch).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([
     "/api",
     "/api/session",
