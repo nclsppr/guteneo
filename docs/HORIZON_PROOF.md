@@ -92,6 +92,11 @@ Its deterministic documents/reports do not constitute engine or payment evidence
 The root build packages plugin **0.3.2** and performs a Worker dry run; it does not
 deploy. CI includes a required private-validator typecheck/test job alongside
 the existing complete test inventory gate.
+The validator's canonical Worker suite lives inside its independent package;
+the root security suite imports it. A temporary copy containing only that
+package, with no parent dependencies, passed its own `npm ci`, typecheck,
+11 Node tests and 15 Python tests. The root compiler excludes this independent
+package alongside the scanner; its required CI job compiles the complete package.
 
 ## Before a public launch
 

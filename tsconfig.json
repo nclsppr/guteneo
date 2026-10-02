@@ -20,5 +20,5 @@
     "scripts/**/*.ts",
     "*.ts"
   ],
-  "exclude": ["apps/scanner/**"]
+  "exclude": ["apps/scanner/**", "apps/pdf-validator/**"]
 }
