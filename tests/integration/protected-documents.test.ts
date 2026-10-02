@@ -610,6 +610,56 @@ describe("protected PDF hosting on local D1 and private R2", () => {
         .first(),
     ).toMatchObject({ reserved_minor: 4800, confirmed_minor: 100 });
   });
+  it("negotiates recipient language and retains explicit selection through unlock without changing exact PDF access", async () => {
+    const h = await hosting(),
+      id = await prepare(h);
+    await accept(id);
+    const { password } = await revealProtectedDocumentPassword(env, ctx, id);
+    const negotiated = (await handleProtectedDocumentRoute(
+      new Request(h.url, {
+        headers: { "Accept-Language": "fr;q=0, lb-LU;q=0.9, en;q=0.5" },
+      }),
+      env,
+    ))!;
+    expect(negotiated.headers.get("Content-Language")).toBe("lb");
+    const html = await negotiated.text();
+    expect(html).toContain('lang="lb"');
+    expect(html).toContain("En Dokument waart op Iech.");
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain(password);
+    const selected = (await handleProtectedDocumentRoute(
+      new Request(`${h.url}?lang=en`, {
+        headers: { "Accept-Language": "de" },
+      }),
+      env,
+    ))!;
+    expect(selected.headers.get("Content-Language")).toBe("en");
+    const opened = (await handleProtectedDocumentRoute(
+      new Request(`${h.url}/unlock?lang=en`, {
+        method: "POST",
+        headers: {
+          Origin: env.APP_ORIGIN,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ password }),
+      }),
+      env,
+    ))!;
+    expect(opened.status).toBe(303);
+    expect(opened.headers.get("Location")).toBe(
+      `${new URL(h.url).pathname}?lang=en`,
+    );
+    const cookie = opened.headers.get("Set-Cookie")!.split(";")[0];
+    const result = (await handleProtectedDocumentRoute(
+      new Request(`${h.url}/content?lang=en`, {
+        headers: { Cookie: cookie },
+      }),
+      env,
+    ))!;
+    expect(result.status).toBe(200);
+    expect(new Uint8Array(await result.arrayBuffer())).toEqual(bytes);
+    expect(result.headers.get("Cache-Control")).toContain("no-store");
+  });
   it("requires browser authority for password, unlocks without consuming GETs, streams exact bytes, and revokes existing sessions", async () => {
     const h = await hosting(),
       id = await prepare(h);

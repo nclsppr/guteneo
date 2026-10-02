@@ -199,7 +199,7 @@ async function setupFixture(provider: "ses" | "resend" = "resend") {
       .bind(ctx.organizationId, stamp()),
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(ctx.userId, stamp()),
     db
