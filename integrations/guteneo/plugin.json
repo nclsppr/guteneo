@@ -42,7 +42,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 0.3.1 combines the reviewed 0.2.3 onboarding and metadata with email and protected-PDF instructions, and four-language web support. Email activation remains disabled. Existing account access only; no checkout, subscriptions or credit purchases. The demo is the existing recording from 21 September 2026. No new sends, reviewer-test execution, OpenAI approval or directory publication is claimed.",
+        "release_notes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
