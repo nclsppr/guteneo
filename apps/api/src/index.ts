@@ -1,3 +1,4 @@
+import { handleInvitationRoute } from "./invitations";
 import { ensureEmailSender } from "./email-setup";
 import {
   prepareProtectedDocument,
@@ -469,6 +470,8 @@ app.use("*", async (c, next) => {
     () => publishOutbox(c.env, domain(c.env)),
   );
   if (mobile) return mobile;
+  const invitation = await handleInvitationRoute(c.req.raw, c.env);
+  if (invitation) return invitation;
   const auth = await handleAuthRoute(c.req.raw, c.env);
   if (auth) return auth;
   return next();
@@ -506,6 +509,8 @@ app.use("/api/*", async (c, next) => {
             ? "dispatches:read"
             : "dispatches:prepare");
     requireScope(identity, scope);
+    if (path.startsWith("/api/documents/") && c.req.query("dispatchId"))
+      requireScope(identity, "dispatches:read");
     c.set("actor", {
       ...identity.context,
       ...(identity.connectionObservation
@@ -665,14 +670,19 @@ app.get("/api/documents", async (c) =>
     ),
   ),
 );
-app.get("/api/documents/:id", async (c) =>
-  c.json(
-    await new DocumentService(c.env, domain(c.env)).get(
-      c.get("actor"),
-      c.req.param("id"),
-    ),
-  ),
-);
+app.get("/api/documents/:id", async (c) => {
+  const dispatchId = c.req.query("dispatchId");
+  const authority = dispatchId
+    ? await postalAuthority(c.req.raw, c.env, "documents:read")
+    : undefined;
+  const document = await new DocumentService(c.env, domain(c.env)).get(
+    c.get("actor"),
+    c.req.param("id"),
+    dispatchId,
+  );
+  await authority?.assertCurrent();
+  return c.json(document);
+});
 app.post("/api/documents", async (c) => {
   const data = await c.req.raw.formData();
   const file = data.get("file");
@@ -704,12 +714,19 @@ app.post("/api/documents/render", async (c) => {
     201,
   );
 });
-app.get("/api/documents/:id/content", async (c) =>
-  new DocumentService(c.env, domain(c.env)).getContent(
+app.get("/api/documents/:id/content", async (c) => {
+  const dispatchId = c.req.query("dispatchId");
+  const authority = dispatchId
+    ? await postalAuthority(c.req.raw, c.env, "documents:read")
+    : undefined;
+  const response = await new DocumentService(c.env, domain(c.env)).getContent(
     c.get("actor"),
     c.req.param("id"),
-  ),
-);
+    dispatchId,
+  );
+  await authority?.assertCurrent();
+  return response;
+});
 app.post("/api/documents/:id/rescan", async (c) =>
   c.json(
     await new DocumentService(c.env, domain(c.env)).rescan(
@@ -903,7 +920,12 @@ app.onError((error, c) => {
             ? "VALIDATION_ERROR"
             : "INTERNAL_ERROR",
   );
-  if (error instanceof AuthError && c.req.path.startsWith("/auth/")) {
+  if (
+    c.req.method === "GET" &&
+    c.req.path.startsWith("/auth/") &&
+    (error instanceof AuthError ||
+      (error instanceof DomainError && c.req.path === "/auth/callback"))
+  ) {
     return c.redirect(
       `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
       302,

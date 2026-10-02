@@ -189,7 +189,7 @@ struct OverviewView: View {
                     .fontWeight(.semibold).padding(.vertical, 7).foregroundStyle(Brand.paper)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(model.session?.user.role == "viewer")
+            .disabled(model.session?.canPrepare != true)
             .accessibilityIdentifier("prepareDispatch")
         }
     }

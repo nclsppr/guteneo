@@ -50,8 +50,9 @@ also documents the authoring sequence. Reading the guide or catalogue does not
 create a saved model. If a run is interrupted, inspect its printed template ID
 before cleanup; the script never retries a mutation automatically.
 
-Fresh local execution on **2 October 2026**, after migration
-`0047_template_soft_deletion.sql`: **exit 0**. It discovered five examples,
+Fresh local execution on **2 October 2026**, after the then-named migration
+`0047_template_soft_deletion.sql` (now `0049_template_soft_deletion.sql`):
+**exit 0**. It discovered five examples,
 created and deleted `tpl_5b440fff-5120-4e48-b9b1-f2015e9545ec`, and confirmed
 `doc_756d567d-c308-4b03-b43f-abd671cad381` remained `ready`. Evidence is in
 `/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002/authoring-mcp.log`.
@@ -67,8 +68,9 @@ separately from the successful execution. No other saved model was removed.
 ## Local execution evidence — 2 October 2026
 
 All three executable examples exited **0** against the reconciled local
-application and document renderer, with migrations through
-`0046_dataset_analysis_recovery.sql` applied. The candidate is based on main
+application and document renderer, with migrations through the then-named
+`0046_dataset_analysis_recovery.sql` (now `0048_dataset_analysis_recovery.sql`)
+applied. The candidate is based on main
 `a808307c5687588eb8c0aab45c9e559aa70a03dc`; these are fresh executions, separate
 from the historical jobs below. Logs are kept in
 `/Users/nclsppr/Developer/.artifacts/guteneo-templates-20261002`.
@@ -99,7 +101,7 @@ qualification occurred.
 
 Both scripts exited **0** against the local application and document renderer,
 after local migrations through the then-named `0035_generation_provenance.sql`
-were applied. That historical migration became `0044_generation_provenance.sql`
+were applied. That historical migration became `0046_generation_provenance.sql`
 in the 2 October integration; the September execution did not use the new number.
 The development bearer was neither printed nor saved; its temporary browser
 bootstrap session was logged out after execution.
@@ -158,7 +160,7 @@ this final comparison without concurrent activity on the same organization: an
 independent send would correctly cause `USAGE_CHANGED_DURING_EXAMPLE_CHECK_CONCURRENT_ACTIVITY`.
 
 Historical local execution on 21 September 2026, after the then-named migration
-`0037_dataset_analysis_recovery.sql` (now `0046_dataset_analysis_recovery.sql`
+`0037_dataset_analysis_recovery.sql` (now `0048_dataset_analysis_recovery.sql`
 in the 2 October integration): **exit 0**. Sources
 `data_dc57faed-9a60-4b27-817a-130d3168ab96` and
 `data_c07a343c-e65b-4e6f-8869-a6559b1d1819` had identical SHA-256 hashes and reused

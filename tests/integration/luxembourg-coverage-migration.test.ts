@@ -1,3 +1,4 @@
+import { historicalRoleProjection } from "../helpers/historical-role-projection";
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
@@ -85,7 +86,7 @@ beforeAll(async () => {
     batch: (statements: D1PreparedStatement[]) => db.batch(statements),
   } as D1Database;
   fixture = await createFaxUsageFixture(
-    historicalRuntimeDb,
+    historicalRoleProjection(historicalRuntimeDb),
     () => Date.parse(now),
     {},
     2,

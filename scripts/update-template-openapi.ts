@@ -908,6 +908,24 @@ for (const scope of [
 ])
   oauth[scope] =
     "Autorisation dédiée " + scope + " ; attribution OAuth explicite requise.";
+for (const documentPath of [
+  "/api/documents/{id}",
+  "/api/documents/{id}/content",
+]) {
+  const operation = spec.paths[documentPath].get;
+  operation.parameters = (operation.parameters ?? []).filter(
+    (parameter: { name: string; in: string }) =>
+      parameter.name !== "dispatchId" || parameter.in !== "query",
+  );
+  operation.parameters.push({
+    name: "dispatchId",
+    in: "query",
+    required: false,
+    schema: { type: "string", minLength: 1 },
+    description:
+      "Contexte de revue facultatif : demande du même atelier liée à ce PDF exact. Pour un PDF privé d’un autre membre, exige le droit actuel d’approbation et, en OAuth, documents:read et dispatches:read. Ne donne aucun accès à la bibliothèque générale ; droit réévalué à chaque lecture.",
+  });
+}
 await writeFile(path, JSON.stringify(spec, null, 2) + "\n");
 console.log(
   "OpenAPI : " + operations.length + " opérations du studio synchronisées.",

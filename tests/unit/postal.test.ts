@@ -1017,7 +1017,7 @@ it("prepares the quote only from persisted reviewed inputs and returns a pending
     service().quote(authority, ready.id, "quote-key"),
   ).rejects.toMatchObject({ code: "POSTAL_DRAFT_NOT_READY" });
   expect(prepare).toHaveBeenCalledWith(
-    ctx,
+    { ...ctx, supervisorCanApprove: false, supervisorCanReport: false },
     {
       channel: "postal",
       documentId: input.documentId,

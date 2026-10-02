@@ -13,14 +13,29 @@ candidat après validation de la PR et du commit fusionné. Les preuves locales
 ci-dessous restent distinctes de la publication, identifiable par le manifeste
 public et la version Cloudflare.
 
-La publication requiert les migrations 0042–0047 et les deux services privés :
+La réconciliation avec `8b060bb` conserve les migrations déjà fusionnées
+`0042_workspace_roles.sql` et `0043_workspace_invitations.sql`. Les six migrations
+du studio, encore inédites en production, sont renumérotées 0044–0049 sans changer
+leurs octets SQL. Les preuves locales antérieures employaient les numéros
+0042–0047 ; leurs comptes et journaux restent historiques.
+
+Le studio applique les rôles actuels : consultation seule pour l’observateur,
+préparation pour l’opérateur, approbation séparée selon les droits effectifs.
+Un PDF généré reste privé avant préparation. La préparation rend son accès de
+revue disponible aux approbateurs actuels, dans le seul contexte de la demande
+liée ; l’interface l’indique avant cette action. La bibliothèque conserve son
+filtre privé. REST et MCP exigent la demande exacte, le même atelier et les
+droits actuels ; les métadonnées, octets et pages sont revérifiés après lecture.
+La révocation du droit d’approbation ou de la connexion coupe cet accès.
+
+La publication requiert les migrations du studio 0044–0049 et les deux services privés :
 le renderer pour `/render/template` et le scanner, conteneur compris, pour
 `/scan-source`. Publier et qualifier les services privés avant de coordonner
 les migrations et l’application. Utiliser les lots atomiques produits par
 `scripts/migrate-remote.mjs`, conserver un bookmark D1 et vérifier schéma,
 ledger et intégrité. Appliquer uniquement les migrations absentes.
 
-La migration 0043 remplace l’index de déduplication pour distinguer les PDF privés.
+La migration 0045 remplace l’index de déduplication pour distinguer les PDF privés.
 Le prédicat SQL de l’ancienne application devient incompatible : la fenêtre
 entre cette migration et la publication applicative doit être courte et
 coordonnée, les imports/rendus pouvant alors échouer. Après création de PDF
@@ -54,7 +69,7 @@ Les modifications non enregistrées sont signalées dans la confirmation ; annul
 conserve le brouillon. Un droit d’édition ou de publication n’accorde pas celui
 de supprimer la création d’un autre membre.
 
-La migration additive `0047_template_soft_deletion.sql` ajoute `deleted_at`.
+La migration additive `0049_template_soft_deletion.sql` ajoute `deleted_at`.
 La mutation vérifie propriétaire, adhésion actuelle, autorité OAuth et révision.
 Les lectures et nouvelles générations excluent les modèles supprimés ; les
 courses avec édition, publication ou partage ne peuvent les réactiver. Les
@@ -151,13 +166,13 @@ ni un modèle réel.
 - `apps/documents/` : nouveau rendu pdfme privé, aux côtés du rendu HTML et de l’import PDF. `apps/scanner/` ajoute une analyse des octets de sources bureautiques, séparée de l’ancienne route PDF.
 - `apps/web/src/*-pages.tsx` et `template-*.tsx` : bibliothèque, Designer chargé à la demande, formulaires métier, partage, mapping, suivi et distribution. Ces capacités ne sont pas exposées dans la prévisualisation publique à fixtures.
 
-Les migrations sont additives. `0042_template_workflow.sql` crée les modèles,
+Les migrations sont additives. `0044_template_workflow.sql` crée les modèles,
 versions, droits, sources privées, mappings, jobs, résultats et manifestes.
-`0043_private_generated_documents.sql` ajoute une propriété privée aux documents
+`0045_private_generated_documents.sql` ajoute une propriété privée aux documents
 générés et sépare leur déduplication de celle des documents historiques ; les
-anciens documents conservent leurs règles. `0044_generation_provenance.sql`
-conserve coordonnées des cellules, empreintes et paramètres de rendu. `0045_distribution_postal_reviews.sql` relie les contrôles postaux aux entrées
-figées ; `0046_dataset_analysis_recovery.sql` ajoute les leases, compteurs et
+anciens documents conservent leurs règles. `0046_generation_provenance.sql`
+conserve coordonnées des cellules, empreintes et paramètres de rendu. `0047_distribution_postal_reviews.sql` relie les contrôles postaux aux entrées
+figées ; `0048_dataset_analysis_recovery.sql` ajoute les leases, compteurs et
 options d’analyse pour réessayer le même original. Aucun reset de base ou
 migration distante n’a été réalisé.
 

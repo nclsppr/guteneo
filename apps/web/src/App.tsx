@@ -25,6 +25,7 @@ import {
   api,
   ApiError,
   canAdminister,
+  permissionsFor,
   SESSION_EXPIRED_EVENT,
   setSession,
   type Session,
@@ -57,6 +58,9 @@ import {
 import { Billing } from "./billing-page";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
+import { RolePermissionNotice } from "./role-guide";
+import { TeamInvitations } from "./team-invitations";
+import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
 import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
@@ -302,6 +306,15 @@ function Login({
     ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
   const authCode = new URLSearchParams(window.location.search).get("auth");
   const authMessages: Record<string, string> = {
+    INVITATION_EMAIL_MISMATCH: msg(
+      "Cette invitation est liée à une autre adresse. Rouvrez le lien reçu et connectez-vous avec l’adresse vérifiée qui a reçu l’invitation.",
+    ),
+    INVITATION_UNAVAILABLE: msg(
+      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’atelier.",
+    ),
+    INVITATION_EXISTING_MEMBER: msg(
+      "Vous êtes déjà membre de cet atelier. Connectez-vous à votre compte et choisissez cet atelier dans Mon compte.",
+    ),
     EMAIL_VERIFICATION_REQUIRED: msg(
       "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
     ),
@@ -548,6 +561,8 @@ export function App() {
       ?.setAttribute("content", description);
   }, [locale]);
   const publicPath = window.location.pathname;
+  if (publicPath === "/invitation" || publicPath === "/invitation/")
+    return <InvitationPage />;
   const information = getInformationPages()[publicPath];
   if (information) return <InformationPage content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
@@ -676,6 +691,7 @@ function WorkspaceApplication({
       } else throw error;
     }
   };
+  const permissions = permissionsFor(session);
   let content;
   if (
     /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
@@ -687,7 +703,10 @@ function WorkspaceApplication({
         <DocumentStudio route={route} session={session} />
       </Suspense>
     );
-  else if (page === "/app/documents") content = <Documents />;
+  else if (page === "/app/documents")
+    content = <Documents canPrepare={permissions.prepareDispatches} />;
+  else if (page === "/app/prepare" && !permissions.prepareDispatches)
+    content = <RolePermissionNotice />;
   else if (page === "/app/prepare")
     content = (
       <>
@@ -704,20 +723,38 @@ function WorkspaceApplication({
     );
   else if (page.startsWith("/app/postal/"))
     content = (
-      <PostalReviewPage key={page} id={page.slice("/app/postal/".length)} />
+      <PostalReviewPage
+        key={page}
+        id={page.slice("/app/postal/".length)}
+        canApprove={permissions.approveDispatches}
+        canPrepare={permissions.prepareDispatches}
+      />
     );
-  else if (page === "/app/dispatches") content = <DispatchList />;
+  else if (page === "/app/dispatches")
+    content = <DispatchList canPrepare={permissions.prepareDispatches} />;
   else if (page.startsWith("/app/dispatch/"))
     content = (
       <DispatchDetailPage
         id={page.slice("/app/dispatch/".length)}
         simulation={session.simulation}
+        canApprove={permissions.approveDispatches}
+        canPrepare={permissions.prepareDispatches}
       />
     );
   else if (page === "/app/campaigns")
-    content = <Campaigns simulation={session.simulation} />;
+    content = (
+      <Campaigns
+        simulation={session.simulation}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
   else if (page.startsWith("/app/campaign/"))
-    content = <CampaignDetail id={page.slice("/app/campaign/".length)} />;
+    content = (
+      <CampaignDetail
+        id={page.slice("/app/campaign/".length)}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
   else if (page === "/app/connection" || page.startsWith("/app/connection/"))
     content = (
       <Connection
@@ -727,15 +764,29 @@ function WorkspaceApplication({
         }
       />
     );
-  else if (page === "/app/senders") content = <Senders />;
-  else if (page === "/app/usage") content = <Usage />;
+  else if (page === "/app/senders")
+    content = (
+      <Senders
+        canManage={permissions.manageOrganization}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
+  else if (page === "/app/usage")
+    content = permissions.viewReports ? (
+      <Usage />
+    ) : (
+      <RolePermissionNotice reports />
+    );
   else if (page === "/app/billing") content = <Billing session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
+  else if (page === "/app/admin" && !permissions.manageMembers)
+    content = <RolePermissionNotice />;
   else if (page === "/app/admin")
     content = (
       <Admin>
         <TeamAdmin session={session} onUpdated={refreshSession} />
+        {!publicPreview && <TeamInvitations />}
       </Admin>
     );
   else content = <Overview session={session} />;
@@ -802,8 +853,9 @@ function WorkspaceApplication({
             {navigation
               .filter(
                 (n) =>
-                  !["admin", "billing"].includes(n.id) ||
-                  canAdminister(session),
+                  (!["admin", "billing"].includes(n.id) ||
+                    canAdminister(session)) &&
+                  (n.id !== "usage" || permissions.viewReports),
               )
               .filter(
                 (n) =>
@@ -922,12 +974,13 @@ function WorkspaceApplication({
             }
           </span>
           {/* These pages already lead to the preparation form themselves. */}
-          {!["/app/prepare", "/app/dispatches"].includes(page) && (
-            <a className="button small primary" href="#/app/prepare">
-              <Plus size={16} aria-hidden="true" />
-              {t.dispatch.new}
-            </a>
-          )}
+          {permissions.prepareDispatches &&
+            !["/app/prepare", "/app/dispatches"].includes(page) && (
+              <a className="button small primary" href="#/app/prepare">
+                <Plus size={16} aria-hidden="true" />
+                {t.dispatch.new}
+              </a>
+            )}
         </div>
         {/* A new identity starts from fresh pages, without the previous state. */}
         <main

@@ -87,7 +87,7 @@ Migrations 0009–0013 add Stripe customer/event/payment/invoice/subscription pr
 
 ## Additive studio migrations (local candidate)
 
-Migrations `0042_template_workflow.sql` through `0046_dataset_analysis_recovery.sql`
+Migrations `0044_template_workflow.sql` through `0048_dataset_analysis_recovery.sql`
 introduce tenant-scoped templates/versions/grants, private sources/mappings,
 generation jobs/records, distribution manifests, private generated-document
 access, record provenance, postal review associations and bounded original-source
@@ -97,7 +97,7 @@ documents deduplicate only within their owner. No remote application of these
 migrations is claimed. See [the workflow report](TEMPLATES_DATA_DISTRIBUTION.md)
 for retention, concurrency and proof.
 
-Migration `0047_template_soft_deletion.sql` adds nullable `deleted_at` to
+Migration `0049_template_soft_deletion.sql` adds nullable `deleted_at` to
 `document_templates`. Removal is an owner-only, revision- and authority-fenced
 transition to `archived`; SQL prevents subsequent mutation or resurrection.
 Deleted rows are omitted from the library and active-template quota. Versions,

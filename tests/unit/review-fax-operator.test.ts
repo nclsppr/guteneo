@@ -371,7 +371,7 @@ async function seeded() {
       )
       .bind(c.reviewerUserId, c.reviewerEmail, now),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(c.organizationId, c.reviewerUserId, now),
     db
       .prepare(
@@ -504,7 +504,7 @@ describe("atomic operator installation against actual D1 migrations", () => {
       inspectTarget(db, { ...c, recipientPhone: "+35220000001" }),
     ).rejects.toThrow("REVIEW_TARGET_INVALID");
     await db
-      .prepare("INSERT INTO memberships VALUES(?,?,'member',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'member',?)")
       .bind(c.organizationId, (await seeded()).c.reviewerUserId, now)
       .run();
     await expect(inspectTarget(db, c)).rejects.toThrow("REVIEW_TARGET_INVALID");

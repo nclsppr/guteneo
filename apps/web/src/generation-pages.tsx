@@ -30,7 +30,7 @@ const stateLabel: Record<string, string> = {
   cancelled: "Annulée",
   generated: "PDF généré",
 };
-export function GenerationList() {
+export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
   const resource = useResource<Page<GenerationJobView>>("/generation-jobs");
   return (
     <>
@@ -40,9 +40,11 @@ export function GenerationList() {
           "Chaque résultat conserve son identifiant, sa version de modèle et son PDF exact. La génération ne déclenche aucun envoi.",
         )}
         action={
-          <a className="button primary" href="#/app/templates">
-            {msg("Créer un document ")}
-          </a>
+          canPrepare && (
+            <a className="button primary" href="#/app/templates">
+              {msg("Créer un document ")}
+            </a>
+          )
         }
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -85,7 +87,13 @@ export function GenerationList() {
   );
 }
 
-export function GenerationDetail({ id }: { id: string }) {
+export function GenerationDetail({
+  id,
+  canPrepare,
+}: {
+  id: string;
+  canPrepare: boolean;
+}) {
   const job = useResource<GenerationJobView>("/generation-jobs/" + id);
   const results = useResource<Page<GenerationResultView>>(
     "/generation-jobs/" + id + "/results",
@@ -161,7 +169,7 @@ export function GenerationDetail({ id }: { id: string }) {
           >
             {msg("Actualiser le suivi ")}
           </button>
-          {active && (
+          {canPrepare && active && (
             <button
               className="button small"
               disabled={action.pending}
@@ -179,7 +187,7 @@ export function GenerationDetail({ id }: { id: string }) {
               {msg("Annuler les éléments restants ")}
             </button>
           )}
-          {!!current.failed && (
+          {canPrepare && !!current.failed && (
             <button
               className="button small"
               disabled={action.pending || active}
@@ -230,6 +238,7 @@ export function GenerationDetail({ id }: { id: string }) {
                     aria-label={msg("Sélectionner ") + result.recordId}
                     checked={selected.includes(result.recordId)}
                     disabled={
+                      !canPrepare ||
                       result.state !== "generated" ||
                       result.documentStatus !== "ready" ||
                       distributing
@@ -323,7 +332,7 @@ export function GenerationDetail({ id }: { id: string }) {
           <PdfPreview id={previewId} />
         </section>
       )}
-      {!!ready.length && !distributing && (
+      {canPrepare && !!ready.length && !distributing && (
         <div className="studio-toolbar">
           <button
             className="button"
@@ -341,14 +350,14 @@ export function GenerationDetail({ id }: { id: string }) {
           </button>
         </div>
       )}
-      {active && (
+      {canPrepare && active && (
         <p className="field-hint">
           {msg(
             "La distribution sera disponible à la fin du job. Les PDF déjà prêts restent consultables. ",
           )}
         </p>
       )}
-      {distributing && (
+      {canPrepare && distributing && (
         <DistributionForm
           jobId={id}
           recordIds={selected}
@@ -1032,6 +1041,11 @@ function DistributionForm({
       )}
       <p className="field-hint">
         {msg(
+          "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.",
+        )}
+      </p>
+      <p className="field-hint">
+        {msg(
           "La préparation ne vaut pas approbation. Les canaux ou tarifs non disponibles restent bloqués avec une erreur explicite. ",
         )}
       </p>
@@ -1042,7 +1056,15 @@ function DistributionForm({
   );
 }
 
-export function DistributionDetail({ id }: { id: string }) {
+export function DistributionDetail({
+  id,
+  canPrepare,
+  canApprove,
+}: {
+  id: string;
+  canPrepare: boolean;
+  canApprove: boolean;
+}) {
   const resource = useResource<DistributionView>("/distribution-plans/" + id);
   const action = useAction();
   const keys = useRef<Record<string, string>>({});
@@ -1065,7 +1087,7 @@ export function DistributionDetail({ id }: { id: string }) {
             <button className="button small" onClick={resource.refresh}>
               {msg("Actualiser la distribution ")}
             </button>
-            {resource.data.pendingCount > 0 && (
+            {canPrepare && resource.data.pendingCount > 0 && (
               <button
                 className="button"
                 disabled={action.pending}
@@ -1084,7 +1106,7 @@ export function DistributionDetail({ id }: { id: string }) {
                 {resource.data.pendingCount} {msg("restantes) ")}
               </button>
             )}
-            {resource.data.errorCount > 0 && (
+            {canPrepare && resource.data.errorCount > 0 && (
               <button
                 className="button small"
                 disabled={action.pending}
@@ -1146,7 +1168,9 @@ export function DistributionDetail({ id }: { id: string }) {
                           className="button small"
                           href={"#/app/dispatch/" + entry.dispatchId}
                         >
-                          {msg("Vérifier le devis et approuver ")}
+                          {canApprove
+                            ? msg("Vérifier le devis et approuver ")
+                            : msg("Ouvrir ")}
                         </a>
                       ) : entry.postalDispatchId ? (
                         <a
@@ -1165,7 +1189,9 @@ export function DistributionDetail({ id }: { id: string }) {
                             className="button small"
                             href={"#/app/postal/" + entry.postalReviewId}
                           >
-                            {msg("Vérifier la lettre et poursuivre ")}
+                            {canPrepare
+                              ? msg("Vérifier la lettre et poursuivre ")
+                              : msg("Ouvrir ")}
                           </a>
                         </>
                       ) : (
@@ -1180,7 +1206,7 @@ export function DistributionDetail({ id }: { id: string }) {
                               "Association en attente de préparation."
                             )}
                           </p>
-                          {entry.channel === "postal" && (
+                          {canPrepare && entry.channel === "postal" && (
                             <>
                               <p className="field-hint">
                                 {msg(

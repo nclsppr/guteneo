@@ -28,7 +28,8 @@ import {
   textBlock,
   tableBlock,
 } from "../../../packages/templates/gallery";
-import { api, date, type Session } from "./api";
+import { api, date, permissionsFor, type Session } from "./api";
+import { RolePermissionNotice } from "./role-guide";
 import {
   ConfirmAction,
   ErrorNotice,
@@ -96,7 +97,13 @@ function DeleteTemplateAction({
   );
 }
 
-export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
+export function TemplateLibrary({
+  startBlank,
+  canPrepare,
+}: {
+  startBlank: boolean;
+  canPrepare: boolean;
+}) {
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
   const [name, setName] = useState(msg("Mon document"));
@@ -163,17 +170,20 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
           "Une page, vos variables, autant de documents que nécessaire. Vos modèles restent rééditables depuis le web, l’API et votre assistant.",
         )}
         action={
-          <button
-            className="button primary"
-            onClick={() => setShowBlank(!showBlank)}
-          >
-            <Plus size={18} />
-            {msg("Créer un document ")}
-          </button>
+          canPrepare && (
+            <button
+              className="button primary"
+              onClick={() => setShowBlank(!showBlank)}
+            >
+              <Plus size={18} />
+              {msg("Créer un document ")}
+            </button>
+          )
         }
       />
       <ErrorNotice error={action.error ?? templates.error} />
-      {showBlank && (
+      {!canPrepare && <RolePermissionNotice />}
+      {canPrepare && showBlank && (
         <form
           className="studio-section"
           onSubmit={(e) => {
@@ -214,7 +224,7 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
             <p>{msg(envelope.description ?? "")}</p>
             <button
               className="button"
-              disabled={action.pending}
+              disabled={action.pending || !canPrepare}
               aria-label={msg(
                 "Créer ma copie privée de {0}",
                 msg(envelope.name),
@@ -232,7 +242,7 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
           {msg("Vos modèles")}
         </h2>
         <a href="#/app/datasets" className="text-link">
-          {msg("Importer mes données ")}
+          {canPrepare ? msg("Importer mes données ") : msg("Mes données ")}
           <ArrowRight size={17} />
         </a>
       </div>
@@ -274,11 +284,13 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
                 <a className="button small" href={`#/app/template/${item.id}`}>
                   {msg("Ouvrir ")}
                 </a>
-                <DeleteTemplateAction
-                  model={item}
-                  pending={action.pending}
-                  onDelete={() => void remove(item)}
-                />
+                {canPrepare && (
+                  <DeleteTemplateAction
+                    model={item}
+                    pending={action.pending}
+                    onDelete={() => void remove(item)}
+                  />
+                )}
               </div>
             </article>
           ))}
@@ -289,47 +301,52 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
         data={templates.data}
         onLoaded={templates.setData}
       />
-      <form className="studio-section" onSubmit={(e) => void importWord(e)}>
-        <h2>{msg("À partir de Word")}</h2>
-        <p>
-          {msg(
-            "Importez le contenu d’un fichier .docx en blocs rééditables. Vérifiez la mise en page et les avertissements de conversion avant publication. L’ancien format .doc n’est pas pris en charge. ",
+      {canPrepare && (
+        <form className="studio-section" onSubmit={(e) => void importWord(e)}>
+          <h2>{msg("À partir de Word")}</h2>
+          <p>
+            {msg(
+              "Importez le contenu d’un fichier .docx en blocs rééditables. Vérifiez la mise en page et les avertissements de conversion avant publication. L’ancien format .doc n’est pas pris en charge. ",
+            )}
+          </p>
+          <Field
+            label={msg("Fichier Word (.docx)")}
+            hint={msg("5 Mo maximum. Aucun transfert vers une IA à l’import.")}
+          >
+            <input
+              ref={file}
+              type="file"
+              accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              required
+            />
+          </Field>
+          <button className="button" disabled={action.pending}>
+            {msg("Importer Word ")}
+          </button>
+          {!!importWarnings.length && (
+            <div role="status">
+              <p>
+                {msg(
+                  "Le modèle a été importé dans votre bibliothèque. Points à vérifier : ",
+                )}
+              </p>
+              <ul>
+                {importWarnings.map((warning, i) => (
+                  <li key={i}>
+                    {warning.message} <code>{warning.code}</code>
+                  </li>
+                ))}
+              </ul>
+              <a
+                className="button"
+                href={"#/app/template/" + importedTemplateId}
+              >
+                {msg("Ouvrir le modèle Word importé ")}
+              </a>
+            </div>
           )}
-        </p>
-        <Field
-          label={msg("Fichier Word (.docx)")}
-          hint={msg("5 Mo maximum. Aucun transfert vers une IA à l’import.")}
-        >
-          <input
-            ref={file}
-            type="file"
-            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            required
-          />
-        </Field>
-        <button className="button" disabled={action.pending}>
-          {msg("Importer Word ")}
-        </button>
-        {!!importWarnings.length && (
-          <div role="status">
-            <p>
-              {msg(
-                "Le modèle a été importé dans votre bibliothèque. Points à vérifier : ",
-              )}
-            </p>
-            <ul>
-              {importWarnings.map((warning, i) => (
-                <li key={i}>
-                  {warning.message} <code>{warning.code}</code>
-                </li>
-              ))}
-            </ul>
-            <a className="button" href={"#/app/template/" + importedTemplateId}>
-              {msg("Ouvrir le modèle Word importé ")}
-            </a>
-          </div>
-        )}
-      </form>
+        </form>
+      )}
     </>
   );
 }
@@ -376,7 +393,7 @@ function flatten(
 
 function EditorBody({
   model,
-  session: _session,
+  session,
   onSaved,
 }: {
   model: TemplateView;
@@ -400,7 +417,9 @@ function EditorBody({
   const [previewId, setPreviewId] = useState<string>();
   const action = useAction();
   const dirty = JSON.stringify(envelope) !== JSON.stringify(model.envelope);
-  const editable = model.permissions.edit && model.state !== "archived";
+  const canPrepare = permissionsFor(session).prepareDispatches;
+  const editable =
+    canPrepare && model.permissions.edit && model.state !== "archived";
   const generationKey = useRef(crypto.randomUUID());
   const generationInput = useRef("");
   const deletionComplete = useRef(false);
@@ -610,7 +629,7 @@ function EditorBody({
             key={value}
             className="button small"
             aria-current={tab === value ? "page" : undefined}
-            disabled={value === "share" && dirty}
+            disabled={value === "share" && (dirty || !canPrepare)}
             onClick={() => setTab(value)}
           >
             {label}
@@ -661,6 +680,7 @@ function EditorBody({
             <button
               className="button"
               disabled={
+                !canPrepare ||
                 !model.permissions.publish ||
                 dirty ||
                 model.state === "archived" ||
@@ -830,6 +850,7 @@ function EditorBody({
           </p>
           <BusinessDataForm
             schema={envelope.inputSchema}
+            disabled={!canPrepare}
             value={data}
             onChange={(value) => setData(value as Record<string, unknown>)}
           />
@@ -849,7 +870,9 @@ function EditorBody({
             <button
               type="button"
               className="button"
-              disabled={action.pending || !model.permissions.use || dirty}
+              disabled={
+                action.pending || !canPrepare || !model.permissions.use || dirty
+              }
               onClick={() =>
                 void action.run(async () => {
                   const result = await api<{ id: string }>(
@@ -869,6 +892,7 @@ function EditorBody({
               className="button primary"
               disabled={
                 action.pending ||
+                !canPrepare ||
                 !model.permissions.use ||
                 dirty ||
                 model.state !== "published"
@@ -887,11 +911,15 @@ function EditorBody({
           )}
         </form>
       )}
-      {tab === "share" && <SharingPanel model={model} onSaved={onSaved} />}
+      {tab === "share" && canPrepare && (
+        <SharingPanel model={model} onSaved={onSaved} />
+      )}
       <div className="studio-toolbar">
         <button
           className="button small"
-          disabled={action.pending || !model.permissions.use || dirty}
+          disabled={
+            action.pending || !canPrepare || !model.permissions.use || dirty
+          }
           onClick={() =>
             void action.run(async () => {
               const copy = await api<TemplateView>(
@@ -908,6 +936,7 @@ function EditorBody({
           className="text-button"
           disabled={
             action.pending ||
+            !canPrepare ||
             dirty ||
             !model.permissions.publish ||
             model.state === "archived"
@@ -925,24 +954,26 @@ function EditorBody({
         >
           {msg("Archiver ")}
         </button>
-        <DeleteTemplateAction
-          model={model}
-          pending={action.pending}
-          dirty={dirty}
-          onDelete={() =>
-            void action.run(async () => {
-              await api<{ id: string; deleted: true }>(
-                `/templates/${model.id}`,
-                {
-                  method: "DELETE",
-                  body: { expectedRevision: model.revision },
-                },
-              );
-              deletionComplete.current = true;
-              go("/app/templates");
-            })
-          }
-        />
+        {canPrepare && (
+          <DeleteTemplateAction
+            model={model}
+            pending={action.pending}
+            dirty={dirty}
+            onDelete={() =>
+              void action.run(async () => {
+                await api<{ id: string; deleted: true }>(
+                  `/templates/${model.id}`,
+                  {
+                    method: "DELETE",
+                    body: { expectedRevision: model.revision },
+                  },
+                );
+                deletionComplete.current = true;
+                go("/app/templates");
+              })
+            }
+          />
+        )}
       </div>
     </>
   );

@@ -14,9 +14,13 @@ import { t } from "./locale";
 export function PostalSetupPanel({
   onUpdated,
   onStatus,
+  canManage = true,
+  canPrepare = true,
 }: {
   onUpdated: () => void;
   onStatus: (status: PostalSetup) => void;
+  canManage?: boolean;
+  canPrepare?: boolean;
 }) {
   const resource = useResource<PostalSetup>(
     isPublicPreview ? null : "/postal/setup",
@@ -60,7 +64,7 @@ export function PostalSetupPanel({
         <>
           <p>{t.postalSetup.stopped}</p>
           <p className="field-hint">{t.postalSetup.stoppedBody}</p>
-          {setup.canManage && (
+          {canManage && setup.canManage && (
             <a className="button" href="#/app/admin">
               {t.postalSetup.administration}
             </a>
@@ -80,12 +84,14 @@ export function PostalSetupPanel({
             </p>
           )}
           <p>{t.postalSetup.readyBody}</p>
-          <a className="button primary" href="#/app/prepare?channel=postal">
-            {t.postalSetup.prepare}
-            <ArrowRight size={18} aria-hidden="true" />
-          </a>
+          {canPrepare && (
+            <a className="button primary" href="#/app/prepare?channel=postal">
+              {t.postalSetup.prepare}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          )}
         </>
-      ) : !setup.canManage ? (
+      ) : !canManage || !setup.canManage ? (
         <p>{t.postalSetup.adminNeeded}</p>
       ) : (
         <PostalSetupForm

@@ -20,7 +20,8 @@ import type {
   Page,
   GenerationJobView,
 } from "../../../packages/contracts/src/template-workflow";
-import { api, bytes, date, type Session } from "./api";
+import { api, bytes, date, permissionsFor, type Session } from "./api";
+import { RolePermissionNotice } from "./role-guide";
 import {
   ErrorNotice,
   Field,
@@ -33,6 +34,7 @@ import {
 } from "./components";
 
 export function DatasetLibrary({ session }: { session: Session }) {
+  const canPrepare = permissionsFor(session).prepareDispatches;
   const resource = useResource<Page<DatasetView>>("/datasets");
   const action = useAction();
   const file = useRef<HTMLInputElement>(null);
@@ -71,75 +73,78 @@ export function DatasetLibrary({ session }: { session: Session }) {
         )}
       />
       <ErrorNotice error={action.error ?? resource.error} />
-      <form className="studio-section" onSubmit={(e) => void upload(e)}>
-        <h2>{msg("Importer mes données")}</h2>
-        <p>
-          {msg(
-            "CSV, Excel .xlsx, XML ou JSON. Le fichier original reste privé. L’import n’appelle aucune IA et ne prépare aucun envoi. ",
-          )}
-        </p>
-        <Field
-          label={msg("Fichier de données")}
-          hint={msg(
-            "5 Mo maximum, 12 feuilles, 5 000 lignes et 100 000 cellules au maximum.",
-          )}
-        >
-          <input
-            ref={file}
-            type="file"
-            accept=".csv,.xlsx,.xml,.json,text/csv,application/xml,text/xml,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            required
-          />
-        </Field>
-        <details>
-          <summary>{msg("Options CSV")}</summary>
-          <div className="studio-mapping-grid">
-            <Field label={msg("Encodage CSV")}>
-              <select
-                value={encoding}
-                onChange={(e) => setEncoding(e.target.value)}
-              >
-                <option value="utf-8">{msg("UTF-8")}</option>
-                <option value="windows-1252">{msg("Windows-1252")}</option>
-              </select>
-            </Field>
-            <Field label={msg("Séparateur CSV")}>
-              <select
-                value={delimiter}
-                onChange={(e) => setDelimiter(e.target.value)}
-              >
-                <option value="">{msg("Détection automatique")}</option>
-                <option value=",">{msg("Virgule")}</option>
-                <option value=";">{msg("Point-virgule")}</option>
-                <option value={"\t"}>{msg("Tabulation")}</option>
-                <option value="|">{msg("Barre verticale")}</option>
-              </select>
-            </Field>
-          </div>
-        </details>
-        <details>
-          <summary>{msg("Options XML")}</summary>
+      {!canPrepare && <RolePermissionNotice />}
+      {canPrepare && (
+        <form className="studio-section" onSubmit={(e) => void upload(e)}>
+          <h2>{msg("Importer mes données")}</h2>
+          <p>
+            {msg(
+              "CSV, Excel .xlsx, XML ou JSON. Le fichier original reste privé. L’import n’appelle aucune IA et ne prépare aucun envoi. ",
+            )}
+          </p>
           <Field
-            label={msg("Chemin des enregistrements XML")}
+            label={msg("Fichier de données")}
             hint={msg(
-              "Facultatif pour une seule collection. Exemple : /export/clients/client. Si plusieurs collections existent, précisez celle à importer.",
+              "5 Mo maximum, 12 feuilles, 5 000 lignes et 100 000 cellules au maximum.",
             )}
           >
             <input
-              value={xmlRecordPath}
-              onChange={(event) => setXmlRecordPath(event.target.value)}
-              placeholder="/export/clients/client"
-              maxLength={512}
+              ref={file}
+              type="file"
+              accept=".csv,.xlsx,.xml,.json,text/csv,application/xml,text/xml,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              required
             />
           </Field>
-        </details>
-        <button className="button primary" disabled={action.pending}>
-          <UploadSimple size={18} />
-          {action.pending
-            ? msg("Analyse technique…")
-            : msg("Importer et reconnaître les données")}
-        </button>
-      </form>
+          <details>
+            <summary>{msg("Options CSV")}</summary>
+            <div className="studio-mapping-grid">
+              <Field label={msg("Encodage CSV")}>
+                <select
+                  value={encoding}
+                  onChange={(e) => setEncoding(e.target.value)}
+                >
+                  <option value="utf-8">{msg("UTF-8")}</option>
+                  <option value="windows-1252">{msg("Windows-1252")}</option>
+                </select>
+              </Field>
+              <Field label={msg("Séparateur CSV")}>
+                <select
+                  value={delimiter}
+                  onChange={(e) => setDelimiter(e.target.value)}
+                >
+                  <option value="">{msg("Détection automatique")}</option>
+                  <option value=",">{msg("Virgule")}</option>
+                  <option value=";">{msg("Point-virgule")}</option>
+                  <option value={"\t"}>{msg("Tabulation")}</option>
+                  <option value="|">{msg("Barre verticale")}</option>
+                </select>
+              </Field>
+            </div>
+          </details>
+          <details>
+            <summary>{msg("Options XML")}</summary>
+            <Field
+              label={msg("Chemin des enregistrements XML")}
+              hint={msg(
+                "Facultatif pour une seule collection. Exemple : /export/clients/client. Si plusieurs collections existent, précisez celle à importer.",
+              )}
+            >
+              <input
+                value={xmlRecordPath}
+                onChange={(event) => setXmlRecordPath(event.target.value)}
+                placeholder="/export/clients/client"
+                maxLength={512}
+              />
+            </Field>
+          </details>
+          <button className="button primary" disabled={action.pending}>
+            <UploadSimple size={18} />
+            {action.pending
+              ? msg("Analyse technique…")
+              : msg("Importer et reconnaître les données")}
+          </button>
+        </form>
+      )}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : (
@@ -168,7 +173,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
                 </p>
               </div>
               <a className="button small" href={"#/app/dataset/" + item.id}>
-                {msg("Interpréter ")}
+                {canPrepare ? msg("Interpréter ") : msg("Ouvrir ")}
                 <ArrowRight size={16} />
               </a>
             </article>
@@ -509,7 +514,13 @@ function parseExcludedRows(text: string): number[] {
     );
   return [...new Set(parts.map(Number))];
 }
-export function DatasetMapper({ id }: { id: string }) {
+export function DatasetMapper({
+  id,
+  canPrepare,
+}: {
+  id: string;
+  canPrepare: boolean;
+}) {
   const resource = useResource<PagedProfileView>(
     "/datasets/" + id + "/profile",
   );
@@ -525,13 +536,39 @@ export function DatasetMapper({ id }: { id: string }) {
         <ErrorNotice error={resource.error} retry={resource.refresh} />
         {resource.loading && <Loading />}
         {resource.error && (
-          <DatasetRecovery id={id} onReady={resource.refresh} />
+          <DatasetRecovery
+            id={id}
+            onReady={resource.refresh}
+            canPrepare={canPrepare}
+          />
         )}
+      </>
+    );
+  if (!canPrepare)
+    return (
+      <>
+        <a className="back-link" href="#/app/datasets">
+          {msg("← Mes données ")}
+        </a>
+        <PageHeading title={resource.data.dataset.name} />
+        <RolePermissionNotice />
+        <DatasetPreview
+          value={resource.data}
+          sourceSheet={resource.data.profile.sheets[0]?.name ?? ""}
+        />
       </>
     );
   return <MappingEditor key={id} value={resource.data} />;
 }
-function DatasetRecovery({ id, onReady }: { id: string; onReady: () => void }) {
+function DatasetRecovery({
+  id,
+  onReady,
+  canPrepare,
+}: {
+  id: string;
+  onReady: () => void;
+  canPrepare: boolean;
+}) {
   const status = useResource<DatasetView>(`/datasets/${id}`);
   const action = useAction();
   const [waitSeconds, setWaitSeconds] = useState(0);
@@ -578,6 +615,7 @@ function DatasetRecovery({ id, onReady }: { id: string; onReady: () => void }) {
             <button
               className="button"
               disabled={
+                !canPrepare ||
                 action.pending ||
                 waitSeconds > 0 ||
                 !status.data.analysis.canRetry
@@ -605,7 +643,9 @@ function DatasetRecovery({ id, onReady }: { id: string; onReady: () => void }) {
               {msg("Actualiser l’état ")}
             </button>
             <a className="text-link" href="#/app/datasets">
-              {msg("Importer un fichier corrigé ")}
+              {canPrepare
+                ? msg("Importer un fichier corrigé ")
+                : msg("Mes données ")}
             </a>
           </div>
         </>

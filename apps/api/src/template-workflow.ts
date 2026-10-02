@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   DomainService,
   DomainError,
+  actorPermissions,
   canonicalJson,
   sha256,
   type ActorContext,
@@ -331,15 +332,27 @@ export class TemplateWorkflowService {
   }
   private async authorize(ctx: WorkflowActor, write = false) {
     const row = await this.env.DB.prepare(
-      "SELECT m.role,o.mode FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=?",
+      "SELECT m.role,m.supervisor_can_approve,m.supervisor_can_report,o.mode FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=?",
     )
       .bind(ctx.organizationId, ctx.userId)
-      .first<{ role: string; mode: string }>();
+      .first<{
+        role: string;
+        supervisor_can_approve: number;
+        supervisor_can_report: number;
+        mode: string;
+      }>();
     if (
       !row ||
       row.role !== ctx.role ||
       row.mode !== this.env.MODE ||
-      (write && row.role === "viewer")
+      !actorPermissions(ctx).readWorkspace ||
+      (write && !actorPermissions(ctx).prepareDispatches) ||
+      (ctx.role === "supervisor" &&
+        ctx.actor !== "system" &&
+        (Boolean(row.supervisor_can_approve) !==
+          Boolean(ctx.supervisorCanApprove) ||
+          Boolean(row.supervisor_can_report) !==
+            Boolean(ctx.supervisorCanReport)))
     )
       fail(
         "FORBIDDEN",
@@ -374,7 +387,16 @@ export class TemplateWorkflowService {
       ctx.role,
       this.env.MODE,
     ];
-    let condition = `EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role<>'viewer' AND o.mode=?)`;
+    let condition = `EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role IN ('admin','supervisor','member') AND o.mode=?`;
+    if (ctx.role === "supervisor" && ctx.actor !== "system") {
+      condition +=
+        " AND m.supervisor_can_approve=? AND m.supervisor_can_report=?";
+      values.push(
+        Number(Boolean(ctx.supervisorCanApprove)),
+        Number(Boolean(ctx.supervisorCanReport)),
+      );
+    }
+    condition += ")";
     if (ctx.authority) {
       condition +=
         " AND EXISTS(SELECT 1 FROM authorized_connections c JOIN connection_tool_observations o ON o.connection_id=c.id WHERE c.id=? AND c.organization_id=? AND c.user_id=? AND c.status='active' AND o.authorization_revision=?)";
@@ -408,18 +430,15 @@ export class TemplateWorkflowService {
   ): Record<TemplatePermission, boolean> {
     const owner = row.owner_id === ctx.userId;
     const shared = row.visibility !== "private";
+    const writable = actorPermissions(ctx).prepareDispatches;
     return {
       use:
         owner ||
         row.visibility === "organization" ||
         (shared && Boolean(row.can_use)),
-      edit:
-        ctx.role !== "viewer" && (owner || (shared && Boolean(row.can_edit))),
-      publish:
-        ctx.role !== "viewer" &&
-        (owner || (shared && Boolean(row.can_publish))),
-      share:
-        ctx.role !== "viewer" && (owner || (shared && Boolean(row.can_share))),
+      edit: writable && (owner || (shared && Boolean(row.can_edit))),
+      publish: writable && (owner || (shared && Boolean(row.can_publish))),
+      share: writable && (owner || (shared && Boolean(row.can_share))),
     };
   }
   private async templateRow(
@@ -456,7 +475,8 @@ export class TemplateWorkflowService {
       revision: row.revision,
       currentVersion: row.current_version,
       permissions: this.permissions(ctx, row),
-      canDelete: row.owner_id === ctx.userId && ctx.role !== "viewer",
+      canDelete:
+        row.owner_id === ctx.userId && actorPermissions(ctx).prepareDispatches,
       envelope: parseJson(row.draft_json),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -1892,7 +1912,9 @@ export class TemplateWorkflowService {
       organizationId: job.organization_id,
       userId: job.owner_id,
       role: job.request_role,
-      actor: job.request_actor,
+      // Background generation retains preparation authority only. Like document
+      // analysis recovery, it must not synthesize supervisor approval/report flags.
+      actor: "system",
       ...(job.authority_json
         ? {
             authority: parseJson<NonNullable<WorkflowActor["authority"]>>(
@@ -1902,6 +1924,16 @@ export class TemplateWorkflowService {
         : {}),
     };
     try {
+      if (
+        job.request_actor === "mcp" &&
+        this.env.MODE === "production" &&
+        !ctx.authority
+      )
+        fail(
+          "CONNECTION_REQUIRED",
+          "Reconnectez cet assistant pour poursuivre.",
+          403,
+        );
       await this.authorize(ctx, true);
       const template = await this.templateRow(ctx, job.template_id);
       if (template.state === "archived")

@@ -1,6 +1,6 @@
 import { msg } from "./messages";
 import type { Session } from "./api";
-import { isPublicPreview } from "./api";
+import { isPublicPreview, permissionsFor } from "./api";
 import { TemplateLibrary, TemplateEditor } from "./template-pages";
 import { DatasetLibrary, DatasetMapper } from "./dataset-pages";
 import {
@@ -18,6 +18,7 @@ export default function DocumentStudio({
   session: Session;
 }) {
   const [path, query] = route.split("?");
+  const permissions = permissionsFor(session);
   if (isPublicPreview)
     return (
       <p className="notice info">
@@ -35,22 +36,36 @@ export default function DocumentStudio({
       />
     );
   if (path.startsWith("/app/dataset/"))
-    return <DatasetMapper key={path} id={path.slice("/app/dataset/".length)} />;
+    return (
+      <DatasetMapper
+        key={path}
+        id={path.slice("/app/dataset/".length)}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
   if (path.startsWith("/app/generation/"))
     return (
-      <GenerationDetail key={path} id={path.slice("/app/generation/".length)} />
+      <GenerationDetail
+        key={path}
+        id={path.slice("/app/generation/".length)}
+        canPrepare={permissions.prepareDispatches}
+      />
     );
   if (path.startsWith("/app/distribution/"))
     return (
       <DistributionDetail
         key={path}
         id={path.slice("/app/distribution/".length)}
+        canPrepare={permissions.prepareDispatches}
+        canApprove={permissions.approveDispatches}
       />
     );
   if (path === "/app/datasets") return <DatasetLibrary session={session} />;
-  if (path === "/app/generations") return <GenerationList />;
+  if (path === "/app/generations")
+    return <GenerationList canPrepare={permissions.prepareDispatches} />;
   return (
     <TemplateLibrary
+      canPrepare={permissions.prepareDispatches}
       startBlank={new URLSearchParams(query).get("new") === "blank"}
     />
   );

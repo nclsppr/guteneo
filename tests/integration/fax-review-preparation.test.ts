@@ -1,3 +1,4 @@
+import { historicalRoleProjection } from "../helpers/historical-role-projection";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
@@ -64,7 +65,7 @@ beforeAll(async () => {
     await applyMigration(file);
   // Populate real historical domain records before migration; hashes must not change.
   const old = await createFaxUsageFixture(
-    db,
+    historicalRoleProjection(db),
     () => Date.parse("2026-09-21T00:00:00.000Z"),
     {},
     2,
@@ -111,9 +112,11 @@ beforeAll(async () => {
   expect((await db.prepare("PRAGMA foreign_key_check").all()).results).toEqual(
     [],
   );
-  // Preserve the historical migration assertion, then use the current schema for
-  // the behavior fixtures created by beforeEach.
-  for (const file of migrations.filter((n) => n > "0035_review_fax_preparation.sql"))
+  // Historical preservation has been proven. Exercise the current runtime only
+  // with the complete current schema in every following test.
+  for (const file of migrations.filter(
+    (name) => name > "0035_review_fax_preparation.sql",
+  ))
     await applyMigration(file);
 });
 afterAll(async () => {

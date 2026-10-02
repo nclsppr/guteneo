@@ -330,7 +330,12 @@ it("extends active non-French qualifications without changing history, expiry, r
   }
   // The current authenticated handler needs the later profile schema; keep it
   // separate from the historical migration assertions above.
-  await apply("0038_user_locale.sql");
+  for (const name of (
+    await readdir(new URL("../../migrations/", import.meta.url))
+  )
+    .filter((name) => name.endsWith(".sql") && name > migrationName)
+    .sort())
+    await apply(name);
   await verifyHistoricalRenewal();
   await expect(
     db
@@ -374,7 +379,9 @@ async function verifyHistoricalRenewal() {
     const secret = `${org}_`.padEnd(43, "s");
     await db.batch([
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+        )
         .bind(org, `${org}_user`, now),
       db
         .prepare(

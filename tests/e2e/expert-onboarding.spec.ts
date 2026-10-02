@@ -65,6 +65,17 @@ async function fixture(
       };
     else if (path === "/api/capabilities")
       body = { scanner: "disabled_in_local_simulation" };
+    else if (path === "/api/account/workspaces")
+      body = {
+        items: [
+          {
+            id: "fixture-onboarding",
+            name: "Atelier fictif",
+            role: options.canManage === false ? "member" : "admin",
+            current: true,
+          },
+        ],
+      };
     else if (path === "/api/account/sessions")
       body = { items: [], hasMore: false };
     else if (path === "/api/account/expert-approval" && method === "GET")

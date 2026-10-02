@@ -1,3 +1,4 @@
+import { historicalRoleProjection } from "../helpers/historical-role-projection";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   beforeAll,
@@ -207,7 +208,9 @@ async function setupFixture(
       )
       .bind(ctx.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(ctx.organizationId, ctx.userId, stamp()),
   ]);
   for (const channel of ["email", "postal"] as const) {
@@ -246,7 +249,7 @@ async function setupFixture(
         "a".repeat(64),
       )
       .run();
-  domain = new DomainService(db, {
+  domain = new DomainService(historical ? historicalRoleProjection(db) : db, {
     mode: "production",
     now: () => clock,
     liveDeliveryIdentity: identity,

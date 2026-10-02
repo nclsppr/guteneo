@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import {
   afterAll,
   afterEach,
@@ -52,14 +52,11 @@ beforeAll(async () => {
     }),
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
-  for (const file of [
-    "0001_core.sql",
-    "0002_auth.sql",
-    "0011_account.sql",
-    "0019_verified_account_sessions.sql",
-    "0032_connection_tool_observations.sql",
-    "0038_user_locale.sql",
-  ]) {
+  for (const file of (
+    await readdir(new URL("../../migrations/", import.meta.url))
+  )
+    .filter((name) => name.endsWith(".sql"))
+    .sort()) {
     const sql = await readFile(
       new URL(`../../migrations/${file}`, import.meta.url),
       "utf8",
@@ -115,7 +112,9 @@ beforeEach(async () => {
         )
         .bind(id, now),
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+        )
         .bind(organizationId, id, now),
     ]),
   ]);
@@ -286,7 +285,9 @@ describe("postal browser authority", () => {
         .prepare("INSERT INTO organizations VALUES(?,'Other','production',?)")
         .bind(other, now),
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'member',?)")
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'member',?)",
+        )
         .bind(other, userId, now),
       db
         .prepare(

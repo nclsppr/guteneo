@@ -706,5 +706,10 @@
     "· Mapping v{0}",
     "· Zuordnung v{0}",
     "· Zouuerdnung v{0}"
+  ],
+  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.": [
+    "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
+    "Bei der Vorbereitung können freigabeberechtigte Personen dieses Arbeitsbereichs die ausgewählten PDFs zur Prüfung dieser Anfragen einsehen. Es wird nichts versendet.",
+    "D’Virbereedung erlaabt de Persoune mat Geneemegungsrecht an dësem Atelier, déi ausgewielte PDFen ze liesen, fir dës Ufroen ze préiwen. Et gëtt näischt verschéckt."
   ]
 }

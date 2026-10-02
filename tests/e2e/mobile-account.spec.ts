@@ -41,6 +41,7 @@ async function fixture(page: Page) {
       }
     } else if (path === "/account/expert-approval")
       body = { canManage: true, day: "2026-09-17", connections: [] };
+    else if (path === "/account/workspaces") body = { items: [] };
     else if (path === "/account/sessions")
       body = {
         items: [
@@ -130,6 +131,8 @@ async function fixture(page: Page) {
         ],
         nextCursor: null,
       };
+    else if (path === "/admin/invitations")
+      body = { items: [], nextCursor: null };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
     else if (path === "/dispatches") body = { items: [], nextCursor: null };
     else if (path === "/overview")

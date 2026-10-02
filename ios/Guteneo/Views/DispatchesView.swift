@@ -62,7 +62,7 @@ struct DispatchesView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { composing = true } label: { Label("Préparer un envoi", systemImage: "plus") }
-                    .disabled(model.session?.user.role == "viewer")
+                    .disabled(model.session?.canPrepare != true)
             }
         }
     }
@@ -137,7 +137,7 @@ struct DispatchDetailView: View {
                             Button { openReview(url) } label: { Label("Consulter le devis de référence", systemImage: "safari") }
                         }
                     }
-                } else if detail.dispatch.canHumanReview {
+                } else if detail.dispatch.canHumanReview && model.session?.canApprove == true {
                     Section("Votre validation") {
                         Notice(text: "Vérifiez le contenu, le destinataire, les options et le devis dans l’espace sécurisé avant de confirmer l’envoi.", symbol: "checkmark.shield")
                         if let url = detail.reviewURL {
@@ -145,10 +145,10 @@ struct DispatchDetailView: View {
                         }
                     }
                 }
-                if detail.dispatch.canCancel {
+                if detail.dispatch.canCancel && model.session?.canApprove == true {
                     Section("Actions") {
                         Button("Annuler cet envoi", role: .destructive) { confirmingCancel = true }
-                            .disabled(cancelling || model.session?.user.role == "viewer")
+                            .disabled(cancelling || model.session?.canApprove != true)
                     }
                 }
                 if ["unknown", "submission_unknown"].contains(detail.dispatch.status) {

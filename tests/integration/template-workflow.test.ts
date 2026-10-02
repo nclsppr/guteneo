@@ -77,6 +77,27 @@ const member: ActorContext = {
   userId: "workflow_member",
   role: "member",
 };
+const reviewer: ActorContext = {
+  ...owner,
+  userId: "workflow_reviewer",
+  role: "supervisor",
+  supervisorCanApprove: true,
+  supervisorCanReport: true,
+};
+async function setRole(ctx: ActorContext) {
+  await db
+    .prepare(
+      "UPDATE memberships SET role=?,supervisor_can_approve=?,supervisor_can_report=? WHERE organization_id=? AND user_id=?",
+    )
+    .bind(
+      ctx.role,
+      Number(Boolean(ctx.supervisorCanApprove)),
+      Number(Boolean(ctx.supervisorCanReport)),
+      ctx.organizationId,
+      ctx.userId,
+    )
+    .run();
+}
 async function sql(source: string) {
   let statement = "",
     trigger = false;
@@ -185,13 +206,17 @@ function afterTemplateRead(interleave: () => Promise<unknown>) {
       return snapshot;
     });
 }
-async function connectWorkflow(scopes: string[]) {
+async function connectWorkflow(
+  scopes: string[],
+  ctx = owner,
+  token = "synthetic",
+) {
   const server = createGuteneoMcpServer(
     {
-      context: { ...owner, actor: "mcp" },
+      context: { ...ctx, actor: "mcp" },
       scopes,
-      clientId: "fixture",
-      token: "synthetic",
+      clientId: token.startsWith("gtn_dev_") ? "local-simulation" : "fixture",
+      token,
       expiresAt: 9999999999,
     },
     env,
@@ -268,6 +293,18 @@ beforeAll(async () => {
     )
     .bind(new Date().toISOString())
     .run();
+  await db
+    .prepare(
+      "INSERT INTO users(id,name,email,created_at) VALUES('workflow_reviewer','Revue','reviewer@example.invalid',?)",
+    )
+    .bind(new Date().toISOString())
+    .run();
+  await db
+    .prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('org_atelier','workflow_reviewer','member',?)",
+    )
+    .bind(new Date().toISOString())
+    .run();
 });
 afterAll(async () => {
   await mf?.dispose();
@@ -303,7 +340,7 @@ beforeEach(async () => {
     await db.prepare(`DELETE FROM ${table}`).run();
   await db
     .prepare(
-      "UPDATE memberships SET role='member' WHERE user_id='workflow_member'",
+      "UPDATE memberships SET role='member',supervisor_can_approve=0,supervisor_can_report=0 WHERE user_id IN ('workflow_member','workflow_reviewer')",
     )
     .run();
   await sql(
@@ -339,6 +376,453 @@ beforeEach(async () => {
 });
 
 describe("Persistent template workflow — local D1/R2 with explicitly synthetic renderer transport", () => {
+  it.each(
+    (["browser", "mcp"] as const).flatMap((actor) =>
+      [false, true].flatMap((supervisorCanApprove) =>
+        [false, true].map((supervisorCanReport) => ({
+          actor,
+          supervisorCanApprove,
+          supervisorCanReport,
+        })),
+      ),
+    ),
+  )(
+    "generates for supervisor $actor approval=$supervisorCanApprove reports=$supervisorCanReport without acquiring sending authority",
+    async (options) => {
+      const ctx: ActorContext = { ...member, role: "supervisor", ...options };
+      await setRole(ctx);
+      const template = await published(ctx);
+      const generation = await service.createGeneration(
+        ctx,
+        {
+          templateId: template.id,
+          mode: "generate_only",
+          records: [
+            { recordId: "supervisor", data: { name: "Synthetic supervisor" } },
+          ],
+        },
+        "supervisor-generation",
+      );
+      await service.processPending(1);
+      const result = (await service.generationResults(ctx, generation.id))
+        .items[0];
+      expect(result.state).toBe("generated");
+      expect(
+        (await domain.getDocument(ctx, result.documentId!)).access_owner_id,
+      ).toBe(member.userId);
+      await expect(
+        domain.getDocument(owner, result.documentId!),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      if (options.supervisorCanReport)
+        await expect(domain.usage(ctx)).resolves.toBeDefined();
+      else
+        await expect(domain.usage(ctx)).rejects.toMatchObject({
+          code: "FORBIDDEN",
+        });
+      for (const table of ["approvals", "reservations", "outbox", "attempts"])
+        expect(await count(table)).toBe(0);
+    },
+  );
+  it("rejects stale supervisor contexts while queued generation retains preparation only when options change", async () => {
+    const ctx: ActorContext = {
+      ...member,
+      role: "supervisor",
+      supervisorCanApprove: true,
+      supervisorCanReport: true,
+    };
+    await setRole(ctx);
+    const template = await published(ctx);
+    const generation = await service.createGeneration(
+      ctx,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "queued", data: { name: "Queued synthetic" } }],
+      },
+      "options-change",
+    );
+    const current = {
+      ...ctx,
+      supervisorCanApprove: false,
+      supervisorCanReport: false,
+    };
+    await setRole(current);
+    await expect(service.getTemplate(ctx, template.id)).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+    await service.processPending(1);
+    expect(
+      (await service.generationResults(current, generation.id)).items[0].state,
+    ).toBe("generated");
+    const spy = afterTemplateRead(() =>
+      setRole({ ...current, supervisorCanReport: true }),
+    );
+    try {
+      await expect(
+        service.updateTemplate(current, template.id, {
+          expectedRevision: template.revision,
+          envelope: envelope(),
+        }),
+      ).rejects.toMatchObject({ code: "REVISION_CONFLICT" });
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await count("outbox")).toBe(0);
+  });
+  it("opens an operator private PDF only through its exact prepared dispatch to current approvers over REST and MCP", async () => {
+    const template = await published(member);
+    const generation = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [
+          { recordId: "review", data: { name: "Synthetic review" } },
+          { recordId: "unprepared", data: { name: "Still private" } },
+        ],
+      },
+      "member-review",
+    );
+    await service.processPending(2);
+    const [result, unprepared] = (
+      await service.generationResults(member, generation.id)
+    ).items;
+    await expect(
+      service.documents.getContent(owner, result.documentId!),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const plan = await service.prepareDistribution(
+      member,
+      {
+        jobId: generation.id,
+        entries: [
+          {
+            entryId: "fax",
+            recordId: result.recordId,
+            channel: "fax",
+            recipient: { phone: "+35242123456" },
+          },
+        ],
+      },
+      "member-review-plan",
+    );
+    const dispatchId = plan.entries[0].dispatchId!;
+    expect(dispatchId).toBeTruthy();
+    const dispatch = (await domain.getDispatch(member, dispatchId)).dispatch;
+    await expect(
+      domain.approveDispatch(member, dispatchId, dispatch.fingerprint),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    for (const role of ["member", "viewer"] as const) {
+      const unauthorized: ActorContext = {
+        ...reviewer,
+        role,
+        supervisorCanApprove: false,
+        supervisorCanReport: false,
+      };
+      await setRole(unauthorized);
+      await expect(
+        domain.getDispatch(unauthorized, dispatchId),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      await expect(
+        service.documents.getContent(
+          unauthorized,
+          result.documentId!,
+          dispatchId,
+        ),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      expect((await domain.listDispatches(unauthorized)).items).toEqual([]);
+    }
+    await setRole(reviewer);
+    for (const approver of [owner, reviewer]) {
+      expect(
+        (await domain.getDispatch(approver, dispatchId)).dispatch.document_id,
+      ).toBe(result.documentId);
+      expect(
+        (await domain.listDispatches(approver)).items.map((item) => item.id),
+      ).toContain(dispatchId);
+      expect((await domain.listDocuments(approver)).items).toEqual([]);
+      await expect(
+        service.documents.get(approver, result.documentId!),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      await expect(
+        service.documents.get(approver, unprepared.documentId!, dispatchId),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      await expect(
+        service.documents.get(approver, result.documentId!, "wrong-dispatch"),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      const response = await service.documents.getContent(
+        approver,
+        result.documentId!,
+        dispatchId,
+      );
+      expect(await sha256(new Uint8Array(await response.arrayBuffer()))).toBe(
+        result.documentHash,
+      );
+      const exact = await service.documents.getReviewContent(
+        approver,
+        result.documentId!,
+        dispatchId,
+      );
+      expect(exact.document.sha256).toBe(result.documentHash);
+      await expect(
+        domain.approveDispatch(approver, dispatchId, dispatch.fingerprint),
+      ).resolves.toMatchObject({ id: dispatchId });
+    }
+    await expect(
+      service.documents.getContent(other, result.documentId!, dispatchId),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const token = `review-${crypto.randomUUID()}`;
+    await db
+      .prepare(
+        "INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at) VALUES(?,?,?,'csrf',1,1,?,?)",
+      )
+      .bind(
+        await sha256(token),
+        reviewer.userId,
+        reviewer.organizationId,
+        new Date().toISOString(),
+        new Date(Date.now() + 60000).toISOString(),
+      )
+      .run();
+    const request = (suffix: string) =>
+      worker.fetch(
+        new Request(
+          `http://localhost:8787/api/documents/${result.documentId}${suffix}`,
+          { headers: { Cookie: `guteneo_session=${token}` } },
+        ),
+        env,
+        {} as ExecutionContext,
+      );
+    expect((await request("")).status).toBe(404);
+    expect((await request(`?dispatchId=${dispatchId}`)).status).toBe(200);
+    expect((await request(`/content?dispatchId=${dispatchId}`)).status).toBe(
+      200,
+    );
+    const limited = await connectWorkflow(["documents:read"], reviewer);
+    try {
+      for (const name of ["get_document", "read_document_pages"]) {
+        const response = await limited.client.callTool({
+          name,
+          arguments: { documentId: result.documentId, dispatchId },
+        });
+        expect(response.isError).toBe(true);
+        expect(JSON.stringify(response._meta)).toContain(
+          "documents:read dispatches:read",
+        );
+      }
+    } finally {
+      await limited.close();
+    }
+    const mcpToken = `gtn_dev_${crypto.randomUUID()}`;
+    await db
+      .prepare(
+        "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
+      )
+      .bind(
+        await sha256(mcpToken),
+        reviewer.userId,
+        reviewer.organizationId,
+        new Date(Date.now() + 60000).toISOString(),
+      )
+      .run();
+    const mcp = await connectWorkflow([...MCP_SCOPES], reviewer, mcpToken);
+    try {
+      const response = await mcp.client.callTool({
+        name: "get_document",
+        arguments: { documentId: result.documentId, dispatchId },
+      });
+      expect(response.isError).not.toBe(true);
+      expect(JSON.stringify(response.structuredContent)).toContain(
+        `dispatchId=${dispatchId}`,
+      );
+      expect(JSON.stringify(response.structuredContent)).toContain(
+        `/#/app/dispatch/${dispatchId}`,
+      );
+      const image = new Uint8Array([255, 216, 255, 217]);
+      env.DOCUMENT_RENDERER = {
+        fetch: async () =>
+          Response.json({
+            sha256: result.documentHash,
+            totalPages: 1,
+            startPage: 1,
+            pageCount: 1,
+            nextPage: null,
+            rendering: { complete: true },
+            pages: [
+              {
+                page: 1,
+                width: 800,
+                height: 1100,
+                mimeType: "image/jpeg",
+                imageBase64: Buffer.from(image).toString("base64"),
+                imageSha256: await sha256(image),
+                text: "Synthetic page",
+                textTruncated: false,
+              },
+            ],
+          }),
+      } as unknown as Fetcher;
+      const pages = await mcp.client.callTool({
+        name: "read_document_pages",
+        arguments: { documentId: result.documentId, dispatchId, page: 1 },
+      });
+      expect(pages.isError).not.toBe(true);
+      expect(pages.content).toContainEqual(
+        expect.objectContaining({ type: "image" }),
+      );
+    } finally {
+      await mcp.close();
+    }
+    let reads = 0;
+    env.DOCUMENTS = {
+      get: async (key: string) => {
+        reads++;
+        const object = await bucket.get(key);
+        await db
+          .prepare("DELETE FROM development_mcp_tokens WHERE token_hash=?")
+          .bind(await sha256(mcpToken))
+          .run();
+        return object;
+      },
+    } as unknown as R2Bucket;
+    try {
+      const revokedDuringRead = await worker.fetch(
+        new Request(
+          `http://localhost:8787/api/documents/${result.documentId}/content?dispatchId=${dispatchId}`,
+          { headers: { Authorization: `Bearer ${mcpToken}` } },
+        ),
+        env,
+        {} as ExecutionContext,
+      );
+      expect([401, 403]).toContain(revokedDuringRead.status);
+      expect(await revokedDuringRead.text()).not.toContain("%PDF-");
+      expect(reads).toBe(1);
+    } finally {
+      env.DOCUMENTS = bucket;
+    }
+    await setRole({ ...reviewer, supervisorCanApprove: false });
+    await expect(
+      service.documents.getContent(reviewer, result.documentId!, dispatchId),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const revoked = { ...reviewer, supervisorCanApprove: false };
+    await expect(domain.getDispatch(revoked, dispatchId)).rejects.toMatchObject(
+      { code: "NOT_FOUND" },
+    );
+    expect((await domain.listDispatches(revoked)).items).toEqual([]);
+    expect((await request(`/content?dispatchId=${dispatchId}`)).status).toBe(
+      404,
+    );
+    expect(await count("approvals")).toBe(0);
+    for (const table of ["reservations", "outbox", "attempts"])
+      expect(await count(table)).toBe(0);
+  });
+  it.each(["metadata", "content", "pages"] as const)(
+    "withdraws contextual private PDF access when approval is revoked during %s reading",
+    async (kind) => {
+      const template = await published(member);
+      const generation = await service.createGeneration(
+        member,
+        {
+          templateId: template.id,
+          mode: "generate_only",
+          records: [
+            { recordId: "review", data: { name: "Synthetic revoked review" } },
+          ],
+        },
+        "revoke-during-review",
+      );
+      await service.processPending(1);
+      const result = (await service.generationResults(member, generation.id))
+        .items[0];
+      const dispatch = await domain.prepareDispatch(
+        member,
+        {
+          channel: "fax",
+          recipient: { phone: "+35242123456" },
+          documentId: result.documentId!,
+        },
+        "revoke-review-dispatch",
+      );
+      await setRole(reviewer);
+      if (kind === "metadata") {
+        const internals = service.documents as unknown as {
+          analysisRow(ctx: ActorContext, id: string): Promise<unknown>;
+        };
+        const original = internals.analysisRow.bind(service.documents);
+        const spy = vi
+          .spyOn(internals, "analysisRow")
+          .mockImplementationOnce(async (...args) => {
+            const row = await original(...args);
+            await setRole({ ...reviewer, supervisorCanApprove: false });
+            return row;
+          });
+        try {
+          await expect(
+            service.documents.get(reviewer, result.documentId!, dispatch.id),
+          ).rejects.toMatchObject({ code: "FORBIDDEN" });
+        } finally {
+          spy.mockRestore();
+        }
+      } else if (kind === "content") {
+        let reads = 0;
+        env.DOCUMENTS = {
+          get: async (key: string) => {
+            reads++;
+            const object = await bucket.get(key);
+            await setRole({ ...reviewer, supervisorCanApprove: false });
+            return object;
+          },
+        } as unknown as R2Bucket;
+        try {
+          await expect(
+            service.documents.getContent(
+              reviewer,
+              result.documentId!,
+              dispatch.id,
+            ),
+          ).rejects.toMatchObject({ code: "FORBIDDEN" });
+        } finally {
+          env.DOCUMENTS = bucket;
+        }
+        expect(reads).toBe(1);
+      } else {
+        const bytes = new Uint8Array([255, 216, 255, 217]);
+        env.DOCUMENT_RENDERER = {
+          fetch: async () => {
+            await setRole({ ...reviewer, supervisorCanApprove: false });
+            return Response.json({
+              sha256: result.documentHash,
+              totalPages: 1,
+              startPage: 1,
+              pageCount: 1,
+              nextPage: null,
+              rendering: { complete: true },
+              pages: [
+                {
+                  page: 1,
+                  width: 800,
+                  height: 1100,
+                  mimeType: "image/jpeg",
+                  imageBase64: Buffer.from(bytes).toString("base64"),
+                  imageSha256: await sha256(bytes),
+                  text: "Synthetic review",
+                  textTruncated: false,
+                },
+              ],
+            });
+          },
+        } as unknown as Fetcher;
+        await expect(
+          service.documents.getReviewPages(
+            reviewer,
+            result.documentId!,
+            1,
+            dispatch.id,
+          ),
+        ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      }
+      expect(await count("outbox")).toBe(0);
+    },
+  );
   it("soft-deletes only for the current non-viewer owner and retains published jobs, provenance and private PDFs", async () => {
     let template = await published();
     template = await service.shareTemplate(owner, template.id, {
@@ -1155,10 +1639,31 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         (d) => d.id,
       ),
     ).toEqual([secondDispatch.id]);
-    expect(await domain.dispatchOverview(member)).toMatchObject({
+    await expect(domain.dispatchOverview(member)).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+    await db
+      .prepare(
+        "UPDATE memberships SET role='supervisor',supervisor_can_report=1 WHERE organization_id=? AND user_id=?",
+      )
+      .bind(member.organizationId, member.userId)
+      .run();
+    expect(
+      await domain.dispatchOverview({
+        ...member,
+        role: "supervisor",
+        supervisorCanReport: true,
+      }),
+    ).toMatchObject({
       documents: 1,
       dispatches: { total: 1, approval: 1 },
     });
+    await db
+      .prepare(
+        "UPDATE memberships SET role='member',supervisor_can_report=0 WHERE organization_id=? AND user_id=?",
+      )
+      .bind(member.organizationId, member.userId)
+      .run();
     const explicitImport = await service.documents.upload(owner, {
       name: "supplied-exact.pdf",
       bytes: await pdf("Identical synthetic text"),
@@ -1244,6 +1749,19 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       ).rejects.toMatchObject({ code: "NOT_FOUND" });
       await expect(
         revokeProtectedDocument(production, member, dispatchId),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await db
+        .prepare(
+          "UPDATE memberships SET role='supervisor',supervisor_can_approve=1 WHERE organization_id=? AND user_id=?",
+        )
+        .bind(member.organizationId, member.userId)
+        .run();
+      await expect(
+        revokeProtectedDocument(
+          production,
+          { ...member, role: "supervisor", supervisorCanApprove: true },
+          dispatchId,
+        ),
       ).rejects.toMatchObject({ code: "NOT_FOUND" });
       expect(
         (await revealProtectedDocumentPassword(production, owner, dispatchId))

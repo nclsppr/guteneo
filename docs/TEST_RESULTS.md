@@ -1,5 +1,35 @@
 # Executed verification
 
+## Reconciliation with workshop roles — 2 October 2026
+
+The deployment candidate integrates main `8b060bb`, including workshop roles and
+invitations. Those migrations retain 0042–0043. The six unpublished studio
+migrations move from 0042–0047 to 0044–0049 without SQL content changes. Earlier
+local evidence below uses its original numbering and counts; it is not a fresh
+qualification of this combined source. Updated checks and hosted evidence are
+stored separately in `/Users/nclsppr/Developer/.artifacts/guteneo-templates-deploy-20261002`.
+
+Fresh local reconciliation checks: typecheck and lint pass; the migration
+transport matches **49 migrations / 315 schema objects** with integrity `ok` and
+no foreign-key violations. The **216 security tests** pass. The four historical
+migration-conflict files pass **55/55 tests**. The first focused workflow run
+passed 13 cases, including eight supervisor/browser/MCP combinations; its two
+test-harness/assertion failures were corrected. A fresh **5/5** recheck covers
+stale supervisor options, exact dispatch-bound private review in REST/MCP,
+revoked OAuth during R2 reading, and permission withdrawal during metadata,
+bytes and page rendering. These overlapping runs are not a full-file total.
+
+The two new browser scenarios pass **4/4** across Chromium and iPhone WebKit:
+observer-only controls on the studio routes, and operator preparation followed
+by approver preview/open with the exact dispatch context. These role scenarios
+use intercepted HTTP fixtures; they qualify the browser interface, while the
+integration tests above qualify the actual authorization logic. Full GitHub
+checks must still qualify the committed combined source before publication.
+The existing distribution browser scenarios also pass **2/2 on Chromium**
+(`studio-distribution-real-browser.log`): one record/channel selection flow
+against the real local simulation API, and one intercepted UI case for two
+records sharing one PDF artifact.
+
 ## Demonstration templates, deletion and LLM authoring — 2 October 2026
 
 This local follow-up extends `e6a99338e85e2f4a4b8cd002b47e609a49085e8f` in the
@@ -95,6 +125,62 @@ These historical totals do not qualify the 2 October reconciliation and are not
 added to its results. They do not replace the dated live release evidence below.
 
 ## Previous verification — 2026-09-17
+
+## Workshop roles, self-enrolment and invitations — local candidate, 2 October 2026
+
+The candidate adds four workshop roles, independent supervisor approval/reporting
+options, a customer guide in French/English/German/Luxembourgish, individual and
+CSV invitations, and browser workspace selection. A verified self-enrolment still
+creates an administrator. An invited person can create an account or use an
+existing account; accepting the invitation creates only the invited membership,
+without an extra personal workshop. See [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
+
+Executed locally on macOS, with deterministic D1/provider fixtures:
+
+- Full Vitest run: **1,575 passed, two failed in 82 files**. Both failures were in
+  the new workspace-switch tests: the first exposed D1 counting a session trigger
+  update in `meta.changes`, and the second inherited its unfinished fixture. After
+  correcting the affected check, the complete authentication file passed
+  **43/43**, including the concurrent-revocation regression. This is a successful
+  targeted rerun, not a relabelled green full run.
+- The full run passed all **44 new role/migration/invitation integration cases**,
+  the CSV parser cases, and the invitation asset-shell checks. The separate Node
+  security suite passed **215/215**.
+- Full application Playwright run: **419 passed, four intentional skips, six
+  failures** on desktop Chromium, mobile Chromium and iPhone WebKit. These six
+  cases exposed postal administrator guidance hidden from non-administrators.
+  The corrected panel retains read-only guidance while restricting forms and
+  preparation. Rebuilt-source replay of the postal-setup, workspace-roles and
+  team-invitations files passed **72/72**, including a new observer regression.
+- Migration transport verification passed **43 migrations / 283 schema objects**,
+  with equivalent schema, `quick_check=ok` and zero foreign-key violations. The
+  populated migration tests preserve existing native sessions/codes and accepted
+  sending history while invalidating pending approvals whose authority was lost.
+- Typecheck, ESLint, application build/Worker dry-run and production-format static
+  build passed. The prerendered `/roles/` contains the four roles, creator/admin
+  and invitation/account-creation explanations, canonical URL and sitemap entry.
+  The personal invitation route is excluded from the sitemap.
+- Native iOS build passed. The repository test wrapper stopped at Xcode's
+  first-launch check; direct build-for-testing and test-without-building on the
+  installed iOS simulator then passed **28/28** native unit tests, including role
+  fallbacks and independent permissions. This is simulator evidence, not physical
+  device or App Store qualification.
+
+Logs, JSON reports, screenshots and the native result bundle are retained outside
+the repository in `~/.codex/artifacts/guteneo-roles-2026-10-02/`. The initial failed
+runs and successful focused reruns are preserved separately. Exact-commit CI has
+not run. There was no real invitation email, provider activation, remote migration,
+merge or production deployment. Invitation delivery remains disabled by default.
+
+Release qualification for PR #37 subsequently passed **1,577/1,577 Vitest cases**
+and **428 application browser cases**, with four intentional desktop skips, on
+GitHub CI run `37033193788`. Its first attempt remains failed because one iPhone
+preview test clicked a privacy-page anchor while downloaded fonts changed its
+position. The trace identifies the font completion between pointer positioning
+and activation; ten unchanged local repetitions passed. The test now waits for
+`document.fonts.ready` after cross-page navigation, retaining the real click,
+URL-fragment and heading-in-viewport assertions. This readiness correction does
+not change application behavior or suppress the failed attempt.
 
 ## Workspace dashboard corrections — candidate, 25 September 2026
 

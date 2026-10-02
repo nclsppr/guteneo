@@ -1,3 +1,8 @@
+import {
+  workspacePermissions,
+  type WorkspaceRole,
+  type WorkspacePermissions,
+} from "../../contracts/src/roles";
 import { assertFaxDispatchSendable } from "./live-fax-usage";
 import {
   validateProtectedDocument,
@@ -54,7 +59,9 @@ export type Mode = "simulation" | "production";
 export type ActorContext = {
   organizationId: string;
   userId: string;
-  role: "admin" | "member" | "viewer";
+  role: WorkspaceRole;
+  supervisorCanApprove?: boolean;
+  supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
 };
 export type DomainContext = ActorContext;
@@ -206,8 +213,35 @@ function key(value: string) {
     );
   return value;
 }
+export function actorPermissions(ctx: ActorContext): WorkspacePermissions {
+  return workspacePermissions(ctx.role, {
+    canApprove: ctx.supervisorCanApprove,
+    canReport: ctx.supervisorCanReport,
+  });
+}
+function requirePermission(
+  ctx: ActorContext,
+  permission: keyof WorkspacePermissions,
+) {
+  if (!actorPermissions(ctx)[permission])
+    throw new DomainError(
+      "FORBIDDEN",
+      "Ce rôle ne permet pas cette opération.",
+      403,
+    );
+}
+/** Current membership is fenced in the same SQL write as the sensitive action. */
+export function membershipPermissionFence(
+  ctx: ActorContext,
+  permission: "approveDispatches" | "prepareDispatches",
+) {
+  return {
+    condition: `EXISTS(SELECT 1 FROM memberships access_member WHERE access_member.organization_id=? AND access_member.user_id=? AND access_member.role=? AND ${permission === "approveDispatches" ? "(access_member.role='admin' OR (access_member.role='supervisor' AND access_member.supervisor_can_approve=1))" : "access_member.role IN ('admin','supervisor','member')"})`,
+    values: [ctx.organizationId, ctx.userId, ctx.role],
+  };
+}
 function writable(ctx: ActorContext) {
-  if (ctx.role === "viewer")
+  if (!actorPermissions(ctx).prepareDispatches)
     throw new DomainError("FORBIDDEN", "Droit de modification requis.", 403);
 }
 function sqlError(error: unknown): never {
@@ -218,6 +252,12 @@ function sqlError(error: unknown): never {
       409,
     );
   const message = String(error);
+  if (message.includes("approval_permission_required"))
+    throw new DomainError(
+      "FORBIDDEN",
+      "Le droit de validation a été retiré. Une nouvelle validation autorisée est nécessaire.",
+      403,
+    );
   if (message.includes("expert_approval_invalid"))
     throw new DomainError(
       "EXPERT_APPROVAL_INVALID",
@@ -341,11 +381,26 @@ export class DomainService {
   private async organization(ctx: ActorContext) {
     const org = await this.db
       .prepare(
-        "SELECT o.*,m.role AS membership_role FROM organizations o JOIN memberships m ON m.organization_id=o.id WHERE o.id=? AND m.user_id=?",
+        "SELECT o.*,m.role AS membership_role,m.supervisor_can_approve,m.supervisor_can_report FROM organizations o JOIN memberships m ON m.organization_id=o.id WHERE o.id=? AND m.user_id=?",
       )
       .bind(ctx.organizationId, ctx.userId)
-      .first<{ mode: Mode; membership_role: string }>();
-    if (!org || org.membership_role !== ctx.role)
+      .first<{
+        mode: Mode;
+        membership_role: string;
+        supervisor_can_approve: number;
+        supervisor_can_report: number;
+      }>();
+    if (
+      !org ||
+      org.membership_role !== ctx.role ||
+      !actorPermissions(ctx).readWorkspace ||
+      (ctx.role === "supervisor" &&
+        ctx.actor !== "system" &&
+        (Boolean(org.supervisor_can_approve) !==
+          Boolean(ctx.supervisorCanApprove) ||
+          Boolean(org.supervisor_can_report) !==
+            Boolean(ctx.supervisorCanReport)))
+    )
       throw new DomainError(
         "FORBIDDEN",
         "Organisation ou rôle inaccessible.",
@@ -361,6 +416,10 @@ export class DomainService {
   }
   async authorizeWrite(ctx: ActorContext) {
     writable(ctx);
+    await this.organization(ctx);
+  }
+  async authorizeApproval(ctx: ActorContext) {
+    requirePermission(ctx, "approveDispatches");
     await this.organization(ctx);
   }
   private audit(
@@ -484,13 +543,27 @@ export class DomainService {
       .bind(ctx.organizationId, registered.id)
       .first<DocumentRecord>())!;
   }
-  async getDocument(ctx: ActorContext, id: string): Promise<DocumentRecord> {
+  async getDocument(
+    ctx: ActorContext,
+    id: string,
+    dispatchId?: string,
+  ): Promise<DocumentRecord> {
     await this.organization(ctx);
+    const review =
+      dispatchId && actorPermissions(ctx).approveDispatches
+        ? membershipPermissionFence(ctx, "approveDispatches")
+        : { condition: "0=1", values: [] };
     const doc = await this.db
       .prepare(
-        "SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=?)",
+        `SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=? OR (${review.condition})) ${dispatchId ? "AND EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=documents.organization_id AND d.id=? AND d.document_id=documents.id)" : ""}`,
       )
-      .bind(ctx.organizationId, id, ctx.userId)
+      .bind(
+        ctx.organizationId,
+        id,
+        ctx.userId,
+        ...review.values,
+        ...(dispatchId ? [dispatchId] : []),
+      )
       .first<DocumentRecord>();
     if (!doc) throw new DomainError("NOT_FOUND", "Document introuvable.", 404);
     return doc;
@@ -503,8 +576,18 @@ export class DomainService {
       cursor,
       limit,
       undefined,
-      ctx.userId,
+      ctx,
     );
+  }
+  /** Prepared requests are reviewable by current approvers; the document library stays private. */
+  private dispatchVisibility(ctx: ActorContext) {
+    const review = actorPermissions(ctx).approveDispatches
+      ? membershipPermissionFence(ctx, "approveDispatches")
+      : { condition: "0=1", values: [] };
+    return {
+      condition: `(document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=? OR (${review.condition}))))`,
+      values: [ctx.userId, ...review.values],
+    };
   }
   private async page<T>(
     table: "documents" | "dispatches" | "campaigns",
@@ -512,7 +595,7 @@ export class DomainService {
     cursor?: string,
     limit = 30,
     statuses?: readonly string[],
-    documentUserId?: string,
+    documentActor?: ActorContext,
   ) {
     const size = Math.max(1, Math.min(Number(limit) || 30, 100));
     let after: { created_at: string; id: string } | null = null;
@@ -530,14 +613,22 @@ export class DomainService {
       }
     }
     // Statuses come from a server-side group, never from the request itself.
+    const visibility = documentActor
+      ? table === "documents"
+        ? {
+            condition: "(access_owner_id IS NULL OR access_owner_id=?)",
+            values: [documentActor.userId],
+          }
+        : this.dispatchVisibility(documentActor)
+      : undefined;
     const statement = this.db.prepare(
-      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${documentUserId ? (table === "documents" ? "AND (access_owner_id IS NULL OR access_owner_id=?)" : "AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?)))") : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
+      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${visibility ? `AND ${visibility.condition}` : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
     );
     const { results } = await statement
       .bind(
         org,
         ...(statuses ? [JSON.stringify(statuses)] : []),
-        ...(documentUserId ? [documentUserId] : []),
+        ...(visibility?.values ?? []),
         ...(after ? [after.created_at, after.created_at, after.id] : []),
         size + 1,
       )
@@ -1106,7 +1197,7 @@ export class DomainService {
       .bind(ctx.organizationId, id)
       .first<Dispatch & { quote_fx_json: string | null }>();
     if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
-    if (row.document_id) await this.getDocument(ctx, row.document_id);
+    if (row.document_id) await this.getDocument(ctx, row.document_id, row.id);
     const { quote_fx_json, ...result } = row;
     const fx =
       row.quote_pricing_basis === "public_list_price_ex_tax" && quote_fx_json
@@ -1132,7 +1223,7 @@ export class DomainService {
     fingerprint: string,
     attestation: { recipientRequested?: boolean } = {},
   ): Promise<Dispatch> {
-    writable(ctx);
+    await this.authorizeApproval(ctx);
     if (ctx.actor !== "browser")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
@@ -1164,6 +1255,11 @@ export class DomainService {
     attestation: { recipientRequested?: boolean },
     proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
+    const membership = membershipPermissionFence(ctx, "approveDispatches");
+    const authority = {
+      condition: `(${membership.condition}) AND (${proof?.condition ?? "1=1"})`,
+      values: [...membership.values, ...(proof?.values ?? [])],
+    };
     const row = await this.dispatch(ctx, id);
     if (row.status !== "prepared")
       throw new DomainError(
@@ -1238,19 +1334,14 @@ export class DomainService {
       statements.push(
         this.db
           .prepare(
-            `UPDATE campaigns SET status='frozen',updated_at=? WHERE organization_id=? AND id=? AND status='draft' AND ${proof?.condition ?? "1=1"}`,
+            `UPDATE campaigns SET status='frozen',updated_at=? WHERE organization_id=? AND id=? AND status='draft' AND ${authority.condition}`,
           )
-          .bind(
-            now,
-            ctx.organizationId,
-            row.campaign_id,
-            ...(proof?.values ?? []),
-          ),
+          .bind(now, ctx.organizationId, row.campaign_id, ...authority.values),
       );
     statements.push(
       this.db
         .prepare(
-          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${proof?.condition ?? "1=1"} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash`,
+          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash`,
         )
         .bind(
           uid("approval"),
@@ -1263,7 +1354,7 @@ export class DomainService {
           attestation.recipientRequested === true ? 1 : 0,
           proof ? "expert" : "browser",
           proof?.reviewHash ?? null,
-          ...(proof?.values ?? []),
+          ...authority.values,
         ),
       this.audit(
         ctx,
@@ -1275,7 +1366,7 @@ export class DomainService {
           fingerprint,
           recipientRequested: attestation.recipientRequested === true,
         },
-        proof,
+        authority,
       ),
     );
     try {
@@ -1312,7 +1403,7 @@ export class DomainService {
     idempotencyKey: string,
     proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
-    writable(ctx);
+    await this.authorizeApproval(ctx);
     if (ctx.actor === "native")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
@@ -1371,12 +1462,15 @@ export class DomainService {
     const hash = await sha256(
       canonicalJson({ id, fingerprint: row.fingerprint }),
     );
-    const approvalFence = proof
+    const membership = membershipPermissionFence(ctx, "approveDispatches");
+    const validApproval = proof
       ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
       : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
-    const approvalValues = proof
+    const approvalFence = `(${membership.condition}) AND (${validApproval})`;
+    const proofValues = proof
       ? [ctx.organizationId, id, proof.reviewHash, ctx.userId, ...proof.values]
       : [ctx.organizationId, id];
+    const approvalValues = [...membership.values, ...proofValues];
     try {
       await this.db.batch([
         ensureCreditPeriod(
@@ -1462,7 +1556,7 @@ export class DomainService {
         .all(),
       this.db
         .prepare(
-          "SELECT fingerprint,expires_at,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=? AND fingerprint=? AND expires_at>?",
+          "SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1))",
         )
         .bind(ctx.organizationId, id, dispatch.fingerprint, this.time())
         .first<{
@@ -1496,7 +1590,7 @@ export class DomainService {
       cursor,
       limit,
       group === undefined ? undefined : DISPATCH_GROUPS[group as DispatchGroup],
-      ctx.userId,
+      ctx,
     );
     const [pricing, quotes] = await Promise.all([
       readFaxPricingBatch(
@@ -1525,7 +1619,9 @@ export class DomainService {
   }
   /** All accessible organization records for the browser overview, not page-bounded. */
   async dispatchOverview(ctx: ActorContext): Promise<DispatchOverview> {
+    requirePermission(ctx, "viewReports");
     await this.organization(ctx);
+    const visibility = this.dispatchVisibility(ctx);
     const [documents, statuses] = await Promise.all([
       this.db
         .prepare(
@@ -1535,9 +1631,9 @@ export class DomainService {
         .first<{ n: number }>(),
       this.db
         .prepare(
-          "SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))) GROUP BY status",
+          `SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? AND ${visibility.condition} GROUP BY status`,
         )
-        .bind(ctx.organizationId, ctx.userId)
+        .bind(ctx.organizationId, ...visibility.values)
         .all<{ status: string; n: number }>(),
     ]);
     const dispatches: DispatchOverview["dispatches"] = {
@@ -1558,14 +1654,15 @@ export class DomainService {
     return { documents: documents?.n ?? 0, dispatches };
   }
   async cancelDispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
-    writable(ctx);
+    await this.authorizeApproval(ctx);
     await this.dispatch(ctx, id);
     const now = this.time();
+    const authority = membershipPermissionFence(ctx, "approveDispatches");
     const result = await this.db
       .prepare(
-        "UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status IN ('prepared','queued')",
+        `UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status IN ('prepared','queued') AND ${authority.condition}`,
       )
-      .bind(now, ctx.organizationId, id)
+      .bind(now, ctx.organizationId, id, ...authority.values)
       .run();
     const row = await this.dispatch(ctx, id);
     if (!result.meta.changes && row.status !== "cancelled")
@@ -1612,11 +1709,12 @@ export class DomainService {
       .first();
     if (!campaign)
       throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+    const visibility = this.dispatchVisibility(ctx);
     const dispatches = await this.db
       .prepare(
-        "SELECT * FROM dispatches WHERE organization_id=? AND campaign_id=? AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))) ORDER BY created_at,id LIMIT ?",
+        `SELECT * FROM dispatches WHERE organization_id=? AND campaign_id=? AND ${visibility.condition} ORDER BY created_at,id LIMIT ?`,
       )
-      .bind(ctx.organizationId, id, ctx.userId, LIMITS.campaignRows)
+      .bind(ctx.organizationId, id, ...visibility.values, LIMITS.campaignRows)
       .all<Dispatch>();
     return { campaign, dispatches: dispatches.results };
   }
@@ -1641,7 +1739,8 @@ export class DomainService {
   }
   async listSenders(ctx: ActorContext) {
     await this.organization(ctx);
-    if (ctx.role !== "viewer") await this.config.ensureEmailSender?.(ctx);
+    if (actorPermissions(ctx).prepareDispatches)
+      await this.config.ensureEmailSender?.(ctx);
     return {
       items: (
         await this.db
@@ -1654,6 +1753,7 @@ export class DomainService {
     };
   }
   async usage(ctx: ActorContext) {
+    requirePermission(ctx, "viewReports");
     await this.organization(ctx);
     return {
       welcomeCredit: await readWelcomeCredit(this.db, ctx.organizationId),

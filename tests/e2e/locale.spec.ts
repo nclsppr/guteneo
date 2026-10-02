@@ -96,7 +96,18 @@ test("profile saves language for the account and keeps edited fields when switch
       updates.push(body);
       preferredLocale = body.preferredLocale;
       userName = body.userName;
-    } else if (path === "/api/account/sessions")
+    } else if (path === "/api/account/workspaces")
+      response = {
+        items: [
+          {
+            id: "locale-org",
+            name: "Atelier Exemple",
+            role: "member",
+            current: true,
+          },
+        ],
+      };
+    else if (path === "/api/account/sessions")
       response = { items: [], hasMore: false };
     else if (path === "/api/account/expert-approval")
       response = { connections: [], enabled: false };
@@ -154,11 +165,17 @@ test("failed profile save keeps the active account language and offers retry", a
             csrfToken: "test",
             simulation: true,
           }
-        : path === "/api/account/sessions"
-          ? { items: [], hasMore: false }
-          : path === "/api/account/expert-approval"
-            ? { connections: [], enabled: false }
-            : {};
+        : path === "/api/account/workspaces"
+          ? {
+              items: [
+                { id: "o", name: "Example", role: "member", current: true },
+              ],
+            }
+          : path === "/api/account/sessions"
+            ? { items: [], hasMore: false }
+            : path === "/api/account/expert-approval"
+              ? { connections: [], enabled: false }
+              : {};
     await route.fulfill({ json: response });
   });
   await page.goto("/#/app/account");

@@ -19,8 +19,10 @@ export async function readDocumentPages(
   documentId: string,
   startPage: number,
   readPages?: DocumentService["getReviewPages"],
+  dispatchId?: string,
 ) {
   requireScope(identity, "documents:read");
+  if (dispatchId) requireScope(identity, "dispatches:read");
   const authority = await postalMcpAuthority(identity, env, "documents:read");
   if (!readPages)
     throw new DomainError(
@@ -28,7 +30,12 @@ export async function readDocumentPages(
       "Le lecteur de pages n’est pas raccordé.",
       503,
     );
-  const exact = await readPages(identity.context, documentId, startPage);
+  const exact = await readPages(
+    identity.context,
+    documentId,
+    startPage,
+    dispatchId,
+  );
   if (
     exact.document.id !== documentId ||
     exact.view.sha256 !== exact.document.sha256 ||
@@ -155,6 +162,7 @@ export async function reviewExpertPages(
   const document = await domain.getDocument(
     identity.context,
     dispatch.document_id,
+    dispatchId,
   );
   const now = new Date().toISOString();
   const expiry = new Date(
@@ -199,7 +207,12 @@ export async function reviewExpertPages(
       "Reprenez la revue de cet envoi depuis la première page ; aucune page ne peut être omise.",
       409,
     );
-  const exact = await readPages(identity.context, document.id, startPage);
+  const exact = await readPages(
+    identity.context,
+    document.id,
+    startPage,
+    dispatchId,
+  );
   if (
     exact.document.id !== document.id ||
     exact.document.sha256 !== document.sha256 ||

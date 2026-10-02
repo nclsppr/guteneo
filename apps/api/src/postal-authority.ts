@@ -1,5 +1,8 @@
 import { decodeJwt } from "jose";
-import type { ActorContext } from "../../../packages/domain/src/index";
+import {
+  actorPermissions,
+  type ActorContext,
+} from "../../../packages/domain/src/index";
 import {
   AuthError,
   authenticateBrowser,
@@ -37,9 +40,9 @@ function contextFor(
 ) {
   if (
     context.actor !== actor ||
-    !(write ? ["admin", "member"] : ["admin", "member", "viewer"]).includes(
-      context.role,
-    )
+    !(write
+      ? actorPermissions(context).prepareDispatches
+      : actorPermissions(context).readWorkspace)
   )
     throw new AuthError(
       "FORBIDDEN",
@@ -53,6 +56,8 @@ function sameContext(a: ActorContext, b: ActorContext) {
     a.organizationId === b.organizationId &&
     a.userId === b.userId &&
     a.role === b.role &&
+    Boolean(a.supervisorCanApprove) === Boolean(b.supervisorCanApprove) &&
+    Boolean(a.supervisorCanReport) === Boolean(b.supervisorCanReport) &&
     a.actor === b.actor
   );
 }
@@ -111,7 +116,7 @@ export async function postalBrowserAuthority(
           JOIN memberships postal_member ON postal_member.organization_id=postal_session.organization_id AND postal_member.user_id=postal_session.user_id
           JOIN organizations postal_org ON postal_org.id=postal_member.organization_id
           WHERE postal_session.token_hash=? AND postal_member.organization_id=? AND postal_member.user_id=?
-          AND postal_member.role=? AND postal_member.role IN (${mutating ? "'admin','member'" : "'admin','member','viewer'"}) AND postal_org.mode=?
+          AND postal_member.role=? AND postal_member.supervisor_can_approve=? AND postal_member.supervisor_can_report=? AND postal_member.role IN (${mutating ? "'admin','supervisor','member'" : "'admin','supervisor','member','viewer'"}) AND postal_org.mode=?
           AND postal_session.expires_at>? AND (postal_session.is_development=0 OR ?=1)
           AND (postal_session.is_development=1 OR ${policy === "verified_email" ? "postal_session.verified_account=1" : "postal_member.role<>'admin' OR postal_session.mfa=1"})
         )`,
@@ -120,6 +125,8 @@ export async function postalBrowserAuthority(
           context.organizationId,
           context.userId,
           context.role,
+          Number(context.supervisorCanApprove ?? false),
+          Number(context.supervisorCanReport ?? false),
           env.MODE,
           new Date().toISOString(),
           Number(isLocalSimulation(authenticatedRequest, env)),
@@ -164,7 +171,7 @@ export async function postalMcpAuthority(
         JOIN memberships postal_member ON postal_member.organization_id=postal_token.organization_id AND postal_member.user_id=postal_token.user_id
         JOIN organizations postal_org ON postal_org.id=postal_member.organization_id
         WHERE postal_token.token_hash=? AND postal_member.organization_id=? AND postal_member.user_id=?
-        AND postal_member.role=? AND postal_member.role IN (${mutating ? "'admin','member'" : "'admin','member','viewer'"})
+        AND postal_member.role=? AND postal_member.supervisor_can_approve=? AND postal_member.supervisor_can_report=? AND postal_member.role IN (${mutating ? "'admin','supervisor','member'" : "'admin','supervisor','member','viewer'"})
         AND postal_org.mode='simulation' AND postal_token.expires_at>? AND ?=1
       )`,
       values: [
@@ -172,6 +179,8 @@ export async function postalMcpAuthority(
         context.organizationId,
         context.userId,
         context.role,
+        Number(context.supervisorCanApprove ?? false),
+        Number(context.supervisorCanReport ?? false),
         new Date().toISOString(),
         Number(isLocalSimulation(authenticatedRequest(), env)),
       ],
@@ -209,7 +218,7 @@ export async function postalMcpAuthority(
         JOIN organizations postal_org ON postal_org.id=postal_member.organization_id
         JOIN auth_identities postal_identity ON postal_identity.issuer=postal_connection.issuer AND postal_identity.user_id=postal_member.user_id AND postal_identity.subject=?
         WHERE postal_connection.id=? AND postal_connection.issuer=? AND postal_connection.client_id=?
-        AND postal_member.organization_id=? AND postal_member.user_id=? AND postal_member.role=? AND postal_member.role IN (${mutating ? "'admin','member'" : "'admin','member','viewer'"})
+        AND postal_member.organization_id=? AND postal_member.user_id=? AND postal_member.role=? AND postal_member.supervisor_can_approve=? AND postal_member.supervisor_can_report=? AND postal_member.role IN (${mutating ? "'admin','supervisor','member'" : "'admin','supervisor','member','viewer'"})
         AND postal_org.mode=? AND postal_connection.status='active'
         AND postal_connection.not_before=? AND postal_connection.updated_at=? AND postal_connection.not_before<=?
         AND ?>? AND ${authenticationPolicy(env) === "verified_email" ? "?=1" : "(postal_member.role<>'admin' OR ?=1)"}
@@ -222,6 +231,8 @@ export async function postalMcpAuthority(
         context.organizationId,
         context.userId,
         context.role,
+        Number(context.supervisorCanApprove ?? false),
+        Number(context.supervisorCanReport ?? false),
         env.MODE,
         connection.not_before,
         connection.updated_at,

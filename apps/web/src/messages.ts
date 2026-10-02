@@ -11,6 +11,7 @@ import studioEditor from "./locales/messages-studio-editor.json";
 import studioDatasets from "./locales/messages-studio-datasets.json";
 import studioExtra from "./locales/messages-studio-extra.json";
 import studioDistribution from "./locales/messages-studio-distribution-settings.json";
+import roles from "./locales/messages-roles.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -39,6 +40,7 @@ export const messages: Record<string, readonly string[]> = {
   ...studioDistribution,
   ...shell,
   ...pricing,
+  ...roles,
   ...legal,
   ...operations,
   ...assistants,
