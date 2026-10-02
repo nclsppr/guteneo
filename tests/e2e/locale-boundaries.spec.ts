@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { SupportedLocale } from "../../packages/contracts/src/locale";
+import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
 
 test.use({ locale: "en-GB" });
 
@@ -264,11 +265,19 @@ test("the connected account language never replaces the saved anonymous language
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),
   ).toBe("lb");
-  // Desktop sidebar and compact header provide the same sign-out action.
-  await page
-    .getByRole("button", { name: "Sign out", exact: true })
-    .first()
-    .click();
+  const navigation = page.locator(".workspace-navigation");
+  const summary = navigation.locator("summary");
+  if (await summary.isVisible()) {
+    await summary.click();
+    await navigation
+      .getByRole("button", { name: "Sign out", exact: true })
+      .click();
+  } else {
+    await page
+      .locator(".sidebar-footer")
+      .getByRole("button", { name: "Sign out", exact: true })
+      .click();
+  }
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),
@@ -312,12 +321,7 @@ test("saved account language hydrates every standalone public route without repl
       },
     },
   );
-  const paths = [
-    "/assistants/",
-    "/support/",
-    "/developpeurs/",
-    "/#/app/account",
-  ];
+  const paths = [...publicSite.paths, "/#/app/account"];
   for (const [index, path] of paths.entries()) {
     await page.goto(path);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");

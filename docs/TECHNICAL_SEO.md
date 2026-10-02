@@ -1,6 +1,6 @@
 # Public HTML and crawl boundaries
 
-The public site builds six complete HTML documents: `/`, `/journal/`, both published article paths, `/mentions-legales/` and `/developpeurs/`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS comes from the ordinary hashed production build. Only `/` and `/developpeurs/` retain the JavaScript entry, for the existing `/#/app` workspace and the explicitly opened Swagger reader. Journal and legal pages do not require JavaScript.
+The public site builds complete HTML documents for every route in `packages/contracts/src/public-site.json`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS and the application entry come from the ordinary hashed production build. Every public page retains the entry to apply the visitor's language or saved account preference and operate its language selector. Journal and legal content remains readable without JavaScript.
 
 Each page has its own title, description, absolute canonical URL, Open Graph/Twitter metadata and the structured data supplied by the editorial module. Structured JSON escapes HTML delimiters before insertion. Article and breadcrumb facts must match visible content; the builder does not invent dates, authors, ratings or FAQ claims. Missing content or a mismatched canonical fails the build.
 
