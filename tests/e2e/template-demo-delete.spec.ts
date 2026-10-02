@@ -161,7 +161,11 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
   await expect(row.getByRole("group")).toContainText(
     "Les PDF déjà créés et leur historique seront conservés.",
   );
-  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  await page.keyboard.press(
+    browserName === "webkit" && process.platform === "darwin"
+      ? "Alt+Tab"
+      : "Tab",
+  );
   await expect(
     row.getByRole("button", { name: "Conserver le modèle", exact: true }),
   ).toBeFocused();

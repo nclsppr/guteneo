@@ -48,7 +48,11 @@ async function checkKeyboardTable(
   await expect(region).toHaveAttribute("tabindex", "0");
   await previousControl.focus();
   // WebKit follows the macOS full-keyboard-access setting for non-form targets.
-  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  await page.keyboard.press(
+    browserName === "webkit" && process.platform === "darwin"
+      ? "Alt+Tab"
+      : "Tab",
+  );
   await expect(region).toBeFocused();
   expect(
     await region.evaluate((element) => getComputedStyle(element).outlineStyle),
@@ -235,7 +239,11 @@ test("XML records determine each PDF channel and recipient without sending", asy
     browserName,
     isMobile,
   );
-  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  await page.keyboard.press(
+    browserName === "webkit" && process.platform === "darwin"
+      ? "Alt+Tab"
+      : "Tab",
+  );
   const firstRecord = page
     .getByRole("checkbox", { name: /^Sélectionner record-/ })
     .first();

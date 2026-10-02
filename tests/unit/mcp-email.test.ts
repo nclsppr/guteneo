@@ -241,7 +241,15 @@ describe("email assistant contract", () => {
           "compte de revue limité à la préparation ne peut pas envoyer",
         );
         expect(prompt).toContain(
-          "Excel, autres fichiers, listes multi-format et comptes destinataires sont prévus ultérieurement",
+          "Si les outils du studio sont présents dans le catalogue",
+        );
+        expect(prompt).toContain(
+          "import_dataset, generate_documents puis prepare_distribution",
+        );
+        expect(prompt).toContain("XML, CSV, XLSX ou JSON");
+        expect(prompt).toContain("Ce parcours e-mail reçoit le PDF final");
+        expect(prompt).toContain(
+          "les autres pièces jointes et les comptes destinataires restent indisponibles",
         );
         expect(prepare).not.toHaveBeenCalled();
         expect(confirm).not.toHaveBeenCalled();

@@ -69,6 +69,7 @@ jobs:
           --exclude=tests/integration/document-postal-preflight.test.ts
           --exclude=tests/integration/expert-review-renderer.test.ts
           --exclude=tests/integration/postal-address-page-renderer.test.ts
+          --exclude=tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
           --outputFile.blob=test-results/ci/blobs/${{ matrix.shard }}.json
@@ -107,7 +108,7 @@ jobs:
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
       - run: >-
-          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts
+          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-renderer.json
           --outputFile.blob=test-results/ci/blobs/renderer.json
@@ -184,6 +185,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
+      - name: Preserve the Chromium sandbox
+        run: node scripts/ci/chromium-sandbox.mjs
       - uses: actions/download-artifact@v8
         with:
           name: guteneo-browser-builds-${{ github.sha }}
