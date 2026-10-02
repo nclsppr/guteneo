@@ -32,7 +32,11 @@ export const en: Copy = {
   recipient: "Recipient",
   document: "Document",
   actions: "Actions",
-  channels: { fax: "Fax", email: "Email", postal: "Postal mail" },
+  channels: {
+    fax: "Fax",
+    email: "Email",
+    postal: "Postal mail",
+  },
   nav: {
     overview: "Overview",
     documents: "Documents",
@@ -123,6 +127,23 @@ export const en: Copy = {
       atelier: "The workshop",
       legal: "Legal notice",
     },
+    film: {
+      title: "Where your words go next.",
+      italic: "In motion.",
+      intro:
+        "From your first idea to its destination. Discover Guteneo in 56 seconds.",
+      play: "Watch the film",
+      replay: "Watch again",
+      duration: "56 seconds · French audio",
+      videoLabel: "Guteneo introduction film",
+      fullscreen: "Fullscreen",
+      close: "Close player",
+      loading: "Loading the film…",
+      error: "Playback could not start. Check your connection, then try again.",
+      transcriptTitle: "Read the film transcript",
+      transcript:
+        "From one document to more than 10,000, Guteneo distributes your campaigns, from the simplest to the most personalised. Import a PDF or create your own template. From ChatGPT, Claude or Copilot, ask your assistant to generate a PDF, then prepare its dispatch with Guteneo. Review the final proof and check the quote before approving. Choose standard or encrypted email, fax, or printing and postal delivery throughout Europe. Find Guteneo on the web and in the iOS app too. Guteneo. Where your words go next.",
+    },
   },
   postalCutoff: {
     title: "Processing cut-off time",
@@ -166,9 +187,9 @@ export const en: Copy = {
     new: "Prepare a dispatch",
     recent: "Recent dispatches",
     all: "View all dispatches",
-    documents: "Documents shown",
-    waiting: "Awaiting approval here",
-    tracked: "Dispatches shown",
+    documents: "Documents",
+    waiting: "Awaiting approval",
+    tracked: "Dispatches",
     emptyTitle: "Your first dispatch starts here.",
     emptyBody:
       "Import a PDF or compose a letter. You will review it before any confirmation.",
@@ -176,6 +197,12 @@ export const en: Copy = {
     connectionBody:
       "Prepare dispatches from a conversation and find the same documents and identifiers here.",
     connect: "Set up the connection",
+    attention: "To check",
+    statsLabel: "Workspace summary",
+    attentionTitle: "Some dispatches need your attention.",
+    attentionBody:
+      "Their outcome is uncertain or negative. Check their tracking before preparing another dispatch.",
+    attentionAction: "View dispatches to check",
   },
   documents: {
     title: "The raw material.",
@@ -252,16 +279,20 @@ export const en: Copy = {
     postalCode: "Postcode",
     city: "City",
     country: "Country",
-    countries: { FR: "France", LU: "Luxembourg", DE: "Germany" },
+    countries: {
+      FR: "France",
+      LU: "Luxembourg",
+      DE: "Germany",
+    },
     subject: "Subject",
     html: "HTML version",
     text: "Text version",
     textHelp: "The text version is part of the approved content.",
     attachment: "PDF attachment (optional)",
     none: "No attachment",
-    ceiling: "Spending limit for this dispatch (€)",
+    ceiling: "Spending limit for this dispatch, in euros",
     ceilingHelp:
-      "Your dispatch will not exceed this amount. The applicable price is shown before your approval.",
+      "Maximum authorised amount, to the nearest cent (e.g. 5 or 5.25). The limit is checked with the content and options.",
     prepare: "Check and prepare",
     preparing: "Preparing…",
     reviewTitle: "Ready for your approval.",
@@ -304,6 +335,20 @@ export const en: Copy = {
     version: "Version awaiting approval",
     loadMore: "Show more",
     noChange: "The content of this preparation is fixed.",
+    filterLabel: "Show",
+    groups: {
+      all: "All",
+      approval: "Awaiting approval",
+      in_progress: "In progress",
+      attention: "To check",
+      done: "Closed",
+    },
+    groupEmpty: "No dispatches in this selection.",
+    ceilingFormat: "Amount in euros, for example 5 or 5.25.",
+    ceilingInvalid: "Enter a spending limit in euros, between 0 and 10,000 €.",
+    cancelQuestion:
+      "Request cancellation of this dispatch? It is only possible before submission to the provider.",
+    cancelConfirm: "Yes, request cancellation",
   },
   campaigns: {
     title: "One letter. Many destinations.",
@@ -413,6 +458,9 @@ export const en: Copy = {
       "Use the exact client identifier provided by your administrator. This link requires signing in again from the assistant.",
     rebound:
       "Link saved. Reconnect the assistant to obtain a new authorisation.",
+    revokeQuestion:
+      "Revoke this assistant’s access? It will be unable to prepare dispatches until you reconnect it.",
+    revokeConfirm: "Yes, revoke",
   },
   senders: {
     title: "Who is putting pen to paper?",
@@ -485,11 +533,11 @@ export const en: Copy = {
       "Understand incidents before acting. Uncertain submissions are never retried blindly.",
     refresh: "Refresh diagnostics",
     state: "Operational diagnostics",
-    uncertain: "Dispatches to reconcile",
+    uncertain: "Dispatches to check",
     failed: "Failures to review",
     outbox: "Pending publications",
     health: "Connectors",
-    noIncidents: "No incidents among the dispatches shown.",
+    noIncidents: "No dispatches to check in this workspace.",
     note: "Recovery actions for a potentially accepted dispatch require reconciliation with the provider.",
     restricted: "This screen requires an administrator role.",
     deadLetters: "Messages in the failure queue",
@@ -503,6 +551,9 @@ export const en: Copy = {
     resume: "Reactivate",
     controlsHelp:
       "Pausing blocks your organisation’s next submissions. Dispatches already accepted by a provider still require reconciliation.",
+    pauseQuestion:
+      "Pause this channel? New submissions in this workspace will be blocked until it is enabled again.",
+    pauseConfirm: "Yes, pause",
   },
   statuses: {
     verified: "Verified",
@@ -544,5 +595,11 @@ export const en: Copy = {
     materializing: "Preparing recipients",
     active: "Active",
     simulation: "Simulation",
+  },
+  confirmDismiss: "Keep unchanged",
+  sessionExpired: {
+    title: "Your session has expired.",
+    body: "Sign in again to continue: you will return to this page. Unsaved fields on this screen are not kept after signing in again.",
+    action: "Sign in again",
   },
 };

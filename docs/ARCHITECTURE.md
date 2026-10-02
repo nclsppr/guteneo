@@ -1,5 +1,11 @@
 # Architecture
 
+2 October integration candidate: outstanding web/native language work, Claude
+dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
+reconciled for a coordinated main release. Email activation and Auth0 policy
+changes remain separate. Original uncommitted work is preserved. See
+[the integration inventory, migration order and evidence boundary](INTEGRATION_RELEASE_2026_10_02.md).
+
 22 September local candidate: the website and isolated native iOS candidate support
 French, English, German and Luxembourgish with welcome/profile language controls
 and a shared personal `preferredLocale`. Additive migration 0038 is required

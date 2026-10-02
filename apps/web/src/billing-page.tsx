@@ -3,6 +3,7 @@ import { formatLocale } from "./locale";
 import { useRef, useState } from "react";
 import { ArrowSquareOut, CreditCard, ShieldCheck } from "@phosphor-icons/react";
 import {
+  canAdminister,
   api,
   date,
   isPublicPreview,
@@ -127,7 +128,7 @@ const state = (value: string) => getLabels()[value] ?? value;
 
 export function Billing({ session }: { session: Session }) {
   if (isPublicPreview) return <PreviewBilling key={session.organization.id} />;
-  if (session.user.role !== "admin")
+  if (!canAdminister(session))
     return (
       <>
         <PageHeading title={msg("Facturation")} />

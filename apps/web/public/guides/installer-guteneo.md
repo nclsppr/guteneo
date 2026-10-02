@@ -40,4 +40,3 @@ Sur Team et Enterprise, le propriétaire ajoute d’abord le connecteur dans les
 Après expiration, reconnectez votre compte depuis les paramètres de connecteurs de Claude. Si vous avez révoqué l’accès dans Guteneo, réassociez d’abord l’assistant à votre organisation dans « Connecter un assistant », puis reconnectez-le dans Claude. Les fichiers de configuration « Claude Code » concernent le terminal et ne servent pas à installer le connecteur dans Claude.ai.
 
 Sources : https://claude.com/docs/connectors/building/directory-vs-custom#share-an-install-link et https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp
-

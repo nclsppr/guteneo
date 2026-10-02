@@ -14,6 +14,21 @@ import {
 } from "../../apps/api/src/documents";
 
 describe("content boundary", () => {
+  it("normalizes typed fax numbers and refuses a kept trunk prefix", () => {
+    const phone = (value: string) => validateRecipient("fax", { phone: value });
+    expect(phone("+33 1 23.45-67 89")).toEqual({ phone: "+33123456789" });
+    // French typography separates digit groups with non-breaking spaces.
+    expect(phone("+33 1 23 45 67 89")).toEqual({
+      phone: "+33123456789",
+    });
+    // "(0)" is the optional trunk prefix; the digits around it are kept.
+    expect(phone("+49 (0)30 1234567")).toEqual({ phone: "+49301234567" });
+    expect(phone("+352 (26) 12 34 56")).toEqual({ phone: "+35226123456" });
+    for (const kept of ["+33 01 23 45 67 89", "+330612345678", "+49030123456"])
+      expect(() => phone(kept)).toThrow("Retirez le 0");
+    for (const invalid of ["123", "+353 1 234 5678", "0033123456789"])
+      expect(() => phone(invalid)).toThrow("Numéro international requis");
+  });
   it("rejects an unsupported postal address line instead of silently dropping it", () => {
     expect(() =>
       validateRecipient("postal", {

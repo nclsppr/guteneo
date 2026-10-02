@@ -32,7 +32,11 @@ export const lb: Copy = {
   recipient: "Empfänger",
   document: "Dokument",
   actions: "Aktiounen",
-  channels: { fax: "Fax", email: "E-Mail", postal: "Bréifpost" },
+  channels: {
+    fax: "Fax",
+    email: "E-Mail",
+    postal: "Bréifpost",
+  },
   nav: {
     overview: "Iwwersiicht",
     documents: "Dokumenter",
@@ -123,6 +127,24 @@ export const lb: Copy = {
       atelier: "Den Atelier",
       legal: "Impressum",
     },
+    film: {
+      title: "De nächste Wee fir Är Wierder.",
+      italic: "A Beweegung.",
+      intro:
+        "Vun Ärer éischter Iddi bis op hir Destinatioun. Entdeckt Guteneo a 56 Sekonnen.",
+      play: "De Film kucken",
+      replay: "De Film nach eng Kéier kucken",
+      duration: "56 Sekonnen · Toun op Franséisch",
+      videoLabel: "Presentatiounsfilm vu Guteneo",
+      fullscreen: "Vollbild",
+      close: "De Player zoumaachen",
+      loading: "De Film gëtt gelueden…",
+      error:
+        "D’Wiedergab konnt net starten. Kontrolléiert Är Verbindung a probéiert nach eng Kéier.",
+      transcriptTitle: "Den Text vum Film liesen",
+      transcript:
+        "Vun engem Dokument bis zu méi wéi 10.000 verdeelt Guteneo Är Campagnen, vun den einfachsten bis zu de perséinlechsten. Importéiert e PDF oder erstellt Är eege Virlag. Frot Ären Assistent an ChatGPT, Claude oder Copilot, e PDF ze generéieren, a bereet duerno seng Sendung mat Guteneo vir. Liest de finalen Drockpréif an iwwerpréift d’Devis, ier Dir approuvéiert. Wielt déi klassesch oder verschlësselt E-Mail, de Fax, oder den Drock an d’Postverdeelung a ganz Europa. Dir fannt Guteneo och um Web an an der iOS-App. Guteneo. De nächste Wee fir Är Wierder.",
+    },
   },
   postalCutoff: {
     title: "Ofschlosszäit fir d’Veraarbechtung",
@@ -165,9 +187,9 @@ export const lb: Copy = {
     new: "Eng Sendung virbereeden",
     recent: "Lescht Sendungen",
     all: "All Sendunge kucken",
-    documents: "Ugewise Dokumenter",
-    waiting: "Hei fräizeginn",
-    tracked: "Ugewise Sendungen",
+    documents: "Dokumenter",
+    waiting: "Fir ze approuvéieren",
+    tracked: "Sendungen",
     emptyTitle: "Är éischt Sendung fänkt hei un.",
     emptyBody:
       "Importéiert eng PDF-Datei oder verfaasst e Bréif. Dir kënnt en virun all Bestätegung noliesen.",
@@ -175,6 +197,12 @@ export const lb: Copy = {
     connectionBody:
       "Bereet Är Sendungen am Gespréich vir a fannt hei déiselwecht Dokumenter a Kennungen erëm.",
     connect: "D’Verbindung ariichten",
+    attention: "Fir ze kontrolléieren",
+    statsLabel: "Iwwersiicht vum Atelier",
+    attentionTitle: "Verschidde Sendunge brauchen Är Opmierksamkeet.",
+    attentionBody:
+      "Hiert Resultat ass ongewëss oder negativ. Kuckt hire Suivi, ier Dir eng nei Sendung virbereet.",
+    attentionAction: "Sendunge fir ze kontrolléieren ukucken",
   },
   documents: {
     title: "D’Ausgangsmaterial.",
@@ -253,16 +281,20 @@ export const lb: Copy = {
     postalCode: "Postleitzuel",
     city: "Uertschaft",
     country: "Land",
-    countries: { FR: "Frankräich", LU: "Lëtzebuerg", DE: "Däitschland" },
+    countries: {
+      FR: "Frankräich",
+      LU: "Lëtzebuerg",
+      DE: "Däitschland",
+    },
     subject: "Betrëff",
     html: "HTML-Versioun",
     text: "Textversioun",
     textHelp: "D’Textversioun gehéiert zum fräiginnene Contenu.",
     attachment: "PDF-Annex (fakultativ)",
     none: "Ouni Annex",
-    ceiling: "Héchstbetrag fir dëse Versand (€)",
+    ceiling: "Limitt fir dës Sendung, an Euro",
     ceilingHelp:
-      "Äre Versand iwwerschreit dëse Betrag net. De gëltege Präis gëtt virun Ärer Geneemegung gewisen.",
+      "Maximal autoriséierte Betrag, op den Cent genee (z. B. 5 oder 5,25). D’Limitt gëtt mam Inhalt an den Optioune kontrolléiert.",
     prepare: "Kontrolléieren a virbereeden",
     preparing: "Gëtt virbereet…",
     reviewTitle: "Prett fir Är Fräigab.",
@@ -306,6 +338,20 @@ export const lb: Copy = {
     version: "Versioun fir d’Fräigab",
     loadMore: "Méi weisen",
     noChange: "Den Inhalt vun dëser Virbereedung steet fest.",
+    filterLabel: "Uweisen",
+    groups: {
+      all: "All",
+      approval: "Fir ze approuvéieren",
+      in_progress: "Amgaang",
+      attention: "Fir ze kontrolléieren",
+      done: "Ofgeschloss",
+    },
+    groupEmpty: "Keng Sendung an dëser Auswiel.",
+    ceilingFormat: "Betrag an Euro, zum Beispill 5 oder 5,25.",
+    ceilingInvalid: "Gitt eng Limitt an Euro tëscht 0 an 10.000 € un.",
+    cancelQuestion:
+      "D’Annulatioun vun dëser Sendung ufroen? Dat ass nëmme méiglech, ier se un den Déngschtleeschter geschéckt gëtt.",
+    cancelConfirm: "Jo, Annulatioun ufroen",
   },
   campaigns: {
     title: "Ee Bréif. Vill Destinatiounen.",
@@ -418,6 +464,9 @@ export const lb: Copy = {
       "Benotzt déi genee Client-Kennung, déi Ären Administrateur Iech ginn huet. Dës Verbindung erfuerdert eng nei Umeldung am Assistent.",
     rebound:
       "Verbindung gespäichert. Verbannt den Assistent nei, fir eng nei Autorisatioun ze kréien.",
+    revokeQuestion:
+      "Den Zougrëff vun dësem Assistent zréckzéien? Hie kann eréischt no enger neier Verbindung nees Sendunge virbereeden.",
+    revokeConfirm: "Jo, zréckzéien",
   },
   senders: {
     title: "Wie gräift zur Fieder?",
@@ -492,11 +541,11 @@ export const lb: Copy = {
       "Verstitt d’Virfäll, ier Dir handelt. Ongewëss Iwwerdrounge ginn ni ouni Kontroll widderholl.",
     refresh: "D’Diagnos aktualiséieren",
     state: "Betribsdiagnos",
-    uncertain: "Sendungen, déi ofgeglach musse ginn",
+    uncertain: "Sendunge fir ze kontrolléieren",
     failed: "Feeler, déi ze préiwe sinn",
     outbox: "Ausstoend Publikatiounen",
     health: "Konnektoren",
-    noIncidents: "Keng Virfäll bei den ugewisene Sendungen.",
+    noIncidents: "Keng Sendung fir ze kontrolléieren an dësem Atelier.",
     note: "Fir eng méiglecherweis ugeholl Sendung erëm opzehuelen, ass en Ofgläich mam Ubidder néideg.",
     restricted: "Dësen Ecran erfuerdert eng Administrateursroll.",
     deadLetters: "Messagen an der Feelerwarteschlaang",
@@ -511,6 +560,9 @@ export const lb: Copy = {
     resume: "Reaktivéieren",
     controlsHelp:
       "D’Pauséiere blockéiert déi nächst Iwwerdrounge vun Ärer Organisatioun. Sendungen, déi scho vun engem Ubidder ugeholl goufen, mussen nach ofgeglach ginn.",
+    pauseQuestion:
+      "Dëse Kanal pauséieren? Nei Iwwermëttlunge vun dësem Atelier gi blockéiert, bis en erëm aktivéiert gëtt.",
+    pauseConfirm: "Jo, pauséieren",
   },
   statuses: {
     verified: "Kontrolléiert",
@@ -552,5 +604,11 @@ export const lb: Copy = {
     materializing: "Empfänger gi virbereet",
     active: "Aktiv",
     simulation: "Simulatioun",
+  },
+  confirmDismiss: "Näischt änneren",
+  sessionExpired: {
+    title: "Är Sessioun ass ofgelaf.",
+    body: "Mellt Iech erëm un, fir weiderzemaachen: Dir kommt op dës Säit zeréck. Net ofgeschéckt Felder op dësem Ecran ginn no der neier Umeldung net erhalen.",
+    action: "Erëm umellen",
   },
 };
