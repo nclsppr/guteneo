@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "guteneo",
-  "version": "0.2.2",
-  "description": "Préparer ses PDF, consulter un devis et suivre ses envois avec Guteneo.",
+  "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+  "version": "0.3.1",
+  "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
   "author": {
     "name": "Guteneo"
   },
@@ -13,20 +13,42 @@
     "com.openai": {
       "interface": {
         "displayName": "Guteneo",
-        "shortDescription": "PDF, devis et suivi des envois",
-        "longDescription": "Retrouvez vos documents Guteneo ou importez le PDF original depuis ChatGPT. Préparez un fax ou un courrier postal. Pour le courrier, l’assistant retrouve votre expéditeur et demande les informations manquantes dans la conversation ; un administrateur connecté peut y enregistrer son expéditeur. Vous validez le document, le destinataire et le plafond dans Guteneo avant tout envoi. Un mandat expert facultatif, limité et temporaire peut être accordé par un administrateur à cette connexion. La disponibilité dépend des canaux et destinations activés sur votre compte. L’installation n’active aucun canal ni mandat.",
+        "shortDescription": "PDFs, email and dispatches",
+        "longDescription": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed.",
         "developerName": "Guteneo",
         "category": "Productivity",
-        "capabilities": ["Read", "Write"],
+        "capabilities": [
+          "Find and import PDFs",
+          "Prepare fax and postal mail",
+          "Prepare email and password-protected PDF links when enabled",
+          "Review estimates and spending limits",
+          "Track Guteneo dispatches"
+        ],
         "websiteURL": "https://guteneo.com",
+        "supportURL": "https://guteneo.com/support/",
+        "privacyPolicyURL": "https://guteneo.com/confidentialite/",
+        "termsOfServiceURL": "https://guteneo.com/conditions/",
         "defaultPrompt": [
-          "Envoie ce PDF par courrier postal ; demande-moi ici les informations manquantes, puis donne-moi le lien pour le valider.",
-          "Aide-moi à préparer un devis de fax pour ce PDF, sans l’envoyer.",
-          "Où en est mon dernier envoi Guteneo ?"
+          "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
+          "Prepare a fax estimate for this PDF without sending it.",
+          "What is the status of my latest Guteneo dispatch?"
         ],
         "brandColor": "#2450db",
         "composerIcon": "./assets/guteneo-composer.png",
         "logo": "./assets/guteneo-mark.png"
+      },
+      "onboardingSkill": "./skills/get-started/SKILL.md",
+      "review": {
+        "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
+      },
+      "publication": {
+        "release_notes": "Package 0.3.1 combines the reviewed 0.2.3 onboarding and metadata with email and protected-PDF instructions, and four-language web support. Email activation remains disabled. Existing account access only; no checkout, subscriptions or credit purchases. The demo is the existing recording from 21 September 2026. No new sends, reviewer-test execution, OpenAI approval or directory publication is claimed.",
+        "translations": {
+          "fr-FR": {
+            "subtitle": "PDF, devis et suivi des envois",
+            "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. L’e-mail reste désactivé jusqu’à la qualification de ses contrôles opérationnels. Le mot de passe du PDF reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Aucune livraison ni certification documentaire n’est garantie."
+          }
+        }
       }
     }
   }

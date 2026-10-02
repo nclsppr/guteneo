@@ -32,6 +32,7 @@ export default defineConfig({
     ],
   ],
   use: {
+    locale: "fr-FR",
     baseURL: "http://localhost:8787",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

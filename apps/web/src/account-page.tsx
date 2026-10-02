@@ -1,5 +1,7 @@
+import { msg } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
+  canAdminister,
   api,
   ApiError,
   date,
@@ -8,6 +10,7 @@ import {
   type Session,
 } from "./api";
 import {
+  ConfirmAction,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -16,6 +19,8 @@ import {
   useAction,
   useResource,
 } from "./components";
+import { setLocale, languageCopy, type SupportedLocale } from "./locale";
+import { LanguageSelect } from "./language-select";
 import { ExpertApproval } from "./expert-approval";
 
 type Props = { session: Session; onUpdated: () => void | Promise<void> };
@@ -35,28 +40,34 @@ type Member = {
   sessions: number;
   connections: number;
 };
-const roles = {
-  admin: "Administrateur",
-  member: "Membre",
-  viewer: "Lecture seule",
-};
+const getRoles = () => ({
+  admin: msg("Administrateur"),
+  member: msg("Membre"),
+  viewer: msg("Lecture seule"),
+});
 
 function PreviewNotice() {
   return (
     <div className="notice info" role="note">
       <p>
-        Dans cet aperçu, les comptes et les accès sont fictifs. Leur
-        modification sera disponible dans votre atelier connecté.
+        {msg(
+          "Dans cet aperçu, les comptes et les accès sont fictifs. Leur modification sera disponible dans votre atelier connecté.",
+        )}
       </p>
     </div>
   );
 }
 
 export function Account({ session, onUpdated }: Props) {
+  const roles = getRoles();
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
   );
+  const [preferredLocale, setPreferredLocale] = useState<SupportedLocale | "">(
+    session.user.preferredLocale ?? "",
+  );
+  const [languageEdited, setLanguageEdited] = useState(false);
   const [saved, setSaved] = useState(false);
   const action = useAction();
   const sessionAction = useAction();
@@ -65,8 +76,9 @@ export function Account({ session, onUpdated }: Props) {
   const sessions = useResource<{ items: SessionItem[]; hasMore: boolean }>(
     isPublicPreview ? null : "/account/sessions",
   );
-  const isAdmin = session.user.role === "admin";
+  const isAdmin = canAdminister(session);
   const changed =
+    (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -75,9 +87,15 @@ export function Account({ session, onUpdated }: Props) {
     await action.run(async () => {
       await api("/account", {
         method: "PATCH",
-        body: { userName, ...(isAdmin ? { organizationName } : {}) },
+        body: {
+          userName,
+          ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
+          ...(isAdmin ? { organizationName } : {}),
+        },
       });
+      if (languageEdited && preferredLocale) setLocale(preferredLocale, false);
       await onUpdated();
+      setLanguageEdited(false);
       setSaved(true);
     });
   }
@@ -94,11 +112,19 @@ export function Account({ session, onUpdated }: Props) {
   return (
     <>
       <PageHeading
-        title="Mon compte"
-        intro="Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier."
+        title={msg("Mon compte")}
+        intro={msg(
+          "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.",
+        )}
       />
       {isPublicPreview ? (
-        <PreviewNotice />
+        <>
+          <PreviewNotice />
+          <section className="form-panel">
+            <LanguageSelect profile />
+            <p className="field-hint">{languageCopy().browser}</p>
+          </section>
+        </>
       ) : (
         <>
           <form
@@ -106,14 +132,14 @@ export function Account({ session, onUpdated }: Props) {
             onSubmit={(event) => void save(event)}
             aria-busy={action.pending}
           >
-            <h2>Profil et atelier</h2>
+            <h2>{msg("Profil et atelier")}</h2>
             <p className="field-hint">
-              Votre nom de profil est partagé entre vos ateliers. Votre adresse
-              de connexion et vos facteurs de sécurité restent gérés par le
-              fournisseur d’identité.
+              {msg(
+                "Votre nom de profil est partagé entre vos ateliers. Votre adresse de connexion et vos facteurs de sécurité restent gérés par le fournisseur d’identité.",
+              )}
             </p>
             <div className="field">
-              <label htmlFor="account-name">Votre nom</label>
+              <label htmlFor="account-name">{msg("Votre nom")}</label>
               <input
                 id="account-name"
                 name="name"
@@ -132,7 +158,9 @@ export function Account({ session, onUpdated }: Props) {
               />
             </div>
             <div className="field">
-              <label htmlFor="account-organization">Nom de l’atelier</label>
+              <label htmlFor="account-organization">
+                {msg("Nom de l’atelier")}
+              </label>
               <input
                 id="account-organization"
                 name="organization"
@@ -151,12 +179,25 @@ export function Account({ session, onUpdated }: Props) {
               />
               <small id="account-organization-help">
                 {isAdmin
-                  ? "Ce nom sera visible par tous les membres de cet atelier."
-                  : "Seul un administrateur peut renommer cet atelier."}
+                  ? msg(
+                      "Ce nom sera visible par tous les membres de cet atelier.",
+                    )
+                  : msg("Seul un administrateur peut renommer cet atelier.")}
               </small>
             </div>
+            <LanguageSelect
+              profile
+              value={preferredLocale}
+              disabled={action.pending}
+              onChange={(locale) => {
+                setPreferredLocale(locale);
+                setLanguageEdited(true);
+                setSaved(false);
+                action.clear();
+              }}
+            />
             <p className="field-hint">
-              Votre rôle :{" "}
+              {msg("Votre rôle :")}{" "}
               {roles[session.user.role as keyof typeof roles] ??
                 session.user.role}
               .
@@ -167,10 +208,12 @@ export function Account({ session, onUpdated }: Props) {
               disabled={action.pending || !changed}
             >
               {action.pending
-                ? "Enregistrement…"
-                : "Enregistrer les modifications"}
+                ? msg("Enregistrement…")
+                : msg("Enregistrer les modifications")}
             </button>
-            {saved && <p role="status">Votre profil a été enregistré.</p>}
+            {saved && (
+              <p role="status">{msg("Votre profil a été enregistré.")}</p>
+            )}
             <div id="account-form-error">
               <ErrorNotice error={action.error} />
             </div>
@@ -180,11 +223,11 @@ export function Account({ session, onUpdated }: Props) {
             className="form-panel"
             aria-labelledby="account-sessions-title"
           >
-            <h2 id="account-sessions-title">Vos sessions actives</h2>
+            <h2 id="account-sessions-title">{msg("Vos sessions actives")}</h2>
             <p className="field-hint">
-              Les sessions de cet atelier expirent après une heure. Révoquer une
-              session coupe son accès à Guteneo ; cela ne déconnecte pas votre
-              compte du fournisseur d’identité.
+              {msg(
+                "Les sessions de cet atelier expirent après une heure. Révoquer une session coupe son accès à Guteneo ; cela ne déconnecte pas votre compte du fournisseur d’identité.",
+              )}
             </p>
             <RefreshButton
               onClick={sessions.refresh}
@@ -201,16 +244,16 @@ export function Account({ session, onUpdated }: Props) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          Ouverture
+                          {msg("Ouverture")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Expiration
+                          {msg("Expiration")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Session
+                          {msg("Session")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Action
+                          {msg("Action")}
                         </th>
                       </tr>
                     </thead>
@@ -222,7 +265,7 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Ouverture
+                              {msg("Ouverture")}
                             </span>
                             {date(item.createdAt)}
                           </td>
@@ -231,7 +274,7 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Expiration
+                              {msg("Expiration")}
                             </span>
                             {date(item.expiresAt)}
                           </td>
@@ -240,9 +283,11 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Session
+                              {msg("Session")}
                             </span>
-                            {item.current ? "Cet appareil" : "Autre session"}
+                            {item.current
+                              ? msg("Cet appareil")
+                              : msg("Autre session")}
                             {item.development
                               ? " · simulation"
                               : item.mfa
@@ -254,16 +299,23 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              Action
+                              {msg("Action")}
                             </span>
                             <button
                               type="button"
                               className="button small"
                               disabled={action.pending || sessionAction.pending}
                               onClick={() => void revoke(item.id)}
-                              aria-label={`${item.current ? "Me déconnecter de" : "Révoquer"} la session ouverte le ${date(item.createdAt)}`}
+                              aria-label={msg(
+                                item.current
+                                  ? "Me déconnecter de la session ouverte le {0}"
+                                  : "Révoquer la session ouverte le {0}",
+                                date(item.createdAt),
+                              )}
                             >
-                              {item.current ? "Me déconnecter" : "Révoquer"}
+                              {item.current
+                                ? msg("Me déconnecter")
+                                : msg("Révoquer")}
                             </button>
                           </td>
                         </tr>
@@ -275,8 +327,9 @@ export function Account({ session, onUpdated }: Props) {
             )}
             {sessions.data?.hasMore && (
               <p className="field-hint">
-                Les 100 sessions les plus récentes sont affichées. Révoquez-en
-                pour afficher les suivantes.
+                {msg(
+                  "Les 100 sessions les plus récentes sont affichées. Révoquez-en pour afficher les suivantes.",
+                )}
               </p>
             )}
           </section>
@@ -305,18 +358,19 @@ function MemberRow({
     <tr role="row">
       <th scope="row" role="rowheader">
         <span className="mobile-cell-label" aria-hidden="true">
-          Membre
+          {msg("Membre")}
         </span>
         {member.name}
-        {member.id === currentUserId ? " (vous)" : ""}
+        {member.id === currentUserId ? msg(" (vous)") : ""}
       </th>
-      <td role="cell">
+      <td role="cell" className="member-role-cell">
         <span className="mobile-cell-label" aria-hidden="true">
-          Rôle
+          {msg("Rôle")}
         </span>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor={`member-role-${member.id}`} className="sr-only">
-            Rôle de {member.name}
+            {msg("Rôle de ")}
+            {member.name}
           </label>
           <select
             id={`member-role-${member.id}`}
@@ -324,7 +378,7 @@ function MemberRow({
             onChange={(event) => setRole(event.target.value as Member["role"])}
             disabled={disabled}
           >
-            {Object.entries(roles).map(([value, label]) => (
+            {Object.entries(getRoles()).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -334,35 +388,53 @@ function MemberRow({
       </td>
       <td role="cell">
         <span className="mobile-cell-label" aria-hidden="true">
-          Accès actifs
+          {msg("Accès actifs")}
         </span>
-        {member.sessions} session{member.sessions > 1 ? "s" : ""}
+        {msg(
+          member.sessions === 1 ? "{0} session" : "{0} sessions",
+          member.sessions,
+        )}
         <br />
-        {member.connections} connexion{member.connections > 1 ? "s" : ""}{" "}
-        assistant
+        {msg(
+          member.connections === 1
+            ? "{0} connexion d’assistant"
+            : "{0} connexions d’assistant",
+          member.connections,
+        )}
       </td>
-      <td role="cell">
+      <td role="cell" className="member-actions-cell">
         <span className="mobile-cell-label" aria-hidden="true">
-          Actions
+          {msg("Actions")}
         </span>
-        <button
-          type="button"
-          className="button small"
-          disabled={disabled || role === member.role}
-          onClick={() => onRole(role)}
-          aria-label={`Enregistrer le rôle de ${member.name}`}
-        >
-          Enregistrer le rôle
-        </button>
-        <button
-          type="button"
-          className="text-button"
-          disabled={disabled || (!member.sessions && !member.connections)}
-          onClick={onRevoke}
-          aria-label={`Déconnecter ${member.name} de cet atelier`}
-        >
-          Déconnecter les accès
-        </button>
+        <div className="member-actions">
+          <button
+            type="button"
+            className="button small"
+            disabled={disabled || role === member.role}
+            onClick={() => onRole(role)}
+            aria-label={msg("Enregistrer le rôle de {0}", member.name)}
+          >
+            {msg("Enregistrer le rôle")}
+          </button>
+          <ConfirmAction
+            className="text-button"
+            disabled={disabled || (!member.sessions && !member.connections)}
+            onConfirm={onRevoke}
+            ariaLabel={msg("Déconnecter {0} de cet atelier", member.name)}
+            label={msg("Déconnecter les accès")}
+            question={
+              member.id === currentUserId
+                ? msg(
+                    "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter.",
+                  )
+                : msg(
+                    "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.",
+                    member.name,
+                  )
+            }
+            confirmLabel={msg("Oui, déconnecter")}
+          />
+        </div>
       </td>
     </tr>
   );
@@ -370,7 +442,7 @@ function MemberRow({
 
 export function TeamAdmin({ session, onUpdated }: Props) {
   const members = useResource<Page<Member>>(
-    isPublicPreview || session.user.role !== "admin" ? null : "/admin/members",
+    isPublicPreview || !canAdminister(session) ? null : "/admin/members",
   );
   const action = useAction();
   const [message, setMessage] = useState("");
@@ -393,27 +465,30 @@ export function TeamAdmin({ session, onUpdated }: Props) {
     });
   }
   return (
-    <section className="form-panel" aria-labelledby="team-admin-title">
-      <h2 id="team-admin-title">Membres de l’atelier</h2>
+    <section
+      className="form-panel team-admin"
+      aria-labelledby="team-admin-title"
+    >
+      <h2 id="team-admin-title">{msg("Membres de l’atelier")}</h2>
       {isPublicPreview ? (
         <PreviewNotice />
-      ) : session.user.role !== "admin" ? (
+      ) : !canAdminister(session) ? (
         <p>
-          La gestion des membres est réservée aux administrateurs de cet
-          atelier.
+          {msg(
+            "La gestion des membres est réservée aux administrateurs de cet atelier.",
+          )}
         </p>
       ) : (
         <>
           <p className="field-hint">
-            Un changement de rôle déconnecte les sessions et les assistants du
-            membre concerné. Si vous modifiez votre propre rôle, vous devrez
-            vous reconnecter. L’atelier conserve toujours au moins un
-            administrateur.
+            {msg(
+              "Un changement de rôle déconnecte les sessions et les assistants du membre concerné. Si vous modifiez votre propre rôle, vous devrez vous reconnecter. L’atelier conserve toujours au moins un administrateur.",
+            )}
           </p>
           <p className="field-hint">
-            Déconnecter les accès ne retire pas la qualité de membre : la
-            personne pourra se reconnecter. Aucun email d’invitation n’est
-            envoyé depuis cet écran.
+            {msg(
+              "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter. Aucun email d’invitation n’est envoyé depuis cet écran.",
+            )}
           </p>
           <RefreshButton
             onClick={members.refresh}
@@ -423,7 +498,7 @@ export function TeamAdmin({ session, onUpdated }: Props) {
             error={members.error ?? action.error}
             retry={members.refresh}
           />
-          {message && <p role="status">{message}</p>}
+          {message && <p role="status">{msg(message)}</p>}
           {members.loading && !members.data ? (
             <Loading />
           ) : (
@@ -434,16 +509,16 @@ export function TeamAdmin({ session, onUpdated }: Props) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          Membre
+                          {msg("Membre")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Rôle
+                          {msg("Rôle")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Accès actifs
+                          {msg("Accès actifs")}
                         </th>
                         <th role="columnheader" scope="col">
-                          Actions
+                          {msg("Actions")}
                         </th>
                       </tr>
                     </thead>

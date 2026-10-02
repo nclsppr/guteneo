@@ -101,7 +101,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(page.locator(".price-qualification")).toContainText(
     "Montants indicatifs hors taxes",
   );
-  await expect(page.locator(".pricing-table")).toContainText("≈ 0,28 €");
+  await expect(page.locator(".pricing-table")).toContainText("≈ 1,56 €");
   await expect(page.locator(".pricing-table")).toContainText("≈ 0,05–0,17 €");
   await expect(page.locator(".pricing-table")).toContainText(
     "depuis notre numéro luxembourgeois",
@@ -117,7 +117,12 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
   const questions = page.locator(".faq-questions details");
-  await expect(questions).toHaveCount(5);
+  await expect(questions).toHaveCount(6);
+  await expect(
+    page.locator(".faq-questions #postal-cutoff-faq summary"),
+  ).toHaveText(
+    "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
+  );
   const firstQuestion = questions.first();
   await firstQuestion.locator("summary").focus();
   await page.keyboard.press("Enter");
@@ -405,4 +410,16 @@ test("decorative birds stop when reduced motion is requested", async ({
         .evaluate((element) => Math.abs(element.getBoundingClientRect().top)),
     )
     .toBeLessThan(100);
+});
+
+
+test("Claude guide retains a selectable identifier when clipboard access fails", async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", {value: {writeText: async () => {throw new Error("Clipboard unavailable");}}}));
+  await page.goto("/assistants/claude/");
+  await page.getByRole("button", { name: "Copier l’identifiant", exact: true }).click();
+  await expect(page.getByRole("status").filter({hasText:"La copie automatique est indisponible"})).toBeVisible();
+  const client = page.getByLabel("Identifiant public à coller dans Claude");
+  await client.focus();
+  expect(await client.evaluate((input: HTMLInputElement) => input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0))).toBe("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
+  await expect(page.getByRole("button", {name:"Connecter à Claude", exact:true})).toBeDisabled();
 });

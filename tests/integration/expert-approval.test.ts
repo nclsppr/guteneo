@@ -126,7 +126,7 @@ beforeEach(async () => {
       .bind(ctx.organizationId, date),
     db
       .prepare(
-        "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
       )
       .bind(ctx.userId, date),
     db
@@ -952,7 +952,7 @@ describe("exact private PDF before an expert review token", () => {
               await db.batch([
                 db
                   .prepare(
-                    "INSERT INTO users VALUES(?,'Backup admin','backup@example.invalid',?)",
+                    "INSERT INTO users(id,name,email,created_at) VALUES(?,'Backup admin','backup@example.invalid',?)",
                   )
                   .bind(admin, now()),
                 db

@@ -22,7 +22,7 @@ const jsonForHtml = (value) =>
     .replaceAll("\u2028", "\\u2028")
     .replaceAll("\u2029", "\\u2029");
 
-/** Keep Vite's actual hashed CSS; the homepage and developer reference need the application entry. */
+/** Keep Vite's hashed assets so every public page can apply the visitor's language. */
 export function publicPageDocument(template, pathname, page, indexable = true) {
   if (
     !PUBLIC_PATHS.includes(pathname) ||
@@ -75,7 +75,7 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
         `<script type="application/ld+json">${jsonForHtml(item)}</script>`,
     ),
   ].join("\n    ");
-  let html = template
+  const html = template
     .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "")
     .replace(
       /<meta\b[^>]*(?:name|property)=["'](?:description|robots|og:[^"']*|twitter:[^"']*)["'][^>]*>/gi,
@@ -86,14 +86,6 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
       /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
       "",
     );
-  if (
-    !["/", "/developpeurs/"].includes(pathname) &&
-    !pathname.startsWith("/assistants/")
-  ) {
-    html = html
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
-      .replace(/<link\b[^>]*rel=["']modulepreload["'][^>]*>/gi, "");
-  }
   return html
     .replace(root, () => `<div id="root">${page.html}</div>`)
     .replace("</head>", () => `    ${metadata}\n  </head>`);

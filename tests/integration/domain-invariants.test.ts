@@ -368,9 +368,9 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
             kind,
             occurredAt: new Date().toISOString(),
           });
-        expect((await domain.getDispatch(atelier, row.id)).dispatch.status).toBe(
-          "delivered",
-        );
+        expect(
+          (await domain.getDispatch(atelier, row.id)).dispatch.status,
+        ).toBe("delivered");
       }
     },
   );
@@ -693,6 +693,85 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
       )
       .run();
     await expect(prepare()).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+  it("counts and filters dispatch groups beyond one page without leaking tenants", async () => {
+    await domain.registerDocument(atelier, {
+      name: "overview.pdf",
+      sha256: "b".repeat(64),
+      size: 100,
+      pages: 1,
+      status: "ready",
+      source: "import",
+      storageKey: "org_atelier/overview.pdf",
+    });
+    for (const id of ["a", "b", "c"]) await prepare(id);
+    const uncertain = await queue("q");
+    const cancelled = await prepare("x");
+    await domain.cancelDispatch(atelier, cancelled.id);
+    await db
+      .prepare(
+        "UPDATE dispatches SET status='submission_unknown' WHERE organization_id='org_atelier' AND id=?",
+      )
+      .bind(uncertain.id)
+      .run();
+    await prepare("other", email(), studio);
+
+    expect(await domain.dispatchOverview(atelier)).toEqual({
+      documents: 1,
+      dispatches: {
+        total: 5,
+        approval: 3,
+        in_progress: 0,
+        attention: 1,
+        done: 1,
+      },
+    });
+    const first = await domain.listDispatches(
+      atelier,
+      undefined,
+      2,
+      "approval",
+    );
+    expect(first.items.map((row) => row.status)).toEqual([
+      "prepared",
+      "prepared",
+    ]);
+    expect(first.nextCursor).toBeTruthy();
+    const rest = await domain.listDispatches(
+      atelier,
+      first.nextCursor!,
+      2,
+      "approval",
+    );
+    expect(rest.items).toHaveLength(1);
+    expect(rest.nextCursor).toBeNull();
+    expect(
+      (
+        await domain.listDispatches(atelier, undefined, 30, "attention")
+      ).items.map((row) => row.id),
+    ).toEqual([uncertain.id]);
+    expect(
+      (await domain.listDispatches(atelier, undefined, 30, "done")).items.map(
+        (row) => row.id,
+      ),
+    ).toEqual([cancelled.id]);
+
+    expect(await domain.dispatchOverview(studio)).toEqual({
+      documents: 0,
+      dispatches: {
+        total: 1,
+        approval: 1,
+        in_progress: 0,
+        attention: 0,
+        done: 0,
+      },
+    });
+    expect(
+      (await domain.listDispatches(studio, undefined, 30, "attention")).items,
+    ).toHaveLength(0);
+    await expect(
+      domain.listDispatches(atelier, undefined, 30, "prepared') OR 1=1 --"),
+    ).rejects.toMatchObject({ code: "INVALID_GROUP" });
   });
   it("paginates deterministically and forbids production simulation pricing", async () => {
     await prepare("a");

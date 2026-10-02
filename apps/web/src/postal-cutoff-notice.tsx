@@ -1,4 +1,4 @@
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import { formatCutoffHour, postalCutoffForCountry } from "./postal-cutoff";
 import "./postal-cutoff-notice.css";
 

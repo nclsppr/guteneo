@@ -366,7 +366,9 @@ async function seeded() {
       )
       .bind(c.organizationId, now),
     db
-      .prepare("INSERT INTO users VALUES(?,'Isolated reviewer fixture',?,?)")
+      .prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Isolated reviewer fixture',?,?)",
+      )
       .bind(c.reviewerUserId, c.reviewerEmail, now),
     db
       .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")

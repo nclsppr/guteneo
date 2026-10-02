@@ -1,5 +1,37 @@
 # Architecture
 
+2 October integration candidate: outstanding web/native language work, Claude
+dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
+reconciled for a coordinated main release. Email activation and Auth0 policy
+changes remain separate. Original uncommitted work is preserved. See
+[the integration inventory, migration order and evidence boundary](INTEGRATION_RELEASE_2026_10_02.md).
+
+22 September local candidate: the website and isolated native iOS candidate support
+French, English, German and Luxembourgish with welcome/profile language controls
+and a shared personal `preferredLocale`. Additive migration 0038 is required
+before server publication. Display choices do not change document bytes, recipient
+input, approval fingerprints or provider options. No production publication or
+App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
+Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+
+## Native companion candidate — 22 September 2026
+
+`ios/` is a native SwiftUI/PDFKit client of `/api/mobile/v1`, not an HTML wrapper.
+A human browser consent issues a single-use 60-second S256-bound code; its exchange
+creates a hashed native session, bounded by one hour and its parent browser
+session. Each request checks current membership and account policy. Native tokens
+use their own authorization scheme and cannot become browser or MCP authority.
+Tokens stay in the device-only Keychain; URLSession uses no cookie or disk cache.
+
+The native actor can import/read documents and prepare/cancel commands through
+the same domain services. It cannot approve, confirm, manage expert mandates or
+access billing. `/auth/mobile/review/:id` preserves browser CSRF, immutable
+fingerprint review and separate explicit approval/confirmation, without a billing
+navigation surface. Migration 0037 adds native credentials and deletion requests;
+it has not been applied in production. Deletion requests are not completed deletion.
+See `IOS_API.md` and `ACCOUNT_DELETION.md` for boundaries and outstanding decisions.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: browser and MCP postal setup use the same transaction
@@ -30,6 +62,13 @@ verification claim. Migrations 0030–0031 preserve historical quotes and bind t
 postal price excluding tax into the approved fingerprint. See
 [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md) for the release and evidence boundary;
 the older dated publication descriptions below remain historical.
+
+Local candidate, 18 September: selected hosted OAuth clients may renew through
+Auth0's native rotating, expiring refresh grants. Claude retains refresh tokens;
+the Guteneo browser and Worker introduce no token store or keep-alive timer.
+Current membership, connection revocation, scopes and separately expiring expert
+mandates remain enforced on each API call. See [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md)
+for the pending activation and host qualification.
 
 Local candidate, 17 September: hosted PDF imports accept public HTTPS DNS
 sources without a provider-domain allowlist. The candidate enables

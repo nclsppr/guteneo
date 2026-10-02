@@ -1,6 +1,14 @@
 # Démonstration vidéo pour la revue OpenAI
 
-Préparé le **21 septembre 2026**. **Scénario prêt ; aucun enregistrement ni résultat de recette n’est attesté par ce document.** La vidéo finale doit montrer le vrai client ChatGPT relié au serveur publié, avec le compte reviewer dédié. La recette de référence est [reviewer-tests.md](reviewer-tests.md).
+## État vérifié le 2 octobre 2026
+
+Une [vidéo historique du 21 septembre](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) existe désormais dans les assets publics. Son GET du 2 octobre répond **200**, avec **2 367 095 octets** et le SHA-256 `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`, identique au fichier local. L’URL peut être référencée dans le dossier ; cette vérification ne certifie ni de nouveaux appels d’outils ni la fraîcheur actuelle du compte reviewer.
+
+La version 0.2.2 était initialement **In review** et **Not published** ; sa revue a été annulée explicitement pour remplacement et le portail est revenu au brouillon. Une nouvelle tentative de scan demande une reconnexion, et la connexion Guteneo Review retourne `UNAUTHORIZED` sur `get_capabilities`. Le candidat ZIP 0.2.3 n’a pas été accepté : le portail exige la publication préalable de l’application MCP existante avant sa mise à jour par ZIP. La reprise de son éditeur MCP a ouvert la connexion Auth0 « Guteneo - OpenAI Review », en attente de la saisie par l’utilisateur hors du chat. Aucun nouveau scan réussi, enregistrement, résultat de recette ou nouvelle soumission du 2 octobre n’est attesté ici. La référence est [reviewer-tests.md](reviewer-tests.md), avec la contrainte de fraîcheur des devis non envoyables : au plus 168 heures pour les références tarifaires, indépendamment de l’autorité de 30 jours.
+
+## Scénario et procédure historiques
+
+Le scénario ci-dessous a été préparé le **21 septembre 2026**, avant la mise à disposition de la vidéo. Les mentions de capture non éprouvée décrivent cet état initial. Il reste une procédure de reprise ; ses attentes ne sont pas des résultats observés. Toute nouvelle vidéo doit montrer le vrai client relié au serveur publié et distinguer les séquences historiques d’une nouvelle recette.
 
 ## Exigence et périmètre
 
@@ -55,4 +63,4 @@ Si ChatGPT ne peut pas transmettre la pièce jointe, n’expose pas l’outil, �
 3. Déposer uniquement la copie expurgée sur un hébergement existant autorisé. Vérifier en session déconnectée que le lien HTTPS exact permet sa lecture sans connexion, code ou permission supplémentaire. La présence d’un fichier local ne suffit pas.
 4. Renseigner `demoRecordingUrl` et le champ privé de soumission seulement après ce contrôle. Garder la vidéo en dehors du paquet de plugin et du dépôt source ; enregistrer dans la preuve sa taille, sa durée, son empreinte et son URL accessible, sans secrets.
 
-État à l’écriture : aucune vidéo créée, aucune URL publiée et aucun cas reviewer qualifié par ce document.
+État à l’écriture initiale du scénario : aucune vidéo créée, aucune URL publiée et aucun cas reviewer qualifié par ce document. L’état courant du fichier vidéo et de son URL est consigné en tête ; aucun résultat de recette n’est déduit de ce scénario.

@@ -26,10 +26,12 @@
     "browser:prepare": "node scripts/prepare-browser.mjs",
     "setup:fax": "node scripts/secure-setup.mjs telnyx",
     "setup:billing": "node scripts/secure-setup.mjs stripe",
-    "setup:email": "node scripts/secure-setup.mjs ses",
+    "setup:email": "node scripts/secure-setup.mjs resend",
     "build:integrations": "node integrations/build.mjs",
     "build:live": "node scripts/build-live.mjs",
-    "deploy:live": "node scripts/deploy-public.mjs live"
+    "deploy:live": "node scripts/deploy-public.mjs live",
+    "setup:email:ses": "node scripts/secure-setup.mjs ses",
+    "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
@@ -65,6 +67,7 @@
     "@types/sanitize-html": "^2.16.1",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "miniflare": "^5.20260916.0-alpha",
     "prettier": "^3.9.7",
     "tsx": "^4.23.13",

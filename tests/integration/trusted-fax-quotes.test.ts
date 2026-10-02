@@ -93,7 +93,7 @@ beforeEach(async () => {
     .run();
   await db
     .prepare(
-      "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+      "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
     )
     .bind(ctx.userId, now)
     .run();
@@ -603,6 +603,8 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
           .prepare(`SELECT * FROM ${table}`)
           .all<Record<string, unknown>>();
         for (const row of rows.results) {
+          // Personal language preferences were added after this historical schema.
+          if (table === "users") delete row.preferred_locale;
           if (table === "dispatches") {
             const quote = historicalQuotes.get(row.id as string)!;
             row.fingerprint = quote.dispatch_fingerprint;

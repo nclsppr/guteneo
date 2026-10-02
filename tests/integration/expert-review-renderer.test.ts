@@ -616,26 +616,54 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
   });
   it("closes a browser launched after the deadline without opening a PDF page", async () => {
     const browser = await launch();
-    const close = vi.spyOn(browser, "close"),
-      newPage = vi.spyOn(browser, "newPage");
+    const actualClose = browser.close.bind(browser);
+    let releaseLaunch!: (value: typeof browser) => void;
+    let markEntered!: () => void;
+    let markClosed!: () => void;
+    let rejectClosed!: (error: unknown) => void;
+    const pendingLaunch = new Promise<typeof browser>((resolve) => {
+      releaseLaunch = resolve;
+    });
+    const entered = new Promise<void>((resolve) => {
+      markEntered = resolve;
+    });
+    const closed = new Promise<void>((resolve, reject) => {
+      markClosed = resolve;
+      rejectClosed = reject;
+    });
+    const close = vi.spyOn(browser, "close").mockImplementation(() => {
+      const closing = actualClose();
+      void closing.then(markClosed, rejectClosed);
+      return closing;
+    });
+    const newPage = vi.spyOn(browser, "newPage");
+    const engine = vi.fn(() => {
+      markEntered();
+      return pendingLaunch;
+    });
+    // Structural validation must finish and enter launch before expiry. Only the
+    // handler deadline is controlled; Chromium launch/close use real time.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     try {
-      const { response, body } = await run(
-        source,
-        1,
-        1,
-        async () => {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          return browser;
-        },
-        35,
-      );
+      const result = run(source, 1, 1, engine, 35);
+      await entered;
+      expect(engine).toHaveBeenCalledOnce();
+      await vi.advanceTimersByTimeAsync(35);
+      const { response, body } = await result;
       expect(response.status).toBe(504);
       expect(body).toEqual({ error: { code: "REVIEW_RENDER_TIMEOUT" } });
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(close).not.toHaveBeenCalled();
+      vi.useRealTimers();
+      releaseLaunch(browser);
+      await closed;
       expect(close).toHaveBeenCalled();
       expect(newPage).not.toHaveBeenCalled();
     } finally {
-      await browser.close();
+      vi.useRealTimers();
+      releaseLaunch(browser);
+      await actualClose();
+      close.mockRestore();
+      newPage.mockRestore();
     }
   });
 });

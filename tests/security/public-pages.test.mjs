@@ -72,20 +72,15 @@ test("initial document contains readable content, canonical metadata and safely 
   );
 });
 
-test("interactive public pages retain the app entry while every public page reuses built CSS", () => {
+test("every public page retains the language-aware app entry and built CSS", () => {
   for (const pathname of PUBLIC_PATHS) {
     const html = publicPageDocument(template, pathname, page(pathname));
     assert.match(html, /href="\/assets\/main-hash.css"/);
-    assert.equal(
-      html.includes('type="module"'),
-      ["/", "/developpeurs/"].includes(pathname) ||
-        pathname.startsWith("/assistants/"),
+    assert.match(
+      html,
+      /<script type="module" src="\/assets\/main-hash.js"><\/script>/,
     );
-    assert.equal(
-      html.includes('rel="modulepreload"'),
-      ["/", "/developpeurs/"].includes(pathname) ||
-        pathname.startsWith("/assistants/"),
-    );
+    assert.match(html, /rel="modulepreload" href="\/assets\/shared.js"/);
     assert.equal(html.includes('type="application/ld+json"'), true);
   }
 });

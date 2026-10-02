@@ -1,0 +1,411 @@
+{
+  "Navigation principale": [
+    "Main navigation",
+    "Hauptnavigation",
+    "Haaptnavigatioun"
+  ],
+  "Navigation mobile": [
+    "Mobile navigation",
+    "Mobile Navigation",
+    "Mobil Navigatioun"
+  ],
+  "Navigation de l’atelier": [
+    "Workspace navigation",
+    "Arbeitsbereich-Navigation",
+    "Navigatioun vum Aarbechtsberäich"
+  ],
+  "Assistants": ["Assistants", "Assistenten", "Assistenten"],
+  "Explorer la démo": ["Explore the demo", "Demo erkunden", "Demo entdecken"],
+  "Menu": ["Menu", "Menü", "Menü"],
+  "Courrier postal": ["Postal mail", "Briefpost", "Bréifpost"],
+  "Bon d’envoi fictif": [
+    "Fictional dispatch slip",
+    "Fiktiver Versandbeleg",
+    "Fiktive Versandbeleg"
+  ],
+  "Bon d’envoi": ["Dispatch slip", "Versandbeleg", "Versandbeleg"],
+  "Exemple": ["Example", "Beispiel", "Beispill"],
+  "2 pages": ["2 pages", "2 Seiten", "2 Säiten"],
+  "Pour": ["To", "An", "Un"],
+  "Maison Exemple": ["Example Company", "Beispielfirma", "Beispillfirma"],
+  "(fictif)": ["(fictional)", "(fiktiv)", "(fiktiv)"],
+  "Canal": ["Channel", "Versandweg", "Versandkanal"],
+  "Plafond": ["Spending cap", "Kostenobergrenze", "Käschtegrenz"],
+  "(exemple)": ["(example)", "(Beispiel)", "(Beispill)"],
+  "À vérifier avant l’envoi": [
+    "Review before sending",
+    "Vor dem Versand prüfen",
+    "Virum Verschécke kontrolléieren"
+  ],
+  "Aperçu interactif · Sans inscription · Aucun envoi réel": [
+    "Interactive preview · No sign-up · No real sends",
+    "Interaktive Vorschau · Ohne Anmeldung · Kein echter Versand",
+    "Interaktiv Virschau · Ouni Umeldung · Keng richteg Sendungen"
+  ],
+  "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.": [
+    "Verify your address using the link in the email, then sign in again.",
+    "Bestätigen Sie Ihre Adresse über den Link in der E-Mail und melden Sie sich erneut an.",
+    "Bestätegt Är Adress mam Link an der E-Mail a mellt Iech duerno nees un."
+  ],
+  "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.": [
+    "Your account verification could not be confirmed. Verify your email address, then sign in again.",
+    "Die Verifizierung Ihres Kontos wurde nicht bestätigt. Bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich erneut an.",
+    "D’Verifikatioun vun Ärem Kont gouf net bestätegt. Bestätegt Är E-Mail-Adress a mellt Iech nees un."
+  ],
+  "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.": [
+    "Two-factor authentication is required to protect your workspace. Sign in again to finish setting it up.",
+    "Zum Schutz Ihres Arbeitsbereichs ist eine Zwei-Faktor-Authentifizierung erforderlich. Melden Sie sich erneut an, um die Einrichtung abzuschließen.",
+    "Eng Zwee-Faktor-Authentifizéierung ass néideg, fir Ären Aarbechtsberäich ze schützen. Mellt Iech nees un, fir se fäerdeg anzeriichten."
+  ],
+  "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.": [
+    "Account registration is being set up. Please try again soon.",
+    "Die Kontoeröffnung wird eingerichtet. Versuchen Sie es bald erneut.",
+    "D’Aschreiwung vu Konte gëtt ageriicht. Probéiert et geschwënn nach eng Kéier."
+  ],
+  "Votre connexion a expiré. Recommencez pour ouvrir votre espace.": [
+    "Your sign-in has expired. Start again to access your workspace.",
+    "Ihre Anmeldung ist abgelaufen. Beginnen Sie erneut, um Ihren Arbeitsbereich zu öffnen.",
+    "Är Umeldung ass ofgelaf. Fänkt nei un, fir Ären Aarbechtsberäich opzemaachen."
+  ],
+  "La connexion n’a pas abouti. Vous pouvez réessayer.": [
+    "Sign-in did not complete. You can try again.",
+    "Die Anmeldung wurde nicht abgeschlossen. Sie können es erneut versuchen.",
+    "D’Umeldung gouf net ofgeschloss. Dir kënnt et nach eng Kéier probéieren."
+  ],
+  "Trop de tentatives de connexion. Réessayez dans une heure.": [
+    "Too many sign-in attempts. Try again in one hour.",
+    "Zu viele Anmeldeversuche. Versuchen Sie es in einer Stunde erneut.",
+    "Ze vill Umeldungsversich. Probéiert et an enger Stonn nach eng Kéier."
+  ],
+  "Vos documents, vos envois et votre facturation réunis dans un espace personnel et protégé.": [
+    "Your documents, deliveries and billing together in a secure personal workspace.",
+    "Ihre Dokumente, Sendungen und Abrechnungen in einem geschützten persönlichen Bereich.",
+    "Är Dokumenter, Sendungen a Rechnungen zesummen an engem geschützte perséinleche Beräich."
+  ],
+  "Explorez la démonstration": [
+    "Explore the demonstration",
+    "Demonstration erkunden",
+    "Demonstratioun entdecken"
+  ],
+  "Un compte personnel, vos documents et le suivi de vos envois dans un espace privé.": [
+    "A personal account, your documents and delivery tracking in a private workspace.",
+    "Ein persönliches Konto, Ihre Dokumente und die Sendungsverfolgung in einem privaten Bereich.",
+    "E perséinleche Kont, Är Dokumenter an de Suivi vun Äre Sendungen an engem private Beräich."
+  ],
+  "La connexion n’a pas abouti. Recommencez pour accéder à votre espace.": [
+    "Sign-in did not complete. Start again to access your workspace.",
+    "Die Anmeldung wurde nicht abgeschlossen. Beginnen Sie erneut, um auf Ihren Bereich zuzugreifen.",
+    "D’Umeldung gouf net ofgeschloss. Fänkt nei un, fir op Äre Beräich zouzegräifen."
+  ],
+  "Créer mon compte": [
+    "Create my account",
+    "Konto erstellen",
+    "Mäi Kont erstellen"
+  ],
+  "L’inscription sera disponible dès que le service de connexion sera raccordé.": [
+    "Sign-up will be available once the sign-in service is connected.",
+    "Die Registrierung ist verfügbar, sobald der Anmeldedienst angeschlossen ist.",
+    "D’Aschreiwung ass disponibel, soubal den Umeldungsdéngscht verbonnen ass."
+  ],
+  "Vous avez déjà un compte ?": [
+    "Already have an account?",
+    "Sie haben bereits ein Konto?",
+    "Hutt Dir schonn e Kont?"
+  ],
+  "Adresse e-mail vérifiée requise. Aucun envoi payant sans votre accord.": [
+    "A verified email address is required. No paid sends without your approval.",
+    "Eine bestätigte E-Mail-Adresse ist erforderlich. Kein kostenpflichtiger Versand ohne Ihre Zustimmung.",
+    "Eng bestätegt E-Mail-Adress ass néideg. Keng bezuelte Sendung ouni Ären Accord."
+  ],
+  "Aperçu dans cet onglet uniquement. Les données sont réinitialisées au rechargement.": [
+    "Preview in this tab only. Data resets when you reload.",
+    "Vorschau nur in diesem Tab. Die Daten werden beim Neuladen zurückgesetzt.",
+    "Virschau nëmmen an dësem Tab. D’Date gi beim Neiluede zeréckgesat."
+  ],
+  "Dans cet aperçu, les comptes et les accès sont fictifs. Leur modification sera disponible dans votre atelier connecté.": [
+    "Accounts and access in this preview are fictional. You can edit them in your signed-in workspace.",
+    "Konten und Zugriffe in dieser Vorschau sind fiktiv. Änderungen sind nach der Anmeldung in Ihrem Arbeitsbereich möglich.",
+    "D’Konten an d’Zougrëffer an dëser Virschau si fiktiv. Dir kënnt se an Ärem ageloggten Aarbechtsberäich änneren."
+  ],
+  "Mon compte": ["My account", "Mein Konto", "Mäi Kont"],
+  "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.": [
+    "Your identity, assistant permissions and workspace sessions.",
+    "Ihre Identität, die Berechtigungen Ihrer Assistenten und Ihre Sitzungen im Arbeitsbereich.",
+    "Är Identitéit, d’Autorisatioune vun Ären Assistenten an Är Sessiounen am Aarbechtsberäich."
+  ],
+  "Profil et atelier": [
+    "Profile and workspace",
+    "Profil und Arbeitsbereich",
+    "Profil an Aarbechtsberäich"
+  ],
+  "Votre nom de profil est partagé entre vos ateliers. Votre adresse de connexion et vos facteurs de sécurité restent gérés par le fournisseur d’identité.": [
+    "Your profile name is shared across your workspaces. Your sign-in address and security factors remain managed by your identity provider.",
+    "Ihr Profilname gilt in allen Ihren Arbeitsbereichen. Ihre Anmeldeadresse und Sicherheitsfaktoren werden weiterhin vom Identitätsanbieter verwaltet.",
+    "Äre Profilnumm gëllt fir all Är Aarbechtsberäicher. Är Umeldungsadress an Är Sécherheetsfacteure gi weider vum Identitéitsubidder geréiert."
+  ],
+  "Votre nom": ["Your name", "Ihr Name", "Ären Numm"],
+  "Nom de l’atelier": [
+    "Workspace name",
+    "Name des Arbeitsbereichs",
+    "Numm vum Aarbechtsberäich"
+  ],
+  "Ce nom sera visible par tous les membres de cet atelier.": [
+    "All members of this workspace can see this name.",
+    "Dieser Name ist für alle Mitglieder dieses Arbeitsbereichs sichtbar.",
+    "Dësen Numm ass fir all Membere vun dësem Aarbechtsberäich siichtbar."
+  ],
+  "Seul un administrateur peut renommer cet atelier.": [
+    "Only an administrator can rename this workspace.",
+    "Nur ein Administrator kann diesen Arbeitsbereich umbenennen.",
+    "Nëmmen en Administrateur kann dësen Aarbechtsberäich ëmbenennen."
+  ],
+  "Votre rôle :": ["Your role:", "Ihre Rolle:", "Är Roll:"],
+  "Administrateur": ["Administrator", "Administrator", "Administrateur"],
+  "Membre": ["Member", "Mitglied", "Member"],
+  "Lecture seule": ["Read-only", "Nur lesen", "Nëmme liesen"],
+  "Enregistrement…": ["Saving…", "Wird gespeichert…", "Gëtt gespäichert…"],
+  "Enregistrer les modifications": [
+    "Save changes",
+    "Änderungen speichern",
+    "Ännerunge späicheren"
+  ],
+  "Votre profil a été enregistré.": [
+    "Your profile has been saved.",
+    "Ihr Profil wurde gespeichert.",
+    "Äre Profil gouf gespäichert."
+  ],
+  "Vos sessions actives": [
+    "Your active sessions",
+    "Ihre aktiven Sitzungen",
+    "Är aktiv Sessiounen"
+  ],
+  "Les sessions de cet atelier expirent après une heure. Révoquer une session coupe son accès à Guteneo ; cela ne déconnecte pas votre compte du fournisseur d’identité.": [
+    "Sessions in this workspace expire after one hour. Revoking a session removes its access to Guteneo; it does not sign you out of your identity provider account.",
+    "Sitzungen in diesem Arbeitsbereich laufen nach einer Stunde ab. Ein Widerruf beendet den Zugriff auf Guteneo, meldet Sie aber nicht beim Identitätsanbieter ab.",
+    "D’Sessiounen an dësem Aarbechtsberäich lafen no enger Stonn of. Eng Sessioun zréckzezéien ënnerbrécht hiren Zougrëff op Guteneo, mellt Äre Kont awer net beim Identitéitsubidder of."
+  ],
+  "Ouverture": ["Started", "Beginn", "Ufank"],
+  "Expiration": ["Expires", "Ablauf", "Leeft of"],
+  "Session": ["Session", "Sitzung", "Sessioun"],
+  "Action": ["Action", "Aktion", "Aktioun"],
+  "Actions": ["Actions", "Aktionen", "Aktiounen"],
+  "Cet appareil": ["This device", "Dieses Gerät", "Dësen Apparat"],
+  "Autre session": ["Other session", "Andere Sitzung", "Aner Sessioun"],
+  " · simulation": [" · simulation", " · Simulation", " · Simulatioun"],
+  " · double authentification": [
+    " · two-factor authentication",
+    " · Zwei-Faktor-Authentifizierung",
+    " · Zwee-Faktor-Authentifizéierung"
+  ],
+  "Me déconnecter de": ["Sign out of", "Abmelden von", "Ofmelle vun"],
+  "Révoquer": ["Revoke", "Widerrufen", "Zréckzéien"],
+  "Me déconnecter": ["Sign out", "Abmelden", "Ofmellen"],
+  "Les 100 sessions les plus récentes sont affichées. Révoquez-en pour afficher les suivantes.": [
+    "The 100 most recent sessions are shown. Revoke some to display older ones.",
+    "Die 100 neuesten Sitzungen werden angezeigt. Widerrufen Sie einige, um ältere anzuzeigen.",
+    "Déi 100 lescht Sessioune ginn ugewisen. Zitt der zréck, fir méi al Sessiounen ze gesinn."
+  ],
+  "(vous)": ["(you)", "(Sie)", "(Dir)"],
+  "Rôle": ["Role", "Rolle", "Roll"],
+  "Rôle de": ["Role of", "Rolle von", "Roll vun"],
+  "Accès actifs": ["Active access", "Aktive Zugriffe", "Aktiv Zougrëffer"],
+  "session": ["session", "Sitzung", "Sessioun"],
+  "connexion": ["connection", "Verbindung", "Verbindung"],
+  "assistant": ["assistant", "Assistent", "Assistent"],
+  "Enregistrer le rôle": ["Save role", "Rolle speichern", "Roll späicheren"],
+  "Déconnecter les accès": [
+    "Disconnect access",
+    "Zugriffe trennen",
+    "Zougrëffer trennen"
+  ],
+  "Le rôle a été modifié. Ce membre doit se reconnecter.": [
+    "The role has been changed. This member must sign in again.",
+    "Die Rolle wurde geändert. Dieses Mitglied muss sich erneut anmelden.",
+    "D’Roll gouf geännert. Dëse Member muss sech nees umellen."
+  ],
+  "Les accès ont été déconnectés. Le membre peut se reconnecter à son compte.": [
+    "Access has been disconnected. The member can sign in to their account again.",
+    "Die Zugriffe wurden getrennt. Das Mitglied kann sich erneut anmelden.",
+    "D’Zougrëffer goufen getrennt. De Member ka sech nees op sengem Kont umellen."
+  ],
+  "Membres de l’atelier": [
+    "Workspace members",
+    "Mitglieder des Arbeitsbereichs",
+    "Membere vum Aarbechtsberäich"
+  ],
+  "La gestion des membres est réservée aux administrateurs de cet atelier.": [
+    "Only administrators of this workspace can manage members.",
+    "Nur Administratoren dieses Arbeitsbereichs können Mitglieder verwalten.",
+    "Nëmmen d’Administrateure vun dësem Aarbechtsberäich kënne Membere geréieren."
+  ],
+  "Un changement de rôle déconnecte les sessions et les assistants du membre concerné. Si vous modifiez votre propre rôle, vous devrez vous reconnecter. L’atelier conserve toujours au moins un administrateur.": [
+    "Changing a role disconnects that member’s sessions and assistants. If you change your own role, you must sign in again. The workspace always retains at least one administrator.",
+    "Ein Rollenwechsel trennt die Sitzungen und Assistenten des betroffenen Mitglieds. Wenn Sie Ihre eigene Rolle ändern, müssen Sie sich erneut anmelden. Der Arbeitsbereich behält immer mindestens einen Administrator.",
+    "Wann eng Roll geännert gëtt, ginn d’Sessiounen an d’Assistente vum betraffene Member getrennt. Wann Dir Är eege Roll ännert, musst Dir Iech nees umellen. Den Aarbechtsberäich behält ëmmer op d’mannst een Administrateur."
+  ],
+  "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter. Aucun email d’invitation n’est envoyé depuis cet écran.": [
+    "Disconnecting access does not remove membership: the person can sign in again. No invitation email is sent from this screen.",
+    "Das Trennen der Zugriffe beendet nicht die Mitgliedschaft: Die Person kann sich erneut anmelden. Von dieser Seite werden keine Einladungs-E-Mails versendet.",
+    "D’Trenne vun den Zougrëffer hëlt d’Memberschaft net ewech: d’Persoun ka sech nees umellen. Vun dësem Ecran gëtt keng Invitatioun per E-Mail geschéckt."
+  ],
+  "guteneo, accueil": [
+    "guteneo, home",
+    "guteneo, Startseite",
+    "guteneo, Startsäit"
+  ],
+  "Votre premier envoi.": [
+    "Your first delivery.",
+    "Ihre erste Sendung.",
+    "Är éischt Sendung."
+  ],
+  "À votre façon.": ["Your way.", "Auf Ihre Weise.", "Op Är Manéier."],
+  "Depuis une conversation ou directement avec votre document, vous gardez la main sur chaque envoi.": [
+    "From a conversation or directly with your document, you stay in control of every delivery.",
+    "Aus einer Unterhaltung oder direkt mit Ihrem Dokument: Sie behalten die Kontrolle über jede Sendung.",
+    "Aus engem Gespréich oder direkt mat Ärem Dokument: Dir behält d’Kontroll iwwer all Sendung."
+  ],
+  "Depuis votre assistant": [
+    "From your assistant",
+    "Über Ihren Assistenten",
+    "Iwwer Ären Assistent"
+  ],
+  "Ajoutez Guteneo à votre outil habituel. Un guide vous accompagne de la configuration au premier échange.": [
+    "Add Guteneo to your usual tool. A guide takes you from setup to your first conversation.",
+    "Fügen Sie Guteneo Ihrem gewohnten Werkzeug hinzu. Eine Anleitung begleitet Sie von der Einrichtung bis zum ersten Austausch.",
+    "Füügt Guteneo bei Ärem gewinntenen Tool bäi. E Guide begleet Iech vun der Ariichtung bis zum éischte Gespréich."
+  ],
+  "Utiliser mon assistant": [
+    "Use my assistant",
+    "Meinen Assistenten nutzen",
+    "Mäin Assistent benotzen"
+  ],
+  "Directement dans Guteneo": [
+    "Directly in Guteneo",
+    "Direkt in Guteneo",
+    "Direkt a Guteneo"
+  ],
+  "Ajoutez votre document, choisissez le destinataire et vérifiez le prix avant de confirmer.": [
+    "Add your document, choose the recipient and check the price before confirming.",
+    "Fügen Sie Ihr Dokument hinzu, wählen Sie den Empfänger und prüfen Sie den Preis vor der Bestätigung.",
+    "Füügt Äert Dokument bäi, wielt den Empfänger a kontrolléiert de Präis, ier Dir bestätegt."
+  ],
+  "Envoyer depuis Guteneo": [
+    "Send from Guteneo",
+    "Aus Guteneo versenden",
+    "Aus Guteneo verschécken"
+  ],
+  "Vous connaissez déjà votre assistant ? Ouvrez son guide.": [
+    "Already know your assistant? Open its guide.",
+    "Sie kennen Ihren Assistenten bereits? Öffnen Sie die Anleitung.",
+    "Kennt Dir Ären Assistent schonn? Maacht säi Guide op."
+  ],
+  "Le journal": ["The journal", "Das Journal", "De Journal"],
+  "Développeurs": ["Developers", "Entwickler", "Entwéckler"],
+  "Confidentialité": ["Privacy", "Datenschutz", "Dateschutz"],
+  "Conditions": ["Terms", "Nutzungsbedingungen", "Notzungsbedéngungen"],
+  "Assistance": ["Support", "Hilfe", "Hëllef"],
+  "Informations et assistance": [
+    "Information and support",
+    "Informationen und Hilfe",
+    "Informatiounen an Hëllef"
+  ],
+  "Mentions légales": ["Legal notice", "Impressum", "Rechtlech Informatiounen"],
+  "Vérifiez les champs du formulaire.": [
+    "Check the form fields.",
+    "Prüfen Sie die Formularfelder.",
+    "Kontrolléiert d’Formularfelder."
+  ],
+  "Votre session a expiré. Reconnectez-vous avant de continuer.": [
+    "Your session has expired. Sign in again before continuing.",
+    "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, bevor Sie fortfahren.",
+    "Är Sessioun ass ofgelaf. Mellt Iech nees un, ier Dir weiderfuert."
+  ],
+  "Cette action n’est pas autorisée pour votre compte.": [
+    "This action is not permitted for your account.",
+    "Diese Aktion ist für Ihr Konto nicht erlaubt.",
+    "Dës Aktioun ass fir Äre Kont net erlaabt."
+  ],
+  "Votre session a changé. Actualisez la page avant de réessayer.": [
+    "Your session has changed. Reload the page before trying again.",
+    "Ihre Sitzung hat sich geändert. Laden Sie die Seite neu, bevor Sie es erneut versuchen.",
+    "Är Sessioun huet geännert. Lued d’Säit nei, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.": [
+    "Connection interrupted. Refresh the status before repeating an operation.",
+    "Verbindung unterbrochen. Aktualisieren Sie den Status, bevor Sie einen Vorgang wiederholen.",
+    "Verbindung ënnerbrach. Aktualiséiert de Suivi, ier Dir eng Operatioun widderhëlt."
+  ],
+  "Ce document ne peut pas être affiché.": [
+    "This document cannot be displayed.",
+    "Dieses Dokument kann nicht angezeigt werden.",
+    "Dëst Dokument kann net ugewise ginn."
+  ],
+  "Le service a répondu avec une erreur ({0}).": [
+    "The service returned an error ({0}).",
+    "Der Dienst hat einen Fehler zurückgegeben ({0}).",
+    "De Service huet e Feeler zeréckginn ({0})."
+  ],
+  "{0} session": ["{0} session", "{0} Sitzung", "{0} Sessioun"],
+  "{0} sessions": ["{0} sessions", "{0} Sitzungen", "{0} Sessiounen"],
+  "{0} connexion d’assistant": [
+    "{0} assistant connection",
+    "{0} Assistentenverbindung",
+    "{0} Assistentenverbindung"
+  ],
+  "{0} connexions d’assistant": [
+    "{0} assistant connections",
+    "{0} Assistentenverbindungen",
+    "{0} Assistentenverbindungen"
+  ],
+  "La disponibilité et le prix seront confirmés par le devis.": [
+    "Availability and price will be confirmed by the quote.",
+    "Verfügbarkeit und Preis werden im Angebot bestätigt.",
+    "Disponibilitéit a Präis gi mam Devis bestätegt."
+  ],
+  "Votre choix de langue peut être conservé dans ce navigateur. Si vous l’enregistrez dans votre profil, il est associé à votre compte pour le site et l’application iOS.": [
+    "Your language choice may be saved in this browser. If you save it in your profile, it is linked to your account for the website and iOS app.",
+    "Ihre Sprachauswahl kann in diesem Browser gespeichert werden. Wenn Sie sie in Ihrem Profil speichern, wird sie Ihrem Konto für die Website und die iOS-App zugeordnet.",
+    "Är Sproochwahl kann an dësem Browser gespäichert ginn. Wann Dir se an Ärem Profil späichert, gëtt se mat Ärem Kont fir d’Websäit an d’iOS-App verbonnen."
+  ],
+  "Formule CSV interdite.": [
+    "CSV formulas are not allowed.",
+    "CSV-Formeln sind nicht zulässig.",
+    "CSV-Formele sinn net erlaabt."
+  ],
+  "Canal inconnu.": [
+    "Unknown delivery channel.",
+    "Unbekannter Versandkanal.",
+    "Onbekannte Versandkanal."
+  ],
+  "Ligne invalide.": ["Invalid row.", "Ungültige Zeile.", "Ongülteg Zeil."],
+  "En-tête invalide.": [
+    "Invalid header.",
+    "Ungültige Kopfzeile.",
+    "Ongülteg Kappzeil."
+  ],
+  "Numéro international requis, destination FR, LU ou DE.": [
+    "An international number is required, with a destination in FR, LU or DE.",
+    "Eine internationale Nummer mit Ziel in FR, LU oder DE ist erforderlich.",
+    "Eng international Nummer mat enger Destinatioun a FR, LU oder DE ass néideg."
+  ],
+  "Le complément d’adresse n’est pas pris en charge dans ce parcours. Il ne sera pas supprimé silencieusement.": [
+    "An additional address line is not supported in this flow. It will not be silently removed.",
+    "Eine zusätzliche Adresszeile wird in diesem Ablauf nicht unterstützt. Sie wird nicht stillschweigend entfernt.",
+    "Eng zousätzlech Adresszeil gëtt an dësem Oflaf net ënnerstëtzt. Si gëtt net ouni Hiweis geläscht."
+  ],
+  "Pays non autorisé.": [
+    "This country is not supported.",
+    "Dieses Land wird nicht unterstützt.",
+    "Dëst Land gëtt net ënnerstëtzt."
+  ],
+  "Adresse trop longue.": [
+    "The address is too long.",
+    "Die Adresse ist zu lang.",
+    "D’Adress ass ze laang."
+  ],
+  "Mise à jour le 22 septembre 2026": [
+    "Updated on 22 September 2026",
+    "Aktualisiert am 22. September 2026",
+    "Aktualiséiert den 22. September 2026"
+  ]
+}

@@ -14,12 +14,67 @@ const sesRegions = new Set([
   "eu-south-1",
 ]);
 const profiles = {
+  "resend-webhook": {
+    title: "Configurer les retours Resend",
+    description:
+      "Le secret de signature du webhook Guteneo sera enregistré dans Cloudflare. La clé d’envoi existante reste inchangée.",
+    fields: [
+      ["RESEND_WEBHOOK_SECRET", "Secret de signature du webhook Resend", true],
+    ],
+  },
+  "resend-key": {
+    title: "Enregistrer la clé Resend de Guteneo",
+    description:
+      "Seule la clé API sera enregistrée dans le secret RESEND_API_KEY sur Cloudflare. Utilisez une clé Sending access limitée au domaine guteneo.com. Cette saisie ne sélectionne pas le fournisseur et n’active aucun envoi.",
+    note: "L’identité du compte, le domaine et le webhook restent à qualifier séparément. Aucun identifiant de compte n’est déduit de la clé. Les verrous d’envoi sont inchangés.",
+    fields: [
+      ["RESEND_API_KEY", "Clé API Resend pour les envois Guteneo", true],
+    ],
+  },
+  resend: {
+    title: "Connecter les emails Resend",
+    description:
+      "Les accès seront enregistrés dans les secrets Guteneo sur Cloudflare. Utilisez une clé Resend dédiée aux envois Guteneo, avec la permission Sending access limitée au domaine guteneo.com. Cette saisie ne sélectionne pas le fournisseur et n’active aucun envoi.",
+    note: "La vérification du domaine et les droits de la clé doivent être contrôlés dans Resend. L’identifiant de compte est celui de l’équipe Resend qualifiée pour la tarification. La clé Auth0 est distincte et se configure séparément. Le secret de webhook peut être ajouté après la création de la notification.",
+    fields: [
+      ["RESEND_API_KEY", "Clé API Resend pour les envois Guteneo", true],
+      [
+        "RESEND_ACCOUNT_ID",
+        "Identifiant du compte ou de l’équipe Resend",
+        true,
+      ],
+      ["RESEND_DOMAIN_ID", "Identifiant du domaine Resend", true],
+      [
+        "RESEND_VERIFIED_DOMAIN",
+        "Domaine vérifié dans Resend : guteneo.com",
+        true,
+      ],
+      ["RESEND_WEBHOOK_SECRET", "Secret de signature du webhook Resend", false],
+    ],
+  },
+  "auth0-resend": {
+    title: "Préparer Resend dans Auth0",
+    description:
+      "La clé sera transmise au fournisseur email natif d’Auth0, laissé désactivé. Utilisez une clé distincte de celle de Guteneo, avec Sending access limité à guteneo.com. Le fournisseur concerne tout le tenant Auth0, y compris ses autres applications ; la saisie ne peut remplacer aucun fournisseur actif.",
+    note: "Cette préparation n’active pas le fournisseur et n’envoie aucun email. L’activation et la qualification réelle nécessitent une opération distincte. La clé n’est pas transmise à Cloudflare.",
+    destination: "Auth0",
+    button: "Préparer dans Auth0, sans activation",
+    success:
+      "Fournisseur préparé dans Auth0 et relu désactivé. Aucun email envoyé.",
+    fields: [
+      ["RESEND_AUTH0_API_KEY", "Clé API Resend dédiée à Auth0", true],
+      [
+        "RESEND_AUTH0_FROM",
+        "Adresse d’expédition Auth0, par exemple no-reply@guteneo.com",
+        true,
+      ],
+    ],
+  },
   pingen: {
     title: "Connecter le courrier Pingen",
     description:
       "Les accès de votre application Pingen seront enregistrés dans les secrets Guteneo sur Cloudflare. Cette connexion ne crée aucun courrier et n’active aucun envoi. Utilisez une application dédiée à Guteneo avec le type Client Credentials.",
-    note:
-      "L’identifiant d’organisation désigne votre organisation Pingen. Le secret de webhook sera configuré séparément lors de l’activation des notifications ; il n’est pas nécessaire pour vérifier la connexion.",
+    note: "L’identifiant d’organisation désigne votre organisation Pingen. Le secret de webhook sera configuré séparément lors de l’activation des notifications ; il n’est pas nécessaire pour vérifier la connexion.",
     fields: [
       ["PINGEN_CLIENT_ID", "Identifiant client Pingen", true],
       ["PINGEN_CLIENT_SECRET", "Secret client Pingen", true],
@@ -54,15 +109,26 @@ const profiles = {
     title: "Connecter les emails Amazon SES",
     description:
       "Les identifiants seront enregistrés dans les secrets Guteneo sur Cloudflare, avec le statut sandbox. Cette connexion n’envoie aucun email et n’active pas les envois de production. Utilisez une clé IAM dédiée à Guteneo, jamais une clé du compte racine ni un mot de passe SMTP.",
-    note:
-      "Les champs facultatifs vides conservent la configuration existante, sauf le jeton temporaire AWS : une clé permanente efface l’ancien jeton. La sortie de sandbox doit être vérifiée séparément dans AWS.",
+    note: "Les champs facultatifs vides conservent la configuration existante, sauf le jeton temporaire AWS : une clé permanente efface l’ancien jeton. La sortie de sandbox doit être vérifiée séparément dans AWS.",
     fields: [
       ["AWS_ACCESS_KEY_ID", "Identifiant de la clé d’accès AWS", true],
       ["AWS_SECRET_ACCESS_KEY", "Clé d’accès secrète AWS", true],
-      ["AWS_REGION", "Région SES dans l’Union européenne, par exemple eu-west-3", true],
+      [
+        "AWS_REGION",
+        "Région SES dans l’Union européenne, par exemple eu-west-3",
+        true,
+      ],
       ["SES_CONFIGURATION_SET", "Nom du jeu de configuration SES", true],
-      ["SES_SNS_TOPIC_ARN", "ARN du sujet SNS pour les notifications SES", false],
-      ["AWS_SESSION_TOKEN", "Jeton temporaire AWS, obligatoire pour une clé ASIA", false],
+      [
+        "SES_SNS_TOPIC_ARN",
+        "ARN du sujet SNS pour les notifications SES",
+        false,
+      ],
+      [
+        "AWS_SESSION_TOKEN",
+        "Jeton temporaire AWS, obligatoire pour une clé ASIA",
+        false,
+      ],
     ],
   },
 };
@@ -128,13 +194,16 @@ export async function startSecureSetup({
     ? profiles[profile]
     : undefined;
   if (!settings) throw new Error("Unknown setup profile");
+  if (profile === "auth0-resend" && writer === writeCloudflareSecrets)
+    throw new Error("Use the dedicated Auth0 Resend preparation utility");
+  const destination = settings.destination ?? "Cloudflare";
   const path = `/setup/${randomBytes(32).toString("hex")}`;
   const csrf = randomBytes(32).toString("hex");
   let origin = "";
   let busy = false;
   let completed = false;
   const html = (message = "", success = false) =>
-    `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — connexion privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:590px;padding:48px 24px;margin:auto}h1{font:44px/1.08 Georgia,serif;letter-spacing:-1px}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;border-radius:4px;background:#fff;font:inherit}button{background:#284c3e;color:white;border:0;padding:15px 24px;margin-top:28px;font:inherit;cursor:pointer}small{display:block;margin-top:24px;color:#535a50}a{color:#284c3e}.message{padding:18px;background:#e0e8dc}</style><main><p>GUTENEO · CONNEXION PRIVÉE</p><h1>${settings.title}</h1><p>${settings.description}</p>${message ? `<p class="message" role="status">${message}</p>` : ""}${success ? "<p>Vous pouvez fermer cette fenêtre. Les valeurs ne seront pas affichées à l’assistant.</p>" : `<form method="post" action="${path}" autocomplete="off"><input type="hidden" name="csrf" value="${csrf}">${settings.fields.map(([key, label, required]) => `<label for="${key}">${escape(label)}${required ? "" : " (facultatif)"}</label><input id="${key}" name="${key}" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" maxlength="4096" ${required ? "required" : ""}>`).join("")}<button type="submit">Enregistrer dans Cloudflare</button></form><small>Ce formulaire fonctionne uniquement sur votre ordinateur. Les valeurs restent en mémoire le temps de la transmission chiffrée à Cloudflare. Aucun fichier de clés n’est créé. La page expire après 30 minutes. ${settings.note ?? "Les champs facultatifs vides conservent la configuration existante."}</small>`}</main></html>`;
+    `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — connexion privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:590px;padding:48px 24px;margin:auto}h1{font:44px/1.08 Georgia,serif;letter-spacing:-1px}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;border-radius:4px;background:#fff;font:inherit}button{background:#284c3e;color:white;border:0;padding:15px 24px;margin-top:28px;font:inherit;cursor:pointer}small{display:block;margin-top:24px;color:#535a50}a{color:#284c3e}.message{padding:18px;background:#e0e8dc}</style><main><p>GUTENEO · CONNEXION PRIVÉE</p><h1>${settings.title}</h1><p>${settings.description}</p>${message ? `<p class="message" role="status">${message}</p>` : ""}${success ? "<p>Vous pouvez fermer cette fenêtre. Les valeurs ne seront pas affichées à l’assistant.</p>" : `<form method="post" action="${path}" autocomplete="off"><input type="hidden" name="csrf" value="${csrf}">${settings.fields.map(([key, label, required]) => `<label for="${key}">${escape(label)}${required ? "" : " (facultatif)"}</label><input id="${key}" name="${key}" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" maxlength="4096" ${required ? "required" : ""}>`).join("")}<button type="submit">${settings.button ?? "Enregistrer dans Cloudflare"}</button></form><small>Ce formulaire fonctionne uniquement sur votre ordinateur. Les valeurs restent en mémoire le temps de la transmission chiffrée à ${destination}. Aucun fichier de clés n’est créé. La page expire après 30 minutes. ${settings.note ?? "Les champs facultatifs vides conservent la configuration existante."}</small>`}</main></html>`;
   const server = createServer(async (req, res) => {
     const send = (status, body, type = "text/plain; charset=utf-8") => {
       res.writeHead(status, {
@@ -207,6 +276,45 @@ export async function startSecureSetup({
         if (value) values[name] = value;
         fields.delete(name);
       }
+      if (
+        profile === "resend-webhook" &&
+        !/^whsec_[A-Za-z0-9+/=]{20,200}$/.test(
+          values.RESEND_WEBHOOK_SECRET ?? "",
+        )
+      )
+        return send(400, "Secret de signature invalide.");
+      if (["resend", "resend-key", "auth0-resend"].includes(profile)) {
+        const key = values.RESEND_API_KEY ?? values.RESEND_AUTH0_API_KEY;
+        if (!/^re_[A-Za-z0-9_-]{20,200}$/.test(key))
+          return send(400, "Clé API Resend invalide.");
+        if (profile === "resend") {
+          if (
+            !/^[A-Za-z0-9_-]{1,128}$/.test(values.RESEND_ACCOUNT_ID) ||
+            !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
+              values.RESEND_DOMAIN_ID,
+            ) ||
+            values.RESEND_VERIFIED_DOMAIN !== "guteneo.com" ||
+            (values.RESEND_WEBHOOK_SECRET &&
+              !/^whsec_[A-Za-z0-9+/=_-]{20,200}$/.test(
+                values.RESEND_WEBHOOK_SECRET,
+              ))
+          )
+            return send(
+              400,
+              "Configuration Resend invalide. Utilisez le domaine guteneo.com et ses identifiants vérifiés.",
+            );
+        } else if (
+          profile === "auth0-resend" &&
+          !/^[A-Za-z0-9](?:[A-Za-z0-9._+-]{0,62}[A-Za-z0-9])?@guteneo\.com$/.test(
+            values.RESEND_AUTH0_FROM,
+          )
+        ) {
+          return send(
+            400,
+            "Utilisez une adresse simple du domaine guteneo.com.",
+          );
+        }
+      }
       if (values.TELNYX_FROM && !/^\+[1-9]\d{6,14}$/.test(values.TELNYX_FROM))
         return send(400, "Le numéro doit être au format international.");
       if (
@@ -227,22 +335,39 @@ export async function startSecureSetup({
           !/^(AKIA|ASIA)[A-Z0-9]{16}$/.test(values.AWS_ACCESS_KEY_ID) ||
           !/^[A-Za-z0-9/+=]{40}$/.test(values.AWS_SECRET_ACCESS_KEY)
         )
-          return send(400, "Identifiants AWS invalides. Utilisez une clé d’accès API IAM.");
+          return send(
+            400,
+            "Identifiants AWS invalides. Utilisez une clé d’accès API IAM.",
+          );
         if (!sesRegions.has(values.AWS_REGION))
-          return send(400, "Région SES non prise en charge. Utilisez une région SES vérifiée dans l’Union européenne.");
+          return send(
+            400,
+            "Région SES non prise en charge. Utilisez une région SES vérifiée dans l’Union européenne.",
+          );
         if (!/^[A-Za-z0-9_-]{1,64}$/.test(values.SES_CONFIGURATION_SET))
           return send(400, "Nom du jeu de configuration SES invalide.");
         if (values.SES_SNS_TOPIC_ARN) {
-          const topic = /^arn:aws:sns:([a-z0-9-]+):\d{12}:[A-Za-z0-9_-]{1,256}$/.exec(values.SES_SNS_TOPIC_ARN);
+          const topic =
+            /^arn:aws:sns:([a-z0-9-]+):\d{12}:[A-Za-z0-9_-]{1,256}$/.exec(
+              values.SES_SNS_TOPIC_ARN,
+            );
           if (!topic || topic[1] !== values.AWS_REGION)
-            return send(400, "Le sujet SNS doit être un sujet standard dans la même région SES.");
+            return send(
+              400,
+              "Le sujet SNS doit être un sujet standard dans la même région SES.",
+            );
         }
         const temporary = values.AWS_ACCESS_KEY_ID.startsWith("ASIA");
         if (
-          (temporary && (!values.AWS_SESSION_TOKEN || /\s/.test(values.AWS_SESSION_TOKEN))) ||
+          (temporary &&
+            (!values.AWS_SESSION_TOKEN ||
+              /\s/.test(values.AWS_SESSION_TOKEN))) ||
           (!temporary && values.AWS_SESSION_TOKEN)
         )
-          return send(400, "Une clé temporaire ASIA exige son jeton AWS ; une clé permanente AKIA doit être utilisée sans jeton.");
+          return send(
+            400,
+            "Une clé temporaire ASIA exige son jeton AWS ; une clé permanente AKIA doit être utilisée sans jeton.",
+          );
         // Prevent an old temporary credential from surviving an IAM-key replacement.
         if (!temporary) values.AWS_SESSION_TOKEN = "";
         // Installing credentials cannot attest to AWS production-access approval.
@@ -256,7 +381,10 @@ export async function startSecureSetup({
       completed = true;
       send(
         200,
-        html("Configuration enregistrée dans Cloudflare.", true),
+        html(
+          settings.success ?? "Configuration enregistrée dans Cloudflare.",
+          true,
+        ),
         "text/html; charset=utf-8",
       );
       setTimeout(() => server.close(), 1000).unref();
@@ -264,7 +392,7 @@ export async function startSecureSetup({
       send(
         503,
         html(
-          "La transmission n’a pas abouti. Vérifiez la connexion Cloudflare et réessayez ; les valeurs n’ont pas été conservées.",
+          `La transmission n’a pas abouti. Vérifiez la connexion ${destination} et l’état distant avant une nouvelle saisie ; les valeurs n’ont pas été conservées.`,
         ),
         "text/html; charset=utf-8",
       );

@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -17,12 +18,19 @@ import {
   type Page,
   type Sender,
 } from "./api";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
+import { ProtectedDocumentChoice } from "./protected-document";
+import {
+  DistributionRoadmap,
+  EmailComposer,
+  emailHtml,
+} from "./email-composer";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
+  ConfirmAction,
   Definition,
   DispatchTable,
   EmptyState,
@@ -57,7 +65,7 @@ type CsvResult = {
   valid: boolean;
 };
 
-export function Campaigns() {
+export function Campaigns({ simulation }: { simulation: boolean }) {
   const campaigns = useResource<Page<Campaign>>("/campaigns");
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
@@ -66,6 +74,8 @@ export function Campaigns() {
   const [validated, setValidated] = useState<CsvResult>();
   const [validatedCsv, setValidatedCsv] = useState("");
   const [documentId, setDocumentId] = useState("");
+  const [protectedLink, setProtectedLink] = useState(false);
+  const [protectedDays, setProtectedDays] = useState<1 | 7 | 30>(7);
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
   const [plain, setPlain] = useState("");
@@ -115,8 +125,12 @@ export function Campaigns() {
             recipient: row.recipient,
             documentId: documentId || undefined,
             subject: row.channel === "email" ? subject : undefined,
-            html: row.channel === "email" ? html : undefined,
+            html: row.channel === "email" ? emailHtml(plain, html) : undefined,
             text: row.channel === "email" ? plain : undefined,
+            options:
+              row.channel === "email" && documentId && protectedLink
+                ? { emailDeliveryMode: "protected_link", protectedDays }
+                : undefined,
             ceilingMinor: 500,
           },
         });
@@ -130,6 +144,7 @@ export function Campaigns() {
   return (
     <>
       <PageHeading title={t.campaigns.title} intro={t.campaigns.intro} />
+      <DistributionRoadmap />
       <ErrorNotice error={action.error ?? campaigns.error ?? documents.error} />
       {campaignId.current && action.error && (
         <div className="notice warning">
@@ -272,7 +287,7 @@ export function Campaigns() {
                 <ul className="validation-errors">
                   {validated.errors.map((error, index) => (
                     <li key={index}>
-                      {t.campaigns.row} {error.line} : {error.message}
+                      {t.campaigns.row} {error.line} : {msg(error.message)}
                     </li>
                   ))}
                 </ul>
@@ -322,6 +337,18 @@ export function Campaigns() {
             data={documents.data}
             onLoaded={documents.setData}
           />
+          {hasEmail &&
+            documentId &&
+            !simulation &&
+            !isPublicPreview &&
+            !locked && (
+              <ProtectedDocumentChoice
+                enabled={protectedLink}
+                days={protectedDays}
+                onEnabled={setProtectedLink}
+                onDays={setProtectedDays}
+              />
+            )}
           {hasEmail && (
             <>
               <Field label={t.campaigns.emailSubject}>
@@ -332,25 +359,13 @@ export function Campaigns() {
                   disabled={locked}
                 />
               </Field>
-              <Field label={t.campaigns.emailBody}>
-                <textarea
-                  value={html}
-                  onChange={(e) => setHtml(e.target.value)}
-                  rows={5}
-                  className="code-input"
-                  required
-                  disabled={locked}
-                />
-              </Field>
-              <Field label={t.dispatch.text}>
-                <textarea
-                  value={plain}
-                  onChange={(e) => setPlain(e.target.value)}
-                  rows={4}
-                  required
-                  disabled={locked}
-                />
-              </Field>
+              <EmailComposer
+                text={plain}
+                html={html}
+                onText={setPlain}
+                onHtml={setHtml}
+                disabled={locked}
+              />
             </>
           )}
           <p className="field-hint">{t.campaigns.approvalNote}</p>
@@ -721,8 +736,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       });
       setScannerMessage(
         response.status === "ready"
-          ? "L’analyse des PDF est prête."
-          : "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+          ? msg("L’analyse des PDF est prête.")
+          : msg(
+              "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+            ),
       );
     });
   }
@@ -747,16 +764,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       diagnostics.refresh();
     });
   }
-  const dispatches = useResource<Page<Dispatch>>("/dispatches");
-  const incidents =
-    dispatches.data?.items.filter((d) =>
-      [
-        "submission_unknown",
-        "reconciliation_required",
-        "failed",
-        "rejected",
-      ].includes(d.status),
-    ) ?? [];
+  // Filtered by the server across the whole organization, not one page.
+  const incidentsPath = "/dispatches?group=attention";
+  const dispatches = useResource<Page<Dispatch>>(incidentsPath);
+  const incidents = dispatches.data?.items ?? [];
   return (
     <>
       <PageHeading
@@ -788,32 +799,44 @@ export function Admin({ children }: { children?: ReactNode }) {
               >
                 {control.enabled ? t.admin.enabled : t.admin.paused}
               </span>
-              <button
-                className="button small"
-                disabled={controlAction.pending}
-                onClick={() =>
-                  void setChannel(control.channel, !control.enabled)
-                }
-              >
-                {control.enabled ? t.admin.pause : t.admin.resume}
-              </button>
+              {control.enabled ? (
+                <ConfirmAction
+                  disabled={controlAction.pending}
+                  label={t.admin.pause}
+                  ariaLabel={`${t.admin.pause} · ${t.channels[control.channel]}`}
+                  question={t.admin.pauseQuestion}
+                  confirmLabel={t.admin.pauseConfirm}
+                  onConfirm={() => void setChannel(control.channel, false)}
+                />
+              ) : (
+                <button
+                  className="button small"
+                  disabled={controlAction.pending}
+                  onClick={() => void setChannel(control.channel, true)}
+                >
+                  {t.admin.resume}
+                </button>
+              )}
             </div>
           ))}
         </section>
       )}
       {!isPublicPreview && (
         <section className="form-panel">
-          <h2>Analyse des documents</h2>
+          <h2>{msg("Analyse des documents")}</h2>
           <p>
-            Préparez le service avant d’importer vos PDF. Les documents en
-            attente restent privés jusqu’à la fin de leur vérification.
+            {msg(
+              "Préparez le service avant d’importer vos PDF. Les documents en attente restent privés jusqu’à la fin de leur vérification.",
+            )}
           </p>
           <button
             className="button"
             onClick={() => void warmScanner()}
             disabled={scannerAction.pending}
           >
-            {scannerAction.pending ? "Préparation…" : "Préparer l’analyse PDF"}
+            {scannerAction.pending
+              ? msg("Préparation…")
+              : msg("Préparer l’analyse PDF")}
           </button>
           <ErrorNotice error={scannerAction.error} />
           {scannerMessage && <p role="status">{scannerMessage}</p>}
@@ -825,8 +848,13 @@ export function Admin({ children }: { children?: ReactNode }) {
       ) : incidents.length ? (
         <DispatchTable items={incidents} />
       ) : (
-        <p className="empty-inline">{t.admin.noIncidents}</p>
+        dispatches.data && <p className="empty-inline">{t.admin.noIncidents}</p>
       )}
+      <LoadMore
+        path={incidentsPath}
+        data={dispatches.data}
+        onLoaded={dispatches.setData}
+      />
       <div className="notice warning">
         <WarningCircle size={24} />
         <p>{t.admin.note}</p>

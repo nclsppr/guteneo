@@ -44,6 +44,13 @@ The session persists explicit verified-account evidence and exposes `verifiedAcc
 
 MCP bearer tokens are verified using Auth0 JWKS and mapped by `(issuer, subject)` to a local user. A single membership can be bound on first OAuth use. Users with multiple memberships must bind the OAuth client in the dashboard. `POST /api/connections {clientId}` binds the current authenticated organization and invalidates older token issuance times. `DELETE /api/connections/:id` immediately disables Guteneo access for that connection. Refresh-token and provider-consent revocation can also be performed in Auth0; the app does not claim to revoke Auth0's grant through its local DELETE route.
 
+The 18 September Claude renewal candidate uses Auth0-managed rotating refresh
+tokens for explicitly selected hosted clients only. The Worker continues to
+reject access tokens lasting over one hour and checks active membership and
+connection status on every call, including newly issued tokens. OAuth renewal
+does not renew expert authority or browser sessions. Configuration and real-host
+proof remain separate; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
+
 No platform-content operator role is exposed through this identity module. Organization admins are not platform operators.
 
 ## MCP interface
@@ -63,7 +70,7 @@ Discovery: `/.well-known/oauth-protected-resource` and `/.well-known/oauth-prote
 | `prepare_dispatch`    | dispatches:prepare | Immutable preview and human-approval URL                              |
 | `confirm_dispatch`    | dispatches:send    | Standard durable acceptance after the recorded approval               |
 | `get_dispatch_status` | dispatches:read    | Known outcome and next actions                                        |
-| `list_dispatches`     | dispatches:read    | 1–50 items with cursor                                                |
+| `list_dispatches`     | dispatches:read    | 1–50 items with cursor; optional server-side `group` filter          |
 | `cancel_dispatch`     | dispatches:send    | Only states supported by shared domain cancellation                   |
 
 The standard flow requires human approval in Guteneo; no `user_confirmed` input can mint browser approval. Optional expert delegation is OFF by default and can only be granted by a current browser administrator to a specific OAuth connection, with channel, per-dispatch/daily EUR, daily count and expiry limits (at most 30 days). `review_dispatch` then issues an exact-version review token lasting at most five minutes; `approve_and_send_dispatch` records delegated authority distinctly from human review and accepts the dispatch. Postal draft transfer has a separate delegated operation, `transfer_postal_draft`, and never implies send approval. Current permissions, host confirmations and provider gates still apply. See [EXPERT_APPROVAL.md](EXPERT_APPROVAL.md) for strict inputs and scopes. Approval links `/#/app/dispatch/{id}` remain the standard fallback. A publication hook is awaited after acceptance for low latency; failure leaves the committed outbox recoverable. MCP and HTTP share the organization rate limiter, independent of atomic send quotas.

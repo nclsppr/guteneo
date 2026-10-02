@@ -1,12 +1,13 @@
+import { msg } from "./messages";
+import { DistributionRoadmap } from "./email-composer";
 import { useId, type MouseEvent } from "react";
 import { ArrowRight, ArrowUpRight, Plus } from "@phosphor-icons/react";
-import { fr as t } from "./i18n";
-import { customerPricing } from "./customer-pricing";
+import { t } from "./locale";
+import { getCustomerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
 import { PostalCutoffFaq } from "./postal-cutoff-faq";
 import "./assistant-workspace.css";
 
-const copy = t.homepage;
 export function scrollToSection(
   event: MouseEvent<HTMLAnchorElement>,
   id: string,
@@ -32,39 +33,44 @@ export function Installation() {
     >
       <div className="installation-heading">
         <h2 id="installation-title">
-          Votre premier envoi.
+          {msg("Votre premier envoi.")}
           <br />
-          <em>À votre façon.</em>
+          <em>{msg("À votre façon.")}</em>
         </h2>
         <p>
-          Depuis une conversation ou directement avec votre document, vous
-          gardez la main sur chaque envoi.
+          {msg(
+            "Depuis une conversation ou directement avec votre document, vous gardez la main sur chaque envoi.",
+          )}
         </p>
       </div>
       <div className="start-choice">
         <div>
-          <h3>Depuis votre assistant</h3>
+          <h3>{msg("Depuis votre assistant")}</h3>
           <p>
-            Ajoutez Guteneo à votre outil habituel. Un guide vous accompagne de
-            la configuration au premier échange.
+            {msg(
+              "Ajoutez Guteneo à votre outil habituel. Un guide vous accompagne de la configuration au premier échange.",
+            )}
           </p>
           <a className="button primary" href="/assistants/">
-            Utiliser mon assistant <ArrowRight size={18} aria-hidden="true" />
+            {msg("Utiliser mon assistant ")}
+            <ArrowRight size={18} aria-hidden="true" />
           </a>
         </div>
         <div>
-          <h3>Directement dans Guteneo</h3>
+          <h3>{msg("Directement dans Guteneo")}</h3>
           <p>
-            Ajoutez votre document, choisissez le destinataire et vérifiez le
-            prix avant de confirmer.
+            {msg(
+              "Ajoutez votre document, choisissez le destinataire et vérifiez le prix avant de confirmer.",
+            )}
           </p>
           <a className="button" href="/#/app/prepare?entry=direct">
-            Envoyer depuis Guteneo <ArrowRight size={18} aria-hidden="true" />
+            {msg("Envoyer depuis Guteneo ")}
+            <ArrowRight size={18} aria-hidden="true" />
           </a>
         </div>
       </div>
       <div className="start-assistant-guides">
-        <p>Vous connaissez déjà votre assistant ? Ouvrez son guide.</p>
+        <p>{msg("Vous connaissez déjà votre assistant ? Ouvrez son guide.")}</p>
         <AssistantPicker />
       </div>
     </section>
@@ -72,6 +78,7 @@ export function Installation() {
 }
 
 export function WelcomePricing() {
+  const customerPricing = getCustomerPricing();
   return (
     <section
       className="pricing-section"
@@ -81,11 +88,11 @@ export function WelcomePricing() {
     >
       <div className="pricing-heading">
         <h2 id="pricing-title">
-          {copy.pricing.title}
+          {t.homepage.pricing.title}
           <br />
-          <em>{copy.pricing.italic}</em>
+          <em>{t.homepage.pricing.italic}</em>
         </h2>
-        <p>{copy.pricing.intro}</p>
+        <p>{t.homepage.pricing.intro}</p>
       </div>
       <div className="pricing-content">
         <div className="welcome-credit">
@@ -93,21 +100,21 @@ export function WelcomePricing() {
             50<span>€</span>
           </p>
           <div className="welcome-copy">
-            <h3>{copy.pricing.welcomeTitle}</h3>
-            <p>{copy.pricing.welcomeBody}</p>
-            <p className="welcome-terms">{copy.pricing.welcomeTerms}</p>
+            <h3>{t.homepage.pricing.welcomeTitle}</h3>
+            <p>{t.homepage.pricing.welcomeBody}</p>
+            <p className="welcome-terms">{t.homepage.pricing.welcomeTerms}</p>
           </div>
         </div>
         <div
           className="pricing-table"
           role="region"
-          aria-label={copy.pricing.rateLabel}
+          aria-label={t.homepage.pricing.rateLabel}
         >
           <table>
             <thead>
               <tr>
-                <th>{copy.pricing.channel}</th>
-                <th>{copy.pricing.price}</th>
+                <th>{t.homepage.pricing.channel}</th>
+                <th>{t.homepage.pricing.price}</th>
               </tr>
             </thead>
             <tbody>
@@ -132,6 +139,7 @@ export function WelcomePricing() {
           </table>
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
+        <DistributionRoadmap />
       </div>
     </section>
   );
@@ -147,14 +155,14 @@ export function FrequentlyAsked() {
     >
       <div className="faq-heading">
         <h2 id="faq-title">
-          {copy.faq.title}
+          {t.homepage.faq.title}
           <br />
-          <em>{copy.faq.italic}</em>
+          <em>{t.homepage.faq.italic}</em>
         </h2>
-        <p>{copy.faq.intro}</p>
+        <p>{t.homepage.faq.intro}</p>
       </div>
       <div className="faq-questions">
-        {copy.faq.items.map((item) => (
+        {t.homepage.faq.items.map((item) => (
           <details key={item.question}>
             <summary>
               {item.question}
@@ -243,8 +251,8 @@ function FoundingPostage() {
         </g>
       </svg>
       <figcaption className="sr-only">
-        {copy.footer.stampDescription}{" "}
-        <time dateTime="2026-09-16">{copy.footer.foundingDate}</time>.
+        {t.homepage.footer.stampDescription}{" "}
+        <time dateTime="2026-09-16">{t.homepage.footer.foundingDate}</time>.
       </figcaption>
     </figure>
   );
@@ -256,16 +264,16 @@ export function LuxembourgFooter() {
       <div className="footer-invitation">
         <div className="footer-invitation-copy">
           <p>
-            {copy.footer.title}
+            {t.homepage.footer.title}
             <br />
-            <em>{copy.footer.italic}</em>
+            <em>{t.homepage.footer.italic}</em>
           </p>
           <a
             className="button primary"
             href="/#installation"
             onClick={(event) => scrollToSection(event, "installation")}
           >
-            {copy.footer.cta}
+            {t.homepage.footer.cta}
             <ArrowRight size={18} aria-hidden="true" />
           </a>
         </div>
@@ -275,7 +283,7 @@ export function LuxembourgFooter() {
         <img
           className="luxembourg-panorama"
           src="/luxembourg-blue-panorama.webp"
-          alt={copy.footer.imageAlt}
+          alt={t.homepage.footer.imageAlt}
           width="2172"
           height="724"
           loading="lazy"
@@ -295,10 +303,10 @@ export function LuxembourgFooter() {
       </div>
       <div className="footer-colophon">
         <p>
-          {copy.footer.made}
+          {t.homepage.footer.made}
           <span aria-hidden="true"> — </span>
           <span>
-            {copy.footer.created}{" "}
+            {t.homepage.footer.created}{" "}
             <a
               href="https://nicolaspieper.com"
               target="_blank"
@@ -309,26 +317,26 @@ export function LuxembourgFooter() {
             </a>
           </span>
         </p>
-        <nav aria-label={copy.footer.nav}>
+        <nav aria-label={t.homepage.footer.nav}>
           <a
             href="/#installation"
             onClick={(event) => scrollToSection(event, "installation")}
           >
-            {copy.footer.installation}
+            {t.homepage.footer.installation}
           </a>
           <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
             FAQ
           </a>
           <a href="/#/app">
-            {copy.footer.atelier}
+            {t.homepage.footer.atelier}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
-          <a href="/journal/">Le journal</a>
-          <a href="/developpeurs/">Développeurs</a>
-          <a href="/mentions-legales/">{copy.footer.legal}</a>
-          <a href="/confidentialite/">Confidentialité</a>
-          <a href="/conditions/">Conditions</a>
-          <a href="/support/">Assistance</a>
+          <a href="/journal/">{msg("Le journal")}</a>
+          <a href="/developpeurs/">{msg("Développeurs")}</a>
+          <a href="/mentions-legales/">{t.homepage.footer.legal}</a>
+          <a href="/confidentialite/">{msg("Confidentialité")}</a>
+          <a href="/conditions/">{msg("Conditions")}</a>
+          <a href="/support/">{msg("Assistance")}</a>
         </nav>
       </div>
     </footer>

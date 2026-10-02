@@ -1,3 +1,12 @@
+import { msg } from "./messages";
+import {
+  formatLocale,
+  initializeLocale,
+  setLocale,
+  t,
+  getLocale,
+} from "./locale";
+import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
@@ -5,11 +14,20 @@ import type { DocumentAnalysis } from "../../../packages/contracts/src/document-
 export type Channel = "fax" | "email" | "postal";
 export type Session = {
   organization: { id: string; name: string };
-  user: { id: string; name: string; role: string };
+  user: {
+    id: string;
+    name: string;
+    role: string;
+    preferredLocale?: SupportedLocale | null;
+  };
   csrfToken: string;
   simulation: boolean;
   verifiedAccount?: boolean;
 };
+/** Billing, members and administration are reserved to the admin role. */
+export function canAdminister(session: Pick<Session, "user">): boolean {
+  return session.user.role === "admin";
+}
 export type DocumentRecord = {
   id: string;
   name: string;
@@ -26,11 +44,11 @@ export type Dispatch = {
   channel: Channel;
   recipient_json: string | Record<string, string>;
   document_id?: string;
+  options_json?: string | Record<string, unknown>;
   sender_address?: string;
   subject?: string;
   html?: string;
   text?: string;
-  options_json?: string | Record<string, unknown>;
   status: string;
   mode: string;
   estimated_minor: number;
@@ -97,6 +115,19 @@ export type ExpertApprovalPolicy = NonNullable<
 
 export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
+/**
+ * Browser sessions expire server-side. Any later 401 is announced once to the
+ * workspace so it can offer a reconnection that returns to the current page,
+ * instead of leaving every screen with a technical error.
+ */
+export const SESSION_EXPIRED_EVENT = "guteneo:session-expired";
+const sessionProbePaths = ["/session", "/logout", "/dev/login"];
+function announceSessionExpiry(path: string, status: number) {
+  if (status !== 401 || sessionProbePaths.includes(path.split("?")[0] ?? ""))
+    return;
+  window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
+}
+
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
@@ -115,18 +146,30 @@ export async function getDocumentContent(
       signal,
     },
   );
-  if (!response.ok)
+  if (!response.ok) {
+    announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
       "Ce document ne peut pas être affiché.",
       response.status,
     );
+  }
   return new Uint8Array(await response.arrayBuffer());
 }
 
 let csrfToken = "";
-export function setSession(session: Session | null) {
+let sessionUserId: string | null = null;
+export function setSession(session: Session | null, applyPreference = true) {
   csrfToken = session?.csrfToken ?? "";
+  if (applyPreference && session?.user.preferredLocale)
+    setLocale(session.user.preferredLocale, false);
+  else if (
+    applyPreference &&
+    sessionUserId !== (session?.user.id ?? null) &&
+    typeof window !== "undefined"
+  )
+    initializeLocale();
+  sessionUserId = session?.user.id ?? null;
 }
 export class ApiError extends Error {
   constructor(
@@ -156,7 +199,10 @@ export async function api<T>(
       throw error;
     }
   }
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Accept-Language": getLocale(),
+  };
   const method = init.method ?? "GET";
   const form = init.body instanceof FormData;
   if (init.body !== undefined && !form)
@@ -188,13 +234,14 @@ export async function api<T>(
   }
   const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {
+    announceSessionExpiry(path, response.status);
     const failure = data as {
       error?: { code?: string; message?: string };
     } | null;
     throw new ApiError(
       failure?.error?.code ?? "HTTP_ERROR",
       failure?.error?.message ??
-        `Le service a répondu avec une erreur (${response.status}).`,
+        msg("Le service a répondu avec une erreur ({0}).", response.status),
       response.status,
     );
   }
@@ -216,7 +263,7 @@ export function recipientLabel(dispatch: Dispatch): string {
   );
 }
 export function date(value?: string): string {
-  if (!value) return "Non disponible";
+  if (!value) return t.unknown;
   const d = new Date(
     value.endsWith("Z") || /[+-]\d\d:\d\d$/.test(value)
       ? value
@@ -226,22 +273,50 @@ export function date(value?: string): string {
   );
   return Number.isNaN(d.getTime())
     ? value
-    : new Intl.DateTimeFormat("fr-FR", {
+    : new Intl.DateTimeFormat(formatLocale(), {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(d);
 }
+/**
+ * Native validation for a euro amount typed with either decimal mark, the
+ * format euroToMinor() reads. Amount fields are text fields: a number field
+ * drops the comma in some browsers, so Chromium turns "1,5" into "15".
+ */
+export const EURO_INPUT_PATTERN = "\\s*\\d{1,5}(?:[.,]\\d{1,2})?\\s*";
+/** Integer cents shown in an amount field, using the interface decimal mark. */
+export function minorToEuroInput(minor: number): string {
+  return Number.isInteger(minor / 100)
+    ? String(minor / 100)
+    : (minor / 100).toFixed(2).replace(".", getLocale() === "en" ? "." : ",");
+}
+/** Euros typed by a person, to integer cents; null when not a valid amount. */
+export function euroToMinor(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!/^\d{1,5}(\.\d{1,2})?$/.test(normalized)) return null;
+  const minor = Math.round(Number(normalized) * 100);
+  return Number.isSafeInteger(minor) && minor <= 1_000_000 ? minor : null;
+}
+// Separators are accepted while typing; the server applies the same rule.
+export { normalizeFaxNumber } from "../../../packages/contracts/src/fax-number";
+/**
+ * Native validation while typing: "+", then digits with optional spaces,
+ * dots, dashes or a "(0)" trunk prefix. The server has the final word.
+ */
+export const FAX_INPUT_PATTERN =
+  "\\s*\\+[1-9](?:[ .\\-\\u00a0\\u202f]?(?:[0-9]|\\(0\\))){7,16}\\s*";
 export function money(minor: number, currency = "EUR"): string {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(
-    minor / 100,
-  );
+  return new Intl.NumberFormat(formatLocale(), {
+    style: "currency",
+    currency,
+  }).format(minor / 100);
 }
 
 /** Display the frozen quote without rounding each small email to one cent. */
 export function quotedMoney(
   dispatch: Pick<
     Dispatch,
-    "quote_customer_nanoeur" | "estimated_minor" | "currency"
+    "quote_customer_nanoeur" | "estimated_minor" | "currency" | "options_json"
   >,
 ): string {
   const nano = dispatch.quote_customer_nanoeur;
@@ -252,27 +327,53 @@ export function quotedMoney(
     nano < 0
   )
     return money(dispatch.estimated_minor, dispatch.currency);
-  return nanoMoney(nano);
+  try {
+    const options =
+      typeof dispatch.options_json === "string"
+        ? JSON.parse(dispatch.options_json)
+        : dispatch.options_json;
+    const hostingFee =
+      options?.emailDeliveryMode === "protected_link"
+        ? options.protectedDocument?.hostingFeeMinor
+        : 0;
+    if (
+      options?.emailDeliveryMode === "protected_link" &&
+      hostingFee !== 0 &&
+      hostingFee !== 100
+    )
+      return money(dispatch.estimated_minor, dispatch.currency);
+    return nanoMoney(nano + (hostingFee ?? 0) * 10_000_000);
+  } catch {
+    return money(dispatch.estimated_minor, dispatch.currency);
+  }
 }
 
 /** Preserve the same precision as the shared fractional credit ledger. */
 export function nanoMoney(nano: number): string {
-  if (!Number.isSafeInteger(nano) || nano < 0) return "Indisponible";
+  if (!Number.isSafeInteger(nano) || nano < 0) return t.unknown;
   const amount = BigInt(nano);
-  const whole = new Intl.NumberFormat("fr-FR", {
-    maximumFractionDigits: 0,
-  }).format(amount / 1_000_000_000n);
+  const formatter = new Intl.NumberFormat(formatLocale(), {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+  });
+  const parts = formatter.formatToParts(amount / 1_000_000_000n);
   const fraction = (amount % 1_000_000_000n)
     .toString()
     .padStart(9, "0")
     .replace(/0+$/, "")
     .padEnd(2, "0");
-  return `${whole},${fraction}\u00a0€`;
+  return parts
+    .map((part) => (part.type === "fraction" ? fraction : part.value))
+    .join("");
 }
 export function bytes(size: number): string {
-  return size < 1024
-    ? `${size} octets`
-    : size < 1024 * 1024
-      ? `${(size / 1024).toFixed(1)} Ko`
-      : `${(size / 1024 / 1024).toFixed(1)} Mo`;
+  const units =
+    getLocale() === "fr" ? ["octets", "Ko", "Mo"] : ["B", "KB", "MB"];
+  const index = size < 1024 ? 0 : size < 1024 * 1024 ? 1 : 2;
+  const value = new Intl.NumberFormat(formatLocale(), {
+    minimumFractionDigits: index ? 1 : 0,
+    maximumFractionDigits: index ? 1 : 0,
+  }).format(size / 1024 ** index);
+  return `${value} ${units[index]}`;
 }

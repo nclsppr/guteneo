@@ -1,4 +1,4 @@
-// All product copy lives here so an English dictionary can be added without editing views.
+// The French source defines the shape required from every supported catalog.
 export const fr = {
   skip: "Aller au contenu",
   atelier: "L’ATELIER",
@@ -24,6 +24,12 @@ export const fr = {
     "Fichiers de test uniquement : analyse antivirus désactivée en local.",
   simulationCost: "Crédits de test uniquement. Aucun montant débité.",
   errorTitle: "L’opération n’a pas pu aboutir",
+  confirmDismiss: "Ne rien changer",
+  sessionExpired: {
+    title: "Votre session a expiré.",
+    body: "Reconnectez-vous pour continuer : vous reviendrez sur cette page. Les champs non envoyés de cet écran ne sont pas conservés après la reconnexion.",
+    action: "Se reconnecter",
+  },
   empty: "Il n’y a encore rien ici.",
   identifier: "Identifiant",
   created: "Créé le",
@@ -104,6 +110,11 @@ export const fr = {
             "Votre PDF importé est conservé à l’identique. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
         },
         {
+          question: "Puis-je partager un PDF protégé par mot de passe ?",
+          answer:
+            "Oui. Choisissez l’option de lien protégé : le destinataire reçoit un e-mail sans pièce jointe, puis saisit le mot de passe sur Guteneo sans créer de compte. L’hébergement coûte 1 € par document, en plus de l’e-mail. Transmettez le mot de passe par un autre canal. Le lien expire après la durée choisie et peut être révoqué ; les copies déjà téléchargées restent accessibles. Cette option protège l’accès et ne constitue pas un chiffrement de bout en bout.",
+        },
+        {
           question: "Mon assistant peut-il envoyer sans mon accord ?",
           answer:
             "Par défaut, votre assistant prépare l’envoi et vous validez dans Guteneo le document, le destinataire, le canal et le coût. Un accord donné dans la conversation ne remplace pas cette validation. Le mode expert est facultatif : seul un administrateur peut autoriser une délégation limitée, révocable et avec une date de fin.",
@@ -179,9 +190,15 @@ export const fr = {
     new: "Préparer un envoi",
     recent: "Derniers envois",
     all: "Voir tous les envois",
-    documents: "Documents affichés",
-    waiting: "À approuver ici",
-    tracked: "Envois affichés",
+    documents: "Documents",
+    waiting: "À approuver",
+    attention: "À vérifier",
+    tracked: "Envois",
+    statsLabel: "Synthèse de l’atelier",
+    attentionTitle: "Des envois demandent votre attention.",
+    attentionBody:
+      "Leur résultat est incertain ou négatif. Consultez leur suivi avant de préparer un nouvel envoi.",
+    attentionAction: "Voir les envois à vérifier",
     emptyTitle: "Le premier envoi commence ici.",
     emptyBody:
       "Importez un PDF ou composez une lettre. Vous la relirez avant toute confirmation.",
@@ -251,6 +268,15 @@ export const fr = {
     new: "Nouvel envoi",
     listTitle: "Le fil des envois.",
     listIntro: "Chaque ligne correspond à un destinataire et un canal.",
+    filterLabel: "Afficher",
+    groups: {
+      all: "Tous",
+      approval: "À approuver",
+      in_progress: "En cours",
+      attention: "À vérifier",
+      done: "Clôturés",
+    },
+    groupEmpty: "Aucun envoi dans cette sélection.",
     chooseDocument: "Choisir un document",
     noDocument:
       "Aucun document disponible. Importez ou générez un PDF avant de préparer cet envoi.",
@@ -272,9 +298,11 @@ export const fr = {
     textHelp: "La version texte fait partie du contenu approuvé.",
     attachment: "Pièce jointe PDF (facultative)",
     none: "Sans pièce jointe",
-    ceiling: "Plafond de cet envoi, en centimes d’euro",
+    ceiling: "Plafond de cet envoi, en euros",
     ceilingHelp:
-      "Entier uniquement. Le plafond est vérifié avec le contenu et les paramètres.",
+      "Montant maximum autorisé, au centime près (ex. 5 ou 5,25). Le plafond est vérifié avec le contenu et les paramètres.",
+    ceilingFormat: "Montant en euros, par exemple 5 ou 5,25.",
+    ceilingInvalid: "Indiquez un plafond en euros, entre 0 et 10 000 €.",
     prepare: "Vérifier et préparer",
     preparing: "Préparation…",
     reviewTitle: "Le bon à envoyer.",
@@ -288,6 +316,9 @@ export const fr = {
     approvalExplain:
       "L’approbation porte sur cette version exacte. Une modification nécessite une nouvelle préparation.",
     cancelAction: "Demander l’annulation",
+    cancelQuestion:
+      "Demander l’annulation de cet envoi ? Elle n’est possible qu’avant sa soumission au prestataire.",
+    cancelConfirm: "Oui, demander l’annulation",
     refresh: "Actualiser le suivi",
     estimate: "Estimation",
     ceilingLabel: "Plafond autorisé",
@@ -363,6 +394,30 @@ export const fr = {
     total: "Destinataires",
     inspect: "Consulter la campagne",
   },
+  claudeConnect: {
+    connect: "Connecter à Claude",
+    prerequisite:
+      "Avant de commencer, créez votre compte Guteneo, vérifiez votre adresse e-mail et connectez-vous ici une première fois.",
+    account: "Ouvrir mon compte Guteneo",
+    clientId: "Identifiant public à coller dans Claude",
+    publicId:
+      "Cet identifiant est commun aux utilisateurs de Guteneo. Ce n’est pas un mot de passe.",
+    copy: "Copier l’identifiant",
+    copied: "Identifiant copié.",
+    copyFallback:
+      "La copie automatique est indisponible. Sélectionnez l’identifiant dans le champ ci-dessus et copiez-le.",
+    linkHelp:
+      "Ouvre Claude dans un nouvel onglet avec le nom Guteneo et l’adresse du serveur déjà remplis.",
+    unavailable:
+      "La connexion est disponible sur guteneo.com. Elle est désactivée dans cet aperçu et en développement local.",
+    steps: [
+      "Dans le formulaire Claude, choisissez « Use your own OAuth client » (utiliser votre propre client OAuth).",
+      "Collez l’identifiant public ci-dessus dans « Client ID ». Laissez « Client secret » vide, puis ajoutez le connecteur.",
+      "Connectez votre propre compte Guteneo et examinez les permissions demandées. Activez ensuite Guteneo dans votre conversation.",
+    ],
+    reconnect:
+      "Après expiration, reconnectez votre compte depuis les paramètres de connecteurs de Claude. Si vous avez révoqué l’accès dans Guteneo, réassociez d’abord l’assistant à votre organisation dans « Connecter un assistant », puis reconnectez-le dans Claude.",
+  },
   connection: {
     title: "La conversation continue ici.",
     intro:
@@ -400,6 +455,9 @@ export const fr = {
     authorized: "Connexions autorisées",
     noConnections: "Aucun assistant autorisé pour ce compte.",
     revoke: "Révoquer l’accès",
+    revokeQuestion:
+      "Révoquer l’accès de cet assistant ? Il ne pourra plus préparer d’envoi tant que vous ne l’aurez pas reconnecté.",
+    revokeConfirm: "Oui, révoquer",
     clientId: "Identifiant du client OAuth",
     bind: "Associer cet assistant à mon organisation",
     bindHelp:
@@ -479,11 +537,11 @@ export const fr = {
       "Comprenez les incidents avant d’agir. Les soumissions incertaines ne sont jamais relancées à l’aveugle.",
     refresh: "Actualiser le diagnostic",
     state: "Diagnostic opérationnel",
-    uncertain: "Envois à rapprocher",
+    uncertain: "Envois à vérifier",
     failed: "Échecs à examiner",
     outbox: "Publications en attente",
     health: "Connecteurs",
-    noIncidents: "Aucun incident dans les envois affichés.",
+    noIncidents: "Aucun envoi à vérifier dans cet atelier.",
     note: "Les actions de reprise d’un envoi potentiellement accepté exigent un rapprochement avec le prestataire.",
     restricted: "Cet écran nécessite un rôle d’administration.",
     deadLetters: "Messages en file d’échec",
@@ -494,6 +552,9 @@ export const fr = {
     enabled: "Canal ouvert",
     paused: "Canal suspendu",
     pause: "Suspendre",
+    pauseQuestion:
+      "Suspendre ce canal ? Les prochaines soumissions de l’atelier seront bloquées jusqu’à sa réactivation.",
+    pauseConfirm: "Oui, suspendre",
     resume: "Réactiver",
     controlsHelp:
       "Suspendre bloque les prochaines soumissions de votre organisation. Les envois déjà acceptés par un prestataire restent à rapprocher.",
@@ -540,3 +601,11 @@ export const fr = {
     simulation: "Simulation",
   } as Record<string, string>,
 };
+
+/** Widen source literals while retaining catalog keys and nested structure. */
+export type Copy = Widen<typeof fr>;
+type Widen<T> = T extends string
+  ? string
+  : T extends readonly (infer U)[]
+    ? Widen<U>[]
+    : { -readonly [K in keyof T]: Widen<T[K]> };

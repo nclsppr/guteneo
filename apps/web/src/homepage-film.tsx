@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ArrowsOut, Play, X } from "@phosphor-icons/react";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import "./homepage-film.css";
 
-const copy = t.homepage.film;
 const phoneQuery =
   "(max-width: 767px), (pointer: coarse) and (max-height: 500px)";
 type Format = "horizontal" | "vertical";
@@ -17,6 +16,7 @@ const movie = (format: Format) => `/videos/guteneo-${format}-v5.mp4`;
 const poster = (format: Format) => `/videos/guteneo-${format}-v5.webp`;
 
 export function HomepageFilm() {
+  const copy = t.homepage.film;
   const video = useRef<SafariVideo>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const selectedFormat = useRef<Format | null>(null);

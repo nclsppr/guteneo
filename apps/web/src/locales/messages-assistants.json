@@ -1,0 +1,1342 @@
+{
+  "Avec Guteneo, indique uniquement les fonctions et les canaux actuellement disponibles pour mon compte. Utilise seulement les outils de lecture. Ne crée ni document ni brouillon, ne prépare et n’envoie aucune communication, et ne modifie aucune autorisation.": [
+    "With Guteneo, list only the functions and channels currently available for my account. Use read-only tools only. Do not create any document or draft, prepare or send any communication, or change any authorisation.",
+    "Zeige mit Guteneo ausschließlich die Funktionen und Kanäle an, die derzeit für mein Konto verfügbar sind. Verwende nur Lesezugriffe. Erstelle weder Dokumente noch Entwürfe, bereite keine Kommunikation vor, versende nichts und ändere keine Berechtigungen.",
+    "Weis mat Guteneo nëmmen déi Funktiounen a Kanäl, déi de Moment fir mäi Kont disponibel sinn. Benotz nëmme Lieswierkzeugen. Erstell keen Dokument a keen Entworf, bereet keng Kommunikatioun vir, schéck näischt an änner keng Autorisatioun."
+  ],
+  "Ajoutez Guteneo aux outils d’une conversation dans ChatGPT sur le web.": [
+    "Add Guteneo to the tools in a conversation in ChatGPT on the web.",
+    "Fügen Sie Guteneo zu den Werkzeugen einer Unterhaltung in ChatGPT im Web hinzu.",
+    "Füügt Guteneo bei d’Wierkzeuge vun engem Gespréich a ChatGPT um Web derbäi."
+  ],
+  "Dans ChatGPT, le menu « Plugins » sert aussi à créer votre connexion MCP personnalisée. Vous ajoutez vous-même Guteneo avec son adresse, sans passer par un plugin publié dans le catalogue.": [
+    "In ChatGPT, the Plugins menu also lets you create your own MCP connection. Add Guteneo yourself using its address, without a published plugin from the catalogue.",
+    "In ChatGPT können Sie im Menü „Plugins“ auch eine eigene MCP-Verbindung erstellen. Sie fügen Guteneo selbst über seine Adresse hinzu, ohne ein veröffentlichtes Plugin aus dem Katalog zu verwenden.",
+    "A ChatGPT kënnt Dir am Menü „Plugins“ och Är eege MCP-Verbindung erstellen. Dir füügt Guteneo selwer mat senger Adress derbäi, ouni e publizéierte Plugin aus dem Katalog ze benotzen."
+  ],
+  "Un compte ChatGPT qui autorise le mode développeur et les plugins personnalisés.": [
+    "A ChatGPT account that allows developer mode and custom plugins.",
+    "Ein ChatGPT-Konto, das den Entwicklermodus und benutzerdefinierte Plugins erlaubt.",
+    "E ChatGPT-Kont, deen den Entwécklermodus a personaliséiert Plugins erlaabt."
+  ],
+  "Dans un espace professionnel, l’autorisation de son administrateur peut être nécessaire.": [
+    "In a professional workspace, administrator authorisation may be required.",
+    "In einem beruflichen Arbeitsbereich kann die Genehmigung des Administrators erforderlich sein.",
+    "An engem beruffleche Beräich kann d’Autorisatioun vum Administrateur néideg sinn."
+  ],
+  "Ouvrez les réglages ChatGPT": [
+    "Open ChatGPT settings",
+    "ChatGPT-Einstellungen öffnen",
+    "D’ChatGPT-Astellungen opmaachen"
+  ],
+  "Dans Paramètres → Sécurité et connexion, activez le mode développeur s’il est disponible pour votre compte.": [
+    "In Settings → Security and sign-in, enable developer mode if it is available for your account.",
+    "Aktivieren Sie unter Einstellungen → Sicherheit und Anmeldung den Entwicklermodus, sofern er für Ihr Konto verfügbar ist.",
+    "Aktivéiert ënner Settings → Security and sign-in den Entwécklermodus, wann en fir Äre Kont disponibel ass."
+  ],
+  "Ajoutez le serveur Guteneo": [
+    "Add the Guteneo server",
+    "Guteneo-Server hinzufügen",
+    "De Guteneo-Server derbäifügen"
+  ],
+  "Ouvrez Plugins, choisissez le bouton +, puis nommez la connexion Guteneo. Collez cette adresse dans le champ du serveur MCP.": [
+    "Open Plugins, select the + button and name the connection Guteneo. Paste this address into the MCP server field.",
+    "Öffnen Sie Plugins, wählen Sie die Schaltfläche + und nennen Sie die Verbindung Guteneo. Fügen Sie diese Adresse in das Feld für den MCP-Server ein.",
+    "Maacht Plugins op, wielt de Knäppchen + a nennt d’Verbindung Guteneo. Füügt dës Adress am Feld fir de MCP-Server an."
+  ],
+  "Connectez votre compte Guteneo": [
+    "Connect your Guteneo account",
+    "Ihr Guteneo-Konto verbinden",
+    "Äre Guteneo-Kont verbannen"
+  ],
+  "Suivez l’authentification proposée et examinez les permissions avant de les accorder. Revenez ensuite dans ChatGPT.": [
+    "Follow the authentication flow and review the permissions before granting them. Then return to ChatGPT.",
+    "Folgen Sie dem Anmeldeverfahren und prüfen Sie die Berechtigungen, bevor Sie sie erteilen. Kehren Sie anschließend zu ChatGPT zurück.",
+    "Follegt dem Umeldungsvirgang a kontrolléiert d’Berechtegungen, ier Dir se accordéiert. Gitt duerno op ChatGPT zréck."
+  ],
+  "Choisissez Guteneo dans une conversation": [
+    "Select Guteneo in a conversation",
+    "Guteneo in einer Unterhaltung auswählen",
+    "Guteneo an engem Gespréich wielen"
+  ],
+  "Ouvrez une nouvelle conversation, puis son menu d’outils et sélectionnez la connexion Guteneo que vous venez d’ajouter. Utilisez la demande de vérification ci-dessous.": [
+    "Open a new conversation, then its tools menu, and select the Guteneo connection you just added. Use the verification prompt below.",
+    "Öffnen Sie eine neue Unterhaltung und deren Werkzeugmenü. Wählen Sie die soeben hinzugefügte Guteneo-Verbindung aus. Verwenden Sie die untenstehende Prüfanfrage.",
+    "Maacht en neit Gespréich an duerno säi Wierkzeugmenü op a wielt déi Guteneo-Verbindung, déi Dir grad derbäigesat hutt. Benotzt d’Kontrollufro hei ënnen."
+  ],
+  "Je ne vois pas le mode développeur ou Plugins": [
+    "I cannot see developer mode or Plugins",
+    "Ich sehe weder Entwicklermodus noch Plugins",
+    "Ech gesinn den Entwécklermodus oder Plugins net"
+  ],
+  "Consultez les possibilités de votre compte et les règles de votre espace ChatGPT. L’ajout personnalisé doit être autorisé avant de poursuivre.": [
+    "Check your account’s features and your ChatGPT workspace rules. Custom additions must be allowed before you continue.",
+    "Prüfen Sie die Funktionen Ihres Kontos und die Regeln Ihres ChatGPT-Arbeitsbereichs. Benutzerdefinierte Verbindungen müssen erlaubt sein, bevor Sie fortfahren.",
+    "Kontrolléiert d’Méiglechkeete vun Ärem Kont an d’Reegele vun Ärem ChatGPT-Beräich. Personaliséiert Verbindunge mussen erlaabt sinn, ier Dir weiderfuert."
+  ],
+  "Ajoutez un connecteur web, puis choisissez les conversations où l’utiliser.": [
+    "Add a web connector, then choose the conversations in which to use it.",
+    "Fügen Sie einen Web-Konnektor hinzu und wählen Sie dann die Unterhaltungen aus, in denen Sie ihn verwenden möchten.",
+    "Füügt e Web-Konnektor derbäi a wielt duerno d’Gespréicher, an deenen Dir e benotze wëllt."
+  ],
+  "Les connecteurs personnalisés sont documentés pour les offres Free, Pro, Max, Team et Enterprise ; Free est limité à un connecteur.": [
+    "Custom connectors are documented for Free, Pro, Max, Team and Enterprise plans; Free is limited to one connector.",
+    "Benutzerdefinierte Konnektoren sind für Free, Pro, Max, Team und Enterprise dokumentiert; Free ist auf einen Konnektor begrenzt.",
+    "Personaliséiert Konnektore si fir d’Offere Free, Pro, Max, Team an Enterprise dokumentéiert; Free ass op ee Konnektor begrenzt."
+  ],
+  "Sur Team et Enterprise, un propriétaire ajoute d’abord le connecteur à l’organisation.": [
+    "On Team and Enterprise, an owner first adds the connector to the organisation.",
+    "Bei Team und Enterprise fügt zunächst ein Eigentümer den Konnektor zur Organisation hinzu.",
+    "Bei Team an Enterprise füügt fir d’éischt en Eegentümer de Konnektor bei d’Organisatioun derbäi."
+  ],
+  "Ouvrez les connecteurs Claude": [
+    "Open Claude connectors",
+    "Claude-Konnektoren öffnen",
+    "D’Claude-Konnektoren opmaachen"
+  ],
+  "Dans Personnaliser → Connecteurs, choisissez + puis Ajouter un connecteur personnalisé. En équipe, votre propriétaire passe d’abord par les réglages de l’organisation → Connecteurs.": [
+    "In Customize → Connectors, select +, then Add custom connector. In a team, your owner first goes to organisation settings → Connectors.",
+    "Wählen Sie unter Anpassen → Konnektoren zunächst + und dann Benutzerdefinierten Konnektor hinzufügen. Im Team geht der Eigentümer zuerst zu Organisationseinstellungen → Konnektoren.",
+    "Wielt ënner Customize → Connectors fir d’éischt + an duerno Add custom connector. An enger Ekipp geet den Eegentümer fir d’éischt an d’Organisatiounsastellungen → Connectors."
+  ],
+  "Renseignez le serveur Guteneo": [
+    "Enter the Guteneo server",
+    "Guteneo-Server eintragen",
+    "De Guteneo-Server aginn"
+  ],
+  "Nommez le connecteur Guteneo et ajoutez l’adresse ci-dessous. Les membres d’une équipe choisissent le connecteur déjà ajouté par leur propriétaire.": [
+    "Name the connector Guteneo and add the address below. Team members select the connector already added by their owner.",
+    "Nennen Sie den Konnektor Guteneo und fügen Sie die untenstehende Adresse hinzu. Teammitglieder wählen den bereits vom Eigentümer hinzugefügten Konnektor aus.",
+    "Nennt de Konnektor Guteneo a füügt d’Adress hei ënnen derbäi. Teammembere wielen de Konnektor, deen hiren Eegentümer schonn derbäigesat huet."
+  ],
+  "Identifiez-vous auprès de Guteneo": [
+    "Sign in to Guteneo",
+    "Bei Guteneo anmelden",
+    "Bei Guteneo aloggen"
+  ],
+  "Choisissez Connecter, suivez la connexion à votre compte Guteneo et vérifiez les permissions demandées.": [
+    "Select Connect, sign in to your Guteneo account and check the requested permissions.",
+    "Wählen Sie Verbinden, melden Sie sich bei Ihrem Guteneo-Konto an und prüfen Sie die angeforderten Berechtigungen.",
+    "Wielt Connect, loggt Iech an Ärem Guteneo-Kont an a kontrolléiert déi ugefrote Berechtegungen."
+  ],
+  "Activez le connecteur dans la conversation": [
+    "Enable the connector in the conversation",
+    "Konnektor in der Unterhaltung aktivieren",
+    "De Konnektor am Gespréich aktivéieren"
+  ],
+  "Dans une conversation, ouvrez + → Connecteurs et choisissez Guteneo. Lancez ensuite la vérification en lecture seule proposée plus bas.": [
+    "In a conversation, open + → Connectors and select Guteneo. Then run the read-only check suggested below.",
+    "Öffnen Sie in einer Unterhaltung + → Konnektoren und wählen Sie Guteneo. Führen Sie anschließend die unten vorgeschlagene Prüfung mit reinem Lesezugriff aus.",
+    "Maacht an engem Gespréich + → Connectors op a wielt Guteneo. Start duerno déi Kontroll mat rengem Lieszougrëff, déi hei ënnen ugebuede gëtt."
+  ],
+  "Je peux voir le connecteur, mais pas l’ajouter": [
+    "I can see the connector, but cannot add it",
+    "Ich sehe den Konnektor, kann ihn aber nicht hinzufügen",
+    "Ech gesinn de Konnektor, kann en awer net derbäifügen"
+  ],
+  "Vérifiez la limite de votre offre ou demandez au propriétaire de votre espace de l’ajouter. Chaque membre connecte ensuite son propre compte Guteneo.": [
+    "Check your plan’s limit or ask your workspace owner to add it. Each member then connects their own Guteneo account.",
+    "Prüfen Sie die Begrenzung Ihres Tarifs oder bitten Sie den Eigentümer Ihres Arbeitsbereichs, ihn hinzuzufügen. Jedes Mitglied verbindet anschließend sein eigenes Guteneo-Konto.",
+    "Kontrolléiert d’Grenz vun Ärer Offer oder frot den Eegentümer vun Ärem Beräich, fir en derbäizesetzen. All Member verbënnt duerno säin eegene Guteneo-Kont."
+  ],
+  "Utilisez l’ajout d’un connecteur personnalisé dans Grok sur le web.": [
+    "Use the custom connector option in Grok on the web.",
+    "Verwenden Sie die Option zum Hinzufügen eines benutzerdefinierten Konnektors in Grok im Web.",
+    "Benotzt d’Optioun fir e personaliséierte Konnektor a Grok um Web derbäizesetzen."
+  ],
+  "Un compte Grok donnant accès à l’ajout d’un connecteur personnalisé.": [
+    "A Grok account with access to adding a custom connector.",
+    "Ein Grok-Konto, das das Hinzufügen benutzerdefinierter Konnektoren erlaubt.",
+    "E Grok-Kont, dee personaliséiert Konnektoren erlaabt."
+  ],
+  "Dans Grok Business ou Enterprise, l’administrateur doit d’abord autoriser le connecteur pour l’équipe.": [
+    "In Grok Business or Enterprise, the administrator must first authorise the connector for the team.",
+    "In Grok Business oder Enterprise muss der Administrator den Konnektor zunächst für das Team genehmigen.",
+    "A Grok Business oder Enterprise muss den Administrateur de Konnektor fir d’éischt fir d’Ekipp autoriséieren."
+  ],
+  "Ouvrez les connecteurs Grok": [
+    "Open Grok connectors",
+    "Grok-Konnektoren öffnen",
+    "D’Grok-Konnektoren opmaachen"
+  ],
+  "Rendez-vous sur la page Connectors, puis choisissez New Connector et Custom.": [
+    "Go to the Connectors page, then select New Connector and Custom.",
+    "Öffnen Sie die Seite Connectors und wählen Sie New Connector und anschließend Custom.",
+    "Gitt op d’Säit Connectors a wielt duerno New Connector a Custom."
+  ],
+  "Ouvrir les connecteurs Grok": [
+    "Open Grok connectors",
+    "Grok-Konnektoren öffnen",
+    "D’Grok-Konnektoren opmaachen"
+  ],
+  "Ajoutez l’adresse Guteneo": [
+    "Add the Guteneo address",
+    "Guteneo-Adresse hinzufügen",
+    "D’Guteneo-Adress derbäifügen"
+  ],
+  "Indiquez le serveur ci-dessous dans le champ prévu. Il s’agit de l’adresse publique de Guteneo.": [
+    "Enter the server below in the field provided. This is Guteneo’s public address.",
+    "Tragen Sie den untenstehenden Server in das vorgesehene Feld ein. Dies ist die öffentliche Adresse von Guteneo.",
+    "Gitt de Server hei ënnen an dat virgesinnt Feld an. Dat ass déi ëffentlech Adress vu Guteneo."
+  ],
+  "Terminez l’authentification": [
+    "Complete authentication",
+    "Anmeldung abschließen",
+    "D’Umeldung ofschléissen"
+  ],
+  "Suivez la connexion proposée par Guteneo et examinez les permissions. Grok recherche ensuite les outils proposés par le serveur.": [
+    "Follow Guteneo’s sign-in flow and review the permissions. Grok then discovers the tools offered by the server.",
+    "Folgen Sie dem Guteneo-Anmeldeverfahren und prüfen Sie die Berechtigungen. Grok sucht anschließend nach den vom Server angebotenen Werkzeugen.",
+    "Follegt dem Umeldungsvirgang vu Guteneo a kontrolléiert d’Berechtegungen. Grok sicht duerno no de Wierkzeugen, déi de Server ubitt."
+  ],
+  "Vérifiez les outils dans votre conversation": [
+    "Check the tools in your conversation",
+    "Werkzeuge in Ihrer Unterhaltung prüfen",
+    "D’Wierkzeugen an Ärem Gespréich kontrolléieren"
+  ],
+  "Utilisez la demande de vérification ci-dessous. Si Grok ne voit pas Guteneo, revenez dans Connectors pour examiner le résultat de la connexion.": [
+    "Use the verification prompt below. If Grok cannot see Guteneo, return to Connectors to check the connection result.",
+    "Verwenden Sie die untenstehende Prüfanfrage. Falls Grok Guteneo nicht erkennt, kehren Sie zu Connectors zurück, um das Verbindungsergebnis zu prüfen.",
+    "Benotzt d’Kontrollufro hei ënnen. Wann Grok Guteneo net gesäit, gitt op Connectors zréck, fir d’Resultat vun der Verbindung ze kontrolléieren."
+  ],
+  "Connecteurs Grok en entreprise": [
+    "Grok connectors for organisations",
+    "Grok-Konnektoren in Unternehmen",
+    "Grok-Konnektore fir Entreprisen"
+  ],
+  "L’ajout personnalisé n’apparaît pas": [
+    "The custom connector option is missing",
+    "Die Option für benutzerdefinierte Konnektoren fehlt",
+    "D’Optioun fir personaliséiert Konnektore feelt"
+  ],
+  "Vérifiez les options de votre compte Grok. En entreprise, demandez à l’administrateur de contrôler les connecteurs autorisés.": [
+    "Check your Grok account’s options. In an organisation, ask the administrator to check which connectors are authorised.",
+    "Prüfen Sie die Optionen Ihres Grok-Kontos. Bitten Sie im Unternehmen den Administrator, die zugelassenen Konnektoren zu prüfen.",
+    "Kontrolléiert d’Optioune vun Ärem Grok-Kont. An enger Entreprise frot den Administrateur, déi autoriséiert Konnektoren ze kontrolléieren."
+  ],
+  "Choisissez votre outil : le guide diffère entre VS Code et Copilot CLI.": [
+    "Choose your tool: the guide differs between VS Code and Copilot CLI.",
+    "Wählen Sie Ihr Werkzeug: Die Anleitung unterscheidet sich für VS Code und Copilot CLI.",
+    "Wielt Äert Wierkzeug: D’Uleedung ass anescht fir VS Code a Copilot CLI."
+  ],
+  "VS Code ou terminal": [
+    "VS Code or terminal",
+    "VS Code oder Terminal",
+    "VS Code oder Terminal"
+  ],
+  "VS Code à jour, avec un accès à GitHub Copilot Chat.": [
+    "An up-to-date version of VS Code with access to GitHub Copilot Chat.",
+    "Ein aktuelles VS Code mit Zugriff auf GitHub Copilot Chat.",
+    "Eng aktuell Versioun vu VS Code mat Zougrëff op GitHub Copilot Chat."
+  ],
+  "Si votre organisation impose une liste de serveurs autorisés, Guteneo doit y figurer.": [
+    "If your organisation requires an approved server list, Guteneo must be on it.",
+    "Wenn Ihre Organisation eine Liste zugelassener Server vorgibt, muss Guteneo darauf stehen.",
+    "Wann Är Organisatioun eng Lëscht mat autoriséierte Servere virschreift, muss Guteneo drop stoen."
+  ],
+  "Ajoutez un serveur dans VS Code": [
+    "Add a server in VS Code",
+    "Server in VS Code hinzufügen",
+    "E Server a VS Code derbäifügen"
+  ],
+  "Ouvrez la palette de commandes et lancez MCP: Add Server. Choisissez un serveur HTTP.": [
+    "Open the command palette and run MCP: Add Server. Choose an HTTP server.",
+    "Öffnen Sie die Befehlspalette und führen Sie MCP: Add Server aus. Wählen Sie einen HTTP-Server.",
+    "Maacht d’Kommandopalett op a start MCP: Add Server. Wielt en HTTP-Server."
+  ],
+  "Renseignez l’adresse et le nom": [
+    "Enter the address and name",
+    "Adresse und Namen eingeben",
+    "D’Adress an den Numm aginn"
+  ],
+  "Collez cette adresse, nommez le serveur guteneo et choisissez votre profil utilisateur pour le retrouver dans vos projets.": [
+    "Paste this address, name the server guteneo and choose your user profile to make it available across your projects.",
+    "Fügen Sie diese Adresse ein, nennen Sie den Server guteneo und wählen Sie Ihr Benutzerprofil, damit er in Ihren Projekten verfügbar ist.",
+    "Füügt dës Adress an, nennt de Server guteneo a wielt Äre Benotzerprofil, fir en an Äre Projeten erëmzefannen."
+  ],
+  "Démarrez le serveur et connectez-vous": [
+    "Start the server and sign in",
+    "Server starten und anmelden",
+    "De Server starten an aloggen"
+  ],
+  "Dans MCP: List Servers, sélectionnez guteneo. Démarrez-le, vérifiez sa configuration et suivez l’authentification Guteneo proposée par VS Code.": [
+    "In MCP: List Servers, select guteneo. Start it, check its configuration and follow the Guteneo authentication offered by VS Code.",
+    "Wählen Sie in MCP: List Servers den Server guteneo aus. Starten Sie ihn, prüfen Sie seine Konfiguration und folgen Sie der von VS Code angebotenen Guteneo-Anmeldung.",
+    "Wielt a MCP: List Servers de Server guteneo. Start en, kontrolléiert seng Konfiguratioun a follegt der Guteneo-Umeldung, déi VS Code ubitt."
+  ],
+  "Retrouvez Guteneo dans Copilot Chat": [
+    "Find Guteneo in Copilot Chat",
+    "Guteneo in Copilot Chat finden",
+    "Guteneo a Copilot Chat erëmfannen"
+  ],
+  "Vérifiez que les outils Guteneo sont disponibles dans le sélecteur d’outils, puis utilisez la demande de vérification ci-dessous.": [
+    "Check that Guteneo tools are available in the tool selector, then use the verification prompt below.",
+    "Prüfen Sie, ob die Guteneo-Werkzeuge in der Werkzeugauswahl verfügbar sind, und verwenden Sie die untenstehende Prüfanfrage.",
+    "Kontrolléiert, ob d’Guteneo-Wierkzeugen an der Wierkzeugauswiel disponibel sinn, a benotzt duerno d’Kontrollufro hei ënnen."
+  ],
+  "Authentification dans GitHub Copilot Chat": [
+    "Authentication in GitHub Copilot Chat",
+    "Anmeldung in GitHub Copilot Chat",
+    "Umeldung a GitHub Copilot Chat"
+  ],
+  "Le serveur est présent, mais ses outils sont absents": [
+    "The server is present, but its tools are missing",
+    "Der Server ist vorhanden, aber seine Werkzeuge fehlen",
+    "De Server ass do, mee seng Wierkzeuge feelen"
+  ],
+  "Dans MCP: List Servers, vérifiez que guteneo est activé et consultez son état. Vérifiez aussi la sélection d’outils de votre conversation et les restrictions de votre organisation.": [
+    "In MCP: List Servers, check that guteneo is enabled and review its status. Also check your conversation’s tool selection and your organisation’s restrictions.",
+    "Prüfen Sie in MCP: List Servers, ob guteneo aktiviert ist, und sehen Sie sich seinen Status an. Prüfen Sie auch die Werkzeugauswahl Ihrer Unterhaltung und die Einschränkungen Ihrer Organisation.",
+    "Kontrolléiert a MCP: List Servers, ob guteneo aktivéiert ass, a kuckt säi Status. Kontrolléiert och d’Wierkzeugauswiel vun Ärem Gespréich an d’Aschränkunge vun Ärer Organisatioun."
+  ],
+  "GitHub Copilot CLI installé et un accès autorisé par votre compte ou votre organisation.": [
+    "GitHub Copilot CLI installed, with access authorised by your account or organisation.",
+    "Installiertes GitHub Copilot CLI und durch Ihr Konto oder Ihre Organisation genehmigter Zugriff.",
+    "GitHub Copilot CLI installéiert, mat engem Zougrëff, dee vun Ärem Kont oder Ärer Organisatioun autoriséiert ass."
+  ],
+  "La politique MCP de votre organisation doit autoriser le serveur Guteneo.": [
+    "Your organisation’s MCP policy must allow the Guteneo server.",
+    "Die MCP-Richtlinie Ihrer Organisation muss den Guteneo-Server erlauben.",
+    "D’MCP-Reegele vun Ärer Organisatioun mussen de Guteneo-Server erlaben."
+  ],
+  "Ouvrez l’ajout de serveur": [
+    "Open the add-server flow",
+    "Server hinzufügen öffnen",
+    "D’Optioun fir e Server derbäizesetzen opmaachen"
+  ],
+  "Dans une session interactive Copilot CLI, entrez la commande ci-dessous. Nommez le serveur guteneo et choisissez le type HTTP.": [
+    "In an interactive Copilot CLI session, enter the command below. Name the server guteneo and choose the HTTP type.",
+    "Geben Sie in einer interaktiven Copilot-CLI-Sitzung den untenstehenden Befehl ein. Nennen Sie den Server guteneo und wählen Sie den Typ HTTP.",
+    "Gitt an enger interaktiver Copilot-CLI-Sessioun de Kommando hei ënnen an. Nennt de Server guteneo a wielt den Typ HTTP."
+  ],
+  "Collez l’adresse du serveur": [
+    "Paste the server address",
+    "Serveradresse einfügen",
+    "D’Serveradress afügen"
+  ],
+  "Renseignez le champ URL avec cette adresse. Enregistrez la configuration sans y ajouter votre mot de passe Guteneo.": [
+    "Enter this address in the URL field. Save the configuration without adding your Guteneo password.",
+    "Tragen Sie diese Adresse in das URL-Feld ein. Speichern Sie die Konfiguration, ohne Ihr Guteneo-Passwort hinzuzufügen.",
+    "Gitt dës Adress am URL-Feld an. Späichert d’Konfiguratioun, ouni Äert Guteneo-Passwuert derbäizesetzen."
+  ],
+  "Connectez votre compte": [
+    "Connect your account",
+    "Ihr Konto verbinden",
+    "Äre Kont verbannen"
+  ],
+  "Suivez la fenêtre d’authentification Guteneo. Si le serveur demande une authentification, lancez la commande suivante pour ouvrir ce parcours.": [
+    "Follow the Guteneo authentication window. If the server requests authentication, run the following command to open that flow.",
+    "Folgen Sie dem Guteneo-Anmeldefenster. Falls der Server eine Anmeldung verlangt, führen Sie den folgenden Befehl aus, um diesen Vorgang zu öffnen.",
+    "Follegt der Umeldungsfënster vu Guteneo. Wann de Server eng Umeldung verlaangt, start de folgende Kommando, fir dee Virgank opzemaachen."
+  ],
+  "Faites une première vérification": [
+    "Run your first check",
+    "Erste Prüfung durchführen",
+    "Eng éischt Kontroll maachen"
+  ],
+  "Revenez dans Copilot CLI et collez la demande de vérification ci-dessous. Les confirmations propres à Copilot continuent de s’appliquer.": [
+    "Return to Copilot CLI and paste the verification prompt below. Copilot’s own confirmations still apply.",
+    "Kehren Sie zu Copilot CLI zurück und fügen Sie die untenstehende Prüfanfrage ein. Die eigenen Bestätigungen von Copilot gelten weiterhin.",
+    "Gitt op Copilot CLI zréck a füügt d’Kontrollufro hei ënnen an. Déi eege Bestätegunge vu Copilot gëlle weider."
+  ],
+  "Authentification MCP dans Copilot CLI": [
+    "MCP authentication in Copilot CLI",
+    "MCP-Anmeldung in Copilot CLI",
+    "MCP-Umeldung a Copilot CLI"
+  ],
+  "Lancez /mcp auth guteneo pour reprendre l’authentification. Si l’organisation interdit ce serveur, demandez à son administrateur de vérifier la politique MCP.": [
+    "Run /mcp auth guteneo to resume authentication. If your organisation blocks this server, ask its administrator to check the MCP policy.",
+    "Führen Sie /mcp auth guteneo aus, um die Anmeldung fortzusetzen. Falls die Organisation diesen Server verbietet, bitten Sie den Administrator, die MCP-Richtlinie zu prüfen.",
+    "Start /mcp auth guteneo, fir d’Umeldung weiderzeféieren. Wann d’Organisatioun dëse Server verbitt, frot hiren Administrateur, d’MCP-Reegelen ze kontrolléieren."
+  ],
+  "Un parcours d’organisation : un administrateur ou un créateur prépare l’agent qui utilisera Guteneo.": [
+    "An organisational setup: an administrator or creator prepares the agent that will use Guteneo.",
+    "Ein organisationsweiter Ablauf: Ein Administrator oder Ersteller bereitet den Agenten vor, der Guteneo verwenden wird.",
+    "En Oflaf fir Organisatiounen: En Administrateur oder Ersteller bereet den Agent vir, dee Guteneo benotzt."
+  ],
+  "Agent d’organisation": [
+    "Organisation agent",
+    "Organisationsagent",
+    "Agent vun der Organisatioun"
+  ],
+  "Ce guide concerne un agent de Microsoft 365 Copilot. Il ne décrit pas un ajout dans Microsoft Copilot grand public.": [
+    "This guide concerns a Microsoft 365 Copilot agent. It does not describe adding Guteneo to the consumer version of Microsoft Copilot.",
+    "Diese Anleitung betrifft einen Agenten in Microsoft 365 Copilot. Sie beschreibt nicht das Hinzufügen in Microsoft Copilot für Privatnutzer.",
+    "Dës Uleedung betrëfft en Agent vu Microsoft 365 Copilot. Si beschreift net d’Derbäifügen a Microsoft Copilot fir Privatleit."
+  ],
+  "Un environnement Microsoft 365 permettant l’usage d’agents et l’ajout d’applications personnalisées, autorisé par votre administrateur.": [
+    "A Microsoft 365 environment that permits agents and custom apps, authorised by your administrator.",
+    "Eine vom Administrator freigegebene Microsoft-365-Umgebung, die Agenten und benutzerdefinierte Apps erlaubt.",
+    "Eng Microsoft-365-Ëmwelt, déi Agenten a personaliséiert Apps erlaabt a vun Ärem Administrateur autoriséiert ass."
+  ],
+  "VS Code et Microsoft 365 Agents Toolkit 6.12 ou ultérieur, utilisés par la personne qui configure l’agent.": [
+    "VS Code and Microsoft 365 Agents Toolkit 6.12 or later, used by the person configuring the agent.",
+    "VS Code und Microsoft 365 Agents Toolkit 6.12 oder neuer, verwendet von der Person, die den Agenten konfiguriert.",
+    "VS Code a Microsoft 365 Agents Toolkit 6.12 oder méi nei, benotzt vun der Persoun, déi den Agent konfiguréiert."
+  ],
+  "Créez l’agent avec votre administrateur": [
+    "Create the agent with your administrator",
+    "Agenten mit Ihrem Administrator erstellen",
+    "Den Agent mat Ärem Administrateur erstellen"
+  ],
+  "Utilisez cette adresse comme serveur MCP de l’action.": [
+    "Use this address as the action’s MCP server.",
+    "Verwenden Sie diese Adresse als MCP-Server der Aktion.",
+    "Benotzt dës Adress als MCP-Server vun der Aktioun."
+  ],
+  "Configurez l’authentification": [
+    "Configure authentication",
+    "Anmeldung konfigurieren",
+    "D’Umeldung konfiguréieren"
+  ],
+  "Utilisez OAuth avec enregistrement dynamique si le serveur le permet. Si une configuration manuelle est demandée, faites vérifier le client et l’adresse de retour par l’administrateur et Guteneo.": [
+    "Use OAuth with dynamic registration if the server supports it. If manual configuration is requested, have the administrator and Guteneo verify the client and redirect address.",
+    "Verwenden Sie OAuth mit dynamischer Registrierung, sofern der Server dies unterstützt. Wenn eine manuelle Konfiguration verlangt wird, lassen Sie Client und Rückleitungsadresse vom Administrator und von Guteneo prüfen.",
+    "Benotzt OAuth mat dynamescher Registréierung, wann de Server dat ënnerstëtzt. Wann eng manuell Konfiguratioun verlaangt gëtt, loosst de Client an d’Retouradress vum Administrateur a vu Guteneo kontrolléieren."
+  ],
+  "Installez l’agent autorisé": [
+    "Install the authorised agent",
+    "Autorisierten Agenten installieren",
+    "Den autoriséierten Agent installéieren"
+  ],
+  "La personne chargée de l’agent suit la publication et l’installation décrites par Microsoft. Dans Microsoft 365 Copilot, ouvrez cet agent, connectez votre compte Guteneo et faites la vérification ci-dessous.": [
+    "The person responsible for the agent follows Microsoft’s publication and installation instructions. In Microsoft 365 Copilot, open that agent, connect your Guteneo account and run the check below.",
+    "Die für den Agenten verantwortliche Person folgt den Veröffentlichungs- und Installationsanweisungen von Microsoft. Öffnen Sie diesen Agenten in Microsoft 365 Copilot, verbinden Sie Ihr Guteneo-Konto und führen Sie die untenstehende Prüfung aus.",
+    "Déi Persoun, déi fir den Agent zoustänneg ass, follegt de Publikatiouns- an Installatiounsinstruktioune vu Microsoft. Maacht dësen Agent a Microsoft 365 Copilot op, verbannt Äre Guteneo-Kont a maacht d’Kontroll hei ënnen."
+  ],
+  "Créer un agent Microsoft 365 avec MCP": [
+    "Create a Microsoft 365 agent with MCP",
+    "Microsoft-365-Agenten mit MCP erstellen",
+    "E Microsoft-365-Agent mat MCP erstellen"
+  ],
+  "Prérequis Microsoft 365": [
+    "Microsoft 365 prerequisites",
+    "Voraussetzungen für Microsoft 365",
+    "Viraussetzunge fir Microsoft 365"
+  ],
+  "Je ne peux pas installer l’agent": [
+    "I cannot install the agent",
+    "Ich kann den Agenten nicht installieren",
+    "Ech kann den Agent net installéieren"
+  ],
+  "Votre administrateur doit vérifier l’autorisation d’ajouter des applications personnalisées, l’accès aux agents et les règles de votre environnement Microsoft 365.": [
+    "Your administrator must check permission to add custom apps, access to agents and your Microsoft 365 environment’s rules.",
+    "Ihr Administrator muss die Berechtigung zum Hinzufügen benutzerdefinierter Apps, den Zugriff auf Agenten und die Regeln Ihrer Microsoft-365-Umgebung prüfen.",
+    "Ären Administrateur muss d’Berechtegung fir personaliséiert Apps, den Zougrëff op Agenten an d’Reegele vun Ärer Microsoft-365-Ëmwelt kontrolléieren."
+  ],
+  "Dans Copilot Studio, la connexion s’ajoute aux outils d’un agent créé pour votre organisation.": [
+    "In Copilot Studio, the connection is added to the tools of an agent created for your organisation.",
+    "In Copilot Studio wird die Verbindung zu den Werkzeugen eines für Ihre Organisation erstellten Agenten hinzugefügt.",
+    "A Copilot Studio gëtt d’Verbindung bei d’Wierkzeuge vun engem Agent derbäigesat, dee fir Är Organisatioun erstallt gouf."
+  ],
+  "Un accès à Copilot Studio et les droits pour modifier l’agent concerné.": [
+    "Access to Copilot Studio and permission to edit the relevant agent.",
+    "Zugriff auf Copilot Studio und Berechtigung zum Bearbeiten des betreffenden Agenten.",
+    "Zougrëff op Copilot Studio an d’Recht, de betraffenen Agent z’änneren."
+  ],
+  "Les politiques Power Platform de votre organisation doivent autoriser le connecteur et son authentification.": [
+    "Your organisation’s Power Platform policies must allow the connector and its authentication.",
+    "Die Power-Platform-Richtlinien Ihrer Organisation müssen den Konnektor und seine Anmeldung erlauben.",
+    "D’Power-Platform-Reegele vun Ärer Organisatioun mussen de Konnektor a seng Umeldung erlaben."
+  ],
+  "Ouvrez les outils de votre agent": [
+    "Open your agent’s tools",
+    "Werkzeuge Ihres Agenten öffnen",
+    "D’Wierkzeuge vun Ärem Agent opmaachen"
+  ],
+  "Dans Copilot Studio, choisissez l’agent, puis Tools → Add a tool → New tool → Model Context Protocol.": [
+    "In Copilot Studio, select the agent, then Tools → Add a tool → New tool → Model Context Protocol.",
+    "Wählen Sie in Copilot Studio den Agenten und dann Tools → Add a tool → New tool → Model Context Protocol.",
+    "Wielt a Copilot Studio den Agent an duerno Tools → Add a tool → New tool → Model Context Protocol."
+  ],
+  "Ajoutez le serveur": [
+    "Add the server",
+    "Server hinzufügen",
+    "De Server derbäifügen"
+  ],
+  "Nommez le serveur Guteneo et utilisez l’adresse ci-dessous. Copilot Studio attend un serveur Streamable HTTP.": [
+    "Name the server Guteneo and use the address below. Copilot Studio expects a Streamable HTTP server.",
+    "Nennen Sie den Server Guteneo und verwenden Sie die untenstehende Adresse. Copilot Studio erwartet einen Streamable-HTTP-Server.",
+    "Nennt de Server Guteneo a benotzt d’Adress hei ënnen. Copilot Studio erwaart e Streamable-HTTP-Server."
+  ],
+  "Choisissez l’authentification OAuth": [
+    "Choose OAuth authentication",
+    "OAuth-Anmeldung auswählen",
+    "OAuth-Umeldung wielen"
+  ],
+  "Dans l’assistant de configuration, utilisez OAuth 2.0. La découverte dynamique convient si le serveur la prend en charge ; sinon, faites vérifier les paramètres manuels par votre administrateur.": [
+    "In the setup wizard, use OAuth 2.0. Dynamic discovery is suitable if the server supports it; otherwise, have your administrator check the manual settings.",
+    "Verwenden Sie im Einrichtungsassistenten OAuth 2.0. Dynamische Erkennung eignet sich, wenn der Server sie unterstützt. Andernfalls lassen Sie die manuellen Einstellungen von Ihrem Administrator prüfen.",
+    "Benotzt OAuth 2.0 am Konfiguratiounsassistent. Dynamesch Entdeckung ass gëeegent, wann de Server se ënnerstëtzt. Soss loosst Ären Administrateur déi manuell Astellunge kontrolléieren."
+  ],
+  "Créez la connexion utilisateur": [
+    "Create the user connection",
+    "Benutzerverbindung erstellen",
+    "D’Benotzerverbindung erstellen"
+  ],
+  "Suivez l’authentification Guteneo, ajoutez le serveur à l’agent et vérifiez ses outils dans le panneau de test avec la demande ci-dessous. La diffusion de l’agent reste une étape distincte.": [
+    "Complete Guteneo authentication, add the server to the agent and check its tools in the test panel using the prompt below. Distributing the agent remains a separate step.",
+    "Melden Sie sich bei Guteneo an, fügen Sie den Server zum Agenten hinzu und prüfen Sie seine Werkzeuge im Testbereich mit der untenstehenden Anfrage. Die Bereitstellung des Agenten bleibt ein eigener Schritt.",
+    "Mellt Iech bei Guteneo un, füügt de Server beim Agent derbäi a kontrolléiert seng Wierkzeugen am Testberäich mat der Ufro hei ënnen. D’Verbreedung vum Agent bleift e getrennte Schrëtt."
+  ],
+  "Le connecteur est bloqué ou ne termine pas la connexion": [
+    "The connector is blocked or cannot finish connecting",
+    "Der Konnektor ist blockiert oder schließt die Verbindung nicht ab",
+    "De Konnektor ass blockéiert oder schléisst d’Verbindung net of"
+  ],
+  "Demandez à l’administrateur de vérifier les politiques Power Platform et les paramètres OAuth. Copilot Studio ne prend plus en charge le transport SSE pour MCP.": [
+    "Ask the administrator to check Power Platform policies and OAuth settings. Copilot Studio no longer supports SSE transport for MCP.",
+    "Bitten Sie den Administrator, die Power-Platform-Richtlinien und OAuth-Einstellungen zu prüfen. Copilot Studio unterstützt den SSE-Transport für MCP nicht mehr.",
+    "Frot den Administrateur, d’Power-Platform-Reegelen an d’OAuth-Astellungen ze kontrolléieren. Copilot Studio ënnerstëtzt den SSE-Transport fir MCP net méi."
+  ],
+  "Ajoutez Guteneo aux serveurs MCP de Cursor, puis retrouvez ses outils dans l’agent.": [
+    "Add Guteneo to Cursor’s MCP servers, then find its tools in the agent.",
+    "Fügen Sie Guteneo zu den MCP-Servern von Cursor hinzu und nutzen Sie seine Werkzeuge im Agenten.",
+    "Füügt Guteneo bei d’MCP-Servere vu Cursor derbäi a fannt seng Wierkzeugen duerno am Agent."
+  ],
+  "Éditeur et agent": [
+    "Editor and agent",
+    "Editor und Agent",
+    "Editeur an Agent"
+  ],
+  "Cursor avec les serveurs MCP personnalisés autorisés.": [
+    "Cursor with custom MCP servers allowed.",
+    "Cursor mit zugelassenen benutzerdefinierten MCP-Servern.",
+    "Cursor mat erlaabte personaliséierte MCP-Serveren."
+  ],
+  "En entreprise, la liste de serveurs autorisés doit permettre l’adresse de Guteneo.": [
+    "In an organisation, the approved server list must allow Guteneo’s address.",
+    "Im Unternehmen muss die Liste zugelassener Server die Guteneo-Adresse erlauben.",
+    "An enger Entreprise muss d’Lëscht vun den autoriséierte Serveren d’Adress vu Guteneo erlaben."
+  ],
+  "Ouvrez votre configuration MCP": [
+    "Open your MCP configuration",
+    "MCP-Konfiguration öffnen",
+    "Är MCP-Konfiguratioun opmaachen"
+  ],
+  "Dans Cursor, ouvrez la personnalisation des serveurs MCP. Pour une configuration propre au projet, utilisez son fichier .cursor/mcp.json.": [
+    "In Cursor, open MCP server customisation. For a project-specific configuration, use its .cursor/mcp.json file.",
+    "Öffnen Sie in Cursor die Anpassung der MCP-Server. Für eine projektspezifische Konfiguration verwenden Sie die Datei .cursor/mcp.json des Projekts.",
+    "Maacht a Cursor d’Personaliséierung vun de MCP-Serveren op. Fir eng Konfiguratioun fir e bestëmmte Projet benotzt seng Datei .cursor/mcp.json."
+  ],
+  "Ajoutez Guteneo à la configuration": [
+    "Add Guteneo to the configuration",
+    "Guteneo zur Konfiguration hinzufügen",
+    "Guteneo bei d’Konfiguratioun derbäifügen"
+  ],
+  "Le fichier proposé contient l’entrée guteneo dans mcpServers et cette adresse. Ajoutez-la à votre configuration en conservant les autres serveurs.": [
+    "The supplied file contains the guteneo entry in mcpServers and this address. Add it to your configuration while keeping your other servers.",
+    "Die bereitgestellte Datei enthält den Eintrag guteneo in mcpServers und diese Adresse. Fügen Sie ihn Ihrer Konfiguration hinzu und behalten Sie die anderen Server bei.",
+    "Déi ugebueden Datei enthält den Entrée guteneo a mcpServers an dës Adress. Füügt en an Är Konfiguratioun an a behält déi aner Serveren."
+  ],
+  "Télécharger la configuration Cursor": [
+    "Download the Cursor configuration",
+    "Cursor-Konfiguration herunterladen",
+    "D’Cursor-Konfiguratioun eroflueden"
+  ],
+  "Connectez-vous à Guteneo": [
+    "Sign in to Guteneo",
+    "Bei Guteneo anmelden",
+    "Bei Guteneo aloggen"
+  ],
+  "Retrouvez guteneo dans les serveurs MCP de Cursor, suivez l’authentification proposée et vérifiez les permissions demandées.": [
+    "Find guteneo in Cursor’s MCP servers, follow the authentication flow and check the requested permissions.",
+    "Suchen Sie guteneo in den MCP-Servern von Cursor, folgen Sie dem Anmeldeverfahren und prüfen Sie die angeforderten Berechtigungen.",
+    "Fannt guteneo bei de MCP-Servere vu Cursor, follegt dem Umeldungsvirgang a kontrolléiert déi ugefrote Berechtegungen."
+  ],
+  "Vérifiez les outils dans l’agent": [
+    "Check the tools in the agent",
+    "Werkzeuge im Agenten prüfen",
+    "D’Wierkzeugen am Agent kontrolléieren"
+  ],
+  "Avec le serveur activé, collez la demande de vérification ci-dessous dans une conversation. Conservez les confirmations prévues par votre configuration Cursor.": [
+    "With the server enabled, paste the verification prompt below into a conversation. Keep the confirmations required by your Cursor configuration.",
+    "Fügen Sie bei aktiviertem Server die untenstehende Prüfanfrage in eine Unterhaltung ein. Behalten Sie die in Ihrer Cursor-Konfiguration vorgesehenen Bestätigungen bei.",
+    "Wann de Server aktivéiert ass, füügt d’Kontrollufro hei ënnen an e Gespréich an. Behält déi Bestätegungen, déi Är Cursor-Konfiguratioun virgesäit."
+  ],
+  "Guteneo n’apparaît pas dans ce projet": [
+    "Guteneo does not appear in this project",
+    "Guteneo erscheint nicht in diesem Projekt",
+    "Guteneo erschéngt net an dësem Projet"
+  ],
+  "Vérifiez le fichier .cursor/mcp.json du projet ouvert, ou ~/.cursor/mcp.json pour une configuration globale. Vérifiez ensuite que le serveur est activé et autorisé par votre organisation.": [
+    "Check the open project’s .cursor/mcp.json file, or ~/.cursor/mcp.json for a global configuration. Then check that the server is enabled and authorised by your organisation.",
+    "Prüfen Sie die Datei .cursor/mcp.json des geöffneten Projekts oder ~/.cursor/mcp.json für eine globale Konfiguration. Prüfen Sie anschließend, ob der Server aktiviert und von Ihrer Organisation zugelassen ist.",
+    "Kontrolléiert d’Datei .cursor/mcp.json vum oppene Projet oder ~/.cursor/mcp.json fir eng global Konfiguratioun. Kontrolléiert duerno, ob de Server aktivéiert a vun Ärer Organisatioun autoriséiert ass."
+  ],
+  "Microsoft": ["Microsoft", "Microsoft", "Microsoft"],
+  "Choisir votre assistant": [
+    "Choose your assistant",
+    "Ihren Assistenten auswählen",
+    "Ären Assistent wielen"
+  ],
+  "Copié.": ["Copied.", "Kopiert.", "Kopéiert."],
+  "La copie automatique est indisponible. Sélectionnez et copiez le texte ci-dessus.": [
+    "Automatic copying is unavailable. Select and copy the text above.",
+    "Automatisches Kopieren ist nicht verfügbar. Markieren und kopieren Sie den obigen Text.",
+    "Automatescht Kopéieren ass net disponibel. Markéiert a kopéiert den Text hei uewen."
+  ],
+  "Ajouter Guteneo à": [
+    "Add Guteneo to",
+    "Guteneo hinzufügen zu",
+    "Guteneo derbäifüge bei"
+  ],
+  "Quelle version utilisez-vous ?": [
+    "Which version do you use?",
+    "Welche Version verwenden Sie?",
+    "Wéi eng Versioun benotzt Dir?"
+  ],
+  "Prérequis": ["Prerequisites", "Voraussetzungen", "Viraussetzungen"],
+  "Avant de commencer": [
+    "Before you start",
+    "Bevor Sie beginnen",
+    "Ier Dir ufänkt"
+  ],
+  "Un compte Guteneo pour vous identifier lors de la connexion.": [
+    "A Guteneo account to sign in when connecting.",
+    "Ein Guteneo-Konto für die Anmeldung beim Verbinden.",
+    "E Guteneo-Kont, fir Iech beim Verbannen unzemellen."
+  ],
+  "Ce guide se consulte sans compte. Retrouvez-le dans votre espace pour poursuivre.": [
+    "You can read this guide without an account. Find it in your workspace to continue.",
+    "Sie können diese Anleitung ohne Konto lesen. Zum Fortfahren finden Sie sie in Ihrem Bereich.",
+    "Dir kënnt dës Uleedung ouni Kont liesen. Dir fannt se an Ärem Beräich, fir weiderzefueren."
+  ],
+  "Créer ou ouvrir mon espace": [
+    "Create or open my workspace",
+    "Meinen Bereich erstellen oder öffnen",
+    "Mäi Beräich erstellen oder opmaachen"
+  ],
+  "Gardez ce guide ouvert pendant l’ajout dans votre application.": [
+    "Keep this guide open while adding the connection in your app.",
+    "Lassen Sie diese Anleitung geöffnet, während Sie die Verbindung in Ihrer Anwendung hinzufügen.",
+    "Loosst dës Uleedung op, wärend Dir d’Verbindung an Ärer App derbäisetzt."
+  ],
+  "Installer par MCP": [
+    "Install via MCP",
+    "Über MCP installieren",
+    "Iwwer MCP installéieren"
+  ],
+  "Copier l’adresse": [
+    "Copy address",
+    "Adresse kopieren",
+    "D’Adress kopéieren"
+  ],
+  "Vérifier la connexion": [
+    "Check the connection",
+    "Verbindung prüfen",
+    "D’Verbindung kontrolléieren"
+  ],
+  "Collez cette demande dans votre assistant pour connaître les possibilités de votre compte, sans préparer d’envoi.": [
+    "Paste this prompt into your assistant to find out what your account can do, without preparing a dispatch.",
+    "Fügen Sie diese Anfrage in Ihren Assistenten ein, um die Möglichkeiten Ihres Kontos abzufragen, ohne eine Sendung vorzubereiten.",
+    "Füügt dës Ufro an Ären Assistent an, fir d’Méiglechkeete vun Ärem Kont ze gesinn, ouni eng Sendung virzebereeden."
+  ],
+  "Copier la demande de vérification": [
+    "Copy verification prompt",
+    "Prüfanfrage kopieren",
+    "D’Kontrollufro kopéieren"
+  ],
+  "Après une réponse utilisant les outils Guteneo, retrouvez le dernier échange réussi dans « Mes connexions » de votre espace.": [
+    "After a response that uses Guteneo tools, find the latest successful exchange under My connections in your workspace.",
+    "Nach einer Antwort mit Guteneo-Werkzeugen finden Sie den letzten erfolgreichen Austausch unter „Meine Verbindungen“ in Ihrem Bereich.",
+    "No enger Äntwert mat Guteneo-Wierkzeuge fannt Dir de leschten erfollegräichen Austausch ënner „Meng Verbindungen“ an Ärem Beräich."
+  ],
+  "Plugin du catalogue": [
+    "Catalogue plugin",
+    "Plugin aus dem Katalog",
+    "Plugin aus dem Katalog"
+  ],
+  "Aucun plugin Guteneo n’est publié dans le catalogue de": [
+    "No Guteneo plugin is published in the catalogue of",
+    "Ein Guteneo-Plugin im Katalog von",
+    "E Guteneo-Plugin am Katalog vu"
+  ],
+  "pour le moment. Utilisez l’installation par MCP décrite ci-dessus.": [
+    "at present. Use the MCP installation described above.",
+    "ist derzeit nicht veröffentlicht. Verwenden Sie die oben beschriebene MCP-Installation.",
+    "ass de Moment net publizéiert. Benotzt d’MCP-Installatioun, déi hei uewen beschriwwe gëtt."
+  ],
+  "Besoin d’aide ?": [
+    "Need help?",
+    "Benötigen Sie Hilfe?",
+    "Braucht Dir Hëllef?"
+  ],
+  "La connexion échoue ou revient à l’écran de connexion": [
+    "The connection fails or returns to the sign-in screen",
+    "Die Verbindung schlägt fehl oder führt zum Anmeldebildschirm zurück",
+    "D’Verbindung klappt net oder féiert op den Umeldungsecran zréck"
+  ],
+  "Vérifiez l’adresse du serveur et le compte Guteneo utilisé. Si l’application indique une permission refusée, un client inconnu ou une adresse de retour invalide, conservez le libellé de l’erreur et faites vérifier la configuration. Ne transmettez ni mot de passe ni jeton.": [
+    "Check the server address and the Guteneo account in use. If the app reports a denied permission, unknown client or invalid redirect address, keep the error message and have the configuration checked. Do not share any password or token.",
+    "Prüfen Sie die Serveradresse und das verwendete Guteneo-Konto. Meldet die Anwendung eine verweigerte Berechtigung, einen unbekannten Client oder eine ungültige Rückleitungsadresse, bewahren Sie den Fehlertext auf und lassen Sie die Konfiguration prüfen. Geben Sie weder Passwörter noch Tokens weiter.",
+    "Kontrolléiert d’Serveradress an de benotzte Guteneo-Kont. Wann d’App eng refuséiert Berechtegung, en onbekannte Client oder eng ongëlteg Retouradress mellt, behält de Feelertext a loosst d’Konfiguratioun kontrolléieren. Gitt kee Passwuert a keen Token weider."
+  ],
+  "Mon assistant ne retrouve pas mon document": [
+    "My assistant cannot find my document",
+    "Mein Assistent findet mein Dokument nicht",
+    "Mäin Assistent fënnt mäin Dokument net"
+  ],
+  "Le transfert des pièces jointes dépend de votre application. Si le fichier n’est pas accessible, déposez-le dans la rubrique Documents de votre espace Guteneo, puis demandez à votre assistant de retrouver ce document.": [
+    "Attachment transfer depends on your app. If the file is not accessible, upload it in Documents in your Guteneo workspace, then ask your assistant to find that document.",
+    "Die Übertragung von Anhängen hängt von Ihrer Anwendung ab. Falls die Datei nicht zugänglich ist, laden Sie sie unter Dokumente in Ihrem Guteneo-Bereich hoch und bitten Sie Ihren Assistenten anschließend, dieses Dokument zu finden.",
+    "D’Iwwerdroung vun Annexe hänkt vun Ärer App of. Wann d’Datei net zougänglech ass, lued se ënner Dokumenter an Ärem Guteneo-Beräich erop a frot Ären Assistent duerno, dëst Dokument erëmzefannen."
+  ],
+  "Les instructions de l’éditeur": [
+    "The provider’s instructions",
+    "Anleitungen des Anbieters",
+    "D’Instruktioune vum Ubidder"
+  ],
+  "Documentation vérifiée le 20 septembre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.": [
+    "Documentation checked on 20 September 2026. Menus and access options may vary depending on your account.",
+    "Dokumentation am 20. September 2026 geprüft. Menüs und Zugangsmöglichkeiten können je nach Konto variieren.",
+    "Dokumentatioun den 20. September 2026 kontrolléiert. Menüen an Zougangsméiglechkeete kënne jee no Kont variéieren."
+  ],
+  "Ce guide n’existe pas.": [
+    "This guide does not exist.",
+    "Diese Anleitung ist nicht vorhanden.",
+    "Dës Uleedung gëtt et net."
+  ],
+  "Choisissez votre application pour retrouver ses instructions.": [
+    "Choose your app to find its instructions.",
+    "Wählen Sie Ihre Anwendung aus, um die Anleitung zu finden.",
+    "Wielt Är App, fir hir Instruktiounen ze fannen."
+  ],
+  "Chargement de vos assistants…": [
+    "Loading your assistants…",
+    "Ihre Assistenten werden geladen…",
+    "Är Assistente gi gelueden…"
+  ],
+  "Impossible de vérifier vos assistants.": [
+    "Unable to check your assistants.",
+    "Ihre Assistenten konnten nicht geprüft werden.",
+    "Är Assistente konnten net kontrolléiert ginn."
+  ],
+  "Consulter mes connexions": [
+    "View my connections",
+    "Meine Verbindungen ansehen",
+    "Meng Verbindunge kucken"
+  ],
+  "Un échange avec votre assistant a été confirmé.": [
+    "An exchange with your assistant has been confirmed.",
+    "Ein Austausch mit Ihrem Assistenten wurde bestätigt.",
+    "En Austausch mat Ärem Assistent gouf bestätegt."
+  ],
+  "Votre autorisation est enregistrée. Terminez la vérification dans votre assistant.": [
+    "Your authorisation is saved. Finish the check in your assistant.",
+    "Ihre Berechtigung ist gespeichert. Schließen Sie die Prüfung in Ihrem Assistenten ab.",
+    "Är Autorisatioun ass gespäichert. Schléisst d’Kontroll an Ärem Assistent of."
+  ],
+  "Gérer mes assistants": [
+    "Manage my assistants",
+    "Meine Assistenten verwalten",
+    "Meng Assistente verwalten"
+  ],
+  "Terminer la connexion": [
+    "Finish connecting",
+    "Verbindung abschließen",
+    "D’Verbindung ofschléissen"
+  ],
+  "Commencez dans votre assistant habituel.": [
+    "Start in your usual assistant.",
+    "Beginnen Sie in Ihrem gewohnten Assistenten.",
+    "Fänkt an Ärem gewinnten Assistent un."
+  ],
+  "Connectez-le à Guteneo pour préparer vos documents et retrouver vos envois ici.": [
+    "Connect it to Guteneo to prepare your documents and find your dispatches here.",
+    "Verbinden Sie ihn mit Guteneo, um Ihre Dokumente vorzubereiten und Ihre Sendungen hier zu finden.",
+    "Verbannt e mat Guteneo, fir Är Dokumenter virzebereeden an Är Sendungen hei erëmzefannen."
+  ],
+  "Utiliser mon assistant": [
+    "Use my assistant",
+    "Meinen Assistenten verwenden",
+    "Mäin Assistent benotzen"
+  ],
+  "Vous pouvez aussi préparer votre envoi directement.": [
+    "You can also prepare your dispatch directly.",
+    "Sie können Ihre Sendung auch direkt vorbereiten.",
+    "Dir kënnt Är Sendung och direkt virbereeden."
+  ],
+  "Envoyer depuis Guteneo": [
+    "Send from Guteneo",
+    "Über Guteneo versenden",
+    "Vu Guteneo aus schécken"
+  ],
+  "Choisir un assistant pour commencer": [
+    "Choose an assistant to get started",
+    "Zum Starten einen Assistenten auswählen",
+    "En Assistent wielen, fir unzefänken"
+  ],
+  "Mes connexions": [
+    "My connections",
+    "Meine Verbindungen",
+    "Meng Verbindungen"
+  ],
+  "Actualiser": ["Refresh", "Aktualisieren", "Aktualiséieren"],
+  "Après votre première demande dans l’assistant, revenez ici pour retrouver le dernier échange confirmé.": [
+    "After your first request in the assistant, return here to find the latest confirmed exchange.",
+    "Kehren Sie nach Ihrer ersten Anfrage im Assistenten hierher zurück, um den letzten bestätigten Austausch zu sehen.",
+    "Kommt no Ärer éischter Ufro am Assistent heihinner zréck, fir de leschte bestätegten Austausch ze gesinn."
+  ],
+  "Démonstration : aucune connexion réelle n’est créée ou vérifiée dans cet aperçu.": [
+    "Demo: no real connection is created or verified in this preview.",
+    "Demonstration: In dieser Vorschau wird keine echte Verbindung erstellt oder geprüft.",
+    "Demonstratioun: An dëser Virschau gëtt keng richteg Verbindung erstallt oder kontrolléiert."
+  ],
+  "Impossible de vérifier vos connexions. Réessayez avec « Actualiser ».": [
+    "Unable to check your connections. Try again with Refresh.",
+    "Ihre Verbindungen konnten nicht geprüft werden. Versuchen Sie es mit „Aktualisieren“ erneut.",
+    "Är Verbindunge konnten net kontrolléiert ginn. Probéiert et mat „Aktualiséieren“ nach eng Kéier."
+  ],
+  "Assistant autorisé": [
+    "Authorised assistant",
+    "Autorisierter Assistent",
+    "Autoriséierten Assistent"
+  ],
+  "Autorisation révoquée": [
+    "Authorisation revoked",
+    "Berechtigung widerrufen",
+    "Autorisatioun widderruff"
+  ],
+  "Connexion vérifiée": [
+    "Connection verified",
+    "Verbindung geprüft",
+    "Verbindung kontrolléiert"
+  ],
+  "Autorisation active · Premier échange à vérifier": [
+    "Authorisation active · First exchange to be checked",
+    "Berechtigung aktiv · Erster Austausch noch zu prüfen",
+    "Autorisatioun aktiv · Éischten Austausch nach ze kontrolléieren"
+  ],
+  "Dernier échange réussi :": [
+    "Last successful exchange:",
+    "Letzter erfolgreicher Austausch:",
+    "Leschten erfollegräichen Austausch:"
+  ],
+  ". La préparation et l’envoi restent soumis à leurs vérifications.": [
+    ". Preparation and sending remain subject to their checks.",
+    ". Vorbereitung und Versand unterliegen weiterhin ihren Prüfungen.",
+    ". D’Virbereedung an d’Verschécke bleiwen un hir Kontrolle gebonnen."
+  ],
+  "Ouvrez votre assistant avec Guteneo activé et utilisez la demande de vérification du guide.": [
+    "Open your assistant with Guteneo enabled and use the guide’s verification prompt.",
+    "Öffnen Sie Ihren Assistenten mit aktiviertem Guteneo und verwenden Sie die Prüfanfrage aus der Anleitung.",
+    "Maacht Ären Assistent mat aktivéiertem Guteneo op a benotzt d’Kontrollufro aus der Uleedung."
+  ],
+  "Référence de la connexion": [
+    "Connection reference",
+    "Verbindungsreferenz",
+    "Referenz vun der Verbindung"
+  ],
+  "Autorisation créée le": [
+    "Authorisation created on",
+    "Berechtigung erstellt am",
+    "Autorisatioun erstallt den"
+  ],
+  "Aucun assistant autorisé pour ce compte. Choisissez un guide pour commencer, ou envoyez directement depuis Guteneo.": [
+    "No assistants authorised for this account. Choose a guide to get started, or send directly from Guteneo.",
+    "Für dieses Konto sind keine Assistenten autorisiert. Wählen Sie zum Starten eine Anleitung oder versenden Sie direkt über Guteneo.",
+    "Kee Assistent fir dëse Kont autoriséiert. Wielt eng Uleedung, fir unzefänken, oder schéckt direkt vu Guteneo aus."
+  ],
+  "Tous les assistants": [
+    "All assistants",
+    "Alle Assistenten",
+    "All Assistenten"
+  ],
+  "Vos assistants, votre correspondance.": [
+    "Your assistants, your correspondence.",
+    "Ihre Assistenten, Ihre Korrespondenz.",
+    "Är Assistenten, Är Korrespondenz."
+  ],
+  "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.": [
+    "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
+    "Verbinden Sie Ihren Assistenten über MCP mit Guteneo und finden Sie Ihre Verbindungen hier. Jede Anleitung begleitet Sie, ohne auf ein veröffentlichtes Plugin warten zu müssen.",
+    "Verbannt Ären Assistent iwwer MCP mat Guteneo a fannt Är Verbindungen hei erëm. All Uleedung begleet Iech, ouni op e publizéierte Plugin ze waarden."
+  ],
+  "Ce guide n’existe pas. Choisissez un assistant ci-dessous.": [
+    "This guide does not exist. Choose an assistant below.",
+    "Diese Anleitung ist nicht vorhanden. Wählen Sie unten einen Assistenten aus.",
+    "Dës Uleedung gëtt et net. Wielt hei ënnen en Assistent."
+  ],
+  "Ajouter un assistant": [
+    "Add an assistant",
+    "Assistenten hinzufügen",
+    "En Assistent derbäifügen"
+  ],
+  "Quel assistant utilisez-vous ?": [
+    "Which assistant do you use?",
+    "Welchen Assistenten verwenden Sie?",
+    "Wéi een Assistent benotzt Dir?"
+  ],
+  "Envoyez aussi directement.": [
+    "You can also send directly.",
+    "Versenden Sie auch direkt.",
+    "Schéckt och direkt."
+  ],
+  "Un document, un destinataire, une vérification : votre espace Guteneo fonctionne sans assistant.": [
+    "One document, one recipient, one check: your Guteneo workspace works without an assistant.",
+    "Ein Dokument, ein Empfänger, eine Prüfung: Ihr Guteneo-Bereich funktioniert ohne Assistenten.",
+    "En Dokument, en Empfänger, eng Kontroll: Äre Guteneo-Beräich funktionéiert ouni Assistent."
+  ],
+  "L’invitation de démarrage est masquée sur ce navigateur.": [
+    "The getting-started invitation is hidden in this browser.",
+    "Die Einstiegseinladung ist in diesem Browser ausgeblendet.",
+    "D’Startinvitatioun ass an dësem Browser verstoppt."
+  ],
+  "Réafficher l’invitation": [
+    "Show the invitation again",
+    "Einladung wieder anzeigen",
+    "D’Invitatioun erëm weisen"
+  ],
+  "Ce que vous autorisez": [
+    "What you authorise",
+    "Was Sie erlauben",
+    "Wat Dir autoriséiert"
+  ],
+  "Gérer les préférences de mon compte": [
+    "Manage my account preferences",
+    "Meine Kontoeinstellungen verwalten",
+    "D’Astellunge vu mengem Kont verwalten"
+  ],
+  "Configuration avancée": [
+    "Advanced configuration",
+    "Erweiterte Konfiguration",
+    "Erweidert Konfiguratioun"
+  ],
+  "Télécharger le paquet du plugin (installation manuelle)": [
+    "Download the plugin package (manual installation)",
+    "Plugin-Paket herunterladen (manuelle Installation)",
+    "De Plugin-Pak eroflueden (manuell Installatioun)"
+  ],
+  "Documentation développeurs": [
+    "Developer documentation",
+    "Entwicklerdokumentation",
+    "Entwécklerdokumentatioun"
+  ],
+  "État du service": ["Service status", "Dienststatus", "Status vum Service"],
+  "Aller au contenu": [
+    "Skip to content",
+    "Zum Inhalt springen",
+    "Bei den Inhalt sprangen"
+  ],
+  "Navigation principale": [
+    "Main navigation",
+    "Hauptnavigation",
+    "Haaptnavigatioun"
+  ],
+  "Assistants": ["Assistants", "Assistenten", "Assistenten"],
+  "Tarifs": ["Pricing", "Preise", "Präisser"],
+  "Mon espace": ["My workspace", "Mein Bereich", "Mäi Beräich"],
+  "Retrouvez les instructions pour votre assistant dans le catalogue.": [
+    "Find instructions for your assistant in the catalogue.",
+    "Finden Sie die Anleitung für Ihren Assistenten im Katalog.",
+    "Fannt d’Instruktioune fir Ären Assistent am Katalog."
+  ],
+  "Choisir mon assistant": [
+    "Choose my assistant",
+    "Meinen Assistenten auswählen",
+    "Mäin Assistent wielen"
+  ],
+  "Votre assistant.": ["Your assistant.", "Ihr Assistent.", "Ären Assistent."],
+  "Votre correspondance.": [
+    "Your correspondence.",
+    "Ihre Korrespondenz.",
+    "Är Korrespondenz."
+  ],
+  "Connectez votre assistant à Guteneo par MCP. Choisissez votre outil et suivez les étapes pour ajouter le serveur et connecter votre compte.": [
+    "Connect your assistant to Guteneo via MCP. Choose your tool and follow the steps to add the server and connect your account.",
+    "Verbinden Sie Ihren Assistenten über MCP mit Guteneo. Wählen Sie Ihr Werkzeug und folgen Sie den Schritten, um den Server hinzuzufügen und Ihr Konto zu verbinden.",
+    "Verbannt Ären Assistent iwwer MCP mat Guteneo. Wielt Äert Wierkzeug a follegt de Schrëtt, fir de Server derbäizesetzen an Äre Kont ze verbannen."
+  ],
+  "L’installation par MCP ne nécessite pas de plugin publié. Les guides sont accessibles sans compte.": [
+    "Installation via MCP does not require a published plugin. The guides are available without an account.",
+    "Die Installation über MCP erfordert kein veröffentlichtes Plugin. Die Anleitungen sind ohne Konto zugänglich.",
+    "D’Installatioun iwwer MCP erfuerdert kee publizéierte Plugin. D’Uleedunge sinn ouni Kont zougänglech."
+  ],
+  "Vous avez déjà votre document ?": [
+    "Already have your document?",
+    "Haben Sie Ihr Dokument schon?",
+    "Hutt Dir Äert Dokument schonn?"
+  ],
+  "Ajoutez-le directement dans Guteneo, choisissez son destinataire et vérifiez le récapitulatif avant de confirmer. Aucun assistant n’est nécessaire.": [
+    "Add it directly in Guteneo, choose its recipient and check the summary before confirming. No assistant is required.",
+    "Fügen Sie es direkt in Guteneo hinzu, wählen Sie den Empfänger und prüfen Sie die Zusammenfassung, bevor Sie bestätigen. Sie benötigen keinen Assistenten.",
+    "Füügt et direkt a Guteneo derbäi, wielt den Empfänger a kontrolléiert den Iwwerbléck virun der Bestätegung. Keen Assistent ass néideg."
+  ],
+  "Vous composez dans votre assistant.": [
+    "Compose in your assistant.",
+    "Sie verfassen den Inhalt in Ihrem Assistenten.",
+    "Dir verfaasst den Inhalt an Ärem Assistent."
+  ],
+  "Vérification": ["Review", "Prüfung", "Kontroll"],
+  "Vous relisez les détails dans Guteneo.": [
+    "Review the details in Guteneo.",
+    "Sie prüfen die Details in Guteneo.",
+    "Dir kontrolléiert d’Detailer a Guteneo."
+  ],
+  "Vous retrouvez le résultat de chaque étape.": [
+    "See the result of each step.",
+    "Sie sehen das Ergebnis jedes Schritts.",
+    "Dir gesitt d’Resultat vun all Schrëtt."
+  ],
+  "Prépare l’envoi de Correspondance.pdf par fax à Maison Exemple.": [
+    "Prepare to fax Correspondence.pdf to Example Company.",
+    "Bereite den Faxversand von Korrespondenz.pdf an Beispielfirma vor.",
+    "Bereet de Faxversand vu Korrespondenz.pdf un d’Beispillfirma vir."
+  ],
+  "Destinataire et numéro de fax fictifs": [
+    "Fictional recipient and fax number",
+    "Fiktiver Empfänger und fiktive Faxnummer",
+    "Fiktiven Empfänger a fiktiv Faxnummer"
+  ],
+  "Plafond d’exemple": [
+    "Example spending limit",
+    "Beispiel-Kostenobergrenze",
+    "Beispill fir eng Käschtegrenz"
+  ],
+  "Prise en charge": [
+    "Accepted for processing",
+    "Zur Bearbeitung angenommen",
+    "Fir d’Veraarbechtung ugeholl"
+  ],
+  "Le prestataire a accepté la demande de fax.": [
+    "The provider accepted the fax request.",
+    "Der Anbieter hat den Faxauftrag angenommen.",
+    "Den Ubidder huet d’Faxufro ugeholl."
+  ],
+  "Transmission terminée": [
+    "Transmission complete",
+    "Übertragung abgeschlossen",
+    "Iwwerdroung ofgeschloss"
+  ],
+  "Les 2 pages ont été transmises au télécopieur destinataire.": [
+    "The 2 pages were transmitted to the recipient’s fax machine.",
+    "Die 2 Seiten wurden an das Faxgerät des Empfängers übermittelt.",
+    "Déi 2 Säite goufen un de Faxapparat vum Empfänger iwwerdroen."
+  ],
+  "Réception technique confirmée": [
+    "Technical receipt confirmed",
+    "Technischer Empfang bestätigt",
+    "Techneschen Empfang bestätegt"
+  ],
+  "Cet accusé ne prouve pas la lecture du document.": [
+    "This receipt does not prove that the document was read.",
+    "Diese Bestätigung belegt nicht, dass das Dokument gelesen wurde.",
+    "Dës Bestätegung beweist net, datt d’Dokument gelies gouf."
+  ],
+  "Prépare un e-mail à Maison Exemple avec Correspondance.pdf en pièce jointe.": [
+    "Prepare an email to Example Company with Correspondence.pdf attached.",
+    "Bereite eine E-Mail an Beispielfirma mit Korrespondenz.pdf als Anhang vor.",
+    "Bereet eng E-Mail un d’Beispillfirma mat Korrespondenz.pdf als Annex vir."
+  ],
+  "Adresse fictive réservée à cet exemple": [
+    "Fictional address reserved for this example",
+    "Fiktive Adresse nur für dieses Beispiel",
+    "Fiktiv Adress nëmme fir dëst Beispill"
+  ],
+  "Prix d’exemple": ["Example price", "Beispielpreis", "Beispillpräis"],
+  "Le prestataire a accepté le message et sa pièce jointe.": [
+    "The provider accepted the message and its attachment.",
+    "Der Anbieter hat die Nachricht und ihren Anhang angenommen.",
+    "Den Ubidder huet de Message a säin Annex ugeholl."
+  ],
+  "Message remis au serveur": [
+    "Message delivered to server",
+    "Nachricht an Server übergeben",
+    "Message un de Server iwwerreecht"
+  ],
+  "Le serveur de messagerie destinataire a accepté l’e-mail.": [
+    "The recipient’s mail server accepted the email.",
+    "Der Mailserver des Empfängers hat die E-Mail angenommen.",
+    "De Mailserver vum Empfänger huet d’E-Mail ugeholl."
+  ],
+  "Lecture non confirmée": [
+    "Reading not confirmed",
+    "Lesen nicht bestätigt",
+    "Liesen net bestätegt"
+  ],
+  "La remise technique ne prouve pas l’ouverture ou la lecture.": [
+    "Technical delivery does not prove opening or reading.",
+    "Die technische Übergabe belegt weder das Öffnen noch das Lesen.",
+    "Déi technesch Iwwerreechung beweist weder d’Opmaachen nach d’Liesen."
+  ],
+  "Prépare l’envoi de Correspondance.pdf par courrier à Maison Exemple.": [
+    "Prepare to post Correspondence.pdf to Example Company.",
+    "Bereite den Postversand von Korrespondenz.pdf an Beispielfirma vor.",
+    "Bereet de Postversand vu Korrespondenz.pdf un d’Beispillfirma vir."
+  ],
+  "Destinataire et adresse postale fictifs": [
+    "Fictional recipient and postal address",
+    "Fiktiver Empfänger und fiktive Postanschrift",
+    "Fiktiven Empfänger a fiktiv Postadress"
+  ],
+  "Le prestataire a accepté le document pour impression.": [
+    "The provider accepted the document for printing.",
+    "Der Anbieter hat das Dokument zum Druck angenommen.",
+    "Den Ubidder huet d’Dokument fir den Drock ugeholl."
+  ],
+  "Remise à la poste": [
+    "Handed to postal service",
+    "An die Post übergeben",
+    "Un d’Post iwwerreecht"
+  ],
+  "La lettre a été imprimée, mise sous pli puis remise au réseau postal.": [
+    "The letter was printed, placed in an envelope and handed to the postal network.",
+    "Der Brief wurde gedruckt, kuvertiert und an das Postnetz übergeben.",
+    "De Bréif gouf gedréckt, an eng Enveloppe gestach an un d’Postnetz iwwerreecht."
+  ],
+  "Livraison non confirmée": [
+    "Delivery not confirmed",
+    "Zustellung nicht bestätigt",
+    "Liwwerung net bestätegt"
+  ],
+  "La remise à la poste ne prouve pas la réception par le destinataire.": [
+    "Handover to the postal service does not prove receipt by the recipient.",
+    "Die Übergabe an die Post belegt nicht den Empfang durch den Empfänger.",
+    "D’Iwwerreechung un d’Post beweist net, datt den Empfänger de Bréif kritt huet."
+  ],
+  "Une demande.": ["One request.", "Eine Anfrage.", "Eng Ufro."],
+  "Une vérification.": ["One review.", "Eine Prüfung.", "Eng Kontroll."],
+  "Un envoi.": ["One dispatch.", "Eine Sendung.", "Eng Sendung."],
+  "Vous composez. Guteneo réunit les détails pour votre accord, puis vous permet de suivre chaque étape.": [
+    "You compose. Guteneo brings the details together for your approval, then lets you track every step.",
+    "Sie verfassen den Inhalt. Guteneo stellt die Details für Ihre Zustimmung zusammen und ermöglicht Ihnen anschließend, jeden Schritt zu verfolgen.",
+    "Dir verfaasst den Inhalt. Guteneo stellt d’Detailer fir Är Zoustëmmung zesummen a léisst Iech duerno all Schrëtt verfollegen."
+  ],
+  "Étapes de la démonstration": [
+    "Demo steps",
+    "Schritte der Demonstration",
+    "Schrëtt vun der Demonstratioun"
+  ],
+  "Démonstration — aucun envoi réel": [
+    "Demo — no real dispatch",
+    "Demonstration — kein echter Versand",
+    "Demonstratioun — keng richteg Sendung"
+  ],
+  "Choisir un canal": ["Choose a channel", "Kanal auswählen", "E Kanal wielen"],
+  "Canal de démonstration": [
+    "Demo channel",
+    "Demokanal",
+    "Demonstratiounskanal"
+  ],
+  "Tout commence avec vos mots.": [
+    "It all starts with your words.",
+    "Alles beginnt mit Ihren Worten.",
+    "Alles fänkt mat Äre Wierder un."
+  ],
+  "Vous": ["You", "Sie", "Dir"],
+  "Guteneo": ["Guteneo", "Guteneo", "Guteneo"],
+  "Le PDF de 2 pages est prêt. Vérifiez le destinataire, le canal et": [
+    "The 2-page PDF is ready. Check the recipient, channel and",
+    "Das PDF mit 2 Seiten ist bereit. Prüfen Sie Empfänger, Kanal und",
+    "De PDF mat 2 Säiten ass prett. Kontrolléiert den Empfänger, de Kanal an"
+  ],
+  "le plafond": [
+    "the spending limit",
+    "die Kostenobergrenze",
+    "d’Käschtegrenz"
+  ],
+  "le prix": ["the price", "den Preis", "de Präis"],
+  "dans Guteneo avant de donner votre accord.": [
+    "in Guteneo before giving your approval.",
+    "in Guteneo, bevor Sie zustimmen.",
+    "a Guteneo, ier Dir zoustëmmt."
+  ],
+  "Conversation, document et destinataire fictifs.": [
+    "Fictional conversation, document and recipient.",
+    "Fiktive Unterhaltung, fiktives Dokument und fiktiver Empfänger.",
+    "Fiktivt Gespréich, fiktivt Dokument a fiktiven Empfänger."
+  ],
+  "Voir la vérification": [
+    "View the review step",
+    "Prüfung ansehen",
+    "D’Kontroll kucken"
+  ],
+  "L’épreuve avant l’envoi.": [
+    "The proof before dispatch.",
+    "Die Prüfung vor dem Versand.",
+    "D’Kontroll virum Versand."
+  ],
+  "Document": ["Document", "Dokument", "Dokument"],
+  "Correspondance.pdf": [
+    "Correspondence.pdf",
+    "Korrespondenz.pdf",
+    "Korrespondenz.pdf"
+  ],
+  "2 pages · document fictif": [
+    "2 pages · fictional document",
+    "2 Seiten · fiktives Dokument",
+    "2 Säiten · fiktivt Dokument"
+  ],
+  "Destinataire": ["Recipient", "Empfänger", "Empfänger"],
+  "Canal": ["Channel", "Kanal", "Kanal"],
+  "Montant fictif, aucun tarif réel": [
+    "Fictional amount, not a real rate",
+    "Fiktiver Betrag, kein echter Preis",
+    "Fiktive Montant, kee richtege Präis"
+  ],
+  "Simuler la validation": [
+    "Simulate approval",
+    "Freigabe simulieren",
+    "D’Fräigab simuléieren"
+  ],
+  "Chaque étape laisse une trace.": [
+    "Every step leaves a trace.",
+    "Jeder Schritt hinterlässt eine Spur.",
+    "All Schrëtt hannerléisst eng Spuer."
+  ],
+  "Suivi fictif ·": [
+    "Fictional tracking ·",
+    "Fiktiver Verlauf ·",
+    "Fiktive Suivi ·"
+  ],
+  "· Correspondance.pdf": [
+    "· Correspondence.pdf",
+    "· Korrespondenz.pdf",
+    "· Korrespondenz.pdf"
+  ],
+  "Ce résultat illustre le suivi. Aucun document n’a été transmis.": [
+    "This result illustrates tracking. No document was transmitted.",
+    "Dieses Ergebnis veranschaulicht die Nachverfolgung. Es wurde kein Dokument übermittelt.",
+    "Dëst Resultat illustréiert de Suivi. Et gouf keen Dokument iwwerdroen."
+  ],
+  "Préparer mon premier envoi": [
+    "Prepare my first dispatch",
+    "Meine erste Sendung vorbereiten",
+    "Meng éischt Sendung virbereeden"
+  ],
+  "Le même jour ouvré": [
+    "The same working day",
+    "Am selben Werktag",
+    "Dee selwechte Schaffdag"
+  ],
+  "Le jour ouvré suivant": [
+    "The next working day",
+    "Am nächsten Werktag",
+    "Den nächste Schaffdag"
+  ],
+  "Sous deux jours ouvrés": [
+    "Within two working days",
+    "Innerhalb von zwei Werktagen",
+    "Bannent zwee Schaffdeeg"
+  ],
+  "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?": [
+    "By what time should a letter be confirmed for processing?",
+    "Bis wann muss ein Brief zur Verarbeitung bestätigt werden?",
+    "Bis wéini muss e Bréif fir d’Veraarbechtung bestätegt ginn?"
+  ],
+  "L’heure limite dépend du pays du destinataire. Les horaires ci-dessous sont en heure de Paris : CET en hiver, CEST en été. Ils s’appliquent aux courriers transmis au service d’impression avant cette limite.": [
+    "The cut-off time depends on the recipient’s country. The times below are in Paris time: CET in winter, CEST in summer. They apply to letters sent to the printing service before this cut-off.",
+    "Der Annahmeschluss hängt vom Empfängerland ab. Die folgenden Zeiten gelten in Pariser Zeit: MEZ im Winter, MESZ im Sommer. Sie gelten für Briefe, die vor diesem Zeitpunkt an den Druckdienst übermittelt werden.",
+    "D’Ofschlosszäit hänkt vum Land vum Empfänger of. D’Zäiten hei ënnen si Paräisser Zäit: CET am Wanter, CEST am Summer. Si gëlle fir Bréiwer, déi virun dëser Zäit un den Drockservice iwwerdroe ginn."
+  ],
+  "Impression et remise à la poste, selon la destination": [
+    "Printing and handover to the postal service, by destination",
+    "Druck und Postübergabe nach Zielland",
+    "Drock an Iwwerreechung un d’Post, no Destinatioun"
+  ],
+  "Pays destinataire": [
+    "Recipient country",
+    "Empfängerland",
+    "Land vum Empfänger"
+  ],
+  "Avant": ["Before", "Vor", "Virun"],
+  "Vendredi :": ["Friday:", "Freitag:", "Freides:"],
+  "Après l’heure limite, le courrier passe au prochain cycle de traitement. Il n’y a pas d’impression ni de remise à la poste les week-ends et jours fériés.": [
+    "After the cut-off, the letter moves to the next processing cycle. No printing or handover to the postal service takes place on weekends or public holidays.",
+    "Nach dem Annahmeschluss wird der Brief im nächsten Verarbeitungszyklus bearbeitet. An Wochenenden und Feiertagen erfolgen weder Druck noch Postübergabe.",
+    "No der Ofschlosszäit kënnt de Bréif an den nächste Veraarbechtungszyklus. Weekends a Feierdeeg gëtt weder gedréckt nach un d’Post iwwerreecht."
+  ],
+  "Les envois Economy vers l’Allemagne et le courrier B en nombre vers la Suisse peuvent demander un délai de traitement supplémentaire. Les destinations et les modes d’envoi disponibles sont vérifiés lors de la préparation du courrier.": [
+    "Economy dispatches to Germany and bulk B Mail to Switzerland may require additional processing time. Available destinations and delivery methods are checked when preparing the letter.",
+    "Economy-Sendungen nach Deutschland und B-Post als Massensendung in die Schweiz können zusätzliche Verarbeitungszeit erfordern. Verfügbare Zielländer und Versandarten werden bei der Briefvorbereitung geprüft.",
+    "Economy-Sendungen an Däitschland a B-Post als Massesendung an d’Schwäiz kënnen zousätzlech Veraarbechtungszäit erfuerderen. Disponibel Destinatiounen a Versandaarte gi bei der Virbereedung vum Bréif kontrolléiert."
+  ],
+  "Ces horaires concernent la remise à la poste, pas la réception par le destinataire. Le délai de distribution s’ajoute ensuite.": [
+    "These times concern handover to the postal service, not receipt by the recipient. Delivery time is additional.",
+    "Diese Zeiten betreffen die Postübergabe, nicht den Empfang durch den Empfänger. Die Zustelldauer kommt anschließend hinzu.",
+    "Dës Zäite betreffen d’Iwwerreechung un d’Post, net den Empfang beim Empfänger. D’Liwwerzäit kënnt duerno derbäi."
+  ],
+  "Conversation web": ["Web conversation", "Web-Unterhaltung", "Web-Gespréich"],
+  "ChatGPT web": ["ChatGPT web", "ChatGPT im Web", "ChatGPT um Web"],
+  "Ouvrir ChatGPT": ["Open ChatGPT", "ChatGPT öffnen", "ChatGPT opmaachen"],
+  "Guide officiel ChatGPT": [
+    "Official ChatGPT guide",
+    "Offizielle ChatGPT-Anleitung",
+    "Offiziell ChatGPT-Uleedung"
+  ],
+  "Claude web": ["Claude web", "Claude im Web", "Claude um Web"],
+  "Ouvrir Claude": ["Open Claude", "Claude öffnen", "Claude opmaachen"],
+  "Guide officiel Claude": [
+    "Official Claude guide",
+    "Offizielle Claude-Anleitung",
+    "Offiziell Claude-Uleedung"
+  ],
+  "Grok web": ["Grok web", "Grok im Web", "Grok um Web"],
+  "Guide officiel Grok": [
+    "Official Grok guide",
+    "Offizielle Grok-Anleitung",
+    "Offiziell Grok-Uleedung"
+  ],
+  "Configuration VS Code": [
+    "VS Code configuration",
+    "VS-Code-Konfiguration",
+    "VS-Code-Konfiguratioun"
+  ],
+  "Guide officiel VS Code": [
+    "Official VS Code guide",
+    "Offizielle VS-Code-Anleitung",
+    "Offiziell VS-Code-Uleedung"
+  ],
+  "Configuration Copilot CLI": [
+    "Copilot CLI configuration",
+    "Copilot-CLI-Konfiguration",
+    "Copilot-CLI-Konfiguratioun"
+  ],
+  "Guide officiel Copilot CLI": [
+    "Official Copilot CLI guide",
+    "Offizielle Copilot-CLI-Anleitung",
+    "Offiziell Copilot-CLI-Uleedung"
+  ],
+  "Copilot indique needs-auth": [
+    "Copilot reports needs-auth",
+    "Copilot zeigt needs-auth an",
+    "Copilot weist needs-auth"
+  ],
+  "Dans Agents Toolkit, choisissez Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server.": [
+    "In Agents Toolkit, select Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server.",
+    "Wählen Sie in Agents Toolkit Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server.",
+    "Wielt am Agents Toolkit Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server."
+  ],
+  "Guide officiel Copilot Studio": [
+    "Official Copilot Studio guide",
+    "Offizielle Copilot-Studio-Anleitung",
+    "Offiziell Copilot-Studio-Uleedung"
+  ],
+  "Guide officiel Cursor": [
+    "Official Cursor guide",
+    "Offizielle Cursor-Anleitung",
+    "Offiziell Cursor-Uleedung"
+  ],
+  "Copier": ["Copy", "Kopieren", "Kopéieren"],
+  "Demande": ["Request", "Anfrage", "Ufro"],
+  "Suivi": ["Tracking", "Nachverfolgung", "Suivi"],
+  "E-mail": ["Email", "E-Mail", "E-Mail"],
+  "Courrier": ["Post", "Briefpost", "Bréifpost"],
+  "Maison Exemple · Ville Exemple": [
+    "Example Company · Example City",
+    "Beispielfirma · Beispielstadt",
+    "Beispillfirma · Beispillstad"
+  ],
+  "Autres pays": ["Other countries", "Andere Länder", "Aner Länner"],
+  "Choisir la version de {0}": [
+    "Choose the version of {0}",
+    "Version von {0} auswählen",
+    "D’Versioun vu {0} wielen"
+  ],
+  "Installation dans {0}": [
+    "Installation in {0}",
+    "Installation in {0}",
+    "Installatioun a {0}"
+  ]
+}

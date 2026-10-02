@@ -5,6 +5,19 @@ import { writeCloudflareSecrets } from "./secure-setup.mjs";
 
 export const TENANT = "pieper.eu.auth0.com";
 export const AUDIENCE = "https://guteneo.com/mcp";
+// Auth0's documented idle default is 30 days. The 90-day absolute cap is our
+// bounded hosted-client policy; rotation does not extend that family lifetime.
+// https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-expiration
+// https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation
+export const HOSTED_REFRESH_TOKEN_POLICY = Object.freeze({
+  rotation_type: "rotating",
+  expiration_type: "expiring",
+  token_lifetime: 90 * 24 * 60 * 60,
+  infinite_token_lifetime: false,
+  idle_token_lifetime: 30 * 24 * 60 * 60,
+  infinite_idle_token_lifetime: false,
+  leeway: 3,
+});
 const OWNER = "guteneo-setup-v1";
 const CONNECTION = "Guteneo-Accounts";
 const ACTION_NAMES = [
@@ -24,6 +37,30 @@ function authPolicy(options = {}) {
       "Choose verified_email or verified_email_and_mfa.",
     );
   return policy;
+}
+function refreshClientKeys(options = {}) {
+  const keys = options.refreshClientKeys ?? [];
+  if (
+    !Array.isArray(keys) ||
+    keys.some((key) => !["claudeHosted", "chatgpt"].includes(key)) ||
+    new Set(keys).size !== keys.length
+  )
+    fail(
+      "INVALID_REFRESH_CLIENTS",
+      "Select each hosted refresh client once: claudeHosted or chatgpt.",
+    );
+  if (keys.length && authPolicy(options) !== "verified_email")
+    fail(
+      "REFRESH_POLICY_REQUIRES_VERIFIED_EMAIL",
+      "Hosted refresh is available only with the explicit verified_email policy.",
+    );
+  for (const key of keys)
+    if (!options[key === "claudeHosted" ? "claudeCallback" : "chatgptCallback"])
+      fail(
+        "REFRESH_CALLBACK_REQUIRED",
+        "Each selected hosted refresh client requires its exact callback.",
+      );
+  return [...keys].sort();
 }
 function ownedAction(actions, index) {
   return unique(
@@ -183,6 +220,7 @@ export function makeAuth0Api(run = cliJson) {
 }
 
 function clientSpecs(options) {
+  const refreshKeys = refreshClientKeys(options);
   const clients = [
     {
       key: "browser",
@@ -265,7 +303,12 @@ function clientSpecs(options) {
       client_metadata: { guteneo_managed_by: OWNER, guteneo_component: key },
       is_first_party: true,
       oidc_conformant: true,
-      grant_types: ["authorization_code"],
+      grant_types: refreshKeys.includes(key)
+        ? ["authorization_code", "refresh_token"]
+        : ["authorization_code"],
+      ...(refreshKeys.includes(key)
+        ? { refresh_token: { ...HOSTED_REFRESH_TOKEN_POLICY } }
+        : {}),
       jwt_configuration: { alg: "RS256", lifetime_in_seconds: 3600 },
       ...(key === "browser"
         ? {
@@ -279,11 +322,13 @@ function clientSpecs(options) {
 
 export function setupPlan(options = {}) {
   const policy = authPolicy(options);
+  const refreshKeys = refreshClientKeys(options);
   return {
     mode: "plan",
     tenant: TENANT,
     audience: AUDIENCE,
     authPolicy: policy,
+    refreshClientKeys: refreshKeys,
     resourceServer: {
       name: "Guteneo MCP",
       identifier: AUDIENCE,
@@ -291,7 +336,7 @@ export function setupPlan(options = {}) {
       token_dialect: "access_token",
       token_lifetime: 3600,
       token_lifetime_for_web: 3600,
-      allow_offline_access: false,
+      allow_offline_access: refreshKeys.length > 0,
       skip_consent_for_verifiable_first_party_clients: false,
       scopes: SCOPES.map((value) => ({
         value,
@@ -331,8 +376,9 @@ export function setupPlan(options = {}) {
       !options.chatgptCallback && "ChatGPT exact callback",
       !options.claudeCallback && "Claude hosted exact callback",
     ].filter(Boolean),
-    refreshTokens:
-      "Not enabled in this initial setup; reconnect after one hour.",
+    refreshTokens: refreshKeys.length
+      ? "Only selected hosted clients: rotating, 30-day idle and 90-day absolute expiry. Request offline_access and qualify the real host renewal."
+      : "Not enabled in this initial setup; reconnect after one hour.",
     humanLoginVerified: false,
   };
 }
@@ -341,14 +387,23 @@ export function actionSources(
   clientIds,
   connectionId,
   policy = "verified_email_and_mfa",
+  refreshClientIds = [],
 ) {
   authPolicy({ authPolicy: policy });
   if (!Array.isArray(clientIds) || !clientIds.length)
     fail("INVALID_CLIENTS", "OAuth clients are required.");
   clientIds.forEach(id);
+  if (!Array.isArray(refreshClientIds))
+    fail("INVALID_CLIENTS", "Explicit hosted refresh client IDs are required.");
+  refreshClientIds.forEach(id);
   id(connectionId);
-  const scope = `const ownClients = ${JSON.stringify(clientIds)};\n  const ownResource = event.resource_server?.identifier === ${JSON.stringify(AUDIENCE)};\n  if (!ownClients.includes(event.client?.client_id) && !ownResource) return;\n  if (event.connection?.id !== ${JSON.stringify(connectionId)}) { api.access.deny('Use the Guteneo account connection.'); return; }`;
-  const pkce = `const query = event.request?.query || {};\n  if (event.transaction?.protocol !== 'oidc-basic-profile' || query.code_challenge_method !== 'S256' || typeof query.code_challenge !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)) { api.access.deny('Guteneo requires an authorization code with S256 PKCE.'); return; }`;
+  const scopedClients = [...new Set([...clientIds, ...refreshClientIds])];
+  const scope = `const ownClients = ${JSON.stringify(scopedClients)};\n  const ownResource = event.resource_server?.identifier === ${JSON.stringify(AUDIENCE)};\n  if (!ownClients.includes(event.client?.client_id) && !ownResource) return;\n  if (event.connection?.id !== ${JSON.stringify(connectionId)}) { api.access.deny('Use the Guteneo account connection.'); return; }`;
+  // The protocol is Auth0's trusted transaction type, never a request-body hint.
+  // event.refresh_token and session details are Enterprise-only/optional; the
+  // Free beta relies on Auth0 grant validation plus explicit client/resource gates.
+  // https://auth0.com/docs/actions/reference/post-login/post-login-event-object
+  const grant = `const isRefresh = event.transaction?.protocol === 'oauth2-refresh-token';\n  if (isRefresh) {\n    const refreshClients = ${JSON.stringify([...new Set(refreshClientIds)])};\n    if (${JSON.stringify(policy)} !== 'verified_email' || !refreshClients.includes(event.client?.client_id) || !ownResource) { api.access.deny('Reconnect Guteneo with an approved hosted client.'); return; }\n    if (event.user?.email_verified !== true) { api.access.deny('Verify your Guteneo account before reconnecting.'); return; }\n  } else {\n    const query = event.request?.query || {};\n    if (event.transaction?.protocol !== 'oidc-basic-profile' || query.code_challenge_method !== 'S256' || typeof query.code_challenge !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)) { api.access.deny('Guteneo requires an authorization code with S256 PKCE.'); return; }\n  }`;
   const challenge =
     policy === "verified_email_and_mfa"
       ? `const factors = (event.user.enrolledFactors || []).filter((factor) => ['otp','webauthn-roaming','webauthn-platform','push-notification','phone','duo'].includes(factor.type));\n  if (factors.length) api.authentication.challengeWithAny(factors.map(({type}) => ({type})));\n  else api.authentication.enrollWith({type:'otp'});`
@@ -358,8 +413,8 @@ export function actionSources(
       ? "if (!completed) { api.access.deny('Complete multi-factor authentication to access Guteneo.'); return; }"
       : "";
   return [
-    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${pkce}\n  if (event.user?.email_verified !== true) return;\n  ${challenge}\n};\n`,
-    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${pkce}\n  if (event.user?.email_verified !== true) return;\n  const completed = (event.authentication?.methods || []).some((method) => method.name === 'mfa' && Number.isFinite(Date.parse(method.timestamp)) && Date.now() - Date.parse(method.timestamp) >= -30000 && Date.now() - Date.parse(method.timestamp) <= 300000);\n  ${requireMfa}\n  api.idToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  api.accessToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  if (completed) {\n    api.idToken.setCustomClaim('https://guteneo.com/mfa', true);\n    api.accessToken.setCustomClaim('https://guteneo.com/mfa', true);\n  }\n};\n`,
+    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${grant}\n  if (event.user?.email_verified !== true) return;\n  ${challenge}\n};\n`,
+    `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${grant}\n  if (event.user?.email_verified !== true) return;\n  const completed = !isRefresh && (event.authentication?.methods || []).some((method) => method.name === 'mfa' && Number.isFinite(Date.parse(method.timestamp)) && Date.now() - Date.parse(method.timestamp) >= -30000 && Date.now() - Date.parse(method.timestamp) <= 300000);\n  ${requireMfa}\n  api.idToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  api.accessToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  if (completed) {\n    api.idToken.setCustomClaim('https://guteneo.com/mfa', true);\n    api.accessToken.setCustomClaim('https://guteneo.com/mfa', true);\n  }\n};\n`,
   ];
 }
 
@@ -420,9 +475,20 @@ export async function inspectSetup(api, options = {}) {
   )
     blockers.push("chatgpt_callback_requires_response_iss");
   const clients = await pages(api, "clients", undefined, {
-    fields: "client_id,name,client_metadata",
+    fields: "client_id,name,client_metadata,grant_types",
     include_fields: "true",
   });
+  // An omitted option must not remove an existing hosted refresh grant or its
+  // Action allowlist during a later full setup run. Explicit rollback is separate.
+  for (const client of clients)
+    if (
+      client.client_metadata?.guteneo_managed_by === OWNER &&
+      client.grant_types?.includes("refresh_token") &&
+      !plan.refreshClientKeys.includes(
+        client.client_metadata?.guteneo_component,
+      )
+    )
+      blockers.push("existing_refresh_client_requires_explicit_selection");
   const resources = await pages(api, "resource-servers");
   // is_domain_connection exists in responses but not in the fields allowlist.
   // Keep connection options private while inspecting their ownership guards.
@@ -595,6 +661,7 @@ export async function runSetup({
     Object.values(clientIds),
     connection.id,
     plan.authPolicy,
+    plan.refreshClientKeys.map((key) => clientIds[key]),
   );
   const actionIds = [];
   for (let index = 0; index < ACTION_NAMES.length; index++) {
@@ -736,6 +803,10 @@ if (
           fail("INVALID_ARGUMENTS", "Supply one auth policy.");
         options.authPolicy = args[++i];
         authPolicy(options);
+      } else if (args[i] === "--refresh-client") {
+        if (!args[i + 1])
+          fail("INVALID_ARGUMENTS", "Supply one hosted refresh client key.");
+        (options.refreshClientKeys ??= []).push(args[++i]);
       } else if (
         ["--chatgpt-callback", "--claude-callback"].includes(args[i])
       ) {
@@ -749,7 +820,7 @@ if (
       } else
         fail(
           "INVALID_ARGUMENTS",
-          "Supported arguments: --inspect, --apply, --auth-policy POLICY, --chatgpt-callback URL, --claude-callback URL.",
+          "Supported arguments: --inspect, --apply, --auth-policy POLICY, --chatgpt-callback URL, --claude-callback URL, --refresh-client claudeHosted|chatgpt (repeatable).",
         );
     }
     console.log(JSON.stringify(await runSetup({ mode, options }), null, 2));

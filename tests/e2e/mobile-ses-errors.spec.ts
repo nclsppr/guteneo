@@ -1,12 +1,32 @@
 import { expect, test } from "@playwright/test";
 
-// Intercepted transport facts only. These are not AWS acceptance/rejection proofs.
-test("mobile email refusals explain capacity and AWS restrictions while uncertainty forbids a duplicate", async ({
+// Intercepted transport facts only. These are not provider acceptance/rejection proofs.
+test("mobile email refusals explain capacity and provider restrictions while uncertainty forbids a duplicate", async ({
   page,
   isMobile,
 }) => {
   test.skip(!isMobile, "Mobile status copy with local API fixtures");
   const scenarios = [
+    {
+      code: "RESEND_AUTHORIZATION_FAILED",
+      status: "failed",
+      phrase: "Resend a refusé l’accès au service d’envoi",
+    },
+    {
+      code: "RESEND_DAILY_QUOTA_EXCEEDED",
+      status: "failed",
+      phrase: "limite quotidienne d’e-mails Resend est atteinte",
+    },
+    {
+      code: "EMAIL_ATTACHMENT_TOO_LARGE",
+      status: "failed",
+      phrase: "Choisissez un PDF de 10 Mo maximum",
+    },
+    {
+      code: "RESEND_RESPONSE_UNKNOWN",
+      status: "submission_unknown",
+      phrase: "Ne recréez pas cet envoi",
+    },
     {
       code: "SES_RECIPIENT_NOT_QUALIFIED",
       status: "failed",
@@ -74,7 +94,7 @@ test("mobile email refusals explain capacity and AWS restrictions while uncertai
               attempts: [
                 {
                   id: "attempt_ui",
-                  provider: "ses",
+                  provider: scenario.code.startsWith("SES_") ? "ses" : "resend",
                   status: scenario.status === "failed" ? "rejected" : "unknown",
                   error_code: scenario.code,
                   created_at: "2026-09-17T10:00:00Z",
@@ -96,7 +116,7 @@ test("mobile email refusals explain capacity and AWS restrictions while uncertai
     await expect(page.getByRole("status")).toContainText(current.phrase);
     await expect(
       page.getByRole("button", {
-        name: /Confirmer l’envoi|Approuver cette version/,
+        name: /Confirmer l’envoi|Approuver cette version|Approuver et/,
       }),
     ).toHaveCount(0);
     expect(

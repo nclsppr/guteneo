@@ -56,8 +56,15 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   page,
   context,
 }, testInfo) => {
-  // Homepage session discovery belongs to its own context. Documentation must
-  // remain API-free and error-free regardless of that separate bootstrap.
+  // The preview makes no account requests. Public application pages discover
+  // saved person preferences through one read-only, denied guest session probe.
+  const sessionUrl = new URL("/api/session", baseURL).href;
+  const expectedDenial = (text: string, url: string | undefined) =>
+    publicApplication &&
+    url === sessionUrl &&
+    /^Failed to load resource: the server responded with a status of 401(?:\s|$)/.test(
+      text,
+    );
   const homeContext = await browser.newContext({
     baseURL,
     viewport: testInfo.project.use.viewport,
@@ -66,13 +73,6 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     const home = await homeContext.newPage();
     const homeRequests: string[] = [];
     const homeErrors: { text: string; url?: string }[] = [];
-    const sessionUrl = new URL("/api/session", baseURL).href;
-    const expectedDenial = (text: string, url: string | undefined) =>
-      publicApplication &&
-      url === sessionUrl &&
-      /^Failed to load resource: the server responded with a status of 401(?:\s|$)/.test(
-        text,
-      );
     home.on("request", (request) => homeRequests.push(request.url()));
     home.on("pageerror", (error) => homeErrors.push({ text: error.message }));
     home.on("console", (message) => {
@@ -124,21 +124,63 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     await homeContext.close();
   }
   const requested: string[] = [];
-  const errors: string[] = [];
-  page.on("request", (request) => requested.push(request.url()));
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+  const accountRequests: { url: string; method: string }[] = [];
+  const errors: { text: string; url?: string }[] = [];
+  page.on("request", (request) => {
+    requested.push(request.url());
+    if (/^\/(api|auth|oauth|mcp)(?:\/|$)/.test(new URL(request.url()).pathname))
+      accountRequests.push({ url: request.url(), method: request.method() });
   });
+  page.on("pageerror", (error) => errors.push({ text: error.message }));
+  page.on("console", (message) => {
+    if (message.type() === "error")
+      errors.push({ text: message.text(), url: message.location().url });
+  });
+  const documentationSession = publicApplication
+    ? page.waitForResponse(
+        (response) =>
+          response.url() === sessionUrl &&
+          response.request().method() === "GET",
+      )
+    : null;
+  const documentationDenial = publicApplication
+    ? page.waitForEvent("console", {
+        predicate: (message) =>
+          message.type() === "error" &&
+          expectedDenial(message.text(), message.location().url),
+      })
+    : null;
   await page.goto(
     "/developpeurs/?url=https://untrusted.invalid/spec.json&config=https://untrusted.invalid/config.json",
   );
+  if (documentationSession && documentationDenial) {
+    const response = await documentationSession;
+    expect(response.status()).toBe(401);
+    expect(await response.json()).toMatchObject({
+      error: { code: "AUTHENTICATION_REQUIRED" },
+    });
+    await response.finished();
+    await documentationDenial;
+  }
+  const expectAccountBoundary = () => {
+    expect(accountRequests).toEqual(
+      publicApplication ? [{ url: sessionUrl, method: "GET" }] : [],
+    );
+    expect(
+      errors.filter(({ text, url }) => !expectedDenial(text, url)),
+    ).toEqual([]);
+    expect(
+      errors.filter(({ text, url }) => expectedDenial(text, url)),
+    ).toHaveLength(publicApplication ? 1 : 0);
+  };
+  expectAccountBoundary();
   await expect(page.locator("main h1")).toBeVisible();
   expect(
     requested.filter(
       (url) =>
         /\/api\/|swagger|openapi\.json|untrusted\.invalid\//.test(url) &&
-        new URL(url).pathname !== "/developpeurs/",
+        new URL(url).pathname !== "/developpeurs/" &&
+        !(publicApplication && url === sessionUrl),
     ),
   ).toEqual([]);
   await page.screenshot({
@@ -184,9 +226,6 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     ),
   ).toEqual([]);
   expect(
-    requested.filter((url) => /\/api\//.test(new URL(url).pathname)),
-  ).toEqual([]);
-  expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
@@ -197,7 +236,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
       .first()
       .boundingBox())!.height,
   ).toBeLessThanOrEqual(44);
-  expect(errors).toEqual([]);
+  expectAccountBoundary();
   await page.screenshot({
     path: publicApplication
       ? testInfo.outputPath("reference.png")

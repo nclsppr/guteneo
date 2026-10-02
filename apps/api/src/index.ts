@@ -1,3 +1,10 @@
+import { ensureEmailSender } from "./email-setup";
+import {
+  prepareProtectedDocument,
+  handleProtectedDocumentRoute,
+  cleanupProtectedDocuments,
+} from "./protected-documents";
+import { emailProvider, resendConfigured } from "./resend-environment";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
@@ -38,6 +45,7 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
+import { handleMobileRoute } from "./mobile";
 import {
   configurePostalSenderForMcp,
   getPostalSetupForMcp,
@@ -111,8 +119,29 @@ export function getCapabilities(env: Env) {
         id: "email",
         liveSending: liveSendingEnabled(env, "email"),
         name: "E-mail",
-        provider: "Amazon SES",
-        status: env.AWS_ACCESS_KEY_ID
+        deliveryModes: ["none", "attachment", "protected_link"],
+        maxAttachmentBytes: 10_000_000,
+        protectedDocument: {
+          available:
+            env.MODE === "production" &&
+            emailProvider(env) === "resend" &&
+            resendConfigured(env) &&
+            Boolean(env.PROTECTED_DOCUMENTS_KEY),
+          priceMinor: 100,
+          currency: "EUR",
+          priceUnit: "document_hosting_term",
+          durationDays: [1, 7, 30],
+          defaultDurationDays: 7,
+          passwordDelivery: "sender_browser_only",
+          recipientAccountRequired: false,
+          endToEndEncrypted: false,
+        },
+        provider: emailProvider(env) === "resend" ? "Resend" : "Amazon SES",
+        status: (
+          emailProvider(env) === "resend"
+            ? resendConfigured(env)
+            : env.AWS_ACCESS_KEY_ID
+        )
           ? "configured_not_live_validated"
           : "not_configured",
       },
@@ -126,6 +155,15 @@ export function getCapabilities(env: Env) {
           : "not_configured",
       },
     ],
+    roadmap: {
+      recipientListAnyFormat: { available: false, status: "coming_soon" },
+      distributionOfOtherFileTypes: {
+        available: false,
+        examples: ["PDF", "Excel", "other_files"],
+        status: "coming_soon",
+      },
+      recipientAccounts: { available: false, status: "planned_later" },
+    },
     limits: LIMITS,
     liveSending: liveSendingEnabled(env),
     scanner: env.SCANNER
@@ -344,6 +382,11 @@ app.all("/mcp", (c) =>
   }),
 );
 app.use("*", async (c, next) => {
+  const protectedDocument = await handleProtectedDocumentRoute(
+    c.req.raw,
+    c.env,
+  );
+  if (protectedDocument) return protectedDocument;
   const stripe = await handleStripeWebhook(c.req.raw, c.env);
   if (stripe) return stripe;
   const webhook = await handleWebhook(c.req.raw, c.env, domain(c.env));
@@ -351,6 +394,14 @@ app.use("*", async (c, next) => {
   await next();
 });
 app.use("*", async (c, next) => {
+  const mobile = await handleMobileRoute(
+    c.req.raw,
+    c.env,
+    domain(c.env),
+    getCapabilities(c.env),
+    () => publishOutbox(c.env, domain(c.env)),
+  );
+  if (mobile) return mobile;
   const auth = await handleAuthRoute(c.req.raw, c.env);
   if (auth) return auth;
   return next();
@@ -421,6 +472,9 @@ const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
     ...createLiveDeliveryQuoteConfig(env),
+    ensureEmailSender: (ctx) => ensureEmailSender(env, ctx),
+    prepareProtectedDocument: (ctx, input, now) =>
+      prepareProtectedDocument(env, ctx, input, now),
     liveFaxIdentity:
       env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
         ? {
@@ -455,7 +509,10 @@ app.get("/api/postal/requirements", async (c) =>
     await new PostalService(c.env, domain(c.env)).requirements(
       await postalAuthority(c.req.raw, c.env, "documents:read"),
       z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
-      z.enum(["left", "right"]).optional().parse(c.req.query("addressPosition")),
+      z
+        .enum(["left", "right"])
+        .optional()
+        .parse(c.req.query("addressPosition")),
     ),
   ),
 );
@@ -594,7 +651,11 @@ app.post("/api/admin/scanner/warm", async (c) =>
 );
 app.get("/api/dispatches", async (c) =>
   c.json(
-    await domain(c.env).listDispatches(c.get("actor"), ...page(c.req.url)),
+    await domain(c.env).listDispatches(
+      c.get("actor"),
+      ...page(c.req.url),
+      new URL(c.req.url).searchParams.get("group") ?? undefined,
+    ),
   ),
 );
 app.get("/api/dispatches/:id", async (c) =>
@@ -703,6 +764,16 @@ app.get("/api/senders", async (c) =>
 app.get("/api/usage", async (c) =>
   c.json(await domain(c.env).usage(c.get("actor"))),
 );
+app.get("/api/overview", async (c) => {
+  // Workspace summary only: its document count is not a dispatches:read fact.
+  if (c.get("actor").actor !== "browser")
+    throw new ContentError(
+      "BROWSER_REQUIRED",
+      "Ouvrez Guteneo dans votre navigateur pour consulter cette synthèse.",
+      403,
+    );
+  return c.json(await domain(c.env).dispatchOverview(c.get("actor")));
+});
 app.get("/api/admin", async (c) =>
   c.json({
     ...(await domain(c.env).admin(c.get("actor"))),
@@ -952,6 +1023,7 @@ export default {
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";
       await new DocumentService(env, service).processPendingScans();
+      await cleanupProtectedDocuments(env.DB);
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);

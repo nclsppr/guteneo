@@ -1,25 +1,9 @@
 import { test, expect } from "@playwright/test";
+import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
-const paths = [
-  "/",
-  "/journal/",
-  "/journal/de-gutenberg-au-numerique/",
-  "/journal/histoire-imprimerie-luxembourg/",
-  "/mentions-legales/",
-  "/confidentialite/",
-  "/conditions/",
-  "/support/",
-  "/developpeurs/",
-  "/assistants/",
-  "/assistants/chatgpt/",
-  "/assistants/claude/",
-  "/assistants/grok/",
-  "/assistants/copilot/",
-  "/assistants/microsoft365/",
-  "/assistants/cursor/",
-];
+const paths = publicSite.paths;
 
 test("public routes expose complete initial HTML, metadata and true HTTP statuses", async ({
   request,
@@ -42,9 +26,7 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
     expect(response.headers()["x-robots-tag"] ?? null).toBe(
       primary ? null : "noindex, nofollow",
     );
-    expect(html.includes('type="module"')).toBe(
-      ["/", "/developpeurs/"].includes(path) || path.startsWith("/assistants/"),
-    );
+    expect(html).toMatch(/<script\b[^>]*type="module"[^>]*src="\/assets\//);
     if (path.startsWith("/journal/") && path !== "/journal/") {
       const schemas = [
         ...html.matchAll(
@@ -113,6 +95,43 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
       code: publicApplication ? "AUTHENTICATION_REQUIRED" : "PREVIEW_ONLY",
     },
   });
+});
+
+test("every public page applies its language selector without preview API calls", async ({
+  page,
+}) => {
+  test.skip(
+    publicApplication,
+    "This contract qualifies the browser-only preview",
+  );
+  const accountRequests: string[] = [];
+  const errors: string[] = [];
+  page.on("request", (request) => {
+    if (/^\/(api|auth|oauth|mcp)\//.test(new URL(request.url()).pathname))
+      accountRequests.push(request.url());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  for (const path of paths) {
+    const response = await page.goto(`${path}?lang=en`);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    const selector = page.locator('select[name="language"]').first();
+    await expect(selector).toHaveValue("en");
+    await selector.selectOption("de");
+    await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    await expect(selector).toHaveValue("de");
+    expect(
+      await page.evaluate(() => localStorage.getItem("guteneo.locale")),
+    ).toBe("de");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    await expect(page.locator("main h1")).toHaveCount(1);
+  }
+  expect(accountRequests).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test("journal content and ordinary navigation work with JavaScript disabled", async ({
