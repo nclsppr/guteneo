@@ -135,8 +135,10 @@ décrit le contrôle du rythme par le texte, la ponctuation et les balises audio
 Des timecodes écrits dans le texte ne garantissent pas une durée imposée.
 L’[API avec horodatages](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps/)
 renvoie le calage de l’audio produit ; ce n’est pas une contrainte de timing en
-entrée. Le parcours historique Voiceover Studio avec CSV de timings a été
-retiré le 15 mai 2026 : ne pas le présenter comme une fonction v4 disponible.
+entrée. Le parcours historique
+[Voiceover Studio](https://elevenlabs.io/docs/eleven-creative/audio-tools/voiceover-studio)
+avec CSV de timings a été retiré le 15 mai 2026 : ne pas le présenter comme
+une fonction v4 disponible.
 
 ## Génération web et import des MP3
 
@@ -252,9 +254,10 @@ un budget ou des reçus existants ne lèvent pas ce verrou.
 `narration:generate` ne permet donc pas encore de régénérer les voix par API.
 
 La [documentation des modèles](https://elevenlabs.io/docs/overview/models)
-rattache Eleven v4 à **Text to Dialogue**. L’ancien client préparé cible
-`/v1/text-to-speech/{voice_id}` ; aucune qualification de v4 sur cette route
-n’est attestée. La [référence dialogue](https://elevenlabs.io/docs/api-reference/text-to-dialogue/convert)
+rattache Eleven v4 à **Text to Dialogue**. L’ancien client TTS a été retiré ;
+seule son identité de cache référence encore `/v1/text-to-speech/{voice_id}`
+pour préserver les MP3 web déjà importés. Aucune qualification de v4 sur cette
+route n’est attestée. La [référence dialogue](https://elevenlabs.io/docs/api-reference/text-to-dialogue/convert)
 décrit `POST /v1/text-to-dialogue?output_format=mp3_44100_128`, avec
 `inputs: [{ text, voice_id }]`, `model_id: eleven_v4`, `language_code` et
 `settings: { stability: 0.5, similarity: 0.75 }`.
@@ -273,6 +276,13 @@ La connexion du plugin et l’abonnement Creator vu dans Safari ne fournissent
 pas une clé au client local et ne prouvent pas son préflight API.
 
 ## Mixage local et qualification
+
+Le [snapshot FR/EN Génération 2](../videos/guteneo-film/narration/releases/fr-en-g2/README.md)
+conserve les 34 MP3 retenus, leurs reçus nettoyés, la configuration de voix et
+les quatre scripts figés. Ses commandes reconstruisent les six candidats
+localement, sans clé ni appel fournisseur. Copier le cache dans un nouveau
+dossier de sortie avant le mixage ; ne pas écrire de résultats dans le snapshot
+suivi. `--manifest` permet de choisir explicitement son script figé.
 
 Après réception et qualification de toutes les séquences choisies :
 
@@ -307,6 +317,9 @@ empreintes, les fichiers et leurs durées avant d’écrire un film. Il vise
 −18 LUFS pour chaque voix, atténue la partition autour de la parole,
 puis rétablit son niveau sur la conclusion. Il conserve les séquences musicales
 et bruitages existants, avec un nouvel encodage AAC stéréo à 48 kHz.
+La cible est nominale : le traitement à un passage peut donner un autre niveau,
+particulièrement sur des phrases très courtes. Mesurer les sorties réelles avant
+de comparer les prises ; le pilote A/B/C égalise séparément les intros.
 
 La vidéo est copiée avec `-c:v copy` : aucun recadrage ni nouveau rendu des
 images. Le hash de la piste H.264 doit être identique au fichier source. Durée,

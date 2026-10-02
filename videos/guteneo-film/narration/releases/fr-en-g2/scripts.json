@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "mp3_44100_128",
+  "narrations": [
+    {
+      "id": "introduction-fr",
+      "kind": "introduction",
+      "locale": "fr",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 2.8,
+          "text": "Tout commence par un document."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 3.2,
+          "endSeconds": 5.8,
+          "text": "Un envoi. Ou des milliers."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 6.3,
+          "endSeconds": 9.8,
+          "text": "Une campagne. Une attention pour chacun."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 10.1,
+          "endSeconds": 13.82,
+          "text": "Votre PDF original. Ou un modèle personnalisé."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 14.3,
+          "endSeconds": 17.8,
+          "text": "Votre assistant prépare, à partir de vos mots."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 18.4,
+          "endSeconds": 22.7,
+          "text": "Créez votre PDF. Puis préparez son envoi dans guteneo."
+        },
+        {
+          "id": "review",
+          "startSeconds": 23.3,
+          "endSeconds": 28.7,
+          "text": "Vérifiez document, destinataire, options, coût. Validez dans le navigateur."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 29.3,
+          "endSeconds": 34.7,
+          "text": "Fax, courrier postal, e-mail. Choisissez votre chemin."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 35.3,
+          "endSeconds": 39.7,
+          "text": "Vos mots voyagent. D’un pays à l’autre."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 40.3,
+          "endSeconds": 43.7,
+          "text": "Du numérique, jusqu’à leur boîte aux lettres."
+        },
+        {
+          "id": "access",
+          "startSeconds": 44.3,
+          "endSeconds": 48.7,
+          "text": "Votre atelier. Où que vous soyez."
+        }
+      ]
+    },
+    {
+      "id": "introduction-en",
+      "kind": "introduction",
+      "locale": "en",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 2.8,
+          "text": "Start with a document."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 3.1,
+          "endSeconds": 5.8,
+          "text": "One delivery. Or thousands."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 6.3,
+          "endSeconds": 9.8,
+          "text": "One campaign. Personal attention for all."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 10.3,
+          "endSeconds": 13.8,
+          "text": "Your PDF. Or a personal template."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 14.3,
+          "endSeconds": 17.8,
+          "text": "Your assistant prepares from your words."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 18.4,
+          "endSeconds": 22.7,
+          "text": "Create your PDF. Prepare delivery with guteneo."
+        },
+        {
+          "id": "review",
+          "startSeconds": 23.3,
+          "endSeconds": 28.7,
+          "text": "Check document, recipient, options, cost. Approve in your browser."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 29.3,
+          "endSeconds": 34.7,
+          "text": "Fax, post, email. Your message, your choice."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 35.3,
+          "endSeconds": 39.7,
+          "text": "Your words travel. From country to country."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 40.3,
+          "endSeconds": 43.7,
+          "text": "From screen to their letterbox."
+        },
+        {
+          "id": "access",
+          "startSeconds": 44.3,
+          "endSeconds": 48.7,
+          "text": "Your workspace stays close. Wherever you are."
+        }
+      ]
+    },
+    {
+      "id": "roles-fr",
+      "kind": "roles",
+      "locale": "fr",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.4,
+          "endSeconds": 2.8,
+          "text": "Quatre rôles. Droits clairs."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 3.2,
+          "endSeconds": 8.8,
+          "text": "L’administrateur gère l’atelier, prépare, approuve et lit les rapports."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 9.2,
+          "endSeconds": 14.8,
+          "text": "Le superviseur prépare. Approbation et rapports : séparés, inactifs par défaut."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 15.2,
+          "endSeconds": 20.8,
+          "text": "L’opérateur importe les documents et prépare, sans pouvoir approuver."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 21.2,
+          "endSeconds": 26.8,
+          "text": "L’observateur lit documents, destinataires et suivi. Sans modifier ni approuver."
+        },
+        {
+          "id": "review",
+          "startSeconds": 27.2,
+          "endSeconds": 30.8,
+          "text": "Parcours standard : accord humain dans le navigateur."
+        }
+      ]
+    },
+    {
+      "id": "roles-en",
+      "kind": "roles",
+      "locale": "en",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.3,
+          "endSeconds": 2.8,
+          "text": "Four roles. Clear permissions."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 3.2,
+          "endSeconds": 8.8,
+          "text": "Administrators manage the workspace, prepare, approve and read reports."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 9.2,
+          "endSeconds": 14.8,
+          "text": "Supervisors prepare. Approval and reports: independent, off by default."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 15.2,
+          "endSeconds": 20.8,
+          "text": "Operators import documents and prepare dispatches. They cannot approve them."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 21.2,
+          "endSeconds": 26.8,
+          "text": "Observers read documents, recipients and status. No edits or approvals."
+        },
+        {
+          "id": "review",
+          "startSeconds": 27.2,
+          "endSeconds": 30.8,
+          "text": "Standard flow: human approval in your browser."
+        }
+      ]
+    }
+  ]
+}
