@@ -100,11 +100,10 @@ export function renderPublicPage(pathname: string) {
   if (pathname === "/")
     return {
       html: renderToString(<Landing />),
-      title: "Guteneo · Vos documents, du numérique au papier",
+      title: "Guteneo · La suite de vos mots.",
       description:
-        "Découvrez Guteneo, l’atelier de correspondance pour préparer vos documents par fax, e-mail et courrier depuis vos assistants IA. Explorez la démo.",
+        "De la conversation à la correspondance. Préparez, approuvez et suivez vos documents par fax, e-mail ou courrier avec Guteneo.",
       canonical: origin + "/",
-      image: "/press-halftone.webp",
       structuredData: [
         { "@context": "https://schema.org", ...publisher },
         editor,
@@ -126,7 +125,6 @@ export function renderPublicPage(pathname: string) {
       description:
         "Intégrez vos PDF à Guteneo : guide REST et MCP, permissions OAuth, approbation humaine, limites et référence OpenAPI en lecture seule. Bêta en préparation.",
       canonical: origin + pathname,
-      image: "/press-halftone.webp",
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -150,6 +148,11 @@ export function renderPublicPage(pathname: string) {
         "De Gutenberg au fax et à l’e-mail, jusqu’aux ateliers luxembourgeois : deux récits documentés et illustrés sur l’histoire de l’imprimerie.",
       canonical: origin + pathname,
       image: "/editorial/gutenberg-to-digital.webp",
+      imageWidth: 1536,
+      imageHeight: 1024,
+      imageType: "image/webp",
+      imageAlt:
+        "Composition illustrée réunissant une presse ancienne, des lettres, un fax et un ordinateur autour de pages imprimées.",
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -183,6 +186,10 @@ export function renderPublicPage(pathname: string) {
     description: article.description,
     canonical: origin + pathname,
     image: article.hero.src,
+    imageWidth: article.hero.width,
+    imageHeight: article.hero.height,
+    imageType: "image/webp",
+    imageAlt: article.hero.alt,
     structuredData: [
       {
         "@context": "https://schema.org",

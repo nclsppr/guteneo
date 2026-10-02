@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1200" />
+    <title>guteneo — Carte de partage</title>
+    <style>
+      @font-face {
+        font-family: "EB Garamond";
+        font-weight: 500;
+        src: url("../../node_modules/@fontsource/eb-garamond/files/eb-garamond-latin-500-normal.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "IBM Plex Sans";
+        font-weight: 500;
+        src: url("../../node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-500-normal.woff2")
+          format("woff2");
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+      }
+      body {
+        background: #f6f5ef;
+        color: #2450db;
+        font-family: "IBM Plex Sans", sans-serif;
+        font-weight: 500;
+        -webkit-font-smoothing: antialiased;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 24px;
+        border: 1px solid #2450db;
+      }
+      .wordmark {
+        position: absolute;
+        top: 49px;
+        left: 72px;
+        margin: 0;
+        font:
+          500 100px/1 "EB Garamond",
+          serif;
+        letter-spacing: -4px;
+      }
+      .eyebrow {
+        position: absolute;
+        left: 77px;
+        top: 175px;
+        margin: 0;
+        font-size: 17px;
+        line-height: 1;
+        letter-spacing: 2.2px;
+      }
+      h1 {
+        position: absolute;
+        left: 71px;
+        top: 237px;
+        margin: 0;
+        font:
+          500 88px/0.99 "EB Garamond",
+          serif;
+        letter-spacing: -2px;
+      }
+      .stamp {
+        position: absolute;
+        left: 768px;
+        top: 102px;
+        width: 340px;
+        height: 340px;
+        transform: rotate(8deg);
+      }
+      .postmark {
+        position: absolute;
+        left: 665px;
+        top: 337px;
+        width: 470px;
+        height: 110px;
+      }
+      footer {
+        position: absolute;
+        left: 76px;
+        right: 76px;
+        top: 517px;
+        padding-top: 24px;
+        border-top: 1px solid #2450db;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .channels {
+        font-size: 19px;
+        line-height: 1;
+        letter-spacing: 1.3px;
+      }
+      .domain {
+        font-size: 42px;
+        line-height: 1;
+        letter-spacing: -0.7px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <p class="wordmark">guteneo</p>
+      <p class="eyebrow">VOTRE ATELIER DE CORRESPONDANCE</p>
+      <h1>La suite<br />de vos mots.</h1>
+      <img
+        class="stamp"
+        src="../../apps/web/public/brand/guteneo-portrait.png"
+        alt="Logo de Guteneo : timbre bleu au portrait de Gutenberg"
+        width="340"
+        height="340"
+      />
+      <svg
+        class="postmark"
+        viewBox="0 0 470 110"
+        fill="none"
+        aria-hidden="true"
+      >
+        <g stroke="#2450db" stroke-width="1.5" opacity="0.42">
+          <path
+            d="M0 25 C40 0 80 50 120 25 S200 0 240 25 S320 50 360 25 S430 0 470 25"
+          />
+          <path
+            d="M0 43 C40 18 80 68 120 43 S200 18 240 43 S320 68 360 43 S430 18 470 43"
+          />
+          <path
+            d="M0 61 C40 36 80 86 120 61 S200 36 240 61 S320 86 360 61 S430 36 470 61"
+          />
+          <path
+            d="M0 79 C40 54 80 104 120 79 S200 54 240 79 S320 104 360 79 S430 54 470 79"
+          />
+        </g>
+      </svg>
+      <footer>
+        <span class="channels">FAX · E-MAIL · COURRIER</span>
+        <span class="domain">guteneo.com</span>
+      </footer>
+    </main>
+  </body>
+</html>

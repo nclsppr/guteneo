@@ -6,6 +6,13 @@ import site from "../packages/contracts/src/public-site.json" with { type: "json
 
 export const PUBLIC_ORIGIN = site.origin;
 export const PUBLIC_PATHS = Object.freeze(site.paths);
+export const DEFAULT_SOCIAL_IMAGE = Object.freeze({
+  src: "/social/guteneo-share-20261002.png",
+  width: 1200,
+  height: 630,
+  type: "image/png",
+  alt: "guteneo — La suite de vos mots. Logo Gutenberg bleu sur fond ivoire, guteneo.com.",
+});
 
 const escapeHtml = (value) =>
   String(value)
@@ -38,10 +45,30 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
     throw new Error(`Incomplete public page: ${pathname}`);
   const root = /<div\s+id=["']root["']\s*>\s*<\/div>/;
   if (!root.test(template)) throw new Error("Built HTML has no empty root.");
-  const image = page.image ? new URL(page.image, PUBLIC_ORIGIN) : null;
+  const imageDetails = page.image
+    ? {
+        src: page.image,
+        width: page.imageWidth,
+        height: page.imageHeight,
+        type: page.imageType,
+        alt: page.imageAlt,
+      }
+    : DEFAULT_SOCIAL_IMAGE;
+  const image = new URL(imageDetails.src, PUBLIC_ORIGIN);
   if (
-    image &&
-    (image.protocol !== "https:" || image.username || image.password)
+    image.protocol !== "https:" ||
+    image.username ||
+    image.password ||
+    [imageDetails.width, imageDetails.height].some(
+      (dimension) =>
+        dimension !== undefined &&
+        (!Number.isInteger(dimension) || dimension <= 0),
+    ) ||
+    (imageDetails.type !== undefined &&
+      (typeof imageDetails.type !== "string" ||
+        !/^image\/[a-z0-9.+-]+$/i.test(imageDetails.type))) ||
+    (imageDetails.alt !== undefined &&
+      (typeof imageDetails.alt !== "string" || !imageDetails.alt.trim()))
   )
     throw new Error(`Invalid public image: ${pathname}`);
   const structuredData = page.structuredData ?? [];
@@ -61,13 +88,21 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
     `<meta property="og:title" content="${escapeHtml(page.title)}">`,
     `<meta property="og:description" content="${escapeHtml(page.description)}">`,
     `<meta property="og:url" content="${escapeHtml(page.canonical)}">`,
-    `<meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${escapeHtml(page.title)}">`,
     `<meta name="twitter:description" content="${escapeHtml(page.description)}">`,
-    ...(image
+    `<meta property="og:image" content="${escapeHtml(image.href)}">`,
+    `<meta property="og:image:secure_url" content="${escapeHtml(image.href)}">`,
+    ...["width", "height", "type", "alt"]
+      .filter((key) => imageDetails[key] !== undefined)
+      .map(
+        (key) =>
+          `<meta property="og:image:${key}" content="${escapeHtml(imageDetails[key])}">`,
+      ),
+    `<meta name="twitter:image" content="${escapeHtml(image.href)}">`,
+    ...(imageDetails.alt !== undefined
       ? [
-          `<meta property="og:image" content="${escapeHtml(image.href)}">`,
-          `<meta name="twitter:image" content="${escapeHtml(image.href)}">`,
+          `<meta name="twitter:image:alt" content="${escapeHtml(imageDetails.alt)}">`,
         ]
       : []),
     ...structuredData.map(

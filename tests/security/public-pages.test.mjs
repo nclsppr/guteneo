@@ -14,6 +14,9 @@ import {
 const template = `<!doctype html><html lang="fr"><head>
 <title>Old title</title><meta name="description" content="Old description">
 <meta name="robots" content="noindex"><link rel="canonical" href="https://old.invalid/">
+<meta property="og:image" content="https://old.invalid/image.jpg"><meta property="og:image:width" content="400">
+<meta property="og:image:height" content="400"><meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="Old image"><meta name="twitter:image" content="https://old.invalid/image.jpg">
 <link rel="stylesheet" href="/assets/main-hash.css"><link rel="modulepreload" href="/assets/shared.js">
 <script type="module" src="/assets/main-hash.js"></script></head>
 <body><div id="root"></div></body></html>`;
@@ -56,6 +59,7 @@ test("initial document contains readable content, canonical metadata and safely 
     html,
     /name="twitter:image" content="https:\/\/guteneo.com\/journal\/printing.webp"/,
   );
+  assert.doesNotMatch(html, /property="og:image:(?:width|height|type|alt)"/);
   assert.doesNotMatch(html, /<script>alert/);
   const schemas = [
     ...html.matchAll(
@@ -70,6 +74,74 @@ test("initial document contains readable content, canonical metadata and safely 
     schemas.map((item) => item["@type"]),
     ["Article", "BreadcrumbList"],
   );
+});
+
+test("pages without an image share one complete branded image instead of stale template metadata", () => {
+  for (const pathname of ["/", "/support/"]) {
+    const html = publicPageDocument(template, pathname, {
+      ...page(pathname),
+      image: undefined,
+    });
+    for (const [property, content] of Object.entries({
+      "og:image": "https://guteneo.com/social/guteneo-share-20261002.png",
+      "og:image:secure_url":
+        "https://guteneo.com/social/guteneo-share-20261002.png",
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:image:type": "image/png",
+      "twitter:card": "summary_large_image",
+      "twitter:image": "https://guteneo.com/social/guteneo-share-20261002.png",
+    })) {
+      assert.deepEqual(
+        [
+          ...html.matchAll(
+            new RegExp(
+              `(?:property|name)="${property}" content="([^"]*)"`,
+              "g",
+            ),
+          ),
+        ].map((match) => match[1]),
+        [content],
+      );
+    }
+    for (const property of ["og:image:alt", "twitter:image:alt"]) {
+      const descriptions = [
+        ...html.matchAll(
+          new RegExp(`(?:property|name)="${property}" content="([^"]*)"`, "g"),
+        ),
+      ];
+      assert.equal(descriptions.length, 1);
+      assert.match(descriptions[0][1], /guteneo\.com/);
+    }
+    assert.doesNotMatch(html, /old\.invalid/);
+  }
+});
+
+test("article images retain their own dimensions and safely escaped descriptions", () => {
+  const html = publicPageDocument(template, "/journal/", {
+    ...page("/journal/"),
+    image: "/journal/printing.webp?edition=1&lang=fr",
+    imageWidth: 1536,
+    imageHeight: 1024,
+    imageType: "image/webp",
+    imageAlt: 'Une presse "bleue" & son <papier>',
+  });
+  assert.match(
+    html,
+    /property="og:image" content="https:\/\/guteneo.com\/journal\/printing.webp\?edition=1&amp;lang=fr"/,
+  );
+  assert.match(html, /property="og:image:width" content="1536"/);
+  assert.match(html, /property="og:image:height" content="1024"/);
+  assert.match(html, /property="og:image:type" content="image\/webp"/);
+  for (const property of ["og:image:alt", "twitter:image:alt"]) {
+    assert.ok(
+      html.includes(
+        `="${property}" content="Une presse &quot;bleue&quot; &amp; son &lt;papier&gt;"`,
+      ),
+    );
+  }
+  assert.equal((html.match(/property="og:image"/g) ?? []).length, 1);
+  assert.doesNotMatch(html, /guteneo-share|old\.invalid/);
 });
 
 test("every public page retains the language-aware app entry and built CSS", () => {
