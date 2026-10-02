@@ -29,6 +29,14 @@ German and Luxembourgish. Euro inputs use a bounded decimal parser and emit
 integer minor units. Language selection cannot change a document, recipient,
 provider option or approved fingerprint.
 
+The open tariff-renewal review finding is also addressed: an expired automatic
+Resend policy is recognized from its original deterministic identity using its
+stored tariff hash and expiry, rather than requiring the current tariff hash.
+Replacement remains bound to the authenticated tenant and current sender,
+provider account, route, options and renewed operator qualification. Manual and
+unexpired policies retain their authority; historical amounts and evidence are
+unchanged. This correction does not enable email delivery.
+
 ## Database and activation
 
 A fresh production read found 36 migration ledger entries through
