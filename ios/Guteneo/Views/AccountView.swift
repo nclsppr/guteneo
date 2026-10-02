@@ -67,7 +67,7 @@ struct AccountView: View {
                         .disabled(working).accessibilityIdentifier("deleteAccount")
                 }
             }
-        }.paperList().navigationTitle("Compte")
+        }.paperList().navigationTitle(Text(verbatim: L10n.text("Compte", locale: locale)))
             .refreshable { await model.refresh() }
             .confirmationDialog("Supprimer votre compte ?", isPresented: $deleteConfirmation, titleVisibility: .visible) {
                 Button("Confirmer la demande de suppression", role: .destructive) {

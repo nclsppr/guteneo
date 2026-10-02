@@ -41,8 +41,10 @@ final class GuteneoUITests: XCTestCase {
         let nativePDF = app.descendants(matching: .any).matching(identifier: "nativePDF").firstMatch
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
         assertLogoCount(0, in: app)
-        XCUIDevice.shared.press(.home)
-        let stateAfterHome = app.state
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        springboard.activate()
+        XCTAssertTrue(springboard.wait(for: .runningForeground, timeout: 5))
+        let stateAfterSwitch = app.state
         let background = NSPredicate(format: "state == %d OR state == %d",
             XCUIApplication.State.runningBackground.rawValue,
             XCUIApplication.State.runningBackgroundSuspended.rawValue)
@@ -50,7 +52,7 @@ final class GuteneoUITests: XCTestCase {
             XCTNSPredicateExpectation(predicate: background, object: app)
         ], timeout: 5)
         let stateAfterWait = app.state
-        let diagnostic = XCTAttachment(string: "afterHome=\(stateAfterHome.rawValue); afterWait=\(stateAfterWait.rawValue); runningBackground=\(XCUIApplication.State.runningBackground.rawValue); suspended=\(XCUIApplication.State.runningBackgroundSuspended.rawValue)")
+        let diagnostic = XCTAttachment(string: "afterSpringBoard=\(stateAfterSwitch.rawValue); springboard=\(springboard.state.rawValue); afterWait=\(stateAfterWait.rawValue); runningBackground=\(XCUIApplication.State.runningBackground.rawValue); suspended=\(XCUIApplication.State.runningBackgroundSuspended.rawValue)")
         diagnostic.name = "État réel après passage en arrière-plan"
         diagnostic.lifetime = .keepAlways
         add(diagnostic)
@@ -310,21 +312,43 @@ final class GuteneoUITests: XCTestCase {
     func testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile() {
         let app = launch(arguments: ["--uitesting-preview"])
         selectTab("Compte", in: app)
-        let picker = app.buttons["accountLanguage"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 10))
-        picker.tap()
-        app.buttons["Deutsch"].tap()
+        selectAccountLanguage("Deutsch", in: app)
         XCTAssertTrue(app.navigationBars["Konto"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Ihre Identität"].exists)
         attachScreenshot(app, name: "Konto — Deutsch")
-        app.buttons["accountLanguage"].tap()
-        app.buttons["Lëtzebuergesch"].tap()
+        selectAccountLanguage("Lëtzebuergesch", in: app)
         XCTAssertTrue(app.navigationBars["Kont"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Är Identitéit"].exists)
         attachScreenshot(app, name: "Kont — Lëtzebuergesch")
         selectTab("Sendungen", in: app)
         XCTAssertTrue(app.navigationBars["Sendungen"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Zougestallt"].exists)
+    }
+
+    private func selectAccountLanguage(_ language: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let picker = app.buttons["accountLanguage"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10), file: file, line: line)
+        let interactive = NSPredicate(format: "hittable == true AND enabled == true")
+        XCTAssertEqual(XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: interactive, object: picker)
+        ], timeout: 5), .completed, "Sélecteur de langue non interactif", file: file, line: line)
+        picker.tap()
+
+        let option = app.buttons[language]
+        XCTAssertTrue(option.waitForExistence(timeout: 5), file: file, line: line)
+        XCTAssertEqual(XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: interactive, object: option)
+        ], timeout: 5), .completed, "Option de langue non interactive : \(language)", file: file, line: line)
+        option.tap()
+
+        // Locale changes recompose the SwiftUI picker and its native menu.
+        // Observe the displayed selection and closed menu before the next gesture.
+        let selected = NSPredicate(format: "label CONTAINS %@ AND hittable == true AND enabled == true", language)
+        let closed = NSPredicate(format: "exists == false")
+        XCTAssertEqual(XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: selected, object: picker),
+            XCTNSPredicateExpectation(predicate: closed, object: option)
+        ], timeout: 5), .completed, "Choix de langue non appliqué ou menu encore ouvert : \(language)", file: file, line: line)
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {
