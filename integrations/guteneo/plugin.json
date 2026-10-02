@@ -8,7 +8,13 @@
   },
   "homepage": "https://guteneo.com",
   "repository": "https://github.com/nclsppr/guteneo",
-  "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
+  "keywords": [
+    "pdf",
+    "fax",
+    "postal",
+    "documents",
+    "guteneo"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
@@ -41,7 +47,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 0.2.3 updates listing metadata and legal links, adds account onboarding, and clarifies document restrictions and the mandatory stop for review-only fax estimates. Existing account access only; no checkout, subscriptions or credit purchases are introduced. The walkthrough is the existing recording from 21 September 2026. This package changes no hosted server, provider configuration or domain. It claims no new sends, reviewer-test execution, postal qualification, OpenAI approval or directory publication.",
+        "release_notes": "Adds guided account onboarding, clearer fax and postal workflows, and updated support and legal links. Clarifies excluded document data, account limits and approval requirements, including the mandatory stop for review-only estimates. Uses existing Guteneo account access; no purchases or credit top-ups.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
