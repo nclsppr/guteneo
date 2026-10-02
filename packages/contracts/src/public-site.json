@@ -20,6 +20,7 @@
     "/assistants/cursor/"
   ],
   "privatePrefixes": [
+    "belvedere",
     "api",
     "auth",
     "oauth",

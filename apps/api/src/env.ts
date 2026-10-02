@@ -13,6 +13,13 @@ export interface Env {
   APP_ORIGIN: string;
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
+  /** Server secrets only. No public capability exposes this path or privilege. */
+  BELVEDERE_SECRET_SLUG?: string;
+  BELVEDERE_AUTH0_SUBJECT?: string;
+  BELVEDERE_CLOUDFLARE_ACCOUNT_ID?: string;
+  BELVEDERE_CLOUDFLARE_API_TOKEN?: string;
+  BELVEDERE_CLOUDFLARE_BILLING_TOKEN?: string;
+  BELVEDERE_CLOUDFLARE_SCRIPT_NAME?: string;
   AUTH0_DOMAIN?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;

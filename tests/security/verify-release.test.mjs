@@ -8,7 +8,7 @@ const fallback = "https://guteneo-app.nclsppr.workers.dev";
 // This fixture deliberately spells out the public policy instead of importing
 // the generator: a permissive fallback or a blocked canonical site must fail.
 const publicRobots =
-  "User-agent: *\nAllow: /\nDisallow: /api\nDisallow: /auth\nDisallow: /oauth\nDisallow: /mcp\nDisallow: /webhooks\nDisallow: /media\nDisallow: /.well-known\nSitemap: https://guteneo.com/sitemap.xml\n";
+  "User-agent: *\nAllow: /\nDisallow: /belvedere\nDisallow: /api\nDisallow: /auth\nDisallow: /oauth\nDisallow: /mcp\nDisallow: /webhooks\nDisallow: /media\nDisallow: /.well-known\nSitemap: https://guteneo.com/sitemap.xml\n";
 const privateRobots = "User-agent: *\nDisallow: /\n";
 const html = "<!doctype html><html><main>Guteneo</main></html>";
 const css = "body{color:#181b22}";
@@ -94,6 +94,7 @@ test("release proof rejects permissive fallback robots and blocked canonical rob
     [fallback, publicRobots],
     [primary, privateRobots],
     [primary, publicRobots.replace("Disallow: /api\n", "")],
+    [primary, publicRobots.replace("Disallow: /belvedere\n", "")],
   ]) {
     await assert.rejects(
       verifyRelease(origin, manifest, fixture(origin, { robots }).fetcher),

@@ -221,6 +221,11 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </p>
               <p>
                 {msg(
+                  "Le suivi d’exploitation enregistre les connexions réussies, leur date, le compte et le membre concernés, le type d’accès et le pays estimé par Cloudflare lorsqu’il est disponible. Ce registre ne conserve ni adresse IP ni navigateur détaillé. Il est réservé à l’éditeur pour la sécurité et le suivi du service. Les événements de connexion et les consultations de ce tableau de contrôle sont exclus des vues après 90 jours, puis supprimés par la maintenance.",
+                )}
+              </p>
+              <p>
+                {msg(
                   "Les sessions et autorisations temporaires ont une date d’expiration ; la maintenance nettoie les entrées expirées. Les compteurs journaliers de consultation de contenu sont nettoyés au-delà de 31 jours. Une copie déjà transmise à un destinataire, à un assistant ou à un prestataire suit aussi ses propres règles de conservation ; supprimer le fichier chez Guteneo ne rappelle pas un envoi.",
                 )}
               </p>

@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+## Belvédère candidate — 2 October 2026
+
+The dedicated `codex/belvedere-control-tower` branch adds a private read-only
+platform dashboard for the verified `nicolas@pieper.fr` browser identity.
+The connections/distribution globe, global jobs, workshop/member drilldowns,
+access-country telemetry, explicit financial evidence
+and optional Cloudflare reads are documented in [BELVEDERE.md](BELVEDERE.md).
+Migration 0044 and server-only configuration are required before activation.
+Local and fixture checks do not establish hosted authentication or provider access.
+No deployment, production migration, merge or real communication is performed.
+
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers
 read operational content. Existing members lose approval/reporting until an admin

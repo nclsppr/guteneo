@@ -31,7 +31,9 @@
     "build:live": "node scripts/build-live.mjs",
     "deploy:live": "node scripts/deploy-public.mjs live",
     "setup:email:ses": "node scripts/secure-setup.mjs ses",
-    "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook"
+    "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook",
+    "preview:belvedere": "npm run build:web && node --import tsx scripts/belvedere-preview.mjs",
+    "test:belvedere": "playwright test --config playwright.belvedere.config.ts"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

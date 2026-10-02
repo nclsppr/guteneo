@@ -1,5 +1,17 @@
 # Guteneo product contract
 
+## Belvédère platform oversight candidate — 2 October 2026
+
+Belvédère gives the publisher the separate **Veilleur** read-only capability:
+workshops, members, consumption metadata, global jobs, successful connections and
+their observed country, a connections/distribution globe, financial evidence and
+optional Cloudflare measurements.
+Only the verified `nicolas@pieper.fr` browser identity can open its server-secret
+address. A workshop administrator or assistant has no platform authority.
+Promotional credits, actual receipts, verified supplier costs and unverified costs
+remain distinct; unavailable net profit is never invented. The private interface
+is French for its single intended user. See [BELVEDERE.md](BELVEDERE.md).
+
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers
 read operational content. Existing members lose approval/reporting until an admin

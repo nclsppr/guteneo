@@ -1,3 +1,5 @@
+import { authorizeBelvedere } from "../../apps/api/src/belvedere";
+import type { Env } from "../../apps/api/src/env";
 import { readFile, readdir } from "node:fs/promises";
 import {
   afterAll,
@@ -887,6 +889,91 @@ describe("identity and authentication boundaries", () => {
       handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
+  it("binds Belvédère privilege to the signed verified callback and preserves proof on session rotation", async () => {
+    const flow = await signedBetaLogin({ email: "Nicolas@Pieper.fr" });
+    const completed = await flow.complete();
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      flow.configured,
+    );
+    const proof = await env.DB.prepare(
+      "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+    )
+      .bind(session.tokenHash)
+      .first();
+    expect(proof).toMatchObject({
+      issuer,
+      subject: flow.sub,
+      verified_email: "nicolas@pieper.fr",
+    });
+    const towerEnv = {
+      ...flow.configured,
+      ENVIRONMENT: "production",
+      BELVEDERE_SECRET_SLUG: "fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+    } as Env;
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${cookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
+    const nextOrg = `org_${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Second verified atelier','production',?)",
+      ).bind(nextOrg, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(nextOrg, session.context.userId, new Date().toISOString()),
+    ]);
+    const switched = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        { organizationId: nextOrg },
+        { Cookie: cookie, "X-CSRF-Token": session.csrfToken },
+      ),
+      flow.configured,
+    );
+    const nextCookie = switched!.headers.get("Set-Cookie")!.split(";")[0];
+    const next = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: nextCookie }),
+      flow.configured,
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(next.tokenHash)
+        .first(),
+    ).toEqual(proof);
+    expect(
+      await env.DB.prepare(
+        "SELECT 1 FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(session.tokenHash)
+        .first(),
+    ).toBeNull();
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${nextCookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
+  });
   it("switches only between current memberships and rotates the browser session", async () => {
     const original = await login();
     await env.DB.prepare(
@@ -1280,6 +1367,12 @@ describe("identity and authentication boundaries", () => {
   });
   it.each([
     {
+      label: "mismatched signed access subject",
+      id: { email: "nicolas@pieper.fr" },
+      access: { sub: "auth0|mismatched-identity" },
+      code: "LOGIN_STATE_INVALID",
+    },
+    {
       label: "missing ID proof",
       id: { "https://guteneo.com/verified_account": undefined },
       access: {},
@@ -1313,7 +1406,7 @@ describe("identity and authentication boundaries", () => {
     "free beta refuses $label before creating an account or grant",
     async ({ id, access, code }) => {
       const before = await env.DB.prepare(
-        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
       ).first();
       const flow = await signedBetaLogin(id, access);
       await expect(flow.complete()).rejects.toMatchObject({ code });
@@ -1324,7 +1417,7 @@ describe("identity and authentication boundaries", () => {
       ).toBeNull();
       expect(
         await env.DB.prepare(
-          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
         ).first(),
       ).toEqual(before);
     },

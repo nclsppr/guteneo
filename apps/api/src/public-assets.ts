@@ -38,6 +38,8 @@ export async function servePublicAssets(
       headers: privateHeaders,
     });
   }
+  if (pathname === "/belvedere" || pathname.startsWith("/belvedere/"))
+    return null;
   if (
     site.privatePrefixes.some(
       (prefix) =>

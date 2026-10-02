@@ -1,5 +1,23 @@
 # Architecture
 
+## Belvédère read-only platform boundary — 2 October 2026 candidate
+
+The browser-only `/belvedere/<server-secret>` handler provides deliberately global
+metadata projections after checking a signed login evidence record, current
+session/membership and the sole verified email `nicolas@pieper.fr`. Optional
+subject pinning further restricts Auth0 identity. This capability is separate
+from workspace roles, OAuth scopes and expert mandates. Every child API read
+rechecks the guard; no recipient/content read or business mutation is added.
+All cross-table associations still join on organization keys. Existing tenant
+APIs retain their original authorization scope.
+
+Migration 0044 stores private login evidence, opaque native public identifiers,
+minimal country-only successful-connection observations and safe action-code
+audit records. Ninety-day history filtering plus bounded cron deletion apply to
+the new telemetry. Cloudflare credentials remain server-only and connectors use
+read permissions. Deployment and real provider qualification are separate gates;
+see [BELVEDERE.md](BELVEDERE.md).
+
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers
 read operational content. Existing members lose approval/reporting until an admin

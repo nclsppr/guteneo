@@ -1,3 +1,4 @@
+import { recordConnectionEvent } from "./belvedere-telemetry";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import {
   workspacePermissions,
@@ -623,6 +624,13 @@ export async function authenticateMcp(
       "Reconnectez l’assistant après une double authentification.",
       403,
     );
+  if (env.MODE === "production")
+    await recordConnectionEvent(env.DB, request, {
+      organizationId: member.organization_id,
+      userId: member.user_id,
+      kind: "mcp",
+      connectionId: connection.id,
+    });
   const scopes =
     typeof payload.scope === "string"
       ? payload.scope
@@ -1066,6 +1074,29 @@ export async function handleAuthRoute(
       false,
       verifiedAccount,
     );
+    await env.DB.prepare(
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) VALUES(?,?,?,?,?)",
+    )
+      .bind(
+        session.session.tokenHash,
+        config.issuer,
+        claims.sub,
+        claims.email.toLowerCase().trim(),
+        nowISO(),
+      )
+      .run();
+    const publicId = await env.DB.prepare(
+      "SELECT public_id FROM browser_sessions WHERE token_hash=?",
+    )
+      .bind(session.session.tokenHash)
+      .first<{ public_id: string }>();
+    if (publicId)
+      await recordConnectionEvent(env.DB, request, {
+        organizationId: member.organization_id,
+        userId: member.user_id,
+        kind: "browser",
+        connectionId: publicId.public_id,
+      });
     return redirect(
       new URL(
         invitedOrganizationId ? "/#/app" : transaction.return_to,
@@ -1215,6 +1246,9 @@ export async function handleAuthRoute(
         Number(session.verifiedAccount),
         current.is_development,
       ),
+      env.DB.prepare(
+        "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+      ).bind(tokenHash, session.tokenHash, tokenHash),
       env.DB.prepare(
         "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
       ).bind(session.tokenHash, tokenHash),

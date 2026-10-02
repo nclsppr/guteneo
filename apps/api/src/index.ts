@@ -1,3 +1,5 @@
+import { handleBelvedereRoute } from "./belvedere";
+import { cleanupBelvedereTelemetry } from "./belvedere-telemetry";
 import { handleInvitationRoute } from "./invitations";
 import { ensureEmailSender } from "./email-setup";
 import {
@@ -213,13 +215,16 @@ app.use("*", async (c, next) => {
     "http",
     route,
     c.req.method,
-    ![
-      "provider_media",
-      "unknown",
-      "public_asset",
-      "auth_other",
-      "webhook_other",
-    ].includes(route),
+    !new URL(c.req.url).searchParams
+      .get("returnTo")
+      ?.startsWith("/belvedere/") &&
+      ![
+        "provider_media",
+        "unknown",
+        "public_asset",
+        "auth_other",
+        "webhook_other",
+      ].includes(route),
   );
   c.set("observation", observation);
   c.header("X-Correlation-ID", observation.correlationId);
@@ -395,6 +400,8 @@ app.use("*", async (c, next) => {
   await next();
 });
 app.use("*", async (c, next) => {
+  const belvedere = await handleBelvedereRoute(c.req.raw, c.env);
+  if (belvedere) return belvedere;
   const mobile = await handleMobileRoute(
     c.req.raw,
     c.env,
@@ -1032,6 +1039,7 @@ export default {
       stage = "documents";
       await new DocumentService(env, service).processPendingScans();
       await cleanupProtectedDocuments(env.DB);
+      await cleanupBelvedereTelemetry(env.DB);
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);

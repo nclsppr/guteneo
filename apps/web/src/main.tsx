@@ -14,8 +14,28 @@ import "./protected-document.css";
 
 initializeLocale();
 
+// Only the authenticated server response supplies this marker. The secret
+// address is runtime configuration and is never part of the public bundle.
+const belvederePath = document.querySelector<HTMLMetaElement>(
+  'meta[name="guteneo-belvedere"]',
+)?.content;
+const Belvedere = React.lazy(() => import("./belvedere"));
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    {belvederePath &&
+    window.location.pathname.replace(/\/$/, "") === belvederePath ? (
+      <React.Suspense
+        fallback={
+          <main className="belvedere-boot" role="status">
+            Ouverture de Belvédère…
+          </main>
+        }
+      >
+        <Belvedere basePath={belvederePath} />
+      </React.Suspense>
+    ) : (
+      <App />
+    )}
   </React.StrictMode>,
 );
