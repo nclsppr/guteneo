@@ -117,7 +117,12 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
   const questions = page.locator(".faq-questions details");
-  await expect(questions).toHaveCount(5);
+  await expect(questions).toHaveCount(6);
+  await expect(
+    page.locator(".faq-questions #postal-cutoff-faq summary"),
+  ).toHaveText(
+    "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
+  );
   const firstQuestion = questions.first();
   await firstQuestion.locator("summary").focus();
   await page.keyboard.press("Enter");
