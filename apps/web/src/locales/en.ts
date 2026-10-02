@@ -40,6 +40,9 @@ export const en: Copy = {
   nav: {
     overview: "Overview",
     documents: "Documents",
+    templates: "Templates",
+    datasets: "My data",
+    generations: "Generations",
     dispatches: "Dispatches",
     campaigns: "Campaigns",
     connection: "Assistants",

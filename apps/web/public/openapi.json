@@ -47,6 +47,10 @@
     {
       "name": "Courrier",
       "description": "Contrôle du PDF, revue humaine dans Guteneo, brouillon postal puis devis ; aucune expédition implicite."
+    },
+    {
+      "name": "Studio documentaire",
+      "description": "Modèles, données, génération et préparation séparées."
     }
   ],
   "paths": {
@@ -1982,6 +1986,2626 @@
           }
         }
       }
+    },
+    "/api/templates": {
+      "get": {
+        "operationId": "listTemplates",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lister les modèles accessibles",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateViewPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Créer un modèle rééditable",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "envelope": {
+                    "$ref": "#/components/schemas/TemplateEnvelope"
+                  }
+                },
+                "required": [
+                  "envelope"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/import-docx": {
+      "post": {
+        "operationId": "importTemplateDocx",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Importer Word en blocs rééditables",
+        "description": "DOCX seulement, 5 Mio. Extraction éditable sans fidélité de mise en page Word ; consulter les avertissements. Original privé, conservé 30 jours.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "template": {
+                      "$ref": "#/components/schemas/TemplateView"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "message"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  },
+                  "required": [
+                    "template",
+                    "warnings",
+                    "provenance"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}": {
+      "get": {
+        "operationId": "getTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire un modèle et ses droits",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Modifier le brouillon ou appliquer un changement sémantique",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateUpdate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/publish": {
+      "post": {
+        "operationId": "publishTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Figer une version publiée",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:publish"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/duplicate": {
+      "post": {
+        "operationId": "duplicateTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Dupliquer dans un modèle privé",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/share": {
+      "post": {
+        "operationId": "shareTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Configurer les droits du modèle",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:share"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateShare"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/sharing": {
+      "get": {
+        "operationId": "getTemplateSharing",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire les droits et membres éligibles",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:share"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "userId": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "userId",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "grants": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "userId": {
+                            "type": "string"
+                          },
+                          "use": {
+                            "type": "boolean"
+                          },
+                          "edit": {
+                            "type": "boolean"
+                          },
+                          "publish": {
+                            "type": "boolean"
+                          },
+                          "share": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "userId",
+                          "use",
+                          "edit",
+                          "publish",
+                          "share"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "members",
+                    "grants"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/archive": {
+      "post": {
+        "operationId": "archiveTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Archiver sans détruire les versions historiques",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:publish"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/preview": {
+      "post": {
+        "operationId": "previewTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Rendre un aperçu serveur sans envoi",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "data"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/suggest": {
+      "post": {
+        "operationId": "suggestTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Proposer des modifications sémantiques avec une IA configurée",
+        "description": "Appel externe explicite soumis au consentement de transfert administrateur, configuration et quota. Retourne une proposition sans enregistrer, publier, approuver ou envoyer. 503 si non configuré.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "openai"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "needs_review"
+                      ]
+                    },
+                    "envelope": {
+                      "$ref": "#/components/schemas/TemplateEnvelope"
+                    },
+                    "patches": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TemplatePatch"
+                      }
+                    },
+                    "galleryId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "maxItems": 500
+                    },
+                    "usage": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "templateId": {
+                      "type": "string"
+                    },
+                    "expectedRevision": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "status",
+                    "envelope",
+                    "patches",
+                    "galleryId",
+                    "warnings",
+                    "usage",
+                    "templateId",
+                    "expectedRevision"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "instruction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "instruction"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}/schema": {
+      "get": {
+        "operationId": "getTemplateSchema",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire le schéma des données métier",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/datasets": {
+      "get": {
+        "operationId": "listDatasets",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lister les sources privées",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetViewPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      },
+      "post": {
+        "operationId": "importDataset",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Importer CSV, XLSX, XML ou JSON sans appel IA",
+        "description": "JSON : {name,format:'json',data}. Multipart : file binaire CSV/XLSX/XML/JSON, encoding facultatif utf-8 ou windows-1252, delimiter facultatif ; xmlRecordPath facultatif (chemin absolu littéral des enregistrements XML). 5 Mio, 12 feuilles, 5 000 lignes, 100 000 cellules ; archives décompressées bornées à 24 Mio.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:write"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "json"
+                    ]
+                  },
+                  "data": {}
+                },
+                "required": [
+                  "name",
+                  "format",
+                  "data"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "csv",
+                      "xlsx",
+                      "json",
+                      "xml"
+                    ]
+                  },
+                  "xmlRecordPath": {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  "encoding": {
+                    "type": "string",
+                    "enum": [
+                      "utf-8",
+                      "windows-1252"
+                    ]
+                  },
+                  "delimiter": {
+                    "type": "string",
+                    "enum": [
+                      ",",
+                      ";",
+                      "\t",
+                      "|"
+                    ]
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{id}": {
+      "get": {
+        "operationId": "getDataset",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire l’état d’une source privée",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/datasets/{id}/retry-analysis": {
+      "post": {
+        "operationId": "retryDatasetAnalysis",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Réessayer l’analyse du même original privé",
+        "description": "Mutation bornée à trois tentatives au total. Même source, hash et options de parsing. La lecture ne relance rien ; résultat rejeté ou budget épuisé restent fermés.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{id}/profile": {
+      "get": {
+        "operationId": "getDatasetProfile",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire le profil technique sans appel IA",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sheet",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5000,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataset": {
+                      "$ref": "#/components/schemas/DatasetView"
+                    },
+                    "profile": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "sheet": {
+                          "type": "string"
+                        },
+                        "cursor": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalRows": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "nextCursor": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "nullable": true
+                        },
+                        "sampleValuesTruncatedAt": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "otherSheetsAreHeaderSamples": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sheet",
+                        "cursor",
+                        "limit",
+                        "totalRows",
+                        "nextCursor",
+                        "sampleValuesTruncatedAt",
+                        "otherSheetsAreHeaderSamples"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "dataset",
+                    "profile",
+                    "pagination"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/datasets/{id}/analyze": {
+      "post": {
+        "operationId": "analyzeDataset",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Demander explicitement une proposition IA",
+        "description": "Requiert fournisseur configuré, politique administrateur de transfert et budget. Envoie seulement un échantillon borné à OpenAI direct. proposeSchema:true ajoute un schéma métier et un modèle synthétique proposés à partir du mapping validé, avec un seul appel IA. Retour needs_review ; adoption par création explicite du modèle et mapping puis validation/publication séparées. 503 si indisponible, jamais de faux résultat.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetAnalysis"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetAnalyze"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mappings": {
+      "get": {
+        "operationId": "listMappings",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lister les correspondances privées",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingViewPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMapping",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Créer ou versionner une correspondance",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:write"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MappingCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mappings/{id}": {
+      "get": {
+        "operationId": "getMapping",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire une correspondance et sa version",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/mappings/{id}/validate": {
+      "post": {
+        "operationId": "validateMapping",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Valider toutes les lignes et les jointures",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "datasets:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingValidation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "datasetId": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "datasetId",
+                  "version"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/generation-jobs": {
+      "get": {
+        "operationId": "listGenerationJobs",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lister les générations privées",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationJobPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGeneration",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lancer une génération durable sans envoi",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/generation-jobs/{id}": {
+      "get": {
+        "operationId": "getGeneration",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire la progression sans relancer le traitement",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/generation-jobs/{id}/results": {
+      "get": {
+        "operationId": "getGenerationResults",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire les résultats par recordId",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationResultPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/generation-jobs/{id}/provenance": {
+      "get": {
+        "operationId": "getGenerationProvenance",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Relier un record aux cellules et versions ayant produit son PDF",
+        "description": "Privé au propriétaire du job. Coordonnées source par champ, hashes source et entrée, versions du mapping, modèle, moteur, adaptateur et police. Une génération directe a une provenance de cellule vide.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobId": {
+                      "type": "string"
+                    },
+                    "recordId": {
+                      "type": "string"
+                    },
+                    "templateId": {
+                      "type": "string"
+                    },
+                    "templateVersion": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "mappingId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "mappingVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "datasetId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sourceHash": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "inputHash": {
+                      "type": "string"
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "renderMetadata": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  },
+                  "required": [
+                    "jobId",
+                    "recordId",
+                    "templateId",
+                    "templateVersion",
+                    "mappingId",
+                    "mappingVersion",
+                    "datasetId",
+                    "sourceHash",
+                    "inputHash",
+                    "provenance",
+                    "renderMetadata"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/generation-jobs/{id}/cancel": {
+      "post": {
+        "operationId": "cancelGeneration",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Annuler les records non terminés",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/generation-jobs/{id}/retry": {
+      "post": {
+        "operationId": "retryGeneration",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Reprendre les records en échec explicitement désignés",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "generations:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recordIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 500
+                  }
+                },
+                "required": [
+                  "recordIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/distribution-plans": {
+      "post": {
+        "operationId": "prepareDistribution",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Figer les associations et préparer les envois existants",
+        "description": "Aucune approbation, réservation ou tentative fournisseur. Les erreurs par entrée restent visibles. Chaque approbation ultérieure porte sur le devis et le PDF exacts ; un plan ne vaut pas consentement.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DistributionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/distribution-plans/{id}/resume": {
+      "post": {
+        "operationId": "resumeDistribution",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Poursuivre trois préparations au maximum",
+        "description": "Mutation explicite, limitée à trois entrées. Les lectures ne préparent rien. retryFailed:true autorise la reprise des erreurs de préparation ; les tentatives fournisseur ne sont jamais relancées par cette opération.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "retryFailed": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/distribution-plans/{id}/entries/{entryId}/postal-preflight": {
+      "post": {
+        "operationId": "createDistributionPostalPreflight",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Ouvrir le contrôle postal du document et destinataire figés",
+        "description": "Crée l’analyse postale existante, sans transfert du document au fournisseur, devis, consentement ou envoi. Les lectures du profil fournisseur existantes peuvent être nécessaires. Le manifeste doit inclure expéditeur, plafond et options postales explicites ; sinon nouveau plan requis. Les consentements, dérivations, transferts et devis restent dans le parcours postal protégé.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write",
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/distribution-plans/{id}": {
+      "get": {
+        "operationId": "getDistribution",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire le manifeste et ses préparations",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionView"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1998,7 +4622,15 @@
               "documents:write": "Déposer, générer et réanalyser les documents.",
               "dispatches:prepare": "Préparer des envois, créer des campagnes et valider un CSV.",
               "dispatches:send": "Confirmer après approbation humaine ou annuler un envoi. Ne permet jamais d’approuver.",
-              "dispatches:read": "Lire les envois, campagnes, expéditeurs et consommation."
+              "dispatches:read": "Lire les envois, campagnes, expéditeurs et consommation.",
+              "templates:read": "Autorisation dédiée templates:read ; attribution OAuth explicite requise.",
+              "templates:write": "Autorisation dédiée templates:write ; attribution OAuth explicite requise.",
+              "templates:publish": "Autorisation dédiée templates:publish ; attribution OAuth explicite requise.",
+              "templates:share": "Autorisation dédiée templates:share ; attribution OAuth explicite requise.",
+              "datasets:read": "Autorisation dédiée datasets:read ; attribution OAuth explicite requise.",
+              "datasets:write": "Autorisation dédiée datasets:write ; attribution OAuth explicite requise.",
+              "generations:read": "Autorisation dédiée generations:read ; attribution OAuth explicite requise.",
+              "generations:write": "Autorisation dédiée generations:write ; attribution OAuth explicite requise."
             }
           }
         },
@@ -4169,7 +6801,9 @@
           },
           "executionScope": {
             "type": "string",
-            "enum": ["review_prepare_only"],
+            "enum": [
+              "review_prepare_only"
+            ],
             "description": "Devis de revue consultable uniquement ; aucun envoi, approbation ou crédit possible."
           },
           "routeQualification": {
@@ -5087,6 +7721,2678 @@
           }
         },
         "additionalProperties": false
+      },
+      "TemplateEnvelope": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "type": "number",
+            "enum": [
+              1
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "pdfme"
+            ]
+          },
+          "engineVersion": {
+            "type": "string",
+            "enum": [
+              "6.1.13"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": {
+            "default": "",
+            "type": "string",
+            "maxLength": 2000
+          },
+          "locale": {
+            "default": "fr-FR",
+            "type": "string",
+            "enum": [
+              "fr-FR",
+              "de-DE",
+              "en-GB"
+            ]
+          },
+          "definition": {
+            "type": "object",
+            "properties": {
+              "basePdf": {
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "number",
+                    "minimum": 100,
+                    "maximum": 420
+                  },
+                  "height": {
+                    "type": "number",
+                    "minimum": 100,
+                    "maximum": 594
+                  },
+                  "padding": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "minimum": 5,
+                          "maximum": 60
+                        },
+                        {
+                          "type": "number",
+                          "minimum": 5,
+                          "maximum": 60
+                        },
+                        {
+                          "type": "number",
+                          "minimum": 5,
+                          "maximum": 60
+                        },
+                        {
+                          "type": "number",
+                          "minimum": 5,
+                          "maximum": 60
+                        }
+                      ]
+                    },
+                    "minItems": 4,
+                    "maxItems": 4
+                  },
+                  "staticSchema": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "table",
+                            "line",
+                            "rectangle",
+                            "ellipse",
+                            "image"
+                          ]
+                        },
+                        "position": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 420
+                            },
+                            "y": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 594
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "width": {
+                          "type": "number",
+                          "minimum": 0,
+                          "exclusiveMinimum": true,
+                          "maximum": 420
+                        },
+                        "height": {
+                          "type": "number",
+                          "minimum": 0,
+                          "exclusiveMinimum": true,
+                          "maximum": 594
+                        },
+                        "content": {
+                          "type": "string",
+                          "maxLength": 350000
+                        },
+                        "readOnly": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type",
+                        "position",
+                        "width",
+                        "height"
+                      ],
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "width",
+                  "height",
+                  "padding"
+                ],
+                "additionalProperties": false
+              },
+              "schemas": {
+                "minItems": 1,
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "maxItems": 100,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "table",
+                          "line",
+                          "rectangle",
+                          "ellipse",
+                          "image"
+                        ]
+                      },
+                      "position": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 420
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 594
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "width": {
+                        "type": "number",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "maximum": 420
+                      },
+                      "height": {
+                        "type": "number",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "maximum": 594
+                      },
+                      "content": {
+                        "type": "string",
+                        "maxLength": 350000
+                      },
+                      "readOnly": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "position",
+                      "width",
+                      "height"
+                    ],
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+                    }
+                  }
+                }
+              },
+              "pdfmeVersion": {
+                "type": "string",
+                "enum": [
+                  "6.1.13"
+                ]
+              }
+            },
+            "required": [
+              "basePdf",
+              "schemas"
+            ],
+            "additionalProperties": false
+          },
+          "inputSchema": {
+            "$ref": "#/components/schemas/TemplateEnvelope___schema1"
+          },
+          "bindings": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "block": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "value",
+                    "table",
+                    "sum"
+                  ]
+                },
+                "path": {
+                  "type": "string",
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                },
+                "format": {
+                  "default": "text",
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "integer",
+                    "decimal",
+                    "date",
+                    "money"
+                  ]
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "EUR",
+                    "CHF",
+                    "GBP",
+                    "USD"
+                  ]
+                },
+                "columns": {
+                  "minItems": 1,
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "path": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                      },
+                      "format": {
+                        "default": "text",
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "integer",
+                          "decimal",
+                          "date",
+                          "money"
+                        ]
+                      },
+                      "currency": {
+                        "type": "string",
+                        "enum": [
+                          "EUR",
+                          "CHF",
+                          "GBP",
+                          "USD"
+                        ]
+                      },
+                      "multiplyBy": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                      },
+                      "required": {
+                        "default": true,
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "path",
+                      "format",
+                      "required"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "valuePath": {
+                  "type": "string",
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                },
+                "multiplyBy": {
+                  "type": "string",
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                },
+                "required": {
+                  "default": true,
+                  "type": "boolean"
+                },
+                "default": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 50000
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "when": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "maxLength": 256,
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                    },
+                    "equals": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "string",
+                          "nullable": true,
+                          "enum": [
+                            null
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "equals"
+                  ],
+                  "additionalProperties": false
+                },
+                "prefix": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "suffix": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "block",
+                "kind",
+                "path",
+                "format",
+                "required"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "sampleData": {
+            "default": {},
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+            }
+          },
+          "sampleDataSynthetic": {
+            "default": true,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "resources": {
+            "default": [],
+            "maxItems": 0,
+            "type": "array",
+            "items": {
+              "not": {}
+            }
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "engine",
+          "engineVersion",
+          "name",
+          "description",
+          "locale",
+          "definition",
+          "inputSchema",
+          "bindings",
+          "sampleData",
+          "sampleDataSynthetic",
+          "resources"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateEnvelope___schema0": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 50000
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+            }
+          }
+        ]
+      },
+      "TemplateEnvelope___schema1": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "object",
+              "array"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "date",
+              "email"
+            ]
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplateEnvelope___schema1"
+            }
+          },
+          "required": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+            }
+          },
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TemplateEnvelope___schema1"
+              }
+            ]
+          },
+          "default": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TemplateEnvelope___schema0"
+              }
+            ]
+          },
+          "enum": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          "maxLength": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50000
+          },
+          "maxItems": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "TemplatePatch": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "move_block"
+                ]
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              },
+              "x": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 420
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 594
+              }
+            },
+            "required": [
+              "op",
+              "block",
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "set_text"
+                ]
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 50000
+              }
+            },
+            "required": [
+              "op",
+              "block",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "set_binding"
+                ]
+              },
+              "binding": {
+                "type": "object",
+                "properties": {
+                  "block": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "value",
+                      "table",
+                      "sum"
+                    ]
+                  },
+                  "path": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                  },
+                  "format": {
+                    "default": "text",
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "integer",
+                      "decimal",
+                      "date",
+                      "money"
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR",
+                      "CHF",
+                      "GBP",
+                      "USD"
+                    ]
+                  },
+                  "columns": {
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "path": {
+                          "type": "string",
+                          "maxLength": 256,
+                          "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                        },
+                        "format": {
+                          "default": "text",
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "integer",
+                            "decimal",
+                            "date",
+                            "money"
+                          ]
+                        },
+                        "currency": {
+                          "type": "string",
+                          "enum": [
+                            "EUR",
+                            "CHF",
+                            "GBP",
+                            "USD"
+                          ]
+                        },
+                        "multiplyBy": {
+                          "type": "string",
+                          "maxLength": 256,
+                          "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                        },
+                        "required": {
+                          "default": true,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "path",
+                        "format",
+                        "required"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "valuePath": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                  },
+                  "multiplyBy": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                  },
+                  "required": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "default": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 50000
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  "when": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                      },
+                      "equals": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              null
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "equals"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "prefix": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "suffix": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "block",
+                  "kind",
+                  "path",
+                  "format",
+                  "required"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "binding"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "add_table_column"
+                ]
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              },
+              "column": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "path": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                  },
+                  "format": {
+                    "default": "text",
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "integer",
+                      "decimal",
+                      "date",
+                      "money"
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR",
+                      "CHF",
+                      "GBP",
+                      "USD"
+                    ]
+                  },
+                  "multiplyBy": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*){0,7}$"
+                  },
+                  "required": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "title",
+                  "path",
+                  "format",
+                  "required"
+                ],
+                "additionalProperties": false
+              },
+              "field": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/TemplatePatch___schema0"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "op",
+              "block",
+              "column"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "enum": [
+                  "remove_block"
+                ]
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              }
+            },
+            "required": [
+              "op",
+              "block"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TemplatePatch___schema0": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "object",
+              "array"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "date",
+              "email"
+            ]
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplatePatch___schema0"
+            }
+          },
+          "required": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+            }
+          },
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TemplatePatch___schema0"
+              }
+            ]
+          },
+          "default": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TemplatePatch___schema1"
+              }
+            ]
+          },
+          "enum": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          "maxLength": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50000
+          },
+          "maxItems": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "TemplatePatch___schema1": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 50000
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplatePatch___schema1"
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplatePatch___schema1"
+            }
+          }
+        ]
+      },
+      "MappingPlan": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "enum": [
+              1
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "sourceSheet": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "headerRow": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000
+          },
+          "recordKey": {
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "fields": {
+            "minItems": 1,
+            "maxItems": 128,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "integer",
+                    "decimal",
+                    "minor",
+                    "date",
+                    "boolean"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "defaultValue": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 12000
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "dateOrder": {
+                  "type": "string",
+                  "enum": [
+                    "DMY",
+                    "MDY",
+                    "YMD"
+                  ]
+                },
+                "decimalSeparator": {
+                  "type": "string",
+                  "enum": [
+                    ".",
+                    ","
+                  ]
+                },
+                "scale": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9
+                }
+              },
+              "required": [
+                "source",
+                "target",
+                "type"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "group": {
+            "type": "object",
+            "properties": {
+              "itemPath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+              },
+              "fields": {
+                "minItems": 1,
+                "maxItems": 64,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160,
+                      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "text",
+                        "integer",
+                        "decimal",
+                        "minor",
+                        "date",
+                        "boolean"
+                      ]
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "defaultValue": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 12000
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "boolean"
+                        }
+                      ]
+                    },
+                    "dateOrder": {
+                      "type": "string",
+                      "enum": [
+                        "DMY",
+                        "MDY",
+                        "YMD"
+                      ]
+                    },
+                    "decimalSeparator": {
+                      "type": "string",
+                      "enum": [
+                        ".",
+                        ","
+                      ]
+                    },
+                    "scale": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "target",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "itemPath",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "joins": {
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sheet": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "headerRow": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5000
+                },
+                "parentKey": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "childKey": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                },
+                "cardinality": {
+                  "type": "string",
+                  "enum": [
+                    "one-to-one",
+                    "one-to-many"
+                  ]
+                },
+                "fields": {
+                  "minItems": 1,
+                  "maxItems": 64,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "target": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160,
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "integer",
+                          "decimal",
+                          "minor",
+                          "date",
+                          "boolean"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "defaultValue": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 12000
+                          },
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      },
+                      "dateOrder": {
+                        "type": "string",
+                        "enum": [
+                          "DMY",
+                          "MDY",
+                          "YMD"
+                        ]
+                      },
+                      "decimalSeparator": {
+                        "type": "string",
+                        "enum": [
+                          ".",
+                          ","
+                        ]
+                      },
+                      "scale": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "target",
+                      "type"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "expectedHeaders": {
+                  "minItems": 1,
+                  "maxItems": 128,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                },
+                "excludeRows": {
+                  "maxItems": 5000,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5000
+                  }
+                }
+              },
+              "required": [
+                "sheet",
+                "headerRow",
+                "parentKey",
+                "childKey",
+                "target",
+                "cardinality",
+                "fields",
+                "expectedHeaders"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "excludeRows": {
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5000
+            }
+          },
+          "includeHidden": {
+            "type": "boolean"
+          },
+          "formulaPolicy": {
+            "type": "string",
+            "enum": [
+              "reject",
+              "cached"
+            ]
+          },
+          "expectedHeaders": {
+            "minItems": 1,
+            "maxItems": 128,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        "required": [
+          "version",
+          "name",
+          "sourceSheet",
+          "headerRow",
+          "recordKey",
+          "fields",
+          "joins",
+          "excludeRows",
+          "includeHidden",
+          "formulaPolicy",
+          "expectedHeaders"
+        ],
+        "additionalProperties": false
+      },
+      "DatasetAnalyze": {
+        "type": "object",
+        "properties": {
+          "instruction": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "proposeSchema": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GenerationInput": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "templateVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "generate_only"
+            ]
+          },
+          "records": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recordId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "data": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              },
+              "required": [
+                "recordId",
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "datasetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "mappingId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "mappingVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "templateId",
+          "mode"
+        ],
+        "additionalProperties": false,
+        "description": "Données records OU datasetId + mappingId + mappingVersion, exclusivement. Version du modèle figée au lancement, generate_only sans envoi. Clé d’idempotence liée à l’organisation."
+      },
+      "DistributionInput": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "entries": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entryId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "recordId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "fax",
+                    "email",
+                    "postal"
+                  ]
+                },
+                "channelField": {
+                  "type": "string",
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                },
+                "recipient": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "recipientFields": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                  }
+                },
+                "recipientFieldsByChannel": {
+                  "type": "object",
+                  "properties": {
+                    "fax": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                      }
+                    },
+                    "email": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                      }
+                    },
+                    "postal": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "senderId": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "senderIdsByChannel": {
+                  "type": "object",
+                  "properties": {
+                    "fax": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "email": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "postal": {
+                      "type": "string",
+                      "maxLength": 200
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "subject": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "html": {
+                  "type": "string",
+                  "maxLength": 131072
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 131072
+                },
+                "options": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "optionsByChannel": {
+                  "type": "object",
+                  "properties": {
+                    "fax": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "email": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "postal": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "ceilingMinor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "entryId",
+                "recordId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "explicitMultichannel": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "jobId",
+          "entries",
+          "explicitMultichannel"
+        ],
+        "additionalProperties": false,
+        "description": "Chaque entrée choisit recipient, recipientFields OU recipientFieldsByChannel exclusivement. Le canal est explicite OU résolu par channelField dans les données figées (fax/email/postal uniquement). Les chemins recipientFields sont résolus dans les données figées du record. Multicanal uniquement avec explicitMultichannel:true ; aucune fusion implicite."
+      },
+      "TemplateView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "private",
+              "organization",
+              "selected"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "currentVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "permissions": {
+            "type": "object",
+            "properties": {
+              "use": {
+                "type": "boolean"
+              },
+              "edit": {
+                "type": "boolean"
+              },
+              "publish": {
+                "type": "boolean"
+              },
+              "share": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "use",
+              "edit",
+              "publish",
+              "share"
+            ],
+            "additionalProperties": false
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/TemplateEnvelope"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ownerId",
+          "state",
+          "visibility",
+          "revision",
+          "currentVersion",
+          "permissions",
+          "envelope",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "DatasetView": {
+        "type": "object",
+        "properties": {
+          "analysis": {
+            "type": "object",
+            "properties": {
+              "attempts": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "running": {
+                "type": "boolean"
+              },
+              "canRetry": {
+                "type": "boolean"
+              },
+              "retryAfterSeconds": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "attempts",
+              "maxAttempts",
+              "running",
+              "canRetry",
+              "retryAfterSeconds"
+            ],
+            "additionalProperties": false
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx",
+              "json",
+              "xml"
+            ]
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "quarantined",
+              "ready",
+              "rejected",
+              "purged"
+            ]
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "structureHash": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis",
+          "id",
+          "name",
+          "format",
+          "sha256",
+          "size",
+          "status",
+          "errorCode",
+          "structureHash",
+          "createdAt",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "MappingView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string"
+          },
+          "sourceDatasetId": {
+            "type": "string"
+          },
+          "structureHash": {
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/MappingPlan"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "validated"
+            ]
+          },
+          "validation": {
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "name",
+          "sourceDatasetId",
+          "structureHash",
+          "plan",
+          "state",
+          "validation",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "GenerationJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "templateVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "datasetId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mappingVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "generate_only"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "partial",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "generated": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "cancelled": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "templateId",
+          "templateVersion",
+          "datasetId",
+          "mappingId",
+          "mappingVersion",
+          "mode",
+          "state",
+          "total",
+          "generated",
+          "failed",
+          "pending",
+          "cancelled",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "GenerationResult": {
+        "type": "object",
+        "properties": {
+          "recordId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "generated",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "inputHash": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentHash": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "recordId",
+          "state",
+          "attempts",
+          "inputHash",
+          "documentId",
+          "documentHash",
+          "documentStatus",
+          "documentUrl",
+          "errorCode"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateShare": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "private",
+              "organization",
+              "selected"
+            ]
+          },
+          "syntheticSamplesConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "use": {
+                  "type": "boolean"
+                },
+                "edit": {
+                  "type": "boolean"
+                },
+                "publish": {
+                  "type": "boolean"
+                },
+                "share": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "userId",
+                "use",
+                "edit",
+                "publish",
+                "share"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "visibility",
+          "syntheticSamplesConfirmed",
+          "grants"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateUpdate": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/TemplateEnvelope"
+          },
+          "patch": {
+            "$ref": "#/components/schemas/TemplatePatch"
+          }
+        },
+        "required": [
+          "expectedRevision"
+        ],
+        "additionalProperties": false,
+        "description": "Fournir envelope OU patch. expectedRevision protège contre les modifications concurrentes. Toute modification ouvre un brouillon sans modifier les versions publiées."
+      },
+      "MappingCreate": {
+        "type": "object",
+        "properties": {
+          "datasetId": {
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/MappingPlan"
+          },
+          "mappingId": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "datasetId",
+          "plan"
+        ],
+        "additionalProperties": false,
+        "description": "Sans mappingId, crée une correspondance privée. Avec mappingId et expectedVersion, crée une nouvelle version immuable."
+      },
+      "DatasetIssue": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "error"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "sheet": {
+                "type": "string"
+              },
+              "row": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "column": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "address": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sheet",
+              "row",
+              "column",
+              "address"
+            ],
+            "additionalProperties": false
+          },
+          "target": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "MappingValidation": {
+        "type": "object",
+        "properties": {
+          "mapping": {
+            "$ref": "#/components/schemas/MappingView"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "needs_review"
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetIssue"
+            }
+          },
+          "documentCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "examples": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          }
+        },
+        "required": [
+          "mapping",
+          "status",
+          "issues",
+          "documentCount",
+          "examples"
+        ],
+        "additionalProperties": false
+      },
+      "DatasetAnalysis": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "openai"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "needs_review"
+            ]
+          },
+          "mapping": {
+            "$ref": "#/components/schemas/MappingPlan"
+          },
+          "ambiguities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 500
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "inputTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "outputTokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "calls": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "latencyMs": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "inputTokens",
+              "outputTokens",
+              "calls",
+              "latencyMs"
+            ],
+            "additionalProperties": false
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "needs_review"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DatasetIssue"
+                }
+              },
+              "documentCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "examples": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            },
+            "required": [
+              "status",
+              "issues",
+              "documentCount",
+              "examples"
+            ],
+            "additionalProperties": false
+          },
+          "schemaSuggestion": {
+            "type": "object",
+            "properties": {
+              "inputSchema": {
+                "$ref": "#/components/schemas/TemplateEnvelope___schema1"
+              },
+              "envelope": {
+                "$ref": "#/components/schemas/TemplateEnvelope"
+              },
+              "fields": {
+                "type": "array",
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "sheet": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "text",
+                        "integer",
+                        "decimal",
+                        "minor",
+                        "date",
+                        "boolean"
+                      ]
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "repeated": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "source",
+                    "sheet",
+                    "type",
+                    "required",
+                    "repeated"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 500
+              }
+            },
+            "required": [
+              "inputSchema",
+              "envelope",
+              "fields",
+              "warnings"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "provider",
+          "status",
+          "mapping",
+          "ambiguities",
+          "usage",
+          "validation"
+        ],
+        "additionalProperties": false,
+        "description": "Proposition privée à revoir. schemaSuggestion n’est présent que pour proposeSchema:true : schéma métier et enveloppe pdfme à exemples synthétiques, sans création implicite. La validation des données garde au plus trois exemples privés. Un appel IA et le budget existant sont utilisés."
+      },
+      "DistributionView": {
+        "type": "object",
+        "properties": {
+          "pendingCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "errorCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string"
+          },
+          "jobId": {
+            "type": "string"
+          },
+          "manifestHash": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "properties": {
+                "entryId": {
+                  "type": "string"
+                },
+                "recordId": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "fax",
+                    "email",
+                    "postal"
+                  ]
+                },
+                "recipient": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "documentId": {
+                  "type": "string"
+                },
+                "documentHash": {
+                  "type": "string"
+                },
+                "templateId": {
+                  "type": "string"
+                },
+                "templateVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "dispatchId": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "errorCode": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "postalReviewId": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "postalReviewStatus": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "postalReviewUrl": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "postalDispatchId": {
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "entryId",
+                "recordId",
+                "channel",
+                "recipient",
+                "documentId",
+                "documentHash",
+                "templateId",
+                "templateVersion",
+                "dispatchId",
+                "errorCode"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "pendingCount",
+          "errorCount",
+          "id",
+          "jobId",
+          "manifestHash",
+          "createdAt",
+          "entries"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateViewPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateView"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "DatasetViewPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetView"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "MappingViewPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingView"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "GenerationJobPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerationJob"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "GenerationResultPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerationResult"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
       }
     },
     "responses": {
@@ -5268,6 +10574,16 @@
             }
           }
         },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Entrée invalide ; corriger les champs retournés.",
         "content": {
           "application/json": {
             "schema": {

@@ -16,6 +16,11 @@ const routes = [
   "oauth_metadata",
   "session",
   "documents",
+  "templates",
+  "datasets",
+  "mappings",
+  "generations",
+  "distribution",
   "dispatches",
   "campaigns",
   "recipients",
@@ -134,7 +139,7 @@ export function routeCode(
 ): RouteCode {
   const path = new URL(request.url).pathname;
   if (component === "documents")
-    return path === "/render"
+    return ["/render", "/render/template"].includes(path)
       ? "render"
       : path === "/validate"
         ? "validate"
@@ -142,7 +147,7 @@ export function routeCode(
           ? "pingen_preflight"
           : "unknown";
   if (component === "scanner")
-    return path === "/scan"
+    return ["/scan", "/scan-source"].includes(path)
       ? "scan"
       : path === "/health"
         ? "scanner_health"
@@ -155,6 +160,13 @@ export function routeCode(
     "/auth/signup": "auth_signup",
     "/auth/callback": "auth_callback",
     "/mcp": "mcp",
+    "/api/templates": "templates",
+    "/api/templates/import-docx": "templates",
+    "/api/datasets": "datasets",
+    "/api/dataset-ai-policy": "datasets",
+    "/api/mappings": "mappings",
+    "/api/generation-jobs": "generations",
+    "/api/distribution-plans": "distribution",
     "/webhooks/ses": "webhook_ses",
     "/webhooks/resend": "webhook_resend",
     "/webhooks/telnyx": "webhook_telnyx",
@@ -207,6 +219,20 @@ export function routeCode(
   const id =
     "[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}";
   for (const [pattern, code] of [
+    [
+      `^/api/templates/tpl_${id}(/(publish|duplicate|share|sharing|archive|preview|suggest|schema))?$`,
+      "templates",
+    ],
+    [
+      `^/api/datasets/data_${id}(/(retry-analysis|profile|analyze))?$`,
+      "datasets",
+    ],
+    [`^/api/mappings/map_${id}(/validate)?$`, "mappings"],
+    [
+      `^/api/generation-jobs/gen_${id}(/(results|provenance|cancel|retry))?$`,
+      "generations",
+    ],
+    [`^/api/distribution-plans/dist_${id}(/resume)?$`, "distribution"],
     [`^/api/documents/doc_${id}(/(content|rescan))?$`, "documents"],
     [
       `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote))?$`,

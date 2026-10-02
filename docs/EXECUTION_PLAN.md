@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+2 October templates candidate: the recovered template/data workflow is reconciled
+with main in an isolated worktree, using additive migrations 0042–0046.
+XML sources and per-record delivery channels extend the recovered implementation.
+Historical September test totals do not qualify this candidate. Current evidence
+and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+No merge, deployment, provider activation or real communication is part of this work.
+
 2 October integration candidate: outstanding web/native language work, Claude
 dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
 reconciled for a coordinated main release. Email activation and Auth0 policy
@@ -150,3 +157,13 @@ Read AGENTS.md and TEST_RESULTS.md. Run `npm ci`, then `npm run demo` for local 
 No work is scheduled to continue after this session. Follow the remaining-work table and retain the existing evidence when a later milestone adds live qualification.
 
 The earlier environment lacked Cloudflare credentials. The current desktop environment has working Wrangler OAuth authentication; no credentials were copied into the repository.
+
+## Additive document studio — 21 September 2026 candidate
+
+Implementation now covers pdfme templates and Word content import, data profiling
+and reusable mappings, actual bounded OpenAI adapters (synthetic transport tests),
+durable PDF generation, private artifacts and distribution preparation. The
+[delivery report](TEMPLATES_DATA_DISTRIBUTION.md) records the executed tests,
+runtime evidence and exact demo. Production migration/deployment, hosted runtime
+load, live source antivirus and real AI/assistant-host qualification remain open.
+These additions do not change any earlier live release proof or authorize a send.

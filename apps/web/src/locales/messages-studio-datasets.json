@@ -1,0 +1,622 @@
+{
+  "Importer mes données": [
+    "Import my data",
+    "Meine Daten importieren",
+    "Meng Donnéeën importéieren"
+  ],
+  "Exemple": ["Example", "Beispiel", "Beispill"],
+  "Date": ["Date", "Datum", "Datum"],
+  "Entier": ["Integer", "Ganzzahl", "Ganz Zuel"],
+  "Colonne": ["Column", "Spalte", "Kolonn"],
+  "Choisissez un fichier CSV, XLSX, XML ou JSON.": [
+    "Choose a CSV, XLSX, XML or JSON file.",
+    "Wählen Sie eine CSV-, XLSX-, XML- oder JSON-Datei.",
+    "Wielt eng CSV-, XLSX-, XML- oder JSON-Datei."
+  ],
+  "Le fichier dépasse 5 Mo.": [
+    "The file exceeds 5 MB.",
+    "Die Datei ist größer als 5 MB.",
+    "D’Datei ass méi grouss wéi 5 MB."
+  ],
+  "Mes données": ["My data", "Meine Daten", "Meng Donnéeën"],
+  "Importez votre fichier tel qu’il est. Choisissez les feuilles, les colonnes et les regroupements avant de générer vos documents.": [
+    "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
+    "Importieren Sie Ihre Datei unverändert. Wählen Sie Blätter, Spalten und Gruppierungen aus, bevor Sie Ihre Dokumente erstellen.",
+    "Importéiert Är Datei esou wéi se ass. Wielt Blieder, Kolonnen a Gruppéierungen, ier Dir Är Dokumenter erstellt."
+  ],
+  "CSV, Excel .xlsx, XML ou JSON. Le fichier original reste privé. L’import n’appelle aucune IA et ne prépare aucun envoi.": [
+    "CSV, Excel .xlsx, XML or JSON. The original file stays private. Importing does not call AI or prepare any sends.",
+    "CSV, Excel .xlsx, XML oder JSON. Die Originaldatei bleibt privat. Der Import ruft keine KI auf und bereitet keinen Versand vor.",
+    "CSV, Excel .xlsx, XML oder JSON. D’Originaldatei bleift privat. Den Import rifft keng KI op a bereet kee Versand vir."
+  ],
+  "Fichier de données": ["Data file", "Datendatei", "Datendatei"],
+  "5 Mo maximum, 12 feuilles, 5 000 lignes et 100 000 cellules au maximum.": [
+    "Maximum 5 MB, 12 sheets, 5,000 rows and 100,000 cells.",
+    "Höchstens 5 MB, 12 Blätter, 5.000 Zeilen und 100.000 Zellen.",
+    "Maximal 5 MB, 12 Blieder, 5.000 Zeilen an 100.000 Zellen."
+  ],
+  "Options CSV": ["CSV options", "CSV-Optionen", "CSV-Optiounen"],
+  "Encodage CSV": [
+    "CSV encoding",
+    "CSV-Zeichenkodierung",
+    "CSV-Zeechekodéierung"
+  ],
+  "UTF-8": ["UTF-8", "UTF-8", "UTF-8"],
+  "Windows-1252": ["Windows-1252", "Windows-1252", "Windows-1252"],
+  "Séparateur CSV": ["CSV delimiter", "CSV-Trennzeichen", "CSV-Trennzeechen"],
+  "Détection automatique": [
+    "Detect automatically",
+    "Automatisch erkennen",
+    "Automatesch erkennen"
+  ],
+  "Virgule": ["Comma", "Komma", "Komma"],
+  "Point-virgule": ["Semicolon", "Semikolon", "Semikolon"],
+  "Tabulation": ["Tab", "Tabulator", "Tabulator"],
+  "Barre verticale": ["Vertical bar", "Senkrechter Strich", "Vertikale Stréch"],
+  "Options XML": ["XML options", "XML-Optionen", "XML-Optiounen"],
+  "Chemin des enregistrements XML": [
+    "XML record path",
+    "Pfad der XML-Datensätze",
+    "Pad vun den XML-Datesätz"
+  ],
+  "Facultatif pour une seule collection. Exemple : /export/clients/client. Si plusieurs collections existent, précisez celle à importer.": [
+    "Optional for a single collection. Example: /export/clients/client. If there are multiple collections, specify which one to import.",
+    "Bei einer einzelnen Sammlung optional. Beispiel: /export/clients/client. Geben Sie bei mehreren Sammlungen an, welche importiert werden soll.",
+    "Bei enger eenzeger Sammlung fakultativ. Beispill: /export/clients/client. Gitt bei méi Sammlungen un, wéi eng importéiert soll ginn."
+  ],
+  "Analyse technique…": [
+    "Checking file…",
+    "Datei wird geprüft…",
+    "Datei gëtt gepréift…"
+  ],
+  "Importer et reconnaître les données": [
+    "Import and recognise data",
+    "Daten importieren und erkennen",
+    "Donnéeën importéieren an erkennen"
+  ],
+  "Vos fichiers apparaîtront ici après import.": [
+    "Your files will appear here after import.",
+    "Ihre Dateien erscheinen hier nach dem Import.",
+    "Är Dateie ginn hei nom Import ugewisen."
+  ],
+  "Reconnu": ["Recognised", "Erkannt", "Erkannt"],
+  "En vérification": ["Being checked", "Wird geprüft", "Gëtt gepréift"],
+  "Supprimé": ["Deleted", "Gelöscht", "Geläscht"],
+  "Refusé": ["Rejected", "Abgelehnt", "Ofgeleent"],
+  "Interpréter": ["Map data", "Daten zuordnen", "Donnéeën zouuerdnen"],
+  "Correspondance de données": [
+    "Data mapping",
+    "Datenzuordnung",
+    "Datenzouuerdnung"
+  ],
+  "Feuille de l’aperçu": ["Preview sheet", "Vorschaublatt", "Virschau-Blat"],
+  "Parcourez toutes les feuilles sans modifier votre correspondance.": [
+    "Browse all sheets without changing your mapping.",
+    "Sehen Sie alle Blätter an, ohne Ihre Zuordnung zu ändern.",
+    "Kuckt all Blieder un, ouni Är Zouuerdnung ze änneren."
+  ],
+  "(masquée)": ["(hidden)", "(ausgeblendet)", "(verstoppt)"],
+  "Aperçu original —": [
+    "Original preview —",
+    "Originalvorschau —",
+    "Originalvirschau —"
+  ],
+  ": lignes": [": rows", ": Zeilen", ": Zeilen"],
+  "à": ["to", "bis", "bis"],
+  "sur": ["of", "von", "vun"],
+  "Ligne": ["Row", "Zeile", "Zeil"],
+  "· masquée": ["· hidden", "· ausgeblendet", "· verstoppt"],
+  "· formule": ["· formula", "· Formel", "· Formel"],
+  "(cache)": ["(cached)", "(gespeichert)", "(gespäichert)"],
+  "sans résultat": ["no result", "kein Ergebnis", "kee Resultat"],
+  "Les valeurs longues sont limitées à": [
+    "Long values are limited to",
+    "Lange Werte sind auf",
+    "Laang Wäerter sinn op"
+  ],
+  "caractères dans cet aperçu. Le fichier complet est utilisé pour la validation.": [
+    "characters in this preview. Validation uses the complete file.",
+    "Zeichen in dieser Vorschau begrenzt. Die Prüfung verwendet die vollständige Datei.",
+    "Zeechen an dëser Virschau limitéiert. D’Validatioun benotzt déi ganz Datei."
+  ],
+  "Pages de l’aperçu des données": [
+    "Data preview pages",
+    "Seiten der Datenvorschau",
+    "Säite vun der Datevirschau"
+  ],
+  "Première page": ["First page", "Erste Seite", "Éischt Säit"],
+  "Page précédente": ["Previous page", "Vorherige Seite", "Vireg Säit"],
+  "Page suivante": ["Next page", "Nächste Seite", "Nächst Säit"],
+  "Indiquez des numéros de ligne de 1 à 5 000 séparés par des virgules, par exemple 8, 14.": [
+    "Enter row numbers from 1 to 5,000 separated by commas, for example 8, 14.",
+    "Geben Sie Zeilennummern von 1 bis 5.000 durch Kommas getrennt ein, zum Beispiel 8, 14.",
+    "Gitt Zeilennummere vun 1 bis 5.000 mat Kommaen getrennt an, zum Beispill 8, 14."
+  ],
+  "Reconnaissance du fichier": [
+    "File recognition",
+    "Dateierkennung",
+    "Dateierkennung"
+  ],
+  "Le fichier original est conservé séparément de son interprétation.": [
+    "The original file is stored separately from its interpretation.",
+    "Die Originaldatei wird getrennt von ihrer Auswertung gespeichert.",
+    "D’Originaldatei gëtt getrennt vun hirer Auswäertung gespäichert."
+  ],
+  "Vérification de votre fichier": [
+    "Checking your file",
+    "Ihre Datei wird geprüft",
+    "Är Datei gëtt gepréift"
+  ],
+  "La durée de conservation de cet original est écoulée. Importez à nouveau le fichier si nécessaire.": [
+    "This original has reached the end of its retention period. Import the file again if needed.",
+    "Die Aufbewahrungsfrist dieses Originals ist abgelaufen. Importieren Sie die Datei bei Bedarf erneut.",
+    "D’Späicherfrist vun dësem Original ass ofgelaf. Importéiert d’Datei bei Bedarf nach eng Kéier."
+  ],
+  "Ce fichier n’a pas passé les contrôles. Corrigez le fichier source avant un nouvel import.": [
+    "This file did not pass the checks. Correct the source file before importing it again.",
+    "Diese Datei hat die Prüfungen nicht bestanden. Korrigieren Sie die Quelldatei vor einem erneuten Import.",
+    "Dës Datei huet d’Kontrollen net bestanen. Korrigéiert d’Quelldatei virun engem neien Import."
+  ],
+  "L’analyse est en cours. Le fichier original est conservé ; attendez avant d’actualiser.": [
+    "Analysis is in progress. The original file is retained; please wait before refreshing.",
+    "Die Analyse läuft. Die Originaldatei bleibt gespeichert; warten Sie vor dem Aktualisieren.",
+    "D’Analys leeft. D’Originaldatei bleift gespäichert; waart virum Aktualiséieren."
+  ],
+  "L’analyse du fichier n’a pas abouti. Cette étape protège la génération ; un état de vérification ne signifie pas à lui seul que le fichier contient un virus.": [
+    "The file analysis did not complete. This step protects generation; a verification status alone does not mean the file contains a virus.",
+    "Die Dateianalyse wurde nicht abgeschlossen. Dieser Schritt schützt die Dokumenterstellung; der Prüfstatus allein bedeutet nicht, dass die Datei einen Virus enthält.",
+    "D’Dateianalys gouf net ofgeschloss. Dëse Schrëtt schützt d’Dokumenterstellung; e Kontrollstatus eleng bedeit net, datt d’Datei e Virus enthält."
+  ],
+  "tentative(s) sur": ["attempt(s) of", "Versuch(e) von", "Versich vu"],
+  "Relancer l’analyse du même fichier": [
+    "Retry analysis of the same file",
+    "Dieselbe Datei erneut analysieren",
+    "Déiselwecht Datei nach eng Kéier analyséieren"
+  ],
+  "Actualiser l’état": [
+    "Refresh status",
+    "Status aktualisieren",
+    "Status aktualiséieren"
+  ],
+  "Importer un fichier corrigé": [
+    "Import a corrected file",
+    "Korrigierte Datei importieren",
+    "Korrigéiert Datei importéieren"
+  ],
+  "Choisissez le modèle que ces données alimenteront.": [
+    "Choose the template these data will populate.",
+    "Wählen Sie die Vorlage aus, die mit diesen Daten gefüllt wird.",
+    "Wielt d’Virlag aus, déi mat dësen Donnéeë gefëllt gëtt."
+  ],
+  "Attendez le chargement des en-têtes de chaque feuille avant de valider.": [
+    "Wait for the headers of every sheet to load before validating.",
+    "Warten Sie vor der Prüfung, bis die Überschriften aller Blätter geladen sind.",
+    "Waart virun der Validatioun, bis d’Iwwerschrëfte vun alle Blieder geluede sinn."
+  ],
+  "Les décimaux exacts nécessitent un champ texte dans le modèle. Adaptez les champs signalés avant de valider.": [
+    "Exact decimals require a text field in the template. Adjust the marked fields before validating.",
+    "Exakte Dezimalwerte erfordern ein Textfeld in der Vorlage. Passen Sie die markierten Felder vor der Prüfung an.",
+    "Exakt Dezimalwäerter brauchen en Textfeld an der Virlag. Passt déi markéiert Felder virun der Validatioun un."
+  ],
+  "← Mes données": ["← My data", "← Meine Daten", "← Meng Donnéeën"],
+  "Vérifiez les données reconnues, puis leur correspondance avec votre modèle. Chaque client peut regrouper plusieurs lignes.": [
+    "Check the recognised data, then their mapping to your template. Each customer can group several rows.",
+    "Prüfen Sie die erkannten Daten und anschließend deren Zuordnung zur Vorlage. Mehrere Zeilen können zu einem Kunden gehören.",
+    "Préift déi erkannt Donnéeën an duerno hir Zouuerdnung zu Ärer Virlag. Méi Zeile kënnen zu engem Client gehéieren."
+  ],
+  "Original privé ·": [
+    "Private original ·",
+    "Privates Original ·",
+    "Privat Original ·"
+  ],
+  "· suppression de la source prévue le": [
+    "· source deletion scheduled for",
+    "· Löschung der Quelle geplant am",
+    "· Läschung vun der Quell geplangt den"
+  ],
+  "feuille(s)": ["sheet(s)", "Blatt/Blätter", "Blat/Blieder"],
+  "points signalés dans le fichier": [
+    "issues flagged in the file",
+    "Hinweise in der Datei",
+    "Hiweiser an der Datei"
+  ],
+  "1. Reconnaître la structure": [
+    "1. Recognise the structure",
+    "1. Struktur erkennen",
+    "1. Struktur erkennen"
+  ],
+  "Feuille principale": ["Main sheet", "Hauptblatt", "Haaptblat"],
+  "Ligne des en-têtes": [
+    "Header row",
+    "Überschriftenzeile",
+    "Iwwerschrëftenzeil"
+  ],
+  "Clé du document / client": [
+    "Document / customer key",
+    "Dokument-/Kundenschlüssel",
+    "Dokument-/Clientsschlëssel"
+  ],
+  "Plusieurs lignes avec la même clé forment un document.": [
+    "Rows with the same key form one document.",
+    "Zeilen mit demselben Schlüssel bilden ein Dokument.",
+    "Zeile mam selwechte Schlëssel bilden een Dokument."
+  ],
+  "Une ligne par document": [
+    "One row per document",
+    "Eine Zeile pro Dokument",
+    "Eng Zeil pro Dokument"
+  ],
+  "vide": ["empty", "leer", "eidel"],
+  "Chargement des en-têtes sélectionnés…": [
+    "Loading selected headers…",
+    "Ausgewählte Überschriften werden geladen…",
+    "Ausgewielten Iwwerschrëfte gi gelueden…"
+  ],
+  "Lignes à exclure explicitement": [
+    "Rows to explicitly exclude",
+    "Ausdrücklich auszuschließende Zeilen",
+    "Ausdrécklech auszeschléissend Zeilen"
+  ],
+  "Numéros séparés par des virgules : par exemple 8, 14 pour les sous-totaux.": [
+    "Comma-separated numbers: for example 8, 14 for subtotals.",
+    "Durch Kommas getrennte Nummern, zum Beispiel 8, 14 für Zwischensummen.",
+    "Mat Kommae getrennten Nummeren, zum Beispill 8, 14 fir Zwëschenzommen."
+  ],
+  "Inclure les lignes et feuilles masquées": [
+    "Include hidden rows and sheets",
+    "Ausgeblendete Zeilen und Blätter einschließen",
+    "Verstoppt Zeilen a Blieder abezéien"
+  ],
+  "Cellules de formule": ["Formula cells", "Formelzellen", "Formelzellen"],
+  "Demander une correction": [
+    "Require a correction",
+    "Korrektur anfordern",
+    "Korrektur ufroen"
+  ],
+  "Utiliser uniquement le résultat déjà enregistré dans le fichier": [
+    "Use only the result already saved in the file",
+    "Nur das bereits in der Datei gespeicherte Ergebnis verwenden",
+    "Nëmmen dat schonn an der Datei gespäichert Resultat benotzen"
+  ],
+  "2. Relier les champs": [
+    "2. Map fields",
+    "2. Felder zuordnen",
+    "2. Felder zouuerdnen"
+  ],
+  "Modèle à remplir": [
+    "Template to populate",
+    "Auszufüllende Vorlage",
+    "Virlag fir auszefëllen"
+  ],
+  "Choisir un modèle publié": [
+    "Choose a published template",
+    "Veröffentlichte Vorlage wählen",
+    "Verëffentlecht Virlag auswielen"
+  ],
+  "· v": ["· v", "· v", "· v"],
+  "Autres modèles disponibles": [
+    "More available templates",
+    "Weitere verfügbare Vorlagen",
+    "Weider disponibel Virlagen"
+  ],
+  "Réutiliser une correspondance enregistrée": [
+    "Reuse a saved mapping",
+    "Gespeicherte Zuordnung wiederverwenden",
+    "Gespäichert Zouuerdnung nees benotzen"
+  ],
+  "Nouvelle correspondance": [
+    "New mapping",
+    "Neue Zuordnung",
+    "Nei Zouuerdnung"
+  ],
+  "Autres correspondances disponibles": [
+    "More available mappings",
+    "Weitere verfügbare Zuordnungen",
+    "Weider disponibel Zouuerdnungen"
+  ],
+  "Nom de la correspondance": [
+    "Mapping name",
+    "Name der Zuordnung",
+    "Numm vun der Zouuerdnung"
+  ],
+  "Les champs": ["The fields", "Die Felder", "D’Felder"],
+  "du modèle attendent des nombres, alors que le type « Décimal exact » conserve une chaîne sans arrondi. Pour conserver les décimales, adaptez le modèle avec un champ texte et le format décimal. Pour des montants en unités mineures, utilisez un champ entier et le type « Montant → centimes entiers ».": [
+    "in the template expect numbers, while “Exact decimal” preserves a string without rounding. To retain decimal places, use a text field with decimal formatting. For amounts in minor units, use an integer field and “Amount → integer cents”.",
+    "der Vorlage erwarten Zahlen, während „Exakter Dezimalwert“ eine Zeichenfolge ohne Rundung bewahrt. Verwenden Sie zum Erhalt der Nachkommastellen ein Textfeld mit Dezimalformat. Für Beträge in Untereinheiten verwenden Sie ein Ganzzahlfeld und „Betrag → ganze Cent“.",
+    "vun der Virlag erwaarden Zuelen, wärend „Exakten Dezimalwäert“ eng Zeecheketten ouni Ronnung behält. Benotzt en Textfeld mat Dezimalformat fir d’Dezimalstellen ze behalen. Fir Beträg a klengen Eenheete benotzt e Ganzzuelfeld an „Betrag → ganz Cent“."
+  ],
+  "Un tableau par document": [
+    "One table per document",
+    "Eine Tabelle pro Dokument",
+    "Eng Tabell pro Dokument"
+  ],
+  "Tableau du modèle": [
+    "Template table",
+    "Tabelle der Vorlage",
+    "Tabell vun der Virlag"
+  ],
+  "Pas de tableau": ["No table", "Keine Tabelle", "Keng Tabell"],
+  "Origine des lignes du tableau": [
+    "Source of table rows",
+    "Quelle der Tabellenzeilen",
+    "Quell vun den Tabellezeilen"
+  ],
+  "Regrouper la feuille principale": [
+    "Group the main sheet",
+    "Hauptblatt gruppieren",
+    "Haaptblat gruppéieren"
+  ],
+  "Joindre la feuille": ["Join sheet", "Blatt verknüpfen", "Blat verknëppen"],
+  "En-têtes de la feuille liée": [
+    "Linked sheet headers",
+    "Überschriften des verknüpften Blatts",
+    "Iwwerschrëfte vum verknëppte Blat"
+  ],
+  "Clé dans la feuille principale": [
+    "Key in the main sheet",
+    "Schlüssel im Hauptblatt",
+    "Schlëssel am Haaptblat"
+  ],
+  "Choisir": ["Choose", "Auswählen", "Auswielen"],
+  "Clé dans la feuille liée": [
+    "Key in the linked sheet",
+    "Schlüssel im verknüpften Blatt",
+    "Schlëssel am verknëppte Blat"
+  ],
+  "Valider toutes les lignes": [
+    "Validate all rows",
+    "Alle Zeilen prüfen",
+    "All Zeile validéieren"
+  ],
+  "Aide de l’IA, sur demande": [
+    "AI help, on request",
+    "KI-Hilfe auf Anfrage",
+    "KI-Hëllef op Ufro"
+  ],
+  "L’analyse envoie des métadonnées et un échantillon limité au fournisseur autorisé par votre organisation. Elle propose une correspondance ; vous gardez la validation.": [
+    "Analysis sends metadata and a limited sample to the provider authorised by your organisation. It proposes a mapping; you remain responsible for validation.",
+    "Die Analyse sendet Metadaten und eine begrenzte Stichprobe an den von Ihrer Organisation genehmigten Anbieter. Sie schlägt eine Zuordnung vor; die Prüfung bleibt bei Ihnen.",
+    "D’Analys schéckt Metadaten an eng limitéiert Prouf un de vun Ärer Organisatioun autoriséierte Fournisseur. Si proposéiert eng Zouuerdnung; Dir behält d’Validatioun."
+  ],
+  "Proposition reçue. Vérifiez chaque champ, puis validez toutes les lignes.": [
+    "Proposal received. Check each field, then validate all rows.",
+    "Vorschlag erhalten. Prüfen Sie jedes Feld und anschließend alle Zeilen.",
+    "Propositioun kritt. Préift all Feld a validéiert duerno all Zeilen."
+  ],
+  "Demander une proposition IA": [
+    "Request an AI proposal",
+    "KI-Vorschlag anfordern",
+    "KI-Propositioun ufroen"
+  ],
+  "Créer un modèle depuis les données": [
+    "Create a template from data",
+    "Vorlage aus Daten erstellen",
+    "Virlag aus Donnéeën erstellen"
+  ],
+  "Sans modèle existant, l’IA peut proposer les champs métier, leurs types et leurs tableaux. Vous relisez cette structure avant de créer un brouillon privé ; les exemples du modèle seront entièrement synthétiques.": [
+    "Without an existing template, AI can propose business fields, their types and tables. Review this structure before creating a private draft; the template examples will be entirely synthetic.",
+    "Ohne bestehende Vorlage kann die KI fachliche Felder, deren Typen und Tabellen vorschlagen. Prüfen Sie diese Struktur vor dem Erstellen eines privaten Entwurfs; die Beispiele der Vorlage sind vollständig synthetisch.",
+    "Ouni bestoend Virlag kann d’KI fachlech Felder, hir Typen an Tabelle proposéieren. Préift dës Struktur, ier Dir e privaten Entworf erstellt; d’Beispiller vun der Virlag si komplett syntheetesch."
+  ],
+  "Décrire le modèle à proposer": [
+    "Describe the template to propose",
+    "Gewünschte Vorlage beschreiben",
+    "Gewënscht Virlag beschreiwen"
+  ],
+  "Facultatif : indiquez le document souhaité et les lignes à regrouper, sans ajouter de données sensibles.": [
+    "Optional: describe the document and the rows to group, without adding sensitive data.",
+    "Optional: Beschreiben Sie das gewünschte Dokument und die zu gruppierenden Zeilen, ohne vertrauliche Daten hinzuzufügen.",
+    "Fakultativ: Beschreift dat gewënscht Dokument an d’Zeile fir ze gruppéieren, ouni sensibel Donnéeën derbäizesetzen."
+  ],
+  "Proposer un nouveau modèle avec l’IA": [
+    "Propose a new template with AI",
+    "Neue Vorlage mit KI vorschlagen",
+    "Nei Virlag mat KI proposéieren"
+  ],
+  "Proposition à relire ·": [
+    "Proposal to review ·",
+    "Vorschlag zur Prüfung ·",
+    "Propositioun fir ze iwwerpréiwen ·"
+  ],
+  "champ(s) ·": ["field(s) ·", "Feld(er) ·", "Feld(er) ·"],
+  "document(s) attendu(s). La structure et un exemple synthétique ont été vérifiés par le serveur.": [
+    "expected document(s). The structure and a synthetic example have been checked by the server.",
+    "erwartete Dokumente. Die Struktur und ein synthetisches Beispiel wurden vom Server geprüft.",
+    "erwaart Dokumenter. D’Struktur an e syntheetescht Beispill goufe vum Server gepréift."
+  ],
+  "Champs métier proposés et colonnes source": [
+    "Proposed fields and source columns",
+    "Vorgeschlagene Felder und Quellspalten",
+    "Proposéiert Felder a Quellkolonnen"
+  ],
+  "Champ du modèle": ["Template field", "Vorlagenfeld", "Virlagfeld"],
+  "Type": ["Type", "Typ", "Typ"],
+  "Source": ["Source", "Quelle", "Quell"],
+  "Règle": ["Rule", "Regel", "Reegel"],
+  "Dans un tableau ·": [
+    "In a table ·",
+    "In einer Tabelle ·",
+    "An enger Tabell ·"
+  ],
+  "Obligatoire": ["Required", "Erforderlich", "Obligatoresch"],
+  "Facultatif": ["Optional", "Optional", "Fakultativ"],
+  "Les données demandent encore une correction. Vous pouvez créer le brouillon ; la correspondance devra être corrigée et validée avant toute génération.": [
+    "The data still need correction. You can create the draft; the mapping must be corrected and validated before any generation.",
+    "Die Daten müssen noch korrigiert werden. Sie können den Entwurf erstellen; vor jeder Dokumenterstellung muss die Zuordnung korrigiert und geprüft werden.",
+    "D’Donnéeë mussen nach korrigéiert ginn. Dir kënnt den Entworf erstellen; d’Zouuerdnung muss virun all Generatioun korrigéiert a validéiert ginn."
+  ],
+  "J’ai relu les champs et les tableaux proposés.": [
+    "I have reviewed the proposed fields and tables.",
+    "Ich habe die vorgeschlagenen Felder und Tabellen geprüft.",
+    "Ech hunn déi proposéiert Felder an Tabelle gepréift."
+  ],
+  "Créer le brouillon privé et sa correspondance": [
+    "Create the private draft and its mapping",
+    "Privaten Entwurf mit Zuordnung erstellen",
+    "Privaten Entworf mat Zouuerdnung erstellen"
+  ],
+  "Le brouillon s’ouvrira dans l’éditeur. La correspondance sera enregistrée sous «": [
+    "The draft will open in the editor. The mapping will be saved as “",
+    "Der Entwurf wird im Editor geöffnet. Die Zuordnung wird gespeichert als „",
+    "Den Entworf gëtt am Editor opgemaach. D’Zouuerdnung gëtt gespäichert als „"
+  ],
+  "». La publication et la génération restent des actions séparées.": [
+    "”. Publishing and generation remain separate actions.",
+    "“. Veröffentlichung und Dokumenterstellung bleiben getrennte Aktionen.",
+    "“. Verëffentlechung an Dokumenterstellung bleiwe separat Aktiounen."
+  ],
+  "3. Vérifier avant génération": [
+    "3. Check before generation",
+    "3. Vor der Dokumenterstellung prüfen",
+    "3. Virun der Generatioun préiwen"
+  ],
+  "document(s) attendu(s)": [
+    "expected document(s)",
+    "erwartete Dokumente",
+    "erwaart Dokumenter"
+  ],
+  "Correspondance validée": [
+    "Mapping validated",
+    "Zuordnung geprüft",
+    "Zouuerdnung validéiert"
+  ],
+  "Correction nécessaire": [
+    "Correction needed",
+    "Korrektur erforderlich",
+    "Korrektur néideg"
+  ],
+  "champs tracés": [
+    "traced fields",
+    "nachverfolgbare Felder",
+    "novollzéibar Felder"
+  ],
+  "lignes": ["rows", "Zeilen", "Zeilen"],
+  "Aucun envoi n’est préparé. Les erreurs doivent être corrigées ou leurs lignes explicitement exclues.": [
+    "No send is prepared. Errors must be corrected or their rows explicitly excluded.",
+    "Es wird kein Versand vorbereitet. Fehler müssen korrigiert oder die betroffenen Zeilen ausdrücklich ausgeschlossen werden.",
+    "Et gëtt kee Versand virbereet. Feeler musse korrigéiert oder déi betraffe Zeilen ausdrécklech ausgeschloss ginn."
+  ],
+  "Générer": ["Generate", "Erstellen", "Erstellen"],
+  "PDF sans envoi": [
+    "PDFs without sending",
+    "PDFs ohne Versand",
+    "PDFen ouni Versand"
+  ],
+  "Champ métier cible": ["Target field", "Zielfeld", "Zilfeld"],
+  "Chemin déclaré par le modèle, par exemple customer.name ; pour un tableau, chemin relatif à sa ligne.": [
+    "Path declared by the template, for example customer.name; for a table, a path relative to its row.",
+    "Von der Vorlage festgelegter Pfad, zum Beispiel customer.name; bei einer Tabelle relativ zur jeweiligen Zeile.",
+    "Vun der Virlag deklaréierte Pad, zum Beispill customer.name; bei enger Tabell relativ zu hirer Zeil."
+  ],
+  "Colonne pour": ["Column for", "Spalte für", "Kolonn fir"],
+  "Choisir la colonne source": [
+    "Choose the source column",
+    "Quellspalte wählen",
+    "Quellkolonn auswielen"
+  ],
+  "Type de": ["Type of", "Typ von", "Typ vun"],
+  "Texte / identifiant / code postal": [
+    "Text / identifier / postal code",
+    "Text / Kennung / Postleitzahl",
+    "Text / Identifikatioun / Postleitzuel"
+  ],
+  "Montant → centimes entiers": [
+    "Amount → integer cents",
+    "Betrag → ganze Cent",
+    "Betrag → ganz Cent"
+  ],
+  "Décimal exact (chaîne)": [
+    "Exact decimal (string)",
+    "Exakter Dezimalwert (Zeichenfolge)",
+    "Exakten Dezimalwäert (Zeecheketten)"
+  ],
+  "Oui / non": ["Yes / no", "Ja / nein", "Jo / nee"],
+  "Ordre de date pour": [
+    "Date order for",
+    "Datumsreihenfolge für",
+    "Datumsreefolleg fir"
+  ],
+  "Ne pas deviner": ["Do not guess", "Nicht erraten", "Net roden"],
+  "Jour / mois / année": [
+    "Day / month / year",
+    "Tag / Monat / Jahr",
+    "Dag / Mount / Joer"
+  ],
+  "Mois / jour / année": [
+    "Month / day / year",
+    "Monat / Tag / Jahr",
+    "Mount / Dag / Joer"
+  ],
+  "Année / mois / jour": [
+    "Year / month / day",
+    "Jahr / Monat / Tag",
+    "Joer / Mount / Dag"
+  ],
+  "Séparateur décimal pour": [
+    "Decimal separator for",
+    "Dezimaltrennzeichen für",
+    "Dezimaltrennzeeche fir"
+  ],
+  "Point": ["Period", "Punkt", "Punkt"],
+  "Champ obligatoire": ["Required field", "Pflichtfeld", "Obligatorescht Feld"],
+  "Administration : analyse IA des données": [
+    "Administration: AI data analysis",
+    "Verwaltung: KI-Datenanalyse",
+    "Verwaltung: KI-Dateanalys"
+  ],
+  "Fournisseur : OpenAI, API directe. Seuls des métadonnées et un échantillon borné sont transférés à la demande. La localisation de D1/R2 ne détermine pas celle de ce traitement. Le paramètre store:false ne garantit pas une rétention nulle chez le fournisseur.": [
+    "Provider: OpenAI, direct API. Only metadata and a bounded sample are transferred on request. The location of D1/R2 does not determine where this processing takes place. The store:false setting does not guarantee zero retention by the provider.",
+    "Anbieter: OpenAI, direkte API. Nur Metadaten und eine begrenzte Stichprobe werden auf Anfrage übertragen. Der Standort von D1/R2 bestimmt nicht den Ort dieser Verarbeitung. Die Einstellung store:false garantiert keine speicherungsfreie Verarbeitung beim Anbieter.",
+    "Fournisseur: OpenAI, direkt API. Nëmme Metadaten an eng begrenzte Prouf ginn op Ufro iwwerdroen. De Standuert vun D1/R2 bestëmmt net, wou dës Veraarbechtung stattfënnt. D’Astellung store:false garantéiert net, datt de Fournisseur näischt späichert."
+  ],
+  "Fournisseur configuré.": [
+    "Provider configured.",
+    "Anbieter konfiguriert.",
+    "Fournisseur konfiguréiert."
+  ],
+  "L’analyse IA est indisponible : aucune configuration fournisseur utilisable.": [
+    "AI analysis is unavailable: no usable provider configuration.",
+    "KI-Analyse ist nicht verfügbar: keine nutzbare Anbieterkonfiguration.",
+    "KI-Analys ass net disponibel: keng benotzbar Fournisseur-Konfiguratioun."
+  ],
+  "appel(s) comptabilisé(s) aujourd’hui.": [
+    "call(s) counted today.",
+    "Aufruf(e) heute gezählt.",
+    "Opriff haut gezielt."
+  ],
+  "La qualité du fournisseur réel n’est pas encore qualifiée.": [
+    "The real provider’s quality has not yet been qualified.",
+    "Die Qualität des tatsächlichen Anbieters wurde noch nicht geprüft.",
+    "D’Qualitéit vum reelle Fournisseur gouf nach net gepréift."
+  ],
+  "Activer les demandes d’analyse pour cette organisation": [
+    "Enable analysis requests for this organisation",
+    "Analyseanfragen für diese Organisation aktivieren",
+    "Analysufroe fir dës Organisatioun aktivéieren"
+  ],
+  "J’autorise explicitement le transfert de ces échantillons au fournisseur": [
+    "I explicitly authorise transfer of these samples to the provider",
+    "Ich genehmige ausdrücklich die Übertragung dieser Stichproben an den Anbieter",
+    "Ech autoriséieren ausdrécklech d’Iwwerdroe vun dëse Prouwen un de Fournisseur"
+  ],
+  "Maximum d’appels par jour": [
+    "Maximum calls per day",
+    "Höchstens Aufrufe pro Tag",
+    "Maximal Opriff pro Dag"
+  ],
+  "Enregistrer la politique de transfert": [
+    "Save transfer policy",
+    "Übertragungsrichtlinie speichern",
+    "Iwwerdroungsreegel späicheren"
+  ],
+  "La ligne d’en-têtes {0} n’existe pas dans la feuille {1}.": [
+    "Header row {0} does not exist in sheet {1}.",
+    "Überschriftenzeile {0} existiert nicht im Blatt {1}.",
+    "D’Iwwerschrëftenzeil {0} gëtt et net am Blat {1}."
+  ],
+  "Attendez {0} seconde(s).": [
+    "Wait {0} second(s).",
+    "Warten Sie {0} Sekunde(n).",
+    "Waart {0} Sekonn(en)."
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "Le studio documentaire est disponible dans l’espace privé. Cette démonstration publique ne traite pas de fichiers.": [
+    "The document studio is available in your private workspace. This public demo does not process files.",
+    "Das Dokumentenstudio ist in Ihrem privaten Arbeitsbereich verfügbar. Diese öffentliche Demo verarbeitet keine Dateien.",
+    "Den Dokumentestudio ass an Ärem private Beräich disponibel. Dës ëffentlech Demo veraarbecht keng Dateien."
+  ],
+  "Parcours documentaire": [
+    "Document workflow",
+    "Dokumentenablauf",
+    "Dokumentenoflaf"
+  ],
+  "Vos données": ["Your data", "Ihre Daten", "Är Donnéeën"],
+  "Votre modèle": ["Your template", "Ihre Vorlage", "Är Virlag"],
+  "PDF vérifiés": ["Verified PDFs", "Geprüfte PDFs", "Gepréift PDFen"],
+  "Distribution facultative": [
+    "Optional distribution",
+    "Optionaler Versand",
+    "Fakultative Versand"
+  ],
+  "Mon document": ["My document", "Mein Dokument", "Mäin Dokument"],
+  "Choisissez un fichier Word .docx.": [
+    "Choose a Word .docx file.",
+    "Wählen Sie eine Word-Datei im Format .docx.",
+    "Wielt eng Word-Datei am Format .docx."
+  ],
+  "Le document Word dépasse 5 Mo.": [
+    "The Word document exceeds 5 MB.",
+    "Das Word-Dokument ist größer als 5 MB.",
+    "D’Word-Dokument ass méi grouss wéi 5 MB."
+  ],
+  "Modèles": ["Templates", "Vorlagen", "Virlagen"],
+  "Une page, vos variables, autant de documents que nécessaire. Vos modèles restent rééditables depuis le web, l’API et votre assistant.": [
+    "One page, your variables, as many documents as you need. You can keep editing your templates on the web, through the API and with your assistant.",
+    "Eine Seite, Ihre Variablen, beliebig viele Dokumente. Ihre Vorlagen bleiben im Web, über die API und mit Ihrem Assistenten bearbeitbar.",
+    "Eng Säit, Är Variabelen, esou vill Dokumenter wéi néideg. Är Virlage bleiwen am Web, iwwer d’API a mat Ärem Assistent editéierbar."
+  ],
+  "Créer un document": [
+    "Create a document",
+    "Dokument erstellen",
+    "Dokument erstellen"
+  ],
+  "Partir d’une page vierge": [
+    "Start with a blank page",
+    "Mit einer leeren Seite beginnen",
+    "Mat enger eideler Säit ufänken"
+  ],
+  "Nom du modèle": ["Template name", "Vorlagenname", "Numm vun der Virlag"],
+  "Ouvrir le studio": ["Open the studio", "Studio öffnen", "Studio opmaachen"],
+  "Une base pour commencer": [
+    "A starting point",
+    "Ein Ausgangspunkt",
+    "Eng Basis fir unzefänken"
+  ],
+  "Utiliser ce modèle": [
+    "Use this template",
+    "Diese Vorlage verwenden",
+    "Dës Virlag benotzen"
+  ],
+  "Vos modèles": ["Your templates", "Ihre Vorlagen", "Är Virlagen"],
+  "Importer mes données": [
+    "Import my data",
+    "Meine Daten importieren",
+    "Meng Donnéeën importéieren"
+  ],
+  "Votre bibliothèque est prête à accueillir son premier modèle.": [
+    "Your library is ready for its first template.",
+    "Ihre Bibliothek ist bereit für die erste Vorlage.",
+    "Är Bibliothéik ass prett fir hir éischt Virlag."
+  ],
+  "À publier": [
+    "Not published yet",
+    "Noch nicht veröffentlicht",
+    "Nach net verëffentlecht"
+  ],
+  "Privé": ["Private", "Privat", "Privat"],
+  "Partagé": ["Shared", "Geteilt", "Gedeelt"],
+  "Ouvrir": ["Open", "Öffnen", "Opmaachen"],
+  "À partir de Word": ["From Word", "Aus Word", "Aus Word"],
+  "Importez le contenu d’un fichier .docx en blocs rééditables. Vérifiez la mise en page et les avertissements de conversion avant publication. L’ancien format .doc n’est pas pris en charge.": [
+    "Import a .docx file as editable blocks. Check the layout and conversion warnings before publishing. The older .doc format is not supported.",
+    "Importieren Sie eine .docx-Datei als bearbeitbare Blöcke. Prüfen Sie Layout und Konvertierungshinweise vor der Veröffentlichung. Das ältere .doc-Format wird nicht unterstützt.",
+    "Importéiert eng .docx-Datei als editéierbar Bléck. Préift d’Layout an d’Konvertéierungshinweiser virun der Verëffentlechung. Dat aalt .doc-Format gëtt net ënnerstëtzt."
+  ],
+  "Fichier Word (.docx)": [
+    "Word file (.docx)",
+    "Word-Datei (.docx)",
+    "Word-Datei (.docx)"
+  ],
+  "5 Mo maximum. Aucun transfert vers une IA à l’import.": [
+    "Maximum 5 MB. No data is sent to AI during import.",
+    "Maximal 5 MB. Beim Import werden keine Daten an eine KI übertragen.",
+    "Maximal 5 MB. Beim Import gi keng Donnéeën un eng KI iwwerdroen."
+  ],
+  "Importer Word": ["Import Word", "Word importieren", "Word importéieren"],
+  "Le modèle a été importé dans votre bibliothèque. Points à vérifier :": [
+    "The template has been imported into your library. Please check:",
+    "Die Vorlage wurde in Ihre Bibliothek importiert. Bitte prüfen Sie:",
+    "D’Virlag gouf an Är Bibliothéik importéiert. Préift w.e.g.:"
+  ],
+  "Ouvrir le modèle Word importé": [
+    "Open the imported Word template",
+    "Importierte Word-Vorlage öffnen",
+    "Importéiert Word-Virlag opmaachen"
+  ],
+  "Enregistrez le brouillon avant de publier cette version.": [
+    "Save the draft before publishing this version.",
+    "Speichern Sie den Entwurf, bevor Sie diese Version veröffentlichen.",
+    "Späichert den Entworf, ier Dir dës Versioun verëffentlecht."
+  ],
+  "Enregistrez puis publiez votre modèle avant la génération.": [
+    "Save and publish your template before generating documents.",
+    "Speichern und veröffentlichen Sie Ihre Vorlage vor der Generierung.",
+    "Späichert a verëffentlecht Är Virlag virun der Generatioun."
+  ],
+  "Utilisez un identifiant simple, par exemple referenceClient.": [
+    "Use a simple identifier, such as customerReference.",
+    "Verwenden Sie eine einfache Kennung, zum Beispiel kundenReferenz.",
+    "Benotzt eng einfach Kennung, zum Beispill clientReferenz."
+  ],
+  "Cette variable existe déjà.": [
+    "This variable already exists.",
+    "Diese Variable existiert bereits.",
+    "Dës Variabel gëtt et schonn."
+  ],
+  "Description": ["Description", "Beschreibung", "Beschreiwung"],
+  "Exemple": ["Example", "Beispiel", "Beispill"],
+  "← Modèles": ["← Templates", "← Vorlagen", "← Virlagen"],
+  "Aucune version publiée": [
+    "No published version",
+    "Keine veröffentlichte Version",
+    "Keng verëffentlecht Versioun"
+  ],
+  "Studio documentaire": [
+    "Document studio",
+    "Dokumentenstudio",
+    "Dokumentestudio"
+  ],
+  "Modèle": ["Template", "Vorlage", "Virlag"],
+  "Données et génération": [
+    "Data and generation",
+    "Daten und Generierung",
+    "Donnéeën a Generatioun"
+  ],
+  "Partage": ["Sharing", "Freigabe", "Deelen"],
+  "Rétablir": ["Redo", "Wiederherstellen", "Widderhuelen"],
+  "Enregistrer le brouillon": [
+    "Save draft",
+    "Entwurf speichern",
+    "Entworf späicheren"
+  ],
+  "Publier la version": [
+    "Publish version",
+    "Version veröffentlichen",
+    "Versioun verëffentlechen"
+  ],
+  "Modifications non enregistrées. Enregistrez avant de publier ou de quitter le studio.": [
+    "Unsaved changes. Save before publishing or leaving the studio.",
+    "Ungespeicherte Änderungen. Speichern Sie, bevor Sie veröffentlichen oder das Studio verlassen.",
+    "Net gespäichert Ännerungen. Späichert, ier Dir verëffentlecht oder de Studio verloosst."
+  ],
+  "Toutes les modifications sont enregistrées.": [
+    "All changes are saved.",
+    "Alle Änderungen sind gespeichert.",
+    "All Ännerunge si gespäichert."
+  ],
+  "Ce modèle est en consultation. Vos droits permettent les actions indiquées ci-dessus.": [
+    "This template is read-only. Your permissions allow the actions shown above.",
+    "Diese Vorlage ist schreibgeschützt. Ihre Berechtigungen erlauben die oben angezeigten Aktionen.",
+    "Dës Virlag ass nëmme fir ze liesen. Är Rechter erlaben d’Aktiounen uewen."
+  ],
+  "Variables métier": [
+    "Business variables",
+    "Fachliche Variablen",
+    "Fachlech Variabelen"
+  ],
+  "Les variables sont les données propres à chaque document. Les textes fixes se modifient directement sur la page.": [
+    "Variables contain the data specific to each document. Edit fixed text directly on the page.",
+    "Variablen enthalten die Daten des jeweiligen Dokuments. Feste Texte bearbeiten Sie direkt auf der Seite.",
+    "Variabele enthalen d’Donnéeë vum jeeweilegen Dokument. Fest Texter ännert Dir direkt op der Säit."
+  ],
+  "Tableau répétable": [
+    "Repeating table",
+    "Wiederholbare Tabelle",
+    "Widderhuelbar Tabell"
+  ],
+  "Ajouter une variable": [
+    "Add a variable",
+    "Variable hinzufügen",
+    "Variabel derbäisetzen"
+  ],
+  "Libellé": ["Label", "Bezeichnung", "Bezeechnung"],
+  "Identifiant": ["Identifier", "Kennung", "Kennung"],
+  "Exemple : referenceClient": [
+    "Example: customerReference",
+    "Beispiel: kundenReferenz",
+    "Beispill: clientReferenz"
+  ],
+  "Type de variable": ["Variable type", "Variablentyp", "Variabelentyp"],
+  "Texte": ["Text", "Text", "Text"],
+  "Nombre entier / centimes": [
+    "Integer / cents",
+    "Ganzzahl / Cent",
+    "Ganz Zuel / Cent"
+  ],
+  "Date": ["Date", "Datum", "Datum"],
+  "Tableau de lignes": ["Table of rows", "Zeilentabelle", "Tabell mat Reien"],
+  "Ajouter au document": [
+    "Add to document",
+    "Zum Dokument hinzufügen",
+    "Zum Dokument derbäisetzen"
+  ],
+  "Ajouter votre logo": [
+    "Add your logo",
+    "Ihr Logo hinzufügen",
+    "Äre Logo derbäisetzen"
+  ],
+  "PNG ou JPEG, 250 Ko et 4 mégapixels maximum.": [
+    "PNG or JPEG, maximum 250 KB and 4 megapixels.",
+    "PNG oder JPEG, maximal 250 KB und 4 Megapixel.",
+    "PNG oder JPEG, maximal 250 KB a 4 Megapixel."
+  ],
+  "Le logo dépasse 250 Ko.": [
+    "The logo exceeds 250 KB.",
+    "Das Logo ist größer als 250 KB.",
+    "De Logo ass méi grouss wéi 250 KB."
+  ],
+  "Fichier illisible.": [
+    "The file could not be read.",
+    "Die Datei konnte nicht gelesen werden.",
+    "D’Datei konnt net gelies ginn."
+  ],
+  "Créer votre PDF": [
+    "Create your PDF",
+    "Ihr PDF erstellen",
+    "Äre PDF erstellen"
+  ],
+  "Les données ci-dessous appartiennent à cette génération. Elles ne remplacent pas les exemples synthétiques partagés du modèle.": [
+    "The data below belongs to this generation. It does not replace the template’s shared synthetic examples.",
+    "Die folgenden Daten gehören zu dieser Generierung. Sie ersetzen nicht die geteilten synthetischen Beispiele der Vorlage.",
+    "D’Donnéeën hei ënne gehéieren zu dëser Generatioun. Si ersetzen net déi gedeelt syntheetesch Beispiller vun der Virlag."
+  ],
+  "Un PDF distinct, contrôlé et conservé dans vos documents. Aucun envoi ni crédit d’envoi réservé.": [
+    "A separate PDF, checked and saved in your documents. No dispatch is made and no sending credit is reserved.",
+    "Ein separates PDF, geprüft und in Ihren Dokumenten gespeichert. Kein Versand und keine Reservierung von Versandguthaben.",
+    "E separate PDF, gepréift an an Ären Dokumenter gespäichert. Kee Versand a kee Versandkredit reservéiert."
+  ],
+  "Enregistrez et publiez votre modèle pour pouvoir le générer.": [
+    "Save and publish your template to generate documents.",
+    "Speichern und veröffentlichen Sie Ihre Vorlage, um Dokumente zu generieren.",
+    "Späichert a verëffentlecht Är Virlag, fir Dokumenter ze generéieren."
+  ],
+  "Vérifier un aperçu PDF": [
+    "Check a PDF preview",
+    "PDF-Vorschau prüfen",
+    "PDF-Virschau préiwen"
+  ],
+  "Générer le PDF sans envoi": [
+    "Generate PDF without sending",
+    "PDF ohne Versand generieren",
+    "PDF ouni Versand generéieren"
+  ],
+  "Utiliser un fichier de données": [
+    "Use a data file",
+    "Datendatei verwenden",
+    "Datendatei benotzen"
+  ],
+  "Dupliquer le modèle": [
+    "Duplicate template",
+    "Vorlage duplizieren",
+    "Virlag duplizéieren"
+  ],
+  "Archiver": ["Archive", "Archivieren", "Archivéieren"],
+  "Liaisons et colonnes des tableaux": [
+    "Bindings and table columns",
+    "Verknüpfungen und Tabellenspalten",
+    "Verknëppungen an Tabellespalten"
+  ],
+  "Reliez chaque bloc à une variable métier. Les montants sont des entiers en centimes.": [
+    "Link each block to a business variable. Amounts are integers in cents.",
+    "Verknüpfen Sie jeden Block mit einer fachlichen Variable. Beträge sind Ganzzahlen in Cent.",
+    "Verknëppt all Block mat enger fachlecher Variabel. Beträg si ganz Zuelen a Cent."
+  ],
+  "Partager le modèle": ["Share template", "Vorlage teilen", "Virlag deelen"],
+  "Le partage inclut tous les textes fixes, images et exemples du modèle, y compris ceux importés de Word. Vérifiez leur contenu. Les fichiers de données, leurs valeurs de génération et les PDF produits restent privés.": [
+    "Sharing includes all fixed text, images and examples in the template, including content imported from Word. Check their contents. Data files, generation values and generated PDFs remain private.",
+    "Die Freigabe umfasst alle festen Texte, Bilder und Beispiele der Vorlage, auch aus Word importierte Inhalte. Prüfen Sie diese. Datendateien, Generierungswerte und erzeugte PDFs bleiben privat.",
+    "D’Deelen ëmfaasst all fest Texter, Biller a Beispiller vun der Virlag, och aus Word importéiert Inhalter. Préift hiren Inhalt. Datendateien, Generatiounswäerter a generéiert PDFe bleiwe privat."
+  ],
+  "Visibilité": ["Visibility", "Sichtbarkeit", "Siichtbarkeet"],
+  "Toute l’organisation peut utiliser": [
+    "Everyone in the organisation can use it",
+    "Die gesamte Organisation kann sie verwenden",
+    "Déi ganz Organisatioun kann se benotzen"
+  ],
+  "Membres sélectionnés": [
+    "Selected members",
+    "Ausgewählte Mitglieder",
+    "Ausgewielte Memberen"
+  ],
+  "J’ai vérifié que les exemples partagés ne contiennent que des données synthétiques autorisées.": [
+    "I have checked that the shared examples contain only authorised synthetic data.",
+    "Ich habe geprüft, dass die geteilten Beispiele nur genehmigte synthetische Daten enthalten.",
+    "Ech hunn iwwerpréift, datt déi gedeelt Beispiller nëmmen erlaabt syntheetesch Donnéeën enthalen."
+  ],
+  "Enregistrer le partage": [
+    "Save sharing settings",
+    "Freigabe speichern",
+    "Deelastellunge späicheren"
+  ],
+  "Version {0}": ["Version {0}", "Version {0}", "Versioun {0}"],
+  "Version publiée {0}": [
+    "Published version {0}",
+    "Veröffentlichte Version {0}",
+    "Verëffentlecht Versioun {0}"
+  ],
+  "Variable du bloc {0}": [
+    "Variable for block {0}",
+    "Variable für Block {0}",
+    "Variabel fir de Block {0}"
+  ],
+  "Titre de colonne {0}": [
+    "Column {0} title",
+    "Titel für Spalte {0}",
+    "Titel fir d’Spalt {0}"
+  ],
+  "Champ de colonne {0}": [
+    "Column {0} field",
+    "Feld für Spalte {0}",
+    "Feld fir d’Spalt {0}"
+  ],
+  "{0} · {1}. La publication fige une version ; la modification suivante ouvre un nouveau brouillon.": [
+    "{0} · {1}. Publishing freezes a version; the next edit opens a new draft.",
+    "{0} · {1}. Eine Veröffentlichung friert die Version ein; die nächste Änderung öffnet einen neuen Entwurf.",
+    "{0} · {1}. D’Verëffentlechung fixéiert eng Versioun; déi nächst Ännerung mécht en neien Entworf op."
+  ],
+  "Modification ambiguë du modèle.": [
+    "The template change is ambiguous.",
+    "Die Vorlagenänderung ist mehrdeutig.",
+    "D’Ännerung vun der Virlag ass net eendeiteg."
+  ],
+  "Éditeur indisponible.": [
+    "Editor unavailable.",
+    "Editor nicht verfügbar.",
+    "Editor net disponibel."
+  ],
+  "L’édition graphique demande un écran de bureau. Vous pouvez consulter le modèle, remplir ses données et vérifier les PDF sur mobile.": [
+    "Visual editing requires a desktop screen. On mobile, you can view the template, enter data and check PDFs.",
+    "Die grafische Bearbeitung erfordert einen Desktop-Bildschirm. Mobil können Sie die Vorlage ansehen, Daten eingeben und PDFs prüfen.",
+    "Déi grafesch Bearbechtung erfuerdert e Computerbildschierm. Um Handy kënnt Dir d’Virlag kucken, Donnéeën aginn a PDFe préiwen."
+  ],
+  "Éditeur visuel du modèle": [
+    "Visual template editor",
+    "Visueller Vorlageneditor",
+    "Visuelle Virlageneditor"
+  ],
+  "Données du document": [
+    "Document data",
+    "Dokumentdaten",
+    "Dokumentendonnéeën"
+  ],
+  "lignes)": ["rows)", "Zeilen)", "Reien)"],
+  "Supprimer la ligne": ["Remove row", "Zeile entfernen", "Rei läschen"],
+  "Ajouter une ligne": ["Add a row", "Zeile hinzufügen", "Rei derbäisetzen"],
+  "La valeur par défaut déclarée s’applique si ce champ reste vide.": [
+    "The declared default value applies if this field is left empty.",
+    "Der festgelegte Standardwert gilt, wenn dieses Feld leer bleibt.",
+    "De festgeluechte Standardwäert gëllt, wann dëst Feld eidel bleift."
+  ],
+  "Choisir…": ["Choose…", "Auswählen…", "Auswielen…"],
+  "Ligne {0}": ["Row {0}", "Zeile {0}", "Rei {0}"],
+  "Supprimer la ligne {0} de {1}": [
+    "Remove row {0} from {1}",
+    "Zeile {0} aus {1} entfernen",
+    "Rei {0} aus {1} läschen"
+  ],
+  "Annuler la modification": ["Undo", "Rückgängig", "Réckgängeg maachen"]
+}

@@ -358,6 +358,7 @@ export class PostalService {
       .bind(authority.context.organizationId, id)
       .first<Row>();
     if (!row) error("POSTAL_PREFLIGHT_NOT_FOUND", 404);
+    await this.domain.getDocument(authority.context, row.document_id);
     return row;
   }
   private async current(authority: PostalAuthority, row: Row, profile = false) {
@@ -558,6 +559,7 @@ export class PostalService {
       if (replay.input_hash !== inputHash) error("IDEMPOTENCY_CONFLICT");
       return this.get(authority, replay.id);
     }
+    await this.domain.getDocument(authority.context, input.documentId);
     const { document, bytes } = await this.exactDocument(
       authority.context.organizationId,
       input.documentId,

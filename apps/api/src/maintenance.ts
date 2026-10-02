@@ -63,9 +63,9 @@ export async function maintainDocuments(
   for (const object of listing.objects) {
     if (object.uploaded.getTime() > Date.now() - 86400000) continue;
     const record = await env.DB.prepare(
-      "SELECT 1 FROM documents WHERE storage_key=?",
+      "SELECT 1 FROM documents WHERE storage_key=? UNION ALL SELECT 1 FROM workflow_datasets WHERE status<>'purged' AND (storage_key=? OR profile_key=?) UNION ALL SELECT 1 FROM workflow_template_sources WHERE purged=0 AND storage_key=? UNION ALL SELECT 1 FROM generation_records WHERE artifact_key=? LIMIT 1",
     )
-      .bind(object.key)
+      .bind(object.key, object.key, object.key, object.key, object.key)
       .first();
     if (!record) {
       await env.DOCUMENTS.delete(object.key);
@@ -80,6 +80,63 @@ export async function maintainDocuments(
   await env.DB.prepare("DELETE FROM content_usage WHERE day<?")
     .bind(new Date(Date.now() - 31 * 86400000).toISOString().slice(0, 10))
     .run();
+  const expiredSources = await env.DB.prepare(
+    "SELECT id,organization_id,storage_key,profile_key FROM workflow_datasets WHERE status<>'purged' AND expires_at<? AND NOT EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=workflow_datasets.organization_id AND j.dataset_id=workflow_datasets.id AND j.state IN ('queued','running')) LIMIT 25",
+  )
+    .bind(new Date().toISOString())
+    .all<{
+      id: string;
+      organization_id: string;
+      storage_key: string;
+      profile_key: string | null;
+    }>();
+  for (const source of expiredSources.results) {
+    await env.DOCUMENTS.delete([
+      source.storage_key,
+      ...(source.profile_key ? [source.profile_key] : []),
+    ]);
+    await env.DB.prepare(
+      "UPDATE workflow_datasets SET status='purged',error_code='SOURCE_EXPIRED',profile_key=NULL WHERE organization_id=? AND id=?",
+    )
+      .bind(source.organization_id, source.id)
+      .run();
+  }
+  const expiredWord = await env.DB.prepare(
+    "SELECT id,storage_key FROM workflow_template_sources WHERE purged=0 AND expires_at<? LIMIT 25",
+  )
+    .bind(new Date().toISOString())
+    .all<{ id: string; storage_key: string }>();
+  for (const source of expiredWord.results) {
+    await env.DOCUMENTS.delete(source.storage_key);
+    await env.DB.prepare(
+      "UPDATE workflow_template_sources SET purged=1 WHERE id=?",
+    )
+      .bind(source.id)
+      .run();
+  }
+  const expiredGenerationData = await env.DB.prepare(
+    "SELECT r.organization_id,r.job_id,r.record_id,r.artifact_key FROM generation_records r JOIN generation_jobs j ON j.organization_id=r.organization_id AND j.id=r.job_id WHERE r.data_purged_at IS NULL AND r.created_at<? AND j.state NOT IN ('queued','running') LIMIT 25",
+  )
+    .bind(cutoff)
+    .all<{
+      organization_id: string;
+      job_id: string;
+      record_id: string;
+      artifact_key: string | null;
+    }>();
+  for (const record of expiredGenerationData.results) {
+    if (record.artifact_key) await env.DOCUMENTS.delete(record.artifact_key);
+    await env.DB.prepare(
+      "UPDATE generation_records SET input_json='{}',artifact_key=NULL,data_purged_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND data_purged_at IS NULL",
+    )
+      .bind(
+        new Date().toISOString(),
+        record.organization_id,
+        record.job_id,
+        record.record_id,
+      )
+      .run();
+  }
   for (const table of [
     "auth_transactions",
     "native_authorization_codes",

@@ -84,3 +84,15 @@ A PostgreSQL move can preserve tenant IDs, immutable fingerprints, outbox and re
 ## v0.2 additions
 
 Migrations 0009–0013 add Stripe customer/event/payment/invoice/subscription projections, onboarding attempt counters, public session references and last-admin protection, leased PDF rescan budgets, and immutable trusted fax tariff/quote records. No migration seeds a real customer, communication budget, sender or tariff. `quote_fingerprint` binds a production fax dispatch to the quote; SQL views and triggers recheck that quote and its qualified tariff at preparation, approval, acceptance and attempt claim. See BILLING.md, ACCOUNT_ADMIN.md, SCANNER_RESCAN.md and LIVE_FAX_QUOTES.md.
+
+## Additive studio migrations (local candidate)
+
+Migrations `0042_template_workflow.sql` through `0046_dataset_analysis_recovery.sql`
+introduce tenant-scoped templates/versions/grants, private sources/mappings,
+generation jobs/records, distribution manifests, private generated-document
+access, record provenance, postal review associations and bounded original-source
+analysis recovery. Published versions and frozen manifest inputs are
+immutable. Nullable document ownership preserves existing rows; new private
+documents deduplicate only within their owner. No remote application of these
+migrations is claimed. See [the workflow report](TEMPLATES_DATA_DISTRIBUTION.md)
+for retention, concurrency and proof.

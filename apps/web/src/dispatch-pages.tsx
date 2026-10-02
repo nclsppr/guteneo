@@ -227,6 +227,22 @@ export function Overview({ session }: { session: Session }) {
       {/* The starting choice comes before the statistics, so a new workshop
           does not open on empty counters (docs/ASSISTANT_HUB.md). */}
       <OverviewAssistantStart session={session} />
+      {!isPublicPreview && (
+        <nav
+          className="studio-entry-links"
+          aria-label={msg("Créer des documents personnalisés")}
+        >
+          <a className="button" href="#/app/templates?new=blank">
+            {msg("Créer un document")} <ArrowRight size={17} />
+          </a>
+          <a className="button" href="#/app/templates">
+            {msg("Utiliser un modèle")} <ArrowRight size={17} />
+          </a>
+          <a className="button" href="#/app/datasets">
+            {msg("Importer mes données")} <ArrowRight size={17} />
+          </a>
+        </nav>
+      )}
       <ul className="overview-stats" aria-label={t.overview.statsLabel}>
         {stats.map((stat) => (
           <li key={stat.href}>
@@ -368,6 +384,11 @@ export function Documents() {
         intro={t.documents.intro}
         action={
           <div className="button-group">
+            {!isPublicPreview && (
+              <a className="button" href="#/app/templates">
+                Utiliser un modèle
+              </a>
+            )}
             <button
               className="button"
               disabled={isPublicPreview}

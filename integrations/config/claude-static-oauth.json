@@ -6,7 +6,7 @@
       "oauth": {
         "clientId": "REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID",
         "callbackPort": 8788,
-        "scopes": "documents:read documents:write dispatches:prepare dispatches:send dispatches:read"
+        "scopes": "documents:read documents:write dispatches:prepare dispatches:send dispatches:read templates:read templates:write templates:publish templates:share datasets:read datasets:write generations:read generations:write"
       }
     }
   }

@@ -1,0 +1,24 @@
+{
+  "jobId": "REPLACE_JOB_ID",
+  "explicitMultichannel": false,
+  "entries": [
+    {
+      "entryId": "common-0",
+      "recordId": "customer-001",
+      "channel": "fax",
+      "recipient": {
+        "phone": "+33123456789"
+      },
+      "ceilingMinor": 200
+    },
+    {
+      "entryId": "common-1",
+      "recordId": "customer-002",
+      "channel": "fax",
+      "recipient": {
+        "phone": "+33123456789"
+      },
+      "ceilingMinor": 200
+    }
+  ]
+}

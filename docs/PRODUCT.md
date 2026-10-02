@@ -1,5 +1,12 @@
 # Guteneo product contract
 
+2 October templates candidate: the recovered template/data workflow is reconciled
+with main in an isolated worktree, using additive migrations 0042–0046.
+XML sources and per-record delivery channels extend the recovered implementation.
+Historical September test totals do not qualify this candidate. Current evidence
+and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+No merge, deployment, provider activation or real communication is part of this work.
+
 2 October integration candidate: outstanding web/native language work, Claude
 dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
 reconciled for a coordinated main release. Email activation and Auth0 policy
@@ -98,3 +105,15 @@ Welcome offer: each production organization receives one non-renewing EUR50 prom
 First vertical: two isolated local fictional organizations, PDF import/render, preparation, authenticated browser approval, atomic reservation/outbox, at-least-once-safe simulated processing, per-channel outcome and timeline. Subsequent modules add real adapter contracts and deployment operations. Live assistant compatibility requires actual client evidence.
 
 The operator-authorized Luxembourg pilot is an explicit, bounded exception to provider route qualification, not to sender/scan/approval/funding requirements. It keeps Local Calling unverified and labels that uncertainty in the quote. Migration 0027 extends the initial fixed +3524 test to separately installed, priced LU prefixes, including explicit mobile, NGN and freephone categories. Unpriced prefixes stay closed; longest-prefix selection never drops a revoked specific route to a cheaper general tariff. The global limits remain ten pages, seven days, the 24 September 2026 09:00:01.620 UTC deadline, and EUR2 maximum per fax; route-specific page limits keep the estimate within that cap; existing shared credits and provider-outcome rules remain unchanged. See [TELNYX_READINESS.md](TELNYX_READINESS.md).
+
+## Document studio — local candidate, 21 September 2026
+
+The atelier now adds versioned pdfme templates, editable DOCX content import,
+private CSV/XLSX/JSON datasets, reusable declarative mappings, distinct generated
+PDFs and a separate immutable distribution plan. REST, MCP and web call the same
+workflow service. Shared templates do not expose private source files or generated
+PDFs; fixed template text and embedded images are part of the shared template.
+Optional OpenAI proposals require explicit organization policy and configuration.
+This candidate has no production deployment or new provider activation. See
+[TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) for the interface
+matrix, exact local proof and remaining qualification.

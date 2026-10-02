@@ -932,7 +932,7 @@ export class DocumentService {
 
   async upload(
     ctx: DocumentContext,
-    input: { name: string; bytes: Uint8Array },
+    input: { name: string; bytes: Uint8Array; privateToCreator?: boolean },
     source: "import" | "render" = "import",
     registration?: {
       documentId: string;
@@ -1039,6 +1039,7 @@ export class DocumentService {
         source,
         storageKey,
         scanVerified,
+        privateToCreator: input.privateToCreator,
       },
       registration?.authority,
     );
@@ -1052,6 +1053,7 @@ export class DocumentService {
     }
     if (
       registration &&
+      !local &&
       document.status === "ready" &&
       !(await this.env.DB.prepare(
         "SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=? LIMIT 1",

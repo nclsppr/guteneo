@@ -623,6 +623,7 @@ describe("distributable LLM integrations", () => {
       expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
       expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
       expect(emailSkill).toContain("submission_unknown");
+      expect(manifest.files).toContain("skills/document-studio/SKILL.md");
       const postalSkill = execFileSync(
         "unzip",
         [

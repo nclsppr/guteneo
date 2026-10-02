@@ -58,6 +58,9 @@ export interface Env {
   SES_SANDBOX?: string;
   PINGEN_SANDBOX?: string;
   PINGEN_UPLOAD_ORIGINS?: string;
+  /** Explicit organization opt-in and a bounded daily budget are also required. */
+  DATASET_OPENAI_API_KEY?: string;
+  DATASET_OPENAI_MODEL?: string;
 }
 /** Runtime safety applies to callbacks and scheduled reconciliation too. */
 export function assertBaseConfiguration(env: Env, request?: Request): void {

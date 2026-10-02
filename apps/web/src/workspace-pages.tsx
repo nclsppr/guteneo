@@ -145,6 +145,15 @@ export function Campaigns({ simulation }: { simulation: boolean }) {
     <>
       <PageHeading title={t.campaigns.title} intro={t.campaigns.intro} />
       <DistributionRoadmap />
+      {!isPublicPreview && (
+        <p className="notice info">
+          {msg("Pour un PDF personnalisé par client,")}{" "}
+          <a href="#/app/datasets">
+            {msg("importez vos données dans le studio documentaire")}
+          </a>
+          .
+        </p>
+      )}
       <ErrorNotice error={action.error ?? campaigns.error ?? documents.error} />
       {campaignId.current && action.error && (
         <div className="notice warning">

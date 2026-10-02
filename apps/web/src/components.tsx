@@ -30,6 +30,9 @@ import {
 } from "./api";
 import { t } from "./locale";
 
+export const BEFORE_WORKSPACE_NAVIGATION =
+  "guteneo:before-workspace-navigation";
+
 export function go(path: string) {
   window.location.hash = path;
 }
@@ -77,8 +80,25 @@ function readRoute() {
 export function useRoute() {
   const [route, setRoute] = useState(readRoute);
   useEffect(() => {
+    let acceptedHash = window.location.hash;
+    let acceptedRoute = readRoute();
     const update = () => {
       const nextRoute = readRoute();
+      if (nextRoute !== acceptedRoute) {
+        // Let the current screen veto navigation before React replaces it.
+        // This covers links, programmatic navigation and browser history alike.
+        const navigation = new Event(BEFORE_WORKSPACE_NAVIGATION, {
+          cancelable: true,
+        });
+        if (!window.dispatchEvent(navigation)) {
+          const restore = new URL(window.location.href);
+          restore.hash = acceptedHash;
+          window.history.replaceState(window.history.state, "", restore);
+          return;
+        }
+      }
+      acceptedHash = window.location.hash;
+      acceptedRoute = nextRoute;
       setRoute(nextRoute);
       // Public document fragments already scroll natively. Only workspace
       // navigation replaces the page and needs its scroll position reset.

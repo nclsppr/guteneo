@@ -23,6 +23,17 @@ import {
 } from "../../../packages/contracts/src/content";
 import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
+import {
+  TemplateWorkflowService,
+  type WorkflowActor,
+} from "./template-workflow";
+import {
+  createTemplateWorkflowRoutes,
+  templateWorkflowScope,
+} from "./template-workflow-routes";
+import { WORKFLOW_LIMITS } from "../../../packages/contracts/src/template-workflow";
+import { TemplateError } from "../../../packages/contracts/src/templates";
+import { DatasetError } from "../../../packages/data/index";
 import { maintainDocuments } from "./maintenance";
 import { handleWebhook, reconcileWebhookReceipts } from "./webhooks";
 import {
@@ -68,7 +79,7 @@ import {
   type Metrics,
 } from "../../../packages/observability/src/index";
 
-type Variables = { actor: ActorContext; observation: Observation };
+type Variables = { actor: WorkflowActor; observation: Observation };
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 function identityConfigured(env: Env) {
   return Boolean(
@@ -200,6 +211,44 @@ export function getCapabilities(env: Env) {
       exactBytes: true,
       urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
     },
+    studio: {
+      templates: {
+        engine: "pdfme",
+        engineVersion: "6.1.13",
+        versioned: true,
+        immutablePublishedVersions: true,
+        visualEditor: true,
+      },
+      datasets: {
+        formats: ["csv", "xlsx", "json", "xml"],
+        privateOriginals: true,
+        deterministicMappings: true,
+      },
+      generation: {
+        mode: "generate_only",
+        asynchronous: true,
+        reservesSendingCredit: false,
+        rendererConfigured: Boolean(
+          env.DOCUMENT_RENDERER || env.DOCUMENT_RENDERER_URL,
+        ),
+      },
+      distribution: {
+        immutableManifest: true,
+        createsApproval: false,
+        sends: false,
+        postalPreflightRequired: true,
+      },
+      ai: {
+        configured: Boolean(
+          env.DATASET_OPENAI_API_KEY && env.DATASET_OPENAI_MODEL,
+        ),
+        organizationOptInRequired: true,
+        realProviderQualified: false,
+      },
+      limits: WORKFLOW_LIMITS,
+      qualification:
+        "local_candidate_hosted_runtime_and_assistant_clients_not_qualified",
+    },
   };
 }
 app.use("*", async (c, next) => {
@@ -292,6 +341,13 @@ app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
+    workflow: new TemplateWorkflowService(c.env, domain(c.env)),
+    afterGeneration: () =>
+      c.executionCtx.waitUntil(
+        new TemplateWorkflowService(c.env, domain(c.env))
+          .processPending()
+          .then(() => undefined),
+      ),
     capabilities: async (identity) => {
       const capabilities = getCapabilities(c.env);
       const canReadPostalSetup = identity.scopes.includes("documents:read");
@@ -427,7 +483,8 @@ app.use("/api/*", async (c, next) => {
     const identity = await authenticateMcp(c.req.raw, c.env);
     const path = c.req.path;
     const scope =
-      path.startsWith("/api/documents") ||
+      templateWorkflowScope(path, c.req.method) ??
+      (path.startsWith("/api/documents") ||
       (path.startsWith("/api/postal/") && !path.endsWith("/quote"))
         ? c.req.method === "GET"
           ? "documents:read"
@@ -436,9 +493,14 @@ app.use("/api/*", async (c, next) => {
           ? "dispatches:send"
           : c.req.method === "GET"
             ? "dispatches:read"
-            : "dispatches:prepare";
+            : "dispatches:prepare");
     requireScope(identity, scope);
-    c.set("actor", identity.context as ActorContext);
+    c.set("actor", {
+      ...identity.context,
+      ...(identity.connectionObservation
+        ? { authority: identity.connectionObservation }
+        : {}),
+    });
   } else {
     const session = await authenticateBrowser(
       c.req.raw,
@@ -504,6 +566,7 @@ const postalAuthority = async (request: Request, env: Env, scope: string) => {
   }
   return postalBrowserAuthority(request, env, request.method !== "GET");
 };
+app.route("/", createTemplateWorkflowRoutes(domain, postalAuthority));
 app.get("/api/postal/requirements", async (c) =>
   c.json(
     await new PostalService(c.env, domain(c.env)).requirements(
@@ -838,11 +901,19 @@ app.onError((error, c) => {
   if (
     error instanceof DomainError ||
     error instanceof ContentError ||
-    error instanceof AuthError
+    error instanceof AuthError ||
+    error instanceof DatasetError ||
+    error instanceof TemplateError
   )
     return c.json(
-      { error: { code: error.code, message: error.message } },
-      error.status as 400,
+      {
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error instanceof TemplateError ? { details: error.details } : {}),
+        },
+      },
+      (error instanceof TemplateError ? 422 : error.status) as 400,
     );
   if (error instanceof z.ZodError)
     return c.json(
@@ -1024,6 +1095,7 @@ export default {
       stage = "documents";
       await new DocumentService(env, service).processPendingScans();
       await cleanupProtectedDocuments(env.DB);
+      await new TemplateWorkflowService(env, service).processPending();
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);

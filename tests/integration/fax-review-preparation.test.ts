@@ -63,8 +63,12 @@ beforeAll(async () => {
   for (const file of migrations.filter((n) => n < "0035"))
     await applyMigration(file);
   // Populate real historical domain records before migration; hashes must not change.
-  const old = await createFaxUsageFixture(db, () =>
-    Date.parse("2026-09-21T00:00:00.000Z"),
+  const old = await createFaxUsageFixture(
+    db,
+    () => Date.parse("2026-09-21T00:00:00.000Z"),
+    {},
+    2,
+    { legacyDocumentSchema: true },
   );
   // Preparation commits the old-schema quote before the new projection reads its added column.
   await expect(
@@ -107,6 +111,10 @@ beforeAll(async () => {
   expect((await db.prepare("PRAGMA foreign_key_check").all()).results).toEqual(
     [],
   );
+  // Preserve the historical migration assertion, then use the current schema for
+  // the behavior fixtures created by beforeEach.
+  for (const file of migrations.filter((n) => n > "0035_review_fax_preparation.sql"))
+    await applyMigration(file);
 });
 afterAll(async () => {
   await mf?.dispose();

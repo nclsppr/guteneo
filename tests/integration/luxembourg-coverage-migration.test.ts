@@ -84,8 +84,14 @@ beforeAll(async () => {
     },
     batch: (statements: D1PreparedStatement[]) => db.batch(statements),
   } as D1Database;
-  fixture = await createFaxUsageFixture(historicalRuntimeDb, () =>
-    Date.parse(now),
+  fixture = await createFaxUsageFixture(
+    historicalRuntimeDb,
+    () => Date.parse(now),
+    {},
+    2,
+    {
+      legacyDocumentSchema: true,
+    },
   );
   for (let i = 0; i < 17; i++)
     await insertRecord(db, "trusted_fax_usage_tariffs", {

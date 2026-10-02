@@ -1,5 +1,12 @@
 # Architecture
 
+2 October templates candidate: the recovered template/data workflow is reconciled
+with main in an isolated worktree, using additive migrations 0042–0046.
+XML sources and per-record delivery channels extend the recovered implementation.
+Historical September test totals do not qualify this candidate. Current evidence
+and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+No merge, deployment, provider activation or real communication is part of this work.
+
 2 October integration candidate: outstanding web/native language work, Claude
 dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
 reconciled for a coordinated main release. Email activation and Auth0 policy
@@ -131,4 +138,17 @@ D1 paid database limit verified at 10GB; operational alert at 5GB, migration pla
 
 ## Deliberate first-release limitations
 
-Real sends remain gated by verified live estimates and external configuration. Deterministic simulation traverses actual D1/Queues/domain paths. The local PDF browser is a development substitute; separate real Cloudflare Browser Run byte/render evidence is recorded in SCANNER.md. Scanner definitions require refresh at least every 72 hours and currently need an operational daily rebuild/redeploy procedure. Marketing is disabled until real unsubscribe policy/event handling are qualified. Platform content-operator access is not implemented; there is no universal operator bypass. No Workflow, KV, custom OAuth server, LLM call or VBS dependency.
+Real sends remain gated by verified live estimates and external configuration. Deterministic simulation traverses actual D1/Queues/domain paths. The local PDF browser is a development substitute; separate real Cloudflare Browser Run byte/render evidence is recorded in SCANNER.md. Scanner definitions require refresh at least every 72 hours and currently need an operational daily rebuild/redeploy procedure. Marketing is disabled until real unsubscribe policy/event handling are qualified. Platform content-operator access is not implemented; there is no universal operator bypass. No Cloudflare Workflow, KV, custom OAuth server or VBS dependency. The optional studio LLM adapter described below is not enabled or live-qualified by this candidate.
+
+## Template/data workflow — candidate, 21 September 2026
+
+`TemplateWorkflowService` extends the existing application service boundary. D1
+stores immutable published envelopes, mappings, durable generation records and
+distribution manifests; private R2 stores originals and exact artifacts. The
+private document Worker executes pdfme in the existing isolated browser runtime.
+The source scanner accepts bounded exact bytes on a separate private route.
+Generated documents have owner-level access inside the tenant; legacy documents
+retain their existing organization visibility. Dispatch/campaign/postal reads
+also enforce that private document authority. Generation is separate from
+approval, sending quota and provider attempts. Optional configured OpenAI calls
+produce reviewable proposals only. See [the implementation report](TEMPLATES_DATA_DISTRIBUTION.md).

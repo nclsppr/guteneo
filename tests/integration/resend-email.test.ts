@@ -15,6 +15,7 @@ import {
   canonicalJson,
   sha256,
   type ActorContext,
+  type DocumentRecord,
   type PrepareInput,
   type ProviderHook,
 } from "../../packages/domain/src/index";
@@ -49,11 +50,11 @@ let env: LiveProviderEnv & { PROTECTED_DOCUMENTS_KEY: string };
 let pdfBytes: Uint8Array<ArrayBuffer>, documentSha: string;
 let migrationProof: {
   before: string;
-  after34: string;
-  after35: string;
+  after39: string;
+  after40: string;
   validBefore: string[];
-  validAfter34: string[];
-  validAfter35: string[];
+  validAfter39: string[];
+  validAfter40: string[];
   foreignKeys: unknown[];
   quickCheck: unknown;
 };
@@ -151,7 +152,10 @@ async function qualify(
     )
     .run();
 }
-async function setupFixture(provider: "ses" | "resend" = "resend") {
+async function setupFixture(
+  provider: "ses" | "resend" = "resend",
+  historical = false,
+) {
   clock = Date.now();
   ctx = {
     organizationId: crypto.randomUUID(),
@@ -256,17 +260,56 @@ async function setupFixture(provider: "ses" | "resend" = "resend") {
       evidenceSha256: "c".repeat(64),
     }),
   });
-  await domain.registerDocument(ctx, {
-    id: id("doc"),
-    name: "original.pdf",
-    sha256: documentSha,
-    size: pdfBytes.length,
-    pages: 2,
-    status: "ready",
-    source: "import",
-    storageKey: `fixture/${ctx.organizationId}`,
-    scanVerified: true,
-  });
+  if (historical) {
+    // Populate the actual pre-0039 document schema. Current registration and
+    // reads require the later creator-privacy column and must not run here.
+    await db.batch([
+      db
+        .prepare(
+          "INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) VALUES(?,?,'original.pdf',?,?,2,'ready','import',?,?)",
+        )
+        .bind(
+          id("doc"),
+          ctx.organizationId,
+          documentSha,
+          pdfBytes.length,
+          `fixture/${ctx.organizationId}`,
+          stamp(),
+        ),
+      db
+        .prepare(
+          "INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) VALUES(?,?,?,'document.scan_verified',?,'{\"pages\":2}',?)",
+        )
+        .bind(
+          crypto.randomUUID(),
+          ctx.organizationId,
+          ctx.userId,
+          documentSha,
+          stamp(),
+        ),
+    ]);
+    domain.getDocument = async (principal, documentId) => {
+      await domain.authorizeWrite(principal);
+      const document = await db
+        .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
+        .bind(principal.organizationId, documentId)
+        .first<DocumentRecord>();
+      if (!document) throw new Error("Historical fixture document not found");
+      return document;
+    };
+  } else {
+    await domain.registerDocument(ctx, {
+      id: id("doc"),
+      name: "original.pdf",
+      sha256: documentSha,
+      size: pdfBytes.length,
+      pages: 2,
+      status: "ready",
+      source: "import",
+      storageKey: `fixture/${ctx.organizationId}`,
+      scanVerified: true,
+    });
+  }
   await bucket.put(`fixture/${ctx.organizationId}`, pdfBytes);
 }
 async function queue(input = email()) {
@@ -336,7 +379,7 @@ beforeAll(async () => {
     .filter((name) => name.endsWith(".sql") && name < "0039")
     .sort())
     await sql(readFileSync(new URL(filename, dir), "utf8"));
-  await setupFixture("ses");
+  await setupFixture("ses", true);
   const legacyEmail = await queue();
   await domain.processDispatch(legacyEmail.id, {
     name: "ses",
@@ -358,19 +401,26 @@ beforeAll(async () => {
   await sql(
     readFileSync(new URL("0039_resend_email_transport.sql", dir), "utf8"),
   );
-  const after34 = await snapshot(),
-    validAfter34 = await validQuotes();
+  const after39 = await snapshot(),
+    validAfter39 = await validQuotes();
   await sql(readFileSync(new URL("0040_protected_documents.sql", dir), "utf8"));
   migrationProof = {
     before,
-    after34,
-    after35: await snapshot(),
+    after39,
+    after40: await snapshot(),
     validBefore,
-    validAfter34,
-    validAfter35: await validQuotes(),
+    validAfter39,
+    validAfter40: await validQuotes(),
     foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
     quickCheck: await db.prepare("PRAGMA quick_check").first(),
   };
+  // The rest of the suite exercises the current application schema.
+  for (const filename of readdirSync(dir)
+    .filter(
+      (name) => name.endsWith(".sql") && name > "0040_protected_documents.sql",
+    )
+    .sort())
+    await sql(readFileSync(new URL(filename, dir), "utf8"));
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
@@ -380,12 +430,12 @@ beforeEach(async () => {
 });
 
 describe("Resend domain, live bridge and populated migrations — synthetic transport only", () => {
-  it("preserves approved SES/postal quotes, settled credit, reservations and suppressions through 0034 and 0035", () => {
-    expect(migrationProof.after34).toBe(migrationProof.before);
-    expect(migrationProof.after35).toBe(migrationProof.before);
+  it("preserves approved SES/postal quotes, settled credit, reservations and suppressions through 0039 and 0040", () => {
+    expect(migrationProof.after39).toBe(migrationProof.before);
+    expect(migrationProof.after40).toBe(migrationProof.before);
     expect(migrationProof.validBefore).toHaveLength(2);
-    expect(migrationProof.validAfter34).toEqual(migrationProof.validBefore);
-    expect(migrationProof.validAfter35).toEqual(migrationProof.validBefore);
+    expect(migrationProof.validAfter39).toEqual(migrationProof.validBefore);
+    expect(migrationProof.validAfter40).toEqual(migrationProof.validBefore);
     expect(migrationProof.foreignKeys).toEqual([]);
     expect(migrationProof.quickCheck).toEqual({ quick_check: "ok" });
   });

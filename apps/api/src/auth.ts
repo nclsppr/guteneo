@@ -16,6 +16,14 @@ export const MCP_SCOPES = [
   "dispatches:prepare",
   "dispatches:send",
   "dispatches:read",
+  "templates:read",
+  "templates:write",
+  "templates:publish",
+  "templates:share",
+  "datasets:read",
+  "datasets:write",
+  "generations:read",
+  "generations:write",
 ] as const;
 export interface AuthEnv {
   DB: D1Database;

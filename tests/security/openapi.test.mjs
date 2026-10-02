@@ -9,10 +9,15 @@ const spec = JSON.parse(
     "utf8",
   ),
 );
-const api = await readFile(
-  new URL("../../apps/api/src/index.ts", import.meta.url),
-  "utf8",
-);
+const api =
+  (await readFile(
+    new URL("../../apps/api/src/index.ts", import.meta.url),
+    "utf8",
+  )) +
+  (await readFile(
+    new URL("../../apps/api/src/template-workflow-routes.ts", import.meta.url),
+    "utf8",
+  ));
 const auth = await readFile(
   new URL("../../apps/api/src/auth.ts", import.meta.url),
   "utf8",
@@ -66,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 26);
+  assert.equal(operations.length, 60);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -101,6 +106,40 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/postal/preflights/{id}/quote",
     "get /api/postal/requirements",
     "post /api/postal/address-pages",
+    "get /api/templates",
+    "post /api/templates",
+    "post /api/templates/import-docx",
+    "get /api/templates/{id}",
+    "patch /api/templates/{id}",
+    "post /api/templates/{id}/publish",
+    "post /api/templates/{id}/duplicate",
+    "post /api/templates/{id}/share",
+    "get /api/templates/{id}/sharing",
+    "post /api/templates/{id}/archive",
+    "post /api/templates/{id}/preview",
+    "post /api/templates/{id}/suggest",
+    "get /api/templates/{id}/schema",
+    "get /api/datasets",
+    "post /api/datasets",
+    "get /api/datasets/{id}",
+    "get /api/datasets/{id}/profile",
+    "post /api/datasets/{id}/retry-analysis",
+    "post /api/datasets/{id}/analyze",
+    "get /api/mappings",
+    "post /api/mappings",
+    "get /api/mappings/{id}",
+    "post /api/mappings/{id}/validate",
+    "get /api/generation-jobs",
+    "post /api/generation-jobs",
+    "get /api/generation-jobs/{id}",
+    "get /api/generation-jobs/{id}/results",
+    "get /api/generation-jobs/{id}/provenance",
+    "post /api/generation-jobs/{id}/cancel",
+    "post /api/generation-jobs/{id}/retry",
+    "post /api/distribution-plans",
+    "get /api/distribution-plans/{id}",
+    "post /api/distribution-plans/{id}/resume",
+    "post /api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
   ]);
   assert.deepEqual(
     new Set(operations.map(({ path, method }) => `${method} ${path}`)),
@@ -108,7 +147,9 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   );
   for (const { path, method, operation } of operations) {
     assert.ok(
-      api.includes(`app.${method}("${path.replaceAll("{id}", ":id")}"`),
+      new RegExp(
+        `app\\.${method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId")}"`,
+      ).test(api),
       `${method} ${path} must exist in router`,
     );
     assert.doesNotMatch(
@@ -116,18 +157,35 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       /approve|transfer|admin|billing|session|webhooks|documents\/import/,
     );
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
-    const scope =
-      path.startsWith("/api/documents") ||
-      path === "/api/postal/address-pages" ||
-      (path.startsWith("/api/postal") && method === "get")
+    const scope = path.startsWith("/api/templates")
+      ? /\/shar(e|ing)$/.test(path)
+        ? "templates:share"
+        : /\/(publish|archive)$/.test(path)
+          ? "templates:publish"
+          : path.endsWith("/preview")
+            ? "generations:write"
+            : method === "get"
+              ? "templates:read"
+              : "templates:write"
+      : /^\/api\/(datasets|mappings)/.test(path)
         ? method === "get"
-          ? "documents:read"
-          : "documents:write"
-        : /\/(confirm|cancel)$/.test(path)
-          ? "dispatches:send"
-          : method === "get"
-            ? "dispatches:read"
-            : "dispatches:prepare";
+          ? "datasets:read"
+          : "datasets:write"
+        : path.startsWith("/api/generation-jobs")
+          ? method === "get"
+            ? "generations:read"
+            : "generations:write"
+          : path.startsWith("/api/documents") ||
+              path === "/api/postal/address-pages" ||
+              (path.startsWith("/api/postal") && method === "get")
+            ? method === "get"
+              ? "documents:read"
+              : "documents:write"
+            : /\/(confirm|cancel)$/.test(path)
+              ? "dispatches:send"
+              : method === "get"
+                ? "dispatches:read"
+                : "dispatches:prepare";
     assert.deepEqual(
       operation.security,
       publicRoute
@@ -135,7 +193,8 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
         : [
             {
               GuteneoOAuth:
-                path === "/api/postal/preflights"
+                path === "/api/postal/preflights" ||
+                path.endsWith("/postal-preflight")
                   ? ["documents:write", "dispatches:prepare"]
                   : [scope],
             },
@@ -152,7 +211,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   );
 });
 
-test("OAuth publishes the real audience and five scopes without fictitious API keys", () => {
+test("OAuth publishes the real audience and explicitly scoped authorities without fictitious API keys", () => {
   assert.deepEqual(Object.keys(spec.components.securitySchemes), [
     "GuteneoOAuth",
   ]);
@@ -207,6 +266,9 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "post /api/postal/preflights",
     "post /api/postal/preflights/{id}/quote",
     "post /api/postal/address-pages",
+    "post /api/generation-jobs",
+    "post /api/distribution-plans",
+    "post /api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(

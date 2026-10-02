@@ -6,6 +6,10 @@ import operations from "./locales/messages-operations.json";
 import shell from "./locales/messages-shell.json";
 import legal from "./locales/messages-legal.json";
 import pricing from "./locales/messages-pricing.json";
+import studioEditor from "./locales/messages-studio-editor.json";
+import studioDatasets from "./locales/messages-studio-datasets.json";
+import studioExtra from "./locales/messages-studio-extra.json";
+import studioDistribution from "./locales/messages-studio-distribution-settings.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -27,6 +31,10 @@ function sourceMessages(
 
 export const messages: Record<string, readonly string[]> = {
   ...sourceMessages(catalogs.fr, [catalogs.en, catalogs.de, catalogs.lb]),
+  ...studioEditor,
+  ...studioDatasets,
+  ...studioExtra,
+  ...studioDistribution,
   ...shell,
   ...pricing,
   ...legal,

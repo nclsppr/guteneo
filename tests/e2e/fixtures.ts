@@ -16,8 +16,11 @@ export const test = base.extend<{ localRateWindow: void }>({
           "Browser fixtures require the local simulation server.",
         );
       // The suite reuses two fictional organizations across all browser projects.
-      // Give each independent scenario its own HTTP window without changing the
-      // application's production limit or its sending/content budgets.
+      // Give each independent scenario its own HTTP/content usage window. The
+      // daily upload/render limits remain unchanged and are enforced inside each
+      // scenario; repeated full suites must not exhaust yesterday's fixtures.
+      // This only touches the two seeded simulation organizations, never sending
+      // credit, sending quotas, limits, customer content or production state.
       await run(
         process.execPath,
         [
@@ -34,7 +37,7 @@ export const test = base.extend<{ localRateWindow: void }>({
           "--config",
           fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url)),
           "--command",
-          "DELETE FROM http_limits WHERE organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND id IN ('org_atelier','org_studio'))",
+          "DELETE FROM http_limits WHERE organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND id IN ('org_atelier','org_studio')); DELETE FROM content_usage WHERE organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND id IN ('org_atelier','org_studio'))",
         ],
         {
           cwd: root,

@@ -76,6 +76,8 @@ export type DocumentRecord = {
   source: "import" | "render";
   storage_key: string;
   created_at: string;
+  /** Null/absent keeps the historical organization-wide exact-import behavior. */
+  access_owner_id?: string | null;
 };
 export type DispatchStatus =
   | "prepared"
@@ -395,6 +397,7 @@ export class DomainService {
       source: "import" | "render";
       storageKey: string;
       scanVerified?: boolean;
+      privateToCreator?: boolean;
     },
     authority?: {
       sql(): { condition: string; values: (string | number | null)[] };
@@ -427,7 +430,7 @@ export class DomainService {
     const fence = authority?.sql();
     const insert = this.db
       .prepare(
-        `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT(organization_id,sha256) WHERE status<>'purged' DO UPDATE SET status=documents.status RETURNING *`,
+        `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at,access_owner_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT(${input.privateToCreator ? "organization_id,sha256,access_owner_id" : "organization_id,sha256"}) WHERE status<>'purged' AND access_owner_id IS ${input.privateToCreator ? "NOT " : ""}NULL DO UPDATE SET status=documents.status RETURNING *`,
       )
       .bind(
         id,
@@ -440,6 +443,7 @@ export class DomainService {
         input.source,
         input.storageKey,
         this.time(),
+        input.privateToCreator ? ctx.userId : null,
         ...(fence?.values ?? []),
       );
     // Registration, promotion and exact scan evidence commit together. A retry
@@ -449,12 +453,13 @@ export class DomainService {
       statements.push(
         this.db
           .prepare(
-            `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND status='quarantined' AND pages=0 AND ${fence?.condition ?? "1=1"}`,
+            `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND access_owner_id IS ? AND status='quarantined' AND pages=0 AND ${fence?.condition ?? "1=1"}`,
           )
           .bind(
             input.pages,
             ctx.organizationId,
             input.sha256,
+            input.privateToCreator ? ctx.userId : null,
             ...(fence?.values ?? []),
           ),
         this.audit(
@@ -482,8 +487,10 @@ export class DomainService {
   async getDocument(ctx: ActorContext, id: string): Promise<DocumentRecord> {
     await this.organization(ctx);
     const doc = await this.db
-      .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
-      .bind(ctx.organizationId, id)
+      .prepare(
+        "SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=?)",
+      )
+      .bind(ctx.organizationId, id, ctx.userId)
       .first<DocumentRecord>();
     if (!doc) throw new DomainError("NOT_FOUND", "Document introuvable.", 404);
     return doc;
@@ -495,6 +502,8 @@ export class DomainService {
       ctx.organizationId,
       cursor,
       limit,
+      undefined,
+      ctx.userId,
     );
   }
   private async page<T>(
@@ -503,6 +512,7 @@ export class DomainService {
     cursor?: string,
     limit = 30,
     statuses?: readonly string[],
+    documentUserId?: string,
   ) {
     const size = Math.max(1, Math.min(Number(limit) || 30, 100));
     let after: { created_at: string; id: string } | null = null;
@@ -521,12 +531,13 @@ export class DomainService {
     }
     // Statuses come from a server-side group, never from the request itself.
     const statement = this.db.prepare(
-      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
+      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${documentUserId ? (table === "documents" ? "AND (access_owner_id IS NULL OR access_owner_id=?)" : "AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?)))") : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
     );
     const { results } = await statement
       .bind(
         org,
         ...(statuses ? [JSON.stringify(statuses)] : []),
+        ...(documentUserId ? [documentUserId] : []),
         ...(after ? [after.created_at, after.created_at, after.id] : []),
         size + 1,
       )
@@ -1095,6 +1106,7 @@ export class DomainService {
       .bind(ctx.organizationId, id)
       .first<Dispatch & { quote_fx_json: string | null }>();
     if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
+    if (row.document_id) await this.getDocument(ctx, row.document_id);
     const { quote_fx_json, ...result } = row;
     const fx =
       row.quote_pricing_basis === "public_list_price_ex_tax" && quote_fx_json
@@ -1484,6 +1496,7 @@ export class DomainService {
       cursor,
       limit,
       group === undefined ? undefined : DISPATCH_GROUPS[group as DispatchGroup],
+      ctx.userId,
     );
     const [pricing, quotes] = await Promise.all([
       readFaxPricingBatch(
@@ -1510,19 +1523,21 @@ export class DomainService {
     }
     return page;
   }
-  /** Organization-wide counters for the browser overview, not page-bounded. */
+  /** All accessible organization records for the browser overview, not page-bounded. */
   async dispatchOverview(ctx: ActorContext): Promise<DispatchOverview> {
     await this.organization(ctx);
     const [documents, statuses] = await Promise.all([
       this.db
-        .prepare("SELECT count(*) AS n FROM documents WHERE organization_id=?")
-        .bind(ctx.organizationId)
+        .prepare(
+          "SELECT count(*) AS n FROM documents WHERE organization_id=? AND (access_owner_id IS NULL OR access_owner_id=?)",
+        )
+        .bind(ctx.organizationId, ctx.userId)
         .first<{ n: number }>(),
       this.db
         .prepare(
-          "SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? GROUP BY status",
+          "SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))) GROUP BY status",
         )
-        .bind(ctx.organizationId)
+        .bind(ctx.organizationId, ctx.userId)
         .all<{ status: string; n: number }>(),
     ]);
     const dispatches: DispatchOverview["dispatches"] = {
@@ -1599,9 +1614,9 @@ export class DomainService {
       throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
     const dispatches = await this.db
       .prepare(
-        "SELECT * FROM dispatches WHERE organization_id=? AND campaign_id=? ORDER BY created_at,id LIMIT ?",
+        "SELECT * FROM dispatches WHERE organization_id=? AND campaign_id=? AND (document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))) ORDER BY created_at,id LIMIT ?",
       )
-      .bind(ctx.organizationId, id, LIMITS.campaignRows)
+      .bind(ctx.organizationId, id, ctx.userId, LIMITS.campaignRows)
       .all<Dispatch>();
     return { campaign, dispatches: dispatches.results };
   }

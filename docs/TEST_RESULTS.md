@@ -1,4 +1,61 @@
-# Executed verification — 2026-09-17
+# Executed verification
+
+## Templates, data and distribution — local candidate, 2 October 2026
+
+The recovered workflow is reconciled with main `a808307c5687588eb8c0aab45c9e559aa70a03dc`
+in the isolated `templates-workflow` worktree, using additive migrations 0042–0046.
+XML sources and per-record delivery channels extend the recovered implementation.
+Current local evidence is stored in
+`/Users/nclsppr/Developer/.artifacts/guteneo-templates-20261002`, with its
+machine-readable summary in `verification.json`.
+
+| Check | Executed outcome |
+| --- | --- |
+| Broad unit/integration run, AI tests excluded | **1,540 passed in 82 files**; two files fail during setup because historical migration fixtures lack `documents.access_owner_id`, leaving **31 cases unexecuted/skipped** (`non-ai-tests.log`). After fixture corrections, Luxembourg **3/3 pass** (`historical-fax-regressions.log`) and fax review preparation **28/28 pass** (`fax-review-final.log`). The complete broad suite has not been rerun after those corrections. |
+| Data/runtime and templates | **29 data + one workerd test**, and **20 template/Designer/Word/renderer tests**, pass within the broad run. The renderer produces five actual local Chromium PDFs; XML tests cover lexical values, nested addresses, linked item tables, explicit selection and rejection bounds. These are subsets, not extra tests to add to the broad total. |
+| Focused workflow integration | **27 non-AI cases pass**, covering privacy, revocation and cancellation regressions. Repeated subsets are not added to this count. |
+| Security and OpenAPI | **215 security checks pass** (`security-tests.log`), including **7 OpenAPI checks** for the exact 60-operation workflow inventory, scopes, browser approval and idempotency. |
+| Scanner | **29 JavaScript + 38 Python tests pass** in the fresh 2 October run, observed in terminal output without an exported log in this artifact directory. These checks do not qualify hosted antivirus behavior. |
+| Studio browsers | **22 pass, eight intentional skips** (`studio-browser.log`); graphical editing is desktop-only. Data mapping and distribution run on desktop Chromium, mobile Chromium and iPhone WebKit. |
+| XML, locale and keyboard regression | **6/6 pass** on those three browser projects (`studio-table-a11y-final-browser.log`): per-record XML channel/recipient selection without sending, language changes preserving customer text and unsaved edits, Tab/visible focus on source and result tables, real horizontal scrolling with arrow keys and keyboard selection. This extends the same six cases from `xml-language-browser-final.log`; the rerun is not an additional six cases. |
+| Workspace navigation regression | **21/21 pass** (`studio-navigation-regression.log`), including route timing, focus, session recovery and translated navigation. |
+| Public preview | **76 pass, six intentional skips** (`preview-tests.log`). This is the separate public fixture model; it exposes none of the new studio business capabilities. |
+| Migration transport | **46 migrations / 296 schema objects**, equivalent source/transport schemas, `quick_check=ok`, zero foreign-key violations (`migration-transport.json`). |
+| Executable examples | REST, SDK Streamable HTTP MCP and XLSX/mapping/distribution scripts each **exit 0** with two ready PDFs. The dataset script verifies four associations across two prepared plans, zero approvals/provider attempts and unchanged credit/quota (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`). |
+| Static checks and builds | Typecheck and global lint pass after the final keyboard correction. Application/web and preview builds, API and private-document Worker dry-runs pass (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`); the web build and targeted lint pass again after that correction (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). The archived `lint.log` is an earlier failed attempt, not the successful recheck. The recorded npm audit uses `--omit=dev` and reports **zero production vulnerabilities** (`npm-audit.json`); three known development alerts remain outside that result. |
+
+The focused Resend recheck also passes **8/8** with intercepted provider transport
+(`resend-regression.log`). Reruns and overlapping subsets are not added together.
+This evidence does not claim a clean rerun of the entire application browser
+suite, exact-commit CI or a hosted runtime.
+
+All AI tests were excluded on 2 October. The recovered AI adapters remain unchanged
+and inactive; no key was created/configured and no inference was performed while
+the user's configuration choice is pending. No merge, deployment, remote migration,
+provider activation, real communication or paid provisioning occurred. Actual local
+PDF rendering uses synthetic inputs and simulated scanning. Details and remaining
+limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) and the
+[example execution record](../examples/template-workflow/README.md).
+
+## Historical templates, data and distribution — 21 September 2026
+
+The historical isolated uncommitted candidate based on `c53192533a80e25464f8ef143e82efad1cb12d2d`
+passed **1,208/1,208 unit/integration tests across 67 files**, **148/148 security
+checks**, **232 application browser tests with 11 intentional skips**, and
+**56 preview browser tests with four intentional skips**. Scanner checks pass
+**29 JavaScript + 38 Python tests**. Typecheck, lint, application/preview builds,
+the private document Worker dry-run and local migration/integrity checks pass.
+
+The historical report `reports/templates-data/verification.json` recorded scope,
+skips, commands, actual local pdfme rendering, executable API/MCP examples and
+synthetic provider/AI/scan boundaries. That archived report is absent from this
+candidate; the current [delivery report](TEMPLATES_DATA_DISTRIBUTION.md) records
+the new evidence separately. No production migration, deployment, merge, real
+communication or paid provisioning occurred during the historical verification.
+These historical totals do not qualify the 2 October reconciliation and are not
+added to its results. They do not replace the dated live release evidence below.
+
+## Previous verification — 2026-09-17
 
 ## Workspace dashboard corrections — candidate, 25 September 2026
 
