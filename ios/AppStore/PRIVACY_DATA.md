@@ -28,8 +28,10 @@ publicitaire. Le relevé ne prétend pas que les documents ne peuvent pas conten
 de données personnelles.
 
 Le projet n'intègre aucun SDK tiers, outil publicitaire ou outil d'analyse.
-Le manifeste ne déclare aucun domaine de tracking et aucune API nécessitant
-une raison parmi les catégories utilisées actuellement. Refaire l'inventaire
+Le manifeste ne déclare aucun domaine de tracking. Il déclare l’accès à
+UserDefaults avec la raison CA92.1 pour conserver le choix de langue de l’accueil
+dans le domaine privé de cette application. La préférence du compte reste
+distincte et est synchronisée par le serveur. Refaire l’inventaire
 si des dépendances ou des APIs de cette liste sont ajoutées.
 
 ## Stockage et accès sur l'appareil
@@ -64,3 +66,5 @@ dans Fichiers.
 Références Apple : [fiche de confidentialité](https://developer.apple.com/app-store/app-privacy-details/),
 [manifestes de confidentialité](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files),
 [suppression de compte](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+
+Raison UserDefaults vérifiée dans la [documentation Apple des raisons autorisées](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons).

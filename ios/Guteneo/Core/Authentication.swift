@@ -55,12 +55,14 @@ struct AuthorizationChallenge: Sendable {
     let verifier: String
     let state: String
     var challenge: String { Self.base64URL(Data(SHA256.hash(data: Data(verifier.utf8)))) }
-    var authorizeURL: URL {
+    var authorizeURL: URL { authorizeURL(language: .fr) }
+    func authorizeURL(language: AppLanguage) -> URL {
         var components = URLComponents(url: APIClient.website, resolvingAgainstBaseURL: false)!
         components.path = "/auth/mobile/authorize"
         components.queryItems = [URLQueryItem(name: "code_challenge", value: challenge),
                                  URLQueryItem(name: "code_challenge_method", value: "S256"),
-                                 URLQueryItem(name: "state", value: state)]
+                                 URLQueryItem(name: "state", value: state),
+                                 URLQueryItem(name: "locale", value: language.rawValue)]
         return components.url!
     }
     init() throws {
@@ -117,7 +119,7 @@ final class MobileAuthenticator: NSObject, ASWebAuthenticationPresentationContex
     private var continuation: CheckedContinuation<(code: String, verifier: String), Error>?
     private var attempts = AuthorizationAttemptState()
 
-    func authenticate() async throws -> (code: String, verifier: String) {
+    func authenticate(language: AppLanguage = .fr) async throws -> (code: String, verifier: String) {
         guard authenticationSession == nil else { throw APIError(code: "AUTH_START_FAILED") }
         let challenge = try AuthorizationChallenge()
         let attempt = try attempts.begin()
@@ -126,7 +128,7 @@ final class MobileAuthenticator: NSObject, ASWebAuthenticationPresentationContex
                 try Task.checkCancellation()
                 return try await withCheckedThrowingContinuation { continuation in
                     self.continuation = continuation
-                    let session = ASWebAuthenticationSession(url: challenge.authorizeURL, callbackURLScheme: "guteneo") { [weak self] callback, error in
+                    let session = ASWebAuthenticationSession(url: challenge.authorizeURL(language: language), callbackURLScheme: "guteneo") { [weak self] callback, error in
                         Task { @MainActor in
                             guard let self else { return }
                             if let error = error as? ASWebAuthenticationSessionError, error.code == .canceledLogin {

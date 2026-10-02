@@ -31,7 +31,12 @@ enum Brand {
     static let surface = Color("Surface")
     static let ink = Color("Ink")
     static let cobalt = Color("Cobalt")
-    static let legalURL = URL(string: "https://guteneo.com/confidentialite/")!
+    static func siteURL(_ path: String, locale: Locale) -> URL {
+        var components = URLComponents(url: APIClient.website, resolvingAgainstBaseURL: false)!
+        components.path = path
+        components.queryItems = [URLQueryItem(name: "lang", value: AppLanguage.resolve([locale.identifier]).rawValue)]
+        return components.url!
+    }
     static let supportURL = URL(string: "mailto:guteneo@pieper.fr")!
 }
 
@@ -42,7 +47,7 @@ struct Wordmark: View {
             Image("BrandPortrait").resizable().scaledToFit()
                 .frame(width: min(logoSize, 88), height: min(logoSize, 88))
                 .accessibilityHidden(true)
-            Text("guteneo").font(.system(.title, design: .serif)).fontWeight(.semibold)
+            Text(verbatim: "guteneo").font(.system(.title, design: .serif)).fontWeight(.semibold)
         }
         .foregroundStyle(Brand.ink)
         .accessibilityElement(children: .ignore).accessibilityLabel("Guteneo")
@@ -55,7 +60,7 @@ struct Notice: View {
     var symbol = "info.circle"
     var body: some View {
         Label {
-            Text(text).fixedSize(horizontal: false, vertical: true)
+            Text(LocalizedStringKey(text)).fixedSize(horizontal: false, vertical: true)
         } icon: { Image(systemName: symbol) }
         .font(.subheadline).foregroundStyle(.secondary)
         .padding(.vertical, 4)
@@ -75,13 +80,14 @@ struct StatusLabel: View {
         }
     }
     var body: some View {
-        Label(title, systemImage: symbol).font(.caption).fontWeight(.medium)
+        Label(LocalizedStringKey(title), systemImage: symbol).font(.caption).fontWeight(.medium)
             .foregroundStyle(status == "failed" || status == "unknown" ? Brand.ink : Brand.cobalt)
             .fixedSize(horizontal: false, vertical: true)
     }
 }
 
 struct DocumentRow: View {
+    @Environment(\.locale) private var locale
     let document: DocumentRecord
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
@@ -90,7 +96,7 @@ struct DocumentRow: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text(document.name).font(.body).foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("\(document.pages) page(s) · \(ByteCountFormatter.string(fromByteCount: Int64(document.size), countStyle: .file))")
+                Text(L10n.pages(document.pages, locale: locale) + " · " + Int64(document.size).formatted(.byteCount(style: .file).locale(locale)))
                     .font(.caption).foregroundStyle(.secondary)
                 StatusLabel(title: document.statusTitle, status: document.analysis?.state == "processing" ? "processing" : document.status)
             }
@@ -99,6 +105,7 @@ struct DocumentRow: View {
 }
 
 struct DispatchRow: View {
+    @Environment(\.locale) private var locale
     let dispatch: DispatchRecord
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
@@ -107,7 +114,7 @@ struct DispatchRow: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text(dispatch.recipientLabel).font(.body).foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("\(dispatch.channel.title) · \(GuteneoDate.label(dispatch.createdAt))")
+                Text(L10n.text(dispatch.channel.title, locale: locale) + " · " + GuteneoDate.label(dispatch.createdAt, locale: locale))
                     .font(.caption).foregroundStyle(.secondary)
                 StatusLabel(title: dispatch.statusTitle, status: dispatch.status)
             }
@@ -121,6 +128,6 @@ extension View {
     }
 }
 
-func amount(_ minor: Int, currency: String = "EUR") -> String {
-    (Decimal(minor) / 100).formatted(.currency(code: currency).locale(Locale(identifier: "fr_FR")))
+func amount(_ minor: Int, currency: String = "EUR", locale: Locale = Locale(identifier: "fr_FR")) -> String {
+    (Decimal(minor) / 100).formatted(.currency(code: currency).locale(locale))
 }

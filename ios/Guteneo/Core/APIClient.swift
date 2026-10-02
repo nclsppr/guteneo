@@ -53,6 +53,7 @@ actor APIClient {
     static let maximumPDFBytes = 10 * 1024 * 1024
     private let network: URLSession
     private var token: String?
+    private var language: AppLanguage = .fr
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
@@ -72,6 +73,7 @@ actor APIClient {
         return configuration
     }
     func setToken(_ value: String?) { token = value }
+    func setLanguage(_ value: AppLanguage) { language = value }
 
     nonisolated static func reviewURL(dispatchID: String) -> URL? {
         guard validIdentifier(dispatchID) else { return nil }
@@ -103,6 +105,7 @@ actor APIClient {
         request.httpMethod = method
         request.httpBody = body
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(language.rawValue, forHTTPHeaderField: "Accept-Language")
         if body != nil { request.setValue(contentType, forHTTPHeaderField: "Content-Type") }
         if authenticated {
             guard let token, !token.isEmpty else { throw APIError(code: "SESSION_EXPIRED", status: 401) }
@@ -142,6 +145,10 @@ actor APIClient {
         return try await request(SessionExchange.self, path: "/session", method: "POST", body: body, authenticated: false)
     }
     func session() async throws -> MobileSession { try await request(MobileSession.self, path: "/session") }
+    func account() async throws -> MobileSession { try await request(MobileSession.self, path: "/account") }
+    func updateLanguage(_ language: AppLanguage) async throws -> MobileSession {
+        try await request(MobileSession.self, path: "/account", method: "PATCH", body: encoder.encode(["preferredLocale": language.rawValue]))
+    }
     func capabilities() async throws -> MobileCapabilities { try await request(MobileCapabilities.self, path: "/capabilities") }
     func documents(cursor: String? = nil) async throws -> Page<DocumentRecord> { try await request(Page<DocumentRecord>.self, path: "/documents", cursor: cursor) }
     func document(id: String) async throws -> DocumentRecord { try await request(DocumentRecord.self, path: "/documents/\(identifier(id))") }

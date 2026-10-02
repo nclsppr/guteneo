@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AccountView: View {
+    @Environment(\.locale) private var locale
     @Environment(AppModel.self) private var model
     @State private var deleteConfirmation = false
     @State private var signOutConfirmation = false
@@ -12,12 +13,26 @@ struct AccountView: View {
                 Section("Votre identité") {
                     LabeledContent("Nom", value: session.user.name)
                     LabeledContent("Organisation", value: session.organization.name)
-                    LabeledContent("Rôle", value: session.user.role == "admin" ? "Administrateur" : session.user.role == "viewer" ? "Lecture seule" : "Membre")
+                    LabeledContent("Rôle", value: L10n.text(session.user.role == "admin" ? "Administrateur" : session.user.role == "viewer" ? "Lecture seule" : "Membre", locale: locale))
                 }
+            }
+            Section {
+                Picker("Langue préférée", selection: Binding(get: { model.language }, set: { value in
+                    Task {
+                        error = nil
+                        do { try await model.saveLanguage(value) }
+                        catch { self.error = "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer." }
+                    }
+                })) {
+                    ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
+                }.accessibilityIdentifier("accountLanguage").disabled(model.isSavingLanguage)
+                if model.isSavingLanguage { ProgressView("Enregistrement de la langue…") }
+            } header: { Text("Langue") } footer: {
+                Text("Votre préférence est partagée entre le site et l’application. Le contenu de vos documents et messages reste inchangé.")
             }
             Section("Vie privée") {
                 NavigationLink("Vos données dans l’application") { PrivacyView() }
-                Link("Politique de confidentialité", destination: Brand.legalURL)
+                Link("Politique de confidentialité", destination: Brand.siteURL("/confidentialite/", locale: locale))
                 Text("Les documents sont téléchargés à la demande. La session est conservée dans le trousseau sécurisé de cet appareil.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
@@ -29,7 +44,7 @@ struct AccountView: View {
                         Text("Préparez vos documents et retrouvez le suivi de votre atelier Guteneo.")
                         LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                         Text("Application native pour iPhone et iPad.")
-                        Link("Mentions légales", destination: URL(string: "https://guteneo.com/mentions-legales/")!)
+                        Link("Mentions légales", destination: Brand.siteURL("/mentions-legales/", locale: locale))
                     }.paperList().navigationTitle("À propos")
                 }
             }
@@ -40,8 +55,8 @@ struct AccountView: View {
             }
             Section("Suppression du compte") {
                 if let request = model.accountDeletionRequest {
-                    Label(request.status == "completed" ? "Suppression terminée" : "Demande de suppression enregistrée", systemImage: "person.crop.circle.badge.minus")
-                    Text("Demandée le \(GuteneoDate.label(request.createdAt))").font(.footnote)
+                    Label(LocalizedStringKey(request.status == "completed" ? "Suppression terminée" : "Demande de suppression enregistrée"), systemImage: "person.crop.circle.badge.minus")
+                    Text("Demandée le \(GuteneoDate.label(request.createdAt, locale: locale))").font(.footnote)
                     if request.status != "completed" {
                         Notice(text: "Le compte n’est pas encore supprimé. Le traitement doit tenir compte des envois en cours, de votre organisation et des obligations de conservation. Une confirmation vous sera adressée après traitement.")
                     }
@@ -73,6 +88,7 @@ struct AccountView: View {
 }
 
 struct PrivacyView: View {
+    @Environment(\.locale) private var locale
     var body: some View {
         List {
             Section("Compte et documents") {
@@ -83,7 +99,7 @@ struct PrivacyView: View {
             }
             Section("Vos choix") {
                 Text("Vous choisissez les fichiers à importer dans Fichiers. Vous pouvez vous déconnecter ou demander la suppression de votre compte depuis Compte.")
-                Link("Consulter la politique complète", destination: Brand.legalURL)
+                Link("Consulter la politique complète", destination: Brand.siteURL("/confidentialite/", locale: locale))
                 Link("Poser une question sur vos données", destination: Brand.supportURL)
             }
         }.paperList().navigationTitle("Vos données").navigationBarTitleDisplayMode(.inline)

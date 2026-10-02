@@ -36,9 +36,17 @@ struct WelcomeView: View {
                 let wide = sizeClass == .regular && geometry.size.width >= 800 && !typeSize.isAccessibilitySize
                 ScrollView {
                     VStack(alignment: .leading, spacing: wide ? 36 : 24) {
-                        Wordmark()
-                            .opacity(model.isWorking ? 0 : 1)
-                            .accessibilityHidden(model.isWorking)
+                        HStack(alignment: .center, spacing: 16) {
+                            Wordmark()
+                                .opacity(model.isWorking ? 0 : 1)
+                                .accessibilityHidden(model.isWorking)
+                            Spacer(minLength: 0)
+                            Picker("Langue", selection: Binding(get: { model.language }, set: model.chooseWelcomeLanguage)) {
+                                ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
+                            }
+                            .pickerStyle(.menu).accessibilityIdentifier("welcomeLanguage")
+                            .disabled(model.isWorking)
+                        }
                         if wide {
                             HStack(alignment: .center, spacing: 48) {
                                 welcomeCopy.frame(maxWidth: 480, alignment: .leading)
@@ -55,7 +63,7 @@ struct WelcomeView: View {
                             if !typeSize.isAccessibilitySize { PrintWorkshopArtwork(height: 150) }
                         }
                         HStack(spacing: 24) {
-                            Link(destination: Brand.legalURL) { Text("Confidentialité").frame(minHeight: 44) }
+                            Link(destination: Brand.siteURL("/confidentialite/", locale: model.language.locale)) { Text("Confidentialité").frame(minHeight: 44) }
                             Link(destination: Brand.supportURL) { Text("Assistance").frame(minHeight: 44) }
                         }.font(.footnote)
                     }
@@ -102,13 +110,14 @@ struct WelcomeView: View {
     }
 
     private func principle(_ title: String, symbol: String) -> some View {
-        Label(title, systemImage: symbol).font(.subheadline)
+        Label(LocalizedStringKey(title), systemImage: symbol).font(.subheadline)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 struct OverviewView: View {
+    @Environment(\.locale) private var locale
     @Environment(AppModel.self) private var model
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -171,7 +180,7 @@ struct OverviewView: View {
             Text("Le bon document.\nLe bon destinataire.")
                 .font(.system(.title, design: .serif)).foregroundStyle(Brand.ink)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(model.session?.organization.name ?? "Votre atelier")
+            Text(verbatim: model.session?.organization.name ?? L10n.text("Votre atelier", locale: locale))
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Button { composing = true } label: {
                 Label("Préparer un envoi", systemImage: "plus")
@@ -259,8 +268,8 @@ struct OverviewView: View {
             Image(systemName: symbol).font(.title3).foregroundStyle(Brand.cobalt)
                 .frame(width: 26).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 5) {
-                Text(title).font(.subheadline.weight(.semibold))
-                Text(detail).font(.footnote).foregroundStyle(.secondary)
+                Text(LocalizedStringKey(title)).font(.subheadline.weight(.semibold))
+                Text(LocalizedStringKey(detail)).font(.footnote).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }.frame(maxWidth: .infinity, alignment: .leading)

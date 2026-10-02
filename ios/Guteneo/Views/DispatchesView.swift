@@ -102,6 +102,7 @@ struct DispatchesView: View {
 }
 
 struct DispatchDetailView: View {
+    @Environment(\.locale) private var locale
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
@@ -116,7 +117,7 @@ struct DispatchDetailView: View {
             if let detail {
                 Section { DispatchRow(dispatch: detail.dispatch) }
                 Section("Votre envoi") {
-                    LabeledContent("Canal", value: detail.dispatch.channel.title)
+                    LabeledContent("Canal", value: L10n.text(detail.dispatch.channel.title, locale: locale))
                     LabeledContent("Destinataire", value: detail.dispatch.recipientLabel)
                     if let subject = detail.dispatch.subject { LabeledContent("Objet", value: subject) }
                     if let text = detail.dispatch.text, !text.isEmpty { Text(text).textSelection(.enabled) }
@@ -125,22 +126,22 @@ struct DispatchDetailView: View {
                     }
                 }
                 Section("Limite de coût") {
-                    LabeledContent("Plafond", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency))
+                    LabeledContent("Plafond", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
                     Notice(text: "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé.")
-                    if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Devis valable jusqu’au", value: GuteneoDate.label(expires)) }
+                    if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Devis valable jusqu’au", value: GuteneoDate.label(expires, locale: locale)) }
                 }
                 if detail.dispatch.isReviewPreparation {
                     Section("Devis de référence") {
                         Notice(text: "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant.", symbol: "doc.text.magnifyingglass")
                         if let url = detail.reviewURL {
-                            Button { openURL(url) } label: { Label("Consulter le devis de référence", systemImage: "safari") }
+                            Button { openReview(url) } label: { Label("Consulter le devis de référence", systemImage: "safari") }
                         }
                     }
                 } else if detail.dispatch.canHumanReview {
                     Section("Votre validation") {
                         Notice(text: "Vérifiez le contenu, le destinataire, les options et le devis dans l’espace sécurisé avant de confirmer l’envoi.", symbol: "checkmark.shield")
                         if let url = detail.reviewURL {
-                            Button { openURL(url) } label: { Label("Ouvrir la validation sécurisée", systemImage: "safari") }
+                            Button { openReview(url) } label: { Label("Ouvrir la validation sécurisée", systemImage: "safari") }
                         }
                     }
                 }
@@ -160,8 +161,8 @@ struct DispatchDetailView: View {
                     if detail.events.isEmpty { Text("Aucun événement supplémentaire.").foregroundStyle(.secondary) }
                     ForEach(detail.events) { event in
                         VStack(alignment: .leading, spacing: 5) {
-                            Text(event.title)
-                            Text(GuteneoDate.label(event.createdAt)).font(.caption).foregroundStyle(.secondary)
+                            Text(LocalizedStringKey(event.title))
+                            Text(GuteneoDate.label(event.createdAt, locale: locale)).font(.caption).foregroundStyle(.secondary)
                         }.padding(.vertical, 4)
                     }
                 }
@@ -181,6 +182,12 @@ struct DispatchDetailView: View {
                     }
                 }
             } message: { Text("Un envoi déjà pris en charge ne peut plus être annulé. Le serveur vérifiera son état.") }
+    }
+    private func openReview(_ url: URL) {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        components.queryItems = (components.queryItems ?? []).filter { $0.name != "locale" }
+            + [URLQueryItem(name: "locale", value: model.language.rawValue)]
+        if let localizedURL = components.url { openURL(localizedURL) }
     }
     private func load() async {
         do { detail = try await model.dispatchDetail(id: id); error = nil }

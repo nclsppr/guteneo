@@ -105,7 +105,7 @@ struct DocumentsView: View {
         }
         if uploading { Section { ProgressView("Dépôt du PDF…") } }
         if documents.isEmpty && !model.isLoading {
-            ContentUnavailableView(search.isEmpty ? "Vos PDF, ici" : "Aucun document trouvé", systemImage: "doc.text", description: Text(search.isEmpty ? "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation." : "Essayez un autre nom ou chargez les documents suivants."))
+            ContentUnavailableView(LocalizedStringKey(search.isEmpty ? "Vos PDF, ici" : "Aucun document trouvé"), systemImage: "doc.text", description: Text(LocalizedStringKey(search.isEmpty ? "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation." : "Essayez un autre nom ou chargez les documents suivants.")))
                 .listRowBackground(Color.clear)
         }
         ForEach(documents) { document in
@@ -129,6 +129,7 @@ struct DocumentsView: View {
 }
 
 struct DocumentDetailView: View {
+    @Environment(\.locale) private var locale
     @Environment(AppModel.self) private var model
     let id: String
     @State private var document: DocumentRecord?
@@ -142,13 +143,13 @@ struct DocumentDetailView: View {
             if let document {
                 Section {
                     DocumentRow(document: document)
-                    LabeledContent("Importé le", value: GuteneoDate.label(document.createdAt))
+                    LabeledContent("Importé le", value: GuteneoDate.label(document.createdAt, locale: locale))
                 }
                 Section("Vérification") {
                     if let analysis = document.analysis {
-                        Text(analysis.safeTitle).font(.headline)
-                        Text(analysis.safeMessage).foregroundStyle(.secondary)
-                    } else { Text(document.statusTitle) }
+                        Text(LocalizedStringKey(analysis.safeTitle)).font(.headline)
+                        Text(LocalizedStringKey(analysis.safeMessage)).foregroundStyle(.secondary)
+                    } else { Text(LocalizedStringKey(document.statusTitle)) }
                     if document.canRescan {
                         Button("Relancer la vérification") {
                             Task {
@@ -204,7 +205,7 @@ struct PDFReaderView: View {
             else if let error {
                 ContentUnavailableView {
                     Label("PDF indisponible", systemImage: "doc.badge.ellipsis")
-                } description: { Text(error) } actions: {
+                } description: { Text(LocalizedStringKey(error)) } actions: {
                     Button("Réessayer") { Task { await load() } }
                 }
             } else { ProgressView("Ouverture du PDF…") }
@@ -231,6 +232,7 @@ struct PDFReaderView: View {
 }
 
 struct NativePDF: UIViewRepresentable {
+    @Environment(\.locale) private var locale
     let data: Data
     func makeUIView(context: Context) -> PDFView {
         let view = PDFView()
@@ -240,8 +242,10 @@ struct NativePDF: UIViewRepresentable {
         view.backgroundColor = .secondarySystemBackground
         view.document = PDFDocument(data: data)
         view.accessibilityIdentifier = "nativePDF"
-        view.accessibilityLabel = "PDF original. Faites défiler pour lire toutes les pages."
+        view.accessibilityLabel = L10n.text("PDF original. Faites défiler pour lire toutes les pages.", locale: locale)
         return view
     }
-    func updateUIView(_ view: PDFView, context: Context) { }
+    func updateUIView(_ view: PDFView, context: Context) {
+        view.accessibilityLabel = L10n.text("PDF original. Faites défiler pour lire toutes les pages.", locale: locale)
+    }
 }

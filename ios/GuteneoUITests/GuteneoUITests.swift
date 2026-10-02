@@ -273,9 +273,44 @@ final class GuteneoUITests: XCTestCase {
         return tabItem
     }
 
+    func testWelcomeLanguageChangesImmediatelyAndKeepsTheChoice() {
+        let app = launch(arguments: ["--uitesting-signed-out"])
+        let picker = app.buttons["welcomeLanguage"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        picker.tap()
+        app.buttons["English"].tap()
+        XCTAssertTrue(app.buttons["Sign in"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Secure sign-in opens in the system browser."].exists)
+        attachScreenshot(app, name: "Welcome — English")
+        app.terminate()
+        app.launchArguments = ["--uitesting-signed-out", "-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Sign in"].waitForExistence(timeout: 10))
+    }
+
+    func testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile() {
+        let app = launch(arguments: ["--uitesting-preview"])
+        selectTab("Compte", in: app)
+        let picker = app.buttons["accountLanguage"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        picker.tap()
+        app.buttons["Deutsch"].tap()
+        XCTAssertTrue(app.navigationBars["Konto"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Ihre Identität"].exists)
+        attachScreenshot(app, name: "Konto — Deutsch")
+        app.buttons["accountLanguage"].tap()
+        app.buttons["Lëtzebuergesch"].tap()
+        XCTAssertTrue(app.navigationBars["Kont"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Är Identitéit"].exists)
+        attachScreenshot(app, name: "Kont — Lëtzebuergesch")
+        selectTab("Sendungen", in: app)
+        XCTAssertTrue(app.navigationBars["Sendungen"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Zougestallt"].exists)
+    }
+
     private func launch(arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = arguments + ["-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
+        app.launchArguments = arguments + ["--uitesting-language", "fr", "-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
         app.launch()
         return app
     }

@@ -122,3 +122,10 @@ Les captures n'attestent aucune livraison, soumission ou publication.
 Les détails de conception et les sources Apple actuelles figurent dans
 [l'audit Apple UI](../APPLE_UI_AUDIT.md). Les résultats complets restent dans
 `ios/.build/`, ignoré par Git.
+
+## Réconciliation du 2 octobre 2026
+
+Ces captures restent rattachées à leurs lots historiques. Le dossier
+[multilingual](multilingual/README.md) conserve les preuves du candidat de langue.
+Aucune nouvelle capture du code réconcilié n’est revendiquée ; sa compilation
+et le blocage du script XCTest sont décrits dans [READINESS.md](../READINESS.md).

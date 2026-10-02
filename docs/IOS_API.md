@@ -36,7 +36,7 @@ delegation, administer channels or access billing.
    Native API requests must not contain Cookie or Origin headers. There is no
    static client secret, refresh token or native CSRF token.
 
-SESSION is `{ organization: { id, name }, user: { id, name, role }, simulation,
+SESSION is `{ organization: { id, name }, user: { id, name, role, preferredLocale }, simulation,
 verifiedAccount, mfa, expiresAt }`. Role is `admin`, `member` or `viewer`.
 `GET /session` returns SESSION directly; the exchange wraps it in `session`.
 
@@ -61,6 +61,7 @@ they do not fall through to browser or MCP authorization.
 | DELETE | `/session` | Revokes this native token; `{ signedOut: true }` |
 | GET | `/capabilities` | `{ version: "1", mode, simulation, humanApproval: "authenticated_browser", nativeApproval: false, channels: [{ id, name, liveSending }], limits }` |
 | GET | `/account` | SESSION plus `deletionRequestAvailable: true` |
+| PATCH | `/account` | `{ preferredLocale: "fr" | "en" | "de" | "lb" }`; same account response |
 | GET | `/documents?cursor=CURSOR&limit=30` | `{ items: Document[], nextCursor: string or null }` |
 | POST | `/documents` | Multipart `file`; immutable PDF, at most 10 MiB; returns Document, HTTP 201 |
 | GET | `/documents/:id` | Document |
@@ -168,3 +169,32 @@ scanning, a live provider, or App Store acceptance.
 The implementation uses the existing Cloudflare binding APIs and transactional
 batch semantics: [D1 batch](https://developers.cloudflare.com/d1/worker-api/d1-database/#batch),
 [Workers best practices](https://developers.cloudflare.com/workers/best-practices/workers-best-practices/).
+
+## Language preference
+
+The additive `0038_user_locale.sql` migration and browser locale backend commit
+`132a9c2` are included with this native candidate (backend cherry-pick `298f168`).
+The original native changes through `fea555d` are also reconciled on the isolated
+`codex/multilingual-ios` branch; no migration has been applied to a remote database. `user.preferredLocale` is null
+for an existing account without an explicit preference. The current user's
+preference is shared with the browser profile; it is never accepted with an
+arbitrary user or organization identifier. Native PATCH only accepts this field
+and rechecks membership, session expiry, authentication policy and deletion state
+inside the audit/update transaction. Read-only organization members may update
+their own display language. This confers no communication or approval authority.
+
+The app starts with the last device choice, then a supported device language,
+then French. A stored account preference wins on login/restoration and refresh.
+Language selection on Welcome is local and stored separately from the active
+account preference; selecting it in Account saves it only to the server. Signing
+out restores the welcome choice, so one account cannot change the anonymous
+choice or the next account’s default. An unconfirmed save restores the prior displayed preference. Refresh
+responses started before or during a save cannot overwrite its newer choice. Navigation
+and draft fields are retained when the locale environment changes.
+
+Native requests send `Accept-Language`; system authentication includes the bounded
+`locale` parameter. The browser-only mobile authorization and review pages support
+the same four languages. Review prefers the authenticated account setting, then
+its explicit bounded locale, then Accept-Language. Human approval and final send
+remain separate, CSRF-protected browser actions bound to the unchanged fingerprint
+and integer cost. No translated text changes PDF bytes or recipient/message data.

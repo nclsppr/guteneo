@@ -354,7 +354,7 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         NativeURLProtocol.stub.configureHandler { request in
             if request.httpMethod == "DELETE" { return (204, Data(), 0) }
             switch request.url?.lastPathComponent {
-            case "session": return (200, Self.validSession, 0)
+            case "session", "account": return (200, Self.validSession, 0)
             case "documents":
                 started.fulfill()
                 return (200, Data(#"{"items":[{"id":"document-123","name":"Private.pdf","sha256":"sha256","size":100,"pages":1,"status":"ready","source":"upload","created_at":"2026-09-22T09:00:00Z"}],"nextCursor":null}"#.utf8), 0.2)
@@ -396,6 +396,119 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertNil(NativeURLProtocol.stub.lastRequest)
     }
     #endif
+
+    func testLanguageResolutionAndCompleteBundledCatalogs() throws {
+        XCTAssertEqual(AppLanguage.resolve(["pt-PT", "de-CH", "en"]), .de)
+        XCTAssertEqual(AppLanguage.resolve(["lb_LU"]), .lb)
+        XCTAssertEqual(AppLanguage.resolve(["es"]), .fr)
+        let expected = ["fr": "Se connecter", "en": "Sign in", "de": "Anmelden", "lb": "Umellen"]
+        var keys: Set<String>?
+        for language in AppLanguage.allCases {
+            let path = try XCTUnwrap(Bundle.main.path(forResource: language.rawValue, ofType: "lproj"))
+            let data = try Data(contentsOf: URL(fileURLWithPath: path).appendingPathComponent("Localizable.strings"))
+            let catalog = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String])
+            XCTAssertGreaterThanOrEqual(catalog.count, 225)
+            XCTAssertFalse(catalog.values.contains(where: \.isEmpty))
+            if let keys { XCTAssertEqual(Set(catalog.keys), keys) } else { keys = Set(catalog.keys) }
+            XCTAssertEqual(L10n.text("Se connecter", locale: language.locale), expected[language.rawValue])
+            XCTAssertNotEqual(L10n.pages(1, locale: language.locale), L10n.pages(2, locale: language.locale))
+        }
+        XCTAssertEqual(L10n.pages(2, locale: AppLanguage.lb.locale), "2 Säiten")
+        XCTAssertNotEqual(GuteneoDate.label("2026-09-22T09:00:00Z", locale: AppLanguage.en.locale), GuteneoDate.label("2026-09-22T09:00:00Z", locale: AppLanguage.de.locale))
+        XCTAssertTrue(amount(250, locale: AppLanguage.en.locale).contains("2.50"))
+        XCTAssertTrue(amount(250, locale: AppLanguage.de.locale).contains("2,50"))
+    }
+
+    @MainActor
+    func testLanguagePreferenceSurvivesRelaunchUsesAccountAndRollsBackFailedSave() async throws {
+        let suite = "guteneo.locale.tests.\(UUID().uuidString)"
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        let configuration = APIClient.sessionConfiguration()
+        configuration.protocolClasses = [NativeURLProtocol.self]
+        let network = URLSession(configuration: configuration)
+        defer { network.invalidateAndCancel() }
+        let credentials = MemoryCredentials()
+        let model = AppModel(client: APIClient(session: network), credentials: credentials, preferences: preferences, preferredLanguages: ["de-AT"])
+        XCTAssertEqual(model.language, .de)
+        model.chooseWelcomeLanguage(.lb)
+        XCTAssertEqual(AppModel(preferences: preferences).language, .lb)
+        try credentials.save(StoredCredentials(token: "test-token", expiresAt: "2099-01-01T00:00:00Z"))
+        let account = Self.validSessionWithLanguage(.en)
+        NativeURLProtocol.stub.configureHandler { request in
+            switch request.url?.lastPathComponent {
+            case "session", "account": return (200, account, 0)
+            case "capabilities": return (200, Data(#"{"version":"1","mode":"live","simulation":false,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[],"limits":{"pdfBytes":10485760}}"#.utf8), 0)
+            case "deletion-request": return (200, Data(#"{"request":null}"#.utf8), 0)
+            default: return (200, Data(#"{"items":[],"nextCursor":null}"#.utf8), 0)
+            }
+        }
+        await model.restoreSession()
+        XCTAssertEqual(model.phase, .authenticated)
+        XCTAssertEqual(model.language, .en, "Stored account preference overrides this device")
+        NativeURLProtocol.stub.configure(status: 503, data: Data())
+        do { try await model.saveLanguage(.de); XCTFail("Server refusal must be visible") } catch { }
+        XCTAssertEqual(model.language, .en)
+        XCTAssertEqual(AppModel(preferences: preferences).language, .lb, "Account preferences never replace the welcome choice")
+        NativeURLProtocol.stub.configure(status: 200, data: Self.validSessionWithLanguage(.de))
+        try await model.saveLanguage(.de)
+        XCTAssertEqual(model.language, .de)
+        let request = try XCTUnwrap(NativeURLProtocol.stub.lastRequest)
+        XCTAssertEqual(request.url?.path, "/api/mobile/v1/account")
+        XCTAssertEqual(request.httpMethod, "PATCH")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "GuteneoNative test-token")
+        XCTAssertNil(request.value(forHTTPHeaderField: "Cookie"))
+        XCTAssertNil(request.value(forHTTPHeaderField: "Origin"))
+        XCTAssertEqual(model.session?.user.preferredLocale, .de)
+        XCTAssertEqual(AppModel(preferences: preferences).language, .lb)
+        NativeURLProtocol.stub.configure(status: 204, data: Data())
+        await model.signOut()
+        XCTAssertEqual(model.language, .lb, "Sign-out restores the separate welcome preference")
+    }
+
+    @MainActor
+    func testAccountReadStartedDuringLocaleSaveCannotUndoSelection() async throws {
+        let suite = "guteneo.locale.race.\(UUID().uuidString)"
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        let configuration = APIClient.sessionConfiguration()
+        configuration.protocolClasses = [NativeURLProtocol.self]
+        let network = URLSession(configuration: configuration)
+        defer { network.invalidateAndCancel() }
+        let credentials = MemoryCredentials()
+        try credentials.save(StoredCredentials(token: "test-token", expiresAt: "2099-01-01T00:00:00Z"))
+        let english = Self.validSessionWithLanguage(.en)
+        let luxembourgish = Self.validSessionWithLanguage(.lb)
+        let model = AppModel(client: APIClient(session: network), credentials: credentials, preferences: preferences, preferredLanguages: ["fr"])
+        @Sendable func fixture(_ request: URLRequest) -> (Int, Data, TimeInterval) {
+            switch request.url?.lastPathComponent {
+            case "session", "account": return (200, english, 0)
+            case "capabilities": return (200, Data(#"{"version":"1","mode":"live","simulation":false,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[],"limits":{"pdfBytes":10485760}}"#.utf8), 0)
+            case "deletion-request": return (200, Data(#"{"request":null}"#.utf8), 0)
+            default: return (200, Data(#"{"items":[],"nextCursor":null}"#.utf8), 0)
+            }
+        }
+        NativeURLProtocol.stub.configureHandler(fixture)
+        await model.restoreSession()
+        XCTAssertEqual(model.language, .en)
+        let started = expectation(description: "Language PATCH started")
+        NativeURLProtocol.stub.configureHandler { request in
+            if request.httpMethod == "PATCH" { started.fulfill(); return (200, luxembourgish, 0.15) }
+            if request.url?.lastPathComponent == "account" { return (200, english, 0.3) }
+            return fixture(request)
+        }
+        let save = Task { try await model.saveLanguage(.lb) }
+        await fulfillment(of: [started], timeout: 3)
+        await model.refresh()
+        try await save.value
+        XCTAssertEqual(model.language, .lb)
+        XCTAssertEqual(model.session?.user.preferredLocale, .lb)
+        XCTAssertEqual(AppModel(preferences: preferences, preferredLanguages: ["fr"]).language, .fr)
+    }
+
+    private static func validSessionWithLanguage(_ language: AppLanguage) -> Data {
+        Data(String(decoding: validSession, as: UTF8.self).replacingOccurrences(of: "\"role\":\"admin\"", with: "\"role\":\"admin\",\"preferredLocale\":\"\(language.rawValue)\"").utf8)
+    }
 
     private static let validSession = Data(#"{"organization":{"id":"org-123","name":"Organisation"},"user":{"id":"user-123","name":"Camille","role":"admin"},"simulation":false,"verifiedAccount":true,"mfa":true,"expiresAt":"2099-01-01T00:00:00Z"}"#.utf8)
 

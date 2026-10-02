@@ -184,7 +184,68 @@ Elle est explicitement non signée.
 Le SDK utilisé est iOS 27.0, avec Xcode 27.0. L'empreinte SHA-256 du binaire est
 `13aaafb9f4175f536bdbcda2daa9f0fc348bf0b9f2e0bc74db8a774bc29c237c`.
 
+## Langues — candidat du 22 septembre 2026
+
+Français, anglais, allemand et luxembourgeois sont proposés dès l’accueil puis
+dans Compte. Le catalogue `Guteneo/Resources/Localizable.xcstrings` contient
+234 entrées dans les quatre langues, dont les erreurs, les états et les textes
+d’accessibilité. Le choix de l’accueil reste sur cet appareil ; la préférence du
+profil est sauvegardée pour le même utilisateur que sur le site et relue à la
+connexion ainsi qu’au retour dans l’app. En cas d’enregistrement non confirmé,
+le choix affiché précédent est rétabli. La préférence du profil ne remplace pas
+le choix anonyme de l’accueil, qui est rétabli à la déconnexion. Les documents, messages et destinataires
+restent dans leur langue originale. Dates, tailles de fichiers et montants
+suivent la langue sélectionnée ; le clavier et les panneaux système restent
+régis par iOS.
+
+Le changement utilise l’environnement SwiftUI et conserve la navigation ainsi
+que les champs d’un brouillon. Le parcours navigateur d’autorisation de l’app et
+de validation d’un envoi a son propre catalogue explicite en quatre langues.
+Le mode d’emploi de la migration et le contrat sont dans `docs/IOS_API.md`.
+
+Validation renouvelée après reprise des changements natifs `24bbe2a`–`fea555d` :
+compilation simulateur, 23 tests unitaires et 7 tests d’interface réussis sur
+iPhone 17 Pro Max, iOS 27.0 (`run-QUTBZd/Tests.xcresult`). Les tests couvrent les
+catalogues réellement embarqués, la priorité du profil, la persistance locale,
+le retour au choix précédent après un échec serveur, l’accueil anglais puis la
+navigation conservée en allemand et luxembourgeois. Captures non retouchées dans
+[`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md). Cette preuve n’est ni un essai Auth0 en production,
+ni un essai sur appareil physique, ni une soumission TestFlight/App Store.
+
+## Archive inspectée sur le candidat natif initial
+
+Le 22 septembre 2026, l’archive locale
+`ios/.build/Archives/run-ekw9rF/Guteneo-unsigned.xcarchive` a été produite après
+la correction du contraste sombre, à partir des sources applicatives du commit
+`24bbe2a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
+(build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
+de confidentialité et les symboles. Elle est explicitement non signée.
+
 Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
 `--uitesting-preview` sont absents du binaire Release. Le script d’archive
 contrôle également cette exclusion lors des prochains passages. Ce contrôle
 ne constitue ni une installation sur appareil ni une validation App Store.
+
+
+
+## Archive multilingue intégrée
+
+L’archive locale `ios/.build/Archives/run-b967tj/Guteneo-unsigned.xcarchive`
+a été régénérée le 22 septembre 2026 depuis les sources applicatives du commit
+`ec8fe77`, après intégration des derniers changements natifs. La compilation
+Release, la présence des assets et du manifeste, ainsi que l’exclusion des trois
+marqueurs de fixtures Debug ont réussi. Le manifeste embarqué déclare également
+UserDefaults avec la raison `CA92.1` pour le choix de langue sur l’appareil.
+L’archive reste non signée et non distribuable ; les preuves de signature,
+appareil physique et publication restent distinctes.
+
+## Réconciliation du 2 octobre 2026
+
+Les branches natives et multilingues sont réunies dans le candidat local
+`codex/native-reconciliation-october`. La composition iPad et l’icône récentes
+coexistent avec les préférences personnelles ; les 252 entrées du catalogue
+comprennent aussi les nouveaux états vides et les étapes de l’Atelier.
+Les tests backend réussissent (82/82). L’application et les cibles de tests
+compilent pour simulateur avec Xcode 27.0. Le script d’exécution XCTest reste
+arrêté par la configuration initiale incomplète signalée par Xcode.
+Voir [QA/READINESS.md](QA/READINESS.md) pour la portée exacte de ces preuves.

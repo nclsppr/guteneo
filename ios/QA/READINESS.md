@@ -6,9 +6,37 @@ les ressources de marque et la palette du frontend. Il n'affiche aucune recharge
 ni invitation à un achat externe. La validation humaine d'un véritable envoi
 reste dans une page de navigateur authentifiée, distincte de l'app.
 
-## Preuves locales
+## Réconciliation locale du 2 octobre 2026
 
-- Branche `codex/native-ios`, intégrée sur `origin/main` au commit `22c24d5`.
+Le candidat `codex/native-reconciliation-october` conserve les deux branches
+`codex/native-ios` et `codex/multilingual-ios`, avec le site multilingue comme
+base. L’accueil adaptatif conserve le sélecteur de langue ; les écrans iPad,
+l’icône Icon Composer, le contraste et les identifiants accessibles du travail
+natif ultérieur sont conservés. Les nouveaux textes adaptatifs sont traduits
+en français, anglais, allemand et luxembourgeois : 252 entrées embarquées.
+Les formats et la page de revue suivent la langue, sans modifier les PDF,
+les destinataires, les montants métier ou les droits d’approbation.
+
+- Backend réconcilié : 82 tests ciblés réussis, dont les 16 tests de l’API
+  mobile et les protections de revue dans les quatre langues ; lint ciblé réussi.
+- Application Debug pour simulateur : compilation réussie avec Xcode 27.0.
+  `build-for-testing` réussit aussi, pour les cibles XCTest et UI.
+- Le script officiel `ios/scripts/test.sh` refuse actuellement l’exécution,
+  car `xcodebuild -checkFirstLaunchStatus` signale une configuration initiale
+  incomplète. Aucun composant système n’a été remplacé et ce garde-fou n’a pas
+  été contourné. La compilation ne prouve pas l’exécution de ces tests.
+- La vérification TypeScript complète du candidat isolé dépend encore des
+  textes du film d’accueil dans les catalogues web ; elle doit être relancée
+  sur le candidat global avant publication.
+
+Les captures du 22 septembre sont des preuves historiques de leurs branches,
+pas des captures du candidat réconcilié. Les limites appareil physique,
+signature de distribution, traitement de suppression et publication Apple
+restent celles du tableau ci-dessous.
+
+## Preuves historiques du 22 septembre
+
+- Branche `codex/native-ios`, réconciliée avec la base `origin/main` au commit `22c24d5`.
   Les préparations de référence `review_prepare_only` restent consultables et
   ne proposent aucune approbation ni expédition, dans l'app et le navigateur.
 - Backend : 87 tests ciblés réussis après cette intégration, dont 14 tests

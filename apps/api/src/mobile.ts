@@ -1,5 +1,10 @@
 import { z } from "zod";
 import {
+  supportedLocales,
+  normalizeLocale,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
+import {
   AuthError,
   authenticateBrowser,
   authenticationPolicy,
@@ -40,6 +45,7 @@ const authorizeInput = z
     code_challenge: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
     code_challenge_method: z.literal("S256"),
     state: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/),
+    locale: z.enum(supportedLocales).optional(),
   })
   .strict();
 const exchangeInput = z
@@ -68,7 +74,12 @@ type NativeSession = {
   tokenHash: string;
   expiresAt: string;
   organization: { id: string; name: string };
-  user: { id: string; name: string; role: ActorContext["role"] };
+  user: {
+    id: string;
+    name: string;
+    role: ActorContext["role"];
+    preferredLocale: SupportedLocale | null;
+  };
   simulation: boolean;
   verifiedAccount: boolean;
   mfa: boolean;
@@ -78,6 +89,7 @@ type SessionRow = {
   user_id: string;
   organization_name: string;
   user_name: string;
+  preferred_locale: string | null;
   role: ActorContext["role"];
   mode: string;
   expires_at: string;
@@ -133,7 +145,7 @@ export async function authenticateNative(
   const timestamp = now();
   const row = await env.DB.prepare(
     `SELECT s.organization_id,s.user_id,s.expires_at,
-    o.name organization_name,o.mode,u.name user_name,m.role,b.is_development,b.verified_account,b.mfa
+    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,m.role,b.is_development,b.verified_account,b.mfa
     FROM native_sessions s JOIN browser_sessions b ON b.token_hash=s.browser_session_hash
     AND b.organization_id=s.organization_id AND b.user_id=s.user_id
     JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
@@ -183,7 +195,12 @@ export async function authenticateNative(
     tokenHash,
     expiresAt: row.expires_at,
     organization: { id: row.organization_id, name: row.organization_name },
-    user: { id: row.user_id, name: row.user_name, role: row.role },
+    user: {
+      id: row.user_id,
+      name: row.user_name,
+      role: row.role,
+      preferredLocale: normalizeLocale(row.preferred_locale),
+    },
     simulation: env.MODE === "simulation",
     verifiedAccount: row.verified_account === 1,
     mfa: row.mfa === 1,
@@ -215,6 +232,7 @@ async function authorize(request: Request, env: Env): Promise<Response> {
       code_challenge: form.get("code_challenge"),
       code_challenge_method: form.get("code_challenge_method"),
       state: form.get("state"),
+      locale: form.get("locale") || undefined,
     });
     csrf = String(form.get("csrf") ?? "");
   } else input = authorizeInput.parse(Object.fromEntries(url.searchParams));
@@ -237,11 +255,47 @@ async function authorize(request: Request, env: Env): Promise<Response> {
     const login = new URL("/auth/login", env.APP_ORIGIN);
     login.searchParams.set(
       "returnTo",
-      `${url.pathname}?${new URLSearchParams(input)}`,
+      `${url.pathname}?${new URLSearchParams(Object.entries(input).filter(([, value]) => value !== undefined) as [string, string][])}`,
     );
+    if (input.locale) login.searchParams.set("locale", input.locale);
     return redirect(login.href);
   }
   if (request.method === "GET") {
+    const locale = input.locale ?? "fr";
+    const copy = {
+      fr: [
+        "Connexion iOS",
+        "Connecter l’application iOS",
+        "Votre application pourra consulter vos PDF et vos envois, déposer des documents et préparer un envoi. La validation et l’expédition restent dans votre navigateur.",
+        "Espace",
+        "Connecter l’application",
+        "Fermez cette fenêtre pour annuler.",
+      ],
+      en: [
+        "iOS sign-in",
+        "Connect the iOS app",
+        "Your app will be able to view your PDFs and dispatches, upload documents and prepare a dispatch. Approval and sending remain in your browser.",
+        "Workspace",
+        "Connect the app",
+        "Close this window to cancel.",
+      ],
+      de: [
+        "iOS-Anmeldung",
+        "iOS-App verbinden",
+        "Ihre App kann Ihre PDFs und Sendungen anzeigen, Dokumente hochladen und Sendungen vorbereiten. Freigabe und Versand bleiben in Ihrem Browser.",
+        "Arbeitsbereich",
+        "App verbinden",
+        "Schließen Sie dieses Fenster, um abzubrechen.",
+      ],
+      lb: [
+        "iOS-Umeldung",
+        "D’iOS-App verbannen",
+        "Är App kann Är PDFen a Sendunge weisen, Dokumenter eroplueden a Sendunge virbereeden. D’Bestätegung an de Versand bleiwen an Ärem Browser.",
+        "Aarbechtsberäich",
+        "D’App verbannen",
+        "Maacht dës Fënster zou, fir ofzebriechen.",
+      ],
+    }[locale];
     // Values in this form are constrained to URL-safe characters; no script or
     // hidden browser consent is used to grant the native session.
     const escape = (value: string) =>
@@ -251,7 +305,7 @@ async function authorize(request: Request, env: Env): Promise<Response> {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
     return new Response(
-      `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connexion iOS · guteneo</title><style>body{font-family:system-ui;background:#f6f5ef;color:#181b22;max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>Connecter l’application iOS</h1><p>Votre application pourra consulter vos PDF et vos envois, déposer des documents et préparer un envoi. La validation et l’expédition restent dans votre navigateur.</p><p>Espace : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">Connecter l’application</button></form><p>Fermez cette fenêtre pour annuler.</p></html>`,
+      `<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${copy[0]} · guteneo</title><style>body{font-family:system-ui;background:#f6f5ef;color:#181b22;max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>${copy[1]}</h1><p>${copy[2]}</p><p>${copy[3]} : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="locale" value="${locale}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">${copy[4]}</button></form><p>${copy[5]}</p></html>`,
       {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
@@ -473,6 +527,59 @@ export async function handleMobileRoute(
     });
   if (path === "/account" && request.method === "GET")
     return json({ ...publicSession(session), deletionRequestAvailable: true });
+  if (path === "/account" && request.method === "PATCH") {
+    const input = z
+      .object({ preferredLocale: z.enum(supportedLocales) })
+      .strict()
+      .parse(await request.json());
+    const timestamp = now();
+    const auditId = `audit_${crypto.randomUUID()}`;
+    // Native authority is rechecked within the same atomic batch. Locale is the
+    // only editable field; user and organization identity come from the session.
+    const [audit] = await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at)
+        SELECT ?,n.organization_id,n.user_id,'account.profile.updated',n.user_id,?,?
+        FROM native_sessions n
+        JOIN browser_sessions b ON b.token_hash=n.browser_session_hash AND b.organization_id=n.organization_id AND b.user_id=n.user_id
+        JOIN memberships m ON m.organization_id=n.organization_id AND m.user_id=n.user_id
+        JOIN organizations o ON o.id=m.organization_id
+        WHERE n.token_hash=? AND n.organization_id=? AND n.user_id=? AND n.expires_at>? AND b.expires_at>?
+        AND o.mode=? AND (b.is_development=0 OR ?=1)
+        AND (b.is_development=1 OR (${authenticationPolicy(env) === "verified_email" ? "b.verified_account=1" : "(m.role!='admin' OR b.mfa=1)"}))
+        AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=n.user_id AND d.status='completed')`,
+      ).bind(
+        auditId,
+        JSON.stringify({ fields: ["preferredLocale"], actor: "native" }),
+        timestamp,
+        session.tokenHash,
+        ctx.organizationId,
+        ctx.userId,
+        timestamp,
+        timestamp,
+        env.MODE,
+        isLocalSimulation(request, env) ? 1 : 0,
+      ),
+      env.DB.prepare(
+        `UPDATE users SET preferred_locale=? WHERE id=? AND EXISTS(SELECT 1 FROM audit_log WHERE id=? AND organization_id=? AND user_id=?)`,
+      ).bind(
+        input.preferredLocale,
+        ctx.userId,
+        auditId,
+        ctx.organizationId,
+        ctx.userId,
+      ),
+    ]);
+    if (!audit.meta.changes)
+      throw new AuthError(
+        "SESSION_EXPIRED",
+        "Reconnectez-vous pour continuer.",
+      );
+    return json({
+      ...publicSession(await authenticateNative(request, env)),
+      deletionRequestAvailable: true,
+    });
+  }
   if (path === "/account/deletion-request" && request.method === "GET")
     return json({ request: await deletionRequest(env, session) });
   if (path === "/account/deletion-request" && request.method === "POST") {

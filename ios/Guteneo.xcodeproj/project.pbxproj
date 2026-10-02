@@ -29,6 +29,9 @@
 			developmentRegion = "fr";
 			knownRegions = (
 				"fr",
+				"en",
+				"de",
+				"lb",
 				"Base",
 			);
 			mainGroup = "000000000000000000000002";
