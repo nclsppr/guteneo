@@ -156,7 +156,7 @@ beforeEach(async () => {
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+    .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
     .bind(ctx.organizationId, ctx.userId, now)
     .run();
   for (const [channel, address] of [

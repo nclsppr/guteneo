@@ -54,6 +54,19 @@ export async function servePublicAssets(
     );
   }
 
+  if (pathname === "/invitation/" || pathname === "/invitation") {
+    // The invitation secret stays in the URL fragment and never reaches asset logs.
+    const shellUrl = new URL("/", url);
+    const response = await env.ASSETS.fetch(new Request(shellUrl, request));
+    const headers = new Headers(response.headers);
+    for (const [key, value] of Object.entries(privateHeaders))
+      headers.set(key, value);
+    return new Response(request.method === "HEAD" ? null : response.body, {
+      status: response.status,
+      headers,
+    });
+  }
+
   const privateQuery = hasPrivateQuery(url);
   // Match the full canonical origin, never Forwarded/Host headers or APP_ORIGIN input.
   const canonical = url.origin === site.origin && !privateQuery;

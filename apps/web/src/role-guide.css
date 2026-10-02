@@ -1,0 +1,118 @@
+.role-guide-list {
+  margin: 24px 0;
+}
+.role-guide-list > div {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.role-guide-list dt {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.role-guide-list dd {
+  margin: 0;
+  max-width: 70ch;
+  line-height: 1.65;
+}
+.role-guide-details {
+  margin: 24px 0;
+}
+.role-guide-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 0;
+}
+.member-rights {
+  border: 0;
+  padding: 0;
+  margin: 14px 0 0;
+}
+.member-rights legend {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.member-rights .checkbox-label {
+  align-items: flex-start;
+  font-size: 13px;
+  margin: 8px 0;
+}
+.member-rights input[type="checkbox"] {
+  min-height: 0;
+  padding: 0;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.member-role-cell {
+  min-width: 250px;
+}
+.member-role-description {
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 46ch;
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+.account-role {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.account-role p {
+  max-width: 70ch;
+}
+@media (max-width: 767px) {
+  .member-role-cell {
+    min-width: 0;
+  }
+}
+.invitation-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.invitation-fields .member-rights {
+  margin-bottom: 20px;
+}
+.invitation-review {
+  margin: 26px 0;
+  padding: 22px 0;
+  border-block: 1px solid var(--line);
+}
+.invitation-review ul {
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding-left: 22px;
+}
+.invitation-list {
+  list-style: none;
+  padding: 0;
+}
+.invitation-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.invitation-list > li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.invitation-list p {
+  margin: 6px 0;
+  font-size: 13px;
+}
+.invitation-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+.invitation-page h1 {
+  font-size: clamp(32px, 7vw, 52px);
+}
+.invitation-page .button {
+  margin-top: 18px;
+}

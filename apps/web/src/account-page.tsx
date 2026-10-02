@@ -2,6 +2,8 @@ import { msg } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
   canAdminister,
+  permissionsFor,
+  setSession,
   api,
   ApiError,
   date,
@@ -22,6 +24,11 @@ import {
 import { setLocale, languageCopy, type SupportedLocale } from "./locale";
 import { LanguageSelect } from "./language-select";
 import { ExpertApproval } from "./expert-approval";
+import {
+  WORKSPACE_ROLES,
+  type WorkspaceRole,
+} from "../../../packages/contracts/src/roles";
+import { roleLabel, roleDescription, RolesOverview } from "./role-guide";
 
 type Props = { session: Session; onUpdated: () => void | Promise<void> };
 type SessionItem = {
@@ -35,16 +42,13 @@ type SessionItem = {
 type Member = {
   id: string;
   name: string;
-  role: "admin" | "member" | "viewer";
+  role: WorkspaceRole;
+  supervisorCanApprove: boolean;
+  supervisorCanReport: boolean;
   joinedAt: string;
   sessions: number;
   connections: number;
 };
-const getRoles = () => ({
-  admin: msg("Administrateur"),
-  member: msg("Membre"),
-  viewer: msg("Lecture seule"),
-});
 
 function PreviewNotice() {
   return (
@@ -58,8 +62,70 @@ function PreviewNotice() {
   );
 }
 
+function WorkspaceSwitcher({ session, onUpdated }: Props) {
+  const workspaces = useResource<{
+    items: { id: string; name: string; current: boolean }[];
+  }>(isPublicPreview ? null : "/account/workspaces");
+  const action = useAction();
+  const [selected, setSelected] = useState(session.organization.id);
+  if (
+    !Array.isArray(workspaces.data?.items) ||
+    workspaces.data.items.length < 2
+  )
+    return null;
+  async function change(event: FormEvent) {
+    event.preventDefault();
+    await action.run(async () => {
+      const next = await api<Session>("/account/workspace", {
+        method: "POST",
+        body: { organizationId: selected },
+      });
+      setSession(next, false);
+      await onUpdated();
+    });
+  }
+  return (
+    <form
+      className="form-panel"
+      onSubmit={(event) => void change(event)}
+      aria-busy={action.pending}
+    >
+      <h2>{msg("Changer d’atelier")}</h2>
+      <div className="field">
+        <label htmlFor="account-workspace">{msg("Atelier actif")}</label>
+        <select
+          id="account-workspace"
+          value={selected}
+          disabled={action.pending}
+          onChange={(event) => setSelected(event.target.value)}
+        >
+          {workspaces.data.items.map((item) => (
+            <option value={item.id} key={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p className="field-hint">
+        {msg(
+          "Vos documents et vos droits dépendent de l’atelier choisi. Le changement ouvre une nouvelle session dans cet atelier.",
+        )}
+      </p>
+      <button
+        className="button"
+        disabled={action.pending || selected === session.organization.id}
+      >
+        {action.pending
+          ? msg("Connexion en cours…")
+          : msg("Ouvrir cet atelier")}
+      </button>
+      <ErrorNotice error={action.error} />
+    </form>
+  );
+}
+
 export function Account({ session, onUpdated }: Props) {
-  const roles = getRoles();
+  const permissions = permissionsFor(session);
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
@@ -117,6 +183,7 @@ export function Account({ session, onUpdated }: Props) {
           "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.",
         )}
       />
+      <WorkspaceSwitcher session={session} onUpdated={onUpdated} />
       {isPublicPreview ? (
         <>
           <PreviewNotice />
@@ -197,10 +264,7 @@ export function Account({ session, onUpdated }: Props) {
               }}
             />
             <p className="field-hint">
-              {msg("Votre rôle :")}{" "}
-              {roles[session.user.role as keyof typeof roles] ??
-                session.user.role}
-              .
+              {msg("Votre rôle :")} {roleLabel(session.user.role)}.
             </p>
             <button
               className="button primary"
@@ -218,6 +282,30 @@ export function Account({ session, onUpdated }: Props) {
               <ErrorNotice error={action.error} />
             </div>
           </form>
+          <section
+            className="form-panel account-role"
+            aria-labelledby="account-role-title"
+          >
+            <h2 id="account-role-title">
+              {msg("Vos droits dans cet atelier")}
+            </h2>
+            <p>
+              <strong>{roleLabel(session.user.role)}</strong> —{" "}
+              {roleDescription(session.user.role)}
+            </p>
+            <p>
+              {msg(
+                "Approbation des requêtes : {0}. Rapports : {1}.",
+                permissions.approveDispatches
+                  ? msg("autorisée")
+                  : msg("non autorisée"),
+                permissions.viewReports
+                  ? msg("accessibles")
+                  : msg("non accessibles"),
+              )}
+            </p>
+            <a href="/roles/">{msg("Comprendre les rôles")}</a>
+          </section>
           <ExpertApproval />
           <section
             className="form-panel"
@@ -350,10 +438,26 @@ function MemberRow({
   member: Member;
   currentUserId: string;
   disabled: boolean;
-  onRole: (role: Member["role"]) => void;
+  onRole: (
+    rights: Pick<
+      Member,
+      "role" | "supervisorCanApprove" | "supervisorCanReport"
+    >,
+  ) => void;
   onRevoke: () => void;
 }) {
   const [role, setRole] = useState(member.role);
+  const [canApprove, setCanApprove] = useState(
+    member.supervisorCanApprove ?? false,
+  );
+  const [canReport, setCanReport] = useState(
+    member.supervisorCanReport ?? false,
+  );
+  const changed =
+    role !== member.role ||
+    (role === "supervisor" &&
+      (canApprove !== (member.supervisorCanApprove ?? false) ||
+        canReport !== (member.supervisorCanReport ?? false)));
   return (
     <tr role="row">
       <th scope="row" role="rowheader">
@@ -375,15 +479,47 @@ function MemberRow({
           <select
             id={`member-role-${member.id}`}
             value={role}
-            onChange={(event) => setRole(event.target.value as Member["role"])}
+            onChange={(event) => {
+              setRole(event.target.value as Member["role"]);
+              setCanApprove(false);
+              setCanReport(false);
+            }}
+            aria-describedby={`member-role-help-${member.id}`}
             disabled={disabled}
           >
-            {Object.entries(getRoles()).map(([value, label]) => (
+            {WORKSPACE_ROLES.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {roleLabel(value)}
               </option>
             ))}
           </select>
+          <p
+            id={`member-role-help-${member.id}`}
+            className="member-role-description"
+          >
+            {roleDescription(role)}
+          </p>
+          {role === "supervisor" && (
+            <fieldset className="member-rights" disabled={disabled}>
+              <legend>{msg("Droits de {0}", member.name)}</legend>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={canApprove}
+                  onChange={(event) => setCanApprove(event.target.checked)}
+                />
+                <span>{msg("Approuver et refuser les requêtes")}</span>
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={canReport}
+                  onChange={(event) => setCanReport(event.target.checked)}
+                />
+                <span>{msg("Consulter les rapports")}</span>
+              </label>
+            </fieldset>
+          )}
         </div>
       </td>
       <td role="cell">
@@ -410,8 +546,14 @@ function MemberRow({
           <button
             type="button"
             className="button small"
-            disabled={disabled || role === member.role}
-            onClick={() => onRole(role)}
+            disabled={disabled || !changed}
+            onClick={() =>
+              onRole({
+                role,
+                supervisorCanApprove: role === "supervisor" && canApprove,
+                supervisorCanReport: role === "supervisor" && canReport,
+              })
+            }
             aria-label={msg("Enregistrer le rôle de {0}", member.name)}
           >
             {msg("Enregistrer le rôle")}
@@ -446,18 +588,24 @@ export function TeamAdmin({ session, onUpdated }: Props) {
   );
   const action = useAction();
   const [message, setMessage] = useState("");
-  async function change(member: Member, role?: Member["role"]) {
+  async function change(
+    member: Member,
+    rights?: Pick<
+      Member,
+      "role" | "supervisorCanApprove" | "supervisorCanReport"
+    >,
+  ) {
     setMessage("");
     await action.run(async () => {
       const result = await api<{ self: boolean; sessionsRevoked: boolean }>(
-        `/admin/members/${encodeURIComponent(member.id)}${role ? "" : "/revoke-access"}`,
-        { method: role ? "PATCH" : "POST", body: role ? { role } : {} },
+        `/admin/members/${encodeURIComponent(member.id)}${rights ? "" : "/revoke-access"}`,
+        { method: rights ? "PATCH" : "POST", body: rights ?? {} },
       );
       if (result.self && result.sessionsRevoked) await onUpdated();
       else {
         members.refresh();
         setMessage(
-          role
+          rights
             ? "Le rôle a été modifié. Ce membre doit se reconnecter."
             : "Les accès ont été déconnectés. Le membre peut se reconnecter à son compte.",
         );
@@ -470,6 +618,11 @@ export function TeamAdmin({ session, onUpdated }: Props) {
       aria-labelledby="team-admin-title"
     >
       <h2 id="team-admin-title">{msg("Membres de l’atelier")}</h2>
+      <details className="role-guide-details">
+        <summary>{msg("Comprendre les rôles")}</summary>
+        <RolesOverview />
+        <a href="/roles/">{msg("Lire le guide des rôles et droits")}</a>
+      </details>
       {isPublicPreview ? (
         <PreviewNotice />
       ) : !canAdminister(session) ? (
@@ -487,7 +640,7 @@ export function TeamAdmin({ session, onUpdated }: Props) {
           </p>
           <p className="field-hint">
             {msg(
-              "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter. Aucun email d’invitation n’est envoyé depuis cet écran.",
+              "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter.",
             )}
           </p>
           <RefreshButton
@@ -525,7 +678,7 @@ export function TeamAdmin({ session, onUpdated }: Props) {
                     <tbody role="rowgroup">
                       {members.data.items.map((member) => (
                         <MemberRow
-                          key={`${member.id}-${member.role}`}
+                          key={`${member.id}-${member.role}-${member.supervisorCanApprove}-${member.supervisorCanReport}`}
                           member={member}
                           currentUserId={session.user.id}
                           disabled={action.pending}

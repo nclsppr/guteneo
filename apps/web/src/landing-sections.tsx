@@ -336,6 +336,7 @@ export function LuxembourgFooter() {
           <a href="/mentions-legales/">{t.homepage.footer.legal}</a>
           <a href="/confidentialite/">{msg("Confidentialité")}</a>
           <a href="/conditions/">{msg("Conditions")}</a>
+          <a href="/roles/">{msg("Rôles et droits")}</a>
           <a href="/support/">{msg("Assistance")}</a>
         </nav>
       </div>

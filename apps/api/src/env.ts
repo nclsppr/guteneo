@@ -36,6 +36,8 @@ export interface Env {
   AWS_REGION?: string;
   EMAIL_PROVIDER?: "ses" | "resend";
   RESEND_API_KEY?: string;
+  INVITATION_EMAILS_ENABLED?: string;
+  INVITATION_EMAIL_FROM?: string;
   PROTECTED_DOCUMENTS_KEY?: string;
   RESEND_WEBHOOK_SECRET?: string;
   RESEND_ACCOUNT_ID?: string;

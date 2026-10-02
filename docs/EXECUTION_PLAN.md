@@ -1,5 +1,14 @@
 # Execution plan and handoff
 
+2 October local role candidate: administrators manage the workshop; supervisors
+receive independent approval and reporting options; operators prepare; observers
+read operational content. Existing members lose approval/reporting until an admin
+assigns supervisor rights. Workshop creators become administrators; individual
+and CSV invitations add verified-email onboarding into an existing workshop.
+Migrations 0042–0043 and separate invitation mail activation are required before
+publication. See the
+[role guide, migration contract and local proof](WORKSPACE_ROLES.md).
+
 2 October integration candidate: outstanding web/native language work, Claude
 dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
 reconciled for a coordinated main release. Email activation and Auth0 policy

@@ -15,7 +15,7 @@
   "info": {
     "title": "Guteneo — API développeurs",
     "version": "0.3.0",
-    "description": "Contrat REST du candidat bêta, documenté le 21 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Les routes /api/dispatches/{id}/protected-document (état), /password (révélation du mot de passe) et /revoke (révocation) sont également réservées au navigateur de l’expéditeur : session authentifiée, en-tête Authorization refusé et CSRF pour les mutations. Aucun mot de passe ne doit être saisi ou lu par un assistant, un appel OAuth ou le chat. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites."
+    "description": "Contrat REST du candidat bêta, documenté le 21 septembre 2026. guteneo.com héberge la bêta ; la démonstration séparée guteneo-preview.nclsppr.workers.dev refuse /api/* (PREVIEW_ONLY). Cette référence décrit aussi le candidat en cours : consultez /api/capabilities pour les capacités réellement disponibles. Aucun tarif, envoi fournisseur ou compatibilité assistant réelle n’est garanti par les exemples. OAuth 2.0 Authorization Code + PKCE S256 pour les clients enregistrés, audience https://guteneo.com/mcp. Pas de clé API personnelle. Créer d’abord son espace dans le navigateur, vérifier son e-mail et disposer d’un compte vérifié. Pendant la bêta Auth0 Free, la MFA n’est pas obligatoire ; son statut ne vaut preuve que si elle a réellement été accomplie. L’organisation vient de l’adhésion authentifiée et de la connexion associée, jamais du corps ou d’un paramètre arbitraire. /api/dispatches/{id}/approve et /api/postal/preflights/{id}/transfer sont réservés au navigateur avec session et CSRF, exclus de cette API OAuth. Les routes /api/dispatches/{id}/protected-document (état), /password (révélation du mot de passe) et /revoke (révocation) sont également réservées au navigateur de l’expéditeur : session authentifiée, en-tête Authorization refusé et CSRF pour les mutations. Aucun mot de passe ne doit être saisi ou lu par un assistant, un appel OAuth ou le chat. Routes privées d’administration et de facturation également exclues. La confirmation n’est pas une livraison. Les exemples ne doivent pas déclencher d’envoi réel sans approbation et activation explicites. Les rôles sont propres à chaque atelier : admin, supervisor, member (opérateur), viewer (observateur). La session expose les permissions effectives. Un scope OAuth ne remplace jamais un droit de rôle. Le superviseur peut recevoir séparément le droit d’approuver et celui de consulter les rapports. La gestion des membres reste réservée au navigateur de l’administrateur."
   },
   "servers": [
     {
@@ -773,7 +773,7 @@
           "Envois"
         ],
         "summary": "Confirmer un envoi déjà approuvé",
-        "description": "Sans corps. Nécessite une approbation humaine faite dans le navigateur, liée à l’empreinte immutable et encore valide (au plus 15 min, limitée aussi par le devis). Un accord dans une conversation ne suffit pas. L’assistant ne peut jamais appeler /approve pour la produire. La transition prepared→queued, les réservations de quota/crédit et l’outbox sont atomiques. La réponse ne signifie pas livré. Après un timeout HTTP, relire l’envoi ; seule la même confirmation logique peut réutiliser sa clé. Ne jamais relancer une soumission fournisseur à issue inconnue. Les gates de canal, devis et crédit restent applicables.",
+        "description": "Administrateur ou superviseur avec droit de validation requis ; le scope dispatches:send seul ne suffit pas. Sans corps. Nécessite une approbation humaine faite dans le navigateur, liée à l’empreinte immutable et encore valide (au plus 15 min, limitée aussi par le devis). Un accord dans une conversation ne suffit pas. L’assistant ne peut jamais appeler /approve pour la produire. La transition prepared→queued, les réservations de quota/crédit et l’outbox sont atomiques. La réponse ne signifie pas livré. Après un timeout HTTP, relire l’envoi ; seule la même confirmation logique peut réutiliser sa clé. Ne jamais relancer une soumission fournisseur à issue inconnue. Les gates de canal, devis et crédit restent applicables.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -845,7 +845,7 @@
           "Envois"
         ],
         "summary": "Annuler avant la soumission",
-        "description": "Sans corps ni clé d’idempotence requise. Autorisé pour prepared ou queued ; un envoi déjà cancelled reste cancelled. Dès que la soumission commence, 409 CANCELLATION_TOO_LATE : aucune annulation fournisseur ni nouveau message n’est déclenché.",
+        "description": "Administrateur ou superviseur avec droit de validation requis ; le scope dispatches:send seul ne suffit pas. Sans corps ni clé d’idempotence requise. Autorisé pour prepared ou queued ; un envoi déjà cancelled reste cancelled. Dès que la soumission commence, 409 CANCELLATION_TOO_LATE : aucune annulation fournisseur ni nouveau message n’est déclenché.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -1315,7 +1315,7 @@
           "Compte"
         ],
         "summary": "Lire le crédit et les plafonds",
-        "description": "Crédit promotionnel de bienvenue distinct des plafonds mensuels par canal. 50 € sont attribués une seule fois à une organisation de production créée par le parcours prévu. Lire les montants retournés : ce crédit n’active pas les transports. Aucun renouvellement ni recharge. Le plafond est réservé à la confirmation. Les devis fixes sont consommés à l’acceptation fournisseur ; le fax v3 conserve sa réserve jusqu’au rapprochement de l’usage vérifié, même si sa livraison est terminée. Pour les devis fractionnaires, le débit en centimes est ceil(cumul nanoEUR / 10 000 000) moins ceil(cumul précédent / 10 000 000), au niveau de l’organisation ; il ne s’agit pas d’un arrondi facturé par e-mail. Une issue inconnue conserve la réservation. Les totaux sont des centimes EUR, jamais des flottants.",
+        "description": "Réservé aux administrateurs et aux superviseurs dont le droit de reporting est activé, en plus du scope OAuth. Crédit promotionnel de bienvenue distinct des plafonds mensuels par canal. 50 € sont attribués une seule fois à une organisation de production créée par le parcours prévu. Lire les montants retournés : ce crédit n’active pas les transports. Aucun renouvellement ni recharge. Le plafond est réservé à la confirmation. Les devis fixes sont consommés à l’acceptation fournisseur ; le fax v3 conserve sa réserve jusqu’au rapprochement de l’usage vérifié, même si sa livraison est terminée. Pour les devis fractionnaires, le débit en centimes est ceil(cumul nanoEUR / 10 000 000) moins ceil(cumul précédent / 10 000 000), au niveau de l’organisation ; il ne s’agit pas d’un arrondi facturé par e-mail. Une issue inconnue conserve la réservation. Les totaux sont des centimes EUR, jamais des flottants.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -4169,7 +4169,9 @@
           },
           "executionScope": {
             "type": "string",
-            "enum": ["review_prepare_only"],
+            "enum": [
+              "review_prepare_only"
+            ],
             "description": "Devis de revue consultable uniquement ; aucun envoi, approbation ou crédit possible."
           },
           "routeQualification": {
@@ -5087,6 +5089,75 @@
           }
         },
         "additionalProperties": false
+      },
+      "WorkspaceRole": {
+        "type": "string",
+        "enum": [
+          "admin",
+          "supervisor",
+          "member",
+          "viewer"
+        ],
+        "description": "Rôle de l’adhésion courante, déterminé par le serveur. member = opérateur ; viewer = observateur."
+      },
+      "WorkspacePermissions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "readWorkspace",
+          "prepareDispatches",
+          "approveDispatches",
+          "viewReports",
+          "manageOrganization",
+          "manageMembers",
+          "manageBilling",
+          "manageExpertDelegation"
+        ],
+        "properties": {
+          "readWorkspace": {
+            "type": "boolean"
+          },
+          "prepareDispatches": {
+            "type": "boolean"
+          },
+          "approveDispatches": {
+            "type": "boolean"
+          },
+          "viewReports": {
+            "type": "boolean"
+          },
+          "manageOrganization": {
+            "type": "boolean"
+          },
+          "manageMembers": {
+            "type": "boolean"
+          },
+          "manageBilling": {
+            "type": "boolean"
+          },
+          "manageExpertDelegation": {
+            "type": "boolean"
+          }
+        }
+      },
+      "WorkspaceMemberPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role"
+        ],
+        "description": "Corps de PATCH /api/admin/members/{userId}, réservé à une session navigateur administrateur avec origine et CSRF. Ces routes ne sont pas des opérations OAuth. Les options true ne sont admises que pour supervisor ; omises lors du passage au rôle supervisor, elles restent désactivées. Tout changement révoque les accès existants de ce membre dans cet atelier et exige sa reconnexion. Le dernier administrateur est protégé.",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/WorkspaceRole"
+          },
+          "supervisorCanApprove": {
+            "type": "boolean"
+          },
+          "supervisorCanReport": {
+            "type": "boolean"
+          }
+        }
       }
     },
     "responses": {

@@ -24,6 +24,23 @@ function fixture(
 }
 
 describe("production static crawl boundary", () => {
+  it("serves the invitation SPA shell privately without forwarding a secret or query to assets", async () => {
+    const { env, fetch } = fixture();
+    const response = (await servePublicAssets(
+      new Request(
+        `${site.origin}/invitation/?token=never-forward#token=fragment-secret`,
+      ),
+      env,
+    ))!;
+    expect(response.status).toBe(200);
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+    expect((fetch.mock.calls[0] as unknown as [Request])[0].url).toBe(
+      `${site.origin}/`,
+    );
+  });
+
   it.each(site.paths)(
     "serves public %s independently of identity, without altering bytes",
     async (path) => {

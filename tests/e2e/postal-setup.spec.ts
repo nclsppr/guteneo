@@ -263,6 +263,35 @@ for (const role of ["member", "viewer"] as const) {
   });
 }
 
+test("an observer sees configured postal status without a preparation action", async ({
+  page,
+}) => {
+  const state = await fixture(page, { role: "viewer" });
+  await page.route("**/api/postal/setup", (route) =>
+    route.fulfill({
+      json: {
+        available: true,
+        canManage: false,
+        configured: true,
+        channelEnabled: true,
+        senderVerification: "administrator_declaration",
+        pricingBasis: "public_list_price_ex_tax",
+        defaultCountry: "LU",
+      },
+    }),
+  );
+  await page.goto("/#/app/senders");
+  await expect(
+    page.getByRole("heading", {
+      name: "Votre expéditeur postal est prêt",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator('a[href^="#/app/prepare"]')).toHaveCount(0);
+  expect(state.writes).toEqual([]);
+  expect(state.unmatched).toEqual([]);
+});
+
 for (const reason of [
   "channel_stopped",
   "sender_disabled",

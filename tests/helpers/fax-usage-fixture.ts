@@ -89,7 +89,7 @@ export async function createFaxUsageFixture(
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+    .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
     .bind(org, ctx.userId, now)
     .run();
   await db

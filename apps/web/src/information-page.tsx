@@ -5,9 +5,11 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { LegalLinks } from "./legal-links";
 import "./legal-page.css";
+import { getRoleGuide } from "./role-guide";
 
 type InformationPageContent = {
   label: string;
+  updated?: string;
   title: ReactNode;
   description: string;
   sections: { id: string; label: string; content: ReactNode }[];
@@ -17,6 +19,7 @@ const contact = <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>;
 
 export function getInformationPages(): Record<string, InformationPageContent> {
   return {
+    "/roles/": getRoleGuide(),
     "/confidentialite/": {
       label: msg("Confidentialité"),
       title: (
@@ -629,7 +632,7 @@ export function InformationPage({
           <h1>{content.title}</h1>
           <p>{content.description}</p>
           <p className="legal-date">
-            {msg("Mise à jour le 22 septembre 2026")}
+            {content.updated ?? msg("Mise à jour le 22 septembre 2026")}
           </p>
         </div>
         <div className="legal-layout">

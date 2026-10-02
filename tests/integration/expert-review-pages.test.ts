@@ -127,7 +127,7 @@ beforeEach(async () => {
       )
       .bind(ctx.userId, date),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(ctx.organizationId, ctx.userId, date),
     db
       .prepare("INSERT INTO auth_identities VALUES(?,?,?,?)")
@@ -923,7 +923,7 @@ describe("read-only original PDF pages through MCP", () => {
         )
         .bind(foreignOrganization, now()),
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
         .bind(foreignOrganization, ctx.userId, now()),
     ]);
     const foreignId = `doc_${crypto.randomUUID()}`;

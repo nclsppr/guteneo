@@ -1,3 +1,4 @@
+import { handleInvitationRoute } from "./invitations";
 import { ensureEmailSender } from "./email-setup";
 import {
   prepareProtectedDocument,
@@ -402,6 +403,8 @@ app.use("*", async (c, next) => {
     () => publishOutbox(c.env, domain(c.env)),
   );
   if (mobile) return mobile;
+  const invitation = await handleInvitationRoute(c.req.raw, c.env);
+  if (invitation) return invitation;
   const auth = await handleAuthRoute(c.req.raw, c.env);
   if (auth) return auth;
   return next();
@@ -829,7 +832,12 @@ app.onError((error, c) => {
             ? "VALIDATION_ERROR"
             : "INTERNAL_ERROR",
   );
-  if (error instanceof AuthError && c.req.path.startsWith("/auth/")) {
+  if (
+    c.req.method === "GET" &&
+    c.req.path.startsWith("/auth/") &&
+    (error instanceof AuthError ||
+      (error instanceof DomainError && c.req.path === "/auth/callback"))
+  ) {
     return c.redirect(
       `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
       302,

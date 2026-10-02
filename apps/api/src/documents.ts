@@ -67,7 +67,7 @@ type AnalysisRow = {
   organization_id: string;
   document_id: string;
   request_user_id: string;
-  request_role: "admin" | "member";
+  request_role: "admin" | "supervisor" | "member";
   state: DocumentAnalysis["state"];
   code: ScanCode;
   attempts: number;
@@ -587,7 +587,7 @@ export class DocumentService {
     const fence =
       "EXISTS(SELECT 1 FROM document_scan_locks WHERE organization_id=? AND document_id=? AND token=? AND expires_at>?)";
     const member =
-      "EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role IN ('admin','member') AND o.mode=?)";
+      "EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role IN ('admin','supervisor','member') AND o.mode=?)";
     const recovery =
       "EXISTS(SELECT 1 FROM document_analysis WHERE organization_id=? AND document_id=? AND state='processing' AND deadline_at>?)";
     const condition = `${fence} AND ${member} AND ${recovery}`;

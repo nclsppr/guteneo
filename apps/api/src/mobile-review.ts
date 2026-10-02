@@ -1,3 +1,4 @@
+import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import { AuthError, authenticateBrowser } from "./auth";
 import { mobileText } from "./mobile-locale";
 import {
@@ -291,14 +292,18 @@ export async function handleMobileReview(
   const emailPreview = d.html
     ? `<iframe class="message" title="${t("Contenu final de l’e-mail")}" sandbox srcdoc="${escape(`<!doctype html><meta charset=utf-8><meta http-equiv=Content-Security-Policy content="default-src 'none'"><body>${d.html}</body>`)}"></iframe>`
     : `<pre>${escape(d.text)}</pre>`;
+  const permissions = workspacePermissions(session.context.role, {
+    canApprove: session.context.supervisorCanApprove,
+    canReport: session.context.supervisorCanReport,
+  });
   const canAct =
-    ["admin", "member"].includes(session.context.role) &&
+    permissions.approveDispatches &&
     !reviewPreparationOnly &&
     d.status === "prepared" &&
     !expired &&
     documentReady;
   const canRenew =
-    ["admin", "member"].includes(session.context.role) &&
+    permissions.prepareDispatches &&
     d.channel === "fax" &&
     d.status === "prepared" &&
     expired &&
@@ -312,7 +317,7 @@ export async function handleMobileReview(
     ${expired ? `<p class="notice">${t("Le devis a expiré.")} ${t(canRenew ? "Renouvelez-le ci-dessous, puis vérifiez sa nouvelle version." : "Cet envoi ne peut pas être confirmé avec ce devis.")}</p>` : ""}${canRenew ? `<form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="renew"><button type="submit">${t("Renouveler le devis")}</button></form>` : ""}
     ${canAct && !approved ? `<section><h2>${t("Votre validation")}</h2><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="approve"><label><input type="checkbox" name="reviewed" value="yes" required>${escape(t("J’ai vérifié le contenu exact, le destinataire et les options. J’accepte le coût dans la limite de {amount} pour cette version.").replace("{amount}", money(d.ceiling_minor) + (d.mode === "production" ? t(" HT") : "")))}</label>${d.channel === "email" && d.mode === "production" ? `<label><input type="checkbox" name="recipientRequested" value="yes" required>${t("Ce destinataire a demandé cet e-mail et son contenu.")}</label>` : ""}<button type="submit">${t("Valider cette version")}</button></form></section>` : ""}
     ${canAct && approved ? `<section><h2>${t("Version validée")}</h2><p>${t("La validation est enregistrée. Confirmez maintenant l’expédition de cette version au destinataire affiché.")}</p><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="confirm"><label><input type="checkbox" name="sendConfirmed" value="yes" required>${t(d.mode === "production" ? "Je confirme l’envoi réel de cette version." : "Je confirme la simulation de cette version.")}</label><button type="submit">${t(d.mode === "production" ? "Confirmer l’envoi" : "Lancer la simulation")}</button></form></section>` : ""}
-    ${["prepared", "queued"].includes(d.status) && session.context.role !== "viewer" ? `<form method="post" action="${escape(reviewPath)}"><p>${fields}<input type="hidden" name="action" value="cancel"><button class="secondary" type="submit">${t("Annuler cet envoi")}</button></p></form>` : ""}<p><a href="${escape(reviewPath)}">${t("Actualiser le suivi")}</a></p>`,
+    ${["prepared", "queued"].includes(d.status) && permissions.approveDispatches ? `<form method="post" action="${escape(reviewPath)}"><p>${fields}<input type="hidden" name="action" value="cancel"><button class="secondary" type="submit">${t("Annuler cet envoi")}</button></p></form>` : ""}<p><a href="${escape(reviewPath)}">${t("Actualiser le suivi")}</a></p>`,
     responseStatus,
   );
 }

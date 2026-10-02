@@ -124,7 +124,7 @@ beforeEach(async () => {
       )
       .bind(ctx.userId, date),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(ctx.organizationId, ctx.userId, date),
     db
       .prepare("INSERT INTO auth_identities VALUES(?,?,?,?)")
@@ -528,7 +528,7 @@ describe("connection-specific expert status is read-only and current", () => {
         )
         .bind(backup, now()),
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
         .bind(ctx.organizationId, backup, now()),
       db
         .prepare(

@@ -1,3 +1,4 @@
+import { historicalRoleProjection } from "../helpers/historical-role-projection";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   beforeAll,
@@ -38,6 +39,7 @@ import { dispatchSummary } from "../../apps/api/src/mcp";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import type { Fetcher } from "../../packages/providers";
 
+let currentSchema = false;
 let mf: Miniflare,
   db: D1Database,
   bucket: R2Bucket,
@@ -203,7 +205,9 @@ async function setupFixture(provider: "ses" | "resend" = "resend") {
       )
       .bind(ctx.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(ctx.organizationId, ctx.userId, stamp()),
   ]);
   for (const channel of ["email", "postal"] as const) {
@@ -242,20 +246,23 @@ async function setupFixture(provider: "ses" | "resend" = "resend") {
         "a".repeat(64),
       )
       .run();
-  domain = new DomainService(db, {
-    mode: "production",
-    now: () => clock,
-    liveDeliveryIdentity: identity,
-    prepareProtectedDocument: (principal, input, now) =>
-      prepareProtectedDocument(env, principal, input, now),
-    postalQuote: async (request) => ({
-      supplierMinor: 151,
-      currency: "EUR",
-      providerDraftId: request.options.providerDraftId as string,
-      preparedLetterId: request.options.preparedLetterId as string,
-      evidenceSha256: "c".repeat(64),
-    }),
-  });
+  domain = new DomainService(
+    currentSchema ? db : historicalRoleProjection(db),
+    {
+      mode: "production",
+      now: () => clock,
+      liveDeliveryIdentity: identity,
+      prepareProtectedDocument: (principal, input, now) =>
+        prepareProtectedDocument(env, principal, input, now),
+      postalQuote: async (request) => ({
+        supplierMinor: 151,
+        currency: "EUR",
+        providerDraftId: request.options.providerDraftId as string,
+        preparedLetterId: request.options.preparedLetterId as string,
+        evidenceSha256: "c".repeat(64),
+      }),
+    },
+  );
   await domain.registerDocument(ctx, {
     id: id("doc"),
     name: "original.pdf",
@@ -371,6 +378,13 @@ beforeAll(async () => {
     foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
     quickCheck: await db.prepare("PRAGMA quick_check").first(),
   };
+  for (const filename of readdirSync(dir)
+    .filter(
+      (name) => name.endsWith(".sql") && name > "0040_protected_documents.sql",
+    )
+    .sort())
+    await sql(readFileSync(new URL(filename, dir), "utf8"));
+  currentSchema = true;
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();

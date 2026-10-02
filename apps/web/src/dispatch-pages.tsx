@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
@@ -27,6 +28,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   api,
+  permissionsFor,
   ApiError,
   bytes,
   date,
@@ -174,7 +176,10 @@ function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
 }
 
 export function Overview({ session }: { session: Session }) {
-  const overview = useResource<DispatchOverview>("/overview");
+  const permissions = permissionsFor(session);
+  const overview = useResource<DispatchOverview>(
+    permissions.viewReports ? "/overview" : null,
+  );
   const dispatches = useResource<Page<Dispatch>>("/dispatches?limit=6");
   const refreshOverview = overview.refresh;
   const refreshDispatches = dispatches.refresh;
@@ -226,20 +231,24 @@ export function Overview({ session }: { session: Session }) {
       )}
       {/* The starting choice comes before the statistics, so a new workshop
           does not open on empty counters (docs/ASSISTANT_HUB.md). */}
-      <OverviewAssistantStart session={session} />
-      <ul className="overview-stats" aria-label={t.overview.statsLabel}>
-        {stats.map((stat) => (
-          <li key={stat.href}>
-            <a
-              href={stat.href}
-              className={stat.warning ? "stat-warning" : undefined}
-            >
-              <span>{stat.label}</span>
-              <strong>{stat.value ?? "·"}</strong>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {permissions.prepareDispatches && (
+        <OverviewAssistantStart session={session} />
+      )}
+      {permissions.viewReports && (
+        <ul className="overview-stats" aria-label={t.overview.statsLabel}>
+          {stats.map((stat) => (
+            <li key={stat.href}>
+              <a
+                href={stat.href}
+                className={stat.warning ? "stat-warning" : undefined}
+              >
+                <span>{stat.label}</span>
+                <strong>{stat.value ?? "·"}</strong>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       <ErrorNotice error={overview.error ?? dispatches.error} retry={refresh} />
       <div className="section-toolbar">
         <h2>{t.overview.recent}</h2>
@@ -257,10 +266,12 @@ export function Overview({ session }: { session: Session }) {
           title={t.overview.emptyTitle}
           text={t.overview.emptyBody}
           action={
-            <a className="button primary" href="#/app/documents">
-              {t.documents.import}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
+            permissions.prepareDispatches && (
+              <a className="button primary" href="#/app/documents">
+                {t.documents.import}
+                <ArrowRight size={18} aria-hidden="true" />
+              </a>
+            )
           }
         />
       )}
@@ -268,7 +279,7 @@ export function Overview({ session }: { session: Session }) {
   );
 }
 
-export function Documents() {
+export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   const resource = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
   const route = useRoute();
@@ -367,30 +378,32 @@ export function Documents() {
         title={t.documents.title}
         intro={t.documents.intro}
         action={
-          <div className="button-group">
-            <button
-              className="button"
-              disabled={isPublicPreview}
-              onClick={() => {
-                setTab("render");
-                action.clear();
-              }}
-            >
-              <FileText size={18} />
-              {t.documents.render}
-            </button>
-            <button
-              className="button primary"
-              disabled={isPublicPreview}
-              onClick={() => {
-                setTab("import");
-                action.clear();
-              }}
-            >
-              <UploadSimple size={18} />
-              {t.documents.import}
-            </button>
-          </div>
+          canPrepare && (
+            <div className="button-group">
+              <button
+                className="button"
+                disabled={isPublicPreview}
+                onClick={() => {
+                  setTab("render");
+                  action.clear();
+                }}
+              >
+                <FileText size={18} />
+                {t.documents.render}
+              </button>
+              <button
+                className="button primary"
+                disabled={isPublicPreview}
+                onClick={() => {
+                  setTab("import");
+                  action.clear();
+                }}
+              >
+                <UploadSimple size={18} />
+                {t.documents.import}
+              </button>
+            </div>
+          )
         }
       />
       {isPublicPreview && (
@@ -427,7 +440,7 @@ export function Documents() {
           </div>
         </div>
       )}
-      {tab && (
+      {canPrepare && tab && (
         <section className="form-panel">
           <div className="section-toolbar">
             <h2>
@@ -520,16 +533,21 @@ export function Documents() {
                   {t.documents.followupAutomatic}
                 </p>
               )}
-              {!isPublicPreview && analysis.nextAction === "rescan" && (
-                <button
-                  className="button"
-                  disabled={action.pending || followup.loading}
-                  onClick={() => void rescan()}
-                >
-                  {action.pending ? t.documents.rescanning : t.documents.rescan}
-                </button>
-              )}
-              {!isPublicPreview &&
+              {canPrepare &&
+                !isPublicPreview &&
+                analysis.nextAction === "rescan" && (
+                  <button
+                    className="button"
+                    disabled={action.pending || followup.loading}
+                    onClick={() => void rescan()}
+                  >
+                    {action.pending
+                      ? t.documents.rescanning
+                      : t.documents.rescan}
+                  </button>
+                )}
+              {canPrepare &&
+                !isPublicPreview &&
                 analysis.nextAction === "replace_document" && (
                   <button
                     className="button"
@@ -571,19 +589,21 @@ export function Documents() {
               <code>{selected.sha256}</code>
             </Definition>
           </dl>
-          <a
-            className={`button primary ${selected.status !== "ready" ? "disabled-link" : ""}`}
-            href={
-              selected.status !== "ready"
-                ? undefined
-                : `#/app/prepare?document=${selected.id}`
-            }
-            tabIndex={selected.status !== "ready" ? -1 : undefined}
-            aria-disabled={selected.status !== "ready"}
-          >
-            {t.documents.ready}
-            <ArrowRight size={18} />
-          </a>
+          {canPrepare && (
+            <a
+              className={`button primary ${selected.status !== "ready" ? "disabled-link" : ""}`}
+              href={
+                selected.status !== "ready"
+                  ? undefined
+                  : `#/app/prepare?document=${selected.id}`
+              }
+              tabIndex={selected.status !== "ready" ? -1 : undefined}
+              aria-disabled={selected.status !== "ready"}
+            >
+              {t.documents.ready}
+              <ArrowRight size={18} />
+            </a>
+          )}
         </section>
       )}
       {resource.loading && !resource.data ? (
@@ -1474,7 +1494,7 @@ export function PrepareDispatch({
   );
 }
 
-export function DispatchList() {
+export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
   const route = useRoute();
   const requested = new URLSearchParams(route.split("?")[1]).get("group");
   const group = isDispatchGroup(requested) ? requested : undefined;
@@ -1485,14 +1505,21 @@ export function DispatchList() {
         title={t.dispatch.listTitle}
         intro={t.dispatch.listIntro}
         action={
-          <a className="button primary" href="#/app/prepare">
-            <Plus size={18} aria-hidden="true" />
-            {t.dispatch.new}
-          </a>
+          canPrepare && (
+            <a className="button primary" href="#/app/prepare">
+              <Plus size={18} aria-hidden="true" />
+              {t.dispatch.new}
+            </a>
+          )
         }
       />
       {/* A new key per filter: never show the previous selection's rows. */}
-      <DispatchListResults key={path} path={path} filtered={!!group}>
+      <DispatchListResults
+        key={path}
+        path={path}
+        filtered={!!group}
+        canPrepare={canPrepare}
+      >
         <nav className="dispatch-filter" aria-label={t.dispatch.filterLabel}>
           {([undefined, ...dispatchGroupNames] as const).map((item) => (
             <a
@@ -1512,12 +1539,14 @@ export function DispatchList() {
 }
 
 function DispatchListResults({
+  canPrepare,
   path,
   filtered,
   children,
 }: {
   path: string;
   filtered: boolean;
+  canPrepare: boolean;
   children: ReactNode;
 }) {
   const resource = useResource<Page<Dispatch>>(path);
@@ -1544,7 +1573,7 @@ function DispatchListResults({
         (filtered && !resource.data.items.length ? (
           <p className="empty-inline">{t.dispatch.groupEmpty}</p>
         ) : (
-          <DispatchTable items={resource.data.items} />
+          <DispatchTable items={resource.data.items} canPrepare={canPrepare} />
         ))
       )}
       <LoadMore
@@ -1562,9 +1591,13 @@ function DispatchListResults({
 export function DispatchDetailPage({
   id,
   simulation,
+  canApprove = true,
+  canPrepare = true,
 }: {
   id: string;
   simulation: boolean;
+  canApprove?: boolean;
+  canPrepare?: boolean;
 }) {
   const resource = useResource<DispatchDetail>(
     `/dispatches/${encodeURIComponent(id)}`,
@@ -1965,7 +1998,7 @@ export function DispatchDetailPage({
                 )}
               </p>
             )}
-            {renewalAllowed && (
+            {canPrepare && renewalAllowed && (
               <button
                 className="button primary"
                 disabled={action.pending || resource.loading}
@@ -1976,7 +2009,7 @@ export function DispatchDetailPage({
                   : msg("Renouveler le devis")}
               </button>
             )}
-            {quoteBlocked && d.channel === "postal" && (
+            {canPrepare && quoteBlocked && d.channel === "postal" && (
               <a
                 className="button primary"
                 href={`#/app/prepare?channel=postal${d.document_id ? `&document=${encodeURIComponent(d.document_id)}` : ""}`}
@@ -2164,8 +2197,15 @@ export function DispatchDetailPage({
               )}
             </p>
           )}
-          <ProtectedDocumentSummary dispatch={d} onUpdated={resource.refresh} />
-          {pendingApproval &&
+          <ProtectedDocumentSummary
+            dispatch={d}
+            onUpdated={resource.refresh}
+            canManage={canPrepare}
+            canRevoke={canApprove}
+          />
+          {pendingApproval && !canApprove && <RolePermissionNotice />}
+          {canApprove &&
+            pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (
               <p className="notice info">
                 {msg(
@@ -2173,7 +2213,7 @@ export function DispatchDetailPage({
                 )}
               </p>
             )}
-          {pendingApproval && d.channel === "postal" && (
+          {canApprove && pendingApproval && d.channel === "postal" && (
             <section className="approval-panel">
               <p>
                 {msg(
@@ -2210,82 +2250,88 @@ export function DispatchDetailPage({
               </button>
             </section>
           )}
-          {pendingApproval && !approved && d.channel !== "postal" && (
-            <section className="approval-panel">
-              <p>{t.dispatch.approvalExplain}</p>
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  disabled={quoteBlocked}
-                  onChange={(e) => setConsent(e.target.checked)}
-                />
-                <span>
-                  {faxPricing
-                    ? msg(
-                        "J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de {0}, pour cette version du fax.",
-                        money(faxPricing.ceilingMinor),
-                      )
-                    : t.dispatch.approvalCheck}
-                </span>
-              </label>
-              {emailAttestationRequired && (
+          {canApprove &&
+            pendingApproval &&
+            !approved &&
+            d.channel !== "postal" && (
+              <section className="approval-panel">
+                <p>{t.dispatch.approvalExplain}</p>
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={recipientRequested}
-                    onChange={(e) => setRecipientRequested(e.target.checked)}
+                    checked={consent}
+                    disabled={quoteBlocked}
+                    onChange={(e) => setConsent(e.target.checked)}
                   />
                   <span>
-                    {msg(
-                      "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.",
-                    )}
+                    {faxPricing
+                      ? msg(
+                          "J’ai vérifié le contenu et le destinataire. J’accepte une consommation variable, dans la limite de {0}, pour cette version du fax.",
+                          money(faxPricing.ceilingMinor),
+                        )
+                      : t.dispatch.approvalCheck}
                   </span>
                 </label>
-              )}
-              <button
-                className="button primary full"
-                disabled={
-                  !consent ||
-                  quoteBlocked ||
-                  (emailAttestationRequired && !recipientRequested) ||
-                  action.pending ||
-                  resource.loading
-                }
-                onClick={() => void approve()}
-              >
-                <Check size={18} />
-                {action.pending
-                  ? t.loading
-                  : d.channel === "email"
-                    ? simulation
-                      ? msg("Approuver et simuler l’envoi")
-                      : msg("Approuver et envoyer")
-                    : t.dispatch.approve}
-              </button>
-            </section>
-          )}
-          {approved && !reviewPreparationOnly && d.channel !== "postal" && (
-            <section className="approval-panel">
-              <p>
-                <Check size={18} />
-                {t.dispatch.approved}
-              </p>
-              <button
-                className="button primary full"
-                disabled={action.pending}
-                onClick={() => void confirm()}
-              >
-                {action.pending
-                  ? t.loading
-                  : simulation
-                    ? t.dispatch.confirm
-                    : t.dispatch.confirmReal}
-                <ArrowRight size={18} />
-              </button>
-            </section>
-          )}
-          {cancelAllowed && (
+                {emailAttestationRequired && (
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={recipientRequested}
+                      onChange={(e) => setRecipientRequested(e.target.checked)}
+                    />
+                    <span>
+                      {msg(
+                        "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.",
+                      )}
+                    </span>
+                  </label>
+                )}
+                <button
+                  className="button primary full"
+                  disabled={
+                    !consent ||
+                    quoteBlocked ||
+                    (emailAttestationRequired && !recipientRequested) ||
+                    action.pending ||
+                    resource.loading
+                  }
+                  onClick={() => void approve()}
+                >
+                  <Check size={18} />
+                  {action.pending
+                    ? t.loading
+                    : d.channel === "email"
+                      ? simulation
+                        ? msg("Approuver et simuler l’envoi")
+                        : msg("Approuver et envoyer")
+                      : t.dispatch.approve}
+                </button>
+              </section>
+            )}
+          {canApprove &&
+            approved &&
+            !reviewPreparationOnly &&
+            d.channel !== "postal" && (
+              <section className="approval-panel">
+                <p>
+                  <Check size={18} />
+                  {t.dispatch.approved}
+                </p>
+                <button
+                  className="button primary full"
+                  disabled={action.pending}
+                  onClick={() => void confirm()}
+                >
+                  {action.pending
+                    ? t.loading
+                    : simulation
+                      ? t.dispatch.confirm
+                      : t.dispatch.confirmReal}
+                  <ArrowRight size={18} />
+                </button>
+              </section>
+            )}
+          {canApprove && cancelAllowed && (
             <div className="cancel-button">
               <ConfirmAction
                 className="text-button"

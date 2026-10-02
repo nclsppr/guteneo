@@ -564,7 +564,7 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
       .bind(other, stamp())
       .run();
     await db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(f.ctx.organizationId, other, stamp())
       .run();
     await db
