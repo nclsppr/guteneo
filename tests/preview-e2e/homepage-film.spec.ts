@@ -100,6 +100,9 @@ for (const locale of supportedLocales) {
         );
         await expect(captions).toHaveAttribute("srclang", locale);
       }
+      // The poster is intentionally lazy: make it visible before requiring
+      // decoded pixels instead of depending on browser prefetch distance.
+      await section.locator(".homepage-film-poster img").scrollIntoViewIfNeeded();
       await expect
         .poll(() =>
           section
