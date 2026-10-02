@@ -1,9 +1,11 @@
 # Horizon candidate — executed evidence and release gaps
 
 Prepared on 2 October 2026 in the isolated branch
-`codex/pdf-accessibility-horizon`, based on `origin/main` at
-`8b060bbd805e1778f62ba795c1e6d942092bb670`. The original dirty checkout was
-preserved. This document describes local preparation; no production service,
+`codex/pdf-accessibility-horizon`, initially based on `origin/main` at
+`8b060bbd805e1778f62ba795c1e6d942092bb670`, then reconciled with template-studio
+merge `4b5df4d753d30ec4e9564ec1dca2655d6c2a35ac`. Horizon migrations are now
+0050–0051 after the upstream template migrations through 0049. The original
+dirty checkout was preserved. This document describes local preparation; no production service,
 migration, debit, communication, marketplace publication or deployment occurred.
 
 ## Implemented and exercised
@@ -58,7 +60,7 @@ Cloudflare qualification, a customer PDF test, full human accessibility review o
 a legal certification. Positive reference coverage for every offered profile,
 especially PDF/UA, remains a hosted release prerequisite.
 
-## Automated verification
+## Automated verification before the template-studio reconciliation
 
 | Check | Executed result |
 | --- | --- |
@@ -97,6 +99,28 @@ the root security suite imports it. A temporary copy containing only that
 package, with no parent dependencies, passed its own `npm ci`, typecheck,
 11 Node tests and 15 Python tests. The root compiler excludes this independent
 package alongside the scanner; its required CI job compiles the complete package.
+
+## Verification after the template-studio reconciliation
+
+Upstream PR #39 had twelve successful required checks on its reviewed head before
+merge. The reconciled branch keeps its studio, private generated documents,
+OAuth authorities, background processing and renderer checks. Horizon migrations
+0050–0051 follow its unchanged migrations through 0049.
+
+Local post-reconciliation verification passed 142 focused backend assertions:
+13 monthly-plan, 15 PDF validation/privacy, and 114 billing, credit, delivery,
+plugin-package and observation assertions. Private generated PDF history,
+validation and replay remain creator-only, including against another administrator
+and through MCP; the SQL guards enforce the same ownership without spending
+another member's allowance. All 51 migration transport checks passed with
+equivalent schemas, integrity OK and zero foreign-key violations. Typecheck,
+ESLint and the Worker dry run passed on the reconciled source.
+
+The 81 affected application browser cases passed again on all three projects,
+including studio observer permissions, private-PDF dispatch review and unsaved
+edits during language changes. Full CI on the final PR head remains the complete
+96-file inventory proof; results from the earlier 85-file inventory above are
+preserved as historical local evidence.
 
 ## Before a public launch
 

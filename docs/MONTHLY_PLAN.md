@@ -69,6 +69,12 @@ administrator receives `creditAvailableMinor`; every other member, MCP or native
 caller receives `null`. An assistant may use a paid PDF-check feature through MCP,
 but cannot subscribe, cancel, manage the account or view its financial balance.
 
+PDF diagnostics and their reports follow current document access: generated private
+PDFs remain visible only to their creator, including against another administrator,
+while legacy shared imports retain tenant visibility. Paid history survives plan
+expiry only for callers who can still access the document; dispatch-specific review
+access does not automatically grant access to diagnostics.
+
 The candidate starts disabled. `HORIZON_ENABLED="true"` and a `PDF_VALIDATOR` binding
 are both necessary for any subscription or entitlement, including simulation.
 Production also requires production evidence; missing validator or mismatched mode
@@ -85,7 +91,7 @@ authority. The separate plan page allows an administrator to subscribe or cancel
 
 ## Migration and local evidence
 
-Additive migration **0044_monthly_plan.sql** follows workspace migrations 0042–0043.
+Additive migration **0050_monthly_plan.sql** follows workspace and template migrations through 0049.
 It retains the dispatch consumption and protected hosting charge terms from migration
 0040 when rebuilding `welcome_credit_balances`. Historical credit entries and
 reservations are unchanged. `horizon_plan_actions`, subscriptions and charges use

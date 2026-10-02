@@ -5010,7 +5010,7 @@
           "Documents"
         ],
         "summary": "Lire les rapports PDF/UA et PDF/A",
-        "description": "Les 50 derniers rapports du PDF de cette organisation. Historique accessible après expiration du forfait, sans relance. Les contrôles automatisés ne constituent pas une certification d’accessibilité ou juridique.",
+        "description": "Les 50 derniers rapports du PDF de cette organisation. Historique accessible après expiration du forfait, sans relance. Les contrôles automatisés ne constituent pas une certification d’accessibilité ou juridique. La visibilité du document est conservée : les PDF générés privés et leurs rapports sont réservés à leur créateur ; un autre administrateur ne dispose pas d’un accès général.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -5077,7 +5077,7 @@
           "Documents"
         ],
         "summary": "Contrôler PDF/UA ou PDF/A avec veraPDF",
-        "description": "Forfait mensuel Horizon actif requis, déjà souscrit dans le navigateur par un administrateur. Contrôle diagnostique des octets exacts d’un PDF prêt. 100 tentatives par mois calendaire UTC, incluses dans le forfait de 30 EUR/mois prélevé dans les crédits. ua1/ua2 pour les règles automatiques d’accessibilité, 1b/2b/3b/4 pour l’archivage. Un succès ne vaut ni certification d’accessibilité ni conformité juridique ; une revue humaine reste nécessaire. Ne modifie, n’approuve ni n’envoie aucun PDF. Réutiliser Idempotency-Key après réponse perdue. Pas de relance automatique sur résultat inconnu.",
+        "description": "Forfait mensuel Horizon actif requis, déjà souscrit dans le navigateur par un administrateur. Contrôle diagnostique des octets exacts d’un PDF prêt. 100 tentatives par mois calendaire UTC, incluses dans le forfait de 30 EUR/mois prélevé dans les crédits. ua1/ua2 pour les règles automatiques d’accessibilité, 1b/2b/3b/4 pour l’archivage. Un succès ne vaut ni certification d’accessibilité ni conformité juridique ; une revue humaine reste nécessaire. Ne modifie, n’approuve ni n’envoie aucun PDF. Réutiliser Idempotency-Key après réponse perdue. Pas de relance automatique sur résultat inconnu. La visibilité du document est conservée : les PDF générés privés et leurs rapports sont réservés à leur créateur ; un autre administrateur ne dispose pas d’un accès général.",
         "security": [
           {
             "GuteneoOAuth": [

@@ -1,6 +1,6 @@
 # Architecture
 
-2 October Horizon branch candidate: migrations 0044–0045 add immutable recurring
+2 October Horizon branch candidate: migrations 0050–0051 add immutable recurring
 browser consent, atomic credit debits and tenant-scoped diagnostics. A private
 veraPDF 1.30.2 service is reached through `PDF_VALIDATOR`. Exact bytes, paid
 access and current browser/OAuth credential SQL fences guard writes. Diagnostics

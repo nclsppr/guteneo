@@ -127,8 +127,8 @@ beforeAll(async () => {
           "0036_postal_window_options.sql",
           "0039_resend_email_transport.sql",
           "0040_protected_documents.sql",
-          "0044_monthly_plan.sql",
-          "0045_pdf_validation.sql",
+          "0050_monthly_plan.sql",
+          "0051_pdf_validation.sql",
         ].includes(f),
     )
     .sort())
@@ -218,8 +218,8 @@ beforeAll(async () => {
     "0036_postal_window_options.sql",
     "0039_resend_email_transport.sql",
     "0040_protected_documents.sql",
-    "0044_monthly_plan.sql",
-    "0045_pdf_validation.sql",
+    "0050_monthly_plan.sql",
+    "0051_pdf_validation.sql",
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
 });

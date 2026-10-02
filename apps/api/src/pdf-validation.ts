@@ -50,7 +50,7 @@ export class PdfValidationService {
     actor: ActorContext,
     documentId: string,
   ): Promise<{ items: PdfValidationReport[] }> {
-    // Purchased history remains readable by its tenant after subscription expiry.
+    // Purchased history keeps the document's visibility after subscription expiry.
     await this.domain.getDocument(actor, documentId);
     const rows = await this.env.DB.prepare(
       "SELECT result_json FROM pdf_validations WHERE organization_id=? AND document_id=? AND status='complete' ORDER BY created_at DESC,id DESC LIMIT 50",
@@ -234,7 +234,7 @@ export class PdfValidationService {
         const finished = new Date().toISOString();
         const fence = authority.sql();
         const write = await this.env.DB.prepare(
-          `UPDATE pdf_validations SET status='complete',result_json=? WHERE organization_id=? AND id=? AND status='processing' AND deadline_at>? AND (${fence.condition}) AND EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN horizon_subscriptions h ON h.organization_id=m.organization_id JOIN documents d ON d.organization_id=m.organization_id WHERE m.organization_id=pdf_validations.organization_id AND m.user_id=? AND m.role IN ('admin','supervisor','member') AND o.mode=pdf_validations.evidence AND h.evidence=o.mode AND h.status IN ('active','cancelled') AND h.current_period_start<=? AND h.current_period_end>? AND d.id=pdf_validations.document_id AND d.sha256=pdf_validations.document_sha256 AND d.status='ready')`,
+          `UPDATE pdf_validations SET status='complete',result_json=? WHERE organization_id=? AND id=? AND status='processing' AND deadline_at>? AND (${fence.condition}) AND EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN horizon_subscriptions h ON h.organization_id=m.organization_id JOIN documents d ON d.organization_id=m.organization_id WHERE m.organization_id=pdf_validations.organization_id AND m.user_id=? AND m.user_id=pdf_validations.request_user_id AND m.role IN ('admin','supervisor','member') AND o.mode=pdf_validations.evidence AND h.evidence=o.mode AND h.status IN ('active','cancelled') AND h.current_period_start<=? AND h.current_period_end>? AND d.id=pdf_validations.document_id AND d.sha256=pdf_validations.document_sha256 AND d.status='ready' AND (d.access_owner_id IS NULL OR d.access_owner_id=m.user_id))`,
         )
           .bind(
             JSON.stringify(report),

@@ -31,11 +31,11 @@ bytes come from authenticated membership and private R2. GET on that route and
 `documents:write` to run and `documents:read` to read. Subscription/cancellation
 and billing are private browser operations, excluded from OAuth OpenAPI/tools.
 
-Migration 0044 installs immutable recurring consent, atomic charges and
+Migration 0050 installs immutable recurring consent, atomic charges and
 subscriptions, and a separate fictional simulation ledger. It preserves
 dispatch/fractional settlement and hosting charges in the shared balance view.
-0045 installs tenant-scoped attempts, quota/concurrency guards and immutable
-complete reports. Apply the existing migration sequence through 0045; no applied
+0051 installs tenant-scoped attempts, quota/concurrency guards and immutable
+complete reports. Apply the existing migration sequence through 0051; no applied
 migration is edited.
 
 The server verifies a ready document and its exact hash. Current browser session

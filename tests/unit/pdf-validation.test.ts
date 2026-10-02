@@ -99,7 +99,7 @@ const engineResult = (
   findings: [],
   ...extra,
 });
-async function fixture(paid = true) {
+async function fixture(paid = true, privateToCreator = false) {
   const suffix = crypto.randomUUID();
   const now = new Date().toISOString();
   const actor: ActorContext = {
@@ -174,8 +174,9 @@ async function fixture(paid = true) {
     size: bytes.length,
     pages: 1,
     status: "ready",
-    source: "import",
+    source: privateToCreator ? "render" : "import",
     storageKey,
+    privateToCreator,
   });
   const authRequest = new Request(
     `${origin}/api/documents/${document.id}/validation`,
@@ -203,7 +204,243 @@ async function fixture(paid = true) {
 }
 const key = () => crypto.randomUUID();
 
+async function tenantPeer(
+  f: Awaited<ReturnType<typeof fixture>>,
+  role: "member" | "admin",
+) {
+  const userId = `user_${key()}`;
+  const now = new Date().toISOString();
+  const secret = key().replaceAll("-", "") + "01234567890";
+  await DB.batch([
+    DB.prepare(
+      "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+    ).bind(userId, "Private PDF peer", `${userId}@example.invalid`, now),
+    DB.prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,?,?)",
+    ).bind(f.actor.organizationId, userId, role, now),
+    DB.prepare(
+      "INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account) VALUES(?,?,?,'fixture-csrf',1,0,?,?,1)",
+    ).bind(
+      await hashSecret(secret),
+      userId,
+      f.actor.organizationId,
+      now,
+      new Date(Date.now() + 3600_000).toISOString(),
+    ),
+  ]);
+  const authority = await postalBrowserAuthority(
+    new Request(`${origin}/api/documents/${f.document.id}/validation`, {
+      method: "POST",
+      headers: {
+        Origin: origin,
+        Cookie: `guteneo_session=${secret}`,
+        "X-CSRF-Token": "fixture-csrf",
+      },
+    }),
+    f.env,
+    true,
+  );
+  return { userId, authority };
+}
+
+async function diagnosticClient(
+  f: Awaited<ReturnType<typeof fixture>>,
+  userId: string,
+) {
+  const token = `gtn_dev_${key()}`;
+  await DB.prepare(
+    "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
+  )
+    .bind(
+      await hashSecret(token),
+      userId,
+      f.actor.organizationId,
+      new Date(Date.now() + 3600_000).toISOString(),
+    )
+    .run();
+  const identity = await authenticateMcp(
+    new Request(`${origin}/mcp`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+    f.env,
+  );
+  const server = createGuteneoMcpServer(identity, f.env, {
+    domain: f.domain,
+    documents: {} as never,
+    capabilities: () => ({}),
+    pdfValidation: {
+      validate: async (id, documentId, input, requestKey) =>
+        f.service.validate(
+          await postalMcpAuthority(id, f.env, "documents:write"),
+          documentId,
+          input,
+          requestKey,
+        ),
+      list: (id, documentId) => f.service.list(id.context, documentId),
+    },
+  });
+  const [clientTransport, serverTransport] =
+    InMemoryTransport.createLinkedPair();
+  const client = new Client({ name: "private-diagnostic-test", version: "1" });
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  return { client, server };
+}
+
 describe("immutable PDF diagnostics and paid entitlement", () => {
+  it("keeps generated private PDF diagnostics with their browser owner, including replay and history", async () => {
+    const f = await fixture(true, true);
+    expect(f.document.access_owner_id).toBe(f.actor.userId);
+    expect(f.document.source).toBe("render");
+    const requestKey = key();
+    const report = await f.service.validate(
+      f.authority,
+      f.document.id,
+      { profile: "ua1" },
+      requestKey,
+    );
+    expect((await f.service.list(f.actor, f.document.id)).items).toEqual([
+      report,
+    ]);
+    for (const role of ["member", "admin"] as const) {
+      const peer = await tenantPeer(f, role);
+      for (const idempotency of [requestKey, key()]) {
+        await expect(
+          f.service.validate(
+            peer.authority,
+            f.document.id,
+            { profile: "ua1" },
+            idempotency,
+          ),
+        ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      }
+      await expect(
+        f.service.list(peer.authority.context, f.document.id),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    }
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+    expect(
+      await DB.prepare(
+        "SELECT COUNT(*) AS n FROM pdf_validations WHERE organization_id=?",
+      )
+        .bind(f.actor.organizationId)
+        .first(),
+    ).toEqual({ n: 1 });
+    expect(await f.domain.getDocument(f.actor, f.document.id)).toEqual(
+      f.document,
+    );
+  });
+
+  it("rejects a private document claim by another current member or admin in SQL before quota or engine access", async () => {
+    const f = await fixture(true, true);
+    const now = new Date().toISOString();
+    for (const role of ["member", "admin"] as const) {
+      const peer = await tenantPeer(f, role);
+      const id = key();
+      await expect(
+        DB.prepare(
+          "INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?)",
+        )
+          .bind(
+            f.actor.organizationId,
+            id,
+            f.document.id,
+            hash,
+            peer.userId,
+            id,
+            now.slice(0, 7),
+            now,
+            new Date(Date.now() + 60_000).toISOString(),
+          )
+          .run(),
+      ).rejects.toThrow("pdf_validation_authority");
+    }
+    expect(f.fetch).not.toHaveBeenCalled();
+    expect(
+      await DB.prepare(
+        "SELECT COUNT(*) AS n FROM pdf_validations WHERE organization_id=?",
+      )
+        .bind(f.actor.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    await expect(
+      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+    ).resolves.toMatchObject({ status: "passed", documentId: f.document.id });
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("applies generated PDF ownership to authenticated MCP validation and history reads", async () => {
+    const f = await fixture(true, true);
+    const own = await diagnosticClient(f, f.actor.userId);
+    try {
+      expect(
+        await own.client.callTool({
+          name: "validate_pdf",
+          arguments: {
+            documentId: f.document.id,
+            profile: "ua2",
+            idempotencyKey: key(),
+          },
+        }),
+      ).toMatchObject({
+        structuredContent: {
+          ok: true,
+          data: { documentId: f.document.id, profile: "ua2" },
+        },
+      });
+      expect(
+        await own.client.callTool({
+          name: "get_pdf_validation",
+          arguments: { documentId: f.document.id },
+        }),
+      ).toMatchObject({
+        structuredContent: {
+          ok: true,
+          data: { items: [{ documentId: f.document.id, profile: "ua2" }] },
+        },
+      });
+      for (const role of ["member", "admin"] as const) {
+        const peer = await tenantPeer(f, role);
+        const connected = await diagnosticClient(f, peer.userId);
+        try {
+          for (const operation of [
+            {
+              name: "validate_pdf",
+              arguments: {
+                documentId: f.document.id,
+                profile: "ua2",
+                idempotencyKey: key(),
+              },
+            },
+            {
+              name: "get_pdf_validation",
+              arguments: { documentId: f.document.id },
+            },
+          ]) {
+            expect(await connected.client.callTool(operation)).toMatchObject({
+              isError: true,
+              structuredContent: { ok: false, error: { code: "NOT_FOUND" } },
+            });
+          }
+        } finally {
+          await connected.client.close();
+          await connected.server.close();
+        }
+      }
+    } finally {
+      await own.client.close();
+      await own.server.close();
+    }
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+    expect(
+      await DB.prepare(
+        "SELECT COUNT(*) AS n FROM pdf_validations WHERE organization_id=?",
+      )
+        .bind(f.actor.organizationId)
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+
   it("checks exact bytes once, keeps security/original unchanged and exposes bounded history", async () => {
     const f = await fixture();
     const idempotency = key();

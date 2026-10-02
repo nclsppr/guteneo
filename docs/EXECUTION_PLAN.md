@@ -2,7 +2,7 @@
 
 2 October separate Horizon branch: EUR30/month credit-funded plan, administrator
 billing gate, private veraPDF PDF/UA/PDF/A checks, shared web/REST/MCP journey
-and four-language publicity preparation. Migrations 0044–0045 and a qualified
+and four-language publicity preparation. Migrations 0050–0051 and a qualified
 private binding are required. Production/publication remain separate.
 Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [HORIZON_PROOF.md](HORIZON_PROOF.md)
 and [HORIZON_LAUNCH.md](HORIZON_LAUNCH.md) before release.
