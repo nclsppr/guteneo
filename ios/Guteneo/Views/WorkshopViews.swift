@@ -41,7 +41,9 @@ struct WelcomeView: View {
                                 .opacity(model.isWorking ? 0 : 1)
                                 .accessibilityHidden(model.isWorking)
                             Spacer(minLength: 0)
-                            Picker("Langue", selection: Binding(get: { model.language }, set: model.chooseWelcomeLanguage)) {
+                            Picker("Langue", selection: Binding(get: { model.language }, set: { language in
+                                model.chooseWelcomeLanguage(language)
+                            })) {
                                 ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
                             }
                             .pickerStyle(.menu).accessibilityIdentifier("welcomeLanguage")
