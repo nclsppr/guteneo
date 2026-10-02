@@ -1,0 +1,62 @@
+{
+  "introduction": {
+    "fr": {
+      "horizontal": {
+        "movie": "/videos/guteneo-horizontal-v5.mp4",
+        "poster": "/videos/guteneo-horizontal-v5.webp"
+      },
+      "vertical": {
+        "movie": "/videos/guteneo-vertical-v5.mp4",
+        "poster": "/videos/guteneo-vertical-v5.webp"
+      }
+    },
+    "en": {
+      "horizontal": {
+        "movie": "/videos/guteneo-horizontal-v5-en.mp4",
+        "poster": "/videos/guteneo-horizontal-v5-en.webp"
+      },
+      "vertical": {
+        "movie": "/videos/guteneo-vertical-v5-en.mp4",
+        "poster": "/videos/guteneo-vertical-v5-en.webp"
+      }
+    },
+    "de": {
+      "horizontal": {
+        "movie": "/videos/guteneo-horizontal-v5-de.mp4",
+        "poster": "/videos/guteneo-horizontal-v5-de.webp"
+      },
+      "vertical": {
+        "movie": "/videos/guteneo-vertical-v5-de.mp4",
+        "poster": "/videos/guteneo-vertical-v5-de.webp"
+      }
+    },
+    "lb": {
+      "horizontal": {
+        "movie": "/videos/guteneo-horizontal-v5-lb.mp4",
+        "poster": "/videos/guteneo-horizontal-v5-lb.webp"
+      },
+      "vertical": {
+        "movie": "/videos/guteneo-vertical-v5-lb.mp4",
+        "poster": "/videos/guteneo-vertical-v5-lb.webp"
+      }
+    }
+  },
+  "roles": {
+    "fr": {
+      "movie": "/videos/guteneo-roles-v1-fr.mp4",
+      "poster": "/videos/guteneo-roles-v1-fr.webp"
+    },
+    "en": {
+      "movie": "/videos/guteneo-roles-v1-en.mp4",
+      "poster": "/videos/guteneo-roles-v1-en.webp"
+    },
+    "de": {
+      "movie": "/videos/guteneo-roles-v1-de.mp4",
+      "poster": "/videos/guteneo-roles-v1-de.webp"
+    },
+    "lb": {
+      "movie": "/videos/guteneo-roles-v1-lb.mp4",
+      "poster": "/videos/guteneo-roles-v1-lb.webp"
+    }
+  }
+}

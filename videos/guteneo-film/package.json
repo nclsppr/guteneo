@@ -39,6 +39,8 @@
     "render:localized": "node scripts/render-localized.mjs",
     "narration:plan": "node scripts/generate-narration.mjs",
     "narration:generate": "node scripts/generate-narration.mjs --generate",
+    "narration:import": "node scripts/import-narration.mjs",
+    "narration:fit": "node ../../scripts/fit-web-narration.mjs",
     "narration:mix": "node scripts/mix-narration.mjs",
     "test:narration": "node --test tests/*.test.mjs"
   },

@@ -34,6 +34,8 @@
     "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook",
     "videos:render": "npm --prefix videos/guteneo-film run render:localized --",
     "videos:narration": "npm --prefix videos/guteneo-film run narration:plan --",
+    "videos:narration:import": "npm --prefix videos/guteneo-film run narration:import --",
+    "videos:narration:fit": "npm --prefix videos/guteneo-film run narration:fit --",
     "videos:narration:mix": "npm --prefix videos/guteneo-film run narration:mix --",
     "test:videos:narration": "npm --prefix videos/guteneo-film run test:narration"
   },
