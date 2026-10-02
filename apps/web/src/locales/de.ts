@@ -86,6 +86,11 @@ export const de: Copy = {
             "Ihre importierte PDF-Datei bleibt unverändert erhalten. Wenn Sie mit Ihrem Assistenten einen Brief verfassen, wird ein neues Dokument erstellt. Sie können es vor der Versandvorbereitung prüfen.",
         },
         {
+          question: "Kann ich ein passwortgeschütztes PDF teilen?",
+          answer:
+            "Ja. Wählen Sie den geschützten Link: Der Empfänger erhält eine E-Mail ohne Anhang und gibt das Passwort auf Guteneo ein, ohne ein Konto zu erstellen. Die Bereitstellung kostet 1 € pro Dokument zusätzlich zur E-Mail. Teilen Sie das Passwort über einen anderen Kanal mit. Der Link läuft nach der gewählten Dauer ab und kann widerrufen werden; heruntergeladene Kopien bleiben zugänglich. Diese Option schützt den Zugriff und ist keine Ende-zu-Ende-Verschlüsselung.",
+        },
+        {
           question: "Kann mein Assistent ohne meine Zustimmung versenden?",
           answer:
             "Standardmäßig bereitet Ihr Assistent die Sendung vor und Sie geben Dokument, Empfänger, Kanal und Kosten in Guteneo frei. Eine Zustimmung im Gespräch ersetzt diese Freigabe nicht. Der Expertenmodus ist optional: Nur ein Administrator kann eine begrenzte, widerrufbare Delegation mit Ablaufdatum erteilen.",
@@ -255,9 +260,9 @@ export const de: Copy = {
     textHelp: "Die Textversion ist Teil des freigegebenen Inhalts.",
     attachment: "PDF-Anhang (optional)",
     none: "Ohne Anhang",
-    ceiling: "Kostenobergrenze dieser Sendung in Eurocent",
+    ceiling: "Höchstbetrag für diesen Versand (€)",
     ceilingHelp:
-      "Nur ganze Zahlen. Die Obergrenze wird zusammen mit Inhalt und Einstellungen geprüft.",
+      "Ihr Versand überschreitet diesen Betrag nicht. Der geltende Preis wird vor Ihrer Genehmigung angezeigt.",
     prepare: "Prüfen und vorbereiten",
     preparing: "Wird vorbereitet…",
     reviewTitle: "Bereit zur Freigabe.",
@@ -348,22 +353,28 @@ export const de: Copy = {
     inspect: "Kampagne ansehen",
   },
   claudeConnect: {
-    "connect": "Mit Claude verbinden",
-    "prerequisite": "Erstellen Sie zuerst Ihr Guteneo-Konto, bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich hier einmal an.",
-    "account": "Mein Guteneo-Konto öffnen",
-    "clientId": "Öffentliche Kennung zum Einfügen in Claude",
-    "publicId": "Diese Kennung wird von Guteneo-Nutzern gemeinsam verwendet. Sie ist kein Passwort.",
-    "copy": "Kennung kopieren",
-    "copied": "Kennung kopiert.",
-    "copyFallback": "Automatisches Kopieren ist nicht verfügbar. Markieren Sie die Kennung im Feld oben und kopieren Sie sie.",
-    "linkHelp": "Öffnet Claude in einem neuen Tab mit bereits eingetragenem Guteneo-Namen und Serveradresse.",
-    "unavailable": "Die Verbindung ist auf guteneo.com verfügbar. In dieser Vorschau und der lokalen Entwicklung ist sie deaktiviert.",
-    "steps": [
+    connect: "Mit Claude verbinden",
+    prerequisite:
+      "Erstellen Sie zuerst Ihr Guteneo-Konto, bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich hier einmal an.",
+    account: "Mein Guteneo-Konto öffnen",
+    clientId: "Öffentliche Kennung zum Einfügen in Claude",
+    publicId:
+      "Diese Kennung wird von Guteneo-Nutzern gemeinsam verwendet. Sie ist kein Passwort.",
+    copy: "Kennung kopieren",
+    copied: "Kennung kopiert.",
+    copyFallback:
+      "Automatisches Kopieren ist nicht verfügbar. Markieren Sie die Kennung im Feld oben und kopieren Sie sie.",
+    linkHelp:
+      "Öffnet Claude in einem neuen Tab mit bereits eingetragenem Guteneo-Namen und Serveradresse.",
+    unavailable:
+      "Die Verbindung ist auf guteneo.com verfügbar. In dieser Vorschau und der lokalen Entwicklung ist sie deaktiviert.",
+    steps: [
       "Wählen Sie im Claude-Formular „Use your own OAuth client“ (eigenen OAuth-Client verwenden).",
       "Fügen Sie die öffentliche Kennung oben in „Client ID“ ein. Lassen Sie „Client secret“ leer und fügen Sie den Konnektor hinzu.",
-      "Verbinden Sie Ihr eigenes Guteneo-Konto und prüfen Sie die angeforderten Berechtigungen. Aktivieren Sie Guteneo anschließend in Ihrer Unterhaltung."
+      "Verbinden Sie Ihr eigenes Guteneo-Konto und prüfen Sie die angeforderten Berechtigungen. Aktivieren Sie Guteneo anschließend in Ihrer Unterhaltung.",
     ],
-    "reconnect": "Verbinden Sie Ihr Konto nach Ablauf erneut in den Konnektoreinstellungen von Claude. Wenn Sie den Zugriff in Guteneo widerrufen haben, ordnen Sie den Assistenten unter „Assistent verbinden“ zuerst erneut Ihrer Organisation zu und verbinden Sie ihn dann in Claude."
+    reconnect:
+      "Verbinden Sie Ihr Konto nach Ablauf erneut in den Konnektoreinstellungen von Claude. Wenn Sie den Zugriff in Guteneo widerrufen haben, ordnen Sie den Assistenten unter „Assistent verbinden“ zuerst erneut Ihrer Organisation zu und verbinden Sie ihn dann in Claude.",
   },
   connection: {
     title: "Das Gespräch geht hier weiter.",

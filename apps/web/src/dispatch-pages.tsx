@@ -973,7 +973,9 @@ export function PrepareDispatch({
           {!isPublicPreview && (
             <Field
               label={msg("Ou importer un PDF")}
-              hint={msg("Votre fichier est vérifié ici, sans quitter la préparation.")}
+              hint={msg(
+                "Votre fichier est vérifié ici, sans quitter la préparation.",
+              )}
             >
               <input
                 type="file"
@@ -992,7 +994,9 @@ export function PrepareDispatch({
             >
               {uploadedDocument?.id === documentId
                 ? msg(analysisOf(uploadedDocument).message)
-                : msg("Ce PDF doit être vérifié avant de préparer l’envoi.")}{" "}
+                : msg(
+                    "Ce PDF doit être vérifié avant de préparer l’envoi.",
+                  )}{" "}
               <a
                 href={`#/app/documents?document=${encodeURIComponent(documentId)}`}
               >
@@ -1045,8 +1049,9 @@ export function PrepareDispatch({
           </Field>
           {channel === "email" && !simulation && selectedSender && (
             <p className="field-hint">
-              Envoyé par Guteneo. Les réponses du destinataire arrivent à votre
-              adresse e-mail vérifiée.
+              {msg(
+                "Envoyé par Guteneo. Les réponses du destinataire arrivent à votre adresse e-mail vérifiée.",
+              )}
             </p>
           )}
           <div className="form-divider" />

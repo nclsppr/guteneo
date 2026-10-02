@@ -1,5 +1,21 @@
 # Preuves Resend et documents protégés
 
+## Intégration du 2 octobre 2026
+
+Le code Resend et les liens protégés sont réconciliés avec le site français,
+anglais, allemand et luxembourgeois, l’API native et les corrections du tableau
+de bord. Les migrations ajoutées sont désormais `0039_resend_email_transport.sql`,
+`0040_protected_documents.sql` et `0041_prepare_only_accounts.sql`, après les
+sessions natives 0037 et la préférence personnelle 0038. Les migrations déjà
+appliquées ne sont pas modifiées.
+
+La configuration de publication conserve `LIVE_SEND_CHANNELS=fax,postal` et
+`RESEND_SENDS_ENABLED=false`. Le choix de fournisseur Resend ne donne donc aucune
+autorisation d’envoi e-mail. Le paquet 0.3.1 conserve l’identité technique de
+l’application existante et l’accueil préparé dans la PR 34. Les observations de
+portail du 2 octobre restent historiques ; cette intégration ne constitue aucune
+nouvelle soumission, connexion reviewer ou livraison réelle.
+
 ## Candidat du 21 septembre 2026
 
 Le candidat est suivi dans [la PR #27](https://github.com/nclsppr/guteneo/pull/27),

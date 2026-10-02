@@ -20,9 +20,14 @@ export function getCustomerPricing(): { rates: CustomerRate[]; note: string } {
         scope: msg("Un destinataire, avec ou sans PDF joint"),
         prices: [
           { amount: msg("≈ 1,56 €"), unit: msg("pour 1 000 e-mails") },
-          { amount: msg("1 €"), unit: msg("par document hébergé avec mot de passe, en option") },
+          {
+            amount: msg("1 €"),
+            unit: msg("par document hébergé avec mot de passe, en option"),
+          },
         ],
-        supplement: msg("Le PDF joint n’ajoute pas de supplément de transport. L’option de lien protégé remplace la pièce jointe ; son hébergement s’ajoute au prix de l’e-mail. Montants hors taxes."),
+        supplement: msg(
+          "Le PDF joint n’ajoute pas de supplément de transport. L’option de lien protégé remplace la pièce jointe ; son hébergement s’ajoute au prix de l’e-mail. Montants hors taxes.",
+        ),
       },
       {
         id: "fax",

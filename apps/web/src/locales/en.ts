@@ -86,6 +86,11 @@ export const en: Copy = {
             "Your imported PDF is kept exactly as it is. If you compose a letter with your assistant, a new document is created. You can review it before preparing its dispatch.",
         },
         {
+          question: "Can I share a password-protected PDF?",
+          answer:
+            "Yes. Choose the protected-link option: the recipient receives an email without an attachment, then enters the password on Guteneo without creating an account. Hosting costs €1 per document, in addition to the email. Share the password through another channel. The link expires after the selected period and can be revoked; downloaded copies remain accessible. This option protects access and is not end-to-end encryption.",
+        },
+        {
           question: "Can my assistant send without my approval?",
           answer:
             "By default, your assistant prepares the dispatch and you approve the document, recipient, channel and cost in Guteneo. Agreement given in the conversation does not replace this approval. Expert mode is optional: only an administrator can authorise a limited, revocable delegation with an expiry date.",
@@ -254,9 +259,9 @@ export const en: Copy = {
     textHelp: "The text version is part of the approved content.",
     attachment: "PDF attachment (optional)",
     none: "No attachment",
-    ceiling: "Spending limit for this dispatch, in euro cents",
+    ceiling: "Spending limit for this dispatch (€)",
     ceilingHelp:
-      "Whole numbers only. The limit is checked together with the content and settings.",
+      "Your dispatch will not exceed this amount. The applicable price is shown before your approval.",
     prepare: "Check and prepare",
     preparing: "Preparing…",
     reviewTitle: "Ready for your approval.",
@@ -344,22 +349,28 @@ export const en: Copy = {
     inspect: "View campaign",
   },
   claudeConnect: {
-    "connect": "Connect to Claude",
-    "prerequisite": "First, create your Guteneo account, verify your email address and sign in here once.",
-    "account": "Open my Guteneo account",
-    "clientId": "Public identifier to paste into Claude",
-    "publicId": "This identifier is shared by Guteneo users. It is not a password.",
-    "copy": "Copy identifier",
-    "copied": "Identifier copied.",
-    "copyFallback": "Automatic copying is unavailable. Select the identifier in the field above and copy it.",
-    "linkHelp": "Opens Claude in a new tab with the Guteneo name and server address already filled in.",
-    "unavailable": "Connection is available on guteneo.com. It is disabled in this preview and local development.",
-    "steps": [
+    connect: "Connect to Claude",
+    prerequisite:
+      "First, create your Guteneo account, verify your email address and sign in here once.",
+    account: "Open my Guteneo account",
+    clientId: "Public identifier to paste into Claude",
+    publicId:
+      "This identifier is shared by Guteneo users. It is not a password.",
+    copy: "Copy identifier",
+    copied: "Identifier copied.",
+    copyFallback:
+      "Automatic copying is unavailable. Select the identifier in the field above and copy it.",
+    linkHelp:
+      "Opens Claude in a new tab with the Guteneo name and server address already filled in.",
+    unavailable:
+      "Connection is available on guteneo.com. It is disabled in this preview and local development.",
+    steps: [
       "In the Claude form, choose “Use your own OAuth client”.",
       "Paste the public identifier above into “Client ID”. Leave “Client secret” empty, then add the connector.",
-      "Connect your own Guteneo account and review the requested permissions. Then enable Guteneo in your conversation."
+      "Connect your own Guteneo account and review the requested permissions. Then enable Guteneo in your conversation.",
     ],
-    "reconnect": "After expiry, reconnect your account in Claude’s connector settings. If you revoked access in Guteneo, first associate the assistant with your organization again under “Connect an assistant”, then reconnect in Claude."
+    reconnect:
+      "After expiry, reconnect your account in Claude’s connector settings. If you revoked access in Guteneo, first associate the assistant with your organization again under “Connect an assistant”, then reconnect in Claude.",
   },
   connection: {
     title: "The conversation continues here.",

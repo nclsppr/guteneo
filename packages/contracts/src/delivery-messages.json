@@ -9,11 +9,7 @@
     "Ohne eigenes HTML wird Ihre Nachricht automatisch formatiert. Die Nachricht oben bleibt die barrierefreie Textversion.",
     "Ouni eegent HTML gëtt Äre Message automatesch formatéiert. De Message uewen bleift déi zougänglech Textversioun."
   ],
-  "Bientôt": [
-    "Coming soon",
-    "Demnächst",
-    "Geschwënn"
-  ],
+  "Bientôt": ["Coming soon", "Demnächst", "Geschwënn"],
   "Une liste, tous vos destinataires.": [
     "One list, all your recipients.",
     "Eine Liste, alle Ihre Empfänger.",
@@ -29,11 +25,7 @@
     "Später kann jeder Empfänger seine Dokumente in einem eigenen passwortgeschützten Konto finden.",
     "Spéider kann all Empfänger seng Dokumenter a sengem eegene passwuertgeschützte Kont fannen."
   ],
-  "Accès au PDF": [
-    "PDF access",
-    "PDF-Zugriff",
-    "Zougang zum PDF"
-  ],
+  "Accès au PDF": ["PDF access", "PDF-Zugriff", "Zougang zum PDF"],
   "Envoyer un lien protégé par mot de passe": [
     "Send a password-protected link",
     "Passwortgeschützten Link senden",
@@ -44,26 +36,10 @@
     "1 € pro bereitgestelltem Dokument, zusätzlich zum E-Mail-Versand.",
     "1 € pro gehostem Dokument, zousätzlech zum E-Mail-Versand."
   ],
-  "Expiration du lien": [
-    "Link expiry",
-    "Ablauf des Links",
-    "Oflaf vum Link"
-  ],
-  "Après 1 jour": [
-    "After 1 day",
-    "Nach 1 Tag",
-    "No 1 Dag"
-  ],
-  "Après 7 jours": [
-    "After 7 days",
-    "Nach 7 Tagen",
-    "No 7 Deeg"
-  ],
-  "Après 30 jours": [
-    "After 30 days",
-    "Nach 30 Tagen",
-    "No 30 Deeg"
-  ],
+  "Expiration du lien": ["Link expiry", "Ablauf des Links", "Oflaf vum Link"],
+  "Après 1 jour": ["After 1 day", "Nach 1 Tag", "No 1 Dag"],
+  "Après 7 jours": ["After 7 days", "Nach 7 Tagen", "No 7 Deeg"],
+  "Après 30 jours": ["After 30 days", "Nach 30 Tagen", "No 30 Deeg"],
   "L’e-mail contient un lien, sans pièce jointe. Le destinataire saisit le mot de passe sans créer de compte. Vous pourrez copier ce mot de passe à la prochaine étape et le transmettre par un autre canal.": [
     "The email contains a link, with no attachment. The recipient enters the password without creating an account. You can copy this password at the next step and share it through another channel.",
     "Die E-Mail enthält einen Link ohne Anhang. Der Empfänger gibt das Passwort ohne Kontoerstellung ein. Sie können das Passwort im nächsten Schritt kopieren und über einen anderen Kanal mitteilen.",
@@ -134,21 +110,13 @@
     "Dokumentpasswort",
     "Passwuert vum Dokument"
   ],
-  "Copié": [
-    "Copied",
-    "Kopiert",
-    "Kopéiert"
-  ],
+  "Copié": ["Copied", "Kopiert", "Kopéiert"],
   "Copier le mot de passe": [
     "Copy the password",
     "Passwort kopieren",
     "Passwuert kopéieren"
   ],
-  "Masquer": [
-    "Hide",
-    "Ausblenden",
-    "Verstoppen"
-  ],
+  "Masquer": ["Hide", "Ausblenden", "Verstoppen"],
   "Mot de passe copié.": [
     "Password copied.",
     "Passwort kopiert.",
@@ -209,16 +177,8 @@
     "Ein Empfänger, mit oder ohne PDF-Anhang",
     "Een Empfänger, mat oder ouni PDF-Unhang"
   ],
-  "≈ 1,56 €": [
-    "≈ €1.56",
-    "≈ 1,56 €",
-    "≈ 1,56 €"
-  ],
-  "1 €": [
-    "€1",
-    "1 €",
-    "1 €"
-  ],
+  "≈ 1,56 €": ["≈ €1.56", "≈ 1,56 €", "≈ 1,56 €"],
+  "1 €": ["€1", "1 €", "1 €"],
   "par document hébergé avec mot de passe, en option": [
     "per optional password-protected hosted document",
     "pro optional bereitgestelltem passwortgeschütztem Dokument",
@@ -259,11 +219,7 @@
     "Das Passwort wurde geprüft. Sie können Ihr PDF ansehen oder herunterladen.",
     "D’Passwuert gouf gepréift. Dir kënnt Äre PDF kucken oder eroflueden."
   ],
-  "Consulter le PDF": [
-    "View the PDF",
-    "PDF ansehen",
-    "PDF kucken"
-  ],
+  "Consulter le PDF": ["View the PDF", "PDF ansehen", "PDF kucken"],
   "Télécharger le PDF": [
     "Download the PDF",
     "PDF herunterladen",
@@ -333,5 +289,107 @@
     "Protected access",
     "Geschützter Zugriff",
     "Geschützten Zougang"
+  ],
+  "Langue": ["Language", "Sprache", "Sprooch"],
+  "Envoyé par Guteneo. Les réponses du destinataire arrivent à votre adresse e-mail vérifiée.": [
+    "Sent by Guteneo. Recipient replies arrive at your verified email address.",
+    "Gesendet von Guteneo. Antworten des Empfängers gehen an Ihre bestätigte E-Mail-Adresse.",
+    "Vu Guteneo geschéckt. Äntwerte vum Empfänger kommen op Är verifizéiert E-Mail-Adress."
+  ],
+  "Ce PDF dépasse la limite de 10 Mo pour l’envoi par e-mail. Choisissez un PDF de 10 Mo maximum.": [
+    "This PDF exceeds the 10 MB email limit. Choose a PDF of at most 10 MB.",
+    "Dieses PDF überschreitet das E-Mail-Limit von 10 MB. Wählen Sie ein PDF mit höchstens 10 MB.",
+    "Dëse PDF iwwerschreit d’E-Mail-Limit vun 10 MB. Wielt e PDF vu maximal 10 MB."
+  ],
+  "Le partage protégé est momentanément indisponible. Vous pouvez conserver ce PDF et réessayer plus tard.": [
+    "Protected sharing is temporarily unavailable. Keep this PDF and try again later.",
+    "Die geschützte Freigabe ist vorübergehend nicht verfügbar. Bewahren Sie das PDF auf und versuchen Sie es später erneut.",
+    "D’geschützt Deelen ass momentan net disponibel. Behaalt dëse PDF a probéiert et méi spéit nach eng Kéier."
+  ],
+  "Le lien protégé est disponible dans votre espace réel. La démonstration ne publie aucun document.": [
+    "Protected links are available in your real workspace. The demonstration publishes no documents.",
+    "Geschützte Links sind in Ihrem echten Arbeitsbereich verfügbar. Die Demo veröffentlicht keine Dokumente.",
+    "Geschützt Linke sinn an Ärem reellen Aarbechtsberäich disponibel. D’Demonstratioun publizéiert keng Dokumenter."
+  ],
+  "Ce partage protégé a expiré, a été révoqué ou n’est plus disponible. Consultez le suivi avant de préparer un nouveau partage.": [
+    "This protected share has expired, been revoked or is no longer available. Check its status before preparing a new share.",
+    "Diese geschützte Freigabe ist abgelaufen, widerrufen oder nicht mehr verfügbar. Prüfen Sie den Status vor einer neuen Freigabe.",
+    "Dëst geschützt Deelen ass ofgelaf, zréckgezunn oder net méi disponibel. Kuckt de Status, ier Dir en neit Deele virbereet."
+  ],
+  "Choisissez une durée de 1, 7 ou 30 jours pour le lien protégé.": [
+    "Choose 1, 7 or 30 days for the protected link.",
+    "Wählen Sie 1, 7 oder 30 Tage für den geschützten Link.",
+    "Wielt 1, 7 oder 30 Deeg fir de geschützte Link."
+  ],
+  "Le service d’e-mail est mal configuré. Contactez l’équipe Guteneo avant de préparer un nouvel envoi.": [
+    "The email service is misconfigured. Contact the Guteneo team before preparing another dispatch.",
+    "Der E-Mail-Dienst ist falsch konfiguriert. Kontaktieren Sie Guteneo vor der Vorbereitung eines neuen Versands.",
+    "Den E-Mail-Déngscht ass falsch konfiguréiert. Kontaktéiert d’Guteneo-Ekipp, ier Dir en neie Versand virbereet."
+  ],
+  "Le raccordement e-mail Resend doit encore être vérifié par l’équipe Guteneo. Cet envoi n’a pas été transmis.": [
+    "The Guteneo team must still verify the Resend email connection. This dispatch was not submitted.",
+    "Die Guteneo-Mitarbeiter müssen die Resend-E-Mail-Anbindung noch prüfen. Dieser Versand wurde nicht übermittelt.",
+    "D’Guteneo-Ekipp muss d’Resend-E-Mail-Verbindung nach iwwerpréiwen. Dëse Versand gouf net iwwermëttelt."
+  ],
+  "Les envois par Resend ne sont pas encore activés. Cet envoi n’a pas été transmis.": [
+    "Resend dispatches are not yet enabled. This dispatch was not submitted.",
+    "Der Resend-Versand ist noch nicht aktiviert. Dieser Versand wurde nicht übermittelt.",
+    "Resend-Versand ass nach net aktivéiert. Dëse Versand gouf net iwwermëttelt."
+  ],
+  "L’adresse d’expédition doit utiliser le domaine guteneo.com vérifié. Faites corriger l’expéditeur avant de préparer un nouvel envoi.": [
+    "The sender address must use the verified guteneo.com domain. Have it corrected before preparing another dispatch.",
+    "Die Absenderadresse muss die verifizierte Domain guteneo.com verwenden. Lassen Sie sie vor einem neuen Versand korrigieren.",
+    "D’Ofsenderadress muss dat verifizéiert Domain guteneo.com benotzen. Loosst den Ofsender korrigéieren, ier Dir en neie Versand virbereet."
+  ],
+  "Les limites d’envoi Resend doivent encore être configurées par l’équipe Guteneo. Cet envoi n’a pas été transmis.": [
+    "The Guteneo team must still configure Resend sending limits. This dispatch was not submitted.",
+    "Die Guteneo-Mitarbeiter müssen die Resend-Versandlimits noch konfigurieren. Dieser Versand wurde nicht übermittelt.",
+    "D’Guteneo-Ekipp muss d’Resend-Versandlimite nach konfiguréieren. Dëse Versand gouf net iwwermëttelt."
+  ],
+  "La capacité d’envoi Resend est atteinte ou son autorisation doit être vérifiée. Cet envoi n’a pas été transmis. Contactez l’équipe Guteneo.": [
+    "Resend sending capacity has been reached or its authorisation needs checking. This dispatch was not submitted. Contact Guteneo.",
+    "Die Resend-Versandkapazität ist erreicht oder die Berechtigung muss geprüft werden. Dieser Versand wurde nicht übermittelt. Kontaktieren Sie Guteneo.",
+    "D’Resend-Versandkapazitéit ass erreecht oder d’Autorisatioun muss iwwerpréift ginn. Dëse Versand gouf net iwwermëttelt. Kontaktéiert Guteneo."
+  ],
+  "Resend limite temporairement les demandes d’envoi. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.": [
+    "Resend is temporarily limiting sending requests. This message was refused; it will not be retried automatically.",
+    "Resend begrenzt vorübergehend Versandanfragen. Diese Nachricht wurde abgelehnt und wird nicht automatisch erneut gesendet.",
+    "Resend limitéiert momentan d’Versandufroen. Dëse Message gouf refuséiert a gëtt net automatesch nees geschéckt."
+  ],
+  "Resend a refusé ce message. Vérifiez son contenu et ses adresses avant de préparer une nouvelle version.": [
+    "Resend refused this message. Check its content and addresses before preparing a new version.",
+    "Resend hat diese Nachricht abgelehnt. Prüfen Sie Inhalt und Adressen vor einer neuen Version.",
+    "Resend huet dëse Message refuséiert. Iwwerpréift säin Inhalt a seng Adressen, ier Dir eng nei Versioun virbereet."
+  ],
+  "La réponse de Resend ne permet pas de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.": [
+    "The Resend response does not confirm the outcome. Do not recreate this dispatch: its status must be checked to avoid a duplicate. Its credit remains reserved.",
+    "Die Resend-Antwort bestätigt das Ergebnis nicht. Erstellen Sie diesen Versand nicht neu: Der Status muss zur Vermeidung eines Duplikats geprüft werden. Sein Guthaben bleibt reserviert.",
+    "D’Resend-Äntwert bestätegt d’Resultat net. Erstellt dëse Versand net nei: Säi Status muss gepréift ginn, fir en Duplikat ze vermeiden. Säi Kredit bleift reservéiert."
+  ],
+  "Message": ["Message", "Nachricht", "Message"],
+  "Le contrôle de capacité du service d’e-mail est temporairement indisponible. Cet envoi n’a pas été transmis.": [
+    "The email capacity check is temporarily unavailable. This dispatch was not submitted.",
+    "Die E-Mail-Kapazitätsprüfung ist vorübergehend nicht verfügbar. Dieser Versand wurde nicht übermittelt.",
+    "D’E-Mail-Kapazitéitskontroll ass momentan net disponibel. Dëse Versand gouf net iwwermëttelt."
+  ],
+  "Resend a refusé l’accès au service d’envoi. L’équipe Guteneo doit vérifier le raccordement avant tout nouvel essai.": [
+    "Resend refused access to the sending service. The Guteneo team must check the connection before another attempt.",
+    "Resend hat den Zugriff auf den Versanddienst abgelehnt. Die Guteneo-Mitarbeiter müssen die Anbindung vor einem neuen Versuch prüfen.",
+    "Resend huet den Zougang zum Versanddéngscht refuséiert. D’Guteneo-Ekipp muss d’Verbindung iwwerpréiwen, ier en neie Versuch gemaach gëtt."
+  ],
+  "La limite quotidienne d’e-mails Resend est atteinte. Ce message a été refusé ; il ne sera pas renvoyé automatiquement.": [
+    "The Resend daily email limit has been reached. This message was refused; it will not be retried automatically.",
+    "Das tägliche Resend-E-Mail-Limit ist erreicht. Diese Nachricht wurde abgelehnt und wird nicht automatisch erneut gesendet.",
+    "Déi deeglech Resend-E-Mail-Limit ass erreecht. Dëse Message gouf refuséiert a gëtt net automatesch nees geschéckt."
+  ],
+  "La limite mensuelle d’e-mails Resend est atteinte. Ce message a été refusé. Contactez l’équipe Guteneo.": [
+    "The Resend monthly email limit has been reached. This message was refused. Contact the Guteneo team.",
+    "Das monatliche Resend-E-Mail-Limit ist erreicht. Diese Nachricht wurde abgelehnt. Kontaktieren Sie Guteneo.",
+    "Déi monatlech Resend-E-Mail-Limit ass erreecht. Dëse Message gouf refuséiert. Kontaktéiert d’Guteneo-Ekipp."
+  ],
+  "Montants indicatifs hors taxes. Tarifs e-mail révisés le 21 septembre 2026 ; fax et courrier vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre atelier connecté ; l’aperçu reste une démonstration sans envoi réel.": [
+    "Indicative amounts excluding tax. Email rates revised on 21 September 2026; fax and post checked on 17 September 2026. Dollar rates converted at the ECB rate of 16 September: €1 = US$1.1537. The applicable price and options appear in the quote before approval. Postal mail is available after setup in your connected workspace; the preview remains a demonstration with no real dispatches.",
+    "Unverbindliche Beträge ohne Steuern. E-Mail-Tarife vom 21. September 2026; Fax und Post am 17. September 2026 geprüft. Dollartarife zum EZB-Kurs vom 16. September umgerechnet: 1 € = 1,1537 US$. Preis und Optionen stehen vor der Genehmigung im Angebot. Postversand ist nach Einrichtung im angemeldeten Arbeitsbereich verfügbar; die Vorschau bleibt eine Demo ohne echte Sendungen.",
+    "Indicativ Beträg ouni Steieren. E-Mail-Tariffer den 21. September 2026 aktualiséiert; Fax a Post de 17. September 2026 gepréift. Dollartariffer mam EZB-Cours vum 16. September ëmgewandelt: 1 € = 1,1537 US$. De gëltege Präis an d’Optioune stinn am Devis virun der Geneemegung. Postversand ass no der Konfiguratioun am ugemellten Aarbechtsberäich disponibel; d’Virschau bleift eng Demonstratioun ouni reelle Versand."
   ]
 }

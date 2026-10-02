@@ -1,4 +1,11 @@
-import { protectedDocumentPage as page } from "./protected-document-page";
+import {
+  protectedDocumentPage as renderPage,
+  protectedDocumentText,
+} from "./protected-document-page";
+import {
+  normalizeLocale,
+  localeFromAcceptLanguage,
+} from "../../../packages/contracts/src/locale";
 import { DomainError, sha256 } from "../../../packages/domain/src/index";
 import type { PreparedProtectedDocument } from "../../../packages/domain/src/protected-documents";
 import { authenticateBrowser, type AuthContext, type AuthEnv } from "./auth";
@@ -408,7 +415,16 @@ export async function handleProtectedDocumentRoute(
   env: ProtectedDocumentsEnv,
   now = new Date().toISOString(),
 ): Promise<Response | null> {
-  const pathname = new URL(request.url).pathname;
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  const locale =
+    normalizeLocale(url.searchParams.get("lang")) ??
+    localeFromAcceptLanguage(request.headers.get("Accept-Language"));
+  const page = (
+    path: string,
+    state: "locked" | "unlocked" | "unavailable",
+    error?: string,
+  ) => renderPage(path, state, error, locale);
   const sensitive =
     /^\/api\/dispatches\/([A-Za-z0-9_-]+)\/protected-document(?:\/(password|revoke))?$/.exec(
       pathname,
@@ -492,7 +508,10 @@ export async function handleProtectedDocumentRoute(
         !(await allowedAttempt(env, `hosting:${row.id}`, window, 10))
       )
         return new Response(
-          "Trop de tentatives. Réessayez dans quinze minutes.",
+          protectedDocumentText(
+            "Trop de tentatives. Réessayez dans quinze minutes.",
+            locale,
+          ),
           { status: 429, headers: { ...safeHeaders, "Retry-After": "900" } },
         );
       const password = await boundedPassword(request);
@@ -530,7 +549,7 @@ export async function handleProtectedDocumentRoute(
         status: 303,
         headers: {
           ...safeHeaders,
-          Location: path,
+          Location: `${path}?lang=${locale}`,
           "Set-Cookie": `${cookieName(env)}=${session}; Path=${path}; HttpOnly; SameSite=Strict; Max-Age=${Math.floor((Date.parse(expiry) - Date.parse(now)) / 1000)}${env.ENVIRONMENT === "local" ? "" : "; Secure"}`,
         },
       });
@@ -538,7 +557,7 @@ export async function handleProtectedDocumentRoute(
     const unlocked = await sessionValid(env, request, row, now);
     if (action === "content" && request.method === "GET") {
       if (!unlocked)
-        return new Response("Accès protégé", {
+        return new Response(protectedDocumentText("Accès protégé", locale), {
           status: 401,
           headers: safeHeaders,
         });

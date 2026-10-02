@@ -6,14 +6,11 @@
   "pluginVersion": "0.3.1",
   "listing": {
     "name": "Guteneo",
-    "shortDescription": "PDFs, estimates and dispatches",
-    "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface is currently in French. No delivery or document certification is guaranteed.",
+    "shortDescription": "PDFs, email and dispatches",
+    "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed.",
     "category": "Productivity",
     "primaryLanguage": "en-US",
-    "supportedLanguages": [
-      "en-US",
-      "fr-FR"
-    ],
+    "supportedLanguages": ["en-US", "fr-FR"],
     "websiteUrl": "https://guteneo.com",
     "supportEmail": "guteneo@pieper.fr",
     "privacyPolicyUrl": "https://guteneo.com/confidentialite/",
@@ -44,15 +41,10 @@
       {
         "locale": "fr-FR",
         "shortDescription": "PDF, devis et suivi des envois",
-        "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est actuellement en français. Aucune livraison ni certification documentaire n’est garantie."
+        "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. L’e-mail reste désactivé jusqu’à la qualification de ses contrôles opérationnels. Le mot de passe du PDF reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Aucune livraison ni certification documentaire n’est garantie."
       }
     ],
-    "serviceInterfaceLanguage": [
-      "fr-FR",
-      "en-GB",
-      "de-DE",
-      "lb-LU"
-    ],
+    "serviceInterfaceLanguage": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
     "capabilities": [
       "Find and import PDFs",
       "Prepare fax and postal mail",
@@ -67,10 +59,7 @@
     "authentication": "oauth",
     "resource": "https://guteneo.com/mcp",
     "authorizationServer": "https://pieper.eu.auth0.com",
-    "readOnlyScopes": [
-      "documents:read",
-      "dispatches:read"
-    ],
+    "readOnlyScopes": ["documents:read", "dispatches:read"],
     "additionalWriteScopes": [
       "documents:write",
       "dispatches:prepare",
@@ -147,13 +136,8 @@
     "sourceDirty": false,
     "mode": "production",
     "urlImport": true,
-    "liveChannels": [
-      "fax"
-    ],
-    "disabledLiveChannels": [
-      "email",
-      "postal"
-    ],
+    "liveChannels": ["fax"],
+    "disabledLiveChannels": ["email", "postal"],
     "chargingEnabled": false,
     "nativeChatGptUi": false,
     "marketplacePublicationVerified": false
@@ -240,18 +224,8 @@
     ]
   },
   "reviewPreparation": {
-    "positiveTestCaseIds": [
-      "P1",
-      "P2",
-      "P3",
-      "P5",
-      "P6"
-    ],
-    "negativeTestCaseIds": [
-      "R1",
-      "R2",
-      "R3"
-    ],
+    "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
+    "negativeTestCaseIds": ["R1", "R2", "R3"],
     "additionalInternalCaseIds": [
       "P4",
       "P7",
@@ -352,13 +326,8 @@
       "applicationVersion": "0.2.0",
       "mode": "production",
       "urlImport": true,
-      "liveChannels": [
-        "fax",
-        "postal"
-      ],
-      "disabledLiveChannels": [
-        "email"
-      ],
+      "liveChannels": ["fax", "postal"],
+      "disabledLiveChannels": ["email"],
       "channelQualification": "Public configuration only; account permissions, destination eligibility and reviewer workflows require separate evidence",
       "expertApprovalAvailable": true,
       "expertApprovalRequiresAccountOptIn": true,
@@ -510,18 +479,8 @@
     }
   ],
   "historicalReviewPreparation": {
-    "positiveTestCaseIds": [
-      "P1",
-      "P2",
-      "P3",
-      "P5",
-      "P6"
-    ],
-    "negativeTestCaseIds": [
-      "R1",
-      "R2",
-      "R3"
-    ],
+    "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
+    "negativeTestCaseIds": ["R1", "R2", "R3"],
     "additionalInternalCaseIds": [
       "P4",
       "P7",
@@ -599,11 +558,7 @@
   },
   "candidateCapabilities": {
     "emailProvider": "resend",
-    "emailModes": [
-      "none",
-      "attachment",
-      "protected_link"
-    ],
+    "emailModes": ["none", "attachment", "protected_link"],
     "passwordAccess": "authenticated_sender_browser_only",
     "reviewerSendingEnabled": false,
     "futureOnly": [

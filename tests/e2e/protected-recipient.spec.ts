@@ -44,10 +44,10 @@ test("recipient opens the protected document without an account or scripts", asy
   expect(writes).toEqual(["password=fictional-document-password"]);
   await expect(
     page.getByRole("link", { name: "Télécharger le PDF" }),
-  ).toHaveAttribute("href", `${path}/content`);
+  ).toHaveAttribute("href", `${path}/content?lang=fr`);
   await expect(
     page.getByRole("link", { name: "Consulter le PDF" }),
-  ).toHaveAttribute("href", `${path}/content?view=1`);
+  ).toHaveAttribute("href", `${path}/content?view=1&lang=fr`);
   await expect(
     page.getByText(/Le PDF téléchargé n’est pas protégé/),
   ).toBeVisible();

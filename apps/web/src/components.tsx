@@ -282,7 +282,9 @@ export function emailErrorMessage(code?: string): string | undefined {
     RESEND_RESPONSE_UNKNOWN:
       "La réponse de Resend ne permet pas de confirmer le résultat. Ne recréez pas cet envoi : le suivi doit être vérifié pour éviter un doublon. Son crédit reste réservé.",
   };
-  return Object.hasOwn(messages, code) ? msg(messages[code]) : sesErrorMessage(code);
+  return Object.hasOwn(messages, code)
+    ? msg(messages[code])
+    : sesErrorMessage(code);
 }
 
 export function sesErrorMessage(code?: string): string | undefined {

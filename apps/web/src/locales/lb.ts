@@ -86,6 +86,11 @@ export const lb: Copy = {
             "Är importéiert PDF-Datei gëtt onverännert versuergt. Wann Dir mat Ärem Assistent e Bréif verfaasst, gëtt en neit Dokument erstallt. Dir kënnt et noliesen, ier Dir d’Sendung virbereet.",
         },
         {
+          question: "Kann ech e passwuertgeschützte PDF deelen?",
+          answer:
+            "Jo. Wielt déi geschützte Linkoptioun: Den Empfänger kritt eng E-Mail ouni Unhang a gëtt d’Passwuert op Guteneo an, ouni e Kont ze erstellen. D’Hosting kascht 1 € pro Dokument zousätzlech zur E-Mail. Deelt d’Passwuert iwwer en anere Kanal mat. De Link leeft no der gewielter Dauer of a kann zréckgezu ginn; erofgeluede Kopie bleiwen zougänglech. Dës Optioun schützt den Zougang an ass keng Enn-zu-Enn-Verschlësselung.",
+        },
+        {
           question: "Kann mäin Assistent ouni meng Zoustëmmung schécken?",
           answer:
             "Standardméisseg bereet Ären Assistent d’Sendung vir an Dir gitt d’Dokument, den Empfänger, de Kanal an d’Käschten a Guteneo fräi. Eng Zoustëmmung am Gespréich ersetzt dës Fräigab net. Den Expertmodus ass fakultativ: Nëmmen en Administrateur kann eng begrenzten, widderruffbar Delegatioun mat engem Verfallsdatum autoriséieren.",
@@ -255,9 +260,9 @@ export const lb: Copy = {
     textHelp: "D’Textversioun gehéiert zum fräiginnene Contenu.",
     attachment: "PDF-Annex (fakultativ)",
     none: "Ouni Annex",
-    ceiling: "Käschtegrenz fir dës Sendung, an Eurocent",
+    ceiling: "Héchstbetrag fir dëse Versand (€)",
     ceilingHelp:
-      "Nëmme ganz Zuelen. D’Grenz gëtt zesumme mam Inhalt an den Astellunge kontrolléiert.",
+      "Äre Versand iwwerschreit dëse Betrag net. De gëltege Präis gëtt virun Ärer Geneemegung gewisen.",
     prepare: "Kontrolléieren a virbereeden",
     preparing: "Gëtt virbereet…",
     reviewTitle: "Prett fir Är Fräigab.",
@@ -348,22 +353,28 @@ export const lb: Copy = {
     inspect: "D’Campagne kucken",
   },
   claudeConnect: {
-    "connect": "Mat Claude verbannen",
-    "prerequisite": "Erstellt fir d’éischt Äre Guteneo-Kont, bestätegt Är E-Mail-Adress a mellt Iech hei eemol un.",
-    "account": "Mäi Guteneo-Kont opmaachen",
-    "clientId": "Ëffentlech Kennung fir a Claude anzefügen",
-    "publicId": "Dës Kennung gëtt vun de Guteneo-Benotzer gedeelt. Si ass kee Passwuert.",
-    "copy": "Kennung kopéieren",
-    "copied": "Kennung kopéiert.",
-    "copyFallback": "Automatescht Kopéieren ass net verfügbar. Wielt d’Kennung am Feld uewen aus a kopéiert se.",
-    "linkHelp": "Mécht Claude an engem neien Tab op, mam Guteneo-Numm an der Serveradress schonn ausgefëllt.",
-    "unavailable": "D’Verbindung ass op guteneo.com verfügbar. Si ass an dëser Virschau an an der lokaler Entwécklung deaktivéiert.",
-    "steps": [
+    connect: "Mat Claude verbannen",
+    prerequisite:
+      "Erstellt fir d’éischt Äre Guteneo-Kont, bestätegt Är E-Mail-Adress a mellt Iech hei eemol un.",
+    account: "Mäi Guteneo-Kont opmaachen",
+    clientId: "Ëffentlech Kennung fir a Claude anzefügen",
+    publicId:
+      "Dës Kennung gëtt vun de Guteneo-Benotzer gedeelt. Si ass kee Passwuert.",
+    copy: "Kennung kopéieren",
+    copied: "Kennung kopéiert.",
+    copyFallback:
+      "Automatescht Kopéieren ass net verfügbar. Wielt d’Kennung am Feld uewen aus a kopéiert se.",
+    linkHelp:
+      "Mécht Claude an engem neien Tab op, mam Guteneo-Numm an der Serveradress schonn ausgefëllt.",
+    unavailable:
+      "D’Verbindung ass op guteneo.com verfügbar. Si ass an dëser Virschau an an der lokaler Entwécklung deaktivéiert.",
+    steps: [
       "Wielt am Claude-Formulaire „Use your own OAuth client“ (Ären eegene OAuth-Client benotzen).",
       "Füügt déi ëffentlech Kennung uewen a „Client ID“ an. Loosst „Client secret“ eidel a füügt de Connector dobäi.",
-      "Verbannt Ären eegene Guteneo-Kont a kontrolléiert déi ugefrote Berechtegungen. Aktivéiert duerno Guteneo an Ärem Gespréich."
+      "Verbannt Ären eegene Guteneo-Kont a kontrolléiert déi ugefrote Berechtegungen. Aktivéiert duerno Guteneo an Ärem Gespréich.",
     ],
-    "reconnect": "Verbannt Äre Kont nom Oflaf nees an de Connector-Astellunge vu Claude. Wann Dir den Zougang a Guteneo zréckgezunn hutt, verbënnt den Assistent fir d’éischt nees mat Ärer Organisatioun ënner „En Assistent verbannen“, an duerno a Claude."
+    reconnect:
+      "Verbannt Äre Kont nom Oflaf nees an de Connector-Astellunge vu Claude. Wann Dir den Zougang a Guteneo zréckgezunn hutt, verbënnt den Assistent fir d’éischt nees mat Ärer Organisatioun ënner „En Assistent verbannen“, an duerno a Claude.",
   },
   connection: {
     title: "D’Gespréich geet hei weider.",

@@ -41,7 +41,9 @@ export function EmailComposer({
         <summary>{msg("Personnaliser la version HTML (facultatif)")}</summary>
         <Field
           label={msg("Version HTML")}
-          hint={msg("Sans HTML personnalisé, votre message est mis en forme automatiquement. Le message ci-dessus reste la version texte accessible.")}
+          hint={msg(
+            "Sans HTML personnalisé, votre message est mis en forme automatiquement. Le message ci-dessus reste la version texte accessible.",
+          )}
         >
           <textarea
             rows={6}
@@ -62,8 +64,16 @@ export function DistributionRoadmap() {
     <div className="distribution-roadmap">
       <span className="eyebrow">{msg("Bientôt")}</span>
       <h3>{msg("Une liste, tous vos destinataires.")}</h3>
-      <p>{msg("L’import de listes de destinataires dans tous les formats et la distribution de PDF, de fichiers Excel et d’autres documents sont prévus. Ces possibilités ne sont pas encore disponibles.")}</p>
-      <p>{msg("Plus tard, chaque destinataire pourra retrouver ses documents dans son propre compte protégé par mot de passe.")}</p>
+      <p>
+        {msg(
+          "L’import de listes de destinataires dans tous les formats et la distribution de PDF, de fichiers Excel et d’autres documents sont prévus. Ces possibilités ne sont pas encore disponibles.",
+        )}
+      </p>
+      <p>
+        {msg(
+          "Plus tard, chaque destinataire pourra retrouver ses documents dans son propre compte protégé par mot de passe.",
+        )}
+      </p>
     </div>
   );
 }
