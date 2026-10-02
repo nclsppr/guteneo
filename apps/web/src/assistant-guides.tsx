@@ -15,6 +15,7 @@ import {
   type AssistantDefinition,
   type AssistantGuideLink,
 } from "./assistant-catalog";
+import { ClaudeConnect } from "./claude-connect";
 import "./assistant-guides.css";
 
 export type AssistantPickerProps = {
@@ -259,6 +260,7 @@ function GuideArticle({
           aria-label={msg("Installation dans {0}", variant.label)}
         >
           <SectionHeading>{msg("Installer par MCP")}</SectionHeading>
+          {assistant.id === "claude" && <ClaudeConnect />}
           <ol className="assistant-guide-steps">
             {variant.steps.map((step, index) => (
               <li key={`${variant.id}-${step.title}`}>

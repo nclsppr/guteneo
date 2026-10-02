@@ -2,6 +2,15 @@
 
 `node scripts/setup-auth0.mjs` prints an offline plan. It performs no Auth0 or Cloudflare request. `--inspect` reads the current Auth0 configuration; `--apply` provisions the reviewed configuration and imports the browser client credentials into Cloudflare. The utility is restricted to the active CLI tenant `pieper.eu.auth0.com` and refuses any other tenant.
 
+Local candidate, 18 September: hosted clients can explicitly opt into rotating,
+expiring refresh tokens with `--refresh-client claudeHosted` (or `chatgpt`) and
+their exact callback, under `--auth-policy verified_email`. Unselected clients
+remain authorization-code-only. The initial code flow still requires S256;
+refresh is separately limited by client, audience, connection and verified user.
+No MFA claim is carried forward by silent renewal. See
+[CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md) for durations, the targeted migration and
+the remaining live proof. This candidate has not activated remote refresh.
+
 ## Renew the official CLI session
 
 The official CLI session was successfully renewed on 17 September 2026. Live inspection found three existing clients (including Parkventory) and no existing Post Login bindings before Guteneo setup. Unsupported API `fields` projections were corrected; they were not authentication failures.

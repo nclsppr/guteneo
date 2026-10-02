@@ -31,6 +31,14 @@ workflow. Its dedicated credential and first hosted publication remain required
 before scheduled activation; see [SCANNER_CI.md](SCANNER_CI.md). Older dated
 release statements below are historical.
 
+Local candidate, 18 September: Claude.ai installation now has a shared button,
+public client-ID copy field and account prerequisites. Explicit hosted OAuth
+refresh uses rotation with 30-day idle and 90-day absolute expiry, while access
+tokens stay capped at one hour. A reviewed, fingerprint-bound Auth0 migration
+targets only the existing Claude client, API offline-access flag and two Guteneo
+Actions. Production publication, Auth0 activation and real refresh proof remain
+pending; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
+
 Local candidate, 17 September: replace the hosted PDF source-domain allowlist
 with public HTTPS imports and runtime-enforced public egress. Local URL imports
 remain disabled; multipart upload remains available. Source refusal and stored

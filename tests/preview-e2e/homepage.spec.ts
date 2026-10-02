@@ -406,3 +406,15 @@ test("decorative birds stop when reduced motion is requested", async ({
     )
     .toBeLessThan(100);
 });
+
+
+test("Claude guide retains a selectable identifier when clipboard access fails", async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", {value: {writeText: async () => {throw new Error("Clipboard unavailable");}}}));
+  await page.goto("/assistants/claude/");
+  await page.getByRole("button", { name: "Copier l’identifiant", exact: true }).click();
+  await expect(page.getByRole("status").filter({hasText:"La copie automatique est indisponible"})).toBeVisible();
+  const client = page.getByLabel("Identifiant public à coller dans Claude");
+  await client.focus();
+  expect(await client.evaluate((input: HTMLInputElement) => input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0))).toBe("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
+  await expect(page.getByRole("button", {name:"Connecter à Claude", exact:true})).toBeDisabled();
+});
