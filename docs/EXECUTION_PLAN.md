@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+2 October separate Horizon branch: EUR30/month credit-funded plan, administrator
+billing gate, private veraPDF PDF/UA/PDF/A checks, shared web/REST/MCP journey
+and four-language publicity preparation. Migrations 0044â€“0045 and a qualified
+private binding are required. Production/publication remain separate.
+Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [HORIZON_PROOF.md](HORIZON_PROOF.md)
+and [HORIZON_LAUNCH.md](HORIZON_LAUNCH.md) before release.
+
 2 October follow-up: five synthetic demonstration templates, owner-only library
 removal (additive migration 0049) and discoverable REST/MCP authoring rules extend
 the local candidate. Existing generated PDFs and history survive removal; see
@@ -10,7 +17,8 @@ with main in an isolated worktree, using additive migrations now numbered 0044â€
 XML sources and per-record delivery channels extend the recovered implementation.
 Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
-The user subsequently authorized coordinated publication; real communication and provider activation remain separate.
+The user subsequently authorized coordinated publication of that templates
+candidate; real communication and provider activation remain separate.
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

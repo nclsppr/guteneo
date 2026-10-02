@@ -4,6 +4,7 @@ export const assistantRecoverySchema = z
   .object({
     action: z.enum([
       "check_document",
+      "check_pdf_validation",
       "check_dispatch",
       "check_mandate",
       "check_postal_setup",
@@ -18,6 +19,7 @@ export const assistantRecoverySchema = z
     tool: z
       .enum([
         "get_document",
+        "get_pdf_validation",
         "get_dispatch_status",
         "get_expert_status",
         "get_postal_setup",
@@ -52,6 +54,29 @@ export function assistantRecovery(
   code: string,
   context?: AssistantRecoveryContext,
 ): AssistantRecovery {
+  if (["PDF_VALIDATION_BUSY", "PDF_VALIDATION_FAILED"].includes(code))
+    return {
+      action: "check_pdf_validation",
+      tool: "get_pdf_validation",
+      retry: "read_only",
+      message:
+        "Conservez le même PDF et la même clé de contrôle. Consultez les rapports enregistrés, sans relancer ni réimporter automatiquement. Un échec du service n’est pas un verdict sur l’accessibilité du PDF.",
+    };
+  if (
+    [
+      "HORIZON_PLAN_REQUIRED",
+      "HORIZON_UNAVAILABLE",
+      "PDF_VALIDATION_QUOTA_EXCEEDED",
+      "PDF_VALIDATOR_CONFIGURATION_REQUIRED",
+    ].includes(code)
+  )
+    return {
+      action: "contact_support",
+      tool: null,
+      retry: "after_change",
+      message:
+        "Expliquez la limite du compte ou du service à la personne. L’assistant ne peut modifier aucun forfait, crédit ou réglage de facturation. Ne réessayez pas automatiquement et ne présentez pas ce refus comme un contrôle du PDF.",
+    };
   if (code === "CONNECTION_REVOKED")
     return {
       action: "reconnect",

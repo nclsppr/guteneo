@@ -1,0 +1,449 @@
+{
+  "Contrôles PDF/UA-1 et PDF/UA-2 pour l’accessibilité": [
+    "PDF/UA-1 and PDF/UA-2 accessibility checks",
+    "PDF/UA-1- und PDF/UA-2-Prüfungen für Barrierefreiheit",
+    "PDF/UA-1- a PDF/UA-2-Kontrolle fir Accessibilitéit"
+  ],
+  "Validation PDF/A-1b, 2b, 3b et 4 pour l’archivage": [
+    "PDF/A-1b, 2b, 3b and 4 archival validation",
+    "PDF/A-1b-, 2b-, 3b- und 4-Validierung für die Archivierung",
+    "PDF/A-1b-, 2b-, 3b- a 4-Validatioun fir d’Archivatioun"
+  ],
+  "Rapports exportables liés à l’empreinte du PDF original": [
+    "Exportable reports linked to the original PDF fingerprint",
+    "Exportierbare Berichte mit dem Fingerabdruck des Original-PDF",
+    "Exportéierbar Rapporten, déi mam Fangerofdrock vum Original-PDF verbonne sinn"
+  ],
+  "Repères de revue humaine et contrôles depuis votre assistant": [
+    "Human review guidance and checks from your assistant",
+    "Hinweise zur menschlichen Prüfung und Kontrollen über Ihren Assistenten",
+    "Hiweiser fir d’mënschlech Iwwerpréiwung a Kontrolle vun Ärem Assistent aus"
+  ],
+  "Gestion de la facturation réservée à l’administrateur": [
+    "Billing management reserved for the administrator",
+    "Rechnungsverwaltung ausschließlich durch den Administrator",
+    "Verwaltung vun der Facturatioun nëmme fir den Administrateur"
+  ],
+  "Forfait Horizon": ["Horizon plan", "Horizon-Tarif", "Horizon-Abonnement"],
+  "Des documents mieux préparés, un atelier mieux équipé.": [
+    "Better prepared documents, a better equipped workspace.",
+    "Besser vorbereitete Dokumente, ein besser ausgestatteter Arbeitsbereich.",
+    "Besser preparéiert Dokumenter, e besser equipéierten Atelier."
+  ],
+  "Bientôt disponible": [
+    "Coming soon",
+    "Bald verfügbar",
+    "Geschwënn disponibel"
+  ],
+  "Résiliation programmée": [
+    "Cancellation scheduled",
+    "Kündigung vorgemerkt",
+    "Kënnegung geplangt"
+  ],
+  "Forfait actif": ["Plan active", "Tarif aktiv", "Abonnement aktiv"],
+  "Forfait souscrit": [
+    "Plan subscribed",
+    "Tarif gebucht",
+    "Abonnement ofgeschloss"
+  ],
+  "Crédit insuffisant au renouvellement": [
+    "Insufficient credit at renewal",
+    "Unzureichendes Guthaben bei Verlängerung",
+    "Net genuch Kredit bei der Erneierung"
+  ],
+  "Sans forfait mensuel": [
+    "No monthly plan",
+    "Kein monatlicher Tarif",
+    "Kee monatlecht Abonnement"
+  ],
+  "Le forfait a été souscrit. Actualisez son état pour consulter votre période.": [
+    "Your plan has been subscribed. Refresh its status to view your period.",
+    "Der Tarif wurde gebucht. Aktualisieren Sie den Status, um den Zeitraum zu sehen.",
+    "D’Abonnement gouf ofgeschloss. Aktualiséiert de Status, fir Är Period ze gesinn."
+  ],
+  "La résiliation a été demandée. Actualisez l’état de votre forfait.": [
+    "Cancellation has been requested. Refresh your plan status.",
+    "Die Kündigung wurde angefordert. Aktualisieren Sie den Tarifstatus.",
+    "D’Kënnegung gouf ugefrot. Aktualiséiert de Status vun Ärem Abonnement."
+  ],
+  "Le renouvellement mensuel a été rétabli.": [
+    "Monthly renewal has been restored.",
+    "Die monatliche Verlängerung wurde wieder aktiviert.",
+    "Déi monatlech Erneierung gouf nees aktivéiert."
+  ],
+  "par mois": ["per month", "pro Monat", "pro Mount"],
+  "Le forfait est prélevé chaque mois sur les crédits disponibles du compte. Les envois consomment leur propre crédit.": [
+    "The plan is deducted each month from the account’s available credits. Sending uses separate credit.",
+    "Der Tarif wird monatlich vom verfügbaren Kontoguthaben abgezogen. Sendungen verbrauchen zusätzliches Guthaben.",
+    "D’Abonnement gëtt all Mount vun de verfügbare Kreditter vum Kont ofgezunn. Sendunge verbrauchen eegene Kredit."
+  ],
+  "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.": [
+    "This offer is being prepared. Subscriptions and PDF checks will open once the service is activated.",
+    "Dieses Angebot wird vorbereitet. Buchung und PDF-Prüfungen werden nach Aktivierung des Dienstes geöffnet.",
+    "Dës Offer gëtt preparéiert. D’Abonnement an d’PDF-Kontrolle ginn no der Aktivatioun vum Service opgemaach."
+  ],
+  "Le service Horizon est indisponible. L’administrateur peut toujours arrêter le renouvellement du forfait.": [
+    "The Horizon service is unavailable. The administrator can still stop the plan’s renewal.",
+    "Der Horizon-Dienst ist nicht verfügbar. Der Administrator kann die Tarifverlängerung weiterhin stoppen.",
+    "Den Horizon-Service ass net disponibel. Den Administrateur kann d’Erneierung vum Abonnement nach ëmmer stoppen."
+  ],
+  "Atelier de simulation : les montants et les droits affichés sont fictifs.": [
+    "Simulation workspace: the displayed amounts and entitlements are fictional.",
+    "Simulationsbereich: Die angezeigten Beträge und Berechtigungen sind fiktiv.",
+    "Simulatiounsatelier: déi ugewisen Zommen a Rechter si fiktiv."
+  ],
+  "Période en cours jusqu’au {0}.": [
+    "Current period ends on {0}.",
+    "Aktueller Zeitraum bis {0}.",
+    "Déi aktuell Period leeft bis {0}."
+  ],
+  "Seul l’administrateur de votre atelier peut souscrire, résilier et gérer la facturation.": [
+    "Only your workspace administrator can subscribe, cancel and manage billing.",
+    "Nur der Administrator Ihres Arbeitsbereichs kann buchen, kündigen und die Rechnungen verwalten.",
+    "Nëmmen den Administrateur vun Ärem Atelier kann abonnéieren, kënnegen an d’Facturatioun verwalten."
+  ],
+  "Crédit disponible : {0}.": [
+    "Available credit: {0}.",
+    "Verfügbares Guthaben: {0}.",
+    "Verfügbare Kredit: {0}."
+  ],
+  "J’accepte le forfait Horizon à {0} par mois, prélevé sur les crédits du compte, avec renouvellement mensuel jusqu’à résiliation.": [
+    "I accept the Horizon plan at {0} per month, deducted from account credits, renewing monthly until cancelled.",
+    "Ich akzeptiere den Horizon-Tarif für {0} pro Monat mit Abbuchung vom Kontoguthaben und monatlicher Verlängerung bis zur Kündigung.",
+    "Ech akzeptéieren d’Horizon-Abonnement fir {0} pro Mount, ofgezunn vun de Kontkreditter, mat monatlecher Erneierung bis zur Kënnegung."
+  ],
+  "La première période est débitée à la souscription. La résiliation arrête le prochain renouvellement.": [
+    "The first period is charged when you subscribe. Cancellation stops the next renewal.",
+    "Der erste Zeitraum wird bei der Buchung abgezogen. Die Kündigung stoppt die nächste Verlängerung.",
+    "Déi éischt Period gëtt beim Ofschloss ofgezunn. D’Kënnegung stoppt déi nächst Erneierung."
+  ],
+  "La période déjà payée est conservée sans nouveau débit. Les prochains renouvellements seront prélevés chaque mois sur les crédits du compte.": [
+    "The paid period is retained without a new charge. Future renewals will be deducted monthly from account credits.",
+    "Der bereits bezahlte Zeitraum bleibt ohne erneute Abbuchung erhalten. Künftige Verlängerungen werden monatlich vom Kontoguthaben abgezogen.",
+    "Déi scho bezuelte Period bleift ouni nei Ofbuchung erhalen. Déi nächst Erneierunge ginn all Mount vun de Kontkreditter ofgezunn."
+  ],
+  "Il faut au moins 30 € de crédits disponibles pour souscrire. Demandez une recharge du compte avant de continuer.": [
+    "You need at least €30 in available credits to subscribe. Request an account top-up before continuing.",
+    "Zur Buchung sind mindestens 30 € verfügbares Guthaben erforderlich. Fordern Sie vor dem Fortfahren eine Aufladung an.",
+    "Dir braucht op d’mannst 30 € verfügbare Kredit fir ze abonnéieren. Frot eng Opluedung vum Kont un, ier Dir weiderfuert."
+  ],
+  "Souscription en cours…": [
+    "Subscribing…",
+    "Buchung läuft…",
+    "Abonnement gëtt ofgeschloss…"
+  ],
+  "Souscrire Horizon": [
+    "Subscribe to Horizon",
+    "Horizon buchen",
+    "Horizon abonnéieren"
+  ],
+  "Rétablir le renouvellement": [
+    "Restore renewal",
+    "Verlängerung wieder aktivieren",
+    "Erneierung nees aktivéieren"
+  ],
+  "Résilier le forfait": [
+    "Cancel the plan",
+    "Tarif kündigen",
+    "D’Abonnement kënnegen"
+  ],
+  "La résiliation arrête le prochain prélèvement mensuel, y compris si le service est indisponible.": [
+    "Cancellation stops the next monthly deduction, including when the service is unavailable.",
+    "Die Kündigung stoppt die nächste monatliche Abbuchung, auch wenn der Dienst nicht verfügbar ist.",
+    "D’Kënnegung stoppt déi nächst monatlech Ofbuchung, och wann de Service net disponibel ass."
+  ],
+  "Je confirme l’arrêt du renouvellement mensuel.": [
+    "I confirm stopping monthly renewal.",
+    "Ich bestätige das Ende der monatlichen Verlängerung.",
+    "Ech bestätegen d’Enn vun der monatlecher Erneierung."
+  ],
+  "Confirmer la résiliation": [
+    "Confirm cancellation",
+    "Kündigung bestätigen",
+    "Kënnegung bestätegen"
+  ],
+  "Gérer la facturation": [
+    "Manage billing",
+    "Rechnungen verwalten",
+    "Facturatioun verwalten"
+  ],
+  "Les contrôles automatiques apportent des repères techniques. Ils ne remplacent pas une revue humaine et ne constituent pas une certification de conformité légale.": [
+    "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
+    "Automatische Prüfungen liefern technische Hinweise. Sie ersetzen keine menschliche Prüfung und bescheinigen keine gesetzliche Konformität.",
+    "Automatesch Kontrolle ginn technesch Hiweiser. Si ersetzen keng mënschlech Iwwerpréiwung a si keng Zertifizéierung vun der gesetzlecher Konformitéit."
+  ],
+  "Un forfait mensuel pour contrôler l’accessibilité PDF/UA et l’archivage PDF/A, depuis votre atelier ou votre assistant.": [
+    "A monthly plan to check PDF/UA accessibility and PDF/A archiving from your workspace or assistant.",
+    "Ein monatlicher Tarif für PDF/UA-Barrierefreiheit und PDF/A-Archivierung aus Ihrem Arbeitsbereich oder Assistenten.",
+    "E monatlecht Abonnement fir PDF/UA-Accessibilitéit a PDF/A-Archivatioun aus Ärem Atelier oder Assistent ze kontrolléieren."
+  ],
+  "Découvrir le forfait Horizon": [
+    "Explore the Horizon plan",
+    "Horizon-Tarif entdecken",
+    "D’Horizon-Abonnement entdecken"
+  ],
+  "Que comprennent les contrôles PDF du forfait Horizon ?": [
+    "What do the Horizon plan’s PDF checks include?",
+    "Was umfassen die PDF-Prüfungen im Horizon-Tarif?",
+    "Wat enthalen d’PDF-Kontrolle vum Horizon-Abonnement?"
+  ],
+  "Horizon prévoit les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle pourra être demandé depuis le plugin de votre assistant.": [
+    "Horizon includes PDF/UA-1 and PDF/UA-2, PDF/A-1b, 2b, 3b and 4 checks, reports linked to the original PDF and a manual review checklist. The same check can be requested through your assistant’s plugin.",
+    "Horizon umfasst PDF/UA-1- und PDF/UA-2-, PDF/A-1b-, 2b-, 3b- und 4-Prüfungen, Berichte zum Original-PDF und eine Liste manuell zu prüfender Punkte. Dieselbe Prüfung kann über das Plugin Ihres Assistenten angefordert werden.",
+    "Horizon enthält PDF/UA-1- a PDF/UA-2-, PDF/A-1b-, 2b-, 3b- a 4-Kontrollen, Rapporten zum Original-PDF an eng Lëscht vu Punkten, déi manuell ze iwwerpréiwe sinn. Déiselwecht Kontroll kann iwwer de Plugin vun Ärem Assistent ugefrot ginn."
+  ],
+  "Le forfait de 30 € par mois sera prélevé sur les crédits du compte. Seul l’administrateur pourra souscrire, résilier ou gérer la facturation. L’offre est en préparation.": [
+    "The €30 monthly plan will be deducted from account credits. Only the administrator can subscribe, cancel or manage billing. The offer is being prepared.",
+    "Der Tarif für 30 € pro Monat wird vom Kontoguthaben abgezogen. Nur der Administrator kann buchen, kündigen oder die Rechnungen verwalten. Das Angebot wird vorbereitet.",
+    "D’Abonnement fir 30 € pro Mount gëtt vun de Kontkreditter ofgezunn. Nëmmen den Administrateur kann abonnéieren, kënnegen oder d’Facturatioun verwalten. D’Offer gëtt preparéiert."
+  ],
+  "La loi européenne impose-t-elle des PDF accessibles ?": [
+    "Does European law require accessible PDFs?",
+    "Verlangt europäisches Recht barrierefreie PDFs?",
+    "Verlaangt d’europäescht Gesetz accessibel PDFen?"
+  ],
+  "L’Acte européen sur l’accessibilité, directive (UE) 2019/882, s’applique depuis le 28 juin 2025 à certains produits et services destinés aux consommateurs, dont le commerce électronique. Son périmètre comporte des exceptions, notamment pour les microentreprises qui fournissent des services. Il n’impose pas une obligation universelle à tous les PDF.": [
+    "The European Accessibility Act, Directive (EU) 2019/882, has applied since 28 June 2025 to certain consumer products and services, including e-commerce. Its scope has exceptions, including microenterprises providing services. It does not impose a universal requirement on every PDF.",
+    "Der European Accessibility Act, Richtlinie (EU) 2019/882, gilt seit dem 28. Juni 2025 für bestimmte Produkte und Dienstleistungen für Verbraucher, darunter den elektronischen Handel. Ausnahmen bestehen unter anderem für Kleinstunternehmen, die Dienstleistungen anbieten. Er verpflichtet nicht pauschal alle PDFs.",
+    "Den European Accessibility Act, Direktiv (EU) 2019/882, gëllt zënter dem 28. Juni 2025 fir bestëmmte Produkter a Servicer fir Konsumenten, dorënner den Onlinehandel. Et ginn Ausnamen, besonnesch fir Mikroentreprisen, déi Servicer ubidden. Hie setzt keng allgemeng Flicht fir all PDF fest."
+  ],
+  "La directive (UE) 2016/2102 encadre aussi les sites et applications mobiles du secteur public. Les obligations précises dépendent du service, du document, des exceptions et de la transposition nationale.": [
+    "Directive (EU) 2016/2102 also covers public-sector websites and mobile apps. Exact duties depend on the service, document, exceptions and national implementation.",
+    "Richtlinie (EU) 2016/2102 regelt auch Websites und mobile Anwendungen des öffentlichen Sektors. Die genauen Pflichten hängen vom Dienst, Dokument, den Ausnahmen und der nationalen Umsetzung ab.",
+    "D’Direktiv (EU) 2016/2102 regelt och Websäiten a mobil Applikatioune vum ëffentleche Secteur. Déi genee Flichten hänke vum Service, Dokument, den Ausnamen an der nationaler Ëmsetzung of."
+  ],
+  "Lire la synthèse européenne sur l’accessibilité": [
+    "Read the European accessibility summary",
+    "Europäische Zusammenfassung zur Barrierefreiheit lesen",
+    "D’europäesch Zesummefaassung iwwer Accessibilitéit liesen"
+  ],
+  "Lire les règles applicables au secteur public": [
+    "Read the public-sector rules",
+    "Regeln für den öffentlichen Sektor lesen",
+    "D’Reegele fir den ëffentleche Secteur liesen"
+  ],
+  "Un PDF/A ou un contrôle PDF/UA suffit-il à prouver l’accessibilité ?": [
+    "Does PDF/A or a PDF/UA check prove accessibility?",
+    "Beweist PDF/A oder eine PDF/UA-Prüfung die Barrierefreiheit?",
+    "Beweist PDF/A oder eng PDF/UA-Kontroll d’Accessibilitéit?"
+  ],
+  "PDF/A sert à la conservation à long terme ; PDF/UA porte sur l’accessibilité. Ces objectifs sont distincts. veraPDF vérifie les règles contrôlables automatiquement, mais l’ordre de lecture, la pertinence des alternatives et l’expérience réelle nécessitent une revue humaine. Un rapport favorable ne constitue pas une certification de conformité légale.": [
+    "PDF/A is for long-term preservation; PDF/UA concerns accessibility. These are distinct goals. veraPDF checks rules that can be automated, but reading order, meaningful alternatives and the real experience require human review. A passing report does not certify legal compliance.",
+    "PDF/A dient der Langzeitarchivierung; PDF/UA betrifft die Barrierefreiheit. Diese Ziele sind verschieden. veraPDF prüft automatisierbare Regeln. Lesereihenfolge, sinnvolle Alternativen und die tatsächliche Nutzung erfordern eine menschliche Prüfung. Ein erfolgreicher Bericht bescheinigt keine gesetzliche Konformität.",
+    "PDF/A déngt der laangfristeger Conservatioun; PDF/UA betrëfft d’Accessibilitéit. Dat si verschidden Ziler. veraPDF kontrolléiert automatesch iwwerpréifbar Reegelen, mee d’Liesuerdnung, sënnvoll Alternativen an déi tatsächlech Notzung brauchen eng mënschlech Iwwerpréiwung. E positive Rapport zertifizéiert keng gesetzlech Konformitéit."
+  ],
+  "Consulter la documentation de veraPDF": [
+    "Read the veraPDF documentation",
+    "veraPDF-Dokumentation lesen",
+    "D’veraPDF-Dokumentatioun liesen"
+  ],
+  "Vérifier l’ordre de lecture avec un lecteur d’écran": [
+    "Check reading order with a screen reader",
+    "Lesereihenfolge mit einem Screenreader prüfen",
+    "D’Liesuerdnung mat engem Screenreader iwwerpréiwen"
+  ],
+  "Vérifier la pertinence des textes alternatifs": [
+    "Check that alternative text is meaningful",
+    "Aussagekraft der Alternativtexte prüfen",
+    "D’Pertinenz vun den Alternativtexter iwwerpréiwen"
+  ],
+  "Vérifier les contrastes et la lisibilité": [
+    "Check contrast and readability",
+    "Kontraste und Lesbarkeit prüfen",
+    "Kontraster a Liesbarkeet iwwerpréiwen"
+  ],
+  "Vérifier la navigation au clavier et les formulaires": [
+    "Check keyboard navigation and forms",
+    "Tastaturnavigation und Formulare prüfen",
+    "D’Tastaturnavigatioun an d’Formulairen iwwerpréiwen"
+  ],
+  "Accessibilité et archivage du PDF": [
+    "PDF accessibility and archiving",
+    "PDF-Barrierefreiheit und Archivierung",
+    "Accessibilitéit an Archivatioun vum PDF"
+  ],
+  "PDF/UA contrôle les règles techniques d’accessibilité. PDF/A contrôle la conservation à long terme : un PDF/A n’est pas nécessairement accessible.": [
+    "PDF/UA checks technical accessibility rules. PDF/A checks long-term preservation: a PDF/A is not necessarily accessible.",
+    "PDF/UA prüft technische Regeln zur Barrierefreiheit. PDF/A prüft die Langzeitarchivierung: Ein PDF/A ist nicht automatisch barrierefrei.",
+    "PDF/UA kontrolléiert technesch Reegelen zur Accessibilitéit. PDF/A kontrolléiert déi laangfristeg Conservatioun: e PDF/A ass net onbedéngt accessibel."
+  ],
+  "Le contrôle utilise le PDF original et conserve son empreinte. Il ne modifie pas le document et ne corrige pas automatiquement les erreurs.": [
+    "The check uses the original PDF and retains its fingerprint. It does not change the document or automatically fix errors.",
+    "Die Prüfung verwendet das Original-PDF und bewahrt seinen Fingerabdruck. Sie verändert das Dokument nicht und korrigiert Fehler nicht automatisch.",
+    "D’Kontroll benotzt den Original-PDF a behält säi Fangerofdrock. Si ännert d’Dokument net a korrigéiert Feeler net automatesch."
+  ],
+  "Ce contrôle est inclus dans le forfait Horizon à 30 € par mois.": [
+    "This check is included in the Horizon plan at €30 per month.",
+    "Diese Prüfung ist im Horizon-Tarif für 30 € pro Monat enthalten.",
+    "Dës Kontroll ass am Horizon-Abonnement fir 30 € pro Mount abegraff."
+  ],
+  "Le PDF doit d’abord terminer sa vérification de sécurité avant un contrôle d’accessibilité ou d’archivage.": [
+    "The PDF must first finish its security check before accessibility or archival validation.",
+    "Das PDF muss vor der Prüfung auf Barrierefreiheit oder Archivierung seine Sicherheitsprüfung abschließen.",
+    "De PDF muss fir d’éischt seng Sécherheetskontroll ofschléissen, ier d’Accessibilitéit oder d’Archivatioun kontrolléiert gëtt."
+  ],
+  "Votre rôle permet de consulter les rapports. Demandez à un membre autorisé de lancer un contrôle.": [
+    "Your role allows you to view reports. Ask an authorised member to run a check.",
+    "Ihre Rolle erlaubt das Lesen der Berichte. Bitten Sie ein berechtigtes Mitglied, eine Prüfung zu starten.",
+    "Är Roll erlaabt Iech, Rapporten ze kucken. Frot en autoriséierte Member, eng Kontroll ze starten."
+  ],
+  "Profil de validation": [
+    "Validation profile",
+    "Validierungsprofil",
+    "Validatiounsprofil"
+  ],
+  "Choisissez le standard attendu pour votre document.": [
+    "Choose the standard required for your document.",
+    "Wählen Sie den für Ihr Dokument erforderlichen Standard.",
+    "Wielt de Standard, dee fir Äert Dokument erwaart gëtt."
+  ],
+  "Contrôle en cours…": ["Checking…", "Prüfung läuft…", "Kontroll leeft…"],
+  "Contrôler ce PDF": [
+    "Check this PDF",
+    "Dieses PDF prüfen",
+    "Dëse PDF kontrolléieren"
+  ],
+  "Le contrôle est en cours. Le résultat portera uniquement sur ce PDF et ce profil.": [
+    "The check is running. The result will apply only to this PDF and profile.",
+    "Die Prüfung läuft. Das Ergebnis gilt ausschließlich für dieses PDF und dieses Profil.",
+    "D’Kontroll leeft. D’Resultat gëllt nëmme fir dëse PDF an dëse Profil."
+  ],
+  "Le résultat automatique doit être complété par une revue humaine.": [
+    "The automated result must be supplemented by human review.",
+    "Das automatische Ergebnis muss durch eine menschliche Prüfung ergänzt werden.",
+    "Dat automatescht Resultat muss duerch eng mënschlech Iwwerpréiwung ergänzt ginn."
+  ],
+  "Aucun rapport de validation pour ce PDF.": [
+    "No validation report for this PDF.",
+    "Kein Validierungsbericht für dieses PDF.",
+    "Kee Validatiounsrapport fir dëse PDF."
+  ],
+  "Ce rapport ne correspond pas à l’empreinte du document affiché. Actualisez les rapports.": [
+    "This report does not match the displayed document’s fingerprint. Refresh the reports.",
+    "Dieser Bericht stimmt nicht mit dem Fingerabdruck des angezeigten Dokuments überein. Aktualisieren Sie die Berichte.",
+    "Dëse Rapport entsprécht net dem Fangerofdrock vum ugewisenen Dokument. Aktualiséiert d’Rapporten."
+  ],
+  "Contrôles automatiques réussis": [
+    "Automated checks passed",
+    "Automatische Prüfungen bestanden",
+    "Automatesch Kontrolle bestanen"
+  ],
+  "Écarts techniques détectés": [
+    "Technical issues found",
+    "Technische Abweichungen erkannt",
+    "Technesch Ofwäichunge fonnt"
+  ],
+  "Rapport de simulation : il ne prouve pas la conformité du PDF.": [
+    "Simulation report: it does not prove PDF compliance.",
+    "Simulationsbericht: Er beweist keine PDF-Konformität.",
+    "Simulatiounsrapport: hie beweist net d’Konformitéit vum PDF."
+  ],
+  "Règles réussies": ["Passed rules", "Bestandene Regeln", "Bestane Reegelen"],
+  "Règles en échec": [
+    "Failed rules",
+    "Fehlgeschlagene Regeln",
+    "Net bestane Reegelen"
+  ],
+  "Contrôles en échec": [
+    "Failed checks",
+    "Fehlgeschlagene Prüfungen",
+    "Net bestane Kontrollen"
+  ],
+  "Références des règles à corriger": [
+    "References for rules to fix",
+    "Referenzen der zu korrigierenden Regeln",
+    "Referenze vun de Reegelen, déi ze korrigéiere sinn"
+  ],
+  "Spécification": ["Specification", "Spezifikation", "Spezifikatioun"],
+  "Clause / test": ["Clause / test", "Abschnitt / Test", "Abschnitt / Test"],
+  "La liste affichée est limitée. Le nombre total d’échecs reste indiqué dans le rapport.": [
+    "The displayed list is limited. The report still shows the total failure count.",
+    "Die angezeigte Liste ist begrenzt. Der Bericht zeigt weiterhin die Gesamtzahl der Fehler.",
+    "Déi ugewisen Lëscht ass limitéiert. D’Gesamtzuel vun de Feeler bleift am Rapport uginn."
+  ],
+  "Revue humaine à compléter": [
+    "Human review still required",
+    "Menschliche Prüfung noch erforderlich",
+    "Mënschlech Iwwerpréiwung nach néideg"
+  ],
+  "Ces points restent à vérifier manuellement. Guteneo n’enregistre pas ici d’attestation de revue humaine.": [
+    "These points still need manual review. Guteneo does not record a human review attestation here.",
+    "Diese Punkte müssen noch manuell geprüft werden. Guteneo erfasst hier keine Bestätigung einer menschlichen Prüfung.",
+    "Dës Punkte sinn nach manuell ze iwwerpréiwen. Guteneo registréiert hei keng Bestätegung vun enger mënschlecher Iwwerpréiwung."
+  ],
+  "Un résultat technique favorable n’est ni une certification d’accessibilité ni une garantie de conformité légale.": [
+    "A passing technical result is neither an accessibility certification nor a guarantee of legal compliance.",
+    "Ein erfolgreiches technisches Ergebnis ist weder eine Zertifizierung der Barrierefreiheit noch eine Garantie gesetzlicher Konformität.",
+    "E positive technescht Resultat ass weder eng Accessibilitéitszertifizéierung nach eng Garantie fir gesetzlech Konformitéit."
+  ],
+  "Exporter le rapport JSON": [
+    "Export JSON report",
+    "JSON-Bericht exportieren",
+    "JSON-Rapport exportéieren"
+  ],
+  "Un forfait Horizon actif est nécessaire pour ce contrôle. L’administrateur peut consulter l’offre dans l’atelier.": [
+    "An active Horizon plan is required for this check. The administrator can view the offer in the workspace.",
+    "Für diese Prüfung ist ein aktiver Horizon-Tarif erforderlich. Der Administrator kann das Angebot im Arbeitsbereich ansehen.",
+    "Fir dës Kontroll ass en aktiven Horizon-Abonnement néideg. Den Administrateur kann d’Offer am Atelier kucken."
+  ],
+  "Le forfait Horizon est en préparation. La souscription n’est pas encore ouverte.": [
+    "The Horizon plan is being prepared. Subscriptions are not open yet.",
+    "Der Horizon-Tarif wird vorbereitet. Buchungen sind noch nicht geöffnet.",
+    "D’Horizon-Abonnement gëtt preparéiert. Et kann nach net ofgeschloss ginn."
+  ],
+  "Les conditions du forfait ont changé. Actualisez l’offre avant de confirmer.": [
+    "The plan terms have changed. Refresh the offer before confirming.",
+    "Die Tarifbedingungen haben sich geändert. Aktualisieren Sie das Angebot vor der Bestätigung.",
+    "D’Abonnementsbedéngungen hu sech geännert. Aktualiséiert d’Offer virun der Bestätegung."
+  ],
+  "Le compte ne dispose pas des crédits nécessaires. Actualisez le solde avant de recommencer.": [
+    "The account does not have enough credit. Refresh the balance before trying again.",
+    "Das Konto hat nicht genügend Guthaben. Aktualisieren Sie den Saldo vor einem neuen Versuch.",
+    "De Kont huet net genuch Kredit. Aktualiséiert de Solde, ier Dir nach eng Kéier probéiert."
+  ],
+  "Le service de validation PDF n’est pas encore activé. Votre document est conservé et aucun résultat de conformité n’a été produit.": [
+    "The PDF validation service is not activated yet. Your document is retained and no compliance result has been produced.",
+    "Der PDF-Validierungsdienst ist noch nicht aktiviert. Ihr Dokument bleibt erhalten; ein Konformitätsergebnis wurde nicht erstellt.",
+    "De PDF-Validatiounsservice ass nach net aktivéiert. Äert Dokument bleift gespäichert an et gouf kee Konformitéitsresultat produzéiert."
+  ],
+  "Un contrôle de ce PDF est déjà en cours. Actualisez ses rapports avant de recommencer.": [
+    "A check of this PDF is already running. Refresh its reports before trying again.",
+    "Eine Prüfung dieses PDF läuft bereits. Aktualisieren Sie die Berichte vor einem neuen Versuch.",
+    "Eng Kontroll vun dësem PDF leeft schonn. Aktualiséiert seng Rapporten, ier Dir nach eng Kéier probéiert."
+  ],
+  "La limite de contrôles PDF est atteinte pour cette période. Réessayez plus tard.": [
+    "The PDF check limit for this period has been reached. Try again later.",
+    "Das Limit für PDF-Prüfungen in diesem Zeitraum ist erreicht. Versuchen Sie es später erneut.",
+    "D’Limit vun de PDF-Kontrolle fir dës Period ass erreecht. Probéiert méi spéit nach eng Kéier."
+  ],
+  "Le contrôle n’a pas abouti. Aucun résultat de conformité n’a été produit ; vous pouvez demander un nouveau contrôle.": [
+    "The check did not complete. No compliance result was produced; you can request a new check.",
+    "Die Prüfung konnte nicht abgeschlossen werden. Es wurde kein Konformitätsergebnis erstellt; Sie können eine neue Prüfung anfordern.",
+    "D’Kontroll gouf net ofgeschloss. Et gouf kee Konformitéitsresultat produzéiert; Dir kënnt eng nei Kontroll ufroen."
+  ],
+  "La facturation est disponible aux administrateurs des comptes disposant d’un forfait mensuel actif.": [
+    "Billing is available to administrators of accounts with an active monthly plan.",
+    "Rechnungen sind für Administratoren von Konten mit aktivem Monatstarif verfügbar.",
+    "D’Facturatioun ass fir Administrateure vu Konte mat engem aktive monatlechen Abonnement disponibel."
+  ],
+  "100 contrôles PDF par mois, sans supplément par contrôle": [
+    "100 PDF checks per month, with no per-check surcharge",
+    "100 PDF-Prüfungen pro Monat, ohne Zuschlag je Prüfung",
+    "100 PDF-Kontrolle pro Mount, ouni Zousaz pro Kontroll"
+  ],
+  "Limite incluse : 100 tentatives de contrôle par mois civil, PDF de 10 Mio et 100 pages maximum. Les contrôles interrompus comptent dans cette limite.": [
+    "Included allowance: 100 check attempts per calendar month, PDFs up to 10 MiB and 100 pages. Interrupted checks count towards this limit.",
+    "Enthaltenes Kontingent: 100 Prüfversuche pro Kalendermonat, PDFs bis 10 MiB und 100 Seiten. Abgebrochene Prüfungen zählen zu diesem Limit.",
+    "Abegraffe Limit: 100 Kontrollversich pro Kalennermount, PDFen bis 10 MiB an 100 Säiten. Ënnerbrach Kontrolle zielen an dëser Limit mat."
+  ],
+  "Le mode de cet espace est incompatible.": [
+    "This workspace’s mode is incompatible.",
+    "Der Modus dieses Arbeitsbereichs ist nicht kompatibel.",
+    "De Modus vun dësem Atelier ass net kompatibel."
+  ],
+  "Repérez les obstacles dans vos PDF avant de les partager.": [
+    "Find barriers in your PDFs before sharing them.",
+    "Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen.",
+    "Fannt Barrièren an Äre PDFen, ier Dir se deelt."
+  ]
+}

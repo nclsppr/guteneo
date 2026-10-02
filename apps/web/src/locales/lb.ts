@@ -38,6 +38,7 @@ export const lb: Copy = {
     postal: "Bréifpost",
   },
   nav: {
+    horizon: "Horizon-Abonnement",
     overview: "Iwwersiicht",
     documents: "Dokumenter",
     templates: "Virlagen",

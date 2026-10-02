@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
   "author": {
     "name": "Guteneo"

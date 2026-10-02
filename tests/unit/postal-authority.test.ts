@@ -258,6 +258,20 @@ describe("postal browser authority", () => {
       code: "SESSION_EXPIRED",
     });
   });
+  it("fences CSRF rotation in the same D1 batch as a write", async () => {
+    const session = await browser();
+    const authority = await postalBrowserAuthority(session.request, env);
+    const results = await db.batch([
+      db
+        .prepare("UPDATE browser_sessions SET csrf_token=? WHERE token_hash=?")
+        .bind(randomSecret(), session.tokenHash),
+      write(authority),
+    ]);
+    expect(results[1].meta.changes).toBe(0);
+    await expect(authority.assertCurrent()).rejects.toMatchObject({
+      code: "CSRF_REJECTED",
+    });
+  });
   it.each(["member", "viewer"])(
     "denies a stale admin after demotion to %s",
     async (role) => {

@@ -15,6 +15,11 @@ import {
   distributionInputSchema,
 } from "../../../packages/contracts/src/template-workflow";
 import {
+  pdfValidationInput,
+  pdfValidationReportSchema,
+  type PdfValidationReport,
+} from "../../../packages/contracts/src/pdf-validation";
+import {
   documentAnalysis,
   type DocumentAnalysis,
 } from "../../../packages/contracts/src/document-analysis";
@@ -98,6 +103,18 @@ export interface McpServices {
   workflow?: TemplateWorkflowService;
   afterGeneration?: () => void;
   capabilities: (identity: McpIdentity) => unknown;
+  pdfValidation?: {
+    validate(
+      identity: McpIdentity,
+      documentId: string,
+      input: { profile: "ua1" | "ua2" | "1b" | "2b" | "3b" | "4" },
+      key: string,
+    ): Promise<PdfValidationReport>;
+    list(
+      identity: McpIdentity,
+      documentId: string,
+    ): Promise<{ items: PdfValidationReport[] }>;
+  };
   afterConfirmation?: () => Promise<void>;
   onToolFailure?: (
     code: "AUTH_REJECTED" | "DOMAIN_REJECTED" | "INTERNAL_ERROR",
@@ -1529,6 +1546,56 @@ export function createGuteneoMcpServer(
           documentSuccess,
         ),
     );
+  if (services.pdfValidation) {
+    registerTool(
+      "validate_pdf",
+      {
+        title: "Contrôler les règles PDF/UA ou PDF/A",
+        description:
+          "Sur demande, contrôle un original Guteneo prêt avec veraPDF. Nécessite le forfait Horizon déjà souscrit par un administrateur dans le navigateur et documents:write. Choisir ua1/ua2 pour l’accessibilité ou 1b/2b/3b/4 pour l’archivage. PDF/A ne garantit pas l’accessibilité. Réutiliser la même idempotencyKey après une réponse perdue ; en cas de contrôle en cours, consulter get_pdf_validation sans boucler ni réimporter. Retourne des règles et compteurs liés aux octets exacts. Un résultat favorable couvre seulement les contrôles automatiques ; une vérification humaine reste nécessaire, sans certification ni garantie juridique. Aucun document n’est modifié ni envoyé. Ne souscrit pas, ne renouvelle pas et ne gère pas la facturation.",
+        inputSchema: pdfValidationInput
+          .extend({
+            documentId: id,
+            idempotencyKey: z.string().regex(/^[A-Za-z0-9_-]{8,128}$/),
+          })
+          .strict(),
+        outputSchema: output(pdfValidationReportSchema),
+        annotations: {
+          ...writeAnnotations,
+          idempotentHint: true,
+          destructiveHint: false,
+        },
+        _meta: oauthMetadata("documents:write"),
+      },
+      ({ documentId, profile, idempotencyKey }) =>
+        run("documents:write", () =>
+          services.pdfValidation!.validate(
+            identity,
+            documentId,
+            { profile },
+            idempotencyKey,
+          ),
+        ),
+    );
+    registerTool(
+      "get_pdf_validation",
+      {
+        title: "Lire les rapports PDF/UA et PDF/A",
+        description:
+          "Lit les 50 derniers rapports de contrôle du PDF original de cette organisation. Ne déclenche aucun nouveau contrôle et reste disponible pour les rapports historiques après expiration du forfait. Les contrôles automatiques ne constituent pas une certification ; conserver la distinction entre PDF/A, PDF/UA et vérification humaine. Aucun solde, abonnement ou moyen de paiement n’est modifié.",
+        inputSchema: z.object({ documentId: id }).strict(),
+        outputSchema: output(
+          z.object({ items: z.array(pdfValidationReportSchema) }).strict(),
+        ),
+        annotations: observedReadAnnotations,
+        _meta: oauthMetadata("documents:read"),
+      },
+      ({ documentId }) =>
+        run("documents:read", () =>
+          services.pdfValidation!.list(identity, documentId),
+        ),
+    );
+  }
   registerTool(
     "list_documents",
     {

@@ -1073,7 +1073,7 @@ describe("one shared lifetime promotional credit", () => {
       availableMinor: 4000,
     });
   });
-  it("returns the actual promotional balance without Stripe and denies a forged admin or assistant", async () => {
+  it("retains promotional credits without a plan and restricts billing to a paid browser administrator", async () => {
     await queue(200, 500);
     const env: BillingEnv = {
       DB: db,
@@ -1082,16 +1082,14 @@ describe("one shared lifetime promotional credit", () => {
       APP_ORIGIN: "https://guteneo.example",
     };
     const billing = new BillingService(env);
-    expect(await billing.overview(owner)).toMatchObject({
-      status: "configuration_required",
+    await expect(billing.overview(owner)).rejects.toMatchObject({
+      code: "HORIZON_PLAN_REQUIRED",
+    });
+    expect(await balance()).toMatchObject({
+      grantedMinor: 5000,
+      reservedMinor: 500,
+      availableMinor: 4500,
       topUpAvailable: false,
-      welcomeCredit: {
-        kind: "promotional",
-        grantedMinor: 5000,
-        reservedMinor: 500,
-        availableMinor: 4500,
-        topUpAvailable: false,
-      },
     });
     const stranger = await tenant();
     await expect(

@@ -13,7 +13,6 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { DocumentService, validatePdf } from "../../apps/api/src/documents";
 import { maintainDocuments } from "../../apps/api/src/maintenance";
 import type { Env } from "../../apps/api/src/env";
-import { resetFixtureMemberships } from "../helpers/reset-memberships";
 import {
   DomainService,
   canonicalJson,
@@ -111,6 +110,15 @@ async function acceptDispatch(documentId: string, key: string) {
 }
 
 beforeAll(async () => {
+  original = await pdf("Exact original PDF bytes");
+});
+afterAll(async () => {
+  await mf?.dispose();
+});
+beforeEach(async () => {
+  // Keep immutable financial records and schema guards intact by giving each
+  // test its own disposable database and object store.
+  await mf?.dispose();
   mf = new Miniflare(
     convertV4MiniflareOptions({
       modules: true,
@@ -127,42 +135,6 @@ beforeAll(async () => {
     .filter((name) => name.endsWith(".sql"))
     .sort())
     await applySql(readFileSync(new URL(filename, migrations), "utf8"));
-  original = await pdf("Exact original PDF bytes");
-}, 30_000);
-afterAll(async () => {
-  await mf?.dispose();
-});
-beforeEach(async () => {
-  for (const table of [
-    "document_access_grants",
-    "provider_receipts",
-    "provider_events",
-    "attempts",
-    "outbox",
-    "reservations",
-    "approvals",
-    "idempotency_keys",
-    "audit_log",
-    "dispatches",
-    "campaigns",
-    "documents",
-    "suppressions",
-    "senders",
-    "channel_controls",
-    "usage",
-    "http_limits",
-    "content_usage",
-    "content_limits",
-    "maintenance_state",
-    "memberships",
-    "users",
-    "organizations",
-  ])
-    if (table === "memberships") await resetFixtureMemberships(db);
-    else await db.prepare(`DELETE FROM ${table}`).run();
-  const listing = await bucket.list({ limit: 1000 });
-  if (listing.objects.length)
-    await bucket.delete(listing.objects.map((item) => item.key));
   await applySql(
     readFileSync(new URL("../../scripts/seed.sql", import.meta.url), "utf8"),
   );
@@ -181,7 +153,7 @@ beforeEach(async () => {
   } as Env;
   domain = new DomainService(db, { mode: "simulation" });
   documents = new DocumentService(env, domain);
-});
+}, 30_000);
 
 describe("Document lifecycle — actual Miniflare D1 and R2", () => {
   it("upgrades retained documents without changing existing approvals, reservations or references", async () => {

@@ -1,7 +1,6 @@
-import { beforeAll, afterAll, beforeEach, describe, it, expect } from "vitest";
+import { afterAll, beforeEach, describe, it, expect } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
-import { resetFixtureMemberships } from "../helpers/reset-memberships";
 import {
   DomainService,
   type ActorContext,
@@ -66,7 +65,10 @@ async function applySql(sql: string) {
   if (statement.trim()) throw Error("Incomplete fixture SQL");
 }
 
-beforeAll(async () => {
+beforeEach(async () => {
+  // Retained financial evidence survives tenant deletion; isolate every test
+  // with a disposable database while preserving every deployed schema guard.
+  await mf?.dispose();
   mf = new Miniflare(
     convertV4MiniflareOptions({
       modules: true,
@@ -81,35 +83,11 @@ beforeAll(async () => {
     .filter((name) => name.endsWith(".sql"))
     .sort())
     await applySql(readFileSync(new URL(filename, migrations), "utf8"));
+  await applySql(seed);
+  domain = new DomainService(db, { mode: "simulation" });
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
-});
-beforeEach(async () => {
-  // Child-first cleanup restores the same schema/guards before reinstalling fictional tenants.
-  for (const table of [
-    "provider_events",
-    "attempts",
-    "outbox",
-    "reservations",
-    "approvals",
-    "idempotency_keys",
-    "audit_log",
-    "dispatches",
-    "campaigns",
-    "documents",
-    "suppressions",
-    "senders",
-    "channel_controls",
-    "usage",
-    "memberships",
-    "users",
-    "organizations",
-  ])
-    if (table === "memberships") await resetFixtureMemberships(db);
-    else await db.prepare(`DELETE FROM ${table}`).run();
-  await applySql(seed);
-  domain = new DomainService(db, { mode: "simulation" });
 });
 
 describe("D1 domain invariants — actual local Workers SQLite", () => {

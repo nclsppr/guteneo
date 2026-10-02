@@ -1,5 +1,13 @@
 # Guteneo product contract
 
+2 October separate branch candidate: **guteneo Horizon**, EUR30/month from
+available organization credits after administrator browser consent, adds
+automatic PDF/UA/PDF/A diagnostics, immutable reports/history, JSON export and
+human-review guidance. Billing requires the monthly entitlement and a browser
+administrator. Web, REST and MCP share one service. The four-language offer is
+prepared with activation off; automatic checks are not certification.
+See [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
+
 2 October follow-up: five synthetic demonstration templates, owner-only library
 removal (additive migration 0049) and discoverable REST/MCP authoring rules extend
 the local candidate. Existing generated PDFs and history survive removal; see
@@ -10,7 +18,8 @@ with main in an isolated worktree, using additive migrations now numbered 0044â€
 XML sources and per-record delivery channels extend the recovered implementation.
 Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
-The user subsequently authorized coordinated publication; real communication and provider activation remain separate.
+The user subsequently authorized coordinated publication of that templates
+candidate; real communication and provider activation remain separate.
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

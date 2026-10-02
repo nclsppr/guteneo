@@ -66,6 +66,7 @@ import {
 import type { PostalAddressPageResult } from "../../../packages/contracts/src/postal-address-page";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import { PostalCutoffNotice } from "./postal-cutoff-notice";
+import { PdfValidation } from "./pdf-validation";
 import {
   ChannelLabel,
   ConfirmAction,
@@ -610,6 +611,11 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               <code>{selected.sha256}</code>
             </Definition>
           </dl>
+          <PdfValidation
+            key={selected.id}
+            document={selected}
+            canValidate={canPrepare}
+          />
           {canPrepare && (
             <a
               className={`button primary ${selected.status !== "ready" ? "disabled-link" : ""}`}

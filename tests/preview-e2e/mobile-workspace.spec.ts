@@ -29,7 +29,7 @@ test("mobile navigation exposes every destination and returns focus to the opene
   await toggle.click();
   await expect(nav).toBeVisible();
   const links = nav.getByRole("link");
-  await expect(links).toHaveCount(10);
+  await expect(links).toHaveCount(11);
   for (const link of await links.all()) {
     expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);

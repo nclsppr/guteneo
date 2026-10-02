@@ -15,6 +15,8 @@ export const packageFiles = [
   "mcp.json",
   "plugin.json",
   "skills/email/SKILL.md",
+  "skills/pdf-accessibility/SKILL.md",
+  "skills/pdf-accessibility/agents/openai.yaml",
   "skills/fax-pdf/SKILL.md",
   "skills/fax-pdf/agents/openai.yaml",
   "skills/get-started/SKILL.md",

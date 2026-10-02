@@ -56,6 +56,7 @@ import {
   Admin,
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
+import { HorizonPage } from "./horizon-plan";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { RolePermissionNotice } from "./role-guide";
@@ -90,9 +91,14 @@ export function Landing() {
   useEffect(() => {
     const id = window.location.hash.slice(1);
     if (
-      !["how", "installation", "tarifs", "faq", "postal-cutoff-faq"].includes(
-        id,
-      )
+      ![
+        "how",
+        "installation",
+        "tarifs",
+        "horizon",
+        "faq",
+        "postal-cutoff-faq",
+      ].includes(id)
     )
       return;
     // Restore the fragment target after React replaces the static page,
@@ -500,6 +506,7 @@ const navigation = [
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
+  { id: "horizon", path: "/app/plan", Icon: Check },
   { id: "billing", path: "/app/billing", Icon: Receipt },
   { id: "account", path: "/app/account", Icon: UserCircle },
   { id: "admin", path: "/app/admin", Icon: Wrench },
@@ -778,6 +785,7 @@ function WorkspaceApplication({
       <RolePermissionNotice reports />
     );
   else if (page === "/app/billing") content = <Billing session={session} />;
+  else if (page === "/app/plan") content = <HorizonPage session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
   else if (page === "/app/admin" && !permissions.manageMembers)

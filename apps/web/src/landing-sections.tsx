@@ -6,6 +6,7 @@ import { t } from "./locale";
 import { getCustomerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
 import { PostalCutoffFaq } from "./postal-cutoff-faq";
+import { HorizonFaq, HorizonPublicOffer } from "./horizon-public";
 import "./assistant-workspace.css";
 
 export function scrollToSection(
@@ -140,6 +141,7 @@ export function WelcomePricing() {
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
         <DistributionRoadmap />
+        <HorizonPublicOffer />
       </div>
     </section>
   );
@@ -172,6 +174,7 @@ export function FrequentlyAsked() {
           </details>
         ))}
         <PostalCutoffFaq />
+        <HorizonFaq />
       </div>
     </section>
   );

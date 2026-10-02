@@ -44,6 +44,7 @@ test("public design and every workspace page render without server data or overf
     "connection",
     "senders",
     "usage",
+    "plan",
     "billing",
     "account",
     "admin",
@@ -68,6 +69,15 @@ test("public design and every workspace page render without server data or overf
         path: await evidencePath(`preview/billing-${info.project.name}.png`),
         fullPage: true,
       });
+    }
+    if (route === "plan") {
+      await expect(
+        page.getByText("Bientôt disponible", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Souscrire Horizon" }),
+      ).toHaveCount(0);
+      await expect(page.getByRole("checkbox")).toHaveCount(0);
     }
     expect(
       await page.evaluate(
@@ -124,17 +134,34 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
   await expect(
     page.getByRole("button", { name: "Télécharger le PDF d’exemple" }),
   ).toBeVisible();
+  await expect(page.locator(".pdf-validation")).toContainText(
+    "Cette offre est en préparation",
+  );
+  await expect(
+    page.getByRole("button", { name: "Contrôler ce PDF" }),
+  ).toHaveCount(0);
   for (const path of [
     "/api/dev/login",
     "/api/dispatches",
     "/api/account",
     "/api/billing/customer",
+    "/api/plan/subscribe",
+    "/api/plan/cancel",
+    "/api/documents/preview_document/validation",
     "/api/admin/members/user_atelier/revoke-access",
     "/mcp",
     "/webhooks/telnyx",
   ]) {
     const response = await request.post(path, { data: {} });
     expect(response.status()).toBeGreaterThanOrEqual(400);
+    expect(await response.text()).toContain("PREVIEW_ONLY");
+  }
+  for (const path of [
+    "/api/plan",
+    "/api/documents/preview_document/validation",
+  ]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(403);
     expect(await response.text()).toContain("PREVIEW_ONLY");
   }
 });

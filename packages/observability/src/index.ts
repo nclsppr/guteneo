@@ -215,6 +215,7 @@ export function routeCode(
     return "account";
   if (/^\/api\/billing\/(customer|invoices|payments|portal)$/.test(path))
     return "billing";
+  if (/^\/api\/plan(\/(subscribe|cancel))?$/.test(path)) return "billing";
   if (
     /^\/api\/admin\/(members|scanner\/warm|channels\/(fax|email|postal))$/.test(
       path,
@@ -240,7 +241,7 @@ export function routeCode(
       "generations",
     ],
     [`^/api/distribution-plans/dist_${id}(/resume)?$`, "distribution"],
-    [`^/api/documents/doc_${id}(/(content|rescan))?$`, "documents"],
+    [`^/api/documents/doc_${id}(/(content|rescan|validation))?$`, "documents"],
     [
       `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote))?$`,
       "dispatches",

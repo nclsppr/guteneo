@@ -59,6 +59,13 @@ test("developer guide is SSR-readable and its download is a self-contained contr
     "createPostalAddressPage",
   );
   expect(spec.paths["/api/dispatches/{id}/approve"]).toBeUndefined();
+  expect(spec.paths["/api/documents/{id}/validation"].get.operationId).toBe(
+    "getPdfValidation",
+  );
+  expect(spec.paths["/api/documents/{id}/validation"].post.operationId).toBe(
+    "validatePdf",
+  );
+  expect(spec.paths["/api/plan/subscribe"]).toBeUndefined();
 });
 
 test("Swagger is lazy, does not authorize or execute, and cannot follow query overrides", async ({

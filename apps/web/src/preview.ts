@@ -488,6 +488,27 @@ export function createPreviewApi() {
       return copy(result);
     };
     if (method === "GET") {
+      if (route === "/plan")
+        return {
+          plan: {
+            id: "horizon",
+            name: "guteneo Horizon",
+            priceMinor: 3000,
+            currency: "EUR",
+            interval: "month",
+          },
+          termsVersion: "horizon-2026-10-02-v1",
+          enabled: false,
+          status: "inactive",
+          entitled: false,
+          currentPeriodStart: null,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+          billingManagementAllowed: false,
+          paymentSource: "account_credits",
+          evidence: "simulation",
+          creditAvailableMinor: null,
+        };
       if (route === "/billing")
         return { welcomeCredit: previewCredit(state), topUpAvailable: false };
       if (route === "/documents") return copy(page(state.documents));

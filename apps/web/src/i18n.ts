@@ -40,6 +40,7 @@ export const fr = {
   actions: "Actions",
   channels: { fax: "Fax", email: "E-mail", postal: "Courrier postal" },
   nav: {
+    horizon: "Forfait Horizon",
     overview: "Vue d’ensemble",
     documents: "Documents",
     templates: "Modèles",

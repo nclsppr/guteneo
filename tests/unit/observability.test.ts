@@ -159,6 +159,14 @@ describe("private operational observations", () => {
         new Request(`https://guteneo.com/api/documents/doc_${version}/content`),
       ),
     ).toBe("documents");
+    expect(
+      routeCode(
+        new Request(`https://guteneo.com/api/documents/doc_${version}/validation`),
+      ),
+    ).toBe("documents");
+    expect(
+      routeCode(new Request(`https://guteneo.com/api/plan/subscribe?private=${sentinel}`)),
+    ).toBe("billing");
   });
 
   it("records quote renewal failures without retaining dispatch IDs or query strings", async () => {

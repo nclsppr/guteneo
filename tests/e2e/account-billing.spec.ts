@@ -216,51 +216,37 @@ test("account, members and billing reject a valid assistant bearer and browser w
   expect(unchanged.organization.name).toBe(session.organization.name);
 });
 
-test("billing exposes its actual connection mode and simulation consumption without inventing invoices", async ({
+test("billing stays behind the monthly plan and never invents invoices", async ({
   page,
 }) => {
   await login(page);
   const response = await page.request.get("/api/billing");
-  expect(
-    response.status(),
-    "Billing overview must succeed before reading its fields",
-  ).toBe(200);
-  const overview = (await response.json()) as {
-    status: string;
-    mode: "live" | "test" | "unconfigured";
-    portalAvailable: boolean;
-    usageLedger: { kind: string };
-  };
-  expect(overview.usageLedger.kind).toBe("simulation");
+  expect(response.status()).toBe(402);
+  expect(await response.json()).toMatchObject({
+    error: { code: "HORIZON_PLAN_REQUIRED" },
+  });
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.startsWith("/api/billing")) requests.push(path);
+  });
   await page.goto("/#/app/billing");
   await expect(
     page.getByRole("heading", { name: "Facturation", exact: true }),
   ).toBeVisible();
-  const dossier = page.getByRole("region", {
-    name: "Votre dossier de facturation",
-  });
-  await expect(dossier).toContainText(
-    {
-      live: "COMPTE RÉEL",
-      test: "ENVIRONNEMENT DE TEST",
-      unconfigured: "À RACCORDER",
-    }[overview.mode],
-  );
   await expect(
-    page.getByText("Aucune facture enregistrée pour cet espace."),
+    page.getByRole("heading", { name: "Forfait Horizon", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("Aucun paiement enregistré pour cet espace."),
-  ).toBeVisible();
-  await expect(
-    page.getByText("Aucun abonnement enregistré pour cet espace."),
+    page.getByText("Bientôt disponible", { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Créer mon dossier de facturation" }),
-  ).toHaveCount(overview.status === "customer_required" ? 1 : 0);
+  ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Ouvrir le portail de facturation" }),
-  ).toHaveCount(overview.portalAvailable ? 1 : 0);
+  ).toHaveCount(0);
+  expect(requests).toEqual([]);
   await expect
     .poll(() =>
       page.evaluate(

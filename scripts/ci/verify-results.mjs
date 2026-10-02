@@ -3,6 +3,7 @@ import { resolve, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const requiredJobs = [
+  "pdf-validator",
   "scanner",
   "checks",
   "vitest",

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { DomainError } from "../../../packages/domain/src/index";
 import { readWelcomeCredit } from "../../../packages/domain/src/welcome-credit";
+import { requireHorizonPlan, type HorizonEnv } from "./monthly-plan";
 import {
   authenticateBrowser,
   hashSecret,
@@ -8,7 +9,7 @@ import {
   type AuthContext,
 } from "./auth";
 
-export interface BillingEnv extends AuthEnv {
+export interface BillingEnv extends AuthEnv, HorizonEnv {
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_MODE?: "test" | "live";
@@ -153,6 +154,7 @@ async function requireAdmin(env: BillingEnv, actor: AuthContext) {
       "La facturation est réservée aux administrateurs de l’espace.",
       403,
     );
+  await requireHorizonPlan(env, actor);
 }
 
 export class BillingService {
@@ -335,6 +337,7 @@ export class BillingService {
         "Le rattachement Stripe doit être vérifié par un opérateur.",
         409,
       );
+    await requireAdmin(this.env, actor);
     return { customerLinked: true, mode: this.env.STRIPE_MODE };
   }
 
@@ -398,6 +401,7 @@ export class BillingService {
         "Le portail Stripe reçu est invalide.",
         502,
       );
+    await requireAdmin(this.env, actor);
     return { url: result.data.url };
   }
 }
@@ -416,6 +420,7 @@ export async function handleBillingRoute(
     );
   const mutation = !["GET", "HEAD", "OPTIONS"].includes(request.method);
   const session = await authenticateBrowser(request, env, mutation);
+  await requireAdmin(env, session.context);
   const rate = await env.DB.prepare(
     "INSERT INTO http_limits(organization_id,window_start,count) VALUES(?,?,1) ON CONFLICT(organization_id,window_start) DO UPDATE SET count=count+1 RETURNING count",
   )
@@ -462,8 +467,21 @@ export async function handleBillingRoute(
     } catch {
       fail("VALIDATION_ERROR", "Données invalides.");
     }
-    if (url.pathname.endsWith("customer"))
-      return json(await service.createCustomer(session.context));
+    if (url.pathname.endsWith("customer")) {
+      const result = await service.createCustomer(session.context);
+      const current = await authenticateBrowser(request, env, true);
+      await requireAdmin(env, current.context);
+      if (
+        current.context.organizationId !== session.context.organizationId ||
+        current.context.userId !== session.context.userId
+      )
+        fail(
+          "BILLING_ADMIN_REQUIRED",
+          "La session de facturation a changé.",
+          403,
+        );
+      return json(result);
+    }
     const portal = await service.portal(
       session.context,
       request.headers.get("Idempotency-Key"),
@@ -472,6 +490,7 @@ export async function handleBillingRoute(
     // must take effect before that bearer capability leaves this server.
     const current = await authenticateBrowser(request, env, true);
     await requireAdmin(env, current.context);
+    await requireHorizonPlan(env, current.context);
     if (
       current.context.organizationId !== session.context.organizationId ||
       current.context.userId !== session.context.userId

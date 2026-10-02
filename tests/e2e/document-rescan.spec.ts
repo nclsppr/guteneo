@@ -45,6 +45,37 @@ async function documentFixture(page: Page) {
   let rescans = 0;
   const contentPaths: string[] = [];
   const unexpectedWrites: string[] = [];
+  await page.route("**/api/plan", async (route) => {
+    if (route.request().method() !== "GET") {
+      unexpectedWrites.push(`${route.request().method()} /api/plan`);
+      return route.fulfill({
+        status: 409,
+        json: { error: { code: "UNEXPECTED" } },
+      });
+    }
+    return route.fulfill({
+      json: {
+        plan: {
+          id: "horizon",
+          name: "guteneo Horizon",
+          priceMinor: 3000,
+          currency: "EUR",
+          interval: "month",
+        },
+        termsVersion: "horizon-2026-10-02-v1",
+        enabled: false,
+        status: "inactive",
+        entitled: false,
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        billingManagementAllowed: false,
+        paymentSource: "account_credits",
+        evidence: "simulation",
+        creditAvailableMinor: null,
+      },
+    });
+  });
   await page.route(/\/api\/documents(?:\/[^?]*)?(?:\?.*)?$/, async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
@@ -56,6 +87,14 @@ async function documentFixture(page: Page) {
         },
       });
     }
+    if (
+      [
+        `/api/documents/${document.id}/validation`,
+        `/api/documents/${other.id}/validation`,
+      ].includes(pathname) &&
+      request.method() === "GET"
+    )
+      return route.fulfill({ json: { items: [] } });
     if (
       pathname === `/api/documents/${document.id}` &&
       request.method() === "GET"
@@ -239,7 +278,9 @@ test("legacy quarantine stays manually recoverable with an honest failure and no
   await expect(
     detail.locator(".document-analysis").getByRole("status"),
   ).toContainText("PDF à vérifier");
-  await expect(detail).not.toContainText("automatiquement");
+  await expect(detail.locator(".document-analysis")).not.toContainText(
+    "automatiquement",
+  );
   await expectNotUsable(page);
   await page.clock.fastForward(60_000);
   expect(fixture.reads).toBe(1);
@@ -417,11 +458,9 @@ test("a completed verification remains ready in the library after the detail clo
   ).toContainText("PDF prêt");
   await detailOf(page).getByRole("button", { name: "Fermer" }).click();
   await expect(detailOf(page)).toHaveCount(0);
-  const row = page
-    .getByRole("row")
-    .filter({
-      has: page.getByRole("button", { name: /^Mon document original.pdf/ }),
-    });
+  const row = page.getByRole("row").filter({
+    has: page.getByRole("button", { name: /^Mon document original.pdf/ }),
+  });
   await expect(row).toContainText("PDF prêt");
   await expect(row.getByRole("cell", { name: "1", exact: true })).toHaveCount(
     1,

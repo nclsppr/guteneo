@@ -1,0 +1,19 @@
+{
+  "name": "guteneo-private-pdf-validator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs && python3 -B -m unittest discover -s tests -p 'test_*.py'",
+    "qualify:docker": "python3 -B tests/qualify_docker.py"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260916.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.132.0"
+  }
+}

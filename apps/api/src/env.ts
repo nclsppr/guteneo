@@ -13,6 +13,8 @@ export interface Env {
   APP_ORIGIN: string;
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
+  PDF_VALIDATOR?: Fetcher;
+  HORIZON_ENABLED?: string;
   AUTH0_DOMAIN?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
