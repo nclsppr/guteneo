@@ -46,6 +46,16 @@ runs and successful focused reruns are preserved separately. Exact-commit CI has
 not run. There was no real invitation email, provider activation, remote migration,
 merge or production deployment. Invitation delivery remains disabled by default.
 
+Release qualification for PR #37 subsequently passed **1,577/1,577 Vitest cases**
+and **428 application browser cases**, with four intentional desktop skips, on
+GitHub CI run `37033193788`. Its first attempt remains failed because one iPhone
+preview test clicked a privacy-page anchor while downloaded fonts changed its
+position. The trace identifies the font completion between pointer positioning
+and activation; ten unchanged local repetitions passed. The test now waits for
+`document.fonts.ready` after cross-page navigation, retaining the real click,
+URL-fragment and heading-in-viewport assertions. This readiness correction does
+not change application behavior or suppress the failed attempt.
+
 ## Workspace dashboard corrections — candidate, 25 September 2026
 
 Branch commits `db0cf26`, `19edc3c` and `83ec407` add organization-wide overview counters, server-side dispatch status groups, filtered lists, an attention notice, focus re-reads, euro ceilings, session-expiry recovery, inline confirmations and the legacy PDF.js build. The continuation on the same branch corrects what executing the complete suites showed:
