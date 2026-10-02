@@ -78,8 +78,11 @@ export function useRoute() {
   const [route, setRoute] = useState(readRoute);
   useEffect(() => {
     const update = () => {
-      setRoute(readRoute());
-      window.scrollTo(0, 0);
+      const nextRoute = readRoute();
+      setRoute(nextRoute);
+      // Public document fragments already scroll natively. Only workspace
+      // navigation replaces the page and needs its scroll position reset.
+      if (nextRoute.startsWith("/app")) window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", update);
     // A fragment may change after the first render but before this effect.
