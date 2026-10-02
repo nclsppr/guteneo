@@ -3,8 +3,12 @@
 Les films V5 existent en français, anglais, allemand et luxembourgeois, en
 horizontal et au format iPhone. Une présentation commune des quatre rôles dure
 36 secondes dans chaque langue et réutilise leur conclusion officielle.
-Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters et
-manifeste. FFmpeg, ffprobe et cwebp sont requis. Les sources React, les polices,
+Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters,
+sous-titres narrés et manifeste. Il rend les sources musicales V5/V1 et remixe
+les prises FR/EN Génération 2 du snapshot suivi `narration/releases/fr-en-g2/`
+vers les fichiers actifs V6/V2. Les catalogues, hashes et calages sont qualifiés
+avant toute écriture publique ; le snapshot audio reste immuable. FFmpeg,
+ffprobe et cwebp sont requis. Les sources React, les polices,
 les médias locaux et le verrouillage npm sont conservés ; aucun service distant
 n’est nécessaire. Voir `docs/HOMEPAGE_FILM.md` et `docs/ROLES_FILM.md` à la racine.
 

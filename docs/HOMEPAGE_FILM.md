@@ -23,8 +23,12 @@ au produit doit recevoir ses films et posters avant publication.
 
 Les compositions Remotion localisées conservent les durées, cadrages, animations,
 médias et partition V5. Les scènes de l’interface sont traduites ; le texte
-français de l’oblitération appartient au logo et reste identique. Les fichiers
-français V5 déjà validés sont conservés octet pour octet dans ce candidat.
+français de l’oblitération appartient au logo et reste identique. Le rendu écrit
+ses bases musicales aux chemins V5/V1 de `narration/source-videos.json`. Pour
+FR/EN, il copie et qualifie les 34 MP3 et scripts figés du snapshot
+`narration/releases/fr-en-g2/`, puis ajoute les prises web Génération 2 aux bases
+musicales et écrit les films actifs V6/V2 et leurs sous-titres. Le catalogue
+public ne sert jamais de destination à un rendu instrumental FR/EN seul.
 
 ```sh
 npm --prefix videos/guteneo-film ci
@@ -35,7 +39,9 @@ Une sélection peut être régénérée avec
 `npm run videos:render -- --locales de,lb --kind introduction`, ou avec
 `--kind roles`. FFmpeg, ffprobe et cwebp doivent être disponibles. L’option
 `--skip-existing` ne réutilise un MP4 que si son hash correspond au manifeste
-précédent et que son poster existe. Les masters et la preuve source/export
+précédent, son poster existe et ses sous-titres narrés correspondent aux textes
+et durées qualifiés. Un catalogue, manifeste ou cache narré invalide interrompt
+le rendu avant toute écriture publique. Les masters et la preuve source/export
 restent dans `videos/guteneo-film/out/localized/`, ignoré par Git. Les MP4
 optimisés et les posters sont écrits dans `apps/web/public/videos/` ; les tailles
 et SHA-256 du manifeste serveur sont mis à jour après chaque export vérifié.

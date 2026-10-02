@@ -34,6 +34,12 @@ instrumentales. Voir [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md
 npm run videos:render -- --kind roles
 ```
 
+Cette commande rend les bases musicales V1, puis remixe les voix FR/EN du
+snapshot suivi `narration/releases/fr-en-g2/` vers les exports actifs V2 avec
+leurs sous-titres. Elle ne contacte pas ElevenLabs et ne modifie pas le snapshot.
+La qualification Génération 2, les hashes et le calage précèdent les écritures
+publiques ; un cache invalide bloque le rendu.
+
 Les exports actifs sont `apps/web/public/videos/guteneo-roles-v1-{de,lb}.mp4`
 et `guteneo-roles-v2-{fr,en}.mp4`,
 H.264/AAC stéréo, 1920 × 1080, 30 images/s, avec posters WebP et démarrage rapide.

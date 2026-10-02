@@ -10,7 +10,7 @@ Chaque langue comporte onze phrases de présentation réutilisées dans les deux
 formats et six phrases propres aux rôles. Les trente-quatre reçus de génération
 indiquent `webGeneration: 2`, un hash du MP3 et une durée compatible avec leur
 scène. Les ajustements de durée locaux conservent les mots des fichiers générés.
-Le mix place la voix à −18 LUFS et abaisse la musique à 22 % pendant les phrases.
+Le mix vise −18 LUFS pour la voix et abaisse la musique à 22 % pendant les phrases.
 La musique retrouve son niveau habituel entre les phrases et sur la conclusion.
 Aucun appel à un fournisseur ne se produit pendant la lecture.
 
@@ -43,7 +43,14 @@ propres dans `/videos/guteneo-roles-v2.{fr,en}.vtt`. Le catalogue désigne ces p
 calées sur les clips réellement mixés et disponibles dans les contrôles natifs.
 Les pistes musicales V5 sont conservées pour les sources instrumentales.
 
-Les preuves de mixage et les sources audio sont conservées séparément du dépôt.
+Les 34 sources audio, scripts et reçus nettoyés sont suivis dans le
+[snapshot FR/EN Génération 2](../videos/guteneo-film/narration/releases/fr-en-g2/README.md).
+Le rejeu hors ligne des six candidats depuis ce snapshot a retrouvé exactement
+les SHA-256 ci-dessus. `npm run videos:render` rend les bases musicales V5/V1,
+puis remixe ce snapshot vers les chemins actifs V6/V2 et régénère les pistes VTT
+et le manifeste. Les entrées sont qualifiées avant toute écriture publique ; le
+snapshot reste immuable et aucun appel fournisseur n’est nécessaire.
+Les preuves détaillées de mixage et de revue restent hors du dépôt.
 Les deux langues ont passé un décodage FFmpeg complet et une revue indépendante
 des hashes, paquets vidéo, reçus Génération 2 et fins musicales. Les contrôles
 techniques n'attestent pas une écoute humaine complète ni un téléphone physique.
