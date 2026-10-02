@@ -1,3 +1,5 @@
+import { LanguageSelect } from "./language-select";
+import { msg } from "./messages";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
@@ -10,20 +12,22 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
   return (
     <div className="landing assistants-public">
       <a className="skip-link" href="#assistants-main">
-        Aller au contenu
+        {msg("Aller au contenu")}
       </a>
       <header className="site-header assistants-header">
         <Brand />
-        <nav aria-label="Navigation principale">
+        <LanguageSelect />
+        <nav aria-label={msg("Navigation principale")}>
           <a
             href="/assistants/"
             aria-current={!assistantId ? "page" : undefined}
           >
-            Assistants
+            {msg("Assistants")}
           </a>
-          <a href="/#tarifs">Tarifs</a>
+          <a href="/#tarifs">{msg("Tarifs")}</a>
           <a className="button small" href="/#/app">
-            Mon espace <ArrowUpRight size={16} aria-hidden="true" />
+            {msg("Mon espace ")}
+            <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         </nav>
       </header>
@@ -32,36 +36,40 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
           <>
             <a className="back-link" href="/assistants/">
               <ArrowLeft size={18} aria-hidden="true" />
-              Tous les assistants
+              {msg("Tous les assistants")}
             </a>
             <AssistantGuide assistantId={assistant.id} />
           </>
         ) : assistantId ? (
           <section className="assistants-intro">
-            <h1>Ce guide n’existe pas.</h1>
+            <h1>{msg("Ce guide n’existe pas.")}</h1>
             <p>
-              Retrouvez les instructions pour votre assistant dans le catalogue.
+              {msg(
+                "Retrouvez les instructions pour votre assistant dans le catalogue.",
+              )}
             </p>
             <a className="button primary" href="/assistants/">
-              Choisir mon assistant <ArrowRight size={18} aria-hidden="true" />
+              {msg("Choisir mon assistant ")}
+              <ArrowRight size={18} aria-hidden="true" />
             </a>
           </section>
         ) : (
           <>
             <section className="assistants-intro">
               <h1>
-                Votre assistant.
+                {msg("Votre assistant.")}
                 <br />
-                <em>Votre correspondance.</em>
+                <em>{msg("Votre correspondance.")}</em>
               </h1>
               <p>
-                Connectez votre assistant à Guteneo par MCP. Choisissez votre
-                outil et suivez les étapes pour ajouter le serveur et connecter
-                votre compte.
+                {msg(
+                  "Connectez votre assistant à Guteneo par MCP. Choisissez votre outil et suivez les étapes pour ajouter le serveur et connecter votre compte.",
+                )}
               </p>
               <p className="assistants-intro-note">
-                L’installation par MCP ne nécessite pas de plugin publié.
-                Les guides sont accessibles sans compte.
+                {msg(
+                  "L’installation par MCP ne nécessite pas de plugin publié. Les guides sont accessibles sans compte.",
+                )}
               </p>
             </section>
             <AssistantPicker />
@@ -70,15 +78,17 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
               aria-labelledby="direct-route-title"
             >
               <div>
-                <h2 id="direct-route-title">Vous avez déjà votre document ?</h2>
+                <h2 id="direct-route-title">
+                  {msg("Vous avez déjà votre document ?")}
+                </h2>
                 <p>
-                  Ajoutez-le directement dans Guteneo, choisissez son
-                  destinataire et vérifiez le récapitulatif avant de confirmer.
-                  Aucun assistant n’est nécessaire.
+                  {msg(
+                    "Ajoutez-le directement dans Guteneo, choisissez son destinataire et vérifiez le récapitulatif avant de confirmer. Aucun assistant n’est nécessaire.",
+                  )}
                 </p>
               </div>
               <a className="button" href="/#/app/prepare?entry=direct">
-                Envoyer depuis Guteneo{" "}
+                {msg("Envoyer depuis Guteneo")}{" "}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </section>

@@ -1,5 +1,12 @@
 # Guteneo product contract
 
+22 September local candidate: the website and isolated native iOS candidate support
+French, English, German and Luxembourgish with welcome/profile language controls
+and a shared personal `preferredLocale`. Additive migration 0038 is required
+before server publication. Display choices do not change document bytes, recipient
+input, approval fingerprints or provider options. No production publication or
+App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: postal preparation collects missing sender details in

@@ -58,6 +58,7 @@ beforeAll(async () => {
     "0011_account.sql",
     "0019_verified_account_sessions.sql",
     "0032_connection_tool_observations.sql",
+    "0038_user_locale.sql",
   ]) {
     const sql = await readFile(
       new URL(`../../migrations/${file}`, import.meta.url),
@@ -110,7 +111,7 @@ beforeEach(async () => {
     ...[userId, backup].flatMap((id) => [
       db
         .prepare(
-          "INSERT INTO users VALUES(?,'Fixture','fixture@example.invalid',?)",
+          "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture','fixture@example.invalid',?)",
         )
         .bind(id, now),
       db

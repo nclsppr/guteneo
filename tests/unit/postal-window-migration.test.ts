@@ -328,6 +328,9 @@ it("extends active non-French qualifications without changing history, expiry, r
       code: "LIVE_PRICING_REQUIRED",
     });
   }
+  // The current authenticated handler needs the later profile schema; keep it
+  // separate from the historical migration assertions above.
+  await apply("0038_user_locale.sql");
   await verifyHistoricalRenewal();
   await expect(
     db

@@ -1,3 +1,12 @@
+import { msg } from "./messages";
+import {
+  formatLocale,
+  initializeLocale,
+  setLocale,
+  t,
+  getLocale,
+} from "./locale";
+import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
@@ -5,7 +14,12 @@ import type { DocumentAnalysis } from "../../../packages/contracts/src/document-
 export type Channel = "fax" | "email" | "postal";
 export type Session = {
   organization: { id: string; name: string };
-  user: { id: string; name: string; role: string };
+  user: {
+    id: string;
+    name: string;
+    role: string;
+    preferredLocale?: SupportedLocale | null;
+  };
   csrfToken: string;
   simulation: boolean;
   verifiedAccount?: boolean;
@@ -125,8 +139,18 @@ export async function getDocumentContent(
 }
 
 let csrfToken = "";
-export function setSession(session: Session | null) {
+let sessionUserId: string | null = null;
+export function setSession(session: Session | null, applyPreference = true) {
   csrfToken = session?.csrfToken ?? "";
+  if (applyPreference && session?.user.preferredLocale)
+    setLocale(session.user.preferredLocale, false);
+  else if (
+    applyPreference &&
+    sessionUserId !== (session?.user.id ?? null) &&
+    typeof window !== "undefined"
+  )
+    initializeLocale();
+  sessionUserId = session?.user.id ?? null;
 }
 export class ApiError extends Error {
   constructor(
@@ -156,7 +180,10 @@ export async function api<T>(
       throw error;
     }
   }
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Accept-Language": getLocale(),
+  };
   const method = init.method ?? "GET";
   const form = init.body instanceof FormData;
   if (init.body !== undefined && !form)
@@ -194,7 +221,7 @@ export async function api<T>(
     throw new ApiError(
       failure?.error?.code ?? "HTTP_ERROR",
       failure?.error?.message ??
-        `Le service a répondu avec une erreur (${response.status}).`,
+        msg("Le service a répondu avec une erreur ({0}).", response.status),
       response.status,
     );
   }
@@ -216,7 +243,7 @@ export function recipientLabel(dispatch: Dispatch): string {
   );
 }
 export function date(value?: string): string {
-  if (!value) return "Non disponible";
+  if (!value) return t.unknown;
   const d = new Date(
     value.endsWith("Z") || /[+-]\d\d:\d\d$/.test(value)
       ? value
@@ -226,15 +253,16 @@ export function date(value?: string): string {
   );
   return Number.isNaN(d.getTime())
     ? value
-    : new Intl.DateTimeFormat("fr-FR", {
+    : new Intl.DateTimeFormat(formatLocale(), {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(d);
 }
 export function money(minor: number, currency = "EUR"): string {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(
-    minor / 100,
-  );
+  return new Intl.NumberFormat(formatLocale(), {
+    style: "currency",
+    currency,
+  }).format(minor / 100);
 }
 
 /** Display the frozen quote without rounding each small email to one cent. */
@@ -257,22 +285,30 @@ export function quotedMoney(
 
 /** Preserve the same precision as the shared fractional credit ledger. */
 export function nanoMoney(nano: number): string {
-  if (!Number.isSafeInteger(nano) || nano < 0) return "Indisponible";
+  if (!Number.isSafeInteger(nano) || nano < 0) return t.unknown;
   const amount = BigInt(nano);
-  const whole = new Intl.NumberFormat("fr-FR", {
-    maximumFractionDigits: 0,
-  }).format(amount / 1_000_000_000n);
+  const formatter = new Intl.NumberFormat(formatLocale(), {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+  });
+  const parts = formatter.formatToParts(amount / 1_000_000_000n);
   const fraction = (amount % 1_000_000_000n)
     .toString()
     .padStart(9, "0")
     .replace(/0+$/, "")
     .padEnd(2, "0");
-  return `${whole},${fraction}\u00a0€`;
+  return parts
+    .map((part) => (part.type === "fraction" ? fraction : part.value))
+    .join("");
 }
 export function bytes(size: number): string {
-  return size < 1024
-    ? `${size} octets`
-    : size < 1024 * 1024
-      ? `${(size / 1024).toFixed(1)} Ko`
-      : `${(size / 1024 / 1024).toFixed(1)} Mo`;
+  const units =
+    getLocale() === "fr" ? ["octets", "Ko", "Mo"] : ["B", "KB", "MB"];
+  const index = size < 1024 ? 0 : size < 1024 * 1024 ? 1 : 2;
+  const value = new Intl.NumberFormat(formatLocale(), {
+    minimumFractionDigits: index ? 1 : 0,
+    maximumFractionDigits: index ? 1 : 0,
+  }).format(size / 1024 ** index);
+  return `${value} ${units[index]}`;
 }

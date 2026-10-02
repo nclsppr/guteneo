@@ -7,8 +7,11 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/eb-garamond/latin-400.css";
 import "@fontsource/eb-garamond/latin-500.css";
 import "@fontsource/eb-garamond/latin-400-italic.css";
+import { initializeLocale } from "./locale";
 import { App } from "./App";
 import "./styles.css";
+
+initializeLocale();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

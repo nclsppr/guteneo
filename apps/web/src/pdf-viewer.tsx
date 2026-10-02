@@ -9,7 +9,7 @@ import {
 } from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { PDFDocument, PDFName, PDFNumber, PDFStream } from "pdf-lib";
-import { fr as t } from "./i18n";
+import { t } from "./locale";
 import { getDocumentContent } from "./api";
 
 // Library and worker are bundled from the same pinned dependency; no CDN or

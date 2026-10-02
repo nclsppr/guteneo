@@ -1,3 +1,4 @@
+import { getLocale } from "./locale";
 // Reference hours by recipient country, checked 2026-09-21.
 // Provenance and exceptions: docs/POSTAL_CUTOFFS.md. These are not delivery SLAs.
 export type PostalCutoffRule = {
@@ -30,7 +31,9 @@ export const POSTAL_CUTOFF_SCHEDULE: readonly PostalCutoffRule[] = [
 ];
 
 export const formatCutoffHour = (hour: number) =>
-  `${String(hour).padStart(2, "0")} h 00`;
+  getLocale() === "fr"
+    ? `${String(hour).padStart(2, "0")} h 00`
+    : `${String(hour).padStart(2, "0")}:00`;
 
 export function postalCutoffForCountry(country: string | undefined) {
   const code = country?.trim().toUpperCase();

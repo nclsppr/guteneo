@@ -1,5 +1,8 @@
-import { gutenbergArticle } from "./gutenberg";
-import { luxembourgArticle } from "./luxembourg";
+import { getGutenbergArticle } from "./gutenberg";
+import { getLuxembourgArticle } from "./luxembourg";
 
-export const articles = [gutenbergArticle, luxembourgArticle];
+export const getArticles = () => [
+  getGutenbergArticle(),
+  getLuxembourgArticle(),
+];
 export const articlePath = (slug: string) => `/journal/${slug}/`;

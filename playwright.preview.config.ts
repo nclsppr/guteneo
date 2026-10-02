@@ -18,6 +18,7 @@ export default defineConfig({
     ],
   ],
   use: {
+    locale: "fr-FR",
     baseURL: process.env.GUTENEO_PREVIEW_URL || "http://127.0.0.1:8790",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",

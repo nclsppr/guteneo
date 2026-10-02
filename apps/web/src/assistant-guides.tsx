@@ -1,3 +1,4 @@
+import { msg } from "./messages";
 import { useId, useState } from "react";
 import {
   ArrowRight,
@@ -7,9 +8,9 @@ import {
   DownloadSimple,
 } from "@phosphor-icons/react";
 import {
-  assistantCatalog,
+  getAssistantCatalog,
   assistantEndpoint,
-  assistantReadOnlyPrompt,
+  getAssistantReadOnlyPrompt,
   getAssistant,
   type AssistantDefinition,
   type AssistantGuideLink,
@@ -41,7 +42,8 @@ function AssistantMark({ assistant }: { assistant: AssistantDefinition }) {
     />
   ) : (
     <span className="assistant-brand-wordmark" aria-hidden="true">
-      Microsoft<span>365</span>
+      {msg("Microsoft")}
+      <span>365</span>
     </span>
   );
 }
@@ -49,7 +51,7 @@ function AssistantMark({ assistant }: { assistant: AssistantDefinition }) {
 export function AssistantPicker({
   basePath = "/assistants/",
   selectedId,
-  label = "Choisir votre assistant",
+  label = msg("Choisir votre assistant"),
   className = "",
 }: AssistantPickerProps) {
   const prefix = basePath.endsWith("/") ? basePath : `${basePath}/`;
@@ -57,7 +59,7 @@ export function AssistantPicker({
   return (
     <nav className={`assistant-picker ${className}`} aria-label={label}>
       <ul className="assistant-picker-list">
-        {assistantCatalog.map((assistant) => (
+        {getAssistantCatalog().map((assistant) => (
           <li key={assistant.id}>
             <a
               className="assistant-picker-link"
@@ -140,9 +142,11 @@ function CopyText({
           {label}
         </button>
         <span className="assistant-copy-feedback" id={feedbackId} role="status">
-          {result === "copied" && "Copié."}
+          {result === "copied" && msg("Copié.")}
           {result === "unavailable" &&
-            "La copie automatique est indisponible. Sélectionnez et copiez le texte ci-dessus."}
+            msg(
+              "La copie automatique est indisponible. Sélectionnez et copiez le texte ci-dessus.",
+            )}
         </span>
       </div>
     </div>
@@ -177,18 +181,21 @@ function GuideArticle({
       <header className="assistant-guide-heading">
         <AssistantMark assistant={assistant} />
         <div>
-          <Title id={titleId}>Ajouter Guteneo à {assistant.name}</Title>
+          <Title id={titleId}>
+            {msg("Ajouter Guteneo à ")}
+            {assistant.name}
+          </Title>
           <p>{assistant.description}</p>
         </div>
       </header>
 
       {assistant.variants.length > 1 && (
         <div className="assistant-guide-versions">
-          <p>Quelle version utilisez-vous ?</p>
+          <p>{msg("Quelle version utilisez-vous ?")}</p>
           <div
             className="assistant-guide-version-controls"
             role="group"
-            aria-label={`Choisir la version de ${assistant.name}`}
+            aria-label={msg("Choisir la version de {0}", assistant.name)}
           >
             {assistant.variants.map((item) => (
               <button
@@ -210,11 +217,13 @@ function GuideArticle({
       )}
 
       <div className="assistant-guide-layout">
-        <aside className="assistant-guide-before" aria-label="Prérequis">
-          <SectionHeading>Avant de commencer</SectionHeading>
+        <aside className="assistant-guide-before" aria-label={msg("Prérequis")}>
+          <SectionHeading>{msg("Avant de commencer")}</SectionHeading>
           <ul>
             <li>
-              Un compte Guteneo pour vous identifier lors de la connexion.
+              {msg(
+                "Un compte Guteneo pour vous identifier lors de la connexion.",
+              )}
             </li>
             {variant.prerequisites.map((prerequisite) => (
               <li key={prerequisite}>{prerequisite}</li>
@@ -223,20 +232,23 @@ function GuideArticle({
           {!inDashboard ? (
             <div className="assistant-guide-account">
               <p>
-                Ce guide se consulte sans compte. Retrouvez-le dans votre espace
-                pour poursuivre.
+                {msg(
+                  "Ce guide se consulte sans compte. Retrouvez-le dans votre espace pour poursuivre.",
+                )}
               </p>
               <a
                 className="assistant-guide-account-link"
                 href={`/#/app/connection/${assistant.id}`}
               >
-                Créer ou ouvrir mon espace
+                {msg("Créer ou ouvrir mon espace")}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </div>
           ) : (
             <p className="assistant-guide-account-note">
-              Gardez ce guide ouvert pendant l’ajout dans votre application.
+              {msg(
+                "Gardez ce guide ouvert pendant l’ajout dans votre application.",
+              )}
             </p>
           )}
         </aside>
@@ -244,9 +256,9 @@ function GuideArticle({
         <section
           className="assistant-guide-instructions"
           id={stepsId}
-          aria-label={`Installation dans ${variant.label}`}
+          aria-label={msg("Installation dans {0}", variant.label)}
         >
-          <SectionHeading>Installer par MCP</SectionHeading>
+          <SectionHeading>{msg("Installer par MCP")}</SectionHeading>
           <ol className="assistant-guide-steps">
             {variant.steps.map((step, index) => (
               <li key={`${variant.id}-${step.title}`}>
@@ -267,7 +279,7 @@ function GuideArticle({
                   {step.endpoint && (
                     <CopyText
                       value={assistantEndpoint}
-                      label="Copier l’adresse"
+                      label={msg("Copier l’adresse")}
                     />
                   )}
                   {step.link && <GuideLink link={step.link} />}
@@ -281,20 +293,22 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-verification`}
           >
             <SectionHeading id={`${instanceId}-verification`}>
-              Vérifier la connexion
+              {msg("Vérifier la connexion")}
             </SectionHeading>
             <p>
-              Collez cette demande dans votre assistant pour connaître les
-              possibilités de votre compte, sans préparer d’envoi.
+              {msg(
+                "Collez cette demande dans votre assistant pour connaître les possibilités de votre compte, sans préparer d’envoi.",
+              )}
             </p>
             <CopyText
-              value={assistantReadOnlyPrompt}
-              label="Copier la demande de vérification"
+              value={getAssistantReadOnlyPrompt()}
+              label={msg("Copier la demande de vérification")}
               prose
             />
             <p className="assistant-guide-verification-note">
-              Après une réponse utilisant les outils Guteneo, retrouvez le
-              dernier échange réussi dans « Mes connexions » de votre espace.
+              {msg(
+                "Après une réponse utilisant les outils Guteneo, retrouvez le dernier échange réussi dans « Mes connexions » de votre espace.",
+              )}
             </p>
           </section>
 
@@ -303,12 +317,14 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-plugins`}
           >
             <SectionHeading id={`${instanceId}-plugins`}>
-              Plugin du catalogue
+              {msg("Plugin du catalogue")}
             </SectionHeading>
             <p>
-              Aucun plugin Guteneo n’est publié dans le catalogue de{" "}
-              {assistant.name} pour le moment. Utilisez l’installation par MCP
-              décrite ci-dessus.
+              {msg("Aucun plugin Guteneo n’est publié dans le catalogue de")}{" "}
+              {assistant.name}{" "}
+              {msg(
+                " pour le moment. Utilisez l’installation par MCP décrite ci-dessus.",
+              )}
             </p>
           </section>
 
@@ -317,7 +333,7 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-help`}
           >
             <SectionHeading id={`${instanceId}-help`}>
-              Besoin d’aide ?
+              {msg("Besoin d’aide ?")}
             </SectionHeading>
             {variant.troubleshooting.map((item) => (
               <details key={item.question}>
@@ -327,29 +343,30 @@ function GuideArticle({
             ))}
             <details>
               <summary>
-                La connexion échoue ou revient à l’écran de connexion
+                {msg("La connexion échoue ou revient à l’écran de connexion")}
               </summary>
               <p>
-                Vérifiez l’adresse du serveur et le compte Guteneo utilisé. Si
-                l’application indique une permission refusée, un client inconnu
-                ou une adresse de retour invalide, conservez le libellé de
-                l’erreur et faites vérifier la configuration. Ne transmettez ni
-                mot de passe ni jeton.
+                {msg(
+                  "Vérifiez l’adresse du serveur et le compte Guteneo utilisé. Si l’application indique une permission refusée, un client inconnu ou une adresse de retour invalide, conservez le libellé de l’erreur et faites vérifier la configuration. Ne transmettez ni mot de passe ni jeton.",
+                )}
               </p>
             </details>
             <details>
-              <summary>Mon assistant ne retrouve pas mon document</summary>
+              <summary>
+                {msg("Mon assistant ne retrouve pas mon document")}
+              </summary>
               <p>
-                Le transfert des pièces jointes dépend de votre application. Si
-                le fichier n’est pas accessible, déposez-le dans la rubrique
-                Documents de votre espace Guteneo, puis demandez à votre
-                assistant de retrouver ce document.
+                {msg(
+                  "Le transfert des pièces jointes dépend de votre application. Si le fichier n’est pas accessible, déposez-le dans la rubrique Documents de votre espace Guteneo, puis demandez à votre assistant de retrouver ce document.",
+                )}
               </p>
             </details>
           </section>
 
           <footer className="assistant-guide-sources">
-            <SectionHeading>Les instructions de l’éditeur</SectionHeading>
+            <SectionHeading>
+              {msg("Les instructions de l’éditeur")}
+            </SectionHeading>
             <ul>
               {variant.documentation.map((link) => (
                 <li key={link.href}>
@@ -358,8 +375,9 @@ function GuideArticle({
               ))}
             </ul>
             <p>
-              Documentation vérifiée le 20 septembre 2026. Les menus et les
-              possibilités d’accès peuvent varier selon votre compte.
+              {msg(
+                "Documentation vérifiée le 20 septembre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.",
+              )}
             </p>
           </footer>
         </section>
@@ -377,8 +395,10 @@ export function AssistantGuide({
   if (!assistant) {
     return (
       <section className={`assistant-guide ${className}`}>
-        <h2>Ce guide n’existe pas.</h2>
-        <p>Choisissez votre application pour retrouver ses instructions.</p>
+        <h2>{msg("Ce guide n’existe pas.")}</h2>
+        <p>
+          {msg("Choisissez votre application pour retrouver ses instructions.")}
+        </p>
         <AssistantPicker
           basePath={inDashboard ? "/#/app/connection/" : "/assistants/"}
         />

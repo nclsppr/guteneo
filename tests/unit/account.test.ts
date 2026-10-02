@@ -2,7 +2,11 @@ import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { handleAccountRoute } from "../../apps/api/src/account";
-import { hashSecret, type AuthEnv } from "../../apps/api/src/auth";
+import {
+  handleAuthRoute,
+  hashSecret,
+  type AuthEnv,
+} from "../../apps/api/src/auth";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -170,6 +174,136 @@ async function count(table: string, organization = org) {
 }
 
 describe("browser account and organization administration", () => {
+  it("persists the signed-in user's language across sessions without changing other members or workspaces", async () => {
+    expect(await response("/api/account", member)).toMatchObject({
+      user: { preferredLocale: null },
+    });
+    const updated = await response("/api/account", member, "PATCH", {
+      preferredLocale: "lb",
+    });
+    expect(updated).toMatchObject({
+      user: { id: member.userId, preferredLocale: "lb" },
+    });
+    const secondSession = await login(org, member.userId);
+    const session = await handleAuthRoute(
+      req("/api/session", secondSession),
+      env,
+    );
+    expect(await session!.json()).toMatchObject({
+      user: { id: member.userId, preferredLocale: "lb" },
+    });
+    for (const principal of [owner, outsider])
+      expect(await response("/api/account", principal)).toMatchObject({
+        user: { preferredLocale: null },
+      });
+    // A person's preference follows them to another authenticated membership.
+    const samePerson = await user(otherOrg, "member", member.userId);
+    expect(await response("/api/account", samePerson)).toMatchObject({
+      user: { preferredLocale: "lb" },
+    });
+    const audit = await db
+      .prepare(
+        "SELECT details_json FROM audit_log WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, member.userId)
+      .first<{ details_json: string }>();
+    expect(JSON.parse(audit!.details_json)).toEqual({
+      fields: ["preferredLocale"],
+    });
+  });
+  it("preserves the saved language when older clients update only profile names", async () => {
+    await response("/api/account", member, "PATCH", { preferredLocale: "de" });
+    expect(
+      await response("/api/account", member, "PATCH", { userName: "Camille" }),
+    ).toMatchObject({ user: { name: "Camille", preferredLocale: "de" } });
+    for (const locale of ["fr", "en", "de", "lb"])
+      expect(
+        await response("/api/account", member, "PATCH", {
+          preferredLocale: locale,
+        }),
+      ).toMatchObject({ user: { preferredLocale: locale } });
+  });
+  it("rejects unsupported locale values, foreign user fields and writes without browser CSRF", async () => {
+    for (const preferredLocale of ["es", "de-DE", "EN", "", null, 1, ["en"]])
+      await expect(
+        handleAccountRoute(
+          req("/api/account", member, "PATCH", { preferredLocale }),
+          env,
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(
+      handleAccountRoute(
+        req("/api/account", member, "PATCH", {
+          userId: owner.userId,
+          preferredLocale: "en",
+        }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(
+      handleAccountRoute(
+        req(
+          "/api/account",
+          member,
+          "PATCH",
+          {
+            preferredLocale: "en",
+          },
+          { "X-CSRF-Token": "" },
+        ),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "CSRF_REJECTED" });
+    expect(await response("/api/account", member)).toMatchObject({
+      user: { preferredLocale: null },
+    });
+    expect(await count("audit_log")).toBe(0);
+    await expect(
+      db
+        .prepare("UPDATE users SET preferred_locale='es' WHERE id=?")
+        .bind(member.userId)
+        .run(),
+    ).rejects.toThrow(/CHECK constraint failed/);
+  });
+  it("rechecks revoked membership before committing a language preference", async () => {
+    const wrapped = new Proxy(db, {
+      get(target, property) {
+        if (property === "batch")
+          return async (statements: D1PreparedStatement[]) => {
+            await db
+              .prepare(
+                "DELETE FROM browser_sessions WHERE user_id=? AND organization_id=?",
+              )
+              .bind(member.userId, org)
+              .run();
+            await db
+              .prepare(
+                "DELETE FROM memberships WHERE user_id=? AND organization_id=?",
+              )
+              .bind(member.userId, org)
+              .run();
+            return db.batch(statements);
+          };
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    await expect(
+      handleAccountRoute(
+        req("/api/account", member, "PATCH", {
+          preferredLocale: "en",
+        }),
+        { ...env, DB: wrapped },
+      ),
+    ).rejects.toMatchObject({ code: "ACCESS_CHANGED" });
+    expect(
+      await db
+        .prepare("SELECT preferred_locale FROM users WHERE id=?")
+        .bind(member.userId)
+        .first(),
+    ).toEqual({ preferred_locale: null });
+    expect(await count("audit_log")).toBe(0);
+  });
   it("allows verified-email beta administrators to manage the account while retaining honest MFA status", async () => {
     env = { ...env, MODE: "production", AUTH0_AUTH_POLICY: "verified_email" };
     await db
