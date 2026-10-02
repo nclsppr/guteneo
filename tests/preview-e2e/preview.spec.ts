@@ -95,18 +95,16 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
     .getByLabel("Objet", { exact: true })
     .fill("Courrier de démonstration");
   await page
-    .getByLabel("Version HTML", { exact: true })
-    .fill("<p>Bonjour depuis l’atelier.</p>");
-  await page
-    .getByLabel("Version texte", { exact: true })
+    .getByLabel("Message", { exact: true })
     .fill("Bonjour depuis l’atelier.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Approuver cette version" }).click();
-  await page.getByRole("button", { name: "Confirmer l’envoi simulé" }).click();
+  await page
+    .getByRole("button", { name: "Approuver et simuler l’envoi" })
+    .click();
   await expect(page.locator(".simulation-banner")).toContainText(
     "Aucun fax, e-mail ou courrier réel",
   );

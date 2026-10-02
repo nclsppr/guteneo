@@ -1,25 +1,38 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "guteneo",
-  "version": "0.2.2",
-  "description": "Préparer ses PDF, consulter un devis et suivre ses envois avec Guteneo.",
+  "version": "0.3.0",
+  "description": "Préparer des e-mails avec ou sans PDF, des fax et des courriers, puis suivre les envois Guteneo.",
   "author": {
     "name": "Guteneo"
   },
   "homepage": "https://guteneo.com",
   "repository": "https://github.com/nclsppr/guteneo",
-  "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
+  "keywords": [
+    "email",
+    "pdf",
+    "fax",
+    "postal",
+    "documents",
+    "guteneo"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Guteneo",
-        "shortDescription": "PDF, devis et suivi des envois",
-        "longDescription": "Retrouvez vos documents Guteneo ou importez le PDF original depuis ChatGPT. Préparez un fax ou un courrier postal. Pour le courrier, l’assistant retrouve votre expéditeur et demande les informations manquantes dans la conversation ; un administrateur connecté peut y enregistrer son expéditeur. Vous validez le document, le destinataire et le plafond dans Guteneo avant tout envoi. Un mandat expert facultatif, limité et temporaire peut être accordé par un administrateur à cette connexion. La disponibilité dépend des canaux et destinations activés sur votre compte. L’installation n’active aucun canal ni mandat.",
+        "shortDescription": "E-mails, PDF et suivi des envois",
+        "longDescription": "Préparez un e-mail sans fichier, avec votre PDF original joint ou avec un lien protégé par mot de passe. Retrouvez aussi vos PDF, devis de fax et courriers postaux, puis suivez les envois. Pour le courrier, l’assistant retrouve votre expéditeur et demande les informations manquantes dans la conversation ; un administrateur connecté peut y enregistrer son expéditeur. La disponibilité dépend des canaux, droits et crédits du compte. Vous validez le contenu, le destinataire et le plafond dans Guteneo ; un mandat expert facultatif, limité et temporaire peut être accordé au préalable par un administrateur. Le mot de passe du document protégé reste dans votre compte navigateur et se transmet séparément. L’installation n’active aucun canal ni mandat.",
         "developerName": "Guteneo",
         "category": "Productivity",
-        "capabilities": ["Read", "Write"],
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
         "websiteURL": "https://guteneo.com",
         "defaultPrompt": [
+          "Vérifie les fonctions disponibles sur mon compte Guteneo.",
+          "Prépare cet e-mail avec mon PDF, puis montre-moi le devis avant envoi.",
+          "Prépare un lien protégé pour ce PDF pendant 7 jours.",
           "Envoie ce PDF par courrier postal ; demande-moi ici les informations manquantes, puis donne-moi le lien pour le valider.",
           "Aide-moi à préparer un devis de fax pour ce PDF, sans l’envoyer.",
           "Où en est mon dernier envoi Guteneo ?"

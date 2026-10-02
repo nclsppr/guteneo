@@ -100,6 +100,7 @@ export type EmailSubmission = {
   html: string;
   text: string;
   purpose: "transactional" | "marketing";
+  replyTo?: string;
   unsubscribeUrl?: string;
   attachments?: {
     filename: string;

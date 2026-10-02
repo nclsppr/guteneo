@@ -37,6 +37,12 @@ import {
   type Sender,
   type Session,
 } from "./api";
+import {
+  ProtectedDocumentChoice,
+  ProtectedDocumentSummary,
+  protectedDelivery,
+} from "./protected-document";
+import { EmailComposer, emailHtml } from "./email-composer";
 import { OverviewAssistantStart } from "./assistant-workspace";
 import { t } from "./locale";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
@@ -63,7 +69,7 @@ import {
   PdfPreview,
   RefreshButton,
   Status,
-  sesErrorMessage,
+  emailErrorMessage,
   useAction,
   useResource,
   useRoute,
@@ -653,17 +659,23 @@ export function PrepareDispatch({
   const route = useRoute();
   const key = useRef(crypto.randomUUID());
   const [channel, setChannel] = useState<Channel>(() =>
-    new URLSearchParams(route.split("?")[1]).get("channel") === "postal"
-      ? "postal"
+    ["postal", "email"].includes(
+      new URLSearchParams(route.split("?")[1]).get("channel") ?? "",
+    )
+      ? (new URLSearchParams(route.split("?")[1]).get("channel") as Channel)
       : "fax",
   );
   const [documentId, setDocumentId] = useState(initialDocument);
+  const [protectedLink, setProtectedLink] = useState(false);
+  const [protectedDays, setProtectedDays] = useState<1 | 7 | 30>(7);
+  const [uploaded, setUploaded] = useState<DocumentRecord>();
+  const uploadFollowup = useDocumentFollowup(uploaded?.id ?? null);
+  const uploadedDocument = uploadFollowup.document ?? uploaded;
   const [senderId, setSenderId] = useState("");
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
   const [text, setText] = useState("");
-  const [ceiling, setCeiling] = useState("500");
-  const [postalBudget, setPostalBudget] = useState("5");
+  const [ceiling, setCeiling] = useState("5.00");
   const [printMode, setPrintMode] = useState<"simplex" | "duplex">("simplex");
   const [printSpectrum, setPrintSpectrum] = useState<"grayscale" | "color">(
     "grayscale",
@@ -717,6 +729,7 @@ export function PrepareDispatch({
   );
   if (initial.data?.id === initialDocument)
     candidates.set(initial.data.id, initial.data);
+  if (uploadedDocument) candidates.set(uploadedDocument.id, uploadedDocument);
   const available = [...candidates.values()].filter(
     (item) => item.status === "ready",
   );
@@ -732,6 +745,20 @@ export function PrepareDispatch({
     setRecipient((r) => ({ ...r, [field]: value }));
     key.current = crypto.randomUUID();
   };
+  async function importForDispatch(file: File | undefined) {
+    if (!file) return;
+    await action.run(async () => {
+      const form = new FormData();
+      form.append("file", file);
+      const imported = await api<DocumentRecord>("/documents", {
+        method: "POST",
+        body: form,
+      });
+      setUploaded(imported);
+      setDocumentId(imported.id);
+      documents.refresh();
+    });
+  }
   async function prepare() {
     if (submitting.current) return;
     submitting.current = true;
@@ -795,7 +822,7 @@ export function PrepareDispatch({
               deliveryProduct,
               addressPosition: selectedPosition,
             },
-            ceilingMinor: Number(ceiling),
+            ceilingMinor: Math.round(Number(ceiling) * 100),
           },
         });
         go(`/app/postal/${encodeURIComponent(review.id)}`);
@@ -810,9 +837,13 @@ export function PrepareDispatch({
           documentId: documentId || undefined,
           senderId: selectedSender,
           subject: channel === "email" ? subject : undefined,
-          html: channel === "email" ? html : undefined,
+          html: channel === "email" ? emailHtml(text, html) : undefined,
           text: channel === "email" ? text : undefined,
-          ceilingMinor: Number(ceiling),
+          options:
+            channel === "email" && documentId && protectedLink
+              ? { emailDeliveryMode: "protected_link", protectedDays }
+              : undefined,
+          ceilingMinor: Math.round(Number(ceiling) * 100),
         },
       });
       go(`/app/dispatch/${dispatch.id}`);
@@ -900,7 +931,6 @@ export function PrepareDispatch({
                   onChange={() => {
                     setChannel(c);
                     setSenderId("");
-                    setPostalBudget(String(Number(ceiling) / 100));
                   }}
                 />
                 <span>{t.channels[c]}</span>
@@ -928,6 +958,11 @@ export function PrepareDispatch({
                       : msg("PDF à vérifier")}
                   </option>
                 )}
+              {uploadedDocument && uploadedDocument.status !== "ready" && (
+                <option value={uploadedDocument.id} disabled>
+                  {uploadedDocument.name} · vérification en cours
+                </option>
+              )}
               {available.map((d) => (
                 <option value={d.id} key={d.id}>
                   {d.name} · {d.pages} {msg(" p.")}
@@ -935,9 +970,29 @@ export function PrepareDispatch({
               ))}
             </select>
           </Field>
+          {!isPublicPreview && (
+            <Field
+              label="Ou importer un PDF"
+              hint="Votre fichier est vérifié ici, sans quitter la préparation."
+            >
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                onChange={(event) =>
+                  void importForDispatch(event.target.files?.[0])
+                }
+              />
+            </Field>
+          )}
           {documentUnavailable && !initial.loading && (
-            <p className="field-hint" id="prepare-document-unavailable">
-              {msg("Ce PDF doit être vérifié avant de préparer l’envoi.")}{" "}
+            <p
+              className="field-hint"
+              id="prepare-document-unavailable"
+              role="status"
+            >
+              {uploadedDocument?.id === documentId
+                ? msg(analysisOf(uploadedDocument).message)
+                : msg("Ce PDF doit être vérifié avant de préparer l’envoi.")}{" "}
               <a
                 href={`#/app/documents?document=${encodeURIComponent(documentId)}`}
               >
@@ -956,6 +1011,18 @@ export function PrepareDispatch({
               <a href="#/app/documents">{t.documents.import}</a>
             </p>
           )}
+          {channel === "email" &&
+            documentId &&
+            !documentUnavailable &&
+            !simulation &&
+            !isPublicPreview && (
+              <ProtectedDocumentChoice
+                enabled={protectedLink}
+                days={protectedDays}
+                onEnabled={setProtectedLink}
+                onDays={setProtectedDays}
+              />
+            )}
           <Field label={t.dispatch.sender}>
             <select
               value={selectedSender ?? ""}
@@ -976,6 +1043,12 @@ export function PrepareDispatch({
               )}
             </select>
           </Field>
+          {channel === "email" && !simulation && selectedSender && (
+            <p className="field-hint">
+              Envoyé par Guteneo. Les réponses du destinataire arrivent à votre
+              adresse e-mail vérifiée.
+            </p>
+          )}
           <div className="form-divider" />
           {channel === "postal" && !simulation && (
             <PostalAddressChoice
@@ -1027,23 +1100,12 @@ export function PrepareDispatch({
                   maxLength={200}
                 />
               </Field>
-              <Field label={t.dispatch.html}>
-                <textarea
-                  rows={6}
-                  className="code-input"
-                  value={html}
-                  onChange={(e) => setHtml(e.target.value)}
-                  required
-                />
-              </Field>
-              <Field label={t.dispatch.text} hint={t.dispatch.textHelp}>
-                <textarea
-                  rows={4}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  required
-                />
-              </Field>
+              <EmailComposer
+                text={text}
+                html={html}
+                onText={setText}
+                onHtml={setHtml}
+              />
             </>
           ) : (
             <>
@@ -1159,7 +1221,7 @@ export function PrepareDispatch({
             <details className="postal-budget">
               <summary>
                 {msg("Budget maximum : ")}
-                {money(Number(ceiling))}
+                {money(Math.round(Number(ceiling) * 100))}
               </summary>
               <Field
                 label={msg("Budget maximum en euros")}
@@ -1173,13 +1235,8 @@ export function PrepareDispatch({
                   min="0"
                   step="0.01"
                   max="10000"
-                  value={postalBudget}
-                  onChange={(event) => {
-                    setPostalBudget(event.target.value);
-                    setCeiling(
-                      String(Math.round(Number(event.target.value) * 100)),
-                    );
-                  }}
+                  value={ceiling}
+                  onChange={(event) => setCeiling(event.target.value)}
                   required
                 />
               </Field>
@@ -1188,12 +1245,12 @@ export function PrepareDispatch({
             <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
               <input
                 type="number"
-                inputMode="numeric"
+                inputMode="decimal"
                 value={ceiling}
-                onChange={(e) => setCeiling(e.target.value)}
+                onChange={(event) => setCeiling(event.target.value)}
                 min="0"
-                step="1"
-                max="1000000"
+                step="0.01"
+                max="10000"
                 required
               />
             </Field>
@@ -1333,10 +1390,10 @@ export function PrepareDispatch({
                 </p>
               </div>
             )
-          ) : channel === "email" && html ? (
+          ) : channel === "email" && (text || html) ? (
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
-              <EmailPreview html={html} />
+              <EmailPreview html={emailHtml(text, html)} />
             </>
           ) : documentId && !documentUnavailable ? (
             <PdfPreview id={documentId} />
@@ -1653,7 +1710,19 @@ export function DispatchDetailPage({
             ...(emailAttestationRequired ? { recipientRequested } : {}),
           },
         });
-        resource.refresh();
+        if (d?.channel === "email") {
+          try {
+            await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
+              method: "POST",
+              key: `web-confirm:${id}`,
+              body: {},
+            });
+          } finally {
+            // If acceptance is interrupted, read the same dispatch and expose
+            // its approved state for an idempotent retry; never prepare again.
+            resource.refresh();
+          }
+        } else resource.refresh();
       } catch (error) {
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
           setInvalidQuoteId(id);
@@ -1714,7 +1783,7 @@ export function DispatchDetailPage({
     "submission_unknown",
     "reconciliation_required",
   ].includes(d.status)
-    ? sesErrorMessage(latestAttempt?.error_code)
+    ? emailErrorMessage(latestAttempt?.error_code)
     : undefined;
   return (
     <>
@@ -1867,7 +1936,9 @@ export function DispatchDetailPage({
                   : d.channel === "postal" &&
                       d.quote_pricing_basis === "public_list_price_ex_tax"
                     ? t.postalSetup.quote
-                    : t.dispatch.estimate
+                    : protectedDelivery(d)
+                      ? "Total estimé, e-mail et hébergement"
+                      : t.dispatch.estimate
               }
             >
               {faxPricing ? (
@@ -1963,7 +2034,7 @@ export function DispatchDetailPage({
               {d.channel === "postal"
                 ? t.postalSetup.quoteNote
                 : msg(
-                    "Tarif de référence SES hors taxes. Le prix en euros est fixé pour ce devis.",
+                    "Tarif de référence e-mail hors taxes. Le prix en euros est fixé pour ce devis.",
                   )}
               {d.channel === "email" && d.quote_fx && (
                 <>
@@ -1979,6 +2050,7 @@ export function DispatchDetailPage({
               )}
             </p>
           )}
+          <ProtectedDocumentSummary dispatch={d} onUpdated={resource.refresh} />
           {pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (
               <p className="notice info">
@@ -2069,7 +2141,13 @@ export function DispatchDetailPage({
                 onClick={() => void approve()}
               >
                 <Check size={18} />
-                {action.pending ? t.loading : t.dispatch.approve}
+                {action.pending
+                  ? t.loading
+                  : d.channel === "email"
+                    ? simulation
+                      ? "Approuver et simuler l’envoi"
+                      : "Approuver et envoyer"
+                    : t.dispatch.approve}
               </button>
             </section>
           )}
