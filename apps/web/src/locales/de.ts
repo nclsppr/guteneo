@@ -347,6 +347,24 @@ export const de: Copy = {
     total: "Empfänger",
     inspect: "Kampagne ansehen",
   },
+  claudeConnect: {
+    "connect": "Mit Claude verbinden",
+    "prerequisite": "Erstellen Sie zuerst Ihr Guteneo-Konto, bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich hier einmal an.",
+    "account": "Mein Guteneo-Konto öffnen",
+    "clientId": "Öffentliche Kennung zum Einfügen in Claude",
+    "publicId": "Diese Kennung wird von Guteneo-Nutzern gemeinsam verwendet. Sie ist kein Passwort.",
+    "copy": "Kennung kopieren",
+    "copied": "Kennung kopiert.",
+    "copyFallback": "Automatisches Kopieren ist nicht verfügbar. Markieren Sie die Kennung im Feld oben und kopieren Sie sie.",
+    "linkHelp": "Öffnet Claude in einem neuen Tab mit bereits eingetragenem Guteneo-Namen und Serveradresse.",
+    "unavailable": "Die Verbindung ist auf guteneo.com verfügbar. In dieser Vorschau und der lokalen Entwicklung ist sie deaktiviert.",
+    "steps": [
+      "Wählen Sie im Claude-Formular „Use your own OAuth client“ (eigenen OAuth-Client verwenden).",
+      "Fügen Sie die öffentliche Kennung oben in „Client ID“ ein. Lassen Sie „Client secret“ leer und fügen Sie den Konnektor hinzu.",
+      "Verbinden Sie Ihr eigenes Guteneo-Konto und prüfen Sie die angeforderten Berechtigungen. Aktivieren Sie Guteneo anschließend in Ihrer Unterhaltung."
+    ],
+    "reconnect": "Verbinden Sie Ihr Konto nach Ablauf erneut in den Konnektoreinstellungen von Claude. Wenn Sie den Zugriff in Guteneo widerrufen haben, ordnen Sie den Assistenten unter „Assistent verbinden“ zuerst erneut Ihrer Organisation zu und verbinden Sie ihn dann in Claude."
+  },
   connection: {
     title: "Das Gespräch geht hier weiter.",
     intro:
