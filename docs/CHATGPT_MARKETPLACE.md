@@ -4,6 +4,20 @@
 
 Lors de la première relecture Safari du 2 octobre, la version 0.2.2 était **In review** et **Not published**, sans motif de rejet. [Sa page de gestion](https://platform.openai.com/plugins/manage/plugin_asdk_app_6ab05fbae9a881918dc6ee4e2f235d93) affichait **Domain verified**, **Authorized** et un catalogue de **24 outils**. Cette observation est conservée avant l’annulation ; ces libellés ne prouvent pas une autorisation OAuth encore utilisable ni un scan récent.
 
+## Todo-list de reprise — conservée à la demande du titulaire le 2 octobre
+
+- [x] Préparer le paquet 0.2.3 et la [PR #34](https://github.com/nclsppr/guteneo/pull/34). Les 32 tests ciblés, les types et le lint ont réussi ; les 12 contrôles de [CI sur `88ca887`](https://github.com/nclsppr/guteneo/actions/runs/36983922065) ont tous réussi. Cette validation ne prouve pas une soumission OpenAI.
+- [ ] Terminer la reconnexion du compte reviewer dans le flux Auth0 « Guteneo - OpenAI Review », puis vérifier que son autorisation est réellement utilisable. Ne partager aucun identifiant dans le chat.
+- [ ] Refaire **Scan Tools** dans l’[éditeur MCP existant](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f), contrôler le nouveau catalogue et ses annotations, puis vérifier sa persistance après rechargement.
+- [ ] Vérifier les réglages OAuth effectifs et la durée d’accès nécessaire à la revue. L’absence de renouvellement dans les scripts et la limite d’une heure sont des indices locaux ; ne pas les présenter comme une cause live confirmée ni élargir les accès automatiquement.
+- [ ] Vérifier les droits reviewer et la fraîcheur des références tarifaires non envoyables, puis exécuter et consigner les cinq cas positifs et trois négatifs. Arrêter les devis `review_prepare_only` avant toute approbation ou envoi ; aucune recette ne doit activer un canal ou un mandat.
+- [ ] Vérifier que la vidéo de démonstration couvre les fonctions annoncées et les scénarios effectivement qualifiés ; refaire les séquences nécessaires sans présenter la vidéo de septembre comme une recette actuelle.
+- [ ] Reprendre la mise à jour dans l’éditeur existant et contrôler les champs effectivement enregistrés. L’import ZIP 0.2.3 reste refusé tant que l’application MCP existante n’est pas publiée ; conserver l’identité assignée et vérifier le parcours de migration disponible à la reprise. Ne pas créer de doublon ni déclarer les skills installés avant preuve.
+- [ ] Présenter le dossier et les attestations étayées au titulaire ; obtenir sa confirmation au moment d’accepter les engagements légaux, puis **Submit for review** et vérifier le statut obtenu. L’autorisation de renvoi existe déjà ; elle ne remplace ni les preuves ni l’acceptation légale.
+- [ ] Après approbation OpenAI, traiter séparément la publication dans l’annuaire, sous autorisation du titulaire, puis retenter la migration ZIP si elle devient disponible. Vérifier ensuite la fiche et la version publiées.
+
+Point de reprise : **connexion reviewer**. Dernier état du portail observé : revue 0.2.2 annulée, retour au brouillon, ZIP 0.2.3 refusé ; aucune nouvelle soumission ni publication attestée. Cette liste conserve les tâches, sans programmer de rappel automatique.
+
 ## Contrôle courant du 2 octobre
 
 La tentative de nouveau scan a affiché : « Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt. » Le catalogue visible appartient donc à la dernière revue disponible, pas à cette tentative échouée. Une lecture `get_capabilities` via la connexion Guteneo Review a également demandé une réauthentification (`UNAUTHORIZED`). Aucun document, donnée du compte ou nouveau résultat de recette n’a été obtenu par cet appel. Ce blocage explique l’impossibilité de refaire le contrôle immédiatement ; il ne constitue pas un motif de refus de la revue OpenAI.
