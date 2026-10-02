@@ -25,7 +25,7 @@ Les compositions Remotion localisées conservent les durées, cadrages, animatio
 médias et partition V5. Les scènes de l’interface sont traduites ; le texte
 français de l’oblitération appartient au logo et reste identique. Le rendu écrit
 ses bases musicales aux chemins V5/V1 de `narration/source-videos.json`. Pour
-FR/EN, il copie et qualifie les 34 MP3 et scripts figés du snapshot
+les introductions FR/EN et les rôles EN, il copie et qualifie les MP3 et scripts figés du snapshot
 `narration/releases/fr-en-g2/`, puis ajoute les prises web Génération 2 aux bases
 musicales et écrit les films actifs V6/V2 et leurs sous-titres. Le catalogue
 public ne sert jamais de destination à un rendu instrumental FR/EN seul.
@@ -51,7 +51,7 @@ Aucun service distant ni génération d’image n’intervient dans ce rendu.
 
 | Langue | Présentation horizontale | Présentation iPhone | Les quatre rôles |
 | --- | --- | --- | --- |
-| Français | [MP4](../apps/web/public/videos/guteneo-horizontal-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v2-fr.mp4) |
+| Français | [MP4](../apps/web/public/videos/guteneo-horizontal-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-fr.mp4) |
 | English | [MP4](../apps/web/public/videos/guteneo-horizontal-v6-en.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v6-en.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v2-en.mp4) |
 | Deutsch | [MP4](../apps/web/public/videos/guteneo-horizontal-v5-de.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5-de.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-de.mp4) |
 | Lëtzebuergesch | [MP4](../apps/web/public/videos/guteneo-horizontal-v5-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-lb.mp4) |
@@ -59,7 +59,7 @@ Aucun service distant ni génération d’image n’intervient dans ce rendu.
 - Les films narrés FR/EN sont `/videos/guteneo-horizontal-v6-{fr,en}.mp4`
   et `/videos/guteneo-vertical-v6-{fr,en}.mp4` ; leurs posters restent en V5.
 - Les films DE/LB conservent les MP4 V5 et leurs posters.
-- `/videos/guteneo-roles-v1-{de,lb}.mp4`, `/videos/guteneo-roles-v2-{fr,en}.mp4`
+- `/videos/guteneo-roles-v1-{fr,de,lb}.mp4`, `/videos/guteneo-roles-v2-en.mp4`
   et les posters V1 `.webp`, présentés
   dans le guide `/roles/` ; voir `docs/ROLES_FILM.md`.
 

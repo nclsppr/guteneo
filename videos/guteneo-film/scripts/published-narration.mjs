@@ -40,7 +40,9 @@ export async function preparePublishedNarration({jobs, filmRoot, repositoryRoot,
   const locales = [...new Set(narrated.map((job) => job.locale))];
   if (locales.some((locale) => !['fr', 'en'].includes(locale))) throw new Error('No checked-in narration library for a selected active film.');
   const library = path.join(filmRoot, 'narration/releases/fr-en-g2');
-  const manifest = validateManifest(await readJson(path.join(library, 'scripts.json')));
+  const savedManifest = validateManifest(await readJson(path.join(library, 'scripts.json')));
+  const selected = new Set(narrated.map((job) => `${job.kind}-${job.locale}`));
+  const manifest = validateManifest({...savedManifest, narrations: savedManifest.narrations.filter((entry) => selected.has(entry.id))});
   const config = await readJson(path.join(library, 'voices.json'));
   if (config.webGeneration !== 2) throw new Error('Published narration requires the selected Generation 2 exports.');
   const plan = buildPlan(manifest, config, {kind, locales});

@@ -5,7 +5,7 @@ horizontal et au format iPhone. Une présentation commune des quatre rôles dure
 36 secondes dans chaque langue et réutilise leur conclusion officielle.
 Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters,
 sous-titres narrés et manifeste. Il rend les sources musicales V5/V1 et remixe
-les prises FR/EN Génération 2 du snapshot suivi `narration/releases/fr-en-g2/`
+les introductions FR/EN et rôles EN Génération 2 du snapshot suivi `narration/releases/fr-en-g2/`
 vers les fichiers actifs V6/V2. Les catalogues, hashes et calages sont qualifiés
 avant toute écriture publique ; le snapshot audio reste immuable. FFmpeg,
 ffprobe et cwebp sont requis. Les sources React, les polices,
@@ -47,7 +47,8 @@ avec des fixtures locales.
 Les 34 prises FR/EN sont importées, calées et mixées en six candidats locaux
 contrôlés techniquement. Les exports DE sont disponibles ; LB reste à générer.
 Trois versions françaises du film des rôles comparent phrases séparées, prise
-complète et trois blocs ; la méthode pour la suite reste au choix de l’utilisateur.
+complète et trois blocs. L’utilisateur retient les trois blocs avec une nouvelle
+rédaction naturelle ; l’ancien candidat voix des rôles FR reste hors publication.
 Aucune nouvelle diffusion du lot narré n’est attestée par cette note.
 L’entrée audio est indisponible au modèle pour
 l’écoute critique, donc `criticalListening: pending` reste requis.

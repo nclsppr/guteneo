@@ -26,22 +26,24 @@ Les sources éditables sont `videos/guteneo-film/src/roles/`, avec quatre
 compositions `Guteneo-Roles-FR`, `EN`, `DE` et `LB`. La séquence finale réutilise
 directement `src/landscape/End.tsx` ; le logo est le même composant et le même
 média que dans le spot V5. La musique est un montage reproductible de la partition
-originale de Guteneo, avec sa cadence de fin. Les versions française et anglaise ajoutent la
+originale de Guteneo, avec sa cadence de fin. La version anglaise ajoute la
 narration masculine ElevenLabs en génération 2 ; les autres langues restent
-instrumentales. Voir [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md).
+instrumentales. La voix française est retenue hors publication pendant la
+réécriture en trois blocs naturels choisie par l’utilisateur.
+Voir [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md).
 
 ```sh
 npm run videos:render -- --kind roles
 ```
 
-Cette commande rend les bases musicales V1, puis remixe les voix FR/EN du
+Cette commande rend les bases musicales V1, puis remixe la voix EN du
 snapshot suivi `narration/releases/fr-en-g2/` vers les exports actifs V2 avec
 leurs sous-titres. Elle ne contacte pas ElevenLabs et ne modifie pas le snapshot.
 La qualification Génération 2, les hashes et le calage précèdent les écritures
 publiques ; un cache invalide bloque le rendu.
 
-Les exports actifs sont `apps/web/public/videos/guteneo-roles-v1-{de,lb}.mp4`
-et `guteneo-roles-v2-{fr,en}.mp4`,
+Les exports actifs sont `apps/web/public/videos/guteneo-roles-v1-{fr,de,lb}.mp4`
+et `guteneo-roles-v2-en.mp4`,
 H.264/AAC stéréo, 1920 × 1080, 30 images/s, avec posters WebP et démarrage rapide.
 Le manifeste commun inclut ces quatre vidéos dans sa liste publique exacte.
 

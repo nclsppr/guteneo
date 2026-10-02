@@ -47,9 +47,8 @@
   },
   "roles": {
     "fr": {
-      "movie": "/videos/guteneo-roles-v2-fr.mp4",
-      "poster": "/videos/guteneo-roles-v1-fr.webp",
-      "captions": "/videos/guteneo-roles-v2.fr.vtt"
+      "movie": "/videos/guteneo-roles-v1-fr.mp4",
+      "poster": "/videos/guteneo-roles-v1-fr.webp"
     },
     "en": {
       "movie": "/videos/guteneo-roles-v2-en.mp4",

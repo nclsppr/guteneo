@@ -43,8 +43,8 @@
     "bytes": 12240339,
     "sha256": "e2d32af8b85b540073cc8a7feee59b837b30b1fefc9ab6431f5c74f3442c8b70"
   },
-  "/videos/guteneo-roles-v2-fr.mp4": {
-    "bytes": 2094387,
-    "sha256": "6bf264fb3193819e327f588195c3af8af13c8cd866f43cb5bd6f55cb8c268657"
+  "/videos/guteneo-roles-v1-fr.mp4": {
+    "bytes": 2093120,
+    "sha256": "699a6722f00380621f11b30c29bc20704fe2c4730a0d641001bf38bcd1e15f7c"
   }
 }
