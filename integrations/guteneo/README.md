@@ -1,8 +1,16 @@
 # Guteneo — préparer sa correspondance PDF
 
-Candidat 0.2.2, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, les parcours `fax-pdf` et `postal-pdf`, et les manifestes Agent Plugins, Claude Code et Cursor. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
+Candidat de paquet 0.2.3, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, l’accueil `get-started`, les parcours `fax-pdf` et `postal-pdf`, et les manifestes Agent Plugins, Claude Code et Cursor. Cette version corrige les métadonnées et instructions distribuées ; elle ne modifie ni le serveur hébergé, ni le domaine, ni la configuration des prestataires. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
 
 Serveur : **https://guteneo.com/mcp**. Connexion OAuth requise. La configuration serveur et l’accès de votre compte doivent être opérationnels ; un paquet valide ne prouve pas une connexion ni un fax réussi.
+
+Le manifeste fournit un listing anglais, sa traduction française et les liens [support](https://guteneo.com/support/), [confidentialité](https://guteneo.com/confidentialite/) et [conditions](https://guteneo.com/conditions/). L’accueil consulte les fonctions du compte sans importer ni envoyer. Les skills déclarent leur dépendance au MCP Guteneo ; seuls les outils effectivement exposés par cette connexion sont utilisables.
+
+Les parcours excluent les données de carte de paiement PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles, y compris dans un document Guteneo existant lorsque leur présence est connue. Ils ne prétendent pas que l’analyse antivirus détecte ces catégories. Un devis `review_prepare_only` s’arrête à la préparation : aucune approbation, revue expert ni expédition ne suit.
+
+L’accès repose sur un compte Guteneo existant et ses droits. Ce paquet ne crée ni checkout, ni abonnement, ni recharge ou montée en gamme. Les devis et le solde expliquent l’opération disponible ; ils ne servent pas à vendre des crédits dans le plugin.
+
+La vidéo référencée dans le manifeste est l’enregistrement public du **21 septembre 2026** ; elle ne prouve ni cette nouvelle version de paquet, ni une nouvelle recette reviewer, ni une qualification postale. Les cas de test ne sont pas redéclarés dans le ZIP afin de conserver ceux déjà enregistrés dans le portail. Les identifiants et instructions d’accès reviewer restent dans ses champs sécurisés. Aucun résultat de test, approbation OpenAI ou publication dans l’annuaire n’est attesté par le paquet.
 
 - **ChatGPT** : dans le mode développeur disponible pour votre compte, ajoutez le serveur HTTPS dans Plugins, connectez votre compte Guteneo et vérifiez les outils. Le paquet Agent Plugins peut ensuite distribuer le parcours. Aucun identifiant de plugin enregistré n’est inventé dans ce paquet.
 - **Claude web / Desktop** : ajoutez l’URL comme connecteur distant dans les réglages de Claude. Le paquet Claude Code n’est pas le mécanisme d’installation du connecteur web.

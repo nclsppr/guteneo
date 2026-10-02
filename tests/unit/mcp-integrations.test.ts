@@ -557,13 +557,40 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.2.2");
+      expect(manifest.version).toBe("0.2.3");
       expect(manifest.version).toBe(plugin.version);
+      expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;
+      expect(branding.supportURL).toBe("https://guteneo.com/support/");
+      expect(branding.privacyPolicyURL).toBe(
+        "https://guteneo.com/confidentialite/",
+      );
+      expect(branding.termsOfServiceURL).toBe(
+        "https://guteneo.com/conditions/",
+      );
+      expect(branding.shortDescription.length).toBeLessThanOrEqual(30);
+      expect(new Set(branding.defaultPrompt).size).toBe(
+        branding.defaultPrompt.length,
+      );
+      for (const prompt of branding.defaultPrompt) {
+        expect(prompt.length).toBeLessThanOrEqual(128);
+        expect(prompt).not.toContain("@");
+      }
+      const onboarding = plugin.extensions[
+        "com.openai"
+      ].onboardingSkill.replace(/^\.\//, "");
+      expect(manifest.files).toContain(onboarding);
+      // Private reviewer access and legal consent must remain outside the public ZIP.
+      expect(plugin.extensions["com.openai"].review).not.toHaveProperty(
+        "test_credentials",
+      );
+      expect(plugin.extensions["com.openai"].review).not.toHaveProperty(
+        "reviewer_instructions",
+      );
       for (const [property, filename] of [
         ["composerIcon", "guteneo-composer.png"],
         ["logo", "guteneo-mark.png"],

@@ -1,6 +1,34 @@
-# Dossier marketplace ChatGPT — reprise du 21 septembre 2026
+# Dossier marketplace ChatGPT — reprise du 2 octobre 2026
 
-**Brouillon OpenAI créé le 21 septembre 2026 ; aucune soumission ni publication effectuée.** L’identité individuelle vérifiée est désormais observée et sélectionnée dans le portail. Ce dossier distingue cette progression des blocages antérieurs et des preuves historiques. La PR [#14](https://github.com/nclsppr/guteneo/pull/14) reste un candidat ; sa préparation ne publie ni le serveur ni le plugin.
+**La revue 0.2.2 a été annulée explicitement pour préparer son remplacement ; le portail est revenu à l’état brouillon. Aucun refus OpenAI n’est observé.** Le plugin reste identifié par `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`. Le candidat 0.2.3 n’a pas été accepté ni enregistré par le portail et aucune nouvelle soumission n’est attestée à ce stade.
+
+Lors de la première relecture Safari du 2 octobre, la version 0.2.2 était **In review** et **Not published**, sans motif de rejet. [Sa page de gestion](https://platform.openai.com/plugins/manage/plugin_asdk_app_6ab05fbae9a881918dc6ee4e2f235d93) affichait **Domain verified**, **Authorized** et un catalogue de **24 outils**. Cette observation est conservée avant l’annulation ; ces libellés ne prouvent pas une autorisation OAuth encore utilisable ni un scan récent.
+
+## Contrôle courant du 2 octobre
+
+La tentative de nouveau scan a affiché : « Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt. » Le catalogue visible appartient donc à la dernière revue disponible, pas à cette tentative échouée. Une lecture `get_capabilities` via la connexion Guteneo Review a également demandé une réauthentification (`UNAUTHORIZED`). Aucun document, donnée du compte ou nouveau résultat de recette n’a été obtenu par cet appel. Ce blocage explique l’impossibilité de refaire le contrôle immédiatement ; il ne constitue pas un motif de refus de la revue OpenAI.
+
+Les GET publics du 2 octobre confirment la source propre `5dec27555ea27035b66d0f51162fe75a9755c82f`, construite le `2026-09-22T21:32:22.470Z`. `/confidentialite/`, `/conditions/` et `/support/` répondent **200**. La découverte de ressource OAuth répond **200** ; `/mcp` sans authentification répond **401**, refus attendu. Ces preuves publiques ne qualifient pas les droits, le scanner ni les tarifs du compte reviewer.
+
+Le [PDF synthétique](https://guteneo.com/review/reviewer-original.pdf) répond **200**, avec **4 290 octets** et le SHA-256 `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`. La [vidéo historique](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) répond **200**, avec **2 367 095 octets** et le SHA-256 `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`. Leur disponibilité et leurs octets sont vérifiés ; ils ne constituent pas une nouvelle exécution des scénarios le 2 octobre.
+
+Le candidat **0.2.3** améliore les métadonnées et les instructions du paquet, sans modification du runtime ni des règles d’approbation. Après annulation de la revue 0.2.2, l’import du ZIP a révélé une exigence d’identité : conserver le nom racine `app-6ab05fbae9a881918dc6ee4e2f235d93` de l’application existante. Le manifeste a été corrigé avec cette identité technique, en conservant le nom affiché Guteneo. Le paquet final reconstruit pèse **1 283 344 octets**, SHA-256 `bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885`.
+
+Le téléversement corrigé a ensuite été refusé avec **Keep the existing MCP connection** et **Publish the existing MCP app before updating its plugin ZIP**. Aucun nouveau paquet n’est sauvegardé : il s’agit d’une contrainte du parcours de migration vers le ZIP, pas d’un rejet de qualité du plugin. Une sélection initiale d’image au lieu du ZIP avait auparavant été refusée sans importer de paquet. L’[éditeur MCP existant](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f) est redevenu modifiable après rechargement. **Scan Tools**, puis **Continue** dans la demande OAuth, a ouvert « Log in | Guteneo - OpenAI Review » avec des champs vides. La connexion de l’utilisateur est demandée hors du chat ; aucun mot de passe n’a été saisi par l’agent. L’autorisation renouvelée, le nouveau scan réussi et la persistance de métadonnées modifiées restent non obtenus.
+
+L’inspection du code local relève l’absence de refresh token dans la configuration préparée et une limite d’âge d’une heure pour l’access token. Les réglages privés Auth0 effectivement déployés n’ont pas été vérifiés : ces indices ne permettent pas d’attribuer définitivement l’erreur de scan à une cause précise. Aucun changement OAuth ni contournement de l’authentification n’est attesté.
+
+## Parcours de mise à jour selon les guidelines courantes
+
+Le [parcours de soumission](https://developers.openai.com/plugins/deploy/submission) privilégie désormais le **ZIP du plugin comme source des champs importés**. Les informations issues du paquet sont en lecture seule dans le portail : corriger le manifeste et les ressources du ZIP, puis réimporter le paquet. La feuille [listing.json](../integrations/chatgpt/listing.json) reste un suivi interne ; ce n’est pas le manifeste à téléverser. Les justifications d’annotations rédigées en septembre restent une piste d’audit, mais ne sont plus une exigence de saisie du formulaire courant. Les valeurs des annotations doivent toujours correspondre aux effets réels des outils.
+
+La revue 0.2.2 active empêchait le téléversement d’une mise à jour ; elle a maintenant été annulée pour remplacement. Le parcours ZIP reste bloqué par l’exigence de publier d’abord l’application MCP existante. Reprendre son éditeur, rétablir une connexion reviewer utilisable et refaire le scan avant une nouvelle soumission. L’annulation, le retour au brouillon, le refus d’import du ZIP, une éventuelle nouvelle soumission et la publication sont des faits distincts ; aucune publication ne doit être déduite de ces étapes.
+
+Pour P5, l’autorité de préparation non envoyable peut durer 30 jours, mais chaque référence tarifaire expire au plus **168 heures** après ses observations de source et d’association au profil. Une référence du 21 septembre ne qualifie donc pas la recette du 2 octobre sans requalification ultérieure vérifiée. Le [contrat review_prepare_only](REVIEW_FAX_PREPARATION.md) et la [procédure opérateur](REVIEW_FAX_OPERATOR.md) restent applicables : aucun canal, mandat, approbation, crédit ou envoi n’est activé pour obtenir un résultat de revue. La fraîcheur actuelle du compte reviewer et l’exécution de ses scénarios restent à vérifier après réauthentification.
+
+## Historique conservé du 21 septembre
+
+**État consigné à cette date : brouillon créé, aucune soumission ni publication encore observée.** Les sections suivantes décrivent cette préparation historique, ses exigences de formulaire et ses blocages d’alors. Les mentions « à publier », « aucun compte », « aucun scan », « aucune vidéo » ou « aucune soumission » ne décrivent pas l’état courant du 2 octobre. Les anciennes observations 404 et les anciennes versions du catalogue sont conservées pour leur provenance. La PR [#14](https://github.com/nclsppr/guteneo/pull/14) était alors présentée comme un candidat.
 
 ## Préparation complémentaire du 21 septembre
 
@@ -46,20 +74,20 @@ Le bouton final **Submit for Review** est confirmé désactivé. Les messages vi
 
 La feuille [listing.json](../integrations/chatgpt/listing.json) contient descriptions, amorces, langue, contact et paramètres publics. **C’est un document interne, pas un schéma OpenAI ni un manifeste officiel à téléverser.** Les champs `null` attendent les informations réelles du portail.
 
-| Champ                        | Valeur                                                    |
-| ---------------------------- | --------------------------------------------------------- |
-| Nom                          | Guteneo                                                   |
-| Description courte           | PDF, devis et suivi des envois                            |
-| Catégorie / langue           | Productivity / Français (`fr-FR`)                         |
-| Site / support               | `https://guteneo.com` / `guteneo@pieper.fr`               |
-| MCP universel                | `https://guteneo.com/mcp`                                 |
-| Transport / authentification | Streamable HTTP / OAuth par utilisateur                   |
-| Ressource / autorité OAuth   | `https://guteneo.com/mcp` / `https://pieper.eu.auth0.com` |
-| Logo                         | `https://guteneo.com/brand/guteneo-mark.png`              |
-| Captures d’UI native         | Aucune : le serveur ne fournit pas d’UI MCP native        |
-| Politique de confidentialité | URL complète de politique réelle encore absente           |
-| Client/callback/reviewer     | À configurer et vérifier ; aucune valeur fictive          |
-| Enregistrement de démo       | URL absente ; ne pas remplacer par une capture du site    |
+| Champ                        | Valeur                                                          |
+| ---------------------------- | --------------------------------------------------------------- |
+| Nom                          | Guteneo                                                         |
+| Description courte           | PDF, devis et suivi des envois                                  |
+| Catégorie / langue           | Productivity / Français (`fr-FR`)                               |
+| Site / support               | `https://guteneo.com` / `guteneo@pieper.fr`                     |
+| MCP universel                | `https://guteneo.com/mcp`                                       |
+| Transport / authentification | Streamable HTTP / OAuth par utilisateur                         |
+| Ressource / autorité OAuth   | `https://guteneo.com/mcp` / `https://pieper.eu.auth0.com`       |
+| Logo                         | `https://guteneo.com/brand/guteneo-mark.png`                    |
+| Captures d’UI native         | Aucune : le serveur ne fournit pas d’UI MCP native              |
+| Politique de confidentialité | URL complète de politique réelle encore absente                 |
+| Client/callback/reviewer     | À configurer et vérifier ; aucune valeur fictive                |
+| Enregistrement de démo       | URL absente ; ne pas remplacer par une capture du site          |
 | Challenge du domaine         | Jeton reçu et commité ; déploiement et vérification non obtenus |
 
 Le texte décrit PDF, devis, plafond, approbation et suivi, selon les fonctions du compte. Il ne promet ni tous les pays, ni e-mail/courrier actif, ni livraison garantie, ni parcours sans sortie de ChatGPT. Le mode standard utilise l’approbation navigateur ; le mode expert exige un mandat préalable accordé par un administrateur.

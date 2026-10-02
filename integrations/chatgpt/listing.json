@@ -2,12 +2,12 @@
   "documentType": "guteneo_internal_submission_worksheet",
   "officialOpenAISchema": false,
   "preparedAt": "2026-09-17",
-  "submissionStatus": "draft_incomplete_mcp_scan_required_before_save",
-  "pluginVersion": "0.2.2",
+  "submissionStatus": "draft_after_cancelled_review_update_pending_oauth",
+  "pluginVersion": "0.2.3",
   "listing": {
     "name": "Guteneo",
-    "shortDescription": "PDFs, postal mail and fax",
-    "description": "Find your Guteneo PDFs or import an original document. Prepare postal mail or a fax, review its estimate and spending limit, then track its status. For postal mail, the assistant asks for missing sender and recipient details in the conversation. An authenticated administrator can configure the account sender in chat. Available actions depend on account permissions, channels and balance. In standard mode, you review and approve the dispatch in Guteneo. Optional expert delegation requires a separate bounded administrator mandate. Installing the connector does not enable a mandate or a channel. The Guteneo web interface is currently in French.",
+    "shortDescription": "PDFs, estimates and dispatches",
+    "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface is currently in French. No delivery or document certification is guaranteed.",
     "category": "Productivity",
     "primaryLanguage": "en-US",
     "supportedLanguages": ["en-US", "fr-FR"],
@@ -22,29 +22,36 @@
     "logoHeight": 512,
     "screenshots": [],
     "conversationStarters": [
-      "Envoie ce PDF par courrier postal ; demande-moi ici les informations manquantes, puis donne-moi le lien pour le valider.",
-      "Aide-moi à préparer ce PDF pour un fax. Montre-moi le prix et le plafond avant toute validation.",
-      "Où en est mon dernier envoi Guteneo ?"
+      "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
+      "Prepare a fax estimate for this PDF without sending it.",
+      "What is the status of my latest Guteneo dispatch?"
     ],
     "supportUrl": "https://guteneo.com/support/",
     "termsOfServiceUrl": "https://guteneo.com/conditions/",
     "availabilityCountries": null,
-    "demoRecordingUrl": null,
+    "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
     "publisherIdentityStatus": "verified_individual_selected_in_portal_legal_name_not_stored",
     "composerIconUrl": "https://guteneo.com/brand/guteneo-composer.png",
     "composerIconLocalPath": "apps/web/public/brand/guteneo-composer.png",
     "composerIconSha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
     "composerIconWidth": 1254,
     "composerIconHeight": 1254,
-    "publicInformationStatus": "implemented_and_locally_verified_pending_production_deployment",
+    "publicInformationStatus": "https_privacy_terms_and_support_public_get_verified_2026-10-02",
     "translations": [
       {
         "locale": "fr-FR",
         "shortDescription": "PDF, devis et suivi des envois",
-        "description": "Importez votre PDF original pour préparer un courrier postal ou un fax. L’assistant retrouve votre expéditeur postal et demande les informations manquantes dans la conversation. Un administrateur connecté peut y enregistrer l’expéditeur du compte. Vous relisez et validez le document, le destinataire et le devis dans Guteneo. Les droits du compte et une éventuelle délégation expert limitée restent applicables. L’installation n’active aucun canal ni mandat."
+        "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est actuellement en français. Aucune livraison ni certification documentaire n’est garantie."
       }
     ],
-    "serviceInterfaceLanguage": "fr-FR"
+    "serviceInterfaceLanguage": "fr-FR",
+    "capabilities": [
+      "Find and import PDFs",
+      "Prepare fax and postal mail",
+      "Review estimates and spending limits",
+      "Track Guteneo dispatches"
+    ],
+    "candidateSource": "integrations/guteneo/plugin.json (0.2.3 candidate, not active portal 0.2.2 metadata)"
   },
   "connection": {
     "mcpServerUrl": "https://guteneo.com/mcp",
@@ -60,63 +67,69 @@
     ],
     "oauthClientId": null,
     "oauthRedirectUri": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
-    "reviewerCredentials": "preparation_script_and_synthetic_pdf_ready_auth0_device_login_expired_without_touch_id",
+    "reviewerCredentials": "current_private_reviewer_login_and_workflow_verification_pending_after_reauthentication",
     "domainVerification": {
-      "status": "issued_token_committed_pending_public_deployment_and_portal_verification",
+      "status": "domain_verified_in_portal_2026-10-02",
       "challengeBaseUrl": "https://guteneo.com",
       "challengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
       "tokenReceived": true,
       "tokenSourcePath": "apps/web/public/.well-known/openai-apps-challenge",
       "tokenBytes": 43,
-      "publicDeploymentVerified": false,
-      "verified": false
+      "publicDeploymentVerified": null,
+      "verified": true,
+      "observedOn": "2026-10-02",
+      "portalLabel": "Domain verified",
+      "challengePublicBytesRecheckedThisRun": false
     },
-    "clientRegistration": "pre_defined_selected_in_portal_pending_client_provisioning"
+    "clientRegistration": "portal_authorized_label_present_current_scan_and_review_connector_require_reauthentication",
+    "oauthConfigurationObservationDate": "2026-09-21",
+    "currentOAuthVerification": "pending_reauthentication_no_successful_new_tool_call"
   },
   "currentPublicObservation": {
-    "observedOn": "2026-09-21",
+    "observedOn": "2026-10-02",
     "timezone": "Europe/Paris",
-    "observedAtUtc": "2026-09-20T22:19:53Z",
-    "method": "Public GET with curl and browser User-Agent; no authenticated tenant or provider call",
-    "sourceCommit": "ef417c7f187bd11e327881b2127eae653288ac58",
+    "method": "Public GETs; no authenticated reviewer data or provider call",
+    "sourceCommit": "5dec27555ea27035b66d0f51162fe75a9755c82f",
     "sourceDirty": false,
-    "builtAt": "2026-09-20T19:44:57.804Z",
-    "applicationVersion": "0.2.0",
-    "mode": "production",
-    "urlImport": true,
-    "liveChannels": ["fax", "postal"],
-    "disabledLiveChannels": ["email"],
-    "channelQualification": "Public configuration only; account permissions, destination eligibility and reviewer workflows require separate evidence",
-    "expertApprovalAvailable": true,
-    "expertApprovalRequiresAccountOptIn": true,
-    "billingConfigured": false,
-    "chargingEnabled": false,
-    "nativeChatGptUi": false,
+    "builtAt": "2026-09-22T21:32:22.470Z",
     "marketplacePublicationVerified": false,
     "publicUrlStatus": {
-      "/confidentialite/": 404,
-      "/conditions/": 404,
-      "/contact/": 404,
-      "/mentions-legales/": 200,
+      "/confidentialite/": 200,
+      "/conditions/": 200,
+      "/support/": 200,
       "/mcp": 401,
-      "/.well-known/oauth-protected-resource/mcp": 200
+      "/.well-known/oauth-protected-resource/mcp": 200,
+      "/review/reviewer-original.pdf": 200,
+      "/review/guteneo-chatgpt-demo-20260921.mp4": 200
+    },
+    "authenticatedAccountQualification": "not_obtained_current_connection_requires_reauthentication",
+    "fixture": {
+      "url": "https://guteneo.com/review/reviewer-original.pdf",
+      "bytes": 4290,
+      "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+      "synthetic": true,
+      "externalSendAuthorized": false
+    },
+    "historicalDemo": {
+      "url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+      "recordingDateFromFilename": "2026-09-21",
+      "bytes": 2367095,
+      "sha256": "8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2",
+      "publicBytesVerified": true,
+      "currentReviewerWorkflowQualifiedByThisGet": false
     }
   },
   "unresolvedSubmissionFields": [
-    "Complete the required MCP scan before saving MCP URL and OAuth; no successful scan or domain verification observed",
-    "Eligible Global project residency; draft creation permission observed",
-    "Published privacy policy covering the actual authenticated service",
-    "OAuth client and exact callback displayed by the submission portal",
-    "Reviewer account, sample data and tested credentials supplied privately",
-    "Five positive cases and three revised no-plugin-invocation negative cases executed with the submission account",
-    "Public deployment of the received domain challenge token and successful Verify Domain result",
-    "Current production tool scan and a justification for each of the three required annotation values on every tool",
-    "Demo-recording URL showing the submitted use cases and supported surfaces",
-    "Published support URL and terms of service URL",
-    "Availability countries explicitly chosen for submission",
-    "Publisher confirmation of language and availability; English (US) and Allow all are unconfirmed portal defaults"
+    "Reconnect reviewer OAuth in the plugin editor; the Oct2 scan and Guteneo Review call require reauthentication",
+    "Obtain a successful current tool scan; the displayed 24-tool catalogue comes from the last available review",
+    "Verify private reviewer credentials and fresh login without inaccessible authentication steps",
+    "Verify fresh review_prepare_only pricing before P5; Sep21 references do not qualify Oct2 without later requalification",
+    "Execute the five positive and three negative cases against the current reviewer account and record observed results",
+    "Confirm the existing historical demo matches every capability promised by the new candidate; add qualified evidence when required",
+    "Check imported fields against the new ZIP and confirm platform/language/country availability choices",
+    "Complete user reauthentication in the existing MCP editor, then rescan; review 0.2.2 has been cancelled and replacement ZIP remains rejected by the MCP app migration prerequisite"
   ],
-  "updatedAt": "2026-09-21",
+  "updatedAt": "2026-10-02",
   "historicalPublicObservation": {
     "observedOn": "2026-09-17",
     "sourceCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
@@ -130,99 +143,341 @@
     "marketplacePublicationVerified": false
   },
   "portalObservation": {
-    "observedOn": "2026-09-21",
+    "observedOn": "2026-10-02",
     "timezone": "Europe/Paris",
-    "organizationLabel": "Guteneo",
-    "status": "draft_incomplete_mcp_scan_required_before_save",
-    "identity": {
-      "kind": "individual",
-      "verifiedInPortal": true,
-      "selectedInDraft": true,
-      "legalNameStored": false
-    },
-    "draftCreated": true,
+    "surface": "Safari OpenAI plugin management",
     "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
-    "versionId": "asdk_app_v_6ab05fbc52b08191824184064aee539f",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "portalUrl": "https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f",
-    "savedFields": [
-      "name",
-      "shortDescription",
-      "description",
-      "category",
-      "websiteUrl",
-      "publisherIdentity",
-      "supportUrl",
-      "privacyPolicyUrl",
-      "termsOfServiceUrl",
-      "englishBaseListing",
-      "frenchTranslation"
-    ],
-    "logoUploads": {
-      "directory": "persisted_after_reload_light_dark_modes_present",
-      "composer": "transparent_derivative_uploaded_both_modes_previews_checked_and_preserved_after_reload"
-    },
-    "mcpServerUrlEntered": "https://guteneo.com/mcp",
-    "authenticationSelected": "oauth",
+    "status": "draft_after_explicit_review_cancellation",
+    "statusLabel": "Draft",
+    "publicationLabel": "Not published",
     "submitted": false,
+    "submittedAt": null,
     "published": false,
-    "reloadedFields": [
-      "name",
-      "version",
-      "shortDescription",
-      "description",
-      "category",
-      "publisherIdentity",
-      "conversationStarters",
-      "releaseNotes",
-      "websiteUrl"
-    ],
-    "mcpConfiguration": {
-      "urlEntered": "https://guteneo.com/mcp",
-      "authenticationSelected": "oauth",
-      "draftSavedMessageObserved": true,
-      "persistedAfterReload": false,
-      "scanAttempts": 3,
-      "scanObservation": "Saving draft then Draft saved, while MCP tools scan is required remains; no OAuth connection, tool snapshot or challenge token obtained.",
-      "oauthFlowObserved": false,
-      "domainChallengeTokenPresent": false,
-      "domainVerificationSucceeded": false,
-      "cause": "Reason for no scan result not established; no save bug proven.",
-      "exitMessage": "Scan your MCP server changes before exiting.",
-      "savePrerequisite": "Portal requires scanning MCP changes before exiting; entering values alone does not complete persistence.",
-      "finalAttemptWaitedForVisibleLoadedButton": true,
-      "attemptsStopped": true,
-      "valuesLeftOnScreen": "entered_only_not_qualified_or_confirmed_persisted",
-      "domainChallengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
-      "preDefinedCallbackObserved": "https://chatgpt.com/connector/oauth/aAwc9dso12_L"
+    "rejectionReason": null,
+    "rejectionObserved": false,
+    "domainVerificationLabel": "Domain verified",
+    "authorizationLabel": "Authorized",
+    "toolCount": 24,
+    "toolCatalogueStatus": "last_available_review_not_current_scan",
+    "currentScan": {
+      "attempted": true,
+      "succeeded": false,
+      "flow": "Legacy editor Scan Tools, draft save, OAuth required dialog, Continue",
+      "result": "Auth0 Log in | Guteneo - OpenAI Review opened with empty login fields",
+      "reauthenticationPending": true,
+      "userLoginRequested": true,
+      "credentialsEnteredByAgent": false,
+      "authorizationRenewed": false,
+      "toolCatalogueUpdated": false
     },
-    "submissionValidation": {
-      "submitEnabled": false,
-      "messages": [
-        "Customer support URL required",
-        "MCP server URL required",
-        "Test case scenario required",
-        "Submit confirmation required"
-      ],
-      "contractualCheckboxesSelected": false,
-      "attestationsMade": false,
-      "contractualConfirmationRequested": false,
-      "finalButtonLabel": "Submit for Review"
+    "directReviewerConnector": {
+      "tool": "get_capabilities",
+      "result": "UNAUTHORIZED",
+      "reauthenticationRequired": true,
+      "accountDataObtained": false,
+      "newReviewerTestsQualified": false
     },
-    "unconfirmedPortalDefaults": {
-      "availability": "Allow all",
-      "publisherConfirmed": false,
-      "language": "English base with French translation now entered"
+    "updateUploadBlockedWhileReviewActive": false,
+    "activeReviewCancelled": true,
+    "newSubmissionPerformed": false,
+    "versionEvidence": "Existing 0.2.2 editable in legacy editor after cancellation and reload",
+    "reviewCancellationReason": "Explicit replacement of existing 0.2.2 submission",
+    "reviewCancellationDoesNotMeanDenied": true,
+    "legacyMcpEditorEditableAfterReload": true,
+    "metadataUpdatesPersisted": false,
+    "candidateUploadAttempted": true,
+    "candidateUploadAccepted": false,
+    "candidatePackageSaved": false,
+    "publicationPerformed": false,
+    "historicalScanFailure": {
+      "attempted": true,
+      "succeeded": false,
+      "message": "Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt.",
+      "recovery": "Reconnect the account in the plugin editor and rescan",
+      "doesNotEstablishReviewRejection": true
     },
-    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
-    "reviewScenariosEntered": {
-      "positiveCases": 5,
-      "negativeCases": 3,
-      "missing": "Exact controlled recipient and ceiling prompt for positive case 4, reviewer credentials and execution evidence",
-      "executed": false
-    }
+    "candidateZipImportAttempts": [
+      {
+        "result": "Image selected instead of ZIP; rejected without package import",
+        "packageSaved": false
+      },
+      {
+        "result": "Rejected because root name must preserve existing app identity",
+        "requiredPackageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+        "packageSaved": false
+      },
+      {
+        "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+        "version": "0.2.3",
+        "bytes": 1283344,
+        "sha256": "bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885",
+        "accepted": false,
+        "packageSaved": false,
+        "messages": [
+          "Keep the existing MCP connection",
+          "Publish the existing MCP app before updating its plugin ZIP."
+        ],
+        "meaning": "Existing MCP app migration prerequisite; no quality-review rejection established"
+      }
+    ]
   },
   "reviewPreparation": {
+    "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
+    "negativeTestCaseIds": ["R1", "R2", "R3"],
+    "additionalInternalCaseIds": [
+      "P4",
+      "P7",
+      "N1",
+      "N2",
+      "N3",
+      "N4",
+      "N5",
+      "N6",
+      "N7"
+    ],
+    "executionStatus": "current_execution_pending_reauthentication_no_oct2_results_obtained",
+    "toolScanStatus": "legacy_editor_reauthentication_pending_no_successful_new_scan",
+    "annotationJustificationsStatus": "historical_audit_available_not_required_as_fields_in_current_submission_flow",
+    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
+    "selectionStatus": "five_positive_three_negative_plan_retained_current_execution_pending",
+    "negativeCaseCompatibility": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; N1/N2/N4 remain internal authorization/isolation checks. The Oct2 controls did not execute these cases.",
+    "candidateReleaseNotes": "Package 0.2.3 updates listing metadata and legal links, adds account onboarding, and clarifies document restrictions and the mandatory stop for review-only fax estimates. Existing account access only; no checkout, subscriptions or credit purchases are introduced. The walkthrough is the existing recording from 21 September 2026. This package changes no hosted server, provider configuration or domain. It claims no new sends, reviewer-test execution, postal qualification, OpenAI approval or directory publication.",
+    "composerIconStatus": "portal_light_dark_previews_checked_and_preserved_after_reload",
+    "fixture": {
+      "path": "integrations/chatgpt/fixtures/reviewer-original.pdf",
+      "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+      "bytes": 4290,
+      "synthetic": true,
+      "containsRecipient": false,
+      "externalSendAuthorized": false
+    },
+    "demoScript": "integrations/chatgpt/demo-recording.md",
+    "toolCount": 24,
+    "reviewPricingFreshness": {
+      "referenceMaximumHours": 168,
+      "authorityMaximumDays": 30,
+      "authorityDoesNotRenewReference": true,
+      "currentReviewerReferenceVerified": false,
+      "historicalSeptember21ReferenceQualifiesOctober2WithoutRefresh": false
+    },
+    "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+    "demoPublicBytesVerifiedOn": "2026-10-02",
+    "historicalDemoDoesNotQualifyCurrentReviewerRun": true
+  },
+  "submissionSources": [
+    "https://developers.openai.com/plugins/deploy/submission",
+    "https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission"
+  ],
+  "historicalPortalObservation": {
+    "observedOn": "2026-09-21",
+    "timezone": "Europe/Paris",
+    "status": "blocked_developer_verification",
+    "draftCreated": false,
+    "pluginId": null,
+    "submitted": false,
+    "published": false
+  },
+  "candidateCi": {
+    "commit": "89b9bd79efc4040f3c6b05950e12203280a4fa9a",
+    "runId": "35541687278",
+    "url": "https://github.com/nclsppr/guteneo/actions/runs/35541687278",
+    "allChecks": "success",
+    "productionDeploymentProven": false,
+    "historical": true,
+    "doesNotQualifyCandidate023": true
+  },
+  "authorization": {
+    "source": "explicit_publisher_instructions_in_task",
+    "submitAuthorized": true,
+    "publicPagesAndDomainVerificationAuthorized": true,
+    "reviewerAccountAndTestsAndVideoAuthorized": true,
+    "publisherSaysTermsReadAndAcceptanceAuthorized": true,
+    "attestationsMustRemainEvidenceBased": true
+  },
+  "candidateUpdate": {
+    "version": "0.2.3",
+    "preparedAt": "2026-10-02",
+    "notes": "Package 0.2.3 updates listing metadata and legal links, adds account onboarding, and clarifies document restrictions and the mandatory stop for review-only fax estimates. Existing account access only; no checkout, subscriptions or credit purchases are introduced. The walkthrough is the existing recording from 21 September 2026. This package changes no hosted server, provider configuration or domain. It claims no new sends, reviewer-test execution, postal qualification, OpenAI approval or directory publication.",
+    "portalUpdated": false,
+    "submitted": false,
+    "publishedToDirectory": false,
+    "onboardingSkill": "./skills/get-started/SKILL.md",
+    "uploadAttempted": true,
+    "uploadAccepted": false,
+    "packageSavedInPortal": false,
+    "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+    "archiveBytes": 1283344,
+    "archiveSha256": "bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885",
+    "uploadBlocker": "Publish the existing MCP app before updating its plugin ZIP.",
+    "legacyMcpEditorFallback": "available_pending_user_reauthentication"
+  },
+  "historicalPublicObservations": [
+    {
+      "observedOn": "2026-09-21",
+      "timezone": "Europe/Paris",
+      "observedAtUtc": "2026-09-20T22:19:53Z",
+      "method": "Public GET with curl and browser User-Agent; no authenticated tenant or provider call",
+      "sourceCommit": "ef417c7f187bd11e327881b2127eae653288ac58",
+      "sourceDirty": false,
+      "builtAt": "2026-09-20T19:44:57.804Z",
+      "applicationVersion": "0.2.0",
+      "mode": "production",
+      "urlImport": true,
+      "liveChannels": ["fax", "postal"],
+      "disabledLiveChannels": ["email"],
+      "channelQualification": "Public configuration only; account permissions, destination eligibility and reviewer workflows require separate evidence",
+      "expertApprovalAvailable": true,
+      "expertApprovalRequiresAccountOptIn": true,
+      "billingConfigured": false,
+      "chargingEnabled": false,
+      "nativeChatGptUi": false,
+      "marketplacePublicationVerified": false,
+      "publicUrlStatus": {
+        "/confidentialite/": 404,
+        "/conditions/": 404,
+        "/contact/": 404,
+        "/mentions-legales/": 200,
+        "/mcp": 401,
+        "/.well-known/oauth-protected-resource/mcp": 200
+      }
+    }
+  ],
+  "historicalPortalObservations": [
+    {
+      "observedOn": "2026-09-21",
+      "timezone": "Europe/Paris",
+      "organizationLabel": "Guteneo",
+      "status": "draft_incomplete_mcp_scan_required_before_save",
+      "identity": {
+        "kind": "individual",
+        "verifiedInPortal": true,
+        "selectedInDraft": true,
+        "legalNameStored": false
+      },
+      "draftCreated": true,
+      "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
+      "versionId": "asdk_app_v_6ab05fbc52b08191824184064aee539f",
+      "version": "0.2.1",
+      "portalUrl": "https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f",
+      "savedFields": [
+        "name",
+        "shortDescription",
+        "description",
+        "category",
+        "websiteUrl",
+        "publisherIdentity",
+        "supportUrl",
+        "privacyPolicyUrl",
+        "termsOfServiceUrl",
+        "englishBaseListing",
+        "frenchTranslation"
+      ],
+      "logoUploads": {
+        "directory": "persisted_after_reload_light_dark_modes_present",
+        "composer": "transparent_derivative_uploaded_both_modes_previews_checked_and_preserved_after_reload"
+      },
+      "mcpServerUrlEntered": "https://guteneo.com/mcp",
+      "authenticationSelected": "oauth",
+      "submitted": false,
+      "published": false,
+      "reloadedFields": [
+        "name",
+        "version",
+        "shortDescription",
+        "description",
+        "category",
+        "publisherIdentity",
+        "conversationStarters",
+        "releaseNotes",
+        "websiteUrl"
+      ],
+      "mcpConfiguration": {
+        "urlEntered": "https://guteneo.com/mcp",
+        "authenticationSelected": "oauth",
+        "draftSavedMessageObserved": true,
+        "persistedAfterReload": false,
+        "scanAttempts": 3,
+        "scanObservation": "Saving draft then Draft saved, while MCP tools scan is required remains; no OAuth connection, tool snapshot or challenge token obtained.",
+        "oauthFlowObserved": false,
+        "domainChallengeTokenPresent": false,
+        "domainVerificationSucceeded": false,
+        "cause": "Reason for no scan result not established; no save bug proven.",
+        "exitMessage": "Scan your MCP server changes before exiting.",
+        "savePrerequisite": "Portal requires scanning MCP changes before exiting; entering values alone does not complete persistence.",
+        "finalAttemptWaitedForVisibleLoadedButton": true,
+        "attemptsStopped": true,
+        "valuesLeftOnScreen": "entered_only_not_qualified_or_confirmed_persisted",
+        "domainChallengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
+        "preDefinedCallbackObserved": "https://chatgpt.com/connector/oauth/aAwc9dso12_L"
+      },
+      "submissionValidation": {
+        "submitEnabled": false,
+        "messages": [
+          "Customer support URL required",
+          "MCP server URL required",
+          "Test case scenario required",
+          "Submit confirmation required"
+        ],
+        "contractualCheckboxesSelected": false,
+        "attestationsMade": false,
+        "contractualConfirmationRequested": false,
+        "finalButtonLabel": "Submit for Review"
+      },
+      "unconfirmedPortalDefaults": {
+        "availability": "Allow all",
+        "publisherConfirmed": false,
+        "language": "English base with French translation now entered"
+      },
+      "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
+      "reviewScenariosEntered": {
+        "positiveCases": 5,
+        "negativeCases": 3,
+        "missing": "Exact controlled recipient and ceiling prompt for positive case 4, reviewer credentials and execution evidence",
+        "executed": false
+      }
+    },
+    {
+      "observedOn": "2026-10-02",
+      "timezone": "Europe/Paris",
+      "surface": "Safari OpenAI plugin management",
+      "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
+      "version": "0.2.2",
+      "portalUrl": "https://platform.openai.com/plugins/manage/plugin_asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
+      "status": "in_review",
+      "statusLabel": "In review",
+      "publicationLabel": "Not published",
+      "submitted": true,
+      "submittedAt": null,
+      "published": false,
+      "rejectionReason": null,
+      "rejectionObserved": false,
+      "domainVerificationLabel": "Domain verified",
+      "authorizationLabel": "Authorized",
+      "toolCount": 24,
+      "toolCatalogueStatus": "last_available_review_not_current_scan",
+      "currentScan": {
+        "attempted": true,
+        "succeeded": false,
+        "message": "Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt.",
+        "recovery": "Reconnect the account in the plugin editor and rescan",
+        "doesNotEstablishReviewRejection": true
+      },
+      "directReviewerConnector": {
+        "tool": "get_capabilities",
+        "result": "UNAUTHORIZED",
+        "reauthenticationRequired": true,
+        "accountDataObtained": false,
+        "newReviewerTestsQualified": false
+      },
+      "updateUploadBlockedWhileReviewActive": true,
+      "activeReviewCancelled": false,
+      "candidateUploaded": false,
+      "newSubmissionPerformed": false
+    }
+  ],
+  "historicalReviewPreparation": {
     "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
     "negativeTestCaseIds": ["R1", "R2", "R3"],
     "additionalInternalCaseIds": [
@@ -254,39 +509,50 @@
     },
     "demoScript": "integrations/chatgpt/demo-recording.md"
   },
-  "submissionSources": [
-    "https://developers.openai.com/plugins/deploy/submission",
-    "https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission"
-  ],
-  "historicalPortalObservation": {
-    "observedOn": "2026-09-21",
-    "timezone": "Europe/Paris",
-    "status": "blocked_developer_verification",
-    "draftCreated": false,
-    "pluginId": null,
-    "submitted": false,
-    "published": false
-  },
-  "candidateCi": {
-    "commit": "89b9bd79efc4040f3c6b05950e12203280a4fa9a",
-    "runId": "35541687278",
-    "url": "https://github.com/nclsppr/guteneo/actions/runs/35541687278",
-    "allChecks": "success",
-    "productionDeploymentProven": false
-  },
-  "authorization": {
-    "source": "explicit_publisher_instructions_in_task",
-    "submitAuthorized": true,
-    "publicPagesAndDomainVerificationAuthorized": true,
-    "reviewerAccountAndTestsAndVideoAuthorized": true,
-    "publisherSaysTermsReadAndAcceptanceAuthorized": true,
-    "attestationsMustRemainEvidenceBased": true
-  },
-  "candidateUpdate": {
+  "historicalCandidateUpdate": {
     "version": "0.2.2",
     "preparedAt": "2026-09-21",
     "notes": "Parcours postal dans le chat : expéditeur existant ou saisi, configuration sous autorité administrateur OAuth, reprises postales dédiées et lien de revue standard. Le nouveau catalogue doit être actualisé et qualifié dans chaque hôte.",
     "portalUpdated": false,
     "publishedToDirectory": false
+  },
+  "submittedVersion": "0.2.2",
+    "candidateStatus": "candidate_import_attempted_not_accepted_or_submitted",
+  "currentSubmissionFlow": {
+    "observedOn": "2026-10-02",
+    "packageSource": "ZIP plugin package",
+    "importedFieldsReadOnlyInPortal": true,
+    "annotationJustificationsRequiredAsSubmissionFields": false,
+    "annotationsMustMatchToolEffects": true,
+    "internalWorksheetIsOfficialUploadArtifact": false,
+    "activeReviewMustBeCancelledBeforeUpdatedUpload": true,
+    "cancellationPerformed": true,
+    "source": "https://developers.openai.com/plugins/deploy/submission",
+    "existingMcpAppZipMigrationPrerequisite": "Publish the existing MCP app before updating its plugin ZIP.",
+    "rootPackageIdentityMustBePreserved": "app-6ab05fbae9a881918dc6ee4e2f235d93"
+  },
+  "historicalListingCandidate": {
+    "shortDescription": "PDFs, postal mail and fax",
+    "description": "Find your Guteneo PDFs or import an original document. Prepare postal mail or a fax, review its estimate and spending limit, then track its status. For postal mail, the assistant asks for missing sender and recipient details in the conversation. An authenticated administrator can configure the account sender in chat. Available actions depend on account permissions, channels and balance. In standard mode, you review and approve the dispatch in Guteneo. Optional expert delegation requires a separate bounded administrator mandate. Installing the connector does not enable a mandate or a channel. The Guteneo web interface is currently in French.",
+    "conversationStarters": [
+      "Envoie ce PDF par courrier postal ; demande-moi ici les informations manquantes, puis donne-moi le lien pour le valider.",
+      "Aide-moi à préparer ce PDF pour un fax. Montre-moi le prix et le plafond avant toute validation.",
+      "Où en est mon dernier envoi Guteneo ?"
+    ],
+    "translations": [
+      {
+        "locale": "fr-FR",
+        "shortDescription": "PDF, devis et suivi des envois",
+        "description": "Importez votre PDF original pour préparer un courrier postal ou un fax. L’assistant retrouve votre expéditeur postal et demande les informations manquantes dans la conversation. Un administrateur connecté peut y enregistrer l’expéditeur du compte. Vous relisez et validez le document, le destinataire et le devis dans Guteneo. Les droits du compte et une éventuelle délégation expert limitée restent applicables. L’installation n’active aucun canal ni mandat."
+      }
+    ]
+  },
+  "oauthSourceDiagnosis": {
+    "evidenceType": "repository_source_only",
+    "preparedConfigurationRefreshTokensEnabled": false,
+    "localAccessTokenMaximumAgeSeconds": 3600,
+    "liveEffectiveAuth0SettingsVerified": false,
+    "definitiveCauseOfPortalAuthorizationErrorEstablished": false,
+    "liveOAuthConfigurationChanged": false
   }
 }

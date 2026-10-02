@@ -1,0 +1,15 @@
+---
+name: get-started
+description: Expliquer la connexion et les fonctions d’un compte Guteneo lors de la première utilisation du plugin ou d’une demande de prise en main. Vérifier les capacités et orienter vers le parcours fax ou courrier choisi, sans importer, configurer un expéditeur, accorder un mandat ni envoyer.
+---
+
+# Commencer avec Guteneo
+
+Respectez la demande et les choix explicites de la personne. Ce parcours d’accueil explique l’accès et les prochaines étapes ; il n’accorde aucune autorisation d’import, de configuration, de transfert ou d’envoi.
+
+1. Si Guteneo demande une connexion, proposez le flux OAuth de l’hôte. Ne demandez jamais un mot de passe, une clé API ou un code dans la conversation. La connexion et l’accès de chaque compte restent distincts de l’installation du paquet.
+2. Une fois connecté, appelez `get_capabilities` et résumez seulement le mode, les fonctions disponibles et les blocages pertinents. Cet appel peut enregistrer la dernière utilisation de la connexion. N’inférez pas les droits du compte à partir des capacités générales du service.
+3. Avant de demander un document, annoncez que le parcours exclut les données de carte de paiement soumises à PCI DSS, les données de santé protégées (PHI), les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles. Si leur présence est connue, ne demandez ni import, ni génération, ni lecture ou revue du document, même s’il existe déjà dans Guteneo. Une analyse antivirus ne qualifie pas son contenu pour cette règle. Proposez un document nettoyé par la personne avant partage ; ne demandez pas les valeurs exclues et ne conseillez pas un dépôt web pour contourner cette limite. La [politique de confidentialité](https://guteneo.com/confidentialite/#donnees) décrit les traitements et les contrôles.
+4. Si la personne souhaite préparer un envoi, conservez son choix fax ou courrier et consultez le skill correspondant, `fax-pdf` ou `postal-pdf`. Demandez le canal seulement s’il est ambigu. Utilisez uniquement les outils Guteneo réellement disponibles. L’import exige les octets originaux fournis par l’hôte ou un document déjà enregistré ; ne publiez pas de fichier et n’inventez pas de lien pour contourner une limite de transfert.
+5. Expliquez le parcours standard : document, destinataire et devis relus et approuvés par la personne dans Guteneo. Le mode expert exige un mandat administrateur préalable, borné et temporaire pour cette connexion OAuth. Ne l’activez, ne l’étendez et ne confondez pas un accord dans le chat avec ce mandat. Les confirmations de l’hôte et les contrôles serveur restent applicables. Un devis `review_prepare_only` ne peut pas être approuvé ni envoyé ; arrêtez alors à sa présentation.
+6. Utilisez l’accès d’un compte existant. Ne vendez ni abonnement, ni service, ni crédits ; ne proposez pas de recharge, de montée en gamme ni de checkout. Si les droits ou le solde ne permettent pas une action, expliquez cette indisponibilité sans ouvrir de transaction. Une consultation de statut peut être proposée si elle répond à la demande ; aucun envoi ni notification automatique n’est créé par l’accueil.
