@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import { publicLanguagePicker } from "../public-language";
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
@@ -119,7 +120,7 @@ test("every public page applies its language selector without preview API calls"
     const response = await page.goto(`${path}?lang=en`);
     expect(response?.status()).toBe(200);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    const selector = page.locator('select[name="language"]').first();
+    const selector = await publicLanguagePicker(page);
     await expect(selector).toHaveValue("en");
     await selector.selectOption("de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");

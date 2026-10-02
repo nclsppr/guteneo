@@ -1,6 +1,6 @@
 import { formatLocale } from "../locale";
 import { msg } from "../messages";
-import { LanguageSelect } from "../language-select";
+import { LanguageMenu } from "../language-select";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { LuxembourgFooter } from "../landing-sections";
 import { Brand } from "../brand";
@@ -20,7 +20,7 @@ function EditorialHeader() {
   return (
     <header className="site-header editorial-header">
       <Brand />
-      <LanguageSelect />
+      <LanguageMenu />
       <nav aria-label={msg("Navigation principale")}>
         <a href="/journal/">{msg("Le journal")}</a>
         <a className="button small" href="/#/app">

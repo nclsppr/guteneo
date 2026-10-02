@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { supportedLocales } from "../../packages/contracts/src/locale";
 import { publicFilmAsset } from "../../packages/contracts/src/public-videos";
+import { publicLanguagePicker } from "../public-language";
 
 type Call = { name: string; active: boolean; src: string };
 type FilmWindow = Window & { filmCalls: Call[] };
@@ -166,7 +167,7 @@ for (const film of ["introduction", "roles"] as const) {
     const section = page.locator(`[data-film="${film}"]`);
     await section.locator(".homepage-film-play").click();
     const source = await section.locator("video").getAttribute("src");
-    await page.locator('header select[name="language"]').selectOption("de");
+    await (await publicLanguagePicker(page)).selectOption("de");
     await expect(section).toHaveAttribute("data-locale", "de");
     await expect(section.locator("video")).not.toHaveAttribute("src");
     await expect(section.locator("video")).toBeHidden();

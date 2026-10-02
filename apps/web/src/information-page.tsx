@@ -1,4 +1,4 @@
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import type { ReactNode } from "react";
 import { ArrowLeft } from "@phosphor-icons/react";
@@ -678,7 +678,7 @@ export function InformationPage({
       </a>
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <a className="legal-back" href="/">
           <ArrowLeft size={18} aria-hidden="true" />{" "}
           {msg(" Retour à l’accueil")}

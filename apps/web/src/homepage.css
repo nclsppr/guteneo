@@ -307,7 +307,7 @@
     background: var(--surface);
     border: 1px solid var(--line);
   }
-  .homepage .site-header .mobile-navigation > a {
+  .homepage .site-header .mobile-navigation:not([hidden]) > a {
     display: flex;
     align-items: center;
     justify-content: space-between;

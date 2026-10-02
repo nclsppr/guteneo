@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
+import { publicLanguagePicker } from "../public-language";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -308,7 +309,7 @@ test("public guide explains all roles and supervisor options in four languages",
       "Ufroe geneemegen a refuséieren",
     ],
   ]) {
-    await page.locator(".language-selector select").selectOption(locale);
+    await (await publicLanguagePicker(page)).selectOption(locale);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
     await expect(
       page.locator("dt").filter({ hasText: new RegExp(`^${operator}$`) }),
