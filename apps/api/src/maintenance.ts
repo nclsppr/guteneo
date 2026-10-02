@@ -82,6 +82,8 @@ export async function maintainDocuments(
     .run();
   for (const table of [
     "auth_transactions",
+    "native_authorization_codes",
+    "native_sessions",
     "browser_sessions",
     "development_mcp_tokens",
   ])

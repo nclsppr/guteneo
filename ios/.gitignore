@@ -1,0 +1,7 @@
+DerivedData/
+TestResults/
+build/
+*.xcuserstate
+xcuserdata/
+ExportOptions.local.plist
+.build/
