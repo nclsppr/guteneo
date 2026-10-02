@@ -132,6 +132,17 @@ async function fixture(page: Page) {
       };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
     else if (path === "/dispatches") body = { items: [], nextCursor: null };
+    else if (path === "/overview")
+      body = {
+        documents: 0,
+        dispatches: {
+          total: 0,
+          approval: 0,
+          in_progress: 0,
+          attention: 0,
+          done: 0,
+        },
+      };
     else {
       unmatched.push(`${route.request().method()} ${path}`);
       status = 503;

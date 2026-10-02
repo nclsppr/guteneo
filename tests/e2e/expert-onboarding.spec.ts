@@ -172,9 +172,10 @@ test("an expired mandate keeps its limits and requires an explicit renewal", asy
     name: "Connexion choisie dans ChatGPT",
   });
   await expect(connection).toContainText("Délégation expirée");
+  // Stored cents are shown back with the French decimal comma.
   await expect(
     connection.getByLabel("Plafond par envoi (€)", { exact: true }),
-  ).toHaveValue("2.35");
+  ).toHaveValue("2,35");
   await expect(
     connection.getByLabel("Plafond par jour (€)", { exact: true }),
   ).toHaveValue("18");

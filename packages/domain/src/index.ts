@@ -28,6 +28,12 @@ import {
 import { ensureCreditPeriod, readWelcomeCredit } from "./welcome-credit";
 import { readFaxPricing, readFaxPricingBatch } from "./live-fax-usage";
 import type { FaxPricing } from "../../contracts/src/fax-pricing";
+import {
+  DISPATCH_GROUPS,
+  isDispatchGroup,
+  type DispatchGroup,
+  type DispatchOverview,
+} from "../../contracts/src/dispatch-groups";
 export { settleFaxUsage, type OperatorFaxUsageProof } from "./live-fax-usage";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
@@ -477,6 +483,7 @@ export class DomainService {
     org: string,
     cursor?: string,
     limit = 30,
+    statuses?: readonly string[],
   ) {
     const size = Math.max(1, Math.min(Number(limit) || 30, 100));
     let after: { created_at: string; id: string } | null = null;
@@ -493,20 +500,18 @@ export class DomainService {
         throw new DomainError("INVALID_CURSOR", "Curseur invalide.");
       }
     }
+    // Statuses come from a server-side group, never from the request itself.
     const statement = this.db.prepare(
-      `SELECT * FROM ${table} WHERE organization_id=? ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
+      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
     );
-    const { results } = await (
-      after
-        ? statement.bind(
-            org,
-            after.created_at,
-            after.created_at,
-            after.id,
-            size + 1,
-          )
-        : statement.bind(org, size + 1)
-    ).all<T>();
+    const { results } = await statement
+      .bind(
+        org,
+        ...(statuses ? [JSON.stringify(statuses)] : []),
+        ...(after ? [after.created_at, after.created_at, after.id] : []),
+        size + 1,
+      )
+      .all<T>();
     const items = results.slice(0, size);
     const last = items.at(-1) as { created_at: string; id: string } | undefined;
     return {
@@ -1342,13 +1347,24 @@ export class DomainService {
       approval,
     };
   }
-  async listDispatches(ctx: ActorContext, cursor?: string, limit = 30) {
+  async listDispatches(
+    ctx: ActorContext,
+    cursor?: string,
+    limit = 30,
+    group?: string,
+  ) {
     await this.organization(ctx);
+    if (group !== undefined && !isDispatchGroup(group))
+      throw new DomainError(
+        "INVALID_GROUP",
+        "Filtre d’envois inconnu. Utilisez approval, in_progress, attention ou done.",
+      );
     const page = await this.page<Dispatch>(
       "dispatches",
       ctx.organizationId,
       cursor,
       limit,
+      group === undefined ? undefined : DISPATCH_GROUPS[group as DispatchGroup],
     );
     const [pricing, quotes] = await Promise.all([
       readFaxPricingBatch(
@@ -1374,6 +1390,38 @@ export class DomainService {
       if (faxPricing) row.faxPricing = faxPricing;
     }
     return page;
+  }
+  /** Organization-wide counters for the browser overview, not page-bounded. */
+  async dispatchOverview(ctx: ActorContext): Promise<DispatchOverview> {
+    await this.organization(ctx);
+    const [documents, statuses] = await Promise.all([
+      this.db
+        .prepare("SELECT count(*) AS n FROM documents WHERE organization_id=?")
+        .bind(ctx.organizationId)
+        .first<{ n: number }>(),
+      this.db
+        .prepare(
+          "SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? GROUP BY status",
+        )
+        .bind(ctx.organizationId)
+        .all<{ status: string; n: number }>(),
+    ]);
+    const dispatches: DispatchOverview["dispatches"] = {
+      total: 0,
+      approval: 0,
+      in_progress: 0,
+      attention: 0,
+      done: 0,
+    };
+    for (const row of statuses.results) {
+      dispatches.total += row.n;
+      for (const [group, members] of Object.entries(DISPATCH_GROUPS) as [
+        DispatchGroup,
+        readonly string[],
+      ][])
+        if (members.includes(row.status)) dispatches[group] += row.n;
+    }
+    return { documents: documents?.n ?? 0, dispatches };
   }
   async cancelDispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
     writable(ctx);

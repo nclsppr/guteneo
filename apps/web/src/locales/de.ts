@@ -32,7 +32,11 @@ export const de: Copy = {
   recipient: "Empfänger",
   document: "Dokument",
   actions: "Aktionen",
-  channels: { fax: "Fax", email: "E-Mail", postal: "Briefpost" },
+  channels: {
+    fax: "Fax",
+    email: "E-Mail",
+    postal: "Briefpost",
+  },
   nav: {
     overview: "Übersicht",
     documents: "Dokumente",
@@ -118,6 +122,24 @@ export const de: Copy = {
       atelier: "Die Werkstatt",
       legal: "Impressum",
     },
+    film: {
+      title: "Der nächste Weg Ihrer Worte.",
+      italic: "In Bewegung.",
+      intro:
+        "Von Ihrer ersten Idee bis zum Ziel. Entdecken Sie Guteneo in 56 Sekunden.",
+      play: "Film ansehen",
+      replay: "Film erneut ansehen",
+      duration: "56 Sekunden · Ton auf Französisch",
+      videoLabel: "Vorstellungsfilm von Guteneo",
+      fullscreen: "Vollbild",
+      close: "Player schließen",
+      loading: "Film wird geladen…",
+      error:
+        "Die Wiedergabe konnte nicht starten. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      transcriptTitle: "Filmtext lesen",
+      transcript:
+        "Von einem Dokument bis zu mehr als 10.000 verteilt Guteneo Ihre Kampagnen, von einfachen bis zu individuell gestalteten. Importieren Sie ein PDF oder erstellen Sie Ihre eigene Vorlage. Bitten Sie Ihren Assistenten in ChatGPT, Claude oder Copilot, ein PDF zu erstellen, und bereiten Sie dann den Versand mit Guteneo vor. Prüfen Sie den Druckabzug und das Angebot, bevor Sie die Freigabe erteilen. Wählen Sie klassische oder verschlüsselte E-Mail, Fax oder Druck und Postversand in ganz Europa. Guteneo ist auch im Web und in der iOS-App verfügbar. Guteneo. Der nächste Weg Ihrer Worte.",
+    },
   },
   postalCutoff: {
     title: "Annahmeschluss für die Verarbeitung",
@@ -161,9 +183,9 @@ export const de: Copy = {
     new: "Sendung vorbereiten",
     recent: "Letzte Sendungen",
     all: "Alle Sendungen ansehen",
-    documents: "Angezeigte Dokumente",
-    waiting: "Hier freizugeben",
-    tracked: "Angezeigte Sendungen",
+    documents: "Dokumente",
+    waiting: "Zur Freigabe",
+    tracked: "Sendungen",
     emptyTitle: "Hier beginnt Ihre erste Sendung.",
     emptyBody:
       "Importieren Sie eine PDF-Datei oder verfassen Sie einen Brief. Vor jeder Bestätigung können Sie den Inhalt prüfen.",
@@ -171,6 +193,12 @@ export const de: Copy = {
     connectionBody:
       "Bereiten Sie Ihre Sendungen im Gespräch vor und finden Sie hier dieselben Dokumente und Kennungen wieder.",
     connect: "Verbindung einrichten",
+    attention: "Zu prüfen",
+    statsLabel: "Übersicht des Arbeitsbereichs",
+    attentionTitle: "Einige Sendungen benötigen Ihre Aufmerksamkeit.",
+    attentionBody:
+      "Ihr Ergebnis ist ungewiss oder negativ. Prüfen Sie den Verlauf, bevor Sie eine weitere Sendung vorbereiten.",
+    attentionAction: "Zu prüfende Sendungen ansehen",
   },
   documents: {
     title: "Das Ausgangsmaterial.",
@@ -248,16 +276,20 @@ export const de: Copy = {
     postalCode: "Postleitzahl",
     city: "Ort",
     country: "Land",
-    countries: { FR: "Frankreich", LU: "Luxemburg", DE: "Deutschland" },
+    countries: {
+      FR: "Frankreich",
+      LU: "Luxemburg",
+      DE: "Deutschland",
+    },
     subject: "Betreff",
     html: "HTML-Version",
     text: "Textversion",
     textHelp: "Die Textversion ist Teil des freigegebenen Inhalts.",
     attachment: "PDF-Anhang (optional)",
     none: "Ohne Anhang",
-    ceiling: "Kostenobergrenze dieser Sendung in Eurocent",
+    ceiling: "Ausgabenlimit für diese Sendung, in Euro",
     ceilingHelp:
-      "Nur ganze Zahlen. Die Obergrenze wird zusammen mit Inhalt und Einstellungen geprüft.",
+      "Genehmigter Höchstbetrag, auf den Cent genau (z. B. 5 oder 5,25). Das Limit wird mit Inhalt und Einstellungen geprüft.",
     prepare: "Prüfen und vorbereiten",
     preparing: "Wird vorbereitet…",
     reviewTitle: "Bereit zur Freigabe.",
@@ -301,6 +333,21 @@ export const de: Copy = {
     version: "Version zur Freigabe",
     loadMore: "Weitere anzeigen",
     noChange: "Der Inhalt dieser Vorbereitung steht fest.",
+    filterLabel: "Anzeigen",
+    groups: {
+      all: "Alle",
+      approval: "Zur Freigabe",
+      in_progress: "In Bearbeitung",
+      attention: "Zu prüfen",
+      done: "Abgeschlossen",
+    },
+    groupEmpty: "Keine Sendungen in dieser Auswahl.",
+    ceilingFormat: "Betrag in Euro, zum Beispiel 5 oder 5,25.",
+    ceilingInvalid:
+      "Geben Sie ein Ausgabenlimit in Euro zwischen 0 und 10.000 € ein.",
+    cancelQuestion:
+      "Die Stornierung dieser Sendung anfordern? Sie ist nur vor der Übermittlung an den Dienstleister möglich.",
+    cancelConfirm: "Ja, Stornierung anfordern",
   },
   campaigns: {
     title: "Ein Brief. Viele Ziele.",
@@ -389,6 +436,9 @@ export const de: Copy = {
       "Verwenden Sie die genaue Client-Kennung, die Sie von Ihrem Administrator erhalten haben. Diese Verknüpfung erfordert eine erneute Anmeldung im Assistenten.",
     rebound:
       "Verknüpfung gespeichert. Verbinden Sie den Assistenten erneut, um eine neue Autorisierung zu erhalten.",
+    revokeQuestion:
+      "Den Zugriff dieses Assistenten widerrufen? Er kann erst nach einer erneuten Verbindung wieder Sendungen vorbereiten.",
+    revokeConfirm: "Ja, widerrufen",
   },
   senders: {
     title: "Wer greift zur Feder?",
@@ -462,11 +512,11 @@ export const de: Copy = {
       "Verstehen Sie Vorfälle, bevor Sie handeln. Ungewisse Übermittlungen werden nie ungeprüft wiederholt.",
     refresh: "Diagnose aktualisieren",
     state: "Betriebsdiagnose",
-    uncertain: "Abzugleichende Sendungen",
+    uncertain: "Zu prüfende Sendungen",
     failed: "Zu prüfende Fehler",
     outbox: "Ausstehende Veröffentlichungen",
     health: "Konnektoren",
-    noIncidents: "Keine Vorfälle bei den angezeigten Sendungen.",
+    noIncidents: "Keine zu prüfenden Sendungen in diesem Arbeitsbereich.",
     note: "Wiederaufnahmemaßnahmen für eine möglicherweise angenommene Sendung erfordern einen Abgleich mit dem Anbieter.",
     restricted: "Dieser Bildschirm erfordert eine Administratorrolle.",
     deadLetters: "Nachrichten in der Fehlerwarteschlange",
@@ -481,6 +531,9 @@ export const de: Copy = {
     resume: "Reaktivieren",
     controlsHelp:
       "Das Pausieren blockiert die nächsten Übermittlungen Ihrer Organisation. Vom Anbieter bereits angenommene Sendungen müssen weiterhin abgeglichen werden.",
+    pauseQuestion:
+      "Diesen Kanal pausieren? Neue Übermittlungen aus diesem Arbeitsbereich werden bis zur erneuten Aktivierung blockiert.",
+    pauseConfirm: "Ja, pausieren",
   },
   statuses: {
     verified: "Geprüft",
@@ -522,5 +575,11 @@ export const de: Copy = {
     materializing: "Empfänger werden vorbereitet",
     active: "Aktiv",
     simulation: "Simulation",
+  },
+  confirmDismiss: "Nichts ändern",
+  sessionExpired: {
+    title: "Ihre Sitzung ist abgelaufen.",
+    body: "Melden Sie sich erneut an, um fortzufahren. Sie kehren auf diese Seite zurück. Nicht gesendete Eingaben auf diesem Bildschirm bleiben nach der erneuten Anmeldung nicht erhalten.",
+    action: "Erneut anmelden",
   },
 };
