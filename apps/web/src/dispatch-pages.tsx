@@ -972,8 +972,8 @@ export function PrepareDispatch({
           </Field>
           {!isPublicPreview && (
             <Field
-              label="Ou importer un PDF"
-              hint="Votre fichier est vérifié ici, sans quitter la préparation."
+              label={msg("Ou importer un PDF")}
+              hint={msg("Votre fichier est vérifié ici, sans quitter la préparation.")}
             >
               <input
                 type="file"
@@ -1937,7 +1937,7 @@ export function DispatchDetailPage({
                       d.quote_pricing_basis === "public_list_price_ex_tax"
                     ? t.postalSetup.quote
                     : protectedDelivery(d)
-                      ? "Total estimé, e-mail et hébergement"
+                      ? msg("Total estimé, e-mail et hébergement")
                       : t.dispatch.estimate
               }
             >
@@ -2145,8 +2145,8 @@ export function DispatchDetailPage({
                   ? t.loading
                   : d.channel === "email"
                     ? simulation
-                      ? "Approuver et simuler l’envoi"
-                      : "Approuver et envoyer"
+                      ? msg("Approuver et simuler l’envoi")
+                      : msg("Approuver et envoyer")
                     : t.dispatch.approve}
               </button>
             </section>

@@ -368,6 +368,30 @@ export const fr = {
     total: "Destinataires",
     inspect: "Consulter la campagne",
   },
+  claudeConnect: {
+    connect: "Connecter à Claude",
+    prerequisite:
+      "Avant de commencer, créez votre compte Guteneo, vérifiez votre adresse e-mail et connectez-vous ici une première fois.",
+    account: "Ouvrir mon compte Guteneo",
+    clientId: "Identifiant public à coller dans Claude",
+    publicId:
+      "Cet identifiant est commun aux utilisateurs de Guteneo. Ce n’est pas un mot de passe.",
+    copy: "Copier l’identifiant",
+    copied: "Identifiant copié.",
+    copyFallback:
+      "La copie automatique est indisponible. Sélectionnez l’identifiant dans le champ ci-dessus et copiez-le.",
+    linkHelp:
+      "Ouvre Claude dans un nouvel onglet avec le nom Guteneo et l’adresse du serveur déjà remplis.",
+    unavailable:
+      "La connexion est disponible sur guteneo.com. Elle est désactivée dans cet aperçu et en développement local.",
+    steps: [
+      "Dans le formulaire Claude, choisissez « Use your own OAuth client » (utiliser votre propre client OAuth).",
+      "Collez l’identifiant public ci-dessus dans « Client ID ». Laissez « Client secret » vide, puis ajoutez le connecteur.",
+      "Connectez votre propre compte Guteneo et examinez les permissions demandées. Activez ensuite Guteneo dans votre conversation.",
+    ],
+    reconnect:
+      "Après expiration, reconnectez votre compte depuis les paramètres de connecteurs de Claude. Si vous avez révoqué l’accès dans Guteneo, réassociez d’abord l’assistant à votre organisation dans « Connecter un assistant », puis reconnectez-le dans Claude.",
+  },
   connection: {
     title: "La conversation continue ici.",
     intro:

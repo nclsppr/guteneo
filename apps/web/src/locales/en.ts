@@ -343,6 +343,24 @@ export const en: Copy = {
     total: "Recipients",
     inspect: "View campaign",
   },
+  claudeConnect: {
+    "connect": "Connect to Claude",
+    "prerequisite": "First, create your Guteneo account, verify your email address and sign in here once.",
+    "account": "Open my Guteneo account",
+    "clientId": "Public identifier to paste into Claude",
+    "publicId": "This identifier is shared by Guteneo users. It is not a password.",
+    "copy": "Copy identifier",
+    "copied": "Identifier copied.",
+    "copyFallback": "Automatic copying is unavailable. Select the identifier in the field above and copy it.",
+    "linkHelp": "Opens Claude in a new tab with the Guteneo name and server address already filled in.",
+    "unavailable": "Connection is available on guteneo.com. It is disabled in this preview and local development.",
+    "steps": [
+      "In the Claude form, choose “Use your own OAuth client”.",
+      "Paste the public identifier above into “Client ID”. Leave “Client secret” empty, then add the connector.",
+      "Connect your own Guteneo account and review the requested permissions. Then enable Guteneo in your conversation."
+    ],
+    "reconnect": "After expiry, reconnect your account in Claude’s connector settings. If you revoked access in Guteneo, first associate the assistant with your organization again under “Connect an assistant”, then reconnect in Claude."
+  },
   connection: {
     title: "The conversation continues here.",
     intro:

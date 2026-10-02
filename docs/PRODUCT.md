@@ -9,6 +9,23 @@ App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
 Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
 
+## Native iOS candidate — 22 September 2026
+
+The local `ios/` client uses SwiftUI, PDFKit and the system authentication browser.
+It preserves the established ivory/cobalt identity and native iPhone/iPad navigation.
+PDF import, inspection, search, fax/email preparation and dispatch tracking use the
+versioned mobile API. Channel availability remains server controlled; postal
+preparation and assistant/account administration remain web capabilities.
+Final approval and confirmation use a dedicated authenticated browser page,
+without billing navigation. Native sessions cannot approve or send.
+There is no in-app purchase, top-up entry, or external purchase instruction.
+
+This is a local candidate, not a deployed service or App Store release.
+Account deletion currently records an authenticated request only; its full
+operational processing service remains a submission blocker. The existing public
+retention policy applies; it does not perform erasure. See `IOS_API.md`,
+`ACCOUNT_DELETION.md` and `../ios/AppStore/REVIEW_POLICY.md`.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: postal preparation collects missing sender details in
@@ -36,6 +53,13 @@ explicitly use prices excluding tax, without FX. Individual PDF transfer and
 send approval remain separate. The user will conduct the first real letter test
 after publication. See [POSTAL_ACTIVATION.md](POSTAL_ACTIVATION.md); older dated
 release statements below describe their historical state.
+
+Local candidate, 18 September: users can open a prefilled Claude.ai connector
+form and copy the shared public OAuth client identifier from Guteneo. The
+prepared renewal policy avoids hourly interactive login while bounding refresh
+to 30 days idle and 90 days absolute. Reconnection, current organization access
+and expert-mandate expiry remain distinct. Publication, Auth0 activation and
+actual host renewal are still pending; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
 
 Local candidate, 17 September: hosted PDF imports no longer require a
 provider-specific domain entry. Public HTTPS downloads retain network, size,

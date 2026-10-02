@@ -9,6 +9,20 @@ App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
 Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
 
+## Native iOS candidate — 22 September 2026
+
+A native iPhone/iPad client, mobile v1 API, dedicated human browser review and
+App Store preparation dossier are under `ios/`, `IOS_API.md` and
+`ACCOUNT_DELETION.md`. No production deployment, migration, live send, TestFlight
+upload or App Store submission is part of this local evidence.
+
+Before submission: complete and qualify account deletion, validate the public
+privacy policy, authorize the mobile migration/backend release, qualify real
+mobile sign-in on a physical device, provide an App Review account, and sign the
+final archive with the selected Apple Developer team. The in-app deletion request
+must not be described as an already deleted account. Local compilation and
+simulator fixtures do not prove a live account journey.
+
 21 September candidate: postal preparation supports a per-letter left/right window, one document-review/transfer action, automatic bounded quote follow-up and one human final send action at the exact price. Migration and unchanged consent/tenant/quote boundaries are described in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). This entry is implementation evidence, not a production or native-client qualification claim.
 
 21 September candidate: `get_postal_setup`, `configure_postal_sender` and the
@@ -30,6 +44,14 @@ The follow-up replaces local Codex maintenance with a deterministic GitHub Actio
 workflow. Its dedicated credential and first hosted publication remain required
 before scheduled activation; see [SCANNER_CI.md](SCANNER_CI.md). Older dated
 release statements below are historical.
+
+Local candidate, 18 September: Claude.ai installation now has a shared button,
+public client-ID copy field and account prerequisites. Explicit hosted OAuth
+refresh uses rotation with 30-day idle and 90-day absolute expiry, while access
+tokens stay capped at one hour. A reviewed, fingerprint-bound Auth0 migration
+targets only the existing Claude client, API offline-access flag and two Guteneo
+Actions. Production publication, Auth0 activation and real refresh proof remain
+pending; see [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md).
 
 Local candidate, 17 September: replace the hosted PDF source-domain allowlist
 with public HTTPS imports and runtime-enforced public egress. Local URL imports
