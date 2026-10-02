@@ -1,0 +1,26 @@
+{
+  "provider": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "voiceName": "Manon",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "selectedVariationNumber": 2,
+  "generationId": "IvzUSC30IdzO6iX7bpcM",
+  "blockId": "bloc-3",
+  "variationIndex": 2,
+  "filename": "bloc-3-prise-2.mp3",
+  "prompt": "[thoughtful] L’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi. [short pause] Dans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur.",
+  "providerDurationSeconds": 12.88,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse"
+  },
+  "language": "fr",
+  "outputFormat": "mp3_44100_128",
+  "selected": true,
+  "source": "elevenlabs-creative-plugin",
+  "bytes": 224187,
+  "sha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+  "audioSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+  "requestTextSha256": "9b107d5372c4d91b27c54729c90d115fe5a6ff2949a58f99fa7ba29f4bf9f276"
+}

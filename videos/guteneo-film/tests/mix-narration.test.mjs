@@ -267,5 +267,14 @@ test('local FFmpeg mix preserves every H.264 packet and the original final score
     assert.ok(await frequencyAmplitude(sourcePath, 880) < 0.001, 'The original score contains no synthetic voice.');
     const musicRatio = await frequencyAmplitude(outputPath, 220) / await frequencyAmplitude(sourcePath, 220);
     assert.ok(Math.abs(musicRatio - 0.22) < 0.02, 'Score is ducked while the voice speaks.');
+    const constantOutput = path.join(temporary, 'constant-music.mp4');
+    const constantProof = await mixVideo({sourcePath, outputPath: constantOutput, narration,
+      clips: [{...cue, audioPath, durationSeconds: Number(duration)}], musicPolicy: {mode: 'constant', gain: 0.22}});
+    assert.deepEqual(constantProof.musicPolicy, {mode: 'constant', gain: 0.22});
+    assert.equal(proof.musicPolicy, undefined, 'The historical default retains its original mix policy.');
+    for (const start of [0.7, 4, 12, 32]) {
+      const ratio = await frequencyAmplitude(constantOutput, 220, start) / await frequencyAmplitude(sourcePath, 220, start);
+      assert.ok(Math.abs(ratio - 0.22) < 0.02, 'Constant music must retain the same gain during speech, gaps and the logo.');
+    }
   } finally {await rm(temporary, {recursive: true, force: true});}
 });

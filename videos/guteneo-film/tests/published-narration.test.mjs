@@ -22,8 +22,9 @@ test('instrumental locales need no narration cache and unsupported active narrat
   const outputRoot = path.join(os.tmpdir(), `guteneo-unwritten-narration-${process.pid}`);
   const options = {filmRoot: '/missing-film', repositoryRoot, sourceCatalog: source, kind: 'roles', outputRoot};
   assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, active, ['de'], 'roles')}), null);
-  assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, active, ['fr'], 'roles')}), null,
-    'The revised French roles narration is withheld until it is accepted.');
+  const instrumental = structuredClone(active);
+  instrumental.roles.fr = source.roles.fr;
+  assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, instrumental, ['fr'], 'roles')}), null);
   const unsupported = structuredClone(active);
   unsupported.roles.de.movie = '/videos/guteneo-roles-v2-de.mp4';
   await assert.rejects(preparePublishedNarration({...options, jobs: buildRenderJobs(source, unsupported, ['de'], 'roles')}), /No checked-in narration library/);

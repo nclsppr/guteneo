@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
-import {buildRenderJobs, validateRenderCatalogs} from '../scripts/render-catalog.mjs';
+import {buildRenderJobs, isNaturalFrenchRoles, naturalFrenchRoles, validateRenderCatalogs} from '../scripts/render-catalog.mjs';
 
 const root = new URL('../../../', import.meta.url);
 const json = async (relative) => JSON.parse(await readFile(new URL(relative, root), 'utf8'));
@@ -15,12 +15,25 @@ test('instrumental render jobs never use the active narrated paths', async () =>
   assert.equal(jobs.length, 12);
   for (const job of jobs.filter((job) => job.activeAsset.movie !== job.asset.movie)) {
     assert.notEqual(job.asset.movie, job.activeAsset.movie);
-    assert.match(job.asset.movie, /-v(?:5|1)(?:-[a-z]{2})?\.mp4$/);
-    assert.match(job.activeAsset.movie, /-v(?:6|2)-(?:fr|en)\.mp4$/);
+    if (isNaturalFrenchRoles(job)) assert.equal(job.asset.movie, naturalFrenchRoles.source);
+    else assert.match(job.asset.movie, /-v(?:5|1)(?:-[a-z]{2})?\.mp4$/);
+    assert.match(job.activeAsset.movie, /-v(?:6|2|7|3)-(?:fr|en)\.mp4$/);
   }
-  assert.equal(jobs.filter((job) => job.activeAsset.movie !== job.asset.movie).length, 5);
-  assert.deepEqual(active.roles.fr, source.roles.fr, 'French roles keep their instrumental version pending the revised narration.');
+  assert.equal(jobs.filter((job) => job.activeAsset.movie !== job.asset.movie).length,
+    active.roles.fr.movie === naturalFrenchRoles.movie ? 6 : 5);
   assert.equal(buildRenderJobs(source, active, ['fr'], 'roles').length, 1);
+});
+
+test('natural French roles select their own composition and instrumental source without mutating the historical catalog', async () => {
+  const source = await json('videos/guteneo-film/narration/source-videos.json');
+  const before = structuredClone(source);
+  const active = await json('packages/contracts/src/public-videos.json');
+  active.roles.fr = {movie: naturalFrenchRoles.movie, poster: naturalFrenchRoles.poster, captions: naturalFrenchRoles.captions};
+  const [job] = buildRenderJobs(source, active, ['fr'], 'roles');
+  assert.equal(job.id, naturalFrenchRoles.composition);
+  assert.deepEqual(job.asset, {movie: naturalFrenchRoles.source, poster: naturalFrenchRoles.poster});
+  assert.equal(isNaturalFrenchRoles(job), true);
+  assert.deepEqual(source, before);
 });
 
 test('corrupt source catalogs and incomplete active manifests fail before rendering', async () => {
