@@ -2,7 +2,7 @@
 
 Historique de préparation du 17 septembre 2026, branche `feat/resend-email-connector`.
 
-Le candidat courant du 21 septembre utilise les migrations **0037–0039** et le
+Le candidat intégré du 2 octobre utilise les migrations **0039–0041** et le
 contrat décrit dans [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md). Les données de
 publication du 17 septembre ci-dessous sont historiques ; le suivi courant est
 dans [RESEND_PROOF.md](RESEND_PROOF.md).
