@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { build } from "vite";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import catalog from "../../packages/contracts/src/public-videos.json" with { type: "json" };
 import {
   PUBLIC_ORIGIN,
   PUBLIC_PATHS,
@@ -32,10 +33,25 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     '<svg xmlns="http://www.w3.org/2000/svg"/>',
   );
   await writeFile(join(directory, "release.json"), '{"fixture":true}');
-  const filmPath = "/videos/guteneo-vertical-v5.mp4";
+  const filmPath = catalog.introduction.fr.vertical.movie;
   const film = await readFile(join(root, "apps/web/public", filmPath));
   await mkdir(join(directory, "videos"));
   await writeFile(join(directory, filmPath), film);
+  const textAssets = new Map();
+  for (const path of new Set([
+    "/llms.txt",
+    ...["fr", "en", "de", "lb"].map(
+      (locale) => `/videos/guteneo-v5.${locale}.vtt`,
+    ),
+    ...Object.values(catalog.introduction).flatMap((formats) =>
+      Object.values(formats).flatMap((asset) => asset.captions ? [asset.captions] : []),
+    ),
+    ...Object.values(catalog.roles).flatMap((asset) => asset.captions ? [asset.captions] : []),
+  ])) {
+    const content = await readFile(join(root, "apps/web/public", path), "utf8");
+    textAssets.set(path, content);
+    await writeFile(join(directory, path), content);
+  }
   await writePublicPages({
     output: directory,
     indexable: true,
@@ -91,6 +107,21 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   );
   t.after(() => mf.dispose());
   const fallbackOrigin = "https://guteneo-app.nclsppr.workers.dev";
+  for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
+    for (const [path, content] of textAssets) {
+      const response = await mf.dispatchFetch(origin + path);
+      assert.equal(response.status, 200);
+      assert.equal(await response.text(), content);
+      assert.match(
+        response.headers.get("Content-Type"),
+        path.endsWith(".vtt") ? /^text\/vtt/ : /^text\/plain/,
+      );
+      assert.equal(
+        response.headers.get("Strict-Transport-Security"),
+        "max-age=31536000",
+      );
+    }
+  }
   // Real workerd must retain byte range framing after the production policy
   // wraps the response. A unit stub cannot prove FixedLengthStream behavior.
   for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
@@ -168,6 +199,11 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   for (const path of PUBLIC_PATHS) {
     const response = await mf.dispatchFetch(PUBLIC_ORIGIN + path);
     assert.equal(response.status, 200, path);
+    assert.equal(
+      response.headers.get("Strict-Transport-Security"),
+      "max-age=31536000",
+      path,
+    );
     assert.equal(response.headers.get("X-Robots-Tag"), null, path);
     assert.match(
       response.headers.get("Content-Security-Policy"),
@@ -190,11 +226,19 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     });
     assert.equal(conditional.status, 304);
     assert.equal(conditional.headers.get("X-Robots-Tag"), null);
+    assert.equal(
+      conditional.headers.get("Strict-Transport-Security"),
+      "max-age=31536000",
+    );
     const head = await mf.dispatchFetch(PUBLIC_ORIGIN + path, {
       method: "HEAD",
     });
     assert.equal(head.status, 200);
     assert.equal(head.headers.get("X-Robots-Tag"), null);
+    assert.equal(
+      head.headers.get("Strict-Transport-Security"),
+      "max-age=31536000",
+    );
     assert.equal(await head.text(), "");
     // Alternate hosts must not inherit a primary response's policy from the asset cache.
     const fallback = await mf.dispatchFetch(fallbackOrigin + path);
@@ -224,9 +268,26 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
       );
     }
   }
+  for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
+    for (const path of ["/app", "/app/prepare?entry=direct"]) {
+      for (const method of ["GET", "HEAD"]) {
+        const entry = await mf.dispatchFetch(origin + path, { method });
+        assert.equal(entry.status, 200, `${method} ${path}`);
+        assert.equal(entry.headers.get("X-Robots-Tag"), "noindex, nofollow");
+        assert.equal(entry.headers.get("Cache-Control"), "no-store");
+        const body = await entry.text();
+        if (method === "HEAD") assert.equal(body, "");
+        else assert.match(body, /<div id="root">/);
+      }
+    }
+  }
   for (const path of [
     "/does-not-exist/",
     "/journal/unpublished/",
+    "/app/unknown",
+    "/app/prepare/unknown",
+    "/app/",
+    "/app%2Fprepare",
     "/missing.css",
   ]) {
     const missing = await mf.dispatchFetch(PUBLIC_ORIGIN + path);
@@ -275,6 +336,8 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     ["/api/documents", "POST"],
     ["/mcp", "POST"],
     ["/", "POST"],
+    ["/app", "POST"],
+    ["/app/prepare", "POST"],
   ]) {
     const privateResponse = await mf.dispatchFetch(PUBLIC_ORIGIN + path, {
       method,

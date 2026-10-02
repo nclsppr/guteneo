@@ -96,10 +96,14 @@ export function JournalTeaser() {
       <div className="journal-section-heading">
         <div>
           <h2 id="journal-teaser-title">
-            {msg("Les mots voyagent.")}
-            <br />
+            {msg("Les mots voyagent.")} <br />
             <em>{msg("Leur histoire aussi.")}</em>
           </h2>
+          <p>
+            {msg(
+              "Le journal de Guteneo raconte l’histoire de l’imprimerie et de la transmission des documents, de Gutenberg au PDF.",
+            )}
+          </p>
         </div>
         <a className="text-link" href="/journal/">
           {msg("Ouvrir le journal ")}
@@ -129,6 +133,7 @@ export function JournalTeaser() {
                     <ArrowUpRight size={19} aria-hidden="true" />
                   </a>
                 </h3>
+                <p className="journal-compact-intro">{article.dek}</p>
               </div>
             </article>
           ))}

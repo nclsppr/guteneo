@@ -142,7 +142,7 @@ export function Landing() {
           >
             {t.homepage.navPricing}
           </a>
-          <a className="button small" href="#/app">
+          <a className="button small" href="/app">
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={16} />
           </a>
@@ -188,7 +188,7 @@ export function Landing() {
             {msg("Assistants ")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>
-          <a href="#/app" onClick={closeMenu}>
+          <a href="/app" onClick={closeMenu}>
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={17} aria-hidden="true" />
           </a>

@@ -48,6 +48,20 @@ export default {
       );
     }
 
+    if (url.pathname === "/app" || url.pathname === "/app/prepare") {
+      const response = await env.ASSETS.fetch(
+        new Request(new URL("/", url), request),
+      );
+      const headers = new Headers(response.headers);
+      for (const [key, value] of Object.entries(privateHeaders))
+        headers.set(key, value);
+      headers.set("Cache-Control", "no-store");
+      return new Response(request.method === "HEAD" ? null : response.body, {
+        status: response.status,
+        headers,
+      });
+    }
+
     if (pathname === "/robots.txt" && url.hostname !== "guteneo.com")
       return new Response(
         request.method === "HEAD" ? null : "User-agent: *\nDisallow: /\n",

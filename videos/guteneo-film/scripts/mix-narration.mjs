@@ -103,15 +103,39 @@ async function qualifyClips(job, generation, outputDir, webGeneration) {
     const bytes = await readFile(audioPath);
     if (!record.audioSha256 || sha256(bytes) !== record.audioSha256) throw new Error(`Audio hash mismatch: ${clip.narrationId}/${clip.cueId}.`);
     const media = await probeMedia(audioPath);
-    const durationSeconds = Number(media.format.duration);
-    if (Math.abs(durationSeconds - record.durationSeconds) > 0.002) throw new Error('Audio duration differs from its generation receipt.');
-    qualified.push({...clip, audioPath, durationSeconds,
+    const audio = media.streams.find((stream) => stream.codec_type === 'audio');
+    const sampleRate = Number(audio?.sample_rate);
+    const {stderr} = await ffmpeg(['-v', 'info', '-xerror', '-err_detect', 'explode', '-i', audioPath, '-map', '0:a:0',
+      '-af', 'astats=metadata=0:reset=0', '-f', 'null', '-']);
+    const decodedSamples = Number([...stderr.matchAll(/Number of samples:\s*(\d+)/g)].at(-1)?.[1]);
+    const decodedDurationSeconds = decodedSamples / sampleRate;
+    const durationSeconds = canonicalAudioDuration({receiptDurationSeconds: record.durationSeconds,
+      containerDurationSeconds: Number(media.format.duration), decodedDurationSeconds, windowSeconds: clip.endSeconds - clip.startSeconds});
+    qualified.push({...clip, audioPath, durationSeconds, decodedDurationSeconds,
       ...(record.source !== undefined ? {source: record.source} : {}),
       ...(record.source === 'elevenlabs-web' && record.webGeneration !== undefined ? {webGeneration: record.webGeneration} : {}),
     });
   }
   validateMixCues(job.narration, qualified);
   return qualified;
+}
+
+export function canonicalAudioDuration({receiptDurationSeconds, containerDurationSeconds, decodedDurationSeconds, windowSeconds}) {
+  if (![receiptDurationSeconds, containerDurationSeconds, decodedDurationSeconds, windowSeconds].every((value) => Number.isFinite(value) && value > 0)) {
+    throw new Error('Complete decoded audio duration could not be qualified.');
+  }
+  // Demuxer versions may include MP3 encoder padding in container duration.
+  // Match the receipt strictly against either the container or the complete
+  // decoded signal. Keep the receipt canonical for sample-rounding differences
+  // so published captions and music envelopes remain unchanged.
+  const decodedMatches = Math.abs(decodedDurationSeconds - receiptDurationSeconds) <= 0.002;
+  const containerMatches = Math.abs(containerDurationSeconds - receiptDurationSeconds) <= 0.002;
+  if (!decodedMatches && !containerMatches) throw new Error('Audio duration differs from its generation receipt.');
+  const durationSeconds = decodedMatches ? receiptDurationSeconds : Math.max(receiptDurationSeconds, decodedDurationSeconds);
+  if (Math.max(decodedDurationSeconds, durationSeconds) > windowSeconds + 0.001) {
+    throw new Error('Complete decoded narration does not fit its scene.');
+  }
+  return durationSeconds;
 }
 
 export async function mixVideo({sourcePath, outputPath, narration, clips}) {
@@ -154,7 +178,7 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
       throw new Error('Narrated movie failed stream, timing or web-size verification.');
     }
     // Decode the complete result, including the original final card.
-    await ffmpeg(['-i', candidate, '-f', 'null', '-']);
+    await ffmpeg(['-xerror', '-err_detect', 'explode', '-i', candidate, '-f', 'null', '-']);
     const proof = {
       narrationId: narration.id, sourceMovie: path.basename(sourcePath), outputMovie: path.basename(outputPath),
       sourceSha256: sha256(await readFile(sourcePath)), outputSha256: sha256(await readFile(candidate)),
@@ -163,6 +187,7 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
       endCardStartSeconds: narration.endCardStartSeconds, lastSpeechEndSeconds: Math.max(...clips.map((clip) => clip.startSeconds + clip.durationSeconds)),
       voiceTargetLufs: -18, musicGainDuringSpeech: 0.22,
       clips: clips.map((clip) => ({cueId: clip.cueId, fingerprint: clip.fingerprint, startSeconds: clip.startSeconds, durationSeconds: clip.durationSeconds,
+        ...(clip.decodedDurationSeconds !== undefined ? {decodedDurationSeconds: clip.decodedDurationSeconds} : {}),
         ...(clip.source !== undefined ? {source: clip.source} : {}),
         ...(clip.source === 'elevenlabs-web' && clip.webGeneration !== undefined ? {webGeneration: clip.webGeneration} : {}),
       })),

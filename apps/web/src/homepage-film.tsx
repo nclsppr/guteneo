@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ArrowsOut, Play, X } from "@phosphor-icons/react";
-import { t, useLocale, type SupportedLocale } from "./locale";
+import { localeNames, t, useLocale, type SupportedLocale } from "./locale";
 import {
   publicFilmAsset,
   type FilmFormat as Format,
@@ -41,6 +41,9 @@ function LocalizedFilm({
   const movie = (format: Format) => publicFilmAsset(film, locale, format).movie;
   const poster = (format: Format) =>
     publicFilmAsset(film, locale, format).poster;
+  const captions =
+    publicFilmAsset(film, locale).captions ??
+    (film === "introduction" ? `/videos/guteneo-v5.${locale}.vtt` : undefined);
   const id = film === "roles" ? "roles-film" : "homepage-film";
   const video = useRef<SafariVideo>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -224,7 +227,16 @@ function LocalizedFilm({
             setStatus("error");
             exitFullscreen();
           }}
-        />
+        >
+          {captions && (
+            <track
+              kind="captions"
+              src={captions}
+              srcLang={locale}
+              label={localeNames[locale]}
+            />
+          )}
+        </video>
         {!format && (
           <picture className="homepage-film-poster">
             {film !== "roles" && (

@@ -7,7 +7,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import test from 'node:test';
 import {buildPlan} from '../scripts/generate-narration.mjs';
-import {buildMixJobs, mixVideo, mixVideos, musicVolumeExpression, validateMixCues, videoStreamHash} from '../scripts/mix-narration.mjs';
+import {buildMixJobs, canonicalAudioDuration, mixVideo, mixVideos, musicVolumeExpression, validateMixCues, videoStreamHash} from '../scripts/mix-narration.mjs';
 
 const run = promisify(execFile);
 const narration = {id: 'roles-fr', kind: 'roles', locale: 'fr', durationSeconds: 36, endCardStartSeconds: 31};
@@ -17,6 +17,26 @@ const manifestPath = path.join(root, 'videos/guteneo-film/narration/scripts.json
 const configPath = path.join(root, 'videos/guteneo-film/narration/voices.example.json');
 const catalogPath = path.join(root, 'videos/guteneo-film/narration/source-videos.json');
 const json = async (file) => JSON.parse(await readFile(file, 'utf8'));
+
+test('MP3 encoder padding cannot change the qualified speech duration or published envelope', async () => {
+  const qualification = await json(path.join(root, 'videos/guteneo-film/narration/releases/fr-en-g2/qualification.json'));
+  const receipt = (await json(path.join(root, 'videos/guteneo-film/narration/releases/fr-en-g2/generation.json'))).clips['roles-fr/supervisor'];
+  const clip = qualification.clips.find((entry) => entry.key === 'roles-fr/supervisor');
+  // The same frozen MP3 reports 5.616327 s in FFprobe 6.1.1 on Linux and
+  // 5.588209 s on Mac. Its complete decoded signal is identical on both.
+  for (const containerDurationSeconds of [5.616327, receipt.durationSeconds]) {
+    assert.equal(canonicalAudioDuration({receiptDurationSeconds: receipt.durationSeconds, containerDurationSeconds,
+      decodedDurationSeconds: clip.decodedSamples / clip.sampleRate, windowSeconds: clip.windowSeconds}), receipt.durationSeconds);
+  }
+});
+
+test('complete decoded overruns, stale duration receipts and missing measurements fail closed', () => {
+  const input = {receiptDurationSeconds: 1.5, containerDurationSeconds: 1.5, decodedDurationSeconds: 1.5, windowSeconds: 1.6};
+  assert.throws(() => canonicalAudioDuration({...input, decodedDurationSeconds: 1.7}), /does not fit/);
+  assert.throws(() => canonicalAudioDuration({...input, receiptDurationSeconds: 1}), /differs from its generation receipt/);
+  assert.throws(() => canonicalAudioDuration({...input, decodedDurationSeconds: NaN}), /could not be qualified/);
+  assert.equal(canonicalAudioDuration({...input, decodedDurationSeconds: 1.55}), 1.55, 'An underestimated container cannot shorten real speech.');
+});
 
 test('all eight narration tracks serve twelve films with an unchanged final card', async () => {
   const manifest = await json(manifestPath);

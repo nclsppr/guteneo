@@ -71,7 +71,7 @@ export const lb: Copy = {
       title: "Alles fir den Ufank.",
       italic: "Ouni verstoppte Käschten.",
       intro:
-        "E Wëllkommenskredit fir Är éischt Sendungen. Duerno behält Dir virun all Fräigab d’Kontroll iwwer Äre Budget.",
+        "Är Organisatioun kritt bei der Kontoerstellung eemoleg 50 € Wëllkommenskredit. De Präis oder d’Käschtegrenz vun all Sendung gëtt virun der Fräigab gewisen.",
       welcomeTitle: "E Kaddo, wann Dir Äre Kont opmaacht.",
       welcomeBody:
         "Är Organisatioun kritt eemoleg 50 € Wëllkommenskredit, wann hire Kont erstallt gëtt. Dëse Saldo gëtt tëscht den aktivéierte Kanäl gedeelt: Fax, E-Mail a Bréifpost.",
@@ -85,12 +85,12 @@ export const lb: Copy = {
       title: "Virun der éischter Sendung",
       italic: "e puer Äntwerten.",
       intro:
-        "D’Dokument, Är Zoustëmmung an de Suivi: déiselwecht Grondlage fir all Kanal.",
+        "Kontrolléiert virun der éischter Sendung d’Dokument, den Empfänger, de Kanal an d’Käschten a Guteneo. Fannt duerno de Suivi an Ärem Gespréich an an Ärem Beräich.",
       items: [
         {
           question: "Gëtt meng original PDF-Datei geännert?",
           answer:
-            "Är importéiert PDF-Datei gëtt onverännert versuergt. Wann Dir mat Ärem Assistent e Bréif verfaasst, gëtt en neit Dokument erstallt. Dir kënnt et noliesen, ier Dir d’Sendung virbereet.",
+            "Är importéiert PDF-Datei gëtt onverännert versuergt. Den Import ass op 10 MiB an 100 Säite begrenzt. Wann Dir mat Ärem Assistent e Bréif verfaasst, gëtt en neit Dokument erstallt. Dir kënnt et noliesen, ier Dir d’Sendung virbereet.",
         },
         {
           question: "Kann ech e passwuertgeschützte PDF deelen?",
@@ -119,7 +119,7 @@ export const lb: Copy = {
       italic: "Eis fänken hei un.",
       cta: "Meng éischt Sendung virbereeden",
       imageAlt:
-        "Illustréiert Vue vu Lëtzebuerg: d’Diecher vum Gronn, d’Fielsen an d’Brécke vun der Alstad, gerastert Gravür a Blo an Elfebeen.",
+        "Diecher vum Gronn, Fielsen a Brécke vu Lëtzebuerg, gerastert Gravür a Blo an Elfebeen.",
       stampDescription:
         "Gutenberg-Bréifmark an dekorative Lëtzebuerger Poststempel, den éischten Dag vu guteneo:",
       foundingDate: "16. September 2026",
@@ -134,7 +134,7 @@ export const lb: Copy = {
       title: "De nächste Wee fir Är Wierder.",
       italic: "A Beweegung.",
       intro:
-        "Vun Ärer éischter Iddi bis op hir Destinatioun. Entdeckt Guteneo a 56 Sekonnen.",
+        "Dëse Film vu 56 Sekonne stellt Guteneo vir: vun der Virbereedung vun engem Dokument bis zur Sendung per Fax, E-Mail oder Bréifpost.",
       play: "De Film kucken",
       replay: "De Film nach eng Kéier kucken",
       duration: "56 Sekonnen · Mat Toun",

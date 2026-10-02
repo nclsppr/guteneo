@@ -8,6 +8,7 @@ const securityHeaders = {
     "default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
+  "Strict-Transport-Security": "max-age=31536000",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 };
 const privateHeaders = {
@@ -54,7 +55,13 @@ export async function servePublicAssets(
     );
   }
 
-  if (pathname === "/invitation/" || pathname === "/invitation") {
+  if (
+    pathname === "/invitation/" ||
+    pathname === "/invitation" ||
+    url.pathname === "/app" ||
+    url.pathname === "/app/prepare"
+  ) {
+    // Private browser entries share the root shell without forwarding URL data.
     // The invitation secret stays in the URL fragment and never reaches asset logs.
     const shellUrl = new URL("/", url);
     const response = await env.ASSETS.fetch(new Request(shellUrl, request));

@@ -92,6 +92,17 @@ for (const locale of supportedLocales) {
       await expect(section).toHaveAttribute("lang", locale);
       await expect(player).toHaveAttribute("lang", locale);
       await expect(player).not.toHaveAttribute("src");
+      if (film === "introduction" || asset.captions) {
+        const captions = player.locator('track[kind="captions"]');
+        await expect(captions).toHaveAttribute(
+          "src",
+          asset.captions ?? `/videos/guteneo-v5.${locale}.vtt`,
+        );
+        await expect(captions).toHaveAttribute("srclang", locale);
+      }
+      // The poster is intentionally lazy: make it visible before requiring
+      // decoded pixels instead of depending on browser prefetch distance.
+      await section.locator(".homepage-film-poster img").scrollIntoViewIfNeeded();
       await expect
         .poll(() =>
           section
@@ -159,6 +170,11 @@ for (const film of ["introduction", "roles"] as const) {
     await expect(section).toHaveAttribute("data-locale", "de");
     await expect(section.locator("video")).not.toHaveAttribute("src");
     await expect(section.locator("video")).toBeHidden();
+    if (film === "introduction")
+      await expect(section.locator('track[kind="captions"]')).toHaveAttribute(
+        "src",
+        "/videos/guteneo-v5.de.vtt",
+      );
     expect(
       await page.evaluate(() =>
         (window as unknown as FilmWindow).filmCalls.some(
@@ -202,11 +218,14 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
     page.getByRole("button", { name: /Découvrir le film/ }),
   ).toBeVisible();
   await expect(player).not.toHaveAttribute("src");
+  const captions = player.locator('track[kind="captions"]');
+  await expect(captions).toHaveAttribute("src", "/videos/guteneo-v6.fr.vtt");
+  await expect(captions).toHaveAttribute("srclang", "fr");
   expect(requests).toEqual([]);
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v5.mp4",
+    "/videos/guteneo-vertical-v6-fr.mp4",
   );
   const calls = await page.evaluate(
     () => (window as unknown as FilmWindow).filmCalls,
@@ -216,7 +235,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v5.mp4",
+    "/videos/guteneo-vertical-v6-fr.mp4",
   );
   await page.getByRole("button", { name: "Fermer le lecteur" }).click();
   await expect(player).not.toHaveAttribute("src");
@@ -226,7 +245,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   await page.getByRole("button", { name: /Découvrir le film/ }).press("Enter");
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-horizontal-v5.mp4",
+    "/videos/guteneo-horizontal-v6-fr.mp4",
   );
 });
 
@@ -269,7 +288,7 @@ test("a phone opened in landscape still receives the portrait movie and poster",
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(page.locator(".homepage-film-video")).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v5.mp4",
+    "/videos/guteneo-vertical-v6-fr.mp4",
   );
 });
 
@@ -411,7 +430,14 @@ test.describe("delivered public media", () => {
           film === "introduction" && page.viewportSize()!.width <= 767;
         const format = portrait ? "vertical" : "horizontal";
         const player = section.locator("video");
+        const hasCaptions =
+          film === "introduction" ||
+          Boolean(publicFilmAsset(film, locale, format).captions);
         await expect(player).toHaveAttribute("playsinline", "");
+        if (hasCaptions)
+          await player.evaluate((element) => {
+            (element as HTMLVideoElement).textTracks[0].mode = "hidden";
+          });
         await player.evaluate((element) => {
           const video = element as HTMLVideoElement & {
             publicMediaEvents?: Array<Record<string, unknown>>;
@@ -457,6 +483,15 @@ test.describe("delivered public media", () => {
             { timeout: 20000 },
           )
           .toBeGreaterThan(0.2);
+        if (hasCaptions)
+          await expect
+            .poll(() =>
+              player.evaluate(
+                (element) =>
+                  (element as HTMLVideoElement).textTracks[0].cues?.length,
+              ),
+            )
+            .toBeGreaterThan(0);
         const media = await player.evaluate((element) => {
           const video = element as HTMLVideoElement;
           return {

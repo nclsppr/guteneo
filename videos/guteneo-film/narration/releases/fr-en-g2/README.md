@@ -5,6 +5,11 @@ Ce snapshot contient **34 MP3 qualifiés**, répartis entre quatre narrations :
 introductions servent les formats horizontal et vertical : le cache permet de
 refaire les six mixages FR/EN à partir des vidéos musicales d’origine.
 
+Les rôles français de ce snapshot constituent l’ancien candidat par phrases.
+Ils restent hors publication pendant la nouvelle rédaction en trois blocs
+naturels choisie par l’utilisateur. Le renderer ne sélectionne ici que les
+introductions FR/EN et les rôles EN actifs dans le catalogue public.
+
 Les voix ont été générées dans l’interface ElevenLabs avec **George**
 (`JBFqnCBsd6RMkjVDRZzb`), **Eleven v4**, Stability 50 %, Similarity 75 %, override
 de langue FR/EN et export MP3 128 kbit/s. Les prises retenues portent la

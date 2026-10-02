@@ -34,12 +34,11 @@ export function Installation() {
       <div className="installation-heading">
         <h2 id="installation-title">
           {msg("Votre premier envoi.")}
-          <br />
-          <em>{msg("À votre façon.")}</em>
+          <br /> <em>{msg("À votre façon.")}</em>
         </h2>
         <p>
           {msg(
-            "Depuis une conversation ou directement avec votre document, vous gardez la main sur chaque envoi.",
+            "Préparez votre premier envoi depuis une conversation ou directement avec votre document. Dans les deux cas, vous vérifiez les détails avant de confirmer.",
           )}
         </p>
       </div>
@@ -63,7 +62,7 @@ export function Installation() {
               "Ajoutez votre document, choisissez le destinataire et vérifiez le prix avant de confirmer.",
             )}
           </p>
-          <a className="button" href="/#/app/prepare?entry=direct">
+          <a className="button" href="/app/prepare?entry=direct">
             {msg("Envoyer depuis Guteneo ")}
             <ArrowRight size={18} aria-hidden="true" />
           </a>
@@ -89,8 +88,7 @@ export function WelcomePricing() {
       <div className="pricing-heading">
         <h2 id="pricing-title">
           {t.homepage.pricing.title}
-          <br />
-          <em>{t.homepage.pricing.italic}</em>
+          <br /> <em>{t.homepage.pricing.italic}</em>
         </h2>
         <p>{t.homepage.pricing.intro}</p>
       </div>
@@ -156,8 +154,7 @@ export function FrequentlyAsked() {
       <div className="faq-heading">
         <h2 id="faq-title">
           {t.homepage.faq.title}
-          <br />
-          <em>{t.homepage.faq.italic}</em>
+          <br /> <em>{t.homepage.faq.italic}</em>
         </h2>
         <p>{t.homepage.faq.intro}</p>
       </div>
@@ -165,7 +162,7 @@ export function FrequentlyAsked() {
         {t.homepage.faq.items.map((item) => (
           <details key={item.question}>
             <summary>
-              {item.question}
+              <h3>{item.question}</h3>
               <Plus size={19} aria-hidden="true" />
             </summary>
             <p>{item.answer}</p>
@@ -327,10 +324,11 @@ export function LuxembourgFooter() {
           <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
             FAQ
           </a>
-          <a href="/#/app">
+          <a href="/app">
             {t.homepage.footer.atelier}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
+          <a href="/a-propos/">{msg("À propos de Guteneo")}</a>
           <a href="/journal/">{msg("Le journal")}</a>
           <a href="/developpeurs/">{msg("Développeurs")}</a>
           <a href="/mentions-legales/">{t.homepage.footer.legal}</a>
@@ -338,6 +336,7 @@ export function LuxembourgFooter() {
           <a href="/conditions/">{msg("Conditions")}</a>
           <a href="/roles/">{msg("Rôles et droits")}</a>
           <a href="/support/">{msg("Assistance")}</a>
+          <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
         </nav>
       </div>
     </footer>
