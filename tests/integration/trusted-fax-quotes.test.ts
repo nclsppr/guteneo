@@ -98,7 +98,9 @@ beforeEach(async () => {
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+    .prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+    )
     .bind(ctx.organizationId, ctx.userId, now)
     .run();
   await db
@@ -605,6 +607,11 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         for (const row of rows.results) {
           // Personal language preferences were added after this historical schema.
           if (table === "users") delete row.preferred_locale;
+          // Supervisor options did not exist in the pre-v2 membership schema.
+          if (table === "memberships") {
+            delete row.supervisor_can_approve;
+            delete row.supervisor_can_report;
+          }
           if (table === "dispatches") {
             const quote = historicalQuotes.get(row.id as string)!;
             row.fingerprint = quote.dispatch_fingerprint;

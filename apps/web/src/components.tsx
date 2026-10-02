@@ -479,16 +479,24 @@ export function RefreshButton({
     </button>
   );
 }
-export function DispatchTable({ items }: { items: Dispatch[] }) {
+export function DispatchTable({
+  items,
+  canPrepare = true,
+}: {
+  items: Dispatch[];
+  canPrepare?: boolean;
+}) {
   if (!items.length)
     return (
       <EmptyState
         title={t.dispatch.countEmpty}
         action={
-          <a className="button primary" href="#/app/prepare">
-            {t.dispatch.new}
-            <ArrowRight size={17} />
-          </a>
+          canPrepare && (
+            <a className="button primary" href="#/app/prepare">
+              {t.dispatch.new}
+              <ArrowRight size={17} />
+            </a>
+          )
         }
       />
     );

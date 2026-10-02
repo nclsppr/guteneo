@@ -106,7 +106,7 @@ struct ComposeView: View {
                                 Spacer()
                                 if working { ProgressView() } else { Image(systemName: "arrow.right") }
                             }.padding(.vertical, 6)
-                        }.disabled(!valid || working || model.session?.user.role == "viewer")
+                        }.disabled(!valid || working || model.session?.canPrepare != true)
                             .accessibilityIdentifier("prepareQuote")
                     }
                 }

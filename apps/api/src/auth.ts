@@ -1,3 +1,8 @@
+import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
+import {
+  workspacePermissions,
+  type WorkspaceRole,
+} from "../../../packages/contracts/src/roles";
 import {
   createRemoteJWKSet,
   jwtVerify,
@@ -31,7 +36,9 @@ export interface AuthEnv {
 export interface AuthContext {
   organizationId: string;
   userId: string;
-  role: "admin" | "member" | "viewer";
+  role: WorkspaceRole;
+  supervisorCanApprove?: boolean;
+  supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
 }
 interface Membership {
@@ -41,6 +48,8 @@ interface Membership {
   user_name: string;
   preferred_locale: SupportedLocale | null;
   role: AuthContext["role"];
+  supervisor_can_approve: number;
+  supervisor_can_report: number;
 }
 export interface AuthenticatedSession {
   context: AuthContext;
@@ -49,6 +58,8 @@ export interface AuthenticatedSession {
     id: string;
     name: string;
     role: AuthContext["role"];
+    supervisorCanApprove?: boolean;
+    supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
   };
   csrfToken: string;
@@ -134,7 +145,10 @@ export function safeReturnPath(value: string | null): string {
     ? `${parsed.pathname}${parsed.search}${parsed.hash}`
     : "/#/app";
 }
-function cookieName(env: AuthEnv, purpose: "session" | "login"): string {
+function cookieName(
+  env: AuthEnv,
+  purpose: "session" | "login" | "invitation",
+): string {
   return `${env.ENVIRONMENT === "local" ? "" : "__Host-"}guteneo_${purpose}`;
 }
 function readCookie(request: Request, name: string): string | undefined {
@@ -146,7 +160,7 @@ function readCookie(request: Request, name: string): string | undefined {
 }
 function cookie(
   env: AuthEnv,
-  purpose: "session" | "login",
+  purpose: "session" | "login" | "invitation",
   value: string,
   maxAge: number,
 ): string {
@@ -295,7 +309,7 @@ async function memberships(
   userId: string,
 ): Promise<Membership[]> {
   const result = await env.DB.prepare(
-    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, u.preferred_locale, m.role
+    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, u.preferred_locale, m.role,m.supervisor_can_approve,m.supervisor_can_report
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
   )
@@ -317,6 +331,8 @@ function sessionResult(
       organizationId: row.organization_id,
       userId: row.user_id,
       role: row.role,
+      supervisorCanApprove: row.supervisor_can_approve === 1,
+      supervisorCanReport: row.supervisor_can_report === 1,
       actor: "browser",
     },
     organization: { id: row.organization_id, name: row.organization_name },
@@ -324,6 +340,8 @@ function sessionResult(
       id: row.user_id,
       name: row.user_name,
       role: row.role,
+      supervisorCanApprove: row.supervisor_can_approve === 1,
+      supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: row.preferred_locale,
     },
     csrfToken: row.csrf_token,
@@ -338,6 +356,10 @@ export function publicSession(session: AuthenticatedSession) {
     organization: session.organization,
     user: session.user,
     csrfToken: session.csrfToken,
+    permissions: workspacePermissions(session.context.role, {
+      canApprove: session.context.supervisorCanApprove,
+      canReport: session.context.supervisorCanReport,
+    }),
     simulation: session.simulation,
     mfa: session.mfa,
     verifiedAccount: session.verifiedAccount,
@@ -396,7 +418,7 @@ export async function authenticateBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,o.name organization_name,u.name user_name,u.preferred_locale
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,u.preferred_locale
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id WHERE s.token_hash=? AND s.expires_at>?`,
   )
@@ -479,7 +501,7 @@ export async function authenticateMcp(
         403,
       );
     const row = await env.DB.prepare(
-      `SELECT t.organization_id,t.user_id,m.role,t.expires_at FROM development_mcp_tokens t
+      `SELECT t.organization_id,t.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,t.expires_at FROM development_mcp_tokens t
       JOIN memberships m ON m.organization_id=t.organization_id AND m.user_id=t.user_id WHERE t.token_hash=? AND t.expires_at>?`,
     )
       .bind(await hashSecret(token), nowISO())
@@ -487,6 +509,8 @@ export async function authenticateMcp(
         organization_id: string;
         user_id: string;
         role: AuthContext["role"];
+        supervisor_can_approve: number;
+        supervisor_can_report: number;
         expires_at: string;
       }>();
     if (!row)
@@ -496,6 +520,8 @@ export async function authenticateMcp(
         organizationId: row.organization_id,
         userId: row.user_id,
         role: row.role,
+        supervisorCanApprove: row.supervisor_can_approve === 1,
+        supervisorCanReport: row.supervisor_can_report === 1,
         actor: "mcp",
       },
       scopes: [...MCP_SCOPES],
@@ -608,6 +634,8 @@ export async function authenticateMcp(
       organizationId: member.organization_id,
       userId: member.user_id,
       role: member.role,
+      supervisorCanApprove: member.supervisor_can_approve === 1,
+      supervisorCanReport: member.supervisor_can_report === 1,
       actor: "mcp",
     },
     scopes,
@@ -634,6 +662,33 @@ export function protectedResourceMetadata(env: AuthEnv): Response {
   });
 }
 
+async function boundedAuthInput(request: Request): Promise<unknown> {
+  const reader = request.body?.getReader();
+  if (!reader)
+    throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+  let text = "";
+  const decoder = new TextDecoder();
+  try {
+    for (;;) {
+      const part = await reader.read();
+      if (part.done) break;
+      text += decoder.decode(part.value, { stream: true });
+      if (text.length > 512) {
+        await reader.cancel();
+        throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  let input: unknown;
+  try {
+    input = JSON.parse(text);
+  } catch {
+    throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+  }
+  return input;
+}
 export async function handleAuthRoute(
   request: Request,
   env: AuthEnv,
@@ -647,6 +702,38 @@ export async function handleAuthRoute(
     ].includes(url.pathname)
   )
     return protectedResourceMetadata(env);
+  if (request.method === "POST" && url.pathname === "/auth/invitation") {
+    requireSameOrigin(request, env);
+    if (
+      request.headers.has("Authorization") ||
+      !request.headers.get("Content-Type")?.startsWith("application/json")
+    )
+      throw new AuthError(
+        "BROWSER_REQUIRED",
+        "Ouvrez l’invitation dans votre navigateur.",
+        403,
+      );
+    const input = await boundedAuthInput(request);
+    if (
+      !input ||
+      typeof input !== "object" ||
+      Object.keys(input).length !== 1 ||
+      !("token" in input) ||
+      typeof input.token !== "string" ||
+      !/^[A-Za-z0-9_-]{43}$/.test(input.token)
+    )
+      throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+    const preview = await getInvitationPreview(env, input.token);
+    if (preview.status !== "pending")
+      throw new AuthError(
+        "INVITATION_UNAVAILABLE",
+        "Cette invitation n’est plus disponible.",
+        409,
+      );
+    return json({ loginUrl: "/auth/login?fresh=1" }, 200, {
+      "Set-Cookie": cookie(env, "invitation", input.token, 600),
+    });
+  }
   if (
     request.method === "GET" &&
     ["/auth/login", "/auth/signup"].includes(url.pathname)
@@ -693,8 +780,13 @@ export async function handleAuthRoute(
       .replaceAll("+", "-")
       .replaceAll("/", "_")
       .replaceAll("=", "");
+    const invitationToken = readCookie(request, cookieName(env, "invitation"));
+    const invitationHash =
+      invitationToken && /^[A-Za-z0-9_-]{43}$/.test(invitationToken)
+        ? await hashSecret(invitationToken)
+        : null;
     await env.DB.prepare(
-      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale) VALUES(?,?,?,?,?,?,?)",
+      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash) VALUES(?,?,?,?,?,?,?,?)",
     )
       .bind(
         await hashSecret(state),
@@ -704,6 +796,7 @@ export async function handleAuthRoute(
         safeReturnPath(url.searchParams.get("returnTo")),
         new Date(Date.now() + 600_000).toISOString(),
         preferredLocale,
+        invitationHash,
       )
       .run();
     const destination = new URL("authorize", config.issuer);
@@ -727,7 +820,10 @@ export async function handleAuthRoute(
       destination.searchParams.set("prompt", "login");
       destination.searchParams.set("max_age", "0");
     }
-    return redirect(destination.href, [cookie(env, "login", browser, 600)]);
+    return redirect(destination.href, [
+      cookie(env, "login", browser, 600),
+      cookie(env, "invitation", "", 0),
+    ]);
   }
   if (request.method === "GET" && url.pathname === "/auth/callback") {
     const config = configuredIdentity(env);
@@ -737,10 +833,11 @@ export async function handleAuthRoute(
     if (!browser || !state || !code || state.length > 256 || code.length > 4096)
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const transaction = await env.DB.prepare(
-      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale",
+      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash",
     )
       .bind(await hashSecret(state), await hashSecret(browser), nowISO())
       .first<{
+        invitation_token_hash: string | null;
         code_verifier: string;
         nonce: string;
         return_to: string;
@@ -831,6 +928,51 @@ export async function handleAuthRoute(
     )
       .bind(config.issuer, claims.sub)
       .first<{ user_id: string }>();
+    let invitedOrganizationId: string | undefined;
+    if (transaction.invitation_token_hash) {
+      if (policy === "verified_email_and_mfa" && !hasMfa(claims)) {
+        const invitedRole = await env.DB.prepare(
+          "SELECT role FROM workspace_invitations WHERE token_hash=?",
+        )
+          .bind(transaction.invitation_token_hash)
+          .first<{ role: string }>();
+        if (invitedRole?.role === "admin")
+          throw new AuthError(
+            "MFA_REQUIRED",
+            "Activez la double authentification pour accepter ce rôle administrateur.",
+            403,
+          );
+      }
+      const userId = identity?.user_id ?? `usr_${crypto.randomUUID()}`;
+      const createdAt = nowISO();
+      const prerequisites = identity
+        ? []
+        : [
+            env.DB.prepare(
+              "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+            ).bind(
+              userId,
+              typeof claims.name === "string"
+                ? claims.name.slice(0, 200)
+                : "Utilisateur Guteneo",
+              claims.email,
+              createdAt,
+              transaction.preferred_locale,
+            ),
+            env.DB.prepare(
+              "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
+            ).bind(config.issuer, claims.sub, userId, createdAt),
+          ];
+      const accepted = await acceptWorkspaceInvitation(
+        env,
+        transaction.invitation_token_hash,
+        claims.email,
+        userId,
+        prerequisites,
+      );
+      invitedOrganizationId = accepted.organizationId;
+      identity = { user_id: userId };
+    }
     if (!identity) {
       if (policy === "verified_email_and_mfa" && !hasMfa(claims))
         throw new AuthError(
@@ -896,7 +1038,17 @@ export async function handleAuthRoute(
       return redirect(`${env.APP_ORIGIN}/?auth=invitation_required#/app`, [
         cookie(env, "login", "", 0),
       ]);
-    const member = memberRows[0];
+    const member = invitedOrganizationId
+      ? memberRows.find(
+          (entry) => entry.organization_id === invitedOrganizationId,
+        )
+      : memberRows[0];
+    if (!member)
+      throw new AuthError(
+        "MEMBERSHIP_REQUIRED",
+        "Votre accès à cet atelier a changé.",
+        403,
+      );
     if (
       policy === "verified_email_and_mfa" &&
       member.role === "admin" &&
@@ -914,10 +1066,13 @@ export async function handleAuthRoute(
       false,
       verifiedAccount,
     );
-    return redirect(new URL(transaction.return_to, env.APP_ORIGIN).href, [
-      cookie(env, "login", "", 0),
-      session.cookie,
-    ]);
+    return redirect(
+      new URL(
+        invitedOrganizationId ? "/#/app" : transaction.return_to,
+        env.APP_ORIGIN,
+      ).href,
+      [cookie(env, "login", "", 0), session.cookie],
+    );
   }
   if (request.method === "POST" && url.pathname === "/api/dev/login") {
     if (!isLocalSimulation(request, env))
@@ -946,6 +1101,143 @@ export async function handleAuthRoute(
     const result = await createSession(env, selected, false, true);
     return json(publicSession(result.session), 200, {
       "Set-Cookie": result.cookie,
+    });
+  }
+  if (url.pathname === "/api/account/workspaces" && request.method === "GET") {
+    if (request.headers.has("Authorization"))
+      throw new AuthError(
+        "BROWSER_REQUIRED",
+        "Ouvrez Guteneo dans votre navigateur.",
+        403,
+      );
+    const session = await authenticateBrowser(request, env);
+    const available = await memberships(env, session.context.userId);
+    return json({
+      items: available.map((member) => ({
+        id: member.organization_id,
+        name: member.organization_name,
+        role: member.role,
+        current: member.organization_id === session.context.organizationId,
+        permissions: workspacePermissions(member.role, {
+          canApprove: member.supervisor_can_approve === 1,
+          canReport: member.supervisor_can_report === 1,
+        }),
+      })),
+    });
+  }
+  if (url.pathname === "/api/account/workspace" && request.method === "POST") {
+    if (request.headers.has("Authorization"))
+      throw new AuthError(
+        "BROWSER_REQUIRED",
+        "Ouvrez Guteneo dans votre navigateur.",
+        403,
+      );
+    const session = await authenticateBrowser(request, env, true);
+    const input = await boundedAuthInput(request);
+    if (
+      !input ||
+      typeof input !== "object" ||
+      Object.keys(input).length !== 1 ||
+      !("organizationId" in input) ||
+      typeof input.organizationId !== "string" ||
+      input.organizationId.length > 200
+    )
+      throw new AuthError(
+        "INVALID_INPUT",
+        "Choisissez un atelier accessible.",
+        400,
+      );
+    const available = await memberships(env, session.context.userId);
+    const selected = available.find(
+      (member) => member.organization_id === input.organizationId,
+    );
+    if (!selected)
+      throw new AuthError(
+        "MEMBERSHIP_REQUIRED",
+        "Vous n’êtes pas membre de cet atelier.",
+        403,
+      );
+    const current = await env.DB.prepare(
+      "SELECT is_development FROM browser_sessions WHERE token_hash=? AND expires_at>?",
+    )
+      .bind(session.tokenHash, nowISO())
+      .first<{ is_development: number }>();
+    if (!current)
+      throw new AuthError(
+        "SESSION_EXPIRED",
+        "Session expirée. Reconnectez-vous.",
+      );
+    if (
+      !current.is_development &&
+      authenticationPolicy(env) === "verified_email_and_mfa" &&
+      selected.role === "admin" &&
+      !session.mfa
+    )
+      throw new AuthError(
+        "MFA_REQUIRED",
+        "Reconnectez-vous après une double authentification.",
+        403,
+      );
+    if (selected.organization_id === session.context.organizationId)
+      return json(publicSession(session));
+    const secret = randomSecret();
+    const tokenHash = await hashSecret(secret);
+    const csrfToken = randomSecret();
+    const now = nowISO();
+    const results = await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account)
+        SELECT ?,target.user_id,target.organization_id,?,s.mfa,s.is_development,?,s.expires_at,s.verified_account
+        FROM browser_sessions s JOIN memberships source ON source.organization_id=s.organization_id AND source.user_id=s.user_id
+        JOIN memberships target ON target.user_id=s.user_id JOIN organizations o ON o.id=target.organization_id
+        WHERE s.token_hash=? AND s.csrf_token=? AND s.expires_at>? AND s.user_id=? AND s.organization_id=?
+        AND source.role=? AND source.supervisor_can_approve=? AND source.supervisor_can_report=?
+        AND target.organization_id=? AND target.role=? AND target.supervisor_can_approve=? AND target.supervisor_can_report=? AND o.mode=?
+        AND s.mfa=? AND s.verified_account=? AND s.is_development=?`,
+      ).bind(
+        tokenHash,
+        csrfToken,
+        now,
+        session.tokenHash,
+        session.csrfToken,
+        now,
+        session.context.userId,
+        session.context.organizationId,
+        session.context.role,
+        Number(session.context.supervisorCanApprove),
+        Number(session.context.supervisorCanReport),
+        selected.organization_id,
+        selected.role,
+        selected.supervisor_can_approve,
+        selected.supervisor_can_report,
+        env.MODE,
+        Number(session.mfa),
+        Number(session.verifiedAccount),
+        current.is_development,
+      ),
+      env.DB.prepare(
+        "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+      ).bind(session.tokenHash, tokenHash),
+    ]);
+    // D1 also counts the public-session-ID trigger update in meta.changes.
+    if (!results[0].meta.changes)
+      throw new AuthError(
+        "ACCESS_CHANGED",
+        "Vos droits ou votre session ont changé. Reconnectez-vous.",
+        403,
+      );
+    const result = sessionResult(
+      {
+        ...selected,
+        csrf_token: csrfToken,
+        mfa: Number(session.mfa),
+        verified_account: Number(session.verifiedAccount),
+      },
+      tokenHash,
+      env,
+    );
+    return json(publicSession(result), 200, {
+      "Set-Cookie": cookie(env, "session", secret, 3600),
     });
   }
   if (request.method === "GET" && url.pathname === "/api/session")

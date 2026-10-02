@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { RolePermissionNotice } from "./role-guide";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
 import { api } from "./api";
@@ -103,7 +104,15 @@ function statusLabel(review: PostalReview) {
   return msg("Vérifiez le document et l’adresse");
 }
 
-export function PostalReviewPage({ id }: { id: string }) {
+export function PostalReviewPage({
+  id,
+  canApprove = true,
+  canPrepare = true,
+}: {
+  id: string;
+  canApprove?: boolean;
+  canPrepare?: boolean;
+}) {
   const path = `/postal/preflights/${encodeURIComponent(id)}`;
   const resource = useResource<PostalReview>(path);
   const readReview = resource.refresh;
@@ -121,7 +130,8 @@ export function PostalReviewPage({ id }: { id: string }) {
   const review = resource.data;
   const quote = usePostalQuote(
     path,
-    review?.transferStatus === "prepared" &&
+    canPrepare &&
+      review?.transferStatus === "prepared" &&
       !needsReconciliation &&
       !resource.loading &&
       !resource.error,
@@ -179,6 +189,7 @@ export function PostalReviewPage({ id }: { id: string }) {
   const hasCrop =
     !cropFailed && trustedCropUrls.includes(review?.address.cropUrl ?? "");
   const canTransfer =
+    canApprove &&
     !resource.loading &&
     !resource.error &&
     !needsReconciliation &&
@@ -215,6 +226,7 @@ export function PostalReviewPage({ id }: { id: string }) {
           "Parcourez le PDF et vérifiez l’adresse. Le prix exact sera affiché avant votre accord d’envoi.",
         )}
       />
+      {!canApprove && <RolePermissionNotice />}
       <ErrorNotice error={resource.error} retry={refreshReview} />
       <ErrorNotice error={action.error} />
       <ErrorNotice error={quote.error} />
@@ -295,7 +307,7 @@ export function PostalReviewPage({ id }: { id: string }) {
                   ))}
                 </ul>
               )}
-              {["blocked", "failed"].includes(review.status) && (
+              {canPrepare && ["blocked", "failed"].includes(review.status) && (
                 <p>
                   <a className="button" href="#/app/documents">
                     {msg("Importer un PDF corrigé")}
@@ -443,7 +455,7 @@ export function PostalReviewPage({ id }: { id: string }) {
               </section>
             </div>
 
-            {review.transferStatus === "prepared" ? (
+            {canPrepare && review.transferStatus === "prepared" ? (
               <section
                 className="postal-consent"
                 aria-labelledby="postal-draft-title"
@@ -481,6 +493,7 @@ export function PostalReviewPage({ id }: { id: string }) {
                 </button>
               </section>
             ) : (
+              canApprove &&
               review.transferStatus === "not_started" && (
                 <form
                   className="postal-consent"

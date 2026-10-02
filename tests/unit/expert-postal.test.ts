@@ -208,7 +208,7 @@ beforeEach(async () => {
       )
       .bind(ctx.userId, date),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(ctx.organizationId, ctx.userId, date),
     db
       .prepare(
@@ -457,7 +457,7 @@ describe("expert postal transfer authority", () => {
             )
             .bind(otherAdmin, now()),
           db
-            .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+            .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
             .bind(ctx.organizationId, otherAdmin, now()),
         ]);
         await db

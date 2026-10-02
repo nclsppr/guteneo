@@ -6,6 +6,7 @@ import operations from "./locales/messages-operations.json";
 import shell from "./locales/messages-shell.json";
 import legal from "./locales/messages-legal.json";
 import pricing from "./locales/messages-pricing.json";
+import roles from "./locales/messages-roles.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -29,6 +30,7 @@ export const messages: Record<string, readonly string[]> = {
   ...sourceMessages(catalogs.fr, [catalogs.en, catalogs.de, catalogs.lb]),
   ...shell,
   ...pricing,
+  ...roles,
   ...legal,
   ...operations,
   ...assistants,

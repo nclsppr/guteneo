@@ -14,6 +14,23 @@ enum Channel: String, Codable, CaseIterable, Identifiable, Sendable {
 struct MobileSession: Codable, Sendable {
     struct Organization: Codable, Sendable { let id: String; let name: String }
     struct User: Codable, Sendable { let id: String; let name: String; let role: String; let preferredLocale: AppLanguage? }
+    struct Permissions: Codable, Sendable {
+        let prepareDispatches: Bool
+        let approveDispatches: Bool
+        let viewReports: Bool
+    }
+    let permissions: Permissions?
+    var canPrepare: Bool { permissions?.prepareDispatches ?? ["admin", "member"].contains(user.role) }
+    var canApprove: Bool { permissions?.approveDispatches ?? (user.role == "admin") }
+    var roleTitle: String {
+        switch user.role {
+        case "admin": "Administrateur"
+        case "supervisor": "Superviseur"
+        case "member": "Opérateur"
+        case "viewer": "Observateur"
+        default: "Accès indisponible"
+        }
+    }
     let organization: Organization
     let user: User
     let simulation: Bool

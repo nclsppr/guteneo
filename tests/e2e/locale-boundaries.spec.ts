@@ -69,6 +69,19 @@ async function mockAccount(
       signedIn = false;
       return route.fulfill({ json: { signedOut: true } });
     }
+    if (path === "/api/account/workspaces")
+      return route.fulfill({
+        json: {
+          items: [
+            {
+              id: "locale-boundary-org",
+              name: "Courrier postal",
+              role: "member",
+              current: true,
+            },
+          ],
+        },
+      });
     if (path === "/api/account/sessions")
       return route.fulfill({ json: { items: [], hasMore: false } });
     if (path === "/api/account/expert-approval")

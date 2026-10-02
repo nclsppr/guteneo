@@ -65,7 +65,13 @@ type CsvResult = {
   valid: boolean;
 };
 
-export function Campaigns({ simulation }: { simulation: boolean }) {
+export function Campaigns({
+  simulation,
+  canPrepare = true,
+}: {
+  simulation: boolean;
+  canPrepare?: boolean;
+}) {
   const campaigns = useResource<Page<Campaign>>("/campaigns");
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
@@ -160,235 +166,237 @@ export function Campaigns({ simulation }: { simulation: boolean }) {
           </div>
         </div>
       )}
-      <form className="campaign-layout" onSubmit={(e) => void create(e)}>
-        <section className="form-panel">
-          <Field label={t.campaigns.name}>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t.campaigns.namePlaceholder}
-              maxLength={120}
-              required
-              disabled={locked}
-            />
-          </Field>
-          <Field label={t.campaigns.csvFile}>
-            <input
-              type="file"
-              accept=".csv,text/csv"
-              disabled={locked}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file)
-                  void action.run(async () => {
-                    if (file.size > 1024 * 1024)
-                      throw new Error(t.campaigns.tooLarge);
-                    setCsv(await file.text());
-                    setValidated(undefined);
-                  });
-              }}
-            />
-          </Field>
-          <Field label={t.campaigns.csv} hint={t.campaigns.csvHelp}>
-            <textarea
-              className="code-input"
-              rows={8}
-              value={csv}
-              onChange={(e) => {
-                setCsv(e.target.value);
-                setValidated(undefined);
-              }}
-              placeholder={t.campaigns.sample}
-              required
-              disabled={locked}
-            />
-          </Field>
-          <button
-            type="button"
-            className="button"
-            onClick={() => void validate()}
-            disabled={!csv || action.pending || locked}
-          >
-            {action.pending ? t.loading : t.campaigns.validate}
-            <Check size={18} />
-          </button>
-          {validated && (
-            <section className="csv-result" aria-live="polite">
-              <h3>{t.campaigns.validationTitle}</h3>
-              <dl className="csv-counts">
-                <Definition label={t.campaigns.valid}>
-                  {validated.rows.length}
-                </Definition>
-                <Definition label={t.campaigns.errors}>
-                  {validated.errors.length}
-                </Definition>
-                <Definition label={t.campaigns.duplicates}>
-                  {validated.duplicates.length}
-                </Definition>
-              </dl>
-              {validated.rows.length > 0 && (
-                <div className="table-scroll csv-preview">
-                  <table className="responsive-table" role="table">
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th role="columnheader" scope="col">
-                          {t.campaigns.row}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {t.channel}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {t.recipient}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                      {validated.rows.slice(0, 25).map((row) => (
-                        <tr role="row" key={row.line}>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {t.campaigns.row}
-                            </span>
-                            {row.line}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {t.channel}
-                            </span>
-                            {t.channels[row.channel]}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {t.recipient}
-                            </span>
-                            {Object.values(row.recipient)
-                              .filter(Boolean)
-                              .join(", ")}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {validated.rows.length > 25 && (
-                <p className="field-hint">{t.campaigns.previewLimited}</p>
-              )}
-              {validated.errors.length > 0 && (
-                <ul className="validation-errors">
-                  {validated.errors.map((error, index) => (
-                    <li key={index}>
-                      {t.campaigns.row} {error.line} : {msg(error.message)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {validated.duplicates.length > 0 && (
-                <ul className="validation-errors">
-                  {validated.duplicates.map((duplicate, index) => (
-                    <li key={index}>
-                      {t.campaigns.row} {duplicate.line} :{" "}
-                      {t.campaigns.duplicateOf} {duplicate.duplicateOf}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {!validated.errors.length && !validated.duplicates.length ? (
-                <p className="success-copy">
-                  <Check size={18} />
-                  {t.campaigns.noErrors}
-                </p>
-              ) : (
-                <p>{t.campaigns.correction}</p>
-              )}
-            </section>
-          )}
-        </section>
-        <section className="form-panel">
-          <h2>{t.campaigns.document}</h2>
-          <Field label={t.document}>
-            <select
-              value={documentId}
-              onChange={(e) => setDocumentId(e.target.value)}
-              required={needsDocument}
-              disabled={locked}
-            >
-              <option value="">{t.dispatch.chooseDocument}</option>
-              {documents.data?.items
-                .filter((d) => ["ready", "clean"].includes(d.status))
-                .map((d) => (
-                  <option value={d.id} key={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-            </select>
-          </Field>
-          <LoadMore
-            path="/documents"
-            data={documents.data}
-            onLoaded={documents.setData}
-          />
-          {hasEmail &&
-            documentId &&
-            !simulation &&
-            !isPublicPreview &&
-            !locked && (
-              <ProtectedDocumentChoice
-                enabled={protectedLink}
-                days={protectedDays}
-                onEnabled={setProtectedLink}
-                onDays={setProtectedDays}
-              />
-            )}
-          {hasEmail && (
-            <>
-              <Field label={t.campaigns.emailSubject}>
-                <input
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  required
-                  disabled={locked}
-                />
-              </Field>
-              <EmailComposer
-                text={plain}
-                html={html}
-                onText={setPlain}
-                onHtml={setHtml}
+      {canPrepare && (
+        <form className="campaign-layout" onSubmit={(e) => void create(e)}>
+          <section className="form-panel">
+            <Field label={t.campaigns.name}>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t.campaigns.namePlaceholder}
+                maxLength={120}
+                required
                 disabled={locked}
               />
-            </>
-          )}
-          <p className="field-hint">{t.campaigns.approvalNote}</p>
-          <p className="field-hint">
-            {t.campaigns.ceiling} : {money(500)} {t.campaigns.perRecipient}{" "}
-            {t.simulationCost}
-          </p>
-          <button
-            className="button primary full"
-            disabled={
-              action.pending ||
-              !validated?.rows.length ||
-              !!validated.errors.length ||
-              !!validated.duplicates.length
-            }
-          >
-            {action.pending
-              ? `${t.loading} ${progress}/${validated?.rows.length ?? 0}`
-              : t.campaigns.create}
-            <ArrowRight size={18} />
-          </button>
-        </section>
-      </form>
+            </Field>
+            <Field label={t.campaigns.csvFile}>
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                disabled={locked}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file)
+                    void action.run(async () => {
+                      if (file.size > 1024 * 1024)
+                        throw new Error(t.campaigns.tooLarge);
+                      setCsv(await file.text());
+                      setValidated(undefined);
+                    });
+                }}
+              />
+            </Field>
+            <Field label={t.campaigns.csv} hint={t.campaigns.csvHelp}>
+              <textarea
+                className="code-input"
+                rows={8}
+                value={csv}
+                onChange={(e) => {
+                  setCsv(e.target.value);
+                  setValidated(undefined);
+                }}
+                placeholder={t.campaigns.sample}
+                required
+                disabled={locked}
+              />
+            </Field>
+            <button
+              type="button"
+              className="button"
+              onClick={() => void validate()}
+              disabled={!csv || action.pending || locked}
+            >
+              {action.pending ? t.loading : t.campaigns.validate}
+              <Check size={18} />
+            </button>
+            {validated && (
+              <section className="csv-result" aria-live="polite">
+                <h3>{t.campaigns.validationTitle}</h3>
+                <dl className="csv-counts">
+                  <Definition label={t.campaigns.valid}>
+                    {validated.rows.length}
+                  </Definition>
+                  <Definition label={t.campaigns.errors}>
+                    {validated.errors.length}
+                  </Definition>
+                  <Definition label={t.campaigns.duplicates}>
+                    {validated.duplicates.length}
+                  </Definition>
+                </dl>
+                {validated.rows.length > 0 && (
+                  <div className="table-scroll csv-preview">
+                    <table className="responsive-table" role="table">
+                      <thead role="rowgroup">
+                        <tr role="row">
+                          <th role="columnheader" scope="col">
+                            {t.campaigns.row}
+                          </th>
+                          <th role="columnheader" scope="col">
+                            {t.channel}
+                          </th>
+                          <th role="columnheader" scope="col">
+                            {t.recipient}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody role="rowgroup">
+                        {validated.rows.slice(0, 25).map((row) => (
+                          <tr role="row" key={row.line}>
+                            <td role="cell">
+                              <span
+                                className="mobile-cell-label"
+                                aria-hidden="true"
+                              >
+                                {t.campaigns.row}
+                              </span>
+                              {row.line}
+                            </td>
+                            <td role="cell">
+                              <span
+                                className="mobile-cell-label"
+                                aria-hidden="true"
+                              >
+                                {t.channel}
+                              </span>
+                              {t.channels[row.channel]}
+                            </td>
+                            <td role="cell">
+                              <span
+                                className="mobile-cell-label"
+                                aria-hidden="true"
+                              >
+                                {t.recipient}
+                              </span>
+                              {Object.values(row.recipient)
+                                .filter(Boolean)
+                                .join(", ")}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {validated.rows.length > 25 && (
+                  <p className="field-hint">{t.campaigns.previewLimited}</p>
+                )}
+                {validated.errors.length > 0 && (
+                  <ul className="validation-errors">
+                    {validated.errors.map((error, index) => (
+                      <li key={index}>
+                        {t.campaigns.row} {error.line} : {msg(error.message)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {validated.duplicates.length > 0 && (
+                  <ul className="validation-errors">
+                    {validated.duplicates.map((duplicate, index) => (
+                      <li key={index}>
+                        {t.campaigns.row} {duplicate.line} :{" "}
+                        {t.campaigns.duplicateOf} {duplicate.duplicateOf}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!validated.errors.length && !validated.duplicates.length ? (
+                  <p className="success-copy">
+                    <Check size={18} />
+                    {t.campaigns.noErrors}
+                  </p>
+                ) : (
+                  <p>{t.campaigns.correction}</p>
+                )}
+              </section>
+            )}
+          </section>
+          <section className="form-panel">
+            <h2>{t.campaigns.document}</h2>
+            <Field label={t.document}>
+              <select
+                value={documentId}
+                onChange={(e) => setDocumentId(e.target.value)}
+                required={needsDocument}
+                disabled={locked}
+              >
+                <option value="">{t.dispatch.chooseDocument}</option>
+                {documents.data?.items
+                  .filter((d) => ["ready", "clean"].includes(d.status))
+                  .map((d) => (
+                    <option value={d.id} key={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+              </select>
+            </Field>
+            <LoadMore
+              path="/documents"
+              data={documents.data}
+              onLoaded={documents.setData}
+            />
+            {hasEmail &&
+              documentId &&
+              !simulation &&
+              !isPublicPreview &&
+              !locked && (
+                <ProtectedDocumentChoice
+                  enabled={protectedLink}
+                  days={protectedDays}
+                  onEnabled={setProtectedLink}
+                  onDays={setProtectedDays}
+                />
+              )}
+            {hasEmail && (
+              <>
+                <Field label={t.campaigns.emailSubject}>
+                  <input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    required
+                    disabled={locked}
+                  />
+                </Field>
+                <EmailComposer
+                  text={plain}
+                  html={html}
+                  onText={setPlain}
+                  onHtml={setHtml}
+                  disabled={locked}
+                />
+              </>
+            )}
+            <p className="field-hint">{t.campaigns.approvalNote}</p>
+            <p className="field-hint">
+              {t.campaigns.ceiling} : {money(500)} {t.campaigns.perRecipient}{" "}
+              {t.simulationCost}
+            </p>
+            <button
+              className="button primary full"
+              disabled={
+                action.pending ||
+                !validated?.rows.length ||
+                !!validated.errors.length ||
+                !!validated.duplicates.length
+              }
+            >
+              {action.pending
+                ? `${t.loading} ${progress}/${validated?.rows.length ?? 0}`
+                : t.campaigns.create}
+              <ArrowRight size={18} />
+            </button>
+          </section>
+        </form>
+      )}
       <div className="section-toolbar">
         <h2>{t.campaigns.list}</h2>
         <RefreshButton onClick={campaigns.refresh} />
@@ -470,7 +478,13 @@ export function Campaigns({ simulation }: { simulation: boolean }) {
   );
 }
 
-export function CampaignDetail({ id }: { id: string }) {
+export function CampaignDetail({
+  id,
+  canPrepare = true,
+}: {
+  id: string;
+  canPrepare?: boolean;
+}) {
   const resource = useResource<{ campaign: Campaign; dispatches: Dispatch[] }>(
     `/campaigns/${encodeURIComponent(id)}`,
   );
@@ -499,7 +513,10 @@ export function CampaignDetail({ id }: { id: string }) {
                 {t.campaigns.total.toLowerCase()}
               </span>
             </div>
-            <DispatchTable items={resource.data.dispatches} />
+            <DispatchTable
+              items={resource.data.dispatches}
+              canPrepare={canPrepare}
+            />
           </>
         )
       )}
@@ -540,7 +557,13 @@ export function Diagnostics({ value }: { value: unknown }) {
   );
 }
 
-export function Senders() {
+export function Senders({
+  canManage = true,
+  canPrepare = true,
+}: {
+  canManage?: boolean;
+  canPrepare?: boolean;
+}) {
   const resource = useResource<{ items: (Sender & { mode?: string })[] }>(
     "/senders",
   );
@@ -564,6 +587,8 @@ export function Senders() {
         key={setupRevision}
         onUpdated={resource.refresh}
         onStatus={setPostalSetup}
+        canManage={canManage}
+        canPrepare={canPrepare}
       />
       {(isPublicPreview ||
         resource.data?.items.some(

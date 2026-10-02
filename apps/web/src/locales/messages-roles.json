@@ -1,0 +1,450 @@
+{
+  "Superviseur": ["Supervisor", "Supervisor", "Supervisor"],
+  "Opérateur": ["Operator", "Sachbearbeiter", "Operateur"],
+  "Observateur": ["Observer", "Beobachter", "Observateur"],
+  "Gère l’atelier, ses membres, la facturation et les délégations. Prépare, approuve et consulte tous les rapports.": [
+    "Manages the workspace, members, billing and delegations. Prepares and approves dispatches and reads all reports.",
+    "Verwaltet den Arbeitsbereich, Mitglieder, Abrechnung und Delegierungen. Bereitet Sendungen vor, genehmigt sie und liest alle Berichte.",
+    "Verwalt den Atelier, d’Memberen, d’Facturatioun an d’Delegatiounen. Bereet Sendunge vir, geneemegt se a liest all Rapporten."
+  ],
+  "Prépare les documents et les envois. L’administrateur choisit séparément son droit d’approbation et son accès aux rapports.": [
+    "Prepares documents and dispatches. The administrator separately chooses their approval rights and access to reports.",
+    "Bereitet Dokumente und Sendungen vor. Der Administrator legt Genehmigungsrechte und Berichtszugriff getrennt fest.",
+    "Bereet Dokumenter a Sendunge vir. Den Administrateur leet d’Geneemegungsrechter an den Zougang zu de Rapporte getrennt fest."
+  ],
+  "Importe les documents et prépare les envois. Un administrateur ou un superviseur autorisé doit les approuver.": [
+    "Imports documents and prepares dispatches. An administrator or authorized supervisor must approve them.",
+    "Importiert Dokumente und bereitet Sendungen vor. Ein Administrator oder berechtigter Supervisor muss sie genehmigen.",
+    "Importéiert Dokumenter a bereet Sendunge vir. En Administrateur oder e berechtegte Supervisor muss se geneemegen."
+  ],
+  "Consulte les documents, les destinataires et le suivi des envois de l’atelier, sans les modifier.": [
+    "Reads workspace documents, recipients and dispatch tracking without changing them.",
+    "Liest Dokumente, Empfänger und Sendungsverfolgung des Arbeitsbereichs, ohne Änderungen vorzunehmen.",
+    "Liest d’Dokumenter, d’Empfänger an d’Sendungsverfolgung vum Atelier, ouni se ze änneren."
+  ],
+  "Votre rôle ne donne pas accès aux rapports de l’atelier. Un administrateur peut modifier vos droits.": [
+    "Your role does not provide access to workspace reports. An administrator can change your permissions.",
+    "Ihre Rolle erlaubt keinen Zugriff auf die Berichte des Arbeitsbereichs. Ein Administrator kann Ihre Rechte ändern.",
+    "Är Roll erlaabt keen Zougang zu de Rapporte vum Atelier. En Administrateur kann Är Rechter änneren."
+  ],
+  "Votre rôle ne permet pas cette action. Un administrateur peut modifier vos droits.": [
+    "Your role does not allow this action. An administrator can change your permissions.",
+    "Ihre Rolle erlaubt diese Aktion nicht. Ein Administrator kann Ihre Rechte ändern.",
+    "Är Roll erlaabt dës Aktioun net. En Administrateur kann Är Rechter änneren."
+  ],
+  "Comprendre les rôles": [
+    "Understand roles",
+    "Rollen verstehen",
+    "Rolle verstoen"
+  ],
+  "Rôles et droits": [
+    "Roles and permissions",
+    "Rollen und Rechte",
+    "Rollen a Rechter"
+  ],
+  "Un rôle clair pour chaque membre.": [
+    "A clear role for every member.",
+    "Eine klare Rolle für jedes Mitglied.",
+    "Eng kloer Roll fir all Member."
+  ],
+  "Choisissez qui prépare la correspondance, qui autorise les envois et qui consulte les rapports de votre atelier.": [
+    "Choose who prepares correspondence, who authorizes dispatches and who reads your workspace reports.",
+    "Bestimmen Sie, wer die Korrespondenz vorbereitet, Sendungen genehmigt und die Berichte Ihres Arbeitsbereichs liest.",
+    "Bestëmmt, wien d’Korrespondenz virbereet, Sendunge geneemegt an d’Rapporte vun Ärem Atelier liest."
+  ],
+  "Mise à jour le 2 octobre 2026": [
+    "Updated on 2 October 2026",
+    "Aktualisiert am 2. Oktober 2026",
+    "Aktualiséiert den 2. Oktober 2026"
+  ],
+  "Les quatre rôles": ["The four roles", "Die vier Rollen", "Déi véier Rollen"],
+  "Chaque personne a un rôle propre à chaque atelier. Tous les rôles donnent accès aux documents, aux destinataires et au suivi de cet atelier : le rôle Observateur ne masque pas les contenus sensibles.": [
+    "Each person has a separate role in each workspace. All roles can access that workspace’s documents, recipients and tracking: the Observer role does not hide sensitive content.",
+    "Jede Person hat in jedem Arbeitsbereich eine eigene Rolle. Alle Rollen haben Zugriff auf Dokumente, Empfänger und Sendungsverfolgung: Die Rolle Beobachter verbirgt keine sensiblen Inhalte.",
+    "All Persoun huet eng eege Roll an all Atelier. All Rolle kënnen op d’Dokumenter, d’Empfänger an d’Verfolgung vum Atelier zougräifen: d’Roll Observateur verstoppt keng sensibel Inhalter."
+  ],
+  "Les droits du superviseur": [
+    "Supervisor permissions",
+    "Rechte des Supervisors",
+    "Rechter vum Supervisor"
+  ],
+  "Deux options indépendantes, désactivées par défaut, permettent d’adapter ce rôle à votre équipe.": [
+    "Two independent options, both off by default, let you adapt this role to your team.",
+    "Zwei unabhängige, standardmäßig deaktivierte Optionen passen diese Rolle an Ihr Team an.",
+    "Zwou onofhängeg Optiounen, déi standardméisseg ausgeschalt sinn, passen dës Roll un Är Ekipp un."
+  ],
+  "Approuver et refuser les requêtes": [
+    "Approve and reject requests",
+    "Anfragen genehmigen und ablehnen",
+    "Ufroe geneemegen a refuséieren"
+  ],
+  "Autorise la revue et le transfert du PDF postal, l’approbation du contenu et du coût, la confirmation de l’envoi, ainsi que l’annulation avant soumission au prestataire. Une approbation peut déclencher un envoi et consommer le crédit de l’atelier.": [
+    "Allows review and transfer of postal PDFs, approval of content and cost, dispatch confirmation, and cancellation before submission to the provider. Approval can trigger a dispatch and consume workspace credit.",
+    "Erlaubt die Prüfung und Übertragung von Post-PDFs, die Genehmigung von Inhalt und Kosten, die Versandbestätigung sowie die Stornierung vor der Übergabe an den Dienstleister. Eine Genehmigung kann einen Versand auslösen und Guthaben verbrauchen.",
+    "Erlaabt d’Iwwerpréiwung an den Transfert vu Post-PDFen, d’Geneemegung vum Inhalt a vun de Käschten, d’Bestätegung vum Versand an d’Annulatioun virun der Iwwergab un de Prestataire. Eng Geneemegung kann e Versand ausléisen a Kredit verbrauchen."
+  ],
+  "Consulter les rapports": [
+    "Read reports",
+    "Berichte lesen",
+    "Rapporte liesen"
+  ],
+  "Donne accès aux indicateurs d’ensemble et au détail de la consommation. Cette option n’ouvre ni les factures, ni les paiements, ni la gestion des membres.": [
+    "Provides access to overview metrics and detailed usage. This option does not grant access to invoices, payments or member management.",
+    "Ermöglicht den Zugriff auf Gesamtkennzahlen und Verbrauchsdetails. Diese Option gewährt keinen Zugriff auf Rechnungen, Zahlungen oder Mitgliederverwaltung.",
+    "Gëtt Zougang zu den Iwwersiichtszuelen an de Verbrauchsdetailer. Dës Optioun gëtt keen Zougang zu Rechnungen, Bezuelungen oder der Gestioun vun de Memberen."
+  ],
+  "Un superviseur sans ces options prépare les envois comme un opérateur. Avec les rapports seuls, il suit l’activité sans autoriser d’envoi ; avec l’approbation seule, il valide les requêtes sans consulter les rapports.": [
+    "Without these options, a supervisor prepares dispatches like an operator. Reports alone allow activity monitoring without authorizing dispatches; approval alone allows validating requests without reading reports.",
+    "Ohne diese Optionen bereitet ein Supervisor Sendungen wie ein Sachbearbeiter vor. Nur Berichte erlauben die Aktivitätskontrolle ohne Versandfreigabe; nur Genehmigung erlaubt die Freigabe von Anfragen ohne Berichtszugriff.",
+    "Ouni dës Optiounen bereet e Supervisor Sendunge wéi en Operateur vir. Nëmme Rapporten erlaben d’Aktivitéit ze verfollegen ouni Versandfreigab; nëmme Geneemegung erlaabt Ufroen ze validéieren ouni Rapporte liesen ze kënnen."
+  ],
+  "Choisir et modifier un rôle": [
+    "Choose and change a role",
+    "Eine Rolle wählen und ändern",
+    "Eng Roll wielen an änneren"
+  ],
+  "Commencez par Observateur pour une consultation, Opérateur pour la préparation, et Superviseur pour une responsabilité de validation ou de reporting. Réservez Administrateur aux personnes qui gèrent réellement l’atelier.": [
+    "Start with Observer for reading, Operator for preparation and Supervisor for approval or reporting responsibilities. Reserve Administrator for people who actually manage the workspace.",
+    "Wählen Sie Beobachter zum Lesen, Sachbearbeiter zur Vorbereitung und Supervisor für Genehmigungen oder Berichte. Vergeben Sie Administrator nur an Personen, die den Arbeitsbereich tatsächlich verwalten.",
+    "Wielt Observateur fir ze liesen, Operateur fir d’Virbereedung a Supervisor fir Geneemegungen oder Rapporten. Reservéiert Administrateur fir Leit, déi den Atelier tatsächlech verwalten."
+  ],
+  "Dans l’atelier, ouvrez Administration → Membres de l’atelier. Choisissez le rôle, ajustez les deux options du superviseur, puis enregistrez. Un changement de droits déconnecte les sessions et les assistants du membre concerné ; il devra se reconnecter. Le dernier administrateur ne peut pas abandonner son rôle.": [
+    "In your workspace, open Administration → Workspace members. Choose the role, set the two supervisor options, then save. Changing permissions disconnects the member’s sessions and assistants; they must sign in again. The last administrator cannot give up their role.",
+    "Öffnen Sie im Arbeitsbereich Verwaltung → Mitglieder des Arbeitsbereichs. Wählen Sie die Rolle, stellen Sie die beiden Supervisor-Optionen ein und speichern Sie. Geänderte Rechte trennen Sitzungen und Assistenten des Mitglieds; eine erneute Anmeldung ist erforderlich. Der letzte Administrator kann seine Rolle nicht abgeben.",
+    "Maacht am Atelier Administratioun → Membere vum Atelier op. Wielt d’Roll, passt déi zwou Supervisor-Optiounen un a späichert. Geännert Rechter trennen dem Member seng Sessiounen an Assistenten; hie muss sech nei umellen. De leschten Administrateur kann seng Roll net ofginn."
+  ],
+  "Les opérateurs existants conservent la préparation mais doivent désormais confier l’approbation à un administrateur ou à un superviseur autorisé. L’accès aux rapports doit également être attribué explicitement via le rôle Superviseur.": [
+    "Existing operators keep preparation rights but must now leave approval to an administrator or authorized supervisor. Report access must also be explicitly granted through the Supervisor role.",
+    "Bestehende Sachbearbeiter behalten die Vorbereitung, müssen die Genehmigung aber künftig einem Administrator oder berechtigten Supervisor überlassen. Der Berichtszugriff muss ebenfalls ausdrücklich über die Rolle Supervisor vergeben werden.",
+    "Besteeënd Operateure behalen d’Virbereedung, mussen d’Geneemegung awer elo engem Administrateur oder berechtegte Supervisor iwwerloossen. Den Zougang zu de Rapporte muss och ausdrécklech iwwer d’Roll Supervisor verginn ginn."
+  ],
+  "Les assistants et les limites": [
+    "Assistants and limits",
+    "Assistenten und Grenzen",
+    "Assistenten a Grenzen"
+  ],
+  "Les connexions d’assistants restent limitées par les droits actuels du membre et les permissions accordées à la connexion. Un assistant ne peut pas changer les rôles ni s’accorder une délégation.": [
+    "Assistant connections remain limited by the member’s current rights and the permissions granted to the connection. An assistant cannot change roles or grant itself a delegation.",
+    "Assistentenverbindungen bleiben durch die aktuellen Mitgliedsrechte und die Berechtigungen der Verbindung begrenzt. Ein Assistent kann weder Rollen ändern noch sich selbst eine Delegierung erteilen.",
+    "Assistenteverbindunge bleiwen duerch dem Member seng aktuell Rechter an d’Rechter vun der Verbindung begrenzt. En Assistent kann weder Rollen änneren nach sech selwer eng Delegatioun ginn."
+  ],
+  "Le mode expert reste distinct : seul un administrateur connecté dans le navigateur peut donner un mandat limité dans le temps à l’une de ses connexions. Le droit d’approbation d’un superviseur ne lui permet pas de créer ce mandat.": [
+    "Expert mode remains separate: only an administrator signed in through the browser can give a time-limited mandate to one of their connections. A supervisor’s approval right does not allow them to create this mandate.",
+    "Der Expertenmodus bleibt getrennt: Nur ein im Browser angemeldeter Administrator kann einer eigenen Verbindung ein zeitlich begrenztes Mandat erteilen. Das Genehmigungsrecht eines Supervisors erlaubt kein solches Mandat.",
+    "Den Expertmodus bleift getrennt: nëmmen en Administrateur, deen am Browser ugemellt ass, kann enger eegener Verbindung en zäitlech begrenzte Mandat ginn. D’Geneemegungsrecht vun engem Supervisor erlaabt esou e Mandat net."
+  ],
+  "Un rôle n’active pas un canal d’envoi. Les contrôles du document, du destinataire, du coût et des prestataires restent applicables. Annuler une requête est possible seulement avant sa soumission au prestataire ; un courrier déjà envoyé ne peut pas être rappelé.": [
+    "A role does not activate a delivery channel. Document, recipient, cost and provider checks still apply. A request can only be cancelled before submission to the provider; mail already sent cannot be recalled.",
+    "Eine Rolle aktiviert keinen Versandkanal. Die Prüfungen von Dokument, Empfänger, Kosten und Dienstleister gelten weiterhin. Anfragen lassen sich nur vor der Übergabe an den Dienstleister stornieren; bereits versandte Post kann nicht zurückgerufen werden.",
+    "Eng Roll aktivéiert kee Versandkanal. D’Kontrolle vum Dokument, Empfänger, Käschten a Prestataire gëlle weider. Eng Ufro kann nëmme virun der Iwwergab un de Prestataire annuléiert ginn; scho geschéckte Post kann net zeréckgeruff ginn."
+  ],
+  "La facturation reste réservée aux administrateurs. Aucun rôle comptable distinct ni rôle personnalisé n’est proposé pour le moment.": [
+    "Billing remains restricted to administrators. No separate accounting role or custom roles are currently available.",
+    "Die Abrechnung bleibt Administratoren vorbehalten. Eine eigene Buchhaltungsrolle oder benutzerdefinierte Rollen werden derzeit nicht angeboten.",
+    "D’Facturatioun bleift den Administrateure virbehalen. Eng separat Comptabilitéitsroll oder personaliséiert Rolle ginn de Moment net ugebueden."
+  ],
+  "Vos droits dans cet atelier": [
+    "Your workspace permissions",
+    "Ihre Rechte in diesem Arbeitsbereich",
+    "Är Rechter an dësem Atelier"
+  ],
+  "Approbation des requêtes : {0}. Rapports : {1}.": [
+    "Request approval: {0}. Reports: {1}.",
+    "Anfragengenehmigung: {0}. Berichte: {1}.",
+    "Geneemegung vun Ufroen: {0}. Rapporten: {1}."
+  ],
+  "autorisée": ["allowed", "erlaubt", "erlaabt"],
+  "non autorisée": ["not allowed", "nicht erlaubt", "net erlaabt"],
+  "accessibles": ["available", "zugänglich", "zougänglech"],
+  "non accessibles": ["unavailable", "nicht zugänglich", "net zougänglech"],
+  "Droits de {0}": ["Permissions for {0}", "Rechte von {0}", "Rechter vum {0}"],
+  "Lire le guide des rôles et droits": [
+    "Read the roles and permissions guide",
+    "Leitfaden zu Rollen und Rechten lesen",
+    "De Guide fir Rollen a Rechter liesen"
+  ],
+  "Adresse e-mail invalide à la ligne {0}.": [
+    "Invalid email address on line {0}.",
+    "Ungültige E-Mail-Adresse in Zeile {0}.",
+    "Ongëlteg E-Mail-Adress an der Zeil {0}."
+  ],
+  "Une invitation groupée est limitée à 100 adresses différentes.": [
+    "A batch is limited to 100 different addresses.",
+    "Eine Gruppe ist auf 100 verschiedene Adressen begrenzt.",
+    "Eng Grupp ass op 100 verschidden Adresse begrenzt."
+  ],
+  "Ajoutez au moins une adresse e-mail.": [
+    "Add at least one email address.",
+    "Fügen Sie mindestens eine E-Mail-Adresse hinzu.",
+    "Füügt op d’mannst eng E-Mail-Adress bäi."
+  ],
+  "Le CSV doit contenir une colonne nommée email.": [
+    "The CSV must contain a column named email.",
+    "Die CSV-Datei muss eine Spalte namens email enthalten.",
+    "D’CSV-Datei muss eng Kolonn mam Numm email enthalen."
+  ],
+  "Le CSV est mal formé à la ligne {0}. Vérifiez les colonnes et les guillemets.": [
+    "The CSV is malformed on line {0}. Check the columns and quotation marks.",
+    "Die CSV-Datei ist in Zeile {0} fehlerhaft. Prüfen Sie Spalten und Anführungszeichen.",
+    "D’CSV-Datei ass an der Zeil {0} falsch formatéiert. Kontrolléiert d’Kolonnen an d’Gänseféisercher."
+  ],
+  "E-mail envoyé": ["Email sent", "E-Mail gesendet", "E-Mail geschéckt"],
+  "Envoi simulé": [
+    "Simulated delivery",
+    "Simulierter Versand",
+    "Simuléierte Versand"
+  ],
+  "Échec de l’e-mail": [
+    "Email failed",
+    "E-Mail fehlgeschlagen",
+    "E-Mail feelgeschloen"
+  ],
+  "Envoi non confirmé": [
+    "Delivery unconfirmed",
+    "Versand unbestätigt",
+    "Versand net bestätegt"
+  ],
+  "Envoi en attente": [
+    "Delivery pending",
+    "Versand ausstehend",
+    "Versand steet aus"
+  ],
+  "En attente d’acceptation": [
+    "Awaiting acceptance",
+    "Annahme ausstehend",
+    "Waart op d’Unnam"
+  ],
+  "Invitation acceptée": [
+    "Invitation accepted",
+    "Einladung angenommen",
+    "Invitatioun ugeholl"
+  ],
+  "Invitation révoquée": [
+    "Invitation revoked",
+    "Einladung widerrufen",
+    "Invitatioun zréckgezunn"
+  ],
+  "Invitation expirée": [
+    "Invitation expired",
+    "Einladung abgelaufen",
+    "Invitatioun ofgelaf"
+  ],
+  "Choisissez un fichier CSV.": [
+    "Choose a CSV file.",
+    "Wählen Sie eine CSV-Datei.",
+    "Wielt eng CSV-Datei."
+  ],
+  "Le CSV doit faire moins de 1 Mo.": [
+    "The CSV must be smaller than 1 MB.",
+    "Die CSV-Datei muss kleiner als 1 MB sein.",
+    "D’CSV-Datei muss méi kleng wéi 1 MB sinn."
+  ],
+  "Les invitations ont été traitées. Vérifiez leur état ci-dessous.": [
+    "The invitations have been processed. Check their status below.",
+    "Die Einladungen wurden bearbeitet. Prüfen Sie ihren Status unten.",
+    "D’Invitatioune goufe verschafft. Kontrolléiert hire Status hei drënner."
+  ],
+  "Inviter des membres": [
+    "Invite members",
+    "Mitglieder einladen",
+    "Memberen invitéieren"
+  ],
+  "La personne qui crée un atelier en devient administrateur. Invitez ensuite vos collaborateurs par e-mail, un par un ou depuis un CSV. Le rôle choisi s’applique à toutes les adresses de ce lot.": [
+    "The person who creates a workspace becomes its administrator. Then invite colleagues by email, individually or from a CSV. The chosen role applies to every address in this batch.",
+    "Wer einen Arbeitsbereich erstellt, wird dessen Administrator. Laden Sie anschließend Mitarbeitende einzeln oder per CSV ein. Die gewählte Rolle gilt für alle Adressen dieser Gruppe.",
+    "Wien en Atelier erstellt, gëtt säin Administrateur. Invitéiert duerno Är Mataarbechter per E-Mail, eenzel oder iwwer eng CSV-Datei. Déi gewielte Roll gëllt fir all Adress an dëser Grupp."
+  ],
+  "Destinataires et rôle des invitations": [
+    "Invitation recipients and role",
+    "Empfänger und Rolle der Einladungen",
+    "Empfänger a Roll vun den Invitatiounen"
+  ],
+  "Ajouter des destinataires": [
+    "Add recipients",
+    "Empfänger hinzufügen",
+    "Empfänger bäifügen"
+  ],
+  "Une adresse e-mail": [
+    "One email address",
+    "Eine E-Mail-Adresse",
+    "Eng E-Mail-Adress"
+  ],
+  "Importer un CSV": ["Import a CSV", "CSV importieren", "CSV importéieren"],
+  "Adresse e-mail à inviter": [
+    "Email address to invite",
+    "Einzuladende E-Mail-Adresse",
+    "E-Mail-Adress fir z’invitéieren"
+  ],
+  "Fichier CSV des membres": [
+    "Members CSV file",
+    "CSV-Datei der Mitglieder",
+    "CSV-Datei vun de Memberen"
+  ],
+  "Colonne obligatoire : email. Virgule ou point-virgule accepté. 100 adresses différentes maximum ; les doublons sont retirés avant votre validation.": [
+    "Required column: email. Comma or semicolon accepted. Up to 100 different addresses; duplicates are removed before your review.",
+    "Pflichtspalte: email. Komma oder Semikolon zulässig. Maximal 100 verschiedene Adressen; Duplikate werden vor Ihrer Prüfung entfernt.",
+    "Obligatoresch Kolonn: email. Komma oder Semikolon erlaabt. Maximal 100 verschidden Adressen; Duplikater gi virun Ärer Iwwerpréiwung ewechgeholl."
+  ],
+  "Rôle des nouveaux membres": [
+    "New members’ role",
+    "Rolle der neuen Mitglieder",
+    "Roll vun den neie Memberen"
+  ],
+  "Droits des superviseurs invités": [
+    "Invited supervisors’ permissions",
+    "Rechte der eingeladenen Supervisoren",
+    "Rechter vun den invitéierte Supervisoren"
+  ],
+  "Vérifier les invitations": [
+    "Review invitations",
+    "Einladungen prüfen",
+    "Invitatioune kontrolléieren"
+  ],
+  "La réponse n’a pas pu être confirmée. Actualisez la liste et vérifiez les invitations avant de recharger cette page. Aucun envoi ne sera relancé automatiquement.": [
+    "The response could not be confirmed. Refresh the list and check the invitations before reloading this page. No delivery will be retried automatically.",
+    "Die Antwort konnte nicht bestätigt werden. Aktualisieren Sie die Liste und prüfen Sie die Einladungen, bevor Sie diese Seite neu laden. Kein Versand wird automatisch wiederholt.",
+    "D’Äntwert konnt net bestätegt ginn. Aktualiséiert d’Lëscht a kontrolléiert d’Invitatiounen, ier Dir dës Säit nei luet. Kee Versand gëtt automatesch widderholl."
+  ],
+  "Vérifier {0} invitation(s)": [
+    "Review {0} invitation(s)",
+    "{0} Einladung(en) prüfen",
+    "{0} Invitatioun(en) kontrolléieren"
+  ],
+  "{0} doublon(s) retiré(s).": [
+    "{0} duplicate(s) removed.",
+    "{0} Duplikat(e) entfernt.",
+    "{0} Duplikat(er) ewechgeholl."
+  ],
+  "Chaque personne recevra un lien personnel et devra se connecter avec cette adresse vérifiée pour rejoindre l’atelier.": [
+    "Each person will receive a personal link and must sign in with that verified address to join the workspace.",
+    "Jede Person erhält einen persönlichen Link und muss sich mit dieser bestätigten Adresse anmelden, um dem Arbeitsbereich beizutreten.",
+    "All Persoun kritt e perséinleche Link a muss sech mat där verifizéierter Adress umellen, fir dem Atelier bäizetrieden."
+  ],
+  "Envoi des invitations…": [
+    "Sending invitations…",
+    "Einladungen werden gesendet…",
+    "Invitatioune gi geschéckt…"
+  ],
+  "Envoyer les invitations": [
+    "Send invitations",
+    "Einladungen senden",
+    "Invitatioune schécken"
+  ],
+  "Invitations de l’atelier": [
+    "Workspace invitations",
+    "Einladungen des Arbeitsbereichs",
+    "Invitatioune vum Atelier"
+  ],
+  "Aucune invitation pour le moment.": [
+    "No invitations yet.",
+    "Noch keine Einladungen.",
+    "Nach keng Invitatiounen."
+  ],
+  "Expire le {0}": ["Expires on {0}", "Läuft am {0} ab", "Leeft den {0} of"],
+  "Ne renvoyez pas cette invitation tant que le résultat de l’e-mail n’a pas été vérifié.": [
+    "Do not resend this invitation until the email outcome has been verified.",
+    "Senden Sie diese Einladung erst erneut, wenn das E-Mail-Ergebnis geprüft wurde.",
+    "Schéckt dës Invitatioun net nach eng Kéier, bis d’Resultat vun der E-Mail iwwerpréift gouf."
+  ],
+  "Révoquer l’invitation": [
+    "Revoke invitation",
+    "Einladung widerrufen",
+    "Invitatioun zréckzéien"
+  ],
+  "Révoquer l’invitation de {0} ? Ce lien ne permettra plus de rejoindre l’atelier.": [
+    "Revoke the invitation for {0}? This link will no longer allow them to join the workspace.",
+    "Einladung für {0} widerrufen? Mit diesem Link ist kein Beitritt mehr möglich.",
+    "D’Invitatioun fir {0} zréckzéien? Mat dësem Link ass kee Bäitrëtt méi méiglech."
+  ],
+  "Invitation à rejoindre un atelier": [
+    "Invitation to join a workspace",
+    "Einladung zu einem Arbeitsbereich",
+    "Invitatioun fir engem Atelier bäizetrieden"
+  ],
+  "L’invitation n’a pas pu être acceptée. Rouvrez le lien reçu ou demandez une nouvelle invitation à votre administrateur.": [
+    "The invitation could not be accepted. Reopen the link you received or ask your administrator for a new invitation.",
+    "Die Einladung konnte nicht angenommen werden. Öffnen Sie den erhaltenen Link erneut oder bitten Sie Ihren Administrator um eine neue Einladung.",
+    "D’Invitatioun konnt net ugeholl ginn. Maacht de kritt Link nei op oder frot Ären Administrateur no enger neier Invitatioun."
+  ],
+  "La connexion n’est pas disponible. Réessayez depuis votre invitation.": [
+    "Sign-in is unavailable. Try again from your invitation.",
+    "Die Anmeldung ist nicht verfügbar. Versuchen Sie es erneut über Ihre Einladung.",
+    "D’Umeldung ass net verfügbar. Probéiert et nach eng Kéier iwwer Är Invitatioun."
+  ],
+  "Cette invitation est destinée à {0}.": [
+    "This invitation is for {0}.",
+    "Diese Einladung ist für {0}.",
+    "Dës Invitatioun ass fir {0}."
+  ],
+  "Connectez-vous ou créez votre compte avec l’adresse e-mail qui a reçu l’invitation. Elle doit être vérifiée. Vous rejoindrez cet atelier avec le rôle indiqué, même si vous avez déjà un compte Guteneo.": [
+    "Sign in or create your account with the email address that received the invitation. It must be verified. You will join this workspace with the stated role, even if you already have a Guteneo account.",
+    "Melden Sie sich an oder erstellen Sie Ihr Konto mit der E-Mail-Adresse, die die Einladung erhalten hat. Sie muss bestätigt sein. Sie treten diesem Arbeitsbereich mit der angegebenen Rolle bei, auch wenn Sie bereits ein Guteneo-Konto haben.",
+    "Mellt Iech un oder erstellt Äre Kont mat der E-Mail-Adress, déi d’Invitatioun kritt huet. Si muss verifizéiert sinn. Dir triedt dësem Atelier mat der uginner Roll bäi, och wann Dir schonn e Guteneo-Kont hutt."
+  ],
+  "Connexion en cours…": ["Signing in…", "Anmeldung läuft…", "Umeldung leeft…"],
+  "Accepter et me connecter": [
+    "Accept and sign in",
+    "Annehmen und anmelden",
+    "Unhuelen an umellen"
+  ],
+  "Cette invitation n’est plus disponible. Demandez une nouvelle invitation à l’administrateur de l’atelier.": [
+    "This invitation is no longer available. Ask the workspace administrator for a new invitation.",
+    "Diese Einladung ist nicht mehr verfügbar. Bitten Sie den Administrator des Arbeitsbereichs um eine neue Einladung.",
+    "Dës Invitatioun ass net méi verfügbar. Frot den Administrateur vum Atelier no enger neier Invitatioun."
+  ],
+  "Ouvrez le lien complet reçu par e-mail pour consulter votre invitation.": [
+    "Open the complete link from your email to view your invitation.",
+    "Öffnen Sie den vollständigen Link aus Ihrer E-Mail, um Ihre Einladung anzusehen.",
+    "Maacht de komplette Link aus Ärer E-Mail op, fir Är Invitatioun ze gesinn."
+  ],
+  "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter.": [
+    "Disconnecting access does not remove membership: the person can sign in again.",
+    "Das Trennen des Zugriffs entfernt die Mitgliedschaft nicht: Die Person kann sich erneut anmelden.",
+    "D’Trenne vum Zougang läscht d’Memberschaft net: d’Persoun kann sech nei umellen."
+  ],
+  "La personne qui crée un atelier en devient administrateur. Elle peut ensuite inviter des membres avec une adresse e-mail ou un fichier CSV, vérifier les destinataires et leur rôle, puis envoyer les invitations. Chaque invité rejoint l’atelier en créant un compte ou en se connectant avec l’adresse vérifiée qui a reçu son lien personnel.": [
+    "The person who creates a workspace becomes its administrator. They can then invite members with an email address or a CSV file, review the recipients and role, and send the invitations. Each invitee joins by creating an account or signing in with the verified address that received their personal link.",
+    "Wer einen Arbeitsbereich erstellt, wird dessen Administrator. Danach können Mitglieder per E-Mail-Adresse oder CSV eingeladen, Empfänger und Rolle geprüft und die Einladungen gesendet werden. Eingeladene treten bei, indem sie mit der bestätigten Adresse, die ihren persönlichen Link erhalten hat, ein Konto erstellen oder sich anmelden.",
+    "Wien en Atelier erstellt, gëtt säin Administrateur. Duerno kënne Membere per E-Mail-Adress oder CSV-Datei invitéiert, d’Empfänger an d’Roll kontrolléiert an d’Invitatioune geschéckt ginn. All Invitéierten trëtt bäi, andeems hie mat der verifizéierter Adress, déi säi perséinleche Link kritt huet, e Kont erstellt oder sech umellt."
+  ],
+  "Changer d’atelier": [
+    "Switch workspace",
+    "Arbeitsbereich wechseln",
+    "Atelier wiesselen"
+  ],
+  "Atelier actif": [
+    "Active workspace",
+    "Aktiver Arbeitsbereich",
+    "Aktiven Atelier"
+  ],
+  "Vos documents et vos droits dépendent de l’atelier choisi. Le changement ouvre une nouvelle session dans cet atelier.": [
+    "Your documents and permissions depend on the selected workspace. Switching opens a new session in that workspace.",
+    "Ihre Dokumente und Rechte hängen vom gewählten Arbeitsbereich ab. Der Wechsel öffnet dort eine neue Sitzung.",
+    "Är Dokumenter a Rechter hänke vum gewielten Atelier of. De Wiessel mécht eng nei Sessioun an deem Atelier op."
+  ],
+  "Ouvrir cet atelier": [
+    "Open this workspace",
+    "Diesen Arbeitsbereich öffnen",
+    "Dësen Atelier opmaachen"
+  ],
+  "Accepté par le service d’e-mail": [
+    "Accepted by the email service",
+    "Vom E-Mail-Dienst angenommen",
+    "Vum E-Mail-Service ugeholl"
+  ],
+  "Cette invitation est liée à une autre adresse. Rouvrez le lien reçu et connectez-vous avec l’adresse vérifiée qui a reçu l’invitation.": [
+    "This invitation is linked to another address. Reopen the link and sign in with the verified address that received the invitation.",
+    "Diese Einladung gehört zu einer anderen Adresse. Öffnen Sie den erhaltenen Link erneut und melden Sie sich mit der bestätigten Adresse an, die die Einladung erhalten hat.",
+    "Dës Invitatioun ass mat enger anerer Adress verbonnen. Maacht de Link nei op a mellt Iech mat der verifizéierter Adress un, déi d’Invitatioun kritt huet."
+  ],
+  "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’atelier.": [
+    "This invitation has expired, been revoked or already been used. Ask the workspace administrator for a new link.",
+    "Diese Einladung ist abgelaufen, wurde widerrufen oder bereits verwendet. Bitten Sie den Administrator des Arbeitsbereichs um einen neuen Link.",
+    "Dës Invitatioun ass ofgelaf, gouf zréckgezunn oder scho benotzt. Frot den Administrateur vum Atelier no engem neie Link."
+  ],
+  "Vous êtes déjà membre de cet atelier. Connectez-vous à votre compte et choisissez cet atelier dans Mon compte.": [
+    "You already belong to this workspace. Sign in and select it in My account.",
+    "Sie sind bereits Mitglied dieses Arbeitsbereichs. Melden Sie sich an und wählen Sie ihn unter Mein Konto aus.",
+    "Dir sidd scho Member vun dësem Atelier. Mellt Iech un a wielt en ënner Mäi Kont aus."
+  ]
+}

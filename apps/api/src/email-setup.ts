@@ -1,4 +1,5 @@
 import {
+  actorPermissions,
   canonicalJson,
   emailRateComponents,
   sha256,
@@ -42,7 +43,7 @@ export async function ensureEmailSender(
     !identity ||
     !Number.isFinite(qualification) ||
     qualification <= Date.parse(now) ||
-    ctx.role === "viewer"
+    !actorPermissions(ctx).prepareDispatches
   )
     return;
   const until = new Date(qualification).toISOString();

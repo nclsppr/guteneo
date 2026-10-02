@@ -88,6 +88,35 @@
         }
       }
     },
+    "Accès indisponible": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès indisponible"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access unavailable"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugriff nicht verfügbar"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zougang net disponibel"
+          }
+        }
+      }
+    },
     "Actions": {
       "extractionState": "manual",
       "localizations": {
@@ -635,6 +664,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keng weider Evenementer."
+          }
+        }
+      }
+    },
+    "Autorisé": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisé"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allowed"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaubt"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaabt"
           }
         }
       }
@@ -1331,6 +1389,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Importéiert fir d’éischt e PDF oder bereet e Message vir."
+          }
+        }
+      }
+    },
+    "Comprendre les rôles": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprendre les rôles"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understand roles"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rollen verstehen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’Rolle verstoen"
           }
         }
       }
@@ -4206,6 +4293,35 @@
         }
       }
     },
+    "Non autorisé": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non autorisé"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not allowed"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht erlaubt"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Net erlaabt"
+          }
+        }
+      }
+    },
     "Numéro international (+33…)": {
       "extractionState": "manual",
       "localizations": {
@@ -4260,6 +4376,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Betreff"
+          }
+        }
+      }
+    },
+    "Observateur": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Observateur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Observer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beobachter"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Observateur"
+          }
+        }
+      }
+    },
+    "Opérateur": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opérateur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operator"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sachbearbeitung"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operateur"
           }
         }
       }
@@ -4898,6 +5072,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "Virbereedung net disponibel"
+          }
+        }
+      }
+    },
+    "Préparer des envois": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparer des envois"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prepare dispatches"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sendungen vorbereiten"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sendunge virbereeden"
           }
         }
       }
@@ -5598,6 +5801,35 @@
         }
       }
     },
+    "Superviseur": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superviseur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supervisor"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supervisor"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superviseur"
+          }
+        }
+      }
+    },
     "Suppression du compte": {
       "extractionState": "manual",
       "localizations": {
@@ -5942,6 +6174,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "E gemeinsame Suivi fir Ären Aarbechtsberäich"
+          }
+        }
+      }
+    },
+    "Valider dans le navigateur": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valider dans le navigateur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve in the browser"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Browser freigeben"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Browser fräiginn"
           }
         }
       }

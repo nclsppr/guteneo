@@ -1,4 +1,8 @@
 import {
+  actorPermissions,
+  membershipPermissionFence,
+} from "../../../packages/domain/src/index";
+import {
   protectedDocumentPage as renderPage,
   protectedDocumentText,
 } from "./protected-document-page";
@@ -163,7 +167,7 @@ async function member(
   ctx: AuthContext,
 ): Promise<void> {
   if (
-    ctx.role === "viewer" ||
+    !actorPermissions(ctx).prepareDispatches ||
     !(await env.DB.prepare(
       "SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND o.mode='production'",
     )
@@ -301,18 +305,18 @@ export async function revokeProtectedDocument(
   dispatchId: string,
   now = new Date().toISOString(),
 ) {
+  if (!actorPermissions(ctx).approveDispatches)
+    fail(
+      "FORBIDDEN",
+      "Le droit de validation est nécessaire pour révoquer cet accès.",
+      403,
+    );
   const row = await dispatchHosting(env, ctx, dispatchId, now);
-  await env.DB.batch([
+  const authority = membershipPermissionFence(ctx, "approveDispatches");
+  const results = await env.DB.batch([
     env.DB.prepare(
-      "UPDATE protected_document_hostings SET status='revoked',revoked_at=?,sealed_secrets='' WHERE organization_id=? AND id=? AND status IN ('draft','active') AND EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=?)",
-    ).bind(
-      now,
-      ctx.organizationId,
-      row.id,
-      ctx.organizationId,
-      ctx.userId,
-      ctx.role,
-    ),
+      `UPDATE protected_document_hostings SET status='revoked',revoked_at=?,sealed_secrets='' WHERE organization_id=? AND id=? AND status IN ('draft','active') AND ${authority.condition}`,
+    ).bind(now, ctx.organizationId, row.id, ...authority.values),
     env.DB.prepare(
       "DELETE FROM protected_document_sessions WHERE organization_id=? AND hosting_id=? AND EXISTS(SELECT 1 FROM protected_document_hostings WHERE id=? AND status='revoked')",
     ).bind(ctx.organizationId, row.id, row.id),
@@ -328,6 +332,12 @@ export async function revokeProtectedDocument(
       row.id,
     ),
   ]);
+  if (results[0].meta.changes !== 1)
+    fail(
+      "FORBIDDEN",
+      "Vos droits ou cet accès ont changé. Actualisez la page.",
+      403,
+    );
   return { revoked: true };
 }
 function cookieName(env: ProtectedDocumentsEnv): string {
