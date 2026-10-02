@@ -1,7 +1,7 @@
 {
   "name": "guteneo",
-  "version": "0.3.0",
-  "description": "Préparer des e-mails avec ou sans PDF, des fax et des courriers, puis suivre les envois Guteneo.",
+  "version": "0.3.1",
+  "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
   "author": {
     "name": "Guteneo"
   },
