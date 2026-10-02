@@ -31,37 +31,83 @@
 .language-preference select {
   width: 100%;
 }
-@media (max-width: 760px) {
-  .site-header > .language-selector label span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .site-header > .language-selector {
-    gap: 4px;
-  }
-  .site-header > .language-selector select {
-    max-width: 150px;
-  }
-}
-@media (max-width: 380px) {
-  .site-header > .language-selector label svg {
-    display: none;
-  }
-  .site-header > .language-selector select {
-    max-width: 133px;
-    padding-inline: 6px 16px;
-  }
-}
 
+.language-selector-automatic {
+  display: grid;
+  gap: 10px;
+}
+.language-selector-automatic select {
+  width: 100%;
+  min-width: 0;
+}
+.language-selector-automatic small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.language-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+.site-header > .language-menu {
+  margin-inline-start: auto;
+}
+.language-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 10px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  border-radius: var(--radius);
+}
+.language-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.language-menu > summary:hover,
+.language-menu[open] > summary {
+  background: var(--blue-tint);
+}
+.language-menu-panel {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 10;
+  width: min(300px, calc(100vw - 44px));
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 30px #00000014;
+}
 .workspace-language {
   grid-column: 1 / -1;
   padding-inline: 16px;
 }
+@media (max-width: 1100px) {
+  .language-menu > summary {
+    min-width: 44px;
+    padding: 8px;
+  }
+  .language-menu > summary span,
+  .language-menu-caret {
+    display: none;
+  }
+}
 @media (max-width: 767px) {
+  .site-header {
+    position: relative;
+  }
+  .site-header > .language-menu {
+    position: static;
+  }
+  .legal-page > .site-header .language-menu-panel {
+    inset-inline-end: 22px;
+  }
   .landing > .site-header,
   .legal-page > .site-header,
   .login-page > .site-header {
@@ -73,7 +119,6 @@
   .homepage .site-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: 8px;
     padding-block: 16px;
   }
   .homepage .site-header > .brand {
@@ -87,23 +132,9 @@
   .homepage .site-header > nav:first-of-type {
     display: none;
   }
-  .homepage .site-header > .language-selector {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-self: end;
-    gap: 8px;
-  }
-  .homepage .site-header > .language-selector label span {
-    position: static;
-    width: auto;
-    height: auto;
-    clip-path: none;
-    white-space: normal;
-  }
-  .homepage .site-header > .language-selector select {
-    max-width: 210px;
-  }
-  .homepage .site-header > .language-selector label svg {
-    display: block;
+  .mobile-navigation .language-selector {
+    margin-block-start: 12px;
+    padding-block: 18px 8px;
+    border-top: 1px solid var(--line);
   }
 }

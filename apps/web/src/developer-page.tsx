@@ -1,4 +1,4 @@
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Code, FilePdf } from "@phosphor-icons/react";
@@ -68,7 +68,7 @@ export function DeveloperPage() {
       </a>
       <header className="site-header developer-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <nav aria-label={msg("Navigation principale")}>
           <a href="/#installation">{msg("Les intégrations")}</a>
           <a href="/openapi.json" download="guteneo-openapi.json">

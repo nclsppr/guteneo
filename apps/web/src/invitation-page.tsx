@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { Brand } from "./brand";
 import { ErrorNotice, Loading, useAction } from "./components";
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import { roleDescription, roleLabel } from "./role-guide";
 import type { WorkspaceRole } from "../../../packages/contracts/src/roles";
@@ -84,7 +84,7 @@ export function InvitationPage() {
     <div className="legal-page">
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
       </header>
       <main className="invitation-page">
         <h1>{msg("Invitation à rejoindre un atelier")}</h1>
