@@ -83,6 +83,15 @@ waits for a hittable, enabled target and verifies native selection after one tap
 the previous CI capture showed Atelier still selected after the account tap.
 The precise runtime cause was not reproduced locally. No product patch or reduced
 text size is inferred from that observation, and combined native CI remains a gate.
+The later combined native run exposed a separate, confirmed title refresh defect:
+its XCTest hierarchy showed Luxembourgish profile content and selected language
+while the navigation title still read German `Konto`. The profile title now uses
+an explicitly resolved localized string so the same navigation stack updates
+with the selected locale. The UI check retains both `Kont` and Luxembourgish
+identity assertions, and waits for the real picker selection and menu dismissal.
+Its privacy/PDF lifecycle check switches to the actual SpringBoard application
+and verifies both SpringBoard foreground and Guteneo background states before
+resuming, rather than depending on a synthesized hardware Home event alone.
 The complete fictional public preview then passed 76 browser cases with six
 intentional desktop-only profile exclusions. Restoring the public runtime also
 exposed the shared router's unconditional scroll reset; it now resets workspace
