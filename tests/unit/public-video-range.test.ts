@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { withPublicVideoRange } from "../../apps/api/src/public-video-range";
 import { publicVideoPaths } from "../../packages/contracts/src/public-videos";
 
-const path = "/videos/guteneo-horizontal-v5.mp4";
+const path = "/videos/guteneo-horizontal-v6-fr.mp4";
 const manifest = { [path]: { bytes: 10, sha256: "fixture" } };
 function fixture(overrides: HeadersInit = {}, status = 200) {
   let pulls = 0;

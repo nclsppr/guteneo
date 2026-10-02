@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { build } from "vite";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import catalog from "../../packages/contracts/src/public-videos.json" with { type: "json" };
 import {
   PUBLIC_ORIGIN,
   PUBLIC_PATHS,
@@ -32,17 +33,21 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     '<svg xmlns="http://www.w3.org/2000/svg"/>',
   );
   await writeFile(join(directory, "release.json"), '{"fixture":true}');
-  const filmPath = "/videos/guteneo-vertical-v5.mp4";
+  const filmPath = catalog.introduction.fr.vertical.movie;
   const film = await readFile(join(root, "apps/web/public", filmPath));
   await mkdir(join(directory, "videos"));
   await writeFile(join(directory, filmPath), film);
   const textAssets = new Map();
-  for (const path of [
+  for (const path of new Set([
     "/llms.txt",
     ...["fr", "en", "de", "lb"].map(
       (locale) => `/videos/guteneo-v5.${locale}.vtt`,
     ),
-  ]) {
+    ...Object.values(catalog.introduction).flatMap((formats) =>
+      Object.values(formats).flatMap((asset) => asset.captions ? [asset.captions] : []),
+    ),
+    ...Object.values(catalog.roles).flatMap((asset) => asset.captions ? [asset.captions] : []),
+  ])) {
     const content = await readFile(join(root, "apps/web/public", path), "utf8");
     textAssets.set(path, content);
     await writeFile(join(directory, path), content);

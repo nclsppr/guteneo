@@ -6,7 +6,7 @@ La page d’accueil propose le même spot de 56 secondes en deux compositions : 
 
 Le format est choisi lors du clic pour une fenêtre étroite ou un téléphone tactile tenu en paysage et reste inchangé pendant la session, y compris en cas de rotation. Aucun MP4 n’est attaché au lecteur avant ce clic. Les posters sont responsives et chargés paresseusement. Lecture et demande de plein écran partent du geste utilisateur ; Safari dispose du chemin natif `webkitEnterFullscreen`. Si le navigateur refuse le plein écran, la lecture et les commandes restent utilisables dans la page. Une nouvelle tentative, la fermeture, le replay et une présentation textuelle sont disponibles au clavier.
 
-Aucune vidéo ne démarre automatiquement. Les textes du film existent en français, anglais, allemand et luxembourgeois, avec la même musique instrumentale, sans parole. Les écrans d’assistants et de l’application iOS représentent la promesse finale choisie explicitement par l’utilisateur, pas une qualification des fonctions actuellement publiées. Les photographies générées et captures conservent leur provenance ; les opérations montrées ne déclenchent aucun envoi réel.
+Aucune vidéo ne démarre automatiquement. Les textes du film existent en français, anglais, allemand et luxembourgeois. Les versions française et anglaise ajoutent une narration masculine ElevenLabs à la musique instrumentale ; l’allemand et le luxembourgeois conservent leur musique seule. Voir [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md). Les écrans d’assistants et de l’application iOS représentent la promesse finale choisie explicitement par l’utilisateur, pas une qualification des fonctions actuellement publiées. Les photographies générées et captures conservent leur provenance ; les opérations montrées ne déclenchent aucun envoi réel.
 
 ## Langue et régénération
 
@@ -23,8 +23,12 @@ au produit doit recevoir ses films et posters avant publication.
 
 Les compositions Remotion localisées conservent les durées, cadrages, animations,
 médias et partition V5. Les scènes de l’interface sont traduites ; le texte
-français de l’oblitération appartient au logo et reste identique. Les fichiers
-français V5 déjà validés sont conservés octet pour octet dans ce candidat.
+français de l’oblitération appartient au logo et reste identique. Le rendu écrit
+ses bases musicales aux chemins V5/V1 de `narration/source-videos.json`. Pour
+les introductions FR/EN et les rôles EN, il copie et qualifie les MP3 et scripts figés du snapshot
+`narration/releases/fr-en-g2/`, puis ajoute les prises web Génération 2 aux bases
+musicales et écrit les films actifs V6/V2 et leurs sous-titres. Le catalogue
+public ne sert jamais de destination à un rendu instrumental FR/EN seul.
 
 ```sh
 npm --prefix videos/guteneo-film ci
@@ -35,7 +39,9 @@ Une sélection peut être régénérée avec
 `npm run videos:render -- --locales de,lb --kind introduction`, ou avec
 `--kind roles`. FFmpeg, ffprobe et cwebp doivent être disponibles. L’option
 `--skip-existing` ne réutilise un MP4 que si son hash correspond au manifeste
-précédent et que son poster existe. Les masters et la preuve source/export
+précédent, son poster existe et ses sous-titres narrés correspondent aux textes
+et durées qualifiés. Un catalogue, manifeste ou cache narré invalide interrompt
+le rendu avant toute écriture publique. Les masters et la preuve source/export
 restent dans `videos/guteneo-film/out/localized/`, ignoré par Git. Les MP4
 optimisés et les posters sont écrits dans `apps/web/public/videos/` ; les tailles
 et SHA-256 du manifeste serveur sont mis à jour après chaque export vérifié.
@@ -45,16 +51,16 @@ Aucun service distant ni génération d’image n’intervient dans ce rendu.
 
 | Langue | Présentation horizontale | Présentation iPhone | Les quatre rôles |
 | --- | --- | --- | --- |
-| Français | [MP4](../apps/web/public/videos/guteneo-horizontal-v5.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-fr.mp4) |
-| English | [MP4](../apps/web/public/videos/guteneo-horizontal-v5-en.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5-en.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-en.mp4) |
+| Français | [MP4](../apps/web/public/videos/guteneo-horizontal-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v6-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-fr.mp4) |
+| English | [MP4](../apps/web/public/videos/guteneo-horizontal-v6-en.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v6-en.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v2-en.mp4) |
 | Deutsch | [MP4](../apps/web/public/videos/guteneo-horizontal-v5-de.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5-de.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-de.mp4) |
 | Lëtzebuergesch | [MP4](../apps/web/public/videos/guteneo-horizontal-v5-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v5-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v1-lb.mp4) |
 
-- `/videos/guteneo-horizontal-v5.mp4` et `/videos/guteneo-horizontal-v5.webp`
-- `/videos/guteneo-vertical-v5.mp4` et `/videos/guteneo-vertical-v5.webp`
-- Pour EN, DE et LB, les mêmes noms reçoivent `-en`, `-de` ou `-lb` avant
-  l’extension.
-- `/videos/guteneo-roles-v1-{fr,en,de,lb}.mp4` et les posters `.webp`, présentés
+- Les films narrés FR/EN sont `/videos/guteneo-horizontal-v6-{fr,en}.mp4`
+  et `/videos/guteneo-vertical-v6-{fr,en}.mp4` ; leurs posters restent en V5.
+- Les films DE/LB conservent les MP4 V5 et leurs posters.
+- `/videos/guteneo-roles-v1-{fr,de,lb}.mp4`, `/videos/guteneo-roles-v2-en.mp4`
+  et les posters V1 `.webp`, présentés
   dans le guide `/roles/` ; voir `docs/ROLES_FILM.md`.
 
 Les MP4 utilisent H.264/AAC, 30 images/s, avec `moov` avant `mdat` pour démarrer avant téléchargement complet. Les présentations comptent 1 680 images (56 secondes), les films de rôles 1 080 images (36 secondes). Chaque fichier doit rester sous 25 MiB, limite des assets statiques Cloudflare. Les copies web utilisent cet encodage à partir des masters :

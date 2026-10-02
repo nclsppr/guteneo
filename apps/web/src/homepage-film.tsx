@@ -41,6 +41,9 @@ function LocalizedFilm({
   const movie = (format: Format) => publicFilmAsset(film, locale, format).movie;
   const poster = (format: Format) =>
     publicFilmAsset(film, locale, format).poster;
+  const captions =
+    publicFilmAsset(film, locale).captions ??
+    (film === "introduction" ? `/videos/guteneo-v5.${locale}.vtt` : undefined);
   const id = film === "roles" ? "roles-film" : "homepage-film";
   const video = useRef<SafariVideo>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -225,10 +228,10 @@ function LocalizedFilm({
             exitFullscreen();
           }}
         >
-          {film === "introduction" && (
+          {captions && (
             <track
               kind="captions"
-              src={`/videos/guteneo-v5.${locale}.vtt`}
+              src={captions}
               srcLang={locale}
               label={localeNames[locale]}
             />
