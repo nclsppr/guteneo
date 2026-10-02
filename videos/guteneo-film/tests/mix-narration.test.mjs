@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {execFile} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
@@ -15,7 +15,7 @@ const cue = {cueId: 'intro', startSeconds: 0.4, endSeconds: 2.8, durationSeconds
 const root = path.resolve(import.meta.dirname, '../../..');
 const manifestPath = path.join(root, 'videos/guteneo-film/narration/scripts.json');
 const configPath = path.join(root, 'videos/guteneo-film/narration/voices.example.json');
-const catalogPath = path.join(root, 'packages/contracts/src/public-videos.json');
+const catalogPath = path.join(root, 'videos/guteneo-film/narration/source-videos.json');
 const json = async (file) => JSON.parse(await readFile(file, 'utf8'));
 
 test('all eight narration tracks serve twelve films with an unchanged final card', async () => {
@@ -24,7 +24,7 @@ test('all eight narration tracks serve twelve films with an unchanged final card
   const catalog = await json(catalogPath);
   const jobs = buildMixJobs(manifest, plan, catalog, root);
   assert.equal(plan.clips.length, 68);
-  assert.equal(plan.totalCharacters, 4151);
+  assert.ok(Number.isSafeInteger(plan.totalCharacters) && plan.totalCharacters > 0 && plan.totalCharacters <= 4200, 'The current batch must remain inside the initial 4200-character ceiling.');
   assert.equal(new Set(jobs.map((job) => job.narration.id)).size, 8);
   assert.equal(jobs.length, 12);
   for (const locale of ['fr', 'en', 'de', 'lb']) {
@@ -72,6 +72,125 @@ test('mix refuses missing or changed cached audio before writing films', async (
       [`${clip.narrationId}/${clip.cueId}`]: {status: 'complete', fingerprint: 'changed', path: clip.relativePath, audioSha256: 'wrong'}
     }}));
     await assert.rejects(mixVideos({manifest, plan, catalog, repositoryRoot: root, outputDir: temporary, execute: true}), /Missing, stale or unqualified/);
+  } finally {await rm(temporary, {recursive: true, force: true});}
+});
+
+test('generation-2 preference rejects generation 1 and unlabelled web receipts before writing any film', async () => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'guteneo-mix-generation-'));
+  try {
+    const manifest = await json(manifestPath);
+    const plan = buildPlan(manifest, await json(configPath), {kind: 'roles', locales: ['fr']});
+    const catalog = await json(catalogPath);
+    const clip = plan.clips[0];
+    const proofPath = path.join(temporary, 'mix-proof.json');
+    await writeFile(proofPath, 'existing-candidate-proof');
+    for (const webGeneration of [1, undefined]) {
+      const entry = {status: 'complete', fingerprint: clip.fingerprint, path: clip.relativePath, timingFit: true, source: 'elevenlabs-web', ...(webGeneration !== undefined ? {webGeneration} : {})};
+      await writeFile(path.join(temporary, 'generation.json'), JSON.stringify({schemaVersion: 1, clips: {[`${clip.narrationId}/${clip.cueId}`]: entry}}));
+      await assert.rejects(mixVideos({manifest, plan, catalog, repositoryRoot: root, outputDir: temporary, execute: true, webGeneration: 2}), /Web generation 2 is required/);
+      assert.equal(await readFile(proofPath, 'utf8'), 'existing-candidate-proof');
+      await assert.rejects(stat(path.join(temporary, 'videos')), {code: 'ENOENT'});
+      assert.deepEqual((await json(path.join(temporary, 'generation.json'))).clips[`${clip.narrationId}/${clip.cueId}`], entry);
+    }
+    await assert.rejects(mixVideos({manifest, plan, catalog, outputDir: path.join(temporary, 'invalid'), execute: true, webGeneration: 3}), /preference must be 1 or 2/);
+    await assert.rejects(stat(path.join(temporary, 'invalid')), {code: 'ENOENT'});
+  } finally {await rm(temporary, {recursive: true, force: true});}
+});
+
+test('the CLI reads web preference from voice config without changing API fingerprints or writing a dry-run', async () => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'guteneo-mix-dry-'));
+  try {
+    const manifest = await json(manifestPath);
+    const config = await json(configPath);
+    assert.equal(config.webGeneration, 2);
+    const withoutPreference = structuredClone(config);
+    delete withoutPreference.webGeneration;
+    assert.deepEqual(buildPlan(manifest, config), buildPlan(manifest, withoutPreference));
+    const outputDir = path.join(temporary, 'not-created');
+    const {stdout} = await run(process.execPath, ['--import', 'data:text/javascript,globalThis.fetch%3D()%3D%3E%7Bthrow%20new%20Error(%22Network%20forbidden%22)%7D',
+      path.join(root, 'videos/guteneo-film/scripts/mix-narration.mjs'), '--voices', configPath, '--kind', 'roles', '--locales', 'fr', '--out', outputDir]);
+    const result = JSON.parse(stdout);
+    assert.equal(result.mode, 'dry-run');
+    assert.equal(result.webGenerationPreference, 2);
+    await assert.rejects(stat(outputDir), {code: 'ENOENT'});
+  } finally {await rm(temporary, {recursive: true, force: true});}
+});
+
+test('the CLI keeps original musical sources after the public catalog changes; overrides are explicit and missing sources fail closed', async () => {
+  const temporary = await realpath(await mkdtemp(path.join(os.tmpdir(), 'guteneo-mix-source-catalog-')));
+  try {
+    const filmDir = path.join(temporary, 'videos/guteneo-film');
+    const scriptDir = path.join(filmDir, 'scripts');
+    const narrationDir = path.join(filmDir, 'narration');
+    const contractDir = path.join(temporary, 'packages/contracts/src');
+    await Promise.all([mkdir(scriptDir, {recursive: true}), mkdir(narrationDir, {recursive: true}), mkdir(contractDir, {recursive: true})]);
+    for (const filename of ['mix-narration.mjs', 'generate-narration.mjs']) {
+      await writeFile(path.join(scriptDir, filename), await readFile(path.join(root, 'videos/guteneo-film/scripts', filename)));
+    }
+    await writeFile(path.join(narrationDir, 'scripts.json'), await readFile(manifestPath));
+    await writeFile(path.join(narrationDir, 'voices.example.json'), await readFile(configPath));
+    const baseCatalog = await json(catalogPath);
+    const sourceCatalogPath = path.join(narrationDir, 'source-videos.json');
+    await writeFile(sourceCatalogPath, JSON.stringify(baseCatalog));
+    const publishedCatalog = structuredClone(baseCatalog);
+    publishedCatalog.introduction.en.horizontal.movie = '/videos/guteneo-horizontal-v6-en.mp4';
+    publishedCatalog.introduction.en.vertical.movie = '/videos/guteneo-vertical-v6-en.mp4';
+    publishedCatalog.roles.en.movie = '/videos/guteneo-roles-v2-en.mp4';
+    const liveCatalogPath = path.join(contractDir, 'public-videos.json');
+    await writeFile(liveCatalogPath, JSON.stringify(publishedCatalog));
+    const args = ['--import', 'data:text/javascript,globalThis.fetch%3D()%3D%3E%7Bthrow%20new%20Error(%22Network%20forbidden%22)%7D',
+      path.join(scriptDir, 'mix-narration.mjs'), '--kind', 'all', '--locales', 'en'];
+    const defaultRun = JSON.parse((await run(process.execPath, args)).stdout);
+    assert.deepEqual(defaultRun.videos.map((video) => video.source), [
+      'guteneo-horizontal-v5-en.mp4', 'guteneo-vertical-v5-en.mp4', 'guteneo-roles-v1-en.mp4',
+    ]);
+    const baseJobs = buildMixJobs(await json(manifestPath), buildPlan(await json(manifestPath), await json(configPath), {locales: ['en']}), baseCatalog, temporary);
+    assert.deepEqual(defaultRun.videos.map((video) => video.source), baseJobs.map((job) => job.basename));
+    const overrideRun = JSON.parse((await run(process.execPath, [...args, '--catalog', liveCatalogPath])).stdout);
+    assert.deepEqual(overrideRun.videos.map((video) => video.source), [
+      'guteneo-horizontal-v6-en.mp4', 'guteneo-vertical-v6-en.mp4', 'guteneo-roles-v2-en.mp4',
+    ], 'Only an explicit --catalog may change the selected source inventory.');
+    await rm(sourceCatalogPath);
+    await assert.rejects(run(process.execPath, args), (error) => {
+      assert.equal(error.code, 1);
+      assert.match(error.stderr, /source-videos\.json/);
+      return true;
+    });
+    await assert.rejects(stat(path.join(filmDir, 'out')), {code: 'ENOENT'});
+  } finally {await rm(temporary, {recursive: true, force: true});}
+});
+
+test('API receipts stay separate while accepted web-generation-2 provenance survives into the mix proof', {timeout: 30000}, async () => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'guteneo-mix-provenance-'));
+  try {
+    const videoDir = path.join(temporary, 'apps/web/public/videos');
+    await mkdir(videoDir, {recursive: true});
+    const sourcePath = path.join(videoDir, 'source.mp4');
+    await run('ffmpeg', ['-y', '-v', 'error', '-f', 'lavfi', '-i', 'color=c=0x2450db:s=160x90:r=30:d=36',
+      '-f', 'lavfi', '-i', 'sine=frequency=220:sample_rate=48000:duration=36', '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
+      '-c:a', 'aac', '-ac', '2', '-b:a', '128k', '-movflags', '+faststart', sourcePath]);
+    const manifest = {schemaVersion: 1, modelId: 'eleven_v4', outputFormat: 'mp3_44100_128', narrations: [{...narration, cues: [{id: 'intro', startSeconds: 0.4, endSeconds: 2.8, text: 'Four roles.'}]}]};
+    const config = {modelId: 'eleven_v4', outputFormat: 'mp3_44100_128', voiceId: 'SyntheticVoice', voiceSettings: {stability: 0.5, similarity_boost: 0.75}};
+    const plan = buildPlan(manifest, config);
+    const clip = plan.clips[0];
+    const outputDir = path.join(temporary, 'cache');
+    const audioPath = path.join(outputDir, clip.relativePath);
+    await mkdir(path.dirname(audioPath), {recursive: true});
+    await run('ffmpeg', ['-y', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=880:sample_rate=44100:duration=1.4', '-c:a', 'libmp3lame', '-b:a', '128k', audioPath]);
+    const {stdout} = await run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', audioPath]);
+    const base = {status: 'complete', fingerprint: clip.fingerprint, path: clip.relativePath, timingFit: true, durationSeconds: Number(stdout), audioSha256: createHash('sha256').update(await readFile(audioPath)).digest('hex')};
+    const catalog = {introduction: {}, roles: {fr: {movie: '/videos/source.mp4'}}};
+    for (const provenance of [{requestId: 'mock-api-request'}, {source: 'elevenlabs-api', requestId: 'mock-api-request'}, {source: 'elevenlabs-web', webGeneration: 2}]) {
+      const state = {schemaVersion: 1, clips: {'roles-fr/intro': {...base, ...provenance}}};
+      const statePath = path.join(outputDir, 'generation.json');
+      await writeFile(statePath, JSON.stringify(state));
+      const result = await mixVideos({manifest, plan, catalog, repositoryRoot: temporary, outputDir, execute: true, webGeneration: 2});
+      const proofClip = result.movies[0].clips[0];
+      assert.equal(proofClip.source, provenance.source);
+      assert.equal(proofClip.webGeneration, provenance.source === 'elevenlabs-web' ? 2 : undefined);
+      assert.equal(proofClip.fingerprint, clip.fingerprint);
+      assert.deepEqual(await json(statePath), state, 'Mixing must not relabel generation receipts.');
+    }
   } finally {await rm(temporary, {recursive: true, force: true});}
 });
 

@@ -1,6 +1,7 @@
 {
   "modelId": "eleven_v4",
   "outputFormat": "mp3_44100_128",
+  "webGeneration": 2,
   "voiceId": null,
   "localeVoiceIds": {
     "fr": null,

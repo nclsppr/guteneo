@@ -88,7 +88,7 @@ export function buildMixJobs(manifest, plan, catalog, repositoryRoot = defaultRe
   return jobs;
 }
 
-async function qualifyClips(job, generation, outputDir) {
+async function qualifyClips(job, generation, outputDir, webGeneration) {
   const qualified = [];
   for (const clip of job.clips) {
     const record = generation.clips?.[`${clip.narrationId}/${clip.cueId}`];
@@ -96,13 +96,19 @@ async function qualifyClips(job, generation, outputDir) {
       || record.path !== clip.relativePath || record.timingFit === false) {
       throw new Error(`Missing, stale or unqualified audio: ${clip.narrationId}/${clip.cueId}.`);
     }
+    if (webGeneration !== undefined && record.source === 'elevenlabs-web' && record.webGeneration !== webGeneration) {
+      throw new Error(`Web generation ${webGeneration} is required: ${clip.narrationId}/${clip.cueId}. Recover and import the selected existing take before mixing.`);
+    }
     const audioPath = confinedPath(outputDir, record.path);
     const bytes = await readFile(audioPath);
     if (!record.audioSha256 || sha256(bytes) !== record.audioSha256) throw new Error(`Audio hash mismatch: ${clip.narrationId}/${clip.cueId}.`);
     const media = await probeMedia(audioPath);
     const durationSeconds = Number(media.format.duration);
     if (Math.abs(durationSeconds - record.durationSeconds) > 0.002) throw new Error('Audio duration differs from its generation receipt.');
-    qualified.push({...clip, audioPath, durationSeconds});
+    qualified.push({...clip, audioPath, durationSeconds,
+      ...(record.source !== undefined ? {source: record.source} : {}),
+      ...(record.source === 'elevenlabs-web' && record.webGeneration !== undefined ? {webGeneration: record.webGeneration} : {}),
+    });
   }
   validateMixCues(job.narration, qualified);
   return qualified;
@@ -156,7 +162,10 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
       frameRate: video.avg_frame_rate, frames: Number(video.nb_frames), durationSeconds: Number(output.format.duration), bytes: size,
       endCardStartSeconds: narration.endCardStartSeconds, lastSpeechEndSeconds: Math.max(...clips.map((clip) => clip.startSeconds + clip.durationSeconds)),
       voiceTargetLufs: -18, musicGainDuringSpeech: 0.22,
-      clips: clips.map((clip) => ({cueId: clip.cueId, fingerprint: clip.fingerprint, startSeconds: clip.startSeconds, durationSeconds: clip.durationSeconds})),
+      clips: clips.map((clip) => ({cueId: clip.cueId, fingerprint: clip.fingerprint, startSeconds: clip.startSeconds, durationSeconds: clip.durationSeconds,
+        ...(clip.source !== undefined ? {source: clip.source} : {}),
+        ...(clip.source === 'elevenlabs-web' && clip.webGeneration !== undefined ? {webGeneration: clip.webGeneration} : {}),
+      })),
       criticalListening: 'pending'
     };
     await rename(candidate, outputPath);
@@ -166,9 +175,12 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
   }
 }
 
-export async function mixVideos({manifest, plan, catalog, repositoryRoot = defaultRepositoryRoot, outputDir = path.join(filmRoot, 'out/narration'), execute = false}) {
+export async function mixVideos({manifest, plan, catalog, repositoryRoot = defaultRepositoryRoot, outputDir = path.join(filmRoot, 'out/narration'), execute = false, webGeneration}) {
+  if (webGeneration !== undefined && ![1, 2].includes(webGeneration)) throw new Error('Web generation preference must be 1 or 2.');
   const jobs = buildMixJobs(manifest, plan, catalog, repositoryRoot);
-  if (!execute) return {mode: 'dry-run', narrations: new Set(jobs.map((job) => job.narration.id)).size, videos: jobs.map((job) => ({narrationId: job.narration.id, source: job.basename, output: `videos/${job.basename}`}))};
+  if (!execute) return {mode: 'dry-run', narrations: new Set(jobs.map((job) => job.narration.id)).size,
+    ...(webGeneration !== undefined ? {webGenerationPreference: webGeneration} : {}),
+    videos: jobs.map((job) => ({narrationId: job.narration.id, source: job.basename, output: `videos/${job.basename}`}))};
   const publicRoot = path.resolve(repositoryRoot, 'apps/web/public');
   if (path.resolve(outputDir) === publicRoot || path.resolve(outputDir).startsWith(`${publicRoot}${path.sep}`)) {
     throw new Error('Mix candidates must be written outside the published asset directory.');
@@ -180,7 +192,7 @@ export async function mixVideos({manifest, plan, catalog, repositoryRoot = defau
     const generation = await readJson(path.join(outputDir, 'generation.json'));
     if (generation.schemaVersion !== 1) throw new Error('Unsupported generation receipt.');
     // Qualify the entire selection before writing a single candidate film.
-    for (const job of jobs) job.qualifiedClips = await qualifyClips(job, generation, outputDir);
+    for (const job of jobs) job.qualifiedClips = await qualifyClips(job, generation, outputDir, webGeneration);
     const movies = [];
     for (const job of jobs) {
       const proof = await mixVideo({sourcePath: job.sourcePath, outputPath: path.join(outputDir, 'videos', job.basename), narration: job.narration, clips: job.qualifiedClips});
@@ -197,29 +209,33 @@ export async function mixVideos({manifest, plan, catalog, repositoryRoot = defau
 async function main() {
   const options = {kind: 'all', locales: ['fr', 'en', 'de', 'lb']};
   let voicesPath = path.join(filmRoot, 'narration/voices.example.json');
+  let catalogPath = path.join(filmRoot, 'narration/source-videos.json');
+  let manifestPath = path.join(filmRoot, 'narration/scripts.json');
   let outputDir = path.join(filmRoot, 'out/narration');
   let execute = false;
   const args = process.argv.slice(2);
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
     if (arg === '--execute') execute = true;
-    else if (arg === '--voices' || arg === '--out' || arg === '--kind' || arg === '--locales') {
+    else if (arg === '--voices' || arg === '--manifest' || arg === '--catalog' || arg === '--out' || arg === '--kind' || arg === '--locales') {
       const value = args[++index];
       if (!value || value.startsWith('--')) throw new Error(`Missing value for ${arg}.`);
       if (arg === '--voices') voicesPath = path.resolve(value);
+      else if (arg === '--manifest') manifestPath = path.resolve(value);
+      else if (arg === '--catalog') catalogPath = path.resolve(value);
       else if (arg === '--out') outputDir = path.resolve(value);
       else if (arg === '--kind') options.kind = value;
       else options.locales = value.split(',');
     } else if (arg === '--help') {
-      process.stdout.write('Mix existing films locally. Default: dry-run, no writes or network.\n--execute --voices <local.json> --kind all|introduction|roles --locales fr,en,de,lb --out <directory>\n');
+      process.stdout.write('Mix existing films locally. Default: dry-run, no writes or network.\nDefault source catalog: narration/source-videos.json (music-only source films).\n--execute --voices <local.json> --manifest <scripts.json> --catalog <source-catalog.json> --kind all|introduction|roles --locales fr,en,de,lb --out <directory>\n');
       return;
     } else throw new Error(`Unknown argument: ${arg}.`);
   }
-  const manifest = validateManifest(await readJson(path.join(filmRoot, 'narration/scripts.json')));
+  const manifest = validateManifest(await readJson(manifestPath));
   const config = await readJson(voicesPath);
   const plan = buildPlan(manifest, config, options);
-  const catalog = await readJson(path.join(defaultRepositoryRoot, 'packages/contracts/src/public-videos.json'));
-  const result = await mixVideos({manifest, plan, catalog, outputDir, execute});
+  const catalog = await readJson(catalogPath);
+  const result = await mixVideos({manifest, plan, catalog, outputDir, execute, webGeneration: config.webGeneration});
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 }
 
