@@ -66,12 +66,35 @@ export function createTemplateWorkflowRoutes(
       201,
     );
   });
+  app.get("/api/templates/authoring-guide", async (c) =>
+    c.json(await service(c.env).getTemplateAuthoringGuide(c.get("actor"))),
+  );
+  app.get("/api/templates/examples", async (c) =>
+    c.json(await service(c.env).listTemplateExamples(c.get("actor"))),
+  );
+  app.get("/api/templates/examples/:exampleId", async (c) =>
+    c.json(
+      await service(c.env).getTemplateExample(
+        c.get("actor"),
+        c.req.param("exampleId"),
+      ),
+    ),
+  );
   app.get("/api/templates/:id", async (c) =>
     c.json(
       await service(c.env).getTemplate(
         c.get("actor"),
         c.req.param("id"),
         c.req.query("version") ? Number(c.req.query("version")) : undefined,
+      ),
+    ),
+  );
+  app.delete("/api/templates/:id", async (c) =>
+    c.json(
+      await service(c.env).deleteTemplate(
+        c.get("actor"),
+        c.req.param("id"),
+        await c.req.json(),
       ),
     ),
   );
@@ -411,6 +434,13 @@ export function templateWorkflowScope(
 ): string | null {
   const read = method === "GET" || method === "HEAD";
   if (path.startsWith("/api/templates")) {
+    if (
+      read &&
+      (path === "/api/templates/authoring-guide" ||
+        path === "/api/templates/examples" ||
+        /^\/api\/templates\/examples\/[^/]+$/.test(path))
+    )
+      return "templates:read";
     if (path.endsWith("/share") || path.endsWith("/sharing"))
       return "templates:share";
     if (path.endsWith("/publish") || path.endsWith("/archive"))

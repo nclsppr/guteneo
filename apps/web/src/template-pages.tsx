@@ -30,6 +30,7 @@ import {
 } from "../../../packages/templates/gallery";
 import { api, date, type Session } from "./api";
 import {
+  ConfirmAction,
   ErrorNotice,
   BEFORE_WORKSPACE_NAVIGATION,
   Field,
@@ -58,12 +59,51 @@ const permissionLabel: Record<TemplatePermission, string> = {
   share: "Partager",
 };
 
+function DeleteTemplateAction({
+  model,
+  pending,
+  dirty = false,
+  onDelete,
+}: {
+  model: TemplateView;
+  pending: boolean;
+  dirty?: boolean;
+  onDelete: () => void;
+}) {
+  if (!model.canDelete) return null;
+  const question = [
+    msg("Supprimer « {0} » ?", model.name),
+    model.visibility === "private"
+      ? msg("Ce modèle sera retiré de votre bibliothèque.")
+      : msg(
+          "Ce modèle partagé sera retiré pour tous les membres de l’atelier.",
+        ),
+    msg("Les PDF déjà créés et leur historique seront conservés."),
+    ...(dirty
+      ? [msg("Les modifications non enregistrées seront aussi abandonnées.")]
+      : []),
+  ].join(" ");
+  return (
+    <ConfirmAction
+      label={msg("Supprimer")}
+      ariaLabel={msg("Supprimer le modèle {0}", model.name)}
+      question={question}
+      confirmLabel={msg("Supprimer le modèle")}
+      dismissLabel={msg("Conserver le modèle")}
+      disabled={pending}
+      onConfirm={onDelete}
+    />
+  );
+}
+
 export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
   const [name, setName] = useState(msg("Mon document"));
   const [showBlank, setShowBlank] = useState(startBlank);
   const file = useRef<HTMLInputElement>(null);
+  const libraryHeading = useRef<HTMLHeadingElement>(null);
+  const [deletedName, setDeletedName] = useState<string>();
   const [importWarnings, setImportWarnings] = useState<
     DocxImportResult["warnings"]
   >([]);
@@ -75,6 +115,25 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
         body: { envelope },
       });
       go(`/app/template/${result.id}`);
+    });
+  }
+  async function remove(model: TemplateView) {
+    await action.run(async () => {
+      await api<{ id: string; deleted: true }>(`/templates/${model.id}`, {
+        method: "DELETE",
+        body: { expectedRevision: model.revision },
+      });
+      templates.setData((current) =>
+        current
+          ? {
+              ...current,
+              items: current.items.filter((item) => item.id !== model.id),
+            }
+          : current,
+      );
+      setDeletedName(model.name);
+      libraryHeading.current?.focus();
+      templates.refresh();
     });
   }
   async function importWord(event: FormEvent) {
@@ -136,7 +195,12 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
           </button>
         </form>
       )}
-      <h2>{msg("Une base pour commencer")}</h2>
+      <h2>{msg("Modèles de démonstration")}</h2>
+      <p className="studio-demo-intro">
+        {msg(
+          "Ces exemples contiennent uniquement des données fictives. Créez une copie privée, modifiez-la dans le studio et supprimez-la quand vous n’en avez plus besoin.",
+        )}
+      </p>
       <div className="studio-gallery">
         {templateGallery().map(({ id, envelope }) => (
           <article key={id}>
@@ -151,21 +215,32 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
             <button
               className="button"
               disabled={action.pending}
+              aria-label={msg(
+                "Créer ma copie privée de {0}",
+                msg(envelope.name),
+              )}
               onClick={() => void create(envelope)}
             >
-              {msg("Utiliser ce modèle ")}
+              {msg("Créer ma copie privée ")}
               <ArrowRight size={17} />
             </button>
           </article>
         ))}
       </div>
       <div className="section-toolbar">
-        <h2>{msg("Vos modèles")}</h2>
+        <h2 ref={libraryHeading} tabIndex={-1}>
+          {msg("Vos modèles")}
+        </h2>
         <a href="#/app/datasets" className="text-link">
           {msg("Importer mes données ")}
           <ArrowRight size={17} />
         </a>
       </div>
+      {deletedName && (
+        <p role="status" className="studio-saved">
+          {msg("Le modèle « {0} » a été supprimé.", deletedName)}
+        </p>
+      )}
       {templates.loading && !templates.data ? (
         <Loading />
       ) : (
@@ -195,9 +270,16 @@ export function TemplateLibrary({ startBlank }: { startBlank: boolean }) {
                   · {date(item.updatedAt)}
                 </p>
               </div>
-              <a className="button small" href={`#/app/template/${item.id}`}>
-                {msg("Ouvrir ")}
-              </a>
+              <div className="studio-list-actions">
+                <a className="button small" href={`#/app/template/${item.id}`}>
+                  {msg("Ouvrir ")}
+                </a>
+                <DeleteTemplateAction
+                  model={item}
+                  pending={action.pending}
+                  onDelete={() => void remove(item)}
+                />
+              </div>
             </article>
           ))}
         </div>
@@ -264,6 +346,11 @@ export function TemplateEditor({
     return (
       <>
         <ErrorNotice error={resource.error} />
+        {resource.error && (
+          <a className="back-link" href="#/app/templates">
+            {msg("← Modèles ")}
+          </a>
+        )}
         {resource.loading && <Loading />}
       </>
     );
@@ -316,13 +403,16 @@ function EditorBody({
   const editable = model.permissions.edit && model.state !== "archived";
   const generationKey = useRef(crypto.randomUUID());
   const generationInput = useRef("");
+  const deletionComplete = useRef(false);
   useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent) => {
+      if (deletionComplete.current) return;
       event.preventDefault();
       event.returnValue = "";
     };
     const guardNavigation = (event: Event) => {
+      if (deletionComplete.current) return;
       if (
         !window.confirm(
           msg(
@@ -835,6 +925,24 @@ function EditorBody({
         >
           {msg("Archiver ")}
         </button>
+        <DeleteTemplateAction
+          model={model}
+          pending={action.pending}
+          dirty={dirty}
+          onDelete={() =>
+            void action.run(async () => {
+              await api<{ id: string; deleted: true }>(
+                `/templates/${model.id}`,
+                {
+                  method: "DELETE",
+                  body: { expectedRevision: model.revision },
+                },
+              );
+              deletionComplete.current = true;
+              go("/app/templates");
+            })
+          }
+        />
       </div>
     </>
   );

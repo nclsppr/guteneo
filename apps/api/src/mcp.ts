@@ -900,6 +900,9 @@ export function createGuteneoMcpServer(
     };
     const studioTitles: Record<string, string> = {
       list_templates: "Lister les modèles",
+      get_template_authoring_guide: "Lire le guide de création des modèles",
+      list_template_examples: "Lister les exemples de modèles",
+      get_template_example: "Lire un exemple de modèle",
       get_template: "Consulter un modèle",
       get_template_schema: "Lire le schéma du modèle",
       create_template: "Créer un modèle",
@@ -909,6 +912,7 @@ export function createGuteneoMcpServer(
       publish_template: "Publier une version du modèle",
       duplicate_template: "Dupliquer un modèle",
       archive_template: "Archiver un modèle",
+      delete_template: "Supprimer un modèle",
       get_template_sharing: "Consulter le partage du modèle",
       share_template: "Partager un modèle",
       preview_template: "Créer un aperçu PDF",
@@ -946,6 +950,7 @@ export function createGuteneoMcpServer(
       operation: (input: z.output<S>) => Promise<unknown>,
       file = false,
       extraScopes: string[] = [],
+      destructive = false,
     ) {
       registerTool(
         name,
@@ -960,6 +965,7 @@ export function createGuteneoMcpServer(
                 ...writeAnnotations,
                 idempotentHint: false,
                 openWorldHint: file,
+                destructiveHint: destructive,
               },
           _meta: {
             ...oauthMetadata([scope, ...extraScopes]),
@@ -982,6 +988,30 @@ export function createGuteneoMcpServer(
     const revisionReference = z
       .object({ id, expectedRevision: z.number().int().positive() })
       .strict();
+    studioTool(
+      "get_template_authoring_guide",
+      "Lit le contrat JSON actuel, les règles de création, un modèle minimal complet et les étapes de création/aperçu/publication. À consulter avant de créer un modèle personnalisé. Aucun appel IA ni génération.",
+      z.object({}).strict(),
+      "templates:read",
+      true,
+      () => workflow.getTemplateAuthoringGuide(ctx),
+    );
+    studioTool(
+      "list_template_examples",
+      "Liste les exemples synthétiques disponibles (identifiant, nom, description). Utiliser get_template_example pour récupérer une définition complète rééditable.",
+      z.object({}).strict(),
+      "templates:read",
+      true,
+      () => workflow.listTemplateExamples(ctx),
+    );
+    studioTool(
+      "get_template_example",
+      "Lit la définition complète d’un exemple synthétique. Adapter son enveloppe puis appeler create_template pour en créer une copie privée.",
+      z.object({ exampleId: z.string().min(1).max(100) }).strict(),
+      "templates:read",
+      true,
+      ({ exampleId }) => workflow.getTemplateExample(ctx, exampleId),
+    );
     studioTool(
       "list_templates",
       "Liste les modèles accessibles et les permissions effectives. Partager un modèle ne partage aucune source ni aucun PDF.",
@@ -1009,7 +1039,7 @@ export function createGuteneoMcpServer(
     );
     studioTool(
       "create_template",
-      "Crée un brouillon rééditable dans le web. Pas de génération ni d’envoi implicite.",
+      "Crée un brouillon rééditable dans le web à partir d’une enveloppe complète. Consulter get_template_authoring_guide pour le schéma et les règles, ou list_template_examples puis get_template_example pour adapter un exemple. Pas de génération ni d’envoi implicite.",
       templateCreateSchema,
       "templates:write",
       false,
@@ -1069,6 +1099,17 @@ export function createGuteneoMcpServer(
       "templates:publish",
       false,
       ({ id, ...input }) => workflow.archiveTemplate(ctx, id, input),
+    );
+    studioTool(
+      "delete_template",
+      "Supprime un modèle du studio, uniquement pour son propriétaire avec un rôle autre que lecteur. expectedRevision protège contre les modifications concurrentes. Les versions et PDF historiques sont conservés ; le modèle ne peut plus être utilisé.",
+      revisionReference,
+      "templates:write",
+      false,
+      ({ id, ...input }) => workflow.deleteTemplate(ctx, id, input),
+      false,
+      [],
+      true,
     );
     studioTool(
       "get_template_sharing",

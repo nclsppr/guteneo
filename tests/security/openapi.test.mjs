@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 60);
+  assert.equal(operations.length, 64);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -107,9 +107,13 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/postal/requirements",
     "post /api/postal/address-pages",
     "get /api/templates",
+    "get /api/templates/authoring-guide",
+    "get /api/templates/examples",
+    "get /api/templates/examples/{exampleId}",
     "post /api/templates",
     "post /api/templates/import-docx",
     "get /api/templates/{id}",
+    "delete /api/templates/{id}",
     "patch /api/templates/{id}",
     "post /api/templates/{id}/publish",
     "post /api/templates/{id}/duplicate",
@@ -148,7 +152,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   for (const { path, method, operation } of operations) {
     assert.ok(
       new RegExp(
-        `app\\.${method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId")}"`,
+        `app\\.${method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId").replaceAll("{exampleId}", ":exampleId")}"`,
       ).test(api),
       `${method} ${path} must exist in router`,
     );
@@ -208,6 +212,42 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   assert.match(
     spec.paths["/api/dispatches/{id}"].get.description,
     /Ne jamais recréer automatiquement/,
+  );
+});
+
+test("template authoring and removal stay explicit without extending share permissions", () => {
+  const { schemas } = spec.components;
+  assert.equal(schemas.TemplateView.properties.canDelete.type, "boolean");
+  assert.ok(schemas.TemplateView.required.includes("canDelete"));
+  assert.deepEqual(
+    Object.keys(schemas.TemplateView.properties.permissions.properties),
+    ["use", "edit", "publish", "share"],
+  );
+  const deletion = spec.paths["/api/templates/{id}"].delete;
+  const body = deletion.requestBody.content["application/json"].schema;
+  assert.deepEqual(body.required, ["expectedRevision"]);
+  assert.equal(body.properties.expectedRevision.minimum, 1);
+  assert.equal(body.additionalProperties, false);
+  assert.deepEqual(
+    deletion.responses["200"].content["application/json"].schema.properties
+      .deleted.enum,
+    [true],
+  );
+  assert.ok(
+    spec.paths["/api/templates/examples/{exampleId}"].get.responses["404"],
+  );
+  assert.equal(
+    schemas.TemplateAuthoringGuide.properties.minimalEnvelope.$ref,
+    "#/components/schemas/TemplateEnvelope",
+  );
+  assert.equal(
+    schemas.TemplateAuthoringGuide.properties.envelopeSchema.type,
+    "object",
+  );
+  assert.equal(
+    schemas.Capabilities.properties.studio.properties.templates.properties
+      .ownerDeletionRetainsHistory.type,
+    "boolean",
   );
 });
 

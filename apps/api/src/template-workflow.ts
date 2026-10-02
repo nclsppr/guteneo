@@ -60,6 +60,11 @@ import {
   type PostalReview,
 } from "../../../packages/contracts/src/postal-review";
 import { importDocxTemplate } from "../../../packages/templates/docx";
+import {
+  templateAuthoringGuide,
+  templateExampleCatalog,
+  getTemplateExample,
+} from "../../../packages/templates/authoring";
 
 export type WorkflowActor = ActorContext & {
   authority?: { connectionId: string; authorizationRevision: number };
@@ -76,6 +81,7 @@ type TemplateRow = {
   draft_json: string;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
   can_use?: number;
   can_edit?: number;
   can_publish?: number;
@@ -361,18 +367,14 @@ export class TemplateWorkflowService {
         fail("CONNECTION_REVOKED", "Cette connexion a été révoquée.", 403);
     }
   }
-  private templateUseFence(ctx: WorkflowActor, templateId: string) {
+  private authorizationFence(ctx: WorkflowActor) {
     const values: (string | number | null)[] = [
       ctx.organizationId,
       ctx.userId,
       ctx.role,
       this.env.MODE,
-      ctx.userId,
-      ctx.organizationId,
-      templateId,
-      ctx.userId,
     ];
-    let condition = `EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role<>'viewer' AND o.mode=?) AND EXISTS(SELECT 1 FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND t.id=? AND t.state<>'archived' AND (t.owner_id=? OR t.visibility='organization' OR (t.visibility='selected' AND p.can_use=1)))`;
+    let condition = `EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role<>'viewer' AND o.mode=?)`;
     if (ctx.authority) {
       condition +=
         " AND EXISTS(SELECT 1 FROM authorized_connections c JOIN connection_tool_observations o ON o.connection_id=c.id WHERE c.id=? AND c.organization_id=? AND c.user_id=? AND c.status='active' AND o.authorization_revision=?)";
@@ -386,6 +388,19 @@ export class TemplateWorkflowService {
       condition += " AND 0=1";
     }
     return { condition, values };
+  }
+  private templateUseFence(ctx: WorkflowActor, templateId: string) {
+    const authority = this.authorizationFence(ctx);
+    return {
+      condition: `${authority.condition} AND EXISTS(SELECT 1 FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND t.id=? AND t.deleted_at IS NULL AND t.state<>'archived' AND (t.owner_id=? OR t.visibility='organization' OR (t.visibility='selected' AND p.can_use=1)))`,
+      values: [
+        ...authority.values,
+        ctx.userId,
+        ctx.organizationId,
+        templateId,
+        ctx.userId,
+      ],
+    };
   }
   private permissions(
     ctx: WorkflowActor,
@@ -414,7 +429,7 @@ export class TemplateWorkflowService {
   ) {
     await this.authorize(ctx, permission !== "use" && permission !== "read");
     const row = await this.env.DB.prepare(
-      "SELECT t.*,p.can_use,p.can_edit,p.can_publish,p.can_share FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND t.id=?",
+      "SELECT t.*,p.can_use,p.can_edit,p.can_publish,p.can_share FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND t.id=? AND t.deleted_at IS NULL",
     )
       .bind(ctx.userId, ctx.organizationId, id)
       .first<TemplateRow>();
@@ -441,6 +456,7 @@ export class TemplateWorkflowService {
       revision: row.revision,
       currentVersion: row.current_version,
       permissions: this.permissions(ctx, row),
+      canDelete: row.owner_id === ctx.userId && ctx.role !== "viewer",
       envelope: parseJson(row.draft_json),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -454,7 +470,7 @@ export class TemplateWorkflowService {
     await this.authorize(ctx);
     limit = Math.max(1, Math.min(50, limit || 30));
     const rows = await this.env.DB.prepare(
-      "SELECT t.*,p.can_use,p.can_edit,p.can_publish,p.can_share FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND (t.owner_id=? OR t.visibility='organization' OR (t.visibility<>'private' AND (p.can_use=1 OR p.can_edit=1 OR p.can_publish=1 OR p.can_share=1))) AND t.id>? ORDER BY t.id LIMIT ?",
+      "SELECT t.*,p.can_use,p.can_edit,p.can_publish,p.can_share FROM document_templates t LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=? WHERE t.organization_id=? AND t.deleted_at IS NULL AND (t.owner_id=? OR t.visibility='organization' OR (t.visibility<>'private' AND (p.can_use=1 OR p.can_edit=1 OR p.can_publish=1 OR p.can_share=1))) AND t.id>? ORDER BY t.id LIMIT ?",
     )
       .bind(ctx.userId, ctx.organizationId, ctx.userId, cursor ?? "", limit + 1)
       .all<TemplateRow>();
@@ -475,6 +491,21 @@ export class TemplateWorkflowService {
       view.currentVersion = version;
     }
     return view;
+  }
+  async getTemplateAuthoringGuide(ctx: WorkflowActor) {
+    await this.authorize(ctx);
+    return templateAuthoringGuide();
+  }
+  async listTemplateExamples(ctx: WorkflowActor) {
+    await this.authorize(ctx);
+    return templateExampleCatalog();
+  }
+  async getTemplateExample(ctx: WorkflowActor, exampleId: string) {
+    await this.authorize(ctx);
+    const example = getTemplateExample(exampleId);
+    if (!example)
+      fail("TEMPLATE_EXAMPLE_NOT_FOUND", "Exemple de modèle introuvable.", 404);
+    return example!;
   }
   async getTemplateSharing(ctx: WorkflowActor, id: string) {
     await this.templateRow(ctx, id, "share");
@@ -588,7 +619,7 @@ export class TemplateWorkflowService {
     const id = uid("tpl"),
       time = now();
     const result = await this.env.DB.prepare(
-      "INSERT INTO document_templates(id,organization_id,owner_id,name,state,draft_json,created_at,updated_at) SELECT ?,?,?,?,'draft',?,?,? WHERE (SELECT count(*) FROM document_templates WHERE organization_id=?)<?",
+      "INSERT INTO document_templates(id,organization_id,owner_id,name,state,draft_json,created_at,updated_at) SELECT ?,?,?,?,'draft',?,?,? WHERE (SELECT count(*) FROM document_templates WHERE organization_id=? AND deleted_at IS NULL)<?",
     )
       .bind(
         id,
@@ -621,6 +652,8 @@ export class TemplateWorkflowService {
         )
         .parse(input),
       row = await this.templateRow(ctx, id, "edit");
+    if (row.revision !== value.expectedRevision)
+      fail("REVISION_CONFLICT", "Le modèle a changé.");
     if (row.state === "archived")
       fail(
         "TEMPLATE_ARCHIVED",
@@ -633,8 +666,9 @@ export class TemplateWorkflowService {
         value.patch!,
       );
     const parsed = validateTemplateEnvelope(envelope);
+    const authority = this.authorizationFence(ctx);
     const result = await this.env.DB.prepare(
-      "UPDATE document_templates SET draft_json=?,name=?,state='draft',revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=?",
+      `UPDATE document_templates SET draft_json=?,name=?,state='draft',revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL AND ${authority.condition}`,
     )
       .bind(
         boundedJson(parsed, 512 * 1024),
@@ -643,6 +677,7 @@ export class TemplateWorkflowService {
         ctx.organizationId,
         id,
         value.expectedRevision,
+        ...authority.values,
       )
       .run();
     if (!result.meta.changes)
@@ -671,9 +706,10 @@ export class TemplateWorkflowService {
     const version = (row.current_version ?? 0) + 1,
       time = now(),
       hash = await sha256(row.draft_json);
+    const authority = this.authorizationFence(ctx);
     const results = await this.env.DB.batch([
       this.env.DB.prepare(
-        "INSERT INTO template_versions(organization_id,template_id,version,envelope_json,sha256,published_by,published_at) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM document_templates WHERE organization_id=? AND id=? AND revision=?)",
+        `INSERT INTO template_versions(organization_id,template_id,version,envelope_json,sha256,published_by,published_at) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM document_templates WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL) AND ${authority.condition}`,
       ).bind(
         ctx.organizationId,
         id,
@@ -685,10 +721,18 @@ export class TemplateWorkflowService {
         ctx.organizationId,
         id,
         expectedRevision,
+        ...authority.values,
       ),
       this.env.DB.prepare(
-        "UPDATE document_templates SET state='published',current_version=?,revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=?",
-      ).bind(version, time, ctx.organizationId, id, expectedRevision),
+        `UPDATE document_templates SET state='published',current_version=?,revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL AND ${authority.condition}`,
+      ).bind(
+        version,
+        time,
+        ctx.organizationId,
+        id,
+        expectedRevision,
+        ...authority.values,
+      ),
     ]);
     if (!results[1].meta.changes)
       fail("REVISION_CONFLICT", "Le modèle a changé.");
@@ -710,10 +754,17 @@ export class TemplateWorkflowService {
   async archiveTemplate(ctx: WorkflowActor, id: string, input: unknown) {
     const { expectedRevision } = revisionSchema.parse(input);
     const row = await this.templateRow(ctx, id, "publish");
+    const authority = this.authorizationFence(ctx);
     const result = await this.env.DB.prepare(
-      "UPDATE document_templates SET state='archived',revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=?",
+      `UPDATE document_templates SET state='archived',revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL AND ${authority.condition}`,
     )
-      .bind(now(), ctx.organizationId, id, expectedRevision)
+      .bind(
+        now(),
+        ctx.organizationId,
+        id,
+        expectedRevision,
+        ...authority.values,
+      )
       .run();
     if (!result.meta.changes) fail("REVISION_CONFLICT", "Le modèle a changé.");
     return this.templateView(ctx, {
@@ -722,6 +773,35 @@ export class TemplateWorkflowService {
       revision: row.revision + 1,
       updated_at: now(),
     });
+  }
+  async deleteTemplate(ctx: WorkflowActor, id: string, input: unknown) {
+    await this.authorize(ctx, true);
+    const { expectedRevision } = revisionSchema.parse(input);
+    const row = await this.templateRow(ctx, id, "read");
+    if (row.owner_id !== ctx.userId)
+      fail("FORBIDDEN", "Seul le propriétaire peut supprimer ce modèle.", 403);
+    if (row.revision !== expectedRevision)
+      fail("REVISION_CONFLICT", "Le modèle a changé.");
+    const authority = this.authorizationFence(ctx);
+    const time = now();
+    const result = await this.env.DB.prepare(
+      `UPDATE document_templates SET state='archived',deleted_at=?,revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND owner_id=? AND revision=? AND deleted_at IS NULL AND ${authority.condition}`,
+    )
+      .bind(
+        time,
+        time,
+        ctx.organizationId,
+        id,
+        ctx.userId,
+        expectedRevision,
+        ...authority.values,
+      )
+      .run();
+    if (!result.meta.changes) {
+      await this.authorize(ctx, true);
+      fail("REVISION_CONFLICT", "Le modèle a changé.");
+    }
+    return { id, deleted: true as const };
   }
   async shareTemplate(ctx: WorkflowActor, id: string, input: unknown) {
     const value = templateShareSchema.parse(input);
@@ -745,9 +825,14 @@ export class TemplateWorkflowService {
         );
     }
     // The revision fence is repeated on every statement; an old sharing request cannot erase fresh permissions.
-    const fence =
-      "EXISTS(SELECT 1 FROM document_templates WHERE organization_id=? AND id=? AND revision=?)";
-    const values = [ctx.organizationId, id, value.expectedRevision];
+    const authority = this.authorizationFence(ctx);
+    const fence = `EXISTS(SELECT 1 FROM document_templates WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL) AND ${authority.condition}`;
+    const values = [
+      ctx.organizationId,
+      id,
+      value.expectedRevision,
+      ...authority.values,
+    ];
     const statements = [
       this.env.DB.prepare(
         `DELETE FROM template_permissions WHERE organization_id=? AND template_id=? AND ${fence}`,
@@ -767,7 +852,7 @@ export class TemplateWorkflowService {
         ),
       ),
       this.env.DB.prepare(
-        "UPDATE document_templates SET visibility=?,revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=?",
+        `UPDATE document_templates SET visibility=?,revision=revision+1,updated_at=? WHERE organization_id=? AND id=? AND revision=? AND deleted_at IS NULL AND ${authority.condition}`,
       ).bind(value.visibility, now(), ...values),
     ];
     const results = await this.env.DB.batch(statements);

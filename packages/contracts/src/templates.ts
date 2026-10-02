@@ -191,7 +191,7 @@ export type TemplateColumn = z.infer<typeof TemplateColumnSchema>;
 export type GraphicBlock =
   TemplateEnvelope["definition"]["schemas"][number][number];
 const forbiddenNames = new Set(["__proto__", "prototype", "constructor"]);
-const allowedGraphicKeys = new Set([
+export const TEMPLATE_GRAPHIC_PROPERTIES = [
   "name",
   "type",
   "position",
@@ -240,7 +240,8 @@ const allowedGraphicKeys = new Set([
   "textFormat",
   "fontVariants",
   "fontVariantFallback",
-]);
+] as const;
+const allowedGraphicKeys = new Set<string>(TEMPLATE_GRAPHIC_PROPERTIES);
 function fail(
   code: string,
   message: string,

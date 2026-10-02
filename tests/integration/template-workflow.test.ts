@@ -16,7 +16,21 @@ import {
   sha256,
   type ActorContext,
 } from "../../packages/domain/src/index";
-import { TemplateWorkflowService } from "../../apps/api/src/template-workflow";
+import {
+  TemplateWorkflowService,
+  type WorkflowActor,
+} from "../../apps/api/src/template-workflow";
+import {
+  WORKFLOW_LIMITS,
+  type TemplatePermission,
+  type TemplateView,
+} from "../../packages/contracts/src/template-workflow";
+import {
+  templateAuthoringGuide,
+  templateExampleCatalog,
+  getTemplateExample,
+} from "../../packages/templates/authoring";
+import worker, { getCapabilities } from "../../apps/api/src/index";
 import {
   templateWorkflowScope,
   createTemplateWorkflowRoutes,
@@ -154,6 +168,53 @@ async function count(table: string) {
     .prepare(`SELECT count(*) AS n FROM ${table}`)
     .first<{ n: number }>())!.n;
 }
+function afterTemplateRead(interleave: () => Promise<unknown>) {
+  const internals = service as unknown as {
+    templateRow(
+      ctx: WorkflowActor,
+      id: string,
+      permission?: TemplatePermission | "read",
+    ): Promise<unknown>;
+  };
+  const original = internals.templateRow.bind(service);
+  return vi
+    .spyOn(internals, "templateRow")
+    .mockImplementationOnce(async (...args) => {
+      const snapshot = await original(...args);
+      await interleave();
+      return snapshot;
+    });
+}
+async function connectWorkflow(scopes: string[]) {
+  const server = createGuteneoMcpServer(
+    {
+      context: { ...owner, actor: "mcp" },
+      scopes,
+      clientId: "fixture",
+      token: "synthetic",
+      expiresAt: 9999999999,
+    },
+    env,
+    {
+      domain,
+      documents: service.documents,
+      workflow: service,
+      capabilities: () => getCapabilities(env),
+    },
+  );
+  const client = new Client({ name: "workflow-authoring-proof", version: "1" });
+  const [c, s] = InMemoryTransport.createLinkedPair();
+  await server.connect(s);
+  await client.connect(c);
+  return {
+    client,
+    server,
+    close: async () => {
+      await client.close();
+      await server.close();
+    },
+  };
+}
 const mapping: MappingPlan = {
   version: 1,
   name: "CSV clients",
@@ -278,6 +339,662 @@ beforeEach(async () => {
 });
 
 describe("Persistent template workflow — local D1/R2 with explicitly synthetic renderer transport", () => {
+  it("soft-deletes only for the current non-viewer owner and retains published jobs, provenance and private PDFs", async () => {
+    let template = await published();
+    template = await service.shareTemplate(owner, template.id, {
+      expectedRevision: template.revision,
+      visibility: "selected",
+      syntheticSamplesConfirmed: true,
+      grants: [
+        {
+          userId: member.userId,
+          use: true,
+          edit: true,
+          publish: true,
+          share: true,
+        },
+      ],
+    });
+    expect(template.canDelete).toBe(true);
+    expect((await service.getTemplate(member, template.id)).canDelete).toBe(
+      false,
+    );
+    await expect(
+      service.deleteTemplate(other, template.id, {
+        expectedRevision: template.revision,
+      }),
+    ).rejects.toMatchObject({ code: "TEMPLATE_NOT_FOUND" });
+    await expect(
+      service.deleteTemplate(member, template.id, {
+        expectedRevision: template.revision,
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const completed = await service.createGeneration(
+      owner,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "historical", data: { name: "History" } }],
+      },
+      "deletion-history",
+    );
+    await service.processPending();
+    const original = (await service.generationResults(owner, completed.id))
+      .items[0];
+    expect(original.state).toBe("generated");
+    const provenance = await service.generationProvenance(
+      owner,
+      completed.id,
+      "historical",
+    );
+    const pending = await service.createGeneration(
+      owner,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "pending", data: { name: "Pending" } }],
+      },
+      "deletion-pending",
+    );
+    await expect(
+      service.deleteTemplate(owner, template.id, {
+        expectedRevision: template.revision - 1,
+      }),
+    ).rejects.toMatchObject({ code: "REVISION_CONFLICT" });
+    expect(
+      await service.deleteTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+      }),
+    ).toEqual({ id: template.id, deleted: true });
+    expect((await service.listTemplates(owner)).items).toEqual([]);
+    expect((await service.listTemplates(member)).items).toEqual([]);
+    for (const read of [
+      () => service.getTemplate(owner, template.id),
+      () => service.getTemplate(owner, template.id, 1),
+      () => service.getTemplateSharing(owner, template.id),
+      () => service.duplicateTemplate(owner, template.id),
+      () =>
+        service.previewTemplate(owner, template.id, {
+          expectedRevision: template.revision + 1,
+          data: { name: "Deleted" },
+        }),
+      () =>
+        service.createGeneration(
+          owner,
+          {
+            templateId: template.id,
+            mode: "generate_only",
+            records: [{ recordId: "x", data: { name: "Deleted" } }],
+          },
+          "deleted-reuse",
+        ),
+    ])
+      await expect(read()).rejects.toMatchObject({
+        code: "TEMPLATE_NOT_FOUND",
+      });
+    const retained = await db
+      .prepare(
+        "SELECT state,deleted_at,revision FROM document_templates WHERE id=?",
+      )
+      .bind(template.id)
+      .first();
+    expect(retained).toMatchObject({
+      state: "archived",
+      revision: template.revision + 1,
+    });
+    expect(retained!.deleted_at).toBeTypeOf("string");
+    expect(await count("template_versions")).toBe(1);
+    expect(
+      await service.generationProvenance(owner, completed.id, "historical"),
+    ).toEqual(provenance);
+    expect(
+      (await service.generationResults(owner, completed.id)).items[0],
+    ).toEqual(original);
+    const document = await domain.getDocument(owner, original.documentId!);
+    expect(await bucket.get(document.storage_key)).not.toBeNull();
+    await expect(
+      domain.getDocument(member, original.documentId!),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await service.processPending();
+    expect(renders).toBe(1);
+    expect(
+      (await service.generationResults(owner, pending.id)).items[0],
+    ).toMatchObject({ state: "failed", errorCode: "TEMPLATE_NOT_FOUND" });
+    expect(await count("outbox")).toBe(0);
+    expect(await count("reservations")).toBe(0);
+    await expect(
+      db
+        .prepare(
+          "UPDATE document_templates SET deleted_at=NULL,state='draft' WHERE id=?",
+        )
+        .bind(template.id)
+        .run(),
+    ).rejects.toThrow("deleted template is immutable");
+  });
+  it("denies deletion to a viewer even when that member owns the template", async () => {
+    const template = await published(member);
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+      )
+      .bind(member.organizationId, member.userId)
+      .run();
+    const viewer = { ...member, role: "viewer" as const };
+    expect((await service.getTemplate(viewer, template.id)).canDelete).toBe(
+      false,
+    );
+    await expect(
+      service.deleteTemplate(viewer, template.id, {
+        expectedRevision: template.revision,
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(
+      await db
+        .prepare("SELECT deleted_at FROM document_templates WHERE id=?")
+        .bind(template.id)
+        .first(),
+    ).toEqual({ deleted_at: null });
+  });
+  it.each(["update", "publish", "share"] as const)(
+    "lets deletion win between %s read and mutation without resurrecting templates or shares",
+    async (action) => {
+      let template = await published();
+      const grants = [
+        {
+          userId: member.userId,
+          use: true,
+          edit: true,
+          publish: true,
+          share: true,
+        },
+      ];
+      template = await service.shareTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+        visibility: "selected",
+        syntheticSamplesConfirmed: true,
+        grants,
+      });
+      const spy = afterTemplateRead(() =>
+        service.deleteTemplate(owner, template.id, {
+          expectedRevision: template.revision,
+        }),
+      );
+      try {
+        const mutation =
+          action === "update"
+            ? service.updateTemplate(owner, template.id, {
+                expectedRevision: template.revision,
+                envelope: { ...template.envelope, name: "Concurrent edit" },
+              })
+            : action === "publish"
+              ? service.publishTemplate(owner, template.id, {
+                  expectedRevision: template.revision,
+                })
+              : service.shareTemplate(owner, template.id, {
+                  expectedRevision: template.revision,
+                  visibility: "organization",
+                  syntheticSamplesConfirmed: true,
+                  grants: [],
+                });
+        await expect(mutation).rejects.toMatchObject({
+          code: "REVISION_CONFLICT",
+        });
+      } finally {
+        spy.mockRestore();
+      }
+      expect(
+        await db
+          .prepare(
+            "SELECT state,revision,visibility,name FROM document_templates WHERE id=?",
+          )
+          .bind(template.id)
+          .first(),
+      ).toEqual({
+        state: "archived",
+        revision: template.revision + 1,
+        visibility: "selected",
+        name: template.name,
+      });
+      expect(await count("template_versions")).toBe(1);
+      expect(await count("template_permissions")).toBe(1);
+      expect((await service.listTemplates(owner)).items).toEqual([]);
+    },
+  );
+  it("rejects stale deletion when an edit commits after its read", async () => {
+    const template = await published();
+    const spy = afterTemplateRead(() =>
+      service.updateTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+        envelope: { ...template.envelope, name: "Fresh edit" },
+      }),
+    );
+    try {
+      await expect(
+        service.deleteTemplate(owner, template.id, {
+          expectedRevision: template.revision,
+        }),
+      ).rejects.toMatchObject({ code: "REVISION_CONFLICT" });
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await service.getTemplate(owner, template.id)).toMatchObject({
+      name: "Fresh edit",
+      state: "draft",
+      revision: template.revision + 1,
+    });
+  });
+  it.each(["membership", "oauth"] as const)(
+    "fences deletion against %s revocation after permission read",
+    async (kind) => {
+      const template = await published(member);
+      const connectionId = `template-delete-${crypto.randomUUID()}`;
+      await db
+        .prepare(
+          "INSERT INTO authorized_connections(id,issuer,user_id,client_id,organization_id,status,created_at,updated_at) VALUES(?,?,?,?,?,'active',?,?)",
+        )
+        .bind(
+          connectionId,
+          "https://synthetic.invalid",
+          member.userId,
+          connectionId,
+          member.organizationId,
+          new Date().toISOString(),
+          new Date().toISOString(),
+        )
+        .run();
+      const ctx: WorkflowActor = {
+        ...member,
+        actor: "mcp",
+        authority: { connectionId, authorizationRevision: 0 },
+      };
+      const spy = afterTemplateRead(async () => {
+        if (kind === "membership")
+          await db
+            .prepare(
+              "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+            )
+            .bind(member.organizationId, member.userId)
+            .run();
+        else
+          await db
+            .prepare(
+              "UPDATE authorized_connections SET not_before=not_before+1 WHERE id=?",
+            )
+            .bind(connectionId)
+            .run();
+      });
+      try {
+        await expect(
+          service.deleteTemplate(ctx, template.id, {
+            expectedRevision: template.revision,
+          }),
+        ).rejects.toMatchObject({
+          code: kind === "membership" ? "FORBIDDEN" : "CONNECTION_REVOKED",
+        });
+        expect(
+          await db
+            .prepare(
+              "SELECT state,revision,deleted_at FROM document_templates WHERE id=?",
+            )
+            .bind(template.id)
+            .first(),
+        ).toEqual({
+          state: "published",
+          revision: template.revision,
+          deleted_at: null,
+        });
+      } finally {
+        spy.mockRestore();
+        await db
+          .prepare("DELETE FROM authorized_connections WHERE id=?")
+          .bind(connectionId)
+          .run();
+      }
+    },
+  );
+  it("releases the active template quota after soft deletion without erasing history", async () => {
+    const template = await published();
+    const ids = Array.from(
+      { length: WORKFLOW_LIMITS.templatesPerOrganization - 1 },
+      (_, n) => `quota-template-${n}`,
+    );
+    await db
+      .prepare(
+        "INSERT INTO document_templates(id,organization_id,owner_id,name,state,draft_json,created_at,updated_at) SELECT value,?,?,?,'draft',?,?,? FROM json_each(?)",
+      )
+      .bind(
+        owner.organizationId,
+        owner.userId,
+        "Quota",
+        JSON.stringify(template.envelope),
+        new Date().toISOString(),
+        new Date().toISOString(),
+        JSON.stringify(ids),
+      )
+      .run();
+    await expect(
+      service.createTemplate(owner, { envelope: envelope() }),
+    ).rejects.toMatchObject({ code: "TEMPLATE_QUOTA" });
+    await service.deleteTemplate(owner, template.id, {
+      expectedRevision: template.revision,
+    });
+    expect(
+      (await service.createTemplate(owner, { envelope: envelope() })).canDelete,
+    ).toBe(true);
+    expect(await count("document_templates")).toBe(
+      WORKFLOW_LIMITS.templatesPerOrganization + 1,
+    );
+    expect(await count("template_versions")).toBe(1);
+  });
+  it("rejects preview registration when deletion commits during rendering", async () => {
+    const template = await published();
+    env.DOCUMENT_RENDERER = {
+      fetch: async () => {
+        await service.deleteTemplate(owner, template.id, {
+          expectedRevision: template.revision,
+        });
+        return new Response(await pdf("Deleted while rendering"), {
+          headers: { "Content-Type": "application/pdf" },
+        });
+      },
+    } as unknown as Fetcher;
+    await expect(
+      service.previewTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+        data: { name: "Preview" },
+      }),
+    ).rejects.toMatchObject({ code: "TEMPLATE_NOT_FOUND" });
+    expect(await count("documents")).toBe(0);
+  });
+  it("serves authenticated authoring rules and examples over REST through creation, preview and owner deletion", async () => {
+    const app = new Hono<{
+      Bindings: Env;
+      Variables: { actor: WorkflowActor };
+    }>();
+    app.use("*", async (c, next) => {
+      c.set("actor", c.req.header("X-Test-Member") ? member : owner);
+      await next();
+    });
+    app.onError(
+      (error) =>
+        new Response(
+          JSON.stringify({ error: { code: (error as DomainError).code } }),
+          {
+            status: (error as DomainError).status || 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+    );
+    app.route(
+      "/",
+      createTemplateWorkflowRoutes(() => domain),
+    );
+    const request = (path: string, method = "GET", body?: unknown) =>
+      app.request(
+        path,
+        {
+          method,
+          ...(body
+            ? {
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              }
+            : {}),
+        },
+        env,
+      );
+    for (const path of [
+      "/api/templates/authoring-guide",
+      "/api/templates/examples",
+      "/api/templates/examples/invoice",
+    ]) {
+      expect(templateWorkflowScope(path, "GET")).toBe("templates:read");
+      const unauthenticated = await worker.fetch(
+        new Request(`http://localhost:8787${path}`),
+        env,
+        {} as ExecutionContext,
+      );
+      expect(unauthenticated.status).toBe(401);
+    }
+    const guideResponse = await request("/api/templates/authoring-guide");
+    expect(guideResponse.status).toBe(200);
+    const guide = (await guideResponse.json()) as ReturnType<
+      typeof templateAuthoringGuide
+    >;
+    expect(guide).toEqual(templateAuthoringGuide());
+    const catalog = (await (
+      await request("/api/templates/examples")
+    ).json()) as ReturnType<typeof templateExampleCatalog>;
+    expect(catalog).toEqual(templateExampleCatalog());
+    expect(catalog.map((item) => item.id)).toEqual(
+      expect.arrayContaining(["quote", "delivery-note"]),
+    );
+    const exampleResponse = await request("/api/templates/examples/quote");
+    expect(exampleResponse.status).toBe(200);
+    const example = (await exampleResponse.json()) as NonNullable<
+      ReturnType<typeof getTemplateExample>
+    >;
+    expect(example).toEqual(getTemplateExample("quote"));
+    expect((await request("/api/templates/examples/unknown")).status).toBe(404);
+    expect(templateWorkflowScope("/api/templates/examples/share", "GET")).toBe(
+      "templates:read",
+    );
+    expect((await request("/api/templates/examples/share")).status).toBe(404);
+    expect(await count("document_templates")).toBe(0);
+    expect(await count("workflow_ai_usage")).toBe(0);
+    expect(renders).toBe(0);
+    env.DOCUMENT_RENDERER = {
+      fetch: async () => {
+        renders++;
+        return new Response(await pdf("Synthetic REST example"), {
+          headers: { "Content-Type": "application/pdf" },
+        });
+      },
+    } as unknown as Fetcher;
+    const create = await request("/api/templates", "POST", {
+      envelope: example.envelope,
+    });
+    expect(create.status).toBe(201);
+    const template = (await create.json()) as TemplateView;
+    expect(template).toMatchObject({
+      name: example.envelope.name,
+      canDelete: true,
+      state: "draft",
+    });
+    const preview = await request(
+      `/api/templates/${template.id}/preview`,
+      "POST",
+      {
+        expectedRevision: template.revision,
+        data: example.envelope.sampleData,
+      },
+    );
+    expect(preview.status).toBe(201);
+    expect(renders).toBe(1);
+    expect(await count("documents")).toBe(1);
+    expect(
+      templateWorkflowScope(`/api/templates/${template.id}`, "DELETE"),
+    ).toBe("templates:write");
+    const deleted = await request(`/api/templates/${template.id}`, "DELETE", {
+      expectedRevision: template.revision,
+    });
+    expect(deleted.status).toBe(200);
+    expect(await deleted.json()).toEqual({ id: template.id, deleted: true });
+    expect((await request(`/api/templates/${template.id}`)).status).toBe(404);
+    expect(await count("documents")).toBe(1);
+    expect(await count("outbox")).toBe(0);
+    expect(await count("workflow_ai_usage")).toBe(0);
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+      )
+      .bind(member.organizationId, member.userId)
+      .run();
+    const staleMember = await app.request(
+      "/api/templates/authoring-guide",
+      { headers: { "X-Test-Member": "1" } },
+      env,
+    );
+    expect(staleMember.status).toBe(403);
+  });
+  it("exposes authoring guide and example MCP tools with scopes, usable envelopes and destructive owner deletion", async () => {
+    env.DOCUMENT_RENDERER = {
+      fetch: async () => {
+        renders++;
+        return new Response(await pdf("Synthetic MCP example"), {
+          headers: { "Content-Type": "application/pdf" },
+        });
+      },
+    } as unknown as Fetcher;
+    const full = await connectWorkflow([...MCP_SCOPES]);
+    try {
+      const discovery = await full.client.listTools();
+      for (const name of [
+        "get_template_authoring_guide",
+        "list_template_examples",
+        "get_template_example",
+      ]) {
+        const tool = discovery.tools.find((t) => t.name === name)!;
+        expect(tool).toBeTruthy();
+        expect(tool.annotations?.destructiveHint).toBe(false);
+        expect(tool._meta?.securitySchemes).toEqual([
+          { type: "oauth2", scopes: ["templates:read"] },
+        ]);
+      }
+      const deletion = discovery.tools.find(
+        (t) => t.name === "delete_template",
+      )!;
+      expect(deletion.annotations).toMatchObject({
+        destructiveHint: true,
+        readOnlyHint: false,
+      });
+      expect(deletion._meta?.securitySchemes).toEqual([
+        { type: "oauth2", scopes: ["templates:write"] },
+      ]);
+      const caps = await full.client.callTool({
+        name: "get_capabilities",
+        arguments: {},
+      });
+      expect(
+        (caps.structuredContent as { data: { studio: { templates: unknown } } })
+          .data.studio.templates,
+      ).toMatchObject({
+        authoringGuide: "/api/templates/authoring-guide",
+        examples: "/api/templates/examples",
+        ownerDeletionRetainsHistory: true,
+      });
+      const guideResult = await full.client.callTool({
+        name: "get_template_authoring_guide",
+        arguments: {},
+      });
+      expect(guideResult.isError).not.toBe(true);
+      const guide = (
+        guideResult.structuredContent as {
+          data: ReturnType<typeof templateAuthoringGuide>;
+        }
+      ).data;
+      expect(guide.envelopeSchema).toHaveProperty("properties");
+      expect(
+        guide.workflow.find((step) => step.tool === "preview_template")?.scope,
+      ).toBe("generations:write");
+      const catalog = await full.client.callTool({
+        name: "list_template_examples",
+        arguments: {},
+      });
+      expect((catalog.structuredContent as { data: unknown }).data).toEqual(
+        templateExampleCatalog(),
+      );
+      const unknown = await full.client.callTool({
+        name: "get_template_example",
+        arguments: { exampleId: "unknown" },
+      });
+      expect(
+        (unknown.structuredContent as { error: { code: string } }).error.code,
+      ).toBe("TEMPLATE_EXAMPLE_NOT_FOUND");
+      const source = await full.client.callTool({
+        name: "get_template_example",
+        arguments: { exampleId: "delivery-note" },
+      });
+      expect(source.isError).not.toBe(true);
+      const example = (
+        source.structuredContent as {
+          data: NonNullable<ReturnType<typeof getTemplateExample>>;
+        }
+      ).data;
+      expect(await count("document_templates")).toBe(0);
+      expect(renders).toBe(0);
+      const created = await full.client.callTool({
+        name: "create_template",
+        arguments: { envelope: example.envelope },
+      });
+      expect(created.isError).not.toBe(true);
+      const template = (created.structuredContent as { data: TemplateView })
+        .data;
+      const preview = await full.client.callTool({
+        name: "preview_template",
+        arguments: {
+          id: template.id,
+          expectedRevision: template.revision,
+          data: example.envelope.sampleData,
+        },
+      });
+      expect(preview.isError).not.toBe(true);
+      expect(renders).toBe(1);
+      const deleted = await full.client.callTool({
+        name: "delete_template",
+        arguments: { id: template.id, expectedRevision: template.revision },
+      });
+      expect((deleted.structuredContent as { data: unknown }).data).toEqual({
+        id: template.id,
+        deleted: true,
+      });
+      expect(await count("documents")).toBe(1);
+      expect(await count("outbox")).toBe(0);
+      expect(await count("reservations")).toBe(0);
+      expect(await count("workflow_ai_usage")).toBe(0);
+    } finally {
+      await full.close();
+    }
+    const readOnly = await connectWorkflow(["templates:read"]);
+    try {
+      for (const [name, args] of [
+        ["get_template_authoring_guide", {}],
+        ["list_template_examples", {}],
+        ["get_template_example", { exampleId: "letter" }],
+      ] as const)
+        expect(
+          (await readOnly.client.callTool({ name, arguments: args })).isError,
+        ).not.toBe(true);
+      const deleted = await readOnly.client.callTool({
+        name: "delete_template",
+        arguments: { id: "unavailable", expectedRevision: 1 },
+      });
+      expect(
+        (deleted.structuredContent as { error: { code: string } }).error.code,
+      ).toBe("INSUFFICIENT_SCOPE");
+    } finally {
+      await readOnly.close();
+    }
+    const noRead = await connectWorkflow(["templates:write"]);
+    try {
+      for (const [name, args] of [
+        ["get_template_authoring_guide", {}],
+        ["list_template_examples", {}],
+        ["get_template_example", { exampleId: "letter" }],
+      ] as const) {
+        const rejected = await noRead.client.callTool({
+          name,
+          arguments: args,
+        });
+        expect(
+          (rejected.structuredContent as { error: { code: string } }).error
+            .code,
+        ).toBe("INSUFFICIENT_SCOPE");
+      }
+    } finally {
+      await noRead.close();
+    }
+  });
   it("rejects deeply nested raw envelopes and patches before recursive schema parsing", async () => {
     let field: unknown = { type: "string" };
     for (let i = 0; i < 2000; i++) field = { type: "array", items: field };
@@ -543,6 +1260,17 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
   it("uses fixed route labels without logging arbitrary dataset or record paths", () => {
     const id = "00000000-0000-4000-8000-000000000000";
     const request = (path: string) => new Request(`http://localhost${path}`);
+    for (const path of [
+      "/api/templates/authoring-guide",
+      "/api/templates/examples",
+      ...templateExampleCatalog().map(
+        ({ id }) => `/api/templates/examples/${id}`,
+      ),
+    ])
+      expect(routeCode(request(path))).toBe("templates");
+    expect(routeCode(request("/api/templates/examples/private-person"))).toBe(
+      "unknown",
+    );
     expect(routeCode(request(`/api/templates/tpl_${id}/preview`))).toBe(
       "templates",
     );

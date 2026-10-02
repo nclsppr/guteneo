@@ -80,9 +80,78 @@ schemas.TemplateView = object({
     publish: boolean,
     share: boolean,
   }),
+  canDelete: boolean,
   envelope: ref("TemplateEnvelope"),
   createdAt: str,
   updatedAt: str,
+});
+schemas.TemplateExampleMetadata = object({
+  id: str,
+  name: str,
+  description: str,
+  sampleDataSynthetic: { type: "boolean", enum: [true] },
+});
+schemas.TemplateAuthoringGuide = object({
+  guideVersion: integer,
+  engine: str,
+  engineVersion: str,
+  schemaVersion: integer,
+  envelopeSchema: bag,
+  bindingSchema: bag,
+  patchSchema: bag,
+  safeGraphicProperties: strings,
+  limits: bag,
+  semanticRules: { type: "array", items: object({ id: str, rule: str }) },
+  workflow: {
+    type: "array",
+    items: object({ tool: str, scope: str, purpose: str }, ["tool", "purpose"]),
+  },
+  rest: object({
+    guide: str,
+    catalog: str,
+    example: str,
+    create: str,
+    delete: str,
+  }),
+  minimalEnvelope: ref("TemplateEnvelope"),
+  examples: { type: "array", items: ref("TemplateExampleMetadata") },
+  qualification: str,
+});
+(schemas.Capabilities.properties as Schema).studio = object({
+  templates: object({
+    engine: str,
+    engineVersion: str,
+    versioned: boolean,
+    immutablePublishedVersions: boolean,
+    visualEditor: boolean,
+    ownerDeletionRetainsHistory: boolean,
+    deletionTool: str,
+    authoringGuide: str,
+    examples: str,
+    authoringTools: strings,
+  }),
+  datasets: object({
+    formats: strings,
+    privateOriginals: boolean,
+    deterministicMappings: boolean,
+  }),
+  generation: object({
+    mode: str,
+    asynchronous: boolean,
+    reservesSendingCredit: boolean,
+    rendererConfigured: boolean,
+  }),
+  distribution: object({
+    immutableManifest: boolean,
+    createsApproval: boolean,
+    sends: boolean,
+    postalPreflightRequired: boolean,
+  }),
+  ai: object({
+    configured: boolean,
+    organizationOptInRequired: boolean,
+    realProviderQualified: boolean,
+  }),
 });
 schemas.DatasetView = object({
   analysis: object({
@@ -298,7 +367,7 @@ for (const name of [
     items: { type: "array", items: ref(name) },
     nextCursor: nullable(str),
   });
-const revision = object({ expectedRevision: integer });
+const revision = object({ expectedRevision: { type: "integer", minimum: 1 } });
 type Operation = {
   method: string;
   path: string;
@@ -315,6 +384,29 @@ type Operation = {
 const operations: Operation[] = [
   {
     method: "get",
+    path: "/api/templates/authoring-guide",
+    id: "getTemplateAuthoringGuide",
+    summary: "Lire le schéma et les règles de création des modèles",
+    output: ref("TemplateAuthoringGuide"),
+    description:
+      "Guide authentifié en lecture seule, dérivé des contrats actuels. Fournit règles sémantiques, enveloppe minimale et parcours de création sans appel IA ni génération.",
+  },
+  {
+    method: "get",
+    path: "/api/templates/examples",
+    id: "listTemplateExamples",
+    summary: "Lister les exemples synthétiques de modèles",
+    output: { type: "array", items: ref("TemplateExampleMetadata") },
+  },
+  {
+    method: "get",
+    path: "/api/templates/examples/{exampleId}",
+    id: "getTemplateExample",
+    summary: "Lire une enveloppe synthétique complète à adapter",
+    output: object({ id: str, envelope: ref("TemplateEnvelope") }),
+  },
+  {
+    method: "get",
     path: "/api/templates",
     id: "listTemplates",
     summary: "Lister les modèles accessibles",
@@ -326,6 +418,8 @@ const operations: Operation[] = [
     path: "/api/templates",
     id: "createTemplate",
     summary: "Créer un modèle rééditable",
+    description:
+      "Consulter authoring-guide pour le schéma et les règles, ou examples pour adapter une enveloppe fictive. La création enregistre un brouillon privé, sans génération ni envoi implicite.",
     input: object({ envelope: ref("TemplateEnvelope") }),
     output: ref("TemplateView"),
     status: 201,
@@ -352,6 +446,16 @@ const operations: Operation[] = [
     id: "getTemplate",
     summary: "Lire un modèle et ses droits",
     output: ref("TemplateView"),
+  },
+  {
+    method: "delete",
+    path: "/api/templates/{id}",
+    id: "deleteTemplate",
+    summary: "Supprimer un modèle du studio en conservant son historique",
+    input: revision,
+    output: object({ id: str, deleted: { type: "boolean", enum: [true] } }),
+    description:
+      "Réservé au propriétaire non lecteur. expectedRevision protège contre les modifications concurrentes. Le modèle supprimé n’est plus accessible ni réutilisable ; les versions, lots et PDF historiques sont conservés.",
   },
   {
     method: "patch",
@@ -656,6 +760,13 @@ const operations: Operation[] = [
 ];
 for (const operation of operations) {
   const parameters: Schema[] = [];
+  if (operation.path.includes("{exampleId}"))
+    parameters.push({
+      name: "exampleId",
+      in: "path",
+      required: true,
+      schema: { type: "string", minLength: 1, maxLength: 100 },
+    });
   if (operation.path.includes("{entryId}"))
     parameters.push({
       name: "entryId",
@@ -733,6 +844,9 @@ for (const operation of operations) {
       [operation.status ?? 200]: response,
       "400": { $ref: "#/components/responses/BadRequest" },
       "403": { description: "Droits ou scope insuffisants." },
+      "404": {
+        description: "Ressource introuvable, supprimée ou non accessible.",
+      },
       "409": {
         description:
           "Révision, idempotence, structure, version ou état incompatible.",

@@ -218,6 +218,17 @@ export function getCapabilities(env: Env) {
         versioned: true,
         immutablePublishedVersions: true,
         visualEditor: true,
+        ownerDeletionRetainsHistory: true,
+        deletionTool: "delete_template",
+        authoringGuide: "/api/templates/authoring-guide",
+        examples: "/api/templates/examples",
+        authoringTools: [
+          "get_template_authoring_guide",
+          "list_template_examples",
+          "get_template_example",
+          "create_template",
+          "preview_template",
+        ],
       },
       datasets: {
         formats: ["csv", "xlsx", "json", "xml"],

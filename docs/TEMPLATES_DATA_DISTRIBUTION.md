@@ -6,6 +6,55 @@ du snapshot `20d7b8249b1aa8d942c45b59d56ec9e768503b8e` (base `c5319253`).
 Ses anciens rapports ne prouvent pas la validation de cette réconciliation.
 Le candidat reste local, sans merge, déploiement, activation IA ni envoi réel.
 
+## Complément : démonstrations, suppression et création par les LLM
+
+La galerie contient cinq bases fictives : courrier professionnel, facture de
+démonstration, relevé tabulaire, devis et bon de livraison. « Créer ma copie
+privée » enregistre un modèle indépendant, modifiable et partageable ; lire la
+galerie ne remplit pas automatiquement l’atelier. Les cinq modèles ont un schéma
+métier, des liaisons et des données d’exemple permettant de produire un vrai PDF.
+
+Le propriétaire peut supprimer sa création depuis la bibliothèque ou le studio,
+avec une confirmation nommant le modèle. Les copies de démonstration suivent le
+même parcours. Une suppression retire aussi un modèle partagé de la bibliothèque
+des autres membres. Les PDF déjà générés et leur historique sont conservés ;
+la base de démonstration reste disponible pour créer une nouvelle copie.
+Les modifications non enregistrées sont signalées dans la confirmation ; annuler
+conserve le brouillon. Un droit d’édition ou de publication n’accorde pas celui
+de supprimer la création d’un autre membre.
+
+La migration additive `0047_template_soft_deletion.sql` ajoute `deleted_at`.
+La mutation vérifie propriétaire, adhésion actuelle, autorité OAuth et révision.
+Les lectures et nouvelles générations excluent les modèles supprimés ; les
+courses avec édition, publication ou partage ne peuvent les réactiver. Les
+versions immuables et relations de provenance restent conservées.
+
+Les LLM découvrent les règles avec `get_template_authoring_guide` : schémas JSON
+générés depuis le contrat Zod courant, propriétés graphiques autorisées, règles
+sémantiques, limites et enveloppe minimale complète. `list_template_examples`
+et `get_template_example` fournissent les mêmes cinq modèles que la galerie web.
+Les lectures ne créent rien. L’assistant adapte l’enveloppe et l’enregistre avec
+`create_template`, puis vérifie l’aperçu avant publication. Cette création
+directe n’utilise pas les adaptateurs OpenAI internes et fonctionne sans leur
+configuration. Le guide embarqué dans le plugin complète la référence du serveur.
+
+Le propriétaire peut également demander `delete_template` avec l’identifiant et
+la révision courante. Les lectures utilisent `templates:read`, la création et la
+suppression `templates:write` ; les autres droits restent distincts. Le contrat
+REST correspondant est décrit dans [API_CONTRACT.md](API_CONTRACT.md).
+
+Les nouvelles preuves sont archivées dans
+`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002` et ne
+remplacent pas les résultats du candidat de base ci-dessous.
+La recette couvre 52 tests de contrats/plugin, 39 cas de workflow hors IA
+(dont un recontrôle ciblé après correction d’un attendu), 216 contrôles de
+sécurité, six parcours navigateur et une régression de l’éditeur graphique.
+Les cinq exemples ont produit leurs PDF réels, inspectés visuellement.
+L’[exemple MCP exécutable](../examples/template-workflow/README.md) a découvert
+les règles, créé un devis privé, rendu son aperçu, supprimé le modèle et relu
+le PDF conservé. Le [rapport de recette](TEST_RESULTS.md) distingue les passages
+réussis, les premiers échecs corrigés et les limites de cette preuve locale.
+
 ## Cartographie initiale
 
 Le dépôt conserve un seul service métier Guteneo, une API Hono, le MCP et

@@ -1,5 +1,10 @@
 # Execution plan and handoff
 
+2 October follow-up: five synthetic demonstration templates, owner-only library
+removal (additive migration 0047) and discoverable REST/MCP authoring rules extend
+the local candidate. Existing generated PDFs and history survive removal; see
+[TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+
 2 October templates candidate: the recovered template/data workflow is reconciled
 with main in an isolated worktree, using additive migrations 0042–0046.
 XML sources and per-record delivery channels extend the recovered implementation.

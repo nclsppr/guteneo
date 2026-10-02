@@ -2038,6 +2038,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2058,7 +2061,7 @@
           "Studio documentaire"
         ],
         "summary": "Créer un modèle rééditable",
-        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "description": "Consulter authoring-guide pour le schéma et les règles, ou examples pour adapter une enveloppe fictive. La création enregistre un brouillon privé, sans génération ni envoi implicite.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -2083,6 +2086,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -2185,6 +2191,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2270,6 +2279,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2325,6 +2337,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2344,6 +2359,100 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/TemplateUpdate"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTemplate",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Supprimer un modèle du studio en conservant son historique",
+        "description": "Réservé au propriétaire non lecteur. expectedRevision protège contre les modifications concurrentes. Le modèle supprimé n’est plus accessible ni réutilisable ; les versions, lots et PDF historiques sont conservés.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "deleted": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "deleted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -2392,6 +2501,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2414,7 +2526,7 @@
                 "properties": {
                   "expectedRevision": {
                     "type": "integer",
-                    "minimum": 0
+                    "minimum": 1
                   }
                 },
                 "required": [
@@ -2468,6 +2580,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -2525,6 +2640,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -2650,6 +2768,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2707,6 +2828,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -2729,7 +2853,7 @@
                 "properties": {
                   "expectedRevision": {
                     "type": "integer",
-                    "minimum": 0
+                    "minimum": 1
                   }
                 },
                 "required": [
@@ -2783,6 +2907,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -2923,6 +3050,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3015,6 +3145,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3081,6 +3214,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3126,6 +3262,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3256,6 +3395,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3312,6 +3454,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3466,6 +3611,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3522,6 +3670,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3599,6 +3750,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3644,6 +3798,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3720,6 +3877,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3776,6 +3936,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3867,6 +4030,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -3916,6 +4082,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -3983,6 +4152,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -4057,6 +4229,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -4182,6 +4357,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -4239,6 +4417,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -4295,6 +4476,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -4371,6 +4555,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -4437,6 +4624,9 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -4523,6 +4713,9 @@
           "403": {
             "description": "Droits ou scope insuffisants."
           },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
           },
@@ -4591,6 +4784,189 @@
           },
           "403": {
             "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/templates/authoring-guide": {
+      "get": {
+        "operationId": "getTemplateAuthoringGuide",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire le schéma et les règles de création des modèles",
+        "description": "Guide authentifié en lecture seule, dérivé des contrats actuels. Fournit règles sémantiques, enveloppe minimale et parcours de création sans appel IA ni génération.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateAuthoringGuide"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/templates/examples": {
+      "get": {
+        "operationId": "listTemplateExamples",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lister les exemples synthétiques de modèles",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateExampleMetadata"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
+          },
+          "409": {
+            "description": "Révision, idempotence, structure, version ou état incompatible."
+          },
+          "413": {
+            "description": "Limite de taille dépassée."
+          },
+          "429": {
+            "description": "Quota ou budget épuisé."
+          },
+          "503": {
+            "description": "Moteur, scanner ou IA indisponible."
+          }
+        }
+      }
+    },
+    "/api/templates/examples/{exampleId}": {
+      "get": {
+        "operationId": "getTemplateExample",
+        "tags": [
+          "Studio documentaire"
+        ],
+        "summary": "Lire une enveloppe synthétique complète à adapter",
+        "description": "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "templates:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "exampleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "envelope": {
+                      "$ref": "#/components/schemas/TemplateEnvelope"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "envelope"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "description": "Droits ou scope insuffisants."
+          },
+          "404": {
+            "description": "Ressource introuvable, supprimée ou non accessible."
           },
           "409": {
             "description": "Révision, idempotence, structure, version ou état incompatible."
@@ -5973,6 +6349,163 @@
               "exactBytes",
               "urlImport"
             ]
+          },
+          "studio": {
+            "type": "object",
+            "properties": {
+              "templates": {
+                "type": "object",
+                "properties": {
+                  "engine": {
+                    "type": "string"
+                  },
+                  "engineVersion": {
+                    "type": "string"
+                  },
+                  "versioned": {
+                    "type": "boolean"
+                  },
+                  "immutablePublishedVersions": {
+                    "type": "boolean"
+                  },
+                  "visualEditor": {
+                    "type": "boolean"
+                  },
+                  "ownerDeletionRetainsHistory": {
+                    "type": "boolean"
+                  },
+                  "deletionTool": {
+                    "type": "string"
+                  },
+                  "authoringGuide": {
+                    "type": "string"
+                  },
+                  "examples": {
+                    "type": "string"
+                  },
+                  "authoringTools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 500
+                  }
+                },
+                "required": [
+                  "engine",
+                  "engineVersion",
+                  "versioned",
+                  "immutablePublishedVersions",
+                  "visualEditor",
+                  "ownerDeletionRetainsHistory",
+                  "deletionTool",
+                  "authoringGuide",
+                  "examples",
+                  "authoringTools"
+                ],
+                "additionalProperties": false
+              },
+              "datasets": {
+                "type": "object",
+                "properties": {
+                  "formats": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 500
+                  },
+                  "privateOriginals": {
+                    "type": "boolean"
+                  },
+                  "deterministicMappings": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "formats",
+                  "privateOriginals",
+                  "deterministicMappings"
+                ],
+                "additionalProperties": false
+              },
+              "generation": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string"
+                  },
+                  "asynchronous": {
+                    "type": "boolean"
+                  },
+                  "reservesSendingCredit": {
+                    "type": "boolean"
+                  },
+                  "rendererConfigured": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "asynchronous",
+                  "reservesSendingCredit",
+                  "rendererConfigured"
+                ],
+                "additionalProperties": false
+              },
+              "distribution": {
+                "type": "object",
+                "properties": {
+                  "immutableManifest": {
+                    "type": "boolean"
+                  },
+                  "createsApproval": {
+                    "type": "boolean"
+                  },
+                  "sends": {
+                    "type": "boolean"
+                  },
+                  "postalPreflightRequired": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "immutableManifest",
+                  "createsApproval",
+                  "sends",
+                  "postalPreflightRequired"
+                ],
+                "additionalProperties": false
+              },
+              "ai": {
+                "type": "object",
+                "properties": {
+                  "configured": {
+                    "type": "boolean"
+                  },
+                  "organizationOptInRequired": {
+                    "type": "boolean"
+                  },
+                  "realProviderQualified": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "configured",
+                  "organizationOptInRequired",
+                  "realProviderQualified"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "templates",
+              "datasets",
+              "generation",
+              "distribution",
+              "ai"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -9496,6 +10029,9 @@
             ],
             "additionalProperties": false
           },
+          "canDelete": {
+            "type": "boolean"
+          },
           "envelope": {
             "$ref": "#/components/schemas/TemplateEnvelope"
           },
@@ -9515,6 +10051,7 @@
           "revision",
           "currentVersion",
           "permissions",
+          "canDelete",
           "envelope",
           "createdAt",
           "updatedAt"
@@ -10391,6 +10928,174 @@
         "required": [
           "items",
           "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateExampleMetadata": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sampleDataSynthetic": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "sampleDataSynthetic"
+        ],
+        "additionalProperties": false
+      },
+      "TemplateAuthoringGuide": {
+        "type": "object",
+        "properties": {
+          "guideVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "engine": {
+            "type": "string"
+          },
+          "engineVersion": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "envelopeSchema": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "bindingSchema": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "patchSchema": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "safeGraphicProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 500
+          },
+          "limits": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "semanticRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "rule": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "rule"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "workflow": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tool": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tool",
+                "purpose"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rest": {
+            "type": "object",
+            "properties": {
+              "guide": {
+                "type": "string"
+              },
+              "catalog": {
+                "type": "string"
+              },
+              "example": {
+                "type": "string"
+              },
+              "create": {
+                "type": "string"
+              },
+              "delete": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "guide",
+              "catalog",
+              "example",
+              "create",
+              "delete"
+            ],
+            "additionalProperties": false
+          },
+          "minimalEnvelope": {
+            "$ref": "#/components/schemas/TemplateEnvelope"
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateExampleMetadata"
+            }
+          },
+          "qualification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "guideVersion",
+          "engine",
+          "engineVersion",
+          "schemaVersion",
+          "envelopeSchema",
+          "bindingSchema",
+          "patchSchema",
+          "safeGraphicProperties",
+          "limits",
+          "semanticRules",
+          "workflow",
+          "rest",
+          "minimalEnvelope",
+          "examples",
+          "qualification"
         ],
         "additionalProperties": false
       }

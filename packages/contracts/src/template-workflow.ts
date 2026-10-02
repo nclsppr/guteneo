@@ -24,6 +24,7 @@ export type TemplateView = {
   revision: number;
   currentVersion: number | null;
   permissions: Record<TemplatePermission, boolean>;
+  canDelete: boolean;
   envelope: TemplateEnvelope;
   createdAt: string;
   updatedAt: string;

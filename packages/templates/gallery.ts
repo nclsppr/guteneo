@@ -399,6 +399,183 @@ export function statementTemplate(): TemplateEnvelope {
 export function blankTemplate(): TemplateEnvelope {
   return validateTemplateEnvelope(base("Nouveau modèle", "Page vierge."));
 }
+
+export function quoteTemplate(): TemplateEnvelope {
+  const envelope = invoiceTemplate();
+  envelope.name = "Devis de démonstration";
+  envelope.description =
+    "Une proposition avec prestations, quantités, total et date de validité. Données fictives à adapter avant utilisation.";
+  const blocks = envelope.definition.schemas[0];
+  blocks.find((block) => block.name === "title")!.content =
+    "DEVIS · DÉMONSTRATION";
+  blocks.find((block) => block.name === "date")!.position.y = 63;
+  blocks.push(textBlock("validUntil", "Validité du devis", 20, 76, 170, 8, 10));
+  envelope.inputSchema.properties!.validUntil = {
+    type: "string",
+    title: "Valable jusqu’au",
+    format: "date",
+  };
+  envelope.inputSchema.required!.push("validUntil");
+  envelope.bindings.push({
+    block: "validUntil",
+    kind: "value",
+    path: "validUntil",
+    format: "date",
+    prefix: "Valable jusqu’au : ",
+    required: true,
+  });
+  envelope.bindings.find((binding) => binding.block === "date")!.prefix =
+    "Établi le : ";
+  envelope.bindings.find((binding) => binding.block === "total")!.prefix =
+    "Total proposé : ";
+  envelope.sampleData = {
+    customer: { name: "Atelier Exemple — Luxembourg" },
+    reference: "DEVIS-DEMO-001",
+    date: "2026-10-02",
+    validUntil: "2026-10-31",
+    items: [
+      {
+        description: "Conception du dossier",
+        quantity: 1,
+        unitPriceMinor: 18000,
+      },
+      {
+        description: "Préparation des exemplaires",
+        quantity: 12,
+        unitPriceMinor: 450,
+      },
+    ],
+  };
+  return validateTemplateEnvelope(envelope);
+}
+
+export function deliveryNoteTemplate(): TemplateEnvelope {
+  const envelope = base(
+    "Bon de livraison de démonstration",
+    "Un destinataire, une référence et les articles livrés, sans prix. Toutes les coordonnées sont fictives.",
+  );
+  envelope.definition.schemas[0] = [
+    textBlock("title", "BON DE LIVRAISON", 20, 27, 170, 13, 21),
+    textBlock("recipient", "Destinataire de démonstration", 110, 47, 80, 28),
+    textBlock("reference", "BL-DEMO-001", 20, 49, 80),
+    textBlock("date", "02/10/2026", 20, 63, 80),
+    tableBlock("items", ["Référence article", "Désignation", "Quantité"], 92),
+    textBlock("notes", "Remarques de livraison", 20, 128, 170, 22, 10),
+  ];
+  envelope.inputSchema = {
+    type: "object",
+    properties: {
+      recipient: {
+        type: "object",
+        properties: {
+          address: { type: "string", title: "Nom et adresse", maxLength: 600 },
+        },
+        required: ["address"],
+      },
+      reference: { type: "string", title: "Référence de livraison" },
+      date: { type: "string", title: "Date de livraison", format: "date" },
+      items: {
+        type: "array",
+        title: "Articles livrés",
+        maxItems: 500,
+        items: {
+          type: "object",
+          properties: {
+            sku: { type: "string", title: "Référence article" },
+            description: {
+              type: "string",
+              title: "Désignation",
+              maxLength: 1500,
+            },
+            quantity: { type: "integer", title: "Quantité livrée" },
+          },
+          required: ["sku", "description", "quantity"],
+        },
+      },
+      notes: {
+        type: "string",
+        title: "Remarques",
+        default: "Livraison de démonstration, sans expédition réelle.",
+      },
+    },
+    required: ["recipient", "reference", "date", "items"],
+  };
+  envelope.bindings = [
+    {
+      block: "recipient",
+      kind: "value",
+      path: "recipient.address",
+      format: "text",
+      required: true,
+    },
+    {
+      block: "reference",
+      kind: "value",
+      path: "reference",
+      format: "text",
+      prefix: "Référence : ",
+      required: true,
+    },
+    {
+      block: "date",
+      kind: "value",
+      path: "date",
+      format: "date",
+      required: true,
+    },
+    {
+      block: "items",
+      kind: "table",
+      path: "items",
+      format: "text",
+      required: true,
+      columns: [
+        {
+          title: "Référence article",
+          path: "sku",
+          format: "text",
+          required: true,
+        },
+        {
+          title: "Désignation",
+          path: "description",
+          format: "text",
+          required: true,
+        },
+        {
+          title: "Quantité",
+          path: "quantity",
+          format: "integer",
+          required: true,
+        },
+      ],
+    },
+    {
+      block: "notes",
+      kind: "value",
+      path: "notes",
+      format: "text",
+      prefix: "Remarques : ",
+      required: false,
+    },
+  ];
+  envelope.sampleData = {
+    recipient: { address: "Atelier Exemple\n12 rue des Ateliers\n75002 Paris" },
+    reference: "BL-DEMO-001",
+    date: "2026-10-02",
+    items: [
+      { sku: "DOS-001", description: "Dossier de présentation", quantity: 12 },
+      {
+        sku: "ENV-002",
+        description: "Enveloppe de démonstration",
+        quantity: 12,
+      },
+    ],
+    notes: "Exemple fictif : contrôler les quantités avant utilisation.",
+  };
+  return validateTemplateEnvelope(envelope);
+}
+
 export function templateGallery(): {
   id: string;
   envelope: TemplateEnvelope;
@@ -407,5 +584,7 @@ export function templateGallery(): {
     { id: "letter", envelope: letterTemplate() },
     { id: "invoice", envelope: invoiceTemplate() },
     { id: "statement", envelope: statementTemplate() },
+    { id: "quote", envelope: quoteTemplate() },
+    { id: "delivery-note", envelope: deliveryNoteTemplate() },
   ];
 }

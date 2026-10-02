@@ -1,0 +1,80 @@
+{
+  "Modèles de démonstration": [
+    "Demo templates",
+    "Demovorlagen",
+    "Demo-Virlagen"
+  ],
+  "Ces exemples contiennent uniquement des données fictives. Créez une copie privée, modifiez-la dans le studio et supprimez-la quand vous n’en avez plus besoin.": [
+    "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
+    "Diese Beispiele enthalten ausschließlich fiktive Daten. Erstellen Sie eine private Kopie, bearbeiten Sie sie im Studio und löschen Sie sie, wenn Sie sie nicht mehr benötigen.",
+    "Dës Beispiller enthalen nëmme fiktiv Donnéeën. Erstellt eng privat Kopie, ännert se am Studio a läscht se, wann Dir se net méi braucht."
+  ],
+  "Créer ma copie privée": [
+    "Create my private copy",
+    "Meine private Kopie erstellen",
+    "Meng privat Kopie erstellen"
+  ],
+  "Créer ma copie privée de {0}": [
+    "Create my private copy of {0}",
+    "Meine private Kopie erstellen: {0}",
+    "Meng privat Kopie erstellen: {0}"
+  ],
+  "Supprimer": ["Delete", "Löschen", "Läschen"],
+  "Supprimer le modèle {0}": [
+    "Delete template {0}",
+    "Vorlage {0} löschen",
+    "Virlag {0} läschen"
+  ],
+  "Supprimer « {0} » ?": ["Delete “{0}”?", "„{0}“ löschen?", "„{0}“ läschen?"],
+  "Ce modèle sera retiré de votre bibliothèque.": [
+    "This template will be removed from your library.",
+    "Diese Vorlage wird aus Ihrer Bibliothek entfernt.",
+    "Dës Virlag gëtt aus Ärer Bibliothéik ewechgeholl."
+  ],
+  "Ce modèle partagé sera retiré pour tous les membres de l’atelier.": [
+    "This shared template will be removed for everyone in the workspace.",
+    "Diese geteilte Vorlage wird für alle Mitglieder des Arbeitsbereichs entfernt.",
+    "Dës gedeelt Virlag gëtt fir all Membere vum Atelier ewechgeholl."
+  ],
+  "Les PDF déjà créés et leur historique seront conservés.": [
+    "Existing PDFs and their history will be kept.",
+    "Bereits erstellte PDFs und ihr Verlauf bleiben erhalten.",
+    "PDFen, déi scho generéiert goufen, an hiren Historique bleiwe gespäichert."
+  ],
+  "Les modifications non enregistrées seront aussi abandonnées.": [
+    "Unsaved changes will also be discarded.",
+    "Nicht gespeicherte Änderungen werden ebenfalls verworfen.",
+    "Net gespäichert Ännerunge ginn och verworf."
+  ],
+  "Supprimer le modèle": [
+    "Delete template",
+    "Vorlage löschen",
+    "Virlag läschen"
+  ],
+  "Conserver le modèle": [
+    "Keep template",
+    "Vorlage behalten",
+    "Virlag behalen"
+  ],
+  "Le modèle « {0} » a été supprimé.": [
+    "Template “{0}” was deleted.",
+    "Die Vorlage „{0}“ wurde gelöscht.",
+    "D’Virlag „{0}“ gouf geläscht."
+  ],
+  "Devis de démonstration": ["Demo quotation", "Demoangebot", "Demo-Devis"],
+  "Une proposition avec prestations, quantités, total et date de validité. Données fictives à adapter avant utilisation.": [
+    "A quotation with services, quantities, a total and an expiry date. Fictional data to adapt before use.",
+    "Ein Angebot mit Leistungen, Mengen, Gesamtbetrag und Gültigkeitsdatum. Fiktive Daten, die vor der Verwendung anzupassen sind.",
+    "Eng Offer mat Leeschtungen, Quantitéiten, Gesamtbetrag a Gültegkeetsdatum. Fiktiv Donnéeën, déi virum Gebrauch unzepasse sinn."
+  ],
+  "Bon de livraison de démonstration": [
+    "Demo delivery note",
+    "Demolieferschein",
+    "Demo-Liwwerschäin"
+  ],
+  "Un destinataire, une référence et les articles livrés, sans prix. Toutes les coordonnées sont fictives.": [
+    "A recipient, a reference and the delivered items, without prices. All contact details are fictional.",
+    "Ein Empfänger, eine Referenz und die gelieferten Artikel, ohne Preise. Alle Kontaktdaten sind fiktiv.",
+    "En Empfänger, eng Referenz an déi geliwwert Artikelen, ouni Präisser. All Kontaktdonnéeë si fiktiv."
+  ]
+}

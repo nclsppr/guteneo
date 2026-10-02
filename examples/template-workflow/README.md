@@ -1,6 +1,6 @@
 # Executable template workflow examples
 
-Both scripts create a private template from `create-template.json`, publish its
+The `api.mjs` and `mcp.mjs` scripts create a private template from `create-template.json`, publish its
 first immutable version, and generate the two synthetic records from
 `generate-records.json`. They poll the durable job until terminal status and print
 only resource identifiers, hashes, document statuses and error codes. They do not
@@ -26,6 +26,43 @@ existing `/api/dev/login` and `/api/dev/mcp-token` simulation helpers to obtain 
 one-hour development bearer in process memory. Those helpers are forbidden in
 hosted production. The scripts are not evidence of machine-to-machine production
 OAuth qualification, real-host file transfer or provider delivery.
+
+## Discover rules, create a demonstration and delete its private copy
+
+```sh
+node examples/template-workflow/authoring-mcp.mjs
+```
+
+This SDK Streamable HTTP example requires `templates:read`, `templates:write`,
+`generations:write` and `documents:read`, with the same origin and bearer rules
+above. It discovers the advertised tools, reads `get_template_authoring_guide`,
+lists the five examples and obtains the complete `quote` envelope. It creates a
+private synthetic copy, renders its sample data with `preview_template`, deletes
+only that copy using its current revision, then verifies that the template is
+unavailable and its private preview PDF remains accessible. It does not publish,
+share, create a generation job or prepare a communication. No internal AI
+configuration or inference is needed.
+
+The server guide includes the current JSON schemas, allowed graphic properties,
+semantic validation rules, limits and a complete minimal envelope. The
+[plugin reference](../../integrations/guteneo/skills/document-studio/references/template-authoring.md)
+also documents the authoring sequence. Reading the guide or catalogue does not
+create a saved model. If a run is interrupted, inspect its printed template ID
+before cleanup; the script never retries a mutation automatically.
+
+Fresh local execution on **2 October 2026**, after migration
+`0047_template_soft_deletion.sql`: **exit 0**. It discovered five examples,
+created and deleted `tpl_5b440fff-5120-4e48-b9b1-f2015e9545ec`, and confirmed
+`doc_756d567d-c308-4b03-b43f-abd671cad381` remained `ready`. Evidence is in
+`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002/authoring-mcp.log`.
+The ephemeral local bearer was held only in memory and its bootstrap session was
+logged out. Rendering was real and local; scanning was simulated.
+
+An initial run exposed an incorrect `get_document` argument in this example;
+the script now uses `documentId`. A separate interrupted run left one synthetic
+draft, which was inspected and deleted through the local API using its current
+revision. Both unsuccessful logs and the bounded cleanup proof are retained
+separately from the successful execution. No other saved model was removed.
 
 ## Local execution evidence — 2 October 2026
 

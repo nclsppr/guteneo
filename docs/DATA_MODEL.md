@@ -96,3 +96,11 @@ immutable. Nullable document ownership preserves existing rows; new private
 documents deduplicate only within their owner. No remote application of these
 migrations is claimed. See [the workflow report](TEMPLATES_DATA_DISTRIBUTION.md)
 for retention, concurrency and proof.
+
+Migration `0047_template_soft_deletion.sql` adds nullable `deleted_at` to
+`document_templates`. Removal is an owner-only, revision- and authority-fenced
+transition to `archived`; SQL prevents subsequent mutation or resurrection.
+Deleted rows are omitted from the library and active-template quota. Versions,
+generated documents and job provenance remain referenced and are not erased.
+The synthetic demonstration catalogue lives in source, not as tenant rows;
+choosing an example creates an independent private template.

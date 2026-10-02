@@ -52,6 +52,14 @@ préparation séparée de la distribution. Les exemples exécutables figurent da
 `datasets:read`, `datasets:write`, `generations:read`, `generations:write`, auxquelles
 s’ajoutent les scopes documents/envois pour leurs opérations propres.
 
+Les assistants découvrent les règles avec `get_template_authoring_guide`, puis
+les cinq bases fictives avec `list_template_examples` et `get_template_example`.
+Ils peuvent adapter une enveloppe et la créer avec `create_template`, sans
+appel IA interne. La [référence de création](skills/document-studio/references/template-authoring.md)
+est aussi incluse dans le ZIP. Le propriétaire peut supprimer ses créations,
+y compris les copies de démonstration, depuis l’interface ou `delete_template` ;
+les PDF déjà générés et leur historique restent conservés.
+
 Cette modification du paquet local ne prouve ni déploiement du serveur distant,
 ni nouvelle autorisation accordée à un client existant, ni publication marketplace.
 Le transfert natif de fichiers dépend des capacités réellement annoncées par l’hôte.

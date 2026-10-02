@@ -1,5 +1,44 @@
 # Executed verification
 
+## Demonstration templates, deletion and LLM authoring — 2 October 2026
+
+This local follow-up extends `e6a99338e85e2f4a4b8cd002b47e609a49085e8f` in the
+isolated `templates-workflow` worktree. Its evidence is stored separately in
+`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002`.
+
+| Check | Executed outcome |
+| --- | --- |
+| Contracts, authoring and plugin packaging | **52/52 pass** across three files (`unit-and-plugin.log`), including all five example envelopes, live schemas, semantic rules and the packaged authoring reference. |
+| Workflow integration | **39 non-AI cases covered**: the broad focused run passed 38 with one obsolete error-code expectation; after correcting that assertion, the targeted history/scopes/observability recheck passed **3/3**, including the remaining case. The 3 overlap with the 39; a clean full-file rerun is not claimed. Two AI cases were excluded. |
+| Security and OpenAPI | **216/216 pass** (`security.log`), including **8 OpenAPI checks** for the 64-operation workflow inventory and deletion/authoring contracts. |
+| Browser behaviour | **6/6 pass** on desktop Chromium, mobile Chromium and iPhone WebKit (`demo-delete-browser.log`): private copies, deletion, cancellation/focus, shared consequences and unsaved edits. Existing native graphical edit/save/actual-PDF regression also passes **1/1** (`native-designer-regression.log`). |
+| Demonstration PDFs | All **five** unchanged gallery samples render actual one-page PDFs, with zero missing text markers, overflow or external requests (`proof.json`). All five rendered PNGs were visually inspected (`visual-review.json`). |
+| Migration | Local 0047 applied; transport verification covers **47 migrations / 298 schema objects**, equivalent schemas, `quick_check=ok`, zero foreign-key violations (`migration-transport.json`). |
+| Executable MCP authoring | SDK Streamable HTTP script **exit 0**: discovers guide and five examples, creates a private quote, renders it, deletes the copy and verifies its PDF remains `ready` (`authoring-mcp.log`). |
+| Static checks and builds | Final global typecheck and lint pass; web build and API Worker dry-run pass (`build-web-final.log`, `api-build.log`). Typecheck/lint success was observed in terminal output. |
+
+Workflow results were observed in terminal sessions 18939 and 65700; no dedicated
+log was exported, and the shared Vitest JSON is overwritten by later runs. Exact
+commands, counts and evidence references are recorded in the external
+`verification.json`. The independently exported full security log includes the
+eight OpenAPI checks.
+
+The first browser run exposed a real false-dirty state caused by initial pdfme
+table measurement, now corrected and rechecked. The keyboard test uses WebKit's
+existing Alt+Tab convention. Initial failure evidence is preserved. The native
+Designer regression first lacked its archived DOCX fixture; restoring the exact
+fixture allowed the unchanged scenario to pass. The final visual review found
+no remaining material issue in the bounded change.
+
+The MCP example's initial wrong document argument and a separate interrupted
+run are recorded separately; only the fresh successful run qualifies the full
+flow. The interrupted synthetic draft was removed with an owner/revision-checked
+local API call. No real communication, hosted deployment, remote migration,
+merge, provider activation, paid provisioning or inference occurred. Existing
+PDFs and provenance are preserved by soft deletion. These checks use synthetic
+data and simulated scans and do not qualify hosted runtime or external LLM hosts.
+The baseline results below remain dated evidence and are not added to these totals.
+
 ## Templates, data and distribution — local candidate, 2 October 2026
 
 The recovered workflow is reconciled with main `a808307c5687588eb8c0aab45c9e559aa70a03dc`

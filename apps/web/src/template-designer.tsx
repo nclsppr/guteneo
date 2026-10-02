@@ -42,6 +42,7 @@ export default function TemplateDesigner({
   const designer = useRef<Designer | null>(null);
   const last = useRef("");
   const updating = useRef(false);
+  const interacted = useRef(false);
   const changed = useRef(onChange);
   changed.current = onChange;
   const [error, setError] = useState<Error>();
@@ -54,6 +55,7 @@ export default function TemplateDesigner({
   useEffect(() => {
     if (!container.current || !desktop) return;
     try {
+      interacted.current = false;
       const instance = new EmbeddedDesigner({
         domContainer: container.current,
         template: structuredClone(currentDefinition.current) as Template,
@@ -69,7 +71,9 @@ export default function TemplateDesigner({
       designer.current = instance;
       last.current = JSON.stringify(currentDefinition.current);
       instance.onChangeTemplate((next) => {
-        if (updating.current) return;
+        // Native renderers measure their layout on mount (notably table height).
+        // Those notifications are not author edits and must not dirty a saved draft.
+        if (updating.current || !interacted.current) return;
         const serializable = JSON.parse(
           JSON.stringify(next),
         ) as TemplateEnvelope["definition"];
@@ -135,6 +139,18 @@ export default function TemplateDesigner({
         className="studio-designer"
         ref={container}
         aria-label={msg("Éditeur visuel du modèle")}
+        onPointerDownCapture={() => {
+          interacted.current = true;
+        }}
+        onKeyDownCapture={() => {
+          interacted.current = true;
+        }}
+        onClickCapture={() => {
+          interacted.current = true;
+        }}
+        onInputCapture={() => {
+          interacted.current = true;
+        }}
       />
     </>
   );

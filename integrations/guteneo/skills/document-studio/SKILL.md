@@ -11,9 +11,17 @@ qualification de l’hôte. Les nouveaux scopes OAuth doivent être accordés
 explicitement. Ne jamais activer un fournisseur, un consentement IA ou un mandat
 expert.
 
-1. Employer list_templates, get_template et get_template_schema. Pour créer,
-   fournir à create_template une enveloppe pdfme validable et un schéma métier.
-   Les données sont des objets/tableaux, jamais une matrice propre au moteur.
+1. Avant de créer, lire get_template_authoring_guide : il fournit les schémas
+   structurels du serveur, les règles sémantiques, les limites et une enveloppe
+   minimale complète. list_template_examples découvre les démonstrations ;
+   get_template_example avec exampleId retourne une définition complète à adapter.
+   Aucune de ces lectures ne crée de modèle. Les règles sont aussi résumées dans
+   [la référence de création](references/template-authoring.md), incluse au package.
+   Envoyer ensuite {envelope} à create_template pour créer un brouillon privé
+   rééditable. Employer list_templates/get_template pour retrouver les créations,
+   et get_template_schema pour leurs données métier. Ces données restent des
+   objets/tableaux, jamais une matrice propre au moteur. Un LLM peut écrire le
+   modèle directement : aucun appel OpenAI interne supplémentaire n’est requis.
 2. Préférer update_template avec id et change contenant expectedRevision et patch
    pour déplacer un bloc, modifier un texte ou ajouter une colonne. Recharger
    après un conflit ; ne pas écraser une édition concurrente. preview_template
@@ -47,6 +55,12 @@ expert.
 7. La préparation ne vaut ni approbation, ni envoi, ni réservation. Réutiliser les
    parcours d’approbation existants et les mandats bornés ; ne jamais affirmer un
    consentement humain. Un résultat fournisseur incertain n’autorise aucun retry.
+8. À la demande de l’utilisateur propriétaire, delete_template retire un modèle
+   enregistré avec id et expectedRevision, y compris une copie de démonstration.
+   Lire canDelete ; ni un droit d’édition ni un rôle administrateur ne donnent
+   automatiquement ce droit sur le modèle d’un autre membre. Expliquer que les
+   PDF et l’historique existants restent conservés. Ne pas supprimer une ressource
+   pendant une simple lecture, une création ou un nettoyage non demandé.
 
 Word : seuls les DOCX sans contenu actif sont importés en blocs rééditables.
 Relire les avertissements et le PDF ; aucune fidélité Word intégrale n’est promise.
