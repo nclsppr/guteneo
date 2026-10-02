@@ -367,6 +367,7 @@ describe("distributable LLM integrations", () => {
           identity.context,
           documentId,
           1,
+          undefined,
         );
       },
       reader,
@@ -449,6 +450,7 @@ describe("distributable LLM integrations", () => {
         expect(get).toHaveBeenCalledExactlyOnceWith(
           identity.context,
           documentId,
+          undefined,
         );
         expect(rescan).not.toHaveBeenCalled();
         expect(importFile).not.toHaveBeenCalled();
