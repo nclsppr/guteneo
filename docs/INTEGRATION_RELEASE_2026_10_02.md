@@ -70,6 +70,20 @@ Direct XCTest execution on the reconciled native source then passed 25 unit
 tests and 8 UI tests, with no failure or exclusion.
 These are component checks, not a substitute for final combined CI.
 
+The combined candidate also passed all 214 Node security cases. Production-style
+public-page generation exposed an obsolete JavaScript removal rule: all public
+routes now retain their language-aware entry while preserving readable server
+HTML. The generator's seven cases and 24 locale boundary cases passed on desktop
+Chromium, Android Chromium and iPhone WebKit. The latter visit every one of the
+16 public routes and the account, preserve the anonymous choice and verify the
+connected person's preference and actual sign-out behavior.
+The native accessibility case also passed on iPhone 17e/iOS 26.5 with maximum
+text size, profile identity and an actual change to German. Its tab helper now
+waits for a hittable, enabled target and verifies native selection after one tap;
+the previous CI capture showed Atelier still selected after the account tap.
+The precise runtime cause was not reproduced locally. No product patch or reduced
+text size is inferred from that observation, and combined native CI remains a gate.
+
 Native signup/authentication, physical-device behavior, signing, TestFlight and
 App Store submission remain separate qualification. Account deletion currently
 records a request receipt; its processor and provider erasure remain incomplete.
