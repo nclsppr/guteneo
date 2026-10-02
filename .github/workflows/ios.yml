@@ -1,17 +1,15 @@
 name: Guteneo iOS
 on:
+  # XCTest/archive consume the native project, scripts and assets under ios/.
+  # Server mobile contracts and npm dependencies keep the full backend checks.
   pull_request:
     paths:
       - 'ios/**'
-      - 'apps/api/src/mobile*.ts'
-      - 'packages/contracts/**'
       - '.github/workflows/ios.yml'
   push:
     branches: [main]
     paths:
       - 'ios/**'
-      - 'apps/api/src/mobile*.ts'
-      - 'packages/contracts/**'
       - '.github/workflows/ios.yml'
   workflow_dispatch:
 permissions:

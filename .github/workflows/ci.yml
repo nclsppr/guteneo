@@ -1,6 +1,8 @@
 name: Guteneo checks
 on:
   # A feature change runs once on its PR; main is checked again after merge.
+  # Keep this workflow unfiltered: API/mobile contracts, shared npm dependencies
+  # and scanner changes must retain every required backend/browser check.
   push:
     branches: [main]
   pull_request:
@@ -212,6 +214,7 @@ jobs:
 
   # Branch protection keeps the same required check. A skipped/cancelled/failed
   # dependency must fail this job rather than produce a green skipped gate.
+  # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
     needs: [scanner, checks, vitest, security, build, browser]
