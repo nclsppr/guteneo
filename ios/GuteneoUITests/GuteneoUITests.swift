@@ -109,7 +109,15 @@ final class GuteneoUITests: XCTestCase {
         assertLogoCount(1, in: app)
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
-        attachScreenshot(app, name: "Compte — texte accessibilité XXXL")
+        XCTAssertTrue(app.staticTexts["Votre identité"].waitForExistence(timeout: 5))
+        let language = app.buttons["accountLanguage"]
+        for _ in 0..<5 where !language.isHittable { app.swipeUp() }
+        XCTAssertTrue(language.isHittable, "Le choix de langue doit rester accessible au plus grand texte")
+        language.tap()
+        XCTAssertTrue(app.buttons["Deutsch"].waitForExistence(timeout: 5))
+        app.buttons["Deutsch"].tap()
+        XCTAssertTrue(app.navigationBars["Konto"].waitForExistence(timeout: 5))
+        attachScreenshot(app, name: "Compte — texte accessibilité XXXL et choix de langue")
         assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
     }
@@ -253,7 +261,16 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        tabElement(label, in: app, file: file, line: line).tap()
+        let tab = tabElement(label, in: app, file: file, line: line)
+        // Existence alone does not establish that a native tab is interactive.
+        // Wait for its hit target and verify selection before inspecting a page.
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true AND enabled == true"), object: tab)
+        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed,
+                       "Onglet non interactif : \(label)", file: file, line: line)
+        tab.tap()
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: tab)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed,
+                       "Le tap n’a pas sélectionné l’onglet : \(label)", file: file, line: line)
     }
 
     private func tabElement(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
