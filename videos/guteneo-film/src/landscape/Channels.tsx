@@ -1,34 +1,36 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import { C, clamp, ease, Frame, Head, Kicker } from "./components";
 
 export const Channels = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const items = [
-    { name: "Fax", detail: "Le PDF à sa destination.", icon: "↗" },
+    { name: t("Fax"), detail: t("Le PDF à sa destination."), icon: "↗" },
     {
-      name: "Courrier postal",
-      detail: "Imprimé. Mis sous pli. Posté.",
+      name: t("Courrier postal"),
+      detail: t("Imprimé. Mis sous pli. Posté."),
       icon: "↗",
     },
     {
-      name: "E-mail classique",
-      detail: "Simple. Direct. Personnalisé.",
+      name: t("E-mail classique"),
+      detail: t("Simple. Direct. Personnalisé."),
       icon: "@",
     },
     {
-      name: "E-mail chiffré",
-      detail: "Une transmission confidentielle.",
+      name: t("E-mail chiffré"),
+      detail: t("Une transmission confidentielle."),
       icon: "◇",
     },
   ];
   return (
     <Frame blue>
       <div style={{ position: "absolute", left: 120, top: 205 }}>
-        <Kicker light>Une seule intention</Kicker>
+        <Kicker light>{t("Une seule intention")}</Kicker>
         <Head size={160} style={{ marginTop: 55 }}>
-          Plusieurs
+          {t("Plusieurs")}
           <br />
-          <em>chemins.</em>
+          <em>{t("chemins.")}</em>
         </Head>
       </div>
       {items.map((item, i) => (

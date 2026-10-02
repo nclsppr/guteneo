@@ -1,3 +1,4 @@
+import { FilmLocaleProvider, type FilmProps } from "../localization";
 import {
   AbsoluteFill,
   Sequence,
@@ -53,7 +54,7 @@ const Cut = () => {
 };
 
 /** Native 1920 x 1080 composition, sharing only assets and the 56-second score. */
-export const HorizontalFilm = () => (
+const HorizontalFilmScenes = () => (
   <AbsoluteFill>
     <Audio src={staticFile("audio/vertical-soundtrack.wav")} />
     <TransitionSeries>
@@ -117,4 +118,10 @@ export const HorizontalFilm = () => (
       </Sequence>
     ))}
   </AbsoluteFill>
+);
+
+export const HorizontalFilm: React.FC<FilmProps> = ({ locale = "fr" }) => (
+  <FilmLocaleProvider locale={locale}>
+    <HorizontalFilmScenes />
+  </FilmLocaleProvider>
 );

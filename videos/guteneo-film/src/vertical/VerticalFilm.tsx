@@ -1,3 +1,4 @@
+import { FilmLocaleProvider, type FilmProps } from "../localization";
 import {
   AbsoluteFill,
   Sequence,
@@ -50,7 +51,7 @@ const Cut = () => {
   );
 };
 
-export const VerticalFilm = () => (
+const VerticalFilmScenes = () => (
   <PortraitStage>
     <Audio src={staticFile("audio/vertical-soundtrack.wav")} />
     <TransitionSeries>
@@ -114,4 +115,10 @@ export const VerticalFilm = () => (
       </Sequence>
     ))}
   </PortraitStage>
+);
+
+export const VerticalFilm: React.FC<FilmProps> = ({ locale = "fr" }) => (
+  <FilmLocaleProvider locale={locale}>
+    <VerticalFilmScenes />
+  </FilmLocaleProvider>
 );

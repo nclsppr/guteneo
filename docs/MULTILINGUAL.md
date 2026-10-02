@@ -1,5 +1,12 @@
 # Langues de l’interface
 
+Les films de présentation et la vidéo du guide des rôles suivent également la
+langue résolue et la préférence personnelle. Chaque langue possède son MP4 et
+son poster ; changer de langue arrête la lecture précédente. Cette règle est
+inscrite dans `AGENTS.md`. Voir `HOMEPAGE_FILM.md` et `ROLES_FILM.md` pour les
+sources et la régénération. Ces ajouts constituent un candidat local tant qu’ils
+ne sont pas publiés avec le code correspondant.
+
 Candidat local du 22 septembre 2026. Le site et le client iOS prennent en charge
 le français (`fr`), l’anglais (`en`), l’allemand (`de`) et le luxembourgeois (`lb`).
 Cette note ne constitue pas une preuve de déploiement, de migration distante,

@@ -31,7 +31,8 @@
     "build:live": "node scripts/build-live.mjs",
     "deploy:live": "node scripts/deploy-public.mjs live",
     "setup:email:ses": "node scripts/secure-setup.mjs ses",
-    "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook"
+    "setup:email:webhook": "node scripts/secure-setup.mjs resend-webhook",
+    "videos:render": "npm --prefix videos/guteneo-film run render:localized --"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

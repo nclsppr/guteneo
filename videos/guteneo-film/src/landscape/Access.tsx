@@ -1,3 +1,4 @@
+import { useFilmCopy, WebCopyOverlay } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -8,20 +9,21 @@ import { NativeApp } from "../vertical/components";
 import { C, clamp, ease, Frame, Head, Kicker, Label } from "./components";
 
 export const Access = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 120, top: 164, width: 650 }}>
-        <Kicker>L’atelier où vous êtes</Kicker>
+        <Kicker>{t("L’atelier où vous êtes")}</Kicker>
         <Head size={139} style={{ marginTop: 51 }}>
-          Sur le web.
+          {t("Sur le web.")}
           <br />
-          <em style={{ color: C.blue }}>Sur iPhone.</em>
+          <em style={{ color: C.blue }}>{t("Sur iPhone.")}</em>
         </Head>
         <Label style={{ marginTop: 43, fontSize: 32 }}>
-          Vos documents et vos campagnes,
+          {t("Vos documents et vos campagnes,")}
           <br />
-          sur le site ou l’application iOS.
+          {t("sur le site ou l’application iOS.")}
         </Label>
       </div>
       <div
@@ -80,6 +82,7 @@ export const Access = () => {
               top: 0,
             }}
           />
+          <WebCopyOverlay />
           {/* Canonical simplified logo replaces only the tiny captured header mark. */}
           <div
             style={{

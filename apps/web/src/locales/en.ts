@@ -137,7 +137,7 @@ export const en: Copy = {
         "From your first idea to its destination. Discover Guteneo in 56 seconds.",
       play: "Watch the film",
       replay: "Watch again",
-      duration: "56 seconds · French audio",
+      duration: "56 seconds · With sound",
       videoLabel: "Guteneo introduction film",
       fullscreen: "Fullscreen",
       close: "Close player",

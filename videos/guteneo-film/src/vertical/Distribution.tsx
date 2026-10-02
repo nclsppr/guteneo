@@ -1,3 +1,4 @@
+import { useFilmCopy, MobileWebCopyOverlay } from "../localization";
 import {
   AbsoluteFill,
   CanvasImage,
@@ -22,25 +23,31 @@ import { Swallows } from "./PostalMotifs";
 import { usePortraitLayout } from "./layout";
 
 export const Channels = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   const items = [
-    { name: "Fax", detail: "Le PDF à sa destination.", icon: "↗", live: true },
     {
-      name: "Courrier postal",
-      detail: "Imprimé. Mis sous pli. Posté.",
+      name: t("Fax"),
+      detail: t("Le PDF à sa destination."),
       icon: "↗",
       live: true,
     },
     {
-      name: "E-mail classique",
-      detail: "Simple. Direct. Personnalisé.",
+      name: t("Courrier postal"),
+      detail: t("Imprimé. Mis sous pli. Posté."),
+      icon: "↗",
+      live: true,
+    },
+    {
+      name: t("E-mail classique"),
+      detail: t("Simple. Direct. Personnalisé."),
       icon: "@",
       live: false,
     },
     {
-      name: "E-mail chiffré",
-      detail: "Une transmission confidentielle.",
+      name: t("E-mail chiffré"),
+      detail: t("Une transmission confidentielle."),
       icon: "◇",
       live: false,
     },
@@ -48,11 +55,11 @@ export const Channels = () => {
   return (
     <Frame blue>
       <div style={{ position: "absolute", left: 82, top: y(165) }}>
-        <Kicker light>Une seule intention</Kicker>
+        <Kicker light>{t("Une seule intention")}</Kicker>
         <Head size={143} style={{ marginTop: 55 }}>
-          Plusieurs
+          {t("Plusieurs")}
           <br />
-          <em>chemins.</em>
+          <em>{t("chemins.")}</em>
         </Head>
       </div>
       {items.map((item, i) => (
@@ -111,19 +118,20 @@ export const Channels = () => {
 };
 
 export const Europe = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 82, top: y(170) }}>
-        <Kicker>Imprimé. Affranchi. Distribué.</Kicker>
+        <Kicker>{t("Imprimé. Affranchi. Distribué.")}</Kicker>
         <Head size={157} style={{ marginTop: 59 }}>
-          L’Europe.
+          {t("L’Europe.")}
           <br />
-          <em style={{ color: C.blue }}>Tout entière.</em>
+          <em style={{ color: C.blue }}>{t("Tout entière.")}</em>
         </Head>
         <Label style={{ fontSize: 42, marginTop: 40 }}>
-          Vos documents, livrés par les postes.
+          {t("Vos documents, livrés par les postes.")}
         </Label>
       </div>
       <div
@@ -150,9 +158,9 @@ export const Europe = () => {
       </div>
       <Swallows height={350} style={{ left: 0, top: y(635) }} />
       <div style={{ position: "absolute", left: 82, top: y(1410), width: 800 }}>
-        <Kicker>Depuis votre atelier numérique</Kicker>
+        <Kicker>{t("Depuis votre atelier numérique")}</Kicker>
         <div style={{ fontFamily: serif, fontSize: 65, marginTop: 22 }}>
-          Jusqu’à leur boîte aux lettres.
+          {t("Jusqu’à leur boîte aux lettres.")}
           <br />
         </div>
       </div>
@@ -161,6 +169,7 @@ export const Europe = () => {
 };
 
 export const PhysicalBurst = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y, height } = usePortraitLayout();
   const index = f < 40 ? 0 : f < 80 ? 1 : 2;
@@ -169,14 +178,15 @@ export const PhysicalBurst = () => {
     {
       file: "printed-paper.png",
       position: "75% center",
-      text: <>Du numérique.</>,
+      text: <>{t("Du numérique.")}</>,
     },
     {
       file: "courier.png",
       position: "70% center",
       text: (
         <>
-          Au <em>réel.</em>
+          {t("Au") + " "}
+          <em>{t("réel.")}</em>
         </>
       ),
     },
@@ -185,7 +195,8 @@ export const PhysicalBurst = () => {
       position: "75% center",
       text: (
         <>
-          Avec <em>guteneo.</em>
+          {t("Avec") + " "}
+          <em>guteneo.</em>
         </>
       ),
     },
@@ -214,7 +225,7 @@ export const PhysicalBurst = () => {
         }}
       />
       <div style={{ position: "absolute", left: 82, top: y(210) }}>
-        <Kicker light>La suite de vos mots</Kicker>
+        <Kicker light>{t("La suite de vos mots")}</Kicker>
       </div>
       <Head
         size={129}
@@ -227,21 +238,22 @@ export const PhysicalBurst = () => {
 };
 
 export const Access = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 82, top: y(165) }}>
-        <Kicker>L’atelier dans votre poche</Kicker>
+        <Kicker>{t("L’atelier dans votre poche")}</Kicker>
         <Head size={129} style={{ marginTop: 59 }}>
-          Sur le web.
+          {t("Sur le web.")}
           <br />
-          <em style={{ color: C.blue }}>Sur iPhone.</em>
+          <em style={{ color: C.blue }}>{t("Sur iPhone.")}</em>
         </Head>
         <Label style={{ marginTop: 35, fontSize: 35 }}>
-          Vos documents et vos campagnes,
+          {t("Vos documents et vos campagnes,")}
           <br />
-          sur le site ou l’application iOS.
+          {t("sur le site ou l’application iOS.")}
         </Label>
       </div>
       <div
@@ -285,6 +297,7 @@ export const Access = () => {
               objectPosition: "top",
             }}
           />
+          <MobileWebCopyOverlay />
           {/* Canonical small mark composited over the captured site's 44px logo.
               Source viewport: 390px; header logo at x=22, y=16.5.
               The original screenshot remains unchanged. */}
@@ -341,6 +354,7 @@ export const Access = () => {
 };
 
 export const Signature = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame blue>
@@ -364,9 +378,9 @@ export const Signature = () => {
       >
         <Lift>
           <Head size={150} style={{ lineHeight: 1.03, color: C.paper }}>
-            La suite
+            {t("La suite")}
             <br />
-            <em>de vos mots.</em>
+            <em>{t("de vos mots.")}</em>
           </Head>
         </Lift>
       </div>

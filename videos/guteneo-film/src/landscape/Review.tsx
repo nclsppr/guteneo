@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import {
   C,
@@ -11,32 +12,33 @@ import {
 } from "./components";
 
 export const Review = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 120, top: 149 }}>
-        <Kicker>Le dernier mot vous appartient</Kicker>
+        <Kicker>{t("Le dernier mot vous appartient")}</Kicker>
         <Head size={135} style={{ marginTop: 52 }}>
           {f >= 85 ? (
             <>
-              Le bon PDF.
+              {t("Le bon PDF.")}
               <br />
-              <em style={{ color: C.blue }}>Le bon devis.</em>
+              <em style={{ color: C.blue }}>{t("Le bon devis.")}</em>
             </>
           ) : (
             <>
-              Relisez.
+              {t("Relisez.")}
               <br />
-              <em style={{ color: C.blue }}>Puis validez.</em>
+              <em style={{ color: C.blue }}>{t("Puis validez.")}</em>
             </>
           )}
         </Head>
       </div>
       <div style={{ position: "absolute", left: 120, top: 650 }}>
         {[
-          "Document & destinataire",
-          "Tarif & plafond",
-          "Votre accord avant l’envoi",
+          t("Document & destinataire"),
+          t("Tarif & plafond"),
+          t("Votre accord avant l’envoi"),
         ].map((text, i) => (
           <div
             key={text}
@@ -80,18 +82,18 @@ export const Review = () => {
           padding: 40,
         }}
       >
-        <div style={{ fontSize: 25, color: C.blue }}>BON À TIRER</div>
+        <div style={{ fontSize: 25, color: C.blue }}>{t("BON À TIRER")}</div>
         <div style={{ fontFamily: serif, fontSize: 54, marginTop: 28 }}>
-          Votre campagne.
+          {t("Votre campagne.")}
         </div>
         <div
           style={{ fontSize: 28, lineHeight: 1.7, marginTop: 35, width: 285 }}
         >
-          Original vérifié.
+          {t("Original vérifié.")}
           <br />
-          Destinataires relus.
+          {t("Destinataires relus.")}
           <br />
-          Devis confirmé.
+          {t("Devis confirmé.")}
         </div>
         <div
           style={{
@@ -117,7 +119,7 @@ export const Review = () => {
             fontSize: 29,
           }}
         >
-          Tout est clair avant l’envoi.
+          {t("Tout est clair avant l’envoi.")}
         </div>
       </div>
     </Frame>
