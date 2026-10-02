@@ -157,8 +157,10 @@ function LocalizedFilm({
       setStatus("loading");
     });
     // Both browser APIs run within the original click/keyboard activation.
+    // Start audible playback before fullscreen consumes that activation.
+    const playback = player.play();
     enterFullscreen();
-    void player.play().catch(() => {
+    void playback.catch(() => {
       if (attempt !== playbackAttempt.current) return;
       if (player.getAttribute("src")) setStatus("error");
       exitFullscreen();
@@ -201,6 +203,7 @@ function LocalizedFilm({
           ref={video}
           className="homepage-film-video"
           controls={format !== null}
+          playsInline
           preload="none"
           tabIndex={format ? 0 : -1}
           aria-label={copy.videoLabel}

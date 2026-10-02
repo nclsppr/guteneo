@@ -211,7 +211,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   const calls = await page.evaluate(
     () => (window as unknown as FilmWindow).filmCalls,
   );
-  expect(calls.map((call) => call.name)).toEqual(["fullscreen", "play"]);
+  expect(calls.map((call) => call.name)).toEqual(["play", "fullscreen"]);
   expect(calls.every((call) => call.active)).toBe(true);
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(player).toHaveAttribute(
@@ -363,6 +363,43 @@ test.describe("delivered public media", () => {
   // in one worker so another real-media case cannot change focus or audio.
   test.describe.configure({ mode: "default" });
 
+  test.afterEach(async ({ page }, testInfo) => {
+    if (testInfo.status === testInfo.expectedStatus) return;
+    const player = page.locator(".homepage-film-video");
+    if (!(await player.count())) return;
+    const state = await player.evaluate((element) => {
+      const video = element as HTMLVideoElement & {
+        webkitDisplayingFullscreen?: boolean;
+        publicMediaEvents?: Array<Record<string, unknown>>;
+      };
+      const rect = video.getBoundingClientRect();
+      return {
+        source: video.getAttribute("src"),
+        currentTime: video.currentTime,
+        duration: video.duration,
+        paused: video.paused,
+        ended: video.ended,
+        readyState: video.readyState,
+        networkState: video.networkState,
+        error: video.error?.code ?? null,
+        visibility: document.visibilityState,
+        fullscreen: document.fullscreenElement === video,
+        nativeFullscreen: video.webkitDisplayingFullscreen ?? false,
+        events: video.publicMediaEvents ?? [],
+        viewport: { width: innerWidth, height: innerHeight },
+        rect: { top: rect.top, bottom: rect.bottom, width: rect.width },
+        buffered: Array.from({ length: video.buffered.length }, (_, index) => [
+          video.buffered.start(index),
+          video.buffered.end(index),
+        ]),
+      };
+    });
+    await testInfo.attach("public-media-state", {
+      body: JSON.stringify(state, null, 2),
+      contentType: "application/json",
+    });
+  });
+
   for (const locale of supportedLocales) {
     for (const film of ["introduction", "roles"] as const) {
       test(`${film} ${locale} decodes and seeks its delivered final card without browser API mocks`, async ({
@@ -374,6 +411,42 @@ test.describe("delivered public media", () => {
           film === "introduction" && page.viewportSize()!.width <= 767;
         const format = portrait ? "vertical" : "horizontal";
         const player = section.locator("video");
+        await expect(player).toHaveAttribute("playsinline", "");
+        await player.evaluate((element) => {
+          const video = element as HTMLVideoElement & {
+            publicMediaEvents?: Array<Record<string, unknown>>;
+          };
+          video.publicMediaEvents = [];
+          for (const event of [
+            "play",
+            "playing",
+            "pause",
+            "waiting",
+            "stalled",
+            "suspend",
+            "loadedmetadata",
+            "loadeddata",
+            "canplay",
+            "seeking",
+            "seeked",
+            "error",
+            "ended",
+            "webkitbeginfullscreen",
+            "webkitendfullscreen",
+          ]) {
+            video.addEventListener(event, () => {
+              video.publicMediaEvents?.push({
+                event,
+                currentTime: video.currentTime,
+                paused: video.paused,
+                readyState: video.readyState,
+                error: video.error?.code ?? null,
+                visibility: document.visibilityState,
+                fullscreen: document.fullscreenElement === video,
+              });
+            });
+          }
+        });
         await section.locator(".homepage-film-play").click();
         await expect
           .poll(
