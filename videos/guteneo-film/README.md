@@ -3,10 +3,65 @@
 Les films V5 existent en français, anglais, allemand et luxembourgeois, en
 horizontal et au format iPhone. Une présentation commune des quatre rôles dure
 36 secondes dans chaque langue et réutilise leur conclusion officielle.
-Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters et
-manifeste. FFmpeg, ffprobe et cwebp sont requis. Les sources React, les polices,
+Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters,
+sous-titres narrés et manifeste. Il rend les sources musicales V5/V1 et remixe
+les introductions FR/EN et rôles EN Génération 2 du snapshot suivi `narration/releases/fr-en-g2/`
+vers les fichiers actifs V6/V2. Les catalogues, hashes et calages sont qualifiés
+avant toute écriture publique ; le snapshot audio reste immuable. FFmpeg,
+ffprobe et cwebp sont requis. Les sources React, les polices,
 les médias locaux et le verrouillage npm sont conservés ; aucun service distant
 n’est nécessaire. Voir `docs/HOMEPAGE_FILM.md` et `docs/ROLES_FILM.md` à la racine.
+
+La narration **Eleven v4** est en cours pour les douze vidéos actuelles en
+FR/EN/DE/LB, avec une voix masculine calme et chaleureuse : **George**,
+`JBFqnCBsd6RMkjVDRZzb`, identifiant copié depuis l’interface ElevenLabs.
+Le compte Creator a été confirmé actif dans Safari ; les réglages utilisés sont
+Stability 50 %, Similarity 75 %, override de langue explicite et export MP3
+128 kbit/s. Le plugin ElevenLabs est installé et activé, mais aucun de ses outils
+MCP n’est invocable dans cette session : les générations réelles passent par
+Safari, puis `scripts/import-narration.mjs` importe chaque export dans le cache
+commun au plan hors ligne et au mixeur.
+La génération API v4 est désactivée avant réseau ou écriture : l’ancien endpoint
+TTS doit être remplacé par un adaptateur Text to Dialogue qualifié. Les imports
+web et leurs empreintes restent inchangés ; une clé ou un budget ne débloquent
+pas `narration:generate`.
+L’utilisateur a retenu **Génération 2**. Les secondes prises françaises déjà
+disponibles ont été récupérées dans l’historique, sans refaire ces générations.
+Chaque export
+retenu s’importe avec `--web-generation 2` ; le reçu note la variante sans
+modifier l’empreinte du cache. Les mixages provisoires des premières prises
+sont obsolètes et exclus du lot retenu.
+Avec `webGeneration: 2` dans la configuration, le mixeur bloque les exports web
+de prise 1 ou sans numéro avant d’écrire les candidats ; les reçus API gardent
+leur provenance séparée.
+Le mixeur lit par défaut `narration/source-videos.json`, snapshot des MP4
+musicaux d’origine conservés après publication des versions narrées. Une nouvelle
+version visuelle exige la mise à jour de ce snapshot et du calage ; `--catalog`
+permet de choisir explicitement un autre catalogue de sources musicales.
+
+Depuis la racine, `npm run videos:narration` et `npm run videos:narration:mix`
+présentent le lot courant hors ligne ; le nombre de séquences et de caractères
+se calcule depuis `narration/scripts.json`. `npm run test:videos:narration`
+vérifie le verrou API, le plan hors ligne, l’import, le calage et le mixage
+avec des fixtures locales.
+Les 34 prises FR/EN sont importées, calées et mixées en six candidats locaux
+contrôlés techniquement. Les exports DE sont disponibles ; LB reste à générer.
+Trois versions françaises du film des rôles comparent phrases séparées, prise
+complète et trois blocs. L’utilisateur retient les trois blocs avec une nouvelle
+rédaction naturelle ; l’ancien candidat voix des rôles FR reste hors publication.
+Aucune nouvelle diffusion du lot narré n’est attestée par cette note.
+L’entrée audio est indisponible au modèle pour
+l’écoute critique, donc `criticalListening: pending` reste requis.
+Voir [la procédure de narration](../../docs/VIDEO_NARRATION.md) pour la
+configuration locale, l’import sans API et le mixage des candidats.
+
+Les alias racine `videos:narration:import` et `videos:narration:fit` correspondent
+à `narration:import` et `narration:fit` dans ce dossier. Le fitter réel est
+`../../scripts/fit-web-narration.mjs` : analyse seule par défaut, copie séparée
+avec `--execute`, preuve `.fit.json`, retrait des bords et tempo plafonné à 1,10×.
+Il ne remplace ni l’original ni le cache ; importer ensuite explicitement la
+copie retenue avec `--web-generation 2 --replace`. La détection d’amplitude ne
+garantit pas les limites des mots ; l’écoute reste `pending`.
 
 Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
 

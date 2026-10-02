@@ -40,11 +40,22 @@ jobs:
       - run: npm run lint
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
+      - name: Run every offline narration test
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          mkdir -p test-results/ci
+          set -o pipefail
+          npm run test:videos:narration | tee test-results/ci/narration.log
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ci-evidence-checks
-          path: reports/cost-model.json
+          path: |
+            reports/cost-model.json
+            test-results/ci/narration.log
           if-no-files-found: error
           retention-days: 14
 
