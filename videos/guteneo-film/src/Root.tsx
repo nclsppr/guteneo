@@ -9,6 +9,7 @@ import { VerticalFilm } from "./vertical/VerticalFilm";
 import { HorizontalFilm } from "./landscape/HorizontalFilm";
 import { FILM_LOCALES } from "./localization";
 import { RolesFilm } from "./roles/RolesFilm";
+import { NATURAL_ROLES_FR_TIMELINE } from "./roles/natural-timeline";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -52,6 +53,15 @@ export const RemotionRoot: React.FC = () => {
             height={1080}
           />
         ))}
+        <Composition
+          id="Guteneo-Roles-FR-Natural-C"
+          component={RolesFilm}
+          defaultProps={{ locale: "fr", timeline: NATURAL_ROLES_FR_TIMELINE, musicFile: "audio/roles-natural-c-fr-soundtrack.wav" }}
+          durationInFrames={NATURAL_ROLES_FR_TIMELINE.durationInFrames}
+          fps={30}
+          width={1920}
+          height={1080}
+        />
       </Folder>
       <Composition
         id="Guteneo-Horizontal-Vision"
