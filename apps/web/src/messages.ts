@@ -6,7 +6,7 @@ import operations from "./locales/messages-operations.json";
 import shell from "./locales/messages-shell.json";
 import legal from "./locales/messages-legal.json";
 import pricing from "./locales/messages-pricing.json";
-import delivery from "../../../packages/contracts/src/delivery-messages.json";
+import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
   source: unknown,

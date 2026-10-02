@@ -1,4 +1,4 @@
-import delivery from "../../../packages/contracts/src/delivery-messages.json";
+import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 import {
   supportedLocales,
   type SupportedLocale,

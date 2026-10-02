@@ -66,13 +66,17 @@ unit tests passed; 53 Claude/domain/catalog tests passed; 41 Claude dashboard
 and locale browser cases passed with one intentional desktop exclusion. The
 native reconciliation passed 82 API/account/auth/locale tests, compiled the
 application and all XCTest/UI targets, and preserves 252 four-language entries.
+Direct XCTest execution on the reconciled native source then passed 25 unit
+tests and 8 UI tests, with no failure or exclusion.
 These are component checks, not a substitute for final combined CI.
 
 Native signup/authentication, physical-device behavior, signing, TestFlight and
 App Store submission remain separate qualification. Account deletion currently
 records a request receipt; its processor and provider erasure remain incomplete.
 The official local native test script also reported incomplete Xcode first-launch
-setup; direct XCTest evidence must be identified separately when available.
+setup; the successful direct XCTest execution is separate from that script gate.
+The full source/transport comparison passed 41 migrations and 266 schema objects,
+with identical guards, no foreign-key violation and `quick_check=ok`.
 
 The detached templates/data/distribution worktree is an unfinished, uncommitted
 vertical slice with conflicting migration numbers 0033–0037. It is preserved and
