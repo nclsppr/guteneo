@@ -80,11 +80,12 @@ export type RoleFilmTimeline = {
 };
 
 /** The original 36-second film remains the default; explicit timing follows narration. */
-export function RolesFilm({ locale = "fr", timeline, musicFile = "audio/roles-soundtrack.wav" }: {
+export type RolesFilmProps = {
   locale?: RoleFilmLocale;
   timeline?: RoleFilmTimeline;
   musicFile?: string;
-}) {
+};
+export function RolesFilm({ locale = "fr", timeline, musicFile = "audio/roles-soundtrack.wav" }: RolesFilmProps) {
   if (timeline) {
     const roles = ["administrator", "supervisor", "operator", "observer"];
     return (

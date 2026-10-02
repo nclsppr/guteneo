@@ -8,11 +8,12 @@ import {
 } from "remotion";
 import { clamp, ease, Frame, Head, Kicker } from "./components";
 
-export const PhysicalBurst = () => {
+export const PhysicalBurst = ({durationInFrames}: {durationInFrames?: number}) => {
   const t = useFilmCopy();
   const f = useCurrentFrame();
-  const index = f < 40 ? 0 : f < 80 ? 1 : 2;
-  const local = f % 40;
+  const phaseFrames = durationInFrames ? durationInFrames / 3 : 40;
+  const index = Math.min(2, Math.floor(f / phaseFrames));
+  const local = durationInFrames ? (f - index * phaseFrames) * 40 / phaseFrames : f % 40;
   const shots = [
     { file: "printed-paper.png", text: <>{t("Du numérique.")}</> },
     {

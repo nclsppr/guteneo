@@ -8,8 +8,9 @@ import { Clap, Endcard, PromiseScene } from "./scenes/Closing";
 import { VerticalFilm } from "./vertical/VerticalFilm";
 import { HorizontalFilm } from "./landscape/HorizontalFilm";
 import { FILM_LOCALES } from "./localization";
-import { RolesFilm } from "./roles/RolesFilm";
+import { RolesFilm, type RolesFilmProps } from "./roles/RolesFilm";
 import { NATURAL_ROLES_FR_TIMELINE } from "./roles/natural-timeline";
+import { validateIntroductionTimeline, type IntroductionFilmProps } from "./natural-timing";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -37,6 +38,59 @@ export const RemotionRoot: React.FC = () => {
             fps={30}
             width={1320}
             height={2868}
+          />
+        ))}
+      </Folder>
+      <Folder name="Natural-C">
+        {FILM_LOCALES.map((locale) => (
+          <Composition
+            key={`natural-landscape-${locale}`}
+            id={`Guteneo-Horizontal-Natural-C-${locale.toUpperCase()}`}
+            component={HorizontalFilm}
+            defaultProps={{ locale } as IntroductionFilmProps}
+            durationInFrames={1680}
+            calculateMetadata={({props}) => {
+              const timeline = (props as IntroductionFilmProps).timeline;
+              if (timeline) validateIntroductionTimeline(timeline);
+              return {durationInFrames: timeline?.durationInFrames ?? 1680};
+            }}
+            fps={30}
+            width={1920}
+            height={1080}
+          />
+        ))}
+        {FILM_LOCALES.map((locale) => (
+          <Composition
+            key={`natural-portrait-${locale}`}
+            id={`Guteneo-iPhone-Natural-C-${locale.toUpperCase()}`}
+            component={VerticalFilm}
+            defaultProps={{ locale } as IntroductionFilmProps}
+            durationInFrames={1680}
+            calculateMetadata={({props}) => {
+              const timeline = (props as IntroductionFilmProps).timeline;
+              if (timeline) validateIntroductionTimeline(timeline);
+              return {durationInFrames: timeline?.durationInFrames ?? 1680};
+            }}
+            fps={30}
+            width={1320}
+            height={2868}
+          />
+        ))}
+        {FILM_LOCALES.filter((locale) => locale !== "fr").map((locale) => (
+          <Composition
+            key={`natural-roles-${locale}`}
+            id={`Guteneo-Roles-${locale.toUpperCase()}-Natural-C`}
+            component={RolesFilm}
+            defaultProps={{ locale } as RolesFilmProps}
+            durationInFrames={1080}
+            calculateMetadata={({props}) => {
+              const timeline = (props as RolesFilmProps).timeline;
+              const last = timeline?.scenes[timeline.scenes.length - 1];
+              return {durationInFrames: last ? last.startFrame + last.durationInFrames : 1080};
+            }}
+            fps={30}
+            width={1920}
+            height={1080}
           />
         ))}
       </Folder>
