@@ -16,6 +16,25 @@ l’application existante et l’accueil préparé dans la PR 34. Les observatio
 portail du 2 octobre restent historiques ; cette intégration ne constitue aucune
 nouvelle soumission, connexion reviewer ou livraison réelle.
 
+### Vérification locale de l’intégration
+
+Le 2 octobre, le runtime combiné incluant `2255da8` et le correctif de découverte
+JSON `5f26dde` passe le typage, lint, la compilation web et le paquet plugin.
+Les huit fichiers ciblés Resend/protection/configuration/MCP/catalogues passent
+**142 tests sur 142**. Les contrôles de configuration Resend, de compte reviewer
+et de publication limitée à main passent **89 tests Node sur 89**. Les parcours
+navigateur e-mail protégé et accès destinataire passent **30 scénarios sur 30**
+sur Chromium desktop, mobile Chromium et iPhone WebKit. Le test de négociation de
+langue conserve le choix explicite jusqu’au déverrouillage et vérifie les octets
+PDF inchangés, sans révéler de mot de passe dans la page verrouillée.
+
+Ces essais utilisent des comptes, documents et transports fictifs. Ils ne
+qualifient ni une livraison Resend réelle, ni un nouvel envoi, ni le webhook ou
+les paramètres privés du compte en production. Le test initial a révélé une
+fixture historique utilisant quatre valeurs implicites dans `users` après
+l’ajout de la préférence personnelle : elle utilise désormais des colonnes
+explicites, sans modifier la migration ou les règles runtime.
+
 ## Candidat du 21 septembre 2026
 
 Le candidat est suivi dans [la PR #27](https://github.com/nclsppr/guteneo/pull/27),
