@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "mp3_44100_128",
+  "narrations": [
+    {
+      "id": "introduction-fr",
+      "kind": "introduction",
+      "locale": "fr",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        { "id": "one", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Tout commence par un document." },
+        { "id": "scale", "startSeconds": 3.2, "endSeconds": 5.8, "text": "Un envoi. Ou des milliers." },
+        { "id": "personal", "startSeconds": 6.3, "endSeconds": 9.8, "text": "Une campagne. Pour chacun, une attention particulière." },
+        { "id": "sources", "startSeconds": 10.3, "endSeconds": 13.8, "text": "Votre PDF original. Ou un modèle personnalisé." },
+        { "id": "assistants", "startSeconds": 14.3, "endSeconds": 17.8, "text": "Votre assistant prépare, à partir de vos mots." },
+        { "id": "generate", "startSeconds": 18.4, "endSeconds": 22.7, "text": "Créez votre PDF. Puis préparez son envoi dans guteneo." },
+        { "id": "review", "startSeconds": 23.3, "endSeconds": 28.7, "text": "Avant l’envoi, vérifiez document, destinataire, options et coût. Puis validez dans le navigateur." },
+        { "id": "channels", "startSeconds": 29.3, "endSeconds": 34.7, "text": "Fax, courrier postal, e-mail. Plusieurs chemins pour une même intention." },
+        { "id": "europe", "startSeconds": 35.3, "endSeconds": 39.7, "text": "Vos mots voyagent. D’un pays à l’autre." },
+        { "id": "physical", "startSeconds": 40.3, "endSeconds": 43.7, "text": "Du numérique, jusqu’à leur boîte aux lettres." },
+        { "id": "access", "startSeconds": 44.3, "endSeconds": 48.7, "text": "Votre atelier. À portée de main, où que vous soyez." }
+      ]
+    },
+    {
+      "id": "introduction-en",
+      "kind": "introduction",
+      "locale": "en",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        { "id": "one", "startSeconds": 0.4, "endSeconds": 2.8, "text": "It begins with a document." },
+        { "id": "scale", "startSeconds": 3.2, "endSeconds": 5.8, "text": "One delivery. Or thousands." },
+        { "id": "personal", "startSeconds": 6.3, "endSeconds": 9.8, "text": "One campaign. A personal touch for everyone." },
+        { "id": "sources", "startSeconds": 10.3, "endSeconds": 13.8, "text": "Your original PDF. Or your own template." },
+        { "id": "assistants", "startSeconds": 14.3, "endSeconds": 17.8, "text": "Your assistant prepares, guided by your words." },
+        { "id": "generate", "startSeconds": 18.4, "endSeconds": 22.7, "text": "Create your PDF. Then prepare its delivery with guteneo." },
+        { "id": "review", "startSeconds": 23.3, "endSeconds": 28.7, "text": "Before sending, check the document, recipient, options and cost. Approve in the browser." },
+        { "id": "channels", "startSeconds": 29.3, "endSeconds": 34.7, "text": "Fax, post or email. Choose the path that suits your message." },
+        { "id": "europe", "startSeconds": 35.3, "endSeconds": 39.7, "text": "Your words travel. From one country to the next." },
+        { "id": "physical", "startSeconds": 40.3, "endSeconds": 43.7, "text": "From a digital document to their letterbox." },
+        { "id": "access", "startSeconds": 44.3, "endSeconds": 48.7, "text": "Your workspace stays close. Wherever you are." }
+      ]
+    },
+    {
+      "id": "introduction-de",
+      "kind": "introduction",
+      "locale": "de",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        { "id": "one", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Alles beginnt mit einem Dokument." },
+        { "id": "scale", "startSeconds": 3.2, "endSeconds": 5.8, "text": "Eine Sendung. Oder Tausende." },
+        { "id": "personal", "startSeconds": 6.3, "endSeconds": 9.8, "text": "Eine Kampagne. Für jeden eine persönliche Nachricht." },
+        { "id": "sources", "startSeconds": 10.3, "endSeconds": 13.8, "text": "Ihr Originaldokument. Oder Ihre eigene Vorlage." },
+        { "id": "assistants", "startSeconds": 14.3, "endSeconds": 17.8, "text": "Ihr Assistent bereitet vor. Nach Ihren Vorgaben." },
+        { "id": "generate", "startSeconds": 18.4, "endSeconds": 22.7, "text": "Erst das PDF erstellen. Dann den Versand mit guteneo vorbereiten." },
+        { "id": "review", "startSeconds": 23.3, "endSeconds": 28.7, "text": "Vor dem Versand: Dokument, Empfänger, Optionen und Kosten prüfen. Dann im Browser genehmigen." },
+        { "id": "channels", "startSeconds": 29.3, "endSeconds": 34.7, "text": "Fax, Post oder E-Mail. Wählen Sie den Weg für Ihre Nachricht." },
+        { "id": "europe", "startSeconds": 35.3, "endSeconds": 39.7, "text": "Ihre Worte reisen. Von einem Land ins nächste." },
+        { "id": "physical", "startSeconds": 40.3, "endSeconds": 43.7, "text": "Vom digitalen Dokument bis in den Briefkasten." },
+        { "id": "access", "startSeconds": 44.3, "endSeconds": 48.7, "text": "Ihr Arbeitsbereich. Für Dokumente und Kampagnen, auch unterwegs." }
+      ]
+    },
+    {
+      "id": "introduction-lb",
+      "kind": "introduction",
+      "locale": "lb",
+      "durationSeconds": 56,
+      "endCardStartSeconds": 51,
+      "cues": [
+        { "id": "one", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Alles fänkt mat engem Dokument un." },
+        { "id": "scale", "startSeconds": 3.2, "endSeconds": 5.8, "text": "Eng Sendung. Oder Dausenden." },
+        { "id": "personal", "startSeconds": 6.3, "endSeconds": 9.8, "text": "Eng Campagne. Fir jiddereen eng perséinlech Noriicht." },
+        { "id": "sources", "startSeconds": 10.3, "endSeconds": 13.8, "text": "Äert Original. Oder Är eege Virlag." },
+        { "id": "assistants", "startSeconds": 14.3, "endSeconds": 17.8, "text": "Ären Assistent bereet vir. Mat Äre Wierder." },
+        { "id": "generate", "startSeconds": 18.4, "endSeconds": 22.7, "text": "Erstellt Äre PDF. Bereet duerno d’Sendung mat guteneo vir." },
+        { "id": "review", "startSeconds": 23.3, "endSeconds": 28.7, "text": "Virum Schécken: préift Dokument, Empfänger, Optiounen a Käschten. Geneemegt duerno am Browser." },
+        { "id": "channels", "startSeconds": 29.3, "endSeconds": 34.7, "text": "Fax, Bréifpost oder E-Mail. Wielt de Wee fir Är Noriicht." },
+        { "id": "europe", "startSeconds": 35.3, "endSeconds": 39.7, "text": "Är Wierder reesen. Vun engem Land an dat nächst." },
+        { "id": "physical", "startSeconds": 40.3, "endSeconds": 43.7, "text": "Vum digitalen Dokument bis an d’Bréifboîte." },
+        { "id": "access", "startSeconds": 44.3, "endSeconds": 48.7, "text": "Ären Atelier. Fir Dokumenter a Campagnen, och ënnerwee." }
+      ]
+    },
+    {
+      "id": "roles-fr",
+      "kind": "roles",
+      "locale": "fr",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        { "id": "intro", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Quatre rôles. Des droits clairs." },
+        { "id": "administrator", "startSeconds": 3.2, "endSeconds": 8.8, "text": "L’administrateur gère l’atelier, ses accès et la facturation. Il prépare, approuve, consulte les rapports." },
+        { "id": "supervisor", "startSeconds": 9.2, "endSeconds": 14.8, "text": "Le superviseur prépare. Approbation et rapports : deux droits indépendants, désactivés par défaut." },
+        { "id": "operator", "startSeconds": 15.2, "endSeconds": 20.8, "text": "L’opérateur importe les documents et prépare les envois. Il ne les approuve pas." },
+        { "id": "observer", "startSeconds": 21.2, "endSeconds": 26.8, "text": "L’observateur consulte documents, destinataires et suivi. Il ne modifie rien et n’approuve aucun envoi." },
+        { "id": "review", "startSeconds": 27.2, "endSeconds": 30.8, "text": "Parcours standard : validation humaine dans le navigateur, avant l’envoi." }
+      ]
+    },
+    {
+      "id": "roles-en",
+      "kind": "roles",
+      "locale": "en",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        { "id": "intro", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Four roles. Clear permissions." },
+        { "id": "administrator", "startSeconds": 3.2, "endSeconds": 8.8, "text": "Administrators manage the workspace, access and billing. They prepare, approve and read reports." },
+        { "id": "supervisor", "startSeconds": 9.2, "endSeconds": 14.8, "text": "Supervisors prepare dispatches. Approval and reports are separate permissions, both off by default." },
+        { "id": "operator", "startSeconds": 15.2, "endSeconds": 20.8, "text": "Operators import documents and prepare dispatches. They cannot approve them." },
+        { "id": "observer", "startSeconds": 21.2, "endSeconds": 26.8, "text": "Observers read documents, recipients and dispatch status. They cannot change content or approve dispatches." },
+        { "id": "review", "startSeconds": 27.2, "endSeconds": 30.8, "text": "Standard workflow: human approval in the browser before sending." }
+      ]
+    },
+    {
+      "id": "roles-de",
+      "kind": "roles",
+      "locale": "de",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        { "id": "intro", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Vier Rollen. Klare Rechte." },
+        { "id": "administrator", "startSeconds": 3.2, "endSeconds": 8.8, "text": "Der Administrator verwaltet Arbeitsbereich, Zugänge und Abrechnung. Er bereitet vor, genehmigt und liest Berichte." },
+        { "id": "supervisor", "startSeconds": 9.2, "endSeconds": 14.8, "text": "Der Supervisor bereitet vor. Genehmigung und Berichte: getrennte Rechte, standardmäßig deaktiviert." },
+        { "id": "operator", "startSeconds": 15.2, "endSeconds": 20.8, "text": "Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf nicht genehmigen." },
+        { "id": "observer", "startSeconds": 21.2, "endSeconds": 26.8, "text": "Der Beobachter liest Dokumente, Empfänger und Versandstatus. Keine Änderungen, keine Freigaben." },
+        { "id": "review", "startSeconds": 27.2, "endSeconds": 30.8, "text": "Standardablauf: menschliche Genehmigung im Browser, vor dem Versand." }
+      ]
+    },
+    {
+      "id": "roles-lb",
+      "kind": "roles",
+      "locale": "lb",
+      "durationSeconds": 36,
+      "endCardStartSeconds": 31,
+      "cues": [
+        { "id": "intro", "startSeconds": 0.4, "endSeconds": 2.8, "text": "Véier Rollen. Kloer Rechter." },
+        { "id": "administrator", "startSeconds": 3.2, "endSeconds": 8.8, "text": "Den Administrateur verwalt Zougang a Facturatioun. Hie bereet vir, geneemegt a liest Rapporten." },
+        { "id": "supervisor", "startSeconds": 9.2, "endSeconds": 14.8, "text": "De Supervisor bereet vir. Geneemegung a Rapporte: getrennte Rechter, standardméisseg ausgeschalt." },
+        { "id": "operator", "startSeconds": 15.2, "endSeconds": 20.8, "text": "Den Operateur importéiert Dokumenter a bereet Sendunge vir. Hie däerf net geneemegen." },
+        { "id": "observer", "startSeconds": 21.2, "endSeconds": 26.8, "text": "Den Observateur liest Dokumenter, Empfänger a Versandstatus. Hien ännert näischt a geneemegt net." },
+        { "id": "review", "startSeconds": 27.2, "endSeconds": 30.8, "text": "Standardparcours: Geneemegung duerch eng Persoun am Browser, virum Schécken." }
+      ]
+    }
+  ]
+}

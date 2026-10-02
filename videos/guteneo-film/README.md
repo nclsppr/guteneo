@@ -8,6 +8,13 @@ manifeste. FFmpeg, ffprobe et cwebp sont requis. Les sources React, les polices,
 les médias locaux et le verrouillage npm sont conservés ; aucun service distant
 n’est nécessaire. Voir `docs/HOMEPAGE_FILM.md` et `docs/ROLES_FILM.md` à la racine.
 
+La narration Eleven v4 est préparée pour les douze vidéos actuelles : huit
+textes chronométrés en FR/EN/DE/LB, avec une voix masculine calme et chaleureuse.
+Depuis la racine, `npm run videos:narration` et `npm run videos:narration:mix`
+présentent le lot hors ligne. `npm run test:videos:narration` vérifie génération
+et mixage avec des fixtures. L’abonnement, la sélection vocale et l’essai réel
+restent nécessaires. Voir [la procédure de narration](../../docs/VIDEO_NARRATION.md).
+
 Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
 
 Le fichier de diffusion est `out/guteneo-film-1080p.mp4`. Le dossier `out/` et `node_modules/` ne sont pas suivis par Git. Les sources, médias, polices locales et fichiers de verrouillage permettent de refaire le rendu.

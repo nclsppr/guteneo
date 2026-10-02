@@ -1,0 +1,16 @@
+{
+  "modelId": "eleven_v4",
+  "outputFormat": "mp3_44100_128",
+  "voiceId": null,
+  "localeVoiceIds": {
+    "fr": null,
+    "en": null,
+    "de": null,
+    "lb": null
+  },
+  "voiceSettings": {
+    "stability": 0.5,
+    "similarity_boost": 0.75
+  },
+  "direction": "Voix masculine, calme et chaleureuse. Diction naturelle, sans emphase publicitaire."
+}
