@@ -9,7 +9,7 @@ aucun échange réel de refresh token n’est attesté par les tests locaux.
 
 1. Créer son compte Guteneo, vérifier son adresse e-mail et ouvrir son espace
    Guteneo une première fois. Cette étape crée son identité et son organisation.
-2. Dans l’onglet Claude de l’accueil, ou dans « Connecter un assistant », utiliser
+2. Dans le guide Claude de « Assistants », ou dans « Connecter un assistant », utiliser
    **Connecter à Claude**. Le lien officiel préremplit le nom Guteneo et l’URL
    `https://guteneo.com/mcp` dans le formulaire Claude.ai.
 3. Copier l’identifiant public `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed`, choisir

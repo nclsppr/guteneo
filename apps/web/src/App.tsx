@@ -18,13 +18,23 @@ import {
   SignOut,
   Receipt,
   List,
+  AddressBook,
+  WarningCircle,
 } from "@phosphor-icons/react";
-import { api, ApiError, setSession, type Session } from "./api";
+import {
+  api,
+  ApiError,
+  canAdminister,
+  SESSION_EXPIRED_EVENT,
+  setSession,
+  type Session,
+} from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
 import { LanguageSelect } from "./language-select";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
+  go,
   Loading,
   useAction,
   useRoute,
@@ -430,13 +440,47 @@ function Login({
   );
 }
 
+function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
+  const local =
+    publicPreview ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+  const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
+  return (
+    <div className="session-expired" role="alert">
+      <WarningCircle size={22} aria-hidden="true" />
+      <div>
+        <strong>{t.sessionExpired.title}</strong>
+        <p>{t.sessionExpired.body}</p>
+      </div>
+      {local ? (
+        <button
+          type="button"
+          className="button small primary"
+          onClick={onReconnect}
+        >
+          {t.sessionExpired.action}
+          <ArrowRight size={16} aria-hidden="true" />
+        </button>
+      ) : (
+        <a
+          className="button small primary"
+          href={`/auth/login?returnTo=${returnTo}`}
+        >
+          {t.sessionExpired.action}
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+      )}
+    </div>
+  );
+}
+
 const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
-  { id: "senders", path: "/app/senders", Icon: UserCircle },
+  { id: "senders", path: "/app/senders", Icon: AddressBook },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
   { id: "billing", path: "/app/billing", Icon: Receipt },
   { id: "account", path: "/app/account", Icon: UserCircle },
@@ -544,6 +588,49 @@ function WorkspaceApplication({
     registration?: { enabled: boolean };
   }>("/capabilities");
   const [logoutError, setLogoutError] = useState<Error>();
+  const [sessionExpired, setSessionExpired] = useState(false);
+  useEffect(() => {
+    const expire = () => setSessionExpired(true);
+    window.addEventListener(SESSION_EXPIRED_EVENT, expire);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, expire);
+  }, []);
+  useEffect(() => {
+    if (!sessionExpired) return;
+    // A reconnection in another tab restores this one without a reload.
+    let alive = true;
+    let pending = false;
+    const controller = new AbortController();
+    const recheck = () => {
+      if (document.visibilityState !== "visible" || pending) return;
+      pending = true;
+      const languageVersion = getLocaleSelectionVersion();
+      api<Session>("/session", { signal: controller.signal })
+        .then((current) => {
+          if (!alive) return;
+          // Another account or workshop starts with fresh pages.
+          if (
+            current.user.id !== session?.user.id ||
+            current.organization.id !== session?.organization.id
+          )
+            go("/app");
+          setSession(current, languageVersion === getLocaleSelectionVersion());
+          updateSession(current);
+          setSessionExpired(false);
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          pending = false;
+        });
+    };
+    window.addEventListener("focus", recheck);
+    document.addEventListener("visibilitychange", recheck);
+    return () => {
+      alive = false;
+      controller.abort();
+      window.removeEventListener("focus", recheck);
+      document.removeEventListener("visibilitychange", recheck);
+    };
+  }, [sessionExpired, session, updateSession]);
   const page = route.split("?")[0] ?? "/";
   const pathname = window.location.pathname;
   if (pathname === "/journal/") return <JournalPage />;
@@ -563,7 +650,10 @@ function WorkspaceApplication({
   if (!session)
     return (
       <Login
-        onLogin={updateSession}
+        onLogin={(current) => {
+          setSessionExpired(false);
+          updateSession(current);
+        }}
         registrationAvailable={
           capabilities.data?.registration?.enabled === true
         }
@@ -639,6 +729,7 @@ function WorkspaceApplication({
       await api("/logout", { method: "POST", body: {} });
       setSession(null);
       updateSession(null);
+      setSessionExpired(false);
     } catch (e) {
       setLogoutError(e as Error);
     }
@@ -696,9 +787,7 @@ function WorkspaceApplication({
               .filter(
                 (n) =>
                   !["admin", "billing"].includes(n.id) ||
-                  ["admin", "owner", "platform_operator"].includes(
-                    session.user.role,
-                  ),
+                  canAdminister(session),
               )
               .map(({ id, path, Icon }) => (
                 <a
@@ -734,6 +823,14 @@ function WorkspaceApplication({
                 </a>
               ))}
           </nav>
+          <button
+            type="button"
+            className="navigation-logout"
+            onClick={() => void logout()}
+          >
+            <SignOut size={21} aria-hidden="true" />
+            {t.login.logout}
+          </button>
         </details>
         <div className="sidebar-footer">
           <p>{t.tagline}</p>
@@ -763,14 +860,18 @@ function WorkspaceApplication({
             </p>
           </div>
         )}
+        {sessionExpired && (
+          <SessionExpiredNotice
+            onReconnect={() => {
+              // Local and preview sign-in happen in this page; the hash keeps
+              // the current route for the next session.
+              setSession(null);
+              updateSession(null);
+              setSessionExpired(false);
+            }}
+          />
+        )}
         <div className="app-topbar">
-          <button
-            className="mobile-logout icon-link"
-            aria-label={t.login.logout}
-            onClick={() => void logout()}
-          >
-            <SignOut size={19} />
-          </button>
           <span>
             {
               t.nav[
@@ -787,12 +888,20 @@ function WorkspaceApplication({
               ]
             }
           </span>
-          <a className="button small primary" href="#/app/prepare">
-            <Plus size={16} />
-            {t.dispatch.new}
-          </a>
+          {/* These pages already lead to the preparation form themselves. */}
+          {!["/app/prepare", "/app/dispatches"].includes(page) && (
+            <a className="button small primary" href="#/app/prepare">
+              <Plus size={16} aria-hidden="true" />
+              {t.dispatch.new}
+            </a>
+          )}
         </div>
-        <main id="main-content" tabIndex={-1}>
+        {/* A new identity starts from fresh pages, without the previous state. */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          key={`${session.organization.id}:${session.user.id}`}
+        >
           <ErrorNotice error={logoutError} />
           {content}
         </main>

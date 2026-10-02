@@ -154,21 +154,13 @@
     "Guteneo-Postdienst",
     "Guteneo-Postservice"
   ],
-  "En cours": [
-    "In progress",
-    "In Bearbeitung",
-    "Amgaang"
-  ],
+  "En cours": ["In progress", "In Bearbeitung", "Amgaang"],
   "Action requise": [
     "Action required",
     "Handlung erforderlich",
     "Aktioun néideg"
   ],
-  "En pause": [
-    "Paused",
-    "Pausiert",
-    "Pauséiert"
-  ],
+  "En pause": ["Paused", "Pausiert", "Pauséiert"],
   "Demandez à l’administrateur de votre espace de consulter les factures et les paiements.": [
     "Ask your workspace administrator to view invoices and payments.",
     "Bitten Sie den Administrator Ihres Arbeitsbereichs, die Rechnungen und Zahlungen einzusehen.",
@@ -179,41 +171,13 @@
     "Mit Ihrem echten Konto werden Rechnungen und Zahlungen hier zusammengeführt. In dieser Vorschau wird weder eine Zahlung noch ein Abonnement erstellt.",
     "Mat Ärem reelle Kont ginn d'Rechnungen an d'Bezuelungen hei zesummegefaasst. An dëser Virschau gëtt keng Bezuelung a keen Abonnement erstallt."
   ],
-  "HT": [
-    "excl. tax",
-    "ohne Steuern",
-    "ouni Steieren"
-  ],
-  "gauche": [
-    "left",
-    "links",
-    "lénks"
-  ],
-  "droit": [
-    "right",
-    "rechts",
-    "riets"
-  ],
-  "page": [
-    "page",
-    "Seite",
-    "Säit"
-  ],
-  "pages": [
-    "pages",
-    "Seiten",
-    "Säiten"
-  ],
-  "feuille": [
-    "sheet",
-    "Blatt",
-    "Blat"
-  ],
-  "feuilles": [
-    "sheets",
-    "Blätter",
-    "Blieder"
-  ],
+  "HT": ["excl. tax", "ohne Steuern", "ouni Steieren"],
+  "gauche": ["left", "links", "lénks"],
+  "droit": ["right", "rechts", "riets"],
+  "page": ["page", "Seite", "Säit"],
+  "pages": ["pages", "Seiten", "Säiten"],
+  "feuille": ["sheet", "Blatt", "Blat"],
+  "feuilles": ["sheets", "Blätter", "Blieder"],
   "recto": [
     "single-sided printing",
     "einseitigen Druck",
@@ -224,66 +188,22 @@
     "beidseitigen Druck",
     "Drock op béide Säiten"
   ],
-  "Enregistrer": [
-    "Save",
-    "Speichern",
-    "Späicheren"
-  ],
-  "Fax": [
-    "Fax",
-    "Fax",
-    "Fax"
-  ],
-  "E-mail": [
-    "Email",
-    "E-Mail",
-    "E-Mail"
-  ],
-  "Courrier postal": [
-    "Post",
-    "Post",
-    "Post"
-  ],
-  "Disponible": [
-    "Available",
-    "Verfügbar",
-    "Verfügbar"
-  ],
+  "Enregistrer": ["Save", "Speichern", "Späicheren"],
+  "Fax": ["Fax", "Fax", "Fax"],
+  "E-mail": ["Email", "E-Mail", "E-Mail"],
+  "Courrier postal": ["Post", "Post", "Post"],
+  "Disponible": ["Available", "Verfügbar", "Verfügbar"],
   "EXEMPLE FICTIF": [
     "FICTIONAL EXAMPLE",
     "FIKTIVES BEISPIEL",
     "FIKTIVT BEISPILL"
   ],
-  "À régler": [
-    "Due",
-    "Offen",
-    "Ze bezuelen"
-  ],
-  "Réglée": [
-    "Paid",
-    "Bezahlt",
-    "Bezuelt"
-  ],
-  "Irrécouvrable": [
-    "Uncollectible",
-    "Uneinbringlich",
-    "Net méi andreiwbar"
-  ],
-  "Annulée": [
-    "Cancelled",
-    "Storniert",
-    "Annuléiert"
-  ],
-  "Reçu": [
-    "Received",
-    "Erhalten",
-    "Kritt"
-  ],
-  "Annulé": [
-    "Cancelled",
-    "Storniert",
-    "Annuléiert"
-  ],
+  "À régler": ["Due", "Offen", "Ze bezuelen"],
+  "Réglée": ["Paid", "Bezahlt", "Bezuelt"],
+  "Irrécouvrable": ["Uncollectible", "Uneinbringlich", "Net méi andreiwbar"],
+  "Annulée": ["Cancelled", "Storniert", "Annuléiert"],
+  "Reçu": ["Received", "Erhalten", "Kritt"],
+  "Annulé": ["Cancelled", "Storniert", "Annuléiert"],
   "Moyen de paiement requis": [
     "Payment method required",
     "Zahlungsmethode erforderlich",
@@ -299,36 +219,16 @@
     "Abbuchung ausstehend",
     "Ofbuchung steet aus"
   ],
-  "Période d’essai": [
-    "Trial period",
-    "Testzeitraum",
-    "Testzäitraum"
-  ],
+  "Période d’essai": ["Trial period", "Testzeitraum", "Testzäitraum"],
   "Paiement en retard": [
     "Payment overdue",
     "Zahlung überfällig",
     "Bezuelung iwwerfälleg"
   ],
-  "Impayé": [
-    "Unpaid",
-    "Unbezahlt",
-    "Net bezuelt"
-  ],
-  "À finaliser": [
-    "Incomplete",
-    "Unvollständig",
-    "Nach ofzeschléissen"
-  ],
-  "Expiré": [
-    "Expired",
-    "Abgelaufen",
-    "Ofgelaf"
-  ],
-  "Facturation": [
-    "Billing",
-    "Abrechnung",
-    "Rechnungen"
-  ],
+  "Impayé": ["Unpaid", "Unbezahlt", "Net bezuelt"],
+  "À finaliser": ["Incomplete", "Unvollständig", "Nach ofzeschléissen"],
+  "Expiré": ["Expired", "Abgelaufen", "Ofgelaf"],
+  "Facturation": ["Billing", "Abrechnung", "Rechnungen"],
   "Un accès administrateur est nécessaire": [
     "Administrator access is required",
     "Administratorzugriff erforderlich",
@@ -359,11 +259,7 @@
     "Ihr Abrechnungsprofil",
     "Äre Rechnungsprofil"
   ],
-  "COMPTE RÉEL": [
-    "LIVE ACCOUNT",
-    "ECHTES KONTO",
-    "REELLE KONT"
-  ],
+  "COMPTE RÉEL": ["LIVE ACCOUNT", "ECHTES KONTO", "REELLE KONT"],
   "À RACCORDER": [
     "CONNECTION REQUIRED",
     "VERBINDUNG ERFORDERLICH",
@@ -389,31 +285,19 @@
     "Die hier angezeigten Stripe-Vorgänge sind Tests ohne echte Zahlungen.",
     "D'Stripe-Virgäng hei sinn Tester ouni reell Bezuelung."
   ],
-  "Création en cours…": [
-    "Creating…",
-    "Wird erstellt…",
-    "Gëtt erstallt…"
-  ],
+  "Création en cours…": ["Creating…", "Wird erstellt…", "Gëtt erstallt…"],
   "Créer mon dossier de facturation": [
     "Create my billing profile",
     "Abrechnungsprofil erstellen",
     "Mäi Rechnungsprofil erstellen"
   ],
-  "Ouverture en cours…": [
-    "Opening…",
-    "Wird geöffnet…",
-    "Gëtt opgemaach…"
-  ],
+  "Ouverture en cours…": ["Opening…", "Wird geöffnet…", "Gëtt opgemaach…"],
   "Ouvrir le portail de facturation": [
     "Open billing portal",
     "Abrechnungsportal öffnen",
     "Rechnungsportal opmaachen"
   ],
-  "Factures": [
-    "Invoices",
-    "Rechnungen",
-    "Rechnungen"
-  ],
+  "Factures": ["Invoices", "Rechnungen", "Rechnungen"],
   "Les factures n’ont pas pu être actualisées.": [
     "Invoices could not be refreshed.",
     "Die Rechnungen konnten nicht aktualisiert werden.",
@@ -424,41 +308,13 @@
     "Für diesen Arbeitsbereich sind keine Rechnungen erfasst.",
     "Fir dësen Aarbechtsberäich si keng Rechnunge gespäichert."
   ],
-  "Facture": [
-    "Invoice",
-    "Rechnung",
-    "Rechnung"
-  ],
-  "État": [
-    "Status",
-    "Status",
-    "Status"
-  ],
-  "Total": [
-    "Total",
-    "Gesamt",
-    "Total"
-  ],
-  "Réglé": [
-    "Paid",
-    "Bezahlt",
-    "Bezuelt"
-  ],
-  "Reste dû": [
-    "Amount due",
-    "Offener Betrag",
-    "Rescht ze bezuelen"
-  ],
-  "Actualisée le": [
-    "Updated on",
-    "Aktualisiert am",
-    "Aktualiséiert den"
-  ],
-  "Paiements": [
-    "Payments",
-    "Zahlungen",
-    "Bezuelungen"
-  ],
+  "Facture": ["Invoice", "Rechnung", "Rechnung"],
+  "État": ["Status", "Status", "Status"],
+  "Total": ["Total", "Gesamt", "Total"],
+  "Réglé": ["Paid", "Bezahlt", "Bezuelt"],
+  "Reste dû": ["Amount due", "Offener Betrag", "Rescht ze bezuelen"],
+  "Actualisée le": ["Updated on", "Aktualisiert am", "Aktualiséiert den"],
+  "Paiements": ["Payments", "Zahlungen", "Bezuelungen"],
   "Les paiements n’ont pas pu être actualisés.": [
     "Payments could not be refreshed.",
     "Die Zahlungen konnten nicht aktualisiert werden.",
@@ -469,31 +325,15 @@
     "Für diesen Arbeitsbereich sind keine Zahlungen erfasst.",
     "Fir dësen Aarbechtsberäich si keng Bezuelunge gespäichert."
   ],
-  "Référence": [
-    "Reference",
-    "Referenz",
-    "Referenz"
-  ],
-  "Montant reçu": [
-    "Amount received",
-    "Erhaltener Betrag",
-    "Kritte Betrag"
-  ],
-  "Actualisé le": [
-    "Updated on",
-    "Aktualisiert am",
-    "Aktualiséiert den"
-  ],
+  "Référence": ["Reference", "Referenz", "Referenz"],
+  "Montant reçu": ["Amount received", "Erhaltener Betrag", "Kritte Betrag"],
+  "Actualisé le": ["Updated on", "Aktualisiert am", "Aktualiséiert den"],
   "Montants reçus avant d’éventuels remboursements. Le portail de facturation présente les documents à jour.": [
     "Amounts received before any refunds. The billing portal provides the latest documents.",
     "Erhaltene Beträge vor möglichen Rückerstattungen. Aktuelle Unterlagen finden Sie im Abrechnungsportal.",
     "Kritte Beträg viru méigleche Remboursementer. Déi aktuell Dokumenter fannt Dir am Rechnungsportal."
   ],
-  "Abonnements": [
-    "Subscriptions",
-    "Abonnements",
-    "Abonnementer"
-  ],
+  "Abonnements": ["Subscriptions", "Abonnements", "Abonnementer"],
   "Aucun abonnement enregistré pour cet espace.": [
     "No subscriptions recorded for this workspace.",
     "Für diesen Arbeitsbereich sind keine Abonnements erfasst.",
@@ -514,11 +354,7 @@
     "Simulierter Verbrauch",
     "Simuléierte Verbrauch"
   ],
-  "Budget des envois": [
-    "Delivery budget",
-    "Versandbudget",
-    "Versandbudget"
-  ],
+  "Budget des envois": ["Delivery budget", "Versandbudget", "Versandbudget"],
   "Ces compteurs servent aux essais. Les montants sont fictifs et ne seront pas facturés.": [
     "These counters are for testing. Amounts are fictional and will not be billed.",
     "Diese Zähler dienen Tests. Die Beträge sind fiktiv und werden nicht in Rechnung gestellt.",
@@ -534,11 +370,7 @@
     "In diesem Zeitraum wurde kein Verbrauch erfasst.",
     "Fir dësen Zäitraum gouf kee Verbrauch gespäichert."
   ],
-  "En attente": [
-    "Pending",
-    "Ausstehend",
-    "Ausstoend"
-  ],
+  "En attente": ["Pending", "Ausstehend", "Ausstoend"],
   "de plafond réservé": [
     "in reserved caps",
     "an reservierten Höchstbeträgen",
@@ -554,11 +386,7 @@
     "an gebundenen Höchstbeträgen",
     "u gebonnenen Héchstbeträg"
   ],
-  "Limite autorisée": [
-    "Allowed limit",
-    "Zulässiges Limit",
-    "Erlaabt Limit"
-  ],
+  "Limite autorisée": ["Allowed limit", "Zulässiges Limit", "Erlaabt Limit"],
   "CRÉDIT DE BIENVENUE": [
     "WELCOME CREDIT",
     "STARTGUTHABEN",
@@ -604,21 +432,13 @@
     "Geschenktes Guthaben",
     "Geschenkte Kredit"
   ],
-  "Utilisé": [
-    "Used",
-    "Verbraucht",
-    "Verbraucht"
-  ],
+  "Utilisé": ["Used", "Verbraucht", "Verbraucht"],
   "Réservé aux envois en cours": [
     "Reserved for ongoing deliveries",
     "Für laufende Sendungen reserviert",
     "Fir lafend Sendunge reservéiert"
   ],
-  "Ajouter du crédit": [
-    "Add credit",
-    "Guthaben aufladen",
-    "Kredit oplueden"
-  ],
+  "Ajouter du crédit": ["Add credit", "Guthaben aufladen", "Kredit oplueden"],
   "La recharge sera disponible avec Stripe. Aucun paiement n’est possible pour le moment.": [
     "Top-ups will be available through Stripe. No payment is possible at present.",
     "Aufladungen werden über Stripe verfügbar sein. Derzeit sind keine Zahlungen möglich.",
@@ -654,11 +474,7 @@
     "Bereiten Sie den Dienst vor dem PDF-Import vor. Ausstehende Dokumente bleiben bis zum Abschluss ihrer Prüfung privat.",
     "Bereet de Service vir, ier Dir Är PDFen importéiert. Dokumenter, déi waarden, bleiwe privat bis zum Enn vun hirer Iwwerpréiwung."
   ],
-  "Préparation…": [
-    "Preparing…",
-    "Wird vorbereitet…",
-    "Gëtt virbereet…"
-  ],
+  "Préparation…": ["Preparing…", "Wird vorbereitet…", "Gëtt virbereet…"],
   "Préparer l’analyse PDF": [
     "Prepare PDF analysis",
     "PDF-Prüfung vorbereiten",
@@ -694,16 +510,8 @@
     "Umschlagfenster",
     "Fënster vun der Enveloppe"
   ],
-  "À gauche": [
-    "On the left",
-    "Links",
-    "Lénks"
-  ],
-  "À droite": [
-    "On the right",
-    "Rechts",
-    "Riets"
-  ],
+  "À gauche": ["On the left", "Links", "Lénks"],
+  "À droite": ["On the right", "Rechts", "Riets"],
   "En recto verso, 2 pages PDF sont ajoutées : la page d’adresse et son verso blanc, soit 1 feuille supplémentaire. Les rectos et versos du document source restent appariés.": [
     "For double-sided printing, 2 PDF pages are added: the address page and its blank reverse, making 1 additional sheet. The front and back pages of the source document stay paired.",
     "Beim beidseitigen Druck werden 2 PDF-Seiten hinzugefügt: die Adressseite und ihre leere Rückseite, also 1 zusätzliches Blatt. Vorder- und Rückseiten des Quelldokuments bleiben einander zugeordnet.",
@@ -724,26 +532,10 @@
     "Endgültiges PDF mit Adressseite",
     "Finale PDF mat Adresssäit"
   ],
-  "PDF ·": [
-    "PDF ·",
-    "PDF ·",
-    "PDF ·"
-  ],
-  "en": [
-    "in",
-    "im",
-    "am"
-  ],
-  ". Dont": [
-    ". Including",
-    ". Davon",
-    ". Dorënner"
-  ],
-  "page ajoutée": [
-    "added page",
-    "hinzugefügte Seite",
-    "derbäigesate Säit"
-  ],
+  "PDF ·": ["PDF ·", "PDF ·", "PDF ·"],
+  "en": ["in", "im", "am"],
+  ". Dont": [". Including", ". Davon", ". Dorënner"],
+  "page ajoutée": ["added page", "hinzugefügte Seite", "derbäigesate Säit"],
   "pages ajoutées": [
     "added pages",
     "hinzugefügte Seiten",
@@ -934,11 +726,7 @@
     "Prüfen Sie das PDF und die Adresse. Der genaue Preis wird vor Ihrer Versandfreigabe angezeigt.",
     "Kuckt de PDF an iwwerpréift d'Adress. De geneeë Präis gëtt gewisen, ier Dir Är Zoustëmmung zum Versand gitt."
   ],
-  "Actualiser": [
-    "Refresh",
-    "Aktualisieren",
-    "Aktualiséieren"
-  ],
+  "Actualiser": ["Refresh", "Aktualisieren", "Aktualiséieren"],
   "L’analyse est en cours. Aucun courrier n’a été expédié.": [
     "Analysis is in progress. No letter has been sent.",
     "Die Prüfung läuft. Es wurde kein Brief versendet.",
@@ -964,11 +752,7 @@
     "Das Dokument konnte nicht vollständig geprüft werden. Aus dieser Prüfung ist keine Übertragung möglich.",
     "D'Dokument konnt net komplett iwwerpréift ginn. Vun dëser Iwwerpréiwung aus ass keng Iwwerdroung méiglech."
   ],
-  "Page": [
-    "Page",
-    "Seite",
-    "Säit"
-  ],
+  "Page": ["Page", "Seite", "Säit"],
   "Un contrôle du document a échoué. Consultez les règles de préparation et corrigez le PDF.": [
     "A document check failed. Read the preparation guidelines and correct the PDF.",
     "Eine Dokumentprüfung ist fehlgeschlagen. Lesen Sie die Vorbereitungsregeln und korrigieren Sie das PDF.",
@@ -1064,26 +848,14 @@
     "Die Adressen stimmen nicht überein. Korrigieren Sie das PDF oder den Empfänger, bevor Sie fortfahren.",
     "D'Adresse stëmmen net iwwereneen. Korrigéiert de PDF oder den Empfänger, ier Dir weiderfuert."
   ],
-  "Impression": [
-    "Printing",
-    "Druck",
-    "Drock"
-  ],
-  "Noir et blanc": [
-    "Black and white",
-    "Schwarzweiß",
-    "Schwaarzwäiss"
-  ],
+  "Impression": ["Printing", "Druck", "Drock"],
+  "Noir et blanc": ["Black and white", "Schwarzweiß", "Schwaarzwäiss"],
   "Distribution demandée": [
     "Requested delivery",
     "Gewünschte Zustellung",
     "Gewënscht Zoustëllung"
   ],
-  "Économique": [
-    "Economy",
-    "Economy",
-    "Ekonomesch"
-  ],
+  "Économique": ["Economy", "Economy", "Ekonomesch"],
   "Nous récupérons votre devis…": [
     "Fetching your quote…",
     "Ihr Angebot wird abgerufen…",
@@ -1169,11 +941,7 @@
     "Assistentenverbindung",
     "Assistentverbindung"
   ],
-  "Client OAuth :": [
-    "OAuth client:",
-    "OAuth-Client:",
-    "OAuth-Client:"
-  ],
+  "Client OAuth :": ["OAuth client:", "OAuth-Client:", "OAuth-Client:"],
   "Connexion révoquée": [
     "Connection revoked",
     "Verbindung widerrufen",
@@ -1194,11 +962,7 @@
     "Bevollmächtigung abgelaufen",
     "Vollmacht ofgelaf"
   ],
-  "Désactivée": [
-    "Disabled",
-    "Deaktiviert",
-    "Deaktivéiert"
-  ],
+  "Désactivée": ["Disabled", "Deaktiviert", "Deaktivéiert"],
   "Cette délégation a expiré. Vérifiez ses limites et choisissez une nouvelle date pour reprendre vos envois dans ChatGPT.": [
     "This delegation has expired. Review its limits and choose a new date to resume sending in ChatGPT.",
     "Diese Bevollmächtigung ist abgelaufen. Prüfen Sie die Grenzen und wählen Sie ein neues Datum, um Sendungen in ChatGPT fortzusetzen.",
@@ -1214,11 +978,7 @@
     "Das Öffnen dieses Links erteilt keine Berechtigung.",
     "Dëse Link opzemaache gëtt keng Erlaabnis."
   ],
-  "Canaux autorisés": [
-    "Allowed channels",
-    "Erlaubte Kanäle",
-    "Erlaabt Kanäl"
-  ],
+  "Canaux autorisés": ["Allowed channels", "Erlaubte Kanäle", "Erlaabt Kanäl"],
   "Plafond par envoi": [
     "Cap per delivery",
     "Höchstbetrag pro Sendung",
@@ -1229,26 +989,10 @@
     "Tageshöchstbetrag",
     "Deeglechen Héchstbetrag"
   ],
-  "envois": [
-    "deliveries",
-    "Sendungen",
-    "Sendungen"
-  ],
-  "Expiration": [
-    "Expiry",
-    "Ablauf",
-    "Oflaf"
-  ],
-  "Aujourd’hui (UTC) :": [
-    "Today (UTC):",
-    "Heute (UTC):",
-    "Haut (UTC):"
-  ],
-  "envoi": [
-    "delivery",
-    "Sendung",
-    "Sendung"
-  ],
+  "envois": ["deliveries", "Sendungen", "Sendungen"],
+  "Expiration": ["Expiry", "Ablauf", "Oflaf"],
+  "Aujourd’hui (UTC) :": ["Today (UTC):", "Heute (UTC):", "Haut (UTC):"],
+  "envoi": ["delivery", "Sendung", "Sendung"],
   "de plafonds engagés par cette connexion. Les plafonds des envois acceptés restent comptés jusqu’à minuit UTC, même en cas d’annulation ou de modification de la délégation.": [
     "in caps committed by this connection. Caps for accepted deliveries remain counted until midnight UTC, even if cancelled or if the delegation changes.",
     "an durch diese Verbindung gebundenen Höchstbeträgen. Höchstbeträge angenommener Sendungen werden bis Mitternacht UTC angerechnet, auch bei Stornierung oder Änderung der Bevollmächtigung.",
@@ -1274,11 +1018,7 @@
     "Bevollmächtigung einrichten",
     "Vollmacht ariichten"
   ],
-  "Désactivation…": [
-    "Disabling…",
-    "Wird deaktiviert…",
-    "Gëtt deaktivéiert…"
-  ],
+  "Désactivation…": ["Disabling…", "Wird deaktiviert…", "Gëtt deaktivéiert…"],
   "Désactiver la délégation": [
     "Disable delegation",
     "Bevollmächtigung deaktivieren",
@@ -1354,21 +1094,13 @@
     "Aktivierung bestätigen",
     "Aktivéierung bestätegen"
   ],
-  "Annuler": [
-    "Cancel",
-    "Abbrechen",
-    "Ofbriechen"
-  ],
+  "Annuler": ["Cancel", "Abbrechen", "Ofbriechen"],
   "Option personnelle · désactivée par défaut": [
     "Personal option · off by default",
     "Persönliche Option · standardmäßig deaktiviert",
     "Perséinlech Optioun · standardméisseg deaktivéiert"
   ],
-  "Mode expert": [
-    "Expert mode",
-    "Expertenmodus",
-    "Expertmodus"
-  ],
+  "Mode expert": ["Expert mode", "Expertenmodus", "Expertmodus"],
   "Confiez à un assistant connecté l’approbation de vos envois, dans les limites que vous choisissez. Sans cette délégation, vous continuez à approuver chaque envoi sur le site.": [
     "Delegate delivery approval to a connected assistant within limits you choose. Without this delegation, you continue to approve each delivery on the website.",
     "Übertragen Sie einem verbundenen Assistenten die Freigabe Ihrer Sendungen innerhalb Ihrer gewählten Grenzen. Ohne diese Bevollmächtigung geben Sie weiterhin jede Sendung auf der Website frei.",
@@ -1404,16 +1136,8 @@
     "Prüfung läuft",
     "Iwwerpréiwung leeft"
   ],
-  "PDF prêt": [
-    "PDF ready",
-    "PDF bereit",
-    "PDF prett"
-  ],
-  "À vérifier": [
-    "Needs checking",
-    "Zu prüfen",
-    "Ze iwwerpréiwen"
-  ],
+  "PDF prêt": ["PDF ready", "PDF bereit", "PDF prett"],
+  "À vérifier": ["Needs checking", "Zu prüfen", "Ze iwwerpréiwen"],
   "Explorez les PDF d’exemple ci-dessous. L’import de fichiers et la création de PDF seront disponibles dans votre espace privé.": [
     "Explore the example PDFs below. File import and PDF creation will be available in your private workspace.",
     "Entdecken Sie die Beispiel-PDFs unten. Dateiimport und PDF-Erstellung werden in Ihrem privaten Arbeitsbereich verfügbar sein.",
@@ -1459,11 +1183,7 @@
     "PDF zu prüfen",
     "PDF ze iwwerpréiwen"
   ],
-  "p.": [
-    "pp.",
-    "S.",
-    "S."
-  ],
+  "p.": ["pp.", "S.", "S."],
   "Ce PDF doit être vérifié avant de préparer l’envoi.": [
     "This PDF must be verified before preparing the delivery.",
     "Dieses PDF muss vor der Versandvorbereitung geprüft werden.",
@@ -1484,41 +1204,17 @@
     "Druck und Zustellung",
     "Drock an Zoustëllung"
   ],
-  "Faces imprimées": [
-    "Printed sides",
-    "Bedruckte Seiten",
-    "Gedréckte Säiten"
-  ],
-  "Recto": [
-    "Single-sided",
-    "Einseitig",
-    "Op enger Säit"
-  ],
-  "Recto verso": [
-    "Double-sided",
-    "Beidseitig",
-    "Op béide Säiten"
-  ],
-  "Couleurs": [
-    "Colours",
-    "Farben",
-    "Faarwen"
-  ],
-  "Couleur": [
-    "Colour",
-    "Farbe",
-    "Faarf"
-  ],
+  "Faces imprimées": ["Printed sides", "Bedruckte Seiten", "Gedréckte Säiten"],
+  "Recto": ["Single-sided", "Einseitig", "Op enger Säit"],
+  "Recto verso": ["Double-sided", "Beidseitig", "Op béide Säiten"],
+  "Couleurs": ["Colours", "Farben", "Faarwen"],
+  "Couleur": ["Colour", "Farbe", "Faarf"],
   "Distribution souhaitée": [
     "Preferred delivery",
     "Gewünschte Zustellung",
     "Gewënscht Zoustëllung"
   ],
-  "Rapide": [
-    "Priority",
-    "Schnell",
-    "Séier"
-  ],
+  "Rapide": ["Priority", "Schnell", "Séier"],
   "Vous vérifierez le document et son adresse avant de demander le prix de l’envoi.": [
     "You will check the document and its address before requesting the delivery price.",
     "Sie prüfen das Dokument und seine Adresse, bevor Sie den Versandpreis anfordern.",
@@ -1599,21 +1295,13 @@
     "Fenster rechts",
     "Fënster riets"
   ],
-  "Fenêtre à gauche": [
-    "Window on the left",
-    "Fenster links",
-    "Fënster lénks"
-  ],
+  "Fenêtre à gauche": ["Window on the left", "Fenster links", "Fënster lénks"],
   "Simuler l’envoi pour": [
     "Simulate sending for",
     "Versand simulieren für",
     "Versand simuléiere fir"
   ],
-  "Envoyer pour": [
-    "Send for",
-    "Senden für",
-    "Verschécke fir"
-  ],
+  "Envoyer pour": ["Send for", "Senden für", "Verschécke fir"],
   "Le suivi de ce courrier est indisponible. Actualisez-le avant de continuer.": [
     "Tracking for this letter is unavailable. Refresh it before continuing.",
     "Die Verfolgung dieses Briefs ist nicht verfügbar. Aktualisieren Sie sie, bevor Sie fortfahren.",
@@ -1659,11 +1347,7 @@
     "Angebot wird erneuert…",
     "Devis gëtt erneiert…"
   ],
-  "Renouveler le devis": [
-    "Renew quote",
-    "Angebot erneuern",
-    "Devis erneieren"
-  ],
+  "Renouveler le devis": ["Renew quote", "Angebot erneuern", "Devis erneieren"],
   "Préparer un nouveau devis": [
     "Prepare a new quote",
     "Neues Angebot erstellen",
@@ -1679,26 +1363,14 @@
     "Status wird geprüft…",
     "Status gëtt iwwerpréift…"
   ],
-  "Vérifier le suivi": [
-    "Check status",
-    "Status prüfen",
-    "Status iwwerpréiwen"
-  ],
-  "Options du courrier": [
-    "Letter options",
-    "Briefoptionen",
-    "Bréifoptiounen"
-  ],
+  "Vérifier le suivi": ["Check status", "Status prüfen", "Status iwwerpréiwen"],
+  "Options du courrier": ["Letter options", "Briefoptionen", "Bréifoptiounen"],
   "Fourchette estimée HT": [
     "Estimated range excl. tax",
     "Geschätzte Spanne ohne Steuern",
     "Geschate Beräich ouni Steieren"
   ],
-  "à": [
-    "to",
-    "bis",
-    "bis"
-  ],
+  "à": ["to", "bis", "bis"],
   "Crédits en réserve": [
     "Reserved credit",
     "Reserviertes Guthaben",
@@ -1754,16 +1426,8 @@
     "SES-Referenztarif ohne Steuern. Der Europreis steht für dieses Angebot fest.",
     "SES-Referenztarif ouni Steieren. Den Europräis steet fir dës Devis fest."
   ],
-  "Conversion du": [
-    "Conversion on",
-    "Umrechnung vom",
-    "Ëmrechnung vum"
-  ],
-  ": 1 USD ≈": [
-    ": USD 1 ≈",
-    ": 1 USD ≈",
-    ": 1 USD ≈"
-  ],
+  "Conversion du": ["Conversion on", "Umrechnung vom", "Ëmrechnung vum"],
+  ": 1 USD ≈": [": USD 1 ≈", ": 1 USD ≈", ": 1 USD ≈"],
   "EUR, selon le taux de référence BCE.": [
     "EUR, using the ECB reference rate.",
     "EUR, gemäß dem EZB-Referenzkurs.",
@@ -1789,11 +1453,7 @@
     "Der genaue Preis dieses Briefs ist nicht verfügbar. Aktualisieren Sie das Angebot vor dem Versand.",
     "De geneeë Präis vun dësem Bréif ass net verfügbar. Aktualiséiert d'Devis virum Versand."
   ],
-  "Envoi en cours…": [
-    "Sending…",
-    "Wird gesendet…",
-    "Gëtt verschéckt…"
-  ],
+  "Envoi en cours…": ["Sending…", "Wird gesendet…", "Gëtt verschéckt…"],
   "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.": [
     "I confirm that this recipient requested this email and its document. This delivery is not marketing outreach.",
     "Ich bestätige, dass dieser Empfänger diese E-Mail und ihr Dokument angefordert hat. Diese Sendung dient nicht der Kundenakquise.",
@@ -2013,5 +1673,42 @@
     "Fictional document provided to explore the demo.",
     "Fiktives Dokument zum Erkunden der Demo.",
     "Fiktivt Dokument, fir d'Demo ze entdecken."
+  ],
+  "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter.": [
+    "Disconnect your own sessions and assistants? You will need to sign in again.",
+    "Ihre eigenen Sitzungen und Assistenten abmelden? Sie müssen sich erneut anmelden.",
+    "Är eege Sessiounen an Assistenten trennen? Dir musst Iech erëm umellen."
+  ],
+  "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.": [
+    "Disconnect {0}’s sessions and assistants? They remain a member and can sign in again.",
+    "Die Sitzungen und Assistenten von {0} abmelden? Die Person bleibt Mitglied und kann sich erneut anmelden.",
+    "D’Sessiounen an d’Assistente vu {0} trennen? D’Persoun bleift Member a kann sech erëm umellen."
+  ],
+  "Oui, déconnecter": ["Yes, disconnect", "Ja, abmelden", "Jo, trennen"],
+  "Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …), sans le 0 national. Les espaces, points et tirets sont retirés à la préparation.": [
+    "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
+    "Internationales Format: + gefolgt von Landesvorwahl und Nummer (z. B. +352 …), ohne die nationale 0. Leerzeichen, Punkte und Bindestriche werden bei der Vorbereitung entfernt.",
+    "Internationaalt Format: + gefollegt vum Lännercode an der Nummer (z. B. +352 …), ouni déi national 0. Espace, Punkten a Bindestrécher gi bei der Virbereedung ewechgeholl."
+  ],
+  "à préciser": ["to be specified", "noch anzugeben", "nach unzeginn"],
+  "Indiquez un plafond par envoi de 0,01 € à 100 €.": [
+    "Enter a per-dispatch limit from €0.01 to €100.",
+    "Geben Sie ein Limit pro Sendung von 0,01 € bis 100 € ein.",
+    "Gitt eng Limitt pro Sendung vun 0,01 € bis 100 € un."
+  ],
+  "Indiquez un plafond par jour de 0,01 € à 500 €.": [
+    "Enter a daily limit from €0.01 to €500.",
+    "Geben Sie ein Tageslimit von 0,01 € bis 500 € ein.",
+    "Gitt eng deeglech Limitt vun 0,01 € bis 500 € un."
+  ],
+  "Montant en euros, par exemple 5 ou 2,35.": [
+    "Amount in euros, for example 5 or 2.35.",
+    "Betrag in Euro, zum Beispiel 5 oder 2,35.",
+    "Betrag an Euro, zum Beispill 5 oder 2,35."
+  ],
+  "Montant en euros, par exemple 25 ou 12,50.": [
+    "Amount in euros, for example 25 or 12.50.",
+    "Betrag in Euro, zum Beispiel 25 oder 12,50.",
+    "Betrag an Euro, zum Beispill 25 oder 12,50."
   ]
 }

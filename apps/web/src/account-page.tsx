@@ -1,6 +1,7 @@
 import { msg } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
+  canAdminister,
   api,
   ApiError,
   date,
@@ -9,6 +10,7 @@ import {
   type Session,
 } from "./api";
 import {
+  ConfirmAction,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -74,7 +76,7 @@ export function Account({ session, onUpdated }: Props) {
   const sessions = useResource<{ items: SessionItem[]; hasMore: boolean }>(
     isPublicPreview ? null : "/account/sessions",
   );
-  const isAdmin = session.user.role === "admin";
+  const isAdmin = canAdminister(session);
   const changed =
     (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
@@ -361,7 +363,7 @@ function MemberRow({
         {member.name}
         {member.id === currentUserId ? msg(" (vous)") : ""}
       </th>
-      <td role="cell">
+      <td role="cell" className="member-role-cell">
         <span className="mobile-cell-label" aria-hidden="true">
           {msg("Rôle")}
         </span>
@@ -400,28 +402,39 @@ function MemberRow({
           member.connections,
         )}
       </td>
-      <td role="cell">
+      <td role="cell" className="member-actions-cell">
         <span className="mobile-cell-label" aria-hidden="true">
           {msg("Actions")}
         </span>
-        <button
-          type="button"
-          className="button small"
-          disabled={disabled || role === member.role}
-          onClick={() => onRole(role)}
-          aria-label={msg("Enregistrer le rôle de {0}", member.name)}
-        >
-          {msg("Enregistrer le rôle")}
-        </button>
-        <button
-          type="button"
-          className="text-button"
-          disabled={disabled || (!member.sessions && !member.connections)}
-          onClick={onRevoke}
-          aria-label={msg("Déconnecter {0} de cet atelier", member.name)}
-        >
-          {msg("Déconnecter les accès")}
-        </button>
+        <div className="member-actions">
+          <button
+            type="button"
+            className="button small"
+            disabled={disabled || role === member.role}
+            onClick={() => onRole(role)}
+            aria-label={msg("Enregistrer le rôle de {0}", member.name)}
+          >
+            {msg("Enregistrer le rôle")}
+          </button>
+          <ConfirmAction
+            className="text-button"
+            disabled={disabled || (!member.sessions && !member.connections)}
+            onConfirm={onRevoke}
+            ariaLabel={msg("Déconnecter {0} de cet atelier", member.name)}
+            label={msg("Déconnecter les accès")}
+            question={
+              member.id === currentUserId
+                ? msg(
+                    "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter.",
+                  )
+                : msg(
+                    "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.",
+                    member.name,
+                  )
+            }
+            confirmLabel={msg("Oui, déconnecter")}
+          />
+        </div>
       </td>
     </tr>
   );
@@ -429,7 +442,7 @@ function MemberRow({
 
 export function TeamAdmin({ session, onUpdated }: Props) {
   const members = useResource<Page<Member>>(
-    isPublicPreview || session.user.role !== "admin" ? null : "/admin/members",
+    isPublicPreview || !canAdminister(session) ? null : "/admin/members",
   );
   const action = useAction();
   const [message, setMessage] = useState("");
@@ -452,11 +465,14 @@ export function TeamAdmin({ session, onUpdated }: Props) {
     });
   }
   return (
-    <section className="form-panel" aria-labelledby="team-admin-title">
+    <section
+      className="form-panel team-admin"
+      aria-labelledby="team-admin-title"
+    >
       <h2 id="team-admin-title">{msg("Membres de l’atelier")}</h2>
       {isPublicPreview ? (
         <PreviewNotice />
-      ) : session.user.role !== "admin" ? (
+      ) : !canAdminister(session) ? (
         <p>
           {msg(
             "La gestion des membres est réservée aux administrateurs de cet atelier.",

@@ -24,6 +24,10 @@ export type Session = {
   simulation: boolean;
   verifiedAccount?: boolean;
 };
+/** Billing, members and administration are reserved to the admin role. */
+export function canAdminister(session: Pick<Session, "user">): boolean {
+  return session.user.role === "admin";
+}
 export type DocumentRecord = {
   id: string;
   name: string;
@@ -111,6 +115,19 @@ export type ExpertApprovalPolicy = NonNullable<
 
 export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 
+/**
+ * Browser sessions expire server-side. Any later 401 is announced once to the
+ * workspace so it can offer a reconnection that returns to the current page,
+ * instead of leaving every screen with a technical error.
+ */
+export const SESSION_EXPIRED_EVENT = "guteneo:session-expired";
+const sessionProbePaths = ["/session", "/logout", "/dev/login"];
+function announceSessionExpiry(path: string, status: number) {
+  if (status !== 401 || sessionProbePaths.includes(path.split("?")[0] ?? ""))
+    return;
+  window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
+}
+
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
@@ -129,12 +146,14 @@ export async function getDocumentContent(
       signal,
     },
   );
-  if (!response.ok)
+  if (!response.ok) {
+    announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
       "Ce document ne peut pas être affiché.",
       response.status,
     );
+  }
   return new Uint8Array(await response.arrayBuffer());
 }
 
@@ -215,6 +234,7 @@ export async function api<T>(
   }
   const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {
+    announceSessionExpiry(path, response.status);
     const failure = data as {
       error?: { code?: string; message?: string };
     } | null;
@@ -258,6 +278,33 @@ export function date(value?: string): string {
         timeStyle: "short",
       }).format(d);
 }
+/**
+ * Native validation for a euro amount typed with either decimal mark, the
+ * format euroToMinor() reads. Amount fields are text fields: a number field
+ * drops the comma in some browsers, so Chromium turns "1,5" into "15".
+ */
+export const EURO_INPUT_PATTERN = "\\s*\\d{1,5}(?:[.,]\\d{1,2})?\\s*";
+/** Integer cents shown in an amount field, using the interface decimal mark. */
+export function minorToEuroInput(minor: number): string {
+  return Number.isInteger(minor / 100)
+    ? String(minor / 100)
+    : (minor / 100).toFixed(2).replace(".", getLocale() === "en" ? "." : ",");
+}
+/** Euros typed by a person, to integer cents; null when not a valid amount. */
+export function euroToMinor(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!/^\d{1,5}(\.\d{1,2})?$/.test(normalized)) return null;
+  const minor = Math.round(Number(normalized) * 100);
+  return Number.isSafeInteger(minor) && minor <= 1_000_000 ? minor : null;
+}
+// Separators are accepted while typing; the server applies the same rule.
+export { normalizeFaxNumber } from "../../../packages/contracts/src/fax-number";
+/**
+ * Native validation while typing: "+", then digits with optional spaces,
+ * dots, dashes or a "(0)" trunk prefix. The server has the final word.
+ */
+export const FAX_INPUT_PATTERN =
+  "\\s*\\+[1-9](?:[ .\\-\\u00a0\\u202f]?(?:[0-9]|\\(0\\))){7,16}\\s*";
 export function money(minor: number, currency = "EUR"): string {
   return new Intl.NumberFormat(formatLocale(), {
     style: "currency",

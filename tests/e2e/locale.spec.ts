@@ -7,9 +7,21 @@ test("home language is visible, survives reload and works on mobile", async ({
   await page.goto("/?lang=en");
   const picker = page.locator('header select[name="language"]');
   await expect(picker).toHaveValue("en");
+  await expect(page.locator(".homepage-film-play")).toContainText(
+    "Watch the film",
+  );
+  await expect(page.locator(".homepage-film-transcript summary")).toHaveText(
+    "Read the film transcript",
+  );
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await picker.selectOption("de");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(page.locator(".homepage-film-play")).toContainText(
+    "Film ansehen",
+  );
+  await expect(page.locator(".homepage-film-transcript summary")).toHaveText(
+    "Filmtext lesen",
+  );
   await expect(page.getByRole("heading", { level: 1 })).not.toContainText(
     "Votre assistant",
   );
@@ -17,6 +29,12 @@ test("home language is visible, survives reload and works on mobile", async ({
   await expect(picker).toHaveValue("de");
   await picker.selectOption("lb");
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
+  await expect(page.locator(".homepage-film-play")).toContainText(
+    "De Film kucken",
+  );
+  await expect(page.locator(".homepage-film-transcript summary")).toHaveText(
+    "Den Text vum Film liesen",
+  );
   await page.reload();
   await expect(picker).toHaveValue("lb");
   await expect(page.getByRole("heading", { level: 1 })).not.toContainText(

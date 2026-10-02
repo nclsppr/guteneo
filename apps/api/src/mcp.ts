@@ -15,6 +15,10 @@ import {
   type PostalSetup,
 } from "../../../packages/contracts/src/postal-setup";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
+import {
+  dispatchGroupNames,
+  type DispatchGroup,
+} from "../../../packages/contracts/src/dispatch-groups";
 import { reviewExpertDispatch, acceptExpertDispatch } from "./expert-approval";
 import { readDocumentPages, reviewExpertPages } from "./expert-review-pages";
 import { getExpertStatus } from "./expert-status";
@@ -1298,11 +1302,17 @@ export function createGuteneoMcpServer(
     {
       title: "Retrouver mes envois",
       description:
-        "Liste les envois de l’organisation autorisée, avec pagination bornée. Retourne des métadonnées sans PDF ni contenu HTML. En production, un appel réussi enregistre aussi la dernière utilisation réussie de cette connexion dans Guteneo.",
+        "Liste les envois de l’organisation autorisée, avec pagination bornée. Le filtre facultatif group est appliqué par le serveur à toute l’organisation : approval (à approuver), in_progress (en cours), attention (résultat incertain ou négatif : lire le suivi avant toute nouvelle action, jamais de renvoi automatique), done (clôturés). Retourne des métadonnées sans PDF ni contenu HTML. En production, un appel réussi enregistre aussi la dernière utilisation réussie de cette connexion dans Guteneo.",
       inputSchema: z
         .object({
           cursor: z.string().max(2048).optional(),
           limit: z.number().int().min(1).max(50).default(20),
+          group: z
+            .enum(dispatchGroupNames as [DispatchGroup, ...DispatchGroup[]])
+            .optional()
+            .describe(
+              "Groupe d’états facultatif. Conserver le même groupe pour les pages suivantes.",
+            ),
         })
         .strict(),
       outputSchema: output(
@@ -1316,12 +1326,13 @@ export function createGuteneoMcpServer(
       annotations: observedReadAnnotations,
       _meta: oauthMetadata("dispatches:read"),
     },
-    ({ cursor, limit }) =>
+    ({ cursor, limit, group }) =>
       run("dispatches:read", async () => {
         const result = await services.domain.listDispatches(
           identity.context,
           cursor,
           limit,
+          group,
         );
         return {
           ...result,
