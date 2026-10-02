@@ -83,6 +83,14 @@ waits for a hittable, enabled target and verifies native selection after one tap
 the previous CI capture showed Atelier still selected after the account tap.
 The precise runtime cause was not reproduced locally. No product patch or reduced
 text size is inferred from that observation, and combined native CI remains a gate.
+The complete fictional public preview then passed 76 browser cases with six
+intentional desktop-only profile exclusions. Restoring the public runtime also
+exposed the shared router's unconditional scroll reset; it now resets workspace
+navigation only, preserving native article fragment scrolling. All four strict
+article checks pass. The documentation contract permits one checked anonymous
+session read only on the real application for the person's language; the preview
+continues to perform zero backend reads. Swagger remains lazy, credential-free
+and unable to execute operations.
 
 Native signup/authentication, physical-device behavior, signing, TestFlight and
 App Store submission remain separate qualification. Account deletion currently
