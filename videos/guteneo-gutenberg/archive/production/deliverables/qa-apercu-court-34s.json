@@ -1,0 +1,91 @@
+{
+  "file": "/workspace/guteneo/production/deliverables/Guteneo-apercu-court-sans-plan-ordinateur-34s.mp4",
+  "duration": 34.0,
+  "width": 1080,
+  "height": 1920,
+  "fps": "30/1",
+  "codec": "h264",
+  "profile": "High",
+  "pixel_format": "yuv420p",
+  "sample_rate": 48000,
+  "channels": 2,
+  "audio_codec": "aac",
+  "audio_bitrate": "248092",
+  "integrated_lufs": -15.97,
+  "true_peak_dbfs": -2.09,
+  "bytes": 14539864,
+  "checks": {
+    "expected_resolution": true,
+    "expected_duration": true,
+    "thirty_fps": true,
+    "true_peak_below_minus_one": true,
+    "stereo_48khz": true,
+    "decodes_without_errors": true
+  },
+  "product_capture_checks": [
+    {
+      "scene": 6,
+      "time_in_final_seconds": 14.7,
+      "source": "/workspace/guteneo/production/product/mobile-wide.png",
+      "source_sha256": "ee49a0f93449114797cb2d76f61f02809c713236d46eaa6bb524e07b4ebc08bb",
+      "review_frame": "/workspace/guteneo/production/deliverables/qa-frames/partial-product-scene-06-vertical.png",
+      "no_crop": true,
+      "ssim_to_real_capture": 0.989434,
+      "matches_real_capture": true
+    }
+  ],
+  "sample_type": "partial, not the full historical film",
+  "source_scene_numbers": [
+    4,
+    6,
+    7
+  ],
+  "source_clips": [
+    "/workspace/guteneo/production/video/final/v-04-sync.mp4",
+    "/workspace/guteneo/production/video/final/v-06-sync.mp4",
+    "/workspace/guteneo/production/video/final/v-07-sync.mp4"
+  ],
+  "original_voice_files": [
+    "/workspace/guteneo/production/audio/04-voix.mp3",
+    "/workspace/guteneo/production/audio/06-voix.mp3",
+    "/workspace/guteneo/production/audio/07-voix.mp3",
+    "/workspace/guteneo/production/audio/08-voix.mp3"
+  ],
+  "official_ending_duration_seconds": 7.0,
+  "narration_and_sfx": "Original ElevenLabs narration, no time-stretch; dialogue -16 LUFS, subtle foley -34 LUFS.",
+  "review_frames": [
+    {
+      "time_seconds": 2,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-vertical-scene-04.png"
+    },
+    {
+      "time_seconds": 10,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-vertical-scene-06.png"
+    },
+    {
+      "time_seconds": 19,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-vertical-scene-07.png"
+    },
+    {
+      "time_seconds": 28.0,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-vertical-endcard-blue.png"
+    },
+    {
+      "time_seconds": 32.0,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-vertical-endcard-logo.png"
+    }
+  ],
+  "purpose": "Short salvage preview using existing footage only.",
+  "excluded_scenes": [
+    5
+  ],
+  "exclusion_reason": "Incorrect monitor geometry: interface appears on the back.",
+  "additional_generation_credits": 0,
+  "accessory_review": {
+    "method": "Independent sampled-frame visual review every second of source clips, plus exported montage checkpoints.",
+    "fax": "Single sheet and stable handset/keypad; no duplication spotted.",
+    "tablet": "Blue rear stays facing viewer; no screen interface on back.",
+    "conclusion": "Folio and hands coherent at sampled times.",
+    "limits": "Does not assert frame-by-frame perfection or perceptual lip sync validation."
+  }
+}

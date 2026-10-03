@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/production/sfx/stone.mp3",
+  "target_lufs": -34,
+  "source_measurement": {
+    "input_i": "-38.10",
+    "input_tp": "-16.17",
+    "input_lra": "1.80",
+    "input_thresh": "-48.75",
+    "output_i": "-34.16",
+    "output_tp": "-12.55",
+    "output_lra": "5.00",
+    "output_thresh": "-46.06",
+    "normalization_type": "dynamic",
+    "target_offset": "0.16"
+  }
+}

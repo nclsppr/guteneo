@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/production/sfx/papyrus.mp3",
+  "target_lufs": -34,
+  "source_measurement": {
+    "input_i": "-33.91",
+    "input_tp": "-12.99",
+    "input_lra": "1.10",
+    "input_thresh": "-44.11",
+    "output_i": "-33.83",
+    "output_tp": "-13.15",
+    "output_lra": "1.90",
+    "output_thresh": "-44.07",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.17"
+  }
+}

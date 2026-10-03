@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/production/sfx/digital.mp3",
+  "target_lufs": -34,
+  "source_measurement": {
+    "input_i": "-12.01",
+    "input_tp": "1.93",
+    "input_lra": "1.50",
+    "input_thresh": "-23.89",
+    "output_i": "-33.13",
+    "output_tp": "-18.10",
+    "output_lra": "1.60",
+    "output_thresh": "-44.63",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.87"
+  }
+}

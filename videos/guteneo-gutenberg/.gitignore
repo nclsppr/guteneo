@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.cache
+
+# Restored historical media are stored losslessly under media-parts/.
+/archive/Guteneo-La-suite-de-vos-mots.mp4
+/archive/Guteneo-film-final.mp4
+/archive/production/deliverables/Extrait-Pixar2-Instagram-43s.mp4
+/archive/production/deliverables/Guteneo-Pixar2-kit-production.zip
+/archive/production/video/test-egypte-seedance-native.mp4
+/archive/verification/05-guteneo.mp4
+*.restoring

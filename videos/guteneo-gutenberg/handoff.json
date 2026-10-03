@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-03",
+  "project": "Guteneo — Gutenberg à travers les âges",
+  "repository": "https://github.com/nclsppr/guteneo",
+  "repository_directory": "videos/guteneo-gutenberg",
+  "status": "incomplete; paid production paused; revised storyboard proposed but not generated",
+  "current_authorization": "Archive existing files and context into the Guteneo repository and merge into main. No new paid media generation authorized.",
+  "paid_generation_paused": true,
+  "budget_ceiling_needs_approval": true,
+  "character_reference": "archive/production/images/Pixar-proposition-2.png",
+  "character_reference_generation_id": "Tb7l3CjKACyi6nj7drb2",
+  "character_reference_flow_asset_id": "ycL4lQUbL7qGNNGMZFWv",
+  "latest_preview": "archive/production/deliverables/Guteneo-apercu-court-sans-plan-ordinateur-34s.mp4",
+  "latest_storyboard": "STORYBOARD-ET-PROMPTS.md",
+  "latest_storyboard_status": "written proposal; user has not reviewed seven new images",
+  "scripts": [
+    "Je suis Gutenberg. Bien avant mes livres, on gravait les messages dans la pierre. Solide… mais peu pratique à transporter !",
+    "En Égypte, le papyrus change la donne. Léger, il se roule et s’emporte. Les mots voyagent avec ceux qui les portent.",
+    "Au quinzième siècle, mes caractères mobiles contribuent à multiplier les livres en Europe. Une même idée peut toucher des milliers de lecteurs.",
+    "Puis le fax transmet les documents à distance. Une feuille entre ici… sa copie apparaît ailleurs.",
+    "Avec les emails, quelques secondes suffisent. Le message traverse les frontières et rejoint son destinataire.",
+    "Avec les sites internet, l’information se consulte à toute heure. Elle devient une porte ouverte sur vos idées.",
+    "Guteneo réunit fax, email et courrier dans votre conversation. Vous vérifiez les détails, confirmez l’envoi, puis suivez son résultat.",
+    "Guteneo. La suite de vos mots."
+  ],
+  "scene_durations_seconds": [
+    10,
+    11,
+    10,
+    8,
+    9,
+    9,
+    10
+  ],
+  "official_ending_duration_seconds": 7,
+  "planned_film_duration_seconds": 74,
+  "requested_exports": {
+    "horizontal": {
+      "width": 1920,
+      "height": 1080
+    },
+    "vertical": {
+      "width": 1080,
+      "height": 1920
+    }
+  },
+  "format_strategy": "Requote before generation. Prior fourteen-native-clip approach exceeded budget; centered crop of 1080p landscape is not native portrait quality.",
+  "narration": {
+    "model": "eleven_v4",
+    "language": "fr",
+    "gutenberg_voice_id": "UBXZKOKbt62aLQHhc1Jm",
+    "gutenberg_voice_name": "François-Louis",
+    "signature_voice_id": "m5U7XCsc8v988k2RJAqN",
+    "signature_voice_name": "Manon",
+    "approved_audio_files": [
+      "archive/production/audio/01-voix.mp3",
+      "archive/production/audio/02-voix.mp3",
+      "archive/production/audio/03-voix.mp3",
+      "archive/production/audio/04-voix.mp3",
+      "archive/production/audio/05-voix.mp3",
+      "archive/production/audio/06-voix.mp3",
+      "archive/production/audio/07-voix.mp3",
+      "archive/production/audio/08-voix.mp3"
+    ],
+    "instruction": "Keep exact approved audio, text and timing; do not regenerate or time-stretch."
+  },
+  "elevenlabs": {
+    "flow_id": "jFltGQ8YMa9Oub80hm8u",
+    "flow_url": "https://elevenlabs.io/app/flows/jFltGQ8YMa9Oub80hm8u",
+    "historical_flow_id": "9BEM3dvSECdljMmr8aoN",
+    "models_used": [
+      "gpt-image-2",
+      "bytedance-seedance-v2.5",
+      "sync-lipsync-v3",
+      "eleven_v4",
+      "eleven_text_to_sound_v2"
+    ],
+    "instruction": "Do not rerun existing nodes automatically. New scene direction supersedes their visual prompts."
+  },
+  "existing_seedance_and_sync_clips": [
+    "h-05",
+    "h-07",
+    "v-04",
+    "v-05",
+    "v-06",
+    "v-07"
+  ],
+  "missing_clips": [
+    "h-01",
+    "h-02",
+    "h-03",
+    "h-04",
+    "h-06",
+    "v-01",
+    "v-02",
+    "v-03"
+  ],
+  "rejected_clips": {
+    "h-05": "Interface rendered on back of monitor",
+    "v-05": "Interface rendered on back of monitor"
+  },
+  "old_usable_clips_for_rough_cut": [
+    "h-07",
+    "v-04",
+    "v-06",
+    "v-07"
+  ],
+  "new_scene_locations": [
+    "Archaic rock shelter",
+    "Ancient Egyptian Nile quay",
+    "Mainz printing workshop around 1450",
+    "Administrative dispatch office around 1990",
+    "Urban cybercafe around 2000",
+    "Contemporary plaza outside a library",
+    "Premium office with a real window overlooking Luxembourg"
+  ],
+  "budget": {
+    "new_production_audited_credits": 601684.087074,
+    "historical_first_production_video_and_sync_credits": 123555.631651,
+    "old_remaining_estimate_credits": 558641.706,
+    "old_remaining_estimate_is_not_valid_for_revised_scope": true,
+    "usd_fields_are_not_eur_invoice": true,
+    "unpriced_small_asr_checks_excluded": true
+  },
+  "brand": {
+    "instructions": "../../docs/BRAND_IDENTITY.md",
+    "wordmark_color": "#181b22",
+    "wordmark_lowercase": true,
+    "single_signature": true,
+    "official_swallow_source": "../../apps/web/public/luxembourg-blue-swallow-sheet.webp",
+    "reuse_exact_official_ending": true
+  },
+  "known_gaps": [
+    "Complete current film has not been generated",
+    "Latest seven-scene proposal not visually validated",
+    "Original first user attachment not identified with certainty as a local file",
+    "Archive includes available local artifacts, not a complete chat/provider-account export",
+    "Historical absolute paths remain in provenance reports",
+    "Eight old-strategy scene clips absent and two others rejected"
+  ],
+  "verification": "validation.json",
+  "storage": {
+    "media": "regular Git blobs; six historical files stored as lossless 8 MiB parts",
+    "media_quality": "original bytes; no reencoding",
+    "lfs_used": false,
+    "reason": "LFS and Git HTTPS authentication unavailable; authenticated GitHub API used, with binary segmentation for its request size limit",
+    "archive_bytes": 1142080150,
+    "restoration_command": "python3 videos/guteneo-gutenberg/tools/restore_large_media.py",
+    "large_media_manifest": "large-media.json",
+    "restored_extra_bytes": 206160424
+  }
+}

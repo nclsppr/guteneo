@@ -1,0 +1,12 @@
+generation_group,generation_count,reported_credits
+prod_tts_run,32,0
+prod_master_run,4,5109.545199
+prod_scene_image_run,24,30657.271196
+prod_scene_image_run_v,28,35766.816395
+prod_sfx_run,24,453.333333
+prod_test_run,1,68919.774
+prod_pixar_master_run,4,5109.545199
+prod_final_tts_run,4,0
+final_image_run,52,66424.087591
+final_video_run,6,344598.87
+final_sync_partial_run,6,44644.84416

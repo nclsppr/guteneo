@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "archived_files_checked": 454,
+  "media_files_unchanged": 371,
+  "archive_bytes": 1142080150,
+  "json_files_parsed": 68,
+  "python_files_parsed": 8,
+  "large_media_files_checked": 6,
+  "binary_parts_checked": 28,
+  "zip_crc_checked": true,
+  "approved_scripts_unchanged": true,
+  "signed_url_and_known_secret_patterns_checked": true,
+  "scope": "Offline integrity and metadata verification; not a fresh audiovisual approval.",
+  "failures": []
+}

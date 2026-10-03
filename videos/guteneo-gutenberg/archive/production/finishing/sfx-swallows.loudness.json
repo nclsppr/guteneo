@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/production/sfx/swallows.mp3",
+  "target_lufs": -37,
+  "source_measurement": {
+    "input_i": "-16.22",
+    "input_tp": "-5.45",
+    "input_lra": "5.10",
+    "input_thresh": "-27.80",
+    "output_i": "-37.32",
+    "output_tp": "-27.49",
+    "output_lra": "5.50",
+    "output_thresh": "-48.49",
+    "normalization_type": "dynamic",
+    "target_offset": "0.32"
+  }
+}

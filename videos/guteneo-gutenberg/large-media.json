@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "reason": "GitHub API request size limit; lossless binary segmentation of six historical assets",
+  "part_size_bytes": 8388608,
+  "files": [
+    {
+      "path": "archive/Guteneo-La-suite-de-vos-mots.mp4",
+      "bytes": 41312807,
+      "sha256": "7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58",
+      "parts": [
+        {
+          "path": "media-parts/7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58/000.part",
+          "bytes": 8388608,
+          "sha256": "ce7d2509d0d57f359207517ff1714b4139534716e33066fb4afb6d81202d9700"
+        },
+        {
+          "path": "media-parts/7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58/001.part",
+          "bytes": 8388608,
+          "sha256": "bf6c085dca2ee58851bc5b1da5ee8c2e5b8e9bbfffbe97118614a0583d092e2c"
+        },
+        {
+          "path": "media-parts/7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58/002.part",
+          "bytes": 8388608,
+          "sha256": "af4b2471ef3c1402e3114e25704ade0f5cb6e6561890c16d67c49283f072383f"
+        },
+        {
+          "path": "media-parts/7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58/003.part",
+          "bytes": 8388608,
+          "sha256": "0527ec3ef1955bdeb59b94f26f68e585f516287c35e49451972028e720957dbd"
+        },
+        {
+          "path": "media-parts/7b10735d243efd88590df2037492d658837e70159f3d478bd4e1b67261e38c58/004.part",
+          "bytes": 7758375,
+          "sha256": "7040e72b2cc0ef9c0f07869735454fd946285e9af8e09b8ebc5bae14ef45ca0d"
+        }
+      ]
+    },
+    {
+      "path": "archive/Guteneo-film-final.mp4",
+      "bytes": 39330484,
+      "sha256": "eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba",
+      "parts": [
+        {
+          "path": "media-parts/eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba/000.part",
+          "bytes": 8388608,
+          "sha256": "661698938303bd3fabd22e2f7457aecf304ac622cf165c6312e076c16946c361"
+        },
+        {
+          "path": "media-parts/eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba/001.part",
+          "bytes": 8388608,
+          "sha256": "420398149ad63f3299c5ec248f910344d060439cbe6659665918ff70d12065cc"
+        },
+        {
+          "path": "media-parts/eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba/002.part",
+          "bytes": 8388608,
+          "sha256": "353ff935619479dd0916b52fb9484329cac6e776028a6337d45276ca1f4d091d"
+        },
+        {
+          "path": "media-parts/eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba/003.part",
+          "bytes": 8388608,
+          "sha256": "0e2205e5e6c78e9d2e812e3a9fb9e4421f97c16e063e6578975e1a589bfa2b5f"
+        },
+        {
+          "path": "media-parts/eb72d675fc63e55eebaeb0623bd29d0e6a37965b7b9e7910e246cd5c1810d2ba/004.part",
+          "bytes": 5776052,
+          "sha256": "33f455757b654e1764e798ca026f8197e5b45312cca19e4ac7b112f24939da53"
+        }
+      ]
+    },
+    {
+      "path": "archive/production/deliverables/Extrait-Pixar2-Instagram-43s.mp4",
+      "bytes": 18919012,
+      "sha256": "635109f872febb6dd6a7ab8a535e0b528a226f196d6f51ab31fffcb7e92debae",
+      "parts": [
+        {
+          "path": "media-parts/635109f872febb6dd6a7ab8a535e0b528a226f196d6f51ab31fffcb7e92debae/000.part",
+          "bytes": 8388608,
+          "sha256": "923ca415934a98d63ce935b45170afcc2fded06ef5f4200dae4a5127f1948f02"
+        },
+        {
+          "path": "media-parts/635109f872febb6dd6a7ab8a535e0b528a226f196d6f51ab31fffcb7e92debae/001.part",
+          "bytes": 8388608,
+          "sha256": "53149351865102c3f6af7cf8c0ad898d0b296710baa1bf7ed0b5da43901caf4e"
+        },
+        {
+          "path": "media-parts/635109f872febb6dd6a7ab8a535e0b528a226f196d6f51ab31fffcb7e92debae/002.part",
+          "bytes": 2141796,
+          "sha256": "da2f60b89e4439bf7c38fe49e81923b1913fa3e68bbcd9ade494f284257cb0e1"
+        }
+      ]
+    },
+    {
+      "path": "archive/production/deliverables/Guteneo-Pixar2-kit-production.zip",
+      "bytes": 59954205,
+      "sha256": "9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb",
+      "parts": [
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/000.part",
+          "bytes": 8388608,
+          "sha256": "07b53f62ae250adda90e273d0484ea2e8e442f6ff3ba65ece68c741dd103baf4"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/001.part",
+          "bytes": 8388608,
+          "sha256": "120038f338b3c11aec43f8f2883c62dec2986c744e520510bb34643e8203f1d0"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/002.part",
+          "bytes": 8388608,
+          "sha256": "0dac331d07ebf8571faa68eee0ee2a0ae349478b9980d358fca0a7baa8bd618f"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/003.part",
+          "bytes": 8388608,
+          "sha256": "9c8dc417c5454610266f8cba7bdf7148779506a528d326a0d52e264c5dd61757"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/004.part",
+          "bytes": 8388608,
+          "sha256": "69052aaa97cfd06927938723bee5b7171beb418bf3a74bb5a8834829260d0c5a"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/005.part",
+          "bytes": 8388608,
+          "sha256": "e45c65f0ab2a96ef18b0232df0dc517442d4a226de5e7c2f216f898aac91c8c3"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/006.part",
+          "bytes": 8388608,
+          "sha256": "50e99cba1fc5561dcee0d1bbb7d400845e6539166abf02a9db825f9e3bf8698b"
+        },
+        {
+          "path": "media-parts/9985c8eb033e3469e8830f09f0d601bbc14ee9ab9edffc668063f7aa5babe4bb/007.part",
+          "bytes": 1233949,
+          "sha256": "626757257a531718bbabc52b53b9b8a2d41705fc7ca2953baeddaca2639a59d9"
+        }
+      ]
+    },
+    {
+      "path": "archive/production/video/test-egypte-seedance-native.mp4",
+      "bytes": 20142699,
+      "sha256": "3e65056206bbce87e01027802706fb49fae8e19e00933371908d99882dfc149b",
+      "parts": [
+        {
+          "path": "media-parts/3e65056206bbce87e01027802706fb49fae8e19e00933371908d99882dfc149b/000.part",
+          "bytes": 8388608,
+          "sha256": "267624f2145efa366278042882dd819734350272cf871eb2fe1cfd23a6bdcce0"
+        },
+        {
+          "path": "media-parts/3e65056206bbce87e01027802706fb49fae8e19e00933371908d99882dfc149b/001.part",
+          "bytes": 8388608,
+          "sha256": "d03961921389e919da30fa603507f36d856b9aeb2ab36909b7d3fc23bda4d24c"
+        },
+        {
+          "path": "media-parts/3e65056206bbce87e01027802706fb49fae8e19e00933371908d99882dfc149b/002.part",
+          "bytes": 3365483,
+          "sha256": "539b42614b82913e337fa8b72d2e15adb80c716dbc83ca8f47433f785c594e01"
+        }
+      ]
+    },
+    {
+      "path": "archive/verification/05-guteneo.mp4",
+      "bytes": 26501217,
+      "sha256": "9e5c30b268312096df33f79ed32bddec753a7e9dfb47431c74856bea20d96860",
+      "parts": [
+        {
+          "path": "media-parts/9e5c30b268312096df33f79ed32bddec753a7e9dfb47431c74856bea20d96860/000.part",
+          "bytes": 8388608,
+          "sha256": "45070ba6fda6d3c9e56c8e9364a1ffe10832f7fac0aa0045f48606ed6d50c70d"
+        },
+        {
+          "path": "media-parts/9e5c30b268312096df33f79ed32bddec753a7e9dfb47431c74856bea20d96860/001.part",
+          "bytes": 8388608,
+          "sha256": "f0157e136936372e2849e3620c300ca5e9dcde73246f92fbe58886f2c4149bb7"
+        },
+        {
+          "path": "media-parts/9e5c30b268312096df33f79ed32bddec753a7e9dfb47431c74856bea20d96860/002.part",
+          "bytes": 8388608,
+          "sha256": "62ac5617cfe636948f49ee1de02d70d89d0d01a1b5b0ca7014cc24a024fda13d"
+        },
+        {
+          "path": "media-parts/9e5c30b268312096df33f79ed32bddec753a7e9dfb47431c74856bea20d96860/003.part",
+          "bytes": 1335393,
+          "sha256": "1a5f4da4f5b95bbe89dde4cda906114a15e0f7bf332f0ebdf644ef2955c5af7a"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+file '/workspace/guteneo/production/finishing/scene-07-audio.wav'
+file '/workspace/guteneo/production/finishing/endcard-audio.wav'

@@ -1,0 +1,42 @@
+{
+  "input": "/workspace/guteneo/verification/05-guteneo.mp4",
+  "duration_seconds": 13.041667,
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "hevc",
+  "video_stream_index": 0,
+  "average_frame_rate": 24.0,
+  "has_audio": true,
+  "audio_streams": [
+    {
+      "index": 1,
+      "codec_name": "aac",
+      "sample_rate": "32000",
+      "channels": 2,
+      "channel_layout": "stereo",
+      "duration": "13.056000"
+    }
+  ],
+  "review_frames": [
+    {
+      "time_seconds": 0.652083,
+      "file": "frame_01_0000.652s.png"
+    },
+    {
+      "time_seconds": 3.586458,
+      "file": "frame_02_0003.586s.png"
+    },
+    {
+      "time_seconds": 6.520834,
+      "file": "frame_03_0006.521s.png"
+    },
+    {
+      "time_seconds": 9.455209,
+      "file": "frame_04_0009.455s.png"
+    },
+    {
+      "time_seconds": 12.389584,
+      "file": "frame_05_0012.390s.png"
+    }
+  ]
+}

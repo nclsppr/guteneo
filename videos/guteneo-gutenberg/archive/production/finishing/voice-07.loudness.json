@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/production/audio/07-voix.mp3",
+  "target_lufs": -16,
+  "source_measurement": {
+    "input_i": "-18.74",
+    "input_tp": "-4.87",
+    "input_lra": "2.10",
+    "input_thresh": "-29.14",
+    "output_i": "-16.44",
+    "output_tp": "-2.32",
+    "output_lra": "1.60",
+    "output_thresh": "-26.83",
+    "normalization_type": "dynamic",
+    "target_offset": "0.44"
+  }
+}

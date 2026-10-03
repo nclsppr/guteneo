@@ -1,0 +1,41 @@
+{
+  "horizontal": [
+    "video/final/h-01-sync.mp4",
+    "video/final/h-02-sync.mp4",
+    "video/final/h-03-sync.mp4",
+    "video/final/h-04-sync.mp4",
+    "video/final/h-05-sync.mp4",
+    "video/final/h-06-sync.mp4",
+    "video/final/h-07-sync.mp4"
+  ],
+  "vertical": [
+    "video/final/v-01-sync.mp4",
+    "video/final/v-02-sync.mp4",
+    "video/final/v-03-sync.mp4",
+    "video/final/v-04-sync.mp4",
+    "video/final/v-05-sync.mp4",
+    "video/final/v-06-sync.mp4",
+    "video/final/v-07-sync.mp4"
+  ],
+  "voices": [
+    "audio/01-voix.mp3",
+    "audio/02-voix.mp3",
+    "audio/03-voix.mp3",
+    "audio/04-voix.mp3",
+    "audio/05-voix.mp3",
+    "audio/06-voix.mp3",
+    "audio/07-voix.mp3",
+    "audio/08-voix.mp3"
+  ],
+  "sfx": {},
+  "product_inserts": [
+    {
+      "scene": 6,
+      "start_seconds": 6.0,
+      "duration_seconds": 3.0,
+      "fade_frames": 6,
+      "horizontal": "product/desktop.png",
+      "vertical": "product/mobile-wide.png"
+    }
+  ]
+}

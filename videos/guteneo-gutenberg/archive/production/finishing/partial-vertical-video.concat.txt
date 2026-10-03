@@ -1,0 +1,4 @@
+file '/workspace/guteneo/production/finishing/scene-04-vertical.mp4'
+file '/workspace/guteneo/production/finishing/scene-06-vertical.mp4'
+file '/workspace/guteneo/production/finishing/scene-07-vertical.mp4'
+file '/workspace/guteneo/production/finishing/endcard-vertical-silent.mp4'
