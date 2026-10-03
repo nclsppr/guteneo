@@ -48,6 +48,7 @@ Restricted environment verification used `GUTENEO_BUNDLED_CHROMIUM=1 npx playwri
 
 ## Documentation
 
+- [Developer feature tree, role matrix and customer journeys](docs/FEATURE_MAP.md) — [offline visual atlas](docs/FEATURE_MAP.html), maintained with every feature change; repository documentation only.
 - [Product scope and accepted journeys](docs/PRODUCT.md)
 - [Execution plan, evidence and remaining work](docs/EXECUTION_PLAN.md)
 - [Architecture](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md), [ADR](docs/adr/0001-reliable-modular-monolith.md)
