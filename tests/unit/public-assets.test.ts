@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { servePublicAssets } from "../../apps/api/src/public-assets";
 import { type Env } from "../../apps/api/src/env";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import { supportedLocales } from "../../packages/contracts/src/locale";
 
 function fixture(
   response = new Response("exact public bytes", {
@@ -24,7 +25,11 @@ function fixture(
 }
 
 describe("production static crawl boundary", () => {
-  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+  it.each([
+    "/app",
+    "/app/prepare?entry=direct&token=never-forward",
+    "/app/plan?lang=en&token=never-forward",
+  ])(
     "serves browser entry %s privately for GET and HEAD only",
     async (path) => {
       for (const method of ["GET", "HEAD"]) {
@@ -53,6 +58,124 @@ describe("production static crawl boundary", () => {
       expect(fetch).not.toHaveBeenCalled();
     },
   );
+
+  it("keeps the static locale manifest aligned with the product languages", () => {
+    expect(site.locales).toEqual(supportedLocales);
+  });
+
+  it.each([
+    ["fr-FR", "fr"],
+    ["en", "en"],
+    ["DE", "de"],
+    ["lb-LU", "lb"],
+  ])(
+    "serves explicit %s as the exact %s static variant",
+    async (requested, locale) => {
+      const { env, fetch } = fixture();
+      const response = (await servePublicAssets(
+        new Request(`${site.origin}/journal/?lang=${requested}`),
+        env,
+      ))!;
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/${locale}/journal/`,
+      );
+      expect(await response.text()).toBe("exact public bytes");
+      expect(response.headers.get("X-Robots-Tag")).toBeNull();
+      expect(response.headers.get("ETag")).toBe('"asset-sha"');
+    },
+  );
+
+  it.each(["", "?lang=es", "?lang=", "?lang=en&lang=de", "?lang=en&lang=en"])(
+    "keeps ambiguous or absent language %s generic regardless of identity or browser",
+    async (query) => {
+      const { env, fetch } = fixture();
+      await servePublicAssets(
+        new Request(`${site.origin}/${query}`, {
+          headers: { "Accept-Language": "de-DE", Cookie: "guteneo.locale=en" },
+        }),
+        env,
+      );
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe("/");
+    },
+  );
+
+  it("keeps localized private queries and fallback hosts private without changing selected bytes", async () => {
+    for (const url of [
+      `${site.origin}/?lang=en&token=fixture`,
+      "https://guteneo-app.nclsppr.workers.dev/?lang=en",
+    ]) {
+      const { env, fetch } = fixture();
+      const response = (await servePublicAssets(new Request(url), env))!;
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/en/`,
+      );
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+      if (url.includes("token="))
+        expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(await response.text()).toBe("exact public bytes");
+    }
+  });
+
+  it("refuses internal locale paths, including encoded aliases, without fetching assets", async () => {
+    const { env, fetch } = fixture();
+    for (const path of [
+      site.localizedPrefix,
+      `${site.localizedPrefix}/en/`,
+      `${site.localizedPrefix}%2Fen/index.html`,
+      "/%5f%5fpublic-locales/en/",
+    ]) {
+      for (const method of ["GET", "HEAD", "POST"]) {
+        const response = (await servePublicAssets(
+          new Request(site.origin + path, { method }),
+          env,
+        ))!;
+        expect(response.status).toBe(404);
+        expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+        expect(response.headers.get("Cache-Control")).toBe("no-store");
+        if (method === "HEAD") expect(await response.text()).toBe("");
+      }
+    }
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("does not replace a missing locale variant with generic HTML", async () => {
+    const { env, fetch } = fixture(new Response("Not found", { status: 404 }));
+    const response = (await servePublicAssets(
+      new Request(`${site.origin}/?lang=de`),
+      env,
+    ))!;
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe("Not found");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it("preserves localized conditional requests and HEAD framing", async () => {
+    for (const status of [200, 304]) {
+      const { env, fetch } = fixture(
+        new Response(status === 304 ? null : "exact bytes", {
+          status,
+          headers: { ETag: '"localized"', "Content-Type": "text/html" },
+        }),
+      );
+      const response = (await servePublicAssets(
+        new Request(`${site.origin}/?lang=lb`, {
+          method: "HEAD",
+          headers: { "If-None-Match": '"localized"' },
+        }),
+        env,
+      ))!;
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(forwarded.method).toBe("HEAD");
+      expect(forwarded.headers.get("If-None-Match")).toBe('"localized"');
+      expect(response.status).toBe(status);
+      expect(response.headers.get("ETag")).toBe('"localized"');
+      expect(await response.text()).toBe("");
+    }
+  });
 
   it("serves the invitation SPA shell privately without forwarding a secret or query to assets", async () => {
     const { env, fetch } = fixture();

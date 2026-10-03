@@ -4,6 +4,60 @@ Règles précisées par l’utilisateur le 17 septembre 2026, puis publication
 autorisée explicitement. Cette note décrit la validation locale du candidat ;
 la preuve de publication est enregistrée séparément après la livraison.
 
+## Règles de composition précisées le 3 octobre 2026
+
+Le texte de marque **guteneo**, ainsi que **guteneo.com** lorsqu’il sert de
+signature graphique, reste en minuscules et en **noir encre `#181b22`**, jamais
+en bleu cobalt. C’est déjà la couleur du site : `--ink: #181b22` dans
+`apps/web/src/styles.css`, appliquée à `.brand` puis héritée par
+`.brand-wordmark`. Le mot-symbole conserve la typographie EB Garamond. Le bleu
+appartient au portrait officiel, aux illustrations et aux éléments décoratifs.
+
+Cette règle s’applique à toute création ou révision de gabarit de marque :
+site et application, e-mail, carte de partage, publication sociale, vidéo et
+autres supports promotionnels. Sur un fond sombre, poser la signature noire
+sur un cartouche de papier clair, avec l’ivoire `#f6f5ef` du site ; ne pas créer
+de variante blanche ou bleue du mot-symbole.
+
+Une carte promotionnelle autonome porte **une seule signature** : `guteneo`
+ou `guteneo.com`. Ne pas juxtaposer le mot-symbole `guteneo` et un second
+`guteneo.com`. Les cartes de partage utilisent une seule signature
+`guteneo.com`, avec le portrait sans texte. Un domaine déjà présent dans un
+timbre officiel compte comme cette signature : ne pas le répéter ailleurs
+dans la même composition. Les headers du site gardent leur mot-symbole
+`guteneo` associé au portrait, conformément aux usages ci-dessous.
+
+Les **hirondelles bleues du footer** font aussi partie du langage de marque.
+Lorsque la composition le permet, reprendre quelques oiseaux discrets depuis
+`apps/web/public/luxembourg-blue-swallow-sheet.webp`, avec des tailles variées
+pour une perspective naturelle, en conservant leur bleu d’origine. Une pose
+fixe du sprite convient aux cartes de partage. Garder ce motif décoratif
+(`aria-hidden="true"` en HTML), sans gêner la lecture du texte ou du portrait ;
+ne pas lui substituer des oiseaux génériques ni ajouter d’autres logos. Le
+footer existant dans `landing-sections.tsx` et `.swallow-wingbeat` dans
+`styles.css` constituent les références, conservées par
+[la refonte de la page d’accueil](HOMEPAGE_REDESIGN.md).
+
+Conserver les images sources officielles et les rôles distincts du portrait,
+du timbre et de l’emblème. Cette précision ne demande pas de recolorer les
+sources historiques. Les films promotionnels et de rôles conservent leur
+carton final validé avec le timbre tramé officiel V5, l’oblitération et
+`guteneo.com`, ainsi que le montage validé. Toute révision suit les sources
+Remotion et les dépendances verrouillées du dépôt. Les preuves historiques
+ci-dessous ne constituent pas une nouvelle validation ou publication de ces
+supports.
+
+## Signal de lecture des vidéos
+
+Les affiches des films de présentation et du guide des rôles portent un bouton
+plat de lecture centré : rectangle arrondi bleu cobalt `#2450db`, triangle blanc,
+sans ombre ni effet de volume. Le libellé et la durée réelle restent lisibles
+sous le symbole, dans la langue active. Utiliser le lecteur partagé
+`apps/web/src/homepage-film.tsx` pour conserver le même signal sur tous les films.
+Le bouton disparaît pendant la lecture, revient pour rejouer et reste utilisable
+au clavier avec un focus visible. Ce symbole est un contrôle d’interface ; il
+ne remplace ni le logo Guteneo ni le contenu des vidéos.
+
 ## Trois usages distincts
 
 | Visuel                                     | Usage                                                                                                                     | Ressources                                                                                                      |

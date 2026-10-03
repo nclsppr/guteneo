@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import worker from "../../apps/preview/src/index";
+import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 
 function assetsEnv() {
   const fetch = vi.fn(
@@ -20,7 +21,11 @@ function assetsEnv() {
 }
 
 describe("public preview boundary", () => {
-  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+  it.each([
+    "/app",
+    "/app/prepare?entry=direct&token=never-forward",
+    "/app/plan?lang=en&token=never-forward",
+  ])(
     "serves browser entry %s privately without opening a backend",
     async (path) => {
       for (const method of ["GET", "HEAD"]) {
@@ -51,6 +56,101 @@ describe("public preview boundary", () => {
       expect(fetch).not.toHaveBeenCalled();
     },
   );
+
+  it.each([
+    ["?lang=fr-FR", "fr"],
+    ["?lang=en", "en"],
+    ["?lang=DE", "de"],
+    ["?lang=lb-LU", "lb"],
+    ["", null],
+    ["?lang=unsupported", null],
+    ["?lang=en&lang=de", null],
+    ["?lang=en&lang=en", null],
+  ])(
+    "uses explicit public language %s consistently with the live Worker",
+    async (query, locale) => {
+      const { env, fetch } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://guteneo.com/journal/${query}`, {
+          headers: { "Accept-Language": "de-DE", Cookie: "guteneo.locale=en" },
+        }),
+        env,
+      );
+      const forwarded = fetch.mock.calls[0]?.[0] as Request;
+      expect(new URL(forwarded.url).pathname).toBe(
+        locale ? `${site.localizedPrefix}/${locale}/journal/` : "/journal/",
+      );
+      expect(await response.text()).toBe("preview asset");
+      expect(response.headers.get("X-Robots-Tag")).toBeNull();
+    },
+  );
+
+  it("refuses direct internal locale URLs before assets or backend routing", async () => {
+    const { env, fetch } = assetsEnv();
+    for (const path of [
+      site.localizedPrefix,
+      `${site.localizedPrefix}/en/`,
+      `${site.localizedPrefix}%2Fen/index.html`,
+      "/%5f%5fpublic-locales/en/",
+    ]) {
+      for (const method of ["GET", "HEAD", "POST"]) {
+        const response = await worker.fetch(
+          new Request(`https://guteneo.com${path}`, { method }),
+          env,
+        );
+        expect(response.status).toBe(404);
+        expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+        expect(response.headers.get("Cache-Control")).toBe("no-store");
+        if (method === "HEAD") expect(await response.text()).toBe("");
+      }
+    }
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("keeps localized fallback and private-query responses private", async () => {
+    for (const url of [
+      "https://guteneo-preview.nclsppr.workers.dev/?lang=en",
+      "https://guteneo.com/?lang=en&code=fixture",
+    ]) {
+      const { env, fetch } = assetsEnv();
+      const response = await worker.fetch(new Request(url), env);
+      const forwarded = fetch.mock.calls[0]?.[0] as Request;
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/en/`,
+      );
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+      if (url.includes("code="))
+        expect(response.headers.get("Cache-Control")).toBe("no-store");
+    }
+  });
+
+  it("preserves absent variants, conditional requests and HEAD responses", async () => {
+    for (const status of [200, 304, 404]) {
+      const { env, fetch } = assetsEnv();
+      fetch.mockResolvedValueOnce(
+        new Response(status === 304 ? null : "asset", {
+          status,
+          headers: { ETag: '"localized"' },
+        }),
+      );
+      const response = await worker.fetch(
+        new Request("https://guteneo.com/?lang=de", {
+          method: "HEAD",
+          headers: { "If-None-Match": '"localized"' },
+        }),
+        env,
+      );
+      expect(response.status).toBe(status);
+      expect(response.headers.get("ETag")).toBe('"localized"');
+      expect(await response.text()).toBe("");
+      expect(fetch).toHaveBeenCalledOnce();
+      const forwarded = fetch.mock.calls[0]?.[0] as Request;
+      expect(forwarded.method).toBe("HEAD");
+      expect(forwarded.headers.get("If-None-Match")).toBe('"localized"');
+      if (status === 404)
+        expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    }
+  });
 
   it.each([
     "/api",

@@ -1,4 +1,9 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+import {
+  isPublicLocaleAssetPath,
+  localizedPublicPath,
+  requestedPublicLocale,
+} from "../../../packages/contracts/src/public-locales";
 import { assertBaseConfiguration, type Env } from "./env";
 import { withPublicVideoRange } from "./public-video-range";
 
@@ -28,7 +33,6 @@ export async function servePublicAssets(
   request: Request,
   env: Env,
 ): Promise<Response | null> {
-  if (!["GET", "HEAD"].includes(request.method)) return null;
   const url = new URL(request.url);
   let pathname: string;
   try {
@@ -39,6 +43,12 @@ export async function servePublicAssets(
       headers: privateHeaders,
     });
   }
+  if (isPublicLocaleAssetPath(pathname))
+    return new Response(request.method === "HEAD" ? null : "Not found", {
+      status: 404,
+      headers: privateHeaders,
+    });
+  if (!["GET", "HEAD"].includes(request.method)) return null;
   if (
     site.privatePrefixes.some(
       (prefix) =>
@@ -59,7 +69,8 @@ export async function servePublicAssets(
     pathname === "/invitation/" ||
     pathname === "/invitation" ||
     url.pathname === "/app" ||
-    url.pathname === "/app/prepare"
+    url.pathname === "/app/prepare" ||
+    url.pathname === "/app/plan"
   ) {
     // Private browser entries share the root shell without forwarding URL data.
     // The invitation secret stays in the URL fragment and never reaches asset logs.
@@ -90,9 +101,18 @@ export async function servePublicAssets(
   }
   let response: Response;
   try {
+    const localizedPath = localizedPublicPath(
+      url.pathname,
+      requestedPublicLocale(url.searchParams),
+    );
+    const assetUrl = new URL(url);
+    if (localizedPath) assetUrl.pathname = localizedPath;
+    const assetRequest = localizedPath
+      ? new Request(assetUrl, request)
+      : request;
     response = await withPublicVideoRange(
-      request,
-      await env.ASSETS.fetch(request),
+      assetRequest,
+      await env.ASSETS.fetch(assetRequest),
     );
   } catch {
     return new Response(
@@ -120,7 +140,11 @@ export async function servePublicAssets(
         const target = new URL(headers.get("Location")!, url);
         publicRedirect =
           target.origin === site.origin &&
-          !target.search &&
+          (!target.search ||
+            (requestedPublicLocale(target.searchParams) !== null &&
+              [...target.searchParams.keys()].every(
+                (key) => key === "lang",
+              ))) &&
           !target.hash &&
           publicPages.has(target.pathname);
       } catch {

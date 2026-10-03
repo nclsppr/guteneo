@@ -1,0 +1,37 @@
+{
+  "neutral": {
+    "src": "/social/guteneo-share-neutral-20261003-v2.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com"
+  },
+  "fr": {
+    "src": "/social/guteneo-share-fr-20261003-v2.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com — La suite de vos mots. Portrait bleu de Gutenberg, trois hirondelles et signature noire."
+  },
+  "en": {
+    "src": "/social/guteneo-share-en-20261003-v2.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com — Where your words go next. Blue Gutenberg portrait, three swallows and black domain lettering."
+  },
+  "de": {
+    "src": "/social/guteneo-share-de-20261003-v2.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com — Damit Ihre Worte weiterkommen. Blaues Gutenberg-Porträt, drei Schwalben und schwarzer Domain-Schriftzug."
+  },
+  "lb": {
+    "src": "/social/guteneo-share-lb-20261003-v2.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com — Är Wierder ginn op d’Rees. Bloë Gutenberg-Porträt, dräi Villercher an Domain a schwaarzer Schrëft."
+  }
+}

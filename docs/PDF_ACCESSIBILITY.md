@@ -92,3 +92,7 @@ Production activation needs a separately authorized release, private-service
 provisioning/binding, migrations and commercial tax/invoice decisions. No merge,
 production migration/deployment, real charge, communication or marketplace action
 was performed. See [HORIZON_PROOF.md](HORIZON_PROOF.md) for executed checks.
+
+## Public entry integration
+
+The public Horizon offer enters through `/app/plan`, served with `no-store` and `noindex, nofollow` and handed to the existing browser route `/#/app/plan`. This keeps the public offer usable without a false in-page fragment target. GET/HEAD privacy rules, forbidden preview mutations, navigation, reload and absence of preview backend requests are covered by the public-assets/preview-worker tests and preview SEO/fragment browser tests. This entry does not enable subscriptions or diagnostics.

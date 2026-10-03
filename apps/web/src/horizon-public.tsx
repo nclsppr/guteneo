@@ -38,7 +38,7 @@ export function HorizonPublicOffer() {
             "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.",
           )}
         </p>
-        <a className="text-link" href="/#/app/plan">
+        <a className="text-link" href="/app/plan">
           {msg("Découvrir le forfait Horizon")}
         </a>
       </div>

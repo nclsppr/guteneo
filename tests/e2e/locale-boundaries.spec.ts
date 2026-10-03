@@ -305,9 +305,14 @@ test("translated public and account navigation keep the literal ARIA page value"
 }) => {
   await mockAccount(page, { name: "Camille", preferredLocale: null });
   await page.goto("/assistants/");
-  const publicLink = page.locator('header nav a[href="/assistants/"]');
+  const publicLink = page.locator('header nav a[href^="/assistants/"]');
   for (const locale of ["en", "de", "lb"]) {
     await (await publicLanguagePicker(page)).selectOption(locale);
+    await expect(publicLink).toHaveCount(1);
+    await expect(publicLink).toHaveAttribute(
+      "href",
+      `/assistants/?lang=${locale}`,
+    );
     await expect(publicLink).toHaveAttribute("aria-current", "page");
   }
   await page.goto("/#/app/account");

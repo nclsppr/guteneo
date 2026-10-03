@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as React from "react";
+import { renderToString } from "react-dom/server";
 import {
   catalogs,
   getLocale,
@@ -10,10 +11,13 @@ import {
   setLocale,
   t,
   useLocaleSource,
+  useLocale,
 } from "../../apps/web/src/locale";
 import { msg, messages } from "../../apps/web/src/messages";
 import { nanoMoney, money, setSession } from "../../apps/web/src/api";
 import { getCustomerPricing } from "../../apps/web/src/customer-pricing";
+import { getPublicSocialCopy } from "../../apps/web/src/editorial/social-copy";
+import publicSite from "../../packages/contracts/src/public-site.json";
 
 vi.mock("react", async (importOriginal) => {
   const react = await importOriginal<typeof React>();
@@ -75,6 +79,34 @@ describe("complete product language catalogs", () => {
       "Customer-supplied document title",
     );
   });
+  it("provides page-specific metadata for every public route in all four languages", () => {
+    for (const path of publicSite.paths) {
+      const french = getPublicSocialCopy(path, "fr");
+      expect(french?.title).toContain("Guteneo");
+      for (const locale of ["en", "de", "lb"] as const) {
+        const translated = getPublicSocialCopy(path, locale);
+        expect(translated?.title.trim()).toBeTruthy();
+        expect(translated?.description.trim()).toBeTruthy();
+        expect(translated?.description).not.toBe(french?.description);
+      }
+    }
+    expect(getPublicSocialCopy("/unknown/", "en")).toBeNull();
+    setLocale("lb", false);
+    expect(getPublicSocialCopy("/", "de")?.title).toBe(
+      "Guteneo · Damit Ihre Worte weiterkommen.",
+    );
+  });
+  it("server rendering uses the selected build language rather than resetting to French", () => {
+    function ServerLanguage() {
+      return React.createElement("span", null, useLocale());
+    }
+    for (const locale of ["fr", "en", "de", "lb"] as const) {
+      setLocale(locale, false);
+      expect(renderToString(React.createElement(ServerLanguage))).toBe(
+        `<span>${locale}</span>`,
+      );
+    }
+  });
 });
 describe("language precedence and resilient preference storage", () => {
   function browser(
@@ -82,10 +114,21 @@ describe("language precedence and resilient preference storage", () => {
     languages: string[] | undefined,
     search = "",
     language = languages?.[0] ?? "fr",
+    path = "/",
   ) {
     const setItem = vi.fn();
+    const location = new URL(path, "https://guteneo.com");
+    location.search = search;
     vi.stubGlobal("window", {
-      location: { search },
+      location,
+      history: {
+        state: null,
+        replaceState: vi.fn(
+          (_state: unknown, _title: string, url?: string | URL | null) => {
+            if (url) location.href = new URL(url, location).href;
+          },
+        ),
+      },
       localStorage: { getItem: () => stored, setItem, removeItem: vi.fn() },
     });
     vi.stubGlobal("navigator", { languages, language });
@@ -155,7 +198,10 @@ describe("language precedence and resilient preference storage", () => {
       },
     });
     expect(getLocale()).toBe("lb");
-    expect(write).not.toHaveBeenCalled();
+    // The restored ?lang=lb may be persisted again; an account's "de" must never leak into it.
+    for (const call of write.mock.calls) {
+      expect(call).toEqual(["guteneo.locale", "lb"]);
+    }
   });
   it("supports shareable explicit choices but rejects unsupported query values", () => {
     const persist = browser("fr", ["de"], "?lang=en-GB");
@@ -229,6 +275,48 @@ describe("language precedence and resilient preference storage", () => {
     } finally {
       unsubscribe();
       hook.mockReset();
+    }
+  });
+  it("adds a shareable public language choice and removes it when returning to automatic", () => {
+    browser(null, ["fr"], "?campaign=journal", undefined, "/journal/");
+    initializeLocale();
+    expect(window.location.search).toBe("?campaign=journal");
+    setLocale("de");
+    const url = new URL(window.location.href);
+    expect(url.pathname).toBe("/journal/");
+    expect(url.searchParams.get("campaign")).toBe("journal");
+    expect(url.searchParams.getAll("lang")).toEqual(["de"]);
+    setAutomaticLocale();
+    expect(window.location.search).toBe("?campaign=journal");
+    expect(getLocale()).toBe("fr");
+    expect(getLocaleSource()).toBe("browser");
+  });
+  it("restores an explicit saved language in the URL without making browser inference shareable", () => {
+    browser("lb", ["de"], "", undefined, "/support/");
+    initializeLocale();
+    expect(window.location.search).toBe("?lang=lb");
+    browser(null, ["de"], "", undefined, "/support/");
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    expect(window.location.search).toBe("");
+  });
+  it("does not select the first value from conflicting language parameters", () => {
+    browser("lb", ["fr"], "?lang=en&lang=de");
+    initializeLocale();
+    expect(getLocale()).toBe("lb");
+  });
+  it("does not add sharing parameters to authenticated, private-query or unknown routes", () => {
+    for (const [path, search] of [
+      ["/#/app", ""],
+      ["/oauth/authorize", "?client_id=example"],
+      ["/", "?code=private-code&state=private-state"],
+      ["/unknown/", ""],
+    ]) {
+      browser(null, ["fr"], search, undefined, path);
+      const before = window.location.href;
+      setLocale("de");
+      expect(getLocale()).toBe("de");
+      expect(window.location.href).toBe(before);
     }
   });
   it("keeps language selection working when browser storage is unavailable", () => {

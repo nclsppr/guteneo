@@ -7,6 +7,14 @@ import { getArticles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 import { AssistantsPage } from "../assistants-page";
 import { getAssistant } from "../assistant-catalog";
+import { getLocale, getLocaleSource, setLocale } from "../locale";
+import { msg } from "../messages";
+import { getPublicSocialCopy } from "./social-copy";
+import {
+  isSupportedLocale,
+  type SupportedLocale,
+} from "../../../../packages/contracts/src/locale";
+import { localizePublicSchema } from "../public-sharing";
 
 const origin = "https://guteneo.com";
 const publisher = {
@@ -42,7 +50,7 @@ const editor = {
 };
 const author = {
   "@type": "Organization",
-  name: "Rédaction Guteneo",
+  name: "Guteneo",
   url: `${origin}/journal/`,
 };
 
@@ -53,13 +61,13 @@ function breadcrumbs(items: { name: string; path: string }[]) {
     itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      name: item.name,
+      name: msg(item.name),
       item: origin + item.path,
     })),
   };
 }
 
-export function renderPublicPage(pathname: string) {
+function renderPublicContent(pathname: string) {
   const information = getInformationPages()[pathname];
   if (information)
     return {
@@ -100,11 +108,10 @@ export function renderPublicPage(pathname: string) {
   if (pathname === "/")
     return {
       html: renderToString(<Landing />),
-      title: "Guteneo · Vos documents, du numérique au papier",
+      title: "Guteneo · La suite de vos mots.",
       description:
-        "Découvrez Guteneo, l’atelier de correspondance pour préparer vos documents par fax, e-mail et courrier depuis vos assistants IA. Explorez la démo.",
+        "De la conversation à la correspondance. Préparez, approuvez et suivez vos documents par fax, e-mail ou courrier avec Guteneo.",
       canonical: origin + "/",
-      image: "/press-halftone.webp",
       structuredData: [
         { "@context": "https://schema.org", ...publisher },
         editor,
@@ -126,7 +133,6 @@ export function renderPublicPage(pathname: string) {
       description:
         "Intégrez vos PDF à Guteneo : guide REST et MCP, permissions OAuth, approbation humaine, limites et référence OpenAPI en lecture seule. Bêta en préparation.",
       canonical: origin + pathname,
-      image: "/press-halftone.webp",
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -150,6 +156,12 @@ export function renderPublicPage(pathname: string) {
         "De Gutenberg au fax et à l’e-mail, jusqu’aux ateliers luxembourgeois : deux récits documentés et illustrés sur l’histoire de l’imprimerie.",
       canonical: origin + pathname,
       image: "/editorial/gutenberg-to-digital.webp",
+      imageWidth: 1536,
+      imageHeight: 1024,
+      imageType: "image/webp",
+      imageAlt: getArticles().find(
+        (article) => article.slug === "de-gutenberg-au-numerique",
+      )!.hero.alt,
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -183,6 +195,10 @@ export function renderPublicPage(pathname: string) {
     description: article.description,
     canonical: origin + pathname,
     image: article.hero.src,
+    imageWidth: article.hero.width,
+    imageHeight: article.hero.height,
+    imageType: "image/webp",
+    imageAlt: article.hero.alt,
     structuredData: [
       {
         "@context": "https://schema.org",
@@ -207,4 +223,34 @@ export function renderPublicPage(pathname: string) {
       ]),
     ],
   };
+}
+
+/** Build-time only: scope the existing catalogs to one synchronous render. */
+export function renderPublicPage(
+  pathname: string,
+  locale: SupportedLocale | null = null,
+) {
+  if (locale !== null && !isSupportedLocale(locale))
+    throw new Error("Unsupported public locale");
+  const previous = getLocale();
+  const previousSource = getLocaleSource();
+  const language = locale ?? "fr";
+  setLocale(language, false, locale ? "selection" : "browser");
+  try {
+    const page = renderPublicContent(pathname);
+    const copy = getPublicSocialCopy(pathname, language);
+    if (!page || !copy) return null;
+    const canonical = origin + pathname + (locale ? `?lang=${locale}` : "");
+    return {
+      ...page,
+      ...copy,
+      canonical,
+      structuredData: ("structuredData" in page
+        ? (page.structuredData ?? [])
+        : []
+      ).map((item) => localizePublicSchema(item, pathname, locale)),
+    };
+  } finally {
+    setLocale(previous, false, previousSource);
+  }
 }
