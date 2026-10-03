@@ -12,6 +12,16 @@ const cards = JSON.parse(
   ),
 );
 let html = await readFile(source, "utf8");
+const siteStyles = await readFile(
+  join(root, "apps/web/src/styles.css"),
+  "utf8",
+);
+const inkHex = siteStyles.match(/--ink:\s*#([a-f0-9]{6})\s*;/i)?.[1];
+if (!inkHex) throw new Error("The website's brand ink token is missing.");
+const inkColor = `rgb(${inkHex
+  .match(/../g)
+  .map((byte) => parseInt(byte, 16))
+  .join(", ")})`;
 // Embed the approved logo and pinned fonts: the renderer needs no server/network.
 for (const [path, type] of [
   [
@@ -23,6 +33,7 @@ for (const [path, type] of [
     "font/woff2",
   ],
   ["apps/web/public/brand/guteneo-portrait.png", "image/png"],
+  ["apps/web/public/luxembourg-blue-swallow-sheet.webp", "image/webp"],
 ]) {
   const bytes = await readFile(join(root, path));
   html = html.replaceAll(
@@ -42,7 +53,7 @@ try {
     await page.route("**/*", (route) => route.abort());
     await page.setContent(html);
     await page.evaluate(
-      async ({ locale, alt }) => {
+      async ({ locale, alt, inkColor }) => {
         window.renderSocialCard(locale);
         document.querySelector(".stamp").alt = alt;
         await document.fonts.ready;
@@ -65,15 +76,25 @@ try {
             }
           }
         }
+        const wordmark = document.querySelector(".wordmark");
+        const visibleCopy = document.querySelector(".card").innerText.trim();
+        if (
+          wordmark.textContent !== "guteneo.com" ||
+          getComputedStyle(wordmark).color !== inkColor ||
+          (visibleCopy.match(/guteneo/gi) ?? []).length !== 1
+        ) {
+          throw new Error(
+            "The card must contain one lowercase domain in the website's black brand ink.",
+          );
+        }
         if (
           locale === "neutral" &&
-          document.querySelector(".card").innerText.trim() !==
-            "guteneo\n\nguteneo.com"
+          document.querySelector(".card").innerText.trim() !== "guteneo.com"
         ) {
           throw new Error("The neutral social card contains translated copy.");
         }
       },
-      { locale, alt: card.alt },
+      { locale, alt: card.alt, inkColor },
     );
     await mkdir(dirname(output), { recursive: true });
     await page.screenshot({ path: output, type: "png" });

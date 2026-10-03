@@ -46,6 +46,7 @@
         border: 1px solid #2450db;
       }
       .wordmark {
+        color: #181b22;
         position: absolute;
         top: 49px;
         left: 72px;
@@ -84,6 +85,44 @@
         font-size: 78px;
         line-height: 1.1;
       }
+      .bird {
+        position: absolute;
+        display: block;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .bird img {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        max-width: none;
+        left: 0;
+        top: 0;
+      }
+      .bird-one {
+        left: 602px;
+        top: 147px;
+        width: 96px;
+        height: 96px;
+      }
+      .bird-two {
+        left: 668px;
+        top: 89px;
+        width: 64px;
+        height: 64px;
+      }
+      .bird-two img {
+        left: -100%;
+      }
+      .bird-three {
+        left: 734px;
+        top: 53px;
+        width: 42px;
+        height: 42px;
+      }
+      .bird-three img {
+        top: -100%;
+      }
       .stamp {
         position: absolute;
         left: 768px;
@@ -116,17 +155,12 @@
         letter-spacing: 1.3px;
         text-transform: uppercase;
       }
-      .domain {
-        font-size: 42px;
-        line-height: 1;
-        letter-spacing: -0.7px;
-      }
       /* The international card is a complete brand composition of its own. */
       [data-locale="neutral"] .wordmark {
-        top: 183px;
+        top: 234px;
         left: 68px;
-        font-size: 158px;
-        letter-spacing: -6px;
+        font-size: 122px;
+        letter-spacing: -4px;
       }
       [data-locale="neutral"] .stamp {
         left: 730px;
@@ -139,13 +173,7 @@
         top: 380px;
       }
       [data-locale="neutral"] footer {
-        top: 366px;
-        right: auto;
-        padding: 0;
-        border: 0;
-      }
-      [data-locale="neutral"] .domain {
-        font-size: 52px;
+        display: none;
       }
       [hidden] {
         display: none !important;
@@ -154,9 +182,32 @@
   </head>
   <body data-locale="neutral">
     <main class="card">
-      <p class="wordmark">guteneo</p>
+      <p class="wordmark">guteneo.com</p>
       <p class="eyebrow" hidden></p>
       <h1 hidden></h1>
+      <div class="swallows" aria-hidden="true">
+        <span class="bird bird-one"
+          ><img
+            src="../../apps/web/public/luxembourg-blue-swallow-sheet.webp"
+            alt=""
+            width="600"
+            height="600"
+        /></span>
+        <span class="bird bird-two"
+          ><img
+            src="../../apps/web/public/luxembourg-blue-swallow-sheet.webp"
+            alt=""
+            width="600"
+            height="600"
+        /></span>
+        <span class="bird bird-three"
+          ><img
+            src="../../apps/web/public/luxembourg-blue-swallow-sheet.webp"
+            alt=""
+            width="600"
+            height="600"
+        /></span>
+      </div>
       <img
         class="stamp"
         src="../../apps/web/public/brand/guteneo-portrait.png"
@@ -187,7 +238,6 @@
       </svg>
       <footer>
         <span class="channels" hidden></span>
-        <span class="domain">guteneo.com</span>
       </footer>
     </main>
     <script>
