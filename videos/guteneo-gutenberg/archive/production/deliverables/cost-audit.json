@@ -1,0 +1,1799 @@
+{
+  "scope": "Current production flow jFltGQ8YMa9Oub80hm8u; generation price records, not invoices",
+  "rows": [
+    {
+      "key": "prod_tts_run",
+      "count": 32,
+      "credits": 0
+    },
+    {
+      "key": "prod_master_run",
+      "count": 4,
+      "credits": 5109.545199326221
+    },
+    {
+      "key": "prod_scene_image_run",
+      "count": 24,
+      "credits": 30657.271195957343
+    },
+    {
+      "key": "prod_scene_image_run_v",
+      "count": 28,
+      "credits": 35766.81639528356
+    },
+    {
+      "key": "prod_sfx_run",
+      "count": 24,
+      "credits": 453.33333333333354
+    },
+    {
+      "key": "prod_test_run",
+      "count": 1,
+      "credits": 68919.774
+    },
+    {
+      "key": "prod_pixar_master_run",
+      "count": 4,
+      "credits": 5109.545199326221
+    },
+    {
+      "key": "prod_final_tts_run",
+      "count": 4,
+      "credits": 0
+    },
+    {
+      "key": "final_image_run",
+      "count": 52,
+      "credits": 66424.08759124082
+    },
+    {
+      "key": "final_video_run",
+      "count": 6,
+      "credits": 344598.87000000005
+    },
+    {
+      "key": "final_sync_partial_run",
+      "count": 6,
+      "credits": 44644.84416000001
+    }
+  ],
+  "current_traced_credits": 601684.0870744676,
+  "older_project_confirmed_video_and_lipsync_credits": 123555.631651,
+  "older_project_scope_warning": "Separate previous attempt; other old audio/composition prices not accounted for.",
+  "original_dual_format_brief": "Compose the landscape scene for a centered 9:16 crop",
+  "executed_dual_format_strategy": "Generate 14 independent native1080p scenes:7landscape+7portrait",
+  "estimate_for_156_35_usd": {
+    "credits": 947569.476,
+    "scope": "14finalSeedanceclips and estimatedlipsync; excludespreparationandpilot"
+  },
+  "remaining_expected_credits": 558641.706,
+  "current_production_projected_total_credits": 1160325.7930744677,
+  "invoice_eur_unverified": true,
+  "tts_current_reported_credits": 0,
+  "exclusions": [
+    "Eight audio transcription checks not priced in this subtotal",
+    "Prior-project audio and compositions not fully accounted"
+  ],
+  "generation_prices": [
+    {
+      "group": "master",
+      "generations": [
+        {
+          "id": "mtamhveLXEKgwuQPOJnt",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "3njDgeEniTOwUz28wmOu",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "SiUajA06KCLzyqsynAbd",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "sjH1lKAD7UUgvgNfA2oh",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "images_real_h",
+      "generations": [
+        {
+          "id": "ABTomJeF8FE0BNjF6OZS",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "vagU9wGIHZ2L8FVHx5kq",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Wxl4O0ypB0hm990DIzLS",
+          "status": "generating",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "G0WUNuk329SygF4VDhX8",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "8wQgyW54BLQBWvBUO2I7",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "hXE56IdB3MBQDoeITRIl",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "IQp02PndCfQ1rn9cPYzN",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HaOtb7saDbTPkj78RVTW",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "V5frhaDv6w3bMOg6Y9BJ",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ygRhewicNlAnnU1SRMC9",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "E7ffKAv6edkKPMXDFg5k",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "VkZkA7MEiUBaAE9Iznri",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "nsjjQNkHT15nCLY1FLER",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "dXuQTp8EOyaLeZ2nI4D2",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "tSN7DP0HPV2Q5q6uW406",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Y0zrmulQ2f5fWX56yQ6a",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "1wCHtF5AM6vwfLtaLlw3",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "4bZbiFWt68Ik5NHhGLKk",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "09wnaXSY7fexMLehUbR0",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "orKjlvO2BCKXk1hFHc4K",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ZUfGV6ziYSTND3Ujuqly",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "tzQ2g2vNHLz02VvObVvt",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Fp5ekEJuxGpkzMwLoONk",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "nLWVlV4yZSWIe7moGsbI",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "images_real_v",
+      "generations": [
+        {
+          "id": "4saFV7sNSdjKRLi0ENiR",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "0PyWJYKW6sRw5HJn9itG",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "0FKIFgRILv4zGjTBy7y3",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "YdVqrTWMhOvlQAe0L3mp",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "niKdXhouHWwfWc2ARtlG",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "mxkTQ8sIclr0FMHfkv5B",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HG99A6OY049gsabIYtxx",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "mdAfVxX8mKeQh7dd2T6D",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Zp2swZjdQfFlvH2DnOQz",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HAgzw6YdxBvD4RZJSeRz",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "OFLKQsHpoNmFdf8PaRu6",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "zezdJK6wvl0NHpK8yuhb",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Cf0ZRdPSO6LzM4Rdf9nu",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "dmnvC2bWuZ7fjkNXW3fb",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "UN428hbud8uVotwqHI6u",
+          "status": "pending",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "3cMFPqNHSuTNB3EUPHTV",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "4hQcggZQPrYDau4texks",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "qubjEJQ5WLxxYrlvI5VD",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Mavwt90gP7s9a4WPzPgI",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "1A823CODrso7JaHMwlPn",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Vo2rRnSbs56UYdhTgcFE",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "fNh0KUxrMdlSdS0TBPF9",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "IQZ83BYZRovgrkY7ADdx",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Rr5HSPBcm2GxayXaJRlN",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "z343hCIbCBnZIMb8KeH6",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "iiYWZi6xjU003TdvuuJO",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "F37zkc1K8CNAoEgaPGkH",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "DlgStC4REZx5Yh5xFocN",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "pixar_master",
+      "generations": [
+        {
+          "id": "zWDX6ShxhhmN1pnGshOa",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Tb7l3CjKACyi6nj7drb2",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "SiAu4lCS1phZ5ezibDV1",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "W92JnsFWXcWQCrnrEBRA",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "images_pixar",
+      "generations": [
+        {
+          "id": "6wy8dIl3aINTjBamhkv6",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "SE4jljuJSSvGHyGmq4VW",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "it5mymt0LWDFYHWqdXeC",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Y9f3riWAHcMmJiO4yFlI",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "VNH2nG5QMKoA7R32UAce",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "gYgDJkZFdnFHILSEGpbo",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "GISnXUHUtI0rZzjCDOs0",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "7Ed42xjTsLWGOZuP8Zmz",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "vTv5EEc39mXp0t1pSZh5",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "oMYhqfm40Wy93ayPb4BI",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "AmvITj0mE8nYLQDQPea0",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "rNd9vF5IuSPXg8piREKz",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "gGlV6aw9QNJG3bMnw2VW",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "VSBzCxz4YLPsByp6dDbJ",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "kvsuUVAFSpFQzfY6Fyc8",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "sFgHd3xwWVH1HABKQyDj",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Cr4h110fpaVqRM6ipm1I",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "6iO0sDMHLYCgGdVFM2JY",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ZB5Yb1EGFsZagbjSNSWa",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "bU663LhtJNU8qGncr3zo",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "8sLFh7htjYCeNU7LkfnF",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ZMEiieRKlYrc6rVg5IwR",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "mbt442T1VBuuohAwxUSb",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "VG2Mc6QyvOyt8KTpcYX5",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ANB2Bye4FLALdhYg7ieo",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "pBX7RcwcIcG5aIuOTBCW",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "32qHNUs10pGnPREuJg1j",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ltqa6qHmHKjbG7zCm4tj",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "WVUDaqK9CUjIRBhoGffo",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "FiBlEpsMOgSLN3fDZE0Z",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "52CfWjnaQpK4HLyJg8WU",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "CPPzmoAO7wBdyAk1oAf4",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "rcwEIwXcgbvnVhK00WJx",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "KBvkF6VZh4yA5F6RGEgl",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "JqETy29gv09GuWgctObU",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "IZrO81z85AqggBw3p0po",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "nCB0dw5DSufCRdWbqPlj",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "wedUtO6gBTgnp1b4K1he",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ooJrYVJATifEsGhG8HZF",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "EHBmRxcAF8XxGvlrgpdy",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "5WR9kXc51wOnteBuFocn",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "LdTUGrImNrEvZ7LKpwtb",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "tfbXGpxl7kjIxmBFQLWX",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Eqx0mycCSRnQhZDJ2g4p",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "PsNRQcqtiiyqV1Rn76yG",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "a6SMhcmOibSQeyPd7J8q",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Ki1yhxAmhkLvAd9gXs6W",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "FLOugWSPwmC6jq8W1gb2",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "75wpBjIwMfSoUGlB9bmt",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Jk2K4JKcBBdIgrULDquZ",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "MmRhftTTlz370sE9FpgD",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "a7l9gZYmditExAqsRv2u",
+          "status": "completed",
+          "price": {
+            "credits": 1277.3862998315553,
+            "price_cents": 21.076873947220662,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "sfx",
+      "generations": [
+        {
+          "id": "nNI5tSr00utiPNWaxsze",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "LYPIrT02HkUs7if7HMuG",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "qSOc8vMlF6wYqDhAjyPT",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "F6mGrjDaMZpPN6C6Yx3h",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HjF7tToXGeNhHqsEhwIt",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "MhxmCI7siCli5v46EexD",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "bwYBOdeVNRTnST7DpObq",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "xRVikUq3a0LHqytBbvIE",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "6gI28V1pM1effQS7kffY",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "qVWczXMslpynCWcllgLj",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "LmgmvgP1uEp6ebuqyThn",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HZn7mg8TnbfUQqTq79TR",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "aLcck7j8ltfJ3VRMZree",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "SUlcT5YEJXbWjs2M7uD6",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "yA34CbYJ1yZwSypK3Kfc",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "VqpJDexM8zVn7gNNk10y",
+          "status": "completed",
+          "price": {
+            "credits": 20.000000000000004,
+            "price_cents": 0.33000000000000007,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "RfkVau7Qt8vH8CZdp4Io",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Eaystg5eLy9FxpuZIWeM",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "fbzSCVRO3mCxTPG6pffH",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "CadBbnDpZPn5GFvHvXNq",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "gfZ3McJvZOfesw0Wk5R6",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "N3psWjylznRiCsEq5Oj3",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "YLkLZvstOIrRjHJ8RA2R",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "m4y7OQQntXgvBSAuVvx6",
+          "status": "completed",
+          "price": {
+            "credits": 16.666666666666668,
+            "price_cents": 0.275,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "pilot",
+      "generations": [
+        {
+          "id": "7kcxmQaOd2iQnhWV6Ao0",
+          "status": "completed",
+          "price": {
+            "credits": 68919.774,
+            "price_cents": 1137.176271,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "final_video",
+      "generations": [
+        {
+          "id": "wlkZ7ZUqZ2F1LHacwslg",
+          "status": "completed",
+          "price": {
+            "credits": 56388.90600000001,
+            "price_cents": 930.4169490000002,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "mzDBwBWuniJ3nqjL8Ztw",
+          "status": "completed",
+          "price": {
+            "credits": 62654.34000000001,
+            "price_cents": 1033.79661,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "QC1Iy7A171bYgpVZXjFp",
+          "status": "completed",
+          "price": {
+            "credits": 50123.47200000001,
+            "price_cents": 827.0372880000001,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "XbtoAeMWBBWMPohCYWOG",
+          "status": "completed",
+          "price": {
+            "credits": 56388.90600000001,
+            "price_cents": 930.4169490000002,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "NECSTL7fMnrmuOqwnDNr",
+          "status": "completed",
+          "price": {
+            "credits": 56388.90600000001,
+            "price_cents": 930.4169490000002,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ovChZku0IquYggtGTXN9",
+          "status": "completed",
+          "price": {
+            "credits": 62654.34000000001,
+            "price_cents": 1033.79661,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "final_sync",
+      "generations": [
+        {
+          "id": "DBH9YELqXoFpupCqZcNe",
+          "status": "completed",
+          "price": {
+            "credits": 7298.95488,
+            "price_cents": 120.43275552,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Twg1yc6OBTJtweMNCStJ",
+          "status": "completed",
+          "price": {
+            "credits": 8124.278400000001,
+            "price_cents": 134.0505936,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "an5nfIn62wGBLix0hZBR",
+          "status": "completed",
+          "price": {
+            "credits": 6499.4227200000005,
+            "price_cents": 107.24047488000001,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "uEBm6agGGxEIwY5tscrs",
+          "status": "completed",
+          "price": {
+            "credits": 7298.95488,
+            "price_cents": 120.43275552,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "FY4ErULCpcZ4ka3gQ7p2",
+          "status": "completed",
+          "price": {
+            "credits": 7298.95488,
+            "price_cents": 120.43275552,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "GfrsEBRK4Opv6jAI5rWW",
+          "status": "completed",
+          "price": {
+            "credits": 8124.278400000001,
+            "price_cents": 134.0505936,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "tts",
+      "generations": [
+        {
+          "id": "OO3FrGhRp4JJkFVzrmAa",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "mpQWXD6KAk43O1c1Ai1Q",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "NyHmM3b5u11JFmoUCUdw",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "MhneM3vIUTObzh11884g",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "waFt9Nv7dx60OOySZHCW",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "JsXOtL6rftVhomFcHx6g",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "dXfRaR6pDXj9mIBE6mvw",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "770FezNQaMuY4c8EYxTf",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "pMMdV6wLERtq4bXSbQPy",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "ou3DpW93s8Gqpm4X54An",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "SMrZF9qMxEjdWzZpUvYp",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "6At2cQrSmXPL4fAx3Uy6",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "Qipw59eo7k62wrlarUFg",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "QTIJbbfmBxX3FjvCAHzn",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "X6AeM3HGlK6V6svqtHfn",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "pTpv6QHNToTCxf9Z97IG",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "g9Mnd5pX6rfoJwkVH9eQ",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "qMKGxkCdGzAJmTRkV8e2",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "DwpnVrm5VkCyzOW8JeZS",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "yqFUapRcs64blMpxzw5c",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "0x3BXWYFRT61wwMowObJ",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "K0YvLwn4WJAZ2FAPzeIr",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "62LmK4q54phBSNxztT9C",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "EXlRjhZGuaXumjXGiQC1",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "xSdrZ461QPczUe6Gf4G5",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "LP60aaESeKJwdQ3tcqSi",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "UoA2rPhBu1cMRPpe0UHT",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "rSkTFnyZohNXGSDtveVv",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "kqx4wineisZxtbLXF3i2",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "rHUzT7wdxYA40rqBJIrF",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "G5X3tcfi8urn3dkuN6Ar",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "TuYGqHhMPveKKvD4RRVo",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    },
+    {
+      "group": "final_tts",
+      "generations": [
+        {
+          "id": "Wb6zds0MOanekdorzifd",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "JMrKeONUGQZjPY7a7MBG",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "HRNIaCR9S73wOix8GqQK",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        },
+        {
+          "id": "0mVdwwIb9OspxOqD2wa0",
+          "status": "completed",
+          "price": {
+            "credits": 0,
+            "price_cents": 0,
+            "cost_fiat_currency": "usd"
+          }
+        }
+      ]
+    }
+  ]
+}

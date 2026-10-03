@@ -1,0 +1,44 @@
+[
+  {
+    "file": "h-05-sync.mp4",
+    "width": 1920,
+    "height": 1080,
+    "duration": "9.041667",
+    "full1080": true
+  },
+  {
+    "file": "h-07-sync.mp4",
+    "width": 1920,
+    "height": 1080,
+    "duration": "10.041667",
+    "full1080": true
+  },
+  {
+    "file": "v-04-sync.mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": "8.041667",
+    "full1080": true
+  },
+  {
+    "file": "v-05-sync.mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": "9.041667",
+    "full1080": true
+  },
+  {
+    "file": "v-06-sync.mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": "9.041667",
+    "full1080": true
+  },
+  {
+    "file": "v-07-sync.mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": "10.041667",
+    "full1080": true
+  }
+]

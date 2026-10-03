@@ -1,0 +1,42 @@
+{
+  "input": "/workspace/guteneo/verification/02-papyrus.mp4",
+  "duration_seconds": 8.041667,
+  "width": 1280,
+  "height": 720,
+  "video_codec": "h264",
+  "video_stream_index": 0,
+  "average_frame_rate": 24.0,
+  "has_audio": true,
+  "audio_streams": [
+    {
+      "index": 1,
+      "codec_name": "aac",
+      "sample_rate": "32000",
+      "channels": 2,
+      "channel_layout": "stereo",
+      "duration": "8.096000"
+    }
+  ],
+  "review_frames": [
+    {
+      "time_seconds": 0.402083,
+      "file": "frame_01_0000.402s.png"
+    },
+    {
+      "time_seconds": 2.211458,
+      "file": "frame_02_0002.211s.png"
+    },
+    {
+      "time_seconds": 4.020834,
+      "file": "frame_03_0004.021s.png"
+    },
+    {
+      "time_seconds": 5.830209,
+      "file": "frame_04_0005.830s.png"
+    },
+    {
+      "time_seconds": 7.639584,
+      "file": "frame_05_0007.640s.png"
+    }
+  ]
+}

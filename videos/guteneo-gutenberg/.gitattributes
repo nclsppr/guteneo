@@ -1,0 +1,11 @@
+*.png binary -filter
+*.jpg binary -filter
+*.webp binary -filter
+*.mp4 binary -filter
+*.mp3 binary -filter
+*.wav binary -filter
+*.zip binary -filter
+*.part binary -filter
+# Preserve whitespace in captured public-page source and extracted text.
+archive/brand-reference/homepage.html -whitespace
+archive/production/product/page-text.txt -whitespace

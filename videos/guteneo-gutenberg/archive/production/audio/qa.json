@@ -1,0 +1,211 @@
+{
+  "flow_id": "jFltGQ8YMa9Oub80hm8u",
+  "created_at": "2026-10-03",
+  "method": "One ElevenLabs creative_transcribe_audio call per generated audio node, followed by decoded PCM/FFprobe checks. No perceptual listening or accent validation.",
+  "transcription_caveat": "Returned transcripts contain exact original inline direction tags [warmly] [slowly] and punctuation. They may reflect source metadata or source-informed transcription; cannot treat them as independent intelligibility confirmation.",
+  "speech_omissions_in_returned_text": [],
+  "accent_assessment": "not assessed",
+  "transcripts": [
+    {
+      "scene": 1,
+      "generation_id": "JFPBTRgE73X066FE7pmW",
+      "transcript": "[warmly] [slowly] Je suis Gutenberg. Bien avant mes livres, on gravait les messages dans la pierre. Solide… mais peu pratique à transporter !",
+      "spoken_duration_secs": 9.2,
+      "expected_words_match": true
+    },
+    {
+      "scene": 2,
+      "generation_id": "Qfr7FsKnofyazaRHNCR7",
+      "transcript": "[warmly] [slowly] En Égypte, le papyrus change la donne. Léger, il se roule et s’emporte. Les mots voyagent avec ceux qui les portent.",
+      "spoken_duration_secs": 9.76,
+      "expected_words_match": true
+    },
+    {
+      "scene": 3,
+      "generation_id": "oRpLmcfKEyinqLCTaYvW",
+      "transcript": "[warmly] [slowly] Au quinzième siècle, mes caractères mobiles contribuent à multiplier les livres en Europe. Une même idée peut toucher des milliers de lecteurs.",
+      "spoken_duration_secs": 9.12,
+      "expected_words_match": true
+    },
+    {
+      "scene": 4,
+      "generation_id": "96gpBoKmpmVtNGGpohnJ",
+      "transcript": "[warmly] [slowly] Puis le fax transmet les documents à distance. Une feuille entre ici… sa copie apparaît ailleurs.",
+      "spoken_duration_secs": 7.2,
+      "expected_words_match": true
+    },
+    {
+      "scene": 5,
+      "generation_id": "MBBb1dDhwNKAFZHwKPau",
+      "transcript": "[warmly] [slowly] Avec les emails, quelques secondes suffisent. Le message traverse les frontières et rejoint son destinataire.",
+      "spoken_duration_secs": 7.28,
+      "expected_words_match": true
+    },
+    {
+      "scene": 6,
+      "generation_id": "MLfujDIb3MTqq8IOUDKw",
+      "transcript": "[warmly] [slowly] Avec les sites internet, l’information se consulte à toute heure. Elle devient une porte ouverte sur vos idées.",
+      "spoken_duration_secs": 7.28,
+      "expected_words_match": true
+    },
+    {
+      "scene": 7,
+      "generation_id": "TobCarnqZv3ljvdAk5Cw",
+      "transcript": "[warmly] [slowly] Les supports évoluent. L’essentiel demeure : un message clair, qui trouve son public. C’est l’ambition de Guteneo.",
+      "spoken_duration_secs": 8.8,
+      "expected_words_match": true
+    },
+    {
+      "scene": 8,
+      "generation_id": "Ye50PN0YsEebW1dicxgL",
+      "transcript": "[warmly] Guteneo. La suite de vos mots.",
+      "spoken_duration_secs": 2.72,
+      "expected_words_match": true
+    }
+  ],
+  "technical_summary": {
+    "decoded_durations_seconds": [
+      9.2,
+      9.68,
+      9.04,
+      7.12,
+      7.28,
+      7.28,
+      8.8,
+      2.72
+    ],
+    "total_decoded_duration_seconds": 61.12,
+    "clipped_samples": 0,
+    "all_files_have_low_level_leading_and_trailing_margins": true,
+    "min_leading_margin_seconds": 0.19,
+    "min_trailing_margin_seconds": 0.2,
+    "peak_range_dbfs": [
+      -7.55,
+      -1.62
+    ],
+    "format": "MP3, 44.1 kHz, mono",
+    "warning": "Manon scene 8 is approximately 5–6 dB quieter than François-Louis on RMS; normalize speech consistently in final mix. Do not trim margins or compress speech timing to video."
+  },
+  "technical_details": [
+    {
+      "file": "/workspace/guteneo/production/audio/01-voix.mp3",
+      "decoded_duration_s": 9.2,
+      "probe_duration_s": 9.247347,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -1.6208413764307181,
+      "rms_dbfs": -19.295276641845703,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.31,
+      "trailing_below_minus45db_s": 0.33000000000000007,
+      "first_20ms_peak_dbfs": -82.79464178388268,
+      "last_20ms_peak_dbfs": -83.11214722105602
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/02-voix.mp3",
+      "decoded_duration_s": 9.68,
+      "probe_duration_s": 9.717551,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -2.3738855935887058,
+      "rms_dbfs": -19.852779388427734,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.19,
+      "trailing_below_minus45db_s": 0.23000000000000043,
+      "first_20ms_peak_dbfs": -83.20179470480039,
+      "last_20ms_peak_dbfs": -76.26293591769466
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/03-voix.mp3",
+      "decoded_duration_s": 9.04,
+      "probe_duration_s": 9.090612,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -2.186295318337147,
+      "rms_dbfs": -18.572572708129883,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.21,
+      "trailing_below_minus45db_s": 0.1999999999999993,
+      "first_20ms_peak_dbfs": -83.29546040957743,
+      "last_20ms_peak_dbfs": -83.24595529623195
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/04-voix.mp3",
+      "decoded_duration_s": 7.12,
+      "probe_duration_s": 7.157551,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -2.948816422681939,
+      "rms_dbfs": -19.609230041503906,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.2,
+      "trailing_below_minus45db_s": 0.20999999999999996,
+      "first_20ms_peak_dbfs": -80.35811485029245,
+      "last_20ms_peak_dbfs": -67.07537001448542
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/05-voix.mp3",
+      "decoded_duration_s": 7.28,
+      "probe_duration_s": 7.314286,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -2.829590888985818,
+      "rms_dbfs": -19.137435913085938,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.25,
+      "trailing_below_minus45db_s": 0.33000000000000007,
+      "first_20ms_peak_dbfs": -81.22558166762887,
+      "last_20ms_peak_dbfs": -83.1580184052236
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/06-voix.mp3",
+      "decoded_duration_s": 7.28,
+      "probe_duration_s": 7.314286,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -2.336024952699067,
+      "rms_dbfs": -19.84891128540039,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.25,
+      "trailing_below_minus45db_s": 0.33000000000000007,
+      "first_20ms_peak_dbfs": -83.30117374595623,
+      "last_20ms_peak_dbfs": -83.41658991062879
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/07-voix.mp3",
+      "decoded_duration_s": 8.8,
+      "probe_duration_s": 8.829388,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -1.7936789100370736,
+      "rms_dbfs": -20.063232421875,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.23,
+      "trailing_below_minus45db_s": 0.3200000000000003,
+      "first_20ms_peak_dbfs": -81.71281670057027,
+      "last_20ms_peak_dbfs": -82.93380825860115
+    },
+    {
+      "file": "/workspace/guteneo/production/audio/08-voix.mp3",
+      "decoded_duration_s": 2.72,
+      "probe_duration_s": 2.76898,
+      "sample_rate": 44100,
+      "channels": 1,
+      "codec": "mp3",
+      "peak_dbfs": -7.5533592390135365,
+      "rms_dbfs": -25.07470703125,
+      "samples_above_0_999": 0,
+      "leading_below_minus45db_s": 0.19,
+      "trailing_below_minus45db_s": 0.3200000000000003,
+      "first_20ms_peak_dbfs": -77.87895309948883,
+      "last_20ms_peak_dbfs": -83.1980138055652
+    }
+  ]
+}

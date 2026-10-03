@@ -1,0 +1,49 @@
+{
+  "version": "2",
+  "status": "preproduction",
+  "user_requirements": {
+    "office": "Redesign as a believable, restrained Luxembourg office. Original blue-and-ivory image is conceptual inspiration only. Remove decorative blue city wallpaper and visual clutter.",
+    "view": "Realistic window view of Luxembourg City; proposal: Grund, Alzette valley and Corniche, pending visual reference.",
+    "materials": "Warm off-white plaster, natural wood, restrained deep blue accents, daylight, a few functional objects.",
+    "protagonist": "Gutenberg centered throughout all shots; consistent character identity.",
+    "dual_format": "Gutenberg, face, mouth, hands and essential props centered. Compose the landscape scene for a centered 9:16 crop and check the homepage iPhone reference ratio 1320:2868. Preserve official end cards in their own native formats.",
+    "narration": {
+      "voice_name": "François-Louis",
+      "voice_id": "UBXZKOKbt62aLQHhc1Jm",
+      "model": "eleven_v4"
+    },
+    "closing_voice": {
+      "voice_name": "Manon",
+      "candidate_voice_id": "m5U7XCsc8v988k2RJAqN",
+      "line": "Guteneo. La suite de vos mots.",
+      "reference": "Must match the homepage video; prefer its existing closing audio if available."
+    },
+    "closing_image": "Reuse official homepage end cards in their original formats: ivory background, central tilted blue Gutenberg stamp, black LUXEMBOURG postmark, black guteneo.com below. Blue swallows cross above and leave the frame.",
+    "swallows": "Optional passing swallows before or around the closing image, preserving brand legibility and fidelity to the homepage ending.",
+    "video_model": "bytedance-seedance-v2.5",
+    "resolution": "1080p",
+    "closing_sequence": "Around 60–61s in reference: blue background with white La suite de vos mots. and white swallows. From ~61.5s: ivory stamp end card with blue swallows; settled frame around64s."
+  },
+  "source_urls": [
+    "https://guteneo.com/",
+    "https://guteneo.com/videos/guteneo-horizontal-v8-fr.mp4",
+    "https://guteneo.com/videos/guteneo-vertical-v8-fr.mp4"
+  ],
+  "outstanding": [
+    "Validate François-Louis audition",
+    "Create or confirm Manon signature audio matching homepage identity",
+    "Check total production cost before rendering all scenes"
+  ],
+  "brand_assets": {
+    "horizontal_endcard": "/workspace/guteneo/brand-reference/endcard-horizontal-at-64.png",
+    "vertical_endcard": "/workspace/guteneo/brand-reference/endcard-vertical-at-64.png",
+    "horizontal_video_size": [
+      1920,
+      1080
+    ],
+    "vertical_video_size": [
+      1320,
+      2868
+    ]
+  }
+}

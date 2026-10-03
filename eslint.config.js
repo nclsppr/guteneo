@@ -10,6 +10,8 @@ export default tseslint.config(
       "test-results/**",
       // Independent Remotion package with its own ESLint version and checks.
       "videos/guteneo-film/**",
+      // Immutable audiovisual archive, including captured website bundles.
+      "videos/guteneo-gutenberg/archive/**",
     ],
   },
   ...tseslint.configs.recommended,

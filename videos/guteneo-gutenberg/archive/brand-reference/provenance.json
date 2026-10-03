@@ -1,0 +1,27 @@
+{
+  "source_page": "https://guteneo.com/",
+  "source_movies": {
+    "horizontal": "https://guteneo.com/videos/guteneo-horizontal-v8-fr.mp4",
+    "vertical": "https://guteneo.com/videos/guteneo-vertical-v8-fr.mp4"
+  },
+  "captions": "https://guteneo.com/videos/guteneo-v8.fr.vtt",
+  "footer_stamp_asset": "https://guteneo.com/brand/gutenberg-guteneo-stamp.webp",
+  "duration_seconds": 66.5,
+  "dimensions": {
+    "horizontal": [
+      1920,
+      1080
+    ],
+    "vertical": [
+      1320,
+      2868
+    ]
+  },
+  "closing_sequence": {
+    "59.5_to_61.5": "Blue background; white serif La suite de vos mots.; de vos mots italic; swallows flying.",
+    "61.5_to_66.5": "Ivory background; blue Gutenberg postage stamp and Luxembourg cancellation mark; guteneo.com below; blue swallows pass during opening seconds.",
+    "64.0": "Clean end card; swallows have left horizontal frame.",
+    "66.4": "Same clean end card persists, no black fade."
+  },
+  "audio_note": "Public captions list last spoken narration ending at 58.841 seconds; thereafter only instrumental music. Signature wording is not present in the published captions. No listening verification performed."
+}

@@ -1,0 +1,64 @@
+{
+  "final_status": "partial_due_to_ElevenLabs_quota",
+  "complete_scene_references": 14,
+  "completed_seedance_clips": 6,
+  "missing_seedance_clips": 8,
+  "remaining_credit_estimate": 560000,
+  "requested_outputs": [
+    "1920x1080",
+    "1080x1920"
+  ],
+  "intended_final_duration_seconds": 74,
+  "quality": "Seedance2.5 native1080p, unchanged",
+  "audio": "Original ElevenLabs v4 Francois-Louis, Manon ending, ElevenLabs effects",
+  "brand": "Exact official homepage ending including swallows",
+  "product_ui": "Real screenshots only",
+  "missing_shots": [
+    {
+      "scene": 1,
+      "format": "h"
+    },
+    {
+      "scene": 2,
+      "format": "h"
+    },
+    {
+      "scene": 3,
+      "format": "h"
+    },
+    {
+      "scene": 4,
+      "format": "h"
+    },
+    {
+      "scene": 6,
+      "format": "h"
+    },
+    {
+      "scene": 1,
+      "format": "v"
+    },
+    {
+      "scene": 2,
+      "format": "v"
+    },
+    {
+      "scene": 3,
+      "format": "v"
+    }
+  ],
+  "completed_sync_clips": 6,
+  "partial_samples": [
+    {
+      "file": "Extrait-Pixar2-Instagram-43s.mp4",
+      "duration": 43,
+      "resolution": "1080x1920"
+    },
+    {
+      "file": "Extrait-Pixar2-Horizontal-17s.mp4",
+      "duration": 17,
+      "resolution": "1920x1080"
+    }
+  ],
+  "technical_qa": "Passed: resolution, duration, decode, audio peaks, real-site pixels for vertical insert."
+}

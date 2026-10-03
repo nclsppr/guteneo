@@ -1,0 +1,53 @@
+{
+  "file": "/workspace/guteneo/production/deliverables/Extrait-Pixar2-Horizontal-17s.mp4",
+  "duration": 17.0,
+  "width": 1920,
+  "height": 1080,
+  "fps": "30/1",
+  "codec": "h264",
+  "profile": "High",
+  "pixel_format": "yuv420p",
+  "sample_rate": 48000,
+  "channels": 2,
+  "audio_codec": "aac",
+  "audio_bitrate": "249856",
+  "integrated_lufs": -16.04,
+  "true_peak_dbfs": -2.1,
+  "bytes": 6214744,
+  "checks": {
+    "expected_resolution": true,
+    "expected_duration": true,
+    "thirty_fps": true,
+    "true_peak_below_minus_one": true,
+    "stereo_48khz": true,
+    "decodes_without_errors": true
+  },
+  "product_capture_checks": [],
+  "sample_type": "partial, not the full historical film",
+  "source_scene_numbers": [
+    7
+  ],
+  "source_clips": [
+    "/workspace/guteneo/production/video/final/h-07-sync.mp4"
+  ],
+  "original_voice_files": [
+    "/workspace/guteneo/production/audio/07-voix.mp3",
+    "/workspace/guteneo/production/audio/08-voix.mp3"
+  ],
+  "official_ending_duration_seconds": 7.0,
+  "narration_and_sfx": "Original ElevenLabs narration, no time-stretch; dialogue -16 LUFS, subtle foley -34 LUFS.",
+  "review_frames": [
+    {
+      "time_seconds": 2,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-horizontal-scene-07.png"
+    },
+    {
+      "time_seconds": 11.0,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-horizontal-endcard-blue.png"
+    },
+    {
+      "time_seconds": 15.0,
+      "file": "/workspace/guteneo/production/deliverables/qa-frames/partial-horizontal-endcard-logo.png"
+    }
+  ]
+}

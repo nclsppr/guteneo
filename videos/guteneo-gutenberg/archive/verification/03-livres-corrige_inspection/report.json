@@ -1,0 +1,42 @@
+{
+  "input": "/workspace/guteneo/verification/03-livres-corrige.mp4",
+  "duration_seconds": 7.88,
+  "width": 1280,
+  "height": 720,
+  "video_codec": "h264",
+  "video_stream_index": 0,
+  "average_frame_rate": 25.0,
+  "has_audio": true,
+  "audio_streams": [
+    {
+      "index": 1,
+      "codec_name": "aac",
+      "sample_rate": "44100",
+      "channels": 1,
+      "channel_layout": "mono",
+      "duration": "7.848005"
+    }
+  ],
+  "review_frames": [
+    {
+      "time_seconds": 0.394,
+      "file": "frame_01_0000.394s.png"
+    },
+    {
+      "time_seconds": 2.167,
+      "file": "frame_02_0002.167s.png"
+    },
+    {
+      "time_seconds": 3.94,
+      "file": "frame_03_0003.940s.png"
+    },
+    {
+      "time_seconds": 5.713,
+      "file": "frame_04_0005.713s.png"
+    },
+    {
+      "time_seconds": 7.486,
+      "file": "frame_05_0007.486s.png"
+    }
+  ]
+}

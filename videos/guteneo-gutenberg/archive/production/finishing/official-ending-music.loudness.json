@@ -1,0 +1,16 @@
+{
+  "source": "/workspace/guteneo/brand-reference/guteneo-homepage-horizontal-v8-fr.mp4",
+  "target_lufs": -34,
+  "source_measurement": {
+    "input_i": "-30.48",
+    "input_tp": "-15.16",
+    "input_lra": "8.10",
+    "input_thresh": "-41.25",
+    "output_i": "-35.38",
+    "output_tp": "-21.12",
+    "output_lra": "7.30",
+    "output_thresh": "-46.13",
+    "normalization_type": "dynamic",
+    "target_offset": "1.38"
+  }
+}

@@ -1,0 +1,881 @@
+{
+  "flow_id": "jFltGQ8YMa9Oub80hm8u",
+  "style_reference": "Tb7l3CjKACyi6nj7drb2",
+  "script": [
+    "Je suis Gutenberg. Bien avant mes livres, on gravait les messages dans la pierre. Solide… mais peu pratique à transporter !",
+    "En Égypte, le papyrus change la donne. Léger, il se roule et s’emporte. Les mots voyagent avec ceux qui les portent.",
+    "Au quinzième siècle, mes caractères mobiles contribuent à multiplier les livres en Europe. Une même idée peut toucher des milliers de lecteurs.",
+    "Puis le fax transmet les documents à distance. Une feuille entre ici… sa copie apparaît ailleurs.",
+    "Avec les emails, quelques secondes suffisent. Le message traverse les frontières et rejoint son destinataire.",
+    "Avec les sites internet, l’information se consulte à toute heure. Elle devient une porte ouverte sur vos idées.",
+    "Guteneo réunit fax, email et courrier dans votre conversation. Vous vérifiez les détails, confirmez l’envoi, puis suivez son résultat.",
+    "Guteneo. La suite de vos mots."
+  ],
+  "durations": [
+    10,
+    11,
+    10,
+    8,
+    9,
+    9,
+    10
+  ],
+  "audio_refs": [
+    {
+      "scene": 1,
+      "node_id": "k0bIzECl5ALquFQHFnyf",
+      "generation_id": "OO3FrGhRp4JJkFVzrmAa",
+      "duration": 9.2
+    },
+    {
+      "scene": 2,
+      "node_id": "5QayXiUpK1vcxXgE4OQ2",
+      "generation_id": "JsXOtL6rftVhomFcHx6g",
+      "duration": 9.68
+    },
+    {
+      "scene": 3,
+      "node_id": "RwVjpSHSuad5DcRPy31i",
+      "generation_id": "pMMdV6wLERtq4bXSbQPy",
+      "duration": 9.04
+    },
+    {
+      "scene": 4,
+      "node_id": "NxPZtSeNG2Fte86sChWy",
+      "generation_id": "Qipw59eo7k62wrlarUFg",
+      "duration": 7.12
+    },
+    {
+      "scene": 5,
+      "node_id": "RVGYvnAMaeSUzNYjE4Xh",
+      "generation_id": "qMKGxkCdGzAJmTRkV8e2",
+      "duration": 7.28
+    },
+    {
+      "scene": 6,
+      "node_id": "lH4H7WSwZ0gcvV3obBr9",
+      "generation_id": "62LmK4q54phBSNxztT9C",
+      "duration": 7.28
+    },
+    {
+      "scene": 7,
+      "node_id": "pF0Gt3JJpne3FoDLJTHW",
+      "generation_id": "Wb6zds0MOanekdorzifd",
+      "duration": 9.68
+    },
+    {
+      "scene": 8,
+      "node_id": "Fof3aLiDbW60XJnERJme",
+      "generation_id": "TuYGqHhMPveKKvD4RRVo",
+      "duration": 2.72
+    }
+  ],
+  "audio_padded_refs": [
+    {
+      "scene": 1,
+      "node_id": "qibYSByZkeMPNH0y5VJI"
+    },
+    {
+      "scene": 2,
+      "node_id": "cRdosUjeA2gJlMRabHBX"
+    },
+    {
+      "scene": 3,
+      "node_id": "uhM3xETC3vb56WcsLnZo"
+    },
+    {
+      "scene": 4,
+      "node_id": "sA6PI73Y7IVQfzFZGWLv"
+    },
+    {
+      "scene": 5,
+      "node_id": "xQM23C9EoqFYyW9di5P2"
+    },
+    {
+      "scene": 6,
+      "node_id": "OHQnbER3lkN2p6iUFDoY"
+    },
+    {
+      "scene": 7,
+      "node_id": "eUKekiaYlYsfXbAMvN8N"
+    }
+  ],
+  "selected_images": [
+    {
+      "scene": 1,
+      "format": "h",
+      "take": 3,
+      "generation_id": "it5mymt0LWDFYHWqdXeC",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/c3pyF2fEPGpnd3XuWan0/it5mymt0LWDFYHWqdXeC/content.png",
+      "name": "h-01-take3.png",
+      "node_id": "gP9rgO7q5GDld1SiKi8R"
+    },
+    {
+      "scene": 2,
+      "format": "h",
+      "take": 2,
+      "generation_id": "gYgDJkZFdnFHILSEGpbo",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/S1nMW6zZ7W0LCUhtEkx6/gYgDJkZFdnFHILSEGpbo/content.png",
+      "name": "h-02-take2.png",
+      "node_id": "X67D0GG8VNW3RaKosylb"
+    },
+    {
+      "scene": 3,
+      "format": "h",
+      "take": 3,
+      "generation_id": "AmvITj0mE8nYLQDQPea0",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/nhe5EruH4kcwcb9wFOUB/AmvITj0mE8nYLQDQPea0/content.png",
+      "name": "h-03-take3.png",
+      "node_id": "AEXzJHwwB4BdtGSasw8Z"
+    },
+    {
+      "scene": 4,
+      "format": "h",
+      "take": 4,
+      "generation_id": "sFgHd3xwWVH1HABKQyDj",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/IyxxyVIEtJARVqpKx0oC/sFgHd3xwWVH1HABKQyDj/content.png",
+      "name": "h-04-take4.png",
+      "node_id": "Ha8wzkV5maUVekQFa5YN"
+    },
+    {
+      "scene": 5,
+      "format": "h",
+      "take": 4,
+      "generation_id": "bU663LhtJNU8qGncr3zo",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/p31oq271iIBWWdiVVqwb/bU663LhtJNU8qGncr3zo/content.png",
+      "name": "h-05-take4.png",
+      "node_id": "D3xAuEGNvjr0VuwueF96"
+    },
+    {
+      "scene": 6,
+      "format": "h",
+      "take": 2,
+      "generation_id": "ZMEiieRKlYrc6rVg5IwR",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/3TBdUYA6A92aXvfQM6ki/ZMEiieRKlYrc6rVg5IwR/content.png",
+      "name": "h-06-take2.png",
+      "node_id": "jFYq5hYD3Pd1y63XP8P2"
+    },
+    {
+      "scene": 7,
+      "format": "h",
+      "take": 2,
+      "generation_id": "Tb7l3CjKACyi6nj7drb2",
+      "node_id": "ycL4lQUbL7qGNNGMZFWv"
+    },
+    {
+      "scene": 1,
+      "format": "v",
+      "take": 1,
+      "generation_id": "ANB2Bye4FLALdhYg7ieo",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/3ArPyRQCGPjBYk5uqP6X/ANB2Bye4FLALdhYg7ieo/content.png",
+      "name": "v-01-take1.png",
+      "node_id": "NKbE5uVvyb4I0BD6LneV"
+    },
+    {
+      "scene": 2,
+      "format": "v",
+      "take": 4,
+      "generation_id": "CPPzmoAO7wBdyAk1oAf4",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/1DV6AT9TwQJthV5PEvUW/CPPzmoAO7wBdyAk1oAf4/content.png",
+      "name": "v-02-take4.png",
+      "node_id": "Lhcld8knFO9xcxycle4G"
+    },
+    {
+      "scene": 3,
+      "format": "v",
+      "take": 3,
+      "generation_id": "JqETy29gv09GuWgctObU",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/eVezhPPmCkjYLGvK936h/JqETy29gv09GuWgctObU/content.png",
+      "name": "v-03-take3.png",
+      "node_id": "WpPYMPBRTRCYON3RrNSM"
+    },
+    {
+      "scene": 4,
+      "format": "v",
+      "take": 4,
+      "generation_id": "EHBmRxcAF8XxGvlrgpdy",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/O8bzgFqDjPXkKqOAhRuP/EHBmRxcAF8XxGvlrgpdy/content.png",
+      "name": "v-04-take4.png",
+      "node_id": "QJp3EciKv5LdVMqSFR6r"
+    },
+    {
+      "scene": 5,
+      "format": "v",
+      "take": 1,
+      "generation_id": "5WR9kXc51wOnteBuFocn",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/glCwTL5xvP8HNnBROuh9/5WR9kXc51wOnteBuFocn/content.png",
+      "name": "v-05-take1.png",
+      "node_id": "xAFQyzOiVzhOvkCprEx6"
+    },
+    {
+      "scene": 6,
+      "format": "v",
+      "take": 4,
+      "generation_id": "FLOugWSPwmC6jq8W1gb2",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/TVG2Hjg8DRAaFKyAxAvr/FLOugWSPwmC6jq8W1gb2/content.png",
+      "name": "v-06-take4.png",
+      "node_id": "9eeOuNEVfojUBYPSRAtA"
+    },
+    {
+      "scene": 7,
+      "format": "v",
+      "take": 1,
+      "generation_id": "75wpBjIwMfSoUGlB9bmt",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/3CVQY8Vkd1VrVmN1YHDM/75wpBjIwMfSoUGlB9bmt/content.png",
+      "name": "v-07-take1.png",
+      "node_id": "Hyc3ELSdY9P0i7YNkVoK"
+    }
+  ],
+  "video_nodes": [
+    {
+      "scene": 1,
+      "format": "h",
+      "duration": 10,
+      "node_id": "Fjp8Y7u3cous5w9V9jje",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. With a hint of amusement, Gutenberg tilts the small stone tablet a few degrees toward the viewer and settles it again. Fine dust floats naturally. Hands maintain firm realistic contact with tablet. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 2,
+      "format": "h",
+      "duration": 11,
+      "node_id": "Bl6REpYG0zc8t9eKT7eg",
+      "prompt": "A single continuous 11 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg slowly unrolls a small additional length of papyrus downward between his hands below his beard, then holds it comfortably. A linen curtain and distant reeds move gently in warm river air. River glints softly. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 3,
+      "format": "h",
+      "duration": 10,
+      "node_id": "P7z51QEwoOkoacJFcFER",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg raises the single printed folio slightly, then holds it steady below his beard. The solid wooden press stays mechanically unchanged in background, a very slight atmospheric drift only. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 4,
+      "format": "h",
+      "duration": 8,
+      "node_id": "BqshIsgBKlbfgK7bmo9Z",
+      "prompt": "A single continuous 8 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg guides the one sheet gently into the beige fax feed. The paper advances slowly by a few centimeters, then he leaves his hand relaxed alongside the fax and keeps addressing the viewer. Fax remains mechanically stable. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 5,
+      "format": "h",
+      "duration": 9,
+      "node_id": "rcOCUchitVH4DWKgYMh4",
+      "prompt": "A single continuous 9 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg makes one small mouse click, glances briefly toward the monitor using eyes only, then returns full gaze to camera. The email screen shows a subtle single message-state change using abstract UI shapes, no readable text. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 6,
+      "format": "h",
+      "duration": 9,
+      "node_id": "DToyfQFVE9bVlmZS6w2j",
+      "prompt": "A single continuous 9 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg holds the tablet calmly with its navy BACK facing the viewer at all times, screen toward him and never shown, and makes one small welcoming open-hand gesture. The closed laptop stays still. Keep face clear for dialogue. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 7,
+      "format": "h",
+      "duration": 10,
+      "node_id": "s6yB4T5sTQNwyS45FNm4",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg lowers the cream folio a little toward the oak desk, then opens one hand calmly toward the viewer and finishes with a small confident smile. Natural daylight and Luxembourg city view remain stable. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 1,
+      "format": "v",
+      "duration": 10,
+      "node_id": "GvP3Kuc8abnpW4XDbXss",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. With a hint of amusement, Gutenberg tilts the small stone tablet a few degrees toward the viewer and settles it again. Fine dust floats naturally. Hands maintain firm realistic contact with tablet. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 2,
+      "format": "v",
+      "duration": 11,
+      "node_id": "xkRkOZ0MEggbrM7m7mUT",
+      "prompt": "A single continuous 11 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg slowly unrolls a small additional length of papyrus downward between his hands below his beard, then holds it comfortably. A linen curtain and distant reeds move gently in warm river air. River glints softly. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 3,
+      "format": "v",
+      "duration": 10,
+      "node_id": "MqaBKBhqWUVrfcGgqigh",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg raises the single printed folio slightly, then holds it steady below his beard. The solid wooden press stays mechanically unchanged in background, a very slight atmospheric drift only. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 4,
+      "format": "v",
+      "duration": 8,
+      "node_id": "m6jvRmAvMkpEo7pKM7kz",
+      "prompt": "A single continuous 8 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg guides the one sheet gently into the beige fax feed. The paper advances slowly by a few centimeters, then he leaves his hand relaxed alongside the fax and keeps addressing the viewer. Fax remains mechanically stable. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 5,
+      "format": "v",
+      "duration": 9,
+      "node_id": "0jZ7ByxchYZr69zAJY0v",
+      "prompt": "A single continuous 9 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg makes one small mouse click, glances briefly toward the monitor using eyes only, then returns full gaze to camera. The email screen shows a subtle single message-state change using abstract UI shapes, no readable text. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 6,
+      "format": "v",
+      "duration": 9,
+      "node_id": "E3U7XEr71MLS00dA2U18",
+      "prompt": "A single continuous 9 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg holds the tablet calmly with its navy BACK facing the viewer at all times, screen toward him and never shown, and makes one small welcoming open-hand gesture. The closed laptop stays still. Keep face clear for dialogue. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 7,
+      "format": "v",
+      "duration": 10,
+      "node_id": "vMrvvs7afA3K5oJ9vvPl",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg lowers the cream folio a little toward the oak desk, then opens one hand calmly toward the viewer and finishes with a small confident smile. Natural daylight and Luxembourg city view remain stable. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    }
+  ],
+  "sync_nodes": [
+    {
+      "scene": 1,
+      "format": "h",
+      "duration": 10,
+      "node_id": "xpwsGcSJTJToHJ1fMIiJ",
+      "video_node": "Fjp8Y7u3cous5w9V9jje",
+      "audio_node": "k0bIzECl5ALquFQHFnyf"
+    },
+    {
+      "scene": 2,
+      "format": "h",
+      "duration": 11,
+      "node_id": "CbVSLkxKn0G8LcV2AycH",
+      "video_node": "Bl6REpYG0zc8t9eKT7eg",
+      "audio_node": "5QayXiUpK1vcxXgE4OQ2"
+    },
+    {
+      "scene": 3,
+      "format": "h",
+      "duration": 10,
+      "node_id": "XMCgXOjaI1lImS7DL4F2",
+      "video_node": "P7z51QEwoOkoacJFcFER",
+      "audio_node": "RwVjpSHSuad5DcRPy31i"
+    },
+    {
+      "scene": 4,
+      "format": "h",
+      "duration": 8,
+      "node_id": "4rYC5e2a1LYLu9Etjtlu",
+      "video_node": "BqshIsgBKlbfgK7bmo9Z",
+      "audio_node": "NxPZtSeNG2Fte86sChWy"
+    },
+    {
+      "scene": 5,
+      "format": "h",
+      "duration": 9,
+      "node_id": "vVfYC91rDTyXkdy9pizl",
+      "video_node": "rcOCUchitVH4DWKgYMh4",
+      "audio_node": "RVGYvnAMaeSUzNYjE4Xh"
+    },
+    {
+      "scene": 6,
+      "format": "h",
+      "duration": 9,
+      "node_id": "LhZNzrS9GQADuT0g1dzO",
+      "video_node": "DToyfQFVE9bVlmZS6w2j",
+      "audio_node": "lH4H7WSwZ0gcvV3obBr9"
+    },
+    {
+      "scene": 7,
+      "format": "h",
+      "duration": 10,
+      "node_id": "j0s2y7VLEAHAiHXdSvbb",
+      "video_node": "s6yB4T5sTQNwyS45FNm4",
+      "audio_node": "pF0Gt3JJpne3FoDLJTHW"
+    },
+    {
+      "scene": 1,
+      "format": "v",
+      "duration": 10,
+      "node_id": "Q92N4RCJDnwlSCcOV3y7",
+      "video_node": "GvP3Kuc8abnpW4XDbXss",
+      "audio_node": "k0bIzECl5ALquFQHFnyf"
+    },
+    {
+      "scene": 2,
+      "format": "v",
+      "duration": 11,
+      "node_id": "QgK5X5u5V2ZfLMqPIL15",
+      "video_node": "xkRkOZ0MEggbrM7m7mUT",
+      "audio_node": "5QayXiUpK1vcxXgE4OQ2"
+    },
+    {
+      "scene": 3,
+      "format": "v",
+      "duration": 10,
+      "node_id": "mmJHBt4J6VAtHVmgR39x",
+      "video_node": "MqaBKBhqWUVrfcGgqigh",
+      "audio_node": "RwVjpSHSuad5DcRPy31i"
+    },
+    {
+      "scene": 4,
+      "format": "v",
+      "duration": 8,
+      "node_id": "ZxPOAem3zBcthacNOCov",
+      "video_node": "m6jvRmAvMkpEo7pKM7kz",
+      "audio_node": "NxPZtSeNG2Fte86sChWy"
+    },
+    {
+      "scene": 5,
+      "format": "v",
+      "duration": 9,
+      "node_id": "CpKVS9LFnJy79jFFNcNc",
+      "video_node": "0jZ7ByxchYZr69zAJY0v",
+      "audio_node": "RVGYvnAMaeSUzNYjE4Xh"
+    },
+    {
+      "scene": 6,
+      "format": "v",
+      "duration": 9,
+      "node_id": "68BZPPL2L65JCJdtmXMN",
+      "video_node": "E3U7XEr71MLS00dA2U18",
+      "audio_node": "lH4H7WSwZ0gcvV3obBr9"
+    },
+    {
+      "scene": 7,
+      "format": "v",
+      "duration": 10,
+      "node_id": "VWiSzPcWMM4LdAkRmRlN",
+      "video_node": "vMrvvs7afA3K5oJ9vvPl",
+      "audio_node": "pF0Gt3JJpne3FoDLJTHW"
+    }
+  ],
+  "video_run": {
+    "flow_id": "jFltGQ8YMa9Oub80hm8u",
+    "flow_created": false,
+    "url": "https://elevenlabs.io/app/flows/jFltGQ8YMa9Oub80hm8u",
+    "flow_url": "https://elevenlabs.io/app/flows/jFltGQ8YMa9Oub80hm8u",
+    "results": [
+      {
+        "success": false,
+        "node_id": "Fjp8Y7u3cous5w9V9jje",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 62654 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 62655,
+        "credit_cap": "plan"
+      },
+      {
+        "success": false,
+        "node_id": "Bl6REpYG0zc8t9eKT7eg",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 68920 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 68920,
+        "credit_cap": "plan"
+      },
+      {
+        "success": false,
+        "node_id": "P7z51QEwoOkoacJFcFER",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 62654 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 62655,
+        "credit_cap": "plan"
+      },
+      {
+        "success": false,
+        "node_id": "BqshIsgBKlbfgK7bmo9Z",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 50123 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 50124,
+        "credit_cap": "plan"
+      },
+      {
+        "success": true,
+        "node_id": "rcOCUchitVH4DWKgYMh4",
+        "session_id": "kXgeypM21Jw9L3WBu1d7",
+        "credit_costs": {
+          "wlkZ7ZUqZ2F1LHacwslg": 56388.90600000001
+        }
+      },
+      {
+        "success": false,
+        "node_id": "DToyfQFVE9bVlmZS6w2j",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 0 credits remaining, while 56389 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 56389,
+        "credit_cap": "plan"
+      },
+      {
+        "success": true,
+        "node_id": "s6yB4T5sTQNwyS45FNm4",
+        "session_id": "Bzz4yeuRfmKfMrbhGXzD",
+        "credit_costs": {
+          "mzDBwBWuniJ3nqjL8Ztw": 62654.34000000001
+        }
+      },
+      {
+        "success": false,
+        "node_id": "GvP3Kuc8abnpW4XDbXss",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 62654 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 62655,
+        "credit_cap": "plan"
+      },
+      {
+        "success": false,
+        "node_id": "xkRkOZ0MEggbrM7m7mUT",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 68920 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 68920,
+        "credit_cap": "plan"
+      },
+      {
+        "success": false,
+        "node_id": "MqaBKBhqWUVrfcGgqigh",
+        "error": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 601871. You have 44873 credits remaining, while 62654 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': '971d2a7b6b71b4b46178499139e2c0c0'}",
+        "error_code": "quota_exceeded",
+        "remaining_credits": 44873,
+        "credits_needed": 62655,
+        "credit_cap": "plan"
+      },
+      {
+        "success": true,
+        "node_id": "m6jvRmAvMkpEo7pKM7kz",
+        "session_id": "VLw5fnsBbzNxijdrso4z",
+        "credit_costs": {
+          "QC1Iy7A171bYgpVZXjFp": 50123.47200000001
+        }
+      },
+      {
+        "success": true,
+        "node_id": "0jZ7ByxchYZr69zAJY0v",
+        "session_id": "jywIGrTK2R5ybUtYi6cD",
+        "credit_costs": {
+          "XbtoAeMWBBWMPohCYWOG": 56388.90600000001
+        }
+      },
+      {
+        "success": true,
+        "node_id": "E3U7XEr71MLS00dA2U18",
+        "session_id": "0p74Z3S235npqoPqJShx",
+        "credit_costs": {
+          "NECSTL7fMnrmuOqwnDNr": 56388.90600000001
+        }
+      },
+      {
+        "success": true,
+        "node_id": "vMrvvs7afA3K5oJ9vvPl",
+        "session_id": "k7kjpkHTSEaMGCbq1mhZ",
+        "credit_costs": {
+          "ovChZku0IquYggtGTXN9": 62654.34000000001
+        }
+      }
+    ],
+    "summary": {
+      "nodes_run": 6,
+      "generations_started": 6,
+      "failed": 8,
+      "generations_by_node": {
+        "rcOCUchitVH4DWKgYMh4": 1,
+        "s6yB4T5sTQNwyS45FNm4": 1,
+        "m6jvRmAvMkpEo7pKM7kz": 1,
+        "0jZ7ByxchYZr69zAJY0v": 1,
+        "E3U7XEr71MLS00dA2U18": 1,
+        "vMrvvs7afA3K5oJ9vvPl": 1
+      }
+    },
+    "has_failures": true,
+    "failed_node_ids": [
+      "Fjp8Y7u3cous5w9V9jje",
+      "Bl6REpYG0zc8t9eKT7eg",
+      "P7z51QEwoOkoacJFcFER",
+      "BqshIsgBKlbfgK7bmo9Z",
+      "DToyfQFVE9bVlmZS6w2j",
+      "GvP3Kuc8abnpW4XDbXss",
+      "xkRkOZ0MEggbrM7m7mUT",
+      "MqaBKBhqWUVrfcGgqigh"
+    ],
+    "session_ids": [
+      "kXgeypM21Jw9L3WBu1d7",
+      "Bzz4yeuRfmKfMrbhGXzD",
+      "VLw5fnsBbzNxijdrso4z",
+      "jywIGrTK2R5ybUtYi6cD",
+      "0p74Z3S235npqoPqJShx",
+      "k7kjpkHTSEaMGCbq1mhZ"
+    ],
+    "view_state_id": "viewstate_01m40xk3ccfwyv8zerje4n33fg"
+  },
+  "missing_nodes": [
+    {
+      "scene": 1,
+      "format": "h",
+      "duration": 10,
+      "node_id": "Fjp8Y7u3cous5w9V9jje",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. With a hint of amusement, Gutenberg tilts the small stone tablet a few degrees toward the viewer and settles it again. Fine dust floats naturally. Hands maintain firm realistic contact with tablet. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 2,
+      "format": "h",
+      "duration": 11,
+      "node_id": "Bl6REpYG0zc8t9eKT7eg",
+      "prompt": "A single continuous 11 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg slowly unrolls a small additional length of papyrus downward between his hands below his beard, then holds it comfortably. A linen curtain and distant reeds move gently in warm river air. River glints softly. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 3,
+      "format": "h",
+      "duration": 10,
+      "node_id": "P7z51QEwoOkoacJFcFER",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg raises the single printed folio slightly, then holds it steady below his beard. The solid wooden press stays mechanically unchanged in background, a very slight atmospheric drift only. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 4,
+      "format": "h",
+      "duration": 8,
+      "node_id": "BqshIsgBKlbfgK7bmo9Z",
+      "prompt": "A single continuous 8 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg guides the one sheet gently into the beige fax feed. The paper advances slowly by a few centimeters, then he leaves his hand relaxed alongside the fax and keeps addressing the viewer. Fax remains mechanically stable. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 6,
+      "format": "h",
+      "duration": 9,
+      "node_id": "DToyfQFVE9bVlmZS6w2j",
+      "prompt": "A single continuous 9 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg holds the tablet calmly with its navy BACK facing the viewer at all times, screen toward him and never shown, and makes one small welcoming open-hand gesture. The closed laptop stays still. Keep face clear for dialogue. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within central32% of landscape frame. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 1,
+      "format": "v",
+      "duration": 10,
+      "node_id": "GvP3Kuc8abnpW4XDbXss",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. With a hint of amusement, Gutenberg tilts the small stone tablet a few degrees toward the viewer and settles it again. Fine dust floats naturally. Hands maintain firm realistic contact with tablet. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 2,
+      "format": "v",
+      "duration": 11,
+      "node_id": "xkRkOZ0MEggbrM7m7mUT",
+      "prompt": "A single continuous 11 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg slowly unrolls a small additional length of papyrus downward between his hands below his beard, then holds it comfortably. A linen curtain and distant reeds move gently in warm river air. River glints softly. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    },
+    {
+      "scene": 3,
+      "format": "v",
+      "duration": 10,
+      "node_id": "MqaBKBhqWUVrfcGgqigh",
+      "prompt": "A single continuous 10 second shot from a Pixar-style theatrical 3D animated film. Maintain EXACTLY the approved Gutenberg design and set from the connected image: appealing expressive brown eyes, curved brows, rounded nose, flowing sculpted beard, matte warm ivory marble skin and robe. No photorealistic human conversion, no changing face or proportions. Gutenberg raises the single printed folio slightly, then holds it steady below his beard. The solid wooden press stays mechanically unchanged in background, a very slight atmospheric drift only. His face remains nearly frontal, with clearly visible lips and a lively but restrained warm expression. Fixed camera with only a 2% slow straight push, character exactly centered, all key props within middle75%width of portrait frame, safe space above hair and below hands. Use the connected original French audio as exact dialogue: follow every original phoneme, syllable, pause, breath and sentence ending at its original timing. No paraphrase, acceleration, delay, repetition, translation or extra speech. Preserve the same metropolitan French male voice. Subtle eyebrows and eye movements complement the speech. After the final word his mouth closes naturally and he holds his warm expression through the final silence. No cuts, captions, logos, on-screen words, floating graphics, music or other voices; only very quiet location ambience. Hands and props stay geometrically consistent. Preserve the reference's colors, light and stylized materials."
+    }
+  ],
+  "status": "quota_blocked_partial_generation",
+  "required_additional_credits_estimate": 558098,
+  "final_sync_partial_run": {
+    "flow_id": "jFltGQ8YMa9Oub80hm8u",
+    "flow_created": false,
+    "url": "https://elevenlabs.io/app/flows/jFltGQ8YMa9Oub80hm8u",
+    "flow_url": "https://elevenlabs.io/app/flows/jFltGQ8YMa9Oub80hm8u",
+    "results": [
+      {
+        "success": true,
+        "node_id": "vVfYC91rDTyXkdy9pizl",
+        "session_id": "prix5hrrX6mBqeHwWPy7",
+        "credit_costs": {
+          "DBH9YELqXoFpupCqZcNe": 7298.95488
+        }
+      },
+      {
+        "success": true,
+        "node_id": "j0s2y7VLEAHAiHXdSvbb",
+        "session_id": "fajorSa9JDhyFisPzwCw",
+        "credit_costs": {
+          "Twg1yc6OBTJtweMNCStJ": 8124.278400000001
+        }
+      },
+      {
+        "success": true,
+        "node_id": "ZxPOAem3zBcthacNOCov",
+        "session_id": "jFsrQiUp5fbgzhQ1cpPk",
+        "credit_costs": {
+          "an5nfIn62wGBLix0hZBR": 6499.4227200000005
+        }
+      },
+      {
+        "success": true,
+        "node_id": "CpKVS9LFnJy79jFFNcNc",
+        "session_id": "YJz0coEfcK81kEkIhcft",
+        "credit_costs": {
+          "uEBm6agGGxEIwY5tscrs": 7298.95488
+        }
+      },
+      {
+        "success": true,
+        "node_id": "68BZPPL2L65JCJdtmXMN",
+        "session_id": "kMUhOLl16WNWqwk5tJTe",
+        "credit_costs": {
+          "FY4ErULCpcZ4ka3gQ7p2": 7298.95488
+        }
+      },
+      {
+        "success": true,
+        "node_id": "VWiSzPcWMM4LdAkRmRlN",
+        "session_id": "J6gpV00BnxiRhxS6TSm1",
+        "credit_costs": {
+          "GfrsEBRK4Opv6jAI5rWW": 8124.278400000001
+        }
+      }
+    ],
+    "summary": {
+      "nodes_run": 6,
+      "generations_started": 6,
+      "failed": 0,
+      "generations_by_node": {
+        "vVfYC91rDTyXkdy9pizl": 1,
+        "j0s2y7VLEAHAiHXdSvbb": 1,
+        "ZxPOAem3zBcthacNOCov": 1,
+        "CpKVS9LFnJy79jFFNcNc": 1,
+        "68BZPPL2L65JCJdtmXMN": 1,
+        "VWiSzPcWMM4LdAkRmRlN": 1
+      }
+    },
+    "session_ids": [
+      "prix5hrrX6mBqeHwWPy7",
+      "fajorSa9JDhyFisPzwCw",
+      "jFsrQiUp5fbgzhQ1cpPk",
+      "YJz0coEfcK81kEkIhcft",
+      "kMUhOLl16WNWqwk5tJTe",
+      "J6gpV00BnxiRhxS6TSm1"
+    ],
+    "poll_after_seconds": 15,
+    "notes": "Not finished yet. Wait poll_after_seconds, then call creative_get_flow_run_status with this flow_id and session_ids. Repeat until all_completed or has_failures is true.",
+    "view_state_id": "viewstate_01m40xxh8dehctsmxcsvt5p9sh"
+  },
+  "final_video_manifest": [
+    {
+      "scene": 5,
+      "format": "h",
+      "node_id": "rcOCUchitVH4DWKgYMh4",
+      "generation_id": "wlkZ7ZUqZ2F1LHacwslg",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/kXgeypM21Jw9L3WBu1d7/wlkZ7ZUqZ2F1LHacwslg/content.mp4",
+      "name": "h-05-seedance.mp4"
+    },
+    {
+      "scene": 7,
+      "format": "h",
+      "node_id": "s6yB4T5sTQNwyS45FNm4",
+      "generation_id": "mzDBwBWuniJ3nqjL8Ztw",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/Bzz4yeuRfmKfMrbhGXzD/mzDBwBWuniJ3nqjL8Ztw/content.mp4",
+      "name": "h-07-seedance.mp4"
+    },
+    {
+      "scene": 4,
+      "format": "v",
+      "node_id": "m6jvRmAvMkpEo7pKM7kz",
+      "generation_id": "QC1Iy7A171bYgpVZXjFp",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/VLw5fnsBbzNxijdrso4z/QC1Iy7A171bYgpVZXjFp/content.mp4",
+      "name": "v-04-seedance.mp4"
+    },
+    {
+      "scene": 5,
+      "format": "v",
+      "node_id": "0jZ7ByxchYZr69zAJY0v",
+      "generation_id": "XbtoAeMWBBWMPohCYWOG",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/jywIGrTK2R5ybUtYi6cD/XbtoAeMWBBWMPohCYWOG/content.mp4",
+      "name": "v-05-seedance.mp4"
+    },
+    {
+      "scene": 6,
+      "format": "v",
+      "node_id": "E3U7XEr71MLS00dA2U18",
+      "generation_id": "NECSTL7fMnrmuOqwnDNr",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/0p74Z3S235npqoPqJShx/NECSTL7fMnrmuOqwnDNr/content.mp4",
+      "name": "v-06-seedance.mp4"
+    },
+    {
+      "scene": 7,
+      "format": "v",
+      "node_id": "vMrvvs7afA3K5oJ9vvPl",
+      "generation_id": "ovChZku0IquYggtGTXN9",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/k7kjpkHTSEaMGCbq1mhZ/ovChZku0IquYggtGTXN9/content.mp4",
+      "name": "v-07-seedance.mp4"
+    }
+  ],
+  "final_sync_manifest": [
+    {
+      "scene": 5,
+      "format": "h",
+      "generation_id": "DBH9YELqXoFpupCqZcNe",
+      "node_id": "vVfYC91rDTyXkdy9pizl",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/prix5hrrX6mBqeHwWPy7/DBH9YELqXoFpupCqZcNe/content.mp4",
+      "name": "h-05-sync.mp4"
+    },
+    {
+      "scene": 7,
+      "format": "h",
+      "generation_id": "Twg1yc6OBTJtweMNCStJ",
+      "node_id": "j0s2y7VLEAHAiHXdSvbb",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/fajorSa9JDhyFisPzwCw/Twg1yc6OBTJtweMNCStJ/content.mp4",
+      "name": "h-07-sync.mp4"
+    },
+    {
+      "scene": 4,
+      "format": "v",
+      "generation_id": "an5nfIn62wGBLix0hZBR",
+      "node_id": "ZxPOAem3zBcthacNOCov",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/jFsrQiUp5fbgzhQ1cpPk/an5nfIn62wGBLix0hZBR/content.mp4",
+      "name": "v-04-sync.mp4"
+    },
+    {
+      "scene": 5,
+      "format": "v",
+      "generation_id": "uEBm6agGGxEIwY5tscrs",
+      "node_id": "CpKVS9LFnJy79jFFNcNc",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/YJz0coEfcK81kEkIhcft/uEBm6agGGxEIwY5tscrs/content.mp4",
+      "name": "v-05-sync.mp4"
+    },
+    {
+      "scene": 6,
+      "format": "v",
+      "generation_id": "FY4ErULCpcZ4ka3gQ7p2",
+      "node_id": "68BZPPL2L65JCJdtmXMN",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/kMUhOLl16WNWqwk5tJTe/FY4ErULCpcZ4ka3gQ7p2/content.mp4",
+      "name": "v-06-sync.mp4"
+    },
+    {
+      "scene": 7,
+      "format": "v",
+      "generation_id": "GfrsEBRK4Opv6jAI5rWW",
+      "node_id": "VWiSzPcWMM4LdAkRmRlN",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/7c367c3654744d68aaef8a8a15aeafc2/content_generation/J6gpV00BnxiRhxS6TSm1/GfrsEBRK4Opv6jAI5rWW/content.mp4",
+      "name": "v-07-sync.mp4"
+    }
+  ],
+  "completed_sync_clips": 6,
+  "partial_samples_ready": [
+    {
+      "file": "Extrait-Pixar2-Instagram-43s.mp4",
+      "duration": 43,
+      "resolution": "1080x1920"
+    },
+    {
+      "file": "Extrait-Pixar2-Horizontal-17s.mp4",
+      "duration": 17,
+      "resolution": "1920x1080"
+    }
+  ],
+  "next_action": "Await user feedback on no-cost34s rough cut. Paid production remains paused pending budget review.",
+  "production_paused_for_budget_review": true,
+  "rejected_existing_scenes": [
+    {
+      "scene": 5,
+      "formats": [
+        "h",
+        "v"
+      ],
+      "reason": "User-reported physical error confirmed: computer interface rendered on the monitor rear."
+    }
+  ],
+  "current_authorized_action": "Local no-cost assembly of existing usable footage only",
+  "latest_preview": {
+    "file": "/workspace/guteneo/production/deliverables/Guteneo-apercu-court-sans-plan-ordinateur-34s.mp4",
+    "duration": 34,
+    "additional_generation_credits": 0,
+    "excluded_scene": 5,
+    "retained_scenes": [
+      4,
+      6,
+      7
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "status": "Prepared and verified mechanically; final Pixar film not assembled yet.",
+  "insert": {
+    "scene": 6,
+    "scene_duration_s": 9,
+    "start_in_scene_s": 6,
+    "end_in_scene_s": 9,
+    "absolute_final_start_s": 54,
+    "absolute_final_end_s": 57,
+    "fade_frames": 6,
+    "fade_duration_s": 0.2,
+    "full_screen_hold_s": 2.8,
+    "horizontal_source": "product/desktop.png",
+    "vertical_source": "product/mobile-wide.png",
+    "native_dimensions": {
+      "horizontal": [
+        1920,
+        1080
+      ],
+      "vertical": [
+        1080,
+        1920
+      ]
+    },
+    "crop": false,
+    "invented_text_or_ui": false,
+    "voice_modified": false
+  },
+  "technical_preview_checks": {
+    "horizontal_capture_ssim": 0.991335,
+    "vertical_capture_ssim": 0.989955,
+    "all_text_visible": true,
+    "fade_inspected": true,
+    "source_files_unchanged": true
+  },
+  "final_qa_implemented": [
+    "Resolution 1920x1080 / 1080x1920",
+    "74 s total and 30 fps",
+    "Full decode without errors",
+    "Stereo 48 kHz AAC 320 kbps",
+    "True peak at most -1 dBTP with automatic fixed gain correction if required",
+    "Compare final product frame to real source capture with SSIM >= 0.97",
+    "Save final product review frames in deliverables/qa-frames"
+  ],
+  "final_export_command": "python3 /workspace/guteneo/production/assemble.py --assemble --manifest /workspace/guteneo/production/assembly-manifest.json",
+  "pending": [
+    "Fill manifest paths with the fourteen final Pixar clips",
+    "Replace audio/07-voix.mp3 with final 9.68-second take",
+    "Map SFX filenames if not named stone/papyrus/press/fax/digital/swallows",
+    "Inspect lip sync and transitions in the actual final exports"
+  ],
+  "outputs": [
+    "deliverables/Guteneo-Gutenberg-1080p.mp4",
+    "deliverables/Guteneo-Gutenberg-Instagram-1080x1920.mp4",
+    "deliverables/qa-assembly.json"
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "files": {
+    "native": "/workspace/guteneo/production/video/test-egypte-seedance-native.mp4",
+    "reference": "/workspace/guteneo/production/audio/02-reference.wav",
+    "original": "/workspace/guteneo/production/audio/02-voix.mp3"
+  },
+  "method": "Decoded to 16 kHz mono; normalized cross correlation on 150\u20134500 Hz waveform and 10 ms RMS envelope smoothed over 110 ms. Positive lag means target audio is later than source. No perceptual listening or independent ASR.",
+  "local_asr_available": false,
+  "durations_seconds": {
+    "native": 11.072,
+    "reference": 11.0,
+    "original": 9.68
+  },
+  "comparisons": [
+    {
+      "source": "original",
+      "target": "reference",
+      "segments": [
+        {
+          "name": "all",
+          "range_seconds": [
+            0,
+            9.68
+          ],
+          "waveform_best_lag_seconds": 0.0,
+          "waveform_correlation": 1.0,
+          "envelope_best_lag_seconds": 0.0,
+          "envelope_correlation": 1.0,
+          "envelope_correlation_zero_lag": 1.0
+        },
+        {
+          "name": "beginning",
+          "range_seconds": [
+            0,
+            3.5
+          ],
+          "waveform_best_lag_seconds": 0.0,
+          "waveform_correlation": 1.0,
+          "envelope_best_lag_seconds": 0.0,
+          "envelope_correlation": 1.0,
+          "envelope_correlation_zero_lag": 1.0
+        },
+        {
+          "name": "middle",
+          "range_seconds": [
+            3.5,
+            7
+          ],
+          "waveform_best_lag_seconds": 0.0,
+          "waveform_correlation": 1.0,
+          "envelope_best_lag_seconds": 0.0,
+          "envelope_correlation": 1.0,
+          "envelope_correlation_zero_lag": 1.0
+        },
+        {
+          "name": "ending",
+          "range_seconds": [
+            7,
+            9.68
+          ],
+          "waveform_best_lag_seconds": 0.0,
+          "waveform_correlation": 1.0,
+          "envelope_best_lag_seconds": 0.0,
+          "envelope_correlation": 1.0,
+          "envelope_correlation_zero_lag": 1.0
+        }
+      ]
+    },
+    {
+      "source": "reference",
+      "target": "native",
+      "segments": [
+        {
+          "name": "all",
+          "range_seconds": [
+            0,
+            11.0
+          ],
+          "waveform_best_lag_seconds": 0.375,
+          "waveform_correlation": 0.14388,
+          "envelope_best_lag_seconds": 0.17,
+          "envelope_correlation": 0.66602,
+          "envelope_correlation_zero_lag": 0.26308
+        },
+        {
+          "name": "beginning",
+          "range_seconds": [
+            0,
+            3.5
+          ],
+          "waveform_best_lag_seconds": 0.124938,
+          "waveform_correlation": 0.20022,
+          "envelope_best_lag_seconds": 0.14,
+          "envelope_correlation": 0.81456,
+          "envelope_correlation_zero_lag": 0.2539
+        },
+        {
+          "name": "middle",
+          "range_seconds": [
+            3.5,
+            7
+          ],
+          "waveform_best_lag_seconds": 0.179,
+          "waveform_correlation": 0.27792,
+          "envelope_best_lag_seconds": 0.18,
+          "envelope_correlation": 0.92908,
+          "envelope_correlation_zero_lag": 0.2906
+        },
+        {
+          "name": "ending",
+          "range_seconds": [
+            7,
+            11.0
+          ],
+          "waveform_best_lag_seconds": 0.375,
+          "waveform_correlation": 0.42113,
+          "envelope_best_lag_seconds": 0.35,
+          "envelope_correlation": 0.89387,
+          "envelope_correlation_zero_lag": 0.24219
+        }
+      ]
+    },
+    {
+      "source": "original",
+      "target": "native",
+      "segments": [
+        {
+          "name": "all",
+          "range_seconds": [
+            0,
+            9.68
+          ],
+          "waveform_best_lag_seconds": 0.375,
+          "waveform_correlation": 0.14389,
+          "envelope_best_lag_seconds": 0.17,
+          "envelope_correlation": 0.63722,
+          "envelope_correlation_zero_lag": 0.20184
+        },
+        {
+          "name": "beginning",
+          "range_seconds": [
+            0,
+            3.5
+          ],
+          "waveform_best_lag_seconds": 0.124938,
+          "waveform_correlation": 0.20022,
+          "envelope_best_lag_seconds": 0.14,
+          "envelope_correlation": 0.81456,
+          "envelope_correlation_zero_lag": 0.2539
+        },
+        {
+          "name": "middle",
+          "range_seconds": [
+            3.5,
+            7
+          ],
+          "waveform_best_lag_seconds": 0.179,
+          "waveform_correlation": 0.27792,
+          "envelope_best_lag_seconds": 0.18,
+          "envelope_correlation": 0.92908,
+          "envelope_correlation_zero_lag": 0.2906
+        },
+        {
+          "name": "ending",
+          "range_seconds": [
+            7,
+            9.68
+          ],
+          "waveform_best_lag_seconds": 0.375,
+          "waveform_correlation": 0.42127,
+          "envelope_best_lag_seconds": 0.35,
+          "envelope_correlation": 0.85215,
+          "envelope_correlation_zero_lag": 0.02734
+        }
+      ]
+    }
+  ],
+  "conclusion": {
+    "reference_vs_original": "Reference preserves the MP3 waveform and timing exactly to reported precision, with end padding to 11 seconds.",
+    "native_vs_reference": "Native video audio is measurably delayed with nonconstant timing: best envelope lags +140 ms beginning, +180 ms middle, +350 ms ending; aligned envelope correlations 0.815 / 0.929 / 0.894. Native is not a bit-identical preservation of reference.",
+    "replacement_risk": "Replacing native soundtrack directly at t=0 with original/reference would advance speech by approximately 140 ms at beginning and 350 ms near ending compared with current native audio. A single global delay cannot remove measured drift. These are audio-to-audio measurements and do not independently measure lip synchronization.",
+    "recommendation": "For evaluation, retain native version plus clearly labelled original-voice replacement; do not assert perfect sync for replacement. For final preserve original voice and align video lips to original rather than alter original speech timing.",
+    "no_paid_generation": true,
+    "no_asr_performed": true
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "url": "https://guteneo.com/",
+  "captured_at": "2026-10-03T12:41:53.616878+00:00",
+  "method": "Real Chromium browser screenshots of the live public website, unmodified UI. No login, no form submissions.",
+  "captures": [
+    {
+      "file": "desktop.png",
+      "viewport_css": {
+        "width": 1920,
+        "height": 1080
+      },
+      "device_scale_factor": 1,
+      "output_px": {
+        "width": 1920,
+        "height": 1080
+      },
+      "section": "Homepage hero",
+      "scroll_y": 0
+    },
+    {
+      "file": "desktop-verification.png",
+      "viewport_css": {
+        "width": 1920,
+        "height": 1080
+      },
+      "device_scale_factor": 1,
+      "output_px": {
+        "width": 1920,
+        "height": 1080
+      },
+      "section": "Public demonstration — verification, fictitious example. Not authenticated production app.",
+      "scroll_y": 1835
+    },
+    {
+      "file": "mobile.png",
+      "viewport_css": {
+        "width": 360,
+        "height": 640
+      },
+      "device_scale_factor": 3,
+      "output_px": {
+        "width": 1080,
+        "height": 1920
+      },
+      "section": "Homepage hero",
+      "scroll_y": 0
+    },
+    {
+      "file": "mobile-verification.png",
+      "viewport_css": {
+        "width": 360,
+        "height": 640
+      },
+      "device_scale_factor": 3,
+      "output_px": {
+        "width": 1080,
+        "height": 1920
+      },
+      "section": "Public demonstration — verification, fictitious example. Not authenticated production app.",
+      "scroll_y": 2524
+    },
+    {
+      "file": "mobile-principe.png",
+      "viewport_css": {
+        "width": 360,
+        "height": 640
+      },
+      "device_scale_factor": 3,
+      "output_px": {
+        "width": 1080,
+        "height": 1920
+      },
+      "section": "Public demonstration — three-step principle.",
+      "scroll_y": 1968
+    },
+    {
+      "file": "mobile-wide.png",
+      "viewport_css": {
+        "width": 540,
+        "height": 960
+      },
+      "device_scale_factor": 2,
+      "output_px": {
+        "width": 1080,
+        "height": 1920
+      },
+      "section": "Homepage hero",
+      "scroll_y": 0
+    },
+    {
+      "file": "mobile-wide-verification.png",
+      "viewport_css": {
+        "width": 540,
+        "height": 960
+      },
+      "device_scale_factor": 2,
+      "output_px": {
+        "width": 1080,
+        "height": 1920
+      },
+      "section": "Public demonstration — verification, fictitious example. Not authenticated production app.",
+      "scroll_y": 2422
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+file '/workspace/guteneo/production/finishing/scene-07-horizontal.mp4'
+file '/workspace/guteneo/production/finishing/endcard-horizontal-silent.mp4'
