@@ -51,6 +51,24 @@ Le modèle Claude Code fixe les permissions ; remplacer son marqueur par le vér
 
 **Attention de configuration Auth0** : les clients tiers stricts Auth0 documentés dans [IDENTITY_MCP.md](IDENTITY_MCP.md) n’acceptent pas les scopes OIDC. ChatGPT peut demander `openid`, `profile` ou `email` si l’autorité les annonce. Il faut donc qualifier un client préenregistré compatible, avec consentement et permissions exactes, ou une configuration d’autorité adaptée ; annoncer DCR/CIMD ou retirer arbitrairement les scopes ne prouve pas la compatibilité. Le vrai parcours consentement, preuve signée de compte vérifié, renouvellement et révocation doit passer sur chaque hôte. La bêta Auth0 Free utilise `verified_email` sans MFA obligatoire ; la politique historique conserve son contrôle MFA lorsqu’elle est choisie. [Contrat d’authentification OpenAI](https://developers.openai.com/plugins/build/auth).
 
+## Contrôle PDF/UA et PDF/A — candidat Horizon
+
+Le candidat de paquet **0.3.2**, préparé le 2 octobre 2026, ajoute
+`validate_pdf` et `get_pdf_validation`. Sur un compte disposant du forfait
+**guteneo Horizon**, l’assistant contrôle l’original déjà importé et prêt, choisit
+explicitement PDF/UA-1, PDF/UA-2, PDF/A-1b, PDF/A-2b, PDF/A-3b ou PDF/A-4 et garde
+une clé d’idempotence stable. Le rapport est lié au SHA-256 du fichier et peut
+être relu sans recommencer l’analyse. L’assistant ne souscrit pas le forfait et
+ne gère pas la facturation : ces actions restent réservées à l’administrateur
+authentifié dans le navigateur.
+
+Le contrôle veraPDF couvre les règles vérifiables automatiquement. Même un
+résultat favorable exige une revue humaine ; il ne certifie ni l’accessibilité
+complète ni la conformité juridique. Le candidat demeure désactivé en
+production ; le paquet local ne prouve aucune publication ou qualification
+dans un hôte LLM réel. [Contrat et limites](PDF_ACCESSIBILITY.md),
+[annonces préparées dans les quatre langues](HORIZON_LAUNCH.md).
+
 ## E-mail sans fichier, PDF joint ou lien protégé
 
 Ajout au candidat **0.3.0 le 21 septembre 2026**. Cette mise à jour du paquet ne prouve ni sa publication dans ChatGPT, ni un envoi réel depuis un hôte. Le prompt MCP `email` et le skill distribué suivent le même contrat court :

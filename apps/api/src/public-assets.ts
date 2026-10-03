@@ -69,7 +69,8 @@ export async function servePublicAssets(
     pathname === "/invitation/" ||
     pathname === "/invitation" ||
     url.pathname === "/app" ||
-    url.pathname === "/app/prepare"
+    url.pathname === "/app/prepare" ||
+    url.pathname === "/app/plan"
   ) {
     // Private browser entries share the root shell without forwarding URL data.
     // The invitation secret stays in the URL fragment and never reaches asset logs.

@@ -59,7 +59,11 @@ export default {
       );
     }
 
-    if (url.pathname === "/app" || url.pathname === "/app/prepare") {
+    if (
+      url.pathname === "/app" ||
+      url.pathname === "/app/prepare" ||
+      url.pathname === "/app/plan"
+    ) {
       const response = await env.ASSETS.fetch(
         new Request(new URL("/", url), request),
       );

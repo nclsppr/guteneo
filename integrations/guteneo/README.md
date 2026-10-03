@@ -1,6 +1,18 @@
 # Guteneo — e-mails et correspondance PDF
 
-Candidat de paquet 0.3.1, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, l’accueil `get-started`, les parcours `email`, `fax-pdf`, `postal-pdf` et `document-studio`, et les manifestes Agent Plugins, Claude Code et Cursor. Cette version intègre les instructions e-mail et lien protégé ainsi que les métadonnées et l’accueil ; l’activation e-mail demeure désactivée dans la configuration de production. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
+## Candidat : contrôles PDF
+
+Le paquet 0.3.2 prépare `validate_pdf` et `get_pdf_validation` pour un compte
+Horizon existant et un service privé veraPDF activé. PDF/UA-1 et PDF/UA-2
+contrôlent les règles automatiques d’accessibilité ; les profils PDF/A vérifient
+l’archivage séparément. Les rapports conservent l’empreinte de l’original sans
+modifier ni envoyer un PDF. Même favorables, les contrôles nécessitent une revue
+humaine et ne certifient ni accessibilité complète ni conformité juridique.
+Le plugin ne peut souscrire, annuler, renouveler, acheter des crédits ou gérer
+la facturation. L’activation en production et la publication du plugin restent
+distinctes de cette préparation du code.
+
+Candidat de paquet 0.3.2, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, l’accueil `get-started`, les parcours `email`, `fax-pdf`, `postal-pdf`, `document-studio` et `pdf-accessibility`, et les manifestes Agent Plugins, Claude Code et Cursor. Cette version intègre les instructions e-mail et lien protégé, le studio documentaire, les diagnostics PDF et les métadonnées et l’accueil ; l’activation e-mail demeure désactivée dans la configuration de production. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
 
 Serveur : **https://guteneo.com/mcp**. Connexion OAuth requise. La configuration serveur et l’accès de votre compte doivent être opérationnels ; un paquet valide ne prouve pas une connexion ni un envoi réussi.
 

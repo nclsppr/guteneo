@@ -38,6 +38,7 @@ export const en: Copy = {
     postal: "Postal mail",
   },
   nav: {
+    horizon: "Horizon plan",
     overview: "Overview",
     documents: "Documents",
     templates: "Templates",

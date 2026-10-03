@@ -1,5 +1,14 @@
 # Organization billing
 
+**2 October branch candidate:** the service operations/routes below now require
+an active **guteneo Horizon** monthly entitlement and current browser admin.
+EUR30/month is debited atomically from available account credits after immutable
+recurring consent; it creates no Stripe card charge or fiscal invoice.
+Private `/api/plan` routes let an administrator subscribe/cancel before having
+billing access. Historical PDF reports stay readable after expiry. The older
+Stripe description below is retained as history; see [MONTHLY_PLAN.md](MONTHLY_PLAN.md)
+and [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) for the new candidate.
+
 Updated on 2026-09-17. This module tracks actual Stripe billing objects when an independently owned Stripe account is configured and exposes the separate, one-time **EUR50 promotional credit** shared by an organization. Stripe projections never convert simulation usage to money, invent a plan, create a charge, subscribe a customer, refill promotional credit or enable a channel. Local intercepted Stripe responses are test evidence, not a qualified live account. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md) for grant, atomic reservation, settlement and exhaustion rules.
 
 ## API and browser integration

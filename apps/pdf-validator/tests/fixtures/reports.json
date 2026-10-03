@@ -1,0 +1,740 @@
+{
+  "ua1": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 99,
+                "failedRules": 7,
+                "passedChecks": 99,
+                "failedChecks": 7,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "6.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.1",
+                    "testNumber": 3,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.1",
+                    "testNumber": 10,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.1",
+                    "testNumber": 8,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.21.4.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.2",
+                    "testNumber": 34,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-1:2014",
+                    "clause": "7.1",
+                    "testNumber": 11,
+                    "status": "failed",
+                    "failedChecks": 1
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/UA-1 validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "nonCompliantPdfaCount": 1,
+          "compliantPdfaCount": 0,
+          "successfulJobCount": 1
+        }
+      }
+    }
+  },
+  "ua2": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 1720,
+                "failedRules": 7,
+                "passedChecks": 116,
+                "failedChecks": 7,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.11.1",
+                    "testNumber": 2,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.4.4",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.4.5.5.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "6.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.11.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.2.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 14289-2:2024",
+                    "clause": "8.2.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/UA-2 + Tagged PDF validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "nonCompliantPdfaCount": 1,
+          "compliantPdfaCount": 0,
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "successfulJobCount": 1
+        },
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false
+      }
+    }
+  },
+  "1b": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 119,
+                "failedRules": 10,
+                "passedChecks": 232,
+                "failedChecks": 11,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.3",
+                    "testNumber": 2,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.3",
+                    "testNumber": 7,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.1.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.3",
+                    "testNumber": 6,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.3.4",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.1.4",
+                    "testNumber": 3,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.2.3.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 2
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-1:2005",
+                    "clause": "6.7.3",
+                    "testNumber": 8,
+                    "status": "failed",
+                    "failedChecks": 1
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/A-1b validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "compliantPdfaCount": 0,
+          "nonCompliantPdfaCount": 1,
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "successfulJobCount": 1
+        },
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false
+      }
+    }
+  },
+  "2b": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 140,
+                "failedRules": 4,
+                "passedChecks": 233,
+                "failedChecks": 5,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-2:2011",
+                    "clause": "6.6.2.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-2:2011",
+                    "clause": "6.2.4.3",
+                    "testNumber": 2,
+                    "status": "failed",
+                    "failedChecks": 2
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-2:2011",
+                    "clause": "6.1.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-2:2011",
+                    "clause": "6.2.11.4.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/A-2b validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "nonCompliantPdfaCount": 1,
+          "compliantPdfaCount": 0,
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "successfulJobCount": 1
+        },
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false
+      }
+    }
+  },
+  "3b": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 142,
+                "failedRules": 4,
+                "passedChecks": 233,
+                "failedChecks": 5,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-3:2012",
+                    "clause": "6.6.2.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-3:2012",
+                    "clause": "6.2.11.4.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-3:2012",
+                    "clause": "6.2.4.3",
+                    "testNumber": 2,
+                    "status": "failed",
+                    "failedChecks": 2
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-3:2012",
+                    "clause": "6.1.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/A-3b validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "nonCompliantPdfaCount": 1,
+          "compliantPdfaCount": 0,
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "successfulJobCount": 1
+        },
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false
+      }
+    }
+  },
+  "4": {
+    "report": {
+      "buildInformation": {
+        "releaseDetails": [
+          {
+            "id": "core",
+            "version": "1.30.2",
+            "buildDate": 1780476180000
+          },
+          {
+            "id": "validation-model",
+            "version": "1.30.2",
+            "buildDate": 1780476360000
+          },
+          {
+            "id": "apps",
+            "version": "1.30.2",
+            "buildDate": 1780476900000
+          }
+        ]
+      },
+      "jobs": [
+        {
+          "itemDetails": {
+            "name": "synthetic.pdf",
+            "size": 917
+          },
+          "validationResult": [
+            {
+              "details": {
+                "passedRules": 102,
+                "failedRules": 7,
+                "passedChecks": 136,
+                "failedChecks": 8,
+                "ruleSummaries": [
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.1.2",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.1.3",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.1.3",
+                    "testNumber": 4,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.1.3",
+                    "testNumber": 5,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.2.10.4.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.7.2.1",
+                    "testNumber": 1,
+                    "status": "failed",
+                    "failedChecks": 1
+                  },
+                  {
+                    "ruleStatus": "FAILED",
+                    "specification": "ISO 19005-4:2020",
+                    "clause": "6.2.4.3",
+                    "testNumber": 2,
+                    "status": "failed",
+                    "failedChecks": 2
+                  }
+                ]
+              },
+              "jobEndStatus": "normal",
+              "profileName": "PDF/A-4 validation profile",
+              "compliant": false
+            }
+          ]
+        }
+      ],
+      "batchSummary": {
+        "totalJobs": 1,
+        "outOfMemory": 0,
+        "veraExceptions": 0,
+        "featuresSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "repairSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 0,
+          "successfulJobCount": 0
+        },
+        "multiJob": false,
+        "failedEncryptedJobs": 0,
+        "failedParsingJobs": 0,
+        "validationSummary": {
+          "failedJobCount": 0,
+          "totalJobCount": 1,
+          "nonCompliantPdfaCount": 1,
+          "compliantPdfaCount": 0,
+          "successfulJobCount": 1
+        }
+      }
+    }
+  }
+}

@@ -11,7 +11,7 @@ import {
 
 const jobs = () =>
   Object.fromEntries(
-    ["scanner", "checks", "vitest", "security", "build", "browser"].map(
+    ["pdf-validator", "scanner", "checks", "vitest", "security", "build", "browser"].map(
       (name) => [name, { result: "success" }],
     ),
   );

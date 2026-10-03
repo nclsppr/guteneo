@@ -25,7 +25,11 @@ function fixture(
 }
 
 describe("production static crawl boundary", () => {
-  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+  it.each([
+    "/app",
+    "/app/prepare?entry=direct&token=never-forward",
+    "/app/plan?lang=en&token=never-forward",
+  ])(
     "serves browser entry %s privately for GET and HEAD only",
     async (path) => {
       for (const method of ["GET", "HEAD"]) {

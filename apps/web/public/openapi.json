@@ -5002,6 +5002,174 @@
           }
         }
       }
+    },
+    "/api/documents/{id}/validation": {
+      "get": {
+        "operationId": "getPdfValidation",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Lire les rapports PDF/UA et PDF/A",
+        "description": "Les 50 derniers rapports du PDF de cette organisation. Historique accessible après expiration du forfait, sans relance. Les contrôles automatisés ne constituent pas une certification d’accessibilité ou juridique. La visibilité du document est conservée : les PDF générés privés et leurs rapports sont réservés à leur créateur ; un autre administrateur ne dispose pas d’un accès général.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PdfValidationReport"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "validatePdf",
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Contrôler PDF/UA ou PDF/A avec veraPDF",
+        "description": "Forfait mensuel Horizon actif requis, déjà souscrit dans le navigateur par un administrateur. Contrôle diagnostique des octets exacts d’un PDF prêt. 100 tentatives par mois calendaire UTC, incluses dans le forfait de 30 EUR/mois prélevé dans les crédits. ua1/ua2 pour les règles automatiques d’accessibilité, 1b/2b/3b/4 pour l’archivage. Un succès ne vaut ni certification d’accessibilité ni conformité juridique ; une revue humaine reste nécessaire. Ne modifie, n’approuve ni n’envoie aucun PDF. Réutiliser Idempotency-Key après réponse perdue. Pas de relance automatique sur résultat inconnu. La visibilité du document est conservée : les PDF générés privés et leurs rapports sont réservés à leur créateur ; un autre administrateur ne dispose pas d’un accès général.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "documents:write"
+            ]
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "423": {
+            "$ref": "#/components/responses/Error423"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "201": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfValidationReport"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Forfait Horizon absent, expiré ou impayé. Le plugin ne peut ni souscrire ni gérer la facturation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PdfValidationInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11187,6 +11355,194 @@
           "nextCursor"
         ],
         "additionalProperties": false
+      },
+      "PdfValidationInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "profile"
+        ],
+        "properties": {
+          "profile": {
+            "type": "string",
+            "enum": [
+              "ua1",
+              "ua2",
+              "1b",
+              "2b",
+              "3b",
+              "4"
+            ]
+          }
+        }
+      },
+      "PdfValidationReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "documentId",
+          "sha256",
+          "profile",
+          "createdAt",
+          "evidence",
+          "engine",
+          "compliant",
+          "status",
+          "passedRules",
+          "failedRules",
+          "failedChecks",
+          "truncated",
+          "findings",
+          "manualReviewRequired",
+          "certification",
+          "manualChecks"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "ua1",
+              "ua2",
+              "1b",
+              "2b",
+              "3b",
+              "4"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence": {
+            "type": "string",
+            "enum": [
+              "production",
+              "simulation"
+            ]
+          },
+          "engine": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "version"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "veraPDF"
+                ]
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          },
+          "compliant": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          },
+          "passedRules": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failedRules": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failedChecks": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "findings": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "specification",
+                "clause",
+                "testNumber",
+                "failedChecks"
+              ],
+              "properties": {
+                "specification": {
+                  "type": "string"
+                },
+                "clause": {
+                  "type": "string"
+                },
+                "testNumber": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "failedChecks": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "manualReviewRequired": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "certification": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "manualChecks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "reading_order",
+                    "alternative_text",
+                    "visual_contrast",
+                    "keyboard_navigation"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "responses": {
@@ -11391,5 +11747,20 @@
   "externalDocs": {
     "description": "Guide développeurs Guteneo",
     "url": "https://guteneo.com/developpeurs/"
+  },
+  "x-horizon-plan": {
+    "name": "guteneo Horizon",
+    "priceMinor": 3000,
+    "currency": "EUR",
+    "interval": "month",
+    "paymentSource": "account_credits",
+    "termsVersion": "horizon-2026-10-02-v1",
+    "management": "administrator_browser_only",
+    "privateRoutes": [
+      "GET /api/plan",
+      "POST /api/plan/subscribe",
+      "POST /api/plan/cancel"
+    ],
+    "description": "Préparation désactivée par défaut. Routes navigateur avec session, origine/CSRF pour mutations et rôle administrateur courant ; aucun outil OAuth ne souscrit. Facturation Guteneo réservée aux administrateurs des comptes disposant du forfait mensuel. Des rapports historiques restent lisibles sans forfait actif."
   }
 }

@@ -18,6 +18,10 @@ import {
   type BillingEnv,
 } from "../../apps/api/src/billing";
 import { handleAuthRoute, type AuthContext } from "../../apps/api/src/auth";
+import {
+  HORIZON_TERMS_VERSION,
+  handleMonthlyPlanRoute,
+} from "../../apps/api/src/monthly-plan";
 import worker from "../../apps/api/src/index";
 import type { Env } from "../../apps/api/src/env";
 
@@ -67,6 +71,10 @@ beforeAll(async () => {
     STRIPE_MODE: "test",
     STRIPE_API_KEY: "rk_test_fixture",
     STRIPE_WEBHOOK_SECRET: "whsec_billing_fixture",
+    HORIZON_ENABLED: "true",
+    PDF_VALIDATOR: {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher,
   };
   const files = (await readdir(new URL("../../migrations/", import.meta.url)))
     .filter((name) => name.endsWith(".sql"))
@@ -102,6 +110,32 @@ beforeAll(async () => {
       .bind(context.organizationId)
       .first<{ user_id: string }>();
     context.userId = row!.user_id;
+    const login = await handleAuthRoute(
+      request(
+        "/api/dev/login",
+        "POST",
+        { "Content-Type": "application/json" },
+        JSON.stringify({
+          organization:
+            context.organizationId === "org_atelier" ? "atelier" : "studio",
+        }),
+      ),
+      env,
+    );
+    const { csrfToken } = (await login!.json()) as { csrfToken: string };
+    await handleMonthlyPlanRoute(
+      request(
+        "/api/plan/subscribe",
+        "POST",
+        {
+          Cookie: login!.headers.get("Set-Cookie")!.split(";")[0],
+          "X-CSRF-Token": csrfToken,
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+        JSON.stringify({ consent: true, termsVersion: HORIZON_TERMS_VERSION }),
+      ),
+      env,
+    );
   }
 });
 afterEach(() => vi.restoreAllMocks());
@@ -312,7 +346,7 @@ describe("organization billing without fabricated charges", () => {
       new BillingService({ ...env, ENVIRONMENT: "production" }).createCustomer(
         actor,
       ),
-    ).rejects.toMatchObject({ code: "BILLING_CONFIGURATION_REQUIRED" });
+    ).rejects.toMatchObject({ code: "HORIZON_PLAN_REQUIRED" });
   });
   it("requires current administrator membership and a browser actor, even with a forged role", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");

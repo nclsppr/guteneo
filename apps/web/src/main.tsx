@@ -16,7 +16,8 @@ import "./protected-document.css";
 // Crawlable entry links hand off to the existing browser router before rendering.
 if (
   window.location.pathname === "/app" ||
-  window.location.pathname === "/app/prepare"
+  window.location.pathname === "/app/prepare" ||
+  window.location.pathname === "/app/plan"
 ) {
   const entry = new URL(window.location.href);
   entry.hash =

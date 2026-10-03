@@ -563,12 +563,13 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.3.1");
+      expect(manifest.version).toBe("0.3.2");
       expect(manifest.version).toBe(plugin.version);
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
       expect(manifest.files).toContain("skills/email/SKILL.md");
+      expect(manifest.files).toContain("skills/pdf-accessibility/SKILL.md");
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;

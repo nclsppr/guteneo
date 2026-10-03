@@ -29,6 +29,7 @@ import {
   isPublicPreview,
 } from "./api";
 import { t } from "./locale";
+import { horizonErrorMessage } from "./horizon-errors";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
@@ -215,7 +216,8 @@ export function ErrorNotice({
         <strong>{t.errorTitle}</strong>
         <p>
           {error instanceof ApiError
-            ? (postalErrorMessage(error.code) ??
+            ? (horizonErrorMessage(error.code) ??
+              postalErrorMessage(error.code) ??
               emailErrorMessage(error.code) ??
               generalErrorMessage(error.code) ??
               msg(error.message))

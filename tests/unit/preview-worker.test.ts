@@ -21,7 +21,11 @@ function assetsEnv() {
 }
 
 describe("public preview boundary", () => {
-  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+  it.each([
+    "/app",
+    "/app/prepare?entry=direct&token=never-forward",
+    "/app/plan?lang=en&token=never-forward",
+  ])(
     "serves browser entry %s privately without opening a backend",
     async (path) => {
       for (const method of ["GET", "HEAD"]) {

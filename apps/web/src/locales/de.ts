@@ -38,6 +38,7 @@ export const de: Copy = {
     postal: "Briefpost",
   },
   nav: {
+    horizon: "Horizon-Tarif",
     overview: "Übersicht",
     documents: "Dokumente",
     templates: "Vorlagen",

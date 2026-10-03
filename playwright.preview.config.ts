@@ -4,6 +4,9 @@ export default defineConfig({
   testDir: "tests/preview-e2e",
   outputDir: "test-results/preview",
   fullyParallel: true,
+  // Real audible WebKit media shares the runner's GStreamer/audio resources.
+  // Keep CI preview sessions exclusive; retain every decode and seek assertion.
+  workers: process.env.CI ? 1 : undefined,
   timeout: 45000,
   expect: { timeout: 12000 },
   reporter: [

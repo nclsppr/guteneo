@@ -5,6 +5,7 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 ## Independent work
 
 - `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report.
+- Developer documentation: `node docs/build-feature-map.mjs --check` requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
 - `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
 - `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
 - `build`: builds local application, live and fictional preview assets once each, plus both existing Wrangler dry runs. Their distinct compilation flags and release manifests are retained. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
@@ -18,6 +19,8 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 `guteneo-verification` contains the complete merged `reports/vitest.json`, original per-job reports/logs, browser HTML/JSON reports, newly generated visual-proof screenshots and failure traces/screenshots, the current restoration proof, and the cost model. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
 
 Every job uses lockfile-keyed `setup-node` npm download caching and still runs `npm ci`; `node_modules`, Miniflare databases and browser session state are not reused. Browser binaries are installed only in jobs that require them. No new browser cache is added: Playwright documents comparable download/restore costs and the need to install Linux system libraries anyway. A measured later change can revisit this choice; it is not assumed to save time.
+
+The public-preview configuration uses one worker in CI too. Its real audible media cases share Linux GStreamer/audio resources; concurrent sessions have produced a fully buffered, visible, unpaused player whose clock never advanced. No decode, progression, duration, locale or final-frame assertion is removed, and production playback is unchanged. The application suite already uses one worker.
 
 ## Measured baseline and candidate limits
 

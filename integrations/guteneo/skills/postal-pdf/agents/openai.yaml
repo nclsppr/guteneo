@@ -1,3 +1,6 @@
+interface:
+  display_name: "Guteneo Postal PDF"
+  short_description: "Prepare a postal PDF with reviewed consent"
 dependencies:
   tools:
     - type: "mcp"

@@ -24,6 +24,27 @@ async function fixture(page: Page) {
     if (path === "/session") body = session;
     else if (path === "/capabilities")
       body = { scanner: "disabled_in_local_simulation" };
+    else if (path === "/plan")
+      body = {
+        plan: {
+          id: "horizon",
+          name: "guteneo Horizon",
+          priceMinor: 3000,
+          currency: "EUR",
+          interval: "month",
+        },
+        termsVersion: "horizon-2026-10-02-v1",
+        enabled: true,
+        status: "active",
+        entitled: true,
+        currentPeriodStart: now,
+        currentPeriodEnd: "2026-10-17T10:00:00Z",
+        cancelAtPeriodEnd: false,
+        billingManagementAllowed: true,
+        paymentSource: "account_credits",
+        evidence: "simulation",
+        creditAvailableMinor: 5000,
+      };
     else if (path === "/account" && route.request().method() === "PATCH") {
       if (rejectProfile) {
         rejectProfile = false;

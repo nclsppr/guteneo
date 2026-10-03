@@ -11,7 +11,7 @@ Deux accès sont implémentés :
 - Session navigateur : cookie `HttpOnly`, `SameSite=Lax`, sécurisé hors développement. Toute mutation requiert `Origin: APP_ORIGIN` et `X-CSRF-Token`, obtenu par `GET /api/session` ; la connexion locale requiert l’origine mais n’a pas encore de session CSRF.
 - Jeton délégué : `Authorization: Bearer …`, validé pour l’issuer et l’audience Auth0 configurés, puis rattaché à une connexion et à une adhésion enregistrées. Il peut appeler les routes métier REST et `/mcp`, mais ne remplace pas une session humaine pour approuver.
 
-L’organisation provient de l’adhésion authentifiée. Aucun champ ou en-tête d’organisation fourni par le client ne permet de changer de locataire. Les rôles sont `admin`, `member`, `viewer` ; ce dernier ne peut pas créer, approuver, confirmer ou annuler un envoi. L’administration présentée ici est celle de l’organisation, pas une console transverse d’opérateur.
+L’organisation provient de l’adhésion authentifiée. Aucun champ ou en-tête d’organisation fourni par le client ne permet de changer de locataire. Les rôles sont `admin`, `supervisor`, `member`, `viewer`. Les deux options du superviseur contrôlent séparément approbation et rapports ; l’opérateur prépare sans approuver, confirmer ou annuler ; l’observateur lit sans mutation. Le [contrat courant des rôles](WORKSPACE_ROLES.md) et la [matrice développeur](FEATURE_MAP.md) font foi. L’administration présentée ici est celle de l’organisation, pas une console transverse d’opérateur.
 
 Les routes métier REST authentifiées et MCP partagent une limite de 180 requêtes par organisation et par minute ; dépassement : `429 RATE_LIMITED`, `Retry-After: 60`. Les crédits documentaires et les quotas d’envoi sont des limites distinctes. Les routes d’authentification, de santé et de callbacks ne passent pas par ce compteur métier.
 
@@ -223,4 +223,4 @@ destructive. `TemplateView.canDelete` describes this separate ownership right;
 edit/publish/share grants cannot confer it. Success returns `{id,deleted:true}`.
 The model then disappears for all users, and its direct template reads return
 404. Existing PDF and generation-history access rules are preserved. This is
-library removal, not erasure of historical documents. Migration 0047 is required.
+library removal, not erasure of historical documents. Migration 0049 is required.

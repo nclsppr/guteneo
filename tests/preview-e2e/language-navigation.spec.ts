@@ -187,16 +187,28 @@ test("public subpage language panels remain fully inside narrow phone viewports"
       await test.step(`${path} at ${width}px`, async () => {
         await page.goto(`${path}?lang=lb`);
         const header = page.locator("header.site-header");
-        const closedHeight = (await header.boundingBox())!.height;
+        await expect(header).toBeVisible();
+        const closedHeight = await header.evaluate(
+          (element) => element.getBoundingClientRect().height,
+        );
         const picker = await publicLanguagePicker(page);
         const panel = header.locator(".language-menu-panel");
-        expect((await header.boundingBox())!.height).toBe(closedHeight);
+        await expect
+          .poll(() =>
+            header.evaluate(
+              (element) => element.getBoundingClientRect().height,
+            ),
+          )
+          .toBe(closedHeight);
         for (const locale of ["lb", "de", "auto"]) {
           await picker.selectOption(locale);
           await expect(panel).toBeVisible();
-          const bounds = await panel.boundingBox();
-          expect(bounds!.x).toBeGreaterThanOrEqual(0);
-          expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+          const bounds = await panel.evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            return { x: box.x, width: box.width };
+          });
+          expect(bounds.x).toBeGreaterThanOrEqual(0);
+          expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
           await expectNoHorizontalOverflow(page);
         }
       });

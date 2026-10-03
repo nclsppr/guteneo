@@ -25,6 +25,11 @@ import {
 } from "./components";
 import { t } from "./locale";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import {
+  HorizonOffer,
+  horizonBillingAllowed,
+  type HorizonPlan,
+} from "./horizon-plan";
 
 type Usage = {
   channel: Channel;
@@ -140,7 +145,36 @@ export function Billing({ session }: { session: Session }) {
         />
       </>
     );
-  return <BillingWorkspace key={session.organization.id} session={session} />;
+  return <HorizonBilling key={session.organization.id} session={session} />;
+}
+
+function HorizonBilling({ session }: { session: Session }) {
+  const plan = useResource<HorizonPlan>("/plan");
+  return (
+    <>
+      <PageHeading
+        title={msg("Facturation")}
+        intro={msg(
+          "La facturation est disponible aux administrateurs des comptes disposant d’un forfait mensuel actif.",
+        )}
+      />
+      <ErrorNotice error={plan.error} retry={plan.refresh} />
+      {plan.loading && !plan.data && <Loading />}
+      {plan.data && (
+        <HorizonOffer
+          key={`${session.organization.id}:${plan.data.status}:${plan.data.cancelAtPeriodEnd}`}
+          session={session}
+          plan={plan.data}
+          refresh={plan.refresh}
+          loading={plan.loading}
+          billing
+        />
+      )}
+      {horizonBillingAllowed(session, plan.data) && (
+        <BillingWorkspace session={session} showHeading={false} />
+      )}
+    </>
+  );
 }
 
 function PreviewBilling() {
@@ -171,7 +205,13 @@ function PreviewBilling() {
   );
 }
 
-function BillingWorkspace({ session }: { session: Session }) {
+function BillingWorkspace({
+  session,
+  showHeading = true,
+}: {
+  session: Session;
+  showHeading?: boolean;
+}) {
   const overview = useResource<Overview>("/billing");
   const invoices = useResource<Page<Invoice>>("/billing/invoices");
   const payments = useResource<Page<Payment>>("/billing/payments");
@@ -207,19 +247,29 @@ function BillingWorkspace({ session }: { session: Session }) {
   }
   return (
     <>
-      <PageHeading
-        title={msg("Facturation")}
-        intro={msg(
-          "Les factures et paiements de {0}.",
-          session.organization.name,
-        )}
-        action={
+      {showHeading && (
+        <PageHeading
+          title={msg("Facturation")}
+          intro={msg(
+            "Les factures et paiements de {0}.",
+            session.organization.name,
+          )}
+          action={
+            <RefreshButton
+              onClick={refresh}
+              disabled={overview.loading || action.pending}
+            />
+          }
+        />
+      )}
+      {!showHeading && (
+        <div className="section-toolbar">
           <RefreshButton
             onClick={refresh}
             disabled={overview.loading || action.pending}
           />
-        }
-      />
+        </div>
+      )}
       <ErrorNotice
         error={
           overview.error ?? invoices.error ?? payments.error ?? action.error

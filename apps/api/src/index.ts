@@ -1,4 +1,14 @@
 import { handleInvitationRoute } from "./invitations";
+import {
+  handleMonthlyPlanRoute,
+  getHorizonStatus,
+  renewHorizonPlans,
+} from "./monthly-plan";
+import { PdfValidationService } from "./pdf-validation";
+import {
+  pdfValidationInput,
+  pdfValidationProfiles,
+} from "../../../packages/contracts/src/pdf-validation";
 import { ensureEmailSender } from "./email-setup";
 import {
   prepareProtectedDocument,
@@ -116,6 +126,18 @@ export function getCapabilities(env: Env) {
       configured: billingConfigured(env),
       mode: env.STRIPE_MODE ?? "unconfigured",
       chargingEnabled: false,
+      requiresMonthlyPlan: true,
+      management: "administrator_browser_only",
+    },
+    horizon: {
+      name: "guteneo Horizon",
+      priceMinor: 3000,
+      currency: "EUR",
+      interval: "month",
+      paymentSource: "account_credits",
+      available: env.HORIZON_ENABLED === "true" && Boolean(env.PDF_VALIDATOR),
+      subscription: "administrator_browser_only",
+      accountUrl: `${env.APP_ORIGIN}/#/app/plan`,
     },
     channels: [
       {
@@ -211,6 +233,15 @@ export function getCapabilities(env: Env) {
       render: Boolean(env.DOCUMENT_RENDERER || env.DOCUMENT_RENDERER_URL),
       exactBytes: true,
       urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
+      validation: {
+        available: env.HORIZON_ENABLED === "true" && Boolean(env.PDF_VALIDATOR),
+        profiles: pdfValidationProfiles,
+        requiresMonthlyPlan: true,
+        checksPerCalendarMonth: 100,
+        automatedOnly: true,
+        certification: false,
+        engine: "veraPDF",
+      },
     },
     studio: {
       templates: {
@@ -360,6 +391,20 @@ app.all("/mcp", (c) =>
           .processPending()
           .then(() => undefined),
       ),
+    pdfValidation: {
+      validate: async (identity, documentId, input, key) =>
+        new PdfValidationService(c.env, domain(c.env)).validate(
+          await postalMcpAuthority(identity, c.env, "documents:write"),
+          documentId,
+          input,
+          key,
+        ),
+      list: (identity, documentId) =>
+        new PdfValidationService(c.env, domain(c.env)).list(
+          identity.context,
+          documentId,
+        ),
+    },
     capabilities: async (identity) => {
       const capabilities = getCapabilities(c.env);
       const canReadPostalSetup = identity.scopes.includes("documents:read");
@@ -369,6 +414,10 @@ app.all("/mcp", (c) =>
       ]);
       return {
         ...capabilities,
+        horizon: {
+          ...capabilities.horizon,
+          account: await getHorizonStatus(c.env, identity.context),
+        },
         postal: {
           channel: "postal",
           setup: postalSetup,
@@ -482,6 +531,8 @@ app.use("/api/billing/*", async (c, next) => {
   return next();
 });
 app.use("/api/*", async (c, next) => {
+  const plan = await handleMonthlyPlanRoute(c.req.raw, c.env);
+  if (plan) return plan;
   const postalSetup = await handlePostalSetupRoute(c.req.raw, c.env);
   if (postalSetup) return postalSetup;
   const account = await handleAccountRoute(c.req.raw, c.env);
@@ -733,6 +784,25 @@ app.post("/api/documents/:id/rescan", async (c) =>
       c.get("actor"),
       c.req.param("id"),
     ),
+  ),
+);
+app.get("/api/documents/:id/validation", async (c) =>
+  c.json(
+    await new PdfValidationService(c.env, domain(c.env)).list(
+      c.get("actor"),
+      c.req.param("id"),
+    ),
+  ),
+);
+app.post("/api/documents/:id/validation", async (c) =>
+  c.json(
+    await new PdfValidationService(c.env, domain(c.env)).validate(
+      await postalAuthority(c.req.raw, c.env, "documents:write"),
+      c.req.param("id"),
+      pdfValidationInput.parse(await c.req.json()),
+      idempotency(c.req.header("Idempotency-Key")),
+    ),
+    201,
   ),
 );
 app.post("/api/admin/scanner/warm", async (c) =>
@@ -1126,6 +1196,7 @@ export default {
       stage = "leases";
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";
+      await renewHorizonPlans(env);
       await new DocumentService(env, service).processPendingScans();
       await cleanupProtectedDocuments(env.DB);
       await new TemplateWorkflowService(env, service).processPending();

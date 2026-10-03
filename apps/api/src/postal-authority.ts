@@ -118,6 +118,7 @@ export async function postalBrowserAuthority(
           WHERE postal_session.token_hash=? AND postal_member.organization_id=? AND postal_member.user_id=?
           AND postal_member.role=? AND postal_member.supervisor_can_approve=? AND postal_member.supervisor_can_report=? AND postal_member.role IN (${mutating ? "'admin','supervisor','member'" : "'admin','supervisor','member','viewer'"}) AND postal_org.mode=?
           AND postal_session.expires_at>? AND (postal_session.is_development=0 OR ?=1)
+          AND (?=0 OR postal_session.csrf_token=?)
           AND (postal_session.is_development=1 OR ${policy === "verified_email" ? "postal_session.verified_account=1" : "postal_member.role<>'admin' OR postal_session.mfa=1"})
         )`,
         values: [
@@ -130,6 +131,8 @@ export async function postalBrowserAuthority(
           env.MODE,
           new Date().toISOString(),
           Number(isLocalSimulation(authenticatedRequest, env)),
+          Number(mutating),
+          session.csrfToken,
         ],
       };
     },
