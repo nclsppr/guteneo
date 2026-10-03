@@ -1,4 +1,5 @@
 interface QualificationEnv {
+  HORIZON_QUALIFICATION_TOKEN?: string;
   PDF_VALIDATOR: Fetcher;
   QUALIFICATION: {
     release(): Promise<{ sourceCommit: string; workerVersion: string }>;
@@ -15,6 +16,24 @@ export default {
     const url = new URL(request.url);
     if (!new Set(["127.0.0.1", "localhost"]).has(url.hostname))
       return Response.json({ code: "LOCAL_PROBE_ONLY" }, { status: 403 });
+    // This bridge is CLI-only. A loopback destination does not authenticate a
+    // browser caller; reject every Origin before any private binding access.
+    if (request.headers.has("Origin"))
+      return Response.json(
+        { code: "LOCAL_PROBE_ORIGIN_FORBIDDEN" },
+        { status: 403 },
+      );
+    const expectedToken = env.HORIZON_QUALIFICATION_TOKEN;
+    const suppliedToken = request.headers.get("X-Horizon-Qualification-Token");
+    if (
+      !/^[a-f0-9]{64}$/.test(expectedToken ?? "") ||
+      !/^[a-f0-9]{64}$/.test(suppliedToken ?? "") ||
+      suppliedToken !== expectedToken
+    )
+      return Response.json(
+        { code: "LOCAL_PROBE_UNAUTHORIZED" },
+        { status: 403 },
+      );
     try {
       if (
         request.method === "GET" &&
@@ -45,13 +64,16 @@ export default {
         (request.method === "POST" && url.pathname === "/validate")
       ) {
         // The real service validates these parameters/body bounds; retain negative tests.
+        // The local per-run credential must never cross a remote service binding.
+        const headers = new Headers(request.headers);
+        headers.delete("X-Horizon-Qualification-Token");
         return await env.PDF_VALIDATOR.fetch(
           new Request(
             `https://validator.internal${url.pathname}${url.search}`,
             {
               method: request.method,
               body: request.body,
-              headers: request.headers,
+              headers,
               signal: request.signal,
               ...(request.body ? { duplex: "half" as const } : {}),
             },

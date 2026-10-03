@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import {
+  createProbeFetch,
+  readProbeCredential,
+  probeFailureMessage,
+} from "./probe-credentials.mjs";
+import {
   ENGINE,
   loadReferenceCorpus,
   loadBenchmarkCorpus,
@@ -33,6 +38,11 @@ assert.ok(
   values.proof,
   "Provide an explicit local --proof file; reports are never published",
 );
+
+// Shared only with this local Wrangler process via gitignored mode-0600
+// qualification/.dev.vars; never supplied as an argument or sent to Cloudflare.
+const probeToken = readProbeCredential();
+const probeFetch = createProbeFetch(base, probeToken);
 
 const references = loadReferenceCorpus();
 const benchmarks = loadBenchmarkCorpus();
@@ -79,11 +89,13 @@ async function closedGate() {
 }
 async function call(path, body, media = "application/pdf", extraHeaders = {}) {
   const started = performance.now();
-  const response = await fetch(new URL(path, base), {
+  const response = await probeFetch(path, {
     method: body === undefined ? "GET" : "POST",
-    ...(body === undefined
-      ? {}
-      : { body, headers: { "Content-Type": media, ...extraHeaders } }),
+    headers:
+      body === undefined
+        ? extraHeaders
+        : { "Content-Type": media, ...extraHeaders },
+    ...(body === undefined ? {} : { body }),
     signal: AbortSignal.timeout(48000),
   });
   const text = await response.text();
@@ -320,10 +332,7 @@ try {
   );
 } catch (error) {
   proof.status = "failed";
-  proof.failure =
-    error instanceof Error
-      ? error.message.slice(0, 300)
-      : "QUALIFICATION_FAILED";
+  proof.failure = probeFailureMessage(error, probeToken);
   writeFileSync(values.proof, JSON.stringify(proof, null, 2) + "\n", {
     mode: 0o600,
   });

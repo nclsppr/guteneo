@@ -248,13 +248,15 @@ du compte**. Un flux continu de requêtes, y compris des réponses `busy`, peut
 empêcher sa mise en veille. Voici les coûts bruts pour **31 jours**, sans
 allocation et avant les autres postes :
 
-| Instance unique éveillée | Mémoire + disque | Avec CPU constamment à pleine capacité |
+| Instance unique éveillée | Mémoire + disque | Avec CPU actif moyen égal à l’allocation indiquée |
 | --- | --- | --- |
 | `basic` | 7,445952 USD | 20,837952 USD |
 | `standard-1` | 28,283904 USD | 55,067904 USD |
 
-Ces valeurs illustrent le coût des ressources d'une instance configurée à cette
-taille pendant 744 heures. Elles ne plafonnent ni les Worker requests, ni les
+Ces valeurs modélisent 744 heures avec un CPU actif moyen de 0,25 vCPU sur
+`basic` ou 0,5 vCPU sur `standard-1`. L'allocation documentée ne démontre pas
+à elle seule un plafond garanti de CPU facturable ; ces scénarios ne sont donc
+pas des plafonds de facturation. Ils ne plafonnent ni les Worker requests, ni les
 Durable Objects, ni le scanner, ni le stockage documentaire, ni la facture
 Cloudflare. Une limite de 100 diagnostics par compte client et par période ne
 constitue pas une limite globale lorsque plusieurs comptes utilisent Horizon.

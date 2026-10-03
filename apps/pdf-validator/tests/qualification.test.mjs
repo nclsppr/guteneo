@@ -23,6 +23,8 @@ function compile(path, replace = (value) => value) {
   );
 }
 const { default: bridge } = await compile("../qualification/worker.ts");
+const probeToken = "a".repeat(64);
+const probeHeaders = { "X-Horizon-Qualification-Token": probeToken };
 const { ValidatorQualification } = await compile(
   "../src/qualification.ts",
   (source) =>
@@ -186,9 +188,10 @@ test("economic basic qualification retains exact profile results under its real 
   }
 });
 
-test("qualification bridge rejects every non-loopback origin and arbitrary path before private bindings", async () => {
+test("qualification bridge rejects every non-loopback destination and arbitrary path before private bindings", async () => {
   let calls = 0;
   const env = {
+    HORIZON_QUALIFICATION_TOKEN: probeToken,
     PDF_VALIDATOR: {
       fetch: () => {
         calls++;
@@ -203,15 +206,125 @@ test("qualification bridge rejects every non-loopback origin and arbitrary path 
     "http://localhost.attacker.example",
   ])
     assert.equal(
-      (await bridge.fetch(new Request(`${origin}/health`), env)).status,
+      (
+        await bridge.fetch(
+          new Request(`${origin}/health`, { headers: probeHeaders }),
+          env,
+        )
+      ).status,
       403,
     );
   assert.equal(
-    (await bridge.fetch(new Request("http://127.0.0.1:8891/arbitrary"), env))
-      .status,
+    (
+      await bridge.fetch(
+        new Request("http://127.0.0.1:8891/arbitrary", {
+          headers: probeHeaders,
+        }),
+        env,
+      )
+    ).status,
     404,
   );
   assert.equal(calls, 0);
+});
+
+test("every local probe route requires the configured per-run credential before any binding access", async () => {
+  let calls = 0;
+  const routes = [
+    ["GET", "/release"],
+    ["GET", "/state"],
+    ["GET", "/privacy"],
+    ["POST", "/stop"],
+    ["POST", "/process-deadline"],
+    ["GET", "/health"],
+    ["POST", "/validate?profile=ua1"],
+    ["GET", "/arbitrary"],
+  ];
+  function environment(token) {
+    return Object.defineProperties(
+      { HORIZON_QUALIFICATION_TOKEN: token },
+      {
+        PDF_VALIDATOR: {
+          get() {
+            calls++;
+            throw new Error("must not access");
+          },
+        },
+        QUALIFICATION: {
+          get() {
+            calls++;
+            throw new Error("must not access");
+          },
+        },
+      },
+    );
+  }
+  const cases = [
+    [undefined, probeHeaders],
+    ["", probeHeaders],
+    ["malformed", probeHeaders],
+    [probeToken, {}],
+    [probeToken, { "X-Horizon-Qualification-Token": "b".repeat(64) }],
+    [probeToken, { "X-Horizon-Qualification-Token": "malformed" }],
+  ];
+  for (const [method, path] of routes) {
+    for (const [configured, headers] of cases) {
+      const response = await bridge.fetch(
+        new Request(`http://127.0.0.1:8891${path}`, {
+          method,
+          headers,
+        }),
+        environment(configured),
+      );
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), {
+        code: "LOCAL_PROBE_UNAUTHORIZED",
+      });
+    }
+    // Even a browser that somehow acquired a valid credential is never a
+    // permitted caller. This includes same-loopback, opaque and empty Origin.
+    for (const origin of [
+      "https://attacker.example",
+      "http://127.0.0.1:8891",
+      "null",
+      "",
+    ]) {
+      const response = await bridge.fetch(
+        new Request(`http://127.0.0.1:8891${path}`, {
+          method,
+          headers: { ...probeHeaders, Origin: origin },
+        }),
+        environment(probeToken),
+      );
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), {
+        code: "LOCAL_PROBE_ORIGIN_FORBIDDEN",
+      });
+    }
+  }
+  assert.equal(calls, 0);
+});
+
+test("authenticated CLI probe can call private RPC without browser-origin permission", async () => {
+  let calls = 0;
+  const response = await bridge.fetch(
+    new Request("http://127.0.0.1:8891/stop", {
+      method: "POST",
+      headers: probeHeaders,
+    }),
+    {
+      HORIZON_QUALIFICATION_TOKEN: probeToken,
+      QUALIFICATION: {
+        stop: async () => {
+          calls++;
+          return { status: "stopped" };
+        },
+      },
+    },
+  );
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { status: "stopped" });
+  assert.equal(calls, 1);
 });
 
 test("local bridge targets only the fixed private validator with unchanged diagnostic bytes", async () => {
@@ -220,15 +333,21 @@ test("local bridge targets only the fixed private validator with unchanged diagn
     new Request("http://127.0.0.1:8891/validate?profile=ua1", {
       method: "POST",
       body: bytes,
-      headers: { "Content-Type": "application/pdf" },
+      headers: { "Content-Type": "application/pdf", ...probeHeaders },
     }),
     {
+      HORIZON_QUALIFICATION_TOKEN: probeToken,
       PDF_VALIDATOR: {
         fetch: async (request) => {
           assert.equal(
             request.url,
             "https://validator.internal/validate?profile=ua1",
           );
+          assert.equal(
+            request.headers.has("X-Horizon-Qualification-Token"),
+            false,
+          );
+          assert.equal(request.headers.get("Content-Type"), "application/pdf");
           assert.deepEqual(new Uint8Array(await request.arrayBuffer()), bytes);
           return Response.json({ code: "VALIDATOR_BUSY" }, { status: 503 });
         },

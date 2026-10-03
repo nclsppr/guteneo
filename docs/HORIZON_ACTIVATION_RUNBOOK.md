@@ -113,10 +113,18 @@ subscription, cancellation and PDF validation writes with `PREVIEW_ONLY`.
 ### Private hosted qualification commands
 
 After the guarded qualification deployment, keep the authenticated Wrangler
-bridge on loopback in one terminal:
+bridge on loopback in one terminal. Generate a fresh local credential before
+starting the bridge; it is stored only in gitignored `qualification/.dev.vars`
+with mode 0600. Every request with an `Origin` header is refused, so this probe
+uses its CLI transport. The runner reads the same file, and the bridge removes
+its credential header before remote calls. Never print it or place it in CLI
+arguments, proofs or a deployed configuration:
 
 ```sh
-npx wrangler dev --config apps/pdf-validator/qualification/wrangler.jsonc
+node apps/pdf-validator/scripts/setup-probe.mjs
+apps/pdf-validator/node_modules/.bin/wrangler dev \
+  --config apps/pdf-validator/qualification/wrangler.jsonc \
+  --ip 127.0.0.1 --port 8891 --log-level error
 ```
 
 Set `HORIZON_MAIN_SHA`, `HORIZON_VALIDATOR_QUAL_VERSION` and
@@ -143,6 +151,12 @@ the container through the loopback-only bridge and stop Wrangler dev. Then run
 Do not bind the named `ValidatorQualification` entrypoint to the customer app;
 the normal `PDF_VALIDATOR` service binding exposes its restricted health/validate
 handler only. The temporary qualification bridge is never deployed or published.
+For the closing checks, generate a fresh credential before restarting Wrangler
+and use the credential-reading CLI example in the package guide. A 403 from a
+missing local credential is not evidence that the deployed RPC gate is closed;
+the valid local caller must receive the remote refusal and ready engine health.
+Stop the bridge and delete its local `.dev.vars` afterward. Never rotate the
+file during a running suite: both local processes must load the same credential.
 
 ## Browser consent and account-credit protocol
 

@@ -7,6 +7,8 @@ and [Cloudflare cost model](HORIZON_COSTS.md). The local resource-qualified
 candidate is one `basic` instance, five-second idle sleep and a pinned, tuned
 JVM. Startup admission and in-flight responses are protected from idle expiry;
 the Worker response is bounded even if the private transport ignores abort.
+The local qualification bridge requires a fresh secret, rejects browser Origin
+headers before any binding and never transfers its credential to Cloudflare.
 Hosted cold large-file validation and actual stop/wake remain release gates.
 The authorization is already recorded in the
 [opening decision](HORIZON_OPENING_2026_10_03.md); this preparation does not itself

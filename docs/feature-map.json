@@ -313,7 +313,7 @@
         "Callbacks fournisseur authentifiés et journaux sans contenu sensible",
         "Rapprochement, reprise bornée et files mortes",
         "Migrations D1 ordonnées, intégrité et bookmark de restauration",
-        "Services privés scanner, renderer et validateur ; déploiement du validateur depuis main propre sans route publique ni observabilité",
+        "Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret",
         "Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts",
         "Publication depuis main propre, synchronisé et vérifié",
         "Manifestes de release, empreintes des assets et santé distante"
@@ -321,7 +321,8 @@
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
         "tests/security/main-only-release.test.mjs",
-        "tests/security/pdf-validator-release.test.mjs"
+        "tests/security/pdf-validator-release.test.mjs",
+        "apps/pdf-validator/tests/probe-credentials.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés"
     }
@@ -457,10 +458,10 @@
       "id": "J15",
       "title": "Publier une évolution",
       "actor": "Développeur / opérateur de release",
-      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé.",
+      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.",
       "branch": "RELEASE",
       "doc": "MAIN_RELEASE.md",
-      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre."
+      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification."
     }
   ],
   "roles": [

@@ -7,6 +7,20 @@ operator's existing Cloudflare authentication and the explicit account
 `39ac9fada6cba44d9ecf09d467609e69`. Do not use `--remote`, `--tunnel`, change the
 listener address, or deploy this probe configuration.
 
+The listener requires a fresh, unpredictable local credential for each run and
+rejects **every** request carrying an `Origin` header, including a same-loopback
+browser origin. Before starting Wrangler, the setup command below generates
+32 random bytes in `qualification/.dev.vars` with owner-only permissions (0600).
+The repository ignores `.dev.vars*`; this file must never be committed or sent
+to Cloudflare. Setup rotates an existing valid probe credential, but refuses to
+overwrite foreign settings, exposed files or symbolic links. Inspect and preserve
+any such existing file before preparing a dedicated probe checkout.
+Wrangler and the runner read the same local file. The runner sends its credential
+only to the selected loopback listener, refuses redirects, and the bridge removes
+the credential header before any remote service fetch. Missing or incorrect
+credentials are rejected before any binding or RPC access. Neither arguments,
+logs nor qualification proofs contain the credential.
+
 The separate `ValidatorQualification` named RPC entrypoint is unavailable unless
 the operator temporarily deploys the validator with `QUALIFICATION_ENABLED=true`.
 The normal HTTP service does not expose these RPC operations or container audit
@@ -27,6 +41,7 @@ Record the Cloudflare Worker version UUID printed by that guarded deployment.
 In a separate terminal, from the same clean main checkout:
 
 ```sh
+node apps/pdf-validator/scripts/setup-probe.mjs
 apps/pdf-validator/node_modules/.bin/wrangler dev \
   --config apps/pdf-validator/qualification/wrangler.jsonc \
   --ip 127.0.0.1 --port 8891 --log-level error
@@ -82,21 +97,81 @@ that evidence and resolve the cause; do not loosen assertions or enable Horizon.
 Positive reference machine checks do not replace human accessibility assessment.
 No real customer PDF, subscription or communication is performed by this probe.
 
-After qualification passes, stop the local probe and close the RPC gate with the
-normal guarded deployment from the same clean main source:
+After qualification passes, keep Horizon closed and physically stop the
+container while the qualification gate is still enabled. This also ensures that
+the Python process cannot retain its previous qualification environment across
+the normal deployment. From the repository root, with the probe still running:
+
+```sh
+node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
+for (const origin of ['https://guteneo.com', 'https://guteneo-app.nclsppr.workers.dev']) {
+  const response = await fetch(`${origin}/api/capabilities`, {
+    redirect: 'error', signal: AbortSignal.timeout(15000),
+  });
+  assert.equal(response.status, 200);
+  const capabilities = await response.json();
+  assert.equal(capabilities.mode, 'production');
+  assert.equal(capabilities.horizon?.available, false);
+}
+const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
+const stopped = await call('/stop', { method: 'POST', signal: AbortSignal.timeout(48000) });
+assert.equal(stopped.status, 200);
+assert.deepEqual(await stopped.json(), { status: 'stopped' });
+const deadline = performance.now() + 20000;
+for (;;) {
+  const response = await call('/state', { signal: AbortSignal.timeout(5000) });
+  assert.equal(response.status, 200);
+  const state = await response.json();
+  if (['stopped', 'stopped_with_code'].includes(state.status)) break;
+  assert.ok(performance.now() < deadline, 'Container did not stop');
+  await new Promise(resolve => setTimeout(resolve, 250));
+}
+console.log('Horizon closed; private container stopped before normal deployment.');
+NODE
+```
+
+Then stop the local probe and close the RPC gate with the normal guarded
+deployment from the same clean main source:
 
 ```sh
 npm run deploy:pdf-validator
 ```
 
 This imposes `QUALIFICATION_ENABLED=false`. Record the new deployment version,
-briefly restart the loopback probe and verify `GET /release`, `GET /state`,
-`GET /privacy`, `POST /stop` and `POST /process-deadline` all return status 503
-with `{ "code": "PRIVATE_PROBE_UNAVAILABLE" }`, while `GET /health` still reports
-veraPDF 1.30.2 ready.
+run the setup command again before restarting Wrangler with the command above,
+then execute this closure check from the repository root. It reads the credential
+directly from the local file; no credential appears in arguments or output.
+
+```sh
+node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
+const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
+for (const [method, path] of [
+  ['GET', '/release'], ['GET', '/state'], ['GET', '/privacy'],
+  ['POST', '/stop'], ['POST', '/process-deadline'],
+]) {
+  const response = await call(path, { method, signal: AbortSignal.timeout(48000) });
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { code: 'PRIVATE_PROBE_UNAVAILABLE' });
+}
+const health = await call('/health', { signal: AbortSignal.timeout(48000) });
+assert.equal(health.status, 200);
+assert.deepEqual(await health.json(), {
+  status: 'ready', engine: { name: 'veraPDF', version: '1.30.2' },
+});
+console.log('Private qualification RPC closed; veraPDF 1.30.2 ready.');
+NODE
+```
+
 Stop the probe again before enabling the application. Production activation and
 the browser credit journey are controlled by the root activation runbook, not by
 this package.
+Delete the local `apps/pdf-validator/qualification/.dev.vars` after qualification.
+Rotating the file requires stopping and restarting Wrangler so that both local
+processes use the new credential; never rotate it during a running suite.
 
 The offline prerequisite uses the same corpus and a network-disabled, read-only,
 non-root Docker runtime:
