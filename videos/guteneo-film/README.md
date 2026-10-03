@@ -1,67 +1,44 @@
 # guteneo — Vos mots. Dans le monde réel.
 
-Les films V5 existent en français, anglais, allemand et luxembourgeois, en
-horizontal et au format iPhone. Une présentation commune des quatre rôles dure
-36 secondes dans chaque langue et réutilise leur conclusion officielle.
-Depuis la racine : `npm run videos:render` régénère masters, MP4 web, posters,
-sous-titres narrés et manifeste. Il rend les sources musicales V5/V1 et remixe
-les introductions FR/EN et rôles EN Génération 2 du snapshot suivi `narration/releases/fr-en-g2/`
-vers les fichiers actifs V6/V2. Les catalogues, hashes et calages sont qualifiés
-avant toute écriture publique ; le snapshot audio reste immuable. FFmpeg,
-ffprobe et cwebp sont requis. Les sources React, les polices,
-les médias locaux et le verrouillage npm sont conservés ; aucun service distant
-n’est nécessaire. Voir `docs/HOMEPAGE_FILM.md` et `docs/ROLES_FILM.md` à la racine.
+Les douze vidéos publiques utilisent la narration naturelle Manon Eleven v4 :
+introductions horizontale et iPhone, et présentation des quatre rôles, en FR,
+EN, DE et LB. Les durées suivent la voix originale, sans accélération. La méthode
+C regroupe les phrases complètes en trois blocs ; le texte passe par l’action
+native ElevenLabs **Améliorer**, puis la seconde variation du plugin est retenue.
+Les interventions de style après Enhance sont enregistrées distinctement.
 
-La narration **Eleven v4** est en cours pour les douze vidéos actuelles en
-FR/EN/DE/LB, avec une voix masculine calme et chaleureuse : **George**,
-`JBFqnCBsd6RMkjVDRZzb`, identifiant copié depuis l’interface ElevenLabs.
-Le compte Creator a été confirmé actif dans Safari ; les réglages utilisés sont
-Stability 50 %, Similarity 75 %, override de langue explicite et export MP3
-128 kbit/s. Le plugin ElevenLabs est installé et activé, mais aucun de ses outils
-MCP n’est invocable dans cette session : les générations réelles passent par
-Safari, puis `scripts/import-narration.mjs` importe chaque export dans le cache
-commun au plan hors ligne et au mixeur.
-La génération API v4 est désactivée avant réseau ou écriture : l’ancien endpoint
-TTS doit être remplacé par un adaptateur Text to Dialogue qualifié. Les imports
-web et leurs empreintes restent inchangés ; une clé ou un budget ne débloquent
-pas `narration:generate`.
-L’utilisateur a retenu **Génération 2**. Les secondes prises françaises déjà
-disponibles ont été récupérées dans l’historique, sans refaire ces générations.
-Chaque export
-retenu s’importe avec `--web-generation 2` ; le reçu note la variante sans
-modifier l’empreinte du cache. Les mixages provisoires des premières prises
-sont obsolètes et exclus du lot retenu.
-Avec `webGeneration: 2` dans la configuration, le mixeur bloque les exports web
-de prise 1 ou sans numéro avant d’écrire les candidats ; les reçus API gardent
-leur provenance séparée.
-Le mixeur lit par défaut `narration/source-videos.json`, snapshot des MP4
-musicaux d’origine conservés après publication des versions narrées. Une nouvelle
-version visuelle exige la mise à jour de ce snapshot et du calage ; `--catalog`
-permet de choisir explicitement un autre catalogue de sources musicales.
+Les introductions sont en **V8**, les rôles EN/DE/LB en **V4** ; les rôles FR
+conservent la **V3** approuvée. Tous gardent le même logo officiel pendant cinq
+secondes et le fond musical au gain constant **0,22**, pauses et logo compris.
+La signature de l’introduction reste silencieuse pendant deux secondes.
 
-Depuis la racine, `npm run videos:narration` et `npm run videos:narration:mix`
-présentent le lot courant hors ligne ; le nombre de séquences et de caractères
-se calcule depuis `narration/scripts.json`. `npm run test:videos:narration`
-vérifie le verrou API, le plan hors ligne, l’import, le calage et le mixage
-avec des fixtures locales.
-Les 34 prises FR/EN sont importées, calées et mixées en six candidats locaux
-contrôlés techniquement. Les exports DE sont disponibles ; LB reste à générer.
-Trois versions françaises du film des rôles comparent phrases séparées, prise
-complète et trois blocs. L’utilisateur retient les trois blocs avec une nouvelle
-rédaction naturelle ; l’ancien candidat voix des rôles FR reste hors publication.
-Aucune nouvelle diffusion du lot narré n’est attestée par cette note.
-L’entrée audio est indisponible au modèle pour
-l’écoute critique, donc `criticalListening: pending` reste requis.
-Voir [la procédure de narration](../../docs/VIDEO_NARRATION.md) pour la
-configuration locale, l’import sans API et le mixage des candidats.
+Les huit bibliothèques immuables de `narration/releases/` contiennent les MP3,
+WAV PCM24, reçus, scripts, améliorations et timelines. Les coupes conservent tous
+les échantillons en ordre. Le rendu est local, sans génération fournisseur :
 
-Les alias racine `videos:narration:import` et `videos:narration:fit` correspondent
-à `narration:import` et `narration:fit` dans ce dossier. Le fitter réel est
-`../../scripts/fit-web-narration.mjs` : analyse seule par défaut, copie séparée
-avec `--execute`, preuve `.fit.json`, retrait des bords et tempo plafonné à 1,10×.
-Il ne remplace ni l’original ni le cache ; importer ensuite explicitement la
-copie retenue avec `--web-generation 2 --replace`. La détection d’amplitude ne
-garantit pas les limites des mots ; l’écoute reste `pending`.
+```sh
+npm ci
+npm run test:narration
+npm run render:localized
+```
+
+FFmpeg, ffprobe et cwebp sont requis. Les entrées sont qualifiées avant les
+écritures publiques. Le catalogue historique `narration/source-videos.json`
+conserve V5/V1 ; chaque bibliothèque naturelle lie sa propre base musicale.
+Les sources initiales peuvent être amorcées dans `out/` avec
+`scripts/render-natural-sources.mjs`. Les snapshots existants refusent tout
+remplacement. Le plugin fournit la synthèse ; Safari fournit Enhance et les
+exports Scribe natifs nécessaires. L’ancien adaptateur API local reste bloqué
+avant réseau, même si le plugin fonctionne.
+
+Voir [la procédure](../../docs/VIDEO_NARRATION.md),
+[les actifs](../../docs/VIDEO_NARRATION_PUBLISHED.md),
+[le lecteur d’accueil](../../docs/HOMEPAGE_FILM.md) et
+[la page des rôles](../../docs/ROLES_FILM.md). Les rôles FR ont été approuvés à
+l’écoute par l’utilisateur ; les autres contrôles restent techniques. Les
+historiques ci-dessous sont conservés comme sources et archives.
+
+## Films historiques
 
 Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
 
@@ -69,7 +46,7 @@ Le fichier de diffusion est `out/guteneo-film-1080p.mp4`. Le dossier `out/` et `
 
 Un **second spot vertical de 56 secondes**, pensé pour iPhone/TikTok et la promesse du produit abouti, est également livré : `out/guteneo-vertical-vision-1080x1920.mp4`. Voir [son découpage et ses sources](docs/VERTICAL_FILM.md). Le premier film reste intact. Les exports natifs de la révision 4 sont `out/guteneo-v4-iphone-18-pro.mp4` (1206 × 2622) et `out/guteneo-v4-iphone-18-pro-max.mp4` (1320 × 2868), avec un seul plan Luxembourg. La révision 4 utilise le logo officiel simplifié pour les très petites icônes ; le grand timbre final reste tramé et oblitéré. Les versions précédentes sont conservées.
 
-## Spots de présentation actuels — V5
+## Sources instrumentales — V5
 
 La campagne de 56 secondes existe désormais en **1920 × 1080 horizontal** (`Guteneo-Horizontal-Vision`) et au **ratio iPhone** (`Guteneo-iPhone-18-Pro-Max`, 1320 × 2868). Le paysage est recomposé scène par scène, avec la même partition. La première scène utilise le logo simplifié sans oblitération, dans les deux formats. Le grand timbre final reste tramé et oblitéré.
 

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "lb",
+  "kind": "introduction",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Mat guteneo fänkt alles mat engem Dokument un.\n\nDir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden.\n\nDobäi kann all Empfänger säi perséinlecht Dokument kréien.\n\nBenotzt Ären eegene PDF oder eng passend Virlag.\n\nÄren Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen.\n\nDir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir.\n\nKontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser.\n\nFir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen.\n\nÄr Wierder erreeche Leit och iwwer d'Landesgrenzen eraus.\n\nE digital virbereet Dokument kann esou och an enger Bréifboîte ukommen.\n\nÄren Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
+  "nativeEnhancedText": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [happy] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. Benotzt Ären eegene PDF oder eng passend Virlag. [excited] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [thoughtful] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen. [happy] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus! E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [warmly] Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
+  "nativeOutputSha256": "994181db54319df94dbd244ecf3005c98d9914c1ba0b496347c9ef5a7d6b076d",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag. [short pause] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. [short pause] Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen. [short pause] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [
+    "Remove nonverbal effects or changing tones to match the user-approved calm French roles film.",
+    "Restore original punctuation when native enhancement changes it.",
+    "Carry the approved thoughtful style and separate each slide paragraph with an explicit short pause."
+  ],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "one",
+        "scale",
+        "personal",
+        "sources"
+      ],
+      "prompt": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "assistants",
+        "generate",
+        "review",
+        "channels"
+      ],
+      "prompt": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. [short pause] Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "europe",
+        "physical",
+        "access"
+      ],
+      "prompt": "[thoughtful] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd."
+    }
+  ],
+  "criticalListening": "pending"
+}

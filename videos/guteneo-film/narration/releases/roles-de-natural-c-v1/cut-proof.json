@@ -1,0 +1,623 @@
+{
+  "schemaVersion": 1,
+  "source": "sample-exact-local-derivation",
+  "alignmentProofSha256": "b68eddc56ccec694a7c7af292c0c2ac3b163ae14680d33a465b3b2ac50762b31",
+  "providerReceiptsSha256": "349882498c41d20bba97a7d189ab58465dd9451ce704b8880fb49291efcf388d",
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+      "samples": 476280,
+      "decodedPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e",
+      "derivedClips": [
+        "intro",
+        "administrator"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        167672
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "intro",
+          "nextCueId": "administrator",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.8020861678004536,
+          "cutSample": 167672,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.483605,
+            "endSeconds": 4.12059
+          },
+          "previousLastWord": {
+            "word": " an.",
+            "start": 3.2,
+            "end": 3.4,
+            "probability": 0.9970703125
+          },
+          "nextFirstWord": {
+            "word": " Der",
+            "start": 4.16,
+            "end": 4.26,
+            "probability": 0.9921875
+          },
+          "previousWordGuardSeconds": 0.4020861678004537,
+          "nextWordGuardSeconds": 0.35791383219954653,
+          "anchors": [
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "intro"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " ihre",
+                "start": 2.58,
+                "end": 2.78,
+                "probability": 0.95556640625
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "intro"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": " Rechte",
+                "start": 2.78,
+                "end": 3.2,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "intro"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": " an.",
+                "start": 3.2,
+                "end": 3.4,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 12,
+              "expected": {
+                "cueId": "administrator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 13,
+              "recognized": {
+                "word": " Der",
+                "start": 4.16,
+                "end": 4.26,
+                "probability": 0.9921875
+              }
+            },
+            {
+              "expectedIndex": 13,
+              "expected": {
+                "cueId": "administrator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 14,
+              "recognized": {
+                "word": " Administrator",
+                "start": 4.26,
+                "end": 5.06,
+                "probability": 0.9501953125
+              }
+            },
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "administrator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": " verwaltet",
+                "start": 5.06,
+                "end": 5.62,
+                "probability": 0.9384765625
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "blockId": "bloc-2",
+      "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+      "samples": 670320,
+      "decodedPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8",
+      "derivedClips": [
+        "supervisor",
+        "operator"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        412352
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "supervisor",
+          "nextCueId": "operator",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 9.350385487528344,
+          "cutSample": 412352,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 9.064286,
+            "endSeconds": 9.636485
+          },
+          "previousLastWord": {
+            "word": " deaktiviert.",
+            "start": 8.18,
+            "end": 8.98,
+            "probability": 0.99609375
+          },
+          "nextFirstWord": {
+            "word": " Der",
+            "start": 9.56,
+            "end": 9.78,
+            "probability": 0.99560546875
+          },
+          "previousWordGuardSeconds": 0.37038548752834366,
+          "nextWordGuardSeconds": 0.2096145124716564,
+          "anchors": [
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "supervisor"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " sind",
+                "start": 7.2,
+                "end": 7.36,
+                "probability": 0.998046875
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "supervisor"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " standardmäßig",
+                "start": 7.36,
+                "end": 8.18,
+                "probability": 0.9794921875
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "supervisor"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": " deaktiviert.",
+                "start": 8.18,
+                "end": 8.98,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "operator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 21,
+              "recognized": {
+                "word": " Der",
+                "start": 9.56,
+                "end": 9.78,
+                "probability": 0.99560546875
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "operator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": " Sachbearbeiter",
+                "start": 9.78,
+                "end": 10.62,
+                "probability": 0.84423828125
+              }
+            },
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "operator"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": " importiert",
+                "start": 10.62,
+                "end": 11.14,
+                "probability": 0.986328125
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "blockId": "bloc-3",
+      "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+      "samples": 557424,
+      "decodedPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a",
+      "derivedClips": [
+        "observer",
+        "review"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        363601
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "observer",
+          "nextCueId": "review",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 8.244920634920636,
+          "cutSample": 363601,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.988345,
+            "endSeconds": 8.501497
+          },
+          "previousLastWord": {
+            "word": " Sendungen.",
+            "start": 7.36,
+            "end": 7.9,
+            "probability": 0.98828125
+          },
+          "nextFirstWord": {
+            "word": " Im",
+            "start": 8.44,
+            "end": 8.58,
+            "probability": 0.99609375
+          },
+          "previousWordGuardSeconds": 0.3449206349206353,
+          "nextWordGuardSeconds": 0.19507936507936385,
+          "anchors": [
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "observer"
+              },
+              "operation": "equivalent",
+              "observedIndex": 14,
+              "recognized": {
+                "word": " genehmigt",
+                "start": 6.58,
+                "end": 7.02,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 15,
+              "expected": {
+                "cueId": "observer"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": " keine",
+                "start": 7.02,
+                "end": 7.36,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 16,
+              "expected": {
+                "cueId": "observer"
+              },
+              "operation": "equivalent",
+              "observedIndex": 16,
+              "recognized": {
+                "word": " Sendungen.",
+                "start": 7.36,
+                "end": 7.9,
+                "probability": 0.98828125
+              }
+            },
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": " Im",
+                "start": 8.44,
+                "end": 8.58,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " normalen",
+                "start": 8.58,
+                "end": 9.1,
+                "probability": 0.9931640625
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " Ablauf",
+                "start": 9.1,
+                "end": 9.48,
+                "probability": 0.994140625
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "intro",
+      "text": "Sehen wir uns die vier Rollen in guteneo und ihre Rechte an.",
+      "path": "clips/roles-de-natural-c/intro.wav",
+      "sha256": "78b08770b96dec6161ee95aa8797dd247d8752d659ade047a98cb95b7a1741de",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 167672,
+      "samples": 167672,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.8020861678004536,
+      "pcmSha256": "b02455aca7c88e97cef4b2e1341fc6c408cd404ef5a38da6f84db11d5f3c925a",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 0,
+      "sceneDurationInFrames": 142,
+      "startSeconds": 0.4,
+      "endSeconds": 4.233333333333333,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "administrator",
+      "text": "Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.",
+      "path": "clips/roles-de-natural-c/administrator.wav",
+      "sha256": "a43b20274fe0709f2a61368e3af365ae2e10565867067d6e086b1adfeef73073",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+      "sourceStartSample": 167672,
+      "sourceEndSampleExclusive": 476280,
+      "samples": 308608,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 6.997913832199546,
+      "pcmSha256": "d7b6e2d8b51a802ffa5fe50c16f617291d4fa40cf39ea29525f22c4e3f6b4ba7",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 142,
+      "sceneDurationInFrames": 237,
+      "startSeconds": 5.133333333333334,
+      "endSeconds": 12.133333333333333,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "supervisor",
+      "text": "Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert.",
+      "path": "clips/roles-de-natural-c/supervisor.wav",
+      "sha256": "52e1850bdbe6642c52a55ebcda87ee10597e057695a13eb744cc78ff8f05aad9",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 412352,
+      "samples": 412352,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 9.350385487528344,
+      "pcmSha256": "0ddbd530edca3c547a1c984511415651997d991ed3c4f9066d4391d97031101b",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 379,
+      "sceneDurationInFrames": 308,
+      "startSeconds": 13.033333333333333,
+      "endSeconds": 22.4,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "operator",
+      "text": "Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen.",
+      "path": "clips/roles-de-natural-c/operator.wav",
+      "sha256": "04ff8894113dec87c6629c919a4a347e55fd9a4fa358c88a74d6005b2b5f8fff",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+      "sourceStartSample": 412352,
+      "sourceEndSampleExclusive": 670320,
+      "samples": 257968,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 5.849614512471655,
+      "pcmSha256": "5862ebc3cf7c7e073aa9df6e8758af1bac9afb02d97b50f0ca3e14e2901a90fe",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 687,
+      "sceneDurationInFrames": 203,
+      "startSeconds": 23.3,
+      "endSeconds": 29.166666666666668,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "observer",
+      "text": "Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen.",
+      "path": "clips/roles-de-natural-c/observer.wav",
+      "sha256": "0cee5e00022b7d0a636adc666a7a03c3c2235556e032a03e4d47fe9cc39c17d0",
+      "sourceBlockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 363601,
+      "samples": 363601,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 8.244920634920636,
+      "pcmSha256": "54c0d066a294e4f7ff5fe010e95326d5be0246d73f6b638169e378467d8481b2",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 890,
+      "sceneDurationInFrames": 275,
+      "startSeconds": 30.066666666666666,
+      "endSeconds": 38.333333333333336,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "review",
+      "text": "Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+      "path": "clips/roles-de-natural-c/review.wav",
+      "sha256": "c5265d68996bb4f6ac3e6726040a9cd960cf351bfa9a3b4b4fea98bbe9f184ee",
+      "sourceBlockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+      "sourceStartSample": 363601,
+      "sourceEndSampleExclusive": 557424,
+      "samples": 193823,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.395079365079365,
+      "pcmSha256": "ebadb3918bd64ff908a0ba5ea3cdb862051293b39f2aa4d9a5b6242fde514ae3",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 1165,
+      "sceneDurationInFrames": 159,
+      "startSeconds": 39.233333333333334,
+      "endSeconds": 43.63333333333333,
+      "criticalListening": "pending"
+    }
+  ],
+  "fullGeneratedAudioRetained": true,
+  "voiceTruncation": false,
+  "speedChange": false,
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "timeline": {
+    "schemaVersion": 1,
+    "locale": "de",
+    "fps": 30,
+    "durationInFrames": 1474,
+    "durationSeconds": 49.13333333333333,
+    "endCardStartFrame": 1324,
+    "endCardStartSeconds": 44.13333333333333,
+    "endCardDurationInFrames": 150,
+    "endCardDurationSeconds": 5,
+    "preRollFrames": 12,
+    "postRollMinimumFrames": 15,
+    "sourceVoiceDurationSeconds": 38.64,
+    "method": "C-three-blocks",
+    "source": {
+      "provider": "elevenlabs-creative-plugin",
+      "modelId": "eleven_v4",
+      "languageCode": "de",
+      "voiceName": "Manon",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "selectedVariationNumber": 2
+    },
+    "scenes": [
+      {
+        "id": "intro",
+        "startFrame": 0,
+        "durationInFrames": 142
+      },
+      {
+        "id": "administrator",
+        "startFrame": 142,
+        "durationInFrames": 237
+      },
+      {
+        "id": "supervisor",
+        "startFrame": 379,
+        "durationInFrames": 308
+      },
+      {
+        "id": "operator",
+        "startFrame": 687,
+        "durationInFrames": 203
+      },
+      {
+        "id": "observer",
+        "startFrame": 890,
+        "durationInFrames": 275
+      },
+      {
+        "id": "review",
+        "startFrame": 1165,
+        "durationInFrames": 159
+      },
+      {
+        "id": "logo",
+        "startFrame": 1324,
+        "durationInFrames": 150
+      }
+    ],
+    "criticalListening": "pending",
+    "compositionId": "Guteneo-Roles-DE-Natural-C",
+    "width": 1920,
+    "height": 1080
+  },
+  "originalProofSha256": "e124881c57c30433226a545eb74889edefe78a2f0f3189f88f4dd5e9c0898a46"
+}

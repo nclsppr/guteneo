@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "introduction-lb-natural-c",
+      "kind": "introduction",
+      "locale": "lb",
+      "durationSeconds": 67.46666666666667,
+      "endCardStartSeconds": 62.46666666666667,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 3.8333333333333335,
+          "text": "Mat guteneo fänkt alles mat engem Dokument un."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 4.733333333333333,
+          "endSeconds": 8.966666666666667,
+          "text": "Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 9.866666666666667,
+          "endSeconds": 13.6,
+          "text": "Dobäi kann all Empfänger säi perséinlecht Dokument kréien."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 14.5,
+          "endSeconds": 18.2,
+          "text": "Benotzt Ären eegene PDF oder eng passend Virlag."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 19.1,
+          "endSeconds": 23.833333333333332,
+          "text": "Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 24.733333333333334,
+          "endSeconds": 29.266666666666666,
+          "text": "Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir."
+        },
+        {
+          "id": "review",
+          "startSeconds": 30.166666666666668,
+          "endSeconds": 38,
+          "text": "Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 38.9,
+          "endSeconds": 44,
+          "text": "Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 44.9,
+          "endSeconds": 49.3,
+          "text": "Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 50.2,
+          "endSeconds": 54.96666666666667,
+          "text": "E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen."
+        },
+        {
+          "id": "access",
+          "startSeconds": 55.86666666666667,
+          "endSeconds": 59.96666666666667,
+          "text": "Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd."
+        }
+      ]
+    }
+  ]
+}

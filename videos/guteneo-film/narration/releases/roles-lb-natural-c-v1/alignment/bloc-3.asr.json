@@ -1,0 +1,292 @@
+{
+  "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.211386416995083,
+  "result": {
+    "text": " Den observator kukd dokumentar domfengar an desuivi. Hjen anart kengdoneen am atelier agenemist kengsendung. Am normale parkour genemist ein berechtist persoon sendung am browser.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 4.06,
+        "text": " Den observator kukd dokumentar domfengar an desuivi.",
+        "tokens": [
+          50364,
+          6458,
+          9951,
+          1639,
+          350,
+          2034,
+          67,
+          40858,
+          289,
+          3285,
+          69,
+          1501,
+          289,
+          364,
+          730,
+          84,
+          33448,
+          13,
+          50581
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.6243753144235322,
+        "compression_ratio": 1.4206349206349207,
+        "no_speech_prob": 0.0272427536547184,
+        "words": [
+          {
+            "word": " Den",
+            "start": 0,
+            "end": 0.24,
+            "probability": 0.87548828125
+          },
+          {
+            "word": " observator",
+            "start": 0.24,
+            "end": 1,
+            "probability": 0.4619140625
+          },
+          {
+            "word": " kukd",
+            "start": 1,
+            "end": 1.42,
+            "probability": 0.4755859375
+          },
+          {
+            "word": " dokumentar",
+            "start": 1.42,
+            "end": 2.32,
+            "probability": 0.6650390625
+          },
+          {
+            "word": " domfengar",
+            "start": 2.32,
+            "end": 3.24,
+            "probability": 0.6220703125
+          },
+          {
+            "word": " an",
+            "start": 3.24,
+            "end": 3.5,
+            "probability": 0.462890625
+          },
+          {
+            "word": " desuivi.",
+            "start": 3.5,
+            "end": 4.06,
+            "probability": 0.55419921875
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.64,
+        "end": 8.02,
+        "text": " Hjen anart kengdoneen am atelier agenemist kengsendung.",
+        "tokens": [
+          50581,
+          389,
+          15378,
+          364,
+          446,
+          350,
+          1501,
+          67,
+          546,
+          268,
+          669,
+          412,
+          46273,
+          623,
+          268,
+          443,
+          468,
+          350,
+          1501,
+          82,
+          521,
+          1063,
+          13,
+          50781
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.6243753144235322,
+        "compression_ratio": 1.4206349206349207,
+        "no_speech_prob": 0.0272427536547184,
+        "words": [
+          {
+            "word": " Hjen",
+            "start": 4.64,
+            "end": 4.82,
+            "probability": 0.5693359375
+          },
+          {
+            "word": " anart",
+            "start": 4.82,
+            "end": 5.16,
+            "probability": 0.40478515625
+          },
+          {
+            "word": " kengdoneen",
+            "start": 5.16,
+            "end": 5.96,
+            "probability": 0.611328125
+          },
+          {
+            "word": " am",
+            "start": 5.96,
+            "end": 6.08,
+            "probability": 0.82958984375
+          },
+          {
+            "word": " atelier",
+            "start": 6.08,
+            "end": 6.58,
+            "probability": 0.64892578125
+          },
+          {
+            "word": " agenemist",
+            "start": 6.58,
+            "end": 7.26,
+            "probability": 0.59765625
+          },
+          {
+            "word": " kengsendung.",
+            "start": 7.26,
+            "end": 8.02,
+            "probability": 0.87939453125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.68,
+        "end": 12.52,
+        "text": " Am normale parkour genemist ein berechtist persoon sendung am browser.",
+        "tokens": [
+          50781,
+          2012,
+          2026,
+          1220,
+          3884,
+          396,
+          290,
+          268,
+          443,
+          468,
+          1343,
+          13375,
+          4701,
+          468,
+          868,
+          4106,
+          2845,
+          1063,
+          669,
+          11185,
+          13,
+          51011
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.6243753144235322,
+        "compression_ratio": 1.4206349206349207,
+        "no_speech_prob": 0.0272427536547184,
+        "words": [
+          {
+            "word": " Am",
+            "start": 8.68,
+            "end": 8.84,
+            "probability": 0.97119140625
+          },
+          {
+            "word": " normale",
+            "start": 8.84,
+            "end": 9.28,
+            "probability": 0.73046875
+          },
+          {
+            "word": " parkour",
+            "start": 9.28,
+            "end": 9.78,
+            "probability": 0.6552734375
+          },
+          {
+            "word": " genemist",
+            "start": 9.78,
+            "end": 10.32,
+            "probability": 0.689453125
+          },
+          {
+            "word": " ein",
+            "start": 10.32,
+            "end": 10.46,
+            "probability": 0.4716796875
+          },
+          {
+            "word": " berechtist",
+            "start": 10.46,
+            "end": 11,
+            "probability": 0.66796875
+          },
+          {
+            "word": " persoon",
+            "start": 11,
+            "end": 11.5,
+            "probability": 0.45703125
+          },
+          {
+            "word": " sendung",
+            "start": 11.5,
+            "end": 12.08,
+            "probability": 0.64404296875
+          },
+          {
+            "word": " am",
+            "start": 12.08,
+            "end": 12.22,
+            "probability": 0.92578125
+          },
+          {
+            "word": " browser.",
+            "start": 12.22,
+            "end": 12.52,
+            "probability": 0.927734375
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "53e011c149204a7ca6ba8ac878fdd9889fcf9a32267d1d114e1cbb6fa5d790e2"
+}

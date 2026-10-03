@@ -1,0 +1,13 @@
+{
+  "source": "elevenlabs-native-scribe2",
+  "modelId": "scribe_v2",
+  "languageCode": "ltz",
+  "inputAudioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+  "exportSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e",
+  "expectedTextPrompt": null,
+  "nativeEditorId": "XDMAF3DV01FFWFjXuxax",
+  "languageSelection": "Luxembourgish",
+  "includeTimestamps": true,
+  "includeSubtitles": true,
+  "originalProofSha256": "e1308ab354f8f6cd574f06e9e872089d760b70cb088e5cd3f351c5be444b4873"
+}

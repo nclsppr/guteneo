@@ -63,6 +63,8 @@ test('speech outside a scene, overlap and shortened final card are rejected', ()
   assert.throws(() => validateMixCues(narration, [cue, {...cue, cueId: 'other'}]), /does not fit/);
   assert.throws(() => validateMixCues(narration, [{...cue, startSeconds: 30.8, endSeconds: 31.5, durationSeconds: 0.5}]), /does not fit/);
   assert.throws(() => validateMixCues({...narration, endCardStartSeconds: 32}, [cue]), /five seconds/);
+  assert.doesNotThrow(() => validateMixCues({...narration, durationSeconds: 1946 / 30, endCardStartSeconds: 1796 / 30}, [cue]),
+    'Exactly 150 frames must remain valid despite binary floating-point subtraction.');
 });
 
 test('music ducking uses actual speech and has fully released before the logo', () => {
@@ -267,5 +269,14 @@ test('local FFmpeg mix preserves every H.264 packet and the original final score
     assert.ok(await frequencyAmplitude(sourcePath, 880) < 0.001, 'The original score contains no synthetic voice.');
     const musicRatio = await frequencyAmplitude(outputPath, 220) / await frequencyAmplitude(sourcePath, 220);
     assert.ok(Math.abs(musicRatio - 0.22) < 0.02, 'Score is ducked while the voice speaks.');
+    const constantOutput = path.join(temporary, 'constant-music.mp4');
+    const constantProof = await mixVideo({sourcePath, outputPath: constantOutput, narration,
+      clips: [{...cue, audioPath, durationSeconds: Number(duration)}], musicPolicy: {mode: 'constant', gain: 0.22}});
+    assert.deepEqual(constantProof.musicPolicy, {mode: 'constant', gain: 0.22});
+    assert.equal(proof.musicPolicy, undefined, 'The historical default retains its original mix policy.');
+    for (const start of [0.7, 4, 12, 32]) {
+      const ratio = await frequencyAmplitude(constantOutput, 220, start) / await frequencyAmplitude(sourcePath, 220, start);
+      assert.ok(Math.abs(ratio - 0.22) < 0.02, 'Constant music must retain the same gain during speech, gaps and the logo.');
+    }
   } finally {await rm(temporary, {recursive: true, force: true});}
 });

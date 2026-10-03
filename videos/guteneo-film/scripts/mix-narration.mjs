@@ -32,7 +32,7 @@ function confinedPath(root, relative) {
 
 export function validateMixCues(narration, clips) {
   if (!Number.isFinite(narration.durationSeconds) || !Number.isFinite(narration.endCardStartSeconds)
-    || narration.durationSeconds - narration.endCardStartSeconds < 5) throw new Error('The final card needs at least five seconds without narration.');
+    || narration.durationSeconds - narration.endCardStartSeconds < 5 - 0.000001) throw new Error('The final card needs at least five seconds without narration.');
   let previousEnd = 0;
   for (const clip of clips) {
     const {startSeconds: start, endSeconds: end, durationSeconds: duration} = clip;
@@ -114,6 +114,7 @@ async function qualifyClips(job, generation, outputDir, webGeneration) {
     qualified.push({...clip, audioPath, durationSeconds, decodedDurationSeconds,
       ...(record.source !== undefined ? {source: record.source} : {}),
       ...(record.source === 'elevenlabs-web' && record.webGeneration !== undefined ? {webGeneration: record.webGeneration} : {}),
+      ...(record.source === 'elevenlabs-creative-plugin' ? {variationIndex: record.variationIndex, tempo: record.tempo} : {}),
     });
   }
   validateMixCues(job.narration, qualified);
@@ -138,9 +139,16 @@ export function canonicalAudioDuration({receiptDurationSeconds, containerDuratio
   return durationSeconds;
 }
 
-export async function mixVideo({sourcePath, outputPath, narration, clips}) {
+export function validateMusicPolicy(policy = {mode: 'ducked', gain: 0.22}) {
+  if (!policy || !['ducked', 'constant'].includes(policy.mode) || !Number.isFinite(policy.gain)
+    || policy.gain <= 0 || policy.gain > 1) throw new Error('Music policy must select ducked or constant gain between zero and one.');
+  return policy;
+}
+
+export async function mixVideo({sourcePath, outputPath, narration, clips, musicPolicy}) {
   if (path.resolve(sourcePath) === path.resolve(outputPath)) throw new Error('A narrated candidate must not overwrite its source movie.');
   validateMixCues(narration, clips);
+  const music = validateMusicPolicy(musicPolicy);
   const source = await probeMedia(sourcePath);
   const sourceVideo = source.streams.find((stream) => stream.codec_type === 'video');
   const sourceAudio = source.streams.find((stream) => stream.codec_type === 'audio');
@@ -159,7 +167,8 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
       return `[${index + 1}:a:0]loudnorm=I=-18:TP=-2:LRA=7,aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,adelay=${delay}S:all=1[voice${index}]`;
     });
     const voiceInputs = clips.map((_, index) => `[voice${index}]`).join('');
-    filters.push(`[0:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,volume='${musicVolumeExpression(narration, clips)}':eval=frame[music]`);
+    const musicGain = music.mode === 'constant' ? String(music.gain) : musicVolumeExpression(narration, clips, music.gain);
+    filters.push(`[0:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,volume='${musicGain}':eval=frame[music]`);
     // Mix all clips with the full-length score in one pass. Nested amix graphs
     // can drop short delayed inputs after a padded intermediate voice track.
     filters.push(`[music]${voiceInputs}amix=inputs=${clips.length + 1}:normalize=0:duration=first,alimiter=limit=0.95:level=false:latency=true,atrim=duration=${narration.durationSeconds}[mix]`);
@@ -185,11 +194,13 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
       sourceVideoSha256, outputVideoSha256, width: video.width, height: video.height,
       frameRate: video.avg_frame_rate, frames: Number(video.nb_frames), durationSeconds: Number(output.format.duration), bytes: size,
       endCardStartSeconds: narration.endCardStartSeconds, lastSpeechEndSeconds: Math.max(...clips.map((clip) => clip.startSeconds + clip.durationSeconds)),
-      voiceTargetLufs: -18, musicGainDuringSpeech: 0.22,
+      voiceTargetLufs: -18, musicGainDuringSpeech: music.gain,
+      ...(music.mode === 'constant' ? {musicPolicy: {mode: 'constant', gain: music.gain}} : {}),
       clips: clips.map((clip) => ({cueId: clip.cueId, fingerprint: clip.fingerprint, startSeconds: clip.startSeconds, durationSeconds: clip.durationSeconds,
         ...(clip.decodedDurationSeconds !== undefined ? {decodedDurationSeconds: clip.decodedDurationSeconds} : {}),
         ...(clip.source !== undefined ? {source: clip.source} : {}),
         ...(clip.source === 'elevenlabs-web' && clip.webGeneration !== undefined ? {webGeneration: clip.webGeneration} : {}),
+        ...(clip.source === 'elevenlabs-creative-plugin' ? {variationIndex: clip.variationIndex, tempo: clip.tempo} : {}),
       })),
       criticalListening: 'pending'
     };
@@ -200,9 +211,10 @@ export async function mixVideo({sourcePath, outputPath, narration, clips}) {
   }
 }
 
-export async function mixVideos({manifest, plan, catalog, repositoryRoot = defaultRepositoryRoot, outputDir = path.join(filmRoot, 'out/narration'), execute = false, webGeneration}) {
+export async function mixVideos({manifest, plan, catalog, repositoryRoot = defaultRepositoryRoot, outputDir = path.join(filmRoot, 'out/narration'), execute = false, webGeneration, musicPolicies = {}}) {
   if (webGeneration !== undefined && ![1, 2].includes(webGeneration)) throw new Error('Web generation preference must be 1 or 2.');
   const jobs = buildMixJobs(manifest, plan, catalog, repositoryRoot);
+  for (const job of jobs) validateMusicPolicy(musicPolicies[job.narration.id]);
   if (!execute) return {mode: 'dry-run', narrations: new Set(jobs.map((job) => job.narration.id)).size,
     ...(webGeneration !== undefined ? {webGenerationPreference: webGeneration} : {}),
     videos: jobs.map((job) => ({narrationId: job.narration.id, source: job.basename, output: `videos/${job.basename}`}))};
@@ -220,7 +232,8 @@ export async function mixVideos({manifest, plan, catalog, repositoryRoot = defau
     for (const job of jobs) job.qualifiedClips = await qualifyClips(job, generation, outputDir, webGeneration);
     const movies = [];
     for (const job of jobs) {
-      const proof = await mixVideo({sourcePath: job.sourcePath, outputPath: path.join(outputDir, 'videos', job.basename), narration: job.narration, clips: job.qualifiedClips});
+      const proof = await mixVideo({sourcePath: job.sourcePath, outputPath: path.join(outputDir, 'videos', job.basename), narration: job.narration,
+        clips: job.qualifiedClips, musicPolicy: musicPolicies[job.narration.id]});
       movies.push(proof);
       await writeFile(path.join(outputDir, 'mix-proof.json'), `${JSON.stringify({schemaVersion: 1, movies}, null, 2)}\n`);
     }

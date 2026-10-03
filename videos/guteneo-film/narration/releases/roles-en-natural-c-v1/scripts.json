@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "roles-en-natural-c",
+      "kind": "roles",
+      "locale": "en",
+      "durationSeconds": 47.3,
+      "endCardStartSeconds": 42.3,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.4,
+          "endSeconds": 4.4,
+          "text": "Let’s look at the four roles in guteneo and what each one can do."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 5.3,
+          "endSeconds": 11.8,
+          "text": "The administrator manages the workspace. They prepare and approve outgoing messages, and view reports."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 12.7,
+          "endSeconds": 20.733333333333334,
+          "text": "A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 21.633333333333333,
+          "endSeconds": 27.233333333333334,
+          "text": "The operator imports documents and prepares messages for sending. They cannot approve them."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 28.133333333333333,
+          "endSeconds": 36.06666666666667,
+          "text": "An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message."
+        },
+        {
+          "id": "review",
+          "startSeconds": 36.96666666666667,
+          "endSeconds": 41.8,
+          "text": "In the standard workflow, an authorised person approves the delivery in the browser."
+        }
+      ]
+    }
+  ]
+}

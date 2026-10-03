@@ -1,0 +1,371 @@
+{
+  "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+  "parameters": {
+    "language": "de",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 2.261337249998178,
+  "result": {
+    "text": " Mit gutem Neo beginnt alles mit einem Dokument. Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. Dabei kann jeder Empfänger sein persönliches Dokument erhalten. Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2.86,
+        "text": " Mit gutem Neo beginnt alles mit einem Dokument.",
+        "tokens": [
+          50364,
+          10821,
+          5228,
+          443,
+          24458,
+          1841,
+          580,
+          7874,
+          2194,
+          6827,
+          29768,
+          2206,
+          13,
+          50530
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.22708472609519958,
+        "compression_ratio": 1.3714285714285714,
+        "no_speech_prob": 0.033447664231061935,
+        "words": [
+          {
+            "word": " Mit",
+            "start": 0,
+            "end": 0.3,
+            "probability": 0.82958984375
+          },
+          {
+            "word": " gutem",
+            "start": 0.3,
+            "end": 0.84,
+            "probability": 0.72216796875
+          },
+          {
+            "word": " Neo",
+            "start": 0.84,
+            "end": 1.06,
+            "probability": 0.4443359375
+          },
+          {
+            "word": " beginnt",
+            "start": 1.06,
+            "end": 1.58,
+            "probability": 0.98779296875
+          },
+          {
+            "word": " alles",
+            "start": 1.58,
+            "end": 1.84,
+            "probability": 0.990234375
+          },
+          {
+            "word": " mit",
+            "start": 1.84,
+            "end": 2.08,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " einem",
+            "start": 2.08,
+            "end": 2.3,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " Dokument.",
+            "start": 2.3,
+            "end": 2.86,
+            "probability": 0.9931640625
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 3.48,
+        "end": 7.42,
+        "text": " Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten.",
+        "tokens": [
+          50530,
+          3559,
+          6310,
+          3018,
+          36731,
+          716,
+          17908,
+          1063,
+          4513,
+          3018,
+          18898,
+          591,
+          1215,
+          13887,
+          48391,
+          6009,
+          13,
+          50757
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.22708472609519958,
+        "compression_ratio": 1.3714285714285714,
+        "no_speech_prob": 0.033447664231061935,
+        "words": [
+          {
+            "word": " Sie",
+            "start": 3.48,
+            "end": 3.8,
+            "probability": 0.98681640625
+          },
+          {
+            "word": " können",
+            "start": 3.8,
+            "end": 4.04,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " eine",
+            "start": 4.04,
+            "end": 4.32,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " einzelne",
+            "start": 4.32,
+            "end": 4.9,
+            "probability": 0.982421875
+          },
+          {
+            "word": " Sendung",
+            "start": 4.9,
+            "end": 5.34,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " oder",
+            "start": 5.34,
+            "end": 5.64,
+            "probability": 0.98388671875
+          },
+          {
+            "word": " eine",
+            "start": 5.64,
+            "end": 5.88,
+            "probability": 0.98828125
+          },
+          {
+            "word": " ganze",
+            "start": 5.88,
+            "end": 6.18,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " Kampagne",
+            "start": 6.18,
+            "end": 6.76,
+            "probability": 0.984375
+          },
+          {
+            "word": " vorbereiten.",
+            "start": 6.76,
+            "end": 7.42,
+            "probability": 0.99853515625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 7.9,
+        "end": 10.92,
+        "text": " Dabei kann jeder Empfänger sein persönliches Dokument erhalten.",
+        "tokens": [
+          50757,
+          39606,
+          4028,
+          19610,
+          8599,
+          69,
+          35174,
+          6195,
+          42699,
+          279,
+          29768,
+          2206,
+          38051,
+          13,
+          50932
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.22708472609519958,
+        "compression_ratio": 1.3714285714285714,
+        "no_speech_prob": 0.033447664231061935,
+        "words": [
+          {
+            "word": " Dabei",
+            "start": 7.9,
+            "end": 8.1,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " kann",
+            "start": 8.1,
+            "end": 8.38,
+            "probability": 0.99951171875
+          },
+          {
+            "word": " jeder",
+            "start": 8.38,
+            "end": 8.64,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " Empfänger",
+            "start": 8.64,
+            "end": 9.18,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " sein",
+            "start": 9.18,
+            "end": 9.42,
+            "probability": 0.998046875
+          },
+          {
+            "word": " persönliches",
+            "start": 9.42,
+            "end": 10.12,
+            "probability": 0.98828125
+          },
+          {
+            "word": " Dokument",
+            "start": 10.12,
+            "end": 10.5,
+            "probability": 0.99609375
+          },
+          {
+            "word": " erhalten.",
+            "start": 10.5,
+            "end": 10.92,
+            "probability": 0.99365234375
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 11.42,
+        "end": 14.64,
+        "text": " Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage.",
+        "tokens": [
+          50932,
+          19861,
+          2904,
+          3559,
+          14773,
+          10446,
+          279,
+          17752,
+          4513,
+          3018,
+          1320,
+          5445,
+          12231,
+          22519,
+          13,
+          51106
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.22708472609519958,
+        "compression_ratio": 1.3714285714285714,
+        "no_speech_prob": 0.033447664231061935,
+        "words": [
+          {
+            "word": " Nutzen",
+            "start": 11.42,
+            "end": 11.74,
+            "probability": 0.98583984375
+          },
+          {
+            "word": " Sie",
+            "start": 11.74,
+            "end": 11.88,
+            "probability": 0.452392578125
+          },
+          {
+            "word": " Ihr",
+            "start": 11.88,
+            "end": 12.06,
+            "probability": 0.83349609375
+          },
+          {
+            "word": " eigenes",
+            "start": 12.06,
+            "end": 12.54,
+            "probability": 0.99609375
+          },
+          {
+            "word": " PDF",
+            "start": 12.54,
+            "end": 12.9,
+            "probability": 0.96923828125
+          },
+          {
+            "word": " oder",
+            "start": 12.9,
+            "end": 13.42,
+            "probability": 0.97998046875
+          },
+          {
+            "word": " eine",
+            "start": 13.42,
+            "end": 13.7,
+            "probability": 0.98876953125
+          },
+          {
+            "word": " passende",
+            "start": 13.7,
+            "end": 14.14,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " Vorlage.",
+            "start": 14.14,
+            "end": 14.64,
+            "probability": 0.9921875
+          }
+        ]
+      }
+    ],
+    "language": "de"
+  },
+  "originalProofSha256": "a76efaf17c3586f759fd9271443823c1f5b66832a1d75e1e6b5db0c8558a66dc"
+}

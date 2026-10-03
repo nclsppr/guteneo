@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "roles-lb-natural-c",
+      "kind": "roles",
+      "locale": "lb",
+      "durationSeconds": 50.4,
+      "endCardStartSeconds": 45.4,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.4,
+          "endSeconds": 4.733333333333333,
+          "text": "Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 5.633333333333334,
+          "endSeconds": 12.433333333333334,
+          "text": "Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 13.333333333333334,
+          "endSeconds": 23.233333333333334,
+          "text": "De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 24.133333333333333,
+          "endSeconds": 30.1,
+          "text": "Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 31,
+          "endSeconds": 39.43333333333333,
+          "text": "Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung."
+        },
+        {
+          "id": "review",
+          "startSeconds": 40.333333333333336,
+          "endSeconds": 44.9,
+          "text": "Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser."
+        }
+      ]
+    }
+  ]
+}

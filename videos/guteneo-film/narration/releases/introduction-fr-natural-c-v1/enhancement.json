@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "fr",
+  "kind": "introduction",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Avec guteneo, tout commence par un document à transmettre.\n\nPréparez un envoi unique, ou organisez toute une campagne de documents.\n\nPersonnalisez chaque version pour qu’elle corresponde à son destinataire.\n\nImportez votre PDF original, ou utilisez un modèle pour créer votre document.\n\nExpliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance.\n\nDemandez-lui de créer votre PDF, puis de préparer son envoi.\n\nVérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur.\n\nVotre message peut voyager par fax, par courrier postal ou par e-mail.\n\nVos documents traversent l’Europe pour rejoindre leurs destinataires.\n\nguteneo relie votre atelier numérique au courrier qui arrive à destination.\n\nRetrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
+  "nativeEnhancedText": "[excited] Avec guteneo, tout commence par un document à transmettre. [short pause] Préparez un envoi unique, ou organisez toute une campagne de documents. [thoughtful] Personnalisez chaque version pour qu’elle corresponde à son destinataire. [happy] Importez votre PDF original, ou utilisez un modèle pour créer votre document. [friendly] Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. [enthusiastic] Demandez-lui de créer votre PDF, puis de préparer son envoi. [thoughtful] Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. [informative] Votre message peut voyager par fax, par courrier postal ou par e-mail. [proud] Vos documents traversent l’Europe pour rejoindre leurs destinataires. [confident] guteneo relie votre atelier numérique au courrier qui arrive à destination. [happy] Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone!",
+  "nativeOutputSha256": "5c1eca6b85e4de4d4dc561aed942985276f88e2dfc55ddd200db6c43e84cc30e",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Avec guteneo, tout commence par un document à transmettre. [short pause] Préparez un envoi unique, ou organisez toute une campagne de documents. [short pause] Personnalisez chaque version pour qu’elle corresponde à son destinataire. [short pause] Importez votre PDF original, ou utilisez un modèle pour créer votre document. [short pause] Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. [short pause] Demandez-lui de créer votre PDF, puis de préparer son envoi. [short pause] Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. [short pause] Votre message peut voyager par fax, par courrier postal ou par e-mail. [short pause] Vos documents traversent l’Europe pour rejoindre leurs destinataires. [short pause] guteneo relie votre atelier numérique au courrier qui arrive à destination. [short pause] Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [
+    "Remove nonverbal effects or changing tones to match the user-approved calm French roles film.",
+    "Restore original punctuation when native enhancement changes it.",
+    "Carry the approved thoughtful style and separate each slide paragraph with an explicit short pause."
+  ],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "one",
+        "scale",
+        "personal",
+        "sources"
+      ],
+      "prompt": "[thoughtful] Avec guteneo, tout commence par un document à transmettre. [short pause] Préparez un envoi unique, ou organisez toute une campagne de documents. [short pause] Personnalisez chaque version pour qu’elle corresponde à son destinataire. [short pause] Importez votre PDF original, ou utilisez un modèle pour créer votre document."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "assistants",
+        "generate",
+        "review",
+        "channels"
+      ],
+      "prompt": "[thoughtful] Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. [short pause] Demandez-lui de créer votre PDF, puis de préparer son envoi. [short pause] Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. [short pause] Votre message peut voyager par fax, par courrier postal ou par e-mail."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "europe",
+        "physical",
+        "access"
+      ],
+      "prompt": "[thoughtful] Vos documents traversent l’Europe pour rejoindre leurs destinataires. [short pause] guteneo relie votre atelier numérique au courrier qui arrive à destination. [short pause] Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone."
+    }
+  ],
+  "criticalListening": "pending"
+}

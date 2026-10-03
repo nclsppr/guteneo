@@ -1,51 +1,58 @@
 # Présentation vidéo des rôles
 
-Le guide public `/roles/` contient une vidéo commune de **36 secondes**, en
-français, anglais, allemand et luxembourgeois. Le lecteur et son poster suivent
-la langue active du site et la préférence du compte. Lecture au clic, contrôles
-natifs, plein écran, reprise après erreur et présentation textuelle restent
-accessibles. La vidéo de rôles utilise le format horizontal sur tous les écrans.
+Le guide public `/roles/` présente les quatre rôles en français, anglais,
+allemand et luxembourgeois avec **Manon Eleven v4**. Le lecteur, le poster et
+les sous-titres suivent la langue du site et la préférence du compte. La durée
+affichée vient du catalogue réel : elle varie avec le débit naturel de la langue.
+Le format reste horizontal sur tous les écrans. Lecture au clic, contrôles
+natifs, plein écran et reprise après erreur utilisent le lecteur de l’accueil.
 
-| Temps | Message |
+Les phrases décrivent les droits du contrat `packages/contracts/src/roles.ts`
+et de `WORKSPACE_ROLES.md` : l’administrateur gère et approuve ; le superviseur
+prépare, avec approbation et rapports en options indépendantes désactivées par
+défaut ; l’opérateur importe et prépare sans approuver ; l’observateur consulte
+sans modifier ni approuver. Dans le parcours standard, une personne habilitée
+approuve dans le navigateur. Le film ne modifie aucun droit ni migration.
+
+## Narration et montage
+
+La méthode C génère trois blocs de deux paragraphes complets, après l’action
+native ElevenLabs **Améliorer**. La seconde variation du plugin est retenue,
+avec les IDs et MP3 réels. Les ajustements de balises après Enhance restent
+explicites dans la preuve. Les six coupes PCM24 conservent la totalité des trois
+prises à leur débit original. Les scènes suivent la voix, sans accélération.
+Les compositions éditables sont `Guteneo-Roles-{FR,EN,DE,LB}-Natural-C`.
+
+La vidéo FR approuvée par l’utilisateur conserve ses octets et son chemin V3,
+soit **44,8667 secondes**. Les autres films utilisent V4. Les fichiers et leurs
+durées figurent dans [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md).
+Les compositions historiques de 36 secondes restent des archives.
+
+| Début de scène FR | Message |
 | --- | --- |
-| 0–3 s | Quatre rôles, des droits clairs |
-| 3–9 s | Administrateur : accès, facturation, préparation, approbation et rapports |
-| 9–15 s | Superviseur : préparation ; approbation et rapports en options indépendantes, désactivées par défaut |
-| 15–21 s | Opérateur : importe et prépare ; validation par un administrateur ou superviseur habilité |
-| 21–27 s | Observateur : lecture des documents, destinataires et suivi, sans modification |
-| 27–31 s | Parcours standard : validation navigateur du contenu, destinataire, options et coût |
-| 31–36 s | Conclusion V5 inchangée : timbre officiel tramé et oblitéré, `guteneo.com` |
+| 0 s | Découvrons les quatre rôles et les droits de chacun |
+| 4,53 s | L’administrateur gère l’atelier, prépare, approuve et consulte les rapports |
+| 11,60 s | Le superviseur prépare ; approbation et rapports sont distincts et désactivés par défaut |
+| 19,27 s | L’opérateur importe et prépare, sans approuver |
+| 25,13 s | L’observateur consulte, sans modifier ni approuver |
+| 34,33 s | Une personne autorisée approuve dans le navigateur |
+| 39,87–44,87 s | Même timbre officiel et guteneo.com, cinq secondes sans voix |
 
-Les droits montrés proviennent du contrat existant
-`packages/contracts/src/roles.ts` et de `docs/WORKSPACE_ROLES.md`. La vidéo
-n’attribue aucun droit. Elle ne présente pas l’observateur comme un accès à des
-données anonymisées. Le parcours standard est distingué de la délégation expert,
-qui conserve ses règles propres dans la documentation.
-
-Les sources éditables sont `videos/guteneo-film/src/roles/`, avec quatre
-compositions `Guteneo-Roles-FR`, `EN`, `DE` et `LB`. La séquence finale réutilise
-directement `src/landscape/End.tsx` ; le logo est le même composant et le même
-média que dans le spot V5. La musique est un montage reproductible de la partition
-originale de Guteneo, avec sa cadence de fin. La version anglaise ajoute la
-narration masculine ElevenLabs en génération 2 ; les autres langues restent
-instrumentales. La voix française est retenue hors publication pendant la
-réécriture en trois blocs naturels choisie par l’utilisateur.
-Voir [VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md).
+Chaque langue réutilise directement `src/landscape/End.tsx` et le même logo V5
+pendant cinq secondes sans narration. La musique reste au gain constant **0,22**,
+y compris entre les phrases et au logo ; sa cadence et son fondu final sont
+conservés. Les snapshots sont immuables et le rendu n’appelle aucun fournisseur.
 
 ```sh
 npm run videos:render -- --kind roles
 ```
 
-Cette commande rend les bases musicales V1, puis remixe la voix EN du
-snapshot suivi `narration/releases/fr-en-g2/` vers les exports actifs V2 avec
-leurs sous-titres. Elle ne contacte pas ElevenLabs et ne modifie pas le snapshot.
-La qualification Génération 2, les hashes et le calage précèdent les écritures
-publiques ; un cache invalide bloque le rendu.
-
-Les exports actifs sont `apps/web/public/videos/guteneo-roles-v1-{fr,de,lb}.mp4`
-et `guteneo-roles-v2-en.mp4`,
-H.264/AAC stéréo, 1920 × 1080, 30 images/s, avec posters WebP et démarrage rapide.
-Le manifeste commun inclut ces quatre vidéos dans sa liste publique exacte.
+Les actifs sont `guteneo-roles-v3-fr.mp4` et
+`guteneo-roles-v4-{en,de,lb}.mp4`, H.264/AAC stéréo, 1920 × 1080, 30 images/s,
+avec posters WebP, pistes VTT locales et démarrage rapide. Le manifeste public
+inclut exactement ces quatre vidéos avec les huit introductions. La diffusion
+ne déclenche aucun envoi réel. Les preuves techniques des langues nouvelles ne
+sont pas présentées comme une écoute humaine.
 
 Les tests du lecteur vérifient les fichiers réels, leur progression et le saut
 vers la conclusion dans chaque langue. Sous Linux, la CI utilise le sélecteur

@@ -1,0 +1,26 @@
+{
+  "provider": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "voiceName": "Manon",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "selectedVariationNumber": 2,
+  "generationId": "uCzR8CDmXdHxxmMfYLeQ",
+  "blockId": "bloc-2",
+  "variationIndex": 2,
+  "filename": "bloc-2-prise-2.mp3",
+  "prompt": "[thoughtful] Le superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut. [short pause] L’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.",
+  "providerDurationSeconds": 11.68,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse"
+  },
+  "language": "fr",
+  "outputFormat": "mp3_44100_128",
+  "selected": true,
+  "source": "elevenlabs-creative-plugin",
+  "bytes": 204961,
+  "sha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+  "audioSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+  "requestTextSha256": "963d22e657277311ac3a4256687f98236880e2698007cb56a4135181ad77ce3c"
+}

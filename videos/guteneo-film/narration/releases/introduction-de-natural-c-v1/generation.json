@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "clips": {
+    "introduction-de-natural-c/one": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/one.wav",
+      "audioSha256": "84a864819db1814e649cd2b84f0d7d88a336ecaf4eda72e6c037d17cf5d0c20c",
+      "fingerprint": "6c688c1697345b02f0d2dde1df2f9ce828b89f73cd1bf6011df81c51a9d4627a",
+      "durationSeconds": 3.368956916099773,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/scale": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/scale.wav",
+      "audioSha256": "86dfd6da06447cbf6fde1c5a9d4b04e5c40d99369b5ec51a77d07bc4f452d3b8",
+      "fingerprint": "739103d1e104b5ddd29e85a54536701a08023de8ca9eb80d926ebb5b13bf3ecf",
+      "durationSeconds": 4.351541950113378,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/personal": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/personal.wav",
+      "audioSha256": "722fa272eb5cadbf66c41c0e15c749a19768ab1088ee04a46106cfe729ac8a2b",
+      "fingerprint": "7a88be92f626e53958c820a7f23ac5f766295067c8e3d1e7c341c8b99b1aef2c",
+      "durationSeconds": 3.5322902494331068,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/sources": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/sources.wav",
+      "audioSha256": "a0ef8a460490c5f98e2c898aa2d528997f789bfbce8ff230e6404df1b86a51b3",
+      "fingerprint": "38b5f793684d7450f47480d8bbc5f836c00844d6c7aa5507f2707f8bb30c00d0",
+      "durationSeconds": 3.6272108843537416,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/assistants": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/assistants.wav",
+      "audioSha256": "532192fd3919ee5b4f3c809ed1d73e686dde87f10c2bc9cb2eda616ac26a046c",
+      "fingerprint": "041e05ab8ca9b11785ba9f92179fea1fbb11b374b90a5afda8b104033c8be7e9",
+      "durationSeconds": 4.4091383219954645,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/generate": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/generate.wav",
+      "audioSha256": "09e82c67e99414381cd3117c5a9e66b7a33026f77a373015c14c58f4c3daf592",
+      "fingerprint": "424f30ac4b006a40e5670017bf89bb466ea94bc8c1ccea810f18b06a063900ae",
+      "durationSeconds": 4.197981859410431,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/review": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/review.wav",
+      "audioSha256": "b2e4766d05b34844981b145cdaa6e88ca2c3e1c5d2deed88c647cab832ddacb2",
+      "fingerprint": "fd71d6df772b361d424b1fbdea68224a4f9219e3e7ae48b44587f905560f2f63",
+      "durationSeconds": 7.336054421768708,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/channels": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/channels.wav",
+      "audioSha256": "76b3fd7a68002c02354884332605a361dd469ca03ddc729b7c7d7a37dbca9d66",
+      "fingerprint": "edc54baded64fb85b98765fa4216eaa31ccfa2d6d8f35e5ca50486bed1593ac3",
+      "durationSeconds": 3.656825396825397,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/europe": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/europe.wav",
+      "audioSha256": "1dbb19f5076bfe9b5db16d8b8c94632d012b5399b027964b74d730b299d14e98",
+      "fingerprint": "ed160542f402d82a045cc96237856196223808ffce30d78c0c8e37804b35a041",
+      "durationSeconds": 3.7295238095238097,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/physical": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/physical.wav",
+      "audioSha256": "a143f79f9a8e707d03ad3d82fb9639006b7fcb2b331321fec206d52db19904ae",
+      "fingerprint": "4c25bd384dfe0056325684ae2470d7a13fcd63e0596e631fad68e8e6edbcf4e3",
+      "durationSeconds": 3.7027891156462585,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-de-natural-c/access": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-de-natural-c/access.wav",
+      "audioSha256": "3dbfc531a257efb2fb4192cff54bb1e12179eb8c85a9699737c2407006655895",
+      "fingerprint": "24478de8ce93eb761824bd3e90a3ab8ab4915e525d8898945627e19474cb4d27",
+      "durationSeconds": 3.607687074829932,
+      "timingFit": true,
+      "tempo": 1
+    }
+  }
+}

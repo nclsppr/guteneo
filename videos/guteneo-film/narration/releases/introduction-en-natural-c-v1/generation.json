@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "clips": {
+    "introduction-en-natural-c/one": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/one.wav",
+      "audioSha256": "1abb4b3a52a5b74ddf2f9d0d3b0e9135d9fd970d64c3896d952dd848564c6e65",
+      "fingerprint": "1a5aadd6992466a90c48a0e09600a6fc2f90cf151c28f87e1f886c95a66f0d75",
+      "durationSeconds": 3.7442630385487528,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/scale": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/scale.wav",
+      "audioSha256": "f61b112bb1ccc64fd83e212e80ff5e89ca3ce884717b7e31ab3751ded9a5da05",
+      "fingerprint": "a0abfb8fe6bd89698dcaef7d4bcb241aa88034bf077b7bc94e4e6b17b4000188",
+      "durationSeconds": 4.461451247165533,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/personal": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/personal.wav",
+      "audioSha256": "02da6729f3331f43a360449ca768ddbcb4b9f2db3cdd23e07243cc22df660a5c",
+      "fingerprint": "1859f92bf967912ef0c6b3af63773366a2ca3e4f8324c26d1b21d9821aea9aec",
+      "durationSeconds": 4.939024943310658,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/sources": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/sources.wav",
+      "audioSha256": "bd36aae29749fe129337b46a8c25814686ab107999be3945487fa4cecea97f03",
+      "fingerprint": "42edd3ce5b869636e7a541aec9aa797c564ca104aacd0c686bb1bb5be0984c56",
+      "durationSeconds": 4.455260770975057,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/assistants": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/assistants.wav",
+      "audioSha256": "d12f66448206e2b76ac60703be6274a99b7dbd80449ad46f61c35276b5226e08",
+      "fingerprint": "9abce579dfa3cc9d67b7b6c5a7cc1aa7cf9b2eff3f99195c78d5093fcca5d8bc",
+      "durationSeconds": 4.20124716553288,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/generate": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/generate.wav",
+      "audioSha256": "9d4de5f9a610530557a6095f81581eed147acd6b26caeaaa4d7c31857241b7f4",
+      "fingerprint": "48a539281be5d0f6e35d493900ae85065db692fe7310fa004f5c2be5963fa3d0",
+      "durationSeconds": 3.6397278911564626,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/review": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/review.wav",
+      "audioSha256": "8dc0c8074d97295b1664476960f686fbaea1f891fa2d48a7d07eba985a8b6887",
+      "fingerprint": "8592049a65ceeb2fce624cfbfd37c4fc41b80be41563caba00ae5f1f9baf2011",
+      "durationSeconds": 5.194625850340136,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/channels": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/channels.wav",
+      "audioSha256": "52bb5bebd06fae5b1608c0f863ac345178e03ab2c47b2066294ee0565b28ce72",
+      "fingerprint": "e72fb628754fd0b09d6ac26bea706426c0e58da425204188bd93f2d8bec53bca",
+      "durationSeconds": 3.7643990929705216,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/europe": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/europe.wav",
+      "audioSha256": "df2b3db012c76fa19523b7f759d2dc0dabb5300311f422070fa4d50a28403224",
+      "fingerprint": "08555fa4d46a6bf3d3f428d814e5bc131142abd3ea2541152bda47a1ba7b8050",
+      "durationSeconds": 3.781065759637188,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/physical": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/physical.wav",
+      "audioSha256": "8d549b379ddb0f4e1dd50dbdb837c4ceed37695cde59b0aee831d8e174522411",
+      "fingerprint": "a454ea532ee59a57ded325cc602ee8479b621558b2545d5bf3fdbd50c583e55c",
+      "durationSeconds": 4.3868027210884355,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "introduction-en-natural-c/access": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/introduction-en-natural-c/access.wav",
+      "audioSha256": "4caa85518dfdb99bb72ec46d90179f45639b45d0287b88a3d3fe1fc79b0f5062",
+      "fingerprint": "b04d525545eb28aeb85bfdb2f240b0521b7c5eb44effd605cea844f7fcb171e4",
+      "durationSeconds": 3.7521315192743763,
+      "timingFit": true,
+      "tempo": 1
+    }
+  }
+}

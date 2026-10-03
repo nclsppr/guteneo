@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-2",
+  "path": "sources/bloc-2-prise-2.mp3",
+  "sha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+  "bytes": 322698,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "68izX5QVsErUaMwb5fJJ",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. [short pause] Demandez-lui de créer votre PDF, puis de préparer son envoi. [short pause] Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. [short pause] Votre message peut voyager par fax, par courrier postal ou par e-mail.",
+  "requestTextSha256": "87a7e52aa0da81e446b0790df088789ee8625d9ec7d2c2870a244b4cb286f54a",
+  "providerDurationSeconds": 19.04,
+  "decodedSamples": 839664,
+  "decodedPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574"
+}

@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "mode": "measured-offline-qualification",
+  "decoderVersion": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "platform": "linux",
+  "arch": "arm64",
+  "libraries": [
+    {
+      "library": "introduction-de-natural-c-v1",
+      "clips": 11,
+      "durationSeconds": 64.86666666666666,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+          "canonicalPcmSha256": "8fdec798bc998c4568580f5c34e09bb1c8dd3da91054fbebc02342fe62be7a65",
+          "decodedPcmSha256": "6b9fe0addc68f1f91acfeab6f7570b416575f28f9d41e53b1a8a7a43c0c062b2",
+          "decodedSamples": 656208,
+          "differentSamples": 23165,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+          "canonicalPcmSha256": "50d6acdf282e430c767d51a07cad87958b449f2fbe64c75df929e16983e222bf",
+          "decodedPcmSha256": "b1fb0cf29af7cf0dd5cecea932db64ad2881facfd7d73d031364687f219d2067",
+          "decodedSamples": 864360,
+          "differentSamples": 27814,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+          "canonicalPcmSha256": "c91538ff8397a0d3890d0664d8e146dc8fb9d9d161b99354826ce9696efa1f91",
+          "decodedPcmSha256": "244cac77c7c2ac15312a85cac68bc4f148fb17b248ba4438b83f3a0cd93d4235",
+          "decodedSamples": 486864,
+          "differentSamples": 18432,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "introduction-en-natural-c-v1",
+      "clips": 11,
+      "durationSeconds": 65.8,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "86326f1bca41d6377fc649ee52e321441cb42aac491b8d225ab3f12ccb7adf33",
+          "canonicalPcmSha256": "b4bb2fb7a330cb81999a250fbd07c29208eabf3b9444a2bda14235def04c24bd",
+          "decodedPcmSha256": "ce90b9ed2969fe7873ef8eebd7dfb2948ad393ff69893226ae8463aa067cb1f9",
+          "decodedSamples": 776160,
+          "differentSamples": 27223,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "4c4f39bae42bb71e87678e9f5cf42ad1bda622e42af35c3d5fc3507c5b578d8a",
+          "canonicalPcmSha256": "e7850e3687221029638b281ce9ea8eb1bc6b30dd3e4d4b6b9a51346e0d4ca3b7",
+          "decodedPcmSha256": "32c14f97f9fed4525eafa7e4f5661bda40220dbba89c5cba02dd3221b81d0391",
+          "decodedSamples": 740880,
+          "differentSamples": 22401,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+          "canonicalPcmSha256": "c03a919fe4f23263eb0947719b47b43615e7671c0cfe1787a19dcd710de796a9",
+          "decodedPcmSha256": "9f86437b0ae678cd6b3d37991949085f3dfa9da4362fe48fa5c3487c764d8a16",
+          "decodedSamples": 525672,
+          "differentSamples": 15549,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "introduction-fr-natural-c-v1",
+      "clips": 11,
+      "durationSeconds": 66.5,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+          "canonicalPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f",
+          "decodedPcmSha256": "e8302fc2c21fc50c3714150a9b5053b0ef74b252750c789544fef3150b3bacc6",
+          "decodedSamples": 740880,
+          "differentSamples": 22318,
+          "maximumAbsoluteDelta": 4,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+          "canonicalPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574",
+          "decodedPcmSha256": "11d8a3d6b7e0955a45cfdf21dd79c91ecf3d45ccba7e5d35ad16ed296038b912",
+          "decodedSamples": 839664,
+          "differentSamples": 26269,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+          "canonicalPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7",
+          "decodedPcmSha256": "8d81685ef9cf28a5a4955a1625bdaf77ada6cbbaa6bb85e0b903acd620ed6b0d",
+          "decodedSamples": 525672,
+          "differentSamples": 17074,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "introduction-lb-natural-c-v1",
+      "clips": 11,
+      "durationSeconds": 67.46666666666667,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+          "canonicalPcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7",
+          "decodedPcmSha256": "76e74f18103c56c926ba92a67c9f32d2d652bf4a48bef369dd17f2036ffeb388",
+          "decodedSamples": 663264,
+          "differentSamples": 19365,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+          "canonicalPcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d",
+          "decodedPcmSha256": "2b1d3a1b25ae7669c753fd09eca4bd343f1cfc8f3e3d1c0256952a433b1ca03f",
+          "decodedSamples": 934920,
+          "differentSamples": 31910,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+          "canonicalPcmSha256": "04130cd0ceca716cab507e1c593ebb8271df4f08b5e07975cbf248ac4f2793f5",
+          "decodedPcmSha256": "f15537bf6e8fac75ef83a9839a16e8ec92cc64c5bc247cbef398fa6948c11b48",
+          "decodedSamples": 578592,
+          "differentSamples": 17630,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "roles-de-natural-c-v1",
+      "clips": 6,
+      "durationSeconds": 49.13333333333333,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+          "canonicalPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e",
+          "decodedPcmSha256": "31bec5f5ef41e85aa2749fb062b412937be217d96f08a72bbeb63f6c4afb7c06",
+          "decodedSamples": 476280,
+          "differentSamples": 15887,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+          "canonicalPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8",
+          "decodedPcmSha256": "d5688133489bcec5ad89d95eb770717434d854ebf5771fa9e86dd9a425aa9227",
+          "decodedSamples": 670320,
+          "differentSamples": 24541,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+          "canonicalPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a",
+          "decodedPcmSha256": "acbb34f623d14928d5f5819265de2b2e7846f99750475b3ca9972f0d00a56474",
+          "decodedSamples": 557424,
+          "differentSamples": 18487,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "roles-en-natural-c-v1",
+      "clips": 6,
+      "durationSeconds": 47.3,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+          "canonicalPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55",
+          "decodedPcmSha256": "af9437b6a2efd57cbce617f1f6b729f52b0b80ec0df39c29e7e247d7f8de6b31",
+          "decodedSamples": 462168,
+          "differentSamples": 14838,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+          "canonicalPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f",
+          "decodedPcmSha256": "89faed823c4e7a4570656bd904bebed290a7ed7cdce61d2b4e57f3cbe1f17d24",
+          "decodedSamples": 599760,
+          "differentSamples": 18045,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+          "canonicalPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47",
+          "decodedPcmSha256": "949af535ae98e160cf34295f3e322ab624521c9d36a3d9bcbca74e8ee32fd295",
+          "decodedSamples": 560952,
+          "differentSamples": 16670,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "roles-fr-natural-c-v1",
+      "clips": 6,
+      "durationSeconds": 44.86666666666667,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+          "canonicalPcmSha256": "4a1b1b0b9cd7e843fca1559ca2835d71ad7d9693103d76b65deb7f80f427c5bc",
+          "decodedPcmSha256": "8a360e523214ba6bcad49bc3a1c280081dafe22a37febff8fb3e5308a64533c4",
+          "decodedSamples": 430416,
+          "differentSamples": 12837,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+          "canonicalPcmSha256": "ca5efe75b55aeb458498ce55a0c93fbf3daabf32b25fe03f8ec35e4533aaf7c0",
+          "decodedPcmSha256": "34f15d88f12b425ee777c809ae49ec28e1030fbd8c2d0333d4187352ef29110a",
+          "decodedSamples": 515088,
+          "differentSamples": 15877,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+          "canonicalPcmSha256": "c4eb7d66210ad7df788a73dc7015eedaaef23b26fe33a6eb2fce8f2c33bd0560",
+          "decodedPcmSha256": "23198656c69fdd14301e358825c51c96aa0934805ec7b9808e615651d91e272f",
+          "decodedSamples": 568008,
+          "differentSamples": 16444,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    },
+    {
+      "library": "roles-lb-natural-c-v1",
+      "clips": 6,
+      "durationSeconds": 50.4,
+      "decoders": [
+        {
+          "blockId": "bloc-1",
+          "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+          "canonicalPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+          "decodedPcmSha256": "436e1eede42d6078fc9f3737935537cb5cac40c70b1a09aad81a7353c0e83213",
+          "decodedSamples": 490392,
+          "differentSamples": 14698,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-2",
+          "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+          "canonicalPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+          "decodedPcmSha256": "9fc04751b9b576ed8f71f26f5709b76e326160a12bbe32c7eea409f57063fe7e",
+          "decodedSamples": 698544,
+          "differentSamples": 24416,
+          "maximumAbsoluteDelta": 3,
+          "toleranceLsb": 8
+        },
+        {
+          "blockId": "bloc-3",
+          "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+          "canonicalPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+          "decodedPcmSha256": "89335f87190781a49f55085d9cfcad2ba36628c41359e267fb99492df5a792bf",
+          "decodedSamples": 571536,
+          "differentSamples": 19739,
+          "maximumAbsoluteDelta": 2,
+          "toleranceLsb": 8
+        }
+      ]
+    }
+  ]
+}

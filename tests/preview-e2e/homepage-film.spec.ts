@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { supportedLocales } from "../../packages/contracts/src/locale";
 import { publicFilmAsset } from "../../packages/contracts/src/public-videos";
 import { publicLanguagePicker } from "../public-language";
@@ -91,13 +92,24 @@ for (const locale of supportedLocales) {
           : "vertical";
       const asset = publicFilmAsset(film, locale, format);
       await expect(section).toHaveAttribute("lang", locale);
+      await expect(section.locator(".homepage-film-play small")).toContainText(
+        String(Math.round(asset.durationSeconds)),
+      );
       await expect(player).toHaveAttribute("lang", locale);
       await expect(player).not.toHaveAttribute("src");
+      const script = JSON.parse(readFileSync(new URL(
+        `../../videos/guteneo-film/narration/releases/${film}-${locale}-natural-c-v1/scripts.json`,
+        import.meta.url,
+      ), "utf8")) as { narrations: Array<{ cues: Array<{ text: string }> }> };
+      await section.locator(".homepage-film-transcript summary").click();
+      await expect(section.locator(".homepage-film-transcript p")).toHaveText(
+        script.narrations[0].cues.map((cue) => cue.text).join(" "),
+      );
       if (film === "introduction" || asset.captions) {
         const captions = player.locator('track[kind="captions"]');
         await expect(captions).toHaveAttribute(
           "src",
-          asset.captions ?? `/videos/guteneo-v5.${locale}.vtt`,
+          asset.captions!,
         );
         await expect(captions).toHaveAttribute("srclang", locale);
       }
@@ -174,7 +186,7 @@ for (const film of ["introduction", "roles"] as const) {
     if (film === "introduction")
       await expect(section.locator('track[kind="captions"]')).toHaveAttribute(
         "src",
-        "/videos/guteneo-v5.de.vtt",
+        "/videos/guteneo-v8.de.vtt",
       );
     expect(
       await page.evaluate(() =>
@@ -220,13 +232,13 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   ).toBeVisible();
   await expect(player).not.toHaveAttribute("src");
   const captions = player.locator('track[kind="captions"]');
-  await expect(captions).toHaveAttribute("src", "/videos/guteneo-v6.fr.vtt");
+  await expect(captions).toHaveAttribute("src", "/videos/guteneo-v8.fr.vtt");
   await expect(captions).toHaveAttribute("srclang", "fr");
   expect(requests).toEqual([]);
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v6-fr.mp4",
+    "/videos/guteneo-vertical-v8-fr.mp4",
   );
   const calls = await page.evaluate(
     () => (window as unknown as FilmWindow).filmCalls,
@@ -236,7 +248,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v6-fr.mp4",
+    "/videos/guteneo-vertical-v8-fr.mp4",
   );
   await page.getByRole("button", { name: "Fermer le lecteur" }).click();
   await expect(player).not.toHaveAttribute("src");
@@ -246,7 +258,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   await page.getByRole("button", { name: /Découvrir le film/ }).press("Enter");
   await expect(player).toHaveAttribute(
     "src",
-    "/videos/guteneo-horizontal-v6-fr.mp4",
+    "/videos/guteneo-horizontal-v8-fr.mp4",
   );
 });
 
@@ -285,11 +297,11 @@ test("a phone opened in landscape still receives the portrait movie and poster",
         .locator(".homepage-film-poster img")
         .evaluate((image) => (image as HTMLImageElement).currentSrc),
     )
-    .toContain("guteneo-vertical-v5.webp");
+    .toContain("guteneo-vertical-v8-fr.webp");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(page.locator(".homepage-film-video")).toHaveAttribute(
     "src",
-    "/videos/guteneo-vertical-v6-fr.mp4",
+    "/videos/guteneo-vertical-v8-fr.mp4",
   );
 });
 
@@ -504,11 +516,10 @@ test.describe("delivered public media", () => {
         });
         expect(media.width).toBe(portrait ? 1320 : 1920);
         expect(media.height).toBe(portrait ? 2868 : 1080);
-        expect(
-          Math.abs(media.duration - (film === "roles" ? 36 : 56)),
-        ).toBeLessThan(0.1);
+        const expectedDuration = publicFilmAsset(film, locale, format).durationSeconds;
+        expect(Math.abs(media.duration - expectedDuration)).toBeLessThan(0.1);
         expect(media.source).toBe(publicFilmAsset(film, locale, format).movie);
-        const finalCard = film === "roles" ? 33 : 53;
+        const finalCard = media.duration - 3;
         await player.evaluate((element, time) => {
           (element as HTMLVideoElement).currentTime = time;
         }, finalCard);

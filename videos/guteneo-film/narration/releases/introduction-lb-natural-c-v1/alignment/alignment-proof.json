@@ -1,0 +1,2379 @@
+{
+  "schemaVersion": 1,
+  "sourceEnhancementSha256": "b253ac930553dd07c3e13ad53cf9432c129c10558386d12c054e3211ac5a6f8e",
+  "providerReceiptsSha256": "d480770f6cd65cf4de357ce4294881b730b44838e4ab60f9055bc7a9b1c61fa3",
+  "offlineInference": true,
+  "initialPrompt": null,
+  "forcedAlignment": false,
+  "wordTimestampResolutionSeconds": 0.02,
+  "inputQuietGuardSeconds": 0.066,
+  "lexicalAnchorPolicy": "Three exact or explicitly documented ASR-alias anchors with probability >=0.5 within six edge words on each side; include both edges unless an explicit aligned brand substitution is allowed",
+  "allowedAsrAliases": [],
+  "allowBrandEdgeAsrSubstitution": false,
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "lb",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "fzjrsLaAoXR6bObyL1fE",
+        "blockId": "bloc-1",
+        "variationIndex": 2,
+        "providerDurationSeconds": 15.04,
+        "filename": "bloc-1-prise-2.mp3",
+        "audioPath": "sources/bloc-1-prise-2.mp3",
+        "bytes": 258460,
+        "sha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+        "containerDurationSeconds": 15.04,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag.",
+        "requestTextSha256": "86bdd37bddd634c69ea8b53633199cd838de8bb66764734f0bf8c0592f1da58c",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokum"
+      },
+      "requestTextSha256": "86bdd37bddd634c69ea8b53633199cd838de8bb66764734f0bf8c0592f1da58c",
+      "decodedSamples": 663264,
+      "durationSeconds": 15.04,
+      "recognizedText": " Mat gud njou fengt allesma dengim dokumentyun. Djokken deng enzil sendung ogre en ganskampanjö fyr bereden. Dubaig kan al empfengar sai persænlish dokument kræn. Benotst erren ežene PDF ogre eng pasn fyrlak.",
+      "asrProofPath": "alignment/bloc-1.asr.json",
+      "asrProofSha256": "432860811fc10f3d43defe60e38347bf6e3fa50a6f348de976e240ea6912ab91",
+      "editDistance": 30,
+      "lexicalDifferences": [
+        {
+          "operation": "deletion",
+          "expectedIndex": 1,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 2,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 1,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " gud",
+            "start": 0.3,
+            "end": 0.64,
+            "probability": 0.235107421875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 2,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " njou",
+            "start": 0.64,
+            "end": 0.94,
+            "probability": 0.32421875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 3,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " fengt",
+            "start": 0.94,
+            "end": 1.3,
+            "probability": 0.78369140625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 4,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " allesma",
+            "start": 1.3,
+            "end": 1.8,
+            "probability": 0.57080078125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 5,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": " dengim",
+            "start": 1.8,
+            "end": 2.08,
+            "probability": 0.46044921875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 6,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " dokumentyun.",
+            "start": 2.08,
+            "end": 2.92,
+            "probability": 0.52734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 9,
+          "observedIndex": 7,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " Djokken",
+            "start": 3.48,
+            "end": 4.12,
+            "probability": 0.2259521484375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 8,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " deng",
+            "start": 4.12,
+            "end": 4.26,
+            "probability": 0.26220703125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 9,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " enzil",
+            "start": 4.26,
+            "end": 4.74,
+            "probability": 0.482421875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 13,
+          "observedIndex": 11,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " ogre",
+            "start": 5.18,
+            "end": 5.54,
+            "probability": 0.23876953125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 14,
+          "observedIndex": 12,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " en",
+            "start": 5.54,
+            "end": 5.64,
+            "probability": 0.319580078125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 15,
+          "observedIndex": 13,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " ganskampanjö",
+            "start": 5.64,
+            "end": 6.58,
+            "probability": 0.54931640625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 14,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " fyr",
+            "start": 6.58,
+            "end": 6.74,
+            "probability": 0.437744140625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 15,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": " bereden.",
+            "start": 6.74,
+            "end": 7.16,
+            "probability": 0.25048828125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 16,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " Dubaig",
+            "start": 7.94,
+            "end": 8.4,
+            "probability": 0.2374267578125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 19,
+          "observedIndex": 17,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " kan",
+            "start": 8.4,
+            "end": 8.54,
+            "probability": 0.8828125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 18,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " al",
+            "start": 8.54,
+            "end": 8.82,
+            "probability": 0.7548828125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 19,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " empfengar",
+            "start": 8.82,
+            "end": 9.34,
+            "probability": 0.58642578125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 21,
+          "expected": null,
+          "recognized": {
+            "word": " persænlish",
+            "start": 9.54,
+            "end": 10.18,
+            "probability": 0.53125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 22,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " persænlish",
+            "start": 9.54,
+            "end": 10.18,
+            "probability": 0.53125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 24,
+          "expected": null,
+          "recognized": {
+            "word": " kræn.",
+            "start": 10.48,
+            "end": 11.08,
+            "probability": 0.4453125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 25,
+          "observedIndex": 25,
+          "expected": {
+            "cueId": "personal"
+          },
+          "recognized": {
+            "word": " kræn.",
+            "start": 10.48,
+            "end": 11.08,
+            "probability": 0.4453125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 26,
+          "observedIndex": 26,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " Benotst",
+            "start": 11.54,
+            "end": 12.02,
+            "probability": 0.7119140625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 27,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " erren",
+            "start": 12.02,
+            "end": 12.26,
+            "probability": 0.29248046875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 28,
+          "observedIndex": 28,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " ežene",
+            "start": 12.26,
+            "end": 12.7,
+            "probability": 0.49755859375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 30,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " ogre",
+            "start": 13.3,
+            "end": 13.78,
+            "probability": 0.97021484375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 32,
+          "observedIndex": 32,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " pasn",
+            "start": 13.96,
+            "end": 14.26,
+            "probability": 0.40283203125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 33,
+          "observedIndex": 33,
+          "expected": {
+            "cueId": "sources"
+          },
+          "recognized": {
+            "word": " fyrlak.",
+            "start": 14.26,
+            "end": 14.76,
+            "probability": 0.689453125
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 1,
+          "observedIndex": null
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 2,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 1
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 2
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 3
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 4
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 5
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 6
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 9,
+          "observedIndex": 7
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 8
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 10
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 13,
+          "observedIndex": 11
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 14,
+          "observedIndex": 12
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 15,
+          "observedIndex": 13
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 14
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 15
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 16
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 19,
+          "observedIndex": 17
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 18
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 20
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 21
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 23
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 24
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 26,
+          "observedIndex": 26
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 27
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 28,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 29
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 31
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 32,
+          "observedIndex": 32
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 33,
+          "observedIndex": 33
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "one",
+          "nextCueId": "scale",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "engem",
+            "dokument",
+            "un",
+            "dir",
+            "kennt",
+            "eng"
+          ]
+        },
+        {
+          "previousCueId": "scale",
+          "nextCueId": "personal",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "ganz",
+            "campagne",
+            "virbereeden",
+            "dobai",
+            "kann",
+            "all"
+          ]
+        },
+        {
+          "previousCueId": "personal",
+          "nextCueId": "sources",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "perseinlecht",
+            "dokument",
+            "kreien",
+            "benotzt",
+            "aren",
+            "eegene"
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-1-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-2",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "tha4Nsfns9pdQc6OtNHl",
+        "blockId": "bloc-2",
+        "variationIndex": 2,
+        "providerDurationSeconds": 21.2,
+        "filename": "bloc-2-prise-2.mp3",
+        "audioPath": "sources/bloc-2-prise-2.mp3",
+        "bytes": 357098,
+        "sha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+        "containerDurationSeconds": 21.2,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. [short pause] Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen.",
+        "requestTextSha256": "23810de1c1c3d07670a74fcfdd5950dacd7a4619c138aa97b25314301d65c986",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument"
+      },
+      "requestTextSha256": "23810de1c1c3d07670a74fcfdd5950dacd7a4619c138aa97b25314301d65c986",
+      "decodedSamples": 934920,
+      "durationSeconds": 21.2,
+      "recognizedText": " erin assistant halef diyesh, aus erre viðarren entwoft sem achen. Diye esteld PDF dokument, abereet singh sendung mat gutn eofir. Kontroleja dokument, din emphengar, dopsjonen, and cash din. Am normale parkur geneemist jit sendung selve am browser. Firae nurist kuntjir fox, bravepost, oda e-mail vjelen.",
+      "asrProofPath": "alignment/bloc-2.asr.json",
+      "asrProofSha256": "012ce198d2dab2656bf8d146b044772080cad43f79db9947f1f481aba7a94a64",
+      "editDistance": 41,
+      "lexicalDifferences": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 0,
+          "observedIndex": 0,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " erin",
+            "start": 0,
+            "end": 0.36,
+            "probability": 0.256103515625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " assistant",
+            "start": 0.36,
+            "end": 0.86,
+            "probability": 0.5390625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 2,
+          "observedIndex": 2,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " halef",
+            "start": 0.86,
+            "end": 1.36,
+            "probability": 0.440185546875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 3,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " diyesh,",
+            "start": 1.36,
+            "end": 2.22,
+            "probability": 0.50927734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 5,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 5,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " erre",
+            "start": 2.42,
+            "end": 2.76,
+            "probability": 0.31005859375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 6,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " viðarren",
+            "start": 2.76,
+            "end": 3.34,
+            "probability": 0.337646484375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 7,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " viðarren",
+            "start": 2.76,
+            "end": 3.34,
+            "probability": 0.337646484375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 9,
+          "observedIndex": 8,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " entwoft",
+            "start": 3.34,
+            "end": 3.8,
+            "probability": 0.42529296875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 9,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": " sem",
+            "start": 3.8,
+            "end": 3.94,
+            "probability": 0.42431640625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 10,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " achen.",
+            "start": 3.94,
+            "end": 4.28,
+            "probability": 0.25537109375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 12,
+          "observedIndex": 11,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " Diye",
+            "start": 4.98,
+            "end": 5.22,
+            "probability": 0.1903076171875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 13,
+          "observedIndex": 12,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " esteld",
+            "start": 5.22,
+            "end": 5.58,
+            "probability": 0.392578125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 16,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 15,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " abereet",
+            "start": 6.98,
+            "end": 7.38,
+            "probability": 0.236572265625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 16,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " singh",
+            "start": 7.38,
+            "end": 7.62,
+            "probability": 0.40234375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 21,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 22,
+          "observedIndex": 19,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": " gutn",
+            "start": 8.08,
+            "end": 8.48,
+            "probability": 0.371337890625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 20,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " eofir.",
+            "start": 8.48,
+            "end": 8.9,
+            "probability": 0.443359375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 24,
+          "observedIndex": 21,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " Kontroleja",
+            "start": 9.42,
+            "end": 10.04,
+            "probability": 0.69384765625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 26,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 23,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " din",
+            "start": 10.92,
+            "end": 11,
+            "probability": 0.58447265625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 28,
+          "observedIndex": 24,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " emphengar,",
+            "start": 11,
+            "end": 11.56,
+            "probability": 0.6005859375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 29,
+          "observedIndex": 25,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " dopsjonen,",
+            "start": 11.76,
+            "end": 12.46,
+            "probability": 0.55517578125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 26,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " and",
+            "start": 12.62,
+            "end": 12.7,
+            "probability": 0.31103515625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 31,
+          "observedIndex": 27,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " cash",
+            "start": 12.7,
+            "end": 13.04,
+            "probability": 0.46337890625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 32,
+          "observedIndex": 28,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " din.",
+            "start": 13.04,
+            "end": 13.26,
+            "probability": 0.1341552734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 35,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 36,
+          "observedIndex": 31,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " parkur",
+            "start": 14.28,
+            "end": 14.76,
+            "probability": 0.76953125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 37,
+          "observedIndex": 32,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " geneemist",
+            "start": 14.76,
+            "end": 15.24,
+            "probability": 0.38916015625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 38,
+          "observedIndex": 33,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " jit",
+            "start": 15.24,
+            "end": 15.34,
+            "probability": 0.158935546875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 40,
+          "observedIndex": 35,
+          "expected": {
+            "cueId": "review"
+          },
+          "recognized": {
+            "word": " selve",
+            "start": 15.76,
+            "end": 16.18,
+            "probability": 0.52587890625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 43,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 44,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 45,
+          "observedIndex": 38,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " Firae",
+            "start": 17.2,
+            "end": 17.6,
+            "probability": 0.396484375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 46,
+          "observedIndex": 39,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " nurist",
+            "start": 17.6,
+            "end": 18.02,
+            "probability": 0.404296875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 47,
+          "observedIndex": 40,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " kuntjir",
+            "start": 18.02,
+            "end": 18.54,
+            "probability": 0.275390625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 48,
+          "observedIndex": 41,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " fox,",
+            "start": 18.54,
+            "end": 18.8,
+            "probability": 0.35986328125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 49,
+          "observedIndex": 42,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " bravepost,",
+            "start": 19.2,
+            "end": 19.78,
+            "probability": 0.46240234375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 50,
+          "observedIndex": 43,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " oda",
+            "start": 20.06,
+            "end": 20.16,
+            "probability": 0.6083984375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 53,
+          "observedIndex": 46,
+          "expected": {
+            "cueId": "channels"
+          },
+          "recognized": {
+            "word": " vjelen.",
+            "start": 20.54,
+            "end": 20.88,
+            "probability": 0.307373046875
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 5,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 5
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 6
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 7
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 9,
+          "observedIndex": 8
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 9
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 10
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 12,
+          "observedIndex": 11
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 13,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 14
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 16,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 15
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 18
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 21,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 22,
+          "observedIndex": 19
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 20
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 24,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 22
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 26,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 23
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 28,
+          "observedIndex": 24
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 29,
+          "observedIndex": 25
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 26
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 31,
+          "observedIndex": 27
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 32,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 34,
+          "observedIndex": 30
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 35,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 36,
+          "observedIndex": 31
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 37,
+          "observedIndex": 32
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 38,
+          "observedIndex": 33
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 39,
+          "observedIndex": 34
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 40,
+          "observedIndex": 35
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 41,
+          "observedIndex": 36
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 42,
+          "observedIndex": 37
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 43,
+          "observedIndex": null
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 44,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 45,
+          "observedIndex": 38
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 46,
+          "observedIndex": 39
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 47,
+          "observedIndex": 40
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 48,
+          "observedIndex": 41
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 49,
+          "observedIndex": 42
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 50,
+          "observedIndex": 43
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 51,
+          "observedIndex": 44
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 52,
+          "observedIndex": 45
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 53,
+          "observedIndex": 46
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "assistants",
+          "nextCueId": "generate",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "entworf",
+            "ze",
+            "maachen",
+            "dir",
+            "erstellt",
+            "d"
+          ]
+        },
+        {
+          "previousCueId": "generate",
+          "nextCueId": "review",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "mat",
+            "guteneo",
+            "vir",
+            "kontrolleiert",
+            "d",
+            "dokument"
+          ]
+        },
+        {
+          "previousCueId": "review",
+          "nextCueId": "channels",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "selwer",
+            "am",
+            "browser",
+            "fir",
+            "ar",
+            "noriicht"
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-2-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-3",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "zxsRU6zspvJZvYxpz4bf",
+        "blockId": "bloc-3",
+        "variationIndex": 2,
+        "providerDurationSeconds": 13.12,
+        "filename": "bloc-3-prise-2.mp3",
+        "audioPath": "sources/bloc-3-prise-2.mp3",
+        "bytes": 228239,
+        "sha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+        "containerDurationSeconds": 13.12,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
+        "requestTextSha256": "4e2e3df0136938acb293242aa66550e22c74245c5a32b1db7055de6c0a6110b1",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do,"
+      },
+      "requestTextSha256": "4e2e3df0136938acb293242aa66550e22c74245c5a32b1db7055de6c0a6110b1",
+      "decodedSamples": 578592,
+      "durationSeconds": 13.12,
+      "recognizedText": " Er verda erreise leid, og hivad landeskrensne raus. E digital fjabereid dokument kanne su oranengabreifbæt ukomen. Er en atilje as fjeg irstu, og van dir inna vesid.",
+      "asrProofPath": "alignment/bloc-3.asr.json",
+      "asrProofSha256": "975006dd3f97f5791377bbdf73d1f14a229ea417a1709c48b94cb3eafaa33ab9",
+      "editDistance": 27,
+      "lexicalDifferences": [
+        {
+          "operation": "deletion",
+          "expectedIndex": 0,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 0,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " Er",
+            "start": 0,
+            "end": 0.28,
+            "probability": 0.59375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 2,
+          "observedIndex": 1,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " verda",
+            "start": 0.28,
+            "end": 0.82,
+            "probability": 0.5087890625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 2,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " erreise",
+            "start": 0.82,
+            "end": 1.32,
+            "probability": 0.3818359375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 3,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " leid,",
+            "start": 1.32,
+            "end": 1.82,
+            "probability": 0.5693359375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 4,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " og",
+            "start": 2.02,
+            "end": 2.14,
+            "probability": 0.345703125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 5,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " hivad",
+            "start": 2.14,
+            "end": 2.58,
+            "probability": 0.41552734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 6,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " landeskrensne",
+            "start": 2.58,
+            "end": 3.48,
+            "probability": 0.61865234375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 7,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": " raus.",
+            "start": 3.48,
+            "end": 3.94,
+            "probability": 0.755859375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 10,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " fjabereid",
+            "start": 5.2,
+            "end": 5.9,
+            "probability": 0.370361328125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 13,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 14,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 15,
+          "observedIndex": 12,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " kanne",
+            "start": 6.26,
+            "end": 6.88,
+            "probability": 0.39208984375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 13,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " su",
+            "start": 6.88,
+            "end": 7.02,
+            "probability": 0.55029296875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 14,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " oranengabreifbæt",
+            "start": 7.02,
+            "end": 8.2,
+            "probability": 0.419677734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 15,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " oranengabreifbæt",
+            "start": 7.02,
+            "end": 8.2,
+            "probability": 0.419677734375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 19,
+          "observedIndex": 16,
+          "expected": {
+            "cueId": "physical"
+          },
+          "recognized": {
+            "word": " ukomen.",
+            "start": 8.2,
+            "end": 8.6,
+            "probability": 0.4970703125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 17,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " Er",
+            "start": 9.44,
+            "end": 9.6,
+            "probability": 0.6494140625
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 18,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " en",
+            "start": 9.6,
+            "end": 9.72,
+            "probability": 0.245849609375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 22,
+          "observedIndex": 19,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " atilje",
+            "start": 9.72,
+            "end": 10.2,
+            "probability": 0.701171875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 20,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " as",
+            "start": 10.2,
+            "end": 10.46,
+            "probability": 0.54248046875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 24,
+          "observedIndex": 21,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " fjeg",
+            "start": 10.46,
+            "end": 10.7,
+            "probability": 0.54736328125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 25,
+          "observedIndex": 22,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " irstu,",
+            "start": 10.7,
+            "end": 11.26,
+            "probability": 0.278564453125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 26,
+          "observedIndex": 23,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " og",
+            "start": 11.62,
+            "end": 11.82,
+            "probability": 0.95654296875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 24,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " van",
+            "start": 11.82,
+            "end": 12.04,
+            "probability": 0.51708984375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 29,
+          "observedIndex": 26,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " inna",
+            "start": 12.16,
+            "end": 12.42,
+            "probability": 0.45849609375
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 27,
+          "expected": {
+            "cueId": "access"
+          },
+          "recognized": {
+            "word": " vesid.",
+            "start": 12.42,
+            "end": 12.86,
+            "probability": 0.52880859375
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "deletion",
+          "expectedIndex": 0,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 0
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 2,
+          "observedIndex": 1
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 3,
+          "observedIndex": 2
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 3
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 4
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 6,
+          "observedIndex": 5
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 7,
+          "observedIndex": 6
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 8,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 9
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 11,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 11
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 13,
+          "observedIndex": null
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 14,
+          "observedIndex": null
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 15,
+          "observedIndex": 12
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 13
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 17,
+          "observedIndex": 14
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 15
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 19,
+          "observedIndex": 16
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 20,
+          "observedIndex": 17
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 18
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 22,
+          "observedIndex": 19
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 23,
+          "observedIndex": 20
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 24,
+          "observedIndex": 21
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 25,
+          "observedIndex": 22
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 26,
+          "observedIndex": 23
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 27,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 25
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 29,
+          "observedIndex": 26
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 30,
+          "observedIndex": 27
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "europe",
+          "nextCueId": "physical",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "d",
+            "landesgrenzen",
+            "eraus",
+            "e",
+            "digital",
+            "virbereet"
+          ]
+        },
+        {
+          "previousCueId": "physical",
+          "nextCueId": "access",
+          "status": "uncertain",
+          "cutSeconds": null,
+          "cutSample": null,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "reason": "Unresolved lexical edge or fewer than three nearby exact anchors",
+          "expectedEdgeTokens": [
+            "enger",
+            "breifboite",
+            "ukommen",
+            "aren",
+            "atelier",
+            "ass"
+          ]
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-3-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    }
+  ],
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "originalProofSha256": "147e5d1aa997c2136df24483945bcf8666629505855fb29084e2cb55f39d0368"
+}

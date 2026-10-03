@@ -1,0 +1,368 @@
+{
+  "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+  "parameters": {
+    "language": "fr",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.9456353749992559,
+  "result": {
+    "text": " L'observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l'atelier et n'approuve aucun envoi. Dans le parcours standard, une personne autorisée approuve l'envoi dans le navigateur.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 4.26,
+        "text": " L'observateur consulte les documents, les destinataires et le suivi.",
+        "tokens": [
+          50364,
+          441,
+          6,
+          16537,
+          1978,
+          15540,
+          7189,
+          68,
+          1512,
+          8512,
+          11,
+          1512,
+          40254,
+          267,
+          10840,
+          1030,
+          476,
+          20751,
+          72,
+          13,
+          50564
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16081102129439234,
+        "compression_ratio": 1.4610389610389611,
+        "no_speech_prob": 0.003819846548140049,
+        "words": [
+          {
+            "word": " L",
+            "start": 0,
+            "end": 0.16,
+            "probability": 0.92236328125
+          },
+          {
+            "word": "'observateur",
+            "start": 0.16,
+            "end": 0.74,
+            "probability": 0.94482421875
+          },
+          {
+            "word": " consulte",
+            "start": 0.74,
+            "end": 1.36,
+            "probability": 0.96875
+          },
+          {
+            "word": " les",
+            "start": 1.36,
+            "end": 1.46,
+            "probability": 0.994140625
+          },
+          {
+            "word": " documents,",
+            "start": 1.46,
+            "end": 1.88,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " les",
+            "start": 2.3,
+            "end": 2.4,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " destinataires",
+            "start": 2.4,
+            "end": 3.26,
+            "probability": 0.9677734375
+          },
+          {
+            "word": " et",
+            "start": 3.26,
+            "end": 3.46,
+            "probability": 0.92236328125
+          },
+          {
+            "word": " le",
+            "start": 3.46,
+            "end": 3.58,
+            "probability": 0.990234375
+          },
+          {
+            "word": " suivi.",
+            "start": 3.58,
+            "end": 4.26,
+            "probability": 0.99609375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.5,
+        "end": 8.04,
+        "text": " Il ne modifie aucune donnée de l'atelier et n'approuve aucun envoi.",
+        "tokens": [
+          50564,
+          4416,
+          408,
+          1072,
+          42726,
+          40076,
+          33258,
+          3856,
+          368,
+          287,
+          6,
+          267,
+          46273,
+          1030,
+          297,
+          6,
+          1746,
+          81,
+          8162,
+          35361,
+          2267,
+          4869,
+          13,
+          50764
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16081102129439234,
+        "compression_ratio": 1.4610389610389611,
+        "no_speech_prob": 0.003819846548140049,
+        "words": [
+          {
+            "word": " Il",
+            "start": 4.5,
+            "end": 4.6,
+            "probability": 0.96875
+          },
+          {
+            "word": " ne",
+            "start": 4.6,
+            "end": 4.74,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " modifie",
+            "start": 4.74,
+            "end": 5.18,
+            "probability": 0.9873046875
+          },
+          {
+            "word": " aucune",
+            "start": 5.18,
+            "end": 5.58,
+            "probability": 0.97802734375
+          },
+          {
+            "word": " donnée",
+            "start": 5.58,
+            "end": 5.98,
+            "probability": 0.9638671875
+          },
+          {
+            "word": " de",
+            "start": 5.98,
+            "end": 6.06,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " l",
+            "start": 6.06,
+            "end": 6.16,
+            "probability": 0.99169921875
+          },
+          {
+            "word": "'atelier",
+            "start": 6.16,
+            "end": 6.54,
+            "probability": 0.95703125
+          },
+          {
+            "word": " et",
+            "start": 6.54,
+            "end": 6.82,
+            "probability": 0.95361328125
+          },
+          {
+            "word": " n",
+            "start": 6.82,
+            "end": 6.88,
+            "probability": 0.99609375
+          },
+          {
+            "word": "'approuve",
+            "start": 6.88,
+            "end": 7.28,
+            "probability": 0.8017578125
+          },
+          {
+            "word": " aucun",
+            "start": 7.28,
+            "end": 7.64,
+            "probability": 0.990234375
+          },
+          {
+            "word": " envoi.",
+            "start": 7.64,
+            "end": 8.04,
+            "probability": 0.6533203125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.44,
+        "end": 12.72,
+        "text": " Dans le parcours standard, une personne autorisée approuve l'envoi dans le navigateur.",
+        "tokens": [
+          50764,
+          16897,
+          476,
+          30511,
+          5067,
+          3832,
+          11,
+          2251,
+          17219,
+          19510,
+          50027,
+          724,
+          13122,
+          303,
+          287,
+          6,
+          268,
+          3080,
+          72,
+          2680,
+          476,
+          12350,
+          374,
+          13,
+          51014
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.16081102129439234,
+        "compression_ratio": 1.4610389610389611,
+        "no_speech_prob": 0.003819846548140049,
+        "words": [
+          {
+            "word": " Dans",
+            "start": 8.44,
+            "end": 8.64,
+            "probability": 0.998046875
+          },
+          {
+            "word": " le",
+            "start": 8.64,
+            "end": 8.76,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " parcours",
+            "start": 8.76,
+            "end": 9.12,
+            "probability": 0.9921875
+          },
+          {
+            "word": " standard,",
+            "start": 9.12,
+            "end": 9.4,
+            "probability": 0.97265625
+          },
+          {
+            "word": " une",
+            "start": 9.86,
+            "end": 10,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " personne",
+            "start": 10,
+            "end": 10.28,
+            "probability": 0.998046875
+          },
+          {
+            "word": " autorisée",
+            "start": 10.28,
+            "end": 10.9,
+            "probability": 0.95654296875
+          },
+          {
+            "word": " approuve",
+            "start": 10.9,
+            "end": 11.48,
+            "probability": 0.73876953125
+          },
+          {
+            "word": " l",
+            "start": 11.48,
+            "end": 11.56,
+            "probability": 0.9990234375
+          },
+          {
+            "word": "'envoi",
+            "start": 11.56,
+            "end": 11.82,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " dans",
+            "start": 11.82,
+            "end": 11.92,
+            "probability": 0.998046875
+          },
+          {
+            "word": " le",
+            "start": 11.92,
+            "end": 12.04,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " navigateur.",
+            "start": 12.04,
+            "end": 12.72,
+            "probability": 0.974609375
+          }
+        ]
+      }
+    ],
+    "language": "fr"
+  }
+}

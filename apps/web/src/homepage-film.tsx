@@ -41,9 +41,12 @@ function LocalizedFilm({
   const movie = (format: Format) => publicFilmAsset(film, locale, format).movie;
   const poster = (format: Format) =>
     publicFilmAsset(film, locale, format).poster;
-  const captions =
-    publicFilmAsset(film, locale).captions ??
-    (film === "introduction" ? `/videos/guteneo-v5.${locale}.vtt` : undefined);
+  const asset = publicFilmAsset(film, locale);
+  const captions = asset.captions;
+  const duration = copy.duration.replace(
+    "{duration}",
+    String(Math.round(asset.durationSeconds)),
+  );
   const id = film === "roles" ? "roles-film" : "homepage-film";
   const video = useRef<SafariVideo>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -264,7 +267,7 @@ function LocalizedFilm({
             </span>
             <span>
               {status === "ended" ? copy.replay : copy.play}
-              <small>{copy.duration}</small>
+              <small>{duration}</small>
             </span>
           </button>
         )}

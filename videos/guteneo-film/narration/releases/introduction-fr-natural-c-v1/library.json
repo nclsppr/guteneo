@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "id": "introduction-fr-natural-c-v1",
+  "method": "C-three-blocks",
+  "source": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "selectedVariationNumber": 2,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "musicPolicy": {
+    "mode": "constant",
+    "gain": 0.22
+  },
+  "criticalListening": "pending",
+  "sources": [
+    {
+      "blockId": "bloc-1",
+      "path": "sources/bloc-1-prise-2.mp3",
+      "sha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "bytes": 287171,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "XhZoYnMjyXPmRnhhPfSN",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "fr",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Avec guteneo, tout commence par un document à transmettre. [short pause] Préparez un envoi unique, ou organisez toute une campagne de documents. [short pause] Personnalisez chaque version pour qu’elle corresponde à son destinataire. [short pause] Importez votre PDF original, ou utilisez un modèle pour créer votre document.",
+      "requestTextSha256": "0e919b577ef8c8a8ea8e1015c03f297d8fb7083a7fe57c0a39c5340476f26fb9",
+      "providerDurationSeconds": 16.8,
+      "decodedSamples": 740880,
+      "decodedPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f"
+    },
+    {
+      "blockId": "bloc-2",
+      "path": "sources/bloc-2-prise-2.mp3",
+      "sha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "bytes": 322698,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "68izX5QVsErUaMwb5fJJ",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "fr",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. [short pause] Demandez-lui de créer votre PDF, puis de préparer son envoi. [short pause] Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. [short pause] Votre message peut voyager par fax, par courrier postal ou par e-mail.",
+      "requestTextSha256": "87a7e52aa0da81e446b0790df088789ee8625d9ec7d2c2870a244b4cb286f54a",
+      "providerDurationSeconds": 19.04,
+      "decodedSamples": 839664,
+      "decodedPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574"
+    },
+    {
+      "blockId": "bloc-3",
+      "path": "sources/bloc-3-prise-2.mp3",
+      "sha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+      "bytes": 209013,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "g1SsItDIy9TObsR9dDL7",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "fr",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Vos documents traversent l’Europe pour rejoindre leurs destinataires. [short pause] guteneo relie votre atelier numérique au courrier qui arrive à destination. [short pause] Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
+      "requestTextSha256": "01cadc9e6b25444f65222a6bd492d7b1d127d83f924262deab1aec3110a647f3",
+      "providerDurationSeconds": 11.92,
+      "decodedSamples": 525672,
+      "decodedPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7"
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "one",
+      "path": "clips/introduction-fr-natural-c/one.wav",
+      "sha256": "dfae7c48849d7feec45bad0eaeb108c814cd284eba6c4472c4a5767556995164",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 0,
+      "sourceEndSample": 168338,
+      "pcmSha256": "917a361c1e2b7d2a7738746a070ca3105263dea7efd6ced58c425a9dad693a6a",
+      "tempo": 1,
+      "fingerprint": "d73c14907f258d358eab197dd4a7ba119ed72534ba0ab3308e3401f693ac4e86"
+    },
+    {
+      "cueId": "scale",
+      "path": "clips/introduction-fr-natural-c/scale.wav",
+      "sha256": "b58b7315ef0dc4f09de1bb1ff3700ff8e4674b94ba2f4a14d43737be34c3f6fc",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 168338,
+      "sourceEndSample": 360702,
+      "pcmSha256": "1667a736d7fad08a1a08da46aae583d91be7551807c52e5a7e554e84b62d2671",
+      "tempo": 1,
+      "fingerprint": "0b797cf32c330d4559bd6478acf34d6f9f5924624a504121efaa5e59438befea"
+    },
+    {
+      "cueId": "personal",
+      "path": "clips/introduction-fr-natural-c/personal.wav",
+      "sha256": "7e566b4400b18219a19a210e733b68988995483ecb23d8c953363551727dd146",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 360702,
+      "sourceEndSample": 526393,
+      "pcmSha256": "9e3eaf337245b455e90af240c47dcf74de3032e472dd7ca1b9bb7535615ce5a6",
+      "tempo": 1,
+      "fingerprint": "16f77a7e1e750344d0af89324cc806194b9547703070bddcab6823a71a65376d"
+    },
+    {
+      "cueId": "sources",
+      "path": "clips/introduction-fr-natural-c/sources.wav",
+      "sha256": "e51e7000f25234b15c6c1f70627fccf40007c27e20ba2edc3cefb77f30e92f51",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 526393,
+      "sourceEndSample": 740880,
+      "pcmSha256": "4b1160dd8b74ac5f18b56a7bf6ed9ff0f2cd76fff4275ed7d2aac0947f289094",
+      "tempo": 1,
+      "fingerprint": "a5f847ec30cc6d9ed9155854a1f2e7115a4b15a1b441fc4c98f07277b37980ae"
+    },
+    {
+      "cueId": "assistants",
+      "path": "clips/introduction-fr-natural-c/assistants.wav",
+      "sha256": "67c40c2d273315ff7e0c17fc7aed842fe8cea10084e7e4e84f16238e6dd92c45",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 0,
+      "sourceEndSample": 205667,
+      "pcmSha256": "cdddc099015d044424fa5941b6fc9ac9c9c72da94891af541aa8fe465cab22bb",
+      "tempo": 1,
+      "fingerprint": "93244396fb1a79bcef3b1d931bdaf3d1d1938a01afa8eede7df6cb12fab5aac4"
+    },
+    {
+      "cueId": "generate",
+      "path": "clips/introduction-fr-natural-c/generate.wav",
+      "sha256": "51ce5eb0670da8011ace752c8cf2d947140a2a761c9e131d9108e3e28164faed",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 205667,
+      "sourceEndSample": 375688,
+      "pcmSha256": "401db36db766b408d550a8ec8283f4dfa2a862ffe9be9fdf057d3e34cda99b96",
+      "tempo": 1,
+      "fingerprint": "a41b4ea7e9eff68c8b55c8dbae16d6469b7e28980a0a8a251768e7145e9dbdce"
+    },
+    {
+      "cueId": "review",
+      "path": "clips/introduction-fr-natural-c/review.wav",
+      "sha256": "96cc3cfdb819e8d04914f2e1e1c5520e1e5db47165b4c014e5d97325485217ab",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 375688,
+      "sourceEndSample": 653285,
+      "pcmSha256": "e22e5b8730bfe9ecaed5fb6c3d0e305cea175d79525ea1acd427efea27fca35b",
+      "tempo": 1,
+      "fingerprint": "96dbc439c24fdca483ee9868e92794e1f6e1e205f2f951142d988d6bdbdd4bb9"
+    },
+    {
+      "cueId": "channels",
+      "path": "clips/introduction-fr-natural-c/channels.wav",
+      "sha256": "7c116249140b22df488529cec7ead55b2abfb8e277f16c882d020b77c3196e8b",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 653285,
+      "sourceEndSample": 839664,
+      "pcmSha256": "67a22f626021df60d8919760661d65e92bd8eea82b0d4df0a99d5caf385ca1c6",
+      "tempo": 1,
+      "fingerprint": "3963b54b3bbd4804b700e72f757a4846874d7f71af9ccda09a4e3ad6ff2ff8fc"
+    },
+    {
+      "cueId": "europe",
+      "path": "clips/introduction-fr-natural-c/europe.wav",
+      "sha256": "3eb1fc2df5e3c0071840c116a8fcccc2ae080bf0344b0a3acf068f30090b1178",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 0,
+      "sourceEndSample": 158318,
+      "pcmSha256": "69cb4844053a5f76b5a155a2aaca2dbfa558f4512316db6cc39370e265232d69",
+      "tempo": 1,
+      "fingerprint": "62a0d9f1de370e17577fd8212365660dd2a918383baef7b09dcbd0f2a92068f5"
+    },
+    {
+      "cueId": "physical",
+      "path": "clips/introduction-fr-natural-c/physical.wav",
+      "sha256": "3192cbe53954d23f637f702d2a8014138c36570183049839b26c6b86755226d6",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 158318,
+      "sourceEndSample": 351872,
+      "pcmSha256": "8f1c33937da9d019a05a6d3122358c5fe815ed2feafc192a367696fc05292315",
+      "tempo": 1,
+      "fingerprint": "c5fe232c6a09dfc4fa438e517cd792f444e64bc8702cc0552a0112ac94821753"
+    },
+    {
+      "cueId": "access",
+      "path": "clips/introduction-fr-natural-c/access.wav",
+      "sha256": "92fe22a3c21859aa64463ba9efbb154eed97adc1441f3fb54be10c2e6f94a059",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 351872,
+      "sourceEndSample": 525672,
+      "pcmSha256": "2e4153592845c55e3c4b2a096d429477afb5c138890816165b905f5b1e84454f",
+      "tempo": 1,
+      "fingerprint": "73bd218dd1d158e9fd440736b8a76f239ac1a44170b3e102d3bb21194b8f0eb6"
+    }
+  ]
+}

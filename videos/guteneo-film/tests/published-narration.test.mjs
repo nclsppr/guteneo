@@ -12,18 +12,28 @@ const repositoryRoot = path.resolve(import.meta.dirname, '../../..');
 const filmRoot = path.join(repositoryRoot, 'videos/guteneo-film');
 const json = async (file) => JSON.parse(await readFile(file, 'utf8'));
 const digest = async (file) => createHash('sha256').update(await readFile(file)).digest('hex');
-const catalogs = async () => ({
-  source: await json(path.join(filmRoot, 'narration/source-videos.json')),
-  active: await json(path.join(repositoryRoot, 'packages/contracts/src/public-videos.json')),
-});
+const catalogs = async () => {
+  const source = await json(path.join(filmRoot, 'narration/source-videos.json'));
+  // Exercise the frozen G2 publication independently of today's natural films.
+  const active = structuredClone(source);
+  for (const locale of ['fr', 'en']) {
+    for (const format of ['horizontal', 'vertical']) {
+      active.introduction[locale][format] = {...source.introduction[locale][format],
+        movie: `/videos/guteneo-${format}-v6-${locale}.mp4`, captions: `/videos/guteneo-v6.${locale}.vtt`};
+    }
+  }
+  active.roles.en = {...source.roles.en, movie: '/videos/guteneo-roles-v2-en.mp4', captions: '/videos/guteneo-roles-v2.en.vtt'};
+  return {source, active};
+};
 
 test('instrumental locales need no narration cache and unsupported active narration fails closed', async () => {
   const {source, active} = await catalogs();
   const outputRoot = path.join(os.tmpdir(), `guteneo-unwritten-narration-${process.pid}`);
   const options = {filmRoot: '/missing-film', repositoryRoot, sourceCatalog: source, kind: 'roles', outputRoot};
   assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, active, ['de'], 'roles')}), null);
-  assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, active, ['fr'], 'roles')}), null,
-    'The revised French roles narration is withheld until it is accepted.');
+  const instrumental = structuredClone(active);
+  instrumental.roles.fr = source.roles.fr;
+  assert.equal(await preparePublishedNarration({...options, jobs: buildRenderJobs(source, instrumental, ['fr'], 'roles')}), null);
   const unsupported = structuredClone(active);
   unsupported.roles.de.movie = '/videos/guteneo-roles-v2-de.mp4';
   await assert.rejects(preparePublishedNarration({...options, jobs: buildRenderJobs(source, unsupported, ['de'], 'roles')}), /No checked-in narration library/);

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "roles-fr-natural-c",
+      "kind": "roles",
+      "locale": "fr",
+      "durationSeconds": 44.86666666666667,
+      "endCardStartSeconds": 39.86666666666667,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.4,
+          "endSeconds": 4.033333333333333,
+          "text": "Découvrons les quatre rôles de guteneo et les droits de chacun."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 4.933333333333334,
+          "endSeconds": 11.1,
+          "text": "L’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 12,
+          "endSeconds": 18.766666666666666,
+          "text": "Le superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 19.666666666666668,
+          "endSeconds": 24.633333333333333,
+          "text": "L’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 25.533333333333335,
+          "endSeconds": 33.833333333333336,
+          "text": "L’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi."
+        },
+        {
+          "id": "review",
+          "startSeconds": 34.733333333333334,
+          "endSeconds": 39.36666666666667,
+          "text": "Dans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur."
+        }
+      ]
+    }
+  ]
+}

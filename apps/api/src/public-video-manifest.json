@@ -1,50 +1,50 @@
 {
-  "/videos/guteneo-roles-v1-de.mp4": {
-    "bytes": 2147218,
-    "sha256": "70629c6dc7669e9332e7b7275114ea6746c2bfbdab851279902fdab441ed801b"
+  "/videos/guteneo-horizontal-v8-fr.mp4": {
+    "bytes": 11244768,
+    "sha256": "43316dde6e0a8cfabb667b782ef09aae26d35db79287b1e597908fa8b7ce6eb9"
   },
-  "/videos/guteneo-roles-v1-lb.mp4": {
-    "bytes": 2156099,
-    "sha256": "242391018b1949911b322cb454edfceae13068b2ef2234d9437ae69a39bca09e"
+  "/videos/guteneo-vertical-v8-fr.mp4": {
+    "bytes": 13753772,
+    "sha256": "594a2eb91aeab05419a721451d204eecb47335be05bdaf8f6653e46e382463c9"
   },
-  "/videos/guteneo-horizontal-v5-de.mp4": {
-    "bytes": 10354876,
-    "sha256": "2632c51fb88f965556b04deb0b043e69f8b5c54203cb587e2ec51eb9b8e9de03"
+  "/videos/guteneo-roles-v3-fr.mp4": {
+    "bytes": 2332702,
+    "sha256": "59342f77a5ca4b6e8975c34ca7b72fdd53cd408c486f9565d3785a145fb9e88e"
   },
-  "/videos/guteneo-vertical-v5-de.mp4": {
-    "bytes": 12264422,
-    "sha256": "5d5c41ecd32b731a0771f9bbd5ea38beeadc7f1eb226c5e19ffa6119785a30c1"
+  "/videos/guteneo-horizontal-v8-en.mp4": {
+    "bytes": 11200999,
+    "sha256": "af02ff096911c16957a42e250572b227931db600dff3da5f781bbdc51f01f79e"
   },
-  "/videos/guteneo-horizontal-v5-lb.mp4": {
-    "bytes": 10434800,
-    "sha256": "2cf1221fdc8475b45bd5c5194432ed8857ea4a91804574eb546ce81a6b47e0a9"
+  "/videos/guteneo-vertical-v8-en.mp4": {
+    "bytes": 13748532,
+    "sha256": "ffea64cc53445e85932c2dab298c2400643707bcfbf1e1e8b0500698fb6edfd3"
   },
-  "/videos/guteneo-vertical-v5-lb.mp4": {
-    "bytes": 12342797,
-    "sha256": "c3fd62fc5425ec998632f6ad80b7dc74b14c978f17018a2553f4981130a1c156"
+  "/videos/guteneo-roles-v4-en.mp4": {
+    "bytes": 2348260,
+    "sha256": "3dab17cd2fbc4f341c4e6dd36d72150050ea08edb98250133b339650efd4b36b"
   },
-  "/videos/guteneo-horizontal-v6-en.mp4": {
-    "bytes": 10270654,
-    "sha256": "f40d811d4123c383cda80ad6db241d11987b26af85cd6f12c5554d1601b6fc2b"
+  "/videos/guteneo-horizontal-v8-de.mp4": {
+    "bytes": 11071478,
+    "sha256": "2b9a157420797739e2a254daccae1821879dbe81ceeaf4a6a001005f9322b8a3"
   },
-  "/videos/guteneo-vertical-v6-en.mp4": {
-    "bytes": 12162130,
-    "sha256": "93b75943f6128d5bef295bbee9ad10486f24aff21d2ca62ddd1be8991973147e"
+  "/videos/guteneo-vertical-v8-de.mp4": {
+    "bytes": 13335809,
+    "sha256": "b18c9dee9f74f41e32fc7ca8a4a4fe1c33d70c67f31cab4c515d06c96149be5c"
   },
-  "/videos/guteneo-roles-v2-en.mp4": {
-    "bytes": 2052663,
-    "sha256": "2cf94bce41d9981ef95342cf8a44d8fd9bafda2b5585b9b015e962ef31751a5c"
+  "/videos/guteneo-roles-v4-de.mp4": {
+    "bytes": 2477503,
+    "sha256": "a1b7c2a74bc78709d4569795c6fb0ac914fb58c92b88d4e4848241347479325c"
   },
-  "/videos/guteneo-horizontal-v6-fr.mp4": {
-    "bytes": 10347697,
-    "sha256": "7c2535462e5314ad741b5a82b10f88c087290c96cd42e76cbb97de7994683cee"
+  "/videos/guteneo-horizontal-v8-lb.mp4": {
+    "bytes": 11662999,
+    "sha256": "07e9c738ae13e8621b755868d29917e377b8d1ad9c30f1c31cb7508a3964438b"
   },
-  "/videos/guteneo-vertical-v6-fr.mp4": {
-    "bytes": 12240339,
-    "sha256": "e2d32af8b85b540073cc8a7feee59b837b30b1fefc9ab6431f5c74f3442c8b70"
+  "/videos/guteneo-vertical-v8-lb.mp4": {
+    "bytes": 14098855,
+    "sha256": "35dea41eac0431a7102709299d3a3bc19b3fa78e6b161ceb1d136e03b213960c"
   },
-  "/videos/guteneo-roles-v1-fr.mp4": {
-    "bytes": 2093120,
-    "sha256": "699a6722f00380621f11b30c29bc20704fe2c4730a0d641001bf38bcd1e15f7c"
+  "/videos/guteneo-roles-v4-lb.mp4": {
+    "bytes": 2515634,
+    "sha256": "4af8832d5a8aacd377044e91cce4af0f33c36fb8b3330546b9e75de27cce669c"
   }
 }

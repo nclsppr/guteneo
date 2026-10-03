@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-3",
+  "path": "sources/bloc-3-prise-2.mp3",
+  "sha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+  "bytes": 209013,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "HzmT7S00UZuKTm0y5NNk",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "en",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Your documents travel across Europe to reach their recipients. [short pause] guteneo takes your correspondence from your screen to their letterbox. [short pause] Find your documents and campaigns on the web or on your iPhone.",
+  "requestTextSha256": "6861abb612e3c58bd0bbd3f2769165d6821c0ec1b60c890c244171089ef615ef",
+  "providerDurationSeconds": 11.92,
+  "decodedSamples": 525672,
+  "decodedPcmSha256": "c03a919fe4f23263eb0947719b47b43615e7671c0cfe1787a19dcd710de796a9"
+}

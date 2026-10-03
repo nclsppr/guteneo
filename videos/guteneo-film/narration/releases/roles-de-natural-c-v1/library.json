@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "id": "roles-de-natural-c-v1",
+  "method": "C-three-blocks",
+  "source": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "selectedVariationNumber": 2,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "musicPolicy": {
+    "mode": "constant",
+    "gain": 0.22
+  },
+  "criticalListening": "pending",
+  "sources": [
+    {
+      "blockId": "bloc-1",
+      "path": "sources/bloc-1-prise-2.mp3",
+      "sha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+      "bytes": 190751,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "Fz9QgXrQq0VId0zZU1Yj",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "de",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Sehen wir uns die vier Rollen in guteneo und ihre Rechte an. [short pause] Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte.",
+      "requestTextSha256": "70f112c34546659fbca72d020bb3ce38fad007d837d71dfcb41148cdfaa2c867",
+      "providerDurationSeconds": 10.8,
+      "decodedSamples": 476280,
+      "decodedPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e"
+    },
+    {
+      "blockId": "bloc-2",
+      "path": "sources/bloc-2-prise-2.mp3",
+      "sha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+      "bytes": 260968,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "2QRzKE6FbQKGF680U97v",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "de",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert. [short pause] Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen.",
+      "requestTextSha256": "61e5adbcde973e79be2c6b80df24360c95bd54246a6f85798b5706c17254d2c6",
+      "providerDurationSeconds": 15.2,
+      "decodedSamples": 670320,
+      "decodedPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8"
+    },
+    {
+      "blockId": "bloc-3",
+      "path": "sources/bloc-3-prise-2.mp3",
+      "sha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+      "bytes": 220298,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "TfaPkbzRuXKdZIQDcntT",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "de",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. [short pause] Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+      "requestTextSha256": "51f92cf1c45f733f1d7f3471d6333b006d8c10f4135519a43e7614907f4ffb8b",
+      "providerDurationSeconds": 12.64,
+      "decodedSamples": 557424,
+      "decodedPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a"
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "intro",
+      "path": "clips/roles-de-natural-c/intro.wav",
+      "sha256": "78b08770b96dec6161ee95aa8797dd247d8752d659ade047a98cb95b7a1741de",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 0,
+      "sourceEndSample": 167672,
+      "pcmSha256": "b02455aca7c88e97cef4b2e1341fc6c408cd404ef5a38da6f84db11d5f3c925a",
+      "tempo": 1,
+      "fingerprint": "27e7f6f213abd6193613754095290b6c3c4db21511f952a06096df87697da391"
+    },
+    {
+      "cueId": "administrator",
+      "path": "clips/roles-de-natural-c/administrator.wav",
+      "sha256": "a43b20274fe0709f2a61368e3af365ae2e10565867067d6e086b1adfeef73073",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 167672,
+      "sourceEndSample": 476280,
+      "pcmSha256": "d7b6e2d8b51a802ffa5fe50c16f617291d4fa40cf39ea29525f22c4e3f6b4ba7",
+      "tempo": 1,
+      "fingerprint": "5a95937aea65f0dfd28a546872acec15c448213076ee3933e78ef0d43230c959"
+    },
+    {
+      "cueId": "supervisor",
+      "path": "clips/roles-de-natural-c/supervisor.wav",
+      "sha256": "52e1850bdbe6642c52a55ebcda87ee10597e057695a13eb744cc78ff8f05aad9",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 0,
+      "sourceEndSample": 412352,
+      "pcmSha256": "0ddbd530edca3c547a1c984511415651997d991ed3c4f9066d4391d97031101b",
+      "tempo": 1,
+      "fingerprint": "80d51b167faa53f11df9429a2839ceb37f9797c0df5bfa4bb981f5cd89bebf93"
+    },
+    {
+      "cueId": "operator",
+      "path": "clips/roles-de-natural-c/operator.wav",
+      "sha256": "04ff8894113dec87c6629c919a4a347e55fd9a4fa358c88a74d6005b2b5f8fff",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 412352,
+      "sourceEndSample": 670320,
+      "pcmSha256": "5862ebc3cf7c7e073aa9df6e8758af1bac9afb02d97b50f0ca3e14e2901a90fe",
+      "tempo": 1,
+      "fingerprint": "88933d23476f75caa25998b40f324590fa3e5918ff62db15de0da954da3afc68"
+    },
+    {
+      "cueId": "observer",
+      "path": "clips/roles-de-natural-c/observer.wav",
+      "sha256": "0cee5e00022b7d0a636adc666a7a03c3c2235556e032a03e4d47fe9cc39c17d0",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 0,
+      "sourceEndSample": 363601,
+      "pcmSha256": "54c0d066a294e4f7ff5fe010e95326d5be0246d73f6b638169e378467d8481b2",
+      "tempo": 1,
+      "fingerprint": "698dca03669c32a0a914d9adbf085d12609d2f72bf44f638896e7ae240b2ed05"
+    },
+    {
+      "cueId": "review",
+      "path": "clips/roles-de-natural-c/review.wav",
+      "sha256": "c5265d68996bb4f6ac3e6726040a9cd960cf351bfa9a3b4b4fea98bbe9f184ee",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 363601,
+      "sourceEndSample": 557424,
+      "pcmSha256": "ebadb3918bd64ff908a0ba5ea3cdb862051293b39f2aa4d9a5b6242fde514ae3",
+      "tempo": 1,
+      "fingerprint": "82ecd688d9112dc86c2a9afbd3fa551b49cd35501e81bce8872cec23c19cc2e1"
+    }
+  ]
+}

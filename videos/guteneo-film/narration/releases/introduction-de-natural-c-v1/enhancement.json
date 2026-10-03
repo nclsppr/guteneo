@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "de",
+  "kind": "introduction",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Mit guteneo beginnt alles mit einem Dokument.\n\nSie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten.\n\nDabei kann jeder Empfänger sein persönliches Dokument erhalten.\n\nNutzen Sie Ihr eigenes PDF oder eine passende Vorlage.\n\nIhr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten.\n\nErstellen Sie das PDF und bereiten Sie den Versand in guteneo vor.\n\nPrüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser.\n\nWählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.\n\nIhre Worte erreichen Menschen auch über Landesgrenzen hinweg.\n\nSo kann ein digitales Dokument auch im Briefkasten ankommen.\n\nIhr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
+  "nativeEnhancedText": "[thoughtful] Mit guteneo beginnt alles mit einem Dokument. [short pause] Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. [happy] Dabei kann jeder Empfänger sein persönliches Dokument erhalten. Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage. [excited] Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten! Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. [thoughtful] Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. [clears throat] Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail. [happy] Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg! So kann ein digitales Dokument auch im Briefkasten ankommen. [relaxed] Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
+  "nativeOutputSha256": "be9e8f011c9318fe63371e5917aeef3bec46a76d752ee1af12c46b572425a386",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Mit guteneo beginnt alles mit einem Dokument. [short pause] Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. [short pause] Dabei kann jeder Empfänger sein persönliches Dokument erhalten. [short pause] Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage. [short pause] Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. [short pause] Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. [short pause] Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. [short pause] Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail. [short pause] Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. [short pause] So kann ein digitales Dokument auch im Briefkasten ankommen. [short pause] Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [
+    "Remove nonverbal effects and excited delivery to match the user-approved calm French roles film.",
+    "Restore original punctuation after native enhancement.",
+    "Carry the approved thoughtful style and separate each slide paragraph with an explicit short pause."
+  ],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "one",
+        "scale",
+        "personal",
+        "sources"
+      ],
+      "prompt": "[thoughtful] Mit guteneo beginnt alles mit einem Dokument. [short pause] Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. [short pause] Dabei kann jeder Empfänger sein persönliches Dokument erhalten. [short pause] Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "assistants",
+        "generate",
+        "review",
+        "channels"
+      ],
+      "prompt": "[thoughtful] Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. [short pause] Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. [short pause] Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. [short pause] Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "europe",
+        "physical",
+        "access"
+      ],
+      "prompt": "[thoughtful] Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. [short pause] So kann ein digitales Dokument auch im Briefkasten ankommen. [short pause] Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind."
+    }
+  ],
+  "criticalListening": "pending"
+}

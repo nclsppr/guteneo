@@ -24,7 +24,7 @@ function Intro({ locale }: { locale: RoleFilmLocale }) {
   );
 }
 
-function Role({ locale, index }: { locale: RoleFilmLocale; index: number }) {
+function Role({ locale, index, durationInFrames = 180 }: { locale: RoleFilmLocale; index: number; durationInFrames?: number }) {
   const copy = rolesCopy[locale];
   const scene = copy.scenes[index];
   const frame = useCurrentFrame();
@@ -53,7 +53,7 @@ function Role({ locale, index }: { locale: RoleFilmLocale; index: number }) {
       <div style={{ position: "absolute", left: 140, right: 140, bottom: 100, display: "flex", gap: 12 }}>
         {copy.scenes.map((item, i) => (
           <div key={item.title} style={{ flex: 1, height: 5, background: "#dce0d5", overflow: "hidden" }}>
-            <div style={{ height: "100%", background: C.blue, width: i < index ? "100%" : i === index ? `${interpolate(frame, [0, 179], [0, 100], clamp)}%` : "0%" }} />
+            <div style={{ height: "100%", background: C.blue, width: i < index ? "100%" : i === index ? `${interpolate(frame, [0, durationInFrames - 1], [0, 100], clamp)}%` : "0%" }} />
           </div>
         ))}
       </div>
@@ -71,11 +71,40 @@ function Review({ locale }: { locale: RoleFilmLocale }) {
   );
 }
 
-/** Four roles in 36 seconds. The last five seconds reuse the V5 end card exactly. */
-export function RolesFilm({ locale = "fr" }: { locale?: RoleFilmLocale }) {
+export type RoleFilmTimeline = {
+  scenes: readonly {
+    id: "intro" | "administrator" | "supervisor" | "operator" | "observer" | "review" | "logo";
+    startFrame: number;
+    durationInFrames: number;
+  }[];
+};
+
+/** The original 36-second film remains the default; explicit timing follows narration. */
+export type RolesFilmProps = {
+  locale?: RoleFilmLocale;
+  timeline?: RoleFilmTimeline;
+  musicFile?: string;
+};
+export function RolesFilm({ locale = "fr", timeline, musicFile = "audio/roles-soundtrack.wav" }: RolesFilmProps) {
+  if (timeline) {
+    const roles = ["administrator", "supervisor", "operator", "observer"];
+    return (
+      <AbsoluteFill>
+        <Audio src={staticFile(musicFile)} />
+        {timeline.scenes.map((scene) => (
+          <Sequence key={scene.id} from={scene.startFrame} durationInFrames={scene.durationInFrames}>
+            {scene.id === "intro" ? <Intro locale={locale} />
+              : scene.id === "review" ? <Review locale={locale} />
+                : scene.id === "logo" ? <End />
+                  : <Role locale={locale} index={roles.indexOf(scene.id)} durationInFrames={scene.durationInFrames} />}
+          </Sequence>
+        ))}
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill>
-      <Audio src={staticFile("audio/roles-soundtrack.wav")} />
+      <Audio src={staticFile(musicFile)} />
       <Sequence durationInFrames={90}><Intro locale={locale} /></Sequence>
       {[0, 1, 2, 3].map((index) => <Sequence key={index} from={90 + index * 180} durationInFrames={180}><Role locale={locale} index={index} /></Sequence>)}
       <Sequence from={810} durationInFrames={120}><Review locale={locale} /></Sequence>

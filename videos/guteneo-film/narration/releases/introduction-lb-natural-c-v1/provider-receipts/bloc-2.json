@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-2",
+  "path": "sources/bloc-2-prise-2.mp3",
+  "sha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+  "bytes": 357098,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "tha4Nsfns9pdQc6OtNHl",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. [short pause] Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen.",
+  "requestTextSha256": "23810de1c1c3d07670a74fcfdd5950dacd7a4619c138aa97b25314301d65c986",
+  "providerDurationSeconds": 21.2,
+  "decodedSamples": 934920,
+  "decodedPcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d"
+}

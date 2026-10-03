@@ -1,0 +1,381 @@
+{
+  "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 2.696735500001523,
+  "result": {
+    "text": " Mat gud njou fengt allesma dengim dokumentyun. Djokken deng enzil sendung ogre en ganskampanjö fyr bereden. Dubaig kan al empfengar sai persænlish dokument kræn. Benotst erren ežene PDF ogre eng pasn fyrlak.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2.92,
+        "text": " Mat gud njou fengt allesma dengim dokumentyun.",
+        "tokens": [
+          50364,
+          6789,
+          290,
+          532,
+          297,
+          73,
+          263,
+          283,
+          1501,
+          83,
+          7874,
+          1696,
+          1441,
+          70,
+          332,
+          40858,
+          88,
+          409,
+          13,
+          50514
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8536892766537874,
+        "compression_ratio": 1.3270440251572326,
+        "no_speech_prob": 0.03295271098613739,
+        "words": [
+          {
+            "word": " Mat",
+            "start": 0,
+            "end": 0.3,
+            "probability": 0.468994140625
+          },
+          {
+            "word": " gud",
+            "start": 0.3,
+            "end": 0.64,
+            "probability": 0.235107421875
+          },
+          {
+            "word": " njou",
+            "start": 0.64,
+            "end": 0.94,
+            "probability": 0.32421875
+          },
+          {
+            "word": " fengt",
+            "start": 0.94,
+            "end": 1.3,
+            "probability": 0.78369140625
+          },
+          {
+            "word": " allesma",
+            "start": 1.3,
+            "end": 1.8,
+            "probability": 0.57080078125
+          },
+          {
+            "word": " dengim",
+            "start": 1.8,
+            "end": 2.08,
+            "probability": 0.46044921875
+          },
+          {
+            "word": " dokumentyun.",
+            "start": 2.08,
+            "end": 2.92,
+            "probability": 0.52734375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 3.48,
+        "end": 7.16,
+        "text": " Djokken deng enzil sendung ogre en ganskampanjö fyr bereden.",
+        "tokens": [
+          50544,
+          33464,
+          453,
+          2653,
+          274,
+          1501,
+          465,
+          89,
+          388,
+          2845,
+          1063,
+          5360,
+          265,
+          465,
+          290,
+          599,
+          74,
+          1215,
+          282,
+          73,
+          973,
+          283,
+          6016,
+          5948,
+          6876,
+          13,
+          50729
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8536892766537874,
+        "compression_ratio": 1.3270440251572326,
+        "no_speech_prob": 0.03295271098613739,
+        "words": [
+          {
+            "word": " Djokken",
+            "start": 3.48,
+            "end": 4.12,
+            "probability": 0.2259521484375
+          },
+          {
+            "word": " deng",
+            "start": 4.12,
+            "end": 4.26,
+            "probability": 0.26220703125
+          },
+          {
+            "word": " enzil",
+            "start": 4.26,
+            "end": 4.74,
+            "probability": 0.482421875
+          },
+          {
+            "word": " sendung",
+            "start": 4.74,
+            "end": 5.18,
+            "probability": 0.71484375
+          },
+          {
+            "word": " ogre",
+            "start": 5.18,
+            "end": 5.54,
+            "probability": 0.23876953125
+          },
+          {
+            "word": " en",
+            "start": 5.54,
+            "end": 5.64,
+            "probability": 0.319580078125
+          },
+          {
+            "word": " ganskampanjö",
+            "start": 5.64,
+            "end": 6.58,
+            "probability": 0.54931640625
+          },
+          {
+            "word": " fyr",
+            "start": 6.58,
+            "end": 6.74,
+            "probability": 0.437744140625
+          },
+          {
+            "word": " bereden.",
+            "start": 6.74,
+            "end": 7.16,
+            "probability": 0.25048828125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 7.94,
+        "end": 11.08,
+        "text": " Dubaig kan al empfengar sai persænlish dokument kræn.",
+        "tokens": [
+          50754,
+          413,
+          12584,
+          328,
+          4608,
+          419,
+          4012,
+          69,
+          1501,
+          289,
+          601,
+          72,
+          868,
+          7303,
+          77,
+          75,
+          742,
+          40858,
+          15913,
+          7303,
+          77,
+          13,
+          50919
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8536892766537874,
+        "compression_ratio": 1.3270440251572326,
+        "no_speech_prob": 0.03295271098613739,
+        "words": [
+          {
+            "word": " Dubaig",
+            "start": 7.94,
+            "end": 8.4,
+            "probability": 0.2374267578125
+          },
+          {
+            "word": " kan",
+            "start": 8.4,
+            "end": 8.54,
+            "probability": 0.8828125
+          },
+          {
+            "word": " al",
+            "start": 8.54,
+            "end": 8.82,
+            "probability": 0.7548828125
+          },
+          {
+            "word": " empfengar",
+            "start": 8.82,
+            "end": 9.34,
+            "probability": 0.58642578125
+          },
+          {
+            "word": " sai",
+            "start": 9.34,
+            "end": 9.54,
+            "probability": 0.270263671875
+          },
+          {
+            "word": " persænlish",
+            "start": 9.54,
+            "end": 10.18,
+            "probability": 0.53125
+          },
+          {
+            "word": " dokument",
+            "start": 10.18,
+            "end": 10.48,
+            "probability": 0.89453125
+          },
+          {
+            "word": " kræn.",
+            "start": 10.48,
+            "end": 11.08,
+            "probability": 0.4453125
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 11.54,
+        "end": 14.76,
+        "text": " Benotst erren ežene PDF ogre eng pasn fyrlak.",
+        "tokens": [
+          50934,
+          3964,
+          310,
+          372,
+          1189,
+          1095,
+          308,
+          9159,
+          1450,
+          17752,
+          5360,
+          265,
+          465,
+          70,
+          1736,
+          77,
+          283,
+          6016,
+          41472,
+          13,
+          51109
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8536892766537874,
+        "compression_ratio": 1.3270440251572326,
+        "no_speech_prob": 0.03295271098613739,
+        "words": [
+          {
+            "word": " Benotst",
+            "start": 11.54,
+            "end": 12.02,
+            "probability": 0.7119140625
+          },
+          {
+            "word": " erren",
+            "start": 12.02,
+            "end": 12.26,
+            "probability": 0.29248046875
+          },
+          {
+            "word": " ežene",
+            "start": 12.26,
+            "end": 12.7,
+            "probability": 0.49755859375
+          },
+          {
+            "word": " PDF",
+            "start": 12.7,
+            "end": 13.3,
+            "probability": 0.55859375
+          },
+          {
+            "word": " ogre",
+            "start": 13.3,
+            "end": 13.78,
+            "probability": 0.97021484375
+          },
+          {
+            "word": " eng",
+            "start": 13.78,
+            "end": 13.96,
+            "probability": 0.72265625
+          },
+          {
+            "word": " pasn",
+            "start": 13.96,
+            "end": 14.26,
+            "probability": 0.40283203125
+          },
+          {
+            "word": " fyrlak.",
+            "start": 14.26,
+            "end": 14.76,
+            "probability": 0.689453125
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "432860811fc10f3d43defe60e38347bf6e3fa50a6f348de976e240ea6912ab91"
+}
