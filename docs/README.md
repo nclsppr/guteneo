@@ -8,7 +8,10 @@ La source éditable est [feature-map.json](feature-map.json). Après modificatio
 
 ```sh
 node docs/build-feature-map.mjs
+node docs/build-feature-map.mjs --check
 ```
+
+La CI refuse des vues générées périmées, une matrice incohérente, des références manquantes ou des parcours incomplets. La revue vérifie la couverture sémantique des changements.
 
 Chaque feature ajoutée, modifiée ou retirée exige la mise à jour de l’arbre, des permissions et des parcours affectés dans la même PR, conformément à [AGENTS.md](../AGENTS.md). Conserver conditions d’entrée, résultat, erreurs/reprise, confidentialité, disponibilité, code, contrat et preuves de tests. L’activation d’un service et sa publication restent des faits distincts de son implémentation.
 

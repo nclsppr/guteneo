@@ -1,9 +1,57 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 
 const root = new URL("./", import.meta.url);
 const data = JSON.parse(
   await readFile(new URL("feature-map.json", root), "utf8"),
 );
+const check = process.argv.slice(2).includes("--check");
+if (process.argv.slice(2).some((arg) => arg !== "--check"))
+  throw new Error("Use node docs/build-feature-map.mjs [--check]");
+if (
+  data.roles.length !== 5 ||
+  data.permissions.some((row) => row.length !== data.roles.length + 1)
+)
+  throw new Error("Invalid permission matrix");
+if (
+  new Set(data.groups.map((g) => g.title)).size !== data.groups.length ||
+  new Set(data.journeys.map((j) => j.id)).size !== data.journeys.length
+)
+  throw new Error("Duplicate domain or journey");
+for (const group of data.groups) {
+  if (
+    !group.features.length ||
+    !group.tests.length ||
+    !group.status ||
+    !group.surfaces
+  )
+    throw new Error("Incomplete feature domain");
+  for (const path of ["docs/" + group.doc, group.source, ...group.tests]) {
+    if (path.startsWith("/") || path.split("/").includes(".."))
+      throw new Error("Invalid repository reference");
+    await access(new URL("../" + path, root));
+  }
+}
+for (const journey of data.journeys) {
+  for (const key of [
+    "id",
+    "title",
+    "actor",
+    "steps",
+    "branch",
+    "doc",
+    "failure",
+  ])
+    if (!journey[key]) throw new Error("Incomplete customer journey");
+  await access(new URL(journey.doc, root));
+}
+async function emit(url, content) {
+  if (check) {
+    if ((await readFile(url, "utf8")) !== content)
+      throw new Error(
+        "Developer atlas is stale; run node docs/build-feature-map.mjs",
+      );
+  } else await writeFile(url, content);
+}
 const esc = (s) =>
   String(s).replace(
     /[&<>"']/g,
@@ -84,14 +132,11 @@ ${data.journeys.map((j) => `### ${j.id} · ${j.title}\n\n**Acteur :** ${j.actor}
 
 ## Maintenance obligatoire
 
-Chaque PR qui ajoute, modifie ou retire une fonction met à jour cet arbre, les droits et les parcours concernés dans le même changement. Décrire entrée, étapes, sortie, erreurs/reprise, canaux, données privées, activation et preuve de test. Ajouter un lien vers le contrat détaillé, le code et les tests pertinents. Régénérer Markdown et HTML, puis vérifier liens, mise en page et cohérence avec le code. Aucun de ces fichiers n’est relié au build ou à la navigation du site officiel.
+Chaque PR qui ajoute, modifie ou retire une fonction met à jour cet arbre, les droits et les parcours concernés dans le même changement. Décrire entrée, étapes, sortie, erreurs/reprise, canaux, données privées, activation et preuve de test. Ajouter un lien vers le contrat détaillé, le code et les tests pertinents. Régénérer Markdown et HTML, puis vérifier liens, mise en page et cohérence avec le code. La CI exécute node docs/build-feature-map.mjs --check : vues synchronisées, matrice cohérente, références existantes et parcours complets ; la revue contrôle la couverture sémantique. Aucun de ces fichiers n’est relié au build ou à la navigation du site officiel.
 `;
 // Backticks in the command above are emitted literally for Markdown.
-await writeFile(
-  new URL("FEATURE_MAP.md", root),
-  markdown.replaceAll("\\`", "`"),
-);
-await writeFile(
+await emit(new URL("FEATURE_MAP.md", root), markdown.replaceAll("\\`", "`"));
+await emit(
   new URL("FEATURE_MAP.html", root),
   `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guteneo · Atlas technique</title><style>
@@ -101,5 +146,5 @@ const search=document.getElementById('search');const cards=[...document.querySel
 </script></body></html>`,
 );
 console.log(
-  `Generated developer map: ${data.groups.length} domains, ${featureCount} features, ${data.journeys.length} journeys.`,
+  `${check ? "Verified" : "Generated"} developer map: ${data.groups.length} domains, ${featureCount} features, ${data.journeys.length} journeys.`,
 );

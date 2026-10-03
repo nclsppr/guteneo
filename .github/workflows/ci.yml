@@ -52,6 +52,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - name: Require a synchronized developer feature tree and valid references
+        run: node docs/build-feature-map.mjs --check
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
       - name: Run every offline narration test
