@@ -226,3 +226,7 @@ Les branches de livraison restent `codex/multilingual` (web et préférence part
 et `codex/multilingual-ios` (client/API natifs avec la même préférence). Aucune
 migration distante, fusion dans la branche principale ni publication n’a été
 réalisée dans cette tâche.
+
+### Narrow-header browser readiness
+
+The preview language-panel check waits for the actual header to be visible before measuring its closed height, then reads geometry through the attached locator. This addresses the null bounding box observed during the initial header mount on iPhone WebKit in documentation PR #47 CI. It retains the exact closed-height comparison, both 320/430px widths, all five public subpages and panel/overflow assertions; it does not change the product or exclude a browser.

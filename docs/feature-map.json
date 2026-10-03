@@ -270,7 +270,8 @@
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
-        "tests/e2e/locale-boundaries.spec.ts"
+        "tests/e2e/locale-boundaries.spec.ts",
+        "tests/preview-e2e/language-navigation.spec.ts"
       ],
       "surfaces": "Web public / maquette"
     },
