@@ -430,6 +430,7 @@ test("the public offer keeps preparation, scope and allowance visible", async ({
 
 test("an uncertain PDF request is never retried automatically and explicit replay keeps its key", async ({
   page,
+  hasTouch,
 }) => {
   const state = await fixture(page, { entitled: true });
   const keys: string[] = [];
@@ -444,15 +445,19 @@ test("an uncertain PDF request is never retried automatically and explicit repla
   });
   await page.goto(`/#/app/documents?document=${state.document.id}`);
   const panel = page.locator(".pdf-validation");
-  await panel.getByRole("button", { name: "Contrôler ce PDF" }).click();
+  const control = panel.getByRole("button", { name: "Contrôler ce PDF" });
+  // Exercise native touch activation on phone projects. Synthetic mouse clicks
+  // in touch WebKit have completed without submitting the rapidly moved form.
+  const activate = () => hasTouch ? control.tap() : control.click();
+  await activate();
   await expect(panel.getByRole("alert")).toBeVisible();
   expect(keys).toHaveLength(1);
-  await panel.getByRole("button", { name: "Contrôler ce PDF" }).click();
+  await activate();
   await expect(panel.getByText("Écarts techniques détectés")).toBeVisible();
   expect(keys).toHaveLength(2);
   expect(keys[0]).toBeTruthy();
   expect(keys[1]).toBe(keys[0]);
-  await panel.getByRole("button", { name: "Contrôler ce PDF" }).click();
+  await activate();
   await expect.poll(() => keys.length).toBe(3);
   expect(keys[2]).not.toBe(keys[1]);
 });
