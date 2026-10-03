@@ -34,6 +34,7 @@ test('natural C qualifies all selected plugin blocks and exact PCM24 cuts at the
   const qualified = await qualifyNaturalNarration(library);
   assert.equal(qualified.metadata.sources.length, 3);
   assert.equal(qualified.plan.clips.length, 6);
+  assert.ok(qualified.decoderQualification.every((source) => source.decoderCpuFlags === '0'));
   assert.equal(qualified.plan.outputFormat, 'pcm_s24le');
   assert.equal(qualified.metadata.voice.voiceId, 'm5U7XCsc8v988k2RJAqN');
   assert.deepEqual(qualified.metadata.musicPolicy, {mode: 'constant', gain: 0.22});
@@ -45,8 +46,11 @@ test('natural C qualifies all selected plugin blocks and exact PCM24 cuts at the
 
 test('all eight delivered natural snapshots retain their complete speech and quiet closing scenes', {timeout: 120000}, async () => {
   const linuxProof = await json(path.join(filmRoot, 'narration/releases/natural-c-linux-qualification.json'));
+  const scalarProof = await json(path.join(filmRoot, 'tests/fixtures/natural-c-scalar-qualification.json'));
   assert.equal(linuxProof.platform, 'linux');
   assert.equal(linuxProof.libraries.length, 8);
+  assert.deepEqual(scalarProof.qualifications.map((entry) => `${entry.platform}:${entry.arch}`).sort(),
+    ['darwin:arm64', 'linux:arm64', 'linux:x64']);
   let sourceCount = 0;
   let clipCount = 0;
   const generationIds = new Set();
@@ -73,6 +77,14 @@ test('all eight delivered natural snapshots retain their complete speech and qui
         assert.equal(measured.canonicalPcmSha256, source.decodedPcmSha256);
         assert.equal(measured.decodedSamples, source.decodedSamples);
         assert.ok(measured.maximumAbsoluteDelta <= 8 && measured.differentSamples <= source.decodedSamples);
+        for (const platform of scalarProof.qualifications) {
+          const scalar = platform.libraries.find((entry) => entry.library === spec.library)?.decoders.find((entry) => entry.blockId === source.blockId);
+          assert.equal(scalar?.sourceSha256, source.sha256);
+          assert.equal(scalar.canonicalPcmSha256, source.decodedPcmSha256);
+          assert.equal(scalar.decodedSamples, source.decodedSamples);
+          assert.equal(scalar.decoderCpuFlags, '0');
+          assert.ok(scalar.maximumAbsoluteDelta <= 8);
+        }
         assert.ok(!generationIds.has(source.generationId), 'Every selected block must have its own actual provider generation.');
         generationIds.add(source.generationId);
       }

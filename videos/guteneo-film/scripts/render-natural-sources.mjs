@@ -3,8 +3,6 @@ import {createHash} from 'node:crypto';
 import {mkdir, readFile, rename, stat, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {bundle} from '@remotion/bundler';
-import {renderMedia, selectComposition} from '@remotion/renderer';
 import {qualifyNaturalNarration} from './natural-narration.mjs';
 import {naturalFilmSpec} from './render-catalog.mjs';
 import {probeMedia, videoStreamHash} from './mix-narration.mjs';
@@ -30,6 +28,11 @@ export async function renderNaturalSources({libraries, outputDir = path.join(fil
     const result = await qualifyNaturalNarration(library);
     qualified.push({library, ...result});
   }
+  // Guard and cache qualification also run in CI without the optional film
+  // dependencies. Load Remotion only when an actual source render is ready.
+  const [{bundle}, {renderMedia, selectComposition}] = await Promise.all([
+    import('@remotion/bundler'), import('@remotion/renderer'),
+  ]);
   await mkdir(target, {recursive: true});
   for (const entry of qualified) {
     const narration = entry.manifest.narrations[0];

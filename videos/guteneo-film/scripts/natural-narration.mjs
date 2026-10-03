@@ -34,7 +34,9 @@ export function derivedClipFingerprint({source, clip, text, voiceId}) {
 
 export async function decodePcm24(file) {
   const {stdout} = await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-xerror', '-err_detect', 'explode',
-    '-i', file, '-map', '0:a:0', '-ac', '1', '-ar', '44100', '-c:a', 'pcm_s24le', '-f', 's24le', '-'],
+    // Use the scalar decoder across CPU architectures; optimized MP3 paths
+    // produce different floating-point results, especially under emulation.
+    '-cpuflags', '0', '-i', file, '-map', '0:a:0', '-ac', '1', '-ar', '44100', '-c:a', 'pcm_s24le', '-f', 's24le', '-'],
   {encoding: 'buffer', maxBuffer: 8 * 1024 * 1024});
   if (!stdout.length || stdout.length % 3) throw new Error('Natural narration has an incomplete decoded PCM signal.');
   return stdout;
@@ -201,7 +203,7 @@ export async function qualifyNaturalNarration(library) {
     if (digest(canonicalPcm) !== source.decodedPcmSha256) throw new Error('Natural narration cuts do not reconstruct the exact canonical source PCM.');
     const actualPcm = decoded.get(source.blockId);
     return {blockId: source.blockId, sourceSha256: source.sha256, canonicalPcmSha256: source.decodedPcmSha256,
-      decodedPcmSha256: digest(actualPcm), ...compareDecodedPcm24(canonicalPcm, actualPcm)};
+      decodedPcmSha256: digest(actualPcm), decoderCpuFlags: '0', ...compareDecodedPcm24(canonicalPcm, actualPcm)};
   });
   validateMixCues(narration, clips.map((clip) => ({...clip, durationSeconds: clip.actualDurationSeconds})));
   return {manifest, generation, metadata: saved, timeline, decoderQualification,

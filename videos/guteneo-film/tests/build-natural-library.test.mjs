@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {cp, mkdir, mkdtemp, readFile, rm, stat, writeFile} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -65,6 +66,27 @@ test('initial source renderer protects the accepted French role film and public 
     await assert.rejects(renderNaturalSources({libraries: ['roles-fr-natural-c-v1'], outputDir}), /accepted French roles source/);
     const publicDir = path.resolve(import.meta.dirname, '../../../apps/web/public');
     await assert.rejects(renderNaturalSources({libraries: ['introduction-fr-natural-c-v1'], outputDir: publicDir}), /outside public assets/);
+    await assert.rejects(stat(outputDir), {code: 'ENOENT'});
+  } finally {await rm(temporary, {recursive: true, force: true});}
+});
+
+test('offline source guards load while every optional Remotion package is unavailable', async () => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'guteneo-natural-no-render-deps-'));
+  try {
+    const loader = path.join(temporary, 'block-remotion.mjs');
+    await writeFile(loader, `export async function resolve(specifier, context, nextResolve) {
+      if (specifier.startsWith('@remotion/')) throw new Error('Optional renderer dependencies unavailable');
+      return nextResolve(specifier, context);
+    }\n`);
+    const register = path.join(temporary, 'register-loader.mjs');
+    await writeFile(register, "import {register} from 'node:module'; register('./block-remotion.mjs', import.meta.url);\n");
+    const renderer = new URL('../scripts/render-natural-sources.mjs', import.meta.url).href;
+    const outputDir = path.join(temporary, 'unwritten');
+    const code = `import assert from 'node:assert/strict';
+      const {renderNaturalSources} = await import(${JSON.stringify(renderer)});
+      await assert.rejects(renderNaturalSources({libraries: ['roles-fr-natural-c-v1'],
+        outputDir: ${JSON.stringify(outputDir)}}), /accepted French roles source/);`;
+    execFileSync(process.execPath, ['--import', register, '--input-type=module', '-e', code]);
     await assert.rejects(stat(outputDir), {code: 'ENOENT'});
   } finally {await rm(temporary, {recursive: true, force: true});}
 });
