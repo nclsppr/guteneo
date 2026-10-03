@@ -75,6 +75,11 @@ dont le job iPhone ; le commit ajoutant le verrou scanner exige sa propre CI.
 
 La CI complète doit réussir sur le candidat final, puis sur le commit fusionné
 dans `main`. Les preuves ciblées et historiques ne remplacent pas ces deux gates.
+Le commit fusionné `fd33771` a passé XCTest (28 tests unitaires, 8 tests
+d’interface) et l’archive non signée, mais sa première CI web a échoué sur la
+lecture française et sa relance sur le troisième clic du parcours PDF incertain.
+Le correctif de qualification tactile conserve toutes les assertions et exige
+une nouvelle CI complète sur sa PR puis sur le nouveau `main`.
 Le contrôle de publication exige `main` propre, synchronisé avec `origin/main`,
 ainsi que des assets et un manifeste correspondant exactement aux sources.
 

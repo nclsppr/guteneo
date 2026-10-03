@@ -506,6 +506,7 @@ test.describe("delivered public media", () => {
     for (const film of ["introduction", "roles"] as const) {
       test(`${film} ${locale} decodes and seeks its delivered final card without browser API mocks`, async ({
         page,
+        hasTouch,
       }) => {
         await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
         const section = page.locator(`[data-film="${film}"]`);
@@ -556,7 +557,10 @@ test.describe("delivered public media", () => {
             });
           }
         });
-        await section.locator(".homepage-film-play").click();
+        const play = section.locator(".homepage-film-play");
+        // Audible playback must begin with the project's actual input gesture.
+        if (hasTouch) await play.tap();
+        else await play.click();
         await expect
           .poll(
             () =>

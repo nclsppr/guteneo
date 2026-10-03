@@ -22,6 +22,17 @@ Every job uses lockfile-keyed `setup-node` npm download caching and still runs `
 
 The public-preview configuration uses one worker in CI too. Its real audible media cases share Linux GStreamer/audio resources; concurrent sessions have produced a fully buffered, visible, unpaused player whose clock never advanced. No decode, progression, duration, locale or final-frame assertion is removed, and production playback is unchanged. The application suite already uses one worker.
 
+On `main` run 37109071599, exclusive sessions did not eliminate the intermittent
+Linux WebKit media stall. The manual rerun instead failed the uncertain PDF
+request journey: three synthetic mouse clicks completed, but the third produced
+no request after the error notice collapsed and moved the form. Both failures
+and their traces remain evidence; their internal causes are not established.
+Phone projects now activate these real-media and explicit PDF-replay controls
+with Playwright's trusted touch gesture (`tap` when `hasTouch`), while desktop
+retains mouse clicks. No browser APIs are mocked in the delivered-media tests,
+and all clock/decode/seek and same-key/new-key assertions remain required.
+This is qualification of the intended device input, not proof of a WebKit fix.
+
 ## Measured baseline and candidate limits
 
 Baseline read from GitHub on 17 September 2026:

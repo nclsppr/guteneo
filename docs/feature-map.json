@@ -286,12 +286,13 @@
         "100 tentatives par mois calendaire ; quota atomique",
         "veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4",
         "Rapport sur octets exacts, historique et export JSON",
-        "Diagnostic via web/MCP et revue humaine obligatoire",
+        "Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé",
         "Activation HORIZON_ENABLED, validateur privé et scanner en production requis avant souscription/renouvellement ; pas une certification légale"
       ],
       "status": "Candidat intégré #41 · activation fermée",
       "tests": [
         "tests/unit/monthly-plan.test.ts",
+        "tests/e2e/horizon-pdf.spec.ts",
         "tests/unit/pdf-validation.test.ts",
         "tests/preview-e2e/geo.spec.ts",
         "tests/preview-e2e/seo.spec.ts"
@@ -435,7 +436,7 @@
       "steps": "Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.",
       "branch": "HORIZON · PR #41",
       "doc": "PDF_ACCESSIBILITY.md",
-      "failure": "Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
+      "failure": "Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
     },
     {
       "id": "J14",
