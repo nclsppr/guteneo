@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "file": "synthetic-100-pages-near-limit.pdf",
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "sizeBytes": 10366823,
+      "pageCount": 100,
+      "pdfVersion": "1.7",
+      "pageSize": "A4",
+      "imageCount": 100,
+      "imageDimensions": {
+        "width": 200,
+        "height": 160,
+        "colorSpace": "DeviceRGB",
+        "bitsPerComponent": 8
+      },
+      "profiles": [
+        {
+          "profile": "ua1",
+          "compliant": false,
+          "passedRules": 99,
+          "failedRules": 7,
+          "failedChecks": 24105,
+          "findings": [
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "6.2",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.1",
+              "testNumber": 3,
+              "failedChecks": 13600
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.1",
+              "testNumber": 8,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.1",
+              "testNumber": 10,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.1",
+              "testNumber": 11,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.2",
+              "testNumber": 34,
+              "failedChecks": 10500
+            },
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.21.4.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        },
+        {
+          "profile": "ua2",
+          "compliant": false,
+          "passedRules": 1720,
+          "failedRules": 7,
+          "failedChecks": 13606,
+          "findings": [
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "6.2",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.11.1",
+              "testNumber": 2,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.11.2",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.2.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.2.2",
+              "testNumber": 1,
+              "failedChecks": 13600
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.4.4",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "8.4.5.5.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        },
+        {
+          "profile": "1b",
+          "compliant": false,
+          "passedRules": 122,
+          "failedRules": 7,
+          "failedChecks": 13806,
+          "findings": [
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.1.3",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.2.3.3",
+              "testNumber": 1,
+              "failedChecks": 13800
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.3.4",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.7.2",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.7.3",
+              "testNumber": 2,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.7.3",
+              "testNumber": 3,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.7.3",
+              "testNumber": 6,
+              "failedChecks": 1
+            }
+          ]
+        },
+        {
+          "profile": "2b",
+          "compliant": false,
+          "passedRules": 140,
+          "failedRules": 4,
+          "failedChecks": 13803,
+          "findings": [
+            {
+              "specification": "ISO 19005-2:2011",
+              "clause": "6.1.3",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-2:2011",
+              "clause": "6.2.11.4.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-2:2011",
+              "clause": "6.2.4.3",
+              "testNumber": 2,
+              "failedChecks": 13800
+            },
+            {
+              "specification": "ISO 19005-2:2011",
+              "clause": "6.6.2.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        },
+        {
+          "profile": "3b",
+          "compliant": false,
+          "passedRules": 142,
+          "failedRules": 4,
+          "failedChecks": 13803,
+          "findings": [
+            {
+              "specification": "ISO 19005-3:2012",
+              "clause": "6.1.3",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-3:2012",
+              "clause": "6.2.11.4.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-3:2012",
+              "clause": "6.2.4.3",
+              "testNumber": 2,
+              "failedChecks": 13800
+            },
+            {
+              "specification": "ISO 19005-3:2012",
+              "clause": "6.6.2.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        },
+        {
+          "profile": "4",
+          "compliant": false,
+          "passedRules": 102,
+          "failedRules": 7,
+          "failedChecks": 13806,
+          "findings": [
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.1.2",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.1.3",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.1.3",
+              "testNumber": 4,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.1.3",
+              "testNumber": 5,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.2.10.4.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.2.4.3",
+              "testNumber": 2,
+              "failedChecks": 13800
+            },
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.7.2.1",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        }
+      ],
+      "source": {
+        "kind": "deterministic-generated",
+        "generator": "apps/pdf-validator/scripts/generate-benchmark-pdf.py",
+        "generatorVersion": 1,
+        "generatorSha256": "ecd79914caaf03cee6d4d3ef6a7e2959377e87ae951059758b138cad13b1402e",
+        "algorithm": "xorshift32 RGB noise with canonical stored DEFLATE blocks and exact PDF object/xref offsets"
+      },
+      "attribution": {
+        "holder": "Guteneo",
+        "notice": "Guteneo synthetic benchmark. All text, table values and image pixels generated specifically for qualification. No customer documents or external corpus assets."
+      }
+    }
+  ]
+}

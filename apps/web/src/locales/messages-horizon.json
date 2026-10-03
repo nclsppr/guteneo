@@ -441,6 +441,71 @@
     "Der Modus dieses Arbeitsbereichs ist nicht kompatibel.",
     "De Modus vun dësem Atelier ass net kompatibel."
   ],
+  "Disponible dans votre atelier": [
+    "Available in your workspace",
+    "In Ihrem Arbeitsbereich verfügbar",
+    "An Ärem Atelier disponibel"
+  ],
+  "Souscription indisponible": [
+    "Subscription unavailable",
+    "Buchung nicht verfügbar",
+    "Abonnement net disponibel"
+  ],
+  "Consultez votre atelier": [
+    "Check your workspace",
+    "Prüfen Sie Ihren Arbeitsbereich",
+    "Kuckt an Ärem Atelier"
+  ],
+  "L’administrateur peut souscrire dans l’atelier avec au moins 30 € de crédits disponibles. Les contrôles sont ensuite accessibles aux membres autorisés.": [
+    "The administrator can subscribe in the workspace with at least €30 in available credits. Checks are then available to authorised members.",
+    "Der Administrator kann den Tarif im Arbeitsbereich mit mindestens 30 € verfügbarem Guthaben buchen. Prüfungen sind anschließend für berechtigte Mitglieder verfügbar.",
+    "Den Administrateur kann am Atelier mat op d’mannst 30 € verfügbare Kredit abonnéieren. D’Kontrolle sinn duerno fir autoriséiert Memberen disponibel."
+  ],
+  "La souscription et les contrôles PDF sont actuellement indisponibles. Consultez l’offre dans votre atelier.": [
+    "Subscriptions and PDF checks are currently unavailable. View the offer in your workspace.",
+    "Buchungen und PDF-Prüfungen sind derzeit nicht verfügbar. Sehen Sie sich das Angebot in Ihrem Arbeitsbereich an.",
+    "D’Abonnement an d’PDF-Kontrolle sinn den Ament net disponibel. Kuckt d’Offer an Ärem Atelier."
+  ],
+  "La disponibilité du forfait est confirmée dans votre atelier avant toute souscription.": [
+    "Plan availability is confirmed in your workspace before you subscribe.",
+    "Die Verfügbarkeit des Tarifs wird in Ihrem Arbeitsbereich vor einer Buchung bestätigt.",
+    "D’Disponibilitéit vum Abonnement gëtt an Ärem Atelier bestätegt, ier Dir abonnéiert."
+  ],
+  "Horizon comprend les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle est accessible depuis le plugin de votre assistant lorsque le service et le forfait sont actifs.": [
+    "Horizon includes PDF/UA-1 and PDF/UA-2, PDF/A-1b, 2b, 3b and 4 checks, reports linked to the original PDF and a manual review checklist. The same check is available through your assistant’s plugin when the service and plan are active.",
+    "Horizon umfasst PDF/UA-1- und PDF/UA-2-, PDF/A-1b-, 2b-, 3b- und 4-Prüfungen, Berichte zum Original-PDF und eine Liste manuell zu prüfender Punkte. Dieselbe Prüfung ist über das Plugin Ihres Assistenten verfügbar, wenn der Dienst und der Tarif aktiv sind.",
+    "Horizon enthält PDF/UA-1- a PDF/UA-2-, PDF/A-1b-, 2b-, 3b- a 4-Kontrollen, Rapporten zum Original-PDF an eng Lëscht vu Punkten, déi manuell ze iwwerpréiwe sinn. Déiselwecht Kontroll ass iwwer de Plugin vun Ärem Assistent disponibel, wann de Service an d’Abonnement aktiv sinn."
+  ],
+  "Le forfait de 30 € par mois est prélevé sur les crédits disponibles du compte. Seul l’administrateur peut souscrire, résilier ou gérer la facturation.": [
+    "The €30 monthly plan is deducted from the account’s available credits. Only the administrator can subscribe, cancel or manage billing.",
+    "Der Tarif für 30 € pro Monat wird vom verfügbaren Kontoguthaben abgezogen. Nur der Administrator kann buchen, kündigen oder die Rechnungen verwalten.",
+    "D’Abonnement fir 30 € pro Mount gëtt vun de verfügbare Kontkreditter ofgezunn. Nëmmen den Administrateur kann abonnéieren, kënnegen oder d’Facturatioun verwalten."
+  ],
+  "Consultez l’offre dans votre atelier pour vérifier la disponibilité du service avant de souscrire.": [
+    "View the offer in your workspace to check service availability before subscribing.",
+    "Prüfen Sie das Angebot in Ihrem Arbeitsbereich, um die Verfügbarkeit des Dienstes vor einer Buchung zu bestätigen.",
+    "Kuckt d’Offer an Ärem Atelier, fir d’Disponibilitéit vum Service ze kontrolléieren, ier Dir abonnéiert."
+  ],
+  "Si votre compte dispose encore d’au moins 30 € de crédits promotionnels, ils peuvent financer la première période. Ce montant est déduit de votre solde.": [
+    "If your account still has at least €30 in promotional credits, they can fund the first period. This amount is deducted from your balance.",
+    "Wenn Ihr Konto noch mindestens 30 € Aktionsguthaben enthält, kann es den ersten Zeitraum finanzieren. Dieser Betrag wird von Ihrem Guthaben abgezogen.",
+    "Wann Äre Kont nach op d’mannst 30 € Promotiounskredit huet, kann dëse Kredit déi éischt Period finanzéieren. Dës Zomm gëtt vun Ärem Solde ofgezunn."
+  ],
+  "Sans 30 € de crédits disponibles à l’échéance, le renouvellement est suspendu à la fin de la période payée, sans dette ni solde négatif. La recharge de crédits n’est pas encore disponible.": [
+    "Without €30 in available credits when the period ends, renewal is suspended at the end of the paid period, without debt or a negative balance. Credit top-ups are not available yet.",
+    "Ohne 30 € verfügbares Guthaben bei Fälligkeit wird die Verlängerung am Ende des bezahlten Zeitraums ausgesetzt, ohne Schulden oder einen negativen Saldo. Guthabenaufladungen sind noch nicht verfügbar.",
+    "Ouni 30 € verfügbare Kredit bei der Fällegkeet gëtt d’Erneierung um Enn vun der bezuelter Period ausgesat, ouni Schold oder negative Solde. Kredit oplueden ass nach net méiglech."
+  ],
+  "Il faut au moins 30 € de crédits disponibles pour souscrire. La recharge de crédits n’est pas encore disponible.": [
+    "You need at least €30 in available credits to subscribe. Credit top-ups are not available yet.",
+    "Zur Buchung sind mindestens 30 € verfügbares Guthaben erforderlich. Guthabenaufladungen sind noch nicht verfügbar.",
+    "Dir braucht op d’mannst 30 € verfügbare Kredit fir ze abonnéieren. Kredit oplueden ass nach net méiglech."
+  ],
+  "Le service Horizon est actuellement indisponible. Actualisez l’offre dans votre atelier avant de recommencer.": [
+    "The Horizon service is currently unavailable. Refresh the offer in your workspace before trying again.",
+    "Der Horizon-Dienst ist derzeit nicht verfügbar. Aktualisieren Sie das Angebot in Ihrem Arbeitsbereich, bevor Sie es erneut versuchen.",
+    "Den Horizon-Service ass den Ament net disponibel. Aktualiséiert d’Offer an Ärem Atelier, ier Dir nach eng Kéier probéiert."
+  ],
   "Repérez les obstacles dans vos PDF avant de les partager.": [
     "Find barriers in your PDFs before sharing them.",
     "Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen.",

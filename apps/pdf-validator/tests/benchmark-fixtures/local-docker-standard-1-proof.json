@@ -1,0 +1,1235 @@
+{
+  "observedAt": "2026-10-03T13:21:21.146942+00:00",
+  "evidence": "local Docker; synthetic and official pinned reference PDFs; no hosted deployment or customer data",
+  "imageId": "sha256:ae8a2523611c2f72763856a61808662cbd83fbdf2a44a586d10170c64b5ac840",
+  "runtimeNetwork": "none",
+  "readOnlyRoot": true,
+  "instanceType": "standard-1",
+  "resourceLimits": {
+    "cpu": 0.5,
+    "memoryBytes": 4294967296,
+    "diskGb": 8,
+    "swapDisabled": true
+  },
+  "cloudflareInstanceSource": "https://developers.cloudflare.com/containers/platform/pricing/",
+  "javaOptions": "-Xmx384m -Djava.awt.headless=true",
+  "imageSizeBytes": 263162748,
+  "temporaryFilesRemaining": 0,
+  "containerLogsEmpty": true,
+  "health": {
+    "status": "ready",
+    "engine": {
+      "name": "veraPDF",
+      "version": "1.30.2"
+    }
+  },
+  "profiles": {
+    "ua1": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "ua1",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 99,
+      "failedRules": 7,
+      "failedChecks": 7,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 8,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 11,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.21.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.2",
+          "testNumber": 34,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 10,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 3,
+          "failedChecks": 1
+        }
+      ]
+    },
+    "ua2": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "ua2",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 1720,
+      "failedRules": 7,
+      "failedChecks": 7,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.5.5.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.1",
+          "testNumber": 2,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    "1b": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "1b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 119,
+      "failedRules": 10,
+      "failedChecks": 11,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 6,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 7,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.3.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 8,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 2,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.1.4",
+          "testNumber": 3,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.2.3.3",
+          "testNumber": 1,
+          "failedChecks": 2
+        }
+      ]
+    },
+    "2b": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "2b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 140,
+      "failedRules": 4,
+      "failedChecks": 5,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 2
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    "3b": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "3b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 142,
+      "failedRules": 4,
+      "failedChecks": 5,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 2
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    "4": {
+      "sha256": "88fdb8d4ebddb9c9f7d09c02aeb6062c338a2635b9df6c2beeb6bad96abdb104",
+      "profile": "4",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 102,
+      "failedRules": 7,
+      "failedChecks": 8,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 2
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.7.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 4,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 5,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.10.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    }
+  },
+  "rejections": {
+    "unknownProfile": {
+      "status": 400,
+      "code": "INVALID_PROFILE"
+    },
+    "urlParameter": {
+      "status": 400,
+      "code": "INVALID_PROFILE"
+    },
+    "wrongMedia": {
+      "status": 415,
+      "code": "PDF_CONTENT_TYPE_REQUIRED"
+    },
+    "oversizedDeclaration": {
+      "status": 413,
+      "code": "BODY_TOO_LARGE"
+    },
+    "invalidPdf": {
+      "status": 400,
+      "code": "INVALID_PDF"
+    },
+    "incompletePdf": {
+      "status": 503,
+      "code": "VALIDATION_INCOMPLETE"
+    }
+  },
+  "coldHealth": {
+    "milliseconds": 17142,
+    "cpuMicroseconds": 1290876,
+    "peakMemoryBytes": 127729664
+  },
+  "compliantPdfa2b": {
+    "sha256": "3ee99f049df0223adbfd754493e98b1d1b5e90960c3714c5217a766ec2cdbf50",
+    "profile": "2b",
+    "engine": {
+      "name": "veraPDF",
+      "version": "1.30.2"
+    },
+    "compliant": true,
+    "passedRules": 144,
+    "failedRules": 0,
+    "failedChecks": 0,
+    "truncated": false,
+    "findings": []
+  },
+  "references": [
+    {
+      "id": "verapdf-ua1-pass",
+      "milliseconds": 15778,
+      "cpuMicroseconds": 3186896,
+      "sha256": "60f13bd812e3b5c8abd19c5ed01cc447dd433cc3b48e0b07cf5105067f8ffdf9",
+      "profile": "ua1",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 106,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-ua1-fail",
+      "milliseconds": 15888,
+      "cpuMicroseconds": 3255303,
+      "sha256": "7f6b4eaeb06a35d14d0352919e0f58b44833962e323811ac4737f8a45c6621cb",
+      "profile": "ua1",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 105,
+      "failedRules": 1,
+      "failedChecks": 2,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 3,
+          "failedChecks": 2
+        }
+      ]
+    },
+    {
+      "id": "verapdf-ua2-pass",
+      "milliseconds": 16001,
+      "cpuMicroseconds": 3337830,
+      "sha256": "909b4eeed185f5dc57ed510e2c66d7f0c9eecc2665681b1465689fd28f7fdaff",
+      "profile": "ua2",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 1727,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-ua2-fail",
+      "milliseconds": 16126,
+      "cpuMicroseconds": 3241550,
+      "sha256": "71b6a2212b91d7de0e06d5c87f33e899b79ff27dd7086155ada672817ee6b8f9",
+      "profile": "ua2",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 1726,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "5",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-1b-pass",
+      "milliseconds": 15278,
+      "cpuMicroseconds": 2942300,
+      "sha256": "97e30bd4477b02f139dfed1613346a09491babd3d9297d989df5829c2ecd1a48",
+      "profile": "1b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 129,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-1b-fail",
+      "milliseconds": 15618,
+      "cpuMicroseconds": 3154198,
+      "sha256": "27cea05ddaf18404c6beaa997a5dd23b483bc127a1ca6577d8c00e868b3d29e6",
+      "profile": "1b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 128,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.2.3.3",
+          "testNumber": 3,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-2b-pass",
+      "milliseconds": 15295,
+      "cpuMicroseconds": 2960033,
+      "sha256": "7db294af5f6572c2b009a57de9d629cbf231d1c3f43b7b895cf487eeb71cf788",
+      "profile": "2b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 144,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-2b-fail",
+      "milliseconds": 15600,
+      "cpuMicroseconds": 3073350,
+      "sha256": "9bbe29a8a4834073d2d16d8ba70d566620f14da826be377d89e856b7a5fef009",
+      "profile": "2b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 143,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.1.2",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-3b-pass",
+      "milliseconds": 15298,
+      "cpuMicroseconds": 2903889,
+      "sha256": "5b8fdee7090f0a0fb7266d10dd0f6f1f8a37d286e3c06b1aa82e01d6d4f0a8a4",
+      "profile": "3b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 146,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-3b-fail",
+      "milliseconds": 15506,
+      "cpuMicroseconds": 3112534,
+      "sha256": "0dc9b74e825a504226bf95a768eb171cf11b9c880a43cfc275f49c2a934312e4",
+      "profile": "3b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 145,
+      "failedRules": 1,
+      "failedChecks": 2,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.8",
+          "testNumber": 4,
+          "failedChecks": 2
+        }
+      ]
+    },
+    {
+      "id": "verapdf-4-pass",
+      "milliseconds": 14904,
+      "cpuMicroseconds": 2763065,
+      "sha256": "781ac228f26df7e2a29e010b9cc3103898acab60638f15f2034ac2100e389646",
+      "profile": "4",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": true,
+      "passedRules": 109,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "truncated": false,
+      "findings": []
+    },
+    {
+      "id": "verapdf-4-fail",
+      "milliseconds": 15204,
+      "cpuMicroseconds": 2988242,
+      "sha256": "29937e700e869402a10f01bb8c14f14c6a19bd029a088808c44cd8a736c1dec9",
+      "profile": "4",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 108,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.12",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 18513,
+      "cpuMicroseconds": 4399465,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "ua1",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 99,
+      "failedRules": 7,
+      "failedChecks": 24105,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 3,
+          "failedChecks": 13600
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 11,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 8,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.2",
+          "testNumber": 34,
+          "failedChecks": 10500
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.21.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 10,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 18380,
+      "cpuMicroseconds": 4476196,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "ua2",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 1720,
+      "failedRules": 7,
+      "failedChecks": 13606,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.5.5.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.2",
+          "testNumber": 1,
+          "failedChecks": 13600
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.1",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 19598,
+      "cpuMicroseconds": 5162542,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "1b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 122,
+      "failedRules": 7,
+      "failedChecks": 13806,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 2,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.2.3.3",
+          "testNumber": 1,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 3,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.3.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 6,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 18938,
+      "cpuMicroseconds": 4837334,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "2b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 140,
+      "failedRules": 4,
+      "failedChecks": 13803,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 18966,
+      "cpuMicroseconds": 4895751,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "3b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 142,
+      "failedRules": 4,
+      "failedChecks": 13803,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "guteneo-synthetic-100-pages-near-limit",
+      "milliseconds": 18737,
+      "cpuMicroseconds": 4727404,
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "4",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 102,
+      "failedRules": 7,
+      "failedChecks": 13806,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 5,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 4,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.7.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.10.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    }
+  ],
+  "concurrency": [
+    {
+      "status": 503,
+      "code": "VALIDATOR_BUSY"
+    },
+    {
+      "status": 200,
+      "code": null
+    }
+  ],
+  "syntheticProcessDeadline": {
+    "code": "VALIDATION_TIMEOUT",
+    "temporaryDirectories": 0
+  },
+  "timings": [
+    {
+      "path": "/health",
+      "status": 200,
+      "milliseconds": 2,
+      "cpuMicroseconds": 1603,
+      "peakMemoryBytes": 127729664
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 200,
+      "milliseconds": 14788,
+      "cpuMicroseconds": 2713323,
+      "peakMemoryBytes": 130793472
+    },
+    {
+      "path": "/validate?profile=ua2",
+      "status": 200,
+      "milliseconds": 15069,
+      "cpuMicroseconds": 2711440,
+      "peakMemoryBytes": 130793472
+    },
+    {
+      "path": "/validate?profile=1b",
+      "status": 200,
+      "milliseconds": 15131,
+      "cpuMicroseconds": 2944591,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 15575,
+      "cpuMicroseconds": 3129702,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=3b",
+      "status": 200,
+      "milliseconds": 15192,
+      "cpuMicroseconds": 2968047,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=4",
+      "status": 200,
+      "milliseconds": 15411,
+      "cpuMicroseconds": 3076014,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 15723,
+      "cpuMicroseconds": 3187575,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 200,
+      "milliseconds": 15778,
+      "cpuMicroseconds": 3186896,
+      "peakMemoryBytes": 133267456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 200,
+      "milliseconds": 15888,
+      "cpuMicroseconds": 3255303,
+      "peakMemoryBytes": 134402048
+    },
+    {
+      "path": "/validate?profile=ua2",
+      "status": 200,
+      "milliseconds": 16001,
+      "cpuMicroseconds": 3337830,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=ua2",
+      "status": 200,
+      "milliseconds": 16126,
+      "cpuMicroseconds": 3241550,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=1b",
+      "status": 200,
+      "milliseconds": 15278,
+      "cpuMicroseconds": 2942300,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=1b",
+      "status": 200,
+      "milliseconds": 15618,
+      "cpuMicroseconds": 3154198,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 15295,
+      "cpuMicroseconds": 2960033,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 15600,
+      "cpuMicroseconds": 3073350,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=3b",
+      "status": 200,
+      "milliseconds": 15298,
+      "cpuMicroseconds": 2903889,
+      "peakMemoryBytes": 137969664
+    },
+    {
+      "path": "/validate?profile=3b",
+      "status": 200,
+      "milliseconds": 15506,
+      "cpuMicroseconds": 3112534,
+      "peakMemoryBytes": 146333696
+    },
+    {
+      "path": "/validate?profile=4",
+      "status": 200,
+      "milliseconds": 14904,
+      "cpuMicroseconds": 2763065,
+      "peakMemoryBytes": 146333696
+    },
+    {
+      "path": "/validate?profile=4",
+      "status": 200,
+      "milliseconds": 15204,
+      "cpuMicroseconds": 2988242,
+      "peakMemoryBytes": 146333696
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 200,
+      "milliseconds": 18513,
+      "cpuMicroseconds": 4399465,
+      "peakMemoryBytes": 196616192
+    },
+    {
+      "path": "/validate?profile=ua2",
+      "status": 200,
+      "milliseconds": 18380,
+      "cpuMicroseconds": 4476196,
+      "peakMemoryBytes": 196616192
+    },
+    {
+      "path": "/validate?profile=1b",
+      "status": 200,
+      "milliseconds": 19598,
+      "cpuMicroseconds": 5162542,
+      "peakMemoryBytes": 196616192
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 18938,
+      "cpuMicroseconds": 4837334,
+      "peakMemoryBytes": 196616192
+    },
+    {
+      "path": "/validate?profile=3b",
+      "status": 200,
+      "milliseconds": 18966,
+      "cpuMicroseconds": 4895751,
+      "peakMemoryBytes": 196616192
+    },
+    {
+      "path": "/validate?profile=4",
+      "status": 200,
+      "milliseconds": 18737,
+      "cpuMicroseconds": 4727404,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 503,
+      "milliseconds": 1,
+      "cpuMicroseconds": 2238,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=2b",
+      "status": 200,
+      "milliseconds": 15394,
+      "cpuMicroseconds": 3092090,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/qualification/process-deadline",
+      "status": 200,
+      "milliseconds": 53,
+      "cpuMicroseconds": 11866,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=unknown",
+      "status": 400,
+      "milliseconds": 6,
+      "cpuMicroseconds": 1442,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=ua1&url=https://example.org",
+      "status": 400,
+      "milliseconds": 1,
+      "cpuMicroseconds": 1031,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 415,
+      "milliseconds": 1,
+      "cpuMicroseconds": 1228,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 413,
+      "milliseconds": 1,
+      "cpuMicroseconds": 1198,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 400,
+      "milliseconds": 1,
+      "cpuMicroseconds": 1164,
+      "peakMemoryBytes": 201875456
+    },
+    {
+      "path": "/validate?profile=ua1",
+      "status": 503,
+      "milliseconds": 13738,
+      "cpuMicroseconds": 2194047,
+      "peakMemoryBytes": 201875456
+    }
+  ],
+  "resourcesObserved": {
+    "cpuMicroseconds": 93670751,
+    "memoryBytes": 50794496,
+    "peakMemoryBytes": 201875456
+  }
+}

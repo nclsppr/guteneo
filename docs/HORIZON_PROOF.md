@@ -1,5 +1,36 @@
 # Horizon candidate — executed evidence and release gaps
 
+3 October update: `c5cc0dd` and migrations 0050/0051 are now published and verified;
+the exact main CI is green. Nicolas authorizes qualification and activation on
+available credits, with commercial completion and recharge deferred. The
+[opening decision](HORIZON_OPENING_2026_10_03.md) records this scope. Hosted engine
+qualification, customer browser consent and post-activation evidence must still
+be recorded separately; the original dated local evidence below is preserved.
+
+The 3 October local Docker batch adds twelve official, pinned positive/negative
+references spanning all six profiles. Image
+`sha256:ae8a2523611c2f72763856a61808662cbd83fbdf2a44a586d10170c64b5ac840`
+passed the read-only, non-root, network-disabled batch, including concurrency,
+rejections, harmless synthetic process-deadline cleanup and empty logs. A
+reproducible non-root startup failure caused by copied file permissions was fixed
+before this successful batch. See
+[the new local proof](../apps/pdf-validator/tests/references/local-docker-proof.json)
+and [the private hosted guide](../apps/pdf-validator/qualification/README.md).
+No hosted Cloudflare engine execution or live account debit is claimed by this
+local batch; the process-deadline self-test does not claim a Java PDF timeout.
+
+The subsequent resource comparison selects `basic` (0.25 vCPU, 1 GiB RAM,
+4 GB disk), one instance and five-second idle sleep. With the unchanged engine,
+heap and deadlines, JVM startup tuning reduces the complete reference and
+100-page benchmark batch's measured request CPU by 47.25%. All six large-file
+results remain exact; the maximum warm request is 20.289 seconds and observed
+peak memory is 165.75 MiB. The smaller `lite` configuration was actually tested
+and did not become ready within the bounded local probe. These remain local
+measurements, not hosted latency or billing evidence. See
+[resource proofs](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
+and [cost assumptions](HORIZON_COSTS.md). Hosted qualification must also observe
+the real cold large-file request, automatic idle stop and wake-up.
+
 Prepared on 2 October 2026 in the isolated branch
 `codex/pdf-accessibility-horizon`, initially based on `origin/main` at
 `8b060bbd805e1778f62ba795c1e6d942092bb670`, then reconciled with template-studio
@@ -128,7 +159,12 @@ The PR workflow separately executes the complete 96-file inventory on its exact
 head. Results from the earlier 85-file inventory above are preserved as historical
 local evidence; they do not substitute for the reconciled PR's CI.
 
-## Before a public launch
+## Original 2 October launch checklist
+
+The 3 October opening decision above supplies the authorization and defers
+commercial completion. The current execution order is in the
+[activation runbook](HORIZON_ACTIVATION_RUNBOOK.md); this original checklist is
+retained as dated evidence.
 
 - Obtain explicit authorization for private service provisioning/binding,
   production migrations and deployment. Keep `HORIZON_ENABLED` absent/false until

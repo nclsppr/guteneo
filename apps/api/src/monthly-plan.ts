@@ -46,7 +46,8 @@ export type HorizonStatus = {
 function fail(code: string, message: string, status = 400): never {
   throw new DomainError(code, message, status);
 }
-function enabled(env: HorizonEnv): boolean {
+/** Configuration readiness shared by public capabilities and account gates. */
+export function horizonAvailable(env: HorizonEnv): boolean {
   return (
     env.HORIZON_ENABLED === "true" &&
     Boolean(env.PDF_VALIDATOR) &&
@@ -55,7 +56,7 @@ function enabled(env: HorizonEnv): boolean {
   );
 }
 function requireEnabled(env: HorizonEnv): void {
-  if (!enabled(env))
+  if (!horizonAvailable(env))
     fail(
       "HORIZON_UNAVAILABLE",
       "Le forfait Horizon n’est pas encore disponible pour cet espace.",
@@ -100,13 +101,13 @@ export async function getHorizonStatus(
   return {
     plan: HORIZON_PLAN,
     termsVersion: HORIZON_TERMS_VERSION,
-    enabled: enabled(env),
+    enabled: horizonAvailable(env),
     status:
       row?.status === "active" && row.current_period_end <= now
         ? "past_due"
         : (row?.status ?? "inactive"),
     entitled:
-      enabled(env) &&
+      horizonAvailable(env) &&
       Boolean(
         row &&
         ["active", "cancelled"].includes(row.status) &&
@@ -344,7 +345,7 @@ export async function renewHorizonPlans(
   env: HorizonEnv,
   now = new Date(),
 ): Promise<void> {
-  if (!enabled(env)) return;
+  if (!horizonAvailable(env)) return;
   const timestamp = now.toISOString();
   const rows = await env.DB.prepare(
     "SELECT s.organization_id,s.evidence,s.status,s.current_period_start,s.current_period_end,s.cancel_at_period_end,s.anchor_day FROM horizon_subscriptions s LEFT JOIN horizon_available_credits b ON b.organization_id=s.organization_id AND b.evidence=s.evidence WHERE s.evidence=? AND (s.status='active' OR (s.status='past_due' AND b.available_minor>=3000)) AND s.cancel_at_period_end=0 AND s.current_period_end<=? ORDER BY s.current_period_end,s.organization_id LIMIT 100",

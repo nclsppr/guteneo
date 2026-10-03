@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "kind": "local-docker-resource-comparison",
+  "observedAt": "2026-10-03T13:26:07.856845+00:00",
+  "hosted": false,
+  "source": "https://developers.cloudflare.com/containers/platform/pricing/",
+  "engine": {
+    "name": "veraPDF",
+    "version": "1.30.2"
+  },
+  "budgets": {
+    "workerMilliseconds": 45000,
+    "processMilliseconds": 40000,
+    "engineVersionMilliseconds": 20000,
+    "bodyMilliseconds": 5000
+  },
+  "candidate": {
+    "instanceType": "basic",
+    "idleSeconds": 5,
+    "javaHeapMiB": 384
+  },
+  "imageSizeDecision": {
+    "bytes": 263162748,
+    "retainJavaCds": true,
+    "reason": "Removing 11.7 MB Python caches would not reduce the provisioned 4 GB disk and can slow imports; preserve verified Java modules/fonts/CDS."
+  },
+  "runs": [
+    {
+      "instanceType": "standard-1",
+      "imageId": "sha256:ae8a2523611c2f72763856a61808662cbd83fbdf2a44a586d10170c64b5ac840",
+      "javaOptions": "-Xmx384m -Djava.awt.headless=true",
+      "resources": {
+        "cpu": 0.5,
+        "memoryBytes": 4294967296,
+        "diskGb": 8,
+        "swapDisabled": true
+      },
+      "proofFile": "local-docker-standard-1-proof.json",
+      "proofSha256": "aca2a755110ce1c98d316aeaa62900456889313833775e7ce44e6cda30788fa6",
+      "coldHealthMilliseconds": 17142,
+      "coldStartupCpuSecondsUpperEstimate": 2.21427,
+      "requestCpuSeconds": 91.456481,
+      "wholeBatchCpuSeconds": 93.670751,
+      "peakMemoryBytes": 201875456,
+      "referenceCount": 12,
+      "benchmarkProfileCount": 6,
+      "benchmarkFile": {
+        "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+        "pageCount": 100,
+        "sizeBytes": 10366823
+      },
+      "benchmarkProfiles": [
+        {
+          "profile": "ua1",
+          "milliseconds": 18513,
+          "cpuSeconds": 4.399465
+        },
+        {
+          "profile": "ua2",
+          "milliseconds": 18380,
+          "cpuSeconds": 4.476196
+        },
+        {
+          "profile": "1b",
+          "milliseconds": 19598,
+          "cpuSeconds": 5.162542
+        },
+        {
+          "profile": "2b",
+          "milliseconds": 18938,
+          "cpuSeconds": 4.837334
+        },
+        {
+          "profile": "3b",
+          "milliseconds": 18966,
+          "cpuSeconds": 4.895751
+        },
+        {
+          "profile": "4",
+          "milliseconds": 18737,
+          "cpuSeconds": 4.727404
+        }
+      ],
+      "cleanup": {
+        "temporaryDirectories": 0,
+        "logsEmpty": true
+      }
+    },
+    {
+      "instanceType": "basic",
+      "imageId": "sha256:e2a8edd58c410cd9639b3350ee66d573cc7b0c7b6409bfed4d5a45f4715af1ca",
+      "javaOptions": "-Xms32m -Xmx384m -XX:ActiveProcessorCount=1 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Djava.awt.headless=true",
+      "resources": {
+        "cpu": 0.25,
+        "memoryBytes": 1073741824,
+        "diskGb": 4,
+        "swapDisabled": true
+      },
+      "proofFile": "local-docker-basic-proof.json",
+      "proofSha256": "3e5bcf2b8839aaa92174e8493dc5f705c990086f4c5e30075f91e55181e254e4",
+      "coldHealthMilliseconds": 17753,
+      "coldStartupCpuSecondsUpperEstimate": 1.27812,
+      "requestCpuSeconds": 48.243814,
+      "wholeBatchCpuSeconds": 49.521934,
+      "peakMemoryBytes": 173797376,
+      "referenceCount": 12,
+      "benchmarkProfileCount": 6,
+      "benchmarkFile": {
+        "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+        "pageCount": 100,
+        "sizeBytes": 10366823
+      },
+      "benchmarkProfiles": [
+        {
+          "profile": "ua1",
+          "milliseconds": 18913,
+          "cpuSeconds": 2.272772
+        },
+        {
+          "profile": "ua2",
+          "milliseconds": 19211,
+          "cpuSeconds": 2.347772
+        },
+        {
+          "profile": "1b",
+          "milliseconds": 20018,
+          "cpuSeconds": 2.541646
+        },
+        {
+          "profile": "2b",
+          "milliseconds": 20289,
+          "cpuSeconds": 2.585616
+        },
+        {
+          "profile": "3b",
+          "milliseconds": 19973,
+          "cpuSeconds": 2.526203
+        },
+        {
+          "profile": "4",
+          "milliseconds": 19410,
+          "cpuSeconds": 2.405716
+        }
+      ],
+      "cleanup": {
+        "temporaryDirectories": 0,
+        "logsEmpty": true
+      }
+    }
+  ],
+  "idleEconomics": {
+    "basicMemoryAndDiskUsdPerSecond": 2.78e-06,
+    "cpuUsdPerSecond": 2e-05,
+    "measuredStartupCpuSecondsUpperEstimate": 1.27812,
+    "measuredStartupUsdUpperEstimate": 2.55624e-05,
+    "idleBreakEvenSeconds": 9.195,
+    "idleScenarios": [
+      {
+        "seconds": 1,
+        "memoryAndDiskUsd": 2.78e-06
+      },
+      {
+        "seconds": 5,
+        "memoryAndDiskUsd": 1.39e-05
+      },
+      {
+        "seconds": 10,
+        "memoryAndDiskUsd": 2.78e-05
+      },
+      {
+        "seconds": 20,
+        "memoryAndDiskUsd": 5.56e-05
+      },
+      {
+        "seconds": 120,
+        "memoryAndDiskUsd": 0.0003336
+      }
+    ],
+    "interpretation": "Docker cgroup difference includes Python/qualification overhead; this is an upper estimate, not hosted bill telemetry. Five seconds preserves short bursts; true automatic stop/wake remains a hosted release gate."
+  },
+  "excludedCandidates": [
+    {
+      "instanceType": "lite",
+      "cpu": 0.0625,
+      "memoryBytes": 268435456,
+      "diskGb": 2,
+      "proofFile": "local-docker-lite-failure.json",
+      "proofSha256": "019ba295ebe268bf7018bcb0de23feb8ea40a966b898d0d8109f9d0be045f6ee",
+      "observedFailure": "Actual engine remained unready within the 30-second local cold readiness probe while the CLI version deadline remained 20 seconds. No successful validation report was produced.",
+      "interpretation": "Local exclusion at the offered lite resource limits, not a claim of hosted measurement; heap stayed 384 MiB and all budgets stayed unchanged."
+    }
+  ]
+}

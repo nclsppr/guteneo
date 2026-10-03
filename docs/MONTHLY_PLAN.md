@@ -1,5 +1,13 @@
 # guteneo Horizon — monthly account-credit plan
 
+3 October opening decision: the application and migrations are published, and
+Nicolas authorizes private-service qualification and activation using available
+credits. Replenishment and commercial completion are deferred. This does not
+make recharge available or change the EUR30 recurring browser consent, protected
+credit reservations, insufficient-funds suspension or debt-free behaviour.
+See [the opening decision and remaining evidence](HORIZON_OPENING_2026_10_03.md).
+The candidate notes below remain dated implementation evidence.
+
 Local candidate, 2 October 2026. The common name is **guteneo Horizon** in French,
 English, German and Luxembourgish. The price is **EUR30 per calendar month**, stored
 as integer `3000` minor units. This candidate does not activate production, create

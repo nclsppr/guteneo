@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-03T13:25:21.710746+00:00",
+  "status": "failed",
+  "evidence": "local Docker resource qualification; non-customer PDFs",
+  "image": "guteneo-pdf-validator:basic-candidate",
+  "instanceType": "lite",
+  "resourceLimits": {
+    "cpu": 0.0625,
+    "memoryBytes": 268435456,
+    "diskGb": 2,
+    "swapDisabled": true
+  },
+  "failure": "LOCAL_DOCKER_PROOF_FAILED: Traceback (most recent call last):\n  File \"<string>\", line 29, in <module>\n    if time.monotonic()>deadline:raise RuntimeError(\"LOCAL_ENGINE_NOT_READY\")\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: LOCAL_ENGINE_NOT_READY\n"
+}

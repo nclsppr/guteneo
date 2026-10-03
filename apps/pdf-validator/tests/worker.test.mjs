@@ -240,6 +240,71 @@ test("private errors retain only known fixed codes", async () => {
   assert.deepEqual(await response.json(), { code: "VALIDATOR_UNAVAILABLE" });
 });
 
+test("worker response deadline completes even when the private binding ignores cancellation", async () => {
+  const timeout = AbortSignal.timeout;
+  const deadline = new AbortController();
+  let entered;
+  const started = new Promise((resolve) => {
+    entered = resolve;
+  });
+  let release;
+  const provider = new Promise((resolve) => {
+    release = resolve;
+  });
+  let calls = 0;
+  let cancelled = 0;
+  try {
+    AbortSignal.timeout = (milliseconds) => {
+      assert.equal(milliseconds, 45000);
+      return deadline.signal;
+    };
+    const pending = handleRequest(
+      new Request("https://validator.internal/health"),
+      {
+        PDF_VALIDATOR_CONTAINER: {
+          getByName: () => ({
+            fetch: () => {
+              calls++;
+              entered();
+              return provider;
+            },
+          }),
+        },
+      },
+    );
+    await started;
+    deadline.abort();
+    const response = await Promise.race([
+      pending,
+      new Promise((_resolve, reject) =>
+        setTimeout(
+          () => reject(new Error("Deadline waited for uncooperative binding")),
+          1000,
+        ),
+      ),
+    ]);
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { code: "VALIDATION_TIMEOUT" });
+    assert.equal(calls, 1);
+    release(
+      new Response(
+        new ReadableStream({
+          cancel() {
+            cancelled++;
+          },
+        }),
+        { headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(cancelled, 1);
+    assert.equal(calls, 1);
+  } finally {
+    AbortSignal.timeout = timeout;
+    deadline.abort();
+  }
+});
+
 test("deployment contract is private, bounded, offline and pinned", () => {
   const { config, error } = ts.parseConfigFileTextToJson(
     "wrangler.jsonc",
@@ -251,6 +316,7 @@ test("deployment contract is private, bounded, offline and pinned", () => {
   assert.deepEqual(config.routes, []);
   assert.equal(config.observability.enabled, false);
   assert.equal(config.containers[0].max_instances, 1);
+  assert.equal(config.containers[0].instance_type, "basic");
   assert.equal(config.containers[0].constraints.jurisdiction, "eu");
   assert.match(
     readFileSync(new URL("src/index.ts", validator), "utf8"),

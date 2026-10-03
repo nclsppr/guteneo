@@ -1,17 +1,20 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "guteneo-pdf-validator",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "preview_urls": false,
   "routes": [],
+  "vars": { "QUALIFICATION_ENABLED": "false", "SOURCE_COMMIT": "" },
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "containers": [
     {
       "class_name": "PdfValidatorContainer",
       "image": "./Dockerfile",
-      "instance_type": "standard-1",
+      "instance_type": "basic",
       "max_instances": 1,
       "constraints": { "jurisdiction": "eu" },
     },

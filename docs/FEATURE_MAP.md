@@ -48,7 +48,9 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Approuver / confirmer / annuler | Oui | Option Approbation | Non | Non | Mandat expert distinct uniquement |
 | Rapports agrégés | Oui | Option Rapports | Non | Non | Selon membre + scopes |
 | Gérer atelier / membres | Oui | Non | Non | Non | Non |
-| Gérer facturation / souscrire Horizon | Navigateur | Non | Non | Non | Non |
+| Gérer facturation / souscrire Horizon | Navigateur ; consentement pour souscrire | Non | Non | Non | Non |
+| Déclencher un diagnostic Horizon | Plan actif + accès PDF | Plan actif + accès PDF | Plan actif + accès PDF | Non | Plan actif + accès PDF + documents:write |
+| Lire / exporter l’historique Horizon | Selon accès PDF | Selon accès PDF | Selon accès PDF | Selon accès PDF | Accès PDF + documents:read |
 | Accorder / renouveler mandat expert | Navigateur | Non | Non | Non | Non |
 | Modifier modèle partagé | Droits sur ressource | Droits sur ressource | Droits sur ressource | Non | Membre + scopes + ressource |
 | Supprimer modèle | Propriétaire | Propriétaire | Propriétaire | Non | Propriétaire + scopes |
@@ -289,20 +291,20 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 
 ### 15 · Horizon et diagnostic PDF
 
-**État :** Candidat intégré #41 · activation fermée.
+**État :** Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer.
 
 Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts).
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts).
+**Surfaces :** Web / REST / MCP. **Tests :** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py).
 
-- Formule mensuelle 30 € sur crédits disponibles ; entrée privée /app/plan
+- Formule mensuelle 30 € sur crédits disponibles ; première période finançable par crédits promotionnels restants ; entrée privée /app/plan
 - Consentement récurrent immutable par administrateur navigateur
-- Résiliation, renouvellement et suspension sans dette
+- Résiliation, renouvellement et suspension sans dette ; recharge encore indisponible
 - 100 tentatives par mois calendaire ; quota atomique
-- veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4
+- veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4 ; corpus officiel positif/négatif, qualification hors réseau puis hébergée
 - Rapport sur octets exacts, historique et export JSON
 - Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé
-- Activation HORIZON_ENABLED, validateur privé et scanner en production requis avant souscription/renouvellement ; pas une certification légale
+- Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale
 
 ### 16 · Exploitation et fiabilité
 
@@ -310,14 +312,14 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 
 Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../scripts/deploy-public.mjs).
 
-**Surfaces :** CLI / CI / services privés. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs).
+**Surfaces :** CLI / CI / services privés. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs).
 
 - Files interactives, lots, outbox transactionnelle et idempotence
 - Callbacks fournisseur authentifiés et journaux sans contenu sensible
 - Rapprochement, reprise bornée et files mortes
 - Migrations D1 ordonnées, intégrité et bookmark de restauration
-- Services privés scanner, renderer et validateur
-- Tests backend, sécurité, navigateurs et CI exhaustive
+- Services privés scanner, renderer et validateur ; déploiement du validateur depuis main propre sans route publique ni observabilité
+- Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts
 - Publication depuis main propre, synchronisé et vérifié
 - Manifestes de release, empreintes des assets et santé distante
 
@@ -445,11 +447,11 @@ Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
 
 ### J13 · Diagnostiquer un PDF avec Horizon
 
-**Acteur :** Administrateur pour abonnement ; préparateur pour diagnostic. **Branche :** HORIZON · PR #41.
+**Acteur :** Administrateur navigateur pour abonnement ; administrateur, superviseur, opérateur ou assistant autorisé pour diagnostic ; lecteur autorisé du PDF pour historique. **Branche :** HORIZON · OUVERTURE SUR CRÉDITS.
 
-Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.
+Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF.
 
-**Blocage / reprise :** Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette.
+**Blocage / reprise :** Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois.
 
 Référence : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
 
@@ -476,8 +478,8 @@ Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 ## Frontières d’activation et preuves
 
 - Un merge ne prouve ni un déploiement ni l’ouverture d’un canal. Lire les capacités du compte, le manifeste public et la version distante.
-- Les cartes de partage et boutons lecture sont intégrés à main par PR #43. Horizon, les garde-fous plugin #38 et cet atlas #47 sont réunis dans le candidat d’intégration #41 ; la preuve de publication reste distincte.
-- Horizon requiert migrations 0050–0051, service privé qualifié et activation explicite. Souscription : administrateur navigateur ; diagnostic : droits, propriété, abonnement et quota courants.
+- Les PR #38, #41, #43, #47 et #48 sont fusionnées dans main ; la publication c5cc0dd et les migrations 0050–0051 sont vérifiées. L’ouverture d’Horizon sur crédits est autorisée ; la qualification hébergée et la publication de son activation restent des preuves distinctes.
+- Horizon requiert service privé qualifié, scanner et activation explicite. Souscription : administrateur navigateur, 30 € de crédits disponibles et consentement récurrent. Le bonus promotionnel est unique et la recharge indisponible. Diagnostic : droits, propriété, abonnement et quota courants. Voir [la décision d’ouverture](HORIZON_OPENING_2026_10_03.md).
 - Invitations, e-mail, fournisseurs réels et IA ont leurs propres conditions. Ne pas activer ces services pour rendre une démonstration possible.
 - Une simulation ne qualifie pas un envoi réel. Une issue inconnue exige un rapprochement ; pas de nouvelle tentative aveugle.
 - Tests et qualification : [CI](CI.md), [TEST_RESULTS](TEST_RESULTS.md), [MAIN_RELEASE](MAIN_RELEASE.md). Les résultats datés restent historiques.

@@ -1,5 +1,17 @@
 # Operations and recovery
 
+For the 3 October Horizon opening on available credits, follow the
+[activation runbook](HORIZON_ACTIVATION_RUNBOOK.md),
+[private validator qualification guide](../apps/pdf-validator/qualification/README.md)
+and [Cloudflare cost model](HORIZON_COSTS.md). The local resource-qualified
+candidate is one `basic` instance, five-second idle sleep and a pinned, tuned
+JVM. Startup admission and in-flight responses are protected from idle expiry;
+the Worker response is bounded even if the private transport ignores abort.
+Hosted cold large-file validation and actual stop/wake remain release gates.
+The authorization is already recorded in the
+[opening decision](HORIZON_OPENING_2026_10_03.md); this preparation does not itself
+activate the service.
+
 ## Environments and release
 
 Local: `npm ci`, `npx playwright install chromium`, `npm run demo`. Uses local D1/R2/Queues through Wrangler and local Chromium. Linux fallback for this environment: `npm run browser:prepare`; browser-dependent tests use `GUTENEO_BUNDLED_CHROMIUM=1`. The bundled flags that disable web security/site isolation/single-process are explicitly removed. No remote Browser Run call occurs in local mode.

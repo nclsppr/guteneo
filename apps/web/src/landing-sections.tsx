@@ -6,7 +6,11 @@ import { t } from "./locale";
 import { getCustomerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
 import { PostalCutoffFaq } from "./postal-cutoff-faq";
-import { HorizonFaq, HorizonPublicOffer } from "./horizon-public";
+import {
+  HorizonFaq,
+  HorizonPublicOffer,
+  type HorizonPublicAvailability,
+} from "./horizon-public";
 import "./assistant-workspace.css";
 
 export function scrollToSection(
@@ -77,7 +81,11 @@ export function Installation() {
   );
 }
 
-export function WelcomePricing() {
+export function WelcomePricing({
+  horizon,
+}: {
+  horizon?: HorizonPublicAvailability;
+}) {
   const customerPricing = getCustomerPricing();
   return (
     <section
@@ -139,13 +147,17 @@ export function WelcomePricing() {
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
         <DistributionRoadmap />
-        <HorizonPublicOffer />
+        <HorizonPublicOffer availability={horizon} />
       </div>
     </section>
   );
 }
 
-export function FrequentlyAsked() {
+export function FrequentlyAsked({
+  horizon,
+}: {
+  horizon?: HorizonPublicAvailability;
+}) {
   return (
     <section
       className="faq-section"
@@ -171,7 +183,7 @@ export function FrequentlyAsked() {
           </details>
         ))}
         <PostalCutoffFaq />
-        <HorizonFaq />
+        <HorizonFaq availability={horizon} />
       </div>
     </section>
   );

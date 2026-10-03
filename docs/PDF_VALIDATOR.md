@@ -1,5 +1,26 @@
 # Private PDF validator candidate
 
+3 October opening preparation: Nicolas authorizes private deployment and hosted
+qualification before Horizon activation on existing credits. The updated local
+Docker qualification now includes twelve pinned official references: a positive
+and negative case for each of the six profiles, exact counters and findings,
+concurrency, rejection and temporary-file/log checks. The retained
+[new offline proof](../apps/pdf-validator/tests/references/local-docker-proof.json)
+is local evidence, not a hosted observation. The original synthetic proof below
+remains historical. Publication and authenticated local-only hosted probe
+commands are in [the qualification guide](../apps/pdf-validator/qualification/README.md)
+and [the application activation runbook](HORIZON_ACTIVATION_RUNBOOK.md).
+
+The cost-qualified local candidate now uses `basic` (0.25 vCPU / 1 GiB / 4 GB),
+one instance and idle sleep after five seconds. JVM startup tuning preserves the
+pinned binary, rules, 384 MiB heap and all deadlines. The full reference and
+100-page near-limit batch uses 47.25% less measured request CPU than the original
+`standard-1` configuration. All six large-file verdicts and findings stay exact;
+the maximum warm request is 20.289 seconds. Actual local `lite` testing failed
+readiness. [Resource proofs](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
+and [cost model](HORIZON_COSTS.md) record the constraints and assumptions. Real
+Cloudflare cold starts and five-second stop/wake still require the hosted run.
+
 The new `apps/pdf-validator/` package wraps the unmodified veraPDF Greenfield CLI
 **1.30.2**. It is independent of the antivirus and document renderer. A PDF/UA
 diagnostic never changes a document's quarantine status or grants permission to

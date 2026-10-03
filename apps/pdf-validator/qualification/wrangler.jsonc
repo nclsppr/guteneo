@@ -1,0 +1,25 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "guteneo-pdf-validator-qualification-local",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "main": "worker.ts",
+  "compatibility_date": "2026-10-02",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "observability": { "enabled": false },
+  "dev": { "ip": "127.0.0.1", "port": 8891 },
+  "services": [
+    {
+      "binding": "PDF_VALIDATOR",
+      "service": "guteneo-pdf-validator",
+      "remote": true,
+    },
+    {
+      "binding": "QUALIFICATION",
+      "service": "guteneo-pdf-validator",
+      "entrypoint": "ValidatorQualification",
+      "remote": true,
+    },
+  ],
+}

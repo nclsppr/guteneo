@@ -79,7 +79,8 @@ async function fixture(
         csrfToken: "fixture-only",
         simulation: true,
       };
-    else if (path === "/api/capabilities") body = {};
+    else if (path === "/api/capabilities")
+      body = { mode: "production", horizon: { available: enabled } };
     else if (path === "/api/plan") body = plan;
     else if (path === "/api/plan/subscribe") {
       if (!plan.entitled) {
@@ -389,7 +390,7 @@ test("PDF validation preserves source evidence, exports JSON and keeps human che
   });
 });
 
-test("the public offer keeps preparation, scope and allowance visible", async ({
+test("the public offer keeps closed availability, scope and allowance visible", async ({
   page,
 }, info) => {
   await fixture(page, { enabled: false });
@@ -399,7 +400,7 @@ test("the public offer keeps preparation, scope and allowance visible", async ({
     offer.getByRole("heading", { name: "guteneo Horizon" }),
   ).toBeVisible();
   await expect(
-    offer.getByText("Bientôt disponible", { exact: true }),
+    offer.getByText("Souscription indisponible", { exact: true }),
   ).toBeVisible();
   await expect(offer).toContainText(
     "100 tentatives de contrôle par mois civil",
@@ -428,6 +429,188 @@ test("the public offer keeps preparation, scope and allowance visible", async ({
   });
 });
 
+for (const [locale, status, credit, renewal, topUp] of [
+  [
+    "fr",
+    "Disponible dans votre atelier",
+    "crédits promotionnels",
+    "sans dette ni solde négatif",
+    "La recharge de crédits n’est pas encore disponible",
+  ],
+  [
+    "en",
+    "Available in your workspace",
+    "promotional credits",
+    "without debt or a negative balance",
+    "Credit top-ups are not available yet",
+  ],
+  [
+    "de",
+    "In Ihrem Arbeitsbereich verfügbar",
+    "Aktionsguthaben",
+    "ohne Schulden oder einen negativen Saldo",
+    "Guthabenaufladungen sind noch nicht verfügbar",
+  ],
+  [
+    "lb",
+    "An Ärem Atelier disponibel",
+    "Promotiounskredit",
+    "ouni Schold oder negative Solde",
+    "Kredit oplueden ass nach net méiglech",
+  ],
+]) {
+  test(`public Horizon opens from the production signal with credit terms in ${locale}`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    await page.goto(`/?lang=${locale}#horizon`);
+    const offer = page.locator(".horizon-public");
+    await expect(offer.getByText(status, { exact: true })).toBeVisible();
+    await expect(offer).toContainText(credit);
+    await expect(offer).toContainText(renewal);
+    await expect(offer).toContainText(topUp);
+    await expect(offer.getByRole("link")).toHaveAttribute("href", "/app/plan");
+    await expect(offer.getByRole("checkbox")).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      )
+      .toBe(true);
+    expect(state.writes).toEqual([]);
+    expect(
+      state.reads.filter((path) => path === "/api/capabilities"),
+    ).toHaveLength(1);
+    expect(state.unexpected).toEqual([]);
+  });
+}
+
+test("one homepage capability read keeps the offer and FAQ aligned through loading, closure and failure", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let available: boolean | null = true;
+  let requests = 0;
+  let releaseFirst: () => void = () => {};
+  const firstResponse = new Promise<void>((resolve) => {
+    releaseFirst = resolve;
+  });
+  await page.route("**/api/capabilities", async (route) => {
+    requests += 1;
+    if (requests === 1) await firstResponse;
+    if (available === null) await route.abort("failed");
+    else
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ mode: "production", horizon: { available } }),
+      });
+  });
+
+  const offer = page.locator(".horizon-public");
+  const faqWarning = page.getByText(
+    "Consultez l’offre dans votre atelier pour vérifier la disponibilité du service avant de souscrire.",
+    { exact: true },
+  );
+  const openFaq = () =>
+    page
+      .getByText("Que comprennent les contrôles PDF du forfait Horizon ?", {
+        exact: true,
+      })
+      .click();
+  await page.goto("/#horizon");
+  await expect(offer).toHaveAttribute("aria-busy", "true");
+  await expect(
+    offer.getByText("Consultez votre atelier", { exact: true }),
+  ).toBeVisible();
+  await openFaq();
+  await expect(faqWarning).toBeVisible();
+  releaseFirst();
+  await expect(offer).toHaveAttribute("aria-busy", "false");
+  await expect(
+    offer.getByText("Disponible dans votre atelier", { exact: true }),
+  ).toBeVisible();
+  await expect(faqWarning).toHaveCount(0);
+  expect(requests).toBe(1);
+
+  available = false;
+  await page.reload();
+  await expect(offer).toHaveAttribute("aria-busy", "false");
+  await expect(
+    offer.getByText("Souscription indisponible", { exact: true }),
+  ).toBeVisible();
+  await openFaq();
+  await expect(faqWarning).toBeVisible();
+  expect(requests).toBe(2);
+
+  available = null;
+  await page.reload();
+  await expect(offer).toHaveAttribute("aria-busy", "false");
+  await expect(
+    offer.getByText("Consultez votre atelier", { exact: true }),
+  ).toBeVisible();
+  await openFaq();
+  await expect(faqWarning).toBeVisible();
+  expect(requests).toBe(3);
+
+  // Returning through the SPA reads once for the private workspace and once
+  // for the new homepage entry, rather than retaining the failed public read.
+  available = true;
+  await page.evaluate(() => {
+    window.location.hash = "/app/plan";
+  });
+  await expect(
+    page.getByRole("heading", { name: "Forfait Horizon", level: 1 }),
+  ).toBeVisible();
+  await expect.poll(() => requests).toBe(4);
+  await page.evaluate(() => {
+    window.location.hash = "horizon";
+  });
+  await expect(offer).toHaveAttribute("aria-busy", "false");
+  await expect(
+    offer.getByText("Disponible dans votre atelier", { exact: true }),
+  ).toBeVisible();
+  await expect(faqWarning).toHaveCount(0);
+  expect(requests).toBe(5);
+  expect(state.writes).toEqual([]);
+});
+
+test("the public offer never announces availability from missing, simulated or failed capabilities", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  for (const response of [
+    { horizon: { available: true } },
+    { mode: "simulation", horizon: { available: true } },
+    null,
+  ]) {
+    await page.route("**/api/capabilities", async (route) => {
+      if (response === null) await route.abort("failed");
+      else
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(response),
+        });
+    });
+    await page.goto("/#horizon");
+    const offer = page.locator(".horizon-public");
+    await expect(offer).toHaveAttribute("aria-busy", "false");
+    await expect(
+      offer.getByText("Consultez votre atelier", { exact: true }),
+    ).toBeVisible();
+    await expect(offer).toContainText(
+      "La disponibilité du forfait est confirmée dans votre atelier",
+    );
+    await expect(
+      offer.getByText("Disponible dans votre atelier", { exact: true }),
+    ).toHaveCount(0);
+    await page.unroute("**/api/capabilities");
+  }
+  expect(state.writes).toEqual([]);
+});
+
 test("an uncertain PDF request is never retried automatically and explicit replay keeps its key", async ({
   page,
   hasTouch,
@@ -448,7 +631,7 @@ test("an uncertain PDF request is never retried automatically and explicit repla
   const control = panel.getByRole("button", { name: "Contrôler ce PDF" });
   // Exercise native touch activation on phone projects. Synthetic mouse clicks
   // in touch WebKit have completed without submitting the rapidly moved form.
-  const activate = () => hasTouch ? control.tap() : control.click();
+  const activate = () => (hasTouch ? control.tap() : control.click());
   await activate();
   await expect(panel.getByRole("alert")).toBeVisible();
   expect(keys).toHaveLength(1);

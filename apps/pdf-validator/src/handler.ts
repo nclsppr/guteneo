@@ -1,5 +1,8 @@
 export interface PdfValidatorEnv {
   PDF_VALIDATOR_CONTAINER: DurableObjectNamespace;
+  QUALIFICATION_ENABLED?: string;
+  SOURCE_COMMIT?: string;
+  CF_VERSION_METADATA?: { id: string };
 }
 
 const VERSION = "1.30.2";
@@ -190,6 +193,33 @@ async function json(
   );
 }
 
+async function fetchBounded(
+  send: () => Promise<Response>,
+  signal: AbortSignal,
+): Promise<Response> {
+  if (signal.aborted) throw new Error("TIMEOUT");
+  let onAbort: () => void = () => {};
+  const aborted = new Promise<never>((_resolve, reject) => {
+    onAbort = () => reject(new Error("TIMEOUT"));
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+  const operation = Promise.resolve().then(send);
+  try {
+    // A service binding may ignore Request.signal; its cooperation must not
+    // determine our 45-second response budget. This never retries a validation.
+    return await Promise.race([operation, aborted]);
+  } finally {
+    signal.removeEventListener("abort", onAbort);
+    if (signal.aborted) {
+      // Dispose any late response without consuming a report. This does not
+      // claim to terminate a remote process; its own 40-second limit remains.
+      void operation
+        .then((response) => response.body?.cancel())
+        .catch(() => {});
+    }
+  }
+}
+
 export async function handleRequest(
   request: Request,
   env: PdfValidatorEnv,
@@ -237,27 +267,29 @@ export async function handleRequest(
         .map((byte) => byte.toString(16).padStart(2, "0"))
         .join("");
     }
-    const response = await env.PDF_VALIDATOR_CONTAINER.getByName(
-      "pdf-validator-v1",
-    ).fetch(
-      new Request(
-        health
-          ? "http://validator.internal/health"
-          : `http://validator.internal/validate?profile=${profile}`,
-        {
-          method: health ? "GET" : "POST",
-          signal,
-          ...(bytes
-            ? {
-                body: bytes,
-                headers: {
-                  "Content-Type": "application/pdf",
-                  "Content-Length": String(bytes.byteLength),
-                },
-              }
-            : {}),
-        },
-      ),
+    const response = await fetchBounded(
+      () =>
+        env.PDF_VALIDATOR_CONTAINER.getByName("pdf-validator-v1").fetch(
+          new Request(
+            health
+              ? "http://validator.internal/health"
+              : `http://validator.internal/validate?profile=${profile}`,
+            {
+              method: health ? "GET" : "POST",
+              signal,
+              ...(bytes
+                ? {
+                    body: bytes,
+                    headers: {
+                      "Content-Type": "application/pdf",
+                      "Content-Length": String(bytes.byteLength),
+                    },
+                  }
+                : {}),
+            },
+          ),
+        ),
+      signal,
     );
     if (!response.ok) {
       try {
