@@ -24,4 +24,6 @@ Cette documentation reste dans le dépôt : aucun de ces fichiers n’est intég
 | Concevoir les changements | [Architecture](ARCHITECTURE.md), [modèle de données](DATA_MODEL.md) |
 | Intégrer web, API ou assistant | [Contrat API](API_CONTRACT.md), [identité MCP](IDENTITY_MCP.md), [studio](TEMPLATES_DATA_DISTRIBUTION.md) |
 | Vérifier et publier | [CI](CI.md), [publication depuis main](MAIN_RELEASE.md), [migrations](D1_MIGRATION.md) |
+| Ouvrir Horizon sur les crédits disponibles | [Décision d’ouverture](HORIZON_OPENING_2026_10_03.md), [qualification et activation](HORIZON_ACTIVATION_RUNBOOK.md) |
+| Dimensionner Horizon et suivre ses coûts | [Tarifs, hypothèses et mesures](HORIZON_COSTS.md) |
 | Exploiter et diagnostiquer | [Runbook](RUNBOOK.md), [restauration](RESTORE_PROOF.md), [preuves datées](TEST_RESULTS.md) |

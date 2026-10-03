@@ -2,6 +2,17 @@
 
 Every feature addition, change or removal MUST update the developer-only feature tree in `docs/feature-map.json`, the affected role/permission matrix and every affected customer journey in the same PR. Cover entry conditions, actor and current authority, steps, result, errors/recovery, web/native/REST/MCP surfaces, privacy, activation gates, technical contract, source and relevant test evidence. Keep implementation, activation and deployed proof distinct. Regenerate `docs/FEATURE_MAP.md` and `docs/FEATURE_MAP.html` with `node docs/build-feature-map.mjs` and verify `node docs/build-feature-map.mjs --check` (required by CI); keep these documents readable, visually polished and consistent. These files are repository technical documentation only: never import, copy, publish or link them in the official website, its navigation, assets, sitemap or public page generator. Four human membership roles are defined by `packages/contracts/src/roles.ts`; assistants are separate actors, never an invented fifth membership role.
 
+Cloudflare cost optimisation is a standing engineering requirement. Measure CPU,
+memory, startup, active time, idle time and billed requests; choose the smallest
+configuration that passes representative functional, security and latency checks.
+Keep instance counts bounded and avoid unnecessary wakeups, polling and repeated
+work. Record current official prices, shared-account allowances and cost per
+operation with clear assumptions; never claim free operation or a fixed total
+bill from a quota or instance limit. Rewriting a component is permitted when
+measured savings justify it and equivalent behaviour is verified. Requalify
+resource and sleep changes before production; preserve document privacy, exact
+bytes, authorization and process/response limits while reducing cost.
+
 Independent SaaS; no VBS systems, accounts, secrets or production dependencies.
 Never send a real communication, provision paid infrastructure, merge, or deploy production without explicit authorization.
 Production fails closed on simulation, development authentication, missing scan or provider configuration.

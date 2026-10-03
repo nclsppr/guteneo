@@ -1,17 +1,61 @@
 import { Plus } from "@phosphor-icons/react";
-import { HorizonBenefits } from "./horizon-plan";
+import { HorizonBenefits, HorizonCreditTerms } from "./horizon-plan";
 import { msg } from "./messages";
 
-export function HorizonPublicOffer() {
+export type PublicCapabilities = {
+  mode?: string;
+  horizon?: { available?: boolean };
+};
+
+export type HorizonPublicAvailability = {
+  state: "available" | "closed" | "unknown";
+  loading: boolean;
+};
+
+export function horizonPublicAvailability(
+  capabilities: PublicCapabilities | undefined,
+  loading: boolean,
+): HorizonPublicAvailability {
+  // The shared public signal never grants an account entitlement or performs a
+  // subscription. Preview capabilities cannot advertise production access.
+  const state = loading
+    ? "unknown"
+    : capabilities?.mode === "production" &&
+        capabilities.horizon?.available === true
+      ? "available"
+      : capabilities?.horizon?.available === false
+        ? "closed"
+        : "unknown";
+  return { state, loading };
+}
+
+const unknownAvailability: HorizonPublicAvailability = {
+  state: "unknown",
+  loading: false,
+};
+
+export function HorizonPublicOffer({
+  availability = unknownAvailability,
+}: {
+  availability?: HorizonPublicAvailability;
+}) {
+  const { state, loading } = availability;
   return (
     <section
       className="horizon-public"
       id="horizon"
       tabIndex={-1}
       aria-labelledby="horizon-public-title"
+      aria-busy={loading}
     >
       <div>
-        <p className="eyebrow">{msg("Bientôt disponible")}</p>
+        <p className="eyebrow" role="status">
+          {state === "available"
+            ? msg("Disponible dans votre atelier")
+            : state === "closed"
+              ? msg("Souscription indisponible")
+              : msg("Consultez votre atelier")}
+        </p>
         <h3 id="horizon-public-title">guteneo Horizon</h3>
         <p className="horizon-price">
           <strong>30 €</strong>
@@ -34,10 +78,19 @@ export function HorizonPublicOffer() {
           )}
         </p>
         <p className="horizon-limit">
-          {msg(
-            "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.",
-          )}
+          {state === "available"
+            ? msg(
+                "L’administrateur peut souscrire dans l’atelier avec au moins 30 € de crédits disponibles. Les contrôles sont ensuite accessibles aux membres autorisés.",
+              )
+            : state === "closed"
+              ? msg(
+                  "La souscription et les contrôles PDF sont actuellement indisponibles. Consultez l’offre dans votre atelier.",
+                )
+              : msg(
+                  "La disponibilité du forfait est confirmée dans votre atelier avant toute souscription.",
+                )}
         </p>
+        <HorizonCreditTerms />
         <a className="text-link" href="/app/plan">
           {msg("Découvrir le forfait Horizon")}
         </a>
@@ -46,7 +99,12 @@ export function HorizonPublicOffer() {
   );
 }
 
-export function HorizonFaq() {
+export function HorizonFaq({
+  availability = unknownAvailability,
+}: {
+  availability?: HorizonPublicAvailability;
+}) {
+  const { state } = availability;
   return (
     <>
       <details>
@@ -56,14 +114,22 @@ export function HorizonFaq() {
         </summary>
         <p>
           {msg(
-            "Horizon prévoit les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle pourra être demandé depuis le plugin de votre assistant.",
+            "Horizon comprend les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle est accessible depuis le plugin de votre assistant lorsque le service et le forfait sont actifs.",
           )}
         </p>
         <p>
           {msg(
-            "Le forfait de 30 € par mois sera prélevé sur les crédits du compte. Seul l’administrateur pourra souscrire, résilier ou gérer la facturation. L’offre est en préparation.",
+            "Le forfait de 30 € par mois est prélevé sur les crédits disponibles du compte. Seul l’administrateur peut souscrire, résilier ou gérer la facturation.",
           )}
         </p>
+        {state !== "available" && (
+          <p>
+            {msg(
+              "Consultez l’offre dans votre atelier pour vérifier la disponibilité du service avant de souscrire.",
+            )}
+          </p>
+        )}
+        <HorizonCreditTerms />
       </details>
       <details>
         <summary>

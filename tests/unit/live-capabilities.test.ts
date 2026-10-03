@@ -17,6 +17,39 @@ const hosted = {
 } as Env;
 
 describe("truthful live transport capabilities", () => {
+  it("reports Horizon configuration readiness consistently with its production gates", () => {
+    const validator = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const scanner = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const ready = {
+      ...hosted,
+      HORIZON_ENABLED: "true",
+      PDF_VALIDATOR: validator,
+      SCANNER: scanner,
+    };
+    const cases: [Partial<Env>, boolean][] = [
+      [{}, true],
+      [{ HORIZON_ENABLED: undefined }, false],
+      [{ HORIZON_ENABLED: "false" }, false],
+      [{ HORIZON_ENABLED: "TRUE" }, false],
+      [{ PDF_VALIDATOR: undefined }, false],
+      [{ SCANNER: undefined }, false],
+      [{ MODE: "simulation" }, false],
+      [
+        { ENVIRONMENT: "local", MODE: "simulation", SCANNER: undefined },
+        true,
+      ],
+    ];
+    for (const [overrides, available] of cases) {
+      const capabilities = getCapabilities({ ...ready, ...overrides });
+      expect(capabilities.horizon.available).toBe(available);
+      expect(capabilities.documents.validation.available).toBe(available);
+    }
+  });
+
   it.each([
     [undefined, false],
     ["", false],

@@ -2,6 +2,7 @@ import { handleInvitationRoute } from "./invitations";
 import {
   handleMonthlyPlanRoute,
   getHorizonStatus,
+  horizonAvailable,
   renewHorizonPlans,
 } from "./monthly-plan";
 import { PdfValidationService } from "./pdf-validation";
@@ -135,7 +136,7 @@ export function getCapabilities(env: Env) {
       currency: "EUR",
       interval: "month",
       paymentSource: "account_credits",
-      available: env.HORIZON_ENABLED === "true" && Boolean(env.PDF_VALIDATOR),
+      available: horizonAvailable(env),
       subscription: "administrator_browser_only",
       accountUrl: `${env.APP_ORIGIN}/#/app/plan`,
     },
@@ -234,7 +235,7 @@ export function getCapabilities(env: Env) {
       exactBytes: true,
       urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
       validation: {
-        available: env.HORIZON_ENABLED === "true" && Boolean(env.PDF_VALIDATOR),
+        available: horizonAvailable(env),
         profiles: pdfValidationProfiles,
         requiresMonthlyPlan: true,
         checksPerCalendarMonth: 100,

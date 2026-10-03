@@ -10,10 +10,12 @@ import subprocess
 import tempfile
 import threading
 import time
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
 VERSION = "1.30.2"
+JAVA_OPTIONS = "-Xms32m -Xmx384m -XX:ActiveProcessorCount=1 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Djava.awt.headless=true"
 CLI = os.environ.get("VERAPDF_CLI", "/opt/verapdf/verapdf")
 MAX_BYTES = 10 * 1024 * 1024
 MAX_REPORT_BYTES = 2 * 1024 * 1024
@@ -198,7 +200,7 @@ def bounded_process(arguments, seconds, maximum, env=None):
 
 
 def check_engine():
-    raw, code = bounded_process([CLI, "--version"], 20, 4096)
+    raw, code = bounded_process([CLI, "--version"], 20, 4096, {**os.environ, "JAVA_OPTS": JAVA_OPTIONS})
     if code != 0 or raw.splitlines()[:1] != [("veraPDF " + VERSION).encode("ascii")]:
         raise ValidationError("VALIDATOR_UNAVAILABLE")
 
@@ -218,7 +220,7 @@ def validate_bytes(data, profile):
             "--maxfailures", "-1", "--maxfailuresdisplayed", "1",
             "--disableerrormessages", str(path),
         ]
-        env = {**os.environ, "JAVA_OPTS": "-Xmx384m -Djava.awt.headless=true -Djava.io.tmpdir=" + directory}
+        env = {**os.environ, "JAVA_OPTS": JAVA_OPTIONS + " -Djava.io.tmpdir=" + directory}
         raw, code = bounded_process(arguments, PROCESS_SECONDS, MAX_REPORT_BYTES, env)
         return normalize_report(raw, data, profile, code)
 
@@ -241,6 +243,29 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path.startswith("/qualification/") and os.environ.get("QUALIFICATION_ENABLED") == "true":
+            if self.path == "/qualification/privacy":
+                return self.send_json(200, {"temporaryDirectories": len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))})
+            if self.path == "/qualification/process-deadline":
+                if not VALIDATION_LOCK.acquire(blocking=False):
+                    return self.send_json(503, {"code": "VALIDATOR_BUSY"})
+                try:
+                    # Exercise the real process-group deadline on harmless synthetic work.
+                    # This is explicitly not a claim that a Java PDF timed out.
+                    with tempfile.TemporaryDirectory(prefix="guteneo-pdf-"):
+                        try:
+                            bounded_process([sys.executable, "-c", "import time; time.sleep(1)"], 0.05, 1024)
+                        except ValidationError as error:
+                            if error.args == ("VALIDATION_TIMEOUT",):
+                                result = {"code": "VALIDATION_TIMEOUT"}
+                            else:
+                                return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
+                        else:
+                            return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
+                    result["temporaryDirectories"] = len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))
+                    return self.send_json(200, result)
+                finally:
+                    VALIDATION_LOCK.release()
         if self.path != "/health":
             return self.send_json(404, {"code": "NOT_FOUND"})
         if not ENGINE_READY:

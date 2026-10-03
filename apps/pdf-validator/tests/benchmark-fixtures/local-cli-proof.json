@@ -1,0 +1,339 @@
+{
+  "version": 1,
+  "kind": "local-cli-generated-benchmark",
+  "completedAt": "2026-10-03T13:08:01.084781+00:00",
+  "engine": {
+    "name": "veraPDF",
+    "version": "1.30.2",
+    "archiveSha256": "6cc6341cb1af644044054b81f00a6590a7918abb18f762243de115258bcad838"
+  },
+  "fixture": {
+    "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+    "sizeBytes": 10366823,
+    "pageCount": 100
+  },
+  "limits": {
+    "javaHeapMiB": 384,
+    "perDocumentTimeoutSeconds": 40
+  },
+  "results": [
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "ua1",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 99,
+      "failedRules": 7,
+      "failedChecks": 24105,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 10,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 11,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 3,
+          "failedChecks": 13600
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.2",
+          "testNumber": 34,
+          "failedChecks": 10500
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.21.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 8,
+          "failedChecks": 1
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.587
+    },
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "ua2",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 1720,
+      "failedRules": 7,
+      "failedChecks": 13606,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "6.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.11.1",
+          "testNumber": 2,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.4.5.5.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "8.2.2",
+          "testNumber": 1,
+          "failedChecks": 13600
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.576
+    },
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "1b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 122,
+      "failedRules": 7,
+      "failedChecks": 13806,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.3.4",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.2.3.3",
+          "testNumber": 1,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 6,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 3,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.7.3",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.902
+    },
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "2b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 140,
+      "failedRules": 4,
+      "failedChecks": 13803,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.76
+    },
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "3b",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 142,
+      "failedRules": 4,
+      "failedChecks": 13803,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.6.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.2.11.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.815
+    },
+    {
+      "sha256": "d3e4f48e0c7bd3ca3f8739062eac029a0d68d801fa04430dad4d351e96bc391e",
+      "profile": "4",
+      "engine": {
+        "name": "veraPDF",
+        "version": "1.30.2"
+      },
+      "compliant": false,
+      "passedRules": 102,
+      "failedRules": 7,
+      "failedChecks": 13806,
+      "truncated": false,
+      "findings": [
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.7.2.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 5,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.4.3",
+          "testNumber": 2,
+          "failedChecks": 13800
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.2",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.2.10.4.1",
+          "testNumber": 1,
+          "failedChecks": 1
+        },
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.3",
+          "testNumber": 4,
+          "failedChecks": 1
+        }
+      ],
+      "exitCode": 1,
+      "seconds": 1.668
+    }
+  ]
+}

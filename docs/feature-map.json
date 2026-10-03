@@ -280,22 +280,27 @@
       "doc": "PDF_ACCESSIBILITY.md",
       "source": "apps/api/src/pdf-validation.ts",
       "features": [
-        "Formule mensuelle 30 € sur crédits disponibles ; entrée privée /app/plan",
+        "Formule mensuelle 30 € sur crédits disponibles ; première période finançable par crédits promotionnels restants ; entrée privée /app/plan",
         "Consentement récurrent immutable par administrateur navigateur",
-        "Résiliation, renouvellement et suspension sans dette",
+        "Résiliation, renouvellement et suspension sans dette ; recharge encore indisponible",
         "100 tentatives par mois calendaire ; quota atomique",
-        "veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4",
+        "veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4 ; corpus officiel positif/négatif, qualification hors réseau puis hébergée",
         "Rapport sur octets exacts, historique et export JSON",
         "Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé",
-        "Activation HORIZON_ENABLED, validateur privé et scanner en production requis avant souscription/renouvellement ; pas une certification légale"
+        "Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale"
       ],
-      "status": "Candidat intégré #41 · activation fermée",
+      "status": "Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer",
       "tests": [
         "tests/unit/monthly-plan.test.ts",
         "tests/e2e/horizon-pdf.spec.ts",
         "tests/unit/pdf-validation.test.ts",
         "tests/preview-e2e/geo.spec.ts",
-        "tests/preview-e2e/seo.spec.ts"
+        "tests/preview-e2e/seo.spec.ts",
+        "tests/unit/live-capabilities.test.ts",
+        "apps/pdf-validator/tests/qualification.test.mjs",
+        "apps/pdf-validator/tests/container-lifecycle.test.mjs",
+        "apps/pdf-validator/tests/worker.test.mjs",
+        "apps/pdf-validator/tests/test_server.py"
       ],
       "surfaces": "Web / REST / MCP"
     },
@@ -308,14 +313,16 @@
         "Callbacks fournisseur authentifiés et journaux sans contenu sensible",
         "Rapprochement, reprise bornée et files mortes",
         "Migrations D1 ordonnées, intégrité et bookmark de restauration",
-        "Services privés scanner, renderer et validateur",
-        "Tests backend, sécurité, navigateurs et CI exhaustive",
+        "Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret",
+        "Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts",
         "Publication depuis main propre, synchronisé et vérifié",
         "Manifestes de release, empreintes des assets et santé distante"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
-        "tests/security/main-only-release.test.mjs"
+        "tests/security/main-only-release.test.mjs",
+        "tests/security/pdf-validator-release.test.mjs",
+        "apps/pdf-validator/tests/probe-credentials.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés"
     }
@@ -432,11 +439,11 @@
     {
       "id": "J13",
       "title": "Diagnostiquer un PDF avec Horizon",
-      "actor": "Administrateur pour abonnement ; préparateur pour diagnostic",
-      "steps": "Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.",
-      "branch": "HORIZON · PR #41",
+      "actor": "Administrateur navigateur pour abonnement ; administrateur, superviseur, opérateur ou assistant autorisé pour diagnostic ; lecteur autorisé du PDF pour historique",
+      "steps": "Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF.",
+      "branch": "HORIZON · OUVERTURE SUR CRÉDITS",
       "doc": "PDF_ACCESSIBILITY.md",
-      "failure": "Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
+      "failure": "Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois."
     },
     {
       "id": "J14",
@@ -451,10 +458,10 @@
       "id": "J15",
       "title": "Publier une évolution",
       "actor": "Développeur / opérateur de release",
-      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé.",
+      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.",
       "branch": "RELEASE",
       "doc": "MAIN_RELEASE.md",
-      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre."
+      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification."
     }
   ],
   "roles": [
@@ -507,11 +514,27 @@
     ],
     [
       "Gérer facturation / souscrire Horizon",
-      "Navigateur",
+      "Navigateur ; consentement pour souscrire",
       "Non",
       "Non",
       "Non",
       "Non"
+    ],
+    [
+      "Déclencher un diagnostic Horizon",
+      "Plan actif + accès PDF",
+      "Plan actif + accès PDF",
+      "Plan actif + accès PDF",
+      "Non",
+      "Plan actif + accès PDF + documents:write"
+    ],
+    [
+      "Lire / exporter l’historique Horizon",
+      "Selon accès PDF",
+      "Selon accès PDF",
+      "Selon accès PDF",
+      "Selon accès PDF",
+      "Accès PDF + documents:read"
     ],
     [
       "Accorder / renouveler mandat expert",

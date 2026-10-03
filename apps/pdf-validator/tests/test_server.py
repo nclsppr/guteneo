@@ -127,6 +127,9 @@ class ProcessTests(unittest.TestCase):
             path = Path(arguments[-1]); captured.append(path)
             self.assertEqual(path.read_bytes(), DATA)
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertIn("-Xmx384m", _env["JAVA_OPTS"])
+            self.assertIn("-XX:+UseSerialGC", _env["JAVA_OPTS"])
+            self.assertIn("-XX:TieredStopAtLevel=1", _env["JAVA_OPTS"])
             return json.dumps(REPORTS["ua1"]).encode(), 1
         with patch.object(server, "bounded_process", side_effect=engine):
             server.validate_bytes(DATA, "ua1")
@@ -180,6 +183,21 @@ class HttpTests(unittest.TestCase):
                 handler.do_POST()
             handler.send_json.assert_called_once_with(400, {"code": "INVALID_PROFILE"})
             validate.assert_not_called()
+
+    def test_qualification_inspection_is_unavailable_without_explicit_mode(self):
+        for path in ["/qualification/privacy", "/qualification/process-deadline"]:
+            handler = self.handler(path)
+            with patch.dict(server.os.environ, {"QUALIFICATION_ENABLED": "false"}), patch.object(server, "bounded_process") as process:
+                handler.do_GET()
+            handler.send_json.assert_called_once_with(404, {"code": "NOT_FOUND"})
+            process.assert_not_called()
+
+    def test_private_deadline_self_test_kills_real_process_and_cleans_temporary_directory(self):
+        handler = self.handler("/qualification/process-deadline")
+        with patch.dict(server.os.environ, {"QUALIFICATION_ENABLED": "true"}):
+            handler.do_GET()
+        handler.send_json.assert_called_once_with(200, {"code": "VALIDATION_TIMEOUT", "temporaryDirectories": 0})
+        self.assertFalse(server.VALIDATION_LOCK.locked())
 
 
 if __name__ == "__main__":

@@ -157,6 +157,30 @@ describe("Horizon browser authority and honest product copy", () => {
       ),
     ).not.toContain("Rétablir le renouvellement");
   });
+  it("discloses credit funding and suspended renewal without suggesting an unavailable top-up", () => {
+    const html = renderToStaticMarkup(
+      createElement(HorizonOffer, {
+        session,
+        plan: {
+          ...plan,
+          status: "inactive",
+          entitled: false,
+          billingManagementAllowed: false,
+          creditAvailableMinor: 2000,
+        },
+        refresh: () => {},
+      }),
+    );
+    expect(html).toContain("crédits promotionnels");
+    expect(html).toContain("Ce montant est déduit de votre solde");
+    expect(html).toContain("sans dette ni solde négatif");
+    expect(html).toContain(
+      "La recharge de crédits n’est pas encore disponible",
+    );
+    expect(html).not.toContain("Demandez une recharge");
+    expect(html).toContain('class="button primary" disabled=""');
+    expect(html).toContain("J’accepte le forfait Horizon");
+  });
   it("shows members the offer without billing actions or private credit", () => {
     const html = renderToStaticMarkup(
       createElement(HorizonOffer, {

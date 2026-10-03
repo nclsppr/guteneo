@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "kind": "local-official-reference-cli",
+  "completedAt": "2026-10-03T12:29:20.776975+00:00",
+  "engine": {
+    "name": "veraPDF",
+    "version": "1.30.2",
+    "archiveSha256": "6cc6341cb1af644044054b81f00a6590a7918abb18f762243de115258bcad838"
+  },
+  "limits": {
+    "javaHeapMiB": 384,
+    "perDocumentTimeoutSeconds": 40,
+    "maximumFileBytes": 10485760
+  },
+  "fixtures": [
+    {
+      "id": "verapdf-ua1-pass",
+      "sha256": "60f13bd812e3b5c8abd19c5ed01cc447dd433cc3b48e0b07cf5105067f8ffdf9",
+      "bytes": 14300,
+      "profile": "ua1",
+      "compliant": true,
+      "passedRules": 106,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.08,
+      "findings": []
+    },
+    {
+      "id": "verapdf-ua1-fail",
+      "sha256": "7f6b4eaeb06a35d14d0352919e0f58b44833962e323811ac4737f8a45c6621cb",
+      "bytes": 13854,
+      "profile": "ua1",
+      "compliant": false,
+      "passedRules": 105,
+      "failedRules": 1,
+      "failedChecks": 2,
+      "exitCode": 1,
+      "seconds": 1.09,
+      "findings": [
+        {
+          "specification": "ISO 14289-1:2014",
+          "clause": "7.1",
+          "testNumber": 3,
+          "failedChecks": 2
+        }
+      ]
+    },
+    {
+      "id": "verapdf-ua2-pass",
+      "sha256": "909b4eeed185f5dc57ed510e2c66d7f0c9eecc2665681b1465689fd28f7fdaff",
+      "bytes": 27104,
+      "profile": "ua2",
+      "compliant": true,
+      "passedRules": 1727,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.13,
+      "findings": []
+    },
+    {
+      "id": "verapdf-ua2-fail",
+      "sha256": "71b6a2212b91d7de0e06d5c87f33e899b79ff27dd7086155ada672817ee6b8f9",
+      "bytes": 27146,
+      "profile": "ua2",
+      "compliant": false,
+      "passedRules": 1726,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "exitCode": 1,
+      "seconds": 1.18,
+      "findings": [
+        {
+          "specification": "ISO 14289-2:2024",
+          "clause": "5",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-1b-pass",
+      "sha256": "97e30bd4477b02f139dfed1613346a09491babd3d9297d989df5829c2ecd1a48",
+      "bytes": 3024,
+      "profile": "1b",
+      "compliant": true,
+      "passedRules": 129,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.27,
+      "findings": []
+    },
+    {
+      "id": "verapdf-1b-fail",
+      "sha256": "27cea05ddaf18404c6beaa997a5dd23b483bc127a1ca6577d8c00e868b3d29e6",
+      "bytes": 6788,
+      "profile": "1b",
+      "compliant": false,
+      "passedRules": 128,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "exitCode": 1,
+      "seconds": 1.57,
+      "findings": [
+        {
+          "specification": "ISO 19005-1:2005",
+          "clause": "6.2.3.3",
+          "testNumber": 3,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-2b-pass",
+      "sha256": "7db294af5f6572c2b009a57de9d629cbf231d1c3f43b7b895cf487eeb71cf788",
+      "bytes": 3263,
+      "profile": "2b",
+      "compliant": true,
+      "passedRules": 144,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.27,
+      "findings": []
+    },
+    {
+      "id": "verapdf-2b-fail",
+      "sha256": "9bbe29a8a4834073d2d16d8ba70d566620f14da826be377d89e856b7a5fef009",
+      "bytes": 3234,
+      "profile": "2b",
+      "compliant": false,
+      "passedRules": 143,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "exitCode": 1,
+      "seconds": 1.17,
+      "findings": [
+        {
+          "specification": "ISO 19005-2:2011",
+          "clause": "6.1.2",
+          "testNumber": 2,
+          "failedChecks": 1
+        }
+      ]
+    },
+    {
+      "id": "verapdf-3b-pass",
+      "sha256": "5b8fdee7090f0a0fb7266d10dd0f6f1f8a37d286e3c06b1aa82e01d6d4f0a8a4",
+      "bytes": 4976,
+      "profile": "3b",
+      "compliant": true,
+      "passedRules": 146,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.3,
+      "findings": []
+    },
+    {
+      "id": "verapdf-3b-fail",
+      "sha256": "0dc9b74e825a504226bf95a768eb171cf11b9c880a43cfc275f49c2a934312e4",
+      "bytes": 4987,
+      "profile": "3b",
+      "compliant": false,
+      "passedRules": 145,
+      "failedRules": 1,
+      "failedChecks": 2,
+      "exitCode": 1,
+      "seconds": 1.38,
+      "findings": [
+        {
+          "specification": "ISO 19005-3:2012",
+          "clause": "6.8",
+          "testNumber": 4,
+          "failedChecks": 2
+        }
+      ]
+    },
+    {
+      "id": "verapdf-4-pass",
+      "sha256": "781ac228f26df7e2a29e010b9cc3103898acab60638f15f2034ac2100e389646",
+      "bytes": 3071,
+      "profile": "4",
+      "compliant": true,
+      "passedRules": 109,
+      "failedRules": 0,
+      "failedChecks": 0,
+      "exitCode": 0,
+      "seconds": 1.5,
+      "findings": []
+    },
+    {
+      "id": "verapdf-4-fail",
+      "sha256": "29937e700e869402a10f01bb8c14f14c6a19bd029a088808c44cd8a736c1dec9",
+      "bytes": 3019,
+      "profile": "4",
+      "compliant": false,
+      "passedRules": 108,
+      "failedRules": 1,
+      "failedChecks": 1,
+      "exitCode": 1,
+      "seconds": 1.21,
+      "findings": [
+        {
+          "specification": "ISO 19005-4:2020",
+          "clause": "6.1.12",
+          "testNumber": 1,
+          "failedChecks": 1
+        }
+      ]
+    }
+  ]
+}

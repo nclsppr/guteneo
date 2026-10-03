@@ -1,0 +1,371 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "verapdf-ua1-pass",
+      "file": "ua1-pass.pdf",
+      "sha256": "60f13bd812e3b5c8abd19c5ed01cc447dd433cc3b48e0b07cf5105067f8ffdf9",
+      "profiles": [
+        {
+          "profile": "ua1",
+          "compliant": true,
+          "passedRules": 106,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_UA-1/7.1%20General/7.1-t03-pass-b.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_UA-1/7.1 General/7.1-t03-pass-b.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-ua1-fail",
+      "file": "ua1-fail.pdf",
+      "sha256": "7f6b4eaeb06a35d14d0352919e0f58b44833962e323811ac4737f8a45c6621cb",
+      "profiles": [
+        {
+          "profile": "ua1",
+          "compliant": false,
+          "passedRules": 105,
+          "failedRules": 1,
+          "failedChecks": 2,
+          "findings": [
+            {
+              "specification": "ISO 14289-1:2014",
+              "clause": "7.1",
+              "testNumber": 3,
+              "failedChecks": 2
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_UA-1/7.1%20General/7.1-t03-fail-b.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_UA-1/7.1 General/7.1-t03-fail-b.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-ua2-pass",
+      "file": "ua2-pass.pdf",
+      "sha256": "909b4eeed185f5dc57ed510e2c66d7f0c9eecc2665681b1465689fd28f7fdaff",
+      "profiles": [
+        {
+          "profile": "ua2",
+          "compliant": true,
+          "passedRules": 1727,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_UA-2/5%20Version%20identification/5-t02-pass-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_UA-2/5 Version identification/5-t02-pass-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-ua2-fail",
+      "file": "ua2-fail.pdf",
+      "sha256": "71b6a2212b91d7de0e06d5c87f33e899b79ff27dd7086155ada672817ee6b8f9",
+      "profiles": [
+        {
+          "profile": "ua2",
+          "compliant": false,
+          "passedRules": 1726,
+          "failedRules": 1,
+          "failedChecks": 1,
+          "findings": [
+            {
+              "specification": "ISO 14289-2:2024",
+              "clause": "5",
+              "testNumber": 2,
+              "failedChecks": 1
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_UA-2/5%20Version%20identification/5-t02-fail-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_UA-2/5 Version identification/5-t02-fail-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-1b-pass",
+      "file": "1b-pass.pdf",
+      "sha256": "97e30bd4477b02f139dfed1613346a09491babd3d9297d989df5829c2ecd1a48",
+      "profiles": [
+        {
+          "profile": "1b",
+          "compliant": true,
+          "passedRules": 129,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-1b/6.2%20Graphics/6.2.2%20Output%20intent/veraPDF%20test%20suite%206-2-2-t01-pass-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-1b/6.2 Graphics/6.2.2 Output intent/veraPDF test suite 6-2-2-t01-pass-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-1b-fail",
+      "file": "1b-fail.pdf",
+      "sha256": "27cea05ddaf18404c6beaa997a5dd23b483bc127a1ca6577d8c00e868b3d29e6",
+      "profiles": [
+        {
+          "profile": "1b",
+          "compliant": false,
+          "passedRules": 128,
+          "failedRules": 1,
+          "failedChecks": 1,
+          "findings": [
+            {
+              "specification": "ISO 19005-1:2005",
+              "clause": "6.2.3.3",
+              "testNumber": 3,
+              "failedChecks": 1
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-1b/6.2%20Graphics/6.2.2%20Output%20intent/veraPDF%20test%20suite%206-2-2-t02-fail-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-1b/6.2 Graphics/6.2.2 Output intent/veraPDF test suite 6-2-2-t02-fail-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-2b-pass",
+      "file": "2b-pass.pdf",
+      "sha256": "7db294af5f6572c2b009a57de9d629cbf231d1c3f43b7b895cf487eeb71cf788",
+      "profiles": [
+        {
+          "profile": "2b",
+          "compliant": true,
+          "passedRules": 144,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-2b/6.1%20File%20structure/6.1.2%20File%20header/veraPDF%20test%20suite%206-1-2-t02-pass-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-2b/6.1 File structure/6.1.2 File header/veraPDF test suite 6-1-2-t02-pass-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-2b-fail",
+      "file": "2b-fail.pdf",
+      "sha256": "9bbe29a8a4834073d2d16d8ba70d566620f14da826be377d89e856b7a5fef009",
+      "profiles": [
+        {
+          "profile": "2b",
+          "compliant": false,
+          "passedRules": 143,
+          "failedRules": 1,
+          "failedChecks": 1,
+          "findings": [
+            {
+              "specification": "ISO 19005-2:2011",
+              "clause": "6.1.2",
+              "testNumber": 2,
+              "failedChecks": 1
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-2b/6.1%20File%20structure/6.1.2%20File%20header/veraPDF%20test%20suite%206-1-2-t02-fail-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-2b/6.1 File structure/6.1.2 File header/veraPDF test suite 6-1-2-t02-fail-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-3b-pass",
+      "file": "3b-pass.pdf",
+      "sha256": "5b8fdee7090f0a0fb7266d10dd0f6f1f8a37d286e3c06b1aa82e01d6d4f0a8a4",
+      "profiles": [
+        {
+          "profile": "3b",
+          "compliant": true,
+          "passedRules": 146,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-3b/6.8%20Embedded%20files/veraPDF%20test%20suite%206-8-t02-pass-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-3b/6.8 Embedded files/veraPDF test suite 6-8-t02-pass-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-3b-fail",
+      "file": "3b-fail.pdf",
+      "sha256": "0dc9b74e825a504226bf95a768eb171cf11b9c880a43cfc275f49c2a934312e4",
+      "profiles": [
+        {
+          "profile": "3b",
+          "compliant": false,
+          "passedRules": 145,
+          "failedRules": 1,
+          "failedChecks": 2,
+          "findings": [
+            {
+              "specification": "ISO 19005-3:2012",
+              "clause": "6.8",
+              "testNumber": 4,
+              "failedChecks": 2
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-3b/6.8%20Embedded%20files/veraPDF%20test%20suite%206-8-t02-fail-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-3b/6.8 Embedded files/veraPDF test suite 6-8-t02-fail-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-4-pass",
+      "file": "4-pass.pdf",
+      "sha256": "781ac228f26df7e2a29e010b9cc3103898acab60638f15f2034ac2100e389646",
+      "profiles": [
+        {
+          "profile": "4",
+          "compliant": true,
+          "passedRules": 109,
+          "failedRules": 0,
+          "failedChecks": 0,
+          "findings": []
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-4/6.1%20File%20structure/6.1.12%20Document%20catalog%20dictionary/veraPDF%20test%20suite%206-1-12-t01-pass-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-4/6.1 File structure/6.1.12 Document catalog dictionary/veraPDF test suite 6-1-12-t01-pass-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    },
+    {
+      "id": "verapdf-4-fail",
+      "file": "4-fail.pdf",
+      "sha256": "29937e700e869402a10f01bb8c14f14c6a19bd029a088808c44cd8a736c1dec9",
+      "profiles": [
+        {
+          "profile": "4",
+          "compliant": false,
+          "passedRules": 108,
+          "failedRules": 1,
+          "failedChecks": 1,
+          "findings": [
+            {
+              "specification": "ISO 19005-4:2020",
+              "clause": "6.1.12",
+              "testNumber": 1,
+              "failedChecks": 1
+            }
+          ]
+        }
+      ],
+      "source": {
+        "url": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/PDF_A-4/6.1%20File%20structure/6.1.12%20Document%20catalog%20dictionary/veraPDF%20test%20suite%206-1-12-t01-fail-a.pdf",
+        "repository": "veraPDF/veraPDF-corpus",
+        "commit": "bb75f4f0073d9350dfd058c0162a367e6fadf25e",
+        "path": "PDF_A-4/6.1 File structure/6.1.12 Document catalog dictionary/veraPDF test suite 6-1-12-t01-fail-a.pdf"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "veraPDF Corpus, veraPDF contributors; unmodified reference from the official veraPDF corpus, licensed CC BY 4.0.",
+        "noticeUrl": "https://raw.githubusercontent.com/veraPDF/veraPDF-corpus/bb75f4f0073d9350dfd058c0162a367e6fadf25e/README.md"
+      }
+    }
+  ]
+}

@@ -4,3 +4,6 @@ dist
 tests
 scripts
 package-lock.json
+qualification
+.dev.vars*
+.env*

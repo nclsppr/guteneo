@@ -9,7 +9,7 @@ export function horizonErrorMessage(code: string): string | undefined {
       "Le forfait Horizon est en préparation. La souscription n’est pas encore ouverte.",
     ),
     HORIZON_UNAVAILABLE: msg(
-      "Le forfait Horizon est en préparation. La souscription n’est pas encore ouverte.",
+      "Le service Horizon est actuellement indisponible. Actualisez l’offre dans votre atelier avant de recommencer.",
     ),
     HORIZON_TERMS_CHANGED: msg(
       "Les conditions du forfait ont changé. Actualisez l’offre avant de confirmer.",

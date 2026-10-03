@@ -1,5 +1,12 @@
 # Horizon PDF diagnostics — branch candidate
 
+3 October update: this implementation and migrations 0050/0051 are published in
+`main` at `c5cc0dd`. Nicolas now authorizes qualification and activation on existing
+credits, while deferring recharge and commercial completion. Hosted validator
+evidence and opening remain distinct from that authorization. See
+[the opening decision](HORIZON_OPENING_2026_10_03.md); the dated candidate account
+below records the original preparation and its safeguards.
+
 Prepared on 2 October 2026. **guteneo Horizon** costs **EUR30/month**, debited as
 **3000 integer minor units** from available organization credits after explicit
 recurring consent by the authenticated browser administrator. Members and

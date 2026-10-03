@@ -58,6 +58,10 @@ import {
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
 import { HorizonPage } from "./horizon-plan";
+import {
+  horizonPublicAvailability,
+  type PublicCapabilities,
+} from "./horizon-public";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { RolePermissionNotice } from "./role-guide";
@@ -87,6 +91,15 @@ const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const DocumentStudio = lazy(() => import("./document-studio"));
 
 export function Landing() {
+  // One public read feeds both the offer and FAQ. A new homepage entry gets a
+  // fresh resource; SSR runs no effect and public preview calls no backend.
+  const capabilities = useResource<PublicCapabilities>(
+    publicPreview ? null : "/capabilities",
+  );
+  const horizon = horizonPublicAvailability(
+    capabilities.error ? undefined : capabilities.data,
+    capabilities.loading,
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
@@ -306,8 +319,8 @@ export function Landing() {
         <HomepageFilm />
         <GuidedExample />
         <Installation />
-        <WelcomePricing />
-        <FrequentlyAsked />
+        <WelcomePricing horizon={horizon} />
+        <FrequentlyAsked horizon={horizon} />
         <JournalTeaser />
         {publicPreview && (
           <p className="homepage-preview-note">
@@ -610,6 +623,7 @@ function WorkspaceApplication({
   ready: boolean;
 }) {
   const route = useRoute();
+  const page = route.split("?")[0] ?? "/";
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
     () => window.matchMedia("(min-width: 1025px)").matches,
@@ -627,7 +641,7 @@ function WorkspaceApplication({
   const capabilities = useResource<{
     scanner: string;
     registration?: { enabled: boolean };
-  }>("/capabilities");
+  }>(page.startsWith("/app") ? "/capabilities" : null);
   const [logoutError, setLogoutError] = useState<Error>();
   const [sessionExpired, setSessionExpired] = useState(false);
   useEffect(() => {
@@ -672,7 +686,6 @@ function WorkspaceApplication({
       document.removeEventListener("visibilitychange", recheck);
     };
   }, [sessionExpired, session, updateSession]);
-  const page = route.split("?")[0] ?? "/";
   const pathname = window.location.pathname;
   if (pathname === "/journal/") return <JournalPage />;
   const article = getArticles().find(

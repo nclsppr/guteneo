@@ -72,6 +72,23 @@ export function HorizonBenefits() {
   );
 }
 
+export function HorizonCreditTerms() {
+  return (
+    <>
+      <p className="horizon-limit">
+        {msg(
+          "Si votre compte dispose encore d’au moins 30 € de crédits promotionnels, ils peuvent financer la première période. Ce montant est déduit de votre solde.",
+        )}
+      </p>
+      <p className="horizon-limit">
+        {msg(
+          "Sans 30 € de crédits disponibles à l’échéance, le renouvellement est suspendu à la fin de la période payée, sans dette ni solde négatif. La recharge de crédits n’est pas encore disponible.",
+        )}
+      </p>
+    </>
+  );
+}
+
 export function HorizonPage({ session }: { session: Session }) {
   return (
     <>
@@ -223,6 +240,7 @@ export function HorizonOffer({
           "Le forfait est prélevé chaque mois sur les crédits disponibles du compte. Les envois consomment leur propre crédit.",
         )}
       </p>
+      {available && <HorizonCreditTerms />}
       <HorizonBenefits />
       <p className="horizon-limit">
         {msg(
@@ -300,7 +318,7 @@ export function HorizonOffer({
                     "La première période est débitée à la souscription. La résiliation arrête le prochain renouvellement.",
                   )
                 : msg(
-                    "Il faut au moins 30 € de crédits disponibles pour souscrire. Demandez une recharge du compte avant de continuer.",
+                    "Il faut au moins 30 € de crédits disponibles pour souscrire. La recharge de crédits n’est pas encore disponible.",
                   )}
           </p>
           <button
