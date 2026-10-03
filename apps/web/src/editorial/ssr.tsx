@@ -7,6 +7,14 @@ import { getArticles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 import { AssistantsPage } from "../assistants-page";
 import { getAssistant } from "../assistant-catalog";
+import { getLocale, getLocaleSource, setLocale } from "../locale";
+import { msg } from "../messages";
+import { getPublicSocialCopy } from "./social-copy";
+import {
+  isSupportedLocale,
+  type SupportedLocale,
+} from "../../../../packages/contracts/src/locale";
+import { localizePublicSchema } from "../public-sharing";
 
 const origin = "https://guteneo.com";
 const publisher = {
@@ -42,7 +50,7 @@ const editor = {
 };
 const author = {
   "@type": "Organization",
-  name: "Rédaction Guteneo",
+  name: "Guteneo",
   url: `${origin}/journal/`,
 };
 
@@ -53,13 +61,13 @@ function breadcrumbs(items: { name: string; path: string }[]) {
     itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      name: item.name,
+      name: msg(item.name),
       item: origin + item.path,
     })),
   };
 }
 
-export function renderPublicPage(pathname: string) {
+function renderPublicContent(pathname: string) {
   const information = getInformationPages()[pathname];
   if (information)
     return {
@@ -151,8 +159,9 @@ export function renderPublicPage(pathname: string) {
       imageWidth: 1536,
       imageHeight: 1024,
       imageType: "image/webp",
-      imageAlt:
-        "Composition illustrée réunissant une presse ancienne, des lettres, un fax et un ordinateur autour de pages imprimées.",
+      imageAlt: getArticles().find(
+        (article) => article.slug === "de-gutenberg-au-numerique",
+      )!.hero.alt,
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -214,4 +223,34 @@ export function renderPublicPage(pathname: string) {
       ]),
     ],
   };
+}
+
+/** Build-time only: scope the existing catalogs to one synchronous render. */
+export function renderPublicPage(
+  pathname: string,
+  locale: SupportedLocale | null = null,
+) {
+  if (locale !== null && !isSupportedLocale(locale))
+    throw new Error("Unsupported public locale");
+  const previous = getLocale();
+  const previousSource = getLocaleSource();
+  const language = locale ?? "fr";
+  setLocale(language, false, locale ? "selection" : "browser");
+  try {
+    const page = renderPublicContent(pathname);
+    const copy = getPublicSocialCopy(pathname, language);
+    if (!page || !copy) return null;
+    const canonical = origin + pathname + (locale ? `?lang=${locale}` : "");
+    return {
+      ...page,
+      ...copy,
+      canonical,
+      structuredData: ("structuredData" in page
+        ? (page.structuredData ?? [])
+        : []
+      ).map((item) => localizePublicSchema(item, pathname, locale)),
+    };
+  } finally {
+    setLocale(previous, false, previousSource);
+  }
 }

@@ -7,6 +7,7 @@ import test from "node:test";
 import { build } from "vite";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import catalog from "../../packages/contracts/src/public-videos.json" with { type: "json" };
+import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 import {
   PUBLIC_ORIGIN,
   PUBLIC_PATHS,
@@ -55,13 +56,15 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   await writePublicPages({
     output: directory,
     indexable: true,
-    renderPublicPage: (pathname) => ({
-      html: `<main><h1>Public ${pathname}</h1></main>`,
-      title: `Public ${pathname}`,
+    renderPublicPage: (pathname, locale = null) => ({
+      html: `<main><h1>Public ${locale ?? "neutral"} ${pathname}</h1></main>`,
+      title: `Public ${locale ?? "neutral"} ${pathname}`,
       description: "Static SEO fixture",
-      canonical: PUBLIC_ORIGIN + pathname,
+      canonical: PUBLIC_ORIGIN + pathname + (locale ? `?lang=${locale}` : ""),
     }),
   });
+  // Model one absent language artifact: runtime must preserve its 404.
+  await rm(join(directory, site.localizedPrefix, "lb/support/index.html"));
   // Compile the actual production entry into a temporary directory, never shared dist.
   await build({
     configFile: false,
@@ -280,6 +283,83 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
         else assert.match(body, /<div id="root">/);
       }
     }
+    const expectedRobots =
+      origin === PUBLIC_ORIGIN ? null : "noindex, nofollow";
+    for (const locale of site.locales) {
+      for (const path of ["/", "/journal/"]) {
+        const publicUrl = `${origin}${path}?lang=${locale}`;
+        const expected = await readFile(
+          join(
+            directory,
+            site.localizedPrefix,
+            locale,
+            path.slice(1),
+            "index.html",
+          ),
+          "utf8",
+        );
+        const response = await mf.dispatchFetch(publicUrl);
+        assert.equal(response.status, 200);
+        assert.equal(await response.text(), expected);
+        assert.equal(response.headers.get("X-Robots-Tag"), expectedRobots);
+        assert.match(
+          response.headers.get("Content-Security-Policy"),
+          /frame-ancestors 'none'/,
+        );
+        const etag = response.headers.get("ETag");
+        assert.ok(etag);
+        const head = await mf.dispatchFetch(publicUrl, { method: "HEAD" });
+        assert.equal(head.status, 200);
+        assert.equal(head.headers.get("ETag"), etag);
+        assert.equal(await head.text(), "");
+        const conditional = await mf.dispatchFetch(publicUrl, {
+          headers: { "If-None-Match": etag },
+        });
+        assert.equal(conditional.status, 304);
+        assert.equal(conditional.headers.get("X-Robots-Tag"), expectedRobots);
+        const privateVariant = await mf.dispatchFetch(
+          `${publicUrl}&code=fixture`,
+        );
+        assert.equal(privateVariant.status, 200);
+        assert.equal(await privateVariant.text(), expected);
+        assert.equal(
+          privateVariant.headers.get("X-Robots-Tag"),
+          "noindex, nofollow",
+        );
+        assert.equal(privateVariant.headers.get("Cache-Control"), "no-store");
+      }
+    }
+    const neutral = await readFile(join(directory, "index.html"), "utf8");
+    for (const query of ["?lang=es", "?lang=en&lang=de", "?lang=en&lang=en"]) {
+      const response = await mf.dispatchFetch(`${origin}/${query}`, {
+        headers: { "Accept-Language": "de-DE", Cookie: "guteneo.locale=en" },
+      });
+      assert.equal(await response.text(), neutral);
+    }
+    const missing = await mf.dispatchFetch(`${origin}/support/?lang=lb`);
+    assert.equal(missing.status, 404);
+    assert.equal(missing.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    for (const path of [
+      `${site.localizedPrefix}/en/`,
+      `${site.localizedPrefix}%2Fen/index.html`,
+      "/%5f%5fpublic-locales/en/",
+    ]) {
+      const direct = await mf.dispatchFetch(origin + path);
+      assert.equal(direct.status, 404);
+      assert.equal(direct.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    }
+  }
+  for (const alias of ["/journal", "/journal/index.html"]) {
+    const redirect = await mf.dispatchFetch(
+      `${PUBLIC_ORIGIN}${alias}?lang=en`,
+      { redirect: "manual" },
+    );
+    assert.ok([301, 302, 307, 308].includes(redirect.status));
+    assert.equal(
+      new URL(redirect.headers.get("Location"), PUBLIC_ORIGIN).href,
+      `${PUBLIC_ORIGIN}/journal/?lang=en`,
+    );
+    assert.equal(redirect.headers.get("X-Robots-Tag"), "noindex, follow");
   }
   for (const path of [
     "/does-not-exist/",
@@ -310,7 +390,11 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   const sitemap = await mf.dispatchFetch(PUBLIC_ORIGIN + "/sitemap.xml");
   assert.deepEqual(
     [...(await sitemap.text()).matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]),
-    PUBLIC_PATHS.map((p) => PUBLIC_ORIGIN + p),
+    PUBLIC_PATHS.flatMap((p) =>
+      [null, ...site.locales].map(
+        (locale) => PUBLIC_ORIGIN + p + (locale ? `?lang=${locale}` : ""),
+      ),
+    ),
   );
   assert.equal(
     (await mf.dispatchFetch(PUBLIC_ORIGIN + "/art.svg")).headers.get(

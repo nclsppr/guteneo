@@ -27,7 +27,7 @@ Avant connexion, une indication publique `?lang=de` est prioritaire, puis le cho
 explicite conservé dans ce navigateur, puis les langues du navigateur. Les variantes
 régionales telles que `de-AT` sont reconnues. Sans langue prise en charge, le
 français est utilisé. Un stockage navigateur indisponible ne bloque pas le choix.
-Un changement de langue actualise un paramètre `lang` déjà présent dans l’URL.
+Un choix explicite sur une page publique ajoute ou actualise `lang` dans l’URL, afin que le lien copié conserve la langue. Les liens internes publics conservent aussi ce choix, y compris si le stockage local est bloqué. Les routes privées gardent leur comportement existant.
 Le choix « Automatique » rétablit la première langue prise en charge parmi les
 préférences du navigateur ; sur le Web, ce signal reflète généralement les réglages
 du système, sans accès direct à la langue d’iOS. Il retire le choix conservé sur
@@ -95,9 +95,13 @@ communications préparées par les utilisateurs.
 
 Le format des montants conserve la précision entière/nano-EUR des devis. Les
 navigateurs dont ICU ne connaît pas `lb-LU` utilisent les formats régionaux
-`de-LU`, avec les textes luxembourgeois. Le rendu HTML public initial reste
-français ; le client applique le choix à l’ouverture. Cette évolution n’ajoute
-pas de routes SEO localisées ni de promesse d’indexation multilingue.
+`de-LU`, avec les textes luxembourgeois. Depuis le candidat du 3 octobre, les URL publiques portant une langue explicite
+servent aussi le HTML initial dans cette langue, avec les métadonnées de partage,
+les URL canoniques, les alternatives de langue et les données structurées adaptées.
+Le lien générique reste une page initiale française avec un aperçu de partage neutre
+(logo et domaine), puis le client applique les préférences du visiteur. Les variantes
+figurent dans le sitemap ; leur présence ne prouve pas leur indexation. Voir
+[TECHNICAL_SEO.md](TECHNICAL_SEO.md) pour le contrat et les limites de preuve.
 
 ## Maintenir les traductions
 

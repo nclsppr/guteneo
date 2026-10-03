@@ -32,6 +32,7 @@ import {
 } from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
 import { LanguageMenu, LanguageSelect } from "./language-select";
+import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
@@ -571,14 +572,7 @@ export function App() {
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", description);
-    for (const selector of [
-      'meta[property="og:title"]',
-      'meta[name="twitter:title"]',
-    ])
-      document.querySelector(selector)?.setAttribute("content", document.title);
-    document
-      .querySelector('meta[property="og:description"]')
-      ?.setAttribute("content", description);
+    syncPublicSharing();
   }, [locale]);
   const publicPath = window.location.pathname;
   if (publicPath === "/invitation" || publicPath === "/invitation/")

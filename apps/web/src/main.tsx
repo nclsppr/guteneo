@@ -8,6 +8,7 @@ import "@fontsource/eb-garamond/latin-400.css";
 import "@fontsource/eb-garamond/latin-500.css";
 import "@fontsource/eb-garamond/latin-400-italic.css";
 import { initializeLocale } from "./locale";
+import { observePublicLinks } from "./public-sharing";
 import { App } from "./App";
 import "./styles.css";
 import "./protected-document.css";
@@ -27,6 +28,7 @@ if (
 }
 
 initializeLocale();
+observePublicLinks(document.getElementById("root")!);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

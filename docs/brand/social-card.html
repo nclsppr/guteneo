@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr">
+<html lang="und">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1200" />
-    <title>guteneo — Carte de partage</title>
+    <title>guteneo.com</title>
     <style>
       @font-face {
         font-family: "EB Garamond";
@@ -63,6 +63,7 @@
         font-size: 17px;
         line-height: 1;
         letter-spacing: 2.2px;
+        text-transform: uppercase;
       }
       h1 {
         position: absolute;
@@ -73,6 +74,15 @@
           500 88px/0.99 "EB Garamond",
           serif;
         letter-spacing: -2px;
+      }
+      h1 span {
+        display: block;
+        white-space: nowrap;
+      }
+      [data-locale="en"] h1,
+      [data-locale="de"] h1 {
+        font-size: 78px;
+        line-height: 1.1;
       }
       .stamp {
         position: absolute;
@@ -104,23 +114,53 @@
         font-size: 19px;
         line-height: 1;
         letter-spacing: 1.3px;
+        text-transform: uppercase;
       }
       .domain {
         font-size: 42px;
         line-height: 1;
         letter-spacing: -0.7px;
       }
+      /* The international card is a complete brand composition of its own. */
+      [data-locale="neutral"] .wordmark {
+        top: 183px;
+        left: 68px;
+        font-size: 158px;
+        letter-spacing: -6px;
+      }
+      [data-locale="neutral"] .stamp {
+        left: 730px;
+        top: 112px;
+        width: 385px;
+        height: 385px;
+      }
+      [data-locale="neutral"] .postmark {
+        left: 656px;
+        top: 380px;
+      }
+      [data-locale="neutral"] footer {
+        top: 366px;
+        right: auto;
+        padding: 0;
+        border: 0;
+      }
+      [data-locale="neutral"] .domain {
+        font-size: 52px;
+      }
+      [hidden] {
+        display: none !important;
+      }
     </style>
   </head>
-  <body>
+  <body data-locale="neutral">
     <main class="card">
       <p class="wordmark">guteneo</p>
-      <p class="eyebrow">VOTRE ATELIER DE CORRESPONDANCE</p>
-      <h1>La suite<br />de vos mots.</h1>
+      <p class="eyebrow" hidden></p>
+      <h1 hidden></h1>
       <img
         class="stamp"
         src="../../apps/web/public/brand/guteneo-portrait.png"
-        alt="Logo de Guteneo : timbre bleu au portrait de Gutenberg"
+        alt="guteneo.com"
         width="340"
         height="340"
       />
@@ -146,9 +186,64 @@
         </g>
       </svg>
       <footer>
-        <span class="channels">FAX · E-MAIL · COURRIER</span>
+        <span class="channels" hidden></span>
         <span class="domain">guteneo.com</span>
       </footer>
     </main>
+    <script>
+      // Open this source with ?lang=fr (or en, de, lb) to edit a variant.
+      // The offline renderer uses the same function for every exported PNG.
+      const copy = {
+        neutral: { headline: [], eyebrow: "", channels: "" },
+        fr: {
+          headline: ["La suite", "de vos mots."],
+          eyebrow: "Votre atelier de correspondance",
+          channels: "Fax · E-mail · Courrier",
+        },
+        en: {
+          headline: ["Where your words", "go next."],
+          eyebrow: "Your correspondence workshop",
+          channels: "Fax · E-mail · Post",
+        },
+        de: {
+          headline: ["Damit Ihre Worte", "weiterkommen."],
+          eyebrow: "Ihre Korrespondenzwerkstatt",
+          channels: "Fax · E-Mail · Post",
+        },
+        lb: {
+          headline: ["Är Wierder ginn", "op d’Rees."],
+          eyebrow: "Ären Atelier fir Korrespondenz",
+          channels: "Fax · E-Mail · Bréifpost",
+        },
+      };
+      window.renderSocialCard = (locale) => {
+        if (!Object.hasOwn(copy, locale)) {
+          throw new Error(`Unknown social-card locale: ${locale}`);
+        }
+        const content = copy[locale];
+        document.documentElement.lang = locale === "neutral" ? "und" : locale;
+        document.body.dataset.locale = locale;
+        const headline = document.querySelector("h1");
+        headline.replaceChildren(
+          ...content.headline.map((line) => {
+            const span = document.createElement("span");
+            span.textContent = line;
+            return span;
+          }),
+        );
+        headline.hidden = locale === "neutral";
+        for (const field of ["eyebrow", "channels"]) {
+          const element = document.querySelector(`.${field}`);
+          element.textContent = content[field];
+          element.hidden = locale === "neutral";
+        }
+        document.title = content.headline.length
+          ? `guteneo — ${content.headline.join(" ")}`
+          : "guteneo.com";
+      };
+      window.renderSocialCard(
+        new URLSearchParams(window.location.search).get("lang") || "neutral",
+      );
+    </script>
   </body>
 </html>

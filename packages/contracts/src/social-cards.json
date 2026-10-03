@@ -1,0 +1,37 @@
+{
+  "neutral": {
+    "src": "/social/guteneo-share-neutral-20261003.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo.com"
+  },
+  "fr": {
+    "src": "/social/guteneo-share-fr-20261003.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo — La suite de vos mots. Logo au portrait de Gutenberg et guteneo.com."
+  },
+  "en": {
+    "src": "/social/guteneo-share-en-20261003.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo — Where your words go next. Gutenberg portrait logo and guteneo.com."
+  },
+  "de": {
+    "src": "/social/guteneo-share-de-20261003.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo — Damit Ihre Worte weiterkommen. Logo mit Gutenberg-Porträt und guteneo.com."
+  },
+  "lb": {
+    "src": "/social/guteneo-share-lb-20261003.png",
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "alt": "guteneo — Är Wierder ginn op d’Rees. Logo mam Gutenberg-Porträt a guteneo.com."
+  }
+}
