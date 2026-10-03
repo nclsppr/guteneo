@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { publicLanguagePicker } from "../public-language";
+import { publicFilmAsset } from "../../packages/contracts/src/public-videos";
 
 test("the saved account language selects the public film ahead of the browser choice", async ({
   page,
@@ -29,7 +30,7 @@ test("the saved account language selects the public film ahead of the browser ch
   await expect(film.locator("video")).not.toHaveAttribute("src");
   await expect(film.locator(".homepage-film-poster img")).toHaveAttribute(
     "src",
-    "/videos/guteneo-horizontal-v5-de.webp",
+    publicFilmAsset("introduction", "de").poster,
   );
   await page.goto("/roles/?lang=en");
   await expect(page.locator('[data-film="roles"]')).toHaveAttribute(
@@ -38,7 +39,7 @@ test("the saved account language selects the public film ahead of the browser ch
   );
   await expect(
     page.locator('[data-film="roles"] .homepage-film-poster img'),
-  ).toHaveAttribute("src", "/videos/guteneo-roles-v1-de.webp");
+  ).toHaveAttribute("src", publicFilmAsset("roles", "de").poster);
 });
 
 test.use({ locale: "en-GB" });

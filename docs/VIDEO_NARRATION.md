@@ -85,7 +85,11 @@ Les hashes des MP3, WAV et du PCM canonique sont stricts. Les coupes reconstruis
 exactement le signal canonique complet. Certains décodeurs MP3 macOS/Linux
 produisent une différence de quantification : l’éligibilité exige le même nombre
 d’échantillons et au plus **8 LSB PCM24** de différence, mesurée dans la preuve.
-Cette qualification ne prétend pas que les décodeurs sont bit-identiques.
+La qualification utilise le décodeur scalaire FFmpeg (`-cpuflags 0`) pour éviter
+les écarts des chemins optimisés selon le processeur. La fixture
+`tests/fixtures/natural-c-scalar-qualification.json` conserve les mesures des
+24 sources sous Ubuntu arm64 et x86_64. Les WAV canoniques et les médias publiés
+restent inchangés ; les décodeurs ne sont pas déclarés bit-identiques.
 
 ## Musique et régénération hors ligne
 
