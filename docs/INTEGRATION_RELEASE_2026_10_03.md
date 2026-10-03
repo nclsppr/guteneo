@@ -58,6 +58,16 @@ depuis une même source JSON. Aucun fichier de cet atlas n’est intégré aux a
 
 ## Vérification et publication
 
+Le second essai iPhone a passé tous les tests applicatifs et le menu mobile,
+mais la vidéo des rôles en français est restée bloquée à 0,006 seconde sur le
+runner Linux : fichier entièrement bufferisé, lecteur visible, non pausé et
+sans erreur média. Cinq lectures WebKit locales du même fichier ont réussi.
+Les sessions de la maquette sont désormais exclusives en CI pour éviter le
+partage concurrent des ressources audio/GStreamer ; les assertions de lecture,
+dimensions, durée et décodage de la carte finale restent intégralement exigées.
+Cette mesure de stabilisation ne constitue pas une preuve de la cause interne
+du blocage et doit encore être confirmée par la CI complète.
+
 La CI complète doit réussir sur le candidat final, puis sur le commit fusionné
 dans `main`. Les preuves ciblées et historiques ne remplacent pas ces deux gates.
 Le contrôle de publication exige `main` propre, synchronisé avec `origin/main`,
