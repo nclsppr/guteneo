@@ -73,10 +73,10 @@ export const fr = {
       title: "La suite de vos mots.",
       italic: "En mouvement.",
       intro:
-        "Ce film de 56 secondes présente Guteneo, de la préparation d’un document à son envoi par fax, e-mail ou courrier postal.",
+        "Ce film présente Guteneo, de la préparation d’un document à son envoi par fax, e-mail ou courrier postal.",
       play: "Découvrir le film",
       replay: "Revoir le film",
-      duration: "56 secondes · Avec le son",
+      duration: "{duration} secondes · Avec le son",
       videoLabel: "Film de présentation de Guteneo",
       fullscreen: "Plein écran",
       close: "Fermer le lecteur",
@@ -85,7 +85,7 @@ export const fr = {
         "La lecture n’a pas pu démarrer. Vérifiez votre connexion, puis réessayez.",
       transcriptTitle: "Lire la présentation du film",
       transcript:
-        "D’un document à plus de 10 000, Guteneo distribue vos campagnes, des plus simples aux plus personnalisées. Importez un PDF ou créez votre propre modèle. Depuis ChatGPT, Claude ou Copilot, demandez à votre assistant de générer un PDF, puis préparez son envoi avec Guteneo. Relisez le bon à tirer et vérifiez le devis avant de valider. Choisissez l’e-mail classique ou chiffré, le fax, ou l’impression et la distribution postale dans toute l’Europe. Retrouvez aussi Guteneo sur le web et dans l’application iOS. Guteneo. La suite de vos mots.",
+        "Avec guteneo, tout commence par un document à transmettre. Préparez un envoi unique, ou organisez toute une campagne de documents. Personnalisez chaque version pour qu’elle corresponde à son destinataire. Importez votre PDF original, ou utilisez un modèle pour créer votre document. Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. Demandez-lui de créer votre PDF, puis de préparer son envoi. Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. Votre message peut voyager par fax, par courrier postal ou par e-mail. Vos documents traversent l’Europe pour rejoindre leurs destinataires. guteneo relie votre atelier numérique au courrier qui arrive à destination. Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
     },
     pricing: {
       title: "De quoi commencer.",

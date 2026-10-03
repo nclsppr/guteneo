@@ -20,22 +20,22 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
       "horizontal",
       "vertical",
     ]);
-    const suffix = locale === "fr" ? "" : `-${locale}`;
-    const narrated = locale === "fr" || locale === "en";
-    for (const format of ["horizontal", "vertical"]) {
-      assert.deepEqual(catalog.introduction[locale][format], {
-        movie: `/videos/guteneo-${format}-v${narrated ? 6 : 5}-${locale}.mp4`,
-        poster: `/videos/guteneo-${format}-v5${suffix}.webp`,
-        ...(narrated ? { captions: `/videos/guteneo-v6.${locale}.vtt` } : {}),
-      });
+    for (const kind of ["introduction", "roles"]) {
+      const timeline = JSON.parse(await readFile(new URL(
+        `videos/guteneo-film/narration/releases/${kind}-${locale}-natural-c-v1/timeline.json`, root), "utf8"));
+      const formats = kind === "introduction" ? ["horizontal", "vertical"] : ["roles"];
+      for (const format of formats) {
+        const version = kind === "introduction" ? 8 : locale === "fr" ? 3 : 4;
+        const asset = kind === "introduction" ? catalog.introduction[locale][format] : catalog.roles[locale];
+        assert.deepEqual(asset, {
+          movie: `/videos/guteneo-${format}-v${version}-${locale}.mp4`,
+          poster: `/videos/guteneo-${format}-v${version}-${locale}.webp`,
+          captions: `/videos/guteneo-${kind === "introduction" ? "v8" : `roles-v${version}`}.${locale}.vtt`,
+          durationSeconds: timeline.durationSeconds,
+        });
+        assert.equal(timeline.endCardDurationInFrames, 150, "every film keeps its five second logo");
+      }
     }
-    assert.deepEqual(catalog.roles[locale], {
-      movie: `/videos/guteneo-roles-v${locale === "en" ? 2 : 1}-${locale}.mp4`,
-      poster: `/videos/guteneo-roles-v1-${locale}.webp`,
-      ...(locale === "en"
-        ? { captions: `/videos/guteneo-roles-v2.${locale}.vtt` }
-        : {}),
-    });
     assets.push(
       ...Object.values(catalog.introduction[locale]),
       catalog.roles[locale],
@@ -57,7 +57,7 @@ test("public film manifest describes the exact deployed MP4 bytes and fast-start
   for (const asset of assets) {
     assert.match(
       asset.movie,
-      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-(?:v5-(?:de|lb)|v6-(?:fr|en))|roles-(?:v1-(?:fr|de|lb)|v2-en))\.mp4$/,
+      /^\/videos\/guteneo-(?:(?:horizontal|vertical)-v8-(?:fr|en|de|lb)|roles-(?:v3-fr|v4-(?:en|de|lb)))\.mp4$/,
     );
     const poster = await readFile(
       new URL(`apps/web/public${asset.poster}`, root),

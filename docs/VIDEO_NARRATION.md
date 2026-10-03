@@ -1,364 +1,137 @@
 # Narration des vidéos guteneo
 
-État du 3 octobre 2026 : les voix françaises et anglaises ont été générées dans
-**Safari, sur le site ElevenLabs**, depuis le compte Creator observé actif.
-Les 34 séquences retenues sont des prises **Génération 2** ; elles ont été
-importées, calées et mixées dans six candidats locaux. Leur intégrité, leur
-décodage et la conservation des images et de la conclusion ont été contrôlés.
-Cette note ne constitue pas une preuve de diffusion en production.
-Les 17 exports allemands sont disponibles ; le lot luxembourgeois reste à
-générer. L’utilisateur compare trois méthodes en français avant la suite.
+La méthode retenue par l’utilisateur est **C : trois blocs contextualisés**, avec
+une voix off en phrases complètes. Elle s’applique aux douze films du catalogue
+public : les introductions horizontale et iPhone et la présentation des quatre
+rôles, en français, anglais, allemand et luxembourgeois. Les deux formats de
+l’introduction partagent une narration ; les rôles ont leur texte propre.
 
-Les mixages français provisoires réalisés avec les premières prises sont
-obsolètes et ne font pas partie du lot retenu.
-Récupérer la variante 2 déjà présente dans l’historique ne signifie pas refaire
-une génération dans l’interface et ne déclenche pas de nouvelle tentative
-fournisseur.
+## Règles éditoriales
 
-Direction choisie : **voix masculine, calme et chaleureuse**, diction naturelle,
-sans emphase publicitaire. La voix utilisée est **George**, identifiant
-`JBFqnCBsd6RMkjVDRZzb` copié depuis l’interface, avec **Eleven v4**. Ce choix ne
-constitue pas encore une validation de l’accent ou du rendu dans chaque langue.
+La narration présente les plans comme une personne présentant des diapositives.
+Les accroches visuelles ne doivent pas être lues comme une suite de mots isolés.
+Les phrases décrivant les permissions suivent `WORKSPACE_ROLES.md` et le contrat
+`packages/contracts/src/roles.ts`. L’amélioration de style ne change aucun droit.
 
-## Périmètre
+Utiliser **Manon Voix française spontanée sérieuse**,
+`m5U7XCsc8v988k2RJAqN`, quand la voix et la langue sont compatibles. À défaut,
+choisir une voix féminine pour la langue et enregistrer le choix réel. La langue
+est explicitement `fr`, `en`, `de` ou `lb` ; le lecteur suit la langue résolue de
+l’interface et la préférence personnelle du compte. Ces règles figurent dans
+`AGENTS.md`.
 
-Le lot prévu pour les douze vidéos actuellement diffusées comprend huit
-narrations :
+Passer le texte complet par l’action native ElevenLabs **Améliorer**, puis
+accepter avec **Garder**. Vérifier les mots et les permissions. Conserver le
+résultat natif exact dans `enhancement.json`. Pour une présentation calme, les
+balises peuvent être harmonisées vers `[thoughtful]` et `[short pause]` et les
+effets non verbaux retirés ; enregistrer ces interventions dans `editorialEdits`.
+Le résultat accepté et la version éditoriale finale ne sont pas confondus.
 
-| Langue | Introduction, 56 s | Rôles, 36 s |
-| --- | --- | --- |
-| Français | Horizontal + iPhone, piste partagée | Quatre rôles |
-| Anglais | Horizontal + iPhone, piste partagée | Quatre rôles |
-| Allemand | Horizontal + iPhone, piste partagée | Quatre rôles |
-| Luxembourgeois | Horizontal + iPhone, piste partagée | Quatre rôles |
+Les introductions regroupent leurs onze paragraphes en blocs **4 / 4 / 3** ; les
+rôles regroupent leurs six paragraphes en blocs **2 / 2 / 2**. L’indication de ton
+est reprise au début de chaque bloc. Les pauses entre blocs sont placées au
+montage.
 
-Les textes et fenêtres de scène sont dans
-`videos/guteneo-film/narration/scripts.json`. Ils peuvent être raccourcis pendant
-le calage : le nombre de séquences et de caractères se calcule depuis le
-manifest courant avec `npm run videos:narration`, sans compteur figé dans cette
-documentation. Les anciennes révisions archivées ne sont pas incluses dans ce lot.
-Les voix sont placées dans
-les scènes existantes ; les cinq dernières secondes restent réservées au timbre
-officiel, à `guteneo.com` et à la musique. Le plan Signature de l’introduction
-reste également sans narration. Le texte ne change aucun droit métier.
+## Génération ElevenLabs
 
-## Accès ElevenLabs et réglages
+Le plugin Creative Studio est le premier parcours de synthèse : rechercher la
+voix, vérifier le schéma réel du modèle, créer les nodes TTS `eleven_v4` avec
+`voice_id` et `model_parameters.language_code`, puis lancer **deux variations
+par bloc**. Retenir la seconde variation en liant les IDs de session et de
+génération, sans déduire son rang de l’ordre des médias retournés.
 
-Le plugin **ElevenLabs est installé et activé**, mais cette session n’expose
-aucun outil MCP ElevenLabs invocable, notamment `creative_list_voices` ou
-`creative_generate_speech`. Le parcours effectivement utilisé est le navigateur
-Safari connecté, avec l’autorisation de génération donnée par l’utilisateur.
-La connexion du plugin ne fournit pas une clé API au client local.
+Un résultat inconnu exige la consultation du flow et de ses sessions, sans
+relancer une génération. Archiver les MP3 originaux avec leurs SHA-256, tailles,
+durées et reçus nettoyés. Ne pas enregistrer de token ou d’URL signée. Une
+estimation de génération n’est pas un reçu de consommation.
 
-Dans l’interface TTS, sélectionner [Eleven v4](https://elevenlabs.io/v4), George,
-**Stability 50 %** et **Similarity 75 %**, puis exporter en **MP3 à 128 kbit/s**.
-Le plan local porte `modelId: eleven_v4`, `outputFormat: mp3_44100_128`,
-`stability: 0.5` et `similarity_boost: 0.75`.
-Activer l’override de langue correspondant à chaque séquence : français `fr`,
-anglais `en`, allemand `de`, luxembourgeois `lb`. Une langue ou un modèle
-indisponible doit interrompre ce parcours, sans substitution silencieuse.
+La provenance actuelle est `elevenlabs-creative-plugin`, `variationIndex: 2`.
+Elle est distincte de `elevenlabs-web`, `webGeneration: 2` du lot George
+historique. La préférence pour le second résultat est conservée, sans inventer
+une provenance web.
 
-Les générations web consomment les crédits du compte. Le compte Creator actif
-est une preuve de l’état observé dans l’UI ; ce n’est pas une preuve de passage
-du préflight API, ni un reçu chiffré pour chaque export. Les tarifs, quotas et
-conditions restent ceux du compte au moment de l’opération.
+Le connecteur n’expose pas l’action native Enhance : Safari fournit cette
+fonction depuis le compte connecté. Les exports natifs Scribe peuvent également
+servir à vérifier les frontières lorsque le connecteur ou l’ASR local ne fournit
+pas une reconnaissance indépendante avec des horodatages utilisables.
 
-## Plan local et configuration
+La [documentation TTS ElevenLabs](https://elevenlabs.io/docs/overview/capabilities/text-to-speech/best-practices)
+décrit le rythme par les phrases, la ponctuation et les balises. Des timecodes
+écrits dans le prompt ne garantissent pas une durée de voix. Le montage suit donc
+le débit produit. Le modèle est vérifié dans le schéma live du plugin et dans
+[la documentation des modèles](https://elevenlabs.io/docs/overview/models).
 
-Node 22+, FFmpeg et ffprobe sont nécessaires. Aucun nouveau paquet ni service
-de production n’est requis. Depuis la racine, ces commandes sont **hors ligne** :
+## Calage et bibliothèque immuable
+
+Décoder chaque MP3 intégralement en PCM24 mono 44,1 kHz. Reconnaître les mots sans
+fournir le texte attendu comme prompt. Les frontières internes combinent les
+mots horodatés et une pause acoustique ; conserver les différences réelles de
+transcription, notamment les noms propres. Une transcription peu fiable ne
+justifie pas de fabriquer des mots ni leurs timestamps.
+
+Découper aux frontières qualifiées en conservant tous les échantillons, dans
+leur ordre initial : `tempoFactor: 1`. Les scènes sont allongées selon les prises,
+avec leurs durées minimales de lisibilité. Le plan Signature de l’introduction
+conserve deux secondes sans voix ; le logo officiel conserve **cinq secondes**
+sans narration dans les douze films.
+
+Chaque snapshot `narration/releases/{introduction,roles}-{fr,en,de,lb}-natural-c-v1/`
+contient texte, amélioration native, reçus, trois MP3, six ou onze WAV,
+transcriptions, preuve de découpe, timeline et empreintes. Le builder refuse de
+remplacer une bibliothèque existante. Le film des rôles FR approuvé par
+l’utilisateur reste identique ; il conserve son chemin V3.
+
+Les hashes des MP3, WAV et du PCM canonique sont stricts. Les coupes reconstruisent
+exactement le signal canonique complet. Certains décodeurs MP3 macOS/Linux
+produisent une différence de quantification : l’éligibilité exige le même nombre
+d’échantillons et au plus **8 LSB PCM24** de différence, mesurée dans la preuve.
+Cette qualification ne prétend pas que les décodeurs sont bit-identiques.
+
+## Musique et régénération hors ligne
+
+Le fond musical reçoit un gain constant **0,22** pendant toute la vidéo, y
+compris entre les phrases et sur le logo. Il ne remonte pas pendant les pauses.
+La partition conserve sa cadence et son fondu final. La voix est normalisée et
+mixée séparément ; toute qualification audio garde ses mesures et limites.
+
+Depuis la racine :
 
 ```sh
-npm run videos:narration
-npm run videos:narration:mix
+npm --prefix videos/guteneo-film ci
 npm run test:videos:narration
+npm run videos:render
 ```
 
-Le premier affiche le lot et ses caractères, sans texte ni secret dans les logs.
-Le second présente les candidats de mixage. Aucun n’appelle ElevenLabs,
-ne modifie un MP4 public ou ne consomme de crédit par défaut.
+Le renderer qualifie les bibliothèques avant toute écriture publique, rend les
+bases musicales naturelles, remixe les voix locales en gardant les paquets
+vidéo H.264, puis écrit sous-titres, posters et manifeste. FFmpeg, ffprobe et
+cwebp sont nécessaires. Aucun appel ElevenLabs n’est effectué par le rendu.
+Pour amorcer une nouvelle bibliothèque avant son premier mix, le helper
+`render-natural-sources.mjs` rend les sources dans `out/`, sans catalogue,
+manifeste ou écriture publique ; seules des sources qualifiées sont ensuite
+installées aux chemins naturels explicitement liés au snapshot.
 
-Les points d’entrée locaux d’import et de calage sont également disponibles
-depuis la racine :
+Une sélection peut être rendue avec `--locales de,lb --kind introduction` ou
+`--kind roles`. `--skip-existing` exige le hash du manifeste, un poster et des
+sous-titres correspondants. Les sources historiques V5/V1 et le snapshot George
+`fr-en-g2/` sont conservés. Le fitter historique et les imports web restent
+documentés dans son README ; ils ne sont pas le parcours naturel actuel.
 
-```sh
-npm run videos:narration:import -- --help
-npm run videos:narration:fit -- --help
-```
+Le client API local `narration:generate` reste bloqué par
+`API_ADAPTER_UNQUALIFIED` avant réseau. La disponibilité du plugin ne qualifie
+pas cet ancien adaptateur et ne lui fournit pas une clé API.
 
-Dans le dossier vidéo, les mêmes commandes sont `npm run narration:import` et
-`npm run narration:fit`. Le fitter est situé à la **racine du dépôt**, dans
-`scripts/fit-web-narration.mjs` ; l’alias du dossier vidéo utilise
-`../../scripts/fit-web-narration.mjs`.
+## Preuves et diffusion
 
-Depuis le dossier vidéo :
+Les actifs et empreintes sont décrits dans
+[VIDEO_NARRATION_PUBLISHED.md](VIDEO_NARRATION_PUBLISHED.md). Le catalogue commun
+couvre exactement douze MP4 et leur durée réelle ; il sélectionne film, poster
+et sous-titres dans chaque langue. Une nouvelle langue doit recevoir ces trois
+médias avant diffusion.
 
-```sh
-cd videos/guteneo-film
-cp narration/voices.example.json narration/voices.local.json
-```
-
-Renseigner `voiceId: "JBFqnCBsd6RMkjVDRZzb"` dans ce fichier local ignoré par Git,
-avec les paramètres utilisés dans l’interface. Si une langue nécessite
-une autre voix pour son accent, `localeVoiceIds` permet une sélection explicite
-parmi `fr`, `en`, `de` et `lb` ; les valeurs `null` reprennent la voix commune.
-La direction inscrite dans le fichier sert au casting ; elle n’est pas envoyée
-comme un paramètre TTS. Les seuls réglages v4 préparés sont `stability: 0.5` et
-`similarity_boost: 0.75`, à ajuster après l’écoute.
-Le champ local `webGeneration: 2`, présent dans l’exemple de configuration,
-sélectionne la préférence contrôlée par le mixeur ; il ne participe pas à
-l’empreinte API et n’est pas un paramètre TTS. L’importeur exige l’option
-explicite `--web-generation 2` pour attester la provenance de chaque fichier,
-sans la déduire de ce champ de configuration.
-
-## Comparer les méthodes de narration
-
-Trois variantes françaises du film des rôles sont préparées sur les mêmes
-images de 36 secondes, avec les six mêmes textes, la même voix George v4 et
-les mêmes réglages. Toutes utilisent la sélection Génération 2 et la partition
-d’origine ; les cinq dernières secondes restent sans voix.
-
-- **A : six phrases séparées**, méthode du lot FR/EN déjà mixé.
-- **B : une narration complète**, avec les six paragraphes dans une génération,
-  puis des découpes dans les silences pour les placer sur les scènes.
-- **C : trois blocs**, chacun contenant deux paragraphes, puis le même calage.
-
-B et C conservent le débit original, sans accélération. Les frontières sont
-contrôlées par les silences acoustiques et les horodatages ASR ; ces contrôles
-ne remplacent pas une écoute. Les intros sont équilibrées séparément vers
-−20 LUFS pour éviter que leur volume influence le choix. Les autres séquences
-utilisent le même traitement que A. Ces variantes sont des comparaisons locales,
-pas des remplacements du catalogue public. Le choix de méthode reste ouvert.
-
-La [documentation TTS](https://elevenlabs.io/docs/overview/capabilities/text-to-speech/best-practices)
-décrit le contrôle du rythme par le texte, la ponctuation et les balises audio.
-Des timecodes écrits dans le texte ne garantissent pas une durée imposée.
-L’[API avec horodatages](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps/)
-renvoie le calage de l’audio produit ; ce n’est pas une contrainte de timing en
-entrée. Le parcours historique
-[Voiceover Studio](https://elevenlabs.io/docs/eleven-creative/audio-tools/voiceover-studio)
-avec CSV de timings a été retiré le 15 mai 2026 : ne pas le présenter comme
-une fonction v4 disponible.
-
-## Génération web et import des MP3
-
-Le lot FR/EN existant utilise **une séquence du manifest par export**. Pour
-reproduire cette méthode A, copier exactement son
-texte dans l’interface TTS, avec la voix, le modèle et la langue correspondants.
-Conserver le MP3 téléchargé original et l’historique ElevenLabs. Pour le lot
-retenu, sélectionner **Génération 2** de chaque résultat et récupérer cette
-prise déjà disponible dans l’historique. Ne pas réétiqueter une prise 1 comme
-une prise 2. Si le résultat
-d’une génération est incertain, consulter cet historique et récupérer l’audio
-existant avant de cliquer à nouveau sur Generate : chaque nouvelle génération
-peut être facturée.
-
-Importer chaque export localement, sans clé API ni accès fournisseur :
-
-```sh
-npm run narration:import -- --config narration/voices.local.json \
-  --narration introduction-fr --cue one --file /chemin/absolu/export-gen2.mp3 \
-  --web-generation 2
-```
-
-Le fichier est `out/narration/clips/introduction-fr/one.mp3`. Remplacer
-`--narration`, `--cue` et `--file` pour chaque export ; le fichier source doit
-avoir un chemin absolu. L’importeur reconstruit l’empreinte via `buildPlan`,
-mesure une copie exacte des octets avec ffprobe et journalise l’import avant
-l’écriture atomique du MP3 puis de son reçu. Il exige un `voiceId` renseigné,
-mais ne peut déduire du MP3 son
-texte, sa langue, son modèle ou ses réglages : leur correspondance avec le plan
-doit être vérifiée dans l’interface.
-
-Le reçu porte `source: elevenlabs-web`, le nom du fichier source, l’heure
-d’import, le hash et la durée réelle. `webGeneration: 2` atteste le choix
-explicite de l’export ; sans option, cette métadonnée reste absente sur un nouvel
-import, y compris si la configuration indique 2. Les anciens reçus et les
-résultats API ne sont pas attribués automatiquement à une variante web.
-Il n’invente ni `requestId`, ni montant,
-ni nombre de caractères facturés. Un import identique est repris depuis le
-cache ; une empreinte, un audio ou une provenance 1/2 connue différente exige
-**`--replace` explicite**.
-Cet argument remplace un fichier local, sans déclencher une génération.
-
-L’importeur conserve une séquence trop longue sans coupe ni accélération avec
-`status: complete`, `timingFit: false` et un code de sortie CLI **2**. Le mixeur
-la refuse. Ajuster le texte ou le calage, vérifier le résultat, puis importer
-explicitement la version retenue. Le verrou `generation.lock` est partagé avec
-le client API ; une interruption exige inspection avant déverrouillage ou
-remplacement. Terminer les imports et remplacements avant le mixage, qui utilise
-son propre verrou `.mix.lock`.
-
-## Calage local sur une copie séparée
-
-Le fitter analyse un MP3 déjà téléchargé. Il ne génère aucune voix, n’appelle
-aucun fournisseur et n’importe aucun résultat dans le cache. Depuis le dossier
-vidéo, commencer par une analyse sans publier de copie :
-
-```sh
-npm run narration:fit -- --narration introduction-fr --cue personal \
-  --input /chemin/absolu/original-gen2.mp3 \
-  --output /chemin/absolu/nouvelle-copie-gen2.mp3
-```
-
-Les chemins d’entrée et de sortie doivent être absolus et distincts. Choisir
-une nouvelle sortie `.mp3` dans `videos/guteneo-film/out/narration/fitted/`,
-ignoré par Git, ou hors du dépôt. Avec **`--execute`**, le fitter écrit la copie
-et sa preuve `<sortie>.fit.json`. Il refuse d’écraser une sortie ou une preuve
-existante, et conserve le téléchargement source.
-
-Le calage détecte les zones sous **−45 dB pendant au moins 60 ms**. Seuls les
-silences qui touchent les bords sont éligibles au retrait ; les pauses internes
-ne sont pas supprimées. Il conserve une marge source de **66 ms**, essaie
-d’abord le retrait des bords seul, puis des paliers de tempo si nécessaire,
-avec un plafond de **1,10×**. Une copie qui tient déjà est conservée octet pour
-octet. La durée retenue pour qualification est le maximum de la durée du
-conteneur et de celle du signal intégralement décodé ; aucun `-t` ou `-shortest`
-ne coupe la fin pour faire tenir la séquence.
-
-La marge source vise nominalement 60 ms au tempo maximal ; `atempo` peut
-reconstruire l’amplitude des bords. La preuve mesure donc séparément
-`output.detectedEdgeSilences`. **Ni 60 ms effectifs en sortie, ni l’absence de
-mots coupés ne sont garantis** par cette détection d’amplitude.
-`wordBoundariesVerified: false` et `criticalListening: pending` restent les
-limites déclarées de la preuve, avec les hashes, filtres et paliers réellement
-appliqués. La copie et le placement doivent encore être vérifiés à l’écoute.
-
-Si la copie complète ne tient pas sous le plafond de tempo, `--execute` écrit
-une preuve de refus, aucune copie qualifiée, et la CLI retourne **2**. Revoir
-le texte ou les fenêtres en coordination ; ce refus ne déclenche pas de
-nouvelle génération fournisseur.
-
-Après contrôle de la copie retenue, l’import reste explicite et conserve le
-numéro de sa prise web d’origine :
-
-```sh
-npm run narration:import -- --config narration/voices.local.json \
-  --narration introduction-fr --cue personal \
-  --file /chemin/absolu/nouvelle-copie-gen2.mp3 --web-generation 2 --replace
-```
-
-## API v4 non qualifiée, plan hors ligne disponible
-
-Le parcours réel de ce lot est **Safari → export Génération 2 → import local →
-calage et mixage**. Aucun appel de génération API n’a été effectué ni qualifié.
-Le mode par défaut de `scripts/generate-narration.mjs` reste un plan hors ligne :
-
-```sh
-npm run narration:plan -- --config narration/voices.local.json
-```
-
-**`--generate` et l’export `generateNarration` sont désactivés** avec l’erreur
-`API_ADAPTER_UNQUALIFIED`, avant tout appel réseau ou écriture de cache. Une clé,
-un budget ou des reçus existants ne lèvent pas ce verrou.
-`narration:generate` ne permet donc pas encore de régénérer les voix par API.
-
-La [documentation des modèles](https://elevenlabs.io/docs/overview/models)
-rattache Eleven v4 à **Text to Dialogue**. L’ancien client TTS a été retiré ;
-seule son identité de cache référence encore `/v1/text-to-speech/{voice_id}`
-pour préserver les MP3 web déjà importés. Aucune qualification de v4 sur cette
-route n’est attestée. La [référence dialogue](https://elevenlabs.io/docs/api-reference/text-to-dialogue/convert)
-décrit `POST /v1/text-to-dialogue?output_format=mp3_44100_128`, avec
-`inputs: [{ text, voice_id }]`, `model_id: eleven_v4`, `language_code` et
-`settings: { stability: 0.5, similarity: 0.75 }`.
-Le champ dialogue est **`similarity`**, différent du `similarity_boost` conservé
-dans notre configuration et notre empreinte actuelles.
-La référence recommande au plus 2 000 caractères par requête pour une génération
-fiable ; cette recommandation n’est pas une garantie de durée sur les plans.
-
-Un adaptateur dialogue distinct reste à préparer et à qualifier, avec contrôles
-d’abonnement, langues, budget, cache et résultats inconnus avant activation.
-Les empreintes existantes sont conservées pour les imports web et le mixage ;
-elles ne prouvent ni un appel API réel, ni la compatibilité de l’ancien endpoint.
-Un futur changement d’identité API demandera une migration explicite, sans
-réétiqueter ou régénérer automatiquement les MP3 déjà reçus.
-La connexion du plugin et l’abonnement Creator vu dans Safari ne fournissent
-pas une clé au client local et ne prouvent pas son préflight API.
-
-## Mixage local et qualification
-
-Le [snapshot FR/EN Génération 2](../videos/guteneo-film/narration/releases/fr-en-g2/README.md)
-conserve les 34 MP3 retenus, leurs reçus nettoyés, la configuration de voix et
-les quatre scripts figés. Ses commandes reconstruisent les six candidats
-localement, sans clé ni appel fournisseur. Copier le cache dans un nouveau
-dossier de sortie avant le mixage ; ne pas écrire de résultats dans le snapshot
-suivi. `--manifest` permet de choisir explicitement son script figé.
-
-Après réception et qualification de toutes les séquences choisies :
-
-Pour ce lot web, chaque reçu sélectionné doit porter **`webGeneration: 2`**.
-Avec `webGeneration: 2` dans la configuration, le mixeur refuse un reçu
-`source: elevenlabs-web` de prise 1 ou sans numéro, avant d’écrire les candidats.
-Il conserve la provenance dans sa preuve de mixage. Les reçus API compatibles
-restent distincts : ils ne sont ni réétiquetés ni présentés comme une prise web 2.
-Le contrôle ne sélectionne pas la variante dans l’interface à la place de
-l’opérateur. Un ancien audio de prise 1 ne devient pas une prise 2 parce que
-les paramètres TTS et leur empreinte sont identiques.
-
-```sh
-npm run narration:mix -- --execute --voices narration/voices.local.json
-```
-
-Le catalogue source par défaut est **`narration/source-videos.json`** : il
-référence les MP4 musicaux d’origine, conservés comme bases de mixage. Le
-catalogue public peut ensuite pointer vers des fichiers déjà narrés ; ses
-changements ne modifient pas automatiquement les sources du mixeur.
-Si le snapshot manque, le mixage échoue sans repli vers le catalogue public.
-
-**Pour une nouvelle version visuelle, mettre à jour le catalogue source est
-obligatoire** : produire et conserver les nouveaux MP4 musicaux, mettre à jour
-`source-videos.json` et vérifier les fenêtres du manifest avant de mixer.
-Un catalogue source alternatif se choisit explicitement avec
-`--catalog narration/nouvelles-sources.json` ; il doit référencer des bases
-musicales auxquelles ajouter les voix une seule fois.
-
-`--execute` réalise uniquement des candidats locaux. Le mixeur vérifie les
-empreintes, les fichiers et leurs durées avant d’écrire un film. Il vise
-−18 LUFS pour chaque voix, atténue la partition autour de la parole,
-puis rétablit son niveau sur la conclusion. Il conserve les séquences musicales
-et bruitages existants, avec un nouvel encodage AAC stéréo à 48 kHz.
-La cible est nominale : le traitement à un passage peut donner un autre niveau,
-particulièrement sur des phrases très courtes. Mesurer les sorties réelles avant
-de comparer les prises ; le pilote A/B/C égalise séparément les intros.
-
-La vidéo est copiée avec `-c:v copy` : aucun recadrage ni nouveau rendu des
-images. Le hash de la piste H.264 doit être identique au fichier source. Durée,
-dimensions, cadence, nombre de frames, audio stéréo, décodage intégral et taille
-inférieure à 25 MiB sont vérifiés. Les candidats sont dans
-`out/narration/videos/`, avec `out/narration/mix-proof.json` ; les fichiers diffusés,
-le catalogue de langues et les posters restent inchangés à ce stade.
-
-L’entrée audio n’est pas disponible au modèle dans cette session pour une écoute
-critique : **`criticalListening: pending` reste obligatoire**. L’existence d’un
-MP3 exporté et les mesures techniques ne qualifient pas l’accent ou la diction.
-Avant publication, il reste à écouter **chaque langue** à vitesse normale, en
-mono et à faible volume, vérifier les mots et le placement sur les plans, puis
-tester chaque format dans les navigateurs. Les preuves automatiques gardent
-`criticalListening: pending` tant que cette étape n’est pas faite. Les voix et
-mixages synthétiques des tests ne sont pas des preuves de qualité ElevenLabs.
-La publication des candidats nécessitera la mise à jour des assets et du
-manifeste, les contrôles habituels et l’autorisation de cette nouvelle version.
-
-## Preuves de préparation
-
-`tests/narration.test.mjs` couvre le plan hors ligne, les bornes du manifest,
-la stabilité des empreintes utilisées par les imports, et le refus explicite de
-l’API non qualifiée avant réseau, mesure audio ou écriture. Il vérifie que ce
-refus préserve les MP3, reçus et verrous existants, y compris les résultats
-incertains. `tests/import-narration.test.mjs` vérifie l’import local,
-l’absence d’appel réseau, la durée et le hash du MP3, les conflits et remplacements,
-le verrou, puis la compatibilité d’un audio importé avec un mixage FFmpeg.
-`tests/fit-web-narration.test.mjs` utilise le fitter à la racine et vérifie les
-bords, la conservation des pauses internes, le plafond de tempo, la durée
-décodée, les sorties de refus et la préservation du fichier original.
-`tests/mix-narration.test.mjs` couvre la réutilisation de huit
-pistes pour douze formats, le silence final, les reçus périmés, et un vrai mixage
-FFmpeg de médias synthétiques avec identité de la piste vidéo et contrôles du
-niveau musical. Les tests n’envoient aucune requête réelle à ElevenLabs.
-La suite pertinente se lance avec `npm run test:videos:narration` ; son décompte
-et son état viennent du résultat courant après chaque modification du manifest.
-Ces tests ne peuvent attester la complétude des exports web ou la qualité de
-la voix retenue.
-Les 34 prises FR/EN sélectionnées sont importées et calées ; leur lot de six
-candidats a été contrôlé techniquement. L’écoute critique reste à qualifier,
-puis la diffusion des candidats doit être vérifiée séparément.
+La vidéo des rôles FR a été écoutée et approuvée par l’utilisateur. Les preuves
+techniques des autres narrations ne revendiquent pas une écoute humaine ni un
+test sur téléphone physique. Les noms propres et accents conservent leurs
+limites documentées. La publication suit [MAIN_RELEASE.md](MAIN_RELEASE.md) :
+CI du commit fusionné, checkout propre de main, puis contrôle exact des assets
+et des plages sur les deux origines. Aucun envoi métier n’est déclenché.

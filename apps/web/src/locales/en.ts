@@ -134,10 +134,10 @@ export const en: Copy = {
       title: "Where your words go next.",
       italic: "In motion.",
       intro:
-        "This 56-second film introduces Guteneo, from preparing a document to sending it by fax, email or post.",
+        "This film introduces Guteneo, from preparing a document to sending it by fax, email or post.",
       play: "Watch the film",
       replay: "Watch again",
-      duration: "56 seconds · With sound",
+      duration: "{duration} seconds · With sound",
       videoLabel: "Guteneo introduction film",
       fullscreen: "Fullscreen",
       close: "Close player",
@@ -145,7 +145,7 @@ export const en: Copy = {
       error: "Playback could not start. Check your connection, then try again.",
       transcriptTitle: "Read the film transcript",
       transcript:
-        "From one document to more than 10,000, Guteneo distributes your campaigns, from the simplest to the most personalised. Import a PDF or create your own template. From ChatGPT, Claude or Copilot, ask your assistant to generate a PDF, then prepare its dispatch with Guteneo. Review the final proof and check the quote before approving. Choose standard or encrypted email, fax, or printing and postal delivery throughout Europe. Find Guteneo on the web and in the iOS app too. Guteneo. Where your words go next.",
+        "With guteneo, everything starts with a document to send. Prepare a single delivery, or organise a whole campaign of documents. Personalise each version, so every recipient receives a document written for them. Upload your original PDF, or use a template to create your document. Tell your assistant what you need. It helps you prepare your correspondence. Ask it to create your PDF, then prepare its delivery. Check the document, recipient, options and cost. Then approve in the browser. Your message can travel by fax, by post, or by email. Your documents travel across Europe to reach their recipients. guteneo takes your correspondence from your screen to their letterbox. Find your documents and campaigns on the web or on your iPhone.",
     },
   },
   postalCutoff: {

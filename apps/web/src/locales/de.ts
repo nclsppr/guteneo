@@ -134,10 +134,10 @@ export const de: Copy = {
       title: "Der nächste Weg Ihrer Worte.",
       italic: "In Bewegung.",
       intro:
-        "Dieser 56 Sekunden lange Film stellt Guteneo vor: von der Vorbereitung eines Dokuments bis zum Versand per Fax, E-Mail oder Briefpost.",
+        "Dieser Film stellt Guteneo vor: von der Vorbereitung eines Dokuments bis zum Versand per Fax, E-Mail oder Briefpost.",
       play: "Film ansehen",
       replay: "Film erneut ansehen",
-      duration: "56 Sekunden · Mit Ton",
+      duration: "{duration} Sekunden · Mit Ton",
       videoLabel: "Vorstellungsfilm von Guteneo",
       fullscreen: "Vollbild",
       close: "Player schließen",
@@ -146,7 +146,7 @@ export const de: Copy = {
         "Die Wiedergabe konnte nicht starten. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
       transcriptTitle: "Filmtext lesen",
       transcript:
-        "Von einem Dokument bis zu mehr als 10.000 verteilt Guteneo Ihre Kampagnen, von einfachen bis zu individuell gestalteten. Importieren Sie ein PDF oder erstellen Sie Ihre eigene Vorlage. Bitten Sie Ihren Assistenten in ChatGPT, Claude oder Copilot, ein PDF zu erstellen, und bereiten Sie dann den Versand mit Guteneo vor. Prüfen Sie den Druckabzug und das Angebot, bevor Sie die Freigabe erteilen. Wählen Sie klassische oder verschlüsselte E-Mail, Fax oder Druck und Postversand in ganz Europa. Guteneo ist auch im Web und in der iOS-App verfügbar. Guteneo. Der nächste Weg Ihrer Worte.",
+        "Mit guteneo beginnt alles mit einem Dokument. Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. Dabei kann jeder Empfänger sein persönliches Dokument erhalten. Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage. Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail. Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. So kann ein digitales Dokument auch im Briefkasten ankommen. Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
     },
   },
   postalCutoff: {

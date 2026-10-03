@@ -3,7 +3,12 @@ import type { SupportedLocale } from "./locale";
 
 export type FilmFormat = "horizontal" | "vertical";
 export type PublicFilm = "introduction" | "roles";
-type FilmAsset = { movie: string; poster: string; captions?: string };
+type FilmAsset = {
+  movie: string;
+  poster: string;
+  captions?: string;
+  durationSeconds: number;
+};
 
 /** Every supported language has an explicit asset; never substitute another film language. */
 export const publicVideoCatalog = catalog satisfies {

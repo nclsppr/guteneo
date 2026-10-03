@@ -2,66 +2,85 @@
   "introduction": {
     "fr": {
       "horizontal": {
-        "movie": "/videos/guteneo-horizontal-v6-fr.mp4",
-        "poster": "/videos/guteneo-horizontal-v5.webp",
-        "captions": "/videos/guteneo-v6.fr.vtt"
+        "movie": "/videos/guteneo-horizontal-v8-fr.mp4",
+        "poster": "/videos/guteneo-horizontal-v8-fr.webp",
+        "captions": "/videos/guteneo-v8.fr.vtt",
+        "durationSeconds": 66.5
       },
       "vertical": {
-        "movie": "/videos/guteneo-vertical-v6-fr.mp4",
-        "poster": "/videos/guteneo-vertical-v5.webp",
-        "captions": "/videos/guteneo-v6.fr.vtt"
+        "movie": "/videos/guteneo-vertical-v8-fr.mp4",
+        "poster": "/videos/guteneo-vertical-v8-fr.webp",
+        "captions": "/videos/guteneo-v8.fr.vtt",
+        "durationSeconds": 66.5
       }
     },
     "en": {
       "horizontal": {
-        "movie": "/videos/guteneo-horizontal-v6-en.mp4",
-        "poster": "/videos/guteneo-horizontal-v5-en.webp",
-        "captions": "/videos/guteneo-v6.en.vtt"
+        "movie": "/videos/guteneo-horizontal-v8-en.mp4",
+        "poster": "/videos/guteneo-horizontal-v8-en.webp",
+        "captions": "/videos/guteneo-v8.en.vtt",
+        "durationSeconds": 65.8
       },
       "vertical": {
-        "movie": "/videos/guteneo-vertical-v6-en.mp4",
-        "poster": "/videos/guteneo-vertical-v5-en.webp",
-        "captions": "/videos/guteneo-v6.en.vtt"
+        "movie": "/videos/guteneo-vertical-v8-en.mp4",
+        "poster": "/videos/guteneo-vertical-v8-en.webp",
+        "captions": "/videos/guteneo-v8.en.vtt",
+        "durationSeconds": 65.8
       }
     },
     "de": {
       "horizontal": {
-        "movie": "/videos/guteneo-horizontal-v5-de.mp4",
-        "poster": "/videos/guteneo-horizontal-v5-de.webp"
+        "movie": "/videos/guteneo-horizontal-v8-de.mp4",
+        "poster": "/videos/guteneo-horizontal-v8-de.webp",
+        "captions": "/videos/guteneo-v8.de.vtt",
+        "durationSeconds": 64.86666666666666
       },
       "vertical": {
-        "movie": "/videos/guteneo-vertical-v5-de.mp4",
-        "poster": "/videos/guteneo-vertical-v5-de.webp"
+        "movie": "/videos/guteneo-vertical-v8-de.mp4",
+        "poster": "/videos/guteneo-vertical-v8-de.webp",
+        "captions": "/videos/guteneo-v8.de.vtt",
+        "durationSeconds": 64.86666666666666
       }
     },
     "lb": {
       "horizontal": {
-        "movie": "/videos/guteneo-horizontal-v5-lb.mp4",
-        "poster": "/videos/guteneo-horizontal-v5-lb.webp"
+        "movie": "/videos/guteneo-horizontal-v8-lb.mp4",
+        "poster": "/videos/guteneo-horizontal-v8-lb.webp",
+        "captions": "/videos/guteneo-v8.lb.vtt",
+        "durationSeconds": 67.46666666666667
       },
       "vertical": {
-        "movie": "/videos/guteneo-vertical-v5-lb.mp4",
-        "poster": "/videos/guteneo-vertical-v5-lb.webp"
+        "movie": "/videos/guteneo-vertical-v8-lb.mp4",
+        "poster": "/videos/guteneo-vertical-v8-lb.webp",
+        "captions": "/videos/guteneo-v8.lb.vtt",
+        "durationSeconds": 67.46666666666667
       }
     }
   },
   "roles": {
     "fr": {
-      "movie": "/videos/guteneo-roles-v1-fr.mp4",
-      "poster": "/videos/guteneo-roles-v1-fr.webp"
+      "movie": "/videos/guteneo-roles-v3-fr.mp4",
+      "poster": "/videos/guteneo-roles-v3-fr.webp",
+      "captions": "/videos/guteneo-roles-v3.fr.vtt",
+      "durationSeconds": 44.86666666666667
     },
     "en": {
-      "movie": "/videos/guteneo-roles-v2-en.mp4",
-      "poster": "/videos/guteneo-roles-v1-en.webp",
-      "captions": "/videos/guteneo-roles-v2.en.vtt"
+      "movie": "/videos/guteneo-roles-v4-en.mp4",
+      "poster": "/videos/guteneo-roles-v4-en.webp",
+      "captions": "/videos/guteneo-roles-v4.en.vtt",
+      "durationSeconds": 47.3
     },
     "de": {
-      "movie": "/videos/guteneo-roles-v1-de.mp4",
-      "poster": "/videos/guteneo-roles-v1-de.webp"
+      "movie": "/videos/guteneo-roles-v4-de.mp4",
+      "poster": "/videos/guteneo-roles-v4-de.webp",
+      "captions": "/videos/guteneo-roles-v4.de.vtt",
+      "durationSeconds": 49.13333333333333
     },
     "lb": {
-      "movie": "/videos/guteneo-roles-v1-lb.mp4",
-      "poster": "/videos/guteneo-roles-v1-lb.webp"
+      "movie": "/videos/guteneo-roles-v4-lb.mp4",
+      "poster": "/videos/guteneo-roles-v4-lb.webp",
+      "captions": "/videos/guteneo-roles-v4.lb.vtt",
+      "durationSeconds": 50.4
     }
   }
 }

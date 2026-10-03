@@ -134,10 +134,10 @@ export const lb: Copy = {
       title: "De nächste Wee fir Är Wierder.",
       italic: "A Beweegung.",
       intro:
-        "Dëse Film vu 56 Sekonne stellt Guteneo vir: vun der Virbereedung vun engem Dokument bis zur Sendung per Fax, E-Mail oder Bréifpost.",
+        "Dëse Film stellt Guteneo vir: vun der Virbereedung vun engem Dokument bis zur Sendung per Fax, E-Mail oder Bréifpost.",
       play: "De Film kucken",
       replay: "De Film nach eng Kéier kucken",
-      duration: "56 Sekonnen · Mat Toun",
+      duration: "{duration} Sekonnen · Mat Toun",
       videoLabel: "Presentatiounsfilm vu Guteneo",
       fullscreen: "Vollbild",
       close: "De Player zoumaachen",
@@ -146,7 +146,7 @@ export const lb: Copy = {
         "D’Wiedergab konnt net starten. Kontrolléiert Är Verbindung a probéiert nach eng Kéier.",
       transcriptTitle: "Den Text vum Film liesen",
       transcript:
-        "Vun engem Dokument bis zu méi wéi 10.000 verdeelt Guteneo Är Campagnen, vun den einfachsten bis zu de perséinlechsten. Importéiert e PDF oder erstellt Är eege Virlag. Frot Ären Assistent an ChatGPT, Claude oder Copilot, e PDF ze generéieren, a bereet duerno seng Sendung mat Guteneo vir. Liest de finalen Drockpréif an iwwerpréift d’Devis, ier Dir approuvéiert. Wielt déi klassesch oder verschlësselt E-Mail, de Fax, oder den Drock an d’Postverdeelung a ganz Europa. Dir fannt Guteneo och um Web an an der iOS-App. Guteneo. De nächste Wee fir Är Wierder.",
+        "Mat guteneo fänkt alles mat engem Dokument un. Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. Dobäi kann all Empfänger säi perséinlecht Dokument kréien. Benotzt Ären eegene PDF oder eng passend Virlag. Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen. Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
     },
   },
   postalCutoff: {
