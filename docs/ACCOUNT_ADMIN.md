@@ -1,5 +1,7 @@
 # Account and organization administration
 
+Current role and invitation contract: [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md). The [developer atlas](FEATURE_MAP.md) maps every feature and customer journey. The dated implementation notes below describe the initial account module; later invitations and workspace switching are implemented by the current role/auth modules.
+
 Implemented on 2026-09-16 in `apps/api/src/account.ts`, `apps/web/src/account-page.tsx` and migration `0011_account.sql`. This module manages authenticated Guteneo accounts and existing memberships. It does not create a universal operator role, send invitations, modify identity-provider credentials or claim external OAuth grant revocation.
 
 ## Routes
@@ -13,7 +15,7 @@ Mount `handleAccountRoute(request, env)` before the generic `/api/*` bearer midd
 | `GET /api/account/sessions`                     | Browser membership                           | Own active sessions in the current organization: independent opaque ID, creation/expiry, MFA/development flags and whether it is the current session. Maximum 100, `hasMore` signals truncation.                                        |
 | `DELETE /api/account/sessions/:id`              | Same user and organization                   | Revokes that local browser session; `currentSession` tells the UI to refresh authentication.                                                                                                                                            |
 | `GET /api/admin/members`                        | Current organization admin                   | Paginated names, roles, join dates and active session/assistant counts; `limit` 1–50 and cursor by user ID.                                                                                                                             |
-| `PATCH /api/admin/members/:userId`              | Current organization admin                   | Strict role: admin, member or viewer. Updates the role and revokes that member’s browser/assistant access atomically. Same-role requests are no-ops.                                                                                    |
+| `PATCH /api/admin/members/:userId`              | Current organization admin                   | Strict role: admin, supervisor, member or viewer; supervisor approval/report options are independent. Updates the role and revokes that member’s browser/assistant access atomically. Same-role requests are no-ops.                                                                                    |
 | `POST /api/admin/members/:userId/revoke-access` | Current organization admin                   | Empty JSON body. Revokes access within this organization without deleting membership; the person can sign in again.                                                                                                                     |
 
 Names, organizations, roles and user IDs cannot be injected through undeclared input fields. User and organization always come from authenticated membership. JSON mutation bodies are bounded to 4 KiB while reading.

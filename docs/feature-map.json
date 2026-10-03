@@ -1,0 +1,554 @@
+{
+  "title": "Guteneo · atlas technique",
+  "updated": "2026-10-03",
+  "scope": "Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.",
+  "roleNote": "Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.",
+  "groups": [
+    {
+      "title": "Accès et identité",
+      "doc": "IDENTITY_MCP.md",
+      "source": "apps/api/src/auth.ts",
+      "features": [
+        "Connexion Auth0, compte vérifié et politique MFA",
+        "Création d’atelier et administrateur initial",
+        "Profil personnel et préférence de langue",
+        "Sessions web : consultation, révocation et déconnexion",
+        "Changement d’atelier avec droits courants",
+        "Connexions OAuth : rattachement, révocation et scopes",
+        "Demande de suppression du compte ; traitement complet restant à qualifier"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/unit/auth.test.ts"
+      ],
+      "surfaces": "Navigateur authentifié"
+    },
+    {
+      "title": "Équipe et responsabilités",
+      "doc": "WORKSPACE_ROLES.md",
+      "source": "packages/contracts/src/roles.ts",
+      "features": [
+        "Quatre rôles humains et options indépendantes du superviseur",
+        "Gestion des membres, changement de droits et révocation atomique",
+        "Protection du dernier administrateur",
+        "Invitation individuelle ou CSV ; aperçu et confirmation du lot",
+        "Acceptation à adresse vérifiée, expiration et révocation des invitations"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/integration/workspace-roles.test.ts"
+      ],
+      "surfaces": "Navigateur authentifié"
+    },
+    {
+      "title": "Documents et sécurité",
+      "doc": "SCANNER_RESCAN.md",
+      "source": "apps/api/src/documents.ts",
+      "features": [
+        "Dépôt PDF et import distant borné",
+        "Recherche, liste paginée, lecture des métadonnées et pages",
+        "Quarantaine, antivirus réel, empreinte et validation PDF",
+        "Reprise d’analyse du même document, sans réimport",
+        "Préchauffage scanner par administrateur navigateur",
+        "Rendu HTML en PDF isolé et document immuable",
+        "Stockage privé, quotas, rétention et confidentialité par propriétaire"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/integration/documents.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Studio de modèles",
+      "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
+      "source": "apps/api/src/template-workflow.ts",
+      "features": [
+        "Bibliothèque privée, partagée ou organisation",
+        "Cinq exemples : lettre, facture, relevé, devis, livraison",
+        "Copie privée ou création vierge ; guide de création REST/MCP",
+        "Import Word DOCX et avertissements",
+        "Designer : variables, tableaux, colonnes, logo, formats et conditions",
+        "Schéma métier, jeux d’essai, calculs et totaux",
+        "Suggestions IA revues puis appliquées explicitement",
+        "Aperçu PDF exact, versions, publication, duplication et archivage",
+        "Partage : utilisation, édition, publication et partage indépendants",
+        "Suppression par propriétaire ; conservation des PDF et de la provenance"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/unit/template-authoring.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Données et mappings",
+      "doc": "DATA_IMPORT.md",
+      "source": "apps/api/src/template-workflow.ts",
+      "features": [
+        "Import CSV, XLSX, XML et JSON ; original privé",
+        "Choix des feuilles, en-têtes ou chemin de records XML",
+        "Profilage, anomalies et lecture paginée",
+        "Reprise de l’analyse du même original",
+        "Mapping versionné : champs, regroupements et jointures",
+        "Validation du mapping avant génération",
+        "Analyse IA facultative ; politique et transfert autorisés par administrateur navigateur"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/unit/datasets.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Génération et distribution",
+      "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
+      "source": "apps/api/src/template-workflow-routes.ts",
+      "features": [
+        "PDF unitaire depuis formulaire métier",
+        "Lot de PDF depuis mapping validé",
+        "Progression, résultats par record et provenance des cellules",
+        "Annulation de génération et reprise des seuls records échoués",
+        "Sélection des PDF et préparation d’un plan de distribution",
+        "Destinataire commun ou colonnes figées ; canal explicite par record",
+        "Reprise des entrées restantes sans duplication",
+        "Contrôle postal lié à l’entrée ; revue et envoi séparés"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/e2e/template-distribution.spec.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Fax",
+      "doc": "LIVE_FAX_QUOTES.md",
+      "source": "packages/domain/src/index.ts",
+      "features": [
+        "PDF exact, numéro et expéditeur qualifié",
+        "Devis fournisseur daté et renouvellement borné",
+        "Fourchette estimée, plafond approuvé et crédits en euros",
+        "Préparation, revue humaine, approbation et confirmation",
+        "Suivi, reçus, règlement et issue inconnue",
+        "Mode reviewer non envoyable : arrêt avant approbation"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/e2e/fax-pricing.spec.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Courrier postal",
+      "doc": "MCP_POSTAL_JOURNEY.md",
+      "source": "apps/api/src/postal.ts",
+      "features": [
+        "Expéditeur, adresse, pays et exigences du fournisseur",
+        "Fenêtre gauche/droite et page d’adresse explicite",
+        "Options papier, couleur, recto/verso et service",
+        "Contrôle PDF, rendu d’adresse et revue",
+        "Autorisation distincte du transfert du PDF pour devis",
+        "Devis exact, expiration et revue finale",
+        "Confirmation, coupures calendaires et suivi fournisseur",
+        "Projection des statuts et rapprochement des issues inconnues"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/e2e/postal-final-send.spec.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "E-mail et liens protégés",
+      "doc": "PROTECTED_EMAIL.md",
+      "source": "apps/api/src/protected-documents.ts",
+      "features": [
+        "Message texte/HTML sans fichier, avec PDF ou lien protégé",
+        "Attestation du destinataire et exigences transactionnelles",
+        "Devis et supplément d’hébergement explicités",
+        "Lien privé, expiration et mot de passe saisi dans le navigateur",
+        "Téléchargement sans compte destinataire et contrôles d’accès",
+        "Préparation, approbation, suivi et politique fournisseur",
+        "Resend/SES : disponibilité contrôlée, activation séparée"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/integration/protected-documents.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Campagnes et supervision",
+      "doc": "API_CONTRACT.md",
+      "source": "apps/api/src/index.ts",
+      "features": [
+        "Campagne nommée et destinataires CSV",
+        "Validation des lignes, erreurs et doublons",
+        "Préparation d’envois avec le document sélectionné",
+        "Liste et détail des envois, prix et statuts",
+        "Rapports agrégés et consommation selon droits",
+        "Annulation admissible et revue des opérations incertaines",
+        "Administration des canaux et plafonds sans relance aveugle"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/integration/domain-invariants.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Crédits et facturation",
+      "doc": "WELCOME_CREDIT.md",
+      "source": "apps/api/src/billing.ts",
+      "features": [
+        "Solde de bienvenue commun en euros et attribution unique",
+        "Disponible, réservé et consommé ; absence de recharge qualifiée",
+        "Réservation atomique avec acceptation et outbox",
+        "Règlement fournisseur et réserves sur issues inconnues",
+        "Consultation administrative des crédits et facturation",
+        "Connecteur Stripe préparé ; qualification commerciale séparée"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/unit/billing.test.ts"
+      ],
+      "surfaces": "Navigateur authentifié"
+    },
+    {
+      "title": "Assistants et API",
+      "doc": "LLM_SETUP.md",
+      "source": "apps/api/src/mcp.ts",
+      "features": [
+        "Découverte des capacités et limites du compte",
+        "Catalogue REST/OpenAPI et MCP Streamable HTTP",
+        "Guides ChatGPT, Claude, Copilot et Cursor",
+        "Import adapté au transport fichier effectivement disponible",
+        "Documents, modèles, données, génération et préparation via outils",
+        "Revue navigateur avant envoi ; scopes sans élévation de rôle",
+        "Délégation experte bornée à un client OAuth, optionnelle",
+        "Mandat accordé/révoqué par administrateur navigateur seulement",
+        "Paquets plugin et dossier marketplace ; soumission distincte"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/unit/mcp-integrations.test.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Compagnon iPhone et iPad",
+      "doc": "IOS_API.md",
+      "source": "apps/api/src/mobile.ts",
+      "features": [
+        "Authentification système et sessions mobiles dédiées",
+        "Navigation adaptative iPhone/iPad et accessibilité",
+        "Profil, langue et demande de suppression du compte",
+        "Import, inspection et recherche PDF",
+        "Préparation fax/e-mail et suivi",
+        "Revue finale dans navigateur authentifié ; pas de consentement natif",
+        "Signature, appareil physique, TestFlight et App Store à qualifier"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/e2e/mobile-account.spec.ts"
+      ],
+      "surfaces": "iOS / API mobile / revue navigateur"
+    },
+    {
+      "title": "Expérience publique et langues",
+      "doc": "MULTILINGUAL.md",
+      "source": "packages/contracts/src/public-site.json",
+      "features": [
+        "Présentation, fonctionnalités, rôles et guides assistants",
+        "Journal, articles, notices légales et confidentialité",
+        "Français, anglais, allemand et luxembourgeois",
+        "Préférence personnelle et choix anonyme",
+        "Douze films localisés, affiches, sous-titres et durées réelles",
+        "Pages statiques, canonical, sitemap et langues alternatives",
+        "Maquette publique fictive isolée du backend",
+        "Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/e2e/locale-boundaries.spec.ts"
+      ],
+      "surfaces": "Web public / maquette"
+    },
+    {
+      "title": "Horizon et diagnostic PDF",
+      "doc": "PDF_ACCESSIBILITY.md",
+      "source": "apps/api/src/pdf-validation.ts",
+      "features": [
+        "Formule mensuelle 30 € sur crédits disponibles ; entrée privée /app/plan",
+        "Consentement récurrent immutable par administrateur navigateur",
+        "Résiliation, renouvellement et suspension sans dette",
+        "100 tentatives par mois calendaire ; quota atomique",
+        "veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4",
+        "Rapport sur octets exacts, historique et export JSON",
+        "Diagnostic via web/MCP et revue humaine obligatoire",
+        "Activation HORIZON_ENABLED et service privé requis ; pas une certification légale"
+      ],
+      "status": "Candidat intégré #41 · activation fermée",
+      "tests": [
+        "tests/unit/pdf-validation.test.ts",
+        "tests/preview-e2e/geo.spec.ts",
+        "tests/preview-e2e/seo.spec.ts"
+      ],
+      "surfaces": "Web / REST / MCP"
+    },
+    {
+      "title": "Exploitation et fiabilité",
+      "doc": "RUNBOOK.md",
+      "source": "scripts/deploy-public.mjs",
+      "features": [
+        "Files interactives, lots, outbox transactionnelle et idempotence",
+        "Callbacks fournisseur authentifiés et journaux sans contenu sensible",
+        "Rapprochement, reprise bornée et files mortes",
+        "Migrations D1 ordonnées, intégrité et bookmark de restauration",
+        "Services privés scanner, renderer et validateur",
+        "Tests backend, sécurité, navigateurs et CI exhaustive",
+        "Publication depuis main propre, synchronisé et vérifié",
+        "Manifestes de release, empreintes des assets et santé distante"
+      ],
+      "status": "Implémenté · disponibilité à vérifier",
+      "tests": [
+        "tests/security/main-only-release.test.mjs"
+      ],
+      "surfaces": "CLI / CI / services privés"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "J01",
+      "title": "Découvrir puis entrer",
+      "actor": "Visiteur → membre",
+      "steps": "Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits.",
+      "branch": "INVITATIONS / IDENTITY",
+      "doc": "IDENTITY_MCP.md",
+      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité."
+    },
+    {
+      "id": "J02",
+      "title": "Administrer une équipe",
+      "actor": "Administrateur navigateur",
+      "steps": "Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès.",
+      "branch": "ÉQUIPE",
+      "doc": "WORKSPACE_ROLES.md",
+      "failure": "Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente."
+    },
+    {
+      "id": "J03",
+      "title": "Préparer un fax",
+      "actor": "Administrateur / superviseur / opérateur",
+      "steps": "Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi.",
+      "branch": "DOCUMENTS → FAX",
+      "doc": "LIVE_FAX_QUOTES.md",
+      "failure": "Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher."
+    },
+    {
+      "id": "J04",
+      "title": "Envoyer un courrier postal",
+      "actor": "Préparateur → approbateur",
+      "steps": "PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi.",
+      "branch": "DOCUMENTS → POSTAL",
+      "doc": "POSTAL_STREAMLINED.md",
+      "failure": "PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement."
+    },
+    {
+      "id": "J05",
+      "title": "Préparer un e-mail",
+      "actor": "Préparateur → approbateur",
+      "steps": "Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi.",
+      "branch": "E-MAIL",
+      "doc": "PROTECTED_EMAIL.md",
+      "failure": "Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur."
+    },
+    {
+      "id": "J06",
+      "title": "Créer un modèle réutilisable",
+      "actor": "Préparateur avec droits de ressource",
+      "steps": "Exemple/copie privée, page vierge ou DOCX → designer et schéma → données d’essai → aperçu PDF → publier une version → partager les droits précis.",
+      "branch": "MODÈLES",
+      "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
+      "failure": "Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés."
+    },
+    {
+      "id": "J07",
+      "title": "Transformer des données en PDF",
+      "actor": "Préparateur propriétaire des données",
+      "steps": "Import CSV/XLSX/XML/JSON → analyse et profil → choisir mapping → valider → générer → consulter résultats/provenance → reprendre les seuls records échoués.",
+      "branch": "DONNÉES → GÉNÉRATION",
+      "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
+      "failure": "Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur."
+    },
+    {
+      "id": "J08",
+      "title": "Distribuer un lot",
+      "actor": "Préparateur → approbateur",
+      "steps": "Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre.",
+      "branch": "DISTRIBUTION",
+      "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
+      "failure": "Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté."
+    },
+    {
+      "id": "J09",
+      "title": "Superviser et observer",
+      "actor": "Superviseur habilité / observateur",
+      "steps": "Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine.",
+      "branch": "SUIVI",
+      "doc": "WORKSPACE_ROLES.md",
+      "failure": "Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés."
+    },
+    {
+      "id": "J10",
+      "title": "Travailler avec un assistant",
+      "actor": "Membre + client OAuth",
+      "steps": "Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions.",
+      "branch": "MCP / REST",
+      "doc": "LLM_SETUP.md",
+      "failure": "Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur."
+    },
+    {
+      "id": "J11",
+      "title": "Utiliser iPhone ou iPad",
+      "actor": "Membre sur client natif",
+      "steps": "Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi.",
+      "branch": "NATIF → NAVIGATEUR",
+      "doc": "IOS_API.md",
+      "failure": "Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement."
+    },
+    {
+      "id": "J12",
+      "title": "Gérer les crédits",
+      "actor": "Administrateur navigateur",
+      "steps": "Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation.",
+      "branch": "FACTURATION",
+      "doc": "WELCOME_CREDIT.md",
+      "failure": "Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue."
+    },
+    {
+      "id": "J13",
+      "title": "Diagnostiquer un PDF avec Horizon",
+      "actor": "Administrateur pour abonnement ; préparateur pour diagnostic",
+      "steps": "Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.",
+      "branch": "HORIZON · PR #41",
+      "doc": "PDF_ACCESSIBILITY.md",
+      "failure": "Sans HORIZON_ENABLED ou service privé : indisponible ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
+    },
+    {
+      "id": "J14",
+      "title": "Recevoir un PDF protégé",
+      "actor": "Destinataire externe",
+      "steps": "Ouvrir le lien → saisir le mot de passe → télécharger le PDF dans la période autorisée.",
+      "branch": "RÉCEPTION",
+      "doc": "PROTECTED_DOCUMENTS.md",
+      "failure": "Lien expiré, révoqué ou mot de passe invalide : refuser ; le fichier téléchargé ne devient pas lui-même chiffré."
+    },
+    {
+      "id": "J15",
+      "title": "Publier une évolution",
+      "actor": "Développeur / opérateur de release",
+      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé.",
+      "branch": "RELEASE",
+      "doc": "MAIN_RELEASE.md",
+      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre."
+    }
+  ],
+  "roles": [
+    "Administrateur",
+    "Superviseur",
+    "Opérateur",
+    "Observateur",
+    "Assistant connecté"
+  ],
+  "permissions": [
+    [
+      "Lire contenus accessibles",
+      "Oui",
+      "Oui",
+      "Oui",
+      "Oui",
+      "Selon membre + scopes"
+    ],
+    [
+      "Importer / préparer",
+      "Oui",
+      "Oui",
+      "Oui",
+      "Non",
+      "Selon membre + scopes"
+    ],
+    [
+      "Approuver / confirmer / annuler",
+      "Oui",
+      "Option Approbation",
+      "Non",
+      "Non",
+      "Mandat expert distinct uniquement"
+    ],
+    [
+      "Rapports agrégés",
+      "Oui",
+      "Option Rapports",
+      "Non",
+      "Non",
+      "Selon membre + scopes"
+    ],
+    [
+      "Gérer atelier / membres",
+      "Oui",
+      "Non",
+      "Non",
+      "Non",
+      "Non"
+    ],
+    [
+      "Gérer facturation / souscrire Horizon",
+      "Navigateur",
+      "Non",
+      "Non",
+      "Non",
+      "Non"
+    ],
+    [
+      "Accorder / renouveler mandat expert",
+      "Navigateur",
+      "Non",
+      "Non",
+      "Non",
+      "Non"
+    ],
+    [
+      "Modifier modèle partagé",
+      "Droits sur ressource",
+      "Droits sur ressource",
+      "Droits sur ressource",
+      "Non",
+      "Membre + scopes + ressource"
+    ],
+    [
+      "Supprimer modèle",
+      "Propriétaire",
+      "Propriétaire",
+      "Propriétaire",
+      "Non",
+      "Propriétaire + scopes"
+    ],
+    [
+      "Voir PDF généré privé",
+      "Créateur seulement",
+      "Créateur seulement",
+      "Créateur seulement",
+      "Selon accès autorisé",
+      "Selon propriétaire et contexte"
+    ],
+    [
+      "Profil / langue / ses sessions",
+      "Personnel",
+      "Personnel",
+      "Personnel",
+      "Personnel",
+      "Pas d’administration navigateur"
+    ]
+  ]
+}

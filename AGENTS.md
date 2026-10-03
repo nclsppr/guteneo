@@ -1,5 +1,7 @@
 # Guteneo engineering rules
 
+Every feature addition, change or removal MUST update the developer-only feature tree in `docs/feature-map.json`, the affected role/permission matrix and every affected customer journey in the same PR. Cover entry conditions, actor and current authority, steps, result, errors/recovery, web/native/REST/MCP surfaces, privacy, activation gates, technical contract, source and relevant test evidence. Keep implementation, activation and deployed proof distinct. Regenerate `docs/FEATURE_MAP.md` and `docs/FEATURE_MAP.html` with `node docs/build-feature-map.mjs`; keep these documents readable, visually polished and consistent. These files are repository technical documentation only: never import, copy, publish or link them in the official website, its navigation, assets, sitemap or public page generator. Four human membership roles are defined by `packages/contracts/src/roles.ts`; assistants are separate actors, never an invented fifth membership role.
+
 Independent SaaS; no VBS systems, accounts, secrets or production dependencies.
 Never send a real communication, provision paid infrastructure, merge, or deploy production without explicit authorization.
 Production fails closed on simulation, development authentication, missing scan or provider configuration.
