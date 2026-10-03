@@ -47,6 +47,17 @@ Remotion et les dépendances verrouillées du dépôt. Les preuves historiques
 ci-dessous ne constituent pas une nouvelle validation ou publication de ces
 supports.
 
+## Signal de lecture des vidéos
+
+Les affiches des films de présentation et du guide des rôles portent un bouton
+plat de lecture centré : rectangle arrondi bleu cobalt `#2450db`, triangle blanc,
+sans ombre ni effet de volume. Le libellé et la durée réelle restent lisibles
+sous le symbole, dans la langue active. Utiliser le lecteur partagé
+`apps/web/src/homepage-film.tsx` pour conserver le même signal sur tous les films.
+Le bouton disparaît pendant la lecture, revient pour rejouer et reste utilisable
+au clavier avec un focus visible. Ce symbole est un contrôle d’interface ; il
+ne remplace ni le logo Guteneo ni le contenu des vidéos.
+
 ## Trois usages distincts
 
 | Visuel                                     | Usage                                                                                                                     | Ressources                                                                                                      |

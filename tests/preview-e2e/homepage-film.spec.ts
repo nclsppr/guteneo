@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { supportedLocales } from "../../packages/contracts/src/locale";
 import { publicFilmAsset } from "../../packages/contracts/src/public-videos";
@@ -6,6 +6,49 @@ import { publicLanguagePicker } from "../public-language";
 
 type Call = { name: string; active: boolean; src: string };
 type FilmWindow = Window & { filmCalls: Call[] };
+
+async function expectProminentPlayOverlay(section: Locator) {
+  const button = section.locator(".homepage-film-play");
+  const emblem = button.locator(".homepage-film-play-icon");
+  await expect(button).toBeVisible();
+  await expect(button).toHaveAccessibleName(/\S/);
+  await expect(emblem).toBeVisible();
+  const frame = await section.locator(".homepage-film-frame").boundingBox();
+  const icon = await emblem.boundingBox();
+  expect(frame).not.toBeNull();
+  expect(icon).not.toBeNull();
+  expect(icon!.width).toBeGreaterThanOrEqual(80);
+  expect(icon!.height).toBeGreaterThanOrEqual(56);
+  expect(
+    Math.abs(icon!.x + icon!.width / 2 - (frame!.x + frame!.width / 2)),
+  ).toBeLessThanOrEqual(3);
+  expect(
+    Math.abs(icon!.y + icon!.height / 2 - (frame!.y + frame!.height / 2)),
+  ).toBeLessThanOrEqual(3);
+  const background = await emblem.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  const [red, green, blue, alpha = 1] = background
+    .match(/[\d.]+/g)!
+    .map(Number);
+  expect(blue).toBeGreaterThan(red);
+  expect(blue).toBeGreaterThan(green);
+  expect(alpha).toBe(1);
+  await expect(emblem).toHaveCSS("background-image", "none");
+  await expect(emblem.locator("svg")).toHaveCSS("fill", "rgb(255, 255, 255)");
+  await expect(button.locator("small")).toBeVisible();
+  const caption = await button
+    .locator(".homepage-film-play-copy")
+    .boundingBox();
+  expect(caption).not.toBeNull();
+  expect(caption!.x).toBeGreaterThanOrEqual(frame!.x);
+  expect(caption!.x + caption!.width).toBeLessThanOrEqual(
+    frame!.x + frame!.width + 1,
+  );
+  expect(caption!.y + caption!.height).toBeLessThanOrEqual(
+    frame!.y + frame!.height + 1,
+  );
+}
 
 async function mockPlayer(
   page: Page,
@@ -77,7 +120,7 @@ for (const locale of supportedLocales) {
   for (const film of ["introduction", "roles"] as const) {
     test(`${film} selects the ${locale} movie and poster only after a gesture`, async ({
       page,
-    }) => {
+    }, info) => {
       await mockPlayer(page);
       const requests: string[] = [];
       page.on("request", (request) => {
@@ -97,25 +140,29 @@ for (const locale of supportedLocales) {
       );
       await expect(player).toHaveAttribute("lang", locale);
       await expect(player).not.toHaveAttribute("src");
-      const script = JSON.parse(readFileSync(new URL(
-        `../../videos/guteneo-film/narration/releases/${film}-${locale}-natural-c-v1/scripts.json`,
-        import.meta.url,
-      ), "utf8")) as { narrations: Array<{ cues: Array<{ text: string }> }> };
+      const script = JSON.parse(
+        readFileSync(
+          new URL(
+            `../../videos/guteneo-film/narration/releases/${film}-${locale}-natural-c-v1/scripts.json`,
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      ) as { narrations: Array<{ cues: Array<{ text: string }> }> };
       await section.locator(".homepage-film-transcript summary").click();
       await expect(section.locator(".homepage-film-transcript p")).toHaveText(
         script.narrations[0].cues.map((cue) => cue.text).join(" "),
       );
       if (film === "introduction" || asset.captions) {
         const captions = player.locator('track[kind="captions"]');
-        await expect(captions).toHaveAttribute(
-          "src",
-          asset.captions!,
-        );
+        await expect(captions).toHaveAttribute("src", asset.captions!);
         await expect(captions).toHaveAttribute("srclang", locale);
       }
       // The poster is intentionally lazy: make it visible before requiring
       // decoded pixels instead of depending on browser prefetch distance.
-      await section.locator(".homepage-film-poster img").scrollIntoViewIfNeeded();
+      await section
+        .locator(".homepage-film-poster img")
+        .scrollIntoViewIfNeeded();
       await expect
         .poll(() =>
           section
@@ -131,8 +178,38 @@ for (const locale of supportedLocales) {
         )
         .toBeGreaterThan(0);
       expect(requests).toEqual([]);
-      await section.locator(".homepage-film-play").click();
+      await expectProminentPlayOverlay(section);
+      if (
+        locale === "fr" &&
+        process.env.GUTENEO_PLAY_OVERLAY_EVIDENCE === "1"
+      ) {
+        await section.locator(".homepage-film-frame").screenshot({
+          path: `/tmp/guteneo-play-overlay-${film}-${info.project.name}.png`,
+        });
+      }
+      if (
+        locale === "fr" &&
+        film === "roles" &&
+        info.project.name === "iphone"
+      ) {
+        const viewport = page.viewportSize()!;
+        await page.setViewportSize({ width: 320, height: 844 });
+        if (process.env.GUTENEO_PLAY_OVERLAY_EVIDENCE === "1") {
+          await section.locator(".homepage-film-frame").screenshot({
+            path: "/tmp/guteneo-play-overlay-roles-320.png",
+          });
+        }
+        await expectProminentPlayOverlay(section);
+        await page.setViewportSize(viewport);
+      }
+      const trigger = section.locator(".homepage-film-play");
+      await trigger.focus();
+      await trigger.press("Enter");
       await expect(player).toHaveAttribute("src", asset.movie);
+      await expect(player).toBeFocused();
+      await player.dispatchEvent("playing");
+      await expect(trigger).toHaveCount(0);
+      await expect(player).toHaveAttribute("controls", "");
       await expect(section.locator(".homepage-film-frame")).toHaveAttribute(
         "data-format",
         format,
@@ -142,6 +219,25 @@ for (const locale of supportedLocales) {
         height: 800,
       });
       await expect(player).toHaveAttribute("src", asset.movie);
+      await player.dispatchEvent("ended");
+      await expectProminentPlayOverlay(section);
+      await expect(trigger).toBeFocused();
+      await trigger.press("Space");
+      await expect(player).toBeFocused();
+      await expect(trigger).toHaveCount(0);
+      expect(
+        await page.evaluate(
+          () =>
+            (window as unknown as FilmWindow).filmCalls.filter(
+              (call) => call.name === "play",
+            ).length,
+        ),
+      ).toBe(2);
+      await section.locator(".homepage-film-toolbar button").last().click();
+      await expect(player).not.toHaveAttribute("src");
+      await expect(player).toBeHidden();
+      await expectProminentPlayOverlay(section);
+      await expect(trigger).toBeFocused();
     });
   }
 
@@ -183,6 +279,7 @@ for (const film of ["introduction", "roles"] as const) {
     await expect(section).toHaveAttribute("data-locale", "de");
     await expect(section.locator("video")).not.toHaveAttribute("src");
     await expect(section.locator("video")).toBeHidden();
+    await expectProminentPlayOverlay(section);
     if (film === "introduction")
       await expect(section.locator('track[kind="captions"]')).toHaveAttribute(
         "src",
@@ -343,33 +440,6 @@ test("retries Safari native fullscreen once playback is ready", async ({
   ).toBe(2);
 });
 
-test("can replay the finished film and close it with keyboard focus restored", async ({
-  page,
-}) => {
-  await mockPlayer(page);
-  await page.goto("/");
-  await page.getByRole("button", { name: /Découvrir le film/ }).click();
-  const player = page.locator(".homepage-film-video");
-  await player.dispatchEvent("playing");
-  await player.dispatchEvent("ended");
-  const replay = page.getByRole("button", { name: /Revoir le film/ });
-  await expect(replay).toBeFocused();
-  await replay.press("Space");
-  expect(
-    await page.evaluate(
-      () =>
-        (window as unknown as FilmWindow).filmCalls.filter(
-          (call) => call.name === "play",
-        ).length,
-    ),
-  ).toBe(2);
-  await page.getByRole("button", { name: "Fermer le lecteur" }).click();
-  await expect(
-    page.getByRole("button", { name: /Découvrir le film/ }),
-  ).toBeFocused();
-  await expect(player).toBeHidden();
-});
-
 test("a playback failure is announced and can be retried", async ({ page }) => {
   await mockPlayer(page, "play-error");
   await page.goto("/");
@@ -496,6 +566,7 @@ test.describe("delivered public media", () => {
             { timeout: 20000 },
           )
           .toBeGreaterThan(0.2);
+        await expect(section.locator(".homepage-film-play")).toHaveCount(0);
         if (hasCaptions)
           await expect
             .poll(() =>
@@ -516,7 +587,11 @@ test.describe("delivered public media", () => {
         });
         expect(media.width).toBe(portrait ? 1320 : 1920);
         expect(media.height).toBe(portrait ? 2868 : 1080);
-        const expectedDuration = publicFilmAsset(film, locale, format).durationSeconds;
+        const expectedDuration = publicFilmAsset(
+          film,
+          locale,
+          format,
+        ).durationSeconds;
         expect(Math.abs(media.duration - expectedDuration)).toBeLessThan(0.1);
         expect(media.source).toBe(publicFilmAsset(film, locale, format).movie);
         const finalCard = media.duration - 3;
