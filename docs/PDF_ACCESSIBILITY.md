@@ -87,6 +87,10 @@ identity; no marketplace replacement/resubmission is performed.
 
 `HORIZON_ENABLED` is off/absent by default and `PDF_VALIDATOR` is unbound in the
 application. Both require explicit hosted qualification before availability.
+Production availability also requires `SCANNER`, matching the validator's
+scan prerequisite. If that binding is absent, status/entitlement fail closed,
+new subscriptions are refused and scheduled renewals create no action or debit,
+even when enough credits remain. Cancellation remains available.
 Public preview has no business bindings and cannot subscribe, debit or validate.
 Production activation needs a separately authorized release, private-service
 provisioning/binding, migrations and commercial tax/invoice decisions. No merge,

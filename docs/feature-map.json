@@ -287,10 +287,11 @@
         "veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4",
         "Rapport sur octets exacts, historique et export JSON",
         "Diagnostic via web/MCP et revue humaine obligatoire",
-        "Activation HORIZON_ENABLED et service privé requis ; pas une certification légale"
+        "Activation HORIZON_ENABLED, validateur privé et scanner en production requis avant souscription/renouvellement ; pas une certification légale"
       ],
       "status": "Candidat intégré #41 · activation fermée",
       "tests": [
+        "tests/unit/monthly-plan.test.ts",
         "tests/unit/pdf-validation.test.ts",
         "tests/preview-e2e/geo.spec.ts",
         "tests/preview-e2e/seo.spec.ts"
@@ -434,7 +435,7 @@
       "steps": "Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.",
       "branch": "HORIZON · PR #41",
       "doc": "PDF_ACCESSIBILITY.md",
-      "failure": "Sans HORIZON_ENABLED ou service privé : indisponible ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
+      "failure": "Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette."
     },
     {
       "id": "J14",

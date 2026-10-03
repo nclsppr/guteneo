@@ -293,7 +293,7 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 
 Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts).
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts).
+**Surfaces :** Web / REST / MCP. **Tests :** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts).
 
 - Formule mensuelle 30 € sur crédits disponibles ; entrée privée /app/plan
 - Consentement récurrent immutable par administrateur navigateur
@@ -302,7 +302,7 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 - veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4
 - Rapport sur octets exacts, historique et export JSON
 - Diagnostic via web/MCP et revue humaine obligatoire
-- Activation HORIZON_ENABLED et service privé requis ; pas une certification légale
+- Activation HORIZON_ENABLED, validateur privé et scanner en production requis avant souscription/renouvellement ; pas une certification légale
 
 ### 16 · Exploitation et fiabilité
 
@@ -449,7 +449,7 @@ Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
 
 Après activation qualifiée : lire termes → consentir au plan → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation.
 
-**Blocage / reprise :** Sans HORIZON_ENABLED ou service privé : indisponible ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette.
+**Blocage / reprise :** Sans HORIZON_ENABLED, validateur privé ou scanner en production : indisponible, aucune souscription ni débit de renouvellement ; 100 tentatives/mois ; insuffisance suspend le renouvellement sans dette.
 
 Référence : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
 

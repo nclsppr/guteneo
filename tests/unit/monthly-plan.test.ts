@@ -106,6 +106,9 @@ async function fixture(mode: "production" | "simulation" = "simulation") {
     PDF_VALIDATOR: {
       fetch: async () => new Response("fixture"),
     } as unknown as Fetcher,
+    SCANNER: mode === "production"
+      ? ({ fetch: async () => new Response("fixture") } as unknown as Fetcher)
+      : undefined,
   };
   const request = (
     path: string,
@@ -374,6 +377,52 @@ describe("monthly Horizon account-credit plan", () => {
     expect(await getHorizonStatus(f.env, f.actor)).toMatchObject({
       cancelAtPeriodEnd: true,
     });
+  });
+  it("never subscribes or renews a production plan without its required scanner", async () => {
+    const f = await fixture("production");
+    const unavailable = { ...f.env, ENVIRONMENT: "production", SCANNER: undefined };
+    expect(await getHorizonStatus(unavailable, f.actor)).toMatchObject({
+      enabled: false,
+      entitled: false,
+      creditAvailableMinor: 5000,
+    });
+    const productionRequest = f.request("/api/plan/subscribe");
+    productionRequest.headers.set(
+      "Cookie",
+      productionRequest.headers.get("Cookie")!.replace("guteneo_session=", "__Host-guteneo_session="),
+    );
+    await expect(
+      handleMonthlyPlanRoute(productionRequest, unavailable),
+    ).rejects.toMatchObject({ code: "HORIZON_UNAVAILABLE" });
+    expect(await count(f.actor.organizationId)).toBe(0);
+    await f.subscribe();
+    const before = await getHorizonStatus(f.env, f.actor);
+    // Test-only funded balance ensures a renewal would actually debit without
+    // the availability gate. It creates no production credit or top-up path.
+    await DB.prepare("DROP VIEW horizon_available_credits").run();
+    await DB.prepare(
+      "CREATE VIEW horizon_available_credits AS SELECT organization_id,'production' AS evidence,available_minor+3000 AS available_minor FROM welcome_credit_balances UNION ALL SELECT organization_id,'simulation' AS evidence,available_minor FROM horizon_simulation_credit_balances",
+    ).run();
+    try {
+      await renewHorizonPlans(unavailable, new Date(before.currentPeriodEnd!));
+      expect(await count(f.actor.organizationId)).toBe(1);
+      expect(await getHorizonStatus(unavailable, f.actor)).toMatchObject({
+        enabled: false,
+        entitled: false,
+        creditAvailableMinor: 5000,
+        currentPeriodStart: before.currentPeriodStart,
+        currentPeriodEnd: before.currentPeriodEnd,
+      });
+      const actions = await DB.prepare(
+        "SELECT count(*) n FROM horizon_plan_actions WHERE organization_id=?",
+      ).bind(f.actor.organizationId).first<{ n: number }>();
+      expect(actions?.n).toBe(1);
+    } finally {
+      await DB.prepare("DROP VIEW horizon_available_credits").run();
+      await DB.prepare(
+        "CREATE VIEW horizon_available_credits AS SELECT organization_id,'production' AS evidence,available_minor FROM welcome_credit_balances UNION ALL SELECT organization_id,'simulation' AS evidence,available_minor FROM horizon_simulation_credit_balances",
+      ).run();
+    }
   });
   it("requires browser administrator, current CSRF, immutable consent and tenant-scoped keys", async () => {
     const f = await fixture();

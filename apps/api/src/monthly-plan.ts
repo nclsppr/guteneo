@@ -10,6 +10,7 @@ import {
 export interface HorizonEnv extends AuthEnv {
   HORIZON_ENABLED?: string;
   PDF_VALIDATOR?: Fetcher;
+  SCANNER?: Fetcher;
 }
 export const HORIZON_TERMS_VERSION = "horizon-2026-10-02-v1";
 export const HORIZON_PLAN = {
@@ -49,6 +50,7 @@ function enabled(env: HorizonEnv): boolean {
   return (
     env.HORIZON_ENABLED === "true" &&
     Boolean(env.PDF_VALIDATOR) &&
+    (env.MODE !== "production" || Boolean(env.SCANNER)) &&
     (env.ENVIRONMENT !== "production" || env.MODE === "production")
   );
 }

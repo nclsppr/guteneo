@@ -20,7 +20,11 @@ concerne les notes de version : conserver le paquet 0.3.2, les diagnostics PDF,
 les limites de consentement et les garde-fous e-mail/reviewer.
 
 Le serveur reste fermé pour Horizon sans `HORIZON_ENABLED=true` et service privé
-`PDF_VALIDATOR` qualifié. Les migrations additives 0050–0051 doivent être appliquées
+`PDF_VALIDATOR` qualifié et scanner en production. La remarque de revue sur la
+facturation sans scanner est corrigée dans le prédicat partagé de disponibilité :
+aucune souscription ni action/débit de renouvellement sans ce prérequis, y compris
+avec un solde suffisant. Un test D1 couvre ces deux situations et l’atlas décrit
+la même frontière. Les migrations additives 0050–0051 doivent être appliquées
 avant une publication du backend qui consulte ces tables. Merge et déploiement
 applicatif ne qualifient ni le validateur hébergé, ni les obligations commerciales,
 ni les achats récurrents. Les canaux, mandats et envois réels ont leurs autorités
@@ -66,7 +70,8 @@ Les sessions de la maquette sont désormais exclusives en CI pour éviter le
 partage concurrent des ressources audio/GStreamer ; les assertions de lecture,
 dimensions, durée et décodage de la carte finale restent intégralement exigées.
 Cette mesure de stabilisation ne constitue pas une preuve de la cause interne
-du blocage et doit encore être confirmée par la CI complète.
+du blocage. La CI complète du candidat `8ef13c8` a ensuite réussi ses 13 jobs,
+dont le job iPhone ; le commit ajoutant le verrou scanner exige sa propre CI.
 
 La CI complète doit réussir sur le candidat final, puis sur le commit fusionné
 dans `main`. Les preuves ciblées et historiques ne remplacent pas ces deux gates.
