@@ -1,0 +1,317 @@
+{
+  "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.9395581249991665,
+  "result": {
+    "text": " Er verda erreise leid, og hivad landeskrensne raus. E digital fjabereid dokument kanne su oranengabreifbæt ukomen. Er en atilje as fjeg irstu, og van dir inna vesid.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.94,
+        "text": " Er verda erreise leid, og hivad landeskrensne raus.",
+        "tokens": [
+          50364,
+          3300,
+          1306,
+          2675,
+          1189,
+          265,
+          908,
+          476,
+          327,
+          11,
+          5360,
+          276,
+          592,
+          345,
+          2117,
+          279,
+          74,
+          1095,
+          82,
+          716,
+          3342,
+          301,
+          13,
+          50564
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8383678279510917,
+        "compression_ratio": 1.3174603174603174,
+        "no_speech_prob": 0.020353298634290695,
+        "words": [
+          {
+            "word": " Er",
+            "start": 0,
+            "end": 0.28,
+            "probability": 0.59375
+          },
+          {
+            "word": " verda",
+            "start": 0.28,
+            "end": 0.82,
+            "probability": 0.5087890625
+          },
+          {
+            "word": " erreise",
+            "start": 0.82,
+            "end": 1.32,
+            "probability": 0.3818359375
+          },
+          {
+            "word": " leid,",
+            "start": 1.32,
+            "end": 1.82,
+            "probability": 0.5693359375
+          },
+          {
+            "word": " og",
+            "start": 2.02,
+            "end": 2.14,
+            "probability": 0.345703125
+          },
+          {
+            "word": " hivad",
+            "start": 2.14,
+            "end": 2.58,
+            "probability": 0.41552734375
+          },
+          {
+            "word": " landeskrensne",
+            "start": 2.58,
+            "end": 3.48,
+            "probability": 0.61865234375
+          },
+          {
+            "word": " raus.",
+            "start": 3.48,
+            "end": 3.94,
+            "probability": 0.755859375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.68,
+        "end": 8.6,
+        "text": " E digital fjabereid dokument kanne su oranengabreifbæt ukomen.",
+        "tokens": [
+          50594,
+          462,
+          4562,
+          283,
+          73,
+          455,
+          323,
+          327,
+          40858,
+          4608,
+          716,
+          459,
+          420,
+          282,
+          1501,
+          455,
+          265,
+          351,
+          65,
+          7303,
+          83,
+          26769,
+          4726,
+          13,
+          50804
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8383678279510917,
+        "compression_ratio": 1.3174603174603174,
+        "no_speech_prob": 0.020353298634290695,
+        "words": [
+          {
+            "word": " E",
+            "start": 4.68,
+            "end": 4.8,
+            "probability": 0.2607421875
+          },
+          {
+            "word": " digital",
+            "start": 4.8,
+            "end": 5.2,
+            "probability": 0.8740234375
+          },
+          {
+            "word": " fjabereid",
+            "start": 5.2,
+            "end": 5.9,
+            "probability": 0.370361328125
+          },
+          {
+            "word": " dokument",
+            "start": 5.9,
+            "end": 6.26,
+            "probability": 0.849609375
+          },
+          {
+            "word": " kanne",
+            "start": 6.26,
+            "end": 6.88,
+            "probability": 0.39208984375
+          },
+          {
+            "word": " su",
+            "start": 6.88,
+            "end": 7.02,
+            "probability": 0.55029296875
+          },
+          {
+            "word": " oranengabreifbæt",
+            "start": 7.02,
+            "end": 8.2,
+            "probability": 0.419677734375
+          },
+          {
+            "word": " ukomen.",
+            "start": 8.2,
+            "end": 8.6,
+            "probability": 0.4970703125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 9.44,
+        "end": 12.86,
+        "text": " Er en atilje as fjeg irstu, og van dir inna vesid.",
+        "tokens": [
+          50834,
+          3300,
+          465,
+          412,
+          388,
+          2884,
+          382,
+          283,
+          73,
+          1146,
+          3418,
+          372,
+          84,
+          11,
+          5360,
+          3161,
+          4746,
+          294,
+          629,
+          28274,
+          327,
+          13,
+          51014
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8383678279510917,
+        "compression_ratio": 1.3174603174603174,
+        "no_speech_prob": 0.020353298634290695,
+        "words": [
+          {
+            "word": " Er",
+            "start": 9.44,
+            "end": 9.6,
+            "probability": 0.6494140625
+          },
+          {
+            "word": " en",
+            "start": 9.6,
+            "end": 9.72,
+            "probability": 0.245849609375
+          },
+          {
+            "word": " atilje",
+            "start": 9.72,
+            "end": 10.2,
+            "probability": 0.701171875
+          },
+          {
+            "word": " as",
+            "start": 10.2,
+            "end": 10.46,
+            "probability": 0.54248046875
+          },
+          {
+            "word": " fjeg",
+            "start": 10.46,
+            "end": 10.7,
+            "probability": 0.54736328125
+          },
+          {
+            "word": " irstu,",
+            "start": 10.7,
+            "end": 11.26,
+            "probability": 0.278564453125
+          },
+          {
+            "word": " og",
+            "start": 11.62,
+            "end": 11.82,
+            "probability": 0.95654296875
+          },
+          {
+            "word": " van",
+            "start": 11.82,
+            "end": 12.04,
+            "probability": 0.51708984375
+          },
+          {
+            "word": " dir",
+            "start": 12.04,
+            "end": 12.16,
+            "probability": 0.30908203125
+          },
+          {
+            "word": " inna",
+            "start": 12.16,
+            "end": 12.42,
+            "probability": 0.45849609375
+          },
+          {
+            "word": " vesid.",
+            "start": 12.42,
+            "end": 12.86,
+            "probability": 0.52880859375
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "975006dd3f97f5791377bbdf73d1f14a229ea417a1709c48b94cb3eafaa33ab9"
+}

@@ -1,0 +1,372 @@
+{
+  "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+  "parameters": {
+    "language": "fr",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.7018523329970776,
+  "result": {
+    "text": " Le superviseur prépare les envois. L'approbation et l'accès au rapport sont des droits distincts, désactivés par défaut. L'opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 1.88,
+        "text": " Le superviseur prépare les envois.",
+        "tokens": [
+          50364,
+          1456,
+          37971,
+          908,
+          374,
+          11127,
+          79,
+          543,
+          1512,
+          2267,
+          7376,
+          13,
+          50464
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.1762108008066813,
+        "compression_ratio": 1.4557823129251701,
+        "no_speech_prob": 0.009258226491510868,
+        "words": [
+          {
+            "word": " Le",
+            "start": 0,
+            "end": 0.2,
+            "probability": 0.63720703125
+          },
+          {
+            "word": " superviseur",
+            "start": 0.2,
+            "end": 0.94,
+            "probability": 0.8173828125
+          },
+          {
+            "word": " prépare",
+            "start": 0.94,
+            "end": 1.36,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " les",
+            "start": 1.36,
+            "end": 1.48,
+            "probability": 0.998046875
+          },
+          {
+            "word": " envois.",
+            "start": 1.48,
+            "end": 1.88,
+            "probability": 0.896484375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.28,
+        "end": 6.5,
+        "text": " L'approbation et l'accès au rapport sont des droits distincts, désactivés par défaut.",
+        "tokens": [
+          50464,
+          441,
+          6,
+          1746,
+          16614,
+          399,
+          1030,
+          287,
+          6,
+          8476,
+          3645,
+          1609,
+          18018,
+          4900,
+          730,
+          3789,
+          1208,
+          10644,
+          82,
+          11,
+          18963,
+          23397,
+          2191,
+          971,
+          30456,
+          1375,
+          13,
+          50689
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.1762108008066813,
+        "compression_ratio": 1.4557823129251701,
+        "no_speech_prob": 0.009258226491510868,
+        "words": [
+          {
+            "word": " L",
+            "start": 2.28,
+            "end": 2.46,
+            "probability": 0.9091796875
+          },
+          {
+            "word": "'approbation",
+            "start": 2.46,
+            "end": 3,
+            "probability": 0.96142578125
+          },
+          {
+            "word": " et",
+            "start": 3,
+            "end": 3.16,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " l",
+            "start": 3.16,
+            "end": 3.26,
+            "probability": 0.99560546875
+          },
+          {
+            "word": "'accès",
+            "start": 3.26,
+            "end": 3.54,
+            "probability": 0.998046875
+          },
+          {
+            "word": " au",
+            "start": 3.54,
+            "end": 3.64,
+            "probability": 0.387451171875
+          },
+          {
+            "word": " rapport",
+            "start": 3.64,
+            "end": 3.94,
+            "probability": 0.990234375
+          },
+          {
+            "word": " sont",
+            "start": 3.94,
+            "end": 4.22,
+            "probability": 0.994140625
+          },
+          {
+            "word": " des",
+            "start": 4.22,
+            "end": 4.36,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " droits",
+            "start": 4.36,
+            "end": 4.62,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " distincts,",
+            "start": 4.62,
+            "end": 5.36,
+            "probability": 0.9677734375
+          },
+          {
+            "word": " désactivés",
+            "start": 5.36,
+            "end": 5.94,
+            "probability": 0.92724609375
+          },
+          {
+            "word": " par",
+            "start": 5.94,
+            "end": 6.1,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " défaut.",
+            "start": 6.1,
+            "end": 6.5,
+            "probability": 0.998046875
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 6.94,
+        "end": 9.9,
+        "text": " L'opérateur importe les documents et prépare les envois.",
+        "tokens": [
+          50689,
+          441,
+          6,
+          404,
+          4198,
+          15540,
+          974,
+          68,
+          1512,
+          8512,
+          1030,
+          11127,
+          79,
+          543,
+          1512,
+          2267,
+          7376,
+          13,
+          50864
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.1762108008066813,
+        "compression_ratio": 1.4557823129251701,
+        "no_speech_prob": 0.009258226491510868,
+        "words": [
+          {
+            "word": " L",
+            "start": 6.94,
+            "end": 7.12,
+            "probability": 0.99267578125
+          },
+          {
+            "word": "'opérateur",
+            "start": 7.12,
+            "end": 7.62,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " importe",
+            "start": 7.62,
+            "end": 8.18,
+            "probability": 0.84716796875
+          },
+          {
+            "word": " les",
+            "start": 8.18,
+            "end": 8.3,
+            "probability": 0.99609375
+          },
+          {
+            "word": " documents",
+            "start": 8.3,
+            "end": 8.68,
+            "probability": 0.99072265625
+          },
+          {
+            "word": " et",
+            "start": 8.68,
+            "end": 8.98,
+            "probability": 0.9765625
+          },
+          {
+            "word": " prépare",
+            "start": 8.98,
+            "end": 9.4,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " les",
+            "start": 9.4,
+            "end": 9.52,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " envois.",
+            "start": 9.52,
+            "end": 9.9,
+            "probability": 0.99462890625
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 10.2,
+        "end": 11.46,
+        "text": " Il ne peut pas les approuver.",
+        "tokens": [
+          50864,
+          4416,
+          408,
+          5977,
+          1736,
+          1512,
+          724,
+          13122,
+          331,
+          13,
+          50939
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.1762108008066813,
+        "compression_ratio": 1.4557823129251701,
+        "no_speech_prob": 0.009258226491510868,
+        "words": [
+          {
+            "word": " Il",
+            "start": 10.2,
+            "end": 10.36,
+            "probability": 0.98291015625
+          },
+          {
+            "word": " ne",
+            "start": 10.36,
+            "end": 10.5,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " peut",
+            "start": 10.5,
+            "end": 10.64,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " pas",
+            "start": 10.64,
+            "end": 10.84,
+            "probability": 0.99951171875
+          },
+          {
+            "word": " les",
+            "start": 10.84,
+            "end": 10.98,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " approuver.",
+            "start": 10.98,
+            "end": 11.46,
+            "probability": 0.8857421875
+          }
+        ]
+      }
+    ],
+    "language": "fr"
+  }
+}

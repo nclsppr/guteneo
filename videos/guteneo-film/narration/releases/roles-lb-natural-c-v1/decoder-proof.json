@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "blockId": "bloc-1",
+      "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+      "canonicalPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+      "decodedPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+      "decodedSamples": 490392,
+      "differentSamples": 0,
+      "maximumAbsoluteDelta": 0,
+      "toleranceLsb": 8
+    },
+    {
+      "blockId": "bloc-2",
+      "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+      "canonicalPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+      "decodedPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+      "decodedSamples": 698544,
+      "differentSamples": 0,
+      "maximumAbsoluteDelta": 0,
+      "toleranceLsb": 8
+    },
+    {
+      "blockId": "bloc-3",
+      "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+      "canonicalPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+      "decodedPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+      "decodedSamples": 571536,
+      "differentSamples": 0,
+      "maximumAbsoluteDelta": 0,
+      "toleranceLsb": 8
+    }
+  ]
+}

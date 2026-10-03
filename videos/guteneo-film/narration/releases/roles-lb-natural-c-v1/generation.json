@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "clips": {
+    "roles-lb-natural-c/intro": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/intro.wav",
+      "audioSha256": "a7897f64702d577c125d1a83b85c38584b0fa55d8bd39f5cfe0d98078dc1426a",
+      "fingerprint": "09e5f06de3df03c29872706972e7efece4640ab2380249bb85b498ee80e34a7b",
+      "durationSeconds": 4.321269841269841,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-lb-natural-c/administrator": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/administrator.wav",
+      "audioSha256": "ec934fef17c41bd888c868431d03877fd1742c0bcc653895adbd7a0084d58828",
+      "fingerprint": "154079ab861813ea607385fe8c76e57de3f367827662e1fcd001f359b9a7bffd",
+      "durationSeconds": 6.798730158730159,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-lb-natural-c/supervisor": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/supervisor.wav",
+      "audioSha256": "8c8045ceed9481e62c422a30be8731a06f6b63089c6d94fbd361b393216de0bf",
+      "fingerprint": "36f89fe55309315e4f8fb4443d49458c99a3b9876b7bc7275dea1d1175f19439",
+      "durationSeconds": 9.87702947845805,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-lb-natural-c/operator": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/operator.wav",
+      "audioSha256": "c08f93a4b9462ac706dde5468023cb3bea3e1adfb3c0390061fafcf0dc820156",
+      "fingerprint": "120d459d18e05f98f7682f2a41bf0435271c6180a8c763076ac35dacfd1a0ef2",
+      "durationSeconds": 5.96297052154195,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-lb-natural-c/observer": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/observer.wav",
+      "audioSha256": "539a8d0879554f8c158b56cc6830e163f092048c7ada6155fca5288460c31038",
+      "fingerprint": "447b85b32c99f120cb8e77461551d7f53b363a2652de69436a942230a4e4f112",
+      "durationSeconds": 8.402086167800453,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-lb-natural-c/review": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-lb-natural-c/review.wav",
+      "audioSha256": "d8720624287a4fa4e2e41161e8a29a3c9a50a980cbf96887188fea54bcb4e8ed",
+      "fingerprint": "db945fd345cd9838614d52b18f5eef55d8851c2905f2df101ea03a674cc9133f",
+      "durationSeconds": 4.557913832199547,
+      "timingFit": true,
+      "tempo": 1
+    }
+  }
+}

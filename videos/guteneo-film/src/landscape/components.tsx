@@ -1,3 +1,4 @@
+import { useFilmCopy, useFilmHeadlineScale } from "../localization";
 import React from "react";
 import {
   AbsoluteFill,
@@ -65,19 +66,22 @@ export const Kicker: React.FC<React.PropsWithChildren<{ light?: boolean }>> = ({
 
 export const Head: React.FC<
   React.PropsWithChildren<{ size?: number; style?: React.CSSProperties }>
-> = ({ children, size = 138, style }) => (
-  <div
-    style={{
-      fontFamily: serif,
-      fontSize: size,
-      lineHeight: 0.98,
-      letterSpacing: -3,
-      ...style,
-    }}
-  >
-    {children}
-  </div>
-);
+> = ({ children, size = 138, style }) => {
+  const headlineScale = useFilmHeadlineScale();
+  return (
+    <div
+      style={{
+        fontFamily: serif,
+        fontSize: size * headlineScale,
+        lineHeight: 0.98,
+        letterSpacing: -3,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 export const Label: React.FC<
   React.PropsWithChildren<{ light?: boolean; style?: React.CSSProperties }>
@@ -120,58 +124,61 @@ export const Sheet: React.FC<{
   name?: string;
   template?: boolean;
   style?: React.CSSProperties;
-}> = ({ name = "Camille", template, style }) => (
-  <div
-    style={{
-      width: 540,
-      height: 736,
-      background: "#fffefa",
-      boxShadow: "0 32px 85px #15223826",
-      padding: 46,
-      color: C.ink,
-      ...style,
-    }}
-  >
-    <Mark size={66} />
-    <div
-      style={{ width: 95, height: 3, background: C.blue, margin: "30px 0" }}
-    />
+}> = ({ name = "Camille", template, style }) => {
+  const t = useFilmCopy();
+  return (
     <div
       style={{
-        fontFamily: serif,
-        fontSize: 50,
-        lineHeight: 1.1,
-        marginBottom: 35,
+        width: 540,
+        height: 736,
+        background: "#fffefa",
+        boxShadow: "0 32px 85px #15223826",
+        padding: 46,
+        color: C.ink,
+        ...style,
       }}
     >
-      Bonjour{" "}
-      <em style={{ color: C.blue }}>{template ? "{{prénom}}" : name}</em>,
-    </div>
-    {[96, 86, 100, 95, 68, 0, 88, 97, 75].map((w, i) => (
+      <Mark size={66} />
       <div
-        key={i}
-        style={{
-          width: `${w}%`,
-          height: 6,
-          background: "#a9aca9",
-          marginBottom: 17,
-          opacity: 0.6,
-        }}
+        style={{ width: 95, height: 3, background: C.blue, margin: "30px 0" }}
       />
-    ))}
-    <div
-      style={{
-        fontFamily: serif,
-        fontSize: 33,
-        fontStyle: "italic",
-        color: C.blue,
-        marginTop: 30,
-      }}
-    >
-      Une attention pour vous.
+      <div
+        style={{
+          fontFamily: serif,
+          fontSize: 50,
+          lineHeight: 1.1,
+          marginBottom: 35,
+        }}
+      >
+        {t("Bonjour")}{" "}
+        <em style={{ color: C.blue }}>{template ? t("{{prénom}}") : name}</em>,
+      </div>
+      {[96, 86, 100, 95, 68, 0, 88, 97, 75].map((w, i) => (
+        <div
+          key={i}
+          style={{
+            width: `${w}%`,
+            height: 6,
+            background: "#a9aca9",
+            marginBottom: 17,
+            opacity: 0.6,
+          }}
+        />
+      ))}
+      <div
+        style={{
+          fontFamily: serif,
+          fontSize: 33,
+          fontStyle: "italic",
+          color: C.blue,
+          marginTop: 30,
+        }}
+      >
+        {t("Une attention pour vous.")}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const Check: React.FC<{ size?: number; color?: string }> = ({
   size = 36,

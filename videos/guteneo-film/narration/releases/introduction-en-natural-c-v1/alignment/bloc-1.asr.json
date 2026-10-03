@@ -1,0 +1,424 @@
+{
+  "sourceSha256": "86326f1bca41d6377fc649ee52e321441cb42aac491b8d225ab3f12ccb7adf33",
+  "parameters": {
+    "language": "en",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.792466749997402,
+  "result": {
+    "text": " With GoodNeil, everything starts with a document to send. Prepare a single delivery or organise a whole campaign of documents. Personalise each version so every recipient receives a document written for them. Upload your original PDF or use a template to create your document.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.3,
+        "text": " With GoodNeil, everything starts with a document to send.",
+        "tokens": [
+          50364,
+          2022,
+          2205,
+          15496,
+          388,
+          11,
+          1203,
+          3719,
+          365,
+          257,
+          4166,
+          281,
+          2845,
+          13,
+          50560
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.18017305646623885,
+        "compression_ratio": 1.5164835164835164,
+        "no_speech_prob": 0.010250773280858994,
+        "words": [
+          {
+            "word": " With",
+            "start": 0,
+            "end": 0.26,
+            "probability": 0.95068359375
+          },
+          {
+            "word": " GoodNeil,",
+            "start": 0.26,
+            "end": 0.9,
+            "probability": 0.5087890625
+          },
+          {
+            "word": " everything",
+            "start": 1.24,
+            "end": 1.56,
+            "probability": 0.99072265625
+          },
+          {
+            "word": " starts",
+            "start": 1.56,
+            "end": 1.98,
+            "probability": 0.998046875
+          },
+          {
+            "word": " with",
+            "start": 1.98,
+            "end": 2.26,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " a",
+            "start": 2.26,
+            "end": 2.36,
+            "probability": 0.99072265625
+          },
+          {
+            "word": " document",
+            "start": 2.36,
+            "end": 2.78,
+            "probability": 0.98583984375
+          },
+          {
+            "word": " to",
+            "start": 2.78,
+            "end": 3.02,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " send.",
+            "start": 3.02,
+            "end": 3.3,
+            "probability": 0.99853515625
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 3.92,
+        "end": 7.76,
+        "text": " Prepare a single delivery or organise a whole campaign of documents.",
+        "tokens": [
+          50560,
+          29689,
+          257,
+          2167,
+          8982,
+          420,
+          50110,
+          257,
+          1379,
+          5129,
+          295,
+          8512,
+          13,
+          50780
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.18017305646623885,
+        "compression_ratio": 1.5164835164835164,
+        "no_speech_prob": 0.010250773280858994,
+        "words": [
+          {
+            "word": " Prepare",
+            "start": 3.92,
+            "end": 4.26,
+            "probability": 0.98681640625
+          },
+          {
+            "word": " a",
+            "start": 4.26,
+            "end": 4.5,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " single",
+            "start": 4.5,
+            "end": 4.8,
+            "probability": 0.994140625
+          },
+          {
+            "word": " delivery",
+            "start": 4.8,
+            "end": 5.24,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " or",
+            "start": 5.24,
+            "end": 5.76,
+            "probability": 0.5615234375
+          },
+          {
+            "word": " organise",
+            "start": 5.76,
+            "end": 6.2,
+            "probability": 0.6201171875
+          },
+          {
+            "word": " a",
+            "start": 6.2,
+            "end": 6.44,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " whole",
+            "start": 6.44,
+            "end": 6.66,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " campaign",
+            "start": 6.66,
+            "end": 7.08,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " of",
+            "start": 7.08,
+            "end": 7.32,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " documents.",
+            "start": 7.32,
+            "end": 7.76,
+            "probability": 0.99462890625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.42,
+        "end": 12.88,
+        "text": " Personalise each version so every recipient receives a document written for them.",
+        "tokens": [
+          50780,
+          25317,
+          908,
+          1184,
+          3037,
+          370,
+          633,
+          26216,
+          20717,
+          257,
+          4166,
+          3720,
+          337,
+          552,
+          13,
+          51024
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.18017305646623885,
+        "compression_ratio": 1.5164835164835164,
+        "no_speech_prob": 0.010250773280858994,
+        "words": [
+          {
+            "word": " Personalise",
+            "start": 8.42,
+            "end": 9.1,
+            "probability": 0.9462890625
+          },
+          {
+            "word": " each",
+            "start": 9.1,
+            "end": 9.32,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " version",
+            "start": 9.32,
+            "end": 9.8,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " so",
+            "start": 9.8,
+            "end": 10.14,
+            "probability": 0.806640625
+          },
+          {
+            "word": " every",
+            "start": 10.14,
+            "end": 10.54,
+            "probability": 0.986328125
+          },
+          {
+            "word": " recipient",
+            "start": 10.54,
+            "end": 11.04,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " receives",
+            "start": 11.04,
+            "end": 11.48,
+            "probability": 0.99609375
+          },
+          {
+            "word": " a",
+            "start": 11.48,
+            "end": 11.68,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " document",
+            "start": 11.68,
+            "end": 12.02,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " written",
+            "start": 12.02,
+            "end": 12.4,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " for",
+            "start": 12.4,
+            "end": 12.68,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " them.",
+            "start": 12.68,
+            "end": 12.88,
+            "probability": 0.99951171875
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 13.24,
+        "end": 17.22,
+        "text": " Upload your original PDF or use a template to create your document.",
+        "tokens": [
+          51024,
+          624,
+          21132,
+          345,
+          428,
+          3380,
+          17752,
+          420,
+          764,
+          257,
+          12379,
+          281,
+          1884,
+          428,
+          4166,
+          13,
+          51236
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.18017305646623885,
+        "compression_ratio": 1.5164835164835164,
+        "no_speech_prob": 0.010250773280858994,
+        "words": [
+          {
+            "word": " Upload",
+            "start": 13.24,
+            "end": 13.74,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " your",
+            "start": 13.74,
+            "end": 13.86,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " original",
+            "start": 13.86,
+            "end": 14.28,
+            "probability": 0.990234375
+          },
+          {
+            "word": " PDF",
+            "start": 14.28,
+            "end": 14.8,
+            "probability": 0.89697265625
+          },
+          {
+            "word": " or",
+            "start": 14.8,
+            "end": 15.34,
+            "probability": 0.88134765625
+          },
+          {
+            "word": " use",
+            "start": 15.34,
+            "end": 15.58,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " a",
+            "start": 15.58,
+            "end": 15.68,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " template",
+            "start": 15.68,
+            "end": 16.04,
+            "probability": 0.99609375
+          },
+          {
+            "word": " to",
+            "start": 16.04,
+            "end": 16.36,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " create",
+            "start": 16.36,
+            "end": 16.66,
+            "probability": 0.998046875
+          },
+          {
+            "word": " your",
+            "start": 16.66,
+            "end": 16.84,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " document.",
+            "start": 16.84,
+            "end": 17.22,
+            "probability": 0.99658203125
+          }
+        ]
+      }
+    ],
+    "language": "en"
+  },
+  "originalProofSha256": "21102c1c7933130e53c4877443762bde6da504d8ec78b83cb35ba8c9860f31f8"
+}

@@ -78,7 +78,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
       name: "Envoyer depuis Guteneo",
       exact: true,
     }),
-  ).toHaveAttribute("href", "/#/app/prepare?entry=direct");
+  ).toHaveAttribute("href", "/app/prepare?entry=direct");
   for (const [id, name] of [
     ["chatgpt", "ChatGPT"],
     ["claude", "Claude"],

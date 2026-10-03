@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "introduction-fr-natural-c",
+      "kind": "introduction",
+      "locale": "fr",
+      "durationSeconds": 66.5,
+      "endCardStartSeconds": 61.5,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 4.233333333333333,
+          "text": "Avec guteneo, tout commence par un document à transmettre."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 5.133333333333334,
+          "endSeconds": 9.5,
+          "text": "Préparez un envoi unique, ou organisez toute une campagne de documents."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 10.4,
+          "endSeconds": 14.166666666666666,
+          "text": "Personnalisez chaque version pour qu’elle corresponde à son destinataire."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 15.066666666666666,
+          "endSeconds": 19.933333333333334,
+          "text": "Importez votre PDF original, ou utilisez un modèle pour créer votre document."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 20.833333333333332,
+          "endSeconds": 25.5,
+          "text": "Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 26.4,
+          "endSeconds": 30.5,
+          "text": "Demandez-lui de créer votre PDF, puis de préparer son envoi."
+        },
+        {
+          "id": "review",
+          "startSeconds": 31.4,
+          "endSeconds": 37.7,
+          "text": "Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 38.6,
+          "endSeconds": 43.7,
+          "text": "Votre message peut voyager par fax, par courrier postal ou par e-mail."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 44.6,
+          "endSeconds": 48.7,
+          "text": "Vos documents traversent l’Europe pour rejoindre leurs destinataires."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 49.6,
+          "endSeconds": 54,
+          "text": "guteneo relie votre atelier numérique au courrier qui arrive à destination."
+        },
+        {
+          "id": "access",
+          "startSeconds": 54.9,
+          "endSeconds": 59,
+          "text": "Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone."
+        }
+      ]
+    }
+  ]
+}

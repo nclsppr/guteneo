@@ -1,4 +1,4 @@
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import type { ReactNode } from "react";
 import { ArrowLeft } from "@phosphor-icons/react";
@@ -9,7 +9,7 @@ import { getRoleGuide } from "./role-guide";
 
 type InformationPageContent = {
   label: string;
-  updated?: string;
+  updated?: string | null;
   title: ReactNode;
   description: string;
   sections: { id: string; label: string; content: ReactNode }[];
@@ -19,6 +19,64 @@ const contact = <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>;
 
 export function getInformationPages(): Record<string, InformationPageContent> {
   return {
+    "/a-propos/": {
+      label: msg("À propos de Guteneo"),
+      title: msg("À propos de Guteneo"),
+      updated: null,
+      description: msg(
+        "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté.",
+      ),
+      sections: [
+        {
+          id: "service",
+          label: msg("Le service"),
+          content: (
+            <>
+              <h2>{msg("Le service et sa bêta")}</h2>
+              <p>
+                {msg(
+                  "Guteneo est actuellement proposé en bêta. L’activité n’est pas encore immatriculée et aucune vente n’est ouverte sur le site.",
+                )}
+              </p>
+              <p>
+                <a href="/conditions/">{msg("Conditions")}</a>
+                {" · "}
+                <a href="/assistants/">{msg("Assistants")}</a>
+                {" · "}
+                <a href="/developpeurs/">{msg("Développeurs")}</a>
+              </p>
+            </>
+          ),
+        },
+        {
+          id: "editeur",
+          label: msg("L’éditeur"),
+          content: (
+            <>
+              <h2>{msg("L’éditeur")}</h2>
+              <p>
+                {msg(
+                  "Le site Guteneo est édité par Nicolas Pieper, également responsable de la publication.",
+                )}
+              </p>
+              <p>
+                <a href="https://nicolaspieper.com">Nicolas Pieper</a>
+                {" · "}
+                <a href="/mentions-legales/">{msg("Mentions légales")}</a>
+              </p>
+              <p>{contact}</p>
+              <nav aria-label={msg("Profils de Nicolas Pieper")}>
+                <a href="https://www.linkedin.com/in/nicolaspieper">LinkedIn</a>
+                {" · "}
+                <a href="https://github.com/nclsppr">GitHub</a>
+                {" · "}
+                <a href="https://twitter.com/NicolasPieper">X (Twitter)</a>
+              </nav>
+            </>
+          ),
+        },
+      ],
+    },
     "/roles/": getRoleGuide(),
     "/confidentialite/": {
       label: msg("Confidentialité"),
@@ -620,7 +678,7 @@ export function InformationPage({
       </a>
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <a className="legal-back" href="/">
           <ArrowLeft size={18} aria-hidden="true" />{" "}
           {msg(" Retour à l’accueil")}
@@ -631,9 +689,11 @@ export function InformationPage({
           <p className="legal-label">{content.label}</p>
           <h1>{content.title}</h1>
           <p>{content.description}</p>
-          <p className="legal-date">
-            {content.updated ?? msg("Mise à jour le 22 septembre 2026")}
-          </p>
+          {content.updated !== null && (
+            <p className="legal-date">
+              {content.updated ?? msg("Mise à jour le 22 septembre 2026")}
+            </p>
+          )}
         </div>
         <div className="legal-layout">
           <nav aria-label={msg("Sur cette page")} className="legal-index">

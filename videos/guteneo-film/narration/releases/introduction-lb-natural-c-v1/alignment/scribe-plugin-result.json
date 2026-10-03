@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-creative-plugin-transcription-result",
+  "flowId": "R79Z1tPMbEf3cGnRKdBp",
+  "nodeId": "fz0mObUn4r2qRLYcU3Gn",
+  "sessionIds": [
+    "7fDX0iTqnjb2v7m1tuRf"
+  ],
+  "generationId": "lnrtnW7AmtT3AFLNFL4S",
+  "modelId": "eleven_scribe_v1",
+  "text": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag.",
+  "spokenDurationSeconds": 15.12,
+  "hasWordTimestamps": false,
+  "reportedLanguage": null,
+  "alignmentUse": "rejected: no word timestamps; returned text contains nonspoken provider instruction tags; do not count as independent word recognition",
+  "criticalListening": "pending",
+  "sourceAudioSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+  "sourceAudioBytes": 258460,
+  "sourceContainerDurationSeconds": 15.04,
+  "originalProofSha256": "3f11bf271bff9d9df9a5662f24370eb62ba7e7c22be8af8d04496c4e9358a1b8"
+}

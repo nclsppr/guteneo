@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-2",
+  "path": "sources/bloc-2-prise-2.mp3",
+  "sha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+  "bytes": 235762,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "UMUmspk119wfLcscwrGJ",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "en",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. [short pause] The operator imports documents and prepares messages for sending. They cannot approve them.",
+  "requestTextSha256": "1723cf5987fc8567e033157cd996172186be39aa31e1f0d4a3f338d017e12ced",
+  "providerDurationSeconds": 13.6,
+  "decodedSamples": 599760,
+  "decodedPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f"
+}

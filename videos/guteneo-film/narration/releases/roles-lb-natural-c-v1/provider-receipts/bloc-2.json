@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-2",
+  "path": "sources/bloc-2-prise-2.mp3",
+  "sha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+  "bytes": 271707,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "VnjL6bvVBAkZxtSCReSq",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn. [short pause] Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen.",
+  "requestTextSha256": "34972c2946a0b27a302dbb3600478e4189a9fb3fa45372fbdb4f9aa87f64b9ce",
+  "providerDurationSeconds": 15.84,
+  "decodedSamples": 698544,
+  "decodedPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0"
+}

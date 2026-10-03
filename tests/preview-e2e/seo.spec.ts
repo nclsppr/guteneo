@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import { publicLanguagePicker } from "../public-language";
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
@@ -67,7 +68,8 @@ test("public routes expose complete initial HTML, metadata and true HTTP statuse
     "/does-not-exist/",
     "/journal/unpublished/",
     "/assistants/unknown-assistant/",
-    "/app",
+    "/app/unknown",
+    "/app/prepare/unknown",
     "/missing.css",
   ]) {
     const response = await request.get(path);
@@ -118,7 +120,7 @@ test("every public page applies its language selector without preview API calls"
     const response = await page.goto(`${path}?lang=en`);
     expect(response?.status()).toBe(200);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    const selector = page.locator('select[name="language"]').first();
+    const selector = await publicLanguagePicker(page);
     await expect(selector).toHaveValue("en");
     await selector.selectOption("de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
@@ -132,6 +134,57 @@ test("every public page applies its language selector without preview API calls"
   }
   expect(accountRequests).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test("app entry links resolve privately and reach the existing preview router", async ({
+  page,
+  request,
+}) => {
+  test.skip(publicApplication, "Preview navigation uses only browser fixtures");
+  const backendRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(new URL(request.url()).pathname))
+      backendRequests.push(request.url());
+  });
+  for (const path of ["/app", "/app/prepare?entry=direct"]) {
+    for (const method of ["GET", "HEAD"]) {
+      const response = await request.fetch(path, { method });
+      expect(response.status()).toBe(200);
+      expect(response.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+      expect(response.headers()["cache-control"]).toBe("no-store");
+      if (method === "HEAD") expect(await response.text()).toBe("");
+    }
+    const write = await request.post(path);
+    expect(write.status()).toBe(403);
+    expect(await write.json()).toMatchObject({
+      error: { code: "PREVIEW_ONLY" },
+    });
+  }
+  await page.goto("/");
+  await page.locator('.footer-colophon a[href="/app"]').click();
+  await expect(page).toHaveURL(/\/#\/app$/);
+  await expect(
+    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+  ).toBeVisible();
+  await page.goto("/");
+  await page.locator('a[href="/app/prepare?entry=direct"]').click();
+  await expect(page).toHaveURL(/\/#\/app\/prepare\?entry=direct$/);
+  await expect(
+    page.getByRole("heading", { name: "Préparer une correspondance." }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Préparer une correspondance." }),
+  ).toBeVisible();
+  await page.goto("/app?lang=en");
+  await expect(page).toHaveURL(/\/\?lang=en#\/app$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  expect(backendRequests).toEqual([]);
+  const backend = await request.get("/api/session");
+  expect(backend.status()).toBe(403);
+  expect(await backend.json()).toMatchObject({
+    error: { code: "PREVIEW_ONLY" },
+  });
 });
 
 test("journal content and ordinary navigation work with JavaScript disabled", async ({

@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-3",
+  "path": "sources/bloc-3-prise-2.mp3",
+  "sha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+  "bytes": 220298,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "TfaPkbzRuXKdZIQDcntT",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. [short pause] Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+  "requestTextSha256": "51f92cf1c45f733f1d7f3471d6333b006d8c10f4135519a43e7614907f4ffb8b",
+  "providerDurationSeconds": 12.64,
+  "decodedSamples": 557424,
+  "decodedPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a"
+}

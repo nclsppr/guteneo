@@ -1,0 +1,510 @@
+{
+  "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+  "parameters": {
+    "language": "de",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.9791334589972394,
+  "result": {
+    "text": " Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. Erstellen Sie das PDF und bereiten Sie den Versand in guten Neo vor. Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.98,
+        "text": " Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten.",
+        "tokens": [
+          50364,
+          14773,
+          6281,
+          25367,
+          42493,
+          17280,
+          11,
+          3437,
+          10485,
+          1095,
+          22748,
+          268,
+          4891,
+          3951,
+          31515,
+          4245,
+          40566,
+          323,
+          6009,
+          13,
+          50602
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13480004485772581,
+        "compression_ratio": 1.4330357142857142,
+        "no_speech_prob": 0.03939272090792656,
+        "words": [
+          {
+            "word": " Ihr",
+            "start": 0,
+            "end": 0.16,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " Assistent",
+            "start": 0.16,
+            "end": 0.62,
+            "probability": 0.9560546875
+          },
+          {
+            "word": " hilft",
+            "start": 0.62,
+            "end": 0.98,
+            "probability": 0.998046875
+          },
+          {
+            "word": " Ihnen,",
+            "start": 0.98,
+            "end": 1.28,
+            "probability": 0.92578125
+          },
+          {
+            "word": " aus",
+            "start": 1.58,
+            "end": 1.68,
+            "probability": 0.9921875
+          },
+          {
+            "word": " Ihren",
+            "start": 1.68,
+            "end": 1.98,
+            "probability": 0.984375
+          },
+          {
+            "word": " Worten",
+            "start": 1.98,
+            "end": 2.44,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " einen",
+            "start": 2.44,
+            "end": 2.68,
+            "probability": 0.994140625
+          },
+          {
+            "word": " Entwurf",
+            "start": 2.68,
+            "end": 3.08,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " vorzubereiten.",
+            "start": 3.08,
+            "end": 3.98,
+            "probability": 0.9970703125
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.7,
+        "end": 8.34,
+        "text": " Erstellen Sie das PDF und bereiten Sie den Versand in guten Neo vor.",
+        "tokens": [
+          50602,
+          3300,
+          17538,
+          3559,
+          1482,
+          17752,
+          674,
+          13375,
+          6009,
+          3559,
+          1441,
+          12226,
+          474,
+          294,
+          31277,
+          24458,
+          4245,
+          13,
+          50804
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13480004485772581,
+        "compression_ratio": 1.4330357142857142,
+        "no_speech_prob": 0.03939272090792656,
+        "words": [
+          {
+            "word": " Erstellen",
+            "start": 4.7,
+            "end": 5.08,
+            "probability": 0.91796875
+          },
+          {
+            "word": " Sie",
+            "start": 5.08,
+            "end": 5.28,
+            "probability": 0.9873046875
+          },
+          {
+            "word": " das",
+            "start": 5.28,
+            "end": 5.42,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " PDF",
+            "start": 5.42,
+            "end": 5.82,
+            "probability": 0.974609375
+          },
+          {
+            "word": " und",
+            "start": 5.82,
+            "end": 6.24,
+            "probability": 0.9443359375
+          },
+          {
+            "word": " bereiten",
+            "start": 6.24,
+            "end": 6.68,
+            "probability": 0.998046875
+          },
+          {
+            "word": " Sie",
+            "start": 6.68,
+            "end": 6.84,
+            "probability": 0.9736328125
+          },
+          {
+            "word": " den",
+            "start": 6.84,
+            "end": 6.98,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " Versand",
+            "start": 6.98,
+            "end": 7.36,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " in",
+            "start": 7.36,
+            "end": 7.5,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " guten",
+            "start": 7.5,
+            "end": 7.72,
+            "probability": 0.5703125
+          },
+          {
+            "word": " Neo",
+            "start": 7.72,
+            "end": 8.02,
+            "probability": 0.66748046875
+          },
+          {
+            "word": " vor.",
+            "start": 8.02,
+            "end": 8.34,
+            "probability": 0.9951171875
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.78,
+        "end": 11.98,
+        "text": " Prüfen Sie Dokument, Empfänger, Optionen und Kosten.",
+        "tokens": [
+          50804,
+          2114,
+          774,
+          6570,
+          3559,
+          29768,
+          2206,
+          11,
+          8599,
+          69,
+          35174,
+          11,
+          29284,
+          268,
+          674,
+          47391,
+          13,
+          50988
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13480004485772581,
+        "compression_ratio": 1.4330357142857142,
+        "no_speech_prob": 0.03939272090792656,
+        "words": [
+          {
+            "word": " Prüfen",
+            "start": 8.78,
+            "end": 9.12,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " Sie",
+            "start": 9.12,
+            "end": 9.28,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " Dokument,",
+            "start": 9.28,
+            "end": 9.82,
+            "probability": 0.9658203125
+          },
+          {
+            "word": " Empfänger,",
+            "start": 10.14,
+            "end": 10.6,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " Optionen",
+            "start": 10.84,
+            "end": 11.46,
+            "probability": 0.9794921875
+          },
+          {
+            "word": " und",
+            "start": 11.46,
+            "end": 11.56,
+            "probability": 0.9921875
+          },
+          {
+            "word": " Kosten.",
+            "start": 11.56,
+            "end": 11.98,
+            "probability": 0.98681640625
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 12.48,
+        "end": 15.68,
+        "text": " Im normalen Ablauf genehmigen Sie den Versand selbst im Browser.",
+        "tokens": [
+          50988,
+          4331,
+          2710,
+          268,
+          2847,
+          36488,
+          12186,
+          8587,
+          3213,
+          3559,
+          1441,
+          12226,
+          474,
+          13053,
+          566,
+          1603,
+          30947,
+          13,
+          51168
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13480004485772581,
+        "compression_ratio": 1.4330357142857142,
+        "no_speech_prob": 0.03939272090792656,
+        "words": [
+          {
+            "word": " Im",
+            "start": 12.48,
+            "end": 12.6,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " normalen",
+            "start": 12.6,
+            "end": 13.1,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " Ablauf",
+            "start": 13.1,
+            "end": 13.44,
+            "probability": 0.9892578125
+          },
+          {
+            "word": " genehmigen",
+            "start": 13.44,
+            "end": 13.96,
+            "probability": 0.97998046875
+          },
+          {
+            "word": " Sie",
+            "start": 13.96,
+            "end": 14.16,
+            "probability": 0.9873046875
+          },
+          {
+            "word": " den",
+            "start": 14.16,
+            "end": 14.3,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " Versand",
+            "start": 14.3,
+            "end": 14.7,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " selbst",
+            "start": 14.7,
+            "end": 14.98,
+            "probability": 0.99609375
+          },
+          {
+            "word": " im",
+            "start": 14.98,
+            "end": 15.24,
+            "probability": 0.998046875
+          },
+          {
+            "word": " Browser.",
+            "start": 15.24,
+            "end": 15.68,
+            "probability": 0.9921875
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "seek": 0,
+        "start": 16.1,
+        "end": 19.4,
+        "text": " Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.",
+        "tokens": [
+          51168,
+          40084,
+          6698,
+          3559,
+          2959,
+          26247,
+          11815,
+          12836,
+          479,
+          2797,
+          11,
+          39805,
+          23744,
+          4513,
+          462,
+          12,
+          44,
+          864,
+          13,
+          51340
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13480004485772581,
+        "compression_ratio": 1.4330357142857142,
+        "no_speech_prob": 0.03939272090792656,
+        "words": [
+          {
+            "word": " Wählen",
+            "start": 16.1,
+            "end": 16.4,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " Sie",
+            "start": 16.4,
+            "end": 16.54,
+            "probability": 0.98291015625
+          },
+          {
+            "word": " für",
+            "start": 16.54,
+            "end": 16.7,
+            "probability": 0.998046875
+          },
+          {
+            "word": " Ihre",
+            "start": 16.7,
+            "end": 16.88,
+            "probability": 0.9375
+          },
+          {
+            "word": " Nachricht",
+            "start": 16.88,
+            "end": 17.38,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " Fax,",
+            "start": 17.38,
+            "end": 17.76,
+            "probability": 0.68212890625
+          },
+          {
+            "word": " Briefpost",
+            "start": 18.08,
+            "end": 18.58,
+            "probability": 0.93359375
+          },
+          {
+            "word": " oder",
+            "start": 18.58,
+            "end": 18.92,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " E",
+            "start": 18.92,
+            "end": 19.18,
+            "probability": 0.60546875
+          },
+          {
+            "word": "-Mail.",
+            "start": 19.18,
+            "end": 19.4,
+            "probability": 0.97265625
+          }
+        ]
+      }
+    ],
+    "language": "de"
+  },
+  "originalProofSha256": "aeff111902f2af42686c6775aff9d8481285901ad92af1fcb60cb1456761e58f"
+}

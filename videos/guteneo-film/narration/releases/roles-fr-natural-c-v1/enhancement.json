@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "locale": "fr",
+  "modelId": "eleven_v4",
+  "voice": {
+    "name": "Manon Voix française spontanée sérieuse",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Découvrons les quatre rôles de guteneo et les droits de chacun.\n\nL’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports.\n\nLe superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut.\n\nL’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.\n\nL’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi.\n\nDans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur.",
+  "enhancedText": "[thoughtful] Découvrons les quatre rôles de guteneo et les droits de chacun. [short pause] L’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports. [short pause] Le superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut. [short pause] L’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver. [short pause] L’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi. [short pause] Dans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur.",
+  "spokenTextUnchanged": true,
+  "nativeAction": "Améliorer, puis Garder",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "method": "C-three-blocks",
+  "splitPolicy": "Preserve each two-slide block; carry the inherited thoughtful style to each input. Inter-block short pauses are represented by edit gaps.",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "prompt": "[thoughtful] Découvrons les quatre rôles de guteneo et les droits de chacun. [short pause] L’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports.",
+      "cueIds": [
+        "intro",
+        "administrator"
+      ]
+    },
+    {
+      "id": "bloc-2",
+      "prompt": "[thoughtful] Le superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut. [short pause] L’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.",
+      "cueIds": [
+        "supervisor",
+        "operator"
+      ]
+    },
+    {
+      "id": "bloc-3",
+      "prompt": "[thoughtful] L’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi. [short pause] Dans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur.",
+      "cueIds": [
+        "observer",
+        "review"
+      ]
+    }
+  ],
+  "criticalListening": "pending"
+}

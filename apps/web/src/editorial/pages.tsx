@@ -1,6 +1,6 @@
 import { formatLocale } from "../locale";
 import { msg } from "../messages";
-import { LanguageSelect } from "../language-select";
+import { LanguageMenu } from "../language-select";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { LuxembourgFooter } from "../landing-sections";
 import { Brand } from "../brand";
@@ -20,7 +20,7 @@ function EditorialHeader() {
   return (
     <header className="site-header editorial-header">
       <Brand />
-      <LanguageSelect />
+      <LanguageMenu />
       <nav aria-label={msg("Navigation principale")}>
         <a href="/journal/">{msg("Le journal")}</a>
         <a className="button small" href="/#/app">
@@ -96,10 +96,14 @@ export function JournalTeaser() {
       <div className="journal-section-heading">
         <div>
           <h2 id="journal-teaser-title">
-            {msg("Les mots voyagent.")}
-            <br />
+            {msg("Les mots voyagent.")} <br />
             <em>{msg("Leur histoire aussi.")}</em>
           </h2>
+          <p>
+            {msg(
+              "Le journal de Guteneo raconte l’histoire de l’imprimerie et de la transmission des documents, de Gutenberg au PDF.",
+            )}
+          </p>
         </div>
         <a className="text-link" href="/journal/">
           {msg("Ouvrir le journal ")}
@@ -129,6 +133,7 @@ export function JournalTeaser() {
                     <ArrowUpRight size={19} aria-hidden="true" />
                   </a>
                 </h3>
+                <p className="journal-compact-intro">{article.dek}</p>
               </div>
             </article>
           ))}

@@ -1,5 +1,12 @@
 # Langues de l’interface
 
+Les films de présentation et la vidéo du guide des rôles suivent également la
+langue résolue et la préférence personnelle. Chaque langue possède son MP4 et
+son poster ; changer de langue arrête la lecture précédente. Cette règle est
+inscrite dans `AGENTS.md`. Voir `HOMEPAGE_FILM.md` et `ROLES_FILM.md` pour les
+sources et la régénération. Ces ajouts constituent un candidat local tant qu’ils
+ne sont pas publiés avec le code correspondant.
+
 Candidat local du 22 septembre 2026. Le site et le client iOS prennent en charge
 le français (`fr`), l’anglais (`en`), l’allemand (`de`) et le luxembourgeois (`lb`).
 Cette note ne constitue pas une preuve de déploiement, de migration distante,
@@ -7,8 +14,11 @@ de connexion Auth0 réelle ou de publication sur l’App Store.
 
 ## Choix et conservation
 
-Le sélecteur natif est accessible dès l’accueil, sur les pages publiques et dans
-l’espace connecté. Les langues sont nommées dans leur propre langue, sans drapeau.
+Sur l’accueil mobile, le header tient sur une ligne : logo et bouton « Menu ».
+Le sélecteur natif de langue est dans ce menu, qui s’ouvre au-dessus du contenu
+sans agrandir le header. Sur ordinateur et sur les autres pages publiques, un
+contrôle compact avec un globe ouvre le sélecteur. Le profil conserve le réglage
+personnel du compte. Les langues sont nommées dans leur propre langue, sans drapeau.
 La langue de l’interface change immédiatement, sans recharger la page ni vider
 les formulaires. L’attribut HTML `lang`, les libellés accessibles, les dates,
 les nombres et les montants suivent ce choix.
@@ -18,11 +28,22 @@ explicite conservé dans ce navigateur, puis les langues du navigateur. Les vari
 régionales telles que `de-AT` sont reconnues. Sans langue prise en charge, le
 français est utilisé. Un stockage navigateur indisponible ne bloque pas le choix.
 Un changement de langue actualise un paramètre `lang` déjà présent dans l’URL.
+Le choix « Automatique » rétablit la première langue prise en charge parmi les
+préférences du navigateur ; sur le Web, ce signal reflète généralement les réglages
+du système, sans accès direct à la langue d’iOS. Il retire le choix conservé sur
+cet appareil et le paramètre `lang`, en conservant les autres paramètres et le
+fragment de l’URL. Même choisir explicitement la langue déjà affichée mémorise
+ce choix. Les contrôles tactiles mesurent au moins 44 px ; Échap referme le menu
+et rend le focus à son bouton, et un clic ou un focus extérieur le referme.
 
 Après connexion, `user.preferredLocale` fournit la préférence personnelle. Une
 réponse de session tardive ne remplace pas un choix effectué entre-temps. La
 préférence du compte n’écrase pas le choix du visiteur dans le stockage local ;
 une déconnexion ou le passage à un autre compte sans préférence le restaure.
+Le menu public change la langue sur cet appareil ; il ne sauvegarde pas une
+préférence de compte. Si une préférence personnelle existe, elle est relue à la
+prochaine ouverture, y compris après un choix temporaire « Automatique ». Pour
+modifier la langue commune au site et à l’app iOS, utiliser le profil.
 
 Le profil enregistre une préférence uniquement après une modification explicite
 du sélecteur puis la sauvegarde du formulaire. Un compte sans préférence affiche
@@ -123,6 +144,34 @@ restent séparés pour préserver le travail natif en cours.
 - Tests natifs : compilation simulateur et appareil sans signature, XCTest et
   parcours UI du choix initial et du profil. Aucun appareil physique, TestFlight
   ou App Store n’est déclaré qualifié par ces contrôles.
+
+### Navigation compacte — candidat du 2 octobre 2026
+
+Le header d’accueil mesuré sous WebKit à 430 × 932 px (largeur de l’iPhone 15
+Pro Max) fait 77 px, menu fermé comme ouvert. Le contrôle à 320 px conserve une
+seule ligne et aucun débordement horizontal. Les menus de langue des pages
+publiques secondaires restent également dans l’écran à ces deux largeurs.
+
+- `npm run typecheck`, `npm run lint`, `npm run build` et
+  `npm run build:preview` : réussis ; compilation Worker en `--dry-run`.
+- Suites unitaires `web-locale.test.ts` et `locale.test.ts` : 25/25 réussis.
+- Suites navigateur `locale.spec.ts` et `locale-boundaries.spec.ts` : 36/36
+  réussis sur Chromium, Chromium mobile et WebKit iPhone.
+- Nouvelle suite `language-navigation.spec.ts` : 12/12 réussis sur Chromium et
+  WebKit, couvrant détection, conservation, retour automatique, URL, ouverture
+  au clavier, fermeture et limites des menus sur mobile.
+- Tests de sécurité : 216/216 réussis.
+
+Les contrôles de navigation, SEO et films de l’aperçu ont exercé 94 cas : après
+relance ciblée, 92 sont réussis et un est exclu conditionnellement. Le cas de
+lecture du film des rôles en anglais reste bloqué vers 0,15 s sous WebKit local ;
+le même échec a été reproduit avec le test original dans un checkout propre de
+`dda97f2`, avant cette modification. Les fichiers vidéo sont identiques et le
+lecteur n’a pas été modifié. Cette limite ne constitue pas une preuve de lecture
+qualifiée de ce film sur Safari. Les captures locales
+du menu fermé et ouvert sont dans `reports/screenshots/language-navigation/`.
+Ces vérifications utilisent des exemples et des sessions simulées ; aucune
+publication ou modification des comptes réels n’est revendiquée.
 
 ### Résultats web du 22 septembre 2026
 

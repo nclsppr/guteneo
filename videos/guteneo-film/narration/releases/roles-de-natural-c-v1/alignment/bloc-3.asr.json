@@ -1,0 +1,314 @@
+{
+  "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+  "parameters": {
+    "language": "de",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.746437457994034,
+  "result": {
+    "text": " Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen. Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 4.12,
+        "text": " Der Beobachter liest Dokumente, Empfänger und Versandstatus.",
+        "tokens": [
+          50364,
+          5618,
+          879,
+          996,
+          3589,
+          260,
+          375,
+          377,
+          29768,
+          449,
+          1576,
+          11,
+          8599,
+          69,
+          35174,
+          674,
+          12226,
+          474,
+          19435,
+          301,
+          13,
+          50572
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13061222434043884,
+        "compression_ratio": 1.3461538461538463,
+        "no_speech_prob": 0.02866431698203087,
+        "words": [
+          {
+            "word": " Der",
+            "start": 0,
+            "end": 0.24,
+            "probability": 0.93994140625
+          },
+          {
+            "word": " Beobachter",
+            "start": 0.24,
+            "end": 0.96,
+            "probability": 0.98974609375
+          },
+          {
+            "word": " liest",
+            "start": 0.96,
+            "end": 1.2,
+            "probability": 0.8310546875
+          },
+          {
+            "word": " Dokumente,",
+            "start": 1.2,
+            "end": 1.88,
+            "probability": 0.97265625
+          },
+          {
+            "word": " Empfänger",
+            "start": 2.18,
+            "end": 2.64,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " und",
+            "start": 2.64,
+            "end": 2.9,
+            "probability": 0.94189453125
+          },
+          {
+            "word": " Versandstatus.",
+            "start": 2.9,
+            "end": 4.12,
+            "probability": 0.974609375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.32,
+        "end": 7.9,
+        "text": " Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen.",
+        "tokens": [
+          50572,
+          3300,
+          24981,
+          911,
+          9252,
+          31126,
+          566,
+          23262,
+          48422,
+          674,
+          12186,
+          8587,
+          5828,
+          9252,
+          17908,
+          5084,
+          13,
+          50782
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13061222434043884,
+        "compression_ratio": 1.3461538461538463,
+        "no_speech_prob": 0.02866431698203087,
+        "words": [
+          {
+            "word": " Er",
+            "start": 4.32,
+            "end": 4.44,
+            "probability": 0.99462890625
+          },
+          {
+            "word": " ändert",
+            "start": 4.44,
+            "end": 4.74,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " keine",
+            "start": 4.74,
+            "end": 5,
+            "probability": 0.994140625
+          },
+          {
+            "word": " Daten",
+            "start": 5,
+            "end": 5.42,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " im",
+            "start": 5.42,
+            "end": 5.58,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " Arbeitsbereich",
+            "start": 5.58,
+            "end": 6.3,
+            "probability": 0.99609375
+          },
+          {
+            "word": " und",
+            "start": 6.3,
+            "end": 6.58,
+            "probability": 0.9912109375
+          },
+          {
+            "word": " genehmigt",
+            "start": 6.58,
+            "end": 7.02,
+            "probability": 0.99609375
+          },
+          {
+            "word": " keine",
+            "start": 7.02,
+            "end": 7.36,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " Sendungen.",
+            "start": 7.36,
+            "end": 7.9,
+            "probability": 0.98828125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.44,
+        "end": 12.36,
+        "text": " Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser.",
+        "tokens": [
+          50782,
+          4331,
+          2710,
+          268,
+          2847,
+          36488,
+          12186,
+          8587,
+          5828,
+          3018,
+          13375,
+          4701,
+          328,
+          975,
+          8443,
+          1441,
+          12226,
+          474,
+          566,
+          1603,
+          30947,
+          13,
+          50992
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.13061222434043884,
+        "compression_ratio": 1.3461538461538463,
+        "no_speech_prob": 0.02866431698203087,
+        "words": [
+          {
+            "word": " Im",
+            "start": 8.44,
+            "end": 8.58,
+            "probability": 0.99609375
+          },
+          {
+            "word": " normalen",
+            "start": 8.58,
+            "end": 9.1,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " Ablauf",
+            "start": 9.1,
+            "end": 9.48,
+            "probability": 0.994140625
+          },
+          {
+            "word": " genehmigt",
+            "start": 9.48,
+            "end": 10.06,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " eine",
+            "start": 10.06,
+            "end": 10.24,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " berechtigte",
+            "start": 10.24,
+            "end": 10.88,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " Person",
+            "start": 10.88,
+            "end": 11.24,
+            "probability": 0.998046875
+          },
+          {
+            "word": " den",
+            "start": 11.24,
+            "end": 11.42,
+            "probability": 0.98095703125
+          },
+          {
+            "word": " Versand",
+            "start": 11.42,
+            "end": 11.8,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " im",
+            "start": 11.8,
+            "end": 11.96,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " Browser.",
+            "start": 11.96,
+            "end": 12.36,
+            "probability": 0.990234375
+          }
+        ]
+      }
+    ],
+    "language": "de"
+  },
+  "originalProofSha256": "46584845190e6cb86a59c7c5440f84cb85a03b0f580bfe5be67418c3c6579e6c"
+}

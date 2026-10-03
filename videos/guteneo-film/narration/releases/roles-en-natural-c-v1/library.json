@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "id": "roles-en-natural-c-v1",
+  "method": "C-three-blocks",
+  "source": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "en",
+  "selectedVariationNumber": 2,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "musicPolicy": {
+    "mode": "constant",
+    "gain": 0.22
+  },
+  "criticalListening": "pending",
+  "sources": [
+    {
+      "blockId": "bloc-1",
+      "path": "sources/bloc-1-prise-2.mp3",
+      "sha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+      "bytes": 186025,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "YbeLHp4sXryrIr1xP6GR",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "en",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Let’s look at the four roles in guteneo and what each one can do. [short pause] The administrator manages the workspace. They prepare and approve outgoing messages, and view reports.",
+      "requestTextSha256": "cfdfb24d40684a8e01a5827853fbfd908eaa130270ea5f80d870d1aff0d86c28",
+      "providerDurationSeconds": 10.48,
+      "decodedSamples": 462168,
+      "decodedPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55"
+    },
+    {
+      "blockId": "bloc-2",
+      "path": "sources/bloc-2-prise-2.mp3",
+      "sha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+      "bytes": 235762,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "UMUmspk119wfLcscwrGJ",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "en",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. [short pause] The operator imports documents and prepares messages for sending. They cannot approve them.",
+      "requestTextSha256": "1723cf5987fc8567e033157cd996172186be39aa31e1f0d4a3f338d017e12ced",
+      "providerDurationSeconds": 13.6,
+      "decodedSamples": 599760,
+      "decodedPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f"
+    },
+    {
+      "blockId": "bloc-3",
+      "path": "sources/bloc-3-prise-2.mp3",
+      "sha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+      "bytes": 221552,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "siMZo28ywFnoUuJOOoBS",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "en",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. [short pause] In the standard workflow, an authorised person approves the delivery in the browser.",
+      "requestTextSha256": "1d3534527092ad62af032495b651862fae6ccc743e200fc8e0f314d5660e564a",
+      "providerDurationSeconds": 12.72,
+      "decodedSamples": 560952,
+      "decodedPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47"
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "intro",
+      "path": "clips/roles-en-natural-c/intro.wav",
+      "sha256": "567e8d1944d499834c8dd72aa68e70b92eb394f21a366dbf3f227e7cb8a75372",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 0,
+      "sourceEndSample": 176324,
+      "pcmSha256": "c0568969e191c2ba08d5af4fb12e771e6cbe2011ea528946b5eac5f2c7029d0a",
+      "tempo": 1,
+      "fingerprint": "94820749a37d92fa6c2e9136533b1941df2247cc9eae4dcf152adee76e8e0e7b"
+    },
+    {
+      "cueId": "administrator",
+      "path": "clips/roles-en-natural-c/administrator.wav",
+      "sha256": "d84b29d0160e626f3d380280629f020dc71c58ece84a403c8232da767eda460d",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 176324,
+      "sourceEndSample": 462168,
+      "pcmSha256": "efeda9b6f4d15127b6e8a871f8c75735e179c1e8f6c5a7aaa51561c5eda4bf5a",
+      "tempo": 1,
+      "fingerprint": "08e588502f2cd0e4a0860ef376dd7e72ba68f92a0eff95ad22091d4c550f2323"
+    },
+    {
+      "cueId": "supervisor",
+      "path": "clips/roles-en-natural-c/supervisor.wav",
+      "sha256": "5cd912368374ca16c4e171cb8f17bf9363772656bbb97cf033e20afb3c89dfc5",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 0,
+      "sourceEndSample": 353906,
+      "pcmSha256": "dc5fe9b346ace6559bcae6aaacc1e0dc886a8439fcca658b480a06453a3a34b6",
+      "tempo": 1,
+      "fingerprint": "97ab6c5243911da8fb406a01c810d99a5835097460b7607041ea86aefbf48953"
+    },
+    {
+      "cueId": "operator",
+      "path": "clips/roles-en-natural-c/operator.wav",
+      "sha256": "c5cb024e678568bdb4c43fb715d46cbc96e1796917ad26d256408ee53c09e6de",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 353906,
+      "sourceEndSample": 599760,
+      "pcmSha256": "ceb175ee851d806555cf906a9d569a991aa37e8d3b77de220ea0a036d36a26cb",
+      "tempo": 1,
+      "fingerprint": "02682ce6654d8435f56117c2c2434c60118ed7d81102dbd71765f9b6b8524f8a"
+    },
+    {
+      "cueId": "observer",
+      "path": "clips/roles-en-natural-c/observer.wav",
+      "sha256": "0fe276681e9ee60e5d0e0045c4803fe4334804a3572f27349bc91ead0bc9bb3a",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 0,
+      "sourceEndSample": 348481,
+      "pcmSha256": "08943676fc1429b9da1c621aee0407b37ba75d826512508aabd9c778c930ff7a",
+      "tempo": 1,
+      "fingerprint": "e8d9c5af0f6edec956e2b1c092b5a272483f74d029f3137e4934574f901a16c3"
+    },
+    {
+      "cueId": "review",
+      "path": "clips/roles-en-natural-c/review.wav",
+      "sha256": "83a56b23382e8df526827321db51a2c3ad401e51ca5c2aded85cec5c852cd126",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 348481,
+      "sourceEndSample": 560952,
+      "pcmSha256": "8f8edab2b81c3c6ac5bcae592139e9acd797425c629fa3a55a298a7c11f93512",
+      "tempo": 1,
+      "fingerprint": "22a410b1feddf248abaaf19b60262311bb33688398d191d8e866f5be85dbe182"
+    }
+  ]
+}

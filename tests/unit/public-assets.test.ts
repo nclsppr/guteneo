@@ -24,6 +24,36 @@ function fixture(
 }
 
 describe("production static crawl boundary", () => {
+  it.each(["/app", "/app/prepare?entry=direct&token=never-forward"])(
+    "serves browser entry %s privately for GET and HEAD only",
+    async (path) => {
+      for (const method of ["GET", "HEAD"]) {
+        const { env, fetch } = fixture();
+        const response = (await servePublicAssets(
+          new Request(site.origin + path, { method }),
+          env,
+        ))!;
+        expect(response.status).toBe(200);
+        expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+        expect(response.headers.get("Cache-Control")).toBe("no-store");
+        expect(await response.text()).toBe(
+          method === "HEAD" ? "" : "exact public bytes",
+        );
+        const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+        expect(forwarded.url).toBe(`${site.origin}/`);
+        expect(forwarded.method).toBe(method);
+      }
+      const { env, fetch } = fixture();
+      expect(
+        await servePublicAssets(
+          new Request(site.origin + path, { method: "POST" }),
+          env,
+        ),
+      ).toBeNull();
+      expect(fetch).not.toHaveBeenCalled();
+    },
+  );
+
   it("serves the invitation SPA shell privately without forwarding a secret or query to assets", async () => {
     const { env, fetch } = fixture();
     const response = (await servePublicAssets(
@@ -59,6 +89,9 @@ describe("production static crawl boundary", () => {
       );
       expect(response.headers.get("Content-Security-Policy")).toContain(
         "frame-ancestors 'none'",
+      );
+      expect(response.headers.get("Strict-Transport-Security")).toBe(
+        "max-age=31536000",
       );
     },
   );

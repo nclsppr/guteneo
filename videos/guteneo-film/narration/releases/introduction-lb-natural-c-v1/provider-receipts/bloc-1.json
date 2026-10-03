@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+  "bytes": 258460,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "fzjrsLaAoXR6bObyL1fE",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag.",
+  "requestTextSha256": "86bdd37bddd634c69ea8b53633199cd838de8bb66764734f0bf8c0592f1da58c",
+  "providerDurationSeconds": 15.04,
+  "decodedSamples": 663264,
+  "decodedPcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7"
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "purpose": "One independent Scribe2 upload for all three source blocks; no expected-text prompt",
+  "kind": "roles",
+  "locale": "lb",
+  "languageCodeISO6393": "ltz",
+  "audioFile": "scribe-input-complete.wav",
+  "audioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+  "pcmSha256": "8085a2fd576ee116d4c28c43f2189ccd2abdce0e1af40b35dc6b7f518f652548",
+  "sampleRate": 44100,
+  "channels": 1,
+  "pcmBits": 24,
+  "samples": 1760472,
+  "durationSeconds": 39.92,
+  "sourceSamplesAllRetained": true,
+  "speedChange": false,
+  "levelChanged": false,
+  "addedSilence": false,
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+      "samples": 490392,
+      "startSample": 0,
+      "endSampleExclusive": 490392,
+      "startSeconds": 0,
+      "endSeconds": 11.12,
+      "pcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba"
+    },
+    {
+      "blockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+      "samples": 698544,
+      "startSample": 490392,
+      "endSampleExclusive": 1188936,
+      "startSeconds": 11.12,
+      "endSeconds": 26.96,
+      "pcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0"
+    },
+    {
+      "blockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+      "samples": 571536,
+      "startSample": 1188936,
+      "endSampleExclusive": 1760472,
+      "startSeconds": 26.96,
+      "endSeconds": 39.92,
+      "pcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2"
+    }
+  ],
+  "transcription": "pending",
+  "originalProofSha256": "335ad838733cb5cafa067fb2b02d2466a23b3a1d632f9d693765463566301613"
+}

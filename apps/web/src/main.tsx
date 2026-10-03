@@ -12,6 +12,20 @@ import { App } from "./App";
 import "./styles.css";
 import "./protected-document.css";
 
+// Crawlable entry links hand off to the existing browser router before rendering.
+if (
+  window.location.pathname === "/app" ||
+  window.location.pathname === "/app/prepare"
+) {
+  const entry = new URL(window.location.href);
+  entry.hash =
+    entry.pathname +
+    (entry.searchParams.get("entry") === "direct" ? "?entry=direct" : "");
+  entry.pathname = "/";
+  entry.searchParams.delete("entry");
+  window.history.replaceState(window.history.state, "", entry);
+}
+
 initializeLocale();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

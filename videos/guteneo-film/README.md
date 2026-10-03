@@ -1,12 +1,52 @@
 # guteneo — Vos mots. Dans le monde réel.
 
+Les douze vidéos publiques utilisent la narration naturelle Manon Eleven v4 :
+introductions horizontale et iPhone, et présentation des quatre rôles, en FR,
+EN, DE et LB. Les durées suivent la voix originale, sans accélération. La méthode
+C regroupe les phrases complètes en trois blocs ; le texte passe par l’action
+native ElevenLabs **Améliorer**, puis la seconde variation du plugin est retenue.
+Les interventions de style après Enhance sont enregistrées distinctement.
+
+Les introductions sont en **V8**, les rôles EN/DE/LB en **V4** ; les rôles FR
+conservent la **V3** approuvée. Tous gardent le même logo officiel pendant cinq
+secondes et le fond musical au gain constant **0,22**, pauses et logo compris.
+La signature de l’introduction reste silencieuse pendant deux secondes.
+
+Les huit bibliothèques immuables de `narration/releases/` contiennent les MP3,
+WAV PCM24, reçus, scripts, améliorations et timelines. Les coupes conservent tous
+les échantillons en ordre. Le rendu est local, sans génération fournisseur :
+
+```sh
+npm ci
+npm run test:narration
+npm run render:localized
+```
+
+FFmpeg, ffprobe et cwebp sont requis. Les entrées sont qualifiées avant les
+écritures publiques. Le catalogue historique `narration/source-videos.json`
+conserve V5/V1 ; chaque bibliothèque naturelle lie sa propre base musicale.
+Les sources initiales peuvent être amorcées dans `out/` avec
+`scripts/render-natural-sources.mjs`. Les snapshots existants refusent tout
+remplacement. Le plugin fournit la synthèse ; Safari fournit Enhance et les
+exports Scribe natifs nécessaires. L’ancien adaptateur API local reste bloqué
+avant réseau, même si le plugin fonctionne.
+
+Voir [la procédure](../../docs/VIDEO_NARRATION.md),
+[les actifs](../../docs/VIDEO_NARRATION_PUBLISHED.md),
+[le lecteur d’accueil](../../docs/HOMEPAGE_FILM.md) et
+[la page des rôles](../../docs/ROLES_FILM.md). Les rôles FR ont été approuvés à
+l’écoute par l’utilisateur ; les autres contrôles restent techniques. Les
+historiques ci-dessous sont conservés comme sources et archives.
+
+## Films historiques
+
 Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
 
 Le fichier de diffusion est `out/guteneo-film-1080p.mp4`. Le dossier `out/` et `node_modules/` ne sont pas suivis par Git. Les sources, médias, polices locales et fichiers de verrouillage permettent de refaire le rendu.
 
 Un **second spot vertical de 56 secondes**, pensé pour iPhone/TikTok et la promesse du produit abouti, est également livré : `out/guteneo-vertical-vision-1080x1920.mp4`. Voir [son découpage et ses sources](docs/VERTICAL_FILM.md). Le premier film reste intact. Les exports natifs de la révision 4 sont `out/guteneo-v4-iphone-18-pro.mp4` (1206 × 2622) et `out/guteneo-v4-iphone-18-pro-max.mp4` (1320 × 2868), avec un seul plan Luxembourg. La révision 4 utilise le logo officiel simplifié pour les très petites icônes ; le grand timbre final reste tramé et oblitéré. Les versions précédentes sont conservées.
 
-## Spots de présentation actuels — V5
+## Sources instrumentales — V5
 
 La campagne de 56 secondes existe désormais en **1920 × 1080 horizontal** (`Guteneo-Horizontal-Vision`) et au **ratio iPhone** (`Guteneo-iPhone-18-Pro-Max`, 1320 × 2868). Le paysage est recomposé scène par scène, avec la même partition. La première scène utilise le logo simplifié sans oblitération, dans les deux formats. Le grand timbre final reste tramé et oblitéré.
 

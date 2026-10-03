@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "clips": {
+    "roles-de-natural-c/intro": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/intro.wav",
+      "audioSha256": "78b08770b96dec6161ee95aa8797dd247d8752d659ade047a98cb95b7a1741de",
+      "fingerprint": "27e7f6f213abd6193613754095290b6c3c4db21511f952a06096df87697da391",
+      "durationSeconds": 3.8020861678004536,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-de-natural-c/administrator": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/administrator.wav",
+      "audioSha256": "a43b20274fe0709f2a61368e3af365ae2e10565867067d6e086b1adfeef73073",
+      "fingerprint": "5a95937aea65f0dfd28a546872acec15c448213076ee3933e78ef0d43230c959",
+      "durationSeconds": 6.997913832199546,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-de-natural-c/supervisor": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/supervisor.wav",
+      "audioSha256": "52e1850bdbe6642c52a55ebcda87ee10597e057695a13eb744cc78ff8f05aad9",
+      "fingerprint": "80d51b167faa53f11df9429a2839ceb37f9797c0df5bfa4bb981f5cd89bebf93",
+      "durationSeconds": 9.350385487528344,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-de-natural-c/operator": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/operator.wav",
+      "audioSha256": "04ff8894113dec87c6629c919a4a347e55fd9a4fa358c88a74d6005b2b5f8fff",
+      "fingerprint": "88933d23476f75caa25998b40f324590fa3e5918ff62db15de0da954da3afc68",
+      "durationSeconds": 5.849614512471655,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-de-natural-c/observer": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/observer.wav",
+      "audioSha256": "0cee5e00022b7d0a636adc666a7a03c3c2235556e032a03e4d47fe9cc39c17d0",
+      "fingerprint": "698dca03669c32a0a914d9adbf085d12609d2f72bf44f638896e7ae240b2ed05",
+      "durationSeconds": 8.244920634920636,
+      "timingFit": true,
+      "tempo": 1
+    },
+    "roles-de-natural-c/review": {
+      "status": "complete",
+      "source": "elevenlabs-creative-plugin",
+      "variationIndex": 2,
+      "path": "clips/roles-de-natural-c/review.wav",
+      "audioSha256": "c5265d68996bb4f6ac3e6726040a9cd960cf351bfa9a3b4b4fea98bbe9f184ee",
+      "fingerprint": "82ecd688d9112dc86c2a9afbd3fa551b49cd35501e81bce8872cec23c19cc2e1",
+      "durationSeconds": 4.395079365079365,
+      "timingFit": true,
+      "tempo": 1
+    }
+  }
+}

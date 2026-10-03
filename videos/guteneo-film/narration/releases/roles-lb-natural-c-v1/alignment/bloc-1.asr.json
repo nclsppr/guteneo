@@ -1,0 +1,281 @@
+{
+  "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 2.9675201670033857,
+  "result": {
+    "text": " Lost aist dei vei e role vyu gute neo ane rejstar enteckin. Den administratör gerejjatin atilii. Hebrei tzendume fyrr, genemishtsi akuk trapochten.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.96,
+        "text": " Lost aist dei vei e role vyu gute neo ane rejstar enteckin.",
+        "tokens": [
+          50364,
+          23422,
+          257,
+          468,
+          13874,
+          1241,
+          72,
+          308,
+          744,
+          306,
+          371,
+          17623,
+          290,
+          1169,
+          41977,
+          364,
+          68,
+          319,
+          73,
+          372,
+          289,
+          948,
+          68,
+          547,
+          259,
+          13,
+          50574
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.9961613897067397,
+        "compression_ratio": 1.2032520325203253,
+        "no_speech_prob": 0.03989361226558685,
+        "words": [
+          {
+            "word": " Lost",
+            "start": 0,
+            "end": 0.46,
+            "probability": 0.199462890625
+          },
+          {
+            "word": " aist",
+            "start": 0.46,
+            "end": 0.76,
+            "probability": 0.53125
+          },
+          {
+            "word": " dei",
+            "start": 0.76,
+            "end": 0.9,
+            "probability": 0.13720703125
+          },
+          {
+            "word": " vei",
+            "start": 0.9,
+            "end": 1.26,
+            "probability": 0.5009765625
+          },
+          {
+            "word": " e",
+            "start": 1.26,
+            "end": 1.32,
+            "probability": 0.1851806640625
+          },
+          {
+            "word": " role",
+            "start": 1.32,
+            "end": 1.74,
+            "probability": 0.3408203125
+          },
+          {
+            "word": " vyu",
+            "start": 1.74,
+            "end": 2.04,
+            "probability": 0.33251953125
+          },
+          {
+            "word": " gute",
+            "start": 2.04,
+            "end": 2.32,
+            "probability": 0.470458984375
+          },
+          {
+            "word": " neo",
+            "start": 2.32,
+            "end": 2.54,
+            "probability": 0.4072265625
+          },
+          {
+            "word": " ane",
+            "start": 2.54,
+            "end": 2.82,
+            "probability": 0.37548828125
+          },
+          {
+            "word": " rejstar",
+            "start": 2.82,
+            "end": 3.4,
+            "probability": 0.19482421875
+          },
+          {
+            "word": " enteckin.",
+            "start": 3.4,
+            "end": 3.96,
+            "probability": 0.5107421875
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.44,
+        "end": 6.86,
+        "text": " Den administratör gerejjatin atilii.",
+        "tokens": [
+          50589,
+          6458,
+          4968,
+          4481,
+          2311,
+          18635,
+          73,
+          73,
+          22685,
+          412,
+          2312,
+          72,
+          13,
+          50714
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.9961613897067397,
+        "compression_ratio": 1.2032520325203253,
+        "no_speech_prob": 0.03989361226558685,
+        "words": [
+          {
+            "word": " Den",
+            "start": 4.44,
+            "end": 4.7,
+            "probability": 0.80810546875
+          },
+          {
+            "word": " administratör",
+            "start": 4.7,
+            "end": 5.6,
+            "probability": 0.458740234375
+          },
+          {
+            "word": " gerejjatin",
+            "start": 5.6,
+            "end": 6.2,
+            "probability": 0.372314453125
+          },
+          {
+            "word": " atilii.",
+            "start": 6.2,
+            "end": 6.86,
+            "probability": 0.671875
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 7.18,
+        "end": 10.72,
+        "text": " Hebrei tzendume fyrr, genemishtsi akuk trapochten.",
+        "tokens": [
+          50724,
+          634,
+          2672,
+          72,
+          256,
+          89,
+          521,
+          2540,
+          283,
+          6016,
+          81,
+          11,
+          1049,
+          443,
+          742,
+          1373,
+          72,
+          9308,
+          2034,
+          944,
+          2259,
+          339,
+          1147,
+          13,
+          50914
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.9961613897067397,
+        "compression_ratio": 1.2032520325203253,
+        "no_speech_prob": 0.03989361226558685,
+        "words": [
+          {
+            "word": " Hebrei",
+            "start": 7.18,
+            "end": 7.66,
+            "probability": 0.486572265625
+          },
+          {
+            "word": " tzendume",
+            "start": 7.66,
+            "end": 8.16,
+            "probability": 0.466796875
+          },
+          {
+            "word": " fyrr,",
+            "start": 8.16,
+            "end": 8.8,
+            "probability": 0.580078125
+          },
+          {
+            "word": " genemishtsi",
+            "start": 8.8,
+            "end": 9.58,
+            "probability": 0.30078125
+          },
+          {
+            "word": " akuk",
+            "start": 9.58,
+            "end": 10.06,
+            "probability": 0.53857421875
+          },
+          {
+            "word": " trapochten.",
+            "start": 10.06,
+            "end": 10.72,
+            "probability": 0.51904296875
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "6ffb747b6a9a9e5fa568dba3d22aebb27f45372e2f5abf606a32d8e7ea10b64d"
+}

@@ -1,0 +1,1393 @@
+{
+  "schemaVersion": 1,
+  "source": "sample-exact-local-derivation",
+  "alignmentProofSha256": "554d4b32eeafba7a8a4b14dded2d77bafb35e1622a7736c550fc7820515e3f45",
+  "alignmentProofPath": "alignment/alignment-proof-v2.json",
+  "providerReceiptsSha256": "0873142a595469b6f05bc8f3dc819b1c55a18b9f115878be25d7c93a8c468f61",
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "samples": 740880,
+      "decodedPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f",
+      "derivedClips": [
+        "one",
+        "scale",
+        "personal",
+        "sources"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        168338,
+        360702,
+        526393
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "one",
+          "nextCueId": "scale",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.81718820861678,
+          "cutSample": 168338,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.443175,
+            "endSeconds": 4.191224
+          },
+          "previousLastWord": {
+            "word": " transmettre.",
+            "start": 2.78,
+            "end": 3.4,
+            "probability": 0.9970703125
+          },
+          "nextFirstWord": {
+            "word": " Préparez",
+            "start": 4.06,
+            "end": 4.6,
+            "probability": 0.81982421875
+          },
+          "previousWordGuardSeconds": 0.4171882086167802,
+          "nextWordGuardSeconds": 0.2428117913832195,
+          "anchors": [
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": " document",
+                "start": 2.28,
+                "end": 2.62,
+                "probability": 0.99658203125
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": " à",
+                "start": 2.62,
+                "end": 2.78,
+                "probability": 0.9853515625
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": " transmettre.",
+                "start": 2.78,
+                "end": 3.4,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " Préparez",
+                "start": 4.06,
+                "end": 4.6,
+                "probability": 0.81982421875
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": " un",
+                "start": 4.6,
+                "end": 4.74,
+                "probability": 0.92724609375
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": " envoi",
+                "start": 4.74,
+                "end": 5.02,
+                "probability": 0.6611328125
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "scale",
+          "nextCueId": "personal",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 8.179183673469387,
+          "cutSample": 360702,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.981179,
+            "endSeconds": 8.377211
+          },
+          "previousLastWord": {
+            "word": " documents.",
+            "start": 7.54,
+            "end": 7.9,
+            "probability": 0.90771484375
+          },
+          "nextFirstWord": {
+            "word": " Personalisez",
+            "start": 8.46,
+            "end": 9.06,
+            "probability": 0.84326171875
+          },
+          "previousWordGuardSeconds": 0.27918367346938666,
+          "nextWordGuardSeconds": 0.28081632653061384,
+          "anchors": [
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " campagne",
+                "start": 7.04,
+                "end": 7.42,
+                "probability": 0.9990234375
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " de",
+                "start": 7.42,
+                "end": 7.54,
+                "probability": 0.99072265625
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": " documents.",
+                "start": 7.54,
+                "end": 7.9,
+                "probability": 0.90771484375
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "substitution",
+              "observedIndex": 21,
+              "recognized": {
+                "word": " Personalisez",
+                "start": 8.46,
+                "end": 9.06,
+                "probability": 0.84326171875
+              },
+              "acceptedAsrAlias": {
+                "blockId": "bloc-1",
+                "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+                "expectedToken": "personnalisez",
+                "recognizedToken": "personalisez",
+                "reason": "FR ASR spelling variation of identical pronunciation; original ASR word and confidence retained."
+              }
+            },
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": " chaque",
+                "start": 9.06,
+                "end": 9.26,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": " version",
+                "start": 9.26,
+                "end": 9.74,
+                "probability": 0.99755859375
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "personal",
+          "nextCueId": "sources",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 11.936349206349206,
+          "cutSample": 526393,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 11.740771,
+            "endSeconds": 12.13195
+          },
+          "previousLastWord": {
+            "word": " destinataire.",
+            "start": 10.96,
+            "end": 11.8,
+            "probability": 0.9736328125
+          },
+          "nextFirstWord": {
+            "word": " Importez",
+            "start": 12.1,
+            "end": 12.6,
+            "probability": 0.73193359375
+          },
+          "previousWordGuardSeconds": 0.13634920634920533,
+          "nextWordGuardSeconds": 0.1636507936507936,
+          "anchors": [
+            {
+              "expectedIndex": 27,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 28,
+              "recognized": {
+                "word": " à",
+                "start": 10.64,
+                "end": 10.84,
+                "probability": 0.70703125
+              }
+            },
+            {
+              "expectedIndex": 28,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 29,
+              "recognized": {
+                "word": " son",
+                "start": 10.84,
+                "end": 10.96,
+                "probability": 0.99267578125
+              }
+            },
+            {
+              "expectedIndex": 29,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 30,
+              "recognized": {
+                "word": " destinataire.",
+                "start": 10.96,
+                "end": 11.8,
+                "probability": 0.9736328125
+              }
+            },
+            {
+              "expectedIndex": 30,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 31,
+              "recognized": {
+                "word": " Importez",
+                "start": 12.1,
+                "end": 12.6,
+                "probability": 0.73193359375
+              }
+            },
+            {
+              "expectedIndex": 31,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 32,
+              "recognized": {
+                "word": " votre",
+                "start": 12.6,
+                "end": 12.7,
+                "probability": 0.99609375
+              }
+            },
+            {
+              "expectedIndex": 32,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 33,
+              "recognized": {
+                "word": " PDF",
+                "start": 12.7,
+                "end": 13.18,
+                "probability": 0.81982421875
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ]
+    },
+    {
+      "blockId": "bloc-2",
+      "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "samples": 839664,
+      "decodedPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574",
+      "derivedClips": [
+        "assistants",
+        "generate",
+        "review",
+        "channels"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        205667,
+        375688,
+        653285
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "assistants",
+          "nextCueId": "generate",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 4.663650793650794,
+          "cutSample": 205667,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 4.433991,
+            "endSeconds": 4.893333
+          },
+          "previousLastWord": {
+            "word": " correspondance.",
+            "start": 3.52,
+            "end": 4.4,
+            "probability": 0.99072265625
+          },
+          "nextFirstWord": {
+            "word": " Demandez",
+            "start": 4.82,
+            "end": 5.22,
+            "probability": 0.8408203125
+          },
+          "previousWordGuardSeconds": 0.26365079365079325,
+          "nextWordGuardSeconds": 0.15634920634920668,
+          "anchors": [
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " préparer",
+                "start": 2.98,
+                "end": 3.38,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": " votre",
+                "start": 3.38,
+                "end": 3.52,
+                "probability": 0.99560546875
+              }
+            },
+            {
+              "expectedIndex": 12,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": " correspondance.",
+                "start": 3.52,
+                "end": 4.4,
+                "probability": 0.99072265625
+              }
+            },
+            {
+              "expectedIndex": 13,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 13,
+              "recognized": {
+                "word": " Demandez",
+                "start": 4.82,
+                "end": 5.22,
+                "probability": 0.8408203125
+              }
+            },
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 14,
+              "recognized": {
+                "word": " lui",
+                "start": 5.22,
+                "end": 5.44,
+                "probability": 0.59326171875
+              }
+            },
+            {
+              "expectedIndex": 15,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": " de",
+                "start": 5.44,
+                "end": 5.58,
+                "probability": 0.99658203125
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "generate",
+          "nextCueId": "review",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 8.519002267573697,
+          "cutSample": 375688,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 8.257415,
+            "endSeconds": 8.780567
+          },
+          "previousLastWord": {
+            "word": " envoi.",
+            "start": 7.86,
+            "end": 8.24,
+            "probability": 0.740234375
+          },
+          "nextFirstWord": {
+            "word": " Vérifiez",
+            "start": 8.84,
+            "end": 9.22,
+            "probability": 0.9541015625
+          },
+          "previousWordGuardSeconds": 0.2790022675736967,
+          "nextWordGuardSeconds": 0.3209977324263029,
+          "anchors": [
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 21,
+              "recognized": {
+                "word": " préparer",
+                "start": 7.26,
+                "end": 7.74,
+                "probability": 0.99755859375
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": " son",
+                "start": 7.74,
+                "end": 7.86,
+                "probability": 0.998046875
+              }
+            },
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": " envoi.",
+                "start": 7.86,
+                "end": 8.24,
+                "probability": 0.740234375
+              }
+            },
+            {
+              "expectedIndex": 24,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 24,
+              "recognized": {
+                "word": " Vérifiez",
+                "start": 8.84,
+                "end": 9.22,
+                "probability": 0.9541015625
+              }
+            },
+            {
+              "expectedIndex": 25,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 25,
+              "recognized": {
+                "word": " le",
+                "start": 9.22,
+                "end": 9.34,
+                "probability": 0.994140625
+              }
+            },
+            {
+              "expectedIndex": 26,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 26,
+              "recognized": {
+                "word": " document,",
+                "start": 9.34,
+                "end": 9.72,
+                "probability": 0.99169921875
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "review",
+          "nextCueId": "channels",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 14.813718820861679,
+          "cutSample": 653285,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 14.604014,
+            "endSeconds": 15.023424
+          },
+          "previousLastWord": {
+            "word": " navigateur.",
+            "start": 13.94,
+            "end": 14.18,
+            "probability": 0.97900390625
+          },
+          "nextFirstWord": {
+            "word": " Votre",
+            "start": 15.04,
+            "end": 15.26,
+            "probability": 0.9951171875
+          },
+          "previousWordGuardSeconds": 0.6337188208616791,
+          "nextWordGuardSeconds": 0.22628117913832035,
+          "anchors": [
+            {
+              "expectedIndex": 36,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 36,
+              "recognized": {
+                "word": " dans",
+                "start": 13.72,
+                "end": 13.82,
+                "probability": 0.99658203125
+              }
+            },
+            {
+              "expectedIndex": 37,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 37,
+              "recognized": {
+                "word": " le",
+                "start": 13.82,
+                "end": 13.94,
+                "probability": 0.9970703125
+              }
+            },
+            {
+              "expectedIndex": 38,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 38,
+              "recognized": {
+                "word": " navigateur.",
+                "start": 13.94,
+                "end": 14.18,
+                "probability": 0.97900390625
+              }
+            },
+            {
+              "expectedIndex": 39,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 39,
+              "recognized": {
+                "word": " Votre",
+                "start": 15.04,
+                "end": 15.26,
+                "probability": 0.9951171875
+              }
+            },
+            {
+              "expectedIndex": 40,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 40,
+              "recognized": {
+                "word": " message",
+                "start": 15.26,
+                "end": 15.6,
+                "probability": 0.97607421875
+              }
+            },
+            {
+              "expectedIndex": 41,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 41,
+              "recognized": {
+                "word": " peut",
+                "start": 15.6,
+                "end": 15.82,
+                "probability": 0.99267578125
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ]
+    },
+    {
+      "blockId": "bloc-3",
+      "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+      "samples": 525672,
+      "decodedPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7",
+      "derivedClips": [
+        "europe",
+        "physical",
+        "access"
+      ],
+      "concatenatedClipsEqualDecodedSource": true,
+      "cutSamples": [
+        158318,
+        351872
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "europe",
+          "nextCueId": "physical",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.5899773242630384,
+          "cutSample": 158318,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.32195,
+            "endSeconds": 3.858027
+          },
+          "previousLastWord": {
+            "word": " destinataires.",
+            "start": 2.42,
+            "end": 3.28,
+            "probability": 0.958984375
+          },
+          "nextFirstWord": {
+            "word": " Goutteneo",
+            "start": 3.9,
+            "end": 4.46,
+            "probability": 0.671875
+          },
+          "previousWordGuardSeconds": 0.3099773242630386,
+          "nextWordGuardSeconds": 0.3100226757369615,
+          "anchors": [
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 6,
+              "recognized": {
+                "word": " rejoindre",
+                "start": 1.82,
+                "end": 2.26,
+                "probability": 0.9921875
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": " leurs",
+                "start": 2.26,
+                "end": 2.42,
+                "probability": 0.56787109375
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": " destinataires.",
+                "start": 2.42,
+                "end": 3.28,
+                "probability": 0.958984375
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "substitution",
+              "observedIndex": 10,
+              "recognized": {
+                "word": " relit",
+                "start": 4.46,
+                "end": 4.8,
+                "probability": 0.50439453125
+              },
+              "acceptedAsrAlias": {
+                "blockId": "bloc-3",
+                "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+                "expectedToken": "relie",
+                "recognizedToken": "relit",
+                "reason": "FR homophones; actual ASR word/timing retained, no supplied transcription or listening claim."
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": " votre",
+                "start": 4.8,
+                "end": 4.96,
+                "probability": 0.99755859375
+              }
+            },
+            {
+              "expectedIndex": 12,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": " atelier",
+                "start": 4.96,
+                "end": 5.34,
+                "probability": 0.9921875
+              }
+            }
+          ],
+          "edgeExceptions": [
+            {
+              "kind": "proper-brand-ASR-substitution",
+              "expected": {
+                "cueId": "physical"
+              },
+              "recognized": {
+                "word": " Goutteneo",
+                "start": 3.9,
+                "end": 4.46,
+                "probability": 0.671875
+              },
+              "reason": "Unique aligned brand word between exact neighboring anchors; its recognized timing is retained, pronunciation requires listening",
+              "criticalListening": "pending"
+            }
+          ]
+        },
+        {
+          "previousCueId": "physical",
+          "nextCueId": "access",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 7.978956916099773,
+          "cutSample": 351872,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.712268,
+            "endSeconds": 8.245646
+          },
+          "previousLastWord": {
+            "word": " destination.",
+            "start": 7.04,
+            "end": 7.58,
+            "probability": 0.99365234375
+          },
+          "nextFirstWord": {
+            "word": " Retrouvez",
+            "start": 8.14,
+            "end": 8.7,
+            "probability": 0.9716796875
+          },
+          "previousWordGuardSeconds": 0.398956916099773,
+          "nextWordGuardSeconds": 0.16104308390022748,
+          "anchors": [
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": " arrive",
+                "start": 6.68,
+                "end": 6.92,
+                "probability": 0.984375
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": " à",
+                "start": 6.92,
+                "end": 7.04,
+                "probability": 0.99462890625
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": " destination.",
+                "start": 7.04,
+                "end": 7.58,
+                "probability": 0.99365234375
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": " Retrouvez",
+                "start": 8.14,
+                "end": 8.7,
+                "probability": 0.9716796875
+              }
+            },
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 21,
+              "recognized": {
+                "word": " vos",
+                "start": 8.7,
+                "end": 8.82,
+                "probability": 0.99462890625
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": " documents",
+                "start": 8.82,
+                "end": 9.18,
+                "probability": 0.99755859375
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "one",
+      "text": "Avec guteneo, tout commence par un document à transmettre.",
+      "path": "clips/introduction-fr-natural-c/one.wav",
+      "sha256": "dfae7c48849d7feec45bad0eaeb108c814cd284eba6c4472c4a5767556995164",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 168338,
+      "samples": 168338,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.81718820861678,
+      "pcmSha256": "917a361c1e2b7d2a7738746a070ca3105263dea7efd6ced58c425a9dad693a6a",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 0,
+      "sceneDurationInFrames": 142,
+      "startSeconds": 0.4,
+      "endSeconds": 4.233333333333333,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "scale",
+      "text": "Préparez un envoi unique, ou organisez toute une campagne de documents.",
+      "path": "clips/introduction-fr-natural-c/scale.wav",
+      "sha256": "b58b7315ef0dc4f09de1bb1ff3700ff8e4674b94ba2f4a14d43737be34c3f6fc",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "sourceStartSample": 168338,
+      "sourceEndSampleExclusive": 360702,
+      "samples": 192364,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.361995464852607,
+      "pcmSha256": "1667a736d7fad08a1a08da46aae583d91be7551807c52e5a7e554e84b62d2671",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 142,
+      "sceneDurationInFrames": 158,
+      "startSeconds": 5.133333333333334,
+      "endSeconds": 9.5,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "personal",
+      "text": "Personnalisez chaque version pour qu’elle corresponde à son destinataire.",
+      "path": "clips/introduction-fr-natural-c/personal.wav",
+      "sha256": "7e566b4400b18219a19a210e733b68988995483ecb23d8c953363551727dd146",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "sourceStartSample": 360702,
+      "sourceEndSampleExclusive": 526393,
+      "samples": 165691,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.7571655328798186,
+      "pcmSha256": "9e3eaf337245b455e90af240c47dcf74de3032e472dd7ca1b9bb7535615ce5a6",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 300,
+      "sceneDurationInFrames": 140,
+      "startSeconds": 10.4,
+      "endSeconds": 14.166666666666666,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "sources",
+      "text": "Importez votre PDF original, ou utilisez un modèle pour créer votre document.",
+      "path": "clips/introduction-fr-natural-c/sources.wav",
+      "sha256": "e51e7000f25234b15c6c1f70627fccf40007c27e20ba2edc3cefb77f30e92f51",
+      "sourceBlockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+      "sourceStartSample": 526393,
+      "sourceEndSampleExclusive": 740880,
+      "samples": 214487,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.863650793650794,
+      "pcmSha256": "4b1160dd8b74ac5f18b56a7bf6ed9ff0f2cd76fff4275ed7d2aac0947f289094",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 440,
+      "sceneDurationInFrames": 173,
+      "startSeconds": 15.066666666666666,
+      "endSeconds": 19.933333333333334,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "assistants",
+      "text": "Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance.",
+      "path": "clips/introduction-fr-natural-c/assistants.wav",
+      "sha256": "67c40c2d273315ff7e0c17fc7aed842fe8cea10084e7e4e84f16238e6dd92c45",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 205667,
+      "samples": 205667,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.663650793650794,
+      "pcmSha256": "cdddc099015d044424fa5941b6fc9ac9c9c72da94891af541aa8fe465cab22bb",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 613,
+      "sceneDurationInFrames": 167,
+      "startSeconds": 20.833333333333332,
+      "endSeconds": 25.5,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "generate",
+      "text": "Demandez-lui de créer votre PDF, puis de préparer son envoi.",
+      "path": "clips/introduction-fr-natural-c/generate.wav",
+      "sha256": "51ce5eb0670da8011ace752c8cf2d947140a2a761c9e131d9108e3e28164faed",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "sourceStartSample": 205667,
+      "sourceEndSampleExclusive": 375688,
+      "samples": 170021,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.8553514739229024,
+      "pcmSha256": "401db36db766b408d550a8ec8283f4dfa2a862ffe9be9fdf057d3e34cda99b96",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 780,
+      "sceneDurationInFrames": 150,
+      "startSeconds": 26.4,
+      "endSeconds": 30.5,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "review",
+      "text": "Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur.",
+      "path": "clips/introduction-fr-natural-c/review.wav",
+      "sha256": "96cc3cfdb819e8d04914f2e1e1c5520e1e5db47165b4c014e5d97325485217ab",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "sourceStartSample": 375688,
+      "sourceEndSampleExclusive": 653285,
+      "samples": 277597,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 6.294716553287982,
+      "pcmSha256": "e22e5b8730bfe9ecaed5fb6c3d0e305cea175d79525ea1acd427efea27fca35b",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 930,
+      "sceneDurationInFrames": 216,
+      "startSeconds": 31.4,
+      "endSeconds": 37.7,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "channels",
+      "text": "Votre message peut voyager par fax, par courrier postal ou par e-mail.",
+      "path": "clips/introduction-fr-natural-c/channels.wav",
+      "sha256": "7c116249140b22df488529cec7ead55b2abfb8e277f16c882d020b77c3196e8b",
+      "sourceBlockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+      "sourceStartSample": 653285,
+      "sourceEndSampleExclusive": 839664,
+      "samples": 186379,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.226281179138322,
+      "pcmSha256": "67a22f626021df60d8919760661d65e92bd8eea82b0d4df0a99d5caf385ca1c6",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 1146,
+      "sceneDurationInFrames": 180,
+      "startSeconds": 38.6,
+      "endSeconds": 43.7,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "europe",
+      "text": "Vos documents traversent l’Europe pour rejoindre leurs destinataires.",
+      "path": "clips/introduction-fr-natural-c/europe.wav",
+      "sha256": "3eb1fc2df5e3c0071840c116a8fcccc2ae080bf0344b0a3acf068f30090b1178",
+      "sourceBlockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+      "sourceStartSample": 0,
+      "sourceEndSampleExclusive": 158318,
+      "samples": 158318,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.5899773242630384,
+      "pcmSha256": "69cb4844053a5f76b5a155a2aaca2dbfa558f4512316db6cc39370e265232d69",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 1326,
+      "sceneDurationInFrames": 150,
+      "startSeconds": 44.6,
+      "endSeconds": 48.7,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "physical",
+      "text": "guteneo relie votre atelier numérique au courrier qui arrive à destination.",
+      "path": "clips/introduction-fr-natural-c/physical.wav",
+      "sha256": "3192cbe53954d23f637f702d2a8014138c36570183049839b26c6b86755226d6",
+      "sourceBlockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+      "sourceStartSample": 158318,
+      "sourceEndSampleExclusive": 351872,
+      "samples": 193554,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 4.388979591836734,
+      "pcmSha256": "8f1c33937da9d019a05a6d3122358c5fe815ed2feafc192a367696fc05292315",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 1476,
+      "sceneDurationInFrames": 159,
+      "startSeconds": 49.6,
+      "endSeconds": 54,
+      "criticalListening": "pending"
+    },
+    {
+      "cueId": "access",
+      "text": "Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
+      "path": "clips/introduction-fr-natural-c/access.wav",
+      "sha256": "92fe22a3c21859aa64463ba9efbb154eed97adc1441f3fb54be10c2e6f94a059",
+      "sourceBlockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+      "sourceStartSample": 351872,
+      "sourceEndSampleExclusive": 525672,
+      "samples": 173800,
+      "sampleRate": 44100,
+      "channels": 1,
+      "pcmBits": 24,
+      "durationSeconds": 3.941043083900227,
+      "pcmSha256": "2e4153592845c55e3c4b2a096d429477afb5c138890816165b905f5b1e84454f",
+      "sampleExactSlice": true,
+      "tempoFactor": 1,
+      "voiceTruncation": false,
+      "levelChanged": false,
+      "sceneStartFrame": 1635,
+      "sceneDurationInFrames": 150,
+      "startSeconds": 54.9,
+      "endSeconds": 59,
+      "criticalListening": "pending"
+    }
+  ],
+  "fullGeneratedAudioRetained": true,
+  "voiceTruncation": false,
+  "speedChange": false,
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "timeline": {
+    "schemaVersion": 1,
+    "locale": "fr",
+    "fps": 30,
+    "durationInFrames": 1995,
+    "durationSeconds": 66.5,
+    "endCardStartFrame": 1845,
+    "endCardStartSeconds": 61.5,
+    "endCardDurationInFrames": 150,
+    "endCardDurationSeconds": 5,
+    "preRollFrames": 12,
+    "postRollMinimumFrames": 15,
+    "sourceVoiceDurationSeconds": 47.76,
+    "method": "C-three-blocks",
+    "source": {
+      "provider": "elevenlabs-creative-plugin",
+      "modelId": "eleven_v4",
+      "languageCode": "fr",
+      "voiceName": "Manon",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "selectedVariationNumber": 2
+    },
+    "scenes": [
+      {
+        "id": "one",
+        "startFrame": 0,
+        "durationInFrames": 142
+      },
+      {
+        "id": "scale",
+        "startFrame": 142,
+        "durationInFrames": 158
+      },
+      {
+        "id": "personal",
+        "startFrame": 300,
+        "durationInFrames": 140
+      },
+      {
+        "id": "sources",
+        "startFrame": 440,
+        "durationInFrames": 173
+      },
+      {
+        "id": "assistants",
+        "startFrame": 613,
+        "durationInFrames": 167
+      },
+      {
+        "id": "generate",
+        "startFrame": 780,
+        "durationInFrames": 150
+      },
+      {
+        "id": "review",
+        "startFrame": 930,
+        "durationInFrames": 216
+      },
+      {
+        "id": "channels",
+        "startFrame": 1146,
+        "durationInFrames": 180
+      },
+      {
+        "id": "europe",
+        "startFrame": 1326,
+        "durationInFrames": 150
+      },
+      {
+        "id": "physical",
+        "startFrame": 1476,
+        "durationInFrames": 159
+      },
+      {
+        "id": "access",
+        "startFrame": 1635,
+        "durationInFrames": 150
+      },
+      {
+        "id": "signature",
+        "startFrame": 1785,
+        "durationInFrames": 60
+      },
+      {
+        "id": "logo",
+        "startFrame": 1845,
+        "durationInFrames": 150
+      }
+    ],
+    "criticalListening": "pending"
+  },
+  "originalProofSha256": "f6b12655e80c5c60bf2b0b0f7923829dd368bfc482ba87f6adc248944593e261"
+}

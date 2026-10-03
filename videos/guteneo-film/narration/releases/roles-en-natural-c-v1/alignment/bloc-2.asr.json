@@ -1,0 +1,329 @@
+{
+  "sourceSha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+  "parameters": {
+    "language": "en",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.6434590839999146,
+  "result": {
+    "text": " A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. The operator imports documents and prepares messages for sending. They cannot approve them.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2.38,
+        "text": " A supervisor prepares messages for sending.",
+        "tokens": [
+          50364,
+          316,
+          24610,
+          39418,
+          7897,
+          337,
+          7750,
+          13,
+          50514
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.2444232650425123,
+        "compression_ratio": 1.5352112676056338,
+        "no_speech_prob": 0.00923918467015028,
+        "words": [
+          {
+            "word": " A",
+            "start": 0,
+            "end": 0.18,
+            "probability": 0.75244140625
+          },
+          {
+            "word": " supervisor",
+            "start": 0.18,
+            "end": 0.66,
+            "probability": 0.9775390625
+          },
+          {
+            "word": " prepares",
+            "start": 0.66,
+            "end": 1.18,
+            "probability": 0.99609375
+          },
+          {
+            "word": " messages",
+            "start": 1.18,
+            "end": 1.74,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " for",
+            "start": 1.74,
+            "end": 2.04,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " sending.",
+            "start": 2.04,
+            "end": 2.38,
+            "probability": 0.99365234375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.98,
+        "end": 7.52,
+        "text": " Approval and access to reports are separate permissions, both disabled by default.",
+        "tokens": [
+          50514,
+          29551,
+          3337,
+          293,
+          2105,
+          281,
+          7122,
+          366,
+          4994,
+          32723,
+          11,
+          1293,
+          15191,
+          538,
+          7576,
+          13,
+          50782
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.2444232650425123,
+        "compression_ratio": 1.5352112676056338,
+        "no_speech_prob": 0.00923918467015028,
+        "words": [
+          {
+            "word": " Approval",
+            "start": 2.98,
+            "end": 3.52,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " and",
+            "start": 3.52,
+            "end": 3.74,
+            "probability": 0.994140625
+          },
+          {
+            "word": " access",
+            "start": 3.74,
+            "end": 4.08,
+            "probability": 0.962890625
+          },
+          {
+            "word": " to",
+            "start": 4.08,
+            "end": 4.32,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " reports",
+            "start": 4.32,
+            "end": 4.72,
+            "probability": 0.99609375
+          },
+          {
+            "word": " are",
+            "start": 4.72,
+            "end": 4.94,
+            "probability": 0.99609375
+          },
+          {
+            "word": " separate",
+            "start": 4.94,
+            "end": 5.36,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " permissions,",
+            "start": 5.36,
+            "end": 5.84,
+            "probability": 0.99462890625
+          },
+          {
+            "word": " both",
+            "start": 6.24,
+            "end": 6.4,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " disabled",
+            "start": 6.4,
+            "end": 6.88,
+            "probability": 0.9921875
+          },
+          {
+            "word": " by",
+            "start": 6.88,
+            "end": 7.18,
+            "probability": 0.99609375
+          },
+          {
+            "word": " default.",
+            "start": 7.18,
+            "end": 7.52,
+            "probability": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.3,
+        "end": 11.66,
+        "text": " The operator imports documents and prepares messages for sending.",
+        "tokens": [
+          50782,
+          440,
+          12973,
+          41596,
+          8512,
+          293,
+          39418,
+          7897,
+          337,
+          7750,
+          13,
+          50972
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.2444232650425123,
+        "compression_ratio": 1.5352112676056338,
+        "no_speech_prob": 0.00923918467015028,
+        "words": [
+          {
+            "word": " The",
+            "start": 8.3,
+            "end": 8.44,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " operator",
+            "start": 8.44,
+            "end": 8.84,
+            "probability": 0.990234375
+          },
+          {
+            "word": " imports",
+            "start": 8.84,
+            "end": 9.3,
+            "probability": 0.98779296875
+          },
+          {
+            "word": " documents",
+            "start": 9.3,
+            "end": 9.9,
+            "probability": 0.998046875
+          },
+          {
+            "word": " and",
+            "start": 9.9,
+            "end": 10.22,
+            "probability": 0.95947265625
+          },
+          {
+            "word": " prepares",
+            "start": 10.22,
+            "end": 10.58,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " messages",
+            "start": 10.58,
+            "end": 11.08,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " for",
+            "start": 11.08,
+            "end": 11.34,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " sending.",
+            "start": 11.34,
+            "end": 11.66,
+            "probability": 0.99853515625
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 12.16,
+        "end": 13.32,
+        "text": " They cannot approve them.",
+        "tokens": [
+          50972,
+          814,
+          2644,
+          18827,
+          552,
+          13,
+          51039
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.2444232650425123,
+        "compression_ratio": 1.5352112676056338,
+        "no_speech_prob": 0.00923918467015028,
+        "words": [
+          {
+            "word": " They",
+            "start": 12.16,
+            "end": 12.26,
+            "probability": 0.99609375
+          },
+          {
+            "word": " cannot",
+            "start": 12.26,
+            "end": 12.66,
+            "probability": 0.98046875
+          },
+          {
+            "word": " approve",
+            "start": 12.66,
+            "end": 13.08,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " them.",
+            "start": 13.08,
+            "end": 13.32,
+            "probability": 0.998046875
+          }
+        ]
+      }
+    ],
+    "language": "en"
+  },
+  "originalProofSha256": "a896f3df9f6ab947b2cc3ec62ee762c090826af800ff2f364fd5486d81ff63da"
+}

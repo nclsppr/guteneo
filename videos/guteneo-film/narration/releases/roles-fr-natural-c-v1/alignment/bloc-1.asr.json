@@ -1,0 +1,303 @@
+{
+  "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+  "parameters": {
+    "language": "fr",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 2.0903960409996216,
+  "result": {
+    "text": " Découvrons les quatre rôles de Guth Néo et les droits de chacun. L'administrateur gère l'atelier. Il prépare les envois, les approuvent et consulte les rapports.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.12,
+        "text": " Découvrons les quatre rôles de Guth Néo et les droits de chacun.",
+        "tokens": [
+          50364,
+          413,
+          9062,
+          22941,
+          13270,
+          1512,
+          31334,
+          367,
+          2851,
+          904,
+          368,
+          460,
+          2910,
+          426,
+          45805,
+          1030,
+          1512,
+          3789,
+          1208,
+          368,
+          42241,
+          13,
+          50530
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27603445053100584,
+        "compression_ratio": 1.2481203007518797,
+        "no_speech_prob": 0.007684719283133745,
+        "words": [
+          {
+            "word": " Découvrons",
+            "start": 0,
+            "end": 0.64,
+            "probability": 0.86767578125
+          },
+          {
+            "word": " les",
+            "start": 0.64,
+            "end": 0.8,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " quatre",
+            "start": 0.8,
+            "end": 1.06,
+            "probability": 0.6982421875
+          },
+          {
+            "word": " rôles",
+            "start": 1.06,
+            "end": 1.46,
+            "probability": 0.94482421875
+          },
+          {
+            "word": " de",
+            "start": 1.46,
+            "end": 1.56,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " Guth",
+            "start": 1.56,
+            "end": 1.76,
+            "probability": 0.50341796875
+          },
+          {
+            "word": " Néo",
+            "start": 1.76,
+            "end": 2.14,
+            "probability": 0.7158203125
+          },
+          {
+            "word": " et",
+            "start": 2.14,
+            "end": 2.36,
+            "probability": 0.98876953125
+          },
+          {
+            "word": " les",
+            "start": 2.36,
+            "end": 2.48,
+            "probability": 0.984375
+          },
+          {
+            "word": " droits",
+            "start": 2.48,
+            "end": 2.74,
+            "probability": 0.958984375
+          },
+          {
+            "word": " de",
+            "start": 2.74,
+            "end": 2.82,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " chacun.",
+            "start": 2.82,
+            "end": 3.12,
+            "probability": 0.9921875
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 3.8,
+        "end": 5.72,
+        "text": " L'administrateur gère l'atelier.",
+        "tokens": [
+          50560,
+          441,
+          6,
+          345,
+          4192,
+          4404,
+          374,
+          290,
+          4212,
+          287,
+          6,
+          267,
+          46273,
+          13,
+          50656
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27603445053100584,
+        "compression_ratio": 1.2481203007518797,
+        "no_speech_prob": 0.007684719283133745,
+        "words": [
+          {
+            "word": " L",
+            "start": 3.8,
+            "end": 4.08,
+            "probability": 0.984375
+          },
+          {
+            "word": "'administrateur",
+            "start": 4.08,
+            "end": 4.94,
+            "probability": 0.9921875
+          },
+          {
+            "word": " gère",
+            "start": 4.94,
+            "end": 5.22,
+            "probability": 0.994140625
+          },
+          {
+            "word": " l",
+            "start": 5.22,
+            "end": 5.32,
+            "probability": 0.99853515625
+          },
+          {
+            "word": "'atelier.",
+            "start": 5.32,
+            "end": 5.72,
+            "probability": 0.97119140625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 6.2,
+        "end": 9.54,
+        "text": " Il prépare les envois, les approuvent et consulte les rapports.",
+        "tokens": [
+          50670,
+          4416,
+          11127,
+          79,
+          543,
+          1512,
+          2267,
+          7376,
+          11,
+          1512,
+          724,
+          13122,
+          2475,
+          1030,
+          7189,
+          68,
+          1512,
+          8125,
+          3299,
+          13,
+          50846
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27603445053100584,
+        "compression_ratio": 1.2481203007518797,
+        "no_speech_prob": 0.007684719283133745,
+        "words": [
+          {
+            "word": " Il",
+            "start": 6.2,
+            "end": 6.3,
+            "probability": 0.90771484375
+          },
+          {
+            "word": " prépare",
+            "start": 6.3,
+            "end": 6.68,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " les",
+            "start": 6.68,
+            "end": 6.84,
+            "probability": 0.99609375
+          },
+          {
+            "word": " envois,",
+            "start": 6.84,
+            "end": 7.28,
+            "probability": 0.9013671875
+          },
+          {
+            "word": " les",
+            "start": 7.54,
+            "end": 7.62,
+            "probability": 0.998046875
+          },
+          {
+            "word": " approuvent",
+            "start": 7.62,
+            "end": 8.3,
+            "probability": 0.70068359375
+          },
+          {
+            "word": " et",
+            "start": 8.3,
+            "end": 8.42,
+            "probability": 0.93310546875
+          },
+          {
+            "word": " consulte",
+            "start": 8.42,
+            "end": 8.98,
+            "probability": 0.94189453125
+          },
+          {
+            "word": " les",
+            "start": 8.98,
+            "end": 9.08,
+            "probability": 0.99609375
+          },
+          {
+            "word": " rapports.",
+            "start": 9.08,
+            "end": 9.54,
+            "probability": 0.9921875
+          }
+        ]
+      }
+    ],
+    "language": "fr"
+  }
+}
