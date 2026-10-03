@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { verifyRelease } from "../../scripts/verify-release.mjs";
+import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 
 const primary = "https://guteneo.com";
 const fallback = "https://guteneo-app.nclsppr.workers.dev";
@@ -159,4 +160,75 @@ test("missing robots evidence or missing response security headers fails proof",
     ),
     /Host-specific robots policy differs/,
   );
+});
+
+test("localized release assets are verified byte-for-byte at explicit public language URLs on both hosts", async () => {
+  const variants = site.locales.flatMap((locale) =>
+    ["/", "/journal/"].map((pathname) => ({
+      publicPath: `${pathname}?lang=${locale}`,
+      body: `<main>${locale}: ${pathname}</main>`,
+      path: `${site.localizedPrefix}/${locale}${pathname}index.html`,
+    })),
+  );
+  const local = {
+    ...manifest,
+    assets: [
+      ...manifest.assets,
+      ...variants.map(({ path, body }) => asset(path, body)),
+    ],
+  };
+  for (const origin of [primary, fallback]) {
+    const f = fixture(origin, { remote: local });
+    const localizedRequests = [];
+    const fetcher = async (url, options) => {
+      assert.ok(!url.pathname.startsWith(site.localizedPrefix));
+      if (url.searchParams.has("lang")) {
+        const publicPath = `${url.pathname}?lang=${url.searchParams.get("lang")}`;
+        const variant = variants.find((item) => item.publicPath === publicPath);
+        assert.ok(variant, publicPath);
+        assert.equal(url.searchParams.get("release-proof"), local.sourceCommit);
+        assert.equal(options.redirect, "error");
+        localizedRequests.push(publicPath);
+        return new Response(variant.body);
+      }
+      return f.fetcher(url, options);
+    };
+    const result = await verifyRelease(origin, local, fetcher);
+    assert.equal(result.publicAssetsVerified, 2 + variants.length);
+    assert.deepEqual(
+      localizedRequests.sort(),
+      variants.map((item) => item.publicPath).sort(),
+    );
+    await assert.rejects(
+      verifyRelease(origin, local, async (url, options) =>
+        url.searchParams.has("lang")
+          ? new Response(html)
+          : fetcher(url, options),
+      ),
+      /Served bytes differ/,
+    );
+  }
+});
+
+test("release proof refuses unknown internal languages and routes rather than skipping their hashes", async () => {
+  for (const path of [
+    site.localizedPrefix,
+    `${site.localizedPrefix}/es/index.html`,
+    `${site.localizedPrefix}/en/missing/index.html`,
+    `${site.localizedPrefix}/en/index.html?lang=de`,
+    `${site.localizedPrefix}/en/journal.html`,
+  ]) {
+    const local = {
+      ...manifest,
+      assets: [...manifest.assets, asset(path, html)],
+    };
+    await assert.rejects(
+      verifyRelease(
+        primary,
+        local,
+        fixture(primary, { remote: local }).fetcher,
+      ),
+      /Invalid localized asset path/,
+    );
+  }
 });

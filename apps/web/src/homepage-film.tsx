@@ -263,9 +263,9 @@ function LocalizedFilm({
             onClick={start}
           >
             <span className="homepage-film-play-icon">
-              <Play size={25} weight="fill" aria-hidden="true" />
+              <Play size={36} weight="fill" aria-hidden="true" />
             </span>
-            <span>
+            <span className="homepage-film-play-copy">
               {status === "ended" ? copy.replay : copy.play}
               <small>{duration}</small>
             </span>

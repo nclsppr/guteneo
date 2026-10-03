@@ -4,6 +4,29 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import site from "../packages/contracts/src/public-site.json" with { type: "json" };
 
+/** Verify internal localized bytes through their only public URL. */
+function publicAssetPath(path) {
+  if (
+    path === site.localizedPrefix ||
+    path.startsWith(`${site.localizedPrefix}/`)
+  ) {
+    const relative = path.slice(site.localizedPrefix.length + 1);
+    const separator = relative.indexOf("/");
+    const locale = relative.slice(0, separator);
+    const document = relative.slice(separator);
+    const pathname = document.endsWith("/index.html")
+      ? document.slice(0, -"index.html".length)
+      : null;
+    if (!site.locales.includes(locale) || !site.paths.includes(pathname))
+      throw new Error(`Invalid localized asset path: ${path}`);
+    return `${pathname}?lang=${locale}`;
+  }
+  // Workers Static Assets canonicalizes /index.html to / with HTTP 307.
+  return path.endsWith("/index.html")
+    ? path.slice(0, -"index.html".length)
+    : path;
+}
+
 export async function verifyRelease(originArgument, local, fetcher = fetch) {
   const origin = new URL(originArgument);
   if (
@@ -81,12 +104,9 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
           dynamicResources.push(entry.path);
           continue;
         }
-        // Workers Static Assets canonicalizes /index.html to / with HTTP 307.
         // Verify the same document bytes at the canonical route without following
         // arbitrary redirects from a release manifest.
-        const publicPath = entry.path.endsWith("/index.html")
-          ? entry.path.slice(0, -"index.html".length)
-          : entry.path;
+        const publicPath = publicAssetPath(entry.path);
         const bytes = new Uint8Array(
           await (await fetchPublic(publicPath)).arrayBuffer(),
         );
