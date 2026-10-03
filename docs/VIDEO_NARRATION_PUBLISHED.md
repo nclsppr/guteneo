@@ -74,8 +74,15 @@ strictement identiques au preview validé. Les autres narrations conservent
 accents et variantes de reconnaissance ne sont pas certifiés par une écoute
 humaine. Aucun test sur téléphone physique n’est revendiqué.
 
-Les vérifications locales couvrent décodage complet, PCM, calage, identité vidéo,
-logo, gain, catalogue et lecteur sur Chromium/WebKit. La publication exige les
+L’audit indépendant des douze MP4 confirme le décodage intégral, les paquets
+H.264 identiques aux bases musicales, les formats/durées et le manifeste exact.
+Le gain musical mesuré sous la voix, dans les pauses et au logo est compris
+entre **0,217734 et 0,219883**, cohérent avec 0,22 après compression AAC. Les pics
+du prémix reconstruit sont compris entre **0,6301 et 0,69235**, sous le seuil 0,95 :
+le limiteur reste inactif et ne modifie pas le niveau musical.
+
+Les vérifications locales couvrent PCM, calage, logo, catalogue et lecteur sur
+Chromium/WebKit. La publication exige les
 contrôles du commit fusionné et les preuves exactes sur les deux origines selon
 [MAIN_RELEASE.md](MAIN_RELEASE.md). La preuve de déploiement est conservée hors
 dépôt ; aucune livraison métier n’est déclenchée par ces vidéos.
