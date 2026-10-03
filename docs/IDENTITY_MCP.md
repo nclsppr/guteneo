@@ -103,3 +103,14 @@ Cursor documents Streamable HTTP/OAuth, static OAuth registration and Apps. Its 
 Run `npx vitest run tests/unit/auth.test.ts`. Twelve tests passed during implementation: real D1 session writes/CSRF/logout, local-only gates, RSA signature/issuer/audience/expiry failures, PKCE transaction binding and single-use callback fixtures, promotional-credit onboarding with provider channels still disabled, actual stateless HTTP tool schema listing, MCP-to-domain preparation and concurrent confirmation, tenant denial, publication outage and rate limit. The callback test uses a fixture token endpoint and JWKS with real RSA signatures; **it does not contact Auth0**. Full-suite reports are generated at `reports/vitest.json` and may supersede this focused run.
 
 Release gates: configure real Auth0 with the chosen policy; verify actual email confirmation, signed account evidence, recovery and session creation; qualify short token lifetime/refresh/revocation in each real client. Test actual MFA and its recovery separately if that stricter policy is selected. Verify exact generated-file bytes, a qualified scanner and deployed public-only download egress; confirm provider prerequisites; execute authorized staging sends. Purge expired login transactions, browser sessions and development MCP tokens. Never log callback codes, cookies, tokens or signed file URLs.
+
+## Studio authorization (local candidate)
+
+Templates use distinct read/write/publish/share OAuth scopes. Datasets and
+generations have their own read/write scopes. Scope possession never bypasses
+current membership, template grants or ownership of sources/jobs/PDFs. Existing
+OAuth tokens do not gain new scopes by editing integration manifests. Policy
+activation and data-transfer consent for optional AI remain authenticated browser
+administrator actions; MCP can read policy and request an already-authorized
+proposal. No suggestion, publication or generation is an approval to send.
+See [the parity and qualification report](TEMPLATES_DATA_DISTRIBUTION.md).

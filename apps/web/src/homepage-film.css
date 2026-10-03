@@ -152,6 +152,17 @@
   max-width: 78ch;
   margin: 4px 0 0;
 }
+.roles-film {
+  padding: 24px 0;
+  border-bottom: 0;
+}
+.roles-film .homepage-film-heading {
+  display: block;
+}
+.roles-film .homepage-film-heading p {
+  max-width: 62ch;
+  margin-top: 12px;
+}
 @media (max-width: 767px) {
   .homepage-film {
     padding-block: 36px;
@@ -173,7 +184,8 @@
   }
 }
 @media (max-width: 767px), (pointer: coarse) and (max-height: 500px) {
-  .homepage-film-frame:not([data-format="horizontal"]) {
+  .homepage-film:not(.roles-film)
+    .homepage-film-frame:not([data-format="horizontal"]) {
     aspect-ratio: 1320 / 2868;
     max-width: 360px;
     margin-inline: auto;

@@ -1,5 +1,5 @@
 import { msg } from "./messages";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -25,12 +25,13 @@ import {
   api,
   ApiError,
   canAdminister,
+  permissionsFor,
   SESSION_EXPIRED_EVENT,
   setSession,
   type Session,
 } from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu, LanguageSelect } from "./language-select";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
@@ -57,6 +58,9 @@ import {
 import { Billing } from "./billing-page";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
+import { RolePermissionNotice } from "./role-guide";
+import { TeamInvitations } from "./team-invitations";
+import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
 import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
@@ -68,6 +72,7 @@ import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
 import "./homepage.css";
+import "./document-studio.css";
 import {
   Installation,
   WelcomePricing,
@@ -77,10 +82,28 @@ import {
 } from "./landing-sections";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+const DocumentStudio = lazy(() => import("./document-studio"));
 
 export function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    function closeOutside(event: Event) {
+      if (
+        event.target instanceof Node &&
+        !header.current?.contains(event.target)
+      )
+        setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("focusin", closeOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("focusin", closeOutside);
+    };
+  }, [menuOpen]);
   useEffect(() => {
     const id = window.location.hash.slice(1);
     if (
@@ -115,16 +138,17 @@ export function Landing() {
         {t.skip}
       </a>
       <header
+        ref={header}
         className="site-header"
         onKeyDown={(event) => {
           if (event.key === "Escape" && menuOpen) {
+            event.preventDefault();
             closeMenu();
             menuButton.current?.focus();
           }
         }}
       >
         <Brand />
-        <LanguageSelect />
         <nav aria-label={msg("Navigation principale")}>
           <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
             {t.landing.navHow}
@@ -136,7 +160,8 @@ export function Landing() {
           >
             {t.homepage.navPricing}
           </a>
-          <a className="button small" href="#/app">
+          <LanguageMenu />
+          <a className="button small" href="/app">
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={16} />
           </a>
@@ -182,10 +207,11 @@ export function Landing() {
             {msg("Assistants ")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>
-          <a href="#/app" onClick={closeMenu}>
+          <a href="/app" onClick={closeMenu}>
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={17} aria-hidden="true" />
           </a>
+          <LanguageSelect automatic />
         </nav>
       </header>
       <main id="landing-main" tabIndex={-1}>
@@ -300,6 +326,15 @@ function Login({
     ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
   const authCode = new URLSearchParams(window.location.search).get("auth");
   const authMessages: Record<string, string> = {
+    INVITATION_EMAIL_MISMATCH: msg(
+      "Cette invitation est liée à une autre adresse. Rouvrez le lien reçu et connectez-vous avec l’adresse vérifiée qui a reçu l’invitation.",
+    ),
+    INVITATION_UNAVAILABLE: msg(
+      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’atelier.",
+    ),
+    INVITATION_EXISTING_MEMBER: msg(
+      "Vous êtes déjà membre de cet atelier. Connectez-vous à votre compte et choisissez cet atelier dans Mon compte.",
+    ),
     EMAIL_VERIFICATION_REQUIRED: msg(
       "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
     ),
@@ -334,7 +369,7 @@ function Login({
     <div className="login-page">
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <a href="#/">
           {t.back}
           <ArrowUpRight size={17} />
@@ -478,6 +513,9 @@ const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
+  { id: "templates", path: "/app/templates", Icon: FileText },
+  { id: "datasets", path: "/app/datasets", Icon: Stack },
+  { id: "generations", path: "/app/generations", Icon: SquaresFour },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
@@ -543,6 +581,8 @@ export function App() {
       ?.setAttribute("content", description);
   }, [locale]);
   const publicPath = window.location.pathname;
+  if (publicPath === "/invitation" || publicPath === "/invitation/")
+    return <InvitationPage />;
   const information = getInformationPages()[publicPath];
   if (information) return <InformationPage content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
@@ -671,8 +711,22 @@ function WorkspaceApplication({
       } else throw error;
     }
   };
+  const permissions = permissionsFor(session);
   let content;
-  if (page === "/app/documents") content = <Documents />;
+  if (
+    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
+      page,
+    )
+  )
+    content = (
+      <Suspense fallback={<Loading />}>
+        <DocumentStudio route={route} session={session} />
+      </Suspense>
+    );
+  else if (page === "/app/documents")
+    content = <Documents canPrepare={permissions.prepareDispatches} />;
+  else if (page === "/app/prepare" && !permissions.prepareDispatches)
+    content = <RolePermissionNotice />;
   else if (page === "/app/prepare")
     content = (
       <>
@@ -689,20 +743,38 @@ function WorkspaceApplication({
     );
   else if (page.startsWith("/app/postal/"))
     content = (
-      <PostalReviewPage key={page} id={page.slice("/app/postal/".length)} />
+      <PostalReviewPage
+        key={page}
+        id={page.slice("/app/postal/".length)}
+        canApprove={permissions.approveDispatches}
+        canPrepare={permissions.prepareDispatches}
+      />
     );
-  else if (page === "/app/dispatches") content = <DispatchList />;
+  else if (page === "/app/dispatches")
+    content = <DispatchList canPrepare={permissions.prepareDispatches} />;
   else if (page.startsWith("/app/dispatch/"))
     content = (
       <DispatchDetailPage
         id={page.slice("/app/dispatch/".length)}
         simulation={session.simulation}
+        canApprove={permissions.approveDispatches}
+        canPrepare={permissions.prepareDispatches}
       />
     );
   else if (page === "/app/campaigns")
-    content = <Campaigns simulation={session.simulation} />;
+    content = (
+      <Campaigns
+        simulation={session.simulation}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
   else if (page.startsWith("/app/campaign/"))
-    content = <CampaignDetail id={page.slice("/app/campaign/".length)} />;
+    content = (
+      <CampaignDetail
+        id={page.slice("/app/campaign/".length)}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
   else if (page === "/app/connection" || page.startsWith("/app/connection/"))
     content = (
       <Connection
@@ -712,15 +784,29 @@ function WorkspaceApplication({
         }
       />
     );
-  else if (page === "/app/senders") content = <Senders />;
-  else if (page === "/app/usage") content = <Usage />;
+  else if (page === "/app/senders")
+    content = (
+      <Senders
+        canManage={permissions.manageOrganization}
+        canPrepare={permissions.prepareDispatches}
+      />
+    );
+  else if (page === "/app/usage")
+    content = permissions.viewReports ? (
+      <Usage />
+    ) : (
+      <RolePermissionNotice reports />
+    );
   else if (page === "/app/billing") content = <Billing session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
+  else if (page === "/app/admin" && !permissions.manageMembers)
+    content = <RolePermissionNotice />;
   else if (page === "/app/admin")
     content = (
       <Admin>
         <TeamAdmin session={session} onUpdated={refreshSession} />
+        {!publicPreview && <TeamInvitations />}
       </Admin>
     );
   else content = <Overview session={session} />;
@@ -787,8 +873,14 @@ function WorkspaceApplication({
             {navigation
               .filter(
                 (n) =>
-                  !["admin", "billing"].includes(n.id) ||
-                  canAdminister(session),
+                  (!["admin", "billing"].includes(n.id) ||
+                    canAdminister(session)) &&
+                  (n.id !== "usage" || permissions.viewReports),
+              )
+              .filter(
+                (n) =>
+                  !publicPreview ||
+                  !["templates", "datasets", "generations"].includes(n.id),
               )
               .map(({ id, path, Icon }) => (
                 <a
@@ -809,6 +901,11 @@ function WorkspaceApplication({
                   }}
                   aria-current={
                     page === path ||
+                    (id === "templates" && page.startsWith("/app/template/")) ||
+                    (id === "datasets" && page.startsWith("/app/dataset/")) ||
+                    (id === "generations" &&
+                      (page.startsWith("/app/generation/") ||
+                        page.startsWith("/app/distribution/"))) ||
                     (id === "connection" &&
                       page.startsWith("/app/connection/")) ||
                     (id === "dispatches" &&
@@ -881,21 +978,29 @@ function WorkspaceApplication({
                   page.startsWith("/app/dispatch/") ||
                   page.startsWith("/app/postal/")
                     ? "dispatches"
-                    : page.startsWith("/app/connection/")
-                      ? "connection"
-                      : page.startsWith("/app/campaign/")
-                        ? "campaigns"
-                        : "overview")
+                    : page.startsWith("/app/template/")
+                      ? "templates"
+                      : page.startsWith("/app/dataset/")
+                        ? "datasets"
+                        : page.startsWith("/app/generation/") ||
+                            page.startsWith("/app/distribution/")
+                          ? "generations"
+                          : page.startsWith("/app/connection/")
+                            ? "connection"
+                            : page.startsWith("/app/campaign/")
+                              ? "campaigns"
+                              : "overview")
               ]
             }
           </span>
           {/* These pages already lead to the preparation form themselves. */}
-          {!["/app/prepare", "/app/dispatches"].includes(page) && (
-            <a className="button small primary" href="#/app/prepare">
-              <Plus size={16} aria-hidden="true" />
-              {t.dispatch.new}
-            </a>
-          )}
+          {permissions.prepareDispatches &&
+            !["/app/prepare", "/app/dispatches"].includes(page) && (
+              <a className="button small primary" href="#/app/prepare">
+                <Plus size={16} aria-hidden="true" />
+                {t.dispatch.new}
+              </a>
+            )}
         </div>
         {/* A new identity starts from fresh pages, without the previous state. */}
         <main

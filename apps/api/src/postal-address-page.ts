@@ -159,7 +159,10 @@ export class PostalAddressPageService {
       fail("POSTAL_ADDRESS_PAGE_RENDER_FAILED", 503);
     const postal = new PostalService(this.env, this.domain, this.dependencies);
     // Source scope, scan proof and exact bytes are checked again on every unfinished retry.
-    await this.domain.getDocument(authority.context, input.documentId);
+    const accessibleSource = await this.domain.getDocument(
+      authority.context,
+      input.documentId,
+    );
     if (await addressPageForDocument(this.env.DB, org, input.documentId))
       fail("POSTAL_ADDRESS_PAGE_RECURSIVE");
     const source = await postal.exactDocument(org, input.documentId);
@@ -437,6 +440,7 @@ export class PostalAddressPageService {
         {
           name: `${source.document.name.replace(/\.pdf$/i, "").slice(0, 140)} — adresse.pdf`,
           bytes: finalBytes,
+          privateToCreator: Boolean(accessibleSource.access_owner_id),
         },
         "render",
         { documentId: row.planned_document_id, authority: activeAuthority },

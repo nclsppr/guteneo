@@ -13,7 +13,10 @@ struct AccountView: View {
                 Section("Votre identité") {
                     LabeledContent("Nom", value: session.user.name)
                     LabeledContent("Organisation", value: session.organization.name)
-                    LabeledContent("Rôle", value: L10n.text(session.user.role == "admin" ? "Administrateur" : session.user.role == "viewer" ? "Lecture seule" : "Membre", locale: locale))
+                    LabeledContent("Rôle", value: L10n.text(session.roleTitle, locale: locale))
+                    LabeledContent("Préparer des envois", value: L10n.text(session.canPrepare ? "Autorisé" : "Non autorisé", locale: locale))
+                    LabeledContent("Valider dans le navigateur", value: L10n.text(session.canApprove ? "Autorisé" : "Non autorisé", locale: locale))
+                    Link("Comprendre les rôles", destination: Brand.siteURL("/roles/", locale: locale))
                 }
             }
             Section {

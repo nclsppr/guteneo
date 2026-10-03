@@ -44,6 +44,10 @@ test("privacy, terms and support work without JavaScript or account access", asy
       .getByRole("link", { name: "Confidentialité", exact: true })
       .click();
     await expect(page).toHaveURL(/\/confidentialite\/$/);
+    // A font swap can rewrap the mobile index between pointer down and up.
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
     await page
       .getByRole("link", { name: "Exercer vos droits", exact: true })
       .click();

@@ -40,6 +40,9 @@ export const de: Copy = {
   nav: {
     overview: "Übersicht",
     documents: "Dokumente",
+    templates: "Vorlagen",
+    datasets: "Meine Daten",
+    generations: "Generierungen",
     dispatches: "Sendungen",
     campaigns: "Kampagnen",
     connection: "Assistenten",
@@ -68,7 +71,7 @@ export const de: Copy = {
       title: "Alles für den Anfang.",
       italic: "Ohne versteckte Kosten.",
       intro:
-        "Ein Willkommensguthaben für Ihre ersten Sendungen. Danach behalten Sie vor jeder Freigabe die Kontrolle über Ihr Budget.",
+        "Ihre Organisation erhält bei der Kontoerstellung einmalig 50 € Willkommensguthaben. Der Preis oder die Kostenobergrenze jeder Sendung wird vor der Freigabe angezeigt.",
       welcomeTitle: "Als Geschenk zur Kontoeröffnung.",
       welcomeBody:
         "Ihre Organisation erhält bei der Kontoerstellung einmalig 50 € Willkommensguthaben. Dieses Guthaben wird gemeinsam für die aktivierten Kanäle genutzt: Fax, E-Mail und Briefpost.",
@@ -82,12 +85,12 @@ export const de: Copy = {
       title: "Vor der ersten Sendung",
       italic: "ein paar Antworten.",
       intro:
-        "Das Dokument, Ihre Zustimmung und die Nachverfolgung: die gleichen Grundlagen für jeden Kanal.",
+        "Prüfen Sie vor der ersten Sendung Dokument, Empfänger, Kanal und Kosten in Guteneo. Verfolgen Sie anschließend die Sendung im Gespräch und in Ihrem Bereich.",
       items: [
         {
           question: "Wird meine ursprüngliche PDF-Datei verändert?",
           answer:
-            "Ihre importierte PDF-Datei bleibt unverändert erhalten. Wenn Sie mit Ihrem Assistenten einen Brief verfassen, wird ein neues Dokument erstellt. Sie können es vor der Versandvorbereitung prüfen.",
+            "Ihre importierte PDF-Datei bleibt unverändert erhalten. Der Import ist auf 10 MiB und 100 Seiten begrenzt. Wenn Sie mit Ihrem Assistenten einen Brief verfassen, wird ein neues Dokument erstellt. Sie können es vor der Versandvorbereitung prüfen.",
         },
         {
           question: "Kann ich ein passwortgeschütztes PDF teilen?",
@@ -116,7 +119,7 @@ export const de: Copy = {
       italic: "Unsere starten hier.",
       cta: "Meine erste Sendung vorbereiten",
       imageAlt:
-        "Illustrierte Ansicht von Luxemburg: Dächer des Grund, Felsen und Brücken der Altstadt, gerasterter Stich in Blau und Elfenbein.",
+        "Dächer des Grund, Felsen und Brücken von Luxemburg, gerasterter Stich in Blau und Elfenbein.",
       stampDescription:
         "Gutenberg-Briefmarke und dekorativer Luxemburger Poststempel, erster Tag von guteneo:",
       foundingDate: "16. September 2026",
@@ -131,10 +134,10 @@ export const de: Copy = {
       title: "Der nächste Weg Ihrer Worte.",
       italic: "In Bewegung.",
       intro:
-        "Von Ihrer ersten Idee bis zum Ziel. Entdecken Sie Guteneo in 56 Sekunden.",
+        "Dieser Film stellt Guteneo vor: von der Vorbereitung eines Dokuments bis zum Versand per Fax, E-Mail oder Briefpost.",
       play: "Film ansehen",
       replay: "Film erneut ansehen",
-      duration: "56 Sekunden · Ton auf Französisch",
+      duration: "{duration} Sekunden · Mit Ton",
       videoLabel: "Vorstellungsfilm von Guteneo",
       fullscreen: "Vollbild",
       close: "Player schließen",
@@ -143,7 +146,7 @@ export const de: Copy = {
         "Die Wiedergabe konnte nicht starten. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
       transcriptTitle: "Filmtext lesen",
       transcript:
-        "Von einem Dokument bis zu mehr als 10.000 verteilt Guteneo Ihre Kampagnen, von einfachen bis zu individuell gestalteten. Importieren Sie ein PDF oder erstellen Sie Ihre eigene Vorlage. Bitten Sie Ihren Assistenten in ChatGPT, Claude oder Copilot, ein PDF zu erstellen, und bereiten Sie dann den Versand mit Guteneo vor. Prüfen Sie den Druckabzug und das Angebot, bevor Sie die Freigabe erteilen. Wählen Sie klassische oder verschlüsselte E-Mail, Fax oder Druck und Postversand in ganz Europa. Guteneo ist auch im Web und in der iOS-App verfügbar. Guteneo. Der nächste Weg Ihrer Worte.",
+        "Mit guteneo beginnt alles mit einem Dokument. Sie können eine einzelne Sendung oder eine ganze Kampagne vorbereiten. Dabei kann jeder Empfänger sein persönliches Dokument erhalten. Nutzen Sie Ihr eigenes PDF oder eine passende Vorlage. Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail. Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. So kann ein digitales Dokument auch im Briefkasten ankommen. Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
     },
   },
   postalCutoff: {

@@ -1,0 +1,1242 @@
+{
+  "language_code": "ltz",
+  "segments": [
+    {
+      "text": "Mat GutenNeo fänkt alles mit engem",
+      "start_time": 0.12,
+      "end_time": 2.1,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Mat",
+          "start_time": 0.12,
+          "end_time": 0.32
+        },
+        {
+          "text": " ",
+          "start_time": 0.32,
+          "end_time": 0.42
+        },
+        {
+          "text": "GutenNeo",
+          "start_time": 0.46,
+          "end_time": 0.92
+        },
+        {
+          "text": " ",
+          "start_time": 0.92,
+          "end_time": 1.04
+        },
+        {
+          "text": "fänkt",
+          "start_time": 1.04,
+          "end_time": 1.24
+        },
+        {
+          "text": " ",
+          "start_time": 1.24,
+          "end_time": 1.44
+        },
+        {
+          "text": "alles",
+          "start_time": 1.46,
+          "end_time": 1.72
+        },
+        {
+          "text": " ",
+          "start_time": 1.72,
+          "end_time": 1.76
+        },
+        {
+          "text": "mit",
+          "start_time": 1.76,
+          "end_time": 1.86
+        },
+        {
+          "text": " ",
+          "start_time": 1.86,
+          "end_time": 1.9
+        },
+        {
+          "text": "engem",
+          "start_time": 1.9,
+          "end_time": 2.1
+        }
+      ]
+    },
+    {
+      "text": "Dokument un.",
+      "start_time": 2.14,
+      "end_time": 3,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dokument",
+          "start_time": 2.14,
+          "end_time": 2.72
+        },
+        {
+          "text": " ",
+          "start_time": 2.72,
+          "end_time": 2.78
+        },
+        {
+          "text": "un.",
+          "start_time": 2.78,
+          "end_time": 3
+        }
+      ]
+    },
+    {
+      "text": "Dir kënnt eng eenzel Sendung oder eng ganz",
+      "start_time": 3.84,
+      "end_time": 6.02,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dir",
+          "start_time": 3.84,
+          "end_time": 3.96
+        },
+        {
+          "text": " ",
+          "start_time": 3.96,
+          "end_time": 4
+        },
+        {
+          "text": "kënnt",
+          "start_time": 4,
+          "end_time": 4.14
+        },
+        {
+          "text": " ",
+          "start_time": 4.14,
+          "end_time": 4.18
+        },
+        {
+          "text": "eng",
+          "start_time": 4.18,
+          "end_time": 4.34
+        },
+        {
+          "text": " ",
+          "start_time": 4.34,
+          "end_time": 4.4
+        },
+        {
+          "text": "eenzel",
+          "start_time": 4.4,
+          "end_time": 4.76
+        },
+        {
+          "text": " ",
+          "start_time": 4.76,
+          "end_time": 4.82
+        },
+        {
+          "text": "Sendung",
+          "start_time": 4.82,
+          "end_time": 5.26
+        },
+        {
+          "text": " ",
+          "start_time": 5.26,
+          "end_time": 5.4
+        },
+        {
+          "text": "oder",
+          "start_time": 5.4,
+          "end_time": 5.54
+        },
+        {
+          "text": " ",
+          "start_time": 5.54,
+          "end_time": 5.58
+        },
+        {
+          "text": "eng",
+          "start_time": 5.58,
+          "end_time": 5.74
+        },
+        {
+          "text": " ",
+          "start_time": 5.74,
+          "end_time": 5.78
+        },
+        {
+          "text": "ganz",
+          "start_time": 5.78,
+          "end_time": 6.02
+        }
+      ]
+    },
+    {
+      "text": "Kampagne virbereeden.",
+      "start_time": 6.06,
+      "end_time": 7.28,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Kampagne",
+          "start_time": 6.06,
+          "end_time": 6.56
+        },
+        {
+          "text": " ",
+          "start_time": 6.56,
+          "end_time": 6.66
+        },
+        {
+          "text": "virbereeden.",
+          "start_time": 6.66,
+          "end_time": 7.28
+        }
+      ]
+    },
+    {
+      "text": "Dobäi kann all Empfänger säi perséinlecht",
+      "start_time": 8.02,
+      "end_time": 10.2,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dobäi",
+          "start_time": 8.02,
+          "end_time": 8.4
+        },
+        {
+          "text": " ",
+          "start_time": 8.4,
+          "end_time": 8.44
+        },
+        {
+          "text": "kann",
+          "start_time": 8.44,
+          "end_time": 8.66
+        },
+        {
+          "text": " ",
+          "start_time": 8.66,
+          "end_time": 8.74
+        },
+        {
+          "text": "all",
+          "start_time": 8.74,
+          "end_time": 8.86
+        },
+        {
+          "text": " ",
+          "start_time": 8.86,
+          "end_time": 8.92
+        },
+        {
+          "text": "Empfänger",
+          "start_time": 8.92,
+          "end_time": 9.36
+        },
+        {
+          "text": " ",
+          "start_time": 9.36,
+          "end_time": 9.42
+        },
+        {
+          "text": "säi",
+          "start_time": 9.42,
+          "end_time": 9.58
+        },
+        {
+          "text": " ",
+          "start_time": 9.58,
+          "end_time": 9.62
+        },
+        {
+          "text": "perséinlecht",
+          "start_time": 9.62,
+          "end_time": 10.2
+        }
+      ]
+    },
+    {
+      "text": "Dokument kréien. Benotzt Ären eegene PDF",
+      "start_time": 10.24,
+      "end_time": 13.38,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dokument",
+          "start_time": 10.24,
+          "end_time": 10.66
+        },
+        {
+          "text": " ",
+          "start_time": 10.66,
+          "end_time": 10.74
+        },
+        {
+          "text": "kréien.",
+          "start_time": 10.74,
+          "end_time": 11.1
+        },
+        {
+          "text": " ",
+          "start_time": 11.1,
+          "end_time": 11.64
+        },
+        {
+          "text": "Benotzt",
+          "start_time": 11.64,
+          "end_time": 12.02
+        },
+        {
+          "text": " ",
+          "start_time": 12.02,
+          "end_time": 12.08
+        },
+        {
+          "text": "Ären",
+          "start_time": 12.08,
+          "end_time": 12.34
+        },
+        {
+          "text": " ",
+          "start_time": 12.34,
+          "end_time": 12.4
+        },
+        {
+          "text": "eegene",
+          "start_time": 12.4,
+          "end_time": 12.72
+        },
+        {
+          "text": " ",
+          "start_time": 12.72,
+          "end_time": 12.82
+        },
+        {
+          "text": "PDF",
+          "start_time": 12.82,
+          "end_time": 13.38
+        }
+      ]
+    },
+    {
+      "text": "oder eng passend Virlag. Ären Assistant",
+      "start_time": 13.6,
+      "end_time": 16.1,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "oder",
+          "start_time": 13.6,
+          "end_time": 13.8
+        },
+        {
+          "text": " ",
+          "start_time": 13.8,
+          "end_time": 13.82
+        },
+        {
+          "text": "eng",
+          "start_time": 13.82,
+          "end_time": 13.96
+        },
+        {
+          "text": " ",
+          "start_time": 13.96,
+          "end_time": 14.02
+        },
+        {
+          "text": "passend",
+          "start_time": 14.02,
+          "end_time": 14.36
+        },
+        {
+          "text": " ",
+          "start_time": 14.36,
+          "end_time": 14.42
+        },
+        {
+          "text": "Virlag.",
+          "start_time": 14.42,
+          "end_time": 14.9
+        },
+        {
+          "text": " ",
+          "start_time": 14.9,
+          "end_time": 15.2
+        },
+        {
+          "text": "Ären",
+          "start_time": 15.2,
+          "end_time": 15.42
+        },
+        {
+          "text": " ",
+          "start_time": 15.42,
+          "end_time": 15.5
+        },
+        {
+          "text": "Assistant",
+          "start_time": 15.5,
+          "end_time": 16.1
+        }
+      ]
+    },
+    {
+      "text": "hëlleft iech, aus Äre Wierder en Entworf",
+      "start_time": 16.14,
+      "end_time": 18.8,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "hëlleft",
+          "start_time": 16.14,
+          "end_time": 16.5
+        },
+        {
+          "text": " ",
+          "start_time": 16.5,
+          "end_time": 16.64
+        },
+        {
+          "text": "iech,",
+          "start_time": 16.64,
+          "end_time": 17.08
+        },
+        {
+          "text": " ",
+          "start_time": 17.08,
+          "end_time": 17.36
+        },
+        {
+          "text": "aus",
+          "start_time": 17.36,
+          "end_time": 17.54
+        },
+        {
+          "text": " ",
+          "start_time": 17.54,
+          "end_time": 17.6
+        },
+        {
+          "text": "Äre",
+          "start_time": 17.6,
+          "end_time": 17.76
+        },
+        {
+          "text": " ",
+          "start_time": 17.76,
+          "end_time": 17.92
+        },
+        {
+          "text": "Wierder",
+          "start_time": 17.92,
+          "end_time": 18.28
+        },
+        {
+          "text": " ",
+          "start_time": 18.28,
+          "end_time": 18.3
+        },
+        {
+          "text": "en",
+          "start_time": 18.3,
+          "end_time": 18.38
+        },
+        {
+          "text": " ",
+          "start_time": 18.38,
+          "end_time": 18.42
+        },
+        {
+          "text": "Entworf",
+          "start_time": 18.42,
+          "end_time": 18.8
+        }
+      ]
+    },
+    {
+      "text": "ze maachen.",
+      "start_time": 18.86,
+      "end_time": 19.4,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "ze",
+          "start_time": 18.86,
+          "end_time": 18.94
+        },
+        {
+          "text": " ",
+          "start_time": 18.94,
+          "end_time": 19
+        },
+        {
+          "text": "maachen.",
+          "start_time": 19,
+          "end_time": 19.4
+        }
+      ]
+    },
+    {
+      "text": "Dir erstellt PDF-Dokument a bereet deng",
+      "start_time": 20.12,
+      "end_time": 22.6,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dir",
+          "start_time": 20.12,
+          "end_time": 20.26
+        },
+        {
+          "text": " ",
+          "start_time": 20.26,
+          "end_time": 20.3
+        },
+        {
+          "text": "erstellt",
+          "start_time": 20.3,
+          "end_time": 20.76
+        },
+        {
+          "text": " ",
+          "start_time": 20.76,
+          "end_time": 20.82
+        },
+        {
+          "text": "PDF-Dokument",
+          "start_time": 20.82,
+          "end_time": 21.88
+        },
+        {
+          "text": " ",
+          "start_time": 21.88,
+          "end_time": 22.06
+        },
+        {
+          "text": "a",
+          "start_time": 22.06,
+          "end_time": 22.1
+        },
+        {
+          "text": " ",
+          "start_time": 22.1,
+          "end_time": 22.14
+        },
+        {
+          "text": "bereet",
+          "start_time": 22.14,
+          "end_time": 22.4
+        },
+        {
+          "text": " ",
+          "start_time": 22.4,
+          "end_time": 22.44
+        },
+        {
+          "text": "deng",
+          "start_time": 22.44,
+          "end_time": 22.6
+        }
+      ]
+    },
+    {
+      "text": "Sendung mat GutenNeo vir. Kontrolléiert",
+      "start_time": 22.66,
+      "end_time": 25.14,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Sendung",
+          "start_time": 22.66,
+          "end_time": 22.98
+        },
+        {
+          "text": " ",
+          "start_time": 22.98,
+          "end_time": 23.02
+        },
+        {
+          "text": "mat",
+          "start_time": 23.02,
+          "end_time": 23.2
+        },
+        {
+          "text": " ",
+          "start_time": 23.2,
+          "end_time": 23.24
+        },
+        {
+          "text": "GutenNeo",
+          "start_time": 23.24,
+          "end_time": 23.68
+        },
+        {
+          "text": " ",
+          "start_time": 23.68,
+          "end_time": 23.8
+        },
+        {
+          "text": "vir.",
+          "start_time": 23.8,
+          "end_time": 24
+        },
+        {
+          "text": " ",
+          "start_time": 24,
+          "end_time": 24.58
+        },
+        {
+          "text": "Kontrolléiert",
+          "start_time": 24.58,
+          "end_time": 25.14
+        }
+      ]
+    },
+    {
+      "text": "d'Dokument, den Empfänger, d'Optiounen an",
+      "start_time": 25.16,
+      "end_time": 27.74,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "d'Dokument,",
+          "start_time": 25.16,
+          "end_time": 25.76
+        },
+        {
+          "text": " ",
+          "start_time": 25.76,
+          "end_time": 25.94
+        },
+        {
+          "text": "den",
+          "start_time": 25.94,
+          "end_time": 26.06
+        },
+        {
+          "text": " ",
+          "start_time": 26.06,
+          "end_time": 26.1
+        },
+        {
+          "text": "Empfänger,",
+          "start_time": 26.1,
+          "end_time": 26.6
+        },
+        {
+          "text": " ",
+          "start_time": 26.6,
+          "end_time": 26.84
+        },
+        {
+          "text": "d'Optiounen",
+          "start_time": 26.84,
+          "end_time": 27.6
+        },
+        {
+          "text": " ",
+          "start_time": 27.6,
+          "end_time": 27.66
+        },
+        {
+          "text": "an",
+          "start_time": 27.66,
+          "end_time": 27.74
+        }
+      ]
+    },
+    {
+      "text": "d'Käschten. Am normale Parcours geneemegt",
+      "start_time": 27.76,
+      "end_time": 30.28,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "d'Käschten.",
+          "start_time": 27.76,
+          "end_time": 28.34
+        },
+        {
+          "text": " ",
+          "start_time": 28.34,
+          "end_time": 28.88
+        },
+        {
+          "text": "Am",
+          "start_time": 28.88,
+          "end_time": 28.96
+        },
+        {
+          "text": " ",
+          "start_time": 28.96,
+          "end_time": 28.98
+        },
+        {
+          "text": "normale",
+          "start_time": 28.98,
+          "end_time": 29.34
+        },
+        {
+          "text": " ",
+          "start_time": 29.34,
+          "end_time": 29.42
+        },
+        {
+          "text": "Parcours",
+          "start_time": 29.42,
+          "end_time": 29.88
+        },
+        {
+          "text": " ",
+          "start_time": 29.88,
+          "end_time": 29.92
+        },
+        {
+          "text": "geneemegt",
+          "start_time": 29.92,
+          "end_time": 30.28
+        }
+      ]
+    },
+    {
+      "text": "Dir d'Sendung selwer am Browser. Fir Är",
+      "start_time": 30.3,
+      "end_time": 32.6,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Dir",
+          "start_time": 30.3,
+          "end_time": 30.4
+        },
+        {
+          "text": " ",
+          "start_time": 30.4,
+          "end_time": 30.46
+        },
+        {
+          "text": "d'Sendung",
+          "start_time": 30.46,
+          "end_time": 30.86
+        },
+        {
+          "text": " ",
+          "start_time": 30.86,
+          "end_time": 30.94
+        },
+        {
+          "text": "selwer",
+          "start_time": 30.94,
+          "end_time": 31.3
+        },
+        {
+          "text": " ",
+          "start_time": 31.3,
+          "end_time": 31.34
+        },
+        {
+          "text": "am",
+          "start_time": 31.34,
+          "end_time": 31.46
+        },
+        {
+          "text": " ",
+          "start_time": 31.46,
+          "end_time": 31.5
+        },
+        {
+          "text": "Browser.",
+          "start_time": 31.5,
+          "end_time": 31.9
+        },
+        {
+          "text": " ",
+          "start_time": 31.9,
+          "end_time": 32.34
+        },
+        {
+          "text": "Fir",
+          "start_time": 32.34,
+          "end_time": 32.46
+        },
+        {
+          "text": " ",
+          "start_time": 32.46,
+          "end_time": 32.52
+        },
+        {
+          "text": "Är",
+          "start_time": 32.52,
+          "end_time": 32.6
+        }
+      ]
+    },
+    {
+      "text": "Noriicht kënnt Dir Fax, Bréifpost oder",
+      "start_time": 32.659,
+      "end_time": 35.2,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Noriicht",
+          "start_time": 32.659,
+          "end_time": 33.22
+        },
+        {
+          "text": " ",
+          "start_time": 33.22,
+          "end_time": 33.28
+        },
+        {
+          "text": "kënnt",
+          "start_time": 33.28,
+          "end_time": 33.46
+        },
+        {
+          "text": " ",
+          "start_time": 33.46,
+          "end_time": 33.48
+        },
+        {
+          "text": "Dir",
+          "start_time": 33.48,
+          "end_time": 33.58
+        },
+        {
+          "text": " ",
+          "start_time": 33.58,
+          "end_time": 33.72
+        },
+        {
+          "text": "Fax,",
+          "start_time": 33.72,
+          "end_time": 34.08
+        },
+        {
+          "text": " ",
+          "start_time": 34.08,
+          "end_time": 34.28
+        },
+        {
+          "text": "Bréifpost",
+          "start_time": 34.28,
+          "end_time": 35
+        },
+        {
+          "text": " ",
+          "start_time": 35,
+          "end_time": 35.06
+        },
+        {
+          "text": "oder",
+          "start_time": 35.06,
+          "end_time": 35.2
+        }
+      ]
+    },
+    {
+      "text": "E-Mail wielen. Är Wierder erreeche Leit",
+      "start_time": 35.32,
+      "end_time": 38.06,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "E-Mail",
+          "start_time": 35.32,
+          "end_time": 35.66
+        },
+        {
+          "text": " ",
+          "start_time": 35.66,
+          "end_time": 35.7
+        },
+        {
+          "text": "wielen.",
+          "start_time": 35.7,
+          "end_time": 36.06
+        },
+        {
+          "text": " ",
+          "start_time": 36.06,
+          "end_time": 36.42
+        },
+        {
+          "text": "Är",
+          "start_time": 36.42,
+          "end_time": 36.56
+        },
+        {
+          "text": " ",
+          "start_time": 36.56,
+          "end_time": 36.7
+        },
+        {
+          "text": "Wierder",
+          "start_time": 36.7,
+          "end_time": 37.1
+        },
+        {
+          "text": " ",
+          "start_time": 37.1,
+          "end_time": 37.16
+        },
+        {
+          "text": "erreeche",
+          "start_time": 37.16,
+          "end_time": 37.64
+        },
+        {
+          "text": " ",
+          "start_time": 37.64,
+          "end_time": 37.7
+        },
+        {
+          "text": "Leit",
+          "start_time": 37.7,
+          "end_time": 38.06
+        }
+      ]
+    },
+    {
+      "text": "och iwwert d'Landesgrenzen eraus.",
+      "start_time": 38.3,
+      "end_time": 40.18,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "och",
+          "start_time": 38.3,
+          "end_time": 38.54
+        },
+        {
+          "text": " ",
+          "start_time": 38.54,
+          "end_time": 38.6
+        },
+        {
+          "text": "iwwert",
+          "start_time": 38.6,
+          "end_time": 38.84
+        },
+        {
+          "text": " ",
+          "start_time": 38.84,
+          "end_time": 38.88
+        },
+        {
+          "text": "d'Landesgrenzen",
+          "start_time": 38.88,
+          "end_time": 39.7
+        },
+        {
+          "text": " ",
+          "start_time": 39.7,
+          "end_time": 39.74
+        },
+        {
+          "text": "eraus.",
+          "start_time": 39.74,
+          "end_time": 40.18
+        }
+      ]
+    },
+    {
+      "text": "E digital virbereet Dokument kann esou och",
+      "start_time": 41.02,
+      "end_time": 43.54,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "E",
+          "start_time": 41.02,
+          "end_time": 41.1
+        },
+        {
+          "text": " ",
+          "start_time": 41.1,
+          "end_time": 41.16
+        },
+        {
+          "text": "digital",
+          "start_time": 41.16,
+          "end_time": 41.68
+        },
+        {
+          "text": " ",
+          "start_time": 41.68,
+          "end_time": 41.74
+        },
+        {
+          "text": "virbereet",
+          "start_time": 41.74,
+          "end_time": 42.14
+        },
+        {
+          "text": " ",
+          "start_time": 42.14,
+          "end_time": 42.16
+        },
+        {
+          "text": "Dokument",
+          "start_time": 42.16,
+          "end_time": 42.84
+        },
+        {
+          "text": " ",
+          "start_time": 42.84,
+          "end_time": 42.9
+        },
+        {
+          "text": "kann",
+          "start_time": 42.9,
+          "end_time": 43.04
+        },
+        {
+          "text": " ",
+          "start_time": 43.04,
+          "end_time": 43.1
+        },
+        {
+          "text": "esou",
+          "start_time": 43.1,
+          "end_time": 43.36
+        },
+        {
+          "text": " ",
+          "start_time": 43.36,
+          "end_time": 43.44
+        },
+        {
+          "text": "och",
+          "start_time": 43.44,
+          "end_time": 43.54
+        }
+      ]
+    },
+    {
+      "text": "an enger Bréifboîte ukommen.",
+      "start_time": 43.58,
+      "end_time": 44.96,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "an",
+          "start_time": 43.58,
+          "end_time": 43.66
+        },
+        {
+          "text": " ",
+          "start_time": 43.66,
+          "end_time": 43.72
+        },
+        {
+          "text": "enger",
+          "start_time": 43.72,
+          "end_time": 43.92
+        },
+        {
+          "text": " ",
+          "start_time": 43.92,
+          "end_time": 43.94
+        },
+        {
+          "text": "Bréifboîte",
+          "start_time": 43.94,
+          "end_time": 44.46
+        },
+        {
+          "text": " ",
+          "start_time": 44.46,
+          "end_time": 44.52
+        },
+        {
+          "text": "ukommen.",
+          "start_time": 44.52,
+          "end_time": 44.96
+        }
+      ]
+    },
+    {
+      "text": "Ären Atelier ass fir iech do, och wann Dir",
+      "start_time": 45.78,
+      "end_time": 48.44,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Ären",
+          "start_time": 45.78,
+          "end_time": 45.98
+        },
+        {
+          "text": " ",
+          "start_time": 45.98,
+          "end_time": 46.04
+        },
+        {
+          "text": "Atelier",
+          "start_time": 46.04,
+          "end_time": 46.56
+        },
+        {
+          "text": " ",
+          "start_time": 46.56,
+          "end_time": 46.62
+        },
+        {
+          "text": "ass",
+          "start_time": 46.62,
+          "end_time": 46.74
+        },
+        {
+          "text": " ",
+          "start_time": 46.74,
+          "end_time": 46.8
+        },
+        {
+          "text": "fir",
+          "start_time": 46.8,
+          "end_time": 46.96
+        },
+        {
+          "text": " ",
+          "start_time": 46.96,
+          "end_time": 47.04
+        },
+        {
+          "text": "iech",
+          "start_time": 47.04,
+          "end_time": 47.32
+        },
+        {
+          "text": " ",
+          "start_time": 47.32,
+          "end_time": 47.38
+        },
+        {
+          "text": "do,",
+          "start_time": 47.38,
+          "end_time": 47.54
+        },
+        {
+          "text": " ",
+          "start_time": 47.54,
+          "end_time": 47.96
+        },
+        {
+          "text": "och",
+          "start_time": 47.96,
+          "end_time": 48.14
+        },
+        {
+          "text": " ",
+          "start_time": 48.14,
+          "end_time": 48.18
+        },
+        {
+          "text": "wann",
+          "start_time": 48.18,
+          "end_time": 48.3
+        },
+        {
+          "text": " ",
+          "start_time": 48.3,
+          "end_time": 48.32
+        },
+        {
+          "text": "Dir",
+          "start_time": 48.32,
+          "end_time": 48.44
+        }
+      ]
+    },
+    {
+      "text": "ënnerwee sidd.",
+      "start_time": 48.48,
+      "end_time": 49.2,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "ënnerwee",
+          "start_time": 48.48,
+          "end_time": 48.86
+        },
+        {
+          "text": " ",
+          "start_time": 48.86,
+          "end_time": 48.94
+        },
+        {
+          "text": "sidd.",
+          "start_time": 48.94,
+          "end_time": 49.2
+        }
+      ]
+    }
+  ],
+  "originalProofSha256": "720b420f754502864d295e3f15c7969e7768e6a41d5df4c3af4f7dc138443af2"
+}

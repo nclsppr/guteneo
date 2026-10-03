@@ -164,7 +164,7 @@ beforeEach(async () => {
         )
         .bind(backup, now()),
       db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
         .bind(id, backup, now()),
     ]);
   }
@@ -230,7 +230,7 @@ async function principal({
       )
       .bind(userId, timestamp),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,?,?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,?,?)")
       .bind(organization, userId, role, timestamp),
     db
       .prepare("INSERT INTO auth_identities VALUES(?,?,?,?)")
@@ -595,7 +595,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       .bind(org)
       .first();
     await db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(otherOrg, p.identity.context.userId, now())
       .run();
     await rebind(p, otherOrg);
@@ -678,7 +678,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
       vi.setSystemTime(Date.now());
       const p = await principal();
       await db
-        .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+        .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
         .bind(otherOrg, p.identity.context.userId, now())
         .run();
       await db
@@ -912,7 +912,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
             .run();
         if (change === "rebound") {
           await db
-            .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+            .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
             .bind(otherOrg, p.identity.context.userId, now())
             .run();
           await db

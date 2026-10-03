@@ -42,6 +42,9 @@ export const fr = {
   nav: {
     overview: "Vue d’ensemble",
     documents: "Documents",
+    templates: "Modèles",
+    datasets: "Mes données",
+    generations: "Générations",
     dispatches: "Envois",
     campaigns: "Campagnes",
     connection: "Assistants",
@@ -70,10 +73,10 @@ export const fr = {
       title: "La suite de vos mots.",
       italic: "En mouvement.",
       intro:
-        "De votre première idée à sa destination. Découvrez Guteneo en 56 secondes.",
+        "Ce film présente Guteneo, de la préparation d’un document à son envoi par fax, e-mail ou courrier postal.",
       play: "Découvrir le film",
       replay: "Revoir le film",
-      duration: "56 secondes · Avec le son",
+      duration: "{duration} secondes · Avec le son",
       videoLabel: "Film de présentation de Guteneo",
       fullscreen: "Plein écran",
       close: "Fermer le lecteur",
@@ -82,13 +85,13 @@ export const fr = {
         "La lecture n’a pas pu démarrer. Vérifiez votre connexion, puis réessayez.",
       transcriptTitle: "Lire la présentation du film",
       transcript:
-        "D’un document à plus de 10 000, Guteneo distribue vos campagnes, des plus simples aux plus personnalisées. Importez un PDF ou créez votre propre modèle. Depuis ChatGPT, Claude ou Copilot, demandez à votre assistant de générer un PDF, puis préparez son envoi avec Guteneo. Relisez le bon à tirer et vérifiez le devis avant de valider. Choisissez l’e-mail classique ou chiffré, le fax, ou l’impression et la distribution postale dans toute l’Europe. Retrouvez aussi Guteneo sur le web et dans l’application iOS. Guteneo. La suite de vos mots.",
+        "Avec guteneo, tout commence par un document à transmettre. Préparez un envoi unique, ou organisez toute une campagne de documents. Personnalisez chaque version pour qu’elle corresponde à son destinataire. Importez votre PDF original, ou utilisez un modèle pour créer votre document. Expliquez votre besoin à votre assistant. Il vous aide à préparer votre correspondance. Demandez-lui de créer votre PDF, puis de préparer son envoi. Vérifiez le document, le destinataire, les options et le coût. Puis approuvez dans le navigateur. Votre message peut voyager par fax, par courrier postal ou par e-mail. Vos documents traversent l’Europe pour rejoindre leurs destinataires. guteneo relie votre atelier numérique au courrier qui arrive à destination. Retrouvez vos documents et vos campagnes sur le web ou sur votre iPhone.",
     },
     pricing: {
       title: "De quoi commencer.",
       italic: "Et rien de caché.",
       intro:
-        "Un crédit de bienvenue pour vos premiers envois. Ensuite, vous gardez la main sur votre budget, avant chaque validation.",
+        "Votre organisation reçoit une seule fois 50 € de crédit de bienvenue à l’ouverture de son compte. Le prix ou le plafond de chaque envoi vous est présenté avant validation.",
       welcomeTitle: "Offerts à l’ouverture de votre compte.",
       welcomeBody:
         "Votre organisation reçoit 50 € de crédit de bienvenue une seule fois à la création de son compte. Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
@@ -102,12 +105,12 @@ export const fr = {
       title: "Avant le premier envoi,",
       italic: "quelques réponses.",
       intro:
-        "Le document, votre accord et le suivi : les mêmes repères, quel que soit le canal.",
+        "Avant le premier envoi, vérifiez le document, le destinataire, le canal et le coût dans Guteneo. Retrouvez ensuite le suivi dans votre conversation et votre espace.",
       items: [
         {
           question: "Mon PDF original est-il modifié ?",
           answer:
-            "Votre PDF importé est conservé à l’identique. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
+            "Votre PDF importé est conservé à l’identique. L’import est limité à 10 Mio et 100 pages. Si vous composez une lettre avec votre assistant, un nouveau document est créé. Vous pouvez le relire avant de préparer son envoi.",
         },
         {
           question: "Puis-je partager un PDF protégé par mot de passe ?",
@@ -136,7 +139,7 @@ export const fr = {
       italic: "Les nôtres partent d’ici.",
       cta: "Préparer mon premier envoi",
       imageAlt:
-        "Vue illustrée de Luxembourg : les toits du Grund, les falaises et les ponts de la vieille ville, gravure tramée en bleu et ivoire.",
+        "Toits du Grund, falaises et ponts de Luxembourg, gravure tramée en bleu et ivoire.",
       stampDescription:
         "Timbre Gutenberg et cachet décoratif Luxembourg, premier jour de guteneo :",
       foundingDate: "16 septembre 2026",

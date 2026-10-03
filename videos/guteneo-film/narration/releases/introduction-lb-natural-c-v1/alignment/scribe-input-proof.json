@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "purpose": "One independent Scribe2 upload for all three source blocks; no expected-text prompt",
+  "kind": "introduction",
+  "locale": "lb",
+  "languageCodeISO6393": "ltz",
+  "audioFile": "scribe-input-complete.wav",
+  "audioSha256": "f092e64692e1352acee8e0512a29bb9192ddf30021df0a1862f44030c1a33ba1",
+  "pcmSha256": "bea66d78acfb0abb565da91902a457705c2aa89137570c077e0bba4383936b87",
+  "sampleRate": 44100,
+  "channels": 1,
+  "pcmBits": 24,
+  "samples": 2176776,
+  "durationSeconds": 49.36,
+  "sourceSamplesAllRetained": true,
+  "speedChange": false,
+  "levelChanged": false,
+  "addedSilence": false,
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "sourceAudioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+      "samples": 663264,
+      "startSample": 0,
+      "endSampleExclusive": 663264,
+      "startSeconds": 0,
+      "endSeconds": 15.04,
+      "pcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7"
+    },
+    {
+      "blockId": "bloc-2",
+      "sourceAudioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+      "samples": 934920,
+      "startSample": 663264,
+      "endSampleExclusive": 1598184,
+      "startSeconds": 15.04,
+      "endSeconds": 36.24,
+      "pcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d"
+    },
+    {
+      "blockId": "bloc-3",
+      "sourceAudioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+      "samples": 578592,
+      "startSample": 1598184,
+      "endSampleExclusive": 2176776,
+      "startSeconds": 36.24,
+      "endSeconds": 49.36,
+      "pcmSha256": "04130cd0ceca716cab507e1c593ebb8271df4f08b5e07975cbf248ac4f2793f5"
+    }
+  ],
+  "transcription": "pending",
+  "originalProofSha256": "eec1dd395a7b6589e975be742e788ae7634224e16588abdd80270815a1a61868"
+}

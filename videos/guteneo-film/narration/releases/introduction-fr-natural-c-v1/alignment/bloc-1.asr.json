@@ -1,0 +1,428 @@
+{
+  "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+  "parameters": {
+    "language": "fr",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.6513464160016156,
+  "result": {
+    "text": " Avec Guth Néo, tout commence par un document à transmettre. Préparez un envoi unique ou organisez toute une campagne de documents. Personalisez chaque version pour qu'elle correspond à son destinataire. Importez votre PDF original ou utilisez un modèle pour créer votre document.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.4,
+        "text": " Avec Guth Néo, tout commence par un document à transmettre.",
+        "tokens": [
+          50364,
+          31720,
+          460,
+          2910,
+          426,
+          45805,
+          11,
+          3486,
+          18137,
+          971,
+          517,
+          4166,
+          1531,
+          7715,
+          40681,
+          13,
+          50544
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27240439637066566,
+        "compression_ratio": 1.4393939393939394,
+        "no_speech_prob": 0.0037008337676525116,
+        "words": [
+          {
+            "word": " Avec",
+            "start": 0,
+            "end": 0.28,
+            "probability": 0.87646484375
+          },
+          {
+            "word": " Guth",
+            "start": 0.28,
+            "end": 0.58,
+            "probability": 0.336669921875
+          },
+          {
+            "word": " Néo,",
+            "start": 0.58,
+            "end": 0.98,
+            "probability": 0.7314453125
+          },
+          {
+            "word": " tout",
+            "start": 1.46,
+            "end": 1.56,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " commence",
+            "start": 1.56,
+            "end": 1.9,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " par",
+            "start": 1.9,
+            "end": 2.14,
+            "probability": 0.994140625
+          },
+          {
+            "word": " un",
+            "start": 2.14,
+            "end": 2.28,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " document",
+            "start": 2.28,
+            "end": 2.62,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " à",
+            "start": 2.62,
+            "end": 2.78,
+            "probability": 0.9853515625
+          },
+          {
+            "word": " transmettre.",
+            "start": 2.78,
+            "end": 3.4,
+            "probability": 0.9970703125
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.06,
+        "end": 7.9,
+        "text": " Préparez un envoi unique ou organisez toute une campagne de documents.",
+        "tokens": [
+          50569,
+          2114,
+          16171,
+          39948,
+          517,
+          2267,
+          4869,
+          3845,
+          2820,
+          50110,
+          89,
+          14953,
+          2251,
+          2255,
+          13887,
+          368,
+          8512,
+          13,
+          50774
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27240439637066566,
+        "compression_ratio": 1.4393939393939394,
+        "no_speech_prob": 0.0037008337676525116,
+        "words": [
+          {
+            "word": " Préparez",
+            "start": 4.06,
+            "end": 4.6,
+            "probability": 0.81982421875
+          },
+          {
+            "word": " un",
+            "start": 4.6,
+            "end": 4.74,
+            "probability": 0.92724609375
+          },
+          {
+            "word": " envoi",
+            "start": 4.74,
+            "end": 5.02,
+            "probability": 0.6611328125
+          },
+          {
+            "word": " unique",
+            "start": 5.02,
+            "end": 5.42,
+            "probability": 0.96044921875
+          },
+          {
+            "word": " ou",
+            "start": 5.42,
+            "end": 5.94,
+            "probability": 0.630859375
+          },
+          {
+            "word": " organisez",
+            "start": 5.94,
+            "end": 6.66,
+            "probability": 0.91015625
+          },
+          {
+            "word": " toute",
+            "start": 6.66,
+            "end": 6.82,
+            "probability": 0.9580078125
+          },
+          {
+            "word": " une",
+            "start": 6.82,
+            "end": 7.04,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " campagne",
+            "start": 7.04,
+            "end": 7.42,
+            "probability": 0.9990234375
+          },
+          {
+            "word": " de",
+            "start": 7.42,
+            "end": 7.54,
+            "probability": 0.99072265625
+          },
+          {
+            "word": " documents.",
+            "start": 7.54,
+            "end": 7.9,
+            "probability": 0.90771484375
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.46,
+        "end": 11.8,
+        "text": " Personalisez chaque version pour qu'elle correspond à son destinataire.",
+        "tokens": [
+          50774,
+          25317,
+          908,
+          89,
+          18920,
+          3037,
+          2016,
+          421,
+          6,
+          4434,
+          6805,
+          1531,
+          1872,
+          40254,
+          3274,
+          621,
+          13,
+          50959
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27240439637066566,
+        "compression_ratio": 1.4393939393939394,
+        "no_speech_prob": 0.0037008337676525116,
+        "words": [
+          {
+            "word": " Personalisez",
+            "start": 8.46,
+            "end": 9.06,
+            "probability": 0.84326171875
+          },
+          {
+            "word": " chaque",
+            "start": 9.06,
+            "end": 9.26,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " version",
+            "start": 9.26,
+            "end": 9.74,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " pour",
+            "start": 9.74,
+            "end": 10,
+            "probability": 0.98828125
+          },
+          {
+            "word": " qu",
+            "start": 10,
+            "end": 10.14,
+            "probability": 0.935546875
+          },
+          {
+            "word": "'elle",
+            "start": 10.14,
+            "end": 10.22,
+            "probability": 0.8828125
+          },
+          {
+            "word": " correspond",
+            "start": 10.22,
+            "end": 10.64,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " à",
+            "start": 10.64,
+            "end": 10.84,
+            "probability": 0.70703125
+          },
+          {
+            "word": " son",
+            "start": 10.84,
+            "end": 10.96,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " destinataire.",
+            "start": 10.96,
+            "end": 11.8,
+            "probability": 0.9736328125
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 12.1,
+        "end": 16.54,
+        "text": " Importez votre PDF original ou utilisez un modèle pour créer votre document.",
+        "tokens": [
+          50959,
+          8270,
+          12752,
+          89,
+          10087,
+          17752,
+          3380,
+          2820,
+          39475,
+          89,
+          517,
+          45631,
+          2016,
+          32062,
+          10087,
+          4166,
+          13,
+          51204
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27240439637066566,
+        "compression_ratio": 1.4393939393939394,
+        "no_speech_prob": 0.0037008337676525116,
+        "words": [
+          {
+            "word": " Importez",
+            "start": 12.1,
+            "end": 12.6,
+            "probability": 0.73193359375
+          },
+          {
+            "word": " votre",
+            "start": 12.6,
+            "end": 12.7,
+            "probability": 0.99609375
+          },
+          {
+            "word": " PDF",
+            "start": 12.7,
+            "end": 13.18,
+            "probability": 0.81982421875
+          },
+          {
+            "word": " original",
+            "start": 13.18,
+            "end": 13.72,
+            "probability": 0.81494140625
+          },
+          {
+            "word": " ou",
+            "start": 13.72,
+            "end": 14.34,
+            "probability": 0.8134765625
+          },
+          {
+            "word": " utilisez",
+            "start": 14.34,
+            "end": 14.98,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " un",
+            "start": 14.98,
+            "end": 15.06,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " modèle",
+            "start": 15.06,
+            "end": 15.36,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " pour",
+            "start": 15.36,
+            "end": 15.64,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " créer",
+            "start": 15.64,
+            "end": 15.9,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " votre",
+            "start": 15.9,
+            "end": 16.12,
+            "probability": 0.98486328125
+          },
+          {
+            "word": " document.",
+            "start": 16.12,
+            "end": 16.54,
+            "probability": 0.994140625
+          }
+        ]
+      }
+    ],
+    "language": "fr"
+  },
+  "originalProofSha256": "f56274ed4eee1ed799a9ea929e338ecd4c062258cf1527b905832cc88030ffeb"
+}

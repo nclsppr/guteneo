@@ -36,6 +36,8 @@ export interface Env {
   AWS_REGION?: string;
   EMAIL_PROVIDER?: "ses" | "resend";
   RESEND_API_KEY?: string;
+  INVITATION_EMAILS_ENABLED?: string;
+  INVITATION_EMAIL_FROM?: string;
   PROTECTED_DOCUMENTS_KEY?: string;
   RESEND_WEBHOOK_SECRET?: string;
   RESEND_ACCOUNT_ID?: string;
@@ -58,6 +60,9 @@ export interface Env {
   SES_SANDBOX?: string;
   PINGEN_SANDBOX?: string;
   PINGEN_UPLOAD_ORIGINS?: string;
+  /** Explicit organization opt-in and a bounded daily budget are also required. */
+  DATASET_OPENAI_API_KEY?: string;
+  DATASET_OPENAI_MODEL?: string;
 }
 /** Runtime safety applies to callbacks and scheduled reconciliation too. */
 export function assertBaseConfiguration(env: Env, request?: Request): void {

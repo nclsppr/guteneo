@@ -373,3 +373,106 @@ test("scanner qualification configuration has no document or public binding", as
   assert.equal(config.observability.enabled, false);
   assert.deepEqual(config.dev, { ip: "127.0.0.1", port: 8799 });
 });
+
+test("private source scanner forwards exact CSV/ZIP/JSON bytes with a separate media and size gate", async () => {
+  for (const data of [
+    new TextEncoder().encode("nom;ville\nExemple;Paris"),
+    new Uint8Array([80, 75, 3, 4, 0, 1]),
+    new TextEncoder().encode('{"synthetic":true}'),
+  ]) {
+    let calls = 0;
+    const expected = createHash("sha256").update(data).digest("hex");
+    const env = {
+      SCANNER_CONTAINER: {
+        getByName() {
+          return {
+            async fetch(request) {
+              calls++;
+              assert.equal(new URL(request.url).pathname, "/scan-source");
+              assert.equal(
+                request.headers.get("Content-Type"),
+                "application/octet-stream",
+              );
+              assert.deepEqual(
+                new Uint8Array(await request.arrayBuffer()),
+                data,
+              );
+              return Response.json({
+                sha256: expected,
+                verdict: "clean",
+                engine: { name: "ClamAV" },
+              });
+            },
+          };
+        },
+      },
+    };
+    const request = () =>
+      new Request("https://scanner.internal/scan-source", {
+        method: "POST",
+        headers: { "Content-Type": "application/octet-stream" },
+        body: data,
+      });
+    const response = await handleRequest(request(), env);
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).sha256, expected);
+    assert.equal(calls, 1);
+    assert.equal(
+      (
+        await handleRequest(
+          new Request("https://scanner.internal/scan", request()),
+          env,
+        )
+      ).status,
+      415,
+    );
+    assert.equal(calls, 1);
+  }
+});
+
+test("source-specific bounds reject before invoking private compute and do not accept wrong hashes", async () => {
+  let calls = 0;
+  const env = {
+    SCANNER_CONTAINER: {
+      getByName() {
+        return {
+          async fetch() {
+            calls++;
+            return Response.json({ sha256: "wrong", verdict: "clean" });
+          },
+        };
+      },
+    },
+  };
+  const request = (body, headers = {}) =>
+    new Request("https://scanner.internal/scan-source", {
+      method: "POST",
+      headers: { "Content-Type": "application/octet-stream", ...headers },
+      body,
+    });
+  assert.equal(
+    (
+      await handleRequest(
+        request(input, { "Content-Length": String(5 * 1024 * 1024 + 1) }),
+        env,
+      )
+    ).status,
+    413,
+  );
+  assert.equal(
+    (await handleRequest(request(new Uint8Array(5 * 1024 * 1024 + 1)), env))
+      .status,
+    413,
+  );
+  assert.equal(
+    (
+      await handleRequest(
+        request(input, { "Content-Type": "application/pdf" }),
+        env,
+      )
+    ).status,
+    415,
+  );
+  assert.equal(calls, 0);
+  assert.equal((await handleRequest(request(input), env)).status, 503);
+});

@@ -1,3 +1,4 @@
+import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import { z } from "zod";
 import {
   supportedLocales,
@@ -78,6 +79,8 @@ type NativeSession = {
     id: string;
     name: string;
     role: ActorContext["role"];
+    supervisorCanApprove?: boolean;
+    supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
   };
   simulation: boolean;
@@ -91,6 +94,8 @@ type SessionRow = {
   user_name: string;
   preferred_locale: string | null;
   role: ActorContext["role"];
+  supervisor_can_approve: number;
+  supervisor_can_report: number;
   mode: string;
   expires_at: string;
   is_development: number;
@@ -112,6 +117,10 @@ function publicSession(session: NativeSession) {
   return {
     organization: session.organization,
     user: session.user,
+    permissions: workspacePermissions(session.context.role, {
+      canApprove: session.context.supervisorCanApprove,
+      canReport: session.context.supervisorCanReport,
+    }),
     simulation: session.simulation,
     verifiedAccount: session.verifiedAccount,
     mfa: session.mfa,
@@ -145,7 +154,7 @@ export async function authenticateNative(
   const timestamp = now();
   const row = await env.DB.prepare(
     `SELECT s.organization_id,s.user_id,s.expires_at,
-    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,m.role,b.is_development,b.verified_account,b.mfa
+    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,m.role,m.supervisor_can_approve,m.supervisor_can_report,b.is_development,b.verified_account,b.mfa
     FROM native_sessions s JOIN browser_sessions b ON b.token_hash=s.browser_session_hash
     AND b.organization_id=s.organization_id AND b.user_id=s.user_id
     JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
@@ -190,6 +199,8 @@ export async function authenticateNative(
       organizationId: row.organization_id,
       userId: row.user_id,
       role: row.role,
+      supervisorCanApprove: row.supervisor_can_approve === 1,
+      supervisorCanReport: row.supervisor_can_report === 1,
       actor: "native",
     },
     tokenHash,
@@ -199,6 +210,8 @@ export async function authenticateNative(
       id: row.user_id,
       name: row.user_name,
       role: row.role,
+      supervisorCanApprove: row.supervisor_can_approve === 1,
+      supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: normalizeLocale(row.preferred_locale),
     },
     simulation: env.MODE === "simulation",

@@ -1,0 +1,836 @@
+{
+  "schemaVersion": 1,
+  "localSnapshotOnly": true,
+  "locales": [
+    "fr",
+    "en"
+  ],
+  "narrations": 4,
+  "clipCount": 34,
+  "audioBytes": 2427600,
+  "modelId": "eleven_v4",
+  "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+  "voiceSettings": {
+    "stability": 0.5,
+    "similarity_boost": 0.75
+  },
+  "webGeneration": 2,
+  "manifestSha256": "3c34036916f47b674644b8d5d4dbd307b786de86b9065c70958bb69665478a85",
+  "voicesSha256": "21c073e22d39ac1c90e47f3556b7464880d2506d319c9acd0fed613624398572",
+  "generationSha256": "f16514a7fc01526a7d64ca7182829f0e43a708f46209dda6eb1308c9ac2c9f28",
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "clips": [
+    {
+      "key": "introduction-fr/one",
+      "path": "clips/introduction-fr/one.mp3",
+      "sha256": "b13a751e706379440400b48f3d45b31d9e792e5a0c927f2175cf55b7feeb294d",
+      "bytes": 45487,
+      "durationSeconds": 1.802438,
+      "decodedSamples": 79488,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 1.8024489795918368,
+      "qualificationDurationSeconds": 1.8024489795918368,
+      "windowSeconds": 2.4,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "094dc55198580c4a28571d8298b21ca83f0716dc285bcb4b691b8b4be4b124ce",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/scale",
+      "path": "clips/introduction-fr/scale.mp3",
+      "sha256": "f6ee8594fdcbb96d9e9afae57003df6b46de0005c2841a701c1920078b3759a7",
+      "bytes": 53010,
+      "durationSeconds": 2.272625,
+      "decodedSamples": 100224,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.27265306122449,
+      "qualificationDurationSeconds": 2.27265306122449,
+      "windowSeconds": 2.5999999999999996,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "450872ba0f5d4e7c17e67e4cd6621ced2040b93f4390f8324da3e9f03192394e",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/personal",
+      "path": "clips/introduction-fr/personal.mp3",
+      "sha256": "ec09da3db50b7dd5383790bbf1174751a3400201fd3052bef61c53345cd6d8e4",
+      "bytes": 65967,
+      "durationSeconds": 3.082438,
+      "decodedSamples": 135936,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.082448979591837,
+      "qualificationDurationSeconds": 3.082448979591837,
+      "windowSeconds": 3.500000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "32e6e46289e6b244960d1fd967e3d1ca3ac67f9cc7f429b497429c3c6bd71ede",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/sources",
+      "path": "clips/introduction-fr/sources.mp3",
+      "sha256": "ccaeadb561630da198807530f0bbdc10fe017743dd10082cbd8ed8e6a282c8b0",
+      "bytes": 60647,
+      "durationSeconds": 3.718685,
+      "decodedSamples": 163994,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.7186848072562357,
+      "qualificationDurationSeconds": 3.718685,
+      "windowSeconds": 3.7200000000000006,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "2b8aa77e73e125e3cffdee85cabd7bb9bff816f66cbf1ce4281ac08651ca402d",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "d8192857369d5409b1dfa8fb59456b9bb370b403fef6486a86d01ef2f26c88b8",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.08554159183673421,
+        "appliedTempo": 1.069560947886594,
+        "sourceDurationSeconds": 4.048938,
+        "sourceDecodedDurationSeconds": 4.048979591836734,
+        "outputDecodedDurationSeconds": 3.7186848072562357,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "introduction-fr/assistants",
+      "path": "clips/introduction-fr/assistants.mp3",
+      "sha256": "8648520ee9f512611a23a1d8595c9a4b59d267b334e14beb34118859bc3a612c",
+      "bytes": 63459,
+      "durationSeconds": 2.925688,
+      "decodedSamples": 129024,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.9257142857142857,
+      "qualificationDurationSeconds": 2.9257142857142857,
+      "windowSeconds": 3.5,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "87719e4c15c441820f29fb4f4f55d89f9746844af025218a7658650b6030ab2f",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/generate",
+      "path": "clips/introduction-fr/generate.mp3",
+      "sha256": "ffb22588518c53814376e95c2ff80b7ea6b4104631d5aa26eccd1f421b650f9e",
+      "bytes": 82685,
+      "durationSeconds": 4.127313,
+      "decodedSamples": 182016,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 4.12734693877551,
+      "qualificationDurationSeconds": 4.12734693877551,
+      "windowSeconds": 4.300000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "bf00d853105f28ccbb08b8b4aed88fde23630e5ca1d624eb062b4abe1d14259d",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/review",
+      "path": "clips/introduction-fr/review.mp3",
+      "sha256": "dc94f4620fe13fddd8588a5e6d0ac217715a7e1e0c1ac1c97aa35a9849dc0500",
+      "bytes": 86978,
+      "durationSeconds": 5.377574,
+      "decodedSamples": 237151,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.377573696145125,
+      "qualificationDurationSeconds": 5.377574,
+      "windowSeconds": 5.399999999999999,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "f94ad4c155d7810a4d1fdd19c4545fe7d2df65ce4f1bf95aac47c6db68753d78",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "6563e564b3c60058273ccd48f4c3573f029a93c106fe431ebe3df30bc865b7f8",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.0903946734693884,
+        "appliedTempo": 1.061325478582225,
+        "sourceDurationSeconds": 5.799125,
+        "sourceDecodedDurationSeconds": 5.799183673469388,
+        "outputDecodedDurationSeconds": 5.377573696145125,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "introduction-fr/channels",
+      "path": "clips/introduction-fr/channels.mp3",
+      "sha256": "43daf621f106638fd5089eb8720d31b724a99c628d38420065dde254f047b6a5",
+      "bytes": 98985,
+      "durationSeconds": 5.146063,
+      "decodedSamples": 226944,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.146122448979592,
+      "qualificationDurationSeconds": 5.146122448979592,
+      "windowSeconds": 5.400000000000002,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "c5912dcd0c7be8e8e6e9c280ddc590a791922e3f3ece44b6ac2b913cae30eff9",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/europe",
+      "path": "clips/introduction-fr/europe.mp3",
+      "sha256": "690d633724a7d92345f789b6457a6e14602935586e38f6679b21ba660b9158be",
+      "bytes": 63459,
+      "durationSeconds": 2.925688,
+      "decodedSamples": 129024,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.9257142857142857,
+      "qualificationDurationSeconds": 2.9257142857142857,
+      "windowSeconds": 4.400000000000006,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "ed022ecbf86e2f22524ebe7d23e49cd54c47ce5a8ff3b3cccc33fae5a33e3272",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/physical",
+      "path": "clips/introduction-fr/physical.mp3",
+      "sha256": "2954f03852f05ada3a373efcc147b814199f95f39b0ad3074d6c5c4e9c897758",
+      "bytes": 58025,
+      "durationSeconds": 2.586063,
+      "decodedSamples": 114048,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.5861224489795918,
+      "qualificationDurationSeconds": 2.5861224489795918,
+      "windowSeconds": 3.4000000000000057,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "93820de8f581ec04e9bbc3aa136895d1a52df14e8ba0e66a670147c0ad594e52",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-fr/access",
+      "path": "clips/introduction-fr/access.mp3",
+      "sha256": "df504e8d8235491bdd1cdca0e182bf38ff4649da8a9371c445750be7d395099f",
+      "bytes": 55518,
+      "durationSeconds": 2.429375,
+      "decodedSamples": 107136,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.4293877551020406,
+      "qualificationDurationSeconds": 2.4293877551020406,
+      "windowSeconds": 4.400000000000006,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "8765c474b859dbae46020d39cafb3a108c45e2008dff6b9eee456ed3b1f98d90",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/one",
+      "path": "clips/introduction-en/one.mp3",
+      "sha256": "f4dd87089635d24ea073a76f5c0f1f68a1a44e17bfd8d65a1cc5657d2ec5db16",
+      "bytes": 41725,
+      "durationSeconds": 1.567313,
+      "decodedSamples": 69120,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 1.5673469387755101,
+      "qualificationDurationSeconds": 1.5673469387755101,
+      "windowSeconds": 2.4,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "02a874ca462328fe462f5e72111f4f5ff58cf5d4a37f667139d4d61d5450db79",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/scale",
+      "path": "clips/introduction-en/scale.mp3",
+      "sha256": "a82bfd8aeb52d070ec3b33097d45146ab2897ca72f515d6c5defe5eb7bee25d1",
+      "bytes": 44346,
+      "durationSeconds": 2.691927,
+      "decodedSamples": 118714,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.6919274376417235,
+      "qualificationDurationSeconds": 2.6919274376417235,
+      "windowSeconds": 2.6999999999999997,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "b01a6caeee9b7d8d8b0df98da091596d0557be1804075b2f54eaa9fe2b71f7cc",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "286c3257ed10fdfdc422b655d5070902162eba9787f9eb61694f8e10e7db5892",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0,
+        "appliedTempo": 1.0839993648441222,
+        "sourceDurationSeconds": 2.925688,
+        "sourceDecodedDurationSeconds": 2.9257142857142857,
+        "outputDecodedDurationSeconds": 2.6919274376417235,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "introduction-en/personal",
+      "path": "clips/introduction-en/personal.mp3",
+      "sha256": "f215fb57efe6c3757cea248be920bcd852379e709218965e709c7d708f72b5ab",
+      "bytes": 56049,
+      "durationSeconds": 3.443016,
+      "decodedSamples": 151837,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.443015873015873,
+      "qualificationDurationSeconds": 3.443016,
+      "windowSeconds": 3.500000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "4dfbf29b26fe85184246567913156e6238efd01f4ae55f0e40a9be5dc35f5414",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "ca5e7a45446d2da6274d8ad9ff7f6ba80254ca033c67de563320a85870ff176c",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.10964606122448989,
+        "appliedTempo": 1,
+        "sourceDurationSeconds": 3.552625,
+        "sourceDecodedDurationSeconds": 3.5526530612244898,
+        "outputDecodedDurationSeconds": 3.443015873015873,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "introduction-en/sources",
+      "path": "clips/introduction-en/sources.mp3",
+      "sha256": "86129be2510a9a4af2a2f7cf8187fb14ef4808dd0a162846c7f98fd90ad5bf67",
+      "bytes": 69728,
+      "durationSeconds": 3.3175,
+      "decodedSamples": 146304,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.317551020408163,
+      "qualificationDurationSeconds": 3.317551020408163,
+      "windowSeconds": 3.5,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "b8b79ea88542f997b31a42d932da7045d399113e5f44701ae25716cf3aa40cbd",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/assistants",
+      "path": "clips/introduction-en/assistants.mp3",
+      "sha256": "adfa7067e29686c14563be262f245dbbcc3f05f3600776fd08608bdab07120cb",
+      "bytes": 58025,
+      "durationSeconds": 2.586063,
+      "decodedSamples": 114048,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.5861224489795918,
+      "qualificationDurationSeconds": 2.5861224489795918,
+      "windowSeconds": 3.5,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "d07b5cd229ee2cfe0f57a95e6b1656c1f7968bb45d3f7ba041a2b8aaa0a87d91",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/generate",
+      "path": "clips/introduction-en/generate.mp3",
+      "sha256": "a5d9bcb4d824fccf7175dbf0719fd6c270680e207ca986957f03a2e506342fa0",
+      "bytes": 83939,
+      "durationSeconds": 4.205688,
+      "decodedSamples": 185472,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 4.2057142857142855,
+      "qualificationDurationSeconds": 4.2057142857142855,
+      "windowSeconds": 4.300000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "04a0dd3a2d8def365928eb59510b4b28701a35d907dba72090f93f5180907b61",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/review",
+      "path": "clips/introduction-en/review.mp3",
+      "sha256": "98931f8891a1b48654e47433a584efd49898dc01833d425427d485629184c715",
+      "bytes": 87396,
+      "durationSeconds": 5.390794,
+      "decodedSamples": 237734,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.3907936507936505,
+      "qualificationDurationSeconds": 5.390794,
+      "windowSeconds": 5.399999999999999,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "25f837aa517348d386df768b0d69d36913b8b892c6674365ee39c43d0336c970",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "b8235fd5963a3de43ed7ad20e0cc9b5ec70afcad73e7072c8303d58f178cd16e",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.16551967346938828,
+        "appliedTempo": 1.0469275020201574,
+        "sourceDurationSeconds": 5.799125,
+        "sourceDecodedDurationSeconds": 5.799183673469388,
+        "outputDecodedDurationSeconds": 5.3907936507936505,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "introduction-en/channels",
+      "path": "clips/introduction-en/channels.mp3",
+      "sha256": "a15b5b7924e4e3fd701a5e20a597bb486b62bc88fc7e857426b2598302075876",
+      "bytes": 83939,
+      "durationSeconds": 4.205688,
+      "decodedSamples": 185472,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 4.2057142857142855,
+      "qualificationDurationSeconds": 4.2057142857142855,
+      "windowSeconds": 5.400000000000002,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "31c6ca56b393f7e330903fb6a7bded485145f4430f5ac73aa69c38c49b219373",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/europe",
+      "path": "clips/introduction-en/europe.mp3",
+      "sha256": "0b2820147ee6ef52771eb43b9d86aa9dab3f1b0b571d3bbca38acce11a590cdb",
+      "bytes": 72236,
+      "durationSeconds": 3.47425,
+      "decodedSamples": 153216,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.474285714285714,
+      "qualificationDurationSeconds": 3.474285714285714,
+      "windowSeconds": 4.400000000000006,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "4b2a28720dbb087551fe9f2cd24d35a35e257fd48c04e62e2608c86fb3481f5b",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/physical",
+      "path": "clips/introduction-en/physical.mp3",
+      "sha256": "ddb663a31e9ba9b7ae4785b84fc9dc381921a1a1b69bf7285f02d5441bb4191a",
+      "bytes": 51756,
+      "durationSeconds": 2.19425,
+      "decodedSamples": 96768,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.1942857142857144,
+      "qualificationDurationSeconds": 2.1942857142857144,
+      "windowSeconds": 3.4000000000000057,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "584bef72fd704d2da65e21b4cc108984944f00f1ed7e354d40d2eeefc9af5ff7",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "introduction-en/access",
+      "path": "clips/introduction-en/access.mp3",
+      "sha256": "93ac1511d5dd8b1d95b16baa840c3882df581a103d1a7bfdab19eed9f7d746e8",
+      "bytes": 68474,
+      "durationSeconds": 3.239125,
+      "decodedSamples": 142848,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.239183673469388,
+      "qualificationDurationSeconds": 3.239183673469388,
+      "windowSeconds": 4.400000000000006,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "47887e054370a98be37bf7d97b7151a8af53891f352da324e6b00880a84582de",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-fr/intro",
+      "path": "clips/roles-fr/intro.mp3",
+      "sha256": "337f4244302025d095afa8ec153057561111dbd516344c9f6fe091e9b83984d2",
+      "bytes": 53010,
+      "durationSeconds": 2.272625,
+      "decodedSamples": 100224,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.27265306122449,
+      "qualificationDurationSeconds": 2.27265306122449,
+      "windowSeconds": 2.4,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "440e57eb95b61304d39832b34c1ee6341195dc8e70426dd17e6d217c30e4ee6b",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-fr/administrator",
+      "path": "clips/roles-fr/administrator.mp3",
+      "sha256": "f46c3b0fb831c020b6f8f53868f3996c74c5f0a1b1086bee43d324289ca3d1bf",
+      "bytes": 96478,
+      "durationSeconds": 4.989375,
+      "decodedSamples": 220032,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 4.989387755102041,
+      "qualificationDurationSeconds": 4.989387755102041,
+      "windowSeconds": 5.6000000000000005,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "1179226ba1e6b7e62011457403e246b7ec3d9706095649f7c159a9891b85c148",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-fr/supervisor",
+      "path": "clips/roles-fr/supervisor.mp3",
+      "sha256": "0fcf702fcc1ccc663a07fe7bb363ed7feb28dde34ebdf2d4998058656d281e29",
+      "bytes": 90322,
+      "durationSeconds": 5.588209,
+      "decodedSamples": 246440,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.5882086167800455,
+      "qualificationDurationSeconds": 5.588209,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "d2fcea6741bf0ddd6fce45f16e00b15407e0d5820596cef99c16767df613970c",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "8c28d2e88166e0e67d9f9d752bac98a36e7c091e6091f0411b61f9ab808378e0",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.10338740816326536,
+        "appliedTempo": 1.09056336823689,
+        "sourceDurationSeconds": 6.191,
+        "sourceDecodedDurationSeconds": 6.191020408163265,
+        "outputDecodedDurationSeconds": 5.5882086167800455,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "roles-fr/operator",
+      "path": "clips/roles-fr/operator.mp3",
+      "sha256": "02af60417ea10da7476037042358305cd136faf35896bc88a5a7b48a0ac0f80a",
+      "bytes": 87701,
+      "durationSeconds": 4.440813,
+      "decodedSamples": 195840,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 4.440816326530612,
+      "qualificationDurationSeconds": 4.440816326530612,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "87c6f81ace05ca3c1b9150bfeb380f321653a88fa170b4f2c392b2a8e229901d",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-fr/observer",
+      "path": "clips/roles-fr/observer.mp3",
+      "sha256": "5fe9e0a14276a5cfa01a946dcca30e03a5d77324335fc7f02a4e2e0bc5396cdd",
+      "bytes": 90740,
+      "durationSeconds": 5.593492,
+      "decodedSamples": 246673,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.5934920634920635,
+      "qualificationDurationSeconds": 5.5934920634920635,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "ec1f049f227afcdf3cde64af53e668d18c53c7c2c898d4d5f5d358758dc56fd6",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "0d75231cb17629ab221e4d0da4cb7a5b6ae2acca695d2ffa470bd3b50a7f6e0a",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.11343302040816355,
+        "appliedTempo": 1.0318525793474203,
+        "sourceDurationSeconds": 5.8775,
+        "sourceDecodedDurationSeconds": 5.877551020408164,
+        "outputDecodedDurationSeconds": 5.5934920634920635,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "roles-fr/review",
+      "path": "clips/roles-fr/review.mp3",
+      "sha256": "a9b138a2bfb7260f7d3043c4619efcc6c1a1072193f6bef403a3b6322c8ac018",
+      "bytes": 72236,
+      "durationSeconds": 3.47425,
+      "decodedSamples": 153216,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.474285714285714,
+      "qualificationDurationSeconds": 3.474285714285714,
+      "windowSeconds": 3.6000000000000014,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "6aec06a4243bc519d23dcb551e845c089c1d82383c1e41d796722fbc150284f4",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-en/intro",
+      "path": "clips/roles-en/intro.mp3",
+      "sha256": "fc31e197ef5f66254a1ba45c4d95a479c57b0486f77d3db078c7860b56ea600d",
+      "bytes": 41003,
+      "durationSeconds": 2.497664,
+      "decodedSamples": 110147,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 2.4976643990929706,
+      "qualificationDurationSeconds": 2.4976643990929706,
+      "windowSeconds": 2.5,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "5e469251f55e8f5e3a99c276e7156d444ed5129b8fa8e283d84d2ae2d3cffe70",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "12c233d428179f0f7b06f09105722ca6d7962644027aee5e7ae04b800fd125ee",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.09041759183673453,
+        "appliedTempo": 1.071857314354313,
+        "sourceDurationSeconds": 2.768938,
+        "sourceDecodedDurationSeconds": 2.7689795918367346,
+        "outputDecodedDurationSeconds": 2.4976643990929706,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "roles-en/administrator",
+      "path": "clips/roles-en/administrator.mp3",
+      "sha256": "113da836eb701fdee7e77a9d42b9f39820f13f9c72afd374dc213e1e7ceb52b4",
+      "bytes": 103165,
+      "durationSeconds": 5.407313,
+      "decodedSamples": 238464,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.40734693877551,
+      "qualificationDurationSeconds": 5.40734693877551,
+      "windowSeconds": 5.6000000000000005,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "1eb0cca7adb5e9fab4587fe52f05e14e2a7694cc71c69499e888d25571b33d3e",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-en/supervisor",
+      "path": "clips/roles-en/supervisor.mp3",
+      "sha256": "75ce609b73c439f8264208412a6fd51c5629dd5acd9bd8d73309098ba6d40aee",
+      "bytes": 90740,
+      "durationSeconds": 5.59712,
+      "decodedSamples": 246833,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.597120181405896,
+      "qualificationDurationSeconds": 5.597120181405896,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "dd2190f647c0ecb1a4dd9863598ce9cbb0f9aa5332472a129fec0def8975df1a",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "385b5052e001fb21a4c295b6c6be86d738250cb248eb6e8645ad2918701202a6",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.1108934081632647,
+        "appliedTempo": 1.087932497664184,
+        "sourceDurationSeconds": 6.191,
+        "sourceDecodedDurationSeconds": 6.191020408163265,
+        "outputDecodedDurationSeconds": 5.597120181405896,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "roles-en/operator",
+      "path": "clips/roles-en/operator.mp3",
+      "sha256": "dde72e4f621474f7b14c4cbeebcb2e861c3083a694b06bb97b669c6112544e0b",
+      "bytes": 101911,
+      "durationSeconds": 5.328938,
+      "decodedSamples": 235008,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.328979591836735,
+      "qualificationDurationSeconds": 5.328979591836735,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "581ed33890c2617db8e28c8a620d304146dd8553f65fac8b09a72dae51a8c3da",
+      "localProcessing": {
+        "operation": "no-local-fit-recorded",
+        "criticalListening": "pending"
+      }
+    },
+    {
+      "key": "roles-en/observer",
+      "path": "clips/roles-en/observer.mp3",
+      "sha256": "4b3c33997a45d36096066a38f55ad14f0f6df4980ff7a8eb39b6aecd8259c197",
+      "bytes": 90740,
+      "durationSeconds": 5.597347,
+      "decodedSamples": 246843,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 5.597346938775511,
+      "qualificationDurationSeconds": 5.597347,
+      "windowSeconds": 5.600000000000001,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "8f9a838d8fb10772ecf6524ac9df293378b66c9e7bc5c2b7f8c706fbb3b50add",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "ca9e71397d851442c54291323077ec532051167c0b837d585865c4d7b91f920e",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.11397767346938786,
+        "appliedTempo": 1.0153983603324044,
+        "sourceDurationSeconds": 5.799125,
+        "sourceDecodedDurationSeconds": 5.799183673469388,
+        "outputDecodedDurationSeconds": 5.597346938775511,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    },
+    {
+      "key": "roles-en/review",
+      "path": "clips/roles-en/review.mp3",
+      "sha256": "49b276b5622d7e60d7cedb26fcdbf9841f855e00837baf6abeb565fc433eb8f3",
+      "bytes": 57721,
+      "durationSeconds": 3.53746,
+      "decodedSamples": 156002,
+      "sampleRate": 44100,
+      "decodedDurationSeconds": 3.5374603174603174,
+      "qualificationDurationSeconds": 3.5374603174603174,
+      "windowSeconds": 3.6000000000000014,
+      "timingFit": true,
+      "fullDecode": true,
+      "fingerprint": "693c4af8109b0fb145b13119745bf00d226437af9367af8bf4a7eb8a75e4403a",
+      "localProcessing": {
+        "operation": "local-edge-fit",
+        "sourceAudioSha256": "48d0fe0c489cce4700c656a0318323cd3797f938a9684c32991e5c8779553bf4",
+        "sourceWebGeneration": 2,
+        "trimStartSeconds": 0,
+        "trimEndSeconds": 0.09356940816326526,
+        "appliedTempo": 1,
+        "sourceDurationSeconds": 3.631,
+        "sourceDecodedDurationSeconds": 3.6310204081632653,
+        "outputDecodedDurationSeconds": 3.5374603174603174,
+        "policy": {
+          "thresholdDb": -45,
+          "minimumSilenceSeconds": 0.06,
+          "edgeMarginSeconds": 0.06,
+          "maxTempo": 1.1
+        },
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false
+      }
+    }
+  ]
+}

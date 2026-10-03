@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "introduction-en-natural-c",
+      "kind": "introduction",
+      "locale": "en",
+      "durationSeconds": 65.8,
+      "endCardStartSeconds": 60.8,
+      "cues": [
+        {
+          "id": "one",
+          "startSeconds": 0.4,
+          "endSeconds": 4.166666666666667,
+          "text": "With guteneo, everything starts with a document to send."
+        },
+        {
+          "id": "scale",
+          "startSeconds": 5.066666666666666,
+          "endSeconds": 9.533333333333333,
+          "text": "Prepare a single delivery, or organise a whole campaign of documents."
+        },
+        {
+          "id": "personal",
+          "startSeconds": 10.433333333333334,
+          "endSeconds": 15.4,
+          "text": "Personalise each version, so every recipient receives a document written for them."
+        },
+        {
+          "id": "sources",
+          "startSeconds": 16.3,
+          "endSeconds": 20.766666666666666,
+          "text": "Upload your original PDF, or use a template to create your document."
+        },
+        {
+          "id": "assistants",
+          "startSeconds": 21.666666666666668,
+          "endSeconds": 25.9,
+          "text": "Tell your assistant what you need. It helps you prepare your correspondence."
+        },
+        {
+          "id": "generate",
+          "startSeconds": 26.8,
+          "endSeconds": 30.9,
+          "text": "Ask it to create your PDF, then prepare its delivery."
+        },
+        {
+          "id": "review",
+          "startSeconds": 31.8,
+          "endSeconds": 37,
+          "text": "Check the document, recipient, options and cost. Then approve in the browser."
+        },
+        {
+          "id": "channels",
+          "startSeconds": 37.9,
+          "endSeconds": 43,
+          "text": "Your message can travel by fax, by post, or by email."
+        },
+        {
+          "id": "europe",
+          "startSeconds": 43.9,
+          "endSeconds": 48,
+          "text": "Your documents travel across Europe to reach their recipients."
+        },
+        {
+          "id": "physical",
+          "startSeconds": 48.9,
+          "endSeconds": 53.3,
+          "text": "guteneo takes your correspondence from your screen to their letterbox."
+        },
+        {
+          "id": "access",
+          "startSeconds": 54.2,
+          "endSeconds": 58.3,
+          "text": "Find your documents and campaigns on the web or on your iPhone."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "linuxFfmpeg": "6.1.1-3ubuntu5",
+  "macFfmpeg": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "blocks": [
+    {
+      "block": "bloc-1",
+      "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+      "macSamples": 430416,
+      "linuxSamples": 430416,
+      "macPcmSha256": "4a1b1b0b9cd7e843fca1559ca2835d71ad7d9693103d76b65deb7f80f427c5bc",
+      "linuxPcmSha256": "8a360e523214ba6bcad49bc3a1c280081dafe22a37febff8fb3e5308a64533c4",
+      "differentSamples": 12837,
+      "minimumSignedDelta": -3,
+      "maximumSignedDelta": 2,
+      "maximumAbsoluteDelta": 3,
+      "histogramAbsoluteDelta": {
+        "0": 417579,
+        "1": 12799,
+        "2": 34,
+        "3": 4
+      },
+      "histogramSignedDelta": {
+        "-3": 4,
+        "-2": 17,
+        "-1": 6327,
+        "0": 417579,
+        "1": 6472,
+        "2": 17
+      }
+    },
+    {
+      "block": "bloc-2",
+      "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+      "macSamples": 515088,
+      "linuxSamples": 515088,
+      "macPcmSha256": "ca5efe75b55aeb458498ce55a0c93fbf3daabf32b25fe03f8ec35e4533aaf7c0",
+      "linuxPcmSha256": "34f15d88f12b425ee777c809ae49ec28e1030fbd8c2d0333d4187352ef29110a",
+      "differentSamples": 15877,
+      "minimumSignedDelta": -2,
+      "maximumSignedDelta": 2,
+      "maximumAbsoluteDelta": 2,
+      "histogramAbsoluteDelta": {
+        "0": 499211,
+        "1": 15849,
+        "2": 28
+      },
+      "histogramSignedDelta": {
+        "-2": 18,
+        "-1": 7858,
+        "0": 499211,
+        "1": 7991,
+        "2": 10
+      }
+    },
+    {
+      "block": "bloc-3",
+      "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+      "macSamples": 568008,
+      "linuxSamples": 568008,
+      "macPcmSha256": "c4eb7d66210ad7df788a73dc7015eedaaef23b26fe33a6eb2fce8f2c33bd0560",
+      "linuxPcmSha256": "23198656c69fdd14301e358825c51c96aa0934805ec7b9808e615651d91e272f",
+      "differentSamples": 16444,
+      "minimumSignedDelta": -1,
+      "maximumSignedDelta": 2,
+      "maximumAbsoluteDelta": 2,
+      "histogramAbsoluteDelta": {
+        "0": 551564,
+        "1": 16433,
+        "2": 11
+      },
+      "histogramSignedDelta": {
+        "-1": 8266,
+        "0": 551564,
+        "1": 8167,
+        "2": 11
+      }
+    }
+  ]
+}

@@ -76,6 +76,14 @@ export const SCOPES = [
   "dispatches:prepare",
   "dispatches:send",
   "dispatches:read",
+  "templates:read",
+  "templates:write",
+  "templates:publish",
+  "templates:share",
+  "datasets:read",
+  "datasets:write",
+  "generations:read",
+  "generations:write",
 ];
 export const LOGIN_SCOPES = [
   "read:tenant_settings",

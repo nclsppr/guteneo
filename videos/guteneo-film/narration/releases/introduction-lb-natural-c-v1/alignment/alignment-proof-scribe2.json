@@ -1,0 +1,2202 @@
+{
+  "schemaVersion": 1,
+  "sourceEnhancementSha256": "b253ac930553dd07c3e13ad53cf9432c129c10558386d12c054e3211ac5a6f8e",
+  "providerReceiptsSha256": "d480770f6cd65cf4de357ce4294881b730b44838e4ab60f9055bc7a9b1c61fa3",
+  "asrEngine": "native-scribe2",
+  "offlineInference": false,
+  "initialPrompt": null,
+  "forcedAlignment": false,
+  "wordTimestampResolutionSeconds": null,
+  "inputQuietGuardSeconds": 0.066,
+  "lexicalAnchorPolicy": "Three exact or explicitly documented ASR-alias anchors within six edge words on each side; include both edges unless an explicit aligned brand substitution is allowed; Whisper confidence >=0.5, native Scribe probability explicitly unavailable",
+  "allowedAsrAliases": [],
+  "allowBrandEdgeAsrSubstitution": true,
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "lb",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "fzjrsLaAoXR6bObyL1fE",
+        "blockId": "bloc-1",
+        "variationIndex": 2,
+        "providerDurationSeconds": 15.04,
+        "filename": "bloc-1-prise-2.mp3",
+        "audioPath": "sources/bloc-1-prise-2.mp3",
+        "bytes": 258460,
+        "sha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+        "containerDurationSeconds": 15.04,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokument kréien. [short pause] Benotzt Ären eegene PDF oder eng passend Virlag.",
+        "requestTextSha256": "86bdd37bddd634c69ea8b53633199cd838de8bb66764734f0bf8c0592f1da58c",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Mat guteneo fänkt alles mat engem Dokument un. [short pause] Dir kënnt eng eenzel Sendung oder eng ganz Campagne virbereeden. [short pause] Dobäi kann all Empfänger säi perséinlecht Dokum"
+      },
+      "requestTextSha256": "86bdd37bddd634c69ea8b53633199cd838de8bb66764734f0bf8c0592f1da58c",
+      "decodedSamples": 663264,
+      "durationSeconds": 15.04,
+      "recognizedText": "Mat GutenNeo fänkt alles mit engem Dokument un. Dir kënnt eng eenzel Sendung oder eng ganz Kampagne virbereeden. Dobäi kann all Empfänger säi perséinlecht Dokument kréien. Benotzt Ären eegene PDF oder eng passend Virlag.",
+      "asrProofPath": "alignment/bloc-1.asr-scribe.json",
+      "asrProofSha256": "9e3468b34aefa99f2edc34be13cb875cc825bda1a90fea3472c331f828a3ba3c",
+      "editDistance": 3,
+      "lexicalDifferences": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": "GutenNeo",
+            "start": 0.46,
+            "end": 0.92,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.46,
+            "globalEndSeconds": 0.92
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 4,
+          "expected": {
+            "cueId": "one"
+          },
+          "recognized": {
+            "word": "mit",
+            "start": 1.76,
+            "end": 1.86,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.76,
+            "globalEndSeconds": 1.86
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 16,
+          "expected": {
+            "cueId": "scale"
+          },
+          "recognized": {
+            "word": "Kampagne",
+            "start": 6.06,
+            "end": 6.56,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.06,
+            "globalEndSeconds": 6.56
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 33
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "one",
+          "nextCueId": "scale",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 3.417596371882086,
+          "cutSample": 150716,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 2.999751,
+            "endSeconds": 3.83542
+          },
+          "previousLastWord": {
+            "word": "un.",
+            "start": 2.78,
+            "end": 3,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.78,
+            "globalEndSeconds": 3
+          },
+          "nextFirstWord": {
+            "word": "Dir",
+            "start": 3.84,
+            "end": 3.96,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 3.84,
+            "globalEndSeconds": 3.96
+          },
+          "previousWordGuardSeconds": 0.4175963718820861,
+          "nextWordGuardSeconds": 0.42240362811791377,
+          "anchors": [
+            {
+              "expectedIndex": 5,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 5,
+              "recognized": {
+                "word": "engem",
+                "start": 1.9,
+                "end": 2.1,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 1.9,
+                "globalEndSeconds": 2.1
+              }
+            },
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 6,
+              "recognized": {
+                "word": "Dokument",
+                "start": 2.14,
+                "end": 2.72,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 2.14,
+                "globalEndSeconds": 2.72
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "one"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": "un.",
+                "start": 2.78,
+                "end": 3,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 2.78,
+                "globalEndSeconds": 3
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": "Dir",
+                "start": 3.84,
+                "end": 3.96,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 3.84,
+                "globalEndSeconds": 3.96
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": "kënnt",
+                "start": 4,
+                "end": 4.14,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 4,
+                "globalEndSeconds": 4.14
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": "eng",
+                "start": 4.18,
+                "end": 4.34,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 4.18,
+                "globalEndSeconds": 4.34
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "scale",
+          "nextCueId": "personal",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 7.641700680272109,
+          "cutSample": 336999,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 7.273628,
+            "endSeconds": 8.009751
+          },
+          "previousLastWord": {
+            "word": "virbereeden.",
+            "start": 6.66,
+            "end": 7.28,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.66,
+            "globalEndSeconds": 7.28
+          },
+          "nextFirstWord": {
+            "word": "Dobäi",
+            "start": 8.02,
+            "end": 8.4,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.02,
+            "globalEndSeconds": 8.4
+          },
+          "previousWordGuardSeconds": 0.3617006802721088,
+          "nextWordGuardSeconds": 0.37829931972789055,
+          "anchors": [
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 14,
+              "recognized": {
+                "word": "eng",
+                "start": 5.58,
+                "end": 5.74,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 5.58,
+                "globalEndSeconds": 5.74
+              }
+            },
+            {
+              "expectedIndex": 15,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 15,
+              "recognized": {
+                "word": "ganz",
+                "start": 5.78,
+                "end": 6.02,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 5.78,
+                "globalEndSeconds": 6.02
+              }
+            },
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "scale"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": "virbereeden.",
+                "start": 6.66,
+                "end": 7.28,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 6.66,
+                "globalEndSeconds": 7.28
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": "Dobäi",
+                "start": 8.02,
+                "end": 8.4,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 8.02,
+                "globalEndSeconds": 8.4
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": "kann",
+                "start": 8.44,
+                "end": 8.66,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 8.44,
+                "globalEndSeconds": 8.66
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": "all",
+                "start": 8.74,
+                "end": 8.86,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 8.74,
+                "globalEndSeconds": 8.86
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "personal",
+          "nextCueId": "sources",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 11.352471655328799,
+          "cutSample": 500644,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 11.073719,
+            "endSeconds": 11.631224
+          },
+          "previousLastWord": {
+            "word": "kréien.",
+            "start": 10.74,
+            "end": 11.1,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 10.74,
+            "globalEndSeconds": 11.1
+          },
+          "nextFirstWord": {
+            "word": "Benotzt",
+            "start": 11.64,
+            "end": 12.02,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 11.64,
+            "globalEndSeconds": 12.02
+          },
+          "previousWordGuardSeconds": 0.2524716553287991,
+          "nextWordGuardSeconds": 0.2875283446712018,
+          "anchors": [
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": "perséinlecht",
+                "start": 9.62,
+                "end": 10.2,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 9.62,
+                "globalEndSeconds": 10.2
+              }
+            },
+            {
+              "expectedIndex": 24,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 24,
+              "recognized": {
+                "word": "Dokument",
+                "start": 10.24,
+                "end": 10.66,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 10.24,
+                "globalEndSeconds": 10.66
+              }
+            },
+            {
+              "expectedIndex": 25,
+              "expected": {
+                "cueId": "personal"
+              },
+              "operation": "equivalent",
+              "observedIndex": 25,
+              "recognized": {
+                "word": "kréien.",
+                "start": 10.74,
+                "end": 11.1,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 10.74,
+                "globalEndSeconds": 11.1
+              }
+            },
+            {
+              "expectedIndex": 26,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 26,
+              "recognized": {
+                "word": "Benotzt",
+                "start": 11.64,
+                "end": 12.02,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 11.64,
+                "globalEndSeconds": 12.02
+              }
+            },
+            {
+              "expectedIndex": 27,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 27,
+              "recognized": {
+                "word": "Ären",
+                "start": 12.08,
+                "end": 12.34,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 12.08,
+                "globalEndSeconds": 12.34
+              }
+            },
+            {
+              "expectedIndex": 28,
+              "expected": {
+                "cueId": "sources"
+              },
+              "operation": "equivalent",
+              "observedIndex": 28,
+              "recognized": {
+                "word": "eegene",
+                "start": 12.4,
+                "end": 12.72,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 12.4,
+                "globalEndSeconds": 12.72
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-1-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-2",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "tha4Nsfns9pdQc6OtNHl",
+        "blockId": "bloc-2",
+        "variationIndex": 2,
+        "providerDurationSeconds": 21.2,
+        "filename": "bloc-2-prise-2.mp3",
+        "audioPath": "sources/bloc-2-prise-2.mp3",
+        "bytes": 357098,
+        "sha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+        "containerDurationSeconds": 21.2,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. [short pause] Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen.",
+        "requestTextSha256": "23810de1c1c3d07670a74fcfdd5950dacd7a4619c138aa97b25314301d65c986",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Ären Assistent hëlleft Iech, aus Äre Wierder en Entworf ze maachen. [short pause] Dir erstellt d'PDF-Dokument a bereet seng Sendung mat guteneo vir. [short pause] Kontrolléiert d'Dokument"
+      },
+      "requestTextSha256": "23810de1c1c3d07670a74fcfdd5950dacd7a4619c138aa97b25314301d65c986",
+      "decodedSamples": 934920,
+      "durationSeconds": 21.2,
+      "recognizedText": "Ären Assistant hëlleft iech, aus Äre Wierder en Entworf ze maachen. Dir erstellt PDF-Dokument a bereet deng Sendung mat GutenNeo vir. Kontrolléiert d'Dokument, den Empfänger, d'Optiounen an d'Käschten. Am normale Parcours geneemegt Dir d'Sendung selwer am Browser. Fir Är Noriicht kënnt Dir Fax, Bréifpost oder E-Mail wielen.",
+      "asrProofPath": "alignment/bloc-2.asr-scribe.json",
+      "asrProofSha256": "6c3b0512b88dfd9ceaad5b82609e487a3df0a4baf84e6d7feca7a0a0a03f498f",
+      "editDistance": 4,
+      "lexicalDifferences": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1,
+          "expected": {
+            "cueId": "assistants"
+          },
+          "recognized": {
+            "word": "Assistant",
+            "start": 0.46000000000000085,
+            "end": 1.0600000000000023,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 15.5,
+            "globalEndSeconds": 16.1
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 13,
+          "observedIndex": null,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": null,
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 17,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": "deng",
+            "start": 7.400000000000002,
+            "end": 7.560000000000002,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 22.44,
+            "globalEndSeconds": 22.6
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 20,
+          "expected": {
+            "cueId": "generate"
+          },
+          "recognized": {
+            "word": "GutenNeo",
+            "start": 8.2,
+            "end": 8.64,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 23.24,
+            "globalEndSeconds": 23.68
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "deletion",
+          "expectedIndex": 13,
+          "observedIndex": null
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 16
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 18,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 19
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 34,
+          "observedIndex": 33
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 35,
+          "observedIndex": 34
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 36,
+          "observedIndex": 35
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 37,
+          "observedIndex": 36
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 38,
+          "observedIndex": 37
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 39,
+          "observedIndex": 38
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 40,
+          "observedIndex": 39
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 41,
+          "observedIndex": 40
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 42,
+          "observedIndex": 41
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 43,
+          "observedIndex": 42
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 44,
+          "observedIndex": 43
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 45,
+          "observedIndex": 44
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 46,
+          "observedIndex": 45
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 47,
+          "observedIndex": 46
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 48,
+          "observedIndex": 47
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 49,
+          "observedIndex": 48
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 50,
+          "observedIndex": 49
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 51,
+          "observedIndex": 50
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 52,
+          "observedIndex": 51
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 53,
+          "observedIndex": 52
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "assistants",
+          "nextCueId": "generate",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 4.71718820861678,
+          "cutSample": 208028,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 4.372086,
+            "endSeconds": 5.062268
+          },
+          "previousLastWord": {
+            "word": "maachen.",
+            "start": 3.960000000000001,
+            "end": 4.359999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 19,
+            "globalEndSeconds": 19.4
+          },
+          "nextFirstWord": {
+            "word": "Dir",
+            "start": 5.080000000000002,
+            "end": 5.220000000000002,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 20.12,
+            "globalEndSeconds": 20.26
+          },
+          "previousWordGuardSeconds": 0.3571882086167806,
+          "nextWordGuardSeconds": 0.36281179138322184,
+          "anchors": [
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": "Entworf",
+                "start": 3.3800000000000026,
+                "end": 3.7600000000000016,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 18.42,
+                "globalEndSeconds": 18.8
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": "ze",
+                "start": 3.8200000000000003,
+                "end": 3.900000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 18.86,
+                "globalEndSeconds": 18.94
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "assistants"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": "maachen.",
+                "start": 3.960000000000001,
+                "end": 4.359999999999999,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 19,
+                "globalEndSeconds": 19.4
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": "Dir",
+                "start": 5.080000000000002,
+                "end": 5.220000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 20.12,
+                "globalEndSeconds": 20.26
+              }
+            },
+            {
+              "expectedIndex": 12,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 12,
+              "recognized": {
+                "word": "erstellt",
+                "start": 5.260000000000002,
+                "end": 5.720000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 20.3,
+                "globalEndSeconds": 20.76
+              }
+            },
+            {
+              "expectedIndex": 14,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 13,
+              "recognized": {
+                "word": "PDF-Dokument",
+                "start": 5.780000000000001,
+                "end": 6.84,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 20.82,
+                "globalEndSeconds": 21.88
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "generate",
+          "nextCueId": "review",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 9.241133786848073,
+          "cutSample": 407534,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 8.960272,
+            "endSeconds": 9.522018
+          },
+          "previousLastWord": {
+            "word": "vir.",
+            "start": 8.760000000000002,
+            "end": 8.96,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 23.8,
+            "globalEndSeconds": 24
+          },
+          "nextFirstWord": {
+            "word": "Kontrolléiert",
+            "start": 9.54,
+            "end": 10.100000000000001,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 24.58,
+            "globalEndSeconds": 25.14
+          },
+          "previousWordGuardSeconds": 0.28113378684807167,
+          "nextWordGuardSeconds": 0.29886621315192663,
+          "anchors": [
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": "Sendung",
+                "start": 7.620000000000001,
+                "end": 7.940000000000001,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 22.66,
+                "globalEndSeconds": 22.98
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": "mat",
+                "start": 7.98,
+                "end": 8.16,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 23.02,
+                "globalEndSeconds": 23.2
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "generate"
+              },
+              "operation": "equivalent",
+              "observedIndex": 21,
+              "recognized": {
+                "word": "vir.",
+                "start": 8.760000000000002,
+                "end": 8.96,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 23.8,
+                "globalEndSeconds": 24
+              }
+            },
+            {
+              "expectedIndex": 23,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": "Kontrolléiert",
+                "start": 9.54,
+                "end": 10.100000000000001,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 24.58,
+                "globalEndSeconds": 25.14
+              }
+            },
+            {
+              "expectedIndex": 24,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 23,
+              "recognized": {
+                "word": "d'Dokument,",
+                "start": 10.120000000000001,
+                "end": 10.720000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 25.16,
+                "globalEndSeconds": 25.76
+              }
+            },
+            {
+              "expectedIndex": 25,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 24,
+              "recognized": {
+                "word": "d'Dokument,",
+                "start": 10.120000000000001,
+                "end": 10.720000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 25.16,
+                "globalEndSeconds": 25.76
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "review",
+          "nextCueId": "channels",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 17.053106575963717,
+          "cutSample": 752042,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 16.872268,
+            "endSeconds": 17.233923
+          },
+          "previousLastWord": {
+            "word": "Browser.",
+            "start": 16.46,
+            "end": 16.86,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 31.5,
+            "globalEndSeconds": 31.9
+          },
+          "nextFirstWord": {
+            "word": "Fir",
+            "start": 17.300000000000004,
+            "end": 17.42,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 32.34,
+            "globalEndSeconds": 32.46
+          },
+          "previousWordGuardSeconds": 0.19310657596371783,
+          "nextWordGuardSeconds": 0.246893424036287,
+          "anchors": [
+            {
+              "expectedIndex": 40,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 39,
+              "recognized": {
+                "word": "selwer",
+                "start": 15.900000000000002,
+                "end": 16.26,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 30.94,
+                "globalEndSeconds": 31.3
+              }
+            },
+            {
+              "expectedIndex": 41,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 40,
+              "recognized": {
+                "word": "am",
+                "start": 16.3,
+                "end": 16.42,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 31.34,
+                "globalEndSeconds": 31.46
+              }
+            },
+            {
+              "expectedIndex": 42,
+              "expected": {
+                "cueId": "review"
+              },
+              "operation": "equivalent",
+              "observedIndex": 41,
+              "recognized": {
+                "word": "Browser.",
+                "start": 16.46,
+                "end": 16.86,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 31.5,
+                "globalEndSeconds": 31.9
+              }
+            },
+            {
+              "expectedIndex": 43,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 42,
+              "recognized": {
+                "word": "Fir",
+                "start": 17.300000000000004,
+                "end": 17.42,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 32.34,
+                "globalEndSeconds": 32.46
+              }
+            },
+            {
+              "expectedIndex": 44,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 43,
+              "recognized": {
+                "word": "Är",
+                "start": 17.480000000000004,
+                "end": 17.560000000000002,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 32.52,
+                "globalEndSeconds": 32.6
+              }
+            },
+            {
+              "expectedIndex": 45,
+              "expected": {
+                "cueId": "channels"
+              },
+              "operation": "equivalent",
+              "observedIndex": 44,
+              "recognized": {
+                "word": "Noriicht",
+                "start": 17.619,
+                "end": 18.18,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 32.659,
+                "globalEndSeconds": 33.22
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-2-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    },
+    {
+      "blockId": "bloc-3",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "lb",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "zxsRU6zspvJZvYxpz4bf",
+        "blockId": "bloc-3",
+        "variationIndex": 2,
+        "providerDurationSeconds": 13.12,
+        "filename": "bloc-3-prise-2.mp3",
+        "audioPath": "sources/bloc-3-prise-2.mp3",
+        "bytes": 228239,
+        "sha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+        "containerDurationSeconds": 13.12,
+        "source": "elevenlabs-creative-plugin",
+        "selected": true,
+        "prompt": "[thoughtful] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do, och wann Dir ënnerwee sidd.",
+        "requestTextSha256": "4e2e3df0136938acb293242aa66550e22c74245c5a32b1db7055de6c0a6110b1",
+        "outputFormat": "mp3_44100_128",
+        "language": "lb",
+        "voice": {
+          "name": "Manon",
+          "voiceId": "m5U7XCsc8v988k2RJAqN"
+        },
+        "providerPromptPreview": "[thoughtful] Är Wierder erreeche Leit och iwwer d'Landesgrenzen eraus. [short pause] E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. [short pause] Ären Atelier ass fir Iech do,"
+      },
+      "requestTextSha256": "4e2e3df0136938acb293242aa66550e22c74245c5a32b1db7055de6c0a6110b1",
+      "decodedSamples": 578592,
+      "durationSeconds": 13.12,
+      "recognizedText": "Är Wierder erreeche Leit och iwwert d'Landesgrenzen eraus. E digital virbereet Dokument kann esou och an enger Bréifboîte ukommen. Ären Atelier ass fir iech do, och wann Dir ënnerwee sidd.",
+      "asrProofPath": "alignment/bloc-3.asr-scribe.json",
+      "asrProofSha256": "f32ee50295817a1937230e4a313c5ac995b53a55b824a16e1d4dc742dfe52617",
+      "editDistance": 1,
+      "lexicalDifferences": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 5,
+          "expected": {
+            "cueId": "europe"
+          },
+          "recognized": {
+            "word": "iwwert",
+            "start": 2.3599999999999994,
+            "end": 2.6000000000000014,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 38.6,
+            "globalEndSeconds": 38.84
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 30
+        }
+      ],
+      "boundaries": [
+        {
+          "previousCueId": "europe",
+          "nextCueId": "physical",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 4.367936507936508,
+          "cutSample": 192626,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 3.976599,
+            "endSeconds": 4.759252
+          },
+          "previousLastWord": {
+            "word": "eraus.",
+            "start": 3.5,
+            "end": 3.9399999999999977,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 39.74,
+            "globalEndSeconds": 40.18
+          },
+          "nextFirstWord": {
+            "word": "E",
+            "start": 4.780000000000001,
+            "end": 4.859999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 41.02,
+            "globalEndSeconds": 41.1
+          },
+          "previousWordGuardSeconds": 0.4279365079365105,
+          "nextWordGuardSeconds": 0.4120634920634929,
+          "anchors": [
+            {
+              "expectedIndex": 6,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 6,
+              "recognized": {
+                "word": "d'Landesgrenzen",
+                "start": 2.6400000000000006,
+                "end": 3.460000000000001,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 38.88,
+                "globalEndSeconds": 39.7
+              }
+            },
+            {
+              "expectedIndex": 7,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 7,
+              "recognized": {
+                "word": "d'Landesgrenzen",
+                "start": 2.6400000000000006,
+                "end": 3.460000000000001,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 38.88,
+                "globalEndSeconds": 39.7
+              }
+            },
+            {
+              "expectedIndex": 8,
+              "expected": {
+                "cueId": "europe"
+              },
+              "operation": "equivalent",
+              "observedIndex": 8,
+              "recognized": {
+                "word": "eraus.",
+                "start": 3.5,
+                "end": 3.9399999999999977,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 39.74,
+                "globalEndSeconds": 40.18
+              }
+            },
+            {
+              "expectedIndex": 9,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 9,
+              "recognized": {
+                "word": "E",
+                "start": 4.780000000000001,
+                "end": 4.859999999999999,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 41.02,
+                "globalEndSeconds": 41.1
+              }
+            },
+            {
+              "expectedIndex": 10,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 10,
+              "recognized": {
+                "word": "digital",
+                "start": 4.919999999999995,
+                "end": 5.439999999999998,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 41.16,
+                "globalEndSeconds": 41.68
+              }
+            },
+            {
+              "expectedIndex": 11,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 11,
+              "recognized": {
+                "word": "virbereet",
+                "start": 5.5,
+                "end": 5.899999999999999,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 41.74,
+                "globalEndSeconds": 42.14
+              }
+            }
+          ],
+          "edgeExceptions": []
+        },
+        {
+          "previousCueId": "physical",
+          "nextCueId": "access",
+          "status": "ASR-anchors-and-acoustic-pause-agree",
+          "cutSeconds": 9.111814058956917,
+          "cutSample": 401831,
+          "criticalListening": "pending",
+          "wordBoundariesVerifiedByHuman": false,
+          "quietInterval": {
+            "startSeconds": 8.732177,
+            "endSeconds": 9.491429
+          },
+          "previousLastWord": {
+            "word": "ukommen.",
+            "start": 8.280000000000001,
+            "end": 8.719999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 44.52,
+            "globalEndSeconds": 44.96
+          },
+          "nextFirstWord": {
+            "word": "Ären",
+            "start": 9.54,
+            "end": 9.739999999999995,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 45.78,
+            "globalEndSeconds": 45.98
+          },
+          "previousWordGuardSeconds": 0.3918140589569177,
+          "nextWordGuardSeconds": 0.4281859410430826,
+          "anchors": [
+            {
+              "expectedIndex": 17,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 17,
+              "recognized": {
+                "word": "enger",
+                "start": 7.479999999999997,
+                "end": 7.68,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 43.72,
+                "globalEndSeconds": 43.92
+              }
+            },
+            {
+              "expectedIndex": 18,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 18,
+              "recognized": {
+                "word": "Bréifboîte",
+                "start": 7.699999999999996,
+                "end": 8.219999999999999,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 43.94,
+                "globalEndSeconds": 44.46
+              }
+            },
+            {
+              "expectedIndex": 19,
+              "expected": {
+                "cueId": "physical"
+              },
+              "operation": "equivalent",
+              "observedIndex": 19,
+              "recognized": {
+                "word": "ukommen.",
+                "start": 8.280000000000001,
+                "end": 8.719999999999999,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 44.52,
+                "globalEndSeconds": 44.96
+              }
+            },
+            {
+              "expectedIndex": 20,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 20,
+              "recognized": {
+                "word": "Ären",
+                "start": 9.54,
+                "end": 9.739999999999995,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 45.78,
+                "globalEndSeconds": 45.98
+              }
+            },
+            {
+              "expectedIndex": 21,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 21,
+              "recognized": {
+                "word": "Atelier",
+                "start": 9.799999999999997,
+                "end": 10.32,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 46.04,
+                "globalEndSeconds": 46.56
+              }
+            },
+            {
+              "expectedIndex": 22,
+              "expected": {
+                "cueId": "access"
+              },
+              "operation": "equivalent",
+              "observedIndex": 22,
+              "recognized": {
+                "word": "ass",
+                "start": 10.379999999999995,
+                "end": 10.5,
+                "probability": null,
+                "providerLogProbability": null,
+                "timestampSource": "elevenlabs-native-scribe2",
+                "wordConfidence": "not-reported-as-probability",
+                "globalStartSeconds": 46.62,
+                "globalEndSeconds": 46.74
+              }
+            }
+          ],
+          "edgeExceptions": []
+        }
+      ],
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-3-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending"
+    }
+  ],
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "originalProofSha256": "614b227a3b052a626a42d5a747b8a0befed427acc31293938840cb65c0096253"
+}

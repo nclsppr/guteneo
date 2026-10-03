@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { withPublicVideoRange } from "../../apps/api/src/public-video-range";
+import { publicVideoPaths } from "../../packages/contracts/src/public-videos";
 
-const path = "/videos/guteneo-horizontal-v5.mp4";
+const path = "/videos/guteneo-horizontal-v8-fr.mp4";
 const manifest = { [path]: { bytes: 10, sha256: "fixture" } };
 function fixture(overrides: HeadersInit = {}, status = 200) {
   let pulls = 0;
@@ -45,6 +46,19 @@ function request(
 }
 
 describe("bounded public film byte ranges", () => {
+  it.each(publicVideoPaths)(
+    "serves an exact range for the catalogued localized film %s",
+    async (pathname) => {
+      const response = await withPublicVideoRange(
+        request("bytes=0-1", {}, "GET", pathname),
+        fixture().response,
+        { [pathname]: { bytes: 10, sha256: "fixture" } },
+      );
+      expect(response.status).toBe(206);
+      expect(await response.text()).toBe("01");
+    },
+  );
+
   it.each([
     ["bytes=0-1", "01", "bytes 0-1/10"],
     ["bytes=3-6", "3456", "bytes 3-6/10"],
@@ -194,6 +208,10 @@ describe("bounded public film byte ranges", () => {
     "/videos/other.mp4",
     "/videos/guteneo-horizontal-v5.mp4/",
     "/videos/%67uteneo-horizontal-v5.mp4",
+    "/videos/guteneo-horizontal-v5-es.mp4",
+    "/videos/guteneo-roles-v1-es.mp4",
+    "/videos/guteneo-roles-v1-en.mp4/private",
+    "/videos/guteneo-horizontal-v5-en.webp",
   ])("leaves every non-allowlisted path untouched: %s", async (pathname) => {
     const source = fixture();
     expect(

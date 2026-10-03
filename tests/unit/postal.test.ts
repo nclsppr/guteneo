@@ -697,7 +697,7 @@ describe("server-owned postal review and consent", () => {
         code: "POSTAL_PREFLIGHT_NOT_FOUND",
       });
     await expect(service().create(other, input, "other")).rejects.toMatchObject(
-      { code: "DOCUMENT_NOT_READY" },
+      { code: "NOT_FOUND", status: 404 },
     );
   });
   it("rejects forged browser proof/options and tampered bytes before render/consumption", async () => {
@@ -1017,7 +1017,7 @@ it("prepares the quote only from persisted reviewed inputs and returns a pending
     service().quote(authority, ready.id, "quote-key"),
   ).rejects.toMatchObject({ code: "POSTAL_DRAFT_NOT_READY" });
   expect(prepare).toHaveBeenCalledWith(
-    ctx,
+    { ...ctx, supervisorCanApprove: false, supervisorCanReport: false },
     {
       channel: "postal",
       documentId: input.documentId,

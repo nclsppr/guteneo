@@ -1,6 +1,6 @@
 # Guteneo — e-mails et correspondance PDF
 
-Candidat de paquet 0.3.1, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, l’accueil `get-started`, les parcours `email`, `fax-pdf` et `postal-pdf`, et les manifestes Agent Plugins, Claude Code et Cursor. Cette version intègre les instructions e-mail et lien protégé ainsi que les métadonnées et l’accueil ; l’activation e-mail demeure désactivée dans la configuration de production. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
+Candidat de paquet 0.3.1, préparé pour la revue de publication. Ce paquet décrit un serveur distant MCP, l’accueil `get-started`, les parcours `email`, `fax-pdf`, `postal-pdf` et `document-studio`, et les manifestes Agent Plugins, Claude Code et Cursor. Cette version intègre les instructions e-mail et lien protégé ainsi que les métadonnées et l’accueil ; l’activation e-mail demeure désactivée dans la configuration de production. Les parcours sont des instructions conditionnelles : seuls les outils annoncés et les canaux activés pour le compte peuvent être utilisés. Le paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
 
 Serveur : **https://guteneo.com/mcp**. Connexion OAuth requise. La configuration serveur et l’accès de votre compte doivent être opérationnels ; un paquet valide ne prouve pas une connexion ni un envoi réussi.
 
@@ -40,4 +40,26 @@ Le dossier de revue, les cas de test reproductibles et les prérequis encore ouv
 
 Le parcours `email` réutilise `prepare_dispatch` pour les e-mails sans pièce jointe, les PDF joints et les PDF remis par lien protégé. Le devis distingue la remise et le supplément d’hébergement lorsqu’il s’applique : 1 € par document protégé. La durée choisie est de 1, 7 ou 30 jours ; le PDF original reste soumis à sa vérification. Le destinataire consulte une page protégée par mot de passe, sans compte requis. L’expéditeur consulte le mot de passe uniquement dans son compte navigateur et le transmet séparément. Aucun outil MCP ne lit ou ne transmet ce mot de passe.
 
-Les listes de destinataires multi-format, les fichiers Excel et autres pièces jointes, puis les comptes destinataires sont prévus pour une évolution ultérieure. Ils ne sont pas annoncés comme disponibles par ce paquet. Le compte de revue ChatGPT conserve ses restrictions de préparation seule.
+Le studio documentaire candidat prépare des PDF personnalisés depuis des données CSV, XLSX, XML ou JSON. Il ne joint pas les fichiers de données aux e-mails ; les autres pièces jointes et les comptes destinataires restent hors de ce parcours. Le compte de revue ChatGPT conserve ses restrictions de préparation seule.
+
+## Studio documentaire (candidat local)
+
+Le parcours `document-studio` couvre les modèles pdfme rééditables, l’import DOCX
+avec avertissements, CSV/XLSX/XML/JSON, les mappings versionnés, les jobs de PDF et la
+préparation séparée de la distribution. Les exemples exécutables figurent dans
+`examples/template-workflow/` du dépôt. Les autorisations OAuth dédiées sont
+`templates:read`, `templates:write`, `templates:publish`, `templates:share`,
+`datasets:read`, `datasets:write`, `generations:read`, `generations:write`, auxquelles
+s’ajoutent les scopes documents/envois pour leurs opérations propres.
+
+Les assistants découvrent les règles avec `get_template_authoring_guide`, puis
+les cinq bases fictives avec `list_template_examples` et `get_template_example`.
+Ils peuvent adapter une enveloppe et la créer avec `create_template`, sans
+appel IA interne. La [référence de création](skills/document-studio/references/template-authoring.md)
+est aussi incluse dans le ZIP. Le propriétaire peut supprimer ses créations,
+y compris les copies de démonstration, depuis l’interface ou `delete_template` ;
+les PDF déjà générés et leur historique restent conservés.
+
+Cette modification du paquet local ne prouve ni déploiement du serveur distant,
+ni nouvelle autorisation accordée à un client existant, ni publication marketplace.
+Le transfert natif de fichiers dépend des capacités réellement annoncées par l’hôte.

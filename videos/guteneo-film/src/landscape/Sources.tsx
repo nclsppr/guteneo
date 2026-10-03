@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import { interpolate, useCurrentFrame } from "remotion";
 import {
   C,
@@ -11,15 +12,16 @@ import {
 } from "./components";
 
 export const Sources = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 120, top: 145 }}>
-        <Kicker>Votre contenu, votre choix</Kicker>
+        <Kicker>{t("Votre contenu, votre choix")}</Kicker>
         <Head size={148} style={{ marginTop: 55 }}>
-          Votre PDF.
+          {t("Votre PDF.")}
           <br />
-          <em style={{ color: C.blue }}>Votre modèle.</em>
+          <em style={{ color: C.blue }}>{t("Votre modèle.")}</em>
         </Head>
       </div>
       <div
@@ -50,18 +52,18 @@ export const Sources = () => {
           PDF
         </div>
         <div style={{ fontSize: 34 }}>
-          Importez votre original.
+          {t("Importez votre original.")}
           <div style={{ fontSize: 26, color: "#697271", marginTop: 12 }}>
-            Le document exact, conservé.
+            {t("Le document exact, conservé.")}
           </div>
         </div>
       </div>
       <Label
         style={{ position: "absolute", left: 120, top: 833, fontSize: 33 }}
       >
-        Votre mise en page. Vos données.
+        {t("Votre mise en page. Vos données.")}
         <br />
-        Un modèle, des milliers de versions.
+        {t("Un modèle, des milliers de versions.")}
       </Label>
       <div
         style={{

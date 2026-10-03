@@ -1,3 +1,7 @@
+import {
+  actorPermissions,
+  membershipPermissionFence,
+} from "../../../packages/domain/src/index";
 import { z } from "zod";
 import {
   ContentError,
@@ -358,6 +362,7 @@ export class PostalService {
       .bind(authority.context.organizationId, id)
       .first<Row>();
     if (!row) error("POSTAL_PREFLIGHT_NOT_FOUND", 404);
+    await this.domain.getDocument(authority.context, row.document_id);
     return row;
   }
   private async current(authority: PostalAuthority, row: Row, profile = false) {
@@ -489,7 +494,7 @@ export class PostalService {
       },
       canTransfer:
         authority.context.actor === "browser" &&
-        authority.context.role !== "viewer" &&
+        actorPermissions(authority.context).approveDispatches &&
         transferConfigured(this.env) &&
         !superseded &&
         !expired &&
@@ -558,6 +563,7 @@ export class PostalService {
       if (replay.input_hash !== inputHash) error("IDEMPOTENCY_CONFLICT");
       return this.get(authority, replay.id);
     }
+    await this.domain.getDocument(authority.context, input.documentId);
     const { document, bytes } = await this.exactDocument(
       authority.context.organizationId,
       input.documentId,
@@ -768,6 +774,7 @@ export class PostalService {
       !(authority.context.actor === "mcp" && authority.expert)
     )
       error("HUMAN_DOCUMENT_TRANSFER_REQUIRED", 403);
+    await this.domain.authorizeApproval(authority.context);
     if (!transferConfigured(this.env)) error("POSTAL_DRAFT_TRANSFER_DISABLED");
     const row = await this.row(authority, id);
     if (row.transfer_status !== "not_started") return this.get(authority, id);
@@ -779,7 +786,15 @@ export class PostalService {
     )
       error("POSTAL_PREFLIGHT_REQUIRED");
     await this.current(authority, row, true);
-    const fence = authority.sql();
+    const credentialFence = authority.sql();
+    const permissionFence = membershipPermissionFence(
+      authority.context,
+      "approveDispatches",
+    );
+    const fence = {
+      condition: `(${credentialFence.condition}) AND (${permissionFence.condition})`,
+      values: [...credentialFence.values, ...permissionFence.values],
+    };
     let results;
     try {
       results = await this.env.DB.batch([
@@ -828,6 +843,7 @@ export class PostalService {
           fetcher: this.dependencies.fetcher,
           transferAuthority: authority.expert ? authority : undefined,
           beforeTransfer: async () => {
+            await this.domain.authorizeApproval(authority.context);
             const active = await this.row(authority, id);
             if (active.transfer_status !== "preparing")
               error("POSTAL_PREFLIGHT_STALE");

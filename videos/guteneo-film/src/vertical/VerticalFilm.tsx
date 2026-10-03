@@ -1,3 +1,5 @@
+import { FilmLocaleProvider } from "../localization";
+import { validateIntroductionTimeline, type IntroductionFilmProps, type IntroductionFilmTimeline } from "../natural-timing";
 import {
   AbsoluteFill,
   Sequence,
@@ -50,7 +52,7 @@ const Cut = () => {
   );
 };
 
-export const VerticalFilm = () => (
+const VerticalFilmScenes = () => (
   <PortraitStage>
     <Audio src={staticFile("audio/vertical-soundtrack.wav")} />
     <TransitionSeries>
@@ -114,4 +116,36 @@ export const VerticalFilm = () => (
       </Sequence>
     ))}
   </PortraitStage>
+);
+
+const NarratedVerticalScenes = ({timeline, musicFile}: {timeline: IntroductionFilmTimeline; musicFile: string}) => {
+  const timing = validateIntroductionTimeline(timeline);
+  const scenes = {
+    one: <One />, scale: <Scale />, personal: <Personal />, sources: <Sources />,
+    assistants: <Assistants />, generate: <Generate />, review: <Review />,
+    channels: <Channels />, europe: <Europe />,
+    physical: <PhysicalBurst durationInFrames={timing.physical.durationInFrames} />,
+    access: <Access />, signature: <Signature />, logo: <VerticalEnd />,
+  };
+  return (
+    <PortraitStage>
+      <Audio src={staticFile(musicFile)} />
+      <TransitionSeries>
+        {timeline.scenes.map((scene) => (
+          <TransitionSeries.Sequence key={scene.id} durationInFrames={scene.durationInFrames} name={scene.id}>
+            {scenes[scene.id]}
+          </TransitionSeries.Sequence>
+        ))}
+      </TransitionSeries>
+      {(["personal", "assistants", "review", "europe", "access"] as const).map((id) => (
+        <Sequence key={id} from={timing[id].startFrame - 4} durationInFrames={10} layout="none"><Cut /></Sequence>
+      ))}
+    </PortraitStage>
+  );
+};
+
+export const VerticalFilm: React.FC<IntroductionFilmProps> = ({ locale = "fr", timeline, musicFile = "audio/vertical-soundtrack.wav" }) => (
+  <FilmLocaleProvider locale={locale}>
+    {timeline ? <NarratedVerticalScenes timeline={timeline} musicFile={musicFile} /> : <VerticalFilmScenes />}
+  </FilmLocaleProvider>
 );

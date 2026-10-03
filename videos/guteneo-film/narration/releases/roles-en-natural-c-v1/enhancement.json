@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "en",
+  "kind": "roles",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Let’s look at the four roles in guteneo and what each one can do.\n\nThe administrator manages the workspace. They prepare and approve outgoing messages, and view reports.\n\nA supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default.\n\nThe operator imports documents and prepares messages for sending. They cannot approve them.\n\nAn observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message.\n\nIn the standard workflow, an authorised person approves the delivery in the browser.",
+  "nativeEnhancedText": "[thoughtful] Let’s look at the four roles in guteneo and what each one can do. [short pause] The administrator manages the workspace. They prepare and approve outgoing messages, and view reports. [short pause] A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. [short pause] The operator imports documents and prepares messages for sending. They cannot approve them. [short pause] An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. [short pause] In the standard workflow, an authorised person approves the delivery in the browser.",
+  "nativeOutputSha256": "33ab83da043c0155d5726098faefdd365853cfe8ca6192fb484a5d048cc030e6",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Let’s look at the four roles in guteneo and what each one can do. [short pause] The administrator manages the workspace. They prepare and approve outgoing messages, and view reports. [short pause] A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. [short pause] The operator imports documents and prepares messages for sending. They cannot approve them. [short pause] An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. [short pause] In the standard workflow, an authorised person approves the delivery in the browser.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "intro",
+        "administrator"
+      ],
+      "prompt": "[thoughtful] Let’s look at the four roles in guteneo and what each one can do. [short pause] The administrator manages the workspace. They prepare and approve outgoing messages, and view reports."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "supervisor",
+        "operator"
+      ],
+      "prompt": "[thoughtful] A supervisor prepares messages for sending. Approval and access to reports are separate permissions, both disabled by default. [short pause] The operator imports documents and prepares messages for sending. They cannot approve them."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "observer",
+        "review"
+      ],
+      "prompt": "[thoughtful] An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. [short pause] In the standard workflow, an authorised person approves the delivery in the browser."
+    }
+  ],
+  "criticalListening": "pending"
+}

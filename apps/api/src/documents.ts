@@ -67,7 +67,7 @@ type AnalysisRow = {
   organization_id: string;
   document_id: string;
   request_user_id: string;
-  request_role: "admin" | "member";
+  request_role: "admin" | "supervisor" | "member";
   state: DocumentAnalysis["state"];
   code: ScanCode;
   attempts: number;
@@ -352,9 +352,17 @@ export class DocumentService {
     };
   }
 
-  async get(ctx: DocumentContext, id: string): Promise<AnalyzedDocument> {
-    const document = await this.domain.getDocument(ctx, id);
-    return this.project(document, await this.analysisRow(ctx, id));
+  async get(
+    ctx: DocumentContext,
+    id: string,
+    dispatchId?: string,
+  ): Promise<AnalyzedDocument> {
+    const document = await this.domain.getDocument(ctx, id, dispatchId);
+    const analysis = await this.analysisRow(ctx, id);
+    const current = dispatchId
+      ? await this.domain.getDocument(ctx, id, dispatchId)
+      : document;
+    return this.project(current, analysis);
   }
 
   async list(ctx: DocumentContext, cursor?: string, limit = 30) {
@@ -587,7 +595,7 @@ export class DocumentService {
     const fence =
       "EXISTS(SELECT 1 FROM document_scan_locks WHERE organization_id=? AND document_id=? AND token=? AND expires_at>?)";
     const member =
-      "EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role IN ('admin','member') AND o.mode=?)";
+      "EXISTS(SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.role IN ('admin','supervisor','member') AND o.mode=?)";
     const recovery =
       "EXISTS(SELECT 1 FROM document_analysis WHERE organization_id=? AND document_id=? AND state='processing' AND deadline_at>?)";
     const condition = `${fence} AND ${member} AND ${recovery}`;
@@ -932,7 +940,7 @@ export class DocumentService {
 
   async upload(
     ctx: DocumentContext,
-    input: { name: string; bytes: Uint8Array },
+    input: { name: string; bytes: Uint8Array; privateToCreator?: boolean },
     source: "import" | "render" = "import",
     registration?: {
       documentId: string;
@@ -1039,6 +1047,7 @@ export class DocumentService {
         source,
         storageKey,
         scanVerified,
+        privateToCreator: input.privateToCreator,
       },
       registration?.authority,
     );
@@ -1052,6 +1061,7 @@ export class DocumentService {
     }
     if (
       registration &&
+      !local &&
       document.status === "ready" &&
       !(await this.env.DB.prepare(
         "SELECT 1 FROM audit_log WHERE organization_id=? AND action='document.scan_verified' AND resource_id=? LIMIT 1",
@@ -1206,15 +1216,17 @@ export class DocumentService {
   async getReviewContent(
     ctx: DocumentContext,
     id: string,
+    dispatchId?: string,
   ): Promise<ExactReviewPdf> {
-    return this.readReviewOriginal(ctx, id, REVIEW_PDF_MAX_BYTES);
+    return this.readReviewOriginal(ctx, id, REVIEW_PDF_MAX_BYTES, dispatchId);
   }
   private async readReviewOriginal(
     ctx: DocumentContext,
     id: string,
     maximumBytes: number,
+    dispatchId?: string,
   ): Promise<ExactReviewPdf> {
-    const document = await this.domain.getDocument(ctx, id);
+    const document = await this.domain.getDocument(ctx, id, dispatchId);
     const fallback =
       " Aucune approbation ne peut être donnée tant que cette vérification échoue.";
     if (document.status !== "ready" || document.pages < 1)
@@ -1243,7 +1255,7 @@ export class DocumentService {
     const local =
       this.env.ENVIRONMENT === "local" && this.env.MODE === "simulation";
     const assertProof = async () => {
-      const current = await this.domain.getDocument(ctx, id);
+      const current = await this.domain.getDocument(ctx, id, dispatchId);
       if (
         current.status !== "ready" ||
         current.sha256 !== document.sha256 ||
@@ -1328,8 +1340,14 @@ export class DocumentService {
     ctx: DocumentContext,
     id: string,
     startPage: number,
+    dispatchId?: string,
   ): Promise<ExactReviewPages> {
-    const exact = await this.readReviewOriginal(ctx, id, LIMITS.pdfBytes);
+    const exact = await this.readReviewOriginal(
+      ctx,
+      id,
+      LIMITS.pdfBytes,
+      dispatchId,
+    );
     if (
       !Number.isInteger(startPage) ||
       startPage < 1 ||
@@ -1481,7 +1499,7 @@ export class DocumentService {
       );
     }
     // The caller also fences OAuth authority and the canonical scan proof after rendering.
-    const current = await this.domain.getDocument(ctx, id);
+    const current = await this.domain.getDocument(ctx, id, dispatchId);
     if (
       current.status !== "ready" ||
       current.sha256 !== exact.document.sha256 ||
@@ -1496,15 +1514,21 @@ export class DocumentService {
       );
     return { document: exact.document, view };
   }
-  async getContent(ctx: DocumentContext, id: string) {
-    const document = await this.domain.getDocument(ctx, id);
+  async getContent(ctx: DocumentContext, id: string, dispatchId?: string) {
+    const exact = dispatchId
+      ? await this.readReviewOriginal(ctx, id, LIMITS.pdfBytes, dispatchId)
+      : null;
+    const document =
+      exact?.document ?? (await this.domain.getDocument(ctx, id));
     if (document.status !== "ready")
       throw new ContentError(
         "DOCUMENT_QUARANTINED",
         "Document en quarantaine : aperçu et envoi bloqués.",
         423,
       );
-    const object = await this.env.DOCUMENTS.get(document.storage_key);
+    const object = exact
+      ? { body: exact.bytes as Uint8Array<ArrayBuffer> }
+      : await this.env.DOCUMENTS.get(document.storage_key);
     if (!object)
       throw new ContentError(
         "DOCUMENT_UNAVAILABLE",
@@ -1524,6 +1548,7 @@ export class DocumentService {
         new Date().toISOString(),
       )
       .run();
+    if (dispatchId) await this.domain.getDocument(ctx, id, dispatchId);
     return new Response(object.body, {
       headers: {
         "Content-Type": "application/pdf",

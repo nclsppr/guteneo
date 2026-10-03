@@ -2,6 +2,7 @@
   "origin": "https://guteneo.com",
   "paths": [
     "/",
+    "/a-propos/",
     "/journal/",
     "/journal/de-gutenberg-au-numerique/",
     "/journal/histoire-imprimerie-luxembourg/",
@@ -9,6 +10,7 @@
     "/confidentialite/",
     "/conditions/",
     "/support/",
+    "/roles/",
     "/developpeurs/",
     "/assistants/",
     "/assistants/chatgpt/",

@@ -9,7 +9,15 @@
           "documents:write",
           "dispatches:prepare",
           "dispatches:send",
-          "dispatches:read"
+          "dispatches:read",
+          "templates:read",
+          "templates:write",
+          "templates:publish",
+          "templates:share",
+          "datasets:read",
+          "datasets:write",
+          "generations:read",
+          "generations:write"
         ]
       }
     }

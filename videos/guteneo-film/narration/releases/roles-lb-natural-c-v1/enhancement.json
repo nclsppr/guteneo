@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "lb",
+  "kind": "roles",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken.\n\nDen Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten.\n\nDe Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn.\n\nDen Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen.\n\nDen Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung.\n\nAm normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser.",
+  "nativeEnhancedText": "[thoughtful] Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken. [short pause] Den Administrateur geréiert den Atelier. [clears throat] Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten. [short pause] De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn. [short pause] Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen. [short pause] Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. [short pause] Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser!",
+  "nativeOutputSha256": "3e81dd85022f42ff08a05c710fa22cf96d727976ec6f46a441c21e94e3708fe8",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken. [short pause] Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten. [short pause] De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn. [short pause] Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen. [short pause] Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. [short pause] Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [
+    "Remove nonverbal effects or changing tones to match the user-approved calm French roles film.",
+    "Restore original punctuation when native enhancement changes it.",
+    "Carry the approved thoughtful style and separate each slide paragraph with an explicit short pause."
+  ],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "intro",
+        "administrator"
+      ],
+      "prompt": "[thoughtful] Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken. [short pause] Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "supervisor",
+        "operator"
+      ],
+      "prompt": "[thoughtful] De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn. [short pause] Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "observer",
+        "review"
+      ],
+      "prompt": "[thoughtful] Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. [short pause] Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser."
+    }
+  ],
+  "criticalListening": "pending"
+}

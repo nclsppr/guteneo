@@ -1,5 +1,26 @@
 # Execution plan and handoff
 
+2 October follow-up: five synthetic demonstration templates, owner-only library
+removal (additive migration 0049) and discoverable REST/MCP authoring rules extend
+the local candidate. Existing generated PDFs and history survive removal; see
+[TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+
+2 October templates candidate: the recovered template/data workflow is reconciled
+with main in an isolated worktree, using additive migrations now numbered 0044–0048.
+XML sources and per-record delivery channels extend the recovered implementation.
+Historical September test totals do not qualify this candidate. Current evidence
+and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+The user subsequently authorized coordinated publication; real communication and provider activation remain separate.
+
+2 October local role candidate: administrators manage the workshop; supervisors
+receive independent approval and reporting options; operators prepare; observers
+read operational content. Existing members lose approval/reporting until an admin
+assigns supervisor rights. Workshop creators become administrators; individual
+and CSV invitations add verified-email onboarding into an existing workshop.
+Migrations 0042–0043 and separate invitation mail activation are required before
+publication. See the
+[role guide, migration contract and local proof](WORKSPACE_ROLES.md).
+
 2 October integration candidate: outstanding web/native language work, Claude
 dashboard and OAuth tooling, Resend/protected delivery and plugin packaging are
 reconciled for a coordinated main release. Email activation and Auth0 policy
@@ -150,3 +171,13 @@ Read AGENTS.md and TEST_RESULTS.md. Run `npm ci`, then `npm run demo` for local 
 No work is scheduled to continue after this session. Follow the remaining-work table and retain the existing evidence when a later milestone adds live qualification.
 
 The earlier environment lacked Cloudflare credentials. The current desktop environment has working Wrangler OAuth authentication; no credentials were copied into the repository.
+
+## Additive document studio — 21 September 2026 candidate
+
+Implementation now covers pdfme templates and Word content import, data profiling
+and reusable mappings, actual bounded OpenAI adapters (synthetic transport tests),
+durable PDF generation, private artifacts and distribution preparation. The
+[delivery report](TEMPLATES_DATA_DISTRIBUTION.md) records the executed tests,
+runtime evidence and exact demo. Production migration/deployment, hosted runtime
+load, live source antivirus and real AI/assistant-host qualification remain open.
+These additions do not change any earlier live release proof or authorize a send.

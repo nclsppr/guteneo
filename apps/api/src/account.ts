@@ -1,3 +1,7 @@
+import {
+  WORKSPACE_ROLES,
+  workspacePermissions,
+} from "../../../packages/contracts/src/roles";
 import { z } from "zod";
 import {
   supportedLocales,
@@ -30,8 +34,17 @@ const profileSchema = z
   .strict()
   .refine((value) => Object.keys(value).length > 0);
 const roleSchema = z
-  .object({ role: z.enum(["admin", "member", "viewer"]) })
-  .strict();
+  .object({
+    role: z.enum(WORKSPACE_ROLES),
+    supervisorCanApprove: z.boolean().optional(),
+    supervisorCanReport: z.boolean().optional(),
+  })
+  .strict()
+  .refine(
+    (input) =>
+      input.role === "supervisor" ||
+      (!input.supervisorCanApprove && !input.supervisorCanReport),
+  );
 const json = (value: unknown, status = 200) =>
   Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
 const now = () => new Date().toISOString();
@@ -169,6 +182,15 @@ function revokeStatements(
   const org = session.context.organizationId;
   return [
     env.DB.prepare(
+      `DELETE FROM native_sessions WHERE organization_id=? AND user_id=? AND ${marker}`,
+    ).bind(org, userId, org, auditId),
+    env.DB.prepare(
+      `DELETE FROM native_authorization_codes WHERE organization_id=? AND user_id=? AND ${marker}`,
+    ).bind(org, userId, org, auditId),
+    env.DB.prepare(
+      `UPDATE expert_approval_policies SET enabled=0,revision=revision+1,updated_at=? WHERE organization_id=? AND user_id=? AND enabled=1 AND ${marker}`,
+    ).bind(timestamp, org, userId, org, auditId),
+    env.DB.prepare(
       `DELETE FROM browser_sessions WHERE organization_id=? AND user_id=? AND ${marker}`,
     ).bind(org, userId, org, auditId),
     env.DB.prepare(
@@ -196,6 +218,8 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
       id: session.context.userId,
       name: user!.name,
       role: session.context.role,
+      supervisorCanApprove: session.context.supervisorCanApprove === true,
+      supervisorCanReport: session.context.supervisorCanReport === true,
       preferredLocale: user!.preferred_locale,
     },
     organization: {
@@ -205,10 +229,10 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
     simulation: session.simulation,
     mfa: session.mfa,
     verifiedAccount: session.verifiedAccount,
-    permissions: {
-      manageOrganization: session.context.role === "admin",
-      manageMembers: session.context.role === "admin",
-    },
+    permissions: workspacePermissions(session.context.role, {
+      canApprove: session.context.supervisorCanApprove,
+      canReport: session.context.supervisorCanReport,
+    }),
   };
 }
 
@@ -488,14 +512,22 @@ export async function handleAccountRoute(
       Object.fromEntries(url.searchParams),
     );
     const result = await env.DB.prepare(
-      `SELECT m.user_id id,u.name,m.role,m.created_at joinedAt,
+      `SELECT m.user_id id,u.name,m.role,m.supervisor_can_approve supervisorCanApprove,m.supervisor_can_report supervisorCanReport,m.created_at joinedAt,
       (SELECT COUNT(*) FROM browser_sessions s WHERE s.organization_id=m.organization_id AND s.user_id=m.user_id AND s.expires_at>?) sessions,
       (SELECT COUNT(*) FROM authorized_connections c WHERE c.organization_id=m.organization_id AND c.user_id=m.user_id AND c.status='active') connections
       FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organization_id=? AND m.user_id>? ORDER BY m.user_id LIMIT ?`,
     )
       .bind(now(), org, query.cursor ?? "", query.limit + 1)
-      .all<{ id: string }>();
-    const items = result.results.slice(0, query.limit);
+      .all<{
+        id: string;
+        supervisorCanApprove: number;
+        supervisorCanReport: number;
+      }>();
+    const items = result.results.slice(0, query.limit).map((member) => ({
+      ...member,
+      supervisorCanApprove: member.supervisorCanApprove === 1,
+      supervisorCanReport: member.supervisorCanReport === 1,
+    }));
     return json({
       items,
       nextCursor: result.results.length > query.limit ? items.at(-1)!.id : null,
@@ -511,16 +543,35 @@ export async function handleAccountRoute(
       decodeURIComponent(memberMatch[1]),
     );
     const target = await env.DB.prepare(
-      "SELECT role FROM memberships WHERE organization_id=? AND user_id=?",
+      "SELECT role,supervisor_can_approve,supervisor_can_report FROM memberships WHERE organization_id=? AND user_id=?",
     )
       .bind(org, targetId)
-      .first<{ role: string }>();
+      .first<{
+        role: string;
+        supervisor_can_approve: number;
+        supervisor_can_report: number;
+      }>();
     if (!target) fail("NOT_FOUND", "Membre introuvable dans cet atelier.", 404);
     const input = memberMatch[2]
       ? parse(z.object({}).strict(), await body(request))
       : parse(roleSchema, await body(request));
     const role = "role" in input ? input.role : undefined;
-    if (role === target.role)
+    const supervisorCanApprove =
+      role === "supervisor" &&
+      ("supervisorCanApprove" in input &&
+      input.supervisorCanApprove !== undefined
+        ? input.supervisorCanApprove
+        : target.role === "supervisor" && target.supervisor_can_approve === 1);
+    const supervisorCanReport =
+      role === "supervisor" &&
+      ("supervisorCanReport" in input && input.supervisorCanReport !== undefined
+        ? input.supervisorCanReport
+        : target.role === "supervisor" && target.supervisor_can_report === 1);
+    if (
+      role === target.role &&
+      Number(supervisorCanApprove) === target.supervisor_can_approve &&
+      Number(supervisorCanReport) === target.supervisor_can_report
+    )
       return json({
         updated: false,
         sessionsRevoked: false,
@@ -532,19 +583,33 @@ export async function handleAccountRoute(
       role ? "member.role_changed" : "member.access_revoked",
       targetId,
       true,
-      role ? { role } : {},
+      role ? { role, supervisorCanApprove, supervisorCanReport } : {},
       (auditId, timestamp) => [
         ...(role
           ? [
               env.DB.prepare(
-                `UPDATE memberships SET role=? WHERE organization_id=? AND user_id=? AND ${marker}`,
-              ).bind(role, org, targetId, org, auditId),
+                `UPDATE memberships SET role=?,supervisor_can_approve=?,supervisor_can_report=? WHERE organization_id=? AND user_id=? AND ${marker}`,
+              ).bind(
+                role,
+                Number(supervisorCanApprove),
+                Number(supervisorCanReport),
+                org,
+                targetId,
+                org,
+                auditId,
+              ),
             ]
           : []),
         ...revokeStatements(env, session, targetId, auditId, timestamp),
       ],
-      "EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=?)",
-      [org, targetId],
+      "EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=? AND supervisor_can_approve=? AND supervisor_can_report=?)",
+      [
+        org,
+        targetId,
+        target.role,
+        target.supervisor_can_approve,
+        target.supervisor_can_report,
+      ],
     );
     return json({
       updated: Boolean(role),

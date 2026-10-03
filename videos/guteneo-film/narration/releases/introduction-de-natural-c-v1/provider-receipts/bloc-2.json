@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-2",
+  "path": "sources/bloc-2-prise-2.mp3",
+  "sha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+  "bytes": 331603,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "dv3QRJy9J2yRcPmvgHZa",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Ihr Assistent hilft Ihnen, aus Ihren Worten einen Entwurf vorzubereiten. [short pause] Erstellen Sie das PDF und bereiten Sie den Versand in guteneo vor. [short pause] Prüfen Sie Dokument, Empfänger, Optionen und Kosten. Im normalen Ablauf genehmigen Sie den Versand selbst im Browser. [short pause] Wählen Sie für Ihre Nachricht Fax, Briefpost oder E-Mail.",
+  "requestTextSha256": "64583f557c09757d46b65d8a4ddc31422dd0c075b5fa8672dc149baa942a7565",
+  "providerDurationSeconds": 19.6,
+  "decodedSamples": 864360,
+  "decodedPcmSha256": "50d6acdf282e430c767d51a07cad87958b449f2fbe64c75df929e16983e222bf"
+}

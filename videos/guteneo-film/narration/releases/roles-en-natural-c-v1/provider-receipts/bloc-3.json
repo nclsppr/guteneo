@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-3",
+  "path": "sources/bloc-3-prise-2.mp3",
+  "sha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+  "bytes": 221552,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "siMZo28ywFnoUuJOOoBS",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "en",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. [short pause] In the standard workflow, an authorised person approves the delivery in the browser.",
+  "requestTextSha256": "1d3534527092ad62af032495b651862fae6ccc743e200fc8e0f314d5660e564a",
+  "providerDurationSeconds": 12.72,
+  "decodedSamples": 560952,
+  "decodedPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47"
+}

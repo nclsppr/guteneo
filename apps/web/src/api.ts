@@ -10,6 +10,10 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
+import {
+  workspacePermissions,
+  type WorkspacePermissions,
+} from "../../../packages/contracts/src/roles";
 
 export type Channel = "fax" | "email" | "postal";
 export type Session = {
@@ -18,12 +22,26 @@ export type Session = {
     id: string;
     name: string;
     role: string;
+    supervisorCanApprove?: boolean;
+    supervisorCanReport?: boolean;
     preferredLocale?: SupportedLocale | null;
   };
   csrfToken: string;
   simulation: boolean;
   verifiedAccount?: boolean;
+  permissions?: WorkspacePermissions;
 };
+export function permissionsFor(
+  session: Pick<Session, "user" | "permissions">,
+): WorkspacePermissions {
+  return (
+    session.permissions ??
+    workspacePermissions(session.user.role, {
+      canApprove: session.user.supervisorCanApprove,
+      canReport: session.user.supervisorCanReport,
+    })
+  );
+}
 /** Billing, members and administration are reserved to the admin role. */
 export function canAdminister(session: Pick<Session, "user">): boolean {
   return session.user.role === "admin";
@@ -131,6 +149,7 @@ function announceSessionExpiry(path: string, status: number) {
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
+  dispatchId?: string,
 ): Promise<Uint8Array> {
   if (isPublicPreview) {
     signal?.throwIfAborted();
@@ -140,7 +159,7 @@ export async function getDocumentContent(
     return bytes;
   }
   const response = await fetch(
-    `/api/documents/${encodeURIComponent(id)}/content`,
+    `/api/documents/${encodeURIComponent(id)}/content${dispatchId ? `?dispatchId=${encodeURIComponent(dispatchId)}` : ""}`,
     {
       credentials: "same-origin",
       signal,

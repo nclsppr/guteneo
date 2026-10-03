@@ -1,0 +1,327 @@
+{
+  "sourceSha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+  "parameters": {
+    "language": "en",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.6449499589944026,
+  "result": {
+    "text": " An observer can view documents, recipients and delivery updates. They cannot change anything in the workspace or approve a message. In the standard workflow, an authorised person approves the delivery in the browser.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.82,
+        "text": " An observer can view documents, recipients and delivery updates.",
+        "tokens": [
+          50364,
+          1107,
+          27878,
+          393,
+          1910,
+          8512,
+          11,
+          32440,
+          293,
+          8982,
+          9205,
+          13,
+          50576
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.19156052203888588,
+        "compression_ratio": 1.44,
+        "no_speech_prob": 0.00217632669955492,
+        "words": [
+          {
+            "word": " An",
+            "start": 0,
+            "end": 0.2,
+            "probability": 0.9091796875
+          },
+          {
+            "word": " observer",
+            "start": 0.2,
+            "end": 0.56,
+            "probability": 0.97705078125
+          },
+          {
+            "word": " can",
+            "start": 0.56,
+            "end": 0.86,
+            "probability": 0.998046875
+          },
+          {
+            "word": " view",
+            "start": 0.86,
+            "end": 1.06,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " documents,",
+            "start": 1.06,
+            "end": 1.64,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " recipients",
+            "start": 1.96,
+            "end": 2.34,
+            "probability": 0.994140625
+          },
+          {
+            "word": " and",
+            "start": 2.34,
+            "end": 2.84,
+            "probability": 0.8056640625
+          },
+          {
+            "word": " delivery",
+            "start": 2.84,
+            "end": 3.24,
+            "probability": 0.998046875
+          },
+          {
+            "word": " updates.",
+            "start": 3.24,
+            "end": 3.82,
+            "probability": 0.99755859375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.34,
+        "end": 7.44,
+        "text": " They cannot change anything in the workspace or approve a message.",
+        "tokens": [
+          50576,
+          814,
+          2644,
+          1319,
+          1340,
+          294,
+          264,
+          32706,
+          420,
+          18827,
+          257,
+          3636,
+          13,
+          50768
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.19156052203888588,
+        "compression_ratio": 1.44,
+        "no_speech_prob": 0.00217632669955492,
+        "words": [
+          {
+            "word": " They",
+            "start": 4.34,
+            "end": 4.44,
+            "probability": 0.99169921875
+          },
+          {
+            "word": " cannot",
+            "start": 4.44,
+            "end": 4.66,
+            "probability": 0.96923828125
+          },
+          {
+            "word": " change",
+            "start": 4.66,
+            "end": 4.98,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " anything",
+            "start": 4.98,
+            "end": 5.52,
+            "probability": 0.994140625
+          },
+          {
+            "word": " in",
+            "start": 5.52,
+            "end": 5.7,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " the",
+            "start": 5.7,
+            "end": 5.78,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " workspace",
+            "start": 5.78,
+            "end": 6.16,
+            "probability": 0.94921875
+          },
+          {
+            "word": " or",
+            "start": 6.16,
+            "end": 6.62,
+            "probability": 0.9443359375
+          },
+          {
+            "word": " approve",
+            "start": 6.62,
+            "end": 6.96,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " a",
+            "start": 6.96,
+            "end": 7.08,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " message.",
+            "start": 7.08,
+            "end": 7.44,
+            "probability": 0.9970703125
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.1,
+        "end": 12.4,
+        "text": " In the standard workflow, an authorised person approves the delivery in the browser.",
+        "tokens": [
+          50768,
+          682,
+          264,
+          3832,
+          20993,
+          11,
+          364,
+          3793,
+          2640,
+          954,
+          2075,
+          977,
+          264,
+          8982,
+          294,
+          264,
+          11185,
+          13,
+          50996
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.19156052203888588,
+        "compression_ratio": 1.44,
+        "no_speech_prob": 0.00217632669955492,
+        "words": [
+          {
+            "word": " In",
+            "start": 8.1,
+            "end": 8.26,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " the",
+            "start": 8.26,
+            "end": 8.36,
+            "probability": 0.9951171875
+          },
+          {
+            "word": " standard",
+            "start": 8.36,
+            "end": 8.7,
+            "probability": 0.81591796875
+          },
+          {
+            "word": " workflow,",
+            "start": 8.7,
+            "end": 9.26,
+            "probability": 0.978515625
+          },
+          {
+            "word": " an",
+            "start": 9.58,
+            "end": 9.7,
+            "probability": 0.99462890625
+          },
+          {
+            "word": " authorised",
+            "start": 9.7,
+            "end": 10.24,
+            "probability": 0.8203125
+          },
+          {
+            "word": " person",
+            "start": 10.24,
+            "end": 10.66,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " approves",
+            "start": 10.66,
+            "end": 11.2,
+            "probability": 0.998046875
+          },
+          {
+            "word": " the",
+            "start": 11.2,
+            "end": 11.34,
+            "probability": 0.994140625
+          },
+          {
+            "word": " delivery",
+            "start": 11.34,
+            "end": 11.7,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " in",
+            "start": 11.7,
+            "end": 11.96,
+            "probability": 0.99462890625
+          },
+          {
+            "word": " the",
+            "start": 11.96,
+            "end": 12.06,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " browser.",
+            "start": 12.06,
+            "end": 12.4,
+            "probability": 0.9970703125
+          }
+        ]
+      }
+    ],
+    "language": "en"
+  },
+  "originalProofSha256": "0a471589abd28303403ea0fe0ef75fba73c95594aae720dc54cbf9cdce82068f"
+}

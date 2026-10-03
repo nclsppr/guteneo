@@ -1,5 +1,5 @@
 import { msg } from "./messages";
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { LegalLinks } from "./legal-links";
@@ -13,7 +13,7 @@ export function LegalPage() {
       </a>
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <a className="legal-back" href="/">
           <ArrowLeft size={18} aria-hidden="true" />{" "}
           {msg(" Retour à l’accueil")}

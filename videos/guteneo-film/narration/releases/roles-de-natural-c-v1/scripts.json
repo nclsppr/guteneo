@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "modelId": "eleven_v4",
+  "outputFormat": "wav_pcm_s24le_44100_mono",
+  "narrations": [
+    {
+      "id": "roles-de-natural-c",
+      "kind": "roles",
+      "locale": "de",
+      "durationSeconds": 49.13333333333333,
+      "endCardStartSeconds": 44.13333333333333,
+      "cues": [
+        {
+          "id": "intro",
+          "startSeconds": 0.4,
+          "endSeconds": 4.233333333333333,
+          "text": "Sehen wir uns die vier Rollen in guteneo und ihre Rechte an."
+        },
+        {
+          "id": "administrator",
+          "startSeconds": 5.133333333333334,
+          "endSeconds": 12.133333333333333,
+          "text": "Der Administrator verwaltet den Arbeitsbereich. Er bereitet Sendungen vor, genehmigt sie und liest die Berichte."
+        },
+        {
+          "id": "supervisor",
+          "startSeconds": 13.033333333333333,
+          "endSeconds": 22.4,
+          "text": "Der Supervisor bereitet Sendungen vor. Die Rechte zur Genehmigung und zum Lesen der Berichte werden separat vergeben und sind standardmäßig deaktiviert."
+        },
+        {
+          "id": "operator",
+          "startSeconds": 23.3,
+          "endSeconds": 29.166666666666668,
+          "text": "Der Sachbearbeiter importiert Dokumente und bereitet Sendungen vor. Er darf sie nicht genehmigen."
+        },
+        {
+          "id": "observer",
+          "startSeconds": 30.066666666666666,
+          "endSeconds": 38.333333333333336,
+          "text": "Der Beobachter liest Dokumente, Empfänger und Versandstatus. Er ändert keine Daten im Arbeitsbereich und genehmigt keine Sendungen."
+        },
+        {
+          "id": "review",
+          "startSeconds": 39.233333333333334,
+          "endSeconds": 43.63333333333333,
+          "text": "Im normalen Ablauf genehmigt eine berechtigte Person den Versand im Browser."
+        }
+      ]
+    }
+  ]
+}

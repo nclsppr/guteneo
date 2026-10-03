@@ -1,0 +1,984 @@
+{
+  "language_code": "ltz",
+  "segments": [
+    {
+      "text": "Loosst eis déi véier Rolle vu Gutteneeër",
+      "start_time": 0.2,
+      "end_time": 2.62,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Loosst",
+          "start_time": 0.2,
+          "end_time": 0.5
+        },
+        {
+          "text": " ",
+          "start_time": 0.5,
+          "end_time": 0.54
+        },
+        {
+          "text": "eis",
+          "start_time": 0.54,
+          "end_time": 0.74
+        },
+        {
+          "text": " ",
+          "start_time": 0.74,
+          "end_time": 0.76
+        },
+        {
+          "text": "déi",
+          "start_time": 0.78,
+          "end_time": 0.92
+        },
+        {
+          "text": " ",
+          "start_time": 0.92,
+          "end_time": 1.04
+        },
+        {
+          "text": "véier",
+          "start_time": 1.06,
+          "end_time": 1.36
+        },
+        {
+          "text": " ",
+          "start_time": 1.36,
+          "end_time": 1.48
+        },
+        {
+          "text": "Rolle",
+          "start_time": 1.48,
+          "end_time": 1.78
+        },
+        {
+          "text": " ",
+          "start_time": 1.78,
+          "end_time": 1.88
+        },
+        {
+          "text": "vu",
+          "start_time": 1.88,
+          "end_time": 1.96
+        },
+        {
+          "text": " ",
+          "start_time": 1.96,
+          "end_time": 2.08
+        },
+        {
+          "text": "Gutteneeër",
+          "start_time": 2.08,
+          "end_time": 2.62
+        }
+      ]
+    },
+    {
+      "text": "an hir Rechter entdecken.",
+      "start_time": 2.66,
+      "end_time": 4,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "an",
+          "start_time": 2.66,
+          "end_time": 2.76
+        },
+        {
+          "text": " ",
+          "start_time": 2.76,
+          "end_time": 2.8
+        },
+        {
+          "text": "hir",
+          "start_time": 2.8,
+          "end_time": 2.94
+        },
+        {
+          "text": " ",
+          "start_time": 2.94,
+          "end_time": 3.02
+        },
+        {
+          "text": "Rechter",
+          "start_time": 3.02,
+          "end_time": 3.38
+        },
+        {
+          "text": " ",
+          "start_time": 3.38,
+          "end_time": 3.42
+        },
+        {
+          "text": "entdecken.",
+          "start_time": 3.42,
+          "end_time": 4
+        }
+      ]
+    },
+    {
+      "text": "Den Administrateur geréiert den Atelier.",
+      "start_time": 4.64,
+      "end_time": 6.82,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Den",
+          "start_time": 4.64,
+          "end_time": 4.78
+        },
+        {
+          "text": " ",
+          "start_time": 4.78,
+          "end_time": 4.82
+        },
+        {
+          "text": "Administrateur",
+          "start_time": 4.82,
+          "end_time": 5.62
+        },
+        {
+          "text": " ",
+          "start_time": 5.62,
+          "end_time": 5.76
+        },
+        {
+          "text": "geréiert",
+          "start_time": 5.76,
+          "end_time": 6.16
+        },
+        {
+          "text": " ",
+          "start_time": 6.16,
+          "end_time": 6.18
+        },
+        {
+          "text": "den",
+          "start_time": 6.18,
+          "end_time": 6.3
+        },
+        {
+          "text": " ",
+          "start_time": 6.3,
+          "end_time": 6.34
+        },
+        {
+          "text": "Atelier.",
+          "start_time": 6.34,
+          "end_time": 6.82
+        }
+      ]
+    },
+    {
+      "text": "Hie bereet Sendunge vir, geneemegt se a",
+      "start_time": 7.3,
+      "end_time": 9.9,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Hie",
+          "start_time": 7.3,
+          "end_time": 7.4
+        },
+        {
+          "text": " ",
+          "start_time": 7.4,
+          "end_time": 7.44
+        },
+        {
+          "text": "bereet",
+          "start_time": 7.44,
+          "end_time": 7.74
+        },
+        {
+          "text": " ",
+          "start_time": 7.74,
+          "end_time": 7.8
+        },
+        {
+          "text": "Sendunge",
+          "start_time": 7.8,
+          "end_time": 8.2
+        },
+        {
+          "text": " ",
+          "start_time": 8.2,
+          "end_time": 8.32
+        },
+        {
+          "text": "vir,",
+          "start_time": 8.32,
+          "end_time": 8.5
+        },
+        {
+          "text": " ",
+          "start_time": 8.5,
+          "end_time": 8.86
+        },
+        {
+          "text": "geneemegt",
+          "start_time": 8.86,
+          "end_time": 9.38
+        },
+        {
+          "text": " ",
+          "start_time": 9.38,
+          "end_time": 9.42
+        },
+        {
+          "text": "se",
+          "start_time": 9.42,
+          "end_time": 9.56
+        },
+        {
+          "text": " ",
+          "start_time": 9.56,
+          "end_time": 9.84
+        },
+        {
+          "text": "a",
+          "start_time": 9.84,
+          "end_time": 9.9
+        }
+      ]
+    },
+    {
+      "text": "kuckt Rapporten. De Superviseur bereet",
+      "start_time": 9.94,
+      "end_time": 12.52,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "kuckt",
+          "start_time": 9.94,
+          "end_time": 10.16
+        },
+        {
+          "text": " ",
+          "start_time": 10.16,
+          "end_time": 10.2
+        },
+        {
+          "text": "Rapporten.",
+          "start_time": 10.2,
+          "end_time": 10.82
+        },
+        {
+          "text": " ",
+          "start_time": 10.82,
+          "end_time": 11.26
+        },
+        {
+          "text": "De",
+          "start_time": 11.26,
+          "end_time": 11.38
+        },
+        {
+          "text": " ",
+          "start_time": 11.38,
+          "end_time": 11.44
+        },
+        {
+          "text": "Superviseur",
+          "start_time": 11.44,
+          "end_time": 12.1
+        },
+        {
+          "text": " ",
+          "start_time": 12.1,
+          "end_time": 12.18
+        },
+        {
+          "text": "bereet",
+          "start_time": 12.18,
+          "end_time": 12.52
+        }
+      ]
+    },
+    {
+      "text": "Sendunge vir.",
+      "start_time": 12.58,
+      "end_time": 13.48,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Sendunge",
+          "start_time": 12.58,
+          "end_time": 13.02
+        },
+        {
+          "text": " ",
+          "start_time": 13.02,
+          "end_time": 13.14
+        },
+        {
+          "text": "vir.",
+          "start_time": 13.14,
+          "end_time": 13.48
+        }
+      ]
+    },
+    {
+      "text": "De Geneemegung an deen Zougang zu de",
+      "start_time": 14.1,
+      "end_time": 15.96,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "De",
+          "start_time": 14.1,
+          "end_time": 14.18
+        },
+        {
+          "text": " ",
+          "start_time": 14.18,
+          "end_time": 14.22
+        },
+        {
+          "text": "Geneemegung",
+          "start_time": 14.22,
+          "end_time": 14.92
+        },
+        {
+          "text": " ",
+          "start_time": 14.92,
+          "end_time": 14.96
+        },
+        {
+          "text": "an",
+          "start_time": 14.96,
+          "end_time": 15.04
+        },
+        {
+          "text": " ",
+          "start_time": 15.04,
+          "end_time": 15.08
+        },
+        {
+          "text": "deen",
+          "start_time": 15.08,
+          "end_time": 15.24
+        },
+        {
+          "text": " ",
+          "start_time": 15.24,
+          "end_time": 15.32
+        },
+        {
+          "text": "Zougang",
+          "start_time": 15.32,
+          "end_time": 15.7
+        },
+        {
+          "text": " ",
+          "start_time": 15.7,
+          "end_time": 15.78
+        },
+        {
+          "text": "zu",
+          "start_time": 15.78,
+          "end_time": 15.86
+        },
+        {
+          "text": " ",
+          "start_time": 15.86,
+          "end_time": 15.9
+        },
+        {
+          "text": "de",
+          "start_time": 15.9,
+          "end_time": 15.96
+        }
+      ]
+    },
+    {
+      "text": "Rapporte sinn zwou getrennte",
+      "start_time": 16,
+      "end_time": 17.68,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Rapporte",
+          "start_time": 16,
+          "end_time": 16.58
+        },
+        {
+          "text": " ",
+          "start_time": 16.58,
+          "end_time": 16.68
+        },
+        {
+          "text": "sinn",
+          "start_time": 16.68,
+          "end_time": 16.88
+        },
+        {
+          "text": " ",
+          "start_time": 16.88,
+          "end_time": 16.96
+        },
+        {
+          "text": "zwou",
+          "start_time": 16.96,
+          "end_time": 17.14
+        },
+        {
+          "text": " ",
+          "start_time": 17.14,
+          "end_time": 17.22
+        },
+        {
+          "text": "getrennte",
+          "start_time": 17.22,
+          "end_time": 17.68
+        }
+      ]
+    },
+    {
+      "text": "Berechtegungen, déi standardméisseg",
+      "start_time": 17.74,
+      "end_time": 19.86,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Berechtegungen,",
+          "start_time": 17.74,
+          "end_time": 18.52
+        },
+        {
+          "text": " ",
+          "start_time": 18.52,
+          "end_time": 18.86
+        },
+        {
+          "text": "déi",
+          "start_time": 18.86,
+          "end_time": 18.96
+        },
+        {
+          "text": " ",
+          "start_time": 18.96,
+          "end_time": 19
+        },
+        {
+          "text": "standardméisseg",
+          "start_time": 19.06,
+          "end_time": 19.86
+        }
+      ]
+    },
+    {
+      "text": "ausgeschalt sinn. Den Operateur",
+      "start_time": 19.94,
+      "end_time": 22.02,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "ausgeschalt",
+          "start_time": 19.94,
+          "end_time": 20.5
+        },
+        {
+          "text": " ",
+          "start_time": 20.5,
+          "end_time": 20.56
+        },
+        {
+          "text": "sinn.",
+          "start_time": 20.56,
+          "end_time": 20.78
+        },
+        {
+          "text": " ",
+          "start_time": 20.78,
+          "end_time": 21.24
+        },
+        {
+          "text": "Den",
+          "start_time": 21.24,
+          "end_time": 21.38
+        },
+        {
+          "text": " ",
+          "start_time": 21.38,
+          "end_time": 21.42
+        },
+        {
+          "text": "Operateur",
+          "start_time": 21.42,
+          "end_time": 22.02
+        }
+      ]
+    },
+    {
+      "text": "importéiert Dokumenter a bereet Sendunge",
+      "start_time": 22.12,
+      "end_time": 24.44,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "importéiert",
+          "start_time": 22.12,
+          "end_time": 22.68
+        },
+        {
+          "text": " ",
+          "start_time": 22.68,
+          "end_time": 22.72
+        },
+        {
+          "text": "Dokumenter",
+          "start_time": 22.72,
+          "end_time": 23.38
+        },
+        {
+          "text": " ",
+          "start_time": 23.38,
+          "end_time": 23.56
+        },
+        {
+          "text": "a",
+          "start_time": 23.56,
+          "end_time": 23.6
+        },
+        {
+          "text": " ",
+          "start_time": 23.6,
+          "end_time": 23.66
+        },
+        {
+          "text": "bereet",
+          "start_time": 23.66,
+          "end_time": 23.98
+        },
+        {
+          "text": " ",
+          "start_time": 23.98,
+          "end_time": 24.04
+        },
+        {
+          "text": "Sendunge",
+          "start_time": 24.04,
+          "end_time": 24.44
+        }
+      ]
+    },
+    {
+      "text": "vir. Hie däerf se net geneemegen. Den",
+      "start_time": 24.58,
+      "end_time": 27.22,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "vir.",
+          "start_time": 24.58,
+          "end_time": 24.78
+        },
+        {
+          "text": " ",
+          "start_time": 24.78,
+          "end_time": 25.3
+        },
+        {
+          "text": "Hie",
+          "start_time": 25.3,
+          "end_time": 25.48
+        },
+        {
+          "text": " ",
+          "start_time": 25.48,
+          "end_time": 25.54
+        },
+        {
+          "text": "däerf",
+          "start_time": 25.54,
+          "end_time": 25.72
+        },
+        {
+          "text": " ",
+          "start_time": 25.72,
+          "end_time": 25.78
+        },
+        {
+          "text": "se",
+          "start_time": 25.78,
+          "end_time": 25.9
+        },
+        {
+          "text": " ",
+          "start_time": 25.9,
+          "end_time": 25.96
+        },
+        {
+          "text": "net",
+          "start_time": 25.96,
+          "end_time": 26.18
+        },
+        {
+          "text": " ",
+          "start_time": 26.18,
+          "end_time": 26.22
+        },
+        {
+          "text": "geneemegen.",
+          "start_time": 26.22,
+          "end_time": 26.82
+        },
+        {
+          "text": " ",
+          "start_time": 26.82,
+          "end_time": 27.12
+        },
+        {
+          "text": "Den",
+          "start_time": 27.12,
+          "end_time": 27.22
+        }
+      ]
+    },
+    {
+      "text": "Observateur kuckt d'Dokumenter,",
+      "start_time": 27.28,
+      "end_time": 29.34,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Observateur",
+          "start_time": 27.28,
+          "end_time": 28.02
+        },
+        {
+          "text": " ",
+          "start_time": 28.02,
+          "end_time": 28.14
+        },
+        {
+          "text": "kuckt",
+          "start_time": 28.14,
+          "end_time": 28.34
+        },
+        {
+          "text": " ",
+          "start_time": 28.34,
+          "end_time": 28.44
+        },
+        {
+          "text": "d'Dokumenter,",
+          "start_time": 28.44,
+          "end_time": 29.34
+        }
+      ]
+    },
+    {
+      "text": "d'Empfänger an de Suivi.",
+      "start_time": 29.54,
+      "end_time": 31.08,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "d'Empfänger",
+          "start_time": 29.54,
+          "end_time": 30.18
+        },
+        {
+          "text": " ",
+          "start_time": 30.18,
+          "end_time": 30.38
+        },
+        {
+          "text": "an",
+          "start_time": 30.38,
+          "end_time": 30.46
+        },
+        {
+          "text": " ",
+          "start_time": 30.46,
+          "end_time": 30.5
+        },
+        {
+          "text": "de",
+          "start_time": 30.5,
+          "end_time": 30.56
+        },
+        {
+          "text": " ",
+          "start_time": 30.56,
+          "end_time": 30.66
+        },
+        {
+          "text": "Suivi.",
+          "start_time": 30.66,
+          "end_time": 31.08
+        }
+      ]
+    },
+    {
+      "text": "Hien ännert keng Donnéeën am Atelier a",
+      "start_time": 31.68,
+      "end_time": 33.76,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Hien",
+          "start_time": 31.68,
+          "end_time": 31.86
+        },
+        {
+          "text": " ",
+          "start_time": 31.86,
+          "end_time": 31.9
+        },
+        {
+          "text": "ännert",
+          "start_time": 31.9,
+          "end_time": 32.18
+        },
+        {
+          "text": " ",
+          "start_time": 32.18,
+          "end_time": 32.259
+        },
+        {
+          "text": "keng",
+          "start_time": 32.259,
+          "end_time": 32.439
+        },
+        {
+          "text": " ",
+          "start_time": 32.439,
+          "end_time": 32.479
+        },
+        {
+          "text": "Donnéeën",
+          "start_time": 32.479,
+          "end_time": 32.96
+        },
+        {
+          "text": " ",
+          "start_time": 32.96,
+          "end_time": 33
+        },
+        {
+          "text": "am",
+          "start_time": 33,
+          "end_time": 33.1
+        },
+        {
+          "text": " ",
+          "start_time": 33.1,
+          "end_time": 33.14
+        },
+        {
+          "text": "Atelier",
+          "start_time": 33.14,
+          "end_time": 33.68
+        },
+        {
+          "text": " ",
+          "start_time": 33.68,
+          "end_time": 33.74
+        },
+        {
+          "text": "a",
+          "start_time": 33.74,
+          "end_time": 33.76
+        }
+      ]
+    },
+    {
+      "text": "geneemegt keng Sendung.",
+      "start_time": 33.82,
+      "end_time": 35.06,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "geneemegt",
+          "start_time": 33.82,
+          "end_time": 34.3
+        },
+        {
+          "text": " ",
+          "start_time": 34.3,
+          "end_time": 34.38
+        },
+        {
+          "text": "keng",
+          "start_time": 34.38,
+          "end_time": 34.58
+        },
+        {
+          "text": " ",
+          "start_time": 34.58,
+          "end_time": 34.64
+        },
+        {
+          "text": "Sendung.",
+          "start_time": 34.64,
+          "end_time": 35.06
+        }
+      ]
+    },
+    {
+      "text": "Am normale Parcours geneemegt eng",
+      "start_time": 35.76,
+      "end_time": 37.48,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "Am",
+          "start_time": 35.76,
+          "end_time": 35.84
+        },
+        {
+          "text": " ",
+          "start_time": 35.84,
+          "end_time": 35.88
+        },
+        {
+          "text": "normale",
+          "start_time": 35.88,
+          "end_time": 36.26
+        },
+        {
+          "text": " ",
+          "start_time": 36.26,
+          "end_time": 36.34
+        },
+        {
+          "text": "Parcours",
+          "start_time": 36.36,
+          "end_time": 36.86
+        },
+        {
+          "text": " ",
+          "start_time": 36.86,
+          "end_time": 36.9
+        },
+        {
+          "text": "geneemegt",
+          "start_time": 36.9,
+          "end_time": 37.32
+        },
+        {
+          "text": " ",
+          "start_time": 37.32,
+          "end_time": 37.34
+        },
+        {
+          "text": "eng",
+          "start_time": 37.34,
+          "end_time": 37.48
+        }
+      ]
+    },
+    {
+      "text": "berechtegt Persoun d'Sendung am Browser.",
+      "start_time": 37.5,
+      "end_time": 39.74,
+      "speaker": {
+        "id": "speaker_0",
+        "name": "Speaker 0"
+      },
+      "words": [
+        {
+          "text": "berechtegt",
+          "start_time": 37.5,
+          "end_time": 38.04
+        },
+        {
+          "text": " ",
+          "start_time": 38.04,
+          "end_time": 38.06
+        },
+        {
+          "text": "Persoun",
+          "start_time": 38.06,
+          "end_time": 38.52
+        },
+        {
+          "text": " ",
+          "start_time": 38.52,
+          "end_time": 38.64
+        },
+        {
+          "text": "d'Sendung",
+          "start_time": 38.64,
+          "end_time": 39.08
+        },
+        {
+          "text": " ",
+          "start_time": 39.08,
+          "end_time": 39.12
+        },
+        {
+          "text": "am",
+          "start_time": 39.12,
+          "end_time": 39.26
+        },
+        {
+          "text": " ",
+          "start_time": 39.26,
+          "end_time": 39.28
+        },
+        {
+          "text": "Browser.",
+          "start_time": 39.28,
+          "end_time": 39.74
+        }
+      ]
+    }
+  ],
+  "originalProofSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e"
+}

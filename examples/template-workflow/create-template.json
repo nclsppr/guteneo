@@ -1,0 +1,394 @@
+{
+  "envelope": {
+    "schemaVersion": 1,
+    "engine": "pdfme",
+    "engineVersion": "6.1.13",
+    "name": "Facture de démonstration",
+    "description": "Exemple de lignes variables et total calculé en unités mineures entières. Aucune certification de conformité fiscale.",
+    "locale": "fr-FR",
+    "definition": {
+      "basePdf": {
+        "width": 210,
+        "height": 297,
+        "padding": [
+          22,
+          20,
+          20,
+          20
+        ],
+        "staticSchema": [
+          {
+            "name": "header",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 10
+            },
+            "width": 170,
+            "height": 6,
+            "content": "ENTREPRISE EXEMPLE",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 8,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "footer",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 283
+            },
+            "width": 170,
+            "height": 6,
+            "content": "Données fictives · Page {currentPage} / {totalPages}",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 8,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          }
+        ]
+      },
+      "schemas": [
+        [
+          {
+            "name": "title",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 27
+            },
+            "width": 170,
+            "height": 13,
+            "content": "FACTURE · DÉMONSTRATION",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 21,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "customer",
+            "type": "text",
+            "position": {
+              "x": 110,
+              "y": 47
+            },
+            "width": 80,
+            "height": 20,
+            "content": "Entreprise Exemple",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "reference",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 49
+            },
+            "width": 80,
+            "height": 10,
+            "content": "EX-001",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "date",
+            "type": "text",
+            "position": {
+              "x": 20,
+              "y": 63
+            },
+            "width": 80,
+            "height": 10,
+            "content": "21/09/2026",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 11,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          },
+          {
+            "name": "items",
+            "type": "table",
+            "position": {
+              "x": 20,
+              "y": 92
+            },
+            "width": 170,
+            "height": 22,
+            "content": "[[\"Exemple\",\"Exemple\",\"Exemple\",\"Exemple\"]]",
+            "readOnly": false,
+            "showHead": true,
+            "repeatHead": true,
+            "head": [
+              "Description",
+              "Quantité",
+              "Prix unitaire",
+              "Montant"
+            ],
+            "headWidthPercentages": [
+              25,
+              25,
+              25,
+              25
+            ],
+            "tableStyles": {
+              "borderWidth": 0,
+              "borderColor": "#D9DEDA"
+            },
+            "headStyles": {
+              "fontName": "GuteneoSans",
+              "fontSize": 10,
+              "characterSpacing": 0,
+              "alignment": "left",
+              "verticalAlignment": "middle",
+              "lineHeight": 1.2,
+              "borderWidth": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0.2,
+                "left": 0
+              },
+              "padding": {
+                "top": 2.5,
+                "right": 2,
+                "bottom": 2.5,
+                "left": 2
+              },
+              "fontColor": "#FFFFFF",
+              "borderColor": "#D9DEDA",
+              "backgroundColor": "#24594C"
+            },
+            "bodyStyles": {
+              "fontName": "GuteneoSans",
+              "fontSize": 10,
+              "characterSpacing": 0,
+              "alignment": "left",
+              "verticalAlignment": "middle",
+              "lineHeight": 1.2,
+              "borderWidth": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0.2,
+                "left": 0
+              },
+              "padding": {
+                "top": 2.5,
+                "right": 2,
+                "bottom": 2.5,
+                "left": 2
+              },
+              "fontColor": "#202827",
+              "borderColor": "#D9DEDA",
+              "backgroundColor": "",
+              "alternateBackgroundColor": "#F4F6F3"
+            },
+            "columnStyles": {}
+          },
+          {
+            "name": "total",
+            "type": "text",
+            "position": {
+              "x": 110,
+              "y": 124
+            },
+            "width": 80,
+            "height": 15,
+            "content": "Total : 25,00 €",
+            "readOnly": true,
+            "fontName": "GuteneoSans",
+            "fontSize": 14,
+            "fontColor": "#202827",
+            "lineHeight": 1.25,
+            "characterSpacing": 0,
+            "alignment": "left",
+            "verticalAlignment": "top",
+            "overflow": "expand"
+          }
+        ]
+      ],
+      "pdfmeVersion": "6.1.13"
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Client"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "title": "Référence"
+        },
+        "date": {
+          "type": "string",
+          "title": "Date",
+          "format": "date"
+        },
+        "items": {
+          "type": "array",
+          "title": "Lignes",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "title": "Description",
+                "maxLength": 1500
+              },
+              "quantity": {
+                "type": "integer",
+                "title": "Quantité"
+              },
+              "unitPriceMinor": {
+                "type": "integer",
+                "title": "Prix unitaire (centimes)"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPriceMinor"
+            ]
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "customer",
+        "reference",
+        "date",
+        "items"
+      ]
+    },
+    "bindings": [
+      {
+        "block": "customer",
+        "kind": "value",
+        "path": "customer.name",
+        "format": "text",
+        "required": true
+      },
+      {
+        "block": "reference",
+        "kind": "value",
+        "path": "reference",
+        "format": "text",
+        "required": true,
+        "prefix": "Référence : "
+      },
+      {
+        "block": "date",
+        "kind": "value",
+        "path": "date",
+        "format": "date",
+        "required": true
+      },
+      {
+        "block": "items",
+        "kind": "table",
+        "path": "items",
+        "format": "text",
+        "columns": [
+          {
+            "title": "Description",
+            "path": "description",
+            "format": "text",
+            "required": true
+          },
+          {
+            "title": "Quantité",
+            "path": "quantity",
+            "format": "integer",
+            "required": true
+          },
+          {
+            "title": "Prix unitaire",
+            "path": "unitPriceMinor",
+            "format": "money",
+            "currency": "EUR",
+            "required": true
+          },
+          {
+            "title": "Montant",
+            "path": "unitPriceMinor",
+            "format": "money",
+            "currency": "EUR",
+            "multiplyBy": "quantity",
+            "required": true
+          }
+        ],
+        "required": true
+      },
+      {
+        "block": "total",
+        "kind": "sum",
+        "path": "items",
+        "format": "money",
+        "currency": "EUR",
+        "valuePath": "unitPriceMinor",
+        "multiplyBy": "quantity",
+        "required": true,
+        "prefix": "Total : "
+      }
+    ],
+    "sampleData": {
+      "customer": {
+        "name": "Entreprise Exemple — München"
+      },
+      "reference": "EX-001",
+      "date": "2026-09-21",
+      "items": [
+        {
+          "description": "Conseil et préparation documentaire",
+          "quantity": 2,
+          "unitPriceMinor": 1250
+        }
+      ]
+    },
+    "sampleDataSynthetic": true,
+    "resources": []
+  }
+}

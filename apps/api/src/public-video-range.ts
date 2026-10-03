@@ -1,9 +1,7 @@
 import videoManifest from "./public-video-manifest.json" with { type: "json" };
+import { publicVideoPaths as catalogPaths } from "../../../packages/contracts/src/public-videos";
 
-const publicVideoPaths = new Set([
-  "/videos/guteneo-horizontal-v5.mp4",
-  "/videos/guteneo-vertical-v5.mp4",
-]);
+const publicVideoPaths = new Set(catalogPaths);
 type VideoManifest = Record<string, { bytes: number; sha256: string }>;
 type ByteRange = { start: number; end: number };
 
@@ -92,7 +90,7 @@ function sliceStream(source: ReadableStream<Uint8Array>, range: ByteRange) {
     : stream.pipeThrough(new FixedLengthStream(range.end - range.start + 1));
 }
 
-/** Byte ranges for two immutable public films only; never accesses private documents. */
+/** Byte ranges for exact catalogued public films only; never accesses private documents. */
 export async function withPublicVideoRange(
   request: Request,
   response: Response,

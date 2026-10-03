@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-1",
+  "path": "sources/bloc-1-prise-2.mp3",
+  "sha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+  "bytes": 196056,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "DX08W1h299fKCAIe8Val",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken. [short pause] Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten.",
+  "requestTextSha256": "5f2576e8eda92640f1b8207869410177d14496311d14a6abe3f900a2ab856aa9",
+  "providerDurationSeconds": 11.12,
+  "decodedSamples": 490392,
+  "decodedPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba"
+}

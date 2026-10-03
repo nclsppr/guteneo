@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "source": "elevenlabs-native-enhance",
+  "nativeAction": "Améliorer, puis Garder",
+  "nativeInterface": "Safari ElevenLabs Text to Speech",
+  "locale": "en",
+  "kind": "introduction",
+  "modelId": "eleven_v4",
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "originalText": "With guteneo, everything starts with a document to send.\n\nPrepare a single delivery, or organise a whole campaign of documents.\n\nPersonalise each version, so every recipient receives a document written for them.\n\nUpload your original PDF, or use a template to create your document.\n\nTell your assistant what you need. It helps you prepare your correspondence.\n\nAsk it to create your PDF, then prepare its delivery.\n\nCheck the document, recipient, options and cost. Then approve in the browser.\n\nYour message can travel by fax, by post, or by email.\n\nYour documents travel across Europe to reach their recipients.\n\nguteneo takes your correspondence from your screen to their letterbox.\n\nFind your documents and campaigns on the web or on your iPhone.",
+  "nativeEnhancedText": "[thoughtful] With guteneo, everything starts with a document to send. [short pause] Prepare a single delivery, or organise a whole campaign of documents. [happy] Personalise each version, so every recipient receives a document written for them! [thoughtful] Upload your original PDF, or use a template to create your document. [friendly] Tell your assistant what you need. It helps you prepare your correspondence. [short pause] Ask it to create your PDF, then prepare its delivery. [thoughtful] Check the document, recipient, options and cost. Then approve in the browser. [informative] Your message can travel by fax, by post, or by email. [excited] Your documents travel across Europe to reach their recipients! [proud] guteneo takes your correspondence from your screen to their letterbox. [happy] Find your documents and campaigns on the web or on your iPhone.",
+  "nativeOutputSha256": "78306102c9b8804c07e79c6e6c7e0b03b7cc16399282e3940881e28c8a380cbb",
+  "nativeWordsUnchanged": true,
+  "enhancedText": "[thoughtful] With guteneo, everything starts with a document to send. [short pause] Prepare a single delivery, or organise a whole campaign of documents. [short pause] Personalise each version, so every recipient receives a document written for them. [short pause] Upload your original PDF, or use a template to create your document. [short pause] Tell your assistant what you need. It helps you prepare your correspondence. [short pause] Ask it to create your PDF, then prepare its delivery. [short pause] Check the document, recipient, options and cost. Then approve in the browser. [short pause] Your message can travel by fax, by post, or by email. [short pause] Your documents travel across Europe to reach their recipients. [short pause] guteneo takes your correspondence from your screen to their letterbox. [short pause] Find your documents and campaigns on the web or on your iPhone.",
+  "spokenTextUnchanged": true,
+  "method": "C-three-blocks",
+  "editorialEdits": [
+    "Remove nonverbal effects or changing tones to match the user-approved calm French roles film.",
+    "Restore original punctuation when native enhancement changes it.",
+    "Carry the approved thoughtful style and separate each slide paragraph with an explicit short pause."
+  ],
+  "splitPolicy": "Three context blocks; two slides per roles block, four/four/three slides for introduction. Inter-block pauses represented by edit gaps.",
+  "styleTag": "thoughtful",
+  "pauseTag": "short pause",
+  "blocks": [
+    {
+      "id": "bloc-1",
+      "cueIds": [
+        "one",
+        "scale",
+        "personal",
+        "sources"
+      ],
+      "prompt": "[thoughtful] With guteneo, everything starts with a document to send. [short pause] Prepare a single delivery, or organise a whole campaign of documents. [short pause] Personalise each version, so every recipient receives a document written for them. [short pause] Upload your original PDF, or use a template to create your document."
+    },
+    {
+      "id": "bloc-2",
+      "cueIds": [
+        "assistants",
+        "generate",
+        "review",
+        "channels"
+      ],
+      "prompt": "[thoughtful] Tell your assistant what you need. It helps you prepare your correspondence. [short pause] Ask it to create your PDF, then prepare its delivery. [short pause] Check the document, recipient, options and cost. Then approve in the browser. [short pause] Your message can travel by fax, by post, or by email."
+    },
+    {
+      "id": "bloc-3",
+      "cueIds": [
+        "europe",
+        "physical",
+        "access"
+      ],
+      "prompt": "[thoughtful] Your documents travel across Europe to reach their recipients. [short pause] guteneo takes your correspondence from your screen to their letterbox. [short pause] Find your documents and campaigns on the web or on your iPhone."
+    }
+  ],
+  "criticalListening": "pending"
+}

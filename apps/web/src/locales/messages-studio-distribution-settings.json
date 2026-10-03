@@ -1,0 +1,715 @@
+{
+  "Langue, en-tête, pied de page et nouvelles colonnes": [
+    "Language, header, footer and new columns",
+    "Sprache, Kopfzeile, Fußzeile und neue Spalten",
+    "Sprooch, Kappzeil, Fousszeil an nei Kolonnen"
+  ],
+  "Langue des dates et montants": [
+    "Language for dates and amounts",
+    "Sprache für Datumsangaben und Beträge",
+    "Sprooch fir Datumer a Beträg"
+  ],
+  "Français": ["Français", "Français", "Français"],
+  "Deutsch": ["Deutsch", "Deutsch", "Deutsch"],
+  "English": ["English", "English", "English"],
+  "En-tête répété": [
+    "Repeating header",
+    "Wiederholte Kopfzeile",
+    "Widderhuelte Kappzeil"
+  ],
+  "Pied de page répété": [
+    "Repeating footer",
+    "Wiederholte Fußzeile",
+    "Widderhuelte Fousszeil"
+  ],
+  "Compteurs disponibles : {currentPage} et {totalPages}.": [
+    "Available counters: {currentPage} and {totalPages}.",
+    "Verfügbare Zähler: {currentPage} und {totalPages}.",
+    "Disponibel Säitevariabelen: {currentPage} an {totalPages}."
+  ],
+  "Ajouter une colonne métier": [
+    "Add a data column",
+    "Datenspalte hinzufügen",
+    "Eng Datekolonn derbäisetzen"
+  ],
+  "La colonne crée un champ réutilisable dans les formulaires, l’API et les correspondances de fichiers.": [
+    "The column creates a field you can reuse in forms, the API and file mappings.",
+    "Die Spalte erstellt ein Feld, das in Formularen, der API und Dateizuordnungen wiederverwendet werden kann.",
+    "D’Kolonn erstellt e Feld, dat an de Formulairen, der API an de Dateizouuerdnunge ka weiderbenotzt ginn."
+  ],
+  "Tableau cible": ["Target table", "Zieltabelle", "Ziltabell"],
+  "Libellé de la nouvelle colonne": [
+    "New column label",
+    "Bezeichnung der neuen Spalte",
+    "Bezeechnung vun der neier Kolonn"
+  ],
+  "Identifiant de la nouvelle colonne": [
+    "New column identifier",
+    "Kennung der neuen Spalte",
+    "Kennung vun der neier Kolonn"
+  ],
+  "Format de la nouvelle colonne": [
+    "New column format",
+    "Format der neuen Spalte",
+    "Format vun der neier Kolonn"
+  ],
+  "Montant en centimes EUR": [
+    "Amount in euro cents",
+    "Betrag in Eurocent",
+    "Betrag an Eurocent"
+  ],
+  "Ajouter cette colonne": [
+    "Add this column",
+    "Diese Spalte hinzufügen",
+    "Dës Kolonn derbäisetzen"
+  ],
+  "Choisir une valeur": [
+    "Choose a value",
+    "Wert auswählen",
+    "E Wäert auswielen"
+  ],
+  "Oui": ["Yes", "Ja", "Jo"],
+  "Non": ["No", "Nein", "Nee"],
+  "Déclarez une valeur avant d’appliquer la règle.": [
+    "Enter a value before applying the rule.",
+    "Geben Sie einen Wert ein, bevor Sie die Regel anwenden.",
+    "Gitt e Wäert an, ier Dir d’Reegel uwennt."
+  ],
+  "Formats, calculs et conditions": [
+    "Formats, calculations and conditions",
+    "Formate, Berechnungen und Bedingungen",
+    "Formater, Berechnungen a Bedéngungen"
+  ],
+  "Choisissez la valeur affichée par un bloc, son format et ses règles. Les sommes et produits utilisent uniquement des entiers exacts ; les montants sont exprimés en centimes.": [
+    "Choose the value a block displays, its format and its rules. Sums and products use exact integers only; amounts are expressed in cents.",
+    "Wählen Sie den angezeigten Wert, das Format und die Regeln eines Blocks. Summen und Produkte verwenden nur exakte Ganzzahlen; Beträge werden in Cent angegeben.",
+    "Wielt de Wäert, deen e Block uweist, säi Format a seng Reegelen. Zommen a Produite benotzen nëmme genee ganz Zuelen; Beträg ginn an Cent uginn."
+  ],
+  "Bloc à configurer": [
+    "Block to configure",
+    "Zu konfigurierender Block",
+    "Block fir anzestellen"
+  ],
+  "Ajoutez une variable métier au document pour configurer ses règles.": [
+    "Add a data variable to the document to configure its rules.",
+    "Fügen Sie dem Dokument eine Datenvariable hinzu, um ihre Regeln zu konfigurieren.",
+    "Setzt eng Datevariabel an d’Dokument derbäi, fir hir Reegelen anzestellen."
+  ],
+  "Règles du bloc": ["Block rules", "Blockregeln", "Reegele vum Block"],
+  "Contenu du bloc": ["Block content", "Blockinhalt", "Inhalt vum Block"],
+  "Valeur d’un champ": ["Field value", "Feldwert", "Wäert vun engem Feld"],
+  "Total des lignes d’un tableau": [
+    "Sum of table rows",
+    "Summe der Tabellenzeilen",
+    "Zomm vun den Tabellezeilen"
+  ],
+  "Source du bloc": [
+    "Block source",
+    "Datenquelle des Blocks",
+    "Datequell vum Block"
+  ],
+  "Choisir un champ": ["Choose a field", "Feld auswählen", "E Feld auswielen"],
+  "Valeur à additionner": [
+    "Value to sum",
+    "Zu summierender Wert",
+    "Wäert fir ze addéieren"
+  ],
+  "Choisir une valeur entière": [
+    "Choose an integer value",
+    "Ganzzahligen Wert auswählen",
+    "Eng ganz Zuel auswielen"
+  ],
+  "Multiplier chaque valeur par": [
+    "Multiply each value by",
+    "Jeden Wert multiplizieren mit",
+    "All Wäert multiplizéiere mat"
+  ],
+  "Aucun multiplicateur": [
+    "No multiplier",
+    "Kein Multiplikator",
+    "Kee Multiplikator"
+  ],
+  "ce bloc": ["this block", "diesen Block", "dëse Block"],
+  "Texte avant la valeur": [
+    "Text before the value",
+    "Text vor dem Wert",
+    "Text virum Wäert"
+  ],
+  "Texte après la valeur": [
+    "Text after the value",
+    "Text nach dem Wert",
+    "Text nom Wäert"
+  ],
+  "Bloquer si la source du bloc est absente": [
+    "Block if the block’s source is missing",
+    "Bei fehlender Datenquelle des Blocks blockieren",
+    "Blockéieren, wann d’Datequell vum Block feelt"
+  ],
+  "Déclarer une valeur de remplacement pour ce bloc": [
+    "Set a fallback value for this block",
+    "Ersatzwert für diesen Block festlegen",
+    "En Ersatzwäert fir dëse Block festleeën"
+  ],
+  "Valeur de remplacement du bloc": [
+    "Block fallback value",
+    "Ersatzwert des Blocks",
+    "Ersatzwäert vum Block"
+  ],
+  "La valeur de remplacement ne rend pas facultatif un champ métier obligatoire. Les règles métier ci-dessous s’appliquent avant le rendu.": [
+    "A fallback value does not make a required data field optional. The data rules below apply before rendering.",
+    "Ein Ersatzwert macht ein Pflichtfeld nicht optional. Die folgenden Datenregeln gelten vor der Darstellung.",
+    "En Ersatzwäert mécht en obligatorescht Datefeld net optional. Déi follgend Datereegele gi virum Renderen ugewannt."
+  ],
+  "obligatoire": ["required", "erforderlich", "obligatoresch"],
+  "Afficher ce bloc": [
+    "Show this block",
+    "Diesen Block anzeigen",
+    "Dëse Block uweisen"
+  ],
+  "Ajoutez un champ métier avant de définir une condition.": [
+    "Add a data field before defining a condition.",
+    "Fügen Sie ein Datenfeld hinzu, bevor Sie eine Bedingung festlegen.",
+    "Setzt en Datefeld derbäi, ier Dir eng Bedéngung festleet."
+  ],
+  "Toujours": ["Always", "Immer", "Ëmmer"],
+  "Quand un champ est égal à une valeur": [
+    "When a field equals a value",
+    "Wenn ein Feld einem Wert entspricht",
+    "Wann e Feld engem Wäert entsprécht"
+  ],
+  "Quand un champ est absent": [
+    "When a field is missing",
+    "Wenn ein Feld fehlt",
+    "Wann e Feld feelt"
+  ],
+  "Champ de la condition": [
+    "Condition field",
+    "Feld der Bedingung",
+    "Feld vun der Bedéngung"
+  ],
+  "Valeur attendue pour afficher le bloc": [
+    "Value required to show the block",
+    "Erwarteter Wert zum Anzeigen des Blocks",
+    "Erwaarte Wäert, fir de Block unzeweisen"
+  ],
+  "Une condition fausse masque le bloc complet. Une valeur absente n’est ni zéro ni « Non ». Un champ déclaré obligatoire doit toujours être renseigné.": [
+    "A false condition hides the entire block. A missing value is neither zero nor “No”. A required field must always be filled in.",
+    "Eine nicht erfüllte Bedingung blendet den gesamten Block aus. Ein fehlender Wert ist weder null noch „Nein“. Ein Pflichtfeld muss immer ausgefüllt werden.",
+    "Eng net erfëllte Bedéngung verstoppt de ganze Block. E feelende Wäert ass weder null nach „Nee“. En obligatorescht Feld muss ëmmer ausgefëllt ginn."
+  ],
+  "Choisissez un champ source.": [
+    "Choose a source field.",
+    "Wählen Sie ein Quellfeld.",
+    "Wielt e Quellfeld."
+  ],
+  "Choisissez le champ de la condition.": [
+    "Choose the condition field.",
+    "Wählen Sie das Feld für die Bedingung.",
+    "Wielt d’Feld fir d’Bedéngung."
+  ],
+  "Appliquer les règles du bloc": [
+    "Apply block rules",
+    "Blockregeln anwenden",
+    "Reegele vum Block uwenden"
+  ],
+  "Champs requis et valeurs par défaut": [
+    "Required fields and default values",
+    "Pflichtfelder und Standardwerte",
+    "Obligatoresch Felder a Standardwäerter"
+  ],
+  "Ces règles sont partagées par le formulaire, l’API et les générations. Une valeur par défaut s’applique uniquement lorsqu’un champ est absent ou vide. Aucune donnée d’exemple n’est modifiée.": [
+    "These rules apply to the form, the API and document generation. A default value applies only when a field is missing or empty. Example data remains unchanged.",
+    "Diese Regeln gelten für das Formular, die API und die Dokumenterstellung. Ein Standardwert wird nur verwendet, wenn ein Feld fehlt oder leer ist. Beispieldaten bleiben unverändert.",
+    "Dës Reegele gëlle fir de Formulaire, d’API an d’Dokumenterstellung. E Standardwäert gëtt nëmme benotzt, wann e Feld feelt oder eidel ass. Beispilldate ginn net geännert."
+  ],
+  "Champ métier à configurer": [
+    "Data field to configure",
+    "Zu konfigurierendes Datenfeld",
+    "Datefeld fir anzestellen"
+  ],
+  "Ajoutez d’abord des variables métier au modèle.": [
+    "Add data variables to the template first.",
+    "Fügen Sie der Vorlage zunächst Datenvariablen hinzu.",
+    "Setzt fir d’éischt Datevariabelen an d’Virlag derbäi."
+  ],
+  "Règles de": ["Rules for", "Regeln für", "Reegele fir"],
+  "Champ métier obligatoire": [
+    "Required data field",
+    "Erforderliches Datenfeld",
+    "Obligatorescht Datefeld"
+  ],
+  "Déclarer une valeur par défaut": [
+    "Set a default value",
+    "Standardwert festlegen",
+    "E Standardwäert festleeën"
+  ],
+  "Valeur par défaut déclarée": [
+    "Declared default value",
+    "Festgelegter Standardwert",
+    "Festgeluechte Standardwäert"
+  ],
+  "Appliquer les règles du champ": [
+    "Apply field rules",
+    "Feldregeln anwenden",
+    "Feldreegelen uwenden"
+  ],
+  "Demander une modification à l’IA": [
+    "Ask AI for a change",
+    "KI um eine Änderung bitten",
+    "D’KI ëm eng Ännerung bieden"
+  ],
+  "Un appel explicite à OpenAI transmet un aperçu borné du modèle et vos instructions. Il exige une configuration et une autorisation administrateur. La proposition reste à vérifier dans le studio.": [
+    "An explicit OpenAI request sends a limited preview of the template and your instructions. It requires configuration and administrator authorization. Review the proposal in the studio.",
+    "Eine ausdrückliche Anfrage an OpenAI übermittelt eine begrenzte Vorschau der Vorlage und Ihre Anweisungen. Dafür sind eine Konfiguration und eine Administratorfreigabe erforderlich. Prüfen Sie den Vorschlag im Studio.",
+    "Eng ausdrécklech Ufro un OpenAI schéckt eng begrenzte Virschau vun der Virlag an Är Uweisungen. Dofir sinn eng Konfiguratioun an eng Administrateurserlaabnis néideg. Iwwerpréift de Virschlag am Studio."
+  ],
+  "Modification souhaitée": [
+    "Requested change",
+    "Gewünschte Änderung",
+    "Gewënscht Ännerung"
+  ],
+  "Enregistrez d’abord vos modifications. Évitez toute donnée personnelle dans l’instruction.": [
+    "Save your changes first. Do not include personal data in the instruction.",
+    "Speichern Sie zuerst Ihre Änderungen. Vermeiden Sie personenbezogene Daten in der Anweisung.",
+    "Späichert fir d’éischt Är Ännerungen. Vermeit perséinlech Donnéeën an der Uweisung."
+  ],
+  "Déplace la signature plus bas et reformule le texte fixe de conclusion.": [
+    "Move the signature down and rephrase the fixed closing text.",
+    "Verschiebe die Unterschrift nach unten und formuliere den festen Schlusstext um.",
+    "Réckel d’Ënnerschrëft méi no ënnen a formuléier de feste Schlusstext nei."
+  ],
+  "Obtenir une proposition": [
+    "Get a proposal",
+    "Vorschlag anfordern",
+    "E Virschlag ufroen"
+  ],
+  "Proposition à vérifier": [
+    "Proposal to review",
+    "Zu prüfender Vorschlag",
+    "Virschlag fir ze iwwerpréiwen"
+  ],
+  "modification(s)": ["change(s)", "Änderung(en)", "Ännerung(en)"],
+  ". Aucun brouillon enregistré.": [
+    ". No draft saved.",
+    ". Kein Entwurf gespeichert.",
+    ". Keen Entworf gespäichert."
+  ],
+  "Détails de la liaison proposée": [
+    "Proposed binding details",
+    "Details der vorgeschlagenen Verknüpfung",
+    "Detailer vun der proposéierter Verknëppung"
+  ],
+  "Appliquer dans le brouillon local": [
+    "Apply to the local draft",
+    "Auf den lokalen Entwurf anwenden",
+    "Op de lokalen Entworf uwenden"
+  ],
+  "Écarter": ["Discard", "Verwerfen", "Ewechloossen"],
+  "Source :": ["Source:", "Quelle:", "Quell:"],
+  "Obligatoire.": ["Required.", "Erforderlich.", "Obligatoresch."],
+  "Facultative.": ["Optional.", "Optional.", "Optional."],
+  "Format :": ["Format:", "Format:", "Format:"],
+  "Somme de": ["Sum of", "Summe von", "Zomm vun"],
+  "Valeur de remplacement :": [
+    "Fallback value:",
+    "Ersatzwert:",
+    "Ersatzwäert:"
+  ],
+  "Texte avant : «": ["Text before: “", "Text davor: „", "Text virdrun: „"],
+  "». Texte après : «": [
+    "”. Text after: “",
+    "“. Text danach: „",
+    "“. Text duerno: „"
+  ],
+  "Toujours visible.": [
+    "Always visible.",
+    "Immer sichtbar.",
+    "Ëmmer siichtbar."
+  ],
+  "Format de {0}": ["Format for {0}", "Format von {0}", "Format vun {0}"],
+  "Devise de {0}": ["Currency for {0}", "Währung von {0}", "Wärung vun {0}"],
+  "Titre de la colonne {0}": [
+    "Column {0} title",
+    "Titel der Spalte {0}",
+    "Titel vun der Kolonn {0}"
+  ],
+  "Source de la colonne {0}": [
+    "Column {0} source",
+    "Quelle der Spalte {0}",
+    "Quell vun der Kolonn {0}"
+  ],
+  "la colonne {0}": ["column {0}", "die Spalte {0}", "d’Kolonn {0}"],
+  "Multiplier la colonne {0} par": [
+    "Multiply column {0} by",
+    "Spalte {0} multiplizieren mit",
+    "Kolonn {0} multiplizéiere mat"
+  ],
+  ", base proposée : {0}": [
+    ", proposed base: {0}",
+    ", vorgeschlagene Grundlage: {0}",
+    ", proposéiert Basis: {0}"
+  ],
+  "→ X {0} mm, Y {1} mm": [
+    "→ X {0} mm, Y {1} mm",
+    "→ X {0} mm, Y {1} mm",
+    "→ X {0} mm, Y {1} mm"
+  ],
+  "× {0}, ligne par ligne": [
+    "× {0}, row by row",
+    "× {0}, Zeile für Zeile",
+    "× {0}, Zeil fir Zeil"
+  ],
+  "Visible si {0} est absent.": [
+    "Visible when {0} is missing.",
+    "Sichtbar, wenn {0} fehlt.",
+    "Siichtbar, wann {0} feelt."
+  ],
+  "Visible si {0} vaut « {1} ».": [
+    "Visible when {0} equals “{1}”.",
+    "Sichtbar, wenn {0} den Wert „{1}“ hat.",
+    "Siichtbar, wann {0} de Wäert „{1}“ huet."
+  ],
+  "Générations": [
+    "Generations",
+    "Dokumenterstellungen",
+    "Dokumenterstellungen"
+  ],
+  "Chaque résultat conserve son identifiant, sa version de modèle et son PDF exact. La génération ne déclenche aucun envoi.": [
+    "Each result retains its identifier, template version and exact PDF. Generation does not send anything.",
+    "Jedes Ergebnis behält seine Kennung, die Vorlagenversion und die genaue PDF-Datei. Die Erstellung löst keinen Versand aus.",
+    "All Resultat behält seng Kennung, d’Virlagversioun a seng genee PDF-Datei. D’Erstellung léist kee Versand aus."
+  ],
+  "Les PDF générés apparaîtront ici.": [
+    "Generated PDFs will appear here.",
+    "Erstellte PDFs erscheinen hier.",
+    "Erstallte PDFen erschéngen hei."
+  ],
+  "PDF": ["PDF", "PDF", "PDF"],
+  "· modèle v": ["· template v", "· Vorlage v", "· Virlag v"],
+  "erreur(s)": ["error(s)", "Fehler", "Feeler"],
+  "Suivre": ["Track", "Verfolgen", "Verfollegen"],
+  "← Générations": [
+    "← Generations",
+    "← Dokumenterstellungen",
+    "← Dokumenterstellungen"
+  ],
+  "Modèle v": ["Template v", "Vorlage v", "Virlag v"],
+  ". Les documents sont associés à leur recordId, indépendamment de leur ordre de fin.": [
+    ". Documents are linked to their recordId, regardless of completion order.",
+    ". Dokumente sind unabhängig von der Fertigstellungsreihenfolge ihrer recordId zugeordnet.",
+    ". Dokumenter si mat hirer recordId verbonnen, onofhängeg vun der Reiefolleg vun hirer Fäerdegstellung."
+  ],
+  "PDF générés": ["Generated PDFs", "Erstellte PDFs", "Erstallte PDFen"],
+  "Progression de la génération": [
+    "Generation progress",
+    "Fortschritt der Erstellung",
+    "Fortschrëtt vun der Erstellung"
+  ],
+  "en attente ·": ["pending ·", "ausstehend ·", "waarden ·"],
+  "erreur(s) ·": ["error(s) ·", "Fehler ·", "Feeler ·"],
+  "annulé(s). Aucun crédit d’envoi réservé.": [
+    "cancelled. No sending credits reserved.",
+    "abgebrochen. Kein Versandguthaben reserviert.",
+    "ofgebrach. Kee Versandkredit reservéiert."
+  ],
+  "Actualiser le suivi": [
+    "Refresh progress",
+    "Fortschritt aktualisieren",
+    "Fortschrëtt aktualiséieren"
+  ],
+  "Annuler les éléments restants": [
+    "Cancel remaining items",
+    "Verbleibende Elemente abbrechen",
+    "Reschtlech Elementer ofbriechen"
+  ],
+  "Reprendre les échecs affichés": [
+    "Retry displayed failures",
+    "Angezeigte Fehler erneut versuchen",
+    "Ugewisen Echecen nach eng Kéier probéieren"
+  ],
+  "Résultats de cette génération": [
+    "Results of this generation",
+    "Ergebnisse dieser Erstellung",
+    "Resultater vun dëser Erstellung"
+  ],
+  "Sélection": ["Selection", "Auswahl", "Auswiel"],
+  "Record": ["Record", "Datensatz", "Datesaz"],
+  "État": ["Status", "Status", "Status"],
+  "PDF exact": ["Exact PDF", "Exakte PDF-Datei", "Genee PDF-Datei"],
+  "Action": ["Action", "Aktion", "Aktioun"],
+  "Sélectionner": ["Select", "Auswählen", "Auswielen"],
+  "vérifié": ["verified", "geprüft", "iwwerpréift"],
+  "Ouvrir le document": [
+    "Open document",
+    "Dokument öffnen",
+    "Dokument opmaachen"
+  ],
+  "Voir la provenance": [
+    "View provenance",
+    "Herkunft anzeigen",
+    "Hierkonft uweisen"
+  ],
+  "Voir le PDF": ["View PDF", "PDF anzeigen", "PDF uweisen"],
+  "PDF final": ["Final PDF", "Endgültige PDF-Datei", "Final PDF-Datei"],
+  "Fermer l’aperçu": [
+    "Close preview",
+    "Vorschau schließen",
+    "Virschau zoumaachen"
+  ],
+  "Sélectionner les PDF vérifiés affichés": [
+    "Select displayed verified PDFs",
+    "Angezeigte geprüfte PDFs auswählen",
+    "Ugewisen iwwerpréifte PDFen auswielen"
+  ],
+  "Préparer une distribution (": [
+    "Prepare distribution (",
+    "Verteilung vorbereiten (",
+    "Verdeelung virbereeden ("
+  ],
+  "La distribution sera disponible à la fin du job. Les PDF déjà prêts restent consultables.": [
+    "Distribution will be available when the job finishes. PDFs that are already ready remain available to view.",
+    "Die Verteilung ist nach Abschluss des Auftrags verfügbar. Bereits fertige PDFs können weiterhin eingesehen werden.",
+    "D’Verdeelung ass verfügbar, wann den Optrag ofgeschloss ass. Fäerdeg PDFen kënne weider gekuckt ginn."
+  ],
+  "Une distribution est limitée à 500 associations document / destination. Réduisez la sélection ou le nombre de destinations.": [
+    "A distribution is limited to 500 document/destination pairs. Reduce the selection or the number of destinations.",
+    "Eine Verteilung ist auf 500 Dokument-Ziel-Zuordnungen begrenzt. Verringern Sie die Auswahl oder die Anzahl der Ziele.",
+    "Eng Verdeelung ass op 500 Dokument-Zil-Zouuerdnunge begrenzt. Reduzéiert d’Auswiel oder d’Zuel vun den Ziler."
+  ],
+  "Choisissez au moins un document pour chaque destination, ou retirez cette destination.": [
+    "Choose at least one document for each destination, or remove that destination.",
+    "Wählen Sie für jedes Ziel mindestens ein Dokument aus oder entfernen Sie das Ziel.",
+    "Wielt op d’mannst een Dokument fir all Zil aus oder huelt dat Zil ewech."
+  ],
+  "Chaque PDF sélectionné doit avoir une destination. Fermez ce formulaire pour modifier la sélection si nécessaire.": [
+    "Each selected PDF must have a destination. Close this form to change the selection if needed.",
+    "Jede ausgewählte PDF-Datei muss ein Ziel haben. Schließen Sie dieses Formular, um die Auswahl bei Bedarf zu ändern.",
+    "All ausgewielte PDF muss en Zil hunn. Maacht dëse Formulaire zou, fir d’Auswiel bei Bedarf z’änneren."
+  ],
+  "Fermer": ["Close", "Schließen", "Zoumaachen"],
+  "PDF sélectionnés ·": [
+    "PDFs selected ·",
+    "PDFs ausgewählt ·",
+    "PDFen ausgewielt ·"
+  ],
+  "associations sur 500 maximum. Chaque PDF et destination forme un envoi distinct. Les devis, vérifications et approbations d’envoi auront lieu ensuite.": [
+    "pairs out of a maximum of 500. Each PDF/destination pair forms a separate send. Quotes, checks and sending approvals follow later.",
+    "Zuordnungen von maximal 500. Jede PDF-Ziel-Kombination bildet einen eigenen Versand. Angebote, Prüfungen und Versandfreigaben folgen anschließend.",
+    "Zouuerdnunge vu maximal 500. All PDF-Zil-Kombinatioun mécht en eegene Versand aus. Präisofferen, Kontrollen a Versandfräigabe kommen duerno."
+  ],
+  "Destination": ["Destination", "Ziel", "Zil"],
+  "Documents pour la destination": [
+    "Documents for this destination",
+    "Dokumente für dieses Ziel",
+    "Dokumenter fir dëst Zil"
+  ],
+  "Tous les PDF sélectionnés": [
+    "All selected PDFs",
+    "Alle ausgewählten PDFs",
+    "All ausgewielte PDFen"
+  ],
+  "Choisir les documents concernés": [
+    "Choose the documents to include",
+    "Betroffene Dokumente auswählen",
+    "Déi betraffen Dokumenter auswielen"
+  ],
+  "Documents concernés par la destination": [
+    "Documents for this destination",
+    "Dokumente für dieses Ziel",
+    "Dokumenter fir dëst Zil"
+  ],
+  "Cette destination s’appliquera uniquement aux documents cochés.": [
+    "This destination applies only to the checked documents.",
+    "Dieses Ziel gilt nur für die markierten Dokumente.",
+    "Dëst Zil gëllt nëmme fir déi ugekräizt Dokumenter."
+  ],
+  "Canal": ["Channel", "Kanal", "Kanal"],
+  "Fax": ["Fax", "Fax", "Fax"],
+  "E-mail": ["Email", "E-Mail", "E-Mail"],
+  "Courrier postal": ["Postal mail", "Postbrief", "Postbréif"],
+  "Destinataire": ["Recipient", "Empfänger", "Empfänger"],
+  "Même destinataire pour les documents concernés": [
+    "Same recipient for these documents",
+    "Gleicher Empfänger für die betroffenen Dokumente",
+    "Selwechten Empfänger fir déi betraffen Dokumenter"
+  ],
+  "Destinataire issu des données": [
+    "Recipient from the data",
+    "Empfänger aus den Daten",
+    "Empfänger aus den Donnéeën"
+  ],
+  "Expéditeur": ["Sender", "Absender", "Ofsender"],
+  "Choisir un profil postal vérifié": [
+    "Choose a verified postal profile",
+    "Geprüftes Postprofil auswählen",
+    "En iwwerpréifte Postprofil auswielen"
+  ],
+  "Profil vérifié par défaut": [
+    "Default verified profile",
+    "Geprüftes Standardprofil",
+    "Iwwerpréifte Standardprofil"
+  ],
+  "Champ métier →": ["Data field →", "Datenfeld →", "Datefeld →"],
+  "Chemin dans les données figées, par exemple customer.email": [
+    "Path in the frozen data, for example customer.email",
+    "Pfad in den festgeschriebenen Daten, zum Beispiel customer.email",
+    "Pad an de festgehalenen Donnéeën, zum Beispill customer.email"
+  ],
+  "Impression": ["Printing", "Druck", "Drock"],
+  "Recto": ["Single-sided", "Einseitig", "Eensäiteg"],
+  "Recto verso": ["Double-sided", "Beidseitig", "Bäidsäiteg"],
+  "Couleur": ["Colour", "Farbe", "Faarf"],
+  "Niveaux de gris": ["Greyscale", "Graustufen", "Grostufen"],
+  "Acheminement": [
+    "Delivery speed",
+    "Zustellgeschwindigkeit",
+    "Zoustellungsgeschwindegkeet"
+  ],
+  "Économique": ["Economy", "Economy", "Economy"],
+  "Rapide": ["Priority", "Schnell", "Séier"],
+  "Le manifeste conserve ces options. Chaque lettre passera ensuite par le contrôle postal du PDF exact et les consentements existants avant tout transfert.": [
+    "The manifest retains these options. Each letter then goes through the postal checks for its exact PDF and the existing consent process before any transfer.",
+    "Das Manifest speichert diese Optionen. Jeder Brief durchläuft anschließend die Postprüfung seiner exakten PDF-Datei und die bestehenden Einwilligungsschritte vor einer Übertragung.",
+    "D’Manifest behält dës Optiounen. All Bréif geet duerno duerch d’Postkontroll vu senger geneeër PDF-Datei an déi bestoend Zoustëmmungsschrëtt, ier en iwwerdroe gëtt."
+  ],
+  "Objet de l’e-mail": ["Email subject", "E-Mail-Betreff", "E-Mail-Betreff"],
+  "Corps de l’e-mail": ["Email body", "E-Mail-Text", "E-Mail-Text"],
+  "Chaque e-mail comporte uniquement le PDF de son record. Aucun CC/BCC.": [
+    "Each email contains only its record’s PDF. No CC/BCC.",
+    "Jede E-Mail enthält nur die PDF-Datei ihres Datensatzes. Kein CC/BCC.",
+    "All E-Mail enthält nëmmen d’PDF-Datei vun hirem Datesaz. Kee CC/BCC."
+  ],
+  "Plafond par envoi (centimes d’euro)": [
+    "Limit per send (euro cents)",
+    "Limit pro Versand (Eurocent)",
+    "Limitt pro Versand (Eurocent)"
+  ],
+  "Retirer cette destination": [
+    "Remove this destination",
+    "Dieses Ziel entfernen",
+    "Dëst Zil ewechhuelen"
+  ],
+  "Ajouter une destination ou un canal": [
+    "Add a destination or channel",
+    "Ziel oder Kanal hinzufügen",
+    "En Zil oder e Kanal derbäisetzen"
+  ],
+  "Je demande explicitement l’utilisation de plusieurs canaux pour": [
+    "I explicitly request the use of multiple channels for",
+    "Ich fordere ausdrücklich mehrere Kanäle an für",
+    "Ech froen ausdrécklech d’Benotze vu verschiddene Kanäl fir"
+  ],
+  "PDF.": ["PDFs.", "PDFs.", "PDFen."],
+  "La préparation ne vaut pas approbation. Les canaux ou tarifs non disponibles restent bloqués avec une erreur explicite.": [
+    "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error.",
+    "Die Vorbereitung gilt nicht als Freigabe. Nicht verfügbare Kanäle oder Tarife bleiben mit einer eindeutigen Fehlermeldung gesperrt.",
+    "D’Virbereedung gëllt net als Fräigab. Net verfügbar Kanäl oder Tariffer bleiwe mat enger däitlecher Feelermeldung blockéiert."
+  ],
+  "Préparer les associations et les devis": [
+    "Prepare pairs and quotes",
+    "Zuordnungen und Angebote vorbereiten",
+    "Zouuerdnungen a Präisoffere virbereeden"
+  ],
+  "Distribution préparée": [
+    "Distribution prepared",
+    "Verteilung vorbereitet",
+    "Verdeelung virbereet"
+  ],
+  "Le manifeste fige chaque record, PDF, hash, canal et destinataire. Chaque envoi conserve ses contrôles et son approbation.": [
+    "The manifest freezes each record, PDF, hash, channel and recipient. Each send retains its checks and approval.",
+    "Das Manifest schreibt jeden Datensatz, jede PDF-Datei, jeden Hash, Kanal und Empfänger fest. Jeder Versand behält seine Prüfungen und Freigabe.",
+    "D’Manifest hält all Datesaz, PDF, Hash, Kanal an Empfänger fest. All Versand behält seng Kontrollen a seng Fräigab."
+  ],
+  "Actualiser la distribution": [
+    "Refresh distribution",
+    "Verteilung aktualisieren",
+    "Verdeelung aktualiséieren"
+  ],
+  "Préparer les 3 associations suivantes (": [
+    "Prepare the next 3 pairs (",
+    "Die nächsten 3 Zuordnungen vorbereiten (",
+    "Déi nächst 3 Zouuerdnunge virbereeden ("
+  ],
+  "restantes)": ["remaining)", "verbleibend)", "iwwreg)"],
+  "Réessayer les préparations en erreur": [
+    "Retry failed preparations",
+    "Fehlgeschlagene Vorbereitungen erneut versuchen",
+    "Feelgeschloe Virbereedungen nach eng Kéier probéieren"
+  ],
+  "Empreinte du manifeste :": [
+    "Manifest hash:",
+    "Manifest-Hash:",
+    "Manifest-Hash:"
+  ],
+  "Document": ["Document", "Dokument", "Dokument"],
+  "Canal / destination": [
+    "Channel / destination",
+    "Kanal / Ziel",
+    "Kanal / Zil"
+  ],
+  "Suite du parcours": ["Next steps", "Nächste Schritte", "Nächst Schrëtt"],
+  "PDF · modèle v": ["PDF · template v", "PDF · Vorlage v", "PDF · Virlag v"],
+  "Vérifier le devis et approuver": [
+    "Review quote and approve",
+    "Angebot prüfen und freigeben",
+    "Präisoffer iwwerpréiwen a fräiginn"
+  ],
+  "Vérifier le devis postal final": [
+    "Review the final postal quote",
+    "Endgültiges Postangebot prüfen",
+    "Final Postpräisoffer iwwerpréiwen"
+  ],
+  "Contrôle postal :": ["Postal check:", "Postprüfung:", "Postkontroll:"],
+  "Vérifier la lettre et poursuivre": [
+    "Review the letter and continue",
+    "Brief prüfen und fortfahren",
+    "Bréif iwwerpréiwen a weiderfueren"
+  ],
+  "Préparation bloquée :": [
+    "Preparation blocked:",
+    "Vorbereitung blockiert:",
+    "Virbereedung blockéiert:"
+  ],
+  "Vérifiez l’adresse, les zones réservées et les pages finales dans le parcours postal.": [
+    "Check the address, reserved areas and final pages in the postal workflow.",
+    "Prüfen Sie die Adresse, die reservierten Bereiche und die endgültigen Seiten im Postablauf.",
+    "Iwwerpréift d’Adress, déi reservéiert Beräicher an déi final Säiten am Postoflaf."
+  ],
+  "Contrôler cette lettre": [
+    "Check this letter",
+    "Diesen Brief prüfen",
+    "Dëse Bréif iwwerpréiwen"
+  ],
+  "Revenir aux PDF": [
+    "Back to PDFs",
+    "Zurück zu den PDFs",
+    "Zréck bei d’PDFen"
+  ],
+  "Provenance de": ["Provenance of", "Herkunft von", "Hierkonft vun"],
+  "Fermer la provenance": [
+    "Close provenance",
+    "Herkunft schließen",
+    "Hierkonft zoumaachen"
+  ],
+  "· Données saisies directement": [
+    "· Data entered directly",
+    "· Direkt eingegebene Daten",
+    "· Direkt aginn Donnéeën"
+  ],
+  "Empreinte des données :": ["Data hash:", "Daten-Hash:", "Daten-Hash:"],
+  "Empreinte du fichier :": ["File hash:", "Datei-Hash:", "Datei-Hash:"],
+  "Champ métier": ["Data field", "Datenfeld", "Datefeld"],
+  "Cellules sources": ["Source cells", "Quellzellen", "Quellzellen"],
+  "(ligne": ["(row", "(Zeile", "(Zeil"],
+  "Rendu :": ["Rendering:", "Darstellung:", "Duerstellung:"],
+  "· Correspondance v{0}": [
+    "· Mapping v{0}",
+    "· Zuordnung v{0}",
+    "· Zouuerdnung v{0}"
+  ],
+  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.": [
+    "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
+    "Bei der Vorbereitung können freigabeberechtigte Personen dieses Arbeitsbereichs die ausgewählten PDFs zur Prüfung dieser Anfragen einsehen. Es wird nichts versendet.",
+    "D’Virbereedung erlaabt de Persoune mat Geneemegungsrecht an dësem Atelier, déi ausgewielte PDFen ze liesen, fir dës Ufroen ze préiwen. Et gëtt näischt verschéckt."
+  ]
+}

@@ -8,6 +8,7 @@ const securityHeaders = {
     "default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
+  "Strict-Transport-Security": "max-age=31536000",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 };
 const privateHeaders = {
@@ -52,6 +53,25 @@ export async function servePublicAssets(
       request.method === "HEAD" ? null : "Service configuration unavailable",
       { status: 503, headers: privateHeaders },
     );
+  }
+
+  if (
+    pathname === "/invitation/" ||
+    pathname === "/invitation" ||
+    url.pathname === "/app" ||
+    url.pathname === "/app/prepare"
+  ) {
+    // Private browser entries share the root shell without forwarding URL data.
+    // The invitation secret stays in the URL fragment and never reaches asset logs.
+    const shellUrl = new URL("/", url);
+    const response = await env.ASSETS.fetch(new Request(shellUrl, request));
+    const headers = new Headers(response.headers);
+    for (const [key, value] of Object.entries(privateHeaders))
+      headers.set(key, value);
+    return new Response(request.method === "HEAD" ? null : response.body, {
+      status: response.status,
+      headers,
+    });
   }
 
   const privateQuery = hasPrivateQuery(url);

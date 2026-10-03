@@ -6,6 +6,27 @@ import XCTest
 @testable import Guteneo
 
 final class CoreTests: XCTestCase, @unchecked Sendable {
+    func testWorkspacePermissionsSeparatePreparationFromApproval() throws {
+        let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"supervisor"},"simulation":true,"permissions":{"prepareDispatches":true,"approveDispatches":false,"viewReports":true}}"#.data(using: .utf8)!
+        let session = try JSONDecoder().decode(MobileSession.self, from: data)
+        XCTAssertEqual(session.roleTitle, "Superviseur")
+        XCTAssertTrue(session.canPrepare)
+        XCTAssertFalse(session.canApprove)
+    }
+    func testLegacyOperatorSessionCannotOfferApproval() throws {
+        let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"member"},"simulation":true}"#.data(using: .utf8)!
+        let session = try JSONDecoder().decode(MobileSession.self, from: data)
+        XCTAssertEqual(session.roleTitle, "Opérateur")
+        XCTAssertTrue(session.canPrepare)
+        XCTAssertFalse(session.canApprove)
+    }
+    func testUnknownRoleFailsClosedWithoutPermissions() throws {
+        let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"unknown"},"simulation":true}"#.data(using: .utf8)!
+        let session = try JSONDecoder().decode(MobileSession.self, from: data)
+        XCTAssertFalse(session.canPrepare)
+        XCTAssertFalse(session.canApprove)
+    }
+
     @MainActor
     func testBundledTextColorsMeetSmallTextContrastInBothAppearances() throws {
         let pairs = [("Ink", "Paper"), ("Ink", "Surface"), ("Cobalt", "Paper"), ("Cobalt", "Surface"), ("Paper", "Cobalt")]

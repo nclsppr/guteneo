@@ -1,0 +1,26 @@
+{
+  "provider": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "fr",
+  "voiceName": "Manon",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "selectedVariationNumber": 2,
+  "generationId": "nlMCANBM6PDm3tCOapxk",
+  "blockId": "bloc-1",
+  "variationIndex": 2,
+  "filename": "bloc-1-prise-2.mp3",
+  "prompt": "[thoughtful] Découvrons les quatre rôles de guteneo et les droits de chacun. [short pause] L’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports.",
+  "providerDurationSeconds": 9.76,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse"
+  },
+  "language": "fr",
+  "outputFormat": "mp3_44100_128",
+  "selected": true,
+  "source": "elevenlabs-creative-plugin",
+  "bytes": 174032,
+  "sha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+  "audioSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+  "requestTextSha256": "bc4cd2e140628ded61477fd2bbbeeaaa7a881d826af2a4212c608805c3bba8a3"
+}

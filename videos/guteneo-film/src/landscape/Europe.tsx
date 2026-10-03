@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -8,16 +9,18 @@ import { Swallows } from "../vertical/PostalMotifs";
 import { C, clamp, Frame, Head, Kicker, Label } from "./components";
 
 export const Europe = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 120, top: 108, zIndex: 1 }}>
-        <Kicker>Imprimé. Affranchi. Distribué.</Kicker>
+        <Kicker>{t("Imprimé. Affranchi. Distribué.")}</Kicker>
         <Head size={148} style={{ marginTop: 34 }}>
-          L’Europe. <em style={{ color: C.blue }}>Tout entière.</em>
+          {t("L’Europe.") + " "}
+          <em style={{ color: C.blue }}>{t("Tout entière.")}</em>
         </Head>
         <Label style={{ marginTop: 28, fontSize: 36 }}>
-          Vos documents, livrés par les postes.
+          {t("Vos documents, livrés par les postes.")}
         </Label>
       </div>
       <CanvasImage

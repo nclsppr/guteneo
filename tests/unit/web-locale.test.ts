@@ -1,14 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import * as React from "react";
 import {
   catalogs,
   getLocale,
+  getLocaleSelectionVersion,
+  getLocaleSource,
   initializeLocale,
+  setAutomaticLocale,
   setLocale,
   t,
+  useLocaleSource,
 } from "../../apps/web/src/locale";
 import { msg, messages } from "../../apps/web/src/messages";
 import { nanoMoney, money, setSession } from "../../apps/web/src/api";
 import { getCustomerPricing } from "../../apps/web/src/customer-pricing";
+
+vi.mock("react", async (importOriginal) => {
+  const react = await importOriginal<typeof React>();
+  return {
+    ...react,
+    useSyncExternalStore: vi.fn(react.useSyncExternalStore),
+  };
+});
 
 function leaves(value: unknown, prefix = ""): Record<string, string> {
   if (typeof value === "string") return { [prefix]: value };
@@ -64,13 +77,18 @@ describe("complete product language catalogs", () => {
   });
 });
 describe("language precedence and resilient preference storage", () => {
-  function browser(stored: string | null, languages: string[], search = "") {
+  function browser(
+    stored: string | null,
+    languages: string[] | undefined,
+    search = "",
+    language = languages?.[0] ?? "fr",
+  ) {
     const setItem = vi.fn();
     vi.stubGlobal("window", {
       location: { search },
-      localStorage: { getItem: () => stored, setItem },
+      localStorage: { getItem: () => stored, setItem, removeItem: vi.fn() },
     });
-    vi.stubGlobal("navigator", { languages });
+    vi.stubGlobal("navigator", { languages, language });
     vi.stubGlobal("document", { documentElement: { lang: "fr" } });
     return setItem;
   }
@@ -78,14 +96,25 @@ describe("language precedence and resilient preference storage", () => {
     browser(null, ["es-ES", "de-AT"]);
     initializeLocale();
     expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("browser");
     browser(null, ["es-ES"]);
     initializeLocale();
     expect(getLocale()).toBe("fr");
+  });
+  it("falls back to navigator.language when the language list is unavailable", () => {
+    browser(null, undefined, "", "lb-LU");
+    initializeLocale();
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("browser");
+    browser(null, [], "", "en-US");
+    initializeLocale();
+    expect(getLocale()).toBe("en");
   });
   it("restores a saved explicit choice ahead of the browser, then the account", () => {
     browser("lb", ["en-US"]);
     initializeLocale();
     expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("selection");
     setSession({
       user: { id: "test", role: "member", name: "Test", preferredLocale: "de" },
       organization: { id: "test", name: "Test" },
@@ -93,6 +122,7 @@ describe("language precedence and resilient preference storage", () => {
       simulation: true,
     });
     expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("account");
   });
   it("keeps server preferences separate from the anonymous browser and other users", () => {
     const write = browser("lb", ["en-GB"]);
@@ -131,10 +161,75 @@ describe("language precedence and resilient preference storage", () => {
     const persist = browser("fr", ["de"], "?lang=en-GB");
     initializeLocale();
     expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("selection");
     expect(persist).toHaveBeenCalledWith("guteneo.locale", "en");
     browser("lb", ["de"], "?lang=javascript:alert(1)");
     initializeLocale();
     expect(getLocale()).toBe("lb");
+  });
+  it("resets saved and URL choices while preserving navigation state", () => {
+    let stored: string | null = "lb";
+    const url = new URL("https://guteneo.com/?example=1&lang=lb#pricing");
+    const state = { route: "pricing" };
+    const replaceState = vi.fn();
+    const setItem = vi.fn();
+    const removeItem = vi.fn(() => {
+      stored = null;
+    });
+    vi.stubGlobal("window", {
+      location: url,
+      history: { state, replaceState },
+      localStorage: { getItem: () => stored, setItem, removeItem },
+    });
+    vi.stubGlobal("navigator", { languages: ["es-ES", "en-GB"] });
+    vi.stubGlobal("document", { documentElement: { lang: "fr" } });
+    initializeLocale();
+    setItem.mockClear();
+    replaceState.mockClear();
+    const version = getLocaleSelectionVersion();
+    setAutomaticLocale();
+    expect(getLocaleSelectionVersion()).toBe(version + 1);
+    expect(removeItem).toHaveBeenCalledWith("guteneo.locale");
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("browser");
+    expect(document.documentElement.lang).toBe("en");
+    expect(replaceState).toHaveBeenCalledOnce();
+    expect(replaceState.mock.calls[0][0]).toBe(state);
+    const replacement = new URL(String(replaceState.mock.calls[0][2]));
+    expect(replacement.href).toBe("https://guteneo.com/?example=1#pricing");
+    vi.stubGlobal("window", {
+      location: replacement,
+      localStorage: { getItem: () => stored, setItem, removeItem },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("browser");
+  });
+  it("notifies language-source consumers even when the language stays the same", () => {
+    browser("fr", ["fr-FR"]);
+    initializeLocale();
+    const listener = vi.fn();
+    let unsubscribe = () => {};
+    const hook = vi
+      .mocked(React.useSyncExternalStore)
+      .mockImplementationOnce((subscribe, getSnapshot) => {
+        unsubscribe = subscribe(listener);
+        return getSnapshot();
+      });
+    try {
+      expect(useLocaleSource()).toBe("selection");
+      setAutomaticLocale();
+      expect(getLocale()).toBe("fr");
+      expect(getLocaleSource()).toBe("browser");
+      expect(listener).toHaveBeenCalledTimes(1);
+      setLocale("fr", false);
+      expect(getLocaleSource()).toBe("account");
+      expect(listener).toHaveBeenCalledTimes(2);
+    } finally {
+      unsubscribe();
+      hook.mockReset();
+    }
   });
   it("keeps language selection working when browser storage is unavailable", () => {
     browser(null, ["lb-LU"]);
@@ -147,6 +242,9 @@ describe("language precedence and resilient preference storage", () => {
         setItem: () => {
           throw new Error("blocked");
         },
+        removeItem: () => {
+          throw new Error("blocked");
+        },
       },
     });
     initializeLocale();
@@ -154,6 +252,10 @@ describe("language precedence and resilient preference storage", () => {
     setLocale("en");
     expect(getLocale()).toBe("en");
     expect(document.documentElement.lang).toBe("en");
+    setAutomaticLocale();
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("browser");
+    expect(document.documentElement.lang).toBe("lb");
   });
 });
 describe("localized money without changing financial precision", () => {

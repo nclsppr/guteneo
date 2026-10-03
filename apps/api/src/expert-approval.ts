@@ -129,7 +129,11 @@ export async function reviewExpertDispatch(
     );
   allowed(policy, dispatch.channel, dispatch.ceiling_minor);
   const document = dispatch.document_id
-    ? await domain.getDocument(identity.context, dispatch.document_id)
+    ? await domain.getDocument(
+        identity.context,
+        dispatch.document_id,
+        dispatchId,
+      )
     : null;
   let documentResource:
     { uri: string; mimeType: "application/pdf"; blob: string } | undefined;
@@ -155,7 +159,7 @@ export async function reviewExpertDispatch(
         "Ce connecteur ne fournit pas le PDF exact pour la revue expert. Une revue humaine dans Guteneo reste une alternative.",
         409,
       );
-    const exact = await readDocument(identity.context, document.id);
+    const exact = await readDocument(identity.context, document.id, dispatchId);
     if (
       exact.document.id !== document.id ||
       exact.document.sha256 !== document.sha256 ||

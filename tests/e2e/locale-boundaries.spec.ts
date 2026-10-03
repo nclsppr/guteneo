@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { SupportedLocale } from "../../packages/contracts/src/locale";
 import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import { publicLanguagePicker } from "../public-language";
 
 test.use({ locale: "en-GB" });
 
@@ -69,6 +70,19 @@ async function mockAccount(
       signedIn = false;
       return route.fulfill({ json: { signedOut: true } });
     }
+    if (path === "/api/account/workspaces")
+      return route.fulfill({
+        json: {
+          items: [
+            {
+              id: "locale-boundary-org",
+              name: "Courrier postal",
+              role: "member",
+              current: true,
+            },
+          ],
+        },
+      });
     if (path === "/api/account/sessions")
       return route.fulfill({ json: { items: [], hasMore: false } });
     if (path === "/api/account/expert-approval")
@@ -232,8 +246,9 @@ test("a late initial session cannot replace a language just chosen on the homepa
   );
   try {
     await page.goto("/");
-    const picker = page.locator('header select[name="language"]');
-    await expect(picker).toHaveValue("en");
+    const picker = await publicLanguagePicker(page);
+    await expect(picker).toHaveValue("auto");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect.poll(() => sessionRequests).toBeGreaterThan(0);
     await picker.selectOption("de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
@@ -292,7 +307,7 @@ test("translated public and account navigation keep the literal ARIA page value"
   await page.goto("/assistants/");
   const publicLink = page.locator('header nav a[href="/assistants/"]');
   for (const locale of ["en", "de", "lb"]) {
-    await page.locator('header select[name="language"]').selectOption(locale);
+    await (await publicLanguagePicker(page)).selectOption(locale);
     await expect(publicLink).toHaveAttribute("aria-current", "page");
   }
   await page.goto("/#/app/account");

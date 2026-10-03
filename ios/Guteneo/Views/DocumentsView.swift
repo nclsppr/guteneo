@@ -65,7 +65,7 @@ struct DocumentsView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { importing = true } label: { Label("Importer un PDF", systemImage: "plus") }
-                    .disabled(uploading || model.session?.user.role == "viewer")
+                    .disabled(uploading || model.session?.canPrepare != true)
                     .accessibilityIdentifier("importPDF")
             }
         }
@@ -158,14 +158,14 @@ struct DocumentDetailView: View {
                                 do { _ = try await model.rescanDocument(id: id); await load() }
                                 catch { self.error = APIError.safeMessage(for: error) }
                             }
-                        }.disabled(working || model.session?.user.role == "viewer")
+                        }.disabled(working || model.session?.canPrepare != true)
                     }
                 }
                 if document.isReady {
                     Section {
                         Button { reading = true } label: { Label("Lire le PDF original", systemImage: "doc.text.magnifyingglass") }
                         Button { composing = true } label: { Label("Préparer un fax", systemImage: "printer") }
-                            .disabled(model.session?.user.role == "viewer")
+                            .disabled(model.session?.canPrepare != true)
                     }
                 }
                 Section("Original conservé") {

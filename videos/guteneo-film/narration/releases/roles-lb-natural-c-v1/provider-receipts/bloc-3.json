@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-3",
+  "path": "sources/bloc-3-prise-2.mp3",
+  "sha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+  "bytes": 225731,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "3N4w1TKXxZtOnFwxq5lR",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. [short pause] Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser.",
+  "requestTextSha256": "f3758199ee558b663722adbd09d9828029fef061ef4a80a31fa64261d97254ab",
+  "providerDurationSeconds": 12.96,
+  "decodedSamples": 571536,
+  "decodedPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2"
+}

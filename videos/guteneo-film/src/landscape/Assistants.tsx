@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   CanvasImage,
   interpolate,
@@ -7,14 +8,16 @@ import {
 import { C, clamp, ease, Frame, Head, Kicker, Label, Lift } from "./components";
 
 export const Assistants = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 120, top: 130 }}>
-        <Kicker>Votre assistant, votre façon</Kicker>
+        <Kicker>{t("Votre assistant, votre façon")}</Kicker>
         <Lift>
           <Head size={159} style={{ marginTop: 49 }}>
-            Dites-le <em style={{ color: C.blue }}>à votre IA.</em>
+            {t("Dites-le") + " "}
+            <em style={{ color: C.blue }}>{t("à votre IA.")}</em>
           </Head>
         </Lift>
       </div>
@@ -64,7 +67,7 @@ export const Assistants = () => {
       <Label
         style={{ position: "absolute", left: 120, top: 877, fontSize: 38 }}
       >
-        Créez. Personnalisez. Envoyez, avec votre IA.
+        {t("Créez. Personnalisez. Envoyez, avec votre IA.")}
       </Label>
     </Frame>
   );

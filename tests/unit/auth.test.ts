@@ -887,6 +887,327 @@ describe("identity and authentication boundaries", () => {
       handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
+  it("switches only between current memberships and rotates the browser session", async () => {
+    const original = await login();
+    await env.DB.prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('org_studio','user_atelier','viewer',?)",
+    )
+      .bind(new Date().toISOString())
+      .run();
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: original.cookie }),
+      env,
+    );
+    const available = await handleAuthRoute(
+      request("/api/account/workspaces", "GET", undefined, {
+        Cookie: original.cookie,
+      }),
+      env,
+    );
+    const list = (await available!.json()) as {
+      items: { id: string; role: string; current: boolean }[];
+    };
+    expect(list.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "org_atelier",
+          role: "admin",
+          current: true,
+        }),
+        expect.objectContaining({
+          id: "org_studio",
+          role: "viewer",
+          current: false,
+        }),
+      ]),
+    );
+    const headers = {
+      Cookie: original.cookie,
+      "X-CSRF-Token": session.csrfToken,
+    };
+    await expect(
+      handleAuthRoute(
+        request(
+          "/api/account/workspace",
+          "POST",
+          { organizationId: "org_foreign" },
+          headers,
+        ),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "MEMBERSHIP_REQUIRED" });
+    const switched = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        { organizationId: "org_studio" },
+        headers,
+      ),
+      env,
+    );
+    const nextCookie = switched!.headers.get("Set-Cookie")!.split(";")[0];
+    const next = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: nextCookie }),
+      env,
+    );
+    expect(next.context).toMatchObject({
+      organizationId: "org_studio",
+      role: "viewer",
+    });
+    await expect(
+      authenticateBrowser(
+        request("/api/session", "GET", undefined, { Cookie: original.cookie }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "SESSION_EXPIRED" });
+    await env.DB.prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+      .bind(next.tokenHash)
+      .run();
+    await env.DB.prepare(
+      "DELETE FROM memberships WHERE organization_id='org_studio' AND user_id='user_atelier'",
+    ).run();
+  });
+  it("does not recreate a session if access is revoked during a workspace switch", async () => {
+    const original = await login();
+    await env.DB.prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('org_studio','user_atelier','viewer',?)",
+    )
+      .bind(new Date().toISOString())
+      .run();
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: original.cookie }),
+      env,
+    );
+    const db = env.DB;
+    let revoked = false;
+    const wrapped = new Proxy(db, {
+      get(target, property) {
+        if (property === "batch")
+          return async (statements: D1PreparedStatement[]) => {
+            if (!revoked) {
+              revoked = true;
+              await db
+                .prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+                .bind(session.tokenHash)
+                .run();
+            }
+            return db.batch(statements);
+          };
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    await expect(
+      handleAuthRoute(
+        request(
+          "/api/account/workspace",
+          "POST",
+          { organizationId: "org_studio" },
+          { Cookie: original.cookie, "X-CSRF-Token": session.csrfToken },
+        ),
+        { ...env, DB: wrapped },
+      ),
+    ).rejects.toMatchObject({ code: "ACCESS_CHANGED" });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM browser_sessions WHERE organization_id='org_studio' AND user_id='user_atelier'",
+        )
+        .first(),
+    ).toEqual({ n: 0 });
+    await db
+      .prepare(
+        "DELETE FROM memberships WHERE organization_id='org_studio' AND user_id='user_atelier'",
+      )
+      .run();
+  });
+  async function invitationLoginFixture(role = "supervisor") {
+    const id = crypto.randomUUID();
+    const organizationId = `org_invite_${id}`;
+    const inviterId = `usr_inviter_${id}`;
+    const invitationId = `invite_${id}`;
+    const rawToken = btoa(
+      String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))),
+    )
+      .replaceAll("+", "-")
+      .replaceAll("/", "_")
+      .replaceAll("=", "");
+    const email = `collaborator-${id}@example.test`;
+    const timestamp = new Date().toISOString();
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+      ).bind(
+        inviterId,
+        "Invitation administrator",
+        `owner-${id}@example.test`,
+        timestamp,
+      ),
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,'production',?)",
+      ).bind(organizationId, "Inviting atelier", timestamp),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(organizationId, inviterId, timestamp),
+      env.DB.prepare(
+        "INSERT INTO workspace_invitations(id,organization_id,email,token_hash,role,supervisor_can_approve,supervisor_can_report,invited_by,status,delivery_status,created_at,expires_at) VALUES(?,?,?,?,?,?,0,?,'pending','sent',?,?)",
+      ).bind(
+        invitationId,
+        organizationId,
+        email,
+        await hashSecret(rawToken),
+        role,
+        Number(role === "supervisor"),
+        inviterId,
+        timestamp,
+        new Date(Date.now() + 86400000).toISOString(),
+      ),
+    ]);
+    const handoff = await handleAuthRoute(
+      request("/auth/invitation", "POST", { token: rawToken }),
+      betaEnv(),
+    );
+    expect(handoff?.status).toBe(200);
+    const invitationCookie = handoff!.headers.get("Set-Cookie")!.split(";")[0];
+    return { organizationId, invitationId, email, rawToken, invitationCookie };
+  }
+  it("enrols an invited verified identity directly in its atelier with only the assigned rights", async () => {
+    const invitation = await invitationLoginFixture();
+    const before = await env.DB.prepare(
+      "SELECT count(*) n FROM organizations",
+    ).first<{ n: number }>();
+    const flow = await signedBetaLogin(
+      { email: invitation.email },
+      {},
+      { headers: { Cookie: invitation.invitationCookie } },
+    );
+    const transaction = await env.DB.prepare(
+      "SELECT invitation_token_hash FROM auth_transactions WHERE state_hash=?",
+    )
+      .bind(await hashSecret(flow.destination.searchParams.get("state")!))
+      .first<{ invitation_token_hash: string }>();
+    expect(transaction?.invitation_token_hash).toBe(
+      await hashSecret(invitation.rawToken),
+    );
+    const result = await flow.complete();
+    expect(result?.status).toBe(302);
+    const sessionCookie = result!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: sessionCookie }),
+      flow.configured,
+    );
+    expect(session.context).toMatchObject({
+      organizationId: invitation.organizationId,
+      role: "supervisor",
+      supervisorCanApprove: true,
+      supervisorCanReport: false,
+    });
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM organizations").first(),
+    ).toEqual(before);
+    expect(
+      (
+        await env.DB.prepare(
+          "SELECT organization_id FROM memberships WHERE user_id=?",
+        )
+          .bind(session.context.userId)
+          .all()
+      ).results,
+    ).toEqual([{ organization_id: invitation.organizationId }]);
+    expect(
+      await env.DB.prepare(
+        "SELECT status,accepted_by FROM workspace_invitations WHERE id=?",
+      )
+        .bind(invitation.invitationId)
+        .first(),
+    ).toEqual({ status: "accepted", accepted_by: session.context.userId });
+  });
+  it("rejects invitation handoff from another origin or a bearer client", async () => {
+    const input = { token: "a".repeat(43) };
+    await expect(
+      handleAuthRoute(
+        request("/auth/invitation", "POST", input, {
+          Origin: "https://foreign.invalid",
+        }),
+        betaEnv(),
+      ),
+    ).rejects.toMatchObject({ code: "ORIGIN_REJECTED" });
+    await expect(
+      handleAuthRoute(
+        request("/auth/invitation", "POST", input, {
+          Authorization: "Bearer fixture",
+        }),
+        betaEnv(),
+      ),
+    ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      handleAuthRoute(
+        request("/auth/invitation", "POST", { ...input, role: "admin" }),
+        betaEnv(),
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  });
+  it("does not create an account or atelier when the verified email differs from the invitation", async () => {
+    const invitation = await invitationLoginFixture("member");
+    const flow = await signedBetaLogin(
+      { email: "wrong-recipient@example.test" },
+      {},
+      { headers: { Cookie: invitation.invitationCookie } },
+    );
+    await expect(flow.complete()).rejects.toBeInstanceOf(Error);
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(flow.sub)
+        .first(),
+    ).toBeNull();
+    expect(
+      await env.DB.prepare(
+        "SELECT status FROM workspace_invitations WHERE id=?",
+      )
+        .bind(invitation.invitationId)
+        .first(),
+    ).toEqual({ status: "pending" });
+  });
+  it("binds the invitation to PKCE state and refuses a revocation that occurs during sign-in", async () => {
+    const invitation = await invitationLoginFixture("viewer");
+    const other = await invitationLoginFixture("admin");
+    const flow = await signedBetaLogin(
+      { email: invitation.email },
+      {},
+      { headers: { Cookie: invitation.invitationCookie } },
+    );
+    await env.DB.prepare(
+      "UPDATE workspace_invitations SET status='revoked',revoked_at=? WHERE id=?",
+    )
+      .bind(new Date().toISOString(), invitation.invitationId)
+      .run();
+    const headers = new Headers(flow.callback.headers);
+    headers.set(
+      "Cookie",
+      `${headers.get("Cookie")}; ${other.invitationCookie}`,
+    );
+    await expect(
+      handleAuthRoute(new Request(flow.callback, { headers }), flow.configured),
+    ).rejects.toBeInstanceOf(Error);
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(flow.sub)
+        .first(),
+    ).toBeNull();
+    expect(
+      await env.DB.prepare(
+        "SELECT status FROM workspace_invitations WHERE id=?",
+      )
+        .bind(other.invitationId)
+        .first(),
+    ).toEqual({ status: "pending" });
+  });
   it("accepts a verified password signup in explicit free beta without manufacturing MFA", async () => {
     const flow = await signedBetaLogin();
     const result = await flow.complete();

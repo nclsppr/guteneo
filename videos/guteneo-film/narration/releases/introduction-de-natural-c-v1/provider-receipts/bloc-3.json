@@ -1,0 +1,18 @@
+{
+  "blockId": "bloc-3",
+  "path": "sources/bloc-3-prise-2.mp3",
+  "sha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+  "bytes": 194802,
+  "source": "elevenlabs-creative-plugin",
+  "generationId": "tSNHyigNJcleIkdXcLx0",
+  "variationIndex": 2,
+  "modelId": "eleven_v4",
+  "languageCode": "de",
+  "voiceId": "m5U7XCsc8v988k2RJAqN",
+  "outputFormat": "mp3_44100_128",
+  "prompt": "[thoughtful] Ihre Worte erreichen Menschen auch über Landesgrenzen hinweg. [short pause] So kann ein digitales Dokument auch im Briefkasten ankommen. [short pause] Ihr Arbeitsbereich begleitet Sie, auch wenn Sie unterwegs sind.",
+  "requestTextSha256": "f12bc497c5ab1bc3129fa9968e00a9d9029b4c855d8ce0ddc17da69c7167c7dd",
+  "providerDurationSeconds": 11.04,
+  "decodedSamples": 486864,
+  "decodedPcmSha256": "c91538ff8397a0d3890d0664d8e146dc8fb9d9d161b99354826ce9696efa1f91"
+}

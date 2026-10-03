@@ -1,0 +1,313 @@
+{
+  "sourceSha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+  "parameters": {
+    "language": "en",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 0.6377870420037652,
+  "result": {
+    "text": " Your documents travel across Europe to reach their recipients. Goudénil takes your correspondence from your screen to their letterbox. Find your documents and campaigns on the web or on your iPhone.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 3.18,
+        "text": " Your documents travel across Europe to reach their recipients.",
+        "tokens": [
+          50364,
+          2260,
+          8512,
+          3147,
+          2108,
+          3315,
+          281,
+          2524,
+          641,
+          32440,
+          13,
+          50564
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27450099521213106,
+        "compression_ratio": 1.3819444444444444,
+        "no_speech_prob": 0.0343090295791626,
+        "words": [
+          {
+            "word": " Your",
+            "start": 0,
+            "end": 0.26,
+            "probability": 0.89990234375
+          },
+          {
+            "word": " documents",
+            "start": 0.26,
+            "end": 0.7,
+            "probability": 0.9833984375
+          },
+          {
+            "word": " travel",
+            "start": 0.7,
+            "end": 1.16,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " across",
+            "start": 1.16,
+            "end": 1.48,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " Europe",
+            "start": 1.48,
+            "end": 1.98,
+            "probability": 0.99609375
+          },
+          {
+            "word": " to",
+            "start": 1.98,
+            "end": 2.2,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " reach",
+            "start": 2.2,
+            "end": 2.42,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " their",
+            "start": 2.42,
+            "end": 2.64,
+            "probability": 0.99072265625
+          },
+          {
+            "word": " recipients.",
+            "start": 2.64,
+            "end": 3.18,
+            "probability": 0.99365234375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.14,
+        "end": 7.74,
+        "text": " Goudénil takes your correspondence from your screen to their letterbox.",
+        "tokens": [
+          50564,
+          460,
+          1861,
+          3516,
+          388,
+          2516,
+          428,
+          38135,
+          490,
+          428,
+          2568,
+          281,
+          641,
+          5063,
+          4995,
+          13,
+          50780
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27450099521213106,
+        "compression_ratio": 1.3819444444444444,
+        "no_speech_prob": 0.0343090295791626,
+        "words": [
+          {
+            "word": " Goudénil",
+            "start": 4.14,
+            "end": 4.66,
+            "probability": 0.443603515625
+          },
+          {
+            "word": " takes",
+            "start": 4.66,
+            "end": 5,
+            "probability": 0.98779296875
+          },
+          {
+            "word": " your",
+            "start": 5,
+            "end": 5.22,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " correspondence",
+            "start": 5.22,
+            "end": 5.76,
+            "probability": 0.982421875
+          },
+          {
+            "word": " from",
+            "start": 5.76,
+            "end": 6.14,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " your",
+            "start": 6.14,
+            "end": 6.38,
+            "probability": 0.9970703125
+          },
+          {
+            "word": " screen",
+            "start": 6.38,
+            "end": 6.78,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " to",
+            "start": 6.78,
+            "end": 7,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " their",
+            "start": 7,
+            "end": 7.18,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " letterbox.",
+            "start": 7.18,
+            "end": 7.74,
+            "probability": 0.91259765625
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.38,
+        "end": 11.62,
+        "text": " Find your documents and campaigns on the web or on your iPhone.",
+        "tokens": [
+          50780,
+          11809,
+          428,
+          8512,
+          293,
+          16840,
+          322,
+          264,
+          3670,
+          420,
+          322,
+          428,
+          7252,
+          13,
+          50952
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.27450099521213106,
+        "compression_ratio": 1.3819444444444444,
+        "no_speech_prob": 0.0343090295791626,
+        "words": [
+          {
+            "word": " Find",
+            "start": 8.38,
+            "end": 8.64,
+            "probability": 0.99267578125
+          },
+          {
+            "word": " your",
+            "start": 8.64,
+            "end": 8.82,
+            "probability": 0.99365234375
+          },
+          {
+            "word": " documents",
+            "start": 8.82,
+            "end": 9.24,
+            "probability": 0.998046875
+          },
+          {
+            "word": " and",
+            "start": 9.24,
+            "end": 9.5,
+            "probability": 0.9931640625
+          },
+          {
+            "word": " campaigns",
+            "start": 9.5,
+            "end": 9.9,
+            "probability": 0.99658203125
+          },
+          {
+            "word": " on",
+            "start": 9.9,
+            "end": 10.18,
+            "probability": 0.998046875
+          },
+          {
+            "word": " the",
+            "start": 10.18,
+            "end": 10.3,
+            "probability": 0.99755859375
+          },
+          {
+            "word": " web",
+            "start": 10.3,
+            "end": 10.52,
+            "probability": 0.96875
+          },
+          {
+            "word": " or",
+            "start": 10.52,
+            "end": 10.92,
+            "probability": 0.9365234375
+          },
+          {
+            "word": " on",
+            "start": 10.92,
+            "end": 11.12,
+            "probability": 0.9755859375
+          },
+          {
+            "word": " your",
+            "start": 11.12,
+            "end": 11.26,
+            "probability": 0.99853515625
+          },
+          {
+            "word": " iPhone.",
+            "start": 11.26,
+            "end": 11.62,
+            "probability": 0.9052734375
+          }
+        ]
+      }
+    ],
+    "language": "en"
+  },
+  "originalProofSha256": "5493f66dc660cb9f4a67f176294ea11b77015784a550be5e00fd67f7d8ef9489"
+}

@@ -1,0 +1,24 @@
+{
+  "jobId": "REPLACE_JOB_ID",
+  "explicitMultichannel": false,
+  "entries": [
+    {
+      "entryId": "personal-0",
+      "recordId": "customer-001",
+      "channel": "fax",
+      "recipientFields": {
+        "phone": "fax"
+      },
+      "ceilingMinor": 200
+    },
+    {
+      "entryId": "personal-1",
+      "recordId": "customer-002",
+      "channel": "fax",
+      "recipientFields": {
+        "phone": "fax"
+      },
+      "ceilingMinor": 200
+    }
+  ]
+}

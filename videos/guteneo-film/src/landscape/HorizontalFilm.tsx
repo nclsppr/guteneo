@@ -1,3 +1,5 @@
+import { FilmLocaleProvider } from "../localization";
+import { validateIntroductionTimeline, type IntroductionFilmProps, type IntroductionFilmTimeline } from "../natural-timing";
 import {
   AbsoluteFill,
   Sequence,
@@ -53,7 +55,7 @@ const Cut = () => {
 };
 
 /** Native 1920 x 1080 composition, sharing only assets and the 56-second score. */
-export const HorizontalFilm = () => (
+const HorizontalFilmScenes = () => (
   <AbsoluteFill>
     <Audio src={staticFile("audio/vertical-soundtrack.wav")} />
     <TransitionSeries>
@@ -117,4 +119,36 @@ export const HorizontalFilm = () => (
       </Sequence>
     ))}
   </AbsoluteFill>
+);
+
+const NarratedHorizontalScenes = ({timeline, musicFile}: {timeline: IntroductionFilmTimeline; musicFile: string}) => {
+  const timing = validateIntroductionTimeline(timeline);
+  const scenes = {
+    one: <One />, scale: <Scale />, personal: <Personal />, sources: <Sources />,
+    assistants: <Assistants />, generate: <Generate />, review: <Review />,
+    channels: <Channels />, europe: <Europe />,
+    physical: <PhysicalBurst durationInFrames={timing.physical.durationInFrames} />,
+    access: <Access />, signature: <Signature />, logo: <End />,
+  };
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile(musicFile)} />
+      <TransitionSeries>
+        {timeline.scenes.map((scene) => (
+          <TransitionSeries.Sequence key={scene.id} durationInFrames={scene.durationInFrames} name={scene.id}>
+            {scenes[scene.id]}
+          </TransitionSeries.Sequence>
+        ))}
+      </TransitionSeries>
+      {(["personal", "assistants", "review", "europe", "access"] as const).map((id) => (
+        <Sequence key={id} from={timing[id].startFrame - 4} durationInFrames={10} layout="none"><Cut /></Sequence>
+      ))}
+    </AbsoluteFill>
+  );
+};
+
+export const HorizontalFilm: React.FC<IntroductionFilmProps> = ({ locale = "fr", timeline, musicFile = "audio/vertical-soundtrack.wav" }) => (
+  <FilmLocaleProvider locale={locale}>
+    {timeline ? <NarratedHorizontalScenes timeline={timeline} musicFile={musicFile} /> : <HorizontalFilmScenes />}
+  </FilmLocaleProvider>
 );

@@ -1,4 +1,14 @@
 {
+  "Cette démonstration suit 3 étapes : vous composez votre demande, vérifiez les détails dans Guteneo pour donner votre accord, puis suivez l’envoi.": [
+    "This demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.",
+    "Diese Demonstration zeigt 3 Schritte: Verfassen Sie Ihre Anfrage, prüfen Sie die Details in Guteneo für Ihre Freigabe und verfolgen Sie dann die Sendung.",
+    "Dës Demonstratioun weist 3 Schrëtt: Dir verfaasst Är Ufro, kontrolléiert d’Detailer a Guteneo fir Är Zoustëmmung ze ginn a verfollegt duerno d’Sendung."
+  ],
+  "Vérifiez le document, le destinataire, le canal et le montant avant de donner votre accord.": [
+    "Check the document, recipient, channel and amount before giving your approval.",
+    "Prüfen Sie Dokument, Empfänger, Kanal und Betrag, bevor Sie Ihre Freigabe erteilen.",
+    "Kontrolléiert d’Dokument, den Empfänger, de Kanal an de Betrag, ier Dir Är Zoustëmmung gitt."
+  ],
   "Avec Guteneo, indique uniquement les fonctions et les canaux actuellement disponibles pour mon compte. Utilise seulement les outils de lecture. Ne crée ni document ni brouillon, ne prépare et n’envoie aucune communication, et ne modifie aucune autorisation.": [
     "With Guteneo, list only the functions and channels currently available for my account. Use read-only tools only. Do not create any document or draft, prepare or send any communication, or change any authorisation.",
     "Zeige mit Guteneo ausschließlich die Funktionen und Kanäle an, die derzeit für mein Konto verfügbar sind. Verwende nur Lesezugriffe. Erstelle weder Dokumente noch Entwürfe, bereite keine Kommunikation vor, versende nichts und ändere keine Berechtigungen.",
@@ -1098,11 +1108,6 @@
   "Une demande.": ["One request.", "Eine Anfrage.", "Eng Ufro."],
   "Une vérification.": ["One review.", "Eine Prüfung.", "Eng Kontroll."],
   "Un envoi.": ["One dispatch.", "Eine Sendung.", "Eng Sendung."],
-  "Vous composez. Guteneo réunit les détails pour votre accord, puis vous permet de suivre chaque étape.": [
-    "You compose. Guteneo brings the details together for your approval, then lets you track every step.",
-    "Sie verfassen den Inhalt. Guteneo stellt die Details für Ihre Zustimmung zusammen und ermöglicht Ihnen anschließend, jeden Schritt zu verfolgen.",
-    "Dir verfaasst den Inhalt. Guteneo stellt d’Detailer fir Är Zoustëmmung zesummen a léisst Iech duerno all Schrëtt verfollegen."
-  ],
   "Étapes de la démonstration": [
     "Demo steps",
     "Schritte der Demonstration",

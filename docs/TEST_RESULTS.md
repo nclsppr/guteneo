@@ -1,4 +1,186 @@
-# Executed verification — 2026-09-17
+# Executed verification
+
+## Reconciliation with workshop roles — 2 October 2026
+
+The deployment candidate integrates main `8b060bb`, including workshop roles and
+invitations. Those migrations retain 0042–0043. The six unpublished studio
+migrations move from 0042–0047 to 0044–0049 without SQL content changes. Earlier
+local evidence below uses its original numbering and counts; it is not a fresh
+qualification of this combined source. Updated checks and hosted evidence are
+stored separately in `/Users/nclsppr/Developer/.artifacts/guteneo-templates-deploy-20261002`.
+
+Fresh local reconciliation checks: typecheck and lint pass; the migration
+transport matches **49 migrations / 315 schema objects** with integrity `ok` and
+no foreign-key violations. The **216 security tests** pass. The four historical
+migration-conflict files pass **55/55 tests**. The first focused workflow run
+passed 13 cases, including eight supervisor/browser/MCP combinations; its two
+test-harness/assertion failures were corrected. A fresh **5/5** recheck covers
+stale supervisor options, exact dispatch-bound private review in REST/MCP,
+revoked OAuth during R2 reading, and permission withdrawal during metadata,
+bytes and page rendering. These overlapping runs are not a full-file total.
+
+The two new browser scenarios pass **4/4** across Chromium and iPhone WebKit:
+observer-only controls on the studio routes, and operator preparation followed
+by approver preview/open with the exact dispatch context. These role scenarios
+use intercepted HTTP fixtures; they qualify the browser interface, while the
+integration tests above qualify the actual authorization logic. Full GitHub
+checks must still qualify the committed combined source before publication.
+The existing distribution browser scenarios also pass **2/2 on Chromium**
+(`studio-distribution-real-browser.log`): one record/channel selection flow
+against the real local simulation API, and one intercepted UI case for two
+records sharing one PDF artifact.
+
+## Demonstration templates, deletion and LLM authoring — 2 October 2026
+
+This local follow-up extends `e6a99338e85e2f4a4b8cd002b47e609a49085e8f` in the
+isolated `templates-workflow` worktree. Its evidence is stored separately in
+`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002`.
+
+| Check | Executed outcome |
+| --- | --- |
+| Contracts, authoring and plugin packaging | **52/52 pass** across three files (`unit-and-plugin.log`), including all five example envelopes, live schemas, semantic rules and the packaged authoring reference. |
+| Workflow integration | **39 non-AI cases covered**: the broad focused run passed 38 with one obsolete error-code expectation; after correcting that assertion, the targeted history/scopes/observability recheck passed **3/3**, including the remaining case. The 3 overlap with the 39; a clean full-file rerun is not claimed. Two AI cases were excluded. |
+| Security and OpenAPI | **216/216 pass** (`security.log`), including **8 OpenAPI checks** for the 64-operation workflow inventory and deletion/authoring contracts. |
+| Browser behaviour | **6/6 pass** on desktop Chromium, mobile Chromium and iPhone WebKit (`demo-delete-browser.log`): private copies, deletion, cancellation/focus, shared consequences and unsaved edits. Existing native graphical edit/save/actual-PDF regression also passes **1/1** (`native-designer-regression.log`). |
+| Demonstration PDFs | All **five** unchanged gallery samples render actual one-page PDFs, with zero missing text markers, overflow or external requests (`proof.json`). All five rendered PNGs were visually inspected (`visual-review.json`). |
+| Migration | Local 0047 applied; transport verification covers **47 migrations / 298 schema objects**, equivalent schemas, `quick_check=ok`, zero foreign-key violations (`migration-transport.json`). |
+| Executable MCP authoring | SDK Streamable HTTP script **exit 0**: discovers guide and five examples, creates a private quote, renders it, deletes the copy and verifies its PDF remains `ready` (`authoring-mcp.log`). |
+| Static checks and builds | Final global typecheck and lint pass; web build and API Worker dry-run pass (`build-web-final.log`, `api-build.log`). Typecheck/lint success was observed in terminal output. |
+
+Workflow results were observed in terminal sessions 18939 and 65700; no dedicated
+log was exported, and the shared Vitest JSON is overwritten by later runs. Exact
+commands, counts and evidence references are recorded in the external
+`verification.json`. The independently exported full security log includes the
+eight OpenAPI checks.
+
+The first browser run exposed a real false-dirty state caused by initial pdfme
+table measurement, now corrected and rechecked. The keyboard test uses WebKit's
+existing Alt+Tab convention. Initial failure evidence is preserved. The native
+Designer regression first lacked its archived DOCX fixture; restoring the exact
+fixture allowed the unchanged scenario to pass. The final visual review found
+no remaining material issue in the bounded change.
+
+The MCP example's initial wrong document argument and a separate interrupted
+run are recorded separately; only the fresh successful run qualifies the full
+flow. The interrupted synthetic draft was removed with an owner/revision-checked
+local API call. No real communication, hosted deployment, remote migration,
+merge, provider activation, paid provisioning or inference occurred. Existing
+PDFs and provenance are preserved by soft deletion. These checks use synthetic
+data and simulated scans and do not qualify hosted runtime or external LLM hosts.
+The baseline results below remain dated evidence and are not added to these totals.
+
+## Templates, data and distribution — local candidate, 2 October 2026
+
+The recovered workflow is reconciled with main `a808307c5687588eb8c0aab45c9e559aa70a03dc`
+in the isolated `templates-workflow` worktree, using additive migrations 0042–0046.
+XML sources and per-record delivery channels extend the recovered implementation.
+Current local evidence is stored in
+`/Users/nclsppr/Developer/.artifacts/guteneo-templates-20261002`, with its
+machine-readable summary in `verification.json`.
+
+| Check | Executed outcome |
+| --- | --- |
+| Broad unit/integration run, AI tests excluded | **1,540 passed in 82 files**; two files fail during setup because historical migration fixtures lack `documents.access_owner_id`, leaving **31 cases unexecuted/skipped** (`non-ai-tests.log`). After fixture corrections, Luxembourg **3/3 pass** (`historical-fax-regressions.log`) and fax review preparation **28/28 pass** (`fax-review-final.log`). The complete broad suite has not been rerun after those corrections. |
+| Data/runtime and templates | **29 data + one workerd test**, and **20 template/Designer/Word/renderer tests**, pass within the broad run. The renderer produces five actual local Chromium PDFs; XML tests cover lexical values, nested addresses, linked item tables, explicit selection and rejection bounds. These are subsets, not extra tests to add to the broad total. |
+| Focused workflow integration | **27 non-AI cases pass**, covering privacy, revocation and cancellation regressions. Repeated subsets are not added to this count. |
+| Security and OpenAPI | **215 security checks pass** (`security-tests.log`), including **7 OpenAPI checks** for the exact 60-operation workflow inventory, scopes, browser approval and idempotency. |
+| Scanner | **29 JavaScript + 38 Python tests pass** in the fresh 2 October run, observed in terminal output without an exported log in this artifact directory. These checks do not qualify hosted antivirus behavior. |
+| Studio browsers | **22 pass, eight intentional skips** (`studio-browser.log`); graphical editing is desktop-only. Data mapping and distribution run on desktop Chromium, mobile Chromium and iPhone WebKit. |
+| XML, locale and keyboard regression | **6/6 pass** on those three browser projects (`studio-table-a11y-final-browser.log`): per-record XML channel/recipient selection without sending, language changes preserving customer text and unsaved edits, Tab/visible focus on source and result tables, real horizontal scrolling with arrow keys and keyboard selection. This extends the same six cases from `xml-language-browser-final.log`; the rerun is not an additional six cases. |
+| Workspace navigation regression | **21/21 pass** (`studio-navigation-regression.log`), including route timing, focus, session recovery and translated navigation. |
+| Public preview | **76 pass, six intentional skips** (`preview-tests.log`). This is the separate public fixture model; it exposes none of the new studio business capabilities. |
+| Migration transport | **46 migrations / 296 schema objects**, equivalent source/transport schemas, `quick_check=ok`, zero foreign-key violations (`migration-transport.json`). |
+| Executable examples | REST, SDK Streamable HTTP MCP and XLSX/mapping/distribution scripts each **exit 0** with two ready PDFs. The dataset script verifies four associations across two prepared plans, zero approvals/provider attempts and unchanged credit/quota (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`). |
+| Static checks and builds | Typecheck and global lint pass after the final keyboard correction. Application/web and preview builds, API and private-document Worker dry-runs pass (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`); the web build and targeted lint pass again after that correction (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). The archived `lint.log` is an earlier failed attempt, not the successful recheck. The recorded npm audit uses `--omit=dev` and reports **zero production vulnerabilities** (`npm-audit.json`); three known development alerts remain outside that result. |
+
+The focused Resend recheck also passes **8/8** with intercepted provider transport
+(`resend-regression.log`). Reruns and overlapping subsets are not added together.
+This evidence does not claim a clean rerun of the entire application browser
+suite, exact-commit CI or a hosted runtime.
+
+All AI tests were excluded on 2 October. The recovered AI adapters remain unchanged
+and inactive; no key was created/configured and no inference was performed while
+the user's configuration choice is pending. No merge, deployment, remote migration,
+provider activation, real communication or paid provisioning occurred. Actual local
+PDF rendering uses synthetic inputs and simulated scanning. Details and remaining
+limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) and the
+[example execution record](../examples/template-workflow/README.md).
+
+## Historical templates, data and distribution — 21 September 2026
+
+The historical isolated uncommitted candidate based on `c53192533a80e25464f8ef143e82efad1cb12d2d`
+passed **1,208/1,208 unit/integration tests across 67 files**, **148/148 security
+checks**, **232 application browser tests with 11 intentional skips**, and
+**56 preview browser tests with four intentional skips**. Scanner checks pass
+**29 JavaScript + 38 Python tests**. Typecheck, lint, application/preview builds,
+the private document Worker dry-run and local migration/integrity checks pass.
+
+The historical report `reports/templates-data/verification.json` recorded scope,
+skips, commands, actual local pdfme rendering, executable API/MCP examples and
+synthetic provider/AI/scan boundaries. That archived report is absent from this
+candidate; the current [delivery report](TEMPLATES_DATA_DISTRIBUTION.md) records
+the new evidence separately. No production migration, deployment, merge, real
+communication or paid provisioning occurred during the historical verification.
+These historical totals do not qualify the 2 October reconciliation and are not
+added to its results. They do not replace the dated live release evidence below.
+
+## Previous verification — 2026-09-17
+
+## Workshop roles, self-enrolment and invitations — local candidate, 2 October 2026
+
+The candidate adds four workshop roles, independent supervisor approval/reporting
+options, a customer guide in French/English/German/Luxembourgish, individual and
+CSV invitations, and browser workspace selection. A verified self-enrolment still
+creates an administrator. An invited person can create an account or use an
+existing account; accepting the invitation creates only the invited membership,
+without an extra personal workshop. See [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
+
+Executed locally on macOS, with deterministic D1/provider fixtures:
+
+- Full Vitest run: **1,575 passed, two failed in 82 files**. Both failures were in
+  the new workspace-switch tests: the first exposed D1 counting a session trigger
+  update in `meta.changes`, and the second inherited its unfinished fixture. After
+  correcting the affected check, the complete authentication file passed
+  **43/43**, including the concurrent-revocation regression. This is a successful
+  targeted rerun, not a relabelled green full run.
+- The full run passed all **44 new role/migration/invitation integration cases**,
+  the CSV parser cases, and the invitation asset-shell checks. The separate Node
+  security suite passed **215/215**.
+- Full application Playwright run: **419 passed, four intentional skips, six
+  failures** on desktop Chromium, mobile Chromium and iPhone WebKit. These six
+  cases exposed postal administrator guidance hidden from non-administrators.
+  The corrected panel retains read-only guidance while restricting forms and
+  preparation. Rebuilt-source replay of the postal-setup, workspace-roles and
+  team-invitations files passed **72/72**, including a new observer regression.
+- Migration transport verification passed **43 migrations / 283 schema objects**,
+  with equivalent schema, `quick_check=ok` and zero foreign-key violations. The
+  populated migration tests preserve existing native sessions/codes and accepted
+  sending history while invalidating pending approvals whose authority was lost.
+- Typecheck, ESLint, application build/Worker dry-run and production-format static
+  build passed. The prerendered `/roles/` contains the four roles, creator/admin
+  and invitation/account-creation explanations, canonical URL and sitemap entry.
+  The personal invitation route is excluded from the sitemap.
+- Native iOS build passed. The repository test wrapper stopped at Xcode's
+  first-launch check; direct build-for-testing and test-without-building on the
+  installed iOS simulator then passed **28/28** native unit tests, including role
+  fallbacks and independent permissions. This is simulator evidence, not physical
+  device or App Store qualification.
+
+Logs, JSON reports, screenshots and the native result bundle are retained outside
+the repository in `~/.codex/artifacts/guteneo-roles-2026-10-02/`. The initial failed
+runs and successful focused reruns are preserved separately. Exact-commit CI has
+not run. There was no real invitation email, provider activation, remote migration,
+merge or production deployment. Invitation delivery remains disabled by default.
+
+Release qualification for PR #37 subsequently passed **1,577/1,577 Vitest cases**
+and **428 application browser cases**, with four intentional desktop skips, on
+GitHub CI run `37033193788`. Its first attempt remains failed because one iPhone
+preview test clicked a privacy-page anchor while downloaded fonts changed its
+position. The trace identifies the font completion between pointer positioning
+and activation; ten unchanged local repetitions passed. The test now waits for
+`document.fonts.ready` after cross-page navigation, retaining the real click,
+URL-fragment and heading-in-viewport assertions. This readiness correction does
+not change application behavior or suppress the failed attempt.
 
 ## Workspace dashboard corrections — candidate, 25 September 2026
 

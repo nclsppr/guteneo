@@ -1,0 +1,997 @@
+{
+  "schemaVersion": 1,
+  "scope": "These measured scalar qualifications cover the frozen MP3 sources and canonical WAV samples; they do not change any media or the 8-LSB bound.",
+  "qualifications": [
+    {
+      "schemaVersion": 1,
+      "mode": "measured-offline-scalar-qualification",
+      "decoderVersion": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "platform": "linux",
+      "arch": "arm64",
+      "libraries": [
+        {
+          "library": "introduction-de-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 64.86666666666666,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+              "canonicalPcmSha256": "8fdec798bc998c4568580f5c34e09bb1c8dd3da91054fbebc02342fe62be7a65",
+              "decodedPcmSha256": "162dbab6d03aca5691668d50aa8864ff57121c58866511efd6113370e67a6673",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 656208,
+              "differentSamples": 27125,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+              "canonicalPcmSha256": "50d6acdf282e430c767d51a07cad87958b449f2fbe64c75df929e16983e222bf",
+              "decodedPcmSha256": "d2e296c202b2ea9c89ed1a9f94519d220e1cecfcd51343589c4cde445bd43c9d",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 864360,
+              "differentSamples": 32358,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+              "canonicalPcmSha256": "c91538ff8397a0d3890d0664d8e146dc8fb9d9d161b99354826ce9696efa1f91",
+              "decodedPcmSha256": "451248de72bbd66adb9e55b674f9766138744d1907f98220c00d5d311c042c20",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 486864,
+              "differentSamples": 21011,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-en-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 65.8,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "86326f1bca41d6377fc649ee52e321441cb42aac491b8d225ab3f12ccb7adf33",
+              "canonicalPcmSha256": "b4bb2fb7a330cb81999a250fbd07c29208eabf3b9444a2bda14235def04c24bd",
+              "decodedPcmSha256": "beb891d83ad91311718e0a0996db8d8660c7eb9fffee9bd982c149bd3bf38f62",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 776160,
+              "differentSamples": 30976,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4c4f39bae42bb71e87678e9f5cf42ad1bda622e42af35c3d5fc3507c5b578d8a",
+              "canonicalPcmSha256": "e7850e3687221029638b281ce9ea8eb1bc6b30dd3e4d4b6b9a51346e0d4ca3b7",
+              "decodedPcmSha256": "40c9b97b887ff95c43be6be344cb44b6c3dc19d7d474a54ef563984db63d14fb",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 25331,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+              "canonicalPcmSha256": "c03a919fe4f23263eb0947719b47b43615e7671c0cfe1787a19dcd710de796a9",
+              "decodedPcmSha256": "b4f84cacf9045eb365290c19e974b4765ec67e43b936f56a30193797508b4f40",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 18063,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-fr-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 66.5,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+              "canonicalPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f",
+              "decodedPcmSha256": "1fb051e576e6922db0cb2490f6038ef527774dc078929602289b3a7afd8cc396",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 26224,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+              "canonicalPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574",
+              "decodedPcmSha256": "5f000d4150c488a4f2e66fd35dca4b6bfcccf0aa9fda71c31eea47e91d310ca6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 839664,
+              "differentSamples": 29974,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+              "canonicalPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7",
+              "decodedPcmSha256": "3669edf9e1f385e16f2bc72f9188aa7ccf7e68e8e3f128057a77ec96c3038e56",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 19969,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-lb-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 67.46666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+              "canonicalPcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7",
+              "decodedPcmSha256": "8da824a0e31b609d33b412c6e86a197c8a505b732c804544b9c0bc8b5b957a0b",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 663264,
+              "differentSamples": 22560,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+              "canonicalPcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d",
+              "decodedPcmSha256": "364b8155f68dd36e16c7270a688414b3f5787933438bb537d9d4dd94457a8256",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 934920,
+              "differentSamples": 36343,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+              "canonicalPcmSha256": "04130cd0ceca716cab507e1c593ebb8271df4f08b5e07975cbf248ac4f2793f5",
+              "decodedPcmSha256": "4330dbd07043a3e06157ff1e8799129a35f89808363c873c7cb03c33e00d7301",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 578592,
+              "differentSamples": 21042,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-de-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 49.13333333333333,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+              "canonicalPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e",
+              "decodedPcmSha256": "50e85f2330b3acdaec47190da843b0d9946d4bb94d88f74b5e86c7259aa837c7",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 476280,
+              "differentSamples": 18429,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+              "canonicalPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8",
+              "decodedPcmSha256": "f6f72d05f732b5243e3700779a0f2a111ebd0af178f47aa7e29f569be9bd4214",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 670320,
+              "differentSamples": 28267,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+              "canonicalPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a",
+              "decodedPcmSha256": "0edce44046384b57138a57150005a8301c3812efd4fbae0bc1dbc9df7ae06fb3",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 557424,
+              "differentSamples": 21657,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-en-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 47.3,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+              "canonicalPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55",
+              "decodedPcmSha256": "9433b4a5e25f558e5b1259ea8d18f35f5289eef5bd0005d05ca1d1e212c07f50",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 462168,
+              "differentSamples": 16843,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+              "canonicalPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f",
+              "decodedPcmSha256": "a204ada6594b4b0763b9ba1b2edba6fc4954dbf4b05482a7af41612e3b57f68f",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 599760,
+              "differentSamples": 20350,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+              "canonicalPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47",
+              "decodedPcmSha256": "1b2cc4477e441b6d5393c077d7a3f15198d994a11d9f57f84a0ab90adfac97c2",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 560952,
+              "differentSamples": 19168,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-fr-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 44.86666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+              "canonicalPcmSha256": "4a1b1b0b9cd7e843fca1559ca2835d71ad7d9693103d76b65deb7f80f427c5bc",
+              "decodedPcmSha256": "087555d496726825d1a3e5b5cbae808d8653ecf8f100f1f14e5d896ff8c6f320",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 430416,
+              "differentSamples": 14814,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+              "canonicalPcmSha256": "ca5efe75b55aeb458498ce55a0c93fbf3daabf32b25fe03f8ec35e4533aaf7c0",
+              "decodedPcmSha256": "6ec1abe6445013a2133ce3cb2e76365aab6150799f123045a90db31967ff22e2",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 515088,
+              "differentSamples": 18195,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+              "canonicalPcmSha256": "c4eb7d66210ad7df788a73dc7015eedaaef23b26fe33a6eb2fce8f2c33bd0560",
+              "decodedPcmSha256": "034d0f2cfe1911a46433889c6213c050a8f3d60b037463e02ac1eda4bceb7ab6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 568008,
+              "differentSamples": 18966,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-lb-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 50.4,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+              "canonicalPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+              "decodedPcmSha256": "1375ca2cbf6e924f02441643b626bec503e837a2aa3e06522a57e6a4156fe239",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 490392,
+              "differentSamples": 16821,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+              "canonicalPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+              "decodedPcmSha256": "dd1322c715b185ae658e6a2d02a7d47b05eac269b828ea4df0c11a114da6bea5",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 698544,
+              "differentSamples": 28075,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+              "canonicalPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+              "decodedPcmSha256": "988b138c4b873dd7332ff971c6a72d3ac17e2ce419a3d98b0e8a33a8e27e5609",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 571536,
+              "differentSamples": 22916,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        }
+      ],
+      "executionEnvironment": "Ubuntu 24.04 container under OrbStack arm64 on Apple Silicon"
+    },
+    {
+      "schemaVersion": 1,
+      "mode": "measured-offline-scalar-qualification",
+      "decoderVersion": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "platform": "linux",
+      "arch": "x64",
+      "kernelArchitecture": "x86_64",
+      "libraries": [
+        {
+          "library": "introduction-de-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 64.86666666666666,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+              "canonicalPcmSha256": "8fdec798bc998c4568580f5c34e09bb1c8dd3da91054fbebc02342fe62be7a65",
+              "decodedPcmSha256": "162dbab6d03aca5691668d50aa8864ff57121c58866511efd6113370e67a6673",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 656208,
+              "differentSamples": 27125,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+              "canonicalPcmSha256": "50d6acdf282e430c767d51a07cad87958b449f2fbe64c75df929e16983e222bf",
+              "decodedPcmSha256": "d2e296c202b2ea9c89ed1a9f94519d220e1cecfcd51343589c4cde445bd43c9d",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 864360,
+              "differentSamples": 32358,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+              "canonicalPcmSha256": "c91538ff8397a0d3890d0664d8e146dc8fb9d9d161b99354826ce9696efa1f91",
+              "decodedPcmSha256": "451248de72bbd66adb9e55b674f9766138744d1907f98220c00d5d311c042c20",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 486864,
+              "differentSamples": 21011,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-en-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 65.8,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "86326f1bca41d6377fc649ee52e321441cb42aac491b8d225ab3f12ccb7adf33",
+              "canonicalPcmSha256": "b4bb2fb7a330cb81999a250fbd07c29208eabf3b9444a2bda14235def04c24bd",
+              "decodedPcmSha256": "beb891d83ad91311718e0a0996db8d8660c7eb9fffee9bd982c149bd3bf38f62",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 776160,
+              "differentSamples": 30976,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4c4f39bae42bb71e87678e9f5cf42ad1bda622e42af35c3d5fc3507c5b578d8a",
+              "canonicalPcmSha256": "e7850e3687221029638b281ce9ea8eb1bc6b30dd3e4d4b6b9a51346e0d4ca3b7",
+              "decodedPcmSha256": "40c9b97b887ff95c43be6be344cb44b6c3dc19d7d474a54ef563984db63d14fb",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 25331,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+              "canonicalPcmSha256": "c03a919fe4f23263eb0947719b47b43615e7671c0cfe1787a19dcd710de796a9",
+              "decodedPcmSha256": "b4f84cacf9045eb365290c19e974b4765ec67e43b936f56a30193797508b4f40",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 18063,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-fr-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 66.5,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+              "canonicalPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f",
+              "decodedPcmSha256": "1fb051e576e6922db0cb2490f6038ef527774dc078929602289b3a7afd8cc396",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 26224,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+              "canonicalPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574",
+              "decodedPcmSha256": "5f000d4150c488a4f2e66fd35dca4b6bfcccf0aa9fda71c31eea47e91d310ca6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 839664,
+              "differentSamples": 29974,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+              "canonicalPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7",
+              "decodedPcmSha256": "3669edf9e1f385e16f2bc72f9188aa7ccf7e68e8e3f128057a77ec96c3038e56",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 19969,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-lb-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 67.46666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+              "canonicalPcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7",
+              "decodedPcmSha256": "8da824a0e31b609d33b412c6e86a197c8a505b732c804544b9c0bc8b5b957a0b",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 663264,
+              "differentSamples": 22560,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+              "canonicalPcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d",
+              "decodedPcmSha256": "364b8155f68dd36e16c7270a688414b3f5787933438bb537d9d4dd94457a8256",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 934920,
+              "differentSamples": 36343,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+              "canonicalPcmSha256": "04130cd0ceca716cab507e1c593ebb8271df4f08b5e07975cbf248ac4f2793f5",
+              "decodedPcmSha256": "4330dbd07043a3e06157ff1e8799129a35f89808363c873c7cb03c33e00d7301",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 578592,
+              "differentSamples": 21042,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-de-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 49.13333333333333,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+              "canonicalPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e",
+              "decodedPcmSha256": "50e85f2330b3acdaec47190da843b0d9946d4bb94d88f74b5e86c7259aa837c7",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 476280,
+              "differentSamples": 18429,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+              "canonicalPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8",
+              "decodedPcmSha256": "f6f72d05f732b5243e3700779a0f2a111ebd0af178f47aa7e29f569be9bd4214",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 670320,
+              "differentSamples": 28267,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+              "canonicalPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a",
+              "decodedPcmSha256": "0edce44046384b57138a57150005a8301c3812efd4fbae0bc1dbc9df7ae06fb3",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 557424,
+              "differentSamples": 21657,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-en-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 47.3,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+              "canonicalPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55",
+              "decodedPcmSha256": "9433b4a5e25f558e5b1259ea8d18f35f5289eef5bd0005d05ca1d1e212c07f50",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 462168,
+              "differentSamples": 16843,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+              "canonicalPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f",
+              "decodedPcmSha256": "a204ada6594b4b0763b9ba1b2edba6fc4954dbf4b05482a7af41612e3b57f68f",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 599760,
+              "differentSamples": 20350,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+              "canonicalPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47",
+              "decodedPcmSha256": "1b2cc4477e441b6d5393c077d7a3f15198d994a11d9f57f84a0ab90adfac97c2",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 560952,
+              "differentSamples": 19168,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-fr-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 44.86666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+              "canonicalPcmSha256": "4a1b1b0b9cd7e843fca1559ca2835d71ad7d9693103d76b65deb7f80f427c5bc",
+              "decodedPcmSha256": "087555d496726825d1a3e5b5cbae808d8653ecf8f100f1f14e5d896ff8c6f320",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 430416,
+              "differentSamples": 14814,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+              "canonicalPcmSha256": "ca5efe75b55aeb458498ce55a0c93fbf3daabf32b25fe03f8ec35e4533aaf7c0",
+              "decodedPcmSha256": "6ec1abe6445013a2133ce3cb2e76365aab6150799f123045a90db31967ff22e2",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 515088,
+              "differentSamples": 18195,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+              "canonicalPcmSha256": "c4eb7d66210ad7df788a73dc7015eedaaef23b26fe33a6eb2fce8f2c33bd0560",
+              "decodedPcmSha256": "034d0f2cfe1911a46433889c6213c050a8f3d60b037463e02ac1eda4bceb7ab6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 568008,
+              "differentSamples": 18966,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-lb-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 50.4,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+              "canonicalPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+              "decodedPcmSha256": "1375ca2cbf6e924f02441643b626bec503e837a2aa3e06522a57e6a4156fe239",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 490392,
+              "differentSamples": 16821,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+              "canonicalPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+              "decodedPcmSha256": "dd1322c715b185ae658e6a2d02a7d47b05eac269b828ea4df0c11a114da6bea5",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 698544,
+              "differentSamples": 28075,
+              "maximumAbsoluteDelta": 3,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+              "canonicalPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+              "decodedPcmSha256": "988b138c4b873dd7332ff971c6a72d3ac17e2ce419a3d98b0e8a33a8e27e5609",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 571536,
+              "differentSamples": 22916,
+              "maximumAbsoluteDelta": 2,
+              "toleranceLsb": 8
+            }
+          ]
+        }
+      ],
+      "executionEnvironment": "Ubuntu 24.04 container under OrbStack linux/amd64 emulation on Apple Silicon"
+    },
+    {
+      "schemaVersion": 1,
+      "mode": "measured-offline-scalar-qualification",
+      "decoderVersion": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "platform": "darwin",
+      "arch": "arm64",
+      "libraries": [
+        {
+          "library": "introduction-de-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 64.86666666666666,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "4bbec946634492c10fab03d0803647e7bf0f93b7cfb1f622c8666e618927bd8f",
+              "canonicalPcmSha256": "8fdec798bc998c4568580f5c34e09bb1c8dd3da91054fbebc02342fe62be7a65",
+              "decodedPcmSha256": "04f6db40480700f54b41a7e54469072b60363fdb356cacecc8563e3d0a8a5098",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 656208,
+              "differentSamples": 10112,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "1d466c1cd8e62650a235e32e22117d3083dba5ca5d98169ec7ff76d08c049c51",
+              "canonicalPcmSha256": "50d6acdf282e430c767d51a07cad87958b449f2fbe64c75df929e16983e222bf",
+              "decodedPcmSha256": "30670c6cf90d3dc248565ef5c612995aef326759e00b136b3bf7fc8ea8e582c1",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 864360,
+              "differentSamples": 11668,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "5c75b851b2a5e49e2aaf393b980be2b56825f6fa5abef14ca4609bfa60277804",
+              "canonicalPcmSha256": "c91538ff8397a0d3890d0664d8e146dc8fb9d9d161b99354826ce9696efa1f91",
+              "decodedPcmSha256": "7790045e57d3f350f707fad5a9a33e5e2bf72382cd956995f542ed10740f3506",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 486864,
+              "differentSamples": 7094,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-en-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 65.8,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "86326f1bca41d6377fc649ee52e321441cb42aac491b8d225ab3f12ccb7adf33",
+              "canonicalPcmSha256": "b4bb2fb7a330cb81999a250fbd07c29208eabf3b9444a2bda14235def04c24bd",
+              "decodedPcmSha256": "a962456a841e6867b63494dc4f00d5d4b129467a575e2dba9e99df1bce808ae6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 776160,
+              "differentSamples": 10822,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4c4f39bae42bb71e87678e9f5cf42ad1bda622e42af35c3d5fc3507c5b578d8a",
+              "canonicalPcmSha256": "e7850e3687221029638b281ce9ea8eb1bc6b30dd3e4d4b6b9a51346e0d4ca3b7",
+              "decodedPcmSha256": "ae4dc283f20638cfcfafe00833e832881d318873c0e55bd2742e7d79746d1082",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 8294,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "9c24e546b7bc614d2d35a63dfe1b372789f55bcee7a7835901d6bc640aab4871",
+              "canonicalPcmSha256": "c03a919fe4f23263eb0947719b47b43615e7671c0cfe1787a19dcd710de796a9",
+              "decodedPcmSha256": "9042199617ccfd6ff66c2f3c4eaab4900ed7668ead382f84b3d7219640ac8e47",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 6499,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-fr-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 66.5,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "793548d32243c74bbb3530c8bcc73d37f4eb15347b99525c4969eefad1b7e551",
+              "canonicalPcmSha256": "b652ff7e8c5230e37f12d34739902aab68b7890bcc46e73d03107c3a3d3b7a7f",
+              "decodedPcmSha256": "3019459c78ceea2ae66581fd95d1fa05c2aec97ffaf1704b1805597c80ff1728",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 740880,
+              "differentSamples": 9698,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "21fa53a13c5287ff99d6c2985f823d7c96ac1b8fbdeba1649e7dd133e1dd1c94",
+              "canonicalPcmSha256": "224a2893fcd19d4be3d8a3c296980e9a1aca37f15bb1a46f1f798a5dbfb4b574",
+              "decodedPcmSha256": "512c73a7c010b687aa9d9e490e43cf0f90b702f52d1085463412bfd43c521d4f",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 839664,
+              "differentSamples": 10510,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "a327c3ff368df5138d8b6ef90a2ce42b946b250dc5acdec25d8362582fda634b",
+              "canonicalPcmSha256": "eddda56a1d20edd951b0b1011b645c7ca3de29dc9d4d1e7867648c43b87af5e7",
+              "decodedPcmSha256": "964bfe7c191705fcbe6cc1e2e47cb79b363a7d776aa17a8b77ad665b7429692d",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 525672,
+              "differentSamples": 7422,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "introduction-lb-natural-c-v1",
+          "clips": 11,
+          "durationSeconds": 67.46666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+              "canonicalPcmSha256": "0f270630e9de96540fc3a950acc391e4ba522226e78ff9a4c45ee2fc7a807ea7",
+              "decodedPcmSha256": "f56026abf52dd7b6a0ae3b2e66ec6c1644e59bf1b8d08dd162a3744427662976",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 663264,
+              "differentSamples": 8291,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+              "canonicalPcmSha256": "8311009516fedc6f503b9aa87f836d460058eeb8fbfbb838cfbf23895ca7974d",
+              "decodedPcmSha256": "e607e34a12e9ae02067450585aa489d71061ac0d9c907b730af258ab3cb437a2",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 934920,
+              "differentSamples": 12461,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "4ee0579652da02efc8a3f39e64afb1df6ce50e488337ca6404d9b70e2865809a",
+              "canonicalPcmSha256": "04130cd0ceca716cab507e1c593ebb8271df4f08b5e07975cbf248ac4f2793f5",
+              "decodedPcmSha256": "3aaf901e5d6684023fafb5a213b013ee5d2bb6e539094cd35b4e0351ad39e6c0",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 578592,
+              "differentSamples": 8059,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-de-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 49.13333333333333,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "43fb30273bc826cb5b9e74c2f18e0c1b4e93ff30ce94b435af6841cf9e82912e",
+              "canonicalPcmSha256": "13ad2984f5a0558d5b1d9dd3cff6b3f2f9c3438174837583793e488dcf416c2e",
+              "decodedPcmSha256": "474e5fe2edd2c3856155a700998f1124697e1d3de69aca4ad311558b08fbecf8",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 476280,
+              "differentSamples": 6505,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "a67af10b01e107fe600d615a5951dd165ce366ad567c56c37883c36e95f1ae7d",
+              "canonicalPcmSha256": "7748b25c510b7a77a521d159b6d6ff825bb899c5f8a5b56ff8d5e2fb6d0342a8",
+              "decodedPcmSha256": "f2c5c14ff885a866f4fe847b1982855c4a2e2fbf10da2d42c3326a540fdd04c6",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 670320,
+              "differentSamples": 9854,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "41d2ef9a988ee479a13876ccd9c8799c0ff598736ab5fb8dbe26fe6c57b96493",
+              "canonicalPcmSha256": "4d14c9cdfa7673f867339208b2bc931d1ea08653d43cb769eeea41fc84422a4a",
+              "decodedPcmSha256": "1db586f41acec34a256ca87ffc90809a3ebc26774b7185cf27e0dbb3bbe9a8dc",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 557424,
+              "differentSamples": 8013,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-en-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 47.3,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "634f65b722b3be08401921b6c8a5a5bded1d5233c62d2f72367ec9550962de49",
+              "canonicalPcmSha256": "598e628052d2598606ba22ef7b1922c3246300578f135802164f9a3a41d04e55",
+              "decodedPcmSha256": "5ba2ad909cfe60f6dd8d5a75c5ff2930907695e624888792864f8aeef60a6c90",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 462168,
+              "differentSamples": 5784,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "4dc675e436198114a85cb5d7c00b5179190ac81437471db71202dc1bdcdb9118",
+              "canonicalPcmSha256": "c7d1b8b6819a3d37e0737dd2e1fe88db5052e98db559835ddb352cdd933f1b3f",
+              "decodedPcmSha256": "425a23d1cf2d84e3d27fbc6d17528b6db3738559c878db95e4428fec2f2e075c",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 599760,
+              "differentSamples": 6580,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "0fd6b4cd17882385eb72215c6b45d67f747f2439c141dac06033cf5185c42753",
+              "canonicalPcmSha256": "59b6751b15a0e1c3d086197acc8acc81cb3e152118806a134f2bf57e21104e47",
+              "decodedPcmSha256": "523ee98d4ad31917b170e8e8c40422c2daaa475c769ec3e9e0dde87c4f3bd2be",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 560952,
+              "differentSamples": 6789,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-fr-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 44.86666666666667,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+              "canonicalPcmSha256": "4a1b1b0b9cd7e843fca1559ca2835d71ad7d9693103d76b65deb7f80f427c5bc",
+              "decodedPcmSha256": "c2938c8e510a47dc35b3aecc68812d06e90ac31d81e86f6c1c94251236d72449",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 430416,
+              "differentSamples": 5325,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+              "canonicalPcmSha256": "ca5efe75b55aeb458498ce55a0c93fbf3daabf32b25fe03f8ec35e4533aaf7c0",
+              "decodedPcmSha256": "f495c1637b40d9d820e113c32fc14e3cf29387aa7de9eb0aa794cb1a208ca369",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 515088,
+              "differentSamples": 6504,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+              "canonicalPcmSha256": "c4eb7d66210ad7df788a73dc7015eedaaef23b26fe33a6eb2fce8f2c33bd0560",
+              "decodedPcmSha256": "105f9e107606cad5e67b5ad5eb57c9121376eb0bb432a96d03579ac1fea1d138",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 568008,
+              "differentSamples": 6858,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        },
+        {
+          "library": "roles-lb-natural-c-v1",
+          "clips": 6,
+          "durationSeconds": 50.4,
+          "decoders": [
+            {
+              "blockId": "bloc-1",
+              "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+              "canonicalPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba",
+              "decodedPcmSha256": "ab9575b407c6616c8247975e131845f58af14bb6773ae01c1a23c9af17a09732",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 490392,
+              "differentSamples": 5926,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-2",
+              "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+              "canonicalPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0",
+              "decodedPcmSha256": "3fd1bb6e4f8b6288dece22c42a2210cbb5d7ceddedeb26517831cbe34b532ee7",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 698544,
+              "differentSamples": 9723,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            },
+            {
+              "blockId": "bloc-3",
+              "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+              "canonicalPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2",
+              "decodedPcmSha256": "2e653decbde14d71967c953def435566b9a3918e35bb2c4b07920f77083d60c5",
+              "decoderCpuFlags": "0",
+              "decodedSamples": 571536,
+              "differentSamples": 8531,
+              "maximumAbsoluteDelta": 1,
+              "toleranceLsb": 8
+            }
+          ]
+        }
+      ],
+      "executionEnvironment": "macOS arm64 on Apple Silicon"
+    }
+  ]
+}

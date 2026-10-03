@@ -89,9 +89,13 @@ export function ProtectedDocumentChoice({
 export function ProtectedDocumentSummary({
   dispatch,
   onUpdated,
+  canManage = true,
+  canRevoke = true,
 }: {
   dispatch: Dispatch;
   onUpdated: () => void;
+  canManage?: boolean;
+  canRevoke?: boolean;
 }) {
   const protection = protectedDelivery(dispatch);
   const action = useAction();
@@ -202,7 +206,7 @@ export function ProtectedDocumentSummary({
             ? msg("L’accès à ce document est révoqué.")
             : msg("Le lien a expiré.")}
         </p>
-      ) : (
+      ) : canManage ? (
         <>
           {!password ? (
             <button
@@ -241,44 +245,45 @@ export function ProtectedDocumentSummary({
               </span>
             </div>
           )}
-          {confirmRevoke ? (
-            <div className="notice warning">
-              <div>
-                <p>
-                  {msg(
-                    "Révoquer l’accès pour tous les destinataires de cet hébergement ? Les copies déjà téléchargées restent accessibles.",
-                  )}
-                </p>
-                <div className="button-group">
-                  <button
-                    className="button"
-                    disabled={action.pending}
-                    onClick={() => void revoke()}
-                  >
-                    {msg("Révoquer l’accès au document")}
-                  </button>
-                  <button
-                    className="text-button"
-                    disabled={action.pending}
-                    onClick={() => setConfirmRevoke(false)}
-                  >
-                    {msg("Conserver l’accès")}
-                  </button>
+          {canRevoke &&
+            (confirmRevoke ? (
+              <div className="notice warning">
+                <div>
+                  <p>
+                    {msg(
+                      "Révoquer l’accès pour tous les destinataires de cet hébergement ? Les copies déjà téléchargées restent accessibles.",
+                    )}
+                  </p>
+                  <div className="button-group">
+                    <button
+                      className="button"
+                      disabled={action.pending}
+                      onClick={() => void revoke()}
+                    >
+                      {msg("Révoquer l’accès au document")}
+                    </button>
+                    <button
+                      className="text-button"
+                      disabled={action.pending}
+                      onClick={() => setConfirmRevoke(false)}
+                    >
+                      {msg("Conserver l’accès")}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <p>
-              <button
-                className="text-button"
-                onClick={() => setConfirmRevoke(true)}
-              >
-                {msg("Révoquer l’accès au document")}
-              </button>
-            </p>
-          )}
+            ) : (
+              <p>
+                <button
+                  className="text-button"
+                  onClick={() => setConfirmRevoke(true)}
+                >
+                  {msg("Révoquer l’accès au document")}
+                </button>
+              </p>
+            ))}
         </>
-      )}
+      ) : null}
       <ErrorNotice error={action.error ?? status.error} />
       <p className="field-hint">
         {msg(

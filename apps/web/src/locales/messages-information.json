@@ -1,4 +1,15 @@
 {
+  "Profils de Nicolas Pieper": [
+    "Nicolas Pieper’s profiles",
+    "Profile von Nicolas Pieper",
+    "Profiler vum Nicolas Pieper"
+  ],
+  "À propos de Guteneo": ["About Guteneo", "Über Guteneo", "Iwwer Guteneo"],
+  "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté.": [
+    "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant.",
+    "Guteneo ist ein unabhängiger, von Nicolas Pieper herausgegebener Dienst zum Vorbereiten, Autorisieren und Verfolgen von Dokumentensendungen aus der Werkstatt oder über einen verbundenen Assistenten.",
+    "Guteneo ass en onofhängege Service vum Nicolas Pieper, fir Dokumentesendungen aus sengem Atelier oder engem verbonnenen Assistent virzebereeden, ze autoriséieren an ze verfollegen."
+  ],
   "Lister les PDF et consulter leurs octets validés.": [
     "List PDFs and read their validated bytes.",
     "PDF-Dateien auflisten und ihre geprüften Bytes abrufen.",

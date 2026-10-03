@@ -14,6 +14,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 MAX_BYTES = 10 * 1024 * 1024
+MAX_SOURCE_BYTES = 5 * 1024 * 1024
 MAX_SIGNATURE_AGE = 72 * 60 * 60
 SOCKET_PATH = "/tmp/clamav/clamd.sock"
 SCAN_SECONDS = 18
@@ -159,12 +160,15 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(503, {"status": "unavailable", "code": scan_error_code(error)})
 
     def do_POST(self):
-        if self.path != "/scan":
+        if self.path not in ("/scan", "/scan-source"):
             return self.send_json(404, {"verdict": "error", "code": "NOT_FOUND"})
-        if self.headers.get("Transfer-Encoding") or self.headers.get("Content-Type", "").split(";")[0].strip() != "application/pdf":
-            return self.send_json(415, {"verdict": "error", "code": "PDF_CONTENT_TYPE_REQUIRED"})
+        source = self.path == "/scan-source"
+        media_type = "application/octet-stream" if source else "application/pdf"
+        max_bytes = MAX_SOURCE_BYTES if source else MAX_BYTES
+        if self.headers.get("Transfer-Encoding") or self.headers.get("Content-Type", "").split(";")[0].strip() != media_type:
+            return self.send_json(415, {"verdict": "error", "code": "SOURCE_CONTENT_TYPE_REQUIRED" if source else "PDF_CONTENT_TYPE_REQUIRED"})
         length = self.headers.get("Content-Length", "")
-        if not length.isdigit() or not 0 < int(length) <= MAX_BYTES:
+        if not length.isdigit() or not 0 < int(length) <= max_bytes:
             return self.send_json(413, {"verdict": "error", "code": "INVALID_SIZE"})
         if not SCAN_LOCK.acquire(blocking=False):
             return self.send_json(503, {"verdict": "error", "code": "SCANNER_BUSY"})

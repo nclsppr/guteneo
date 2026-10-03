@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "compositionId": "Guteneo-Roles-FR-Natural-C",
+  "locale": "fr",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 1346,
+  "durationSeconds": 44.86666666666667,
+  "endCardStartFrame": 1196,
+  "endCardStartSeconds": 39.86666666666667,
+  "endCardDurationInFrames": 150,
+  "endCardDurationSeconds": 5,
+  "preRollFrames": 12,
+  "postRollMinimumFrames": 15,
+  "sourceVoiceDurationSeconds": 34.32,
+  "method": "C-three-blocks",
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "fr",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "startFrame": 0,
+      "durationInFrames": 136
+    },
+    {
+      "id": "administrator",
+      "startFrame": 136,
+      "durationInFrames": 212
+    },
+    {
+      "id": "supervisor",
+      "startFrame": 348,
+      "durationInFrames": 230
+    },
+    {
+      "id": "operator",
+      "startFrame": 578,
+      "durationInFrames": 176
+    },
+    {
+      "id": "observer",
+      "startFrame": 754,
+      "durationInFrames": 276
+    },
+    {
+      "id": "review",
+      "startFrame": 1030,
+      "durationInFrames": 166
+    },
+    {
+      "id": "logo",
+      "startFrame": 1196,
+      "durationInFrames": 150
+    }
+  ],
+  "criticalListening": "pending"
+}

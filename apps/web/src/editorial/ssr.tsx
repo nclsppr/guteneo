@@ -11,14 +11,34 @@ import { getAssistant } from "../assistant-catalog";
 const origin = "https://guteneo.com";
 const publisher = {
   "@type": "Organization",
+  "@id": `${origin}/#organization`,
   name: "Guteneo",
   url: origin,
+  email: "guteneo@pieper.fr",
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: "guteneo@pieper.fr",
+    url: `${origin}/support/`,
+  },
   logo: {
     "@type": "ImageObject",
     url: `${origin}/brand/guteneo-stamp.png`,
     width: 512,
     height: 512,
   },
+};
+const editor = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": `${origin}/#editor`,
+  name: "Nicolas Pieper",
+  url: "https://nicolaspieper.com",
+  sameAs: [
+    "https://www.linkedin.com/in/nicolaspieper",
+    "https://github.com/nclsppr",
+    "https://twitter.com/NicolasPieper",
+  ],
 };
 const author = {
   "@type": "Organization",
@@ -86,6 +106,8 @@ export function renderPublicPage(pathname: string) {
       canonical: origin + "/",
       image: "/press-halftone.webp",
       structuredData: [
+        { "@context": "https://schema.org", ...publisher },
+        editor,
         {
           "@context": "https://schema.org",
           "@type": "WebSite",
@@ -93,6 +115,7 @@ export function renderPublicPage(pathname: string) {
           url: origin + "/",
           inLanguage: "fr",
           publisher,
+          creator: { "@id": editor["@id"] },
         },
       ],
     };

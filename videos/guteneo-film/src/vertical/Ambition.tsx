@@ -1,3 +1,4 @@
+import { useFilmCopy } from "../localization";
 import {
   AbsoluteFill,
   CanvasImage,
@@ -22,6 +23,7 @@ import {
 import { usePortraitLayout } from "./layout";
 
 export const One = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   return (
@@ -29,13 +31,15 @@ export const One = () => {
       <CornerBrand />
       <div style={{ position: "absolute", left: 82, top: y(355) }}>
         <Lift>
-          <Kicker>La suite de vos mots</Kicker>
+          <Kicker>{t("La suite de vos mots")}</Kicker>
         </Lift>
         <Head size={146} style={{ marginTop: 44 }}>
-          Tout part
+          {t("Tout part")}
           <br />
-          d’un{" "}
-          <span style={{ fontStyle: "italic", color: C.blue }}>document.</span>
+          {t("d’un")}{" "}
+          <span style={{ fontStyle: "italic", color: C.blue }}>
+            {t("document.")}
+          </span>
         </Head>
       </div>
       <div
@@ -77,6 +81,7 @@ export const One = () => {
 };
 
 export const Scale = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   const value =
@@ -92,11 +97,11 @@ export const Scale = () => {
   return (
     <Frame blue>
       <div style={{ position: "absolute", left: 82, top: y(200) }}>
-        <Kicker light>De 1 à 10 000+ documents</Kicker>
+        <Kicker light>{t("De 1 à 10 000+ documents")}</Kicker>
         <Head size={114} style={{ marginTop: 44 }}>
-          Changez
+          {t("Changez")}
           <br />
-          <em>d’échelle.</em>
+          <em>{t("d’échelle.")}</em>
         </Head>
       </div>
       <div
@@ -119,7 +124,7 @@ export const Scale = () => {
       <div
         style={{ position: "absolute", left: 82, top: y(965), fontSize: 51 }}
       >
-        documents par campagne
+        {t("documents par campagne")}
       </div>
       <div
         style={{
@@ -181,15 +186,16 @@ export const Scale = () => {
           lineHeight: 1.3,
         }}
       >
-        Un envoi unique.
+        {t("Un envoi unique.")}
         <br />
-        Ou des milliers d’attentions.
+        {t("Ou des milliers d’attentions.")}
       </div>
     </Frame>
   );
 };
 
 export const Personal = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y, height } = usePortraitLayout();
   return (
@@ -209,16 +215,16 @@ export const Personal = () => {
         }}
       />
       <div style={{ position: "absolute", left: 82, top: y(180) }}>
-        <Kicker light>Votre campagne. Votre style.</Kicker>
+        <Kicker light>{t("Votre campagne. Votre style.")}</Kicker>
         <Lift at={4}>
           <Head size={140} style={{ marginTop: 65 }}>
-            Du simple.
+            {t("Du simple.")}
             <br />
-            <em>Au personnel.</em>
+            <em>{t("Au personnel.")}</em>
           </Head>
         </Lift>
         <Label light style={{ marginTop: 36, maxWidth: 800 }}>
-          Simple ou ultra-personnalisée.
+          {t("Simple ou ultra-personnalisée.")}
         </Label>
       </div>
       {["Camille", "Noor", "Alex"].map((name, i) => (
@@ -245,7 +251,8 @@ export const Personal = () => {
             ),
           }}
         >
-          Bonjour <em>{name}</em>,
+          {t("Bonjour") + " "}
+          <em>{name}</em>,
         </div>
       ))}
       <Label
@@ -260,24 +267,26 @@ export const Personal = () => {
           background: "#101a2de6",
         }}
       >
-        Une même campagne.
-        <br />À chacun sa version.
+        {t("Une même campagne.")}
+        <br />
+        {t("À chacun sa version.")}
       </Label>
     </Frame>
   );
 };
 
 export const Sources = () => {
+  const t = useFilmCopy();
   const f = useCurrentFrame();
   const { y } = usePortraitLayout();
   return (
     <Frame>
       <div style={{ position: "absolute", left: 82, top: y(175) }}>
-        <Kicker>Votre contenu, votre choix</Kicker>
+        <Kicker>{t("Votre contenu, votre choix")}</Kicker>
         <Head size={137} style={{ marginTop: 61 }}>
-          Votre PDF.
+          {t("Votre PDF.")}
           <br />
-          <em style={{ color: C.blue }}>Votre modèle.</em>
+          <em style={{ color: C.blue }}>{t("Votre modèle.")}</em>
         </Head>
       </div>
       <div
@@ -309,9 +318,9 @@ export const Sources = () => {
           PDF
         </div>
         <div style={{ fontSize: 43 }}>
-          Importez votre original.
+          {t("Importez votre original.")}
           <div style={{ fontSize: 29, color: "#697271", marginTop: 13 }}>
-            Le document exact, conservé.
+            {t("Le document exact, conservé.")}
           </div>
         </div>
       </div>
@@ -342,7 +351,7 @@ export const Sources = () => {
           opacity: interpolate(f, [27, 39], [0, 1], clamp),
         }}
       >
-        Ou faites créer votre mise en page.
+        {t("Ou faites créer votre mise en page.")}
       </div>
       <div
         style={{
@@ -357,9 +366,9 @@ export const Sources = () => {
           borderLeft: `4px solid ${C.blue}`,
         }}
       >
-        Votre mise en page. Vos données.
+        {t("Votre mise en page. Vos données.")}
         <br />
-        Un modèle, des milliers de versions.
+        {t("Un modèle, des milliers de versions.")}
       </div>
     </Frame>
   );

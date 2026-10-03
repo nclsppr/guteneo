@@ -107,7 +107,7 @@ async function tenant(mode = "production"): Promise<ActorContext> {
       )
       .bind(actor.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
       .bind(actor.organizationId, actor.userId, stamp()),
     ...(["email", "postal", "fax"] as const).flatMap((channel) => [
       db
@@ -593,7 +593,7 @@ describe("one shared lifetime promotional credit", () => {
           )
           .bind(id, stamp()),
         db
-          .prepare("INSERT INTO memberships VALUES(?,'missing-user','admin',?)")
+          .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,'missing-user','admin',?)")
           .bind(id, stamp()),
       ]),
     ).rejects.toThrow();

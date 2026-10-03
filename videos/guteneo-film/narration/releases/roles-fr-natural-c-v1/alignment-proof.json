@@ -1,0 +1,874 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-02T23:07:31.861723+00:00",
+  "sourceScriptSha256": "9615324993b64e253dcd78cd00a6f156dd2061d4ad04b6efc5f1373d4cb2fb2c",
+  "inputManifestSha256": "94aaca9e2505f10c6a75daec290c6f28054d7d433d93ef343c89da48f1636657",
+  "offlineInference": true,
+  "initialPrompt": null,
+  "wordTimestampResolutionSeconds": 0.02,
+  "forcedAlignment": false,
+  "inputQuietGuardSeconds": 0.066,
+  "source": {
+    "provider": "elevenlabs-creative-plugin",
+    "modelId": "eleven_v4",
+    "languageCode": "fr",
+    "voiceName": "Manon",
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "selectedVariationNumber": 2
+  },
+  "blocks": [
+    {
+      "blockId": "bloc-1",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-1-prise-2.mp3",
+      "sourceSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+      "receiptPath": "provider-receipts/bloc-1.json",
+      "receiptSha256": "1eba29799730d81a6cd9d02669a78ffe51a2edfe4cea7d5d64b43712d1d8e088",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "nlMCANBM6PDm3tCOapxk",
+        "blockId": "bloc-1",
+        "variationIndex": 2,
+        "filename": "bloc-1-prise-2.mp3",
+        "prompt": "[thoughtful] Découvrons les quatre rôles de guteneo et les droits de chacun. [short pause] L’administrateur gère l’atelier. Il prépare les envois, les approuve et consulte les rapports.",
+        "providerDurationSeconds": 9.76,
+        "voice": {
+          "voiceId": "m5U7XCsc8v988k2RJAqN",
+          "name": "Manon Voix française spontanée sérieuse"
+        },
+        "language": "fr",
+        "outputFormat": "mp3_44100_128",
+        "selected": true,
+        "source": "elevenlabs-creative-plugin",
+        "bytes": 174032,
+        "sha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+        "audioSha256": "29efebafef352b13b3be8d1905f15adf0efb2f19c579e613839e0d8a857f6410",
+        "requestTextSha256": "bc4cd2e140628ded61477fd2bbbeeaaa7a881d826af2a4212c608805c3bba8a3"
+      },
+      "requestTextSha256": "bc4cd2e140628ded61477fd2bbbeeaaa7a881d826af2a4212c608805c3bba8a3",
+      "providerTags": [
+        "[thoughtful]",
+        "[short pause]"
+      ],
+      "decodedSamples": 430416,
+      "durationSeconds": 9.76,
+      "recognizedText": " Découvrons les quatre rôles de Guth Néo et les droits de chacun. L'administrateur gère l'atelier. Il prépare les envois, les approuvent et consulte les rapports.",
+      "asrProofPath": "alignment/bloc-1.asr.json",
+      "asrProofSha256": "cb130f8a38b8e1df32247c9f6bab292aa6dfa0eed2e16823fe15c82feb701ca3",
+      "editDistance": 3,
+      "lexicalDifferences": [
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 5,
+          "expected": null,
+          "recognized": {
+            "token": "guth",
+            "word": " Guth",
+            "start": 1.56,
+            "end": 1.76,
+            "probability": 0.50341796875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 6,
+          "expected": {
+            "token": "guteneo",
+            "cueId": "intro"
+          },
+          "recognized": {
+            "token": "neo",
+            "word": " Néo",
+            "start": 1.76,
+            "end": 2.14,
+            "probability": 0.7158203125
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 22,
+          "expected": {
+            "token": "approuve",
+            "cueId": "administrator"
+          },
+          "recognized": {
+            "token": "approuvent",
+            "word": " approuvent",
+            "start": 7.62,
+            "end": 8.3,
+            "probability": 0.70068359375
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "insertion",
+          "expectedIndex": null,
+          "observedIndex": 5
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 5,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 21
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 21,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 26
+        }
+      ],
+      "boundary": {
+        "status": "ASR-anchors-and-acoustic-pause-agree",
+        "cutSeconds": 3.607641723356009,
+        "cutSample": 159097,
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false,
+        "quietInterval": {
+          "startSeconds": 3.206599,
+          "endSeconds": 4.008685
+        },
+        "previousLastWord": {
+          "token": "chacun",
+          "word": " chacun.",
+          "start": 2.82,
+          "end": 3.12,
+          "probability": 0.9921875
+        },
+        "nextFirstWord": {
+          "token": "l",
+          "word": " L",
+          "start": 3.8,
+          "end": 4.08,
+          "probability": 0.984375
+        }
+      },
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-1-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending",
+      "originalAsrProofSha256": "1b55334521fe543c4e23835a2b1dfc2914d7d0b4c0a705a42f20955c7d31ec07"
+    },
+    {
+      "blockId": "bloc-2",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-2-prise-2.mp3",
+      "sourceSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+      "receiptPath": "provider-receipts/bloc-2.json",
+      "receiptSha256": "5b8672dc2428173b710be9ffc62c3d144b699a69b5c485c1d1b7b68b009ba23a",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "uCzR8CDmXdHxxmMfYLeQ",
+        "blockId": "bloc-2",
+        "variationIndex": 2,
+        "filename": "bloc-2-prise-2.mp3",
+        "prompt": "[thoughtful] Le superviseur prépare les envois. L’approbation et l’accès aux rapports sont des droits distincts, désactivés par défaut. [short pause] L’opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.",
+        "providerDurationSeconds": 11.68,
+        "voice": {
+          "voiceId": "m5U7XCsc8v988k2RJAqN",
+          "name": "Manon Voix française spontanée sérieuse"
+        },
+        "language": "fr",
+        "outputFormat": "mp3_44100_128",
+        "selected": true,
+        "source": "elevenlabs-creative-plugin",
+        "bytes": 204961,
+        "sha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+        "audioSha256": "67a25ff6430a35a8c3c90a0224067059ca277fe44dbebd8f16b80df6f6479b6d",
+        "requestTextSha256": "963d22e657277311ac3a4256687f98236880e2698007cb56a4135181ad77ce3c"
+      },
+      "requestTextSha256": "963d22e657277311ac3a4256687f98236880e2698007cb56a4135181ad77ce3c",
+      "providerTags": [
+        "[thoughtful]",
+        "[short pause]"
+      ],
+      "decodedSamples": 515088,
+      "durationSeconds": 11.68,
+      "recognizedText": " Le superviseur prépare les envois. L'approbation et l'accès au rapport sont des droits distincts, désactivés par défaut. L'opérateur importe les documents et prépare les envois. Il ne peut pas les approuver.",
+      "asrProofPath": "alignment/bloc-2.asr.json",
+      "asrProofSha256": "023e376064c4a1f589520b0286c0cc1d21aefef3d16f16b89e56d2600413731c",
+      "editDistance": 1,
+      "lexicalDifferences": [
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 10,
+          "expected": {
+            "token": "aux",
+            "cueId": "supervisor"
+          },
+          "recognized": {
+            "token": "au",
+            "word": " au",
+            "start": 3.54,
+            "end": 3.64,
+            "probability": 0.387451171875
+          },
+          "criticalListening": "pending"
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11,
+          "expected": {
+            "token": "rapports",
+            "cueId": "supervisor"
+          },
+          "recognized": {
+            "token": "rapport",
+            "word": " rapport",
+            "start": 3.64,
+            "end": 3.94,
+            "probability": 0.990234375
+          },
+          "criticalListening": "pending"
+        }
+      ],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "substitution",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 33
+        }
+      ],
+      "boundary": {
+        "status": "ASR-anchors-and-acoustic-pause-agree",
+        "cutSeconds": 6.736167800453515,
+        "cutSample": 297065,
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false,
+        "quietInterval": {
+          "startSeconds": 6.444694,
+          "endSeconds": 7.027664
+        },
+        "previousLastWord": {
+          "token": "defaut",
+          "word": " défaut.",
+          "start": 6.1,
+          "end": 6.5,
+          "probability": 0.998046875
+        },
+        "nextFirstWord": {
+          "token": "l",
+          "word": " L",
+          "start": 6.94,
+          "end": 7.12,
+          "probability": 0.99267578125
+        }
+      },
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-2-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending",
+      "originalAsrProofSha256": "f63da9c8c4688894d13599f54a08fd4122fb2197d76cadcdf70088cc15420ff4"
+    },
+    {
+      "blockId": "bloc-3",
+      "source": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2
+      },
+      "audioPath": "sources/bloc-3-prise-2.mp3",
+      "sourceSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+      "receiptPath": "provider-receipts/bloc-3.json",
+      "receiptSha256": "9bc73852ea809ec53714e58c0b8eb89ee5b4ca9aa478b57970e2095f0752ae34",
+      "receipt": {
+        "provider": "elevenlabs-creative-plugin",
+        "modelId": "eleven_v4",
+        "languageCode": "fr",
+        "voiceName": "Manon",
+        "voiceId": "m5U7XCsc8v988k2RJAqN",
+        "selectedVariationNumber": 2,
+        "generationId": "IvzUSC30IdzO6iX7bpcM",
+        "blockId": "bloc-3",
+        "variationIndex": 2,
+        "filename": "bloc-3-prise-2.mp3",
+        "prompt": "[thoughtful] L’observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l’atelier et n’approuve aucun envoi. [short pause] Dans le parcours standard, une personne autorisée approuve l’envoi dans le navigateur.",
+        "providerDurationSeconds": 12.88,
+        "voice": {
+          "voiceId": "m5U7XCsc8v988k2RJAqN",
+          "name": "Manon Voix française spontanée sérieuse"
+        },
+        "language": "fr",
+        "outputFormat": "mp3_44100_128",
+        "selected": true,
+        "source": "elevenlabs-creative-plugin",
+        "bytes": 224187,
+        "sha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+        "audioSha256": "3e6d2abc2cc9ac16f6f21ae11148941bffcbf5bf3a178ac3c42a9aee018fcdbb",
+        "requestTextSha256": "9b107d5372c4d91b27c54729c90d115fe5a6ff2949a58f99fa7ba29f4bf9f276"
+      },
+      "requestTextSha256": "9b107d5372c4d91b27c54729c90d115fe5a6ff2949a58f99fa7ba29f4bf9f276",
+      "providerTags": [
+        "[thoughtful]",
+        "[short pause]"
+      ],
+      "decodedSamples": 568008,
+      "durationSeconds": 12.88,
+      "recognizedText": " L'observateur consulte les documents, les destinataires et le suivi. Il ne modifie aucune donnée de l'atelier et n'approuve aucun envoi. Dans le parcours standard, une personne autorisée approuve l'envoi dans le navigateur.",
+      "asrProofPath": "alignment/bloc-3.asr.json",
+      "asrProofSha256": "9f41842dbba4dc628dd98b9557ef801645d5d6a167861c6ec65618c418a91acb",
+      "editDistance": 0,
+      "lexicalDifferences": [],
+      "lexicalAlignment": [
+        {
+          "operation": "equivalent",
+          "expectedIndex": 0,
+          "observedIndex": 0
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 1,
+          "observedIndex": 1
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 2,
+          "observedIndex": 2
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 3,
+          "observedIndex": 3
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 4,
+          "observedIndex": 4
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 5,
+          "observedIndex": 5
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 6,
+          "observedIndex": 6
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 7,
+          "observedIndex": 7
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 8,
+          "observedIndex": 8
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 9,
+          "observedIndex": 9
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 10,
+          "observedIndex": 10
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 11,
+          "observedIndex": 11
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 12,
+          "observedIndex": 12
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 13,
+          "observedIndex": 13
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 14,
+          "observedIndex": 14
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 15,
+          "observedIndex": 15
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 16,
+          "observedIndex": 16
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 17,
+          "observedIndex": 17
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 18,
+          "observedIndex": 18
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 19,
+          "observedIndex": 19
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 20,
+          "observedIndex": 20
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 21,
+          "observedIndex": 21
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 22,
+          "observedIndex": 22
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 23,
+          "observedIndex": 23
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 24,
+          "observedIndex": 24
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 25,
+          "observedIndex": 25
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 26,
+          "observedIndex": 26
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 27,
+          "observedIndex": 27
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 28,
+          "observedIndex": 28
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 29,
+          "observedIndex": 29
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 30,
+          "observedIndex": 30
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 31,
+          "observedIndex": 31
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 32,
+          "observedIndex": 32
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 33,
+          "observedIndex": 33
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 34,
+          "observedIndex": 34
+        },
+        {
+          "operation": "equivalent",
+          "expectedIndex": 35,
+          "observedIndex": 35
+        }
+      ],
+      "boundary": {
+        "status": "ASR-anchors-and-acoustic-pause-agree",
+        "cutSeconds": 8.274897959183674,
+        "cutSample": 364923,
+        "criticalListening": "pending",
+        "wordBoundariesVerifiedByHuman": false,
+        "quietInterval": {
+          "startSeconds": 8.059977,
+          "endSeconds": 8.489819
+        },
+        "previousLastWord": {
+          "token": "envoi",
+          "word": " envoi.",
+          "start": 7.64,
+          "end": 8.04,
+          "probability": 0.6533203125
+        },
+        "nextFirstWord": {
+          "token": "dans",
+          "word": " Dans",
+          "start": 8.44,
+          "end": 8.64,
+          "probability": 0.998046875
+        }
+      },
+      "silenceCommand": [
+        "ffmpeg",
+        "-hide_banner",
+        "-i",
+        "sources/bloc-3-prise-2.mp3",
+        "-af",
+        "silencedetect=noise=-45dB:d=0.12",
+        "-f",
+        "null",
+        "-"
+      ],
+      "criticalListening": "pending",
+      "originalAsrProofSha256": "b2fc8b788b8d15e1b32898691196c3f584bdee965669591496369ba9df637d96"
+    }
+  ],
+  "criticalListening": "pending",
+  "wordBoundariesVerifiedByHuman": false,
+  "derivedClipsCreated": false,
+  "moviesMixed": false,
+  "originalProofSha256": "41212ad1617d7d40520196d4fccf34ba716874a23d8de19a50ba637d95494699"
+}

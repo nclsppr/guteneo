@@ -1,5 +1,7 @@
 import {
   DomainService,
+  DomainError,
+  type DocumentRecord,
   type ActorContext,
 } from "../../packages/domain/src/index";
 import type { FaxUsageTariff } from "../../packages/domain/src/live-fax-usage";
@@ -58,11 +60,35 @@ export function fixtureTariff(now: string, org = "fixture"): FaxUsageTariff {
     created_at: now,
   };
 }
+/** Historical migration fixtures deliberately retain their original document schema.
+ * Only this explicit test adapter reads their organization-wide document rows;
+ * current-schema fixtures continue to exercise the production owner ACL.
+ */
+class LegacyDocumentFixtureDomain extends DomainService {
+  override async getDocument(
+    ctx: ActorContext,
+    id: string,
+  ): Promise<DocumentRecord> {
+    await this.authorizeWrite(ctx);
+    const document = await this.db
+      .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
+      .bind(ctx.organizationId, id)
+      .first<DocumentRecord>();
+    if (!document)
+      throw new DomainError(
+        "NOT_FOUND",
+        "Historical fixture document not found.",
+        404,
+      );
+    return document;
+  }
+}
 export async function createFaxUsageFixture(
   db: D1Database,
   clock: () => number,
   overrides: Partial<FaxUsageTariff> = {},
   pages = 2,
+  options: { legacyDocumentSchema?: boolean } = {},
 ) {
   const org = `fixture_${crypto.randomUUID()}`,
     now = new Date(clock()).toISOString();
@@ -89,7 +115,7 @@ export async function createFaxUsageFixture(
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships VALUES(?,?,'admin',?)")
+    .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
     .bind(org, ctx.userId, now)
     .run();
   await db
@@ -108,23 +134,50 @@ export async function createFaxUsageFixture(
     )
     .bind(org, now.slice(0, 7))
     .run();
-  const domain = new DomainService(db, {
+  const FixtureDomain = options.legacyDocumentSchema
+    ? LegacyDocumentFixtureDomain
+    : DomainService;
+  const domain = new FixtureDomain(db, {
     mode: "production",
     now: clock,
     liveFaxIdentity: identity,
   });
   const documentId = `doc_${org}`;
-  await domain.registerDocument(ctx, {
-    id: documentId,
-    name: "synthetic.pdf",
-    sha256: "a".repeat(64),
-    size: 100,
-    pages,
-    status: "ready",
-    source: "import",
-    storageKey: `fixture/${documentId}.pdf`,
-    scanVerified: true,
-  });
+  if (options.legacyDocumentSchema) {
+    await insertRecord(db, "documents", {
+      id: documentId,
+      organization_id: org,
+      name: "synthetic.pdf",
+      sha256: "a".repeat(64),
+      size: 100,
+      pages,
+      status: "ready",
+      source: "import",
+      storage_key: `fixture/${documentId}.pdf`,
+      created_at: now,
+    });
+    await insertRecord(db, "audit_log", {
+      id: `audit_${crypto.randomUUID()}`,
+      organization_id: org,
+      user_id: ctx.userId,
+      action: "document.scan_verified",
+      resource_id: "a".repeat(64),
+      details_json: JSON.stringify({ pages }),
+      created_at: now,
+    });
+  } else {
+    await domain.registerDocument(ctx, {
+      id: documentId,
+      name: "synthetic.pdf",
+      sha256: "a".repeat(64),
+      size: 100,
+      pages,
+      status: "ready",
+      source: "import",
+      storageKey: `fixture/${documentId}.pdf`,
+      scanVerified: true,
+    });
+  }
   await insertRecord(db, "trusted_fax_usage_tariffs", tariff);
   const input = {
     channel: "fax" as const,

@@ -40,11 +40,22 @@ jobs:
       - run: npm run lint
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
+      - name: Run every offline narration test
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          mkdir -p test-results/ci
+          set -o pipefail
+          npm run test:videos:narration | tee test-results/ci/narration.log
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ci-evidence-checks
-          path: reports/cost-model.json
+          path: |
+            reports/cost-model.json
+            test-results/ci/narration.log
           if-no-files-found: error
           retention-days: 14
 
@@ -69,6 +80,7 @@ jobs:
           --exclude=tests/integration/document-postal-preflight.test.ts
           --exclude=tests/integration/expert-review-renderer.test.ts
           --exclude=tests/integration/postal-address-page-renderer.test.ts
+          --exclude=tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
           --outputFile.blob=test-results/ci/blobs/${{ matrix.shard }}.json
@@ -107,7 +119,7 @@ jobs:
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
       - run: >-
-          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts
+          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-renderer.json
           --outputFile.blob=test-results/ci/blobs/renderer.json
@@ -161,7 +173,13 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Includes browser installation, the complete app and public media suite.
+    timeout-minutes: 15
+    env:
+      # WebKit's legacy Linux playbin stalls on valid H.264/AAC media in its
+      # download buffer. Use its supported playbin3 pipeline; native Safari is
+      # unaffected, and the real decode/progression/seek assertions stay intact.
+      WEBKIT_GST_USE_PLAYBIN3: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -184,6 +202,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
+      - name: Preserve the Chromium sandbox
+        run: node scripts/ci/chromium-sandbox.mjs
       - uses: actions/download-artifact@v8
         with:
           name: guteneo-browser-builds-${{ github.sha }}
