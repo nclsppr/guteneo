@@ -1,4 +1,9 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+import {
+  isPublicLocaleAssetPath,
+  localizedPublicPath,
+  requestedPublicLocale,
+} from "../../../packages/contracts/src/public-locales";
 import { withPublicVideoRange } from "../../api/src/public-video-range";
 
 const backendPaths = site.privatePrefixes.map((prefix) => `/${prefix}`);
@@ -26,6 +31,12 @@ export default {
         { status: 400, headers: privateHeaders },
       );
     }
+
+    if (isPublicLocaleAssetPath(pathname))
+      return new Response(request.method === "HEAD" ? null : "Not found", {
+        status: 404,
+        headers: { ...privateHeaders, "Cache-Control": "no-store" },
+      });
 
     if (
       !["GET", "HEAD"].includes(request.method) ||
@@ -72,8 +83,14 @@ export default {
           },
         },
       );
-    if (pathname === "/health") url.pathname = "/health.json";
-    const assetRequest = new Request(url, request);
+    const assetUrl = new URL(url);
+    if (pathname === "/health") assetUrl.pathname = "/health.json";
+    const localizedPath = localizedPublicPath(
+      url.pathname,
+      requestedPublicLocale(url.searchParams),
+    );
+    if (localizedPath) assetUrl.pathname = localizedPath;
+    const assetRequest = new Request(assetUrl, request);
     const response = await withPublicVideoRange(
       assetRequest,
       await env.ASSETS.fetch(assetRequest),
@@ -101,7 +118,7 @@ export default {
       ["/release.json", "/health", "/health.json"].includes(pathname)
     )
       headers.set("Cache-Control", "no-store");
-    return new Response(response.body, {
+    return new Response(request.method === "HEAD" ? null : response.body, {
       status: response.status,
       statusText: response.statusText,
       headers,

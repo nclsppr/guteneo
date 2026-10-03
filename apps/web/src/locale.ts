@@ -10,6 +10,9 @@ import { fr, type Copy } from "./i18n";
 import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { lb } from "./locales/lb";
+import site from "../../../packages/contracts/src/public-site.json";
+import { requestedPublicLocale } from "../../../packages/contracts/src/public-locales";
+import { syncPublicSharing } from "./public-sharing";
 
 export {
   supportedLocales,
@@ -111,14 +114,25 @@ function subscribe(listener: () => void) {
   };
 }
 export function useLocale() {
-  return useSyncExternalStore(subscribe, getLocale, () => defaultLocale);
+  return useSyncExternalStore(subscribe, getLocale, getLocale);
+}
+function syncPublicLocaleUrl(locale: SupportedLocale) {
+  if (typeof window === "undefined" || !window.history || !window.location.href)
+    return;
+  const url = new URL(window.location.href);
+  const publicPage =
+    site.paths.includes(url.pathname) && !url.hash.startsWith("#/app");
+  const privateQuery = [...url.searchParams.keys()].some((key) =>
+    /^(auth|code|state|token|access_token|refresh_token|id_token|session|ticket|error|error_description)$/i.test(
+      key,
+    ),
+  );
+  if (privateQuery || (!publicPage && !url.searchParams.has("lang"))) return;
+  url.searchParams.set("lang", locale);
+  window.history.replaceState(window.history.state, "", url);
 }
 export function useLocaleSource() {
-  return useSyncExternalStore(
-    subscribe,
-    getLocaleSource,
-    () => "browser" as const,
-  );
+  return useSyncExternalStore(subscribe, getLocaleSource, getLocaleSource);
 }
 export function setLocale(
   locale: SupportedLocale,
@@ -128,13 +142,7 @@ export function setLocale(
   if (!isSupportedLocale(locale)) return;
   if (persist) selectionVersion += 1;
   if (persist && typeof window !== "undefined") {
-    if (window.history && window.location.href) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale);
-        window.history.replaceState(window.history.state, "", url);
-      }
-    }
+    syncPublicLocaleUrl(locale);
     try {
       window.localStorage.setItem(storageKey, locale);
     } catch {
@@ -142,6 +150,7 @@ export function setLocale(
     }
   }
   if (typeof document !== "undefined") document.documentElement.lang = locale;
+  syncPublicSharing();
   if (current === locale && currentSource === source) return;
   current = locale;
   currentSource = source;
@@ -182,12 +191,17 @@ export function initializeLocale() {
   } catch {
     /* Storage is optional. */
   }
-  const requested = normalizeLocale(
-    new URLSearchParams(window.location.search).get("lang"),
+  const requested = requestedPublicLocale(
+    new URLSearchParams(window.location.search),
   );
   setLocale(
     requested ?? stored ?? browserLocale(),
     !!requested,
     requested || stored ? "selection" : "browser",
   );
+  // A saved explicit choice also survives ordinary navigation between public pages.
+  if (!requested && stored) {
+    syncPublicLocaleUrl(stored);
+    syncPublicSharing();
+  }
 }

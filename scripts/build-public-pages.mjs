@@ -3,9 +3,28 @@ import { join } from "node:path";
 import { createServer } from "vite";
 
 import site from "../packages/contracts/src/public-site.json" with { type: "json" };
+import cards from "../packages/contracts/src/social-cards.json" with { type: "json" };
 
 export const PUBLIC_ORIGIN = site.origin;
 export const PUBLIC_PATHS = Object.freeze(site.paths);
+export const PUBLIC_LOCALES = Object.freeze(site.locales);
+export const DEFAULT_SOCIAL_IMAGE = Object.freeze(cards.neutral);
+const localeTags = { fr: "fr_FR", en: "en_GB", de: "de_DE", lb: "lb_LU" };
+const publicUrl = (pathname, locale) =>
+  `${PUBLIC_ORIGIN}${pathname}${locale ? `?lang=${locale}` : ""}`;
+
+/** Preserve the explicit language through ordinary no-JavaScript navigation. */
+function localizeLinks(html, locale) {
+  if (!locale) return html;
+  return html.replace(/\bhref="([^"]*)"/g, (original, href) => {
+    if (!href.startsWith("/") || href.startsWith("//")) return original;
+    const url = new URL(href.replaceAll("&amp;", "&"), PUBLIC_ORIGIN);
+    if (!PUBLIC_PATHS.includes(url.pathname) || url.hash.startsWith("#/app"))
+      return original;
+    url.searchParams.set("lang", locale);
+    return `href="${escapeHtml(url.pathname + url.search + url.hash)}"`;
+  });
+}
 
 const escapeHtml = (value) =>
   String(value)
@@ -23,9 +42,16 @@ const jsonForHtml = (value) =>
     .replaceAll("\u2029", "\\u2029");
 
 /** Keep Vite's hashed assets so every public page can apply the visitor's language. */
-export function publicPageDocument(template, pathname, page, indexable = true) {
+export function publicPageDocument(
+  template,
+  pathname,
+  page,
+  indexable = true,
+  locale = null,
+) {
   if (
     !PUBLIC_PATHS.includes(pathname) ||
+    (locale !== null && !PUBLIC_LOCALES.includes(locale)) ||
     !page ||
     typeof page.html !== "string" ||
     !page.html.trim() ||
@@ -33,15 +59,36 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
     !page.title.trim() ||
     typeof page.description !== "string" ||
     !page.description.trim() ||
-    page.canonical !== `${PUBLIC_ORIGIN}${pathname}`
+    page.canonical !== publicUrl(pathname, locale)
   )
     throw new Error(`Incomplete public page: ${pathname}`);
   const root = /<div\s+id=["']root["']\s*>\s*<\/div>/;
   if (!root.test(template)) throw new Error("Built HTML has no empty root.");
-  const image = page.image ? new URL(page.image, PUBLIC_ORIGIN) : null;
+  const imageDetails =
+    locale && page.image
+      ? {
+          src: page.image,
+          width: page.imageWidth,
+          height: page.imageHeight,
+          type: page.imageType,
+          alt: page.imageAlt,
+        }
+      : cards[locale ?? "neutral"];
+  const image = new URL(imageDetails.src, PUBLIC_ORIGIN);
   if (
-    image &&
-    (image.protocol !== "https:" || image.username || image.password)
+    image.protocol !== "https:" ||
+    image.username ||
+    image.password ||
+    [imageDetails.width, imageDetails.height].some(
+      (dimension) =>
+        dimension !== undefined &&
+        (!Number.isInteger(dimension) || dimension <= 0),
+    ) ||
+    (imageDetails.type !== undefined &&
+      (typeof imageDetails.type !== "string" ||
+        !/^image\/[a-z0-9.+-]+$/i.test(imageDetails.type))) ||
+    (imageDetails.alt !== undefined &&
+      (typeof imageDetails.alt !== "string" || !imageDetails.alt.trim()))
   )
     throw new Error(`Invalid public image: ${pathname}`);
   const structuredData = page.structuredData ?? [];
@@ -50,24 +97,44 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
   const article = structuredData.some((item) =>
     ["Article", "BlogPosting", "NewsArticle"].includes(item?.["@type"]),
   );
+  const socialTitle = locale ? page.title : "guteneo";
+  const socialDescription = locale ? page.description : "guteneo.com";
   const metadata = [
     `<title>${escapeHtml(page.title)}</title>`,
     `<meta name="description" content="${escapeHtml(page.description)}">`,
     `<meta name="robots" content="${indexable ? "index, follow, max-image-preview:large" : "noindex, nofollow"}">`,
     `<link rel="canonical" href="${escapeHtml(page.canonical)}">`,
-    `<meta property="og:site_name" content="Guteneo">`,
-    `<meta property="og:locale" content="fr_FR">`,
+    ...[["x-default", null], ...PUBLIC_LOCALES.map((code) => [code, code])].map(
+      ([language, code]) =>
+        `<link rel="alternate" hreflang="${language}" href="${escapeHtml(publicUrl(pathname, code))}">`,
+    ),
+    `<meta property="og:site_name" content="guteneo">`,
+    ...(locale
+      ? [`<meta property="og:locale" content="${localeTags[locale]}">`]
+      : []),
+    ...PUBLIC_LOCALES.filter((code) => code !== locale).map(
+      (code) =>
+        `<meta property="og:locale:alternate" content="${localeTags[code]}">`,
+    ),
     `<meta property="og:type" content="${article ? "article" : "website"}">`,
-    `<meta property="og:title" content="${escapeHtml(page.title)}">`,
-    `<meta property="og:description" content="${escapeHtml(page.description)}">`,
+    `<meta property="og:title" content="${escapeHtml(socialTitle)}">`,
+    `<meta property="og:description" content="${escapeHtml(socialDescription)}">`,
     `<meta property="og:url" content="${escapeHtml(page.canonical)}">`,
-    `<meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}">`,
-    `<meta name="twitter:title" content="${escapeHtml(page.title)}">`,
-    `<meta name="twitter:description" content="${escapeHtml(page.description)}">`,
-    ...(image
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:title" content="${escapeHtml(socialTitle)}">`,
+    `<meta name="twitter:description" content="${escapeHtml(socialDescription)}">`,
+    `<meta property="og:image" content="${escapeHtml(image.href)}">`,
+    `<meta property="og:image:secure_url" content="${escapeHtml(image.href)}">`,
+    ...["width", "height", "type", "alt"]
+      .filter((key) => imageDetails[key] !== undefined)
+      .map(
+        (key) =>
+          `<meta property="og:image:${key}" content="${escapeHtml(imageDetails[key])}">`,
+      ),
+    `<meta name="twitter:image" content="${escapeHtml(image.href)}">`,
+    ...(imageDetails.alt !== undefined
       ? [
-          `<meta property="og:image" content="${escapeHtml(image.href)}">`,
-          `<meta name="twitter:image" content="${escapeHtml(image.href)}">`,
+          `<meta name="twitter:image:alt" content="${escapeHtml(imageDetails.alt)}">`,
         ]
       : []),
     ...structuredData.map(
@@ -81,13 +148,17 @@ export function publicPageDocument(template, pathname, page, indexable = true) {
       /<meta\b[^>]*(?:name|property)=["'](?:description|robots|og:[^"']*|twitter:[^"']*)["'][^>]*>/gi,
       "",
     )
-    .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "")
+    .replace(/<link\b[^>]*rel=["'](?:canonical|alternate)["'][^>]*>/gi, "")
     .replace(
       /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
       "",
     );
   return html
-    .replace(root, () => `<div id="root">${page.html}</div>`)
+    .replace(/<html\b[^>]*>/i, `<html lang="${locale ?? "fr"}">`)
+    .replace(
+      root,
+      () => `<div id="root">${localizeLinks(page.html, locale)}</div>`,
+    )
     .replace("</head>", () => `    ${metadata}\n  </head>`);
 }
 
@@ -98,18 +169,20 @@ export async function writePublicPages({
   indexable,
 }) {
   const template = await readFile(join(output, "index.html"), "utf8");
-  // Render all routes before writing any: missing content must fail the build.
-  const pages = await Promise.all(
-    PUBLIC_PATHS.map(async (pathname) => ({
-      pathname,
-      html: publicPageDocument(
-        template,
-        pathname,
-        await renderPublicPage(pathname),
-        indexable,
-      ),
-    })),
-  );
+  // SSR catalogs use scoped module state. Await each render before changing
+  // language, and validate every variant before replacing any output document.
+  const pages = [];
+  for (const pathname of PUBLIC_PATHS) {
+    for (const locale of [null, ...PUBLIC_LOCALES]) {
+      const page = await renderPublicPage(pathname, locale);
+      pages.push({
+        pathname: locale
+          ? `${site.localizedPrefix}/${locale}${pathname}`
+          : pathname,
+        html: publicPageDocument(template, pathname, page, indexable, locale),
+      });
+    }
+  }
   for (const { pathname, html } of pages) {
     const directory = join(output, pathname.slice(1));
     await mkdir(directory, { recursive: true });
@@ -123,7 +196,7 @@ export async function writePublicPages({
   );
   await writeFile(
     join(output, "sitemap.xml"),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_PATHS.map((pathname) => `  <url><loc>${PUBLIC_ORIGIN}${pathname}</loc></url>`).join("\n")}\n</urlset>\n`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_PATHS.flatMap((pathname) => [null, ...PUBLIC_LOCALES].map((locale) => `  <url><loc>${escapeHtml(publicUrl(pathname, locale))}</loc></url>`)).join("\n")}\n</urlset>\n`,
   );
   const path = join(output, "_headers");
   const headers = await readFile(path, "utf8");

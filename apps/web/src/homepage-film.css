@@ -66,36 +66,51 @@
   height: 100%;
 }
 .homepage-film-play {
+  --film-play-height: 72px;
   position: absolute;
-  inset: auto auto 28px 28px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(var(--film-play-height) * -0.5));
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
-  min-height: 68px;
-  padding: 14px 24px 14px 16px;
-  border: 1px solid var(--blue);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--blue);
-  text-align: left;
-  font-size: 17px;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: center;
+  font-size: 16px;
   line-height: 1.2;
 }
-.homepage-film-play:hover {
-  background: var(--blue-tint);
-}
 .homepage-film-play:focus-visible {
-  outline-color: var(--blue);
-  outline-offset: 4px;
-  box-shadow: 0 0 0 4px var(--surface);
+  outline: 3px solid var(--ink);
+  outline-offset: 8px;
 }
 .homepage-film-play-icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
+  flex-shrink: 0;
+  width: 104px;
+  height: var(--film-play-height);
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+}
+.homepage-film-play-icon svg {
+  margin-left: 4px;
+}
+.homepage-film-play:hover .homepage-film-play-icon {
+  background: var(--blue-hover);
+}
+.homepage-film-play-copy {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 .homepage-film-play small {
   display: block;
@@ -103,6 +118,16 @@
   color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.01em;
+}
+@media (forced-colors: active) {
+  .homepage-film-play-icon {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  .homepage-film-play-copy {
+    border-color: ButtonText;
+  }
 }
 .homepage-film-toolbar {
   display: flex;
@@ -176,11 +201,24 @@
     max-width: none;
   }
   .homepage-film-play {
-    inset: auto 16px 20px;
-    justify-content: center;
-    padding: 13px;
-    gap: 12px;
-    font-size: 16px;
+    --film-play-height: 56px;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .homepage-film-play-icon {
+    width: 84px;
+    border-radius: 11px;
+  }
+  .homepage-film-play-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+  .homepage-film-play-copy {
+    padding: 5px 10px;
+  }
+  .homepage-film-play small {
+    margin-top: 2px;
+    font-size: 11px;
   }
 }
 @media (max-width: 767px), (pointer: coarse) and (max-height: 500px) {

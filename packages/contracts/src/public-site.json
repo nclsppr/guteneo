@@ -1,5 +1,7 @@
 {
   "origin": "https://guteneo.com",
+  "localizedPrefix": "/__public-locales",
+  "locales": ["fr", "en", "de", "lb"],
   "paths": [
     "/",
     "/a-propos/",
