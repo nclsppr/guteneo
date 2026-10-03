@@ -31,7 +31,7 @@ import {
   type Session,
 } from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu, LanguageSelect } from "./language-select";
 import { Brand } from "./brand";
 import {
   ErrorNotice,
@@ -87,6 +87,23 @@ const DocumentStudio = lazy(() => import("./document-studio"));
 export function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    function closeOutside(event: Event) {
+      if (
+        event.target instanceof Node &&
+        !header.current?.contains(event.target)
+      )
+        setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("focusin", closeOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("focusin", closeOutside);
+    };
+  }, [menuOpen]);
   useEffect(() => {
     const id = window.location.hash.slice(1);
     if (
@@ -121,16 +138,17 @@ export function Landing() {
         {t.skip}
       </a>
       <header
+        ref={header}
         className="site-header"
         onKeyDown={(event) => {
           if (event.key === "Escape" && menuOpen) {
+            event.preventDefault();
             closeMenu();
             menuButton.current?.focus();
           }
         }}
       >
         <Brand />
-        <LanguageSelect />
         <nav aria-label={msg("Navigation principale")}>
           <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
             {t.landing.navHow}
@@ -142,6 +160,7 @@ export function Landing() {
           >
             {t.homepage.navPricing}
           </a>
+          <LanguageMenu />
           <a className="button small" href="/app">
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={16} />
@@ -192,6 +211,7 @@ export function Landing() {
             {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
             <ArrowUpRight size={17} aria-hidden="true" />
           </a>
+          <LanguageSelect automatic />
         </nav>
       </header>
       <main id="landing-main" tabIndex={-1}>
@@ -349,7 +369,7 @@ function Login({
     <div className="login-page">
       <header className="site-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <a href="#/">
           {t.back}
           <ArrowUpRight size={17} />

@@ -1,4 +1,4 @@
-import { LanguageSelect } from "./language-select";
+import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import { Brand } from "./brand";
@@ -16,7 +16,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
       </a>
       <header className="site-header assistants-header">
         <Brand />
-        <LanguageSelect />
+        <LanguageMenu />
         <nav aria-label={msg("Navigation principale")}>
           <a
             href="/assistants/"
