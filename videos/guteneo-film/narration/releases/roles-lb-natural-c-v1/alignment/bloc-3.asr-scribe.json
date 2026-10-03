@@ -1,0 +1,347 @@
+{
+  "sourceSha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+  "parameters": {
+    "language": "ltz",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "initial_prompt": null
+  },
+  "model": {
+    "source": "elevenlabs-native-scribe2",
+    "modelId": "scribe_v2",
+    "exportSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e",
+    "inputAudioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+    "receipt": {
+      "source": "elevenlabs-native-scribe2",
+      "modelId": "scribe_v2",
+      "languageCode": "ltz",
+      "inputAudioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+      "exportSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e",
+      "expectedTextPrompt": null,
+      "nativeEditorId": "XDMAF3DV01FFWFjXuxax",
+      "languageSelection": "Luxembourgish",
+      "includeTimestamps": true,
+      "includeSubtitles": true
+    }
+  },
+  "normalization": "Actual native word timestamps partitioned by immutable source PCM offsets; times shifted by block start only; confidence not invented",
+  "result": {
+    "language": "ltz",
+    "text": "Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser.",
+    "segments": [
+      {
+        "words": [
+          {
+            "word": "Den",
+            "start": 0.16000000000000014,
+            "end": 0.259999999999998,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 27.12,
+            "globalEndSeconds": 27.22
+          },
+          {
+            "word": "Observateur",
+            "start": 0.3200000000000003,
+            "end": 1.0599999999999987,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 27.28,
+            "globalEndSeconds": 28.02
+          },
+          {
+            "word": "kuckt",
+            "start": 1.1799999999999997,
+            "end": 1.379999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 28.14,
+            "globalEndSeconds": 28.34
+          },
+          {
+            "word": "d'Dokumenter,",
+            "start": 1.4800000000000004,
+            "end": 2.379999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 28.44,
+            "globalEndSeconds": 29.34
+          },
+          {
+            "word": "d'Empfänger",
+            "start": 2.5799999999999983,
+            "end": 3.219999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 29.54,
+            "globalEndSeconds": 30.18
+          },
+          {
+            "word": "an",
+            "start": 3.419999999999998,
+            "end": 3.5,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 30.38,
+            "globalEndSeconds": 30.46
+          },
+          {
+            "word": "de",
+            "start": 3.539999999999999,
+            "end": 3.599999999999998,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 30.5,
+            "globalEndSeconds": 30.56
+          },
+          {
+            "word": "Suivi.",
+            "start": 3.6999999999999993,
+            "end": 4.119999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 30.66,
+            "globalEndSeconds": 31.08
+          },
+          {
+            "word": "Hien",
+            "start": 4.719999999999999,
+            "end": 4.899999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 31.68,
+            "globalEndSeconds": 31.86
+          },
+          {
+            "word": "ännert",
+            "start": 4.939999999999998,
+            "end": 5.219999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 31.9,
+            "globalEndSeconds": 32.18
+          },
+          {
+            "word": "keng",
+            "start": 5.2989999999999995,
+            "end": 5.478999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 32.259,
+            "globalEndSeconds": 32.439
+          },
+          {
+            "word": "Donnéeën",
+            "start": 5.518999999999998,
+            "end": 6,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 32.479,
+            "globalEndSeconds": 32.96
+          },
+          {
+            "word": "am",
+            "start": 6.039999999999999,
+            "end": 6.140000000000001,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 33,
+            "globalEndSeconds": 33.1
+          },
+          {
+            "word": "Atelier",
+            "start": 6.18,
+            "end": 6.719999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 33.14,
+            "globalEndSeconds": 33.68
+          },
+          {
+            "word": "a",
+            "start": 6.780000000000001,
+            "end": 6.799999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 33.74,
+            "globalEndSeconds": 33.76
+          },
+          {
+            "word": "geneemegt",
+            "start": 6.859999999999999,
+            "end": 7.339999999999996,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 33.82,
+            "globalEndSeconds": 34.3
+          },
+          {
+            "word": "keng",
+            "start": 7.420000000000002,
+            "end": 7.619999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 34.38,
+            "globalEndSeconds": 34.58
+          },
+          {
+            "word": "Sendung.",
+            "start": 7.68,
+            "end": 8.100000000000001,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 34.64,
+            "globalEndSeconds": 35.06
+          },
+          {
+            "word": "Am",
+            "start": 8.799999999999997,
+            "end": 8.880000000000003,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 35.76,
+            "globalEndSeconds": 35.84
+          },
+          {
+            "word": "normale",
+            "start": 8.920000000000002,
+            "end": 9.299999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 35.88,
+            "globalEndSeconds": 36.26
+          },
+          {
+            "word": "Parcours",
+            "start": 9.399999999999999,
+            "end": 9.899999999999999,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 36.36,
+            "globalEndSeconds": 36.86
+          },
+          {
+            "word": "geneemegt",
+            "start": 9.939999999999998,
+            "end": 10.36,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 36.9,
+            "globalEndSeconds": 37.32
+          },
+          {
+            "word": "eng",
+            "start": 10.380000000000003,
+            "end": 10.519999999999996,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 37.34,
+            "globalEndSeconds": 37.48
+          },
+          {
+            "word": "berechtegt",
+            "start": 10.54,
+            "end": 11.079999999999998,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 37.5,
+            "globalEndSeconds": 38.04
+          },
+          {
+            "word": "Persoun",
+            "start": 11.100000000000001,
+            "end": 11.560000000000002,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 38.06,
+            "globalEndSeconds": 38.52
+          },
+          {
+            "word": "d'Sendung",
+            "start": 11.68,
+            "end": 12.119999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 38.64,
+            "globalEndSeconds": 39.08
+          },
+          {
+            "word": "am",
+            "start": 12.159999999999997,
+            "end": 12.299999999999997,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 39.12,
+            "globalEndSeconds": 39.26
+          },
+          {
+            "word": "Browser.",
+            "start": 12.32,
+            "end": 12.780000000000001,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 39.28,
+            "globalEndSeconds": 39.74
+          }
+        ]
+      }
+    ]
+  },
+  "originalProofSha256": "9648f0bf5b42e0054b691ae6854e6cef73647842df900814c75a592b84424249"
+}

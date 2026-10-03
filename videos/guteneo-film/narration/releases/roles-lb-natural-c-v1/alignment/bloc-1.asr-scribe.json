@@ -1,0 +1,314 @@
+{
+  "sourceSha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+  "parameters": {
+    "language": "ltz",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "initial_prompt": null
+  },
+  "model": {
+    "source": "elevenlabs-native-scribe2",
+    "modelId": "scribe_v2",
+    "exportSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e",
+    "inputAudioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+    "receipt": {
+      "source": "elevenlabs-native-scribe2",
+      "modelId": "scribe_v2",
+      "languageCode": "ltz",
+      "inputAudioSha256": "9c8d37f4fee92d6dd672f7c578607be95aa02f6e43d36d02a49e12e5c165c66b",
+      "exportSha256": "5eb7cc9d3f9f75838698b5da9085b65dd89918b4d5027c4ca4840d1bf3bef06e",
+      "expectedTextPrompt": null,
+      "nativeEditorId": "XDMAF3DV01FFWFjXuxax",
+      "languageSelection": "Luxembourgish",
+      "includeTimestamps": true,
+      "includeSubtitles": true
+    }
+  },
+  "normalization": "Actual native word timestamps partitioned by immutable source PCM offsets; times shifted by block start only; confidence not invented",
+  "result": {
+    "language": "ltz",
+    "text": "Loosst eis déi véier Rolle vu Gutteneeër an hir Rechter entdecken. Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt Rapporten.",
+    "segments": [
+      {
+        "words": [
+          {
+            "word": "Loosst",
+            "start": 0.2,
+            "end": 0.5,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.2,
+            "globalEndSeconds": 0.5
+          },
+          {
+            "word": "eis",
+            "start": 0.54,
+            "end": 0.74,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.54,
+            "globalEndSeconds": 0.74
+          },
+          {
+            "word": "déi",
+            "start": 0.78,
+            "end": 0.92,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.78,
+            "globalEndSeconds": 0.92
+          },
+          {
+            "word": "véier",
+            "start": 1.06,
+            "end": 1.36,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.06,
+            "globalEndSeconds": 1.36
+          },
+          {
+            "word": "Rolle",
+            "start": 1.48,
+            "end": 1.78,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.48,
+            "globalEndSeconds": 1.78
+          },
+          {
+            "word": "vu",
+            "start": 1.88,
+            "end": 1.96,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.88,
+            "globalEndSeconds": 1.96
+          },
+          {
+            "word": "Gutteneeër",
+            "start": 2.08,
+            "end": 2.62,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.08,
+            "globalEndSeconds": 2.62
+          },
+          {
+            "word": "an",
+            "start": 2.66,
+            "end": 2.76,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.66,
+            "globalEndSeconds": 2.76
+          },
+          {
+            "word": "hir",
+            "start": 2.8,
+            "end": 2.94,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.8,
+            "globalEndSeconds": 2.94
+          },
+          {
+            "word": "Rechter",
+            "start": 3.02,
+            "end": 3.38,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 3.02,
+            "globalEndSeconds": 3.38
+          },
+          {
+            "word": "entdecken.",
+            "start": 3.42,
+            "end": 4,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 3.42,
+            "globalEndSeconds": 4
+          },
+          {
+            "word": "Den",
+            "start": 4.64,
+            "end": 4.78,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4.64,
+            "globalEndSeconds": 4.78
+          },
+          {
+            "word": "Administrateur",
+            "start": 4.82,
+            "end": 5.62,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4.82,
+            "globalEndSeconds": 5.62
+          },
+          {
+            "word": "geréiert",
+            "start": 5.76,
+            "end": 6.16,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 5.76,
+            "globalEndSeconds": 6.16
+          },
+          {
+            "word": "den",
+            "start": 6.18,
+            "end": 6.3,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.18,
+            "globalEndSeconds": 6.3
+          },
+          {
+            "word": "Atelier.",
+            "start": 6.34,
+            "end": 6.82,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.34,
+            "globalEndSeconds": 6.82
+          },
+          {
+            "word": "Hie",
+            "start": 7.3,
+            "end": 7.4,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 7.3,
+            "globalEndSeconds": 7.4
+          },
+          {
+            "word": "bereet",
+            "start": 7.44,
+            "end": 7.74,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 7.44,
+            "globalEndSeconds": 7.74
+          },
+          {
+            "word": "Sendunge",
+            "start": 7.8,
+            "end": 8.2,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 7.8,
+            "globalEndSeconds": 8.2
+          },
+          {
+            "word": "vir,",
+            "start": 8.32,
+            "end": 8.5,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.32,
+            "globalEndSeconds": 8.5
+          },
+          {
+            "word": "geneemegt",
+            "start": 8.86,
+            "end": 9.38,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.86,
+            "globalEndSeconds": 9.38
+          },
+          {
+            "word": "se",
+            "start": 9.42,
+            "end": 9.56,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 9.42,
+            "globalEndSeconds": 9.56
+          },
+          {
+            "word": "a",
+            "start": 9.84,
+            "end": 9.9,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 9.84,
+            "globalEndSeconds": 9.9
+          },
+          {
+            "word": "kuckt",
+            "start": 9.94,
+            "end": 10.16,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 9.94,
+            "globalEndSeconds": 10.16
+          },
+          {
+            "word": "Rapporten.",
+            "start": 10.2,
+            "end": 10.82,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 10.2,
+            "globalEndSeconds": 10.82
+          }
+        ]
+      }
+    ]
+  },
+  "originalProofSha256": "f30d03f83ccedeae732f842d150532055667d0ce864d198e1b1be6fa208b3feb"
+}

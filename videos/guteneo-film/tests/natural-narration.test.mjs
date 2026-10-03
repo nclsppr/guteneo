@@ -6,7 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import {buildPlan} from '../scripts/generate-narration.mjs';
 import {compareDecodedPcm24, qualifyNaturalNarration} from '../scripts/natural-narration.mjs';
-import {buildRenderJobs, naturalFrenchRoles} from '../scripts/render-catalog.mjs';
+import {buildRenderJobs, naturalFilmSpec, naturalFrenchRoles} from '../scripts/render-catalog.mjs';
 import {canReuseRenderedJob, preparePublishedNarration, publishNarratedJobs} from '../scripts/published-narration.mjs';
 import {videoStreamHash} from '../scripts/mix-narration.mjs';
 
@@ -41,6 +41,47 @@ test('natural C qualifies all selected plugin blocks and exact PCM24 cuts at the
   assert.equal(qualified.manifest.narrations[0].endCardStartSeconds, 1196 / 30);
   assert.equal(qualified.plan.clips.reduce((sum, clip) => sum + clip.actualDurationSeconds, 0), 34.32);
   assert.deepEqual(await readFile(path.join(library, 'library.json')), before, 'Qualification never rewrites source provenance.');
+});
+
+test('all eight delivered natural snapshots retain their complete speech and quiet closing scenes', {timeout: 120000}, async () => {
+  const linuxProof = await json(path.join(filmRoot, 'narration/releases/natural-c-linux-qualification.json'));
+  assert.equal(linuxProof.platform, 'linux');
+  assert.equal(linuxProof.libraries.length, 8);
+  let sourceCount = 0;
+  let clipCount = 0;
+  const generationIds = new Set();
+  for (const locale of ['fr', 'en', 'de', 'lb']) {
+    for (const kind of ['introduction', 'roles']) {
+      const spec = naturalFilmSpec(kind, locale);
+      const qualified = await qualifyNaturalNarration(path.join(filmRoot, 'narration/releases', spec.library));
+      const linux = linuxProof.libraries.find((entry) => entry.library === spec.library);
+      assert.equal(linux?.decoders.length, 3, 'The recorded Linux qualification must cover this exact library.');
+      assert.equal(qualified.metadata.languageCode, locale);
+      assert.deepEqual(qualified.metadata.musicPolicy, {mode: 'constant', gain: 0.22});
+      assert.equal(qualified.plan.clips.length, kind === 'introduction' ? 11 : 6);
+      assert.ok(qualified.metadata.clips.every((clip) => clip.tempo === 1));
+      assert.ok(qualified.metadata.sources.every((source) => source.variationIndex === 2));
+      assert.equal(qualified.timeline.scenes.at(-1).id, 'logo');
+      assert.equal(qualified.timeline.scenes.at(-1).durationInFrames, 150);
+      if (kind === 'introduction') {
+        assert.equal(qualified.timeline.scenes.at(-2).id, 'signature');
+        assert.equal(qualified.timeline.scenes.at(-2).durationInFrames, 60);
+      }
+      for (const source of qualified.metadata.sources) {
+        const measured = linux.decoders.find((entry) => entry.blockId === source.blockId);
+        assert.equal(measured?.sourceSha256, source.sha256);
+        assert.equal(measured.canonicalPcmSha256, source.decodedPcmSha256);
+        assert.equal(measured.decodedSamples, source.decodedSamples);
+        assert.ok(measured.maximumAbsoluteDelta <= 8 && measured.differentSamples <= source.decodedSamples);
+        assert.ok(!generationIds.has(source.generationId), 'Every selected block must have its own actual provider generation.');
+        generationIds.add(source.generationId);
+      }
+      sourceCount += qualified.metadata.sources.length;
+      clipCount += qualified.plan.clips.length;
+    }
+  }
+  assert.equal(sourceCount, 24);
+  assert.equal(clipCount, 68);
 });
 
 test('changed variation, tempo, source paths and mislabeled codecs fail closed', async () => {

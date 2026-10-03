@@ -1,0 +1,429 @@
+{
+  "sourceSha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.186977166995348,
+  "result": {
+    "text": " Desyphe viso bere cendume viir. De genehmegung an den zhægang zu de raporte syn zveg getrenne berechtegungen di standartmæsig ausgeshaldsin. Den operatör importeya dokumenta abere cendume viir. Hér derfze nitt genehmegin.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 2.36,
+        "text": " Desyphe viso bere cendume viir.",
+        "tokens": [
+          50364,
+          3885,
+          88,
+          79,
+          675,
+          1452,
+          78,
+          13375,
+          269,
+          521,
+          2540,
+          1932,
+          347,
+          13,
+          50489
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " Desyphe",
+            "start": 0,
+            "end": 0.58,
+            "probability": 0.413818359375
+          },
+          {
+            "word": " viso",
+            "start": 0.58,
+            "end": 0.94,
+            "probability": 0.49755859375
+          },
+          {
+            "word": " bere",
+            "start": 0.94,
+            "end": 1.22,
+            "probability": 0.736328125
+          },
+          {
+            "word": " cendume",
+            "start": 1.22,
+            "end": 1.88,
+            "probability": 0.630859375
+          },
+          {
+            "word": " viir.",
+            "start": 1.88,
+            "end": 2.36,
+            "probability": 0.247314453125
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.78,
+        "end": 5.38,
+        "text": " De genehmegung an den zhægang zu de raporte",
+        "tokens": [
+          50509,
+          1346,
+          12186,
+          8587,
+          1146,
+          1063,
+          364,
+          1441,
+          710,
+          71,
+          7303,
+          70,
+          656,
+          2164,
+          368,
+          5099,
+          12752,
+          50638
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " De",
+            "start": 2.78,
+            "end": 3.02,
+            "probability": 0.412353515625
+          },
+          {
+            "word": " genehmegung",
+            "start": 3.02,
+            "end": 3.66,
+            "probability": 0.51708984375
+          },
+          {
+            "word": " an",
+            "start": 3.66,
+            "end": 3.88,
+            "probability": 0.361572265625
+          },
+          {
+            "word": " den",
+            "start": 3.88,
+            "end": 4.02,
+            "probability": 0.86767578125
+          },
+          {
+            "word": " zhægang",
+            "start": 4.02,
+            "end": 4.56,
+            "probability": 0.361572265625
+          },
+          {
+            "word": " zu",
+            "start": 4.56,
+            "end": 4.72,
+            "probability": 0.357177734375
+          },
+          {
+            "word": " de",
+            "start": 4.72,
+            "end": 4.84,
+            "probability": 0.302978515625
+          },
+          {
+            "word": " raporte",
+            "start": 4.84,
+            "end": 5.38,
+            "probability": 0.87060546875
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 5.38,
+        "end": 7.44,
+        "text": " syn zveg getrenne berechtegungen",
+        "tokens": [
+          50638,
+          943,
+          77,
+          710,
+          303,
+          70,
+          483,
+          1095,
+          716,
+          13375,
+          4701,
+          1146,
+          1063,
+          268,
+          50738
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " syn",
+            "start": 5.38,
+            "end": 5.7,
+            "probability": 0.18408203125
+          },
+          {
+            "word": " zveg",
+            "start": 5.7,
+            "end": 6.06,
+            "probability": 0.277587890625
+          },
+          {
+            "word": " getrenne",
+            "start": 6.06,
+            "end": 6.54,
+            "probability": 0.66943359375
+          },
+          {
+            "word": " berechtegungen",
+            "start": 6.54,
+            "end": 7.44,
+            "probability": 0.775390625
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 7.44,
+        "end": 9.56,
+        "text": " di standartmæsig ausgeshaldsin.",
+        "tokens": [
+          50738,
+          1026,
+          1463,
+          446,
+          76,
+          7303,
+          82,
+          328,
+          3437,
+          2880,
+          71,
+          3976,
+          82,
+          259,
+          13,
+          50848
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " di",
+            "start": 7.44,
+            "end": 7.8,
+            "probability": 0.666015625
+          },
+          {
+            "word": " standartmæsig",
+            "start": 7.8,
+            "end": 8.66,
+            "probability": 0.49462890625
+          },
+          {
+            "word": " ausgeshaldsin.",
+            "start": 8.66,
+            "end": 9.56,
+            "probability": 0.339111328125
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "seek": 0,
+        "start": 10.06,
+        "end": 12.28,
+        "text": " Den operatör importeya dokumenta",
+        "tokens": [
+          50866,
+          6458,
+          2208,
+          267,
+          2311,
+          566,
+          2707,
+          2030,
+          64,
+          40858,
+          64,
+          50981
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " Den",
+            "start": 10.06,
+            "end": 10.2,
+            "probability": 0.935546875
+          },
+          {
+            "word": " operatör",
+            "start": 10.2,
+            "end": 10.88,
+            "probability": 0.646484375
+          },
+          {
+            "word": " importeya",
+            "start": 10.88,
+            "end": 11.5,
+            "probability": 0.568359375
+          },
+          {
+            "word": " dokumenta",
+            "start": 11.5,
+            "end": 12.28,
+            "probability": 0.8115234375
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "seek": 0,
+        "start": 12.28,
+        "end": 13.74,
+        "text": " abere cendume viir.",
+        "tokens": [
+          50981,
+          410,
+          323,
+          269,
+          521,
+          2540,
+          1932,
+          347,
+          13,
+          51056
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " abere",
+            "start": 12.28,
+            "end": 12.72,
+            "probability": 0.39697265625
+          },
+          {
+            "word": " cendume",
+            "start": 12.72,
+            "end": 13.3,
+            "probability": 0.99560546875
+          },
+          {
+            "word": " viir.",
+            "start": 13.3,
+            "end": 13.74,
+            "probability": 0.98095703125
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "seek": 0,
+        "start": 14.12,
+        "end": 15.6,
+        "text": " Hér derfze nitt genehmegin.",
+        "tokens": [
+          51068,
+          389,
+          4198,
+          1163,
+          69,
+          1381,
+          297,
+          593,
+          12186,
+          8587,
+          1146,
+          259,
+          13,
+          51153
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8242260017017327,
+        "compression_ratio": 1.4331210191082802,
+        "no_speech_prob": 0.0507066436111927,
+        "words": [
+          {
+            "word": " Hér",
+            "start": 14.12,
+            "end": 14.34,
+            "probability": 0.51171875
+          },
+          {
+            "word": " derfze",
+            "start": 14.34,
+            "end": 14.74,
+            "probability": 0.51025390625
+          },
+          {
+            "word": " nitt",
+            "start": 14.74,
+            "end": 15.04,
+            "probability": 0.59375
+          },
+          {
+            "word": " genehmegin.",
+            "start": 15.04,
+            "end": 15.6,
+            "probability": 0.6923828125
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "9bbf75afe0a87043c3b750be191e7046d6b68708daa801d3fc496a504081cb2d"
+}

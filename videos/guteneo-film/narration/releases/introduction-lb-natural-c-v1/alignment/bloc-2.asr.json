@@ -1,0 +1,505 @@
+{
+  "sourceSha256": "254bca58ef501320cab8fe34ea4c09868e536de79e06b0d93a2adf73650eb02e",
+  "parameters": {
+    "language": "lb",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "temperature": 0,
+    "condition_on_previous_text": false,
+    "initial_prompt": null,
+    "verbose": null
+  },
+  "model": {
+    "repository": "mlx-community/whisper-small-mlx",
+    "revision": "45f3915923c7a79a5a5b5a7d909d39aeb0e5630e",
+    "sourceUrl": "https://huggingface.co/mlx-community/whisper-small-mlx",
+    "files": [
+      {
+        "name": "weights.npz",
+        "bytes": 481307592,
+        "sha256": "55b6674c9b339702d486e2b1573839a66f8ec8f821ed2886993ef717a86b09f5"
+      },
+      {
+        "name": "config.json",
+        "bytes": 266,
+        "sha256": "e8f58e638208af66d5d5d67801259dc7a12d199e971967a9f9d33a8e3635668e"
+      }
+    ],
+    "remoteInference": false
+  },
+  "elapsedSeconds": 1.277408000001742,
+  "result": {
+    "text": " erin assistant halef diyesh, aus erre viðarren entwoft sem achen. Diye esteld PDF dokument, abereet singh sendung mat gutn eofir. Kontroleja dokument, din emphengar, dopsjonen, and cash din. Am normale parkur geneemist jit sendung selve am browser. Firae nurist kuntjir fox, bravepost, oda e-mail vjelen.",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 4.28,
+        "text": " erin assistant halef diyesh, aus erre viðarren entwoft sem achen.",
+        "tokens": [
+          50364,
+          1189,
+          259,
+          10994,
+          276,
+          1220,
+          69,
+          1026,
+          2346,
+          71,
+          11,
+          3437,
+          1189,
+          265,
+          1932,
+          23436,
+          289,
+          1095,
+          948,
+          86,
+          2670,
+          83,
+          4361,
+          2800,
+          268,
+          13,
+          50584
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8590835180038061,
+        "compression_ratio": 1.4386792452830188,
+        "no_speech_prob": 0.015017379075288773,
+        "words": [
+          {
+            "word": " erin",
+            "start": 0,
+            "end": 0.36,
+            "probability": 0.256103515625
+          },
+          {
+            "word": " assistant",
+            "start": 0.36,
+            "end": 0.86,
+            "probability": 0.5390625
+          },
+          {
+            "word": " halef",
+            "start": 0.86,
+            "end": 1.36,
+            "probability": 0.440185546875
+          },
+          {
+            "word": " diyesh,",
+            "start": 1.36,
+            "end": 2.22,
+            "probability": 0.50927734375
+          },
+          {
+            "word": " aus",
+            "start": 2.22,
+            "end": 2.42,
+            "probability": 0.3330078125
+          },
+          {
+            "word": " erre",
+            "start": 2.42,
+            "end": 2.76,
+            "probability": 0.31005859375
+          },
+          {
+            "word": " viðarren",
+            "start": 2.76,
+            "end": 3.34,
+            "probability": 0.337646484375
+          },
+          {
+            "word": " entwoft",
+            "start": 3.34,
+            "end": 3.8,
+            "probability": 0.42529296875
+          },
+          {
+            "word": " sem",
+            "start": 3.8,
+            "end": 3.94,
+            "probability": 0.42431640625
+          },
+          {
+            "word": " achen.",
+            "start": 3.94,
+            "end": 4.28,
+            "probability": 0.25537109375
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 4.98,
+        "end": 8.9,
+        "text": " Diye esteld PDF dokument, abereet singh sendung mat gutn eofir.",
+        "tokens": [
+          50614,
+          8789,
+          1200,
+          871,
+          5957,
+          17752,
+          40858,
+          11,
+          410,
+          323,
+          302,
+          1522,
+          71,
+          2845,
+          1063,
+          3803,
+          5228,
+          77,
+          308,
+          2670,
+          347,
+          13,
+          50814
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8590835180038061,
+        "compression_ratio": 1.4386792452830188,
+        "no_speech_prob": 0.015017379075288773,
+        "words": [
+          {
+            "word": " Diye",
+            "start": 4.98,
+            "end": 5.22,
+            "probability": 0.1903076171875
+          },
+          {
+            "word": " esteld",
+            "start": 5.22,
+            "end": 5.58,
+            "probability": 0.392578125
+          },
+          {
+            "word": " PDF",
+            "start": 5.58,
+            "end": 6.06,
+            "probability": 0.56298828125
+          },
+          {
+            "word": " dokument,",
+            "start": 6.06,
+            "end": 6.62,
+            "probability": 0.7314453125
+          },
+          {
+            "word": " abereet",
+            "start": 6.98,
+            "end": 7.38,
+            "probability": 0.236572265625
+          },
+          {
+            "word": " singh",
+            "start": 7.38,
+            "end": 7.62,
+            "probability": 0.40234375
+          },
+          {
+            "word": " sendung",
+            "start": 7.62,
+            "end": 7.92,
+            "probability": 0.642578125
+          },
+          {
+            "word": " mat",
+            "start": 7.92,
+            "end": 8.08,
+            "probability": 0.372802734375
+          },
+          {
+            "word": " gutn",
+            "start": 8.08,
+            "end": 8.48,
+            "probability": 0.371337890625
+          },
+          {
+            "word": " eofir.",
+            "start": 8.48,
+            "end": 8.9,
+            "probability": 0.443359375
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 9.42,
+        "end": 13.26,
+        "text": " Kontroleja dokument, din emphengar, dopsjonen, and cash din.",
+        "tokens": [
+          50834,
+          20629,
+          29114,
+          2938,
+          40858,
+          11,
+          3791,
+          4012,
+          71,
+          1501,
+          289,
+          11,
+          360,
+          1878,
+          15735,
+          268,
+          11,
+          293,
+          6388,
+          3791,
+          13,
+          51034
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8590835180038061,
+        "compression_ratio": 1.4386792452830188,
+        "no_speech_prob": 0.015017379075288773,
+        "words": [
+          {
+            "word": " Kontroleja",
+            "start": 9.42,
+            "end": 10.04,
+            "probability": 0.69384765625
+          },
+          {
+            "word": " dokument,",
+            "start": 10.04,
+            "end": 10.42,
+            "probability": 0.78271484375
+          },
+          {
+            "word": " din",
+            "start": 10.92,
+            "end": 11,
+            "probability": 0.58447265625
+          },
+          {
+            "word": " emphengar,",
+            "start": 11,
+            "end": 11.56,
+            "probability": 0.6005859375
+          },
+          {
+            "word": " dopsjonen,",
+            "start": 11.76,
+            "end": 12.46,
+            "probability": 0.55517578125
+          },
+          {
+            "word": " and",
+            "start": 12.62,
+            "end": 12.7,
+            "probability": 0.31103515625
+          },
+          {
+            "word": " cash",
+            "start": 12.7,
+            "end": 13.04,
+            "probability": 0.46337890625
+          },
+          {
+            "word": " din.",
+            "start": 13.04,
+            "end": 13.26,
+            "probability": 0.1341552734375
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 13.78,
+        "end": 16.74,
+        "text": " Am normale parkur geneemist jit sendung selve am browser.",
+        "tokens": [
+          51044,
+          2012,
+          2026,
+          1220,
+          3884,
+          374,
+          12186,
+          443,
+          468,
+          361,
+          270,
+          2845,
+          1063,
+          5851,
+          303,
+          669,
+          11185,
+          13,
+          51214
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8590835180038061,
+        "compression_ratio": 1.4386792452830188,
+        "no_speech_prob": 0.015017379075288773,
+        "words": [
+          {
+            "word": " Am",
+            "start": 13.78,
+            "end": 13.88,
+            "probability": 0.9560546875
+          },
+          {
+            "word": " normale",
+            "start": 13.88,
+            "end": 14.28,
+            "probability": 0.80859375
+          },
+          {
+            "word": " parkur",
+            "start": 14.28,
+            "end": 14.76,
+            "probability": 0.76953125
+          },
+          {
+            "word": " geneemist",
+            "start": 14.76,
+            "end": 15.24,
+            "probability": 0.38916015625
+          },
+          {
+            "word": " jit",
+            "start": 15.24,
+            "end": 15.34,
+            "probability": 0.158935546875
+          },
+          {
+            "word": " sendung",
+            "start": 15.34,
+            "end": 15.76,
+            "probability": 0.642578125
+          },
+          {
+            "word": " selve",
+            "start": 15.76,
+            "end": 16.18,
+            "probability": 0.52587890625
+          },
+          {
+            "word": " am",
+            "start": 16.18,
+            "end": 16.36,
+            "probability": 0.329345703125
+          },
+          {
+            "word": " browser.",
+            "start": 16.36,
+            "end": 16.74,
+            "probability": 0.94482421875
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "seek": 0,
+        "start": 17.2,
+        "end": 20.88,
+        "text": " Firae nurist kuntjir fox, bravepost, oda e-mail vjelen.",
+        "tokens": [
+          51224,
+          479,
+          4271,
+          68,
+          4343,
+          468,
+          350,
+          2760,
+          73,
+          347,
+          21026,
+          11,
+          12653,
+          23744,
+          11,
+          277,
+          2675,
+          308,
+          12,
+          11799,
+          371,
+          73,
+          14818,
+          13,
+          51414
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.8590835180038061,
+        "compression_ratio": 1.4386792452830188,
+        "no_speech_prob": 0.015017379075288773,
+        "words": [
+          {
+            "word": " Firae",
+            "start": 17.2,
+            "end": 17.6,
+            "probability": 0.396484375
+          },
+          {
+            "word": " nurist",
+            "start": 17.6,
+            "end": 18.02,
+            "probability": 0.404296875
+          },
+          {
+            "word": " kuntjir",
+            "start": 18.02,
+            "end": 18.54,
+            "probability": 0.275390625
+          },
+          {
+            "word": " fox,",
+            "start": 18.54,
+            "end": 18.8,
+            "probability": 0.35986328125
+          },
+          {
+            "word": " bravepost,",
+            "start": 19.2,
+            "end": 19.78,
+            "probability": 0.46240234375
+          },
+          {
+            "word": " oda",
+            "start": 20.06,
+            "end": 20.16,
+            "probability": 0.6083984375
+          },
+          {
+            "word": " e",
+            "start": 20.16,
+            "end": 20.36,
+            "probability": 0.64111328125
+          },
+          {
+            "word": "-mail",
+            "start": 20.36,
+            "end": 20.54,
+            "probability": 0.935546875
+          },
+          {
+            "word": " vjelen.",
+            "start": 20.54,
+            "end": 20.88,
+            "probability": 0.307373046875
+          }
+        ]
+      }
+    ],
+    "language": "lb"
+  },
+  "originalProofSha256": "012ce198d2dab2656bf8d146b044772080cad43f79db9947f1f481aba7a94a64"
+}

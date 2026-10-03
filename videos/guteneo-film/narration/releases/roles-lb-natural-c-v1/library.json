@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "id": "roles-lb-natural-c-v1",
+  "method": "C-three-blocks",
+  "source": "elevenlabs-creative-plugin",
+  "modelId": "eleven_v4",
+  "languageCode": "lb",
+  "selectedVariationNumber": 2,
+  "voice": {
+    "voiceId": "m5U7XCsc8v988k2RJAqN",
+    "name": "Manon Voix française spontanée sérieuse",
+    "source": "live-creative-list-voices"
+  },
+  "musicPolicy": {
+    "mode": "constant",
+    "gain": 0.22
+  },
+  "criticalListening": "pending",
+  "sources": [
+    {
+      "blockId": "bloc-1",
+      "path": "sources/bloc-1-prise-2.mp3",
+      "sha256": "b2b1ddba8e3f8c424fbb7c327fec79621a69adf52ebf653e2613f88a1045fea7",
+      "bytes": 196056,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "DX08W1h299fKCAIe8Val",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "lb",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Loosst eis déi véier Rolle vu guteneo an hir Rechter entdecken. [short pause] Den Administrateur geréiert den Atelier. Hie bereet Sendunge vir, geneemegt se a kuckt d'Rapporten.",
+      "requestTextSha256": "5f2576e8eda92640f1b8207869410177d14496311d14a6abe3f900a2ab856aa9",
+      "providerDurationSeconds": 11.12,
+      "decodedSamples": 490392,
+      "decodedPcmSha256": "f0033d2588f1a29a6a71b6f5abc0d24804060cad3e241acc9bcb4e742af128ba"
+    },
+    {
+      "blockId": "bloc-2",
+      "path": "sources/bloc-2-prise-2.mp3",
+      "sha256": "d7a4a21d9e1fa0f36288816f882fcb8e3d48ba275d9aa50fd16e60d2e7b6c59f",
+      "bytes": 271707,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "VnjL6bvVBAkZxtSCReSq",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "lb",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] De Supervisor bereet Sendunge vir. D'Geneemegung an den Zougang zu de Rapporte sinn zwou getrennte Berechtegungen, déi standardméisseg ausgeschalt sinn. [short pause] Den Operateur importéiert d'Dokumenter a bereet d'Sendunge vir. Hie däerf se net geneemegen.",
+      "requestTextSha256": "34972c2946a0b27a302dbb3600478e4189a9fb3fa45372fbdb4f9aa87f64b9ce",
+      "providerDurationSeconds": 15.84,
+      "decodedSamples": 698544,
+      "decodedPcmSha256": "eda6ed3555fc57ff1535b47352304c283a0296b9f922eea4df5766d2150278c0"
+    },
+    {
+      "blockId": "bloc-3",
+      "path": "sources/bloc-3-prise-2.mp3",
+      "sha256": "e310a52b6e9c124c9b5abafdd57fd23c3fbf8efd37f430406767beeb635f1f75",
+      "bytes": 225731,
+      "source": "elevenlabs-creative-plugin",
+      "generationId": "3N4w1TKXxZtOnFwxq5lR",
+      "variationIndex": 2,
+      "modelId": "eleven_v4",
+      "languageCode": "lb",
+      "voiceId": "m5U7XCsc8v988k2RJAqN",
+      "outputFormat": "mp3_44100_128",
+      "prompt": "[thoughtful] Den Observateur kuckt d'Dokumenter, d'Empfänger an de Suivi. Hien ännert keng Donnéeën am Atelier a geneemegt keng Sendung. [short pause] Am normale Parcours geneemegt eng berechtegt Persoun d'Sendung am Browser.",
+      "requestTextSha256": "f3758199ee558b663722adbd09d9828029fef061ef4a80a31fa64261d97254ab",
+      "providerDurationSeconds": 12.96,
+      "decodedSamples": 571536,
+      "decodedPcmSha256": "ab731c0cb7383f4462566d8e73033931895f751ce6414e38343cf7e726eb1ee2"
+    }
+  ],
+  "clips": [
+    {
+      "cueId": "intro",
+      "path": "clips/roles-lb-natural-c/intro.wav",
+      "sha256": "a7897f64702d577c125d1a83b85c38584b0fa55d8bd39f5cfe0d98078dc1426a",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 0,
+      "sourceEndSample": 190568,
+      "pcmSha256": "198a6bebd1c5bde6a4cfb887e5a118375f2dbcfa1385c7936b056378ed2d0dde",
+      "tempo": 1,
+      "fingerprint": "09e5f06de3df03c29872706972e7efece4640ab2380249bb85b498ee80e34a7b"
+    },
+    {
+      "cueId": "administrator",
+      "path": "clips/roles-lb-natural-c/administrator.wav",
+      "sha256": "ec934fef17c41bd888c868431d03877fd1742c0bcc653895adbd7a0084d58828",
+      "sourceBlockId": "bloc-1",
+      "sourceStartSample": 190568,
+      "sourceEndSample": 490392,
+      "pcmSha256": "5818c22ee2087c8e64593a4ef7e46920f0e9c09536b5c2929380f18128c94155",
+      "tempo": 1,
+      "fingerprint": "154079ab861813ea607385fe8c76e57de3f367827662e1fcd001f359b9a7bffd"
+    },
+    {
+      "cueId": "supervisor",
+      "path": "clips/roles-lb-natural-c/supervisor.wav",
+      "sha256": "8c8045ceed9481e62c422a30be8731a06f6b63089c6d94fbd361b393216de0bf",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 0,
+      "sourceEndSample": 435577,
+      "pcmSha256": "47a7508c91e7e80f22433c551c112f54c18926f70be83fe5e08a64c1b4993917",
+      "tempo": 1,
+      "fingerprint": "36f89fe55309315e4f8fb4443d49458c99a3b9876b7bc7275dea1d1175f19439"
+    },
+    {
+      "cueId": "operator",
+      "path": "clips/roles-lb-natural-c/operator.wav",
+      "sha256": "c08f93a4b9462ac706dde5468023cb3bea3e1adfb3c0390061fafcf0dc820156",
+      "sourceBlockId": "bloc-2",
+      "sourceStartSample": 435577,
+      "sourceEndSample": 698544,
+      "pcmSha256": "cb82a54aac613d8c747706b0c6fbbec5d277238ada7e2958766fea6b468e5d45",
+      "tempo": 1,
+      "fingerprint": "120d459d18e05f98f7682f2a41bf0435271c6180a8c763076ac35dacfd1a0ef2"
+    },
+    {
+      "cueId": "observer",
+      "path": "clips/roles-lb-natural-c/observer.wav",
+      "sha256": "539a8d0879554f8c158b56cc6830e163f092048c7ada6155fca5288460c31038",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 0,
+      "sourceEndSample": 370532,
+      "pcmSha256": "18b27a9a1a37a8d84971dbe223ce75e975ead219d557f60995baf8f1fd046fa5",
+      "tempo": 1,
+      "fingerprint": "447b85b32c99f120cb8e77461551d7f53b363a2652de69436a942230a4e4f112"
+    },
+    {
+      "cueId": "review",
+      "path": "clips/roles-lb-natural-c/review.wav",
+      "sha256": "d8720624287a4fa4e2e41161e8a29a3c9a50a980cbf96887188fea54bcb4e8ed",
+      "sourceBlockId": "bloc-3",
+      "sourceStartSample": 370532,
+      "sourceEndSample": 571536,
+      "pcmSha256": "b9c8200a36780fbd7b9ceef7a4201d5e120c7d5461b8eec17a14c688849a67ba",
+      "tempo": 1,
+      "fingerprint": "db945fd345cd9838614d52b18f5eef55d8851c2905f2df101ea03a674cc9133f"
+    }
+  ]
+}

@@ -1,0 +1,413 @@
+{
+  "sourceSha256": "2cf68987296b2672bc201dc59fd245e7066b255b8a6134a8d41ef9cc3276ea4f",
+  "parameters": {
+    "language": "ltz",
+    "task": "transcribe",
+    "word_timestamps": true,
+    "initial_prompt": null
+  },
+  "model": {
+    "source": "elevenlabs-native-scribe2",
+    "modelId": "scribe_v2",
+    "exportSha256": "720b420f754502864d295e3f15c7969e7768e6a41d5df4c3af4f7dc138443af2",
+    "inputAudioSha256": "f092e64692e1352acee8e0512a29bb9192ddf30021df0a1862f44030c1a33ba1",
+    "receipt": {
+      "source": "elevenlabs-native-scribe2",
+      "modelId": "scribe_v2",
+      "languageCode": "ltz",
+      "inputAudioSha256": "f092e64692e1352acee8e0512a29bb9192ddf30021df0a1862f44030c1a33ba1",
+      "exportSha256": "720b420f754502864d295e3f15c7969e7768e6a41d5df4c3af4f7dc138443af2",
+      "expectedTextPrompt": null,
+      "nativeEditorId": "SPrE87rH4H7K1M5Q0avt",
+      "languageSelection": "Luxembourgish",
+      "includeTimestamps": true,
+      "includeSubtitles": true
+    }
+  },
+  "normalization": "Actual native word timestamps partitioned by immutable source PCM offsets; times shifted by block start only; confidence not invented",
+  "result": {
+    "language": "ltz",
+    "text": "Mat GutenNeo fänkt alles mit engem Dokument un. Dir kënnt eng eenzel Sendung oder eng ganz Kampagne virbereeden. Dobäi kann all Empfänger säi perséinlecht Dokument kréien. Benotzt Ären eegene PDF oder eng passend Virlag.",
+    "segments": [
+      {
+        "words": [
+          {
+            "word": "Mat",
+            "start": 0.12,
+            "end": 0.32,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.12,
+            "globalEndSeconds": 0.32
+          },
+          {
+            "word": "GutenNeo",
+            "start": 0.46,
+            "end": 0.92,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 0.46,
+            "globalEndSeconds": 0.92
+          },
+          {
+            "word": "fänkt",
+            "start": 1.04,
+            "end": 1.24,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.04,
+            "globalEndSeconds": 1.24
+          },
+          {
+            "word": "alles",
+            "start": 1.46,
+            "end": 1.72,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.46,
+            "globalEndSeconds": 1.72
+          },
+          {
+            "word": "mit",
+            "start": 1.76,
+            "end": 1.86,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.76,
+            "globalEndSeconds": 1.86
+          },
+          {
+            "word": "engem",
+            "start": 1.9,
+            "end": 2.1,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 1.9,
+            "globalEndSeconds": 2.1
+          },
+          {
+            "word": "Dokument",
+            "start": 2.14,
+            "end": 2.72,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.14,
+            "globalEndSeconds": 2.72
+          },
+          {
+            "word": "un.",
+            "start": 2.78,
+            "end": 3,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 2.78,
+            "globalEndSeconds": 3
+          },
+          {
+            "word": "Dir",
+            "start": 3.84,
+            "end": 3.96,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 3.84,
+            "globalEndSeconds": 3.96
+          },
+          {
+            "word": "kënnt",
+            "start": 4,
+            "end": 4.14,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4,
+            "globalEndSeconds": 4.14
+          },
+          {
+            "word": "eng",
+            "start": 4.18,
+            "end": 4.34,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4.18,
+            "globalEndSeconds": 4.34
+          },
+          {
+            "word": "eenzel",
+            "start": 4.4,
+            "end": 4.76,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4.4,
+            "globalEndSeconds": 4.76
+          },
+          {
+            "word": "Sendung",
+            "start": 4.82,
+            "end": 5.26,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 4.82,
+            "globalEndSeconds": 5.26
+          },
+          {
+            "word": "oder",
+            "start": 5.4,
+            "end": 5.54,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 5.4,
+            "globalEndSeconds": 5.54
+          },
+          {
+            "word": "eng",
+            "start": 5.58,
+            "end": 5.74,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 5.58,
+            "globalEndSeconds": 5.74
+          },
+          {
+            "word": "ganz",
+            "start": 5.78,
+            "end": 6.02,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 5.78,
+            "globalEndSeconds": 6.02
+          },
+          {
+            "word": "Kampagne",
+            "start": 6.06,
+            "end": 6.56,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.06,
+            "globalEndSeconds": 6.56
+          },
+          {
+            "word": "virbereeden.",
+            "start": 6.66,
+            "end": 7.28,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 6.66,
+            "globalEndSeconds": 7.28
+          },
+          {
+            "word": "Dobäi",
+            "start": 8.02,
+            "end": 8.4,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.02,
+            "globalEndSeconds": 8.4
+          },
+          {
+            "word": "kann",
+            "start": 8.44,
+            "end": 8.66,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.44,
+            "globalEndSeconds": 8.66
+          },
+          {
+            "word": "all",
+            "start": 8.74,
+            "end": 8.86,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.74,
+            "globalEndSeconds": 8.86
+          },
+          {
+            "word": "Empfänger",
+            "start": 8.92,
+            "end": 9.36,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 8.92,
+            "globalEndSeconds": 9.36
+          },
+          {
+            "word": "säi",
+            "start": 9.42,
+            "end": 9.58,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 9.42,
+            "globalEndSeconds": 9.58
+          },
+          {
+            "word": "perséinlecht",
+            "start": 9.62,
+            "end": 10.2,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 9.62,
+            "globalEndSeconds": 10.2
+          },
+          {
+            "word": "Dokument",
+            "start": 10.24,
+            "end": 10.66,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 10.24,
+            "globalEndSeconds": 10.66
+          },
+          {
+            "word": "kréien.",
+            "start": 10.74,
+            "end": 11.1,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 10.74,
+            "globalEndSeconds": 11.1
+          },
+          {
+            "word": "Benotzt",
+            "start": 11.64,
+            "end": 12.02,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 11.64,
+            "globalEndSeconds": 12.02
+          },
+          {
+            "word": "Ären",
+            "start": 12.08,
+            "end": 12.34,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 12.08,
+            "globalEndSeconds": 12.34
+          },
+          {
+            "word": "eegene",
+            "start": 12.4,
+            "end": 12.72,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 12.4,
+            "globalEndSeconds": 12.72
+          },
+          {
+            "word": "PDF",
+            "start": 12.82,
+            "end": 13.38,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 12.82,
+            "globalEndSeconds": 13.38
+          },
+          {
+            "word": "oder",
+            "start": 13.6,
+            "end": 13.8,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 13.6,
+            "globalEndSeconds": 13.8
+          },
+          {
+            "word": "eng",
+            "start": 13.82,
+            "end": 13.96,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 13.82,
+            "globalEndSeconds": 13.96
+          },
+          {
+            "word": "passend",
+            "start": 14.02,
+            "end": 14.36,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 14.02,
+            "globalEndSeconds": 14.36
+          },
+          {
+            "word": "Virlag.",
+            "start": 14.42,
+            "end": 14.9,
+            "probability": null,
+            "providerLogProbability": null,
+            "timestampSource": "elevenlabs-native-scribe2",
+            "wordConfidence": "not-reported-as-probability",
+            "globalStartSeconds": 14.42,
+            "globalEndSeconds": 14.9
+          }
+        ]
+      }
+    ]
+  },
+  "originalProofSha256": "9e3468b34aefa99f2edc34be13cb875cc825bda1a90fea3472c331f828a3ba3c"
+}

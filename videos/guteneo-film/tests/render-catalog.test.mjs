@@ -6,7 +6,7 @@ import {buildRenderJobs, isNaturalFrenchRoles, isNaturalNarration, naturalFilmSp
 const root = new URL('../../../', import.meta.url);
 const json = async (relative) => JSON.parse(await readFile(new URL(relative, root), 'utf8'));
 
-test('instrumental render jobs never use the active narrated paths', async () => {
+test('active render jobs use qualified instrumental sources for all twelve narrated films', async () => {
   const source = await json('videos/guteneo-film/narration/source-videos.json');
   const active = await json('packages/contracts/src/public-videos.json');
   const manifest = await json('apps/api/src/public-video-manifest.json');
@@ -15,12 +15,12 @@ test('instrumental render jobs never use the active narrated paths', async () =>
   assert.equal(jobs.length, 12);
   for (const job of jobs.filter((job) => job.activeAsset.movie !== job.asset.movie)) {
     assert.notEqual(job.asset.movie, job.activeAsset.movie);
-    if (isNaturalFrenchRoles(job)) assert.equal(job.asset.movie, naturalFrenchRoles.source);
-    else assert.match(job.asset.movie, /-v(?:5|1)(?:-[a-z]{2})?\.mp4$/);
-    assert.match(job.activeAsset.movie, /-v(?:6|2|7|3)-(?:fr|en)\.mp4$/);
+    const spec = naturalFilmSpec(job.kind, job.locale, job.format);
+    assert.equal(isNaturalNarration(job), true);
+    assert.equal(job.asset.movie, spec.source);
+    assert.equal(job.activeAsset.movie, spec.movie);
   }
-  assert.equal(jobs.filter((job) => job.activeAsset.movie !== job.asset.movie).length,
-    active.roles.fr.movie === naturalFrenchRoles.movie ? 6 : 5);
+  assert.equal(jobs.filter((job) => job.activeAsset.movie !== job.asset.movie).length, 12);
   assert.equal(buildRenderJobs(source, active, ['fr'], 'roles').length, 1);
 });
 
@@ -75,7 +75,7 @@ test('corrupt source catalogs and incomplete active manifests fail before render
   assert.throws(() => validateRenderCatalogs(source, active, incomplete), /qualified asset manifest/);
   const noCaptions = structuredClone(active);
   delete noCaptions.roles.en.captions;
-  assert.throws(() => validateRenderCatalogs(source, noCaptions, manifest), /caption track/);
+  assert.throws(() => validateRenderCatalogs(source, noCaptions, manifest), /captions|caption track/);
   const extra = {...manifest, '/videos/unqualified.mp4': {bytes: 1, sha256: 'a'.repeat(64)}};
   assert.throws(() => validateRenderCatalogs(source, active, extra), /only the active catalog/);
 });

@@ -12,10 +12,19 @@ const repositoryRoot = path.resolve(import.meta.dirname, '../../..');
 const filmRoot = path.join(repositoryRoot, 'videos/guteneo-film');
 const json = async (file) => JSON.parse(await readFile(file, 'utf8'));
 const digest = async (file) => createHash('sha256').update(await readFile(file)).digest('hex');
-const catalogs = async () => ({
-  source: await json(path.join(filmRoot, 'narration/source-videos.json')),
-  active: await json(path.join(repositoryRoot, 'packages/contracts/src/public-videos.json')),
-});
+const catalogs = async () => {
+  const source = await json(path.join(filmRoot, 'narration/source-videos.json'));
+  // Exercise the frozen G2 publication independently of today's natural films.
+  const active = structuredClone(source);
+  for (const locale of ['fr', 'en']) {
+    for (const format of ['horizontal', 'vertical']) {
+      active.introduction[locale][format] = {...source.introduction[locale][format],
+        movie: `/videos/guteneo-${format}-v6-${locale}.mp4`, captions: `/videos/guteneo-v6.${locale}.vtt`};
+    }
+  }
+  active.roles.en = {...source.roles.en, movie: '/videos/guteneo-roles-v2-en.mp4', captions: '/videos/guteneo-roles-v2.en.vtt'};
+  return {source, active};
+};
 
 test('instrumental locales need no narration cache and unsupported active narration fails closed', async () => {
   const {source, active} = await catalogs();
