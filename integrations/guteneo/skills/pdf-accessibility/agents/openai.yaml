@@ -1,3 +1,6 @@
+interface:
+  display_name: "PDF accessibility and archival diagnostics"
+  short_description: "Check automated PDF/UA and PDF/A rules when enabled"
 dependencies:
   tools:
     - type: "mcp"
