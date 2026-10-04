@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
@@ -153,6 +154,16 @@ class ProcessTests(unittest.TestCase):
 
 
 class HttpTests(unittest.TestCase):
+    def setUp(self):
+        # Qualification counts every matching directory in its private runtime.
+        # Node security tests run concurrently and may create guteneo-pdf-release-*
+        # fixtures in the host temp root; those are not this validator's leftovers.
+        self.runtime_directory = tempfile.TemporaryDirectory(prefix="guteneo-validator-test-")
+        self.addCleanup(self.runtime_directory.cleanup)
+        runtime = patch.object(server.tempfile, "tempdir", self.runtime_directory.name)
+        runtime.start()
+        self.addCleanup(runtime.stop)
+
     def handler(self, path="/validate?profile=ua1"):
         handler = server.Handler.__new__(server.Handler)
         handler.path = path
@@ -198,6 +209,21 @@ class HttpTests(unittest.TestCase):
             handler.do_GET()
         handler.send_json.assert_called_once_with(200, {"code": "VALIDATION_TIMEOUT", "temporaryDirectories": 0})
         self.assertFalse(server.VALIDATION_LOCK.locked())
+
+    def test_qualification_still_reports_leftovers_inside_its_runtime(self):
+        leftover = Path(self.runtime_directory.name) / "guteneo-pdf-leftover"
+        leftover.mkdir()
+        for path in ["/qualification/privacy", "/qualification/process-deadline"]:
+            with self.subTest(path=path):
+                handler = self.handler(path)
+                with patch.dict(server.os.environ, {"QUALIFICATION_ENABLED": "true"}):
+                    handler.do_GET()
+                expected = {"temporaryDirectories": 1}
+                if path.endswith("process-deadline"):
+                    expected["code"] = "VALIDATION_TIMEOUT"
+                handler.send_json.assert_called_once_with(200, expected)
+                self.assertTrue(leftover.exists())
+                self.assertFalse(server.VALIDATION_LOCK.locked())
 
 
 if __name__ == "__main__":
