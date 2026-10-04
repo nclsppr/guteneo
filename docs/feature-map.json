@@ -1,6 +1,6 @@
 {
   "title": "Guteneo · atlas technique",
-  "updated": "2026-10-03",
+  "updated": "2026-10-04",
   "scope": "Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.",
   "roleNote": "Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.",
   "groups": [
@@ -227,11 +227,14 @@
         "Revue navigateur avant envoi ; scopes sans élévation de rôle",
         "Délégation experte bornée à un client OAuth, optionnelle",
         "Mandat accordé/révoqué par administrateur navigateur seulement",
-        "Paquets plugin et dossier marketplace ; soumission distincte"
+        "Paquets plugin et dossier marketplace ; soumission distincte",
+        "Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion"
       ],
-      "status": "Implémenté · disponibilité à vérifier",
+      "status": "Implémenté · métadonnées du 4 octobre à publier et rescanner ; autorisations serveur inchangées",
       "tests": [
-        "tests/unit/mcp-integrations.test.ts"
+        "tests/unit/mcp-integrations.test.ts",
+        "tests/integration/template-workflow.test.ts",
+        "tests/unit/pdf-validation.test.ts"
       ],
       "surfaces": "Web / REST / MCP"
     },
@@ -380,7 +383,7 @@
       "steps": "Exemple/copie privée, page vierge ou DOCX → designer et schéma → données d’essai → aperçu PDF → publier une version → partager les droits précis.",
       "branch": "MODÈLES",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés."
+      "failure": "Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés. Via MCP, présenter écrasement du brouillon, archivage ou révocation de partage et respecter les confirmations hôte ; aucune permission élargie."
     },
     {
       "id": "J07",
@@ -389,7 +392,7 @@
       "steps": "Import CSV/XLSX/XML/JSON → analyse et profil → choisir mapping → valider → générer → consulter résultats/provenance → reprendre les seuls records échoués.",
       "branch": "DONNÉES → GÉNÉRATION",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur."
+      "failure": "Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur. Annulation explicite : arrêter le lot sans effacer ses PDF ; le même lot annulé ne se reprend pas. MCP signale cette annulation comme destructive."
     },
     {
       "id": "J08",
@@ -413,10 +416,10 @@
       "id": "J10",
       "title": "Travailler avec un assistant",
       "actor": "Membre + client OAuth",
-      "steps": "Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions.",
+      "steps": "Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.",
       "branch": "MCP / REST",
       "doc": "LLM_SETUP.md",
-      "failure": "Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur."
+      "failure": "Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif."
     },
     {
       "id": "J11",
@@ -443,7 +446,7 @@
       "steps": "Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF.",
       "branch": "HORIZON · OUVERTURE SUR CRÉDITS",
       "doc": "PDF_ACCESSIBILITY.md",
-      "failure": "Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois."
+      "failure": "Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois. Le diagnostic MCP annonce idempotentHint=false pour l’activité de connexion ; sa clé conserve la non-duplication métier, sans nouveau débit implicite."
     },
     {
       "id": "J14",
@@ -526,7 +529,7 @@
       "Plan actif + accès PDF",
       "Plan actif + accès PDF",
       "Non",
-      "Plan actif + accès PDF + documents:write"
+      "Plan actif + accès PDF + documents:write ; clé métier conservée"
     ],
     [
       "Lire / exporter l’historique Horizon",
@@ -550,7 +553,31 @@
       "Droits sur ressource",
       "Droits sur ressource",
       "Non",
-      "Membre + scopes + ressource"
+      "Membre + scopes + ressource ; confirmation hôte pour écrasement"
+    ],
+    [
+      "Archiver modèle",
+      "Droit publier sur ressource",
+      "Droit publier sur ressource",
+      "Droit publier sur ressource",
+      "Non",
+      "Membre + templates:publish + ressource ; effet destructif signalé"
+    ],
+    [
+      "Modifier partage du modèle",
+      "Droit partager sur ressource",
+      "Droit partager sur ressource",
+      "Droit partager sur ressource",
+      "Non",
+      "Membre + templates:share + ressource ; révocation signalée"
+    ],
+    [
+      "Annuler génération",
+      "Propriétaire du lot",
+      "Propriétaire du lot",
+      "Propriétaire du lot",
+      "Non",
+      "Propriétaire + generations:write ; annulation signalée"
     ],
     [
       "Supprimer modèle",

@@ -1082,6 +1082,9 @@ export function createGuteneoMcpServer(
       "templates:write",
       false,
       ({ id, change }) => workflow.updateTemplate(ctx, id, change),
+      false,
+      [],
+      true,
     );
     studioTool(
       "suggest_template",
@@ -1120,6 +1123,9 @@ export function createGuteneoMcpServer(
       "templates:publish",
       false,
       ({ id, ...input }) => workflow.archiveTemplate(ctx, id, input),
+      false,
+      [],
+      true,
     );
     studioTool(
       "delete_template",
@@ -1147,6 +1153,9 @@ export function createGuteneoMcpServer(
       "templates:share",
       false,
       ({ id, sharing }) => workflow.shareTemplate(ctx, id, sharing),
+      false,
+      [],
+      true,
     );
     studioTool(
       "preview_template",
@@ -1332,6 +1341,9 @@ export function createGuteneoMcpServer(
       "generations:write",
       false,
       ({ id }) => workflow.cancelGeneration(ctx, id),
+      false,
+      [],
+      true,
     );
     studioTool(
       "retry_generation_records",
@@ -1562,7 +1574,7 @@ export function createGuteneoMcpServer(
         outputSchema: output(pdfValidationReportSchema),
         annotations: {
           ...writeAnnotations,
-          idempotentHint: true,
+          idempotentHint: false,
           destructiveHint: false,
         },
         _meta: oauthMetadata("documents:write"),
