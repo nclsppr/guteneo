@@ -353,6 +353,24 @@ test("saved account language hydrates every standalone public route without repl
   await expect(page.locator("#account-name")).toHaveValue("Public account");
 });
 
+test("an English privacy URL stays English after the French account session without saving its profile", async ({
+  page,
+}) => {
+  const account: AccountFixture = { name: "French account", preferredLocale: "fr" };
+  await guestLanguage(page, "fr");
+  const { updates, writes } = await mockAccount(page, account);
+  const sessionResponse = page.waitForResponse("**/api/session");
+  await page.goto("/confidentialite/?lang=en");
+  await (await sessionResponse).finished();
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your data,");
+  await expect(await publicLanguagePicker(page)).toHaveValue("en");
+  expect(account.preferredLocale).toBe("fr");
+  expect(updates).toEqual([]);
+  expect(writes).toEqual([]);
+});
+
 test("saving a name preserves the temporary interface language and the saved account preference", async ({
   page,
 }) => {

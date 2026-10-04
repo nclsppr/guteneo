@@ -563,7 +563,7 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.3.2");
+      expect(manifest.version).toBe("0.3.3");
       expect(manifest.version).toBe(plugin.version);
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
@@ -573,12 +573,12 @@ describe("distributable LLM integrations", () => {
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
       const branding = plugin.extensions["com.openai"].interface;
-      expect(branding.supportURL).toBe("https://guteneo.com/support/");
+      expect(branding.supportURL).toBe("https://guteneo.com/support/?lang=en");
       expect(branding.privacyPolicyURL).toBe(
-        "https://guteneo.com/confidentialite/",
+        "https://guteneo.com/confidentialite/?lang=en",
       );
       expect(branding.termsOfServiceURL).toBe(
-        "https://guteneo.com/conditions/",
+        "https://guteneo.com/conditions/?lang=en",
       );
       expect(branding.shortDescription.length).toBeLessThanOrEqual(30);
       expect(new Set(branding.defaultPrompt).size).toBe(

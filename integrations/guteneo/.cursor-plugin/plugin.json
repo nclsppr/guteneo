@@ -1,11 +1,11 @@
 {
   "name": "guteneo",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
   "author": {
     "name": "Guteneo"
   },
-  "homepage": "https://guteneo.com",
+  "homepage": "https://guteneo.com/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
   "skills": "./skills/",
   "mcpServers": "./mcp.json"

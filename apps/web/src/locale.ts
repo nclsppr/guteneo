@@ -93,6 +93,8 @@ const storageKey = "guteneo.locale";
 export type LocaleSource = "browser" | "selection" | "account";
 let current: SupportedLocale = defaultLocale;
 let currentSource: LocaleSource = "browser";
+// A URL/selector choice wins for this page; a restored browser choice does not.
+let explicitLocale: SupportedLocale | null = null;
 export let t: Copy = catalogs[current];
 const listeners = new Set<() => void>();
 let selectionVersion = 0;
@@ -140,7 +142,13 @@ export function setLocale(
   source: LocaleSource = persist ? "selection" : "account",
 ) {
   if (!isSupportedLocale(locale)) return;
-  if (persist) selectionVersion += 1;
+  if (persist) {
+    selectionVersion += 1;
+    explicitLocale = locale;
+  } else if (source === "account") {
+    // A successful profile edit applies directly; session restoration checks first.
+    explicitLocale = null;
+  }
   if (persist && typeof window !== "undefined") {
     syncPublicLocaleUrl(locale);
     try {
@@ -167,6 +175,7 @@ function browserLocale() {
 /** Reset this browser's choice without changing the account preference. */
 export function setAutomaticLocale() {
   selectionVersion += 1;
+  explicitLocale = null;
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(storageKey);
@@ -183,25 +192,38 @@ export function setAutomaticLocale() {
   }
   setLocale(browserLocale(), false, "browser");
 }
-/** Run before first render. Account preference is applied after authentication. */
-export function initializeLocale() {
+/** Restore after a session change without reinterpreting our generated URL. */
+export function restoreLocale(accountLocale?: SupportedLocale | null) {
+  if (explicitLocale) {
+    setLocale(explicitLocale, false, "selection");
+    return;
+  }
+  if (accountLocale) {
+    setLocale(accountLocale, false);
+    return;
+  }
   let stored: SupportedLocale | null = null;
   try {
     stored = normalizeLocale(window.localStorage.getItem(storageKey));
   } catch {
     /* Storage is optional. */
   }
-  const requested = requestedPublicLocale(
-    new URLSearchParams(window.location.search),
-  );
   setLocale(
-    requested ?? stored ?? browserLocale(),
-    !!requested,
-    requested || stored ? "selection" : "browser",
+    stored ?? browserLocale(),
+    false,
+    stored ? "selection" : "browser",
   );
   // A saved explicit choice also survives ordinary navigation between public pages.
-  if (!requested && stored) {
+  if (stored) {
     syncPublicLocaleUrl(stored);
     syncPublicSharing();
   }
+}
+/** Run before first render; an explicit URL wins over the later account response. */
+export function initializeLocale() {
+  explicitLocale = requestedPublicLocale(
+    new URLSearchParams(window.location.search),
+  );
+  if (explicitLocale) setLocale(explicitLocale);
+  else restoreLocale();
 }

@@ -1,9 +1,9 @@
 ---
 name: document-studio
-description: Créer et rééditer des modèles Guteneo, interpréter des données, générer des PDF privés et préparer leur distribution explicitement.
+description: Create and revise Guteneo templates, interpret data, generate private PDFs, and prepare their distribution only when explicitly requested.
 ---
 
-# Studio documentaire Guteneo
+# Guteneo document studio
 
 Vérifier get_capabilities avant de présenter une capacité. Ce package accompagne
 un candidat local : sa présence ne prouve ni déploiement du serveur ni

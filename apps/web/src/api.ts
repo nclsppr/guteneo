@@ -1,8 +1,7 @@
 import { msg } from "./messages";
 import {
   formatLocale,
-  initializeLocale,
-  setLocale,
+  restoreLocale,
   t,
   getLocale,
 } from "./locale";
@@ -181,13 +180,13 @@ let sessionUserId: string | null = null;
 export function setSession(session: Session | null, applyPreference = true) {
   csrfToken = session?.csrfToken ?? "";
   if (applyPreference && session?.user.preferredLocale)
-    setLocale(session.user.preferredLocale, false);
+    restoreLocale(session.user.preferredLocale);
   else if (
     applyPreference &&
     sessionUserId !== (session?.user.id ?? null) &&
     typeof window !== "undefined"
   )
-    initializeLocale();
+    restoreLocale();
   sessionUserId = session?.user.id ?? null;
 }
 export class ApiError extends Error {

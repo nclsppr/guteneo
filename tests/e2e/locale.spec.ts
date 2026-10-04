@@ -23,7 +23,7 @@ test("the saved account language selects the public film ahead of the browser ch
           : {},
     }),
   );
-  await page.goto("/?lang=en");
+  await page.goto("/");
   const film = page.locator('[data-film="introduction"]');
   await expect(film).toHaveAttribute("data-locale", "de");
   await expect(film.locator("video")).toHaveAttribute("lang", "de");
@@ -32,7 +32,7 @@ test("the saved account language selects the public film ahead of the browser ch
     "src",
     publicFilmAsset("introduction", "de").poster,
   );
-  await page.goto("/roles/?lang=en");
+  await page.goto("/roles/");
   await expect(page.locator('[data-film="roles"]')).toHaveAttribute(
     "data-locale",
     "de",

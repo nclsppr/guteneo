@@ -2,7 +2,7 @@
   "title": "Guteneo · atlas technique",
   "updated": "2026-10-04",
   "scope": "Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.",
-  "roleNote": "Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.",
+  "roleNote": "Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership. Une langue explicite dans l’URL ou le sélecteur est un choix d’affichage temporaire, sans modification implicite du profil ni changement de droits.",
   "groups": [
     {
       "title": "Accès et identité",
@@ -18,9 +18,7 @@
         "Demande de suppression du compte ; traitement complet restant à qualifier"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/unit/auth.test.ts"
-      ],
+      "tests": ["tests/unit/auth.test.ts"],
       "surfaces": "Navigateur authentifié"
     },
     {
@@ -35,9 +33,7 @@
         "Acceptation à adresse vérifiée, expiration et révocation des invitations"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/integration/workspace-roles.test.ts"
-      ],
+      "tests": ["tests/integration/workspace-roles.test.ts"],
       "surfaces": "Navigateur authentifié"
     },
     {
@@ -54,9 +50,7 @@
         "Stockage privé, quotas, rétention et confidentialité par propriétaire"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/integration/documents.test.ts"
-      ],
+      "tests": ["tests/integration/documents.test.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -76,9 +70,7 @@
         "Suppression par propriétaire ; conservation des PDF et de la provenance"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/unit/template-authoring.test.ts"
-      ],
+      "tests": ["tests/unit/template-authoring.test.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -95,9 +87,7 @@
         "Analyse IA facultative ; politique et transfert autorisés par administrateur navigateur"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/unit/datasets.test.ts"
-      ],
+      "tests": ["tests/unit/datasets.test.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -115,9 +105,7 @@
         "Contrôle postal lié à l’entrée ; revue et envoi séparés"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/e2e/template-distribution.spec.ts"
-      ],
+      "tests": ["tests/e2e/template-distribution.spec.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -133,9 +121,7 @@
         "Mode reviewer non envoyable : arrêt avant approbation"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/e2e/fax-pricing.spec.ts"
-      ],
+      "tests": ["tests/e2e/fax-pricing.spec.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -153,9 +139,7 @@
         "Projection des statuts et rapprochement des issues inconnues"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/e2e/postal-final-send.spec.ts"
-      ],
+      "tests": ["tests/e2e/postal-final-send.spec.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -172,9 +156,7 @@
         "Resend/SES : disponibilité contrôlée, activation séparée"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/integration/protected-documents.test.ts"
-      ],
+      "tests": ["tests/integration/protected-documents.test.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -191,9 +173,7 @@
         "Administration des canaux et plafonds sans relance aveugle"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/integration/domain-invariants.test.ts"
-      ],
+      "tests": ["tests/integration/domain-invariants.test.ts"],
       "surfaces": "Web / REST / MCP"
     },
     {
@@ -209,9 +189,7 @@
         "Connecteur Stripe préparé ; qualification commerciale séparée"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/unit/billing.test.ts"
-      ],
+      "tests": ["tests/unit/billing.test.ts"],
       "surfaces": "Navigateur authentifié"
     },
     {
@@ -228,9 +206,10 @@
         "Délégation experte bornée à un client OAuth, optionnelle",
         "Mandat accordé/révoqué par administrateur navigateur seulement",
         "Paquets plugin et dossier marketplace ; soumission distincte",
-        "Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion"
+        "Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion",
+        "Candidat plugin 0.3.3 : six descriptions et titres de skills anglais ; liens site/support/confidentialité/conditions et Documents avec lang=en"
       ],
-      "status": "Implémenté · métadonnées du 4 octobre à publier et rescanner ; autorisations serveur inchangées",
+      "status": "0.3.2 soumis et In review le 4 octobre ; correctif anglais 0.3.3 préparé localement, non déployé ni importé",
       "tests": [
         "tests/unit/mcp-integrations.test.ts",
         "tests/integration/template-workflow.test.ts",
@@ -252,9 +231,7 @@
         "Signature, appareil physique, TestFlight et App Store à qualifier"
       ],
       "status": "Implémenté · disponibilité à vérifier",
-      "tests": [
-        "tests/e2e/mobile-account.spec.ts"
-      ],
+      "tests": ["tests/e2e/mobile-account.spec.ts"],
       "surfaces": "iOS / API mobile / revue navigateur"
     },
     {
@@ -269,10 +246,12 @@
         "Douze films localisés, affiches, sous-titres et durées réelles",
         "Pages statiques, canonical, sitemap et langues alternatives",
         "Maquette publique fictive isolée du backend",
-        "Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43"
+        "Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43",
+        "Une langue valide explicitement demandée dans l’URL ou le sélecteur prime sur la préférence de session ; sans choix explicite, conserver la priorité du profil"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
+        "tests/unit/web-locale.test.ts",
         "tests/e2e/locale-boundaries.spec.ts",
         "tests/preview-e2e/language-navigation.spec.ts"
       ],
@@ -335,10 +314,10 @@
       "id": "J01",
       "title": "Découvrir puis entrer",
       "actor": "Visiteur → membre",
-      "steps": "Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits.",
+      "steps": "Ouvrir un lien de langue explicite ou choisir au sélecteur → consulter l’offre et les guides dans cette langue → se connecter avec identité vérifiée sans écraser ce choix → créer ou rejoindre un atelier → lire ses droits. Sans choix explicite, relire la préférence personnelle à la connexion.",
       "branch": "INVITATIONS / IDENTITY",
       "doc": "IDENTITY_MCP.md",
-      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité."
+      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Langue invalide ou absente : revenir au profil puis aux langues locales prises en charge ; aucun changement implicite du profil."
     },
     {
       "id": "J02",
@@ -416,10 +395,10 @@
       "id": "J10",
       "title": "Travailler avec un assistant",
       "actor": "Membre + client OAuth",
-      "steps": "Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.",
+      "steps": "Lire les descriptions des six skills en anglais et les pages liées avec lang=en dans le candidat 0.3.3 → connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.",
       "branch": "MCP / REST",
       "doc": "LLM_SETUP.md",
-      "failure": "Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif."
+      "failure": "Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. La version 0.3.2 est déjà In review ; la préparation du candidat anglais 0.3.3 ne remplace pas cette revue et ne prouve pas son import. Le retrait de la revue exige une autorisation distincte."
     },
     {
       "id": "J11",
@@ -507,14 +486,7 @@
       "Non",
       "Selon membre + scopes"
     ],
-    [
-      "Gérer atelier / membres",
-      "Oui",
-      "Non",
-      "Non",
-      "Non",
-      "Non"
-    ],
+    ["Gérer atelier / membres", "Oui", "Non", "Non", "Non", "Non"],
     [
       "Gérer facturation / souscrire Horizon",
       "Navigateur ; consentement pour souscrire",
@@ -596,7 +568,7 @@
       "Selon propriétaire et contexte"
     ],
     [
-      "Profil / langue / ses sessions",
+      "Profil / langue / ses sessions ; lien explicite prioritaire",
       "Personnel",
       "Personnel",
       "Personnel",

@@ -36,12 +36,21 @@ fragment de l’URL. Même choisir explicitement la langue déjà affichée mém
 ce choix. Les contrôles tactiles mesurent au moins 44 px ; Échap referme le menu
 et rend le focus à son bouton, et un clic ou un focus extérieur le referme.
 
-Après connexion, `user.preferredLocale` fournit la préférence personnelle. Une
-réponse de session tardive ne remplace pas un choix effectué entre-temps. La
+Après connexion, une langue valide explicitement présente dans l’URL initiale
+(par exemple `?lang=en`) ou choisie au sélecteur reste prioritaire. Sinon,
+`user.preferredLocale` fournit la préférence personnelle. La langue anonyme
+restaurée depuis le stockage puis copiée automatiquement dans l’URL ne devient
+pas un choix explicite à la réception de la session. Une réponse de session
+tardive ne remplace pas un choix effectué entre-temps. La
 préférence du compte n’écrase pas le choix du visiteur dans le stockage local ;
 une déconnexion ou le passage à un autre compte sans préférence le restaure.
 Le menu public change la langue sur cet appareil ; il ne sauvegarde pas une
-préférence de compte. Si une préférence personnelle existe, elle est relue à la
+préférence de compte. Les liens publics et les liens vers Documents utilisant
+`?lang=en` conservent donc l’anglais même si le profil est français. La
+restauration de session passe par `restoreLocale` dans `apps/web/src/locale.ts`
+et `apps/web/src/api.ts` ; les cas URL, profil, reconnexion, sélecteur et
+Automatique sont couverts par `tests/unit/web-locale.test.ts`. Ce correctif du
+4 octobre est un candidat local tant que sa publication n’est pas vérifiée. Si une préférence personnelle existe, elle est relue à la
 prochaine ouverture, y compris après un choix temporaire « Automatique ». Pour
 modifier la langue commune au site et à l’app iOS, utiliser le profil.
 
@@ -202,7 +211,6 @@ Captures locales en luxembourgeois :
 [iPhone WebKit](screenshots/multilingual/web-iphone-lb.png),
 [écran de 320 px](screenshots/multilingual/web-320-lb.png).
 Les données affichées sont des exemples, et non une preuve d’envoi réel.
-
 
 ### Résultats iOS du 22 septembre 2026
 

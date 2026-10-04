@@ -109,6 +109,17 @@ describe("complete product language catalogs", () => {
   });
 });
 describe("language precedence and resilient preference storage", () => {
+  const frenchSession = {
+    user: {
+      id: "french-account",
+      role: "member",
+      name: "Test",
+      preferredLocale: "fr" as const,
+    },
+    organization: { id: "test", name: "Test" },
+    csrfToken: "",
+    simulation: true,
+  };
   function browser(
     stored: string | null,
     languages: string[] | undefined,
@@ -166,6 +177,68 @@ describe("language precedence and resilient preference storage", () => {
     });
     expect(getLocale()).toBe("de");
     expect(getLocaleSource()).toBe("account");
+  });
+  it.each(["en", "en-GB"])(
+    "keeps the explicit %s URL when a French account session arrives or refreshes",
+    (requested) => {
+      const write = browser("fr", ["fr-FR"], `?lang=${requested}`);
+      initializeLocale();
+      setSession(frenchSession);
+      setSession(frenchSession);
+      expect(getLocale()).toBe("en");
+      expect(getLocaleSource()).toBe("selection");
+      expect(document.documentElement.lang).toBe("en");
+      expect(window.location.search).toBe("?lang=en");
+      expect(write).toHaveBeenCalledExactlyOnceWith("guteneo.locale", "en");
+    },
+  );
+  it.each(["", "?lang=unsupported", "?lang=en&lang=de"])(
+    "uses the account when the entry URL has no valid language choice (%s)",
+    (search) => {
+      browser("lb", ["de"], search);
+      initializeLocale();
+      // Restoring local storage creates a sharing URL, not a new user request.
+      expect(window.location.search).toBe("?lang=lb");
+      setSession(frenchSession);
+      expect(getLocale()).toBe("fr");
+      setSession(null);
+      expect(getLocale()).toBe("lb");
+      setSession(frenchSession);
+      expect(getLocale()).toBe("fr");
+      expect(getLocaleSource()).toBe("account");
+    },
+  );
+  it("lets the selector replace a URL choice and automatic mode clear it", () => {
+    const write = browser(null, ["lb"], "?lang=en");
+    initializeLocale();
+    setSession(frenchSession);
+    setLocale("de");
+    setSession(frenchSession);
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("selection");
+    expect(window.location.search).toBe("?lang=de");
+    expect(write).toHaveBeenLastCalledWith("guteneo.locale", "de");
+    setAutomaticLocale();
+    expect(getLocale()).toBe("lb");
+    expect(window.location.search).toBe("");
+    setSession(frenchSession);
+    expect(getLocale()).toBe("fr");
+    expect(getLocaleSource()).toBe("account");
+  });
+  it("applies a freshly saved profile choice without changing browser storage", () => {
+    const write = browser("fr", ["fr"], "?lang=en");
+    initializeLocale();
+    setSession(frenchSession);
+    write.mockClear();
+    // The profile applies its new language only after a successful save.
+    setLocale("de", false);
+    setSession({
+      ...frenchSession,
+      user: { ...frenchSession.user, preferredLocale: "de" },
+    });
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("account");
+    expect(write).not.toHaveBeenCalled();
   });
   it("keeps server preferences separate from the anonymous browser and other users", () => {
     const write = browser("lb", ["en-GB"]);
