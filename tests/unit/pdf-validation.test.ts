@@ -805,7 +805,18 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     await server.connect(serverTransport);
     await client.connect(clientTransport);
     try {
-      const names = (await client.listTools()).tools.map((tool) => tool.name);
+      const { tools } = await client.listTools();
+      const names = tools.map((tool) => tool.name);
+      // Business replay remains keyed, but the shared MCP wrapper also persists
+      // successful connection activity; the complete tool is not idempotent.
+      expect(
+        tools.find((tool) => tool.name === "validate_pdf")?.annotations,
+      ).toEqual({
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      });
       expect(names).toContain("validate_pdf");
       expect(names).toContain("get_pdf_validation");
       expect(names.some((name) => /billing|subscribe|plan/.test(name))).toBe(

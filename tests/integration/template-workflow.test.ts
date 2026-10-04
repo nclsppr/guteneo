@@ -2484,6 +2484,36 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         discovery.tools.find((t) => t.name === "get_generation_job")
           ?.annotations?.readOnlyHint,
       ).toBe(false); // Current MCP reads record successful connection use.
+      // These operations overwrite drafts, disable use, revoke access or cancel
+      // pending work. Host safeguards cover those effects even when published
+      // versions and already generated PDFs remain available.
+      for (const name of [
+        "update_template",
+        "archive_template",
+        "share_template",
+        "cancel_generation_job",
+      ]) {
+        expect(
+          discovery.tools.find((tool) => tool.name === name)?.annotations,
+          name,
+        ).toMatchObject({
+          readOnlyHint: false,
+          destructiveHint: true,
+          idempotentHint: false,
+          openWorldHint: false,
+        });
+      }
+      for (const name of [
+        "create_template",
+        "publish_template",
+        "duplicate_template",
+      ]) {
+        expect(
+          discovery.tools.find((tool) => tool.name === name)?.annotations
+            ?.destructiveHint,
+          name,
+        ).toBe(false);
+      }
       const created = await full.client.callTool({
         name: "create_template",
         arguments: { envelope: envelope() },

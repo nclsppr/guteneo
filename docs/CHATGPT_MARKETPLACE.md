@@ -1,4 +1,40 @@
-# Dossier marketplace ChatGPT — reprise du 2 octobre 2026
+# Dossier marketplace ChatGPT — reprise du 4 octobre 2026
+
+## Point de reprise du 4 octobre — préparation en cours, aucune soumission
+
+La reconnexion OAuth du scanner dans l’éditeur existant a réussi. Le portail a affiché **Tools scanned successfully** avec **66 outils** et **Domain verified**. Ce nouveau scan remplace le catalogue historique de 24 outils ; les 42 nouveaux outils demandaient leurs justifications d’annotations dans le parcours legacy. L’import partiel a ensuite affiché **Updated 62 tool justifications**, **Imported 62 / Skipped 0 / Missing 4 / Mismatched 0**. Cette découverte ne qualifie ni les scénarios reviewer, ni les annotations corrigées après ce scan, ni la durée d’accès OAuth pendant la revue.
+
+Le GET public de `/release.json` confirme la source propre `c5cc0ddba3c8bb2bcd6fe144bc37a17d1f9cc596`, construite le `2026-10-03T10:21:16.979Z`. Le [paquet public](https://guteneo.com/integrations/guteneo-plugin.zip) **0.3.2** contient six skills, pèse **1 310 181 octets** et porte le SHA-256 `7b8af7bc48bbe827b33fe0e18d2c6b6de08e20007c09ba8ade9439466896e813`. Le contenu de get-started, fax-pdf et postal-pdf est identique au paquet final 0.3.1 ; email a changé, document-studio et pdf-accessibility sont nouveaux. Après les trois imports, **les six skills ont été explicitement observés Passed dans le portail, puis confirmés Passed après rechargement complet**. La version **0.3.2**, les descriptions EN/FR incluant Horizon et les notes « Package 0.3.2 » ont été renseignées depuis le paquet ; **Draft saved** a été observé, puis **leur persistance a été confirmée après rechargement complet**, avec **All countries** conservé. Après **Exit**, le tableau de bord affiche **Version 0.3.2 · Not submitted**, **Not published** et **MCP Configured**. **Aucun ZIP global n’est déclaré importé.**
+
+La copie de soumission du skill pdf-accessibility ajoute uniquement `interface.display_name` et `interface.short_description` à son `agents/openai.yaml`, conformément aux [contraintes officielles](https://developers.openai.com/plugins/deploy/submission-errors#skill-agent-metadata-errors). Le YAML, ses dépendances inchangées, le CRC du ZIP et le maintien exact de SKILL.md ont été vérifiés. L’archive corrigée pèse **3 545 octets**, SHA-256 `1bed147dc2af87dc95ec34804a4320f332c72c521c76073338e729743d17fe03` ; elle est distincte de la copie fidèle du paquet public. La même correction est portée dans la source, sans modification du runtime. Les archives, champs et rapports sont conservés hors dépôt dans `/Users/nclsppr/.codex/artifacts/guteneo-plugin-publish-2026-10-04/`.
+
+Le build local du paquet corrigé **0.3.2** a réussi : **1 310 328 octets**, SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`. Cette archive locale est distincte du ZIP public de 1 310 181 octets et n’est ni un ZIP global importé ni une preuve de soumission.
+
+La [PR #38](https://github.com/nclsppr/guteneo/pull/38) a été fusionnée le **3 octobre à 08:15:21 UTC** ; les **12 contrôles du dernier head `fde084a9e71a443ba0ed9a2b6ed6576b06408b76` ont réussi** ([CI](https://github.com/nclsppr/guteneo/actions/runs/37104362078)). Le blocage CI noté le 2 octobre est donc levé pour cette PR ; cette preuve ne valide pas les modifications de la présente reprise.
+
+La correction locale `a4f0904` déclare correctement quatre opérations destructives du studio documentaire ; **101 tests ciblés, les types, le lint et le contrôle de la carte fonctionnelle ont réussi**. Ce commit **n’est pas déployé** : les quatre valeurs correspondantes du catalogue actuellement scanné restent à corriger côté serveur puis à rescanner. L’import des justifications des 62 autres outils a réussi sans importer d’autre champ. Les quatre justifications manquantes concernent exactement **update_template, archive_template, share_template et cancel_generation_job**, exclues pour ne pas justifier les anciennes valeurs incorrectes. **Après rechargement complet, les 66 champs d’annotation read-only sont présents et seuls 12 champs de justification restent vides, soit les trois justifications de ces quatre outils** ; les 62 triplets importés persistent. Le domaine reste vérifié.
+
+Les GET de la confidentialité, des conditions, du support et du PDF synthétique répondent **200**. La vidéo publique conserve exactement les **2 367 095 octets** et l’empreinte `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2` de l’enregistrement du 21 septembre. **Aucune nouvelle vidéo ni exécution de P5/P6/R1/R2/R3 n’est qualifiée.** La dernière preuve tarifaire du dossier reste expirée depuis le 24 septembre ; aucune nouvelle lecture D1 ni requalification de l’association Telnyx profil/CSV n’est attestée ici. Les preuves P1/P2/P3 du 2 octobre restent bornées à leur ancien serveur et client.
+
+### Checklist courante
+
+- [x] Reconnecter OAuth et obtenir un nouveau scan de 66 outils ; domaine vérifié dans le portail.
+- [x] Vérifier le paquet public exact 0.3.2, préparer les six ZIP individuels et corriger les seuls champs d’interface manquants de pdf-accessibility.
+- [x] Vérifier la CI du dernier head de PR #38 et son état fusionné.
+- [x] Importer email, document-studio et pdf-accessibility ; observer les six skills Passed, puis renseigner version, descriptions EN/FR et notes 0.3.2 avec Draft saved.
+- [x] Recharger complètement l’éditeur et vérifier la persistance de la version, des descriptions EN/FR et des notes 0.3.2, avec All countries conservé.
+- [x] Relire les six résultats Passed après rechargement complet ; après Exit, vérifier Version 0.3.2 · Not submitted, Not published et MCP Configured.
+- [x] Importer les justifications des 62 outils compatibles avec le serveur actuel ; portail : Imported 62, Skipped 0, Missing 4, Mismatched 0. Aucun autre champ importé.
+- [x] Vérifier la persistance des 62 justifications après rechargement ; seuls les 12 champs des quatre outils exclus restent vides.
+- [ ] Corriger puis rescanner les quatre annotations du serveur sous autorisation de déploiement, et compléter leurs justifications.
+- [ ] Vérifier les réglages OAuth effectifs et la durée d’accès reviewer, sans élargir automatiquement les droits.
+- [ ] Requalifier les références tarifaires non envoyables après lecture authentifiée de l’association profil/CSV, sans activer de canal, mandat, crédit ou envoi.
+- [ ] Exécuter P5/P6 et les trois cas négatifs dans un hôte contrôlé, puis actualiser la démonstration selon le périmètre réellement disponible en 0.3.2. Aucune réussite n’est déduite du scan.
+- [ ] Présenter les preuves au développeur autorisé pour les six attestations actuellement décochées, soumettre puis vérifier le statut obtenu ; après approbation OpenAI, vérifier séparément la publication effective.
+
+**Dernier état après rechargement complet et import des 62 justifications : les six cases d’attestation sont décochées (`Value 0`) et Submit reste désactivé, avec MCP incomplete et Submit confirmation.** Les six valeurs à 1 observées auparavant sont historiques ; la cause du changement n’est pas établie et **l’agent n’a coché aucune case**. **Aucun Submit ni aucune publication OpenAI n’a été effectué dans cette reprise.** Les sections suivantes conservent les observations du 2 octobre et de septembre ; leurs états de portail, numéros de version et tâches ouvertes sont historiques lorsqu’ils sont remplacés explicitement ci-dessus.
+
+## Historique de la reprise du 2 octobre 2026
 
 **Le brouillon version 0.3.1 est sauvegardé dans l’éditeur MCP existant ; après Exit, le tableau de bord affiche « Version 0.3.1 · Not submitted » et MCP configured. Aucun Submit ni aucune publication OpenAI n’a été effectué.** Le sous-titre anglais, les descriptions anglaise/française et les notes de version proviennent du manifeste 0.3.1 : e-mail désactivé jusqu’à qualification, liens PDF protégés et interface web en français, anglais, allemand et luxembourgeois. Le réglage **All countries** est conservé. La revue 0.2.2 avait été annulée explicitement pour son remplacement ; aucun motif de rejet de la revue OpenAI n’a été observé. Le plugin conserve l’identité `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`.
 
