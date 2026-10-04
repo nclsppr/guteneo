@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **16 domaines · 119 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
+> **17 domaines · 127 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -326,6 +326,23 @@ Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../sc
 - Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts
 - Publication depuis main propre, synchronisé et vérifié
 - Manifestes de release, empreintes des assets et santé distante
+
+### 17 · Développement Codex Cloud
+
+**État :** Environnement privé republié · GET Cloudflare, Telnyx et documentation vérifiés dans le setup Cloud existant ; nouvelle tâche restaurée non vérifiée.
+
+Contrat : [CODEX_CLOUD.md](CODEX_CLOUD.md) · Source : [scripts/codex-cloud-check.mjs](../scripts/codex-cloud-check.mjs).
+
+**Surfaces :** CLI / environnement de développement Codex Cloud ; aucune nouvelle surface web, native, REST ou MCP du produit. **Tests :** [tests/security/codex-cloud-check.test.mjs](../tests/security/codex-cloud-check.test.mjs).
+
+- Entrée développeur sur le dépôt autorisé, Node.js ≥22.16, npm, bash et curl ; aucune élévation des quatre rôles humains ou de l’acteur assistant
+- Bootstrap scripts/codex-cloud-setup.sh : dépendances, migrations D1 locales, fixtures et build web avec environnement réduit sans clés fournisseur ; Chromium Linux facultatif
+- Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; Cloudflare et Telnyx configurés ; OpenAI API, GitHub API, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs inventoriés, sans nouvel accès configuré par cette livraison
+- Contrôle hors réseau de configuration puis GET bornés et expurgés ; secrets transmis par stdin avec proxy et certificats conservés, sans arguments secrets, redirections ni reprise automatique
+- Configuration absente, refus d’authentification, permissions et erreur réseau restent distincts ; poursuivre simulation, code et tests quand seule une opération fournisseur est bloquée
+- Deux secrets réseau limités à api.cloudflare.com et api.telnyx.com ; Cloudflare Workers Metadata Read-Only sur le compte et clé Telnyx dédiée sur le compte existant, sans restriction native à la lecture ; aucun export de session desktop ou de secret dans un fichier
+- Contrôleur : 13 tests de sécurité réussis ; simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md
+- Dans la machine de setup Cloud existante : GET Cloudflare token et paramètres guteneo-app, solde Telnyx et documentations officielles OpenAI, Cloudflare et Telnyx vérifiés HTTP 200 ; nouvelle tâche restaurée depuis la publication encore non vérifiée ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup
 
 ## Parcours clients et reprise sur erreur
 

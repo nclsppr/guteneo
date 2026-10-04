@@ -7,6 +7,9 @@
     "node": ">=22.16"
   },
   "scripts": {
+    "cloud:setup": "bash scripts/codex-cloud-setup.sh",
+    "cloud:check": "node scripts/codex-cloud-check.mjs",
+    "test:cloud": "node --test tests/security/codex-cloud-check.test.mjs",
     "dev": "npm run build:web && node scripts/dev.mjs",
     "dev:web": "vite --config apps/web/vite.config.ts",
     "db:migrate": "wrangler d1 migrations apply guteneo-local --local",

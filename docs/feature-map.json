@@ -328,6 +328,26 @@
         "apps/pdf-validator/tests/probe-credentials.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés"
+    },
+    {
+      "title": "Développement Codex Cloud",
+      "doc": "CODEX_CLOUD.md",
+      "source": "scripts/codex-cloud-check.mjs",
+      "features": [
+        "Entrée développeur sur le dépôt autorisé, Node.js ≥22.16, npm, bash et curl ; aucune élévation des quatre rôles humains ou de l’acteur assistant",
+        "Bootstrap scripts/codex-cloud-setup.sh : dépendances, migrations D1 locales, fixtures et build web avec environnement réduit sans clés fournisseur ; Chromium Linux facultatif",
+        "Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; Cloudflare et Telnyx configurés ; OpenAI API, GitHub API, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs inventoriés, sans nouvel accès configuré par cette livraison",
+        "Contrôle hors réseau de configuration puis GET bornés et expurgés ; secrets transmis par stdin avec proxy et certificats conservés, sans arguments secrets, redirections ni reprise automatique",
+        "Configuration absente, refus d’authentification, permissions et erreur réseau restent distincts ; poursuivre simulation, code et tests quand seule une opération fournisseur est bloquée",
+        "Deux secrets réseau limités à api.cloudflare.com et api.telnyx.com ; Cloudflare Workers Metadata Read-Only sur le compte et clé Telnyx dédiée sur le compte existant, sans restriction native à la lecture ; aucun export de session desktop ou de secret dans un fichier",
+        "Contrôleur : 13 tests de sécurité réussis ; simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md",
+        "Dans la machine de setup Cloud existante : GET Cloudflare token et paramètres guteneo-app, solde Telnyx et documentations officielles OpenAI, Cloudflare et Telnyx vérifiés HTTP 200 ; nouvelle tâche restaurée depuis la publication encore non vérifiée ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup"
+      ],
+      "status": "Environnement privé republié · GET Cloudflare, Telnyx et documentation vérifiés dans le setup Cloud existant ; nouvelle tâche restaurée non vérifiée",
+      "tests": [
+        "tests/security/codex-cloud-check.test.mjs"
+      ],
+      "surfaces": "CLI / environnement de développement Codex Cloud ; aucune nouvelle surface web, native, REST ou MCP du produit"
     }
   ],
   "journeys": [
