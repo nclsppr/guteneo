@@ -13,9 +13,11 @@ Executed locally:
 
 - `npm run cloud:setup`: lockfile install, all 51 local D1 migrations, fixtures,
   web build and offline diagnostic passed. No remote D1 operation occurred.
-- After adding private writable Wrangler config/log directories, real local
-  migrations, fixtures and web build passed again using the installed dependency
-  tree. No unnecessary second dependency installation was performed.
+- After adding private writable Wrangler and npm directories, the complete
+  setup passed again on `8ff36a3`, including an actual `npm ci` with a fresh
+  private cache (667 packages installed), local migrations/fixtures, web build
+  and offline diagnostic. The temporary cache/runtime directory was removed
+  and both the worktree and index remained clean.
 - `npm run test:cloud`: 12 tests passed. Covers credential/response redaction,
   stdin-only authorization, proxy preservation, fixed GET endpoints, redirect
   refusal, request bounds, Cloudflare token/resource verification, malformed
