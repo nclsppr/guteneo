@@ -186,6 +186,64 @@ test("invalid IDs, owner modes and header injection stop credentialed requests",
   }
 });
 
+test("masked provider credentials are rejected before any authenticated curl request and never appear in reports", async () => {
+  for (const maskedKey of [
+    "fixture_masked_key********",
+    "fixture*masked",
+    "*",
+  ]) {
+    const spawned = [];
+    const transport = createCurlTransport({
+      env: {},
+      spawnImpl: (...args) => {
+        const fake = fakeCurl("public documentation\n__GUTENEO_STATUS__200");
+        spawned.push(fake.observed);
+        return fake.spawnImpl(...args);
+      },
+    });
+    const maskedEnv = {
+      ...env,
+      CLOUDFLARE_API_TOKEN: maskedKey,
+      TELNYX_API_KEY: maskedKey,
+    };
+    const offline = await checkCloudAccess({ env: maskedEnv, transport });
+    assert.equal(spawned.length, 0);
+    const network = await checkCloudAccess({
+      mode: "network",
+      env: maskedEnv,
+      transport,
+    });
+    for (const report of [offline, network]) {
+      assert.equal(report.ok, false);
+      for (const service of ["cloudflare", "telnyx"])
+        assert.equal(find(report, service).status, "invalid_configuration");
+      assert.ok(!JSON.stringify(report).includes(maskedKey));
+    }
+    // Only anonymous documentation GETs may reach curl; neither provider is
+    // contacted, and no auth header or masked key reaches the process input.
+    assert.equal(spawned.length, 3);
+    for (const call of spawned) {
+      assert.doesNotMatch(
+        call.input,
+        /Authorization|api\.telnyx|api\.cloudflare|fixture/,
+      );
+      assert.ok(!call.input.includes(maskedKey));
+    }
+    for (const url of [
+      "https://api.telnyx.com/v2/balance",
+      "https://api.cloudflare.com/client/v4/user/tokens/verify",
+    ])
+      assert.deepEqual(await transport({ url, token: maskedKey }), {
+        failure: "invalid_configuration",
+      });
+    assert.equal(
+      spawned.length,
+      3,
+      "The curl transport must also refuse a masked token when called directly",
+    );
+  }
+});
+
 test("Cloudflare HTTP 200 errors or inactive tokens never become successful account proof", async () => {
   for (const body of [
     { success: false, errors: [{ message: cfKey }] },

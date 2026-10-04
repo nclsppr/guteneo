@@ -9,9 +9,12 @@ expert mandate, authorize communications, or authorize production deployment.
 Use the current **Codex Cloud**, not **Legacy Codex Cloud**, in
 [settings](https://chatgpt.com/settings/codex-cloud). Environment name:
 `guteneo-dev-autonome`; repository: `nclsppr/guteneo`; privacy: **Only me**.
-The initial setup uses the repository's main branch. The scripts in this change
-become available when the selected checkout contains this change; do not claim
-they are installed merely because this document exists on a local branch.
+The initial setup used the repository's main branch. The UI installation wrapper
+is now published, with the core Cloudflare and Telnyx network credentials saved.
+The npm commands below still require a checkout containing this change;
+publishing the environment does not merge these scripts into main. The final
+published wrapper and saved credentials have not yet been qualified together in
+a fresh agent task. See `CODEX_CLOUD_PROOF.md` for the current evidence.
 
 Prerequisites: Node.js >=22.16, npm, Git, bash, curl, and the system libraries
 needed by workerd. From the repository root:
@@ -21,15 +24,25 @@ npm run cloud:setup
 npm run typecheck
 npm run lint
 npm run test:cloud
+
+# Documentation reachability; absent credentials remain optional.
 npm run cloud:check -- --network --require=openai-docs
+
+# After configuration, require core access in a fresh agent task.
+npm run cloud:check -- --network --require=cloudflare,telnyx,openai-docs
 ```
 
 The setup runs `npm ci`, local D1 migrations and fixtures, and the web build.
 It passes a reduced environment to these commands, retaining proxy/CA settings
 but excluding provider credentials and arbitrary Node/npm startup options.
 It gives npm a private writable cache and Wrangler temporary writable
-configuration/log directories, and does not create `.env` or `.dev.vars` files. Existing local credential files
-must not be included in a published filesystem snapshot.
+configuration/log directories, and does not create `.env` or `.dev.vars` files.
+Existing local credential files must not be included in a published filesystem
+snapshot. The offline diagnostic printed during setup receives that reduced
+environment: `not_configured` there does not mean a saved network secret is
+missing. Run the required network diagnostic separately in the fresh agent task,
+outside the credential-filtering installation wrapper, to verify injection and
+provider access.
 
 On Linux, `npm run cloud:setup -- --with-browser` extracts package-owned Chromium
 for `GUTENEO_BUNDLED_CHROMIUM=1`. This does not install WebKit or system libraries

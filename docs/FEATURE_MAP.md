@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **17 domaines · 126 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
+> **17 domaines · 127 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -329,7 +329,7 @@ Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../sc
 
 ### 17 · Développement Codex Cloud
 
-**État :** Préparé · environnement privé publié ; tests ciblés locaux et Cloud réussis ; identifiants fournisseurs et validation dans une tâche neuve à compléter.
+**État :** Environnement privé republié · GET Cloudflare, Telnyx et documentation vérifiés dans le setup Cloud existant ; nouvelle tâche restaurée non vérifiée.
 
 Contrat : [CODEX_CLOUD.md](CODEX_CLOUD.md) · Source : [scripts/codex-cloud-check.mjs](../scripts/codex-cloud-check.mjs).
 
@@ -337,11 +337,12 @@ Contrat : [CODEX_CLOUD.md](CODEX_CLOUD.md) · Source : [scripts/codex-cloud-chec
 
 - Entrée développeur sur le dépôt autorisé, Node.js ≥22.16, npm, bash et curl ; aucune élévation des quatre rôles humains ou de l’acteur assistant
 - Bootstrap scripts/codex-cloud-setup.sh : dépendances, migrations D1 locales, fixtures et build web avec environnement réduit sans clés fournisseur ; Chromium Linux facultatif
-- Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; inventaire Cloudflare, Telnyx, OpenAI, GitHub, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs
+- Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; Cloudflare et Telnyx configurés ; OpenAI API, GitHub API, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs inventoriés, sans nouvel accès configuré par cette livraison
 - Contrôle hors réseau de configuration puis GET bornés et expurgés ; secrets transmis par stdin avec proxy et certificats conservés, sans arguments secrets, redirections ni reprise automatique
 - Configuration absente, refus d’authentification, permissions et erreur réseau restent distincts ; poursuivre simulation, code et tests quand seule une opération fournisseur est bloquée
-- Secrets réseau limités aux destinations autorisées, sans export de session desktop ni copie des secrets de production ; lecture réussie distincte des permissions réelles, tarifs et capacités d’envoi
-- Simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md ; vérifier les accès fournisseur dans une tâche neuve après publication ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup
+- Deux secrets réseau limités à api.cloudflare.com et api.telnyx.com ; Cloudflare Workers Metadata Read-Only sur le compte et clé Telnyx dédiée sur le compte existant, sans restriction native à la lecture ; aucun export de session desktop ou de secret dans un fichier
+- Contrôleur : 13 tests de sécurité réussis ; simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md
+- Dans la machine de setup Cloud existante : GET Cloudflare token et paramètres guteneo-app, solde Telnyx et documentations officielles OpenAI, Cloudflare et Telnyx vérifiés HTTP 200 ; nouvelle tâche restaurée depuis la publication encore non vérifiée ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup
 
 ## Parcours clients et reprise sur erreur
 

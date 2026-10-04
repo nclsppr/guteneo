@@ -18,6 +18,16 @@ const TOKEN_PATTERN = /^[\x21-\x7e]{1,4096}$/;
 const ACCOUNT_PATTERN = /^[a-fA-F0-9]{32}$/;
 const WORKER_PATTERN = /^[a-zA-Z0-9_-]{1,63}$/;
 
+function usableToken(token) {
+  // Provider dashboards can expose only a masked display value. Telnyx and
+  // Cloudflare API keys do not contain '*'; never send that display as a key.
+  return (
+    typeof token === "string" &&
+    TOKEN_PATTERN.test(token) &&
+    !token.includes("*")
+  );
+}
+
 function allowedUrl(url) {
   return (
     Object.values(DOCUMENTATION).includes(url) ||
@@ -41,7 +51,7 @@ export function createCurlTransport({
   env = process.env,
 } = {}) {
   return async ({ url, token }) => {
-    if (!allowedUrl(url) || (token !== undefined && !TOKEN_PATTERN.test(token)))
+    if (!allowedUrl(url) || (token !== undefined && !usableToken(token)))
       return { failure: "invalid_configuration" };
     const config = [
       "silent",
@@ -257,7 +267,7 @@ export async function checkCloudAccess({
       ].filter(Boolean),
     });
   else if (
-    !TOKEN_PATTERN.test(cfToken) ||
+    !usableToken(cfToken) ||
     !ACCOUNT_PATTERN.test(account) ||
     !WORKER_PATTERN.test(worker) ||
     !["user", "account"].includes(owner)
@@ -295,7 +305,7 @@ export async function checkCloudAccess({
   const telnyxToken = env.TELNYX_API_KEY;
   if (!telnyxToken)
     add("telnyx", { status: "not_configured", missing: ["TELNYX_API_KEY"] });
-  else if (!TOKEN_PATTERN.test(telnyxToken))
+  else if (!usableToken(telnyxToken))
     add("telnyx", { status: "invalid_configuration" });
   else if (mode === "offline")
     add("telnyx", { status: "configured_unverified" });

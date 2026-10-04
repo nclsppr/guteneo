@@ -18,11 +18,13 @@ Executed locally:
   private cache (667 packages installed), local migrations/fixtures, web build
   and offline diagnostic. The temporary cache/runtime directory was removed
   and both the worktree and index remained clean.
-- `npm run test:cloud`: 12 tests passed. Covers credential/response redaction,
+- `npm run test:cloud`: initially 12 tests passed, then 13 after adding rejection
+  of masked credential values. Covers credential/response redaction,
   stdin-only authorization, proxy preservation, fixed GET endpoints, redirect
   refusal, request bounds, Cloudflare token/resource verification, malformed
   provider responses and bootstrap credential filtering/temporary-directory
-  cleanup, including its private npm cache. Responses containing fixture secrets and private data remain absent
+  cleanup, including its private npm cache. Masked credentials are rejected
+  before authenticated curl calls. Fixture secrets and private data remain absent
   from reports.
 - `npm run lint`, `npm run typecheck`, Node/bash syntax and `git diff --check`
   passed.
@@ -32,6 +34,11 @@ Executed locally:
 
 Dependency installation reported three existing advisories (two moderate, one
 high). Dependencies were not changed by this development-access work.
+
+GitHub Actions run `37220703612`, attempt 2, passed on repository head
+`3104b445d55219a5b89f6df1d2b8fa14976f1797`. The first attempt exceeded the
+existing iPhone job timeout; rerunning the failed jobs succeeded. This CI result
+does not prove Cloud provider authentication.
 
 ## Hosted environment
 
@@ -64,47 +71,92 @@ The Package managers preset is supplemented with seven exact hosts:
 `developers.openai.com`, `learn.chatgpt.com`, `developers.cloudflare.com`,
 `developers.telnyx.com`, `api.cloudflare.com`, `api.telnyx.com`, `api.github.com`.
 
-Publication completed: the configuration panel displayed **Environment
-published** and **Published** after the saved configuration review. The published
-snapshot has not yet been exercised by a fresh task; provider authentication
-also remains unverified.
+Publication completed again after saving the two network secrets and clearing
+the duplicated editor contents: the panel displayed **Environment published**
+and **Published**. The corrected published snapshot has not yet been exercised
+by a fresh task; authenticated results from the existing Cloud setup runtime
+are distinguished below.
 
-## Still required for authenticated autonomy
+## Dedicated credentials
 
-No provider secret was created, exported, copied, or installed. The environment
-currently has no network secrets and no provider environment variables.
-Connected desktop accounts are not proof that a Cloud process has machine
-credentials.
-
-The existing Telnyx browser session and Cloudflare Google sign-in were usable.
-Creation forms are prepared but were not submitted:
+After the user's explicit confirmation, two reviewed credential types were created
+and saved as environment-owned network secrets. The environment remains
+**Only me**. API credential values were not written to repository files,
+command arguments or reports. Connected desktop accounts alone remain
+insufficient evidence of authentication in a Cloud process.
 
 - Cloudflare: `guteneo-codex-cloud-read`, only **Workers Metadata Read-Only**, on
   the current shared account; the UI scope is the entire account, not one Worker.
   Expiration shown: 3 January 2027 (90 days). This does not grant D1, R2, DNS,
   script-content access, or write permissions. Compatibility with the exact
-  diagnostic GET remains to be tested after creation.
+  diagnostic GET passed in the existing hosted setup runtime.
 - Telnyx: `GUTENEO-CODEX-CLOUD-DEV`, expires 2 January 2027 at 23:59 UTC.
   The form exposes tags and expiration but no read-only permission scope.
   This is a dedicated key on the current account, not an isolated sandbox.
 
-The browser's at-action confirmation requirement for new persistent access is
-pending. Neither a filled form nor approval of that form constitutes provider
-authentication evidence.
+The Cloudflare credential is saved as `CLOUDFLARE_API_TOKEN`, restricted by the
+Cloud proxy to `api.cloudflare.com`; Telnyx is `TELNYX_API_KEY`, restricted to
+`api.telnyx.com`. Saved plain variables specify the Cloudflare account,
+`CLOUDFLARE_TOKEN_OWNER=account`, and `CLOUDFLARE_WORKER_NAME=guteneo-app`.
+Domain restriction does not reduce Telnyx's native API permissions. No sending
+authority is inferred from possession of the key.
+
+The first Telnyx attempt returned HTTP 401 because the portal's displayed key
+was masked. Equivalent replacements retained the same tag, scope and expiry;
+the three superseded development keys were deactivated. The complete value was
+obtained through the portal's official copy action, verified in a temporary
+local document, then stored in the Cloud secret. That document was cleared and
+discarded without saving; the system clipboard was cleared. The checker now
+rejects values containing `*` before authenticated requests.
+
+An appended copy of the original install/start scripts was detected in the UI.
+The editors were cleared and replaced before launching credential validation;
+the corrected installation script contains only the reduced-environment
+wrapper. The corrected configuration was saved and published successfully.
+
+The current environment does not appear in the local `codex cloud` CLI's
+environment picker. That CLI offered only the older `papersempire` and
+`personal` environments; no environment ID was guessed. Validation must use
+the current Cloud interface that owns this environment.
+
+## Hosted authenticated probe
+
+The existing hosted setup machine executed the diagnostic from exact commit
+`3104b445d55219a5b89f6df1d2b8fa14976f1797` using a private temporary script,
+preserving the managed HTTPS proxy and CA. Current runtime observations
+reported both requested secrets present and `ready`.
+
+- Cloudflare account-token verification: HTTP 200, verified.
+- Cloudflare `guteneo-app` script settings: HTTP 200, verified; settings discarded.
+- OpenAI, Cloudflare and Telnyx public documentation: HTTP 200.
+- First Telnyx balance attempt: HTTP 401, `authentication_rejected`; retained
+  as failure evidence, not relabelled as success after key replacement.
+
+The temporary script was removed and checkout/HEAD remained unchanged. This
+is actual Cloud authentication evidence for the successful GETs, but it uses
+the existing setup machine, not a fresh task restored from the latest published
+snapshot. The subsequent Telnyx probe is recorded when completed.
+
+After the complete Telnyx value was saved and republished, the same Cloud
+diagnostic reported `ok: true`: Cloudflare and Telnyx both `verified_get`,
+HTTP 200; all three documentation sites HTTP 200. Both selected proxy
+placeholders reported `containsAsterisk: false`, so the masked-key guard is
+compatible with these runtime credentials. This second probe retained the
+same setup-machine limitation. The shell tool reported exit code 1 despite
+the successful JSON result and cleanup confirmations; the authenticated GET
+evidence is valid, but a clean command exit still requires verification.
+
+## Remaining verification
 
 Remaining work:
 
-1. Create/reuse reviewed development credentials with the scope described in
-   `CODEX_CLOUD.md`, then save them as network secrets or suitable temporary
-   identities. Review Telnyx's actual permissions: its public API-key contract
-   does not establish a read-only key. Do not copy production delivery secrets.
-2. Run the required API GET probes in a fresh task with those credentials and
+1. Run the required API GET probes in a fresh task with those credentials and
    replay the saved installation wrapper. Check runtime readiness and actual
    permission failures separately.
-3. Configure optional services only with their appropriate identities. Auth0,
+2. Configure optional services only with their appropriate identities. Auth0,
    Pingen, Resend, AWS, Stripe, OpenAI inference and ElevenLabs are inventoried,
    not configured or qualified by this change.
-4. Keep Telnyx profile/rate-deck qualification distinct. The current documented
+3. Keep Telnyx profile/rate-deck qualification distinct. The current documented
    V2 outbound-profile response does not expose the associated rate-deck URL or
    version; the historical portal-derived association cannot be refreshed by
    rereading a public CSV or by authenticating `GET /v2/balance`.
