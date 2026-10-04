@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **16 domaines · 119 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
+> **17 domaines · 126 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -326,6 +326,22 @@ Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../sc
 - Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts
 - Publication depuis main propre, synchronisé et vérifié
 - Manifestes de release, empreintes des assets et santé distante
+
+### 17 · Développement Codex Cloud
+
+**État :** Préparé · environnement privé publié ; tests ciblés locaux et Cloud réussis ; identifiants fournisseurs et validation dans une tâche neuve à compléter.
+
+Contrat : [CODEX_CLOUD.md](CODEX_CLOUD.md) · Source : [scripts/codex-cloud-check.mjs](../scripts/codex-cloud-check.mjs).
+
+**Surfaces :** CLI / environnement de développement Codex Cloud ; aucune nouvelle surface web, native, REST ou MCP du produit. **Tests :** [tests/security/codex-cloud-check.test.mjs](../tests/security/codex-cloud-check.test.mjs).
+
+- Entrée développeur sur le dépôt autorisé, Node.js ≥22.16, npm, bash et curl ; aucune élévation des quatre rôles humains ou de l’acteur assistant
+- Bootstrap scripts/codex-cloud-setup.sh : dépendances, migrations D1 locales, fixtures et build web avec environnement réduit sans clés fournisseur ; Chromium Linux facultatif
+- Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; inventaire Cloudflare, Telnyx, OpenAI, GitHub, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs
+- Contrôle hors réseau de configuration puis GET bornés et expurgés ; secrets transmis par stdin avec proxy et certificats conservés, sans arguments secrets, redirections ni reprise automatique
+- Configuration absente, refus d’authentification, permissions et erreur réseau restent distincts ; poursuivre simulation, code et tests quand seule une opération fournisseur est bloquée
+- Secrets réseau limités aux destinations autorisées, sans export de session desktop ni copie des secrets de production ; lecture réussie distincte des permissions réelles, tarifs et capacités d’envoi
+- Simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md ; vérifier les accès fournisseur dans une tâche neuve après publication ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup
 
 ## Parcours clients et reprise sur erreur
 

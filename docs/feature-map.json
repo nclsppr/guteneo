@@ -328,6 +328,25 @@
         "apps/pdf-validator/tests/probe-credentials.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés"
+    },
+    {
+      "title": "Développement Codex Cloud",
+      "doc": "CODEX_CLOUD.md",
+      "source": "scripts/codex-cloud-check.mjs",
+      "features": [
+        "Entrée développeur sur le dépôt autorisé, Node.js ≥22.16, npm, bash et curl ; aucune élévation des quatre rôles humains ou de l’acteur assistant",
+        "Bootstrap scripts/codex-cloud-setup.sh : dépendances, migrations D1 locales, fixtures et build web avec environnement réduit sans clés fournisseur ; Chromium Linux facultatif",
+        "Repli CLI/API et documentation HTTPS lorsque les plugins desktop sont absents ; inventaire Cloudflare, Telnyx, OpenAI, GitHub, Auth0, Pingen, Resend, AWS, Stripe et ElevenLabs",
+        "Contrôle hors réseau de configuration puis GET bornés et expurgés ; secrets transmis par stdin avec proxy et certificats conservés, sans arguments secrets, redirections ni reprise automatique",
+        "Configuration absente, refus d’authentification, permissions et erreur réseau restent distincts ; poursuivre simulation, code et tests quand seule une opération fournisseur est bloquée",
+        "Secrets réseau limités aux destinations autorisées, sans export de session desktop ni copie des secrets de production ; lecture réussie distincte des permissions réelles, tarifs et capacités d’envoi",
+        "Simulation Cloud : 95 tests et un scénario Chromium réussis ; smoke HTTP partiel avec assertion MCP obsolète documentée dans CODEX_CLOUD_PROOF.md ; vérifier les accès fournisseur dans une tâche neuve après publication ; aucun mandat expert, envoi réel, débit ou déploiement de production autorisé par le setup"
+      ],
+      "status": "Préparé · environnement privé publié ; tests ciblés locaux et Cloud réussis ; identifiants fournisseurs et validation dans une tâche neuve à compléter",
+      "tests": [
+        "tests/security/codex-cloud-check.test.mjs"
+      ],
+      "surfaces": "CLI / environnement de développement Codex Cloud ; aucune nouvelle surface web, native, REST ou MCP du produit"
     }
   ],
   "journeys": [
