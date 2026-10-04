@@ -1,12 +1,12 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Prepare PDFs and dispatches, and check PDF/UA or PDF/A when enabled for your Guteneo account.",
   "author": {
     "name": "Guteneo"
   },
-  "homepage": "https://guteneo.com",
+  "homepage": "https://guteneo.com/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
   "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
@@ -25,10 +25,10 @@
           "Track Guteneo dispatches",
           "Read and run PDF/UA and PDF/A diagnostics when enabled"
         ],
-        "websiteURL": "https://guteneo.com",
-        "supportURL": "https://guteneo.com/support/",
-        "privacyPolicyURL": "https://guteneo.com/confidentialite/",
-        "termsOfServiceURL": "https://guteneo.com/conditions/",
+        "websiteURL": "https://guteneo.com/?lang=en",
+        "supportURL": "https://guteneo.com/support/?lang=en",
+        "privacyPolicyURL": "https://guteneo.com/confidentialite/?lang=en",
+        "termsOfServiceURL": "https://guteneo.com/conditions/?lang=en",
         "defaultPrompt": [
           "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
           "Prepare a fax estimate for this PDF without sending it.",
@@ -43,7 +43,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 0.3.2 combines guided onboarding, fax/postal and protected-PDF email workflows, four-language web support and the mandatory stop for excluded data or review-only estimates. It adds validate_pdf/get_pdf_validation diagnostics for an existing Horizon entitlement and qualified private veraPDF engine. Email remains disabled until its operational gates are qualified. The plugin cannot initiate purchases, subscriptions, upgrades, renewals or credit top-ups; Horizon billing requires an authenticated administrator browser. Original PDFs and communication approvals are preserved. Automatic checks are not certification. No marketplace replacement, submission or host qualification is claimed.",
+        "release_notes": "Standardizes all six skill descriptions and titles in English and opens website, privacy, terms, support and document links in English. Explicit language links take precedence over the saved account language without changing that preference. Existing capability checks, document restrictions and review-before-send requirements are preserved.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **16 domaines · 119 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
+> **16 domaines · 121 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -39,7 +39,7 @@ mindmap
 
 ## Droits en un coup d’œil
 
-Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.
+Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership. Une langue explicite dans l’URL ou le sélecteur est un choix d’affichage temporaire, sans modification implicite du profil ni changement de droits.
 
 | Capacité | Administrateur | Superviseur | Opérateur | Observateur | Assistant connecté |
 | --- | --- | --- | --- | --- | --- |
@@ -58,7 +58,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Annuler génération | Propriétaire du lot | Propriétaire du lot | Propriétaire du lot | Non | Propriétaire + generations:write ; annulation signalée |
 | Supprimer modèle | Propriétaire | Propriétaire | Propriétaire | Non | Propriétaire + scopes |
 | Voir PDF généré privé | Créateur seulement | Créateur seulement | Créateur seulement | Selon accès autorisé | Selon propriétaire et contexte |
-| Profil / langue / ses sessions | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
+| Profil / langue / ses sessions ; lien explicite prioritaire | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
 
 Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -243,7 +243,7 @@ Contrat : [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · Source : [apps/api/src/billi
 
 ### 12 · Assistants et API
 
-**État :** Implémenté · métadonnées du 4 octobre à publier et rescanner ; autorisations serveur inchangées.
+**État :** 0.3.2 soumis et In review le 4 octobre ; correctif anglais 0.3.3 préparé localement, non déployé ni importé.
 
 Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [apps/api/src/mcp.ts](../apps/api/src/mcp.ts).
 
@@ -259,6 +259,7 @@ Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [apps/api/src/mcp.ts](../apps
 - Mandat accordé/révoqué par administrateur navigateur seulement
 - Paquets plugin et dossier marketplace ; soumission distincte
 - Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion
+- Candidat plugin 0.3.3 : six descriptions et titres de skills anglais ; liens site/support/confidentialité/conditions et Documents avec lang=en
 
 ### 13 · Compagnon iPhone et iPad
 
@@ -282,7 +283,7 @@ Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/
 
 Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json).
 
-**Surfaces :** Web public / maquette. **Tests :** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts).
+**Surfaces :** Web public / maquette. **Tests :** [tests/unit/web-locale.test.ts](../tests/unit/web-locale.test.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts).
 
 - Présentation, fonctionnalités, rôles et guides assistants
 - Journal, articles, notices légales et confidentialité
@@ -292,6 +293,7 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 - Pages statiques, canonical, sitemap et langues alternatives
 - Maquette publique fictive isolée du backend
 - Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43
+- Une langue valide explicitement demandée dans l’URL ou le sélecteur prime sur la préférence de session ; sans choix explicite, conserver la priorité du profil
 
 ### 15 · Horizon et diagnostic PDF
 
@@ -333,9 +335,9 @@ Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../sc
 
 **Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
 
-Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits.
+Ouvrir un lien de langue explicite ou choisir au sélecteur → consulter l’offre et les guides dans cette langue → se connecter avec identité vérifiée sans écraser ce choix → créer ou rejoindre un atelier → lire ses droits. Sans choix explicite, relire la préférence personnelle à la connexion.
 
-**Blocage / reprise :** Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité.
+**Blocage / reprise :** Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Langue invalide ou absente : revenir au profil puis aux langues locales prises en charge ; aucun changement implicite du profil.
 
 Référence : [IDENTITY_MCP.md](IDENTITY_MCP.md).
 
@@ -423,9 +425,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Membre + client OAuth. **Branche :** MCP / REST.
 
-Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.
+Lire les descriptions des six skills en anglais et les pages liées avec lang=en dans le candidat 0.3.3 → connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.
 
-**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif.
+**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. La version 0.3.2 est déjà In review ; la préparation du candidat anglais 0.3.3 ne remplace pas cette revue et ne prouve pas son import. Le retrait de la revue exige une autorisation distincte.
 
 Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
