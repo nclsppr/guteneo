@@ -16,6 +16,19 @@ publishing the environment does not merge these scripts into main. The final
 published wrapper and saved credentials have not yet been qualified together in
 a fresh agent task. See `CODEX_CLOUD_PROOF.md` for the current evidence.
 
+The prepared filesystem also contains a non-secret diagnostic copy outside Git
+at `/workspace/.codex-cloud/guteneo-cloud-check.mjs`, from verified commit
+`9a86fe65567cf1541e358c93a545d8772818c013`. The saved start skill uses it when
+the checkout does not yet include this PR:
+
+```sh
+node /workspace/.codex-cloud/guteneo-cloud-check.mjs \
+  --network --require=cloudflare,telnyx,openai-docs
+```
+
+It contains code only; credential values still come from Network secrets.
+Its SHA256 and the hosted execution are recorded in `CODEX_CLOUD_PROOF.md`.
+
 Prerequisites: Node.js >=22.16, npm, Git, bash, curl, and the system libraries
 needed by workerd. From the repository root:
 

@@ -144,15 +144,38 @@ placeholders reported `containsAsterisk: false`, so the masked-key guard is
 compatible with these runtime credentials. This second probe retained the
 same setup-machine limitation. The shell tool reported exit code 1 despite
 the successful JSON result and cleanup confirmations; the authenticated GET
-evidence is valid, but a clean command exit still requires verification.
+GET evidence is valid; the inconsistent shell exit required a separate check.
+
+A subsequent hosted execution used the hardened diagnostic from
+`9a86fe65567cf1541e358c93a545d8772818c013`. It confirmed the SHA256
+`2c612b31904421237060e3f0cae0ea1226d1c79ee088f7b52a718f107933a006`,
+`ok: true`, all five service checks HTTP 200, and **Node exit code 0** captured
+immediately and confirmed by the shell. The earlier shell exit discrepancy
+remains unexplained; it is not used as successful command-exit proof.
+
+The non-secret helper is retained at
+`/workspace/.codex-cloud/guteneo-cloud-check.mjs` (directory 0700, file 0600),
+outside Git, so the saved start skill can run it before this PR is merged.
+No credential value is embedded in that helper.
+
+The exact saved installation wrapper was then replayed on the hosted setup
+machine: exit 0, dependency install, local migrations/fixtures and build passed.
+It contained one `env -i`, no provider credentials passed to dependencies and
+no commands after `LOCAL_SETUP`. One additional actual Chromium
+login/import/PDF-preview scenario passed. Checkout and HEAD stayed unchanged.
+This validates the saved commands and current provider access together, but
+still does not prove restoration into a new task from the published snapshot.
+
+The helper and amended start skill were finally saved and republished. The
+configuration panel again displayed **Environment published** and **Published**.
 
 ## Remaining verification
 
 Remaining work:
 
-1. Run the required API GET probes in a fresh task with those credentials and
-   replay the saved installation wrapper. Check runtime readiness and actual
-   permission failures separately.
+1. Verify helper availability, current secret readiness and the required API
+   GETs in a fresh task restored from this final snapshot. The exact saved
+   installation wrapper already passed on the setup machine.
 2. Configure optional services only with their appropriate identities. Auth0,
    Pingen, Resend, AWS, Stripe, OpenAI inference and ElevenLabs are inventoried,
    not configured or qualified by this change.
