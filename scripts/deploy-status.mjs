@@ -2,7 +2,11 @@ import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildStatus, statusScope } from "./build-status.mjs";
+import {
+  buildStatus,
+  statusScope,
+  verifyQualificationSource,
+} from "./build-status.mjs";
 import { verifyMainSource } from "./deploy-public.mjs";
 import { collectAssets, sha256, sourceSnapshot } from "./release-source.mjs";
 
@@ -22,6 +26,7 @@ async function verifyStatusBytes(root, manifest) {
       )
   )
     throw new Error("STATUS_RELEASE_MISMATCH");
+  await verifyQualificationSource(root, manifest.qualificationSource);
 }
 
 export async function deployStatus({
@@ -44,6 +49,7 @@ export async function deployStatus({
     verifyMainSource(root) !== sourceCommit
   )
     throw new Error("STATUS_RELEASE_MISMATCH");
+  await verifyQualificationSource(root, manifest.qualificationSource);
   const wrangler = join(root, "node_modules/wrangler/bin/wrangler.js");
   // This migration directory belongs exclusively to the public status database.
   execute(

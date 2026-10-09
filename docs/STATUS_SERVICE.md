@@ -105,7 +105,10 @@ et sa première exécution Cron demeurent des preuves distinctes.
 ## Publication et retour arrière
 
 `npm run build:status` produit les fichiers statiques et leur manifeste lié aux
-sources. `npm run deploy:status` exige une branche `main` propre identique au
+sources. La preuve locale est incluse uniquement si son périmètre et son empreinte
+correspondent aux sources actuelles ; sinon elle apparaît indisponible. Cette
+empreinte est contrôlée à nouveau avant publication, après la migration.
+`npm run deploy:status` exige une branche `main` propre identique au
 `origin/main` fraîchement relu, applique uniquement les migrations dédiées au
 statut, puis publie le Worker. Il n’applique aucune migration métier.
 
