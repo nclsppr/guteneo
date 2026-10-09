@@ -71,6 +71,8 @@ screenshot` ; les 186 autres tests passent. Ces deux résultats incomplets
 restent distincts des runs verts. Le budget de trente minutes tient compte
 de l'installation lente observée ; la capture conserve une image obligatoire
 et ne reprend que cette erreur transitoire, au plus trois fois.
+Le job de sécurité installe les mêmes dépendances Chromium/WebKit : son budget
+passe à vingt minutes pour couvrir ce même miroir avant les tests de sécurité.
 Les 36 scénarios de configuration postale passent avec cette capture sur
 Chromium desktop, Chromium mobile et iPhone WebKit. TypeScript, ESLint,
 format YAML/TypeScript et atlas technique passent aussi sur le correctif.
