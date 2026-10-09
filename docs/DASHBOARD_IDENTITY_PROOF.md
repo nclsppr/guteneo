@@ -12,8 +12,8 @@ l’administration est expressément autorisée ; production et activation ne le
 | TypeScript, ESLint et `git diff --check`       | Réussis sur le candidat final                                                                                                                                                                                                       |
 | Atlas technique et matrice/parcours            | Régénérés et vérifiés                                                                                                                                                                                                               |
 | Migrations                                     | 52 migrations, 362 objets, schéma équivalent, `quickCheck: ok`, zéro violation FK                                                                                                                                                   |
-| Suite locale complète                          | 1 920 tests applicatifs et 242 tests de sécurité réussis                                                                                                                                                                            |
-| Authentification, compte, Belvédère et finance | 86 tests réussis, incluant les vrais triggers D1 de débit Horizon                                                                                                                                                                   |
+| Suite locale complète                          | 1 920 tests applicatifs et 242 tests de sécurité réussis avant les corrections de télémétrie ; le dernier SHA est vérifié en CI                                                                                                                                                                            |
+| Authentification, compte, Belvédère et finance | 92 tests réussis, incluant les vrais triggers D1 de débit Horizon et les six régressions de télémétrie                                                                                                                                                                   |
 | Identité/profil/contacts/homonymes             | 30 tests navigateur réussis, trois projets, quatre langues                                                                                                                                                                          |
 | Régression dashboard/compte/facturation/rôles  | 75 réussis, 3 skips desktop intentionnels                                                                                                                                                                                           |
 | Belvédère, navigation et finance               | 20 tests réussis, ordinateur et iPhone WebKit                                                                                                                                                                                       |
@@ -39,6 +39,15 @@ Les 117 scénarios regroupant identité, langues, guides assistant et délégati
 passent sur les trois projets après correction des fixtures de contacts. Les
 assertions de consentement et de mutation sont conservées. Une réponse de contacts
 malformée affiche une erreur locale avec reprise et laisse le profil modifiable.
+
+Le candidat `c645aba` a passé la CI complète `37906035678` : 561 scénarios
+applicatifs, 146 preview et 20 Belvédère, avec leurs skips intentionnels et un
+contrôle final de complétude réussi. Les corrections de télémétrie passent
+les 92 tests regroupés : erreur d’observation sans refus MCP/login/rotation,
+déduplication/concurrence/TTL/isolation et nouvelle session/pays/atelier courant.
+La preuve signée et l’invalidation de l’ancien cookie sont vérifiées ; les
+contrôles de rôle et révocation restent courants. Une nouvelle CI est requise
+sur le SHA exact de ces corrections.
 
 ## Fusion et limites
 

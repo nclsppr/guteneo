@@ -418,6 +418,34 @@ async function createSession(
     cookie: cookie(env, "session", secret, 3600),
   };
 }
+async function observeBrowserSession(
+  env: AuthEnv,
+  request: Request,
+  session: AuthenticatedSession,
+): Promise<void> {
+  try {
+    const publicId = await env.DB.prepare(
+      "SELECT public_id FROM browser_sessions WHERE token_hash=? AND organization_id=? AND user_id=? AND is_development=0 AND expires_at>?",
+    )
+      .bind(
+        session.tokenHash,
+        session.context.organizationId,
+        session.context.userId,
+        nowISO(),
+      )
+      .first<{ public_id: string }>();
+    if (publicId)
+      await recordConnectionEvent(env.DB, request, {
+        organizationId: session.context.organizationId,
+        userId: session.context.userId,
+        kind: "browser",
+        connectionId: publicId.public_id,
+      });
+  } catch {
+    // The optional public-ID lookup is telemetry too. Its failure never changes
+    // authenticated authority or the session cookie already being rotated.
+  }
+}
 export async function authenticateBrowser(
   request: Request,
   env: AuthEnv,
@@ -1115,18 +1143,7 @@ export async function handleAuthRoute(
         nowISO(),
       )
       .run();
-    const publicId = await env.DB.prepare(
-      "SELECT public_id FROM browser_sessions WHERE token_hash=?",
-    )
-      .bind(session.session.tokenHash)
-      .first<{ public_id: string }>();
-    if (publicId)
-      await recordConnectionEvent(env.DB, request, {
-        organizationId: member.organization_id,
-        userId: member.user_id,
-        kind: "browser",
-        connectionId: publicId.public_id,
-      });
+    await observeBrowserSession(env, request, session.session);
     return redirect(
       new URL(
         invitedOrganizationId ? "/#/app" : transaction.return_to,
@@ -1301,6 +1318,8 @@ export async function handleAuthRoute(
       tokenHash,
       env,
     );
+    if (!current.is_development)
+      await observeBrowserSession(env, request, result);
     return json(publicSession(result), 200, {
       "Set-Cookie": cookie(env, "session", secret, 3600),
     });

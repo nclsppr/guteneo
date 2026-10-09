@@ -97,6 +97,13 @@ d'un domaine email. Les marqueurs indiquent un pays, jamais une position précis
 Les événements ne reconstruisent pas rétroactivement les
 pays des sessions anciennes. MCP est dédupliqué à une observation par connexion
 et jour ; les sessions navigateur et native sont observées à leur ouverture.
+La rotation navigateur après changement d’atelier observe aussi le nouvel
+identifiant public, avec le pays fourni par la requête courante. Ce journal est
+facultatif : son indisponibilité ne refuse pas une authentification valide. Un
+cache borné par binding D1, acteur, atelier, type, identifiant et jour UTC évite
+les tentatives d’écriture répétées dans un même isolate ; la contrainte SQL
+conserve la déduplication entre isolates. Les écritures échouées peuvent être
+observées à une requête ultérieure, sans mutation métier ni reprise d’envoi.
 Les échecs de connexion Auth0 ne sont pas disponibles dans ce journal et
 nécessiteraient un connecteur distinct aux journaux du fournisseur.
 

@@ -345,7 +345,7 @@
       "features": [
         "Autorité Veilleur privée et lecture seule : session/identité vérifiées, adresse serveur secrète, autorisation distincte des rôles atelier",
         "Sept vues : ateliers, membres, envois, connexions, finances et infrastructure avec vue d’ensemble",
-        "Observation minimale des connexions par pays et rétention bornée de 90 jours",
+        "Observation facultative des connexions par pays, déduplication bornée et nouvelles sessions après changement d’atelier ; rétention de 90 jours",
         "Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts",
         "Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés",
         "Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée"
@@ -353,6 +353,7 @@
       "status": "Intégré au candidat ; activation et publication non qualifiées",
       "tests": [
         "tests/unit/belvedere.test.ts",
+        "tests/unit/auth-telemetry.test.ts",
         "tests/belvedere-e2e/control-tower.spec.ts",
         "tests/unit/belvedere-finance.test.ts"
       ],
