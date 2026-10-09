@@ -127,7 +127,7 @@ test("private release cannot acquire a public route, logs or extra instances", a
   }
 });
 
-test("temporary qualification is restricted to a closed Horizon on both origins", async (t) => {
+test("temporary qualification checks closed Horizon only on the canonical production origin", async (t) => {
   const { root } = await repository(t);
   const visited = [];
   const executions = [];
@@ -136,14 +136,13 @@ test("temporary qualification is restricted to a closed Horizon on both origins"
     qualification: true,
     readCapabilities: async (origin) => {
       visited.push(origin);
+      if (origin !== "https://guteneo.com")
+        throw new Error("Alternate production origin is closed");
       return { mode: "production", horizon: { available: false } };
     },
     execute: (...args) => executions.push(args),
   });
-  assert.deepEqual(visited.sort(), [
-    "https://guteneo-app.nclsppr.workers.dev",
-    "https://guteneo.com",
-  ]);
+  assert.deepEqual(visited, ["https://guteneo.com"]);
   assert.equal(result.qualificationEnabled, true);
   assert.equal(executions.length, 1);
   assert.ok(executions[0][1].includes("QUALIFICATION_ENABLED:true"));
@@ -163,9 +162,7 @@ test("qualification fails closed on open, unknown or unreachable Horizon", async
       deployPdfValidator({
         root,
         qualification: true,
-        readCapabilities: async (origin) => {
-          if (origin === "https://guteneo.com")
-            return { mode: "production", horizon: { available: false } };
+        readCapabilities: async () => {
           if (capability instanceof Error) throw capability;
           return capability;
         },

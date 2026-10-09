@@ -1,5 +1,9 @@
 # Publication depuis main
 
+Le contrat de production expose l’application uniquement sur **https://guteneo.com**. Le Worker applicatif désactive son sous-domaine `workers.dev` et ses URL de preview Cloudflare (`workers_dev: false`, `preview_urls: false`). `https://guteneo-app.nclsppr.workers.dev` et les URL de preview d’une version applicative ne sont pas des accès de secours. La maquette fictive publiée par `deploy:preview` est un Worker distinct ; son contrat reste celui de [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md) et ne change pas avec cette fermeture.
+
+L’origine de connexion navigateur et de callback Auth0 est `https://guteneo.com`. La configuration du client navigateur doit conserver les URL canoniques de callback, de déconnexion et d’origine autorisée, sans autoriser l’ancien hôte applicatif `workers.dev`. Les callbacks propres aux assistants restent des contrats séparés. Ce contrat et ses tests ne prouvent pas une inscription, un callback ou une reconnexion Auth0 avec un compte humain ; cette qualification exige une preuve dédiée, sans envoi métier.
+
 Les publications applicatives publiques passent par `npm run deploy:live` ou `npm run deploy:preview`. Les deux commandes exigent une branche locale `main`, un arbre Git entièrement propre (fichiers suivis et non suivis non ignorés) et un `HEAD` exactement égal à `origin/main` après un nouveau fetch explicite. Un échec du fetch refuse la publication ; une ancienne référence locale ne suffit pas.
 
 Les marqueurs d'index `assume-unchanged` et `skip-worktree` sont refusés : ils peuvent masquer des modifications au contrôle ordinaire de Git.
@@ -7,6 +11,18 @@ Les marqueurs d'index `assume-unchanged` et `skip-worktree` sont refusés : ils 
 Le contrôle intervient avant le build, puis de nouveau avant le déploiement. Le commit doit rester celui contrôlé au départ. Le garde vérifie aussi le `release.json` fraîchement produit : commit exact, `sourceDirty:false`, mode correspondant, périmètre source attendu et empreinte des octets actuels. Le calcul de cette empreinte est partagé avec les builders. Tous les assets sont relus et comparés au manifeste ; un fichier ajouté, manquant ou modifié bloque. Le `health.json` de la maquette est vérifié séparément. Une dernière vérification locale de branche/commit/propreté précède Wrangler.
 
 Procédure opérateur : fusionner la PR validée, actualiser `main` par avance rapide, vérifier la CI du commit fusionné puis publier depuis un checkout propre de ce commit. Conserver ensuite la version et la répartition de trafic Cloudflare, la santé et les preuves publiques produites par `scripts/verify-release.mjs`. Les rapports suivis modifiés par des tests doivent être examinés et sauvegardés selon le travail demandé, pas effacés automatiquement pour contourner le garde.
+
+Après publication, comparer le manifeste et les octets des assets uniquement à l’origine canonique :
+
+```sh
+node scripts/verify-release.mjs https://guteneo.com dist/web/release.json
+```
+
+Vérifier séparément que l’ancien hôte applicatif `workers.dev` et les URL de preview applicatives sont fermés : ils ne doivent plus servir les pages, le manifeste, l’API ou l’authentification de Guteneo. Conserver les réponses observées et la configuration Cloudflare comme preuve de fermeture ; un hôte fermé n’est pas une seconde origine à qualifier par comparaison d’assets. Les contrôles navigateur publics ciblent `https://guteneo.com`, sans ouvrir `/auth/login` ni effectuer de POST métier. Toute preuve antérieure sur deux origines reste une preuve datée de la publication concernée.
+
+Les opérateurs PDF [deploy-pdf-validator.mjs](../scripts/deploy-pdf-validator.mjs), pour la qualification temporaire, et [qualify-hosted.mjs](../apps/pdf-validator/scripts/qualify-hosted.mjs) lisent désormais `/api/capabilities` uniquement sur `https://guteneo.com`. Leurs gardes exigent le mode production et Horizon indisponible avant la qualification ; l’origine fermée `workers.dev` ne sert plus de deuxième vérification de ce gate. [pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs) couvre le garde de publication avec une lecture canonique interceptée et les refus sur Horizon ouvert, inconnu ou injoignable. Cette preuve locale ne qualifie pas le service PDF hébergé.
+
+Une lecture fournisseur fraîche après publication peut utiliser l’inspection Telnyx privée existante, sans extraire les credentials ni changer les callbacks. `application.webhooks.primary` et `application.webhooks.failover` exposent uniquement les statuts bornés `unknown`, `absent`, `canonical`, `different`, et les booléens ou `null` `present`/`matchesCanonical`. Aucune URL brute n’est projetée. Le contrat et ses fixtures ne prouvent pas l’état fournisseur courant ni un callback signé réel ; conserver séparément le résultat de l’inspection autorisée. Voir [TELNYX_READINESS.md](TELNYX_READINESS.md) et [telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts).
 
 Le workflow `Guteneo checks` s'exécute sur chaque PR et chaque push sur `main`, sans filtre de chemins. Il conserve les contrôles `scanner`, `checks`, les quatre shards Vitest, `security`, `build`, les trois navigateurs et leur agrégation `verify`. Les routes `/api/mobile/v1`, les contrats partagés, les migrations et les dépendances npm restent qualifiés par cette suite complète. Les contrôles requis `verify` et `scanner` et la politique de branche restent inchangés.
 

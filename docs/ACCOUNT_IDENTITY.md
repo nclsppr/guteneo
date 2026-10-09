@@ -3,6 +3,15 @@
 Candidat du 9 octobre 2026. Cette page décrit l’implémentation ; la fusion,
 la configuration Auth0 et la publication se qualifient séparément.
 
+Le contrat courant de production réserve l’application et sa connexion navigateur
+à `https://guteneo.com`. L’ancien hôte applicatif `workers.dev` et les URL de
+preview applicatives sont fermés ; ils ne sont pas des chemins de connexion de
+secours. Le callback, la déconnexion et les origines autorisées du client Auth0
+navigateur doivent être canoniques. La maquette fictive séparée reste hors scope.
+Voir [MAIN_RELEASE.md](MAIN_RELEASE.md). Aucune connexion, identité de retour ou
+reconnexion Auth0 avec un compte humain n’est déduite de ce contrat ni des tests
+sur fixtures.
+
 ## Parcours et autorité
 
 Tout membre navigateur retrouve son nom, son adresse de connexion et son rôle

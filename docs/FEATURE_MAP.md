@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **17 domaines · 130 fonctionnalités · 17 parcours** — mis à jour le 2026-10-09.
+> **17 domaines · 132 fonctionnalités · 17 parcours** — mis à jour le 2026-10-09.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -76,6 +76,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 **Surfaces :** Web navigateur ; contrats natifs existants préservés ; pas de nouveau droit REST/MCP. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
 
 - Connexion Auth0, compte vérifié et politique MFA
+- Connexion navigateur et callback Auth0 sur guteneo.com uniquement ; ancien hôte applicatif et previews URL fermés
 - Création d’atelier et administrateur initial
 - Profil personnel et préférence de langue
 - Sessions web : consultation, révocation et déconnexion
@@ -324,16 +325,17 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 
 Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../scripts/deploy-public.mjs).
 
-**Surfaces :** CLI / CI / services privés. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs).
+**Surfaces :** CLI / CI / services privés. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts).
 
 - Files interactives, lots, outbox transactionnelle et idempotence
 - Callbacks fournisseur authentifiés et journaux sans contenu sensible
+- Inspection Telnyx opérateur privée en lecture seule : callbacks principal/secours projetés en statuts bornés et booléens de correspondance canonique, sans URL brute ni extraction des credentials ; état fournisseur frais à qualifier après publication
 - Rapprochement, reprise bornée et files mortes
 - Migrations D1 ordonnées, intégrité et bookmark de restauration
-- Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret
+- Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret ; les opérateurs deploy-pdf-validator.mjs et qualify-hosted.mjs vérifient Horizon fermé uniquement sur guteneo.com
 - Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts
 - Publication depuis main propre, synchronisé et vérifié
-- Manifestes de release, empreintes des assets et santé distante
+- Manifestes de release et empreintes des assets sur guteneo.com ; preuve distincte de fermeture de workers.dev et des previews URL applicatifs
 
 ### 17 · Belvédère et supervision plateforme
 
@@ -356,9 +358,9 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 
 **Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
 
-Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits. → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.
+Ouvrir guteneo.com → choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.
 
-**Blocage / reprise :** Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback signé et à la politique Auth0.
+**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. Configuration et fixtures ne prouvent pas une connexion humaine réelle.
 
 Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
@@ -496,9 +498,9 @@ Référence : [PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md).
 
 **Acteur :** Développeur / opérateur de release. **Branche :** RELEASE.
 
-Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.
+Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Inspection Telnyx privée : lire les statuts et correspondances canoniques des callbacks après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.
 
-**Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification.
+**Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification.
 
 Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
@@ -506,7 +508,7 @@ Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
 **Acteur :** Membre navigateur dans son atelier courant. **Branche :** IDENTITÉ → RESPONSABILITÉS.
 
-Lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0.
+Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique.
 
 **Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle.
 
