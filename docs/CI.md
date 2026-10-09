@@ -96,6 +96,31 @@ then compare both wall time and aggregate runner time with these two baselines.
 Sources: [checkout sparse-fetch implementation](https://github.com/actions/checkout/blob/v7/src/git-source-provider.ts),
 [artifact compression settings](https://github.com/actions/upload-artifact#altering-compressions-level-speed-v-size).
 
+## Hosted result — 9 October 2026
+
+[Run 37976971718](https://github.com/nclsppr/guteneo/actions/runs/37976971718)
+passed **13/13 jobs** on `1d38b2ecc86e657bf1b4ce149fa30642583ab573`.
+The strict gate accounted for 102 files and 1,928 assertions. This source
+precedes the monitor's adaptation to the owner's subsequent canonical-only
+routing change; the CI workflow and optimization are identical.
+
+| Measure | Deployed main baseline | Optimized run | Observed change |
+| --- | ---: | ---: | ---: |
+| Workflow wall time, including initial queue | 17 min 03 s | 14 min 12 s | −16.7% |
+| Aggregate runner job durations | 84 min 03 s | 50 min 36 s | −39.8% |
+| Aggregate checkout steps | 31 min 03 s | 6 min 40 s | −78.5% |
+| Build job | 277 s | 113 s | −59.2% |
+| Build checkout | 186 s | 34 s | −81.7% |
+| Scanner checkout | 232 s | 2 s | −99.1% |
+
+The optimized run included 63 seconds of initial queueing. Its iPhone job
+actually took 637 seconds versus 618 seconds on main: the improvement concerns
+checkout, build and final-gate overhead, not a claim that every test is faster.
+Compared with the preceding PR baseline of 24 min 24 s, wall time fell 41.8%.
+These are observed runs, not a guaranteed future duration; compare several
+subsequent runs for a stable median. The final monitor follow-up requires its
+own CI status before merge.
+
 ## Measured baseline and candidate limits
 
 Baseline read from GitHub on 17 September 2026:

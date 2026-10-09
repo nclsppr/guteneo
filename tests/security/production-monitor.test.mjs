@@ -89,7 +89,11 @@ function fixture(change = () => {}) {
         },
         body: "",
       };
-      if (path === "/release.json") result.body = JSON.stringify(release);
+      if (url.origin === "https://guteneo-app.nclsppr.workers.dev") {
+        result.status = 404;
+        result.body = "{}";
+      } else if (path === "/release.json")
+        result.body = JSON.stringify(release);
       else if (path === "/api/health")
         result.body = JSON.stringify({
           status: "ok",
@@ -130,8 +134,8 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
   const report = await productionMonitor(fetcher, sha);
   assert.equal(report.status, "public_checks_passed");
   assert.equal(report.qualification, "partial");
-  assert.equal(report.checks.length, 28);
-  assert.equal(requests.length, 31);
+  assert.equal(report.checks.length, 17);
+  assert.equal(requests.length, 20);
   assert.equal(
     report.coverage.find((c) => c.feature === "E-mail").state,
     "disabled",
@@ -149,6 +153,10 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
 test("wrong release, corrupted bytes, access regression, missing bindings and malformed public data cannot pass", async () => {
   const scenarios = [
     (r, u) => {
+      if (u.origin === "https://guteneo-app.nclsppr.workers.dev")
+        r.status = 200;
+    },
+    (r, u) => {
       if (u.pathname === "/release.json") {
         const d = JSON.parse(r.body);
         d.sourceSnapshotSha256 = { toString: "PRIVATE" };
@@ -163,7 +171,7 @@ test("wrong release, corrupted bytes, access regression, missing bindings and ma
       }
     },
     (r, u) => {
-      if (u.pathname === "/release.json" && u.host.includes("workers.dev"))
+      if (u.pathname === "/release.json" && u.host === "guteneo.com")
         r.body = r.body.replace(sha, "d".repeat(40));
     },
     (r, u) => {

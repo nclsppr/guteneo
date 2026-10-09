@@ -5,10 +5,10 @@ import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { productionStatus } from "./production-status.mjs";
 
-const origins = [
-  "https://guteneo.com",
-  "https://guteneo-app.nclsppr.workers.dev",
-];
+const origins = ["https://guteneo.com"];
+// The owner retired this hostname on 9 October 2026. Reopening it is a regression.
+const retiredOrigin = "https://guteneo-app.nclsppr.workers.dev";
+const retiredPaths = ["/", "/api/health", "/release.json"];
 const channels = ["fax", "email", "postal"];
 const publicPaths = [
   "/",
@@ -130,6 +130,7 @@ export async function productionMonitor(
       ...privatePaths,
     ].map((path) => ({ origin, path })),
   );
+  jobs.push(...retiredPaths.map((path) => ({ origin: retiredOrigin, path })));
   const results = [];
   // Bounded load; samples never submit a document, provider draft, approval or send.
   await Promise.all(
@@ -237,6 +238,17 @@ export async function productionMonitor(
         durationMs: r.durationMs,
       });
     }
+  }
+  for (const path of retiredPaths) {
+    const r = get(retiredOrigin, path);
+    checks.push({
+      origin: retiredOrigin,
+      path,
+      kind: "retired_origin",
+      status: !r?.unavailable && r?.httpStatus === 404 ? "pass" : "fail",
+      httpStatus: r?.httpStatus ?? null,
+      durationMs: r?.durationMs ?? 0,
+    });
   }
   const caps = get(origins[0], "/api/capabilities")?.data;
   const coverage = [

@@ -15,7 +15,7 @@ commit déployé a réussi en **17 min 03 s** :
 Cela prouve la CI de cette source, pas la réussite des parcours fournisseurs.
 
 44 lectures anonymes initiales ont vérifié les pages publiques, les quatre
-langues, les métadonnées, les robots et le refus des API protégées. Le nouveau
+langues, les métadonnées, les robots et le refus des API protégées. Le premier
 moniteur a ensuite réussi ses **28 contrôles** sur les deux origines : il compare
 notamment les octets des pages sélectionnées au manifeste de leur origine.
 Ce manifeste public ne constitue pas une attestation indépendante du code :
@@ -35,6 +35,20 @@ pour une publication, conserver la comparaison à un build local propre avec
 | Assistants / natif | MCP anonyme refusé ; API native présente dans le code | OAuth, outils dans les vrais clients, appareil physique |
 | Belvédère | Code inclus dans la source déployée ; adresse privée inconnue refusée | Accès Veilleur et données privées non lus dans cet audit |
 | Files / cron / sauvegardes | Instrumentation et contrats présents dans le code | Activité récente, retards, DLQ et restauration indépendante |
+
+## Changement de routage observé pendant la revue
+
+À 19:04 UTC, le moniteur a détecté que l’ensemble des routes de l’adresse
+technique répondait 404 tandis que le domaine canonique restait disponible.
+La vérification du chat « Améliorer le profil et les rôles » a confirmé la
+consigne explicite du propriétaire : fermer `workers.dev` et garder uniquement
+`guteneo.com`. Il s’agit donc d’un changement attendu, pas d’une panne du produit.
+
+Le moniteur final suit ce contrat : **14 contrôles sur guteneo.com et 3 contrôles
+de fermeture de l’ancien hôte**. Un 404 y est attendu ; une réponse 200 ou une
+redirection est une régression. Les observations précédentes sur les deux
+origines restent une preuve historique. Aucune modification de routage n’a été
+réalisée par cette branche de revue.
 
 ## Problèmes et corrections
 
@@ -62,7 +76,7 @@ pour une publication, conserver la comparaison à un build local propre avec
    de rushes et captures historiques. Le checkout ciblé réduit de **65,9 %** le
    volume de fichiers du profil général, tout en conservant tests, médias
    publiés et sources de narration. Les profils spécialisés sont plus petits.
-   Commandes, dépendances et couverture restent inchangées. Les artefacts
+   La CI mesurée passe de 17 min 03 s à 14 min 12 s (−16,7 %), et le cumul des durées de jobs baisse de 39,8 %. Commandes, dépendances et couverture restent inchangées. Les artefacts
    déjà compressés ne sont plus recompressés. [Mesures et preuves CI](CI.md).
 5. **Dépendances.** Correctifs compatibles de l’outillage et du parseur de
    source maps : audit npm de **8 à 3 entrées élevées**. Les trois restantes
@@ -98,13 +112,13 @@ depuis ce Mac sont des échantillons, pas des percentiles globaux ou un SLO.
 Le manifeste compte 264 assets pour environ 413 Mo. Le moniteur ne télécharge
 pas tous les médias à chaque minute ; la vérification exhaustive des deux
 origines représente environ 826 Mo et reste un contrôle de publication.
-Une mesure comporte 31 GET, soit 44 640 par jour si l’outil reste actif en
+Une mesure comporte 20 GET, soit 28 800 par jour si l’outil reste actif en
 continu. Sans preuve de besoin, éviter les sondes plus fréquentes et les
 réveils systématiques du scanner/renderer.
 
 Pour borner les coûts : au tarif Workers Standard consulté le 9 octobre 2026,
 le dépassement de requêtes coûte 0,30 USD/million au-delà des 10 millions inclus
-partagés. 1 339 200 GET sur 30 jours représenteraient au plus **0,402 USD de
+partagés. 864 000 GET sur 30 jours représenteraient au plus **0,2592 USD de
 composante requêtes** si chaque GET était facturé en dépassement. Ce calcul
 exclut abonnement, CPU, logs, stockage, services privés et autres usages ; ce
 n’est pas une estimation de facture. Les requêtes réellement facturées et le
