@@ -15,8 +15,10 @@ export async function maintainDocuments(
   const rows = await env.DB.prepare(
     `SELECT d.id,d.organization_id,d.storage_key,d.created_at,
     CASE WHEN d.status='purged' AND a.id IS NOT NULL THEN 1 ELSE 0 END purge_complete
-    FROM documents d LEFT JOIN audit_log a ON a.id='purge_'||d.id AND a.organization_id=d.organization_id AND a.action='document.purged' AND a.resource_id=d.id
-    WHERE (d.status='purged' OR d.created_at<?) AND (d.created_at>? OR (d.created_at=? AND d.id>?)) ORDER BY d.created_at,d.id LIMIT 25`,
+    FROM (SELECT id,organization_id,storage_key,created_at,status FROM documents
+      WHERE (status='purged' OR created_at<?) AND (created_at>? OR (created_at=? AND id>?)) ORDER BY created_at,id LIMIT 25) d
+    LEFT JOIN audit_log a ON a.id='purge_'||d.id AND a.organization_id=d.organization_id AND a.action='document.purged' AND a.resource_id=d.id
+    ORDER BY d.created_at,d.id`,
   )
     .bind(cutoff, after.created_at, after.created_at, after.id)
     .all<{
