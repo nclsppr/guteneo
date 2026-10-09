@@ -1,3 +1,8 @@
+import { readBelvedereFixture } from "../helpers/belvedere-reader";
+import type {
+  BelvedereWorkshopDetail,
+  BelvedereFinance,
+} from "../../packages/contracts/src/belvedere";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   beforeAll,
@@ -129,6 +134,7 @@ beforeAll(async () => {
           "0040_protected_documents.sql",
           "0050_monthly_plan.sql",
           "0051_pdf_validation.sql",
+          "0052_belvedere.sql",
         ].includes(f),
     )
     .sort())
@@ -220,6 +226,7 @@ beforeAll(async () => {
     "0040_protected_documents.sql",
     "0050_monthly_plan.sql",
     "0051_pdf_validation.sql",
+    "0052_belvedere.sql",
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
 });
@@ -276,7 +283,9 @@ async function setupFixture() {
       )
       .bind(ctx.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(ctx.organizationId, ctx.userId, stamp()),
   ]);
   for (const channel of ["email", "postal"] as const) {
@@ -1301,6 +1310,41 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       expect(await balance()).toMatchObject({ spentMinor: 2 });
     },
   );
+  it("Belvédère reports posted fractional debits rather than original quoted reservations", async () => {
+    const first = await queue(),
+      second = await queue();
+    await domain.processDispatch(first.id, provider("email"));
+    await domain.processDispatch(second.id, provider("email"));
+    const detail = await readBelvedereFixture<BelvedereWorkshopDetail>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `workshops/${ctx.organizationId}?from=${stamp().slice(0, 10)}&to=${stamp().slice(0, 10)}`,
+    );
+    expect(detail.workshop.consumptionMinor).toBe(1);
+    expect(
+      detail.dispatches.items.find((d) => d.id === first.id),
+    ).toMatchObject({
+      estimatedMinor: 1,
+      customerActualMinor: 1,
+      transportActualMinor: 1,
+      hostingFeeMinor: 0,
+    });
+    expect(
+      detail.dispatches.items.find((d) => d.id === second.id),
+    ).toMatchObject({
+      estimatedMinor: 1,
+      customerActualMinor: 0,
+      transportActualMinor: 0,
+      hostingFeeMinor: 0,
+    });
+    expect(detail.channels).toContainEqual({
+      channel: "email",
+      dispatches: 2,
+      consumptionMinor: 1,
+      reservedMinor: 0,
+    });
+  });
   it("shares one credit balance across fractional email and whole-cent postal sends", async () => {
     const mail = await queue(),
       letter = await queue(await postal());
@@ -1426,6 +1470,22 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       .run();
     expect(await balance()).toMatchObject({ spentMinor: 1 });
     expect(await count("delivery_charge_entries")).toBe(1);
+    const report = await readBelvedereFixture<BelvedereFinance>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `finance?from=${stamp().slice(0, 10)}&to=${stamp().slice(0, 10)}`,
+    );
+    // Other test workshops may also post on this day. The deleted job remains
+    // represented in the explicit unknown-channel accounting subtotal.
+    expect(report.periodBasis).toBe("posted_ledger");
+    expect(
+      report.channels.find((c) => c.channel === "unknown")?.consumptionMinor,
+    ).toBe(1);
+    expect(report.monthly.reduce((sum, m) => sum + m.consumptionMinor, 0)).toBe(
+      report.customerConsumptionMinor,
+    );
+    expect(report.customerConsumptionMinor).toBeGreaterThanOrEqual(1);
     await expect(
       db
         .prepare("DELETE FROM delivery_charge_entries WHERE organization_id=?")

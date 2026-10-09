@@ -11,7 +11,12 @@ async function fixture(page: Page) {
       id: "mobile-ui-only",
       name: "Atelier de vérification des petites largeurs",
     },
-    user: { id: "mobile-user", name: "Camille Exemple", role: "admin" },
+    user: {
+      id: "mobile-user",
+      name: "Camille Exemple",
+      email: "camille@example.invalid",
+      role: "admin",
+    },
     csrfToken: "local-ui-fixture-only",
     simulation: true,
   };
@@ -63,6 +68,7 @@ async function fixture(page: Page) {
     } else if (path === "/account/expert-approval")
       body = { canManage: true, day: "2026-09-17", connections: [] };
     else if (path === "/account/workspaces") body = { items: [] };
+    else if (path === "/account/contacts") body = { items: [], hasMore: false };
     else if (path === "/account/sessions")
       body = {
         items: [

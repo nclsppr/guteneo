@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { handleAccountRoute } from "../../apps/api/src/account";
+import { MAX_WORKSPACE_CONTACTS } from "../../packages/contracts/src/account-identity";
 import {
   handleAuthRoute,
   hashSecret,
@@ -174,6 +175,234 @@ async function count(table: string, organization = org) {
 }
 
 describe("browser account and organization administration", () => {
+  it("identifies the current account by email without making it editable through the profile", async () => {
+    await db
+      .prepare("UPDATE users SET email=? WHERE id=?")
+      .bind("camille@example.test", member.userId)
+      .run();
+    expect(await response("/api/account", member)).toMatchObject({
+      user: {
+        id: member.userId,
+        email: "camille@example.test",
+        role: "member",
+      },
+      simulation: true,
+    });
+    const session = await handleAuthRoute(req("/api/session", member), env);
+    expect(await session!.json()).toMatchObject({
+      user: { email: "camille@example.test", role: "member" },
+    });
+    await expect(
+      handleAccountRoute(
+        req("/api/account", member, "PATCH", {
+          email: "admin@example.test",
+          role: "admin",
+        }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await db
+      .prepare("UPDATE users SET email='' WHERE id=?")
+      .bind(member.userId)
+      .run();
+    expect(await response("/api/account", member)).toMatchObject({
+      user: { email: null, role: "member" },
+    });
+  });
+
+  it("lets every workshop role find only current administrators and supervisors with their actual authority", async () => {
+    const supervisor = await user(org, "supervisor");
+    const reportingSupervisor = await user(org, "supervisor");
+    const viewer = await user(org, "viewer");
+    await db
+      .prepare(
+        "UPDATE memberships SET supervisor_can_approve=1 WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, supervisor.userId)
+      .run();
+    await db
+      .prepare(
+        "UPDATE memberships SET supervisor_can_report=1 WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, reportingSupervisor.userId)
+      .run();
+    await db
+      .prepare("UPDATE users SET email=? WHERE id=?")
+      .bind("approver@example.test", supervisor.userId)
+      .run();
+    for (const principal of [owner, supervisor, member, viewer]) {
+      const result = await response("/api/account/contacts", principal);
+      const items = result.items as Array<{
+        id: string;
+        permissions: Record<string, boolean>;
+      }>;
+      expect(items.map((item) => item.id).sort()).toEqual(
+        [owner.userId, supervisor.userId, reportingSupervisor.userId]
+          .filter((id) => id !== principal.userId)
+          .sort(),
+      );
+      expect(result.hasMore).toBe(false);
+      expect(JSON.stringify(result)).not.toMatch(
+        /sessions|connections|joinedAt|csrf|token|verifiedAccount/,
+      );
+      expect(JSON.stringify(result)).not.toContain(outsider.userId);
+      if (principal.userId !== supervisor.userId) {
+        expect(
+          items.find((item) => item.id === supervisor.userId),
+        ).toMatchObject({
+          email: "approver@example.test",
+          role: "supervisor",
+          permissions: {
+            approveDispatches: true,
+            viewReports: false,
+            manageMembers: false,
+            manageBilling: false,
+          },
+        });
+      }
+      expect(
+        items.find((item) => item.id === reportingSupervisor.userId),
+      ).toMatchObject({
+        permissions: {
+          approveDispatches: false,
+          viewReports: true,
+          manageMembers: false,
+        },
+      });
+    }
+    // Contacts remain reachable without an active login, but current membership
+    // and current capabilities determine who is responsible for each action.
+    await db
+      .prepare(
+        "DELETE FROM browser_sessions WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, supervisor.userId)
+      .run();
+    expect(await response("/api/account/contacts", member)).toMatchObject({
+      items: expect.arrayContaining([
+        {
+          id: supervisor.userId,
+          name: "Nom confidentiel",
+          email: "approver@example.test",
+          role: "supervisor",
+          permissions: expect.objectContaining({ approveDispatches: true }),
+        },
+      ]),
+    });
+    await db
+      .prepare(
+        "UPDATE memberships SET supervisor_can_approve=0 WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, supervisor.userId)
+      .run();
+    expect(await response("/api/account/contacts", member)).toMatchObject({
+      items: expect.arrayContaining([
+        expect.objectContaining({
+          id: supervisor.userId,
+          permissions: expect.objectContaining({ approveDispatches: false }),
+        }),
+      ]),
+    });
+    await db
+      .prepare(
+        "UPDATE memberships SET role='member' WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, supervisor.userId)
+      .run();
+    await db
+      .prepare(
+        "DELETE FROM browser_sessions WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, reportingSupervisor.userId)
+      .run();
+    await db
+      .prepare("DELETE FROM memberships WHERE organization_id=? AND user_id=?")
+      .bind(org, reportingSupervisor.userId)
+      .run();
+    expect(await response("/api/account/contacts", member)).toMatchObject({
+      items: [expect.objectContaining({ id: owner.userId, role: "admin" })],
+    });
+  });
+
+  it("bounds help contacts and prioritizes administrators without returning the full member list", async () => {
+    const statements: D1PreparedStatement[] = [];
+    for (let i = 0; i < MAX_WORKSPACE_CONTACTS; i++) {
+      const id = `contact_${crypto.randomUUID()}`;
+      statements.push(
+        db
+          .prepare(
+            "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+          )
+          .bind(id, "Supervisor", "", now()),
+        db
+          .prepare(
+            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'supervisor',?)",
+          )
+          .bind(org, id, now()),
+      );
+    }
+    await db.batch(statements);
+    const result = await response("/api/account/contacts", member);
+    const items = result.items as Array<{ id: string; email: string | null }>;
+    expect(items).toHaveLength(MAX_WORKSPACE_CONTACTS);
+    expect(items[0].id).toBe(owner.userId);
+    expect(items[1].email).toBeNull();
+    expect(result.hasMore).toBe(true);
+    const soleAdmin = await response("/api/account/contacts", outsider);
+    expect(soleAdmin).toEqual({ items: [], hasMore: false });
+  });
+
+  it("keeps help contacts browser-only and rechecks caller access in the contact lookup", async () => {
+    await expect(
+      handleAccountRoute(
+        req("/api/account/contacts", member, "GET", undefined, {
+          Authorization: "Bearer forbidden",
+        }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      handleAccountRoute(
+        req("/api/account/contacts", member, "GET", undefined, { Cookie: "" }),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "AUTHENTICATION_REQUIRED" });
+    await expect(
+      handleAccountRoute(
+        req(`/api/account/contacts?organizationId=${otherOrg}`, member),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    const wrapped = new Proxy(db, {
+      get(target, property) {
+        if (property === "prepare")
+          return (query: string) => {
+            const statement = target.prepare(query);
+            if (!query.includes("m.role IN ('admin','supervisor')"))
+              return statement;
+            return {
+              bind: (...args: unknown[]) => ({
+                all: async () => {
+                  await db
+                    .prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+                    .bind(member.hash)
+                    .run();
+                  return statement.bind(...args).all();
+                },
+              }),
+            };
+          };
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const result = await handleAccountRoute(
+      req("/api/account/contacts", member),
+      { ...env, DB: wrapped },
+    );
+    expect(await result!.json()).toEqual({ items: [], hasMore: false });
+  });
+
   it("persists the signed-in user's language across sessions without changing other members or workspaces", async () => {
     expect(await response("/api/account", member)).toMatchObject({
       user: { preferredLocale: null },
@@ -478,7 +707,10 @@ describe("browser account and organization administration", () => {
     expect(second.items).toHaveLength(1);
     expect(second.nextCursor).toBeNull();
     expect(JSON.stringify([first, second])).not.toContain(outsider.userId);
-    expect(JSON.stringify(first)).not.toMatch(/token|csrf|private@example/);
+    expect(JSON.stringify(first)).not.toMatch(/token|csrf/);
+    expect(first.items).toEqual([
+      expect.objectContaining({ email: "private@example.invalid" }),
+    ]);
     await expect(
       handleAccountRoute(req("/api/admin/members", member), env),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });

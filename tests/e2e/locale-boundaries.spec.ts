@@ -85,6 +85,8 @@ async function mockAccount(
       });
     if (path === "/api/account/sessions")
       return route.fulfill({ json: { items: [], hasMore: false } });
+    if (path === "/api/account/contacts")
+      return route.fulfill({ json: { items: [], hasMore: false } });
     if (path === "/api/account/expert-approval")
       return route.fulfill({ json: { connections: [], canManage: false } });
     if (path === "/api/documents")
@@ -317,7 +319,9 @@ test("translated public and account navigation keep the literal ARIA page value"
   }
   await page.goto("/#/app/account");
   await expect(page.locator("#account-name")).toHaveValue("Camille");
-  const accountLink = page.locator('.sidebar a[href="#/app/account"]');
+  const accountLink = page.locator(
+    '.workspace-navigation nav a[href="#/app/account"]',
+  );
   for (const locale of ["en", "de", "lb"]) {
     await page
       .locator('.workspace-language select[name="language"]')

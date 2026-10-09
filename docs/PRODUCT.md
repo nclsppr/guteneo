@@ -1,5 +1,13 @@
 # Guteneo product contract
 
+9 October integration candidate: visible personal identity, read-only login email,
+current workshop role/permissions and browser-only responsible contacts, with an
+explicit Auth0 account-change action. Belvédère is reconciled with current main
+and its additive migration becomes 0052. See [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md)
+and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
+executed proof. Merge, production migration/configuration and deployment remain
+separate evidence.
+
 2 October separate branch candidate: **guteneo Horizon**, EUR30/month from
 available organization credits after administrator browser consent, adds
 automatic PDF/UA/PDF/A diagnostics, immutable reports/history, JSON export and
@@ -20,6 +28,17 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+## Belvédère platform oversight candidate — 2 October 2026
+
+Belvédère gives the publisher the separate **Veilleur** read-only capability:
+workshops, members, consumption metadata, global jobs, successful connections and
+their observed country, a connections/distribution globe, financial evidence and
+optional Cloudflare measurements.
+Only the verified `nicolas@pieper.fr` browser identity can open its server-secret
+address. A workshop administrator or assistant has no platform authority.
+Promotional credits, actual receipts, verified supplier costs and unverified costs
+remain distinct; unavailable net profit is never invented. The private interface
+is French for its single intended user. See [BELVEDERE.md](BELVEDERE.md).
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

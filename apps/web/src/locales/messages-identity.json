@@ -1,0 +1,177 @@
+{
+  "Connecté avec": ["Signed in as", "Angemeldet als", "Ugemellt als"],
+  "Mon profil et mes droits": [
+    "My profile and permissions",
+    "Mein Profil und meine Rechte",
+    "Mäi Profil a meng Rechter"
+  ],
+  "Voir mon profil et mes droits": [
+    "View my profile and permissions",
+    "Mein Profil und meine Rechte ansehen",
+    "Mäi Profil a meng Rechter kucken"
+  ],
+  "Contacter un responsable": [
+    "Contact someone in charge",
+    "Eine zuständige Person kontaktieren",
+    "Eng zoustänneg Persoun kontaktéieren"
+  ],
+  "Changer de compte": ["Switch account", "Konto wechseln", "Kont wiesselen"],
+  "Utiliser un autre compte": [
+    "Use another account",
+    "Ein anderes Konto verwenden",
+    "En anert Kont benotzen"
+  ],
+  "Adresse de connexion indisponible": [
+    "Sign-in email unavailable",
+    "Anmeldeadresse nicht verfügbar",
+    "Umeldungsadress net disponibel"
+  ],
+  "Adresse de connexion": [
+    "Sign-in email",
+    "Anmeldeadresse",
+    "Umeldungsadress"
+  ],
+  "Votre rôle dans cet atelier": [
+    "Your role in this workshop",
+    "Ihre Rolle in dieser Werkstatt",
+    "Är Roll an dësem Atelier"
+  ],
+  "Votre compte": ["Your account", "Ihr Konto", "Äre Kont"],
+  "L’atelier": ["Workshop", "Werkstatt", "Atelier"],
+  "Mon profil": ["My profile", "Mein Profil", "Mäi Profil"],
+  "Votre adresse de connexion est fournie par votre compte d’identité. Elle ne se modifie pas dans Guteneo.": [
+    "Your sign-in email comes from your identity account. It cannot be changed in Guteneo.",
+    "Ihre Anmeldeadresse stammt aus Ihrem Identitätskonto. Sie kann in Guteneo nicht geändert werden.",
+    "Är Umeldungsadress kënnt vun Ärem Identitéitskont. Si kann net a Guteneo geännert ginn."
+  ],
+  "Documents et envois": [
+    "Documents and dispatches",
+    "Dokumente und Sendungen",
+    "Dokumenter a Sendungen"
+  ],
+  "Préparation autorisée": [
+    "Preparation allowed",
+    "Vorbereitung erlaubt",
+    "Virbereedung erlaabt"
+  ],
+  "Consultation seulement": ["Read only", "Nur ansehen", "Nëmme kucken"],
+  "Approbation des envois": [
+    "Dispatch approval",
+    "Freigabe von Sendungen",
+    "Fräigab vu Sendungen"
+  ],
+  "Autorisée": ["Allowed", "Erlaubt", "Erlaabt"],
+  "Non autorisée": ["Not allowed", "Nicht erlaubt", "Net erlaabt"],
+  "Rapports de l’atelier": [
+    "Workshop reports",
+    "Werkstattberichte",
+    "Rapporte vum Atelier"
+  ],
+  "Accessibles": ["Available", "Zugänglich", "Zougänglech"],
+  "Non accessibles": ["Unavailable", "Nicht zugänglich", "Net zougänglech"],
+  "Membres et facturation": [
+    "Members and billing",
+    "Mitglieder und Abrechnung",
+    "Memberen a Rechnungen"
+  ],
+  "Gestion autorisée": [
+    "Management allowed",
+    "Verwaltung erlaubt",
+    "Gestioun erlaabt"
+  ],
+  "Administrateur requis": [
+    "Administrator required",
+    "Administrator erforderlich",
+    "Administrateur néideg"
+  ],
+  "Pour changer de rôle ou de droits, contactez un administrateur de cet atelier.": [
+    "To change your role or permissions, contact an administrator of this workshop.",
+    "Um Ihre Rolle oder Rechte zu ändern, kontaktieren Sie einen Administrator dieser Werkstatt.",
+    "Fir Är Roll oder Är Rechter ze änneren, kontaktéiert en Administrateur vun dësem Atelier."
+  ],
+  "Qui contacter dans cet atelier ?": [
+    "Who can help in this workshop?",
+    "Wer kann in dieser Werkstatt helfen?",
+    "Wien kann an dësem Atelier hëllefen?"
+  ],
+  "Un administrateur gère vos accès et la facturation. Pour valider un envoi, contactez une personne dont le droit d’approbation est indiqué ci-dessous.": [
+    "An administrator manages access and billing. To approve a dispatch, contact someone whose approval permission is listed below.",
+    "Ein Administrator verwaltet Zugänge und Abrechnung. Für die Freigabe einer Sendung kontaktieren Sie eine Person mit dem unten angegebenen Freigaberecht.",
+    "En Administrateur geréiert Zougrëffer a Rechnungen. Fir eng Sendung fräizeginn, kontaktéiert eng Persoun, där hiert Fräigaberecht hei ënnendrënner steet."
+  ],
+  "Contacter {0} par e-mail à {1}": [
+    "Email {0} at {1}",
+    "{0} per E-Mail an {1} kontaktieren",
+    "{0} per E-Mail op {1} kontaktéieren"
+  ],
+  "Gère les accès et les membres": [
+    "Manages access and members",
+    "Verwaltet Zugänge und Mitglieder",
+    "Geréiert Zougrëffer a Memberen"
+  ],
+  "Gérer les membres et les invitations": [
+    "Manage members and invitations",
+    "Mitglieder und Einladungen verwalten",
+    "Memberen an Invitatioune geréieren"
+  ],
+  "Gère la facturation": [
+    "Manages billing",
+    "Verwaltet die Abrechnung",
+    "Geréiert Rechnungen"
+  ],
+  "Peut approuver les envois": [
+    "Can approve dispatches",
+    "Kann Sendungen freigeben",
+    "Kann Sendunge fräiginn"
+  ],
+  "Ne peut pas approuver les envois": [
+    "Cannot approve dispatches",
+    "Kann keine Sendungen freigeben",
+    "Kann keng Sendunge fräiginn"
+  ],
+  "Peut consulter les rapports": [
+    "Can view reports",
+    "Kann Berichte ansehen",
+    "Kann Rapporte kucken"
+  ],
+  "Aucun autre administrateur ou superviseur dans cet atelier.": [
+    "There are no other administrators or supervisors in this workshop.",
+    "In dieser Werkstatt gibt es keine weiteren Administratoren oder Supervisoren.",
+    "Et gëtt keng aner Administrateuren oder Supervisoren an dësem Atelier."
+  ],
+  "Vous pouvez inviter une personne ou attribuer ces rôles dans Administration.": [
+    "You can invite someone or assign these roles in Administration.",
+    "Sie können unter Verwaltung eine Person einladen oder diese Rollen vergeben.",
+    "Dir kënnt an der Administratioun eng Persoun invitéieren oder dës Rolle zouweisen."
+  ],
+  "Les 50 premiers contacts sont affichés. Un administrateur peut consulter tous les membres dans Administration.": [
+    "The first 50 contacts are shown. An administrator can view all members in Administration.",
+    "Die ersten 50 Kontakte werden angezeigt. Ein Administrator kann unter Verwaltung alle Mitglieder ansehen.",
+    "Déi éischt 50 Kontakter ginn ugewisen. En Administrateur kann all Memberen an der Administratioun kucken."
+  ],
+  "Vous gérez les accès et pouvez valider les envois.": [
+    "You manage access and can approve dispatches.",
+    "Sie verwalten Zugänge und können Sendungen freigeben.",
+    "Dir geréiert Zougrëffer a kënnt Sendunge fräiginn."
+  ],
+  "Vous pouvez préparer et valider les envois.": [
+    "You can prepare and approve dispatches.",
+    "Sie können Sendungen vorbereiten und freigeben.",
+    "Dir kënnt Sendunge virbereeden a fräiginn."
+  ],
+  "Vous préparez les envois ; une personne habilitée les valide.": [
+    "You prepare dispatches; an authorized person approves them.",
+    "Sie bereiten Sendungen vor; eine berechtigte Person gibt sie frei.",
+    "Dir bereet Sendunge vir; eng autoriséiert Persoun gëtt se fräi."
+  ],
+  "Vous consultez l’activité de cet atelier en lecture seule.": [
+    "You can view this workshop’s activity in read-only mode.",
+    "Sie können die Aktivitäten dieser Werkstatt nur ansehen.",
+    "Dir kënnt d’Aktivitéit vun dësem Atelier nëmme kucken."
+  ],
+  "Impossible de vérifier les contacts de cet atelier. Réessayez leur consultation.": [
+    "The contacts for this workshop could not be verified. Try loading them again.",
+    "Die Kontakte dieses Arbeitsbereichs konnten nicht geprüft werden. Versuchen Sie, sie erneut zu laden.",
+    "D’Kontakter vun dësem Atelier konnten net iwwerpréift ginn. Probéiert se nach eng Kéier ze lueden."
+  ]
+}

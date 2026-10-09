@@ -1,5 +1,13 @@
 # Architecture
 
+9 October integration candidate: visible personal identity, read-only login email,
+current workshop role/permissions and browser-only responsible contacts, with an
+explicit Auth0 account-change action. Belvédère is reconciled with current main
+and its additive migration becomes 0052. See [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md)
+and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
+executed proof. Merge, production migration/configuration and deployment remain
+separate evidence.
+
 2 October Horizon branch candidate: migrations 0050–0051 add immutable recurring
 browser consent, atomic credit debits and tenant-scoped diagnostics. A private
 veraPDF 1.30.2 service is reached through `PDF_VALIDATOR`. Exact bytes, paid
@@ -19,6 +27,23 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+## Belvédère read-only platform boundary — 2 October 2026 candidate
+
+The browser-only `/belvedere/<server-secret>` handler provides deliberately global
+metadata projections after checking a signed login evidence record, current
+session/membership and the sole verified email `nicolas@pieper.fr`. Optional
+subject pinning further restricts Auth0 identity. This capability is separate
+from workspace roles, OAuth scopes and expert mandates. Every child API read
+rechecks the guard; no recipient/content read or business mutation is added.
+All cross-table associations still join on organization keys. Existing tenant
+APIs retain their original authorization scope.
+
+Migration 0052 stores private login evidence, opaque native public identifiers,
+minimal country-only successful-connection observations and safe action-code
+audit records. Ninety-day history filtering plus bounded cron deletion apply to
+the new telemetry. Cloudflare credentials remain server-only and connectors use
+read permissions. Deployment and real provider qualification are separate gates;
+see [BELVEDERE.md](BELVEDERE.md).
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

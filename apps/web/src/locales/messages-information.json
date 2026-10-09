@@ -1215,5 +1215,10 @@
     "Sign {0} out of this workshop",
     "{0} von dieser Werkstatt abmelden",
     "{0} aus dësem Atelier ausloggen"
+  ],
+  "Le suivi d’exploitation enregistre les connexions réussies, leur date, le compte et le membre concernés, le type d’accès et le pays estimé par Cloudflare lorsqu’il est disponible. Ce registre ne conserve ni adresse IP ni navigateur détaillé. Il est réservé à l’éditeur pour la sécurité et le suivi du service. Les événements de connexion et les consultations de ce tableau de contrôle sont exclus des vues après 90 jours, puis supprimés par la maintenance.": [
+    "Operational monitoring records successful connections, their date, the account and member concerned, the access type and the country estimated by Cloudflare when available. This register stores neither IP addresses nor detailed browser information. It is restricted to the publisher for security and service monitoring. Connection events and access records for this control panel are excluded from views after 90 days, then deleted during maintenance.",
+    "Die Betriebsüberwachung erfasst erfolgreiche Verbindungen, ihr Datum, das betroffene Konto und Mitglied, die Zugriffsart und das von Cloudflare geschätzte Land, sofern verfügbar. Dieses Register speichert weder IP-Adressen noch detaillierte Browserinformationen. Es ist dem Herausgeber für die Sicherheit und Überwachung des Dienstes vorbehalten. Verbindungsereignisse und Zugriffsprotokolle dieses Kontrollbereichs werden nach 90 Tagen nicht mehr angezeigt und anschließend durch die Wartung gelöscht.",
+    "D’Betribsiwwerwaachung erfaasst erfollegräich Verbindungen, hiren Datum, de betraffene Kont a Member, d’Zort vum Zougrëff an dat vu Cloudflare geschate Land, wann et disponibel ass. Dëse Register späichert weder IP-Adressen nach detailléiert Browserinformatiounen. En ass dem Editeur fir d’Sécherheet an d’Iwwerwaachung vum Service virbehalen. Verbindungsevenementer an Zougrëffsprotokoller vun dësem Kontrollberäich ginn no 90 Deeg net méi ugewisen an duerno duerch den Entretien geläscht."
   ]
 }

@@ -1,3 +1,4 @@
+import { recordConnectionEvent } from "./belvedere-telemetry";
 import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import { z } from "zod";
 import {
@@ -422,6 +423,18 @@ async function exchange(request: Request, env: Env): Promise<Response> {
     }),
     env,
   );
+  const publicId = await env.DB.prepare(
+    "SELECT public_id FROM native_sessions WHERE token_hash=?",
+  )
+    .bind(tokenHash)
+    .first<{ public_id: string }>();
+  if (publicId)
+    await recordConnectionEvent(env.DB, request, {
+      organizationId: session.context.organizationId,
+      userId: session.context.userId,
+      kind: "native",
+      connectionId: publicId.public_id,
+    });
   return json({
     token,
     expiresAt: session.expiresAt,

@@ -64,6 +64,7 @@ import {
 } from "./horizon-public";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
+import { WorkspaceIdentity } from "./workspace-identity";
 import { RolePermissionNotice } from "./role-guide";
 import { TeamInvitations } from "./team-invitations";
 import { InvitationPage } from "./invitation-page";
@@ -644,19 +645,24 @@ function WorkspaceApplication({
   }>(page.startsWith("/app") ? "/capabilities" : null);
   const [logoutError, setLogoutError] = useState<Error>();
   const [sessionExpired, setSessionExpired] = useState(false);
+  const lastSessionRead = useRef(0);
   useEffect(() => {
     const expire = () => setSessionExpired(true);
     window.addEventListener(SESSION_EXPIRED_EVENT, expire);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, expire);
   }, []);
   useEffect(() => {
-    if (!sessionExpired) return;
-    // A reconnection in another tab restores this one without a reload.
+    if (!session && !sessionExpired) return;
+    // Cookies are shared across tabs: reconcile a different account/workshop
+    // even while this tab's previous session appeared healthy.
     let alive = true;
     let pending = false;
     const controller = new AbortController();
     const recheck = () => {
       if (document.visibilityState !== "visible" || pending) return;
+      const now = Date.now();
+      if (now - lastSessionRead.current < 1000) return;
+      lastSessionRead.current = now;
       pending = true;
       const languageVersion = getLocaleSelectionVersion();
       api<Session>("/session", { signal: controller.signal })
@@ -668,11 +674,23 @@ function WorkspaceApplication({
             current.organization.id !== session?.organization.id
           )
             go("/app");
-          setSession(current, languageVersion === getLocaleSelectionVersion());
+          setSession(
+            current,
+            (current.user.id !== session?.user.id ||
+              current.user.preferredLocale !== session?.user.preferredLocale) &&
+              languageVersion === getLocaleSelectionVersion(),
+          );
           updateSession(current);
           setSessionExpired(false);
         })
-        .catch(() => undefined)
+        .catch((error: unknown) => {
+          if (
+            alive &&
+            error instanceof ApiError &&
+            [401, 403].includes(error.status)
+          )
+            setSessionExpired(true);
+        })
         .finally(() => {
           pending = false;
         });
@@ -859,9 +877,10 @@ function WorkspaceApplication({
           </span>
           <div>
             <strong>{session.organization.name}</strong>
-            <small>{session.user.name}</small>
+            <small>{msg("L’atelier")}</small>
           </div>
         </div>
+        <WorkspaceIdentity session={session} />
         <div className="workspace-language">
           <LanguageSelect />
         </div>

@@ -29,6 +29,8 @@ import {
   type WorkspaceRole,
 } from "../../../packages/contracts/src/roles";
 import { roleLabel, roleDescription, RolesOverview } from "./role-guide";
+import { WorkspaceContacts } from "./workspace-contacts";
+import "./workspace-contacts.css";
 
 type Props = { session: Session; onUpdated: () => void | Promise<void> };
 type SessionItem = {
@@ -42,6 +44,7 @@ type SessionItem = {
 type Member = {
   id: string;
   name: string;
+  email?: string | null;
   role: WorkspaceRole;
   supervisorCanApprove: boolean;
   supervisorCanReport: boolean;
@@ -183,6 +186,37 @@ export function Account({ session, onUpdated }: Props) {
           "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.",
         )}
       />
+      <section
+        className="form-panel account-identity"
+        aria-labelledby="account-identity-title"
+      >
+        <h2 id="account-identity-title">{msg("Votre compte")}</h2>
+        <dl className="account-identity-details">
+          <div>
+            <dt>{msg("Votre nom")}</dt>
+            <dd>{session.user.name}</dd>
+          </div>
+          <div>
+            <dt>{msg("Adresse de connexion")}</dt>
+            <dd>
+              {session.user.email || msg("Adresse de connexion indisponible")}
+            </dd>
+          </div>
+          <div>
+            <dt>{msg("L’atelier")}</dt>
+            <dd>{session.organization.name}</dd>
+          </div>
+          <div>
+            <dt>{msg("Votre rôle dans cet atelier")}</dt>
+            <dd>{roleLabel(session.user.role)}</dd>
+          </div>
+        </dl>
+        <p className="field-hint">
+          {msg(
+            "Votre adresse de connexion est fournie par votre compte d’identité. Elle ne se modifie pas dans Guteneo.",
+          )}
+        </p>
+      </section>
       <WorkspaceSwitcher session={session} onUpdated={onUpdated} />
       {isPublicPreview ? (
         <>
@@ -199,7 +233,7 @@ export function Account({ session, onUpdated }: Props) {
             onSubmit={(event) => void save(event)}
             aria-busy={action.pending}
           >
-            <h2>{msg("Profil et atelier")}</h2>
+            <h2>{msg("Mon profil")}</h2>
             <p className="field-hint">
               {msg(
                 "Votre nom de profil est partagé entre vos ateliers. Votre adresse de connexion et vos facteurs de sécurité restent gérés par le fournisseur d’identité.",
@@ -263,9 +297,6 @@ export function Account({ session, onUpdated }: Props) {
                 action.clear();
               }}
             />
-            <p className="field-hint">
-              {msg("Votre rôle :")} {roleLabel(session.user.role)}.
-            </p>
             <button
               className="button primary"
               type="submit"
@@ -293,19 +324,50 @@ export function Account({ session, onUpdated }: Props) {
               <strong>{roleLabel(session.user.role)}</strong> —{" "}
               {roleDescription(session.user.role)}
             </p>
-            <p>
-              {msg(
-                "Approbation des requêtes : {0}. Rapports : {1}.",
-                permissions.approveDispatches
-                  ? msg("autorisée")
-                  : msg("non autorisée"),
-                permissions.viewReports
-                  ? msg("accessibles")
-                  : msg("non accessibles"),
-              )}
-            </p>
+            <dl className="account-permissions">
+              <div>
+                <dt>{msg("Documents et envois")}</dt>
+                <dd>
+                  {permissions.prepareDispatches
+                    ? msg("Préparation autorisée")
+                    : msg("Consultation seulement")}
+                </dd>
+              </div>
+              <div>
+                <dt>{msg("Approbation des envois")}</dt>
+                <dd>
+                  {permissions.approveDispatches
+                    ? msg("Autorisée")
+                    : msg("Non autorisée")}
+                </dd>
+              </div>
+              <div>
+                <dt>{msg("Rapports de l’atelier")}</dt>
+                <dd>
+                  {permissions.viewReports
+                    ? msg("Accessibles")
+                    : msg("Non accessibles")}
+                </dd>
+              </div>
+              <div>
+                <dt>{msg("Membres et facturation")}</dt>
+                <dd>
+                  {permissions.manageMembers && permissions.manageBilling
+                    ? msg("Gestion autorisée")
+                    : msg("Administrateur requis")}
+                </dd>
+              </div>
+            </dl>
+            {!permissions.manageMembers && (
+              <p className="field-hint">
+                {msg(
+                  "Pour changer de rôle ou de droits, contactez un administrateur de cet atelier.",
+                )}
+              </p>
+            )}
             <a href="/roles/">{msg("Comprendre les rôles")}</a>
           </section>
+          <WorkspaceContacts session={session} />
           <ExpertApproval />
           <section
             className="form-panel"
@@ -430,12 +492,14 @@ export function Account({ session, onUpdated }: Props) {
 
 function MemberRow({
   member,
+  memberLabel,
   currentUserId,
   disabled,
   onRole,
   onRevoke,
 }: {
   member: Member;
+  memberLabel: string;
   currentUserId: string;
   disabled: boolean;
   onRole: (
@@ -464,8 +528,13 @@ function MemberRow({
         <span className="mobile-cell-label" aria-hidden="true">
           {msg("Membre")}
         </span>
-        {member.name}
-        {member.id === currentUserId ? msg(" (vous)") : ""}
+        <span className="member-name">
+          {member.name}
+          {member.id === currentUserId ? msg(" (vous)") : ""}
+        </span>
+        <span className="member-email">
+          {member.email || msg("Adresse de connexion indisponible")}
+        </span>
       </th>
       <td role="cell" className="member-role-cell">
         <span className="mobile-cell-label" aria-hidden="true">
@@ -474,7 +543,7 @@ function MemberRow({
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor={`member-role-${member.id}`} className="sr-only">
             {msg("Rôle de ")}
-            {member.name}
+            {memberLabel}
           </label>
           <select
             id={`member-role-${member.id}`}
@@ -501,7 +570,7 @@ function MemberRow({
           </p>
           {role === "supervisor" && (
             <fieldset className="member-rights" disabled={disabled}>
-              <legend>{msg("Droits de {0}", member.name)}</legend>
+              <legend>{msg("Droits de {0}", memberLabel)}</legend>
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -554,7 +623,7 @@ function MemberRow({
                 supervisorCanReport: role === "supervisor" && canReport,
               })
             }
-            aria-label={msg("Enregistrer le rôle de {0}", member.name)}
+            aria-label={msg("Enregistrer le rôle de {0}", memberLabel)}
           >
             {msg("Enregistrer le rôle")}
           </button>
@@ -562,7 +631,7 @@ function MemberRow({
             className="text-button"
             disabled={disabled || (!member.sessions && !member.connections)}
             onConfirm={onRevoke}
-            ariaLabel={msg("Déconnecter {0} de cet atelier", member.name)}
+            ariaLabel={msg("Déconnecter {0} de cet atelier", memberLabel)}
             label={msg("Déconnecter les accès")}
             question={
               member.id === currentUserId
@@ -571,7 +640,7 @@ function MemberRow({
                   )
                 : msg(
                     "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.",
-                    member.name,
+                    memberLabel,
                   )
             }
             confirmLabel={msg("Oui, déconnecter")}
@@ -680,6 +749,13 @@ export function TeamAdmin({ session, onUpdated }: Props) {
                         <MemberRow
                           key={`${member.id}-${member.role}-${member.supervisorCanApprove}-${member.supervisorCanReport}`}
                           member={member}
+                          memberLabel={
+                            (members.data?.items.filter(
+                              (item) => item.name === member.name,
+                            ).length ?? 0) > 1 && member.email
+                              ? `${member.name} (${member.email})`
+                              : member.name
+                          }
                           currentUserId={session.user.id}
                           disabled={action.pending}
                           onRole={(role) => void change(member, role)}

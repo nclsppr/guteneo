@@ -1,3 +1,8 @@
+import { readBelvedereFixture } from "../helpers/belvedere-reader";
+import type {
+  BelvedereWorkshopDetail,
+  BelvedereFinance,
+} from "../../packages/contracts/src/belvedere";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { readFileSync, readdirSync } from "node:fs";
@@ -540,6 +545,40 @@ describe("protected PDF hosting on local D1 and private R2", () => {
         .first(),
     ).toMatchObject({ reserved_minor: 0, confirmed_minor: 100 });
     expect((await hosting()).hostingFeeMinor).toBe(0);
+    const detail = await readBelvedereFixture<BelvedereWorkshopDetail>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `workshops/${ctx.organizationId}?from=${stamp.slice(0, 10)}&to=${stamp.slice(0, 10)}`,
+    );
+    expect(detail.workshop.consumptionMinor).toBe(100);
+    const report = await readBelvedereFixture<BelvedereFinance>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `finance?from=${stamp.slice(0, 10)}&to=${stamp.slice(0, 10)}`,
+    );
+    expect(report.periodBasis).toBe("posted_ledger");
+    expect(report.customerConsumptionMinor).toBeGreaterThanOrEqual(100);
+    expect(report.monthly.reduce((sum, m) => sum + m.consumptionMinor, 0)).toBe(
+      report.customerConsumptionMinor,
+    );
+    expect(detail.workshop.reservedMinor).toBe(0);
+    expect(
+      detail.dispatches.items.reduce(
+        (sum, d) => sum + (d.hostingFeeMinor ?? 0),
+        0,
+      ),
+    ).toBe(100);
+    expect(
+      detail.dispatches.items.every((d) => d.deliveryMode === "protected_link"),
+    ).toBe(true);
+    expect(detail.channels).toContainEqual({
+      channel: "email",
+      dispatches: 2,
+      consumptionMinor: 100,
+      reservedMinor: 0,
+    });
   });
   it("rolls back hosting, outbox and quota when monthly budget is insufficient", async () => {
     const h = await hosting(),

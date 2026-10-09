@@ -137,6 +137,8 @@ test("profile saves language for the account and keeps edited fields when switch
       };
     else if (path === "/api/account/sessions")
       response = { items: [], hasMore: false };
+    else if (path === "/api/account/contacts")
+      response = { items: [], hasMore: false };
     else if (path === "/api/account/expert-approval")
       response = { connections: [], enabled: false };
     else if (path === "/api/capabilities")
@@ -199,7 +201,7 @@ test("failed profile save keeps the active account language and offers retry", a
                 { id: "o", name: "Example", role: "member", current: true },
               ],
             }
-          : path === "/api/account/sessions"
+          : path === "/api/account/sessions" || path === "/api/account/contacts"
             ? { items: [], hasMore: false }
             : path === "/api/account/expert-approval"
               ? { connections: [], enabled: false }

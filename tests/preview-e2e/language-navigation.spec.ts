@@ -188,6 +188,8 @@ test("public subpage language panels remain fully inside narrow phone viewports"
         await page.goto(`${path}?lang=lb`);
         const header = page.locator("header.site-header");
         await expect(header).toBeVisible();
+        // Compare the closed/open menu only after font metrics have settled.
+        await page.evaluate(() => document.fonts.ready);
         const closedHeight = await header.evaluate(
           (element) => element.getBoundingClientRect().height,
         );

@@ -1,3 +1,5 @@
+import { recordConnectionEvent } from "./belvedere-telemetry";
+import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import {
   workspacePermissions,
@@ -54,6 +56,7 @@ interface Membership {
   organization_name: string;
   user_id: string;
   user_name: string;
+  user_email: string | null;
   preferred_locale: SupportedLocale | null;
   role: AuthContext["role"];
   supervisor_can_approve: number;
@@ -65,6 +68,7 @@ export interface AuthenticatedSession {
   user: {
     id: string;
     name: string;
+    email: string | null;
     role: AuthContext["role"];
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
@@ -317,7 +321,7 @@ async function memberships(
   userId: string,
 ): Promise<Membership[]> {
   const result = await env.DB.prepare(
-    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, u.preferred_locale, m.role,m.supervisor_can_approve,m.supervisor_can_report
+    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name,u.email user_email, u.preferred_locale, m.role,m.supervisor_can_approve,m.supervisor_can_report
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
   )
@@ -347,6 +351,7 @@ function sessionResult(
     user: {
       id: row.user_id,
       name: row.user_name,
+      email: accountEmail(row.user_email),
       role: row.role,
       supervisorCanApprove: row.supervisor_can_approve === 1,
       supervisorCanReport: row.supervisor_can_report === 1,
@@ -413,6 +418,34 @@ async function createSession(
     cookie: cookie(env, "session", secret, 3600),
   };
 }
+async function observeBrowserSession(
+  env: AuthEnv,
+  request: Request,
+  session: AuthenticatedSession,
+): Promise<void> {
+  try {
+    const publicId = await env.DB.prepare(
+      "SELECT public_id FROM browser_sessions WHERE token_hash=? AND organization_id=? AND user_id=? AND is_development=0 AND expires_at>?",
+    )
+      .bind(
+        session.tokenHash,
+        session.context.organizationId,
+        session.context.userId,
+        nowISO(),
+      )
+      .first<{ public_id: string }>();
+    if (publicId)
+      await recordConnectionEvent(env.DB, request, {
+        organizationId: session.context.organizationId,
+        userId: session.context.userId,
+        kind: "browser",
+        connectionId: publicId.public_id,
+      });
+  } catch {
+    // The optional public-ID lookup is telemetry too. Its failure never changes
+    // authenticated authority or the session cookie already being rotated.
+  }
+}
 export async function authenticateBrowser(
   request: Request,
   env: AuthEnv,
@@ -426,9 +459,11 @@ export async function authenticateBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,u.preferred_locale
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,COALESCE(e.verified_email,u.email) user_email,u.preferred_locale
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
-    JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id WHERE s.token_hash=? AND s.expires_at>?`,
+    JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
+    LEFT JOIN browser_identity_evidence e ON e.token_hash=s.token_hash
+    WHERE s.token_hash=? AND s.expires_at>?`,
   )
     .bind(tokenHash, nowISO())
     .first<
@@ -631,6 +666,13 @@ export async function authenticateMcp(
       "Reconnectez l’assistant après une double authentification.",
       403,
     );
+  if (env.MODE === "production")
+    await recordConnectionEvent(env.DB, request, {
+      organizationId: member.organization_id,
+      userId: member.user_id,
+      kind: "mcp",
+      connectionId: connection.id,
+    });
   const scopes =
     typeof payload.scope === "string"
       ? payload.scope
@@ -824,7 +866,10 @@ export async function handleAuthRoute(
       destination.searchParams.set("screen_hint", "signup");
     // A fresh login allows a newly verified email or MFA enrolment to be reflected
     // in signed claims rather than reusing an old identity-provider session.
-    if (url.searchParams.get("fresh") === "1") {
+    if (
+      url.searchParams.get("fresh") === "1" ||
+      url.searchParams.get("intent") === "switch-account"
+    ) {
       destination.searchParams.set("prompt", "login");
       destination.searchParams.set("max_age", "0");
     }
@@ -1067,6 +1112,19 @@ export async function handleAuthRoute(
         "Activez la double authentification avant d’accéder à l’espace administrateur.",
         403,
       );
+    // Only the exact signature-verified identity may refresh its login address.
+    // A profile edit and an email match never link or elevate another account.
+    // Preserve the person's name and saved language across Auth0 reconnections.
+    if (claims.email_verified === true) {
+      const verifiedEmail = claims.email.trim().toLowerCase();
+      if (member.user_email !== verifiedEmail)
+        await env.DB.prepare(
+          "UPDATE users SET email=? WHERE id=? AND EXISTS(SELECT 1 FROM auth_identities i WHERE i.user_id=users.id AND i.issuer=? AND i.subject=?)",
+        )
+          .bind(verifiedEmail, identity.user_id, config.issuer, claims.sub)
+          .run();
+      member.user_email = verifiedEmail;
+    }
     const session = await createSession(
       env,
       member,
@@ -1074,6 +1132,18 @@ export async function handleAuthRoute(
       false,
       verifiedAccount,
     );
+    await env.DB.prepare(
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) VALUES(?,?,?,?,?)",
+    )
+      .bind(
+        session.session.tokenHash,
+        config.issuer,
+        claims.sub,
+        claims.email.toLowerCase().trim(),
+        nowISO(),
+      )
+      .run();
+    await observeBrowserSession(env, request, session.session);
     return redirect(
       new URL(
         invitedOrganizationId ? "/#/app" : transaction.return_to,
@@ -1224,6 +1294,9 @@ export async function handleAuthRoute(
         current.is_development,
       ),
       env.DB.prepare(
+        "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+      ).bind(tokenHash, session.tokenHash, tokenHash),
+      env.DB.prepare(
         "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
       ).bind(session.tokenHash, tokenHash),
     ]);
@@ -1237,6 +1310,7 @@ export async function handleAuthRoute(
     const result = sessionResult(
       {
         ...selected,
+        user_email: session.user.email,
         csrf_token: csrfToken,
         mfa: Number(session.mfa),
         verified_account: Number(session.verifiedAccount),
@@ -1244,6 +1318,8 @@ export async function handleAuthRoute(
       tokenHash,
       env,
     );
+    if (!current.is_development)
+      await observeBrowserSession(env, request, result);
     return json(publicSession(result), 200, {
       "Set-Cookie": cookie(env, "session", secret, 3600),
     });
