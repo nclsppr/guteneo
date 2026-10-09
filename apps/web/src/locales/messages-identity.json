@@ -168,5 +168,10 @@
     "You can view this workshop’s activity in read-only mode.",
     "Sie können die Aktivitäten dieser Werkstatt nur ansehen.",
     "Dir kënnt d’Aktivitéit vun dësem Atelier nëmme kucken."
+  ],
+  "Impossible de vérifier les contacts de cet atelier. Réessayez leur consultation.": [
+    "The contacts for this workshop could not be verified. Try loading them again.",
+    "Die Kontakte dieses Arbeitsbereichs konnten nicht geprüft werden. Versuchen Sie, sie erneut zu laden.",
+    "D’Kontakter vun dësem Atelier konnten net iwwerpréift ginn. Probéiert se nach eng Kéier ze lueden."
   ]
 }

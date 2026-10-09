@@ -69,7 +69,12 @@ async function fixture(
     body: Record<string, unknown>;
   }[] = [];
   const unmatched: string[] = [];
-  const state = { failContacts: false, contactReads: 0, sessionReads: 0 };
+  const state = {
+    failContacts: false,
+    malformedContacts: null as "missing-items" | "missing-permissions" | null,
+    contactReads: 0,
+    sessionReads: 0,
+  };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname.slice(4);
@@ -119,7 +124,20 @@ async function fixture(
       body = session;
     } else if (path === "/account/contacts") {
       state.contactReads++;
-      if (state.failContacts) {
+      if (state.malformedContacts === "missing-items") body = {};
+      else if (state.malformedContacts === "missing-permissions")
+        body = {
+          items: [
+            {
+              id: "invalid",
+              name: "Invalid fixture",
+              email: null,
+              role: "admin",
+            },
+          ],
+          hasMore: false,
+        };
+      else if (state.failContacts) {
         status = 503;
         body = {
           error: {
@@ -511,6 +529,54 @@ test("contact failure is recoverable and switching workshops removes the previou
       body: { organizationId: "other-workshop" },
     },
   ]);
+  expect(data.unmatched).toEqual([]);
+});
+
+test("malformed contacts leave the profile usable and support an explicit retry", async ({
+  page,
+}) => {
+  const data = await fixture(page);
+  data.state.malformedContacts = "missing-items";
+  await page.goto("/#/app/account");
+  const contacts = page.getByRole("region", {
+    name: "Qui contacter dans cet atelier ?",
+    exact: true,
+  });
+  await expect(contacts.getByRole("alert")).toContainText(
+    "Impossible de vérifier les contacts",
+  );
+  await expect(page.locator("#account-name")).toHaveValue(
+    data.session.user.name,
+  );
+  await page.locator("#account-name").fill("Nom personnel toujours modifiable");
+  await expect(
+    contacts.getByText(
+      "Aucun autre administrateur ou superviseur dans cet atelier.",
+      { exact: true },
+    ),
+  ).toHaveCount(0);
+  data.state.malformedContacts = "missing-permissions";
+  await contacts
+    .getByRole("button", { name: "Réessayer", exact: true })
+    .click();
+  await expect.poll(() => data.state.contactReads).toBe(2);
+  await expect(contacts).toHaveAttribute("aria-busy", "false");
+  await expect(contacts.getByRole("alert")).toBeVisible();
+  await expect(
+    contacts.getByText("Invalid fixture", { exact: true }),
+  ).toHaveCount(0);
+  data.state.malformedContacts = null;
+  await contacts
+    .getByRole("button", { name: "Réessayer", exact: true })
+    .click();
+  await expect(
+    contacts.getByRole("link", { name: /validation@example.invalid/ }),
+  ).toBeVisible();
+  await expect(contacts.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator("#account-name")).toHaveValue(
+    "Nom personnel toujours modifiable",
+  );
+  expect(data.writes).toEqual([]);
   expect(data.unmatched).toEqual([]);
 });
 

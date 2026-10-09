@@ -57,6 +57,8 @@ async function fixture(page: Page, initialItems: AssistantConnection[] = []) {
           done: 0,
         },
       };
+    } else if (path === "/account/contacts") {
+      body = { items: [], hasMore: false };
     } else if (path === "/capabilities") {
       body = { simulation: true };
     } else {

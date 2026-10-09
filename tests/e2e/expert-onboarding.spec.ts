@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { ExpertApprovalSettings } from "../../apps/web/src/api";
+import { workspacePermissions } from "../../packages/contracts/src/roles";
 
 // Browser fixtures only: every API request is intercepted. These checks cannot
 // grant a real mandate, change an account or contact a delivery provider.
@@ -52,20 +53,24 @@ async function fixture(
     const method = route.request().method();
     let body: unknown;
     let status = 200;
-    if (path === "/api/session")
+    if (path === "/api/session" && method === "GET")
       body = {
         organization: { id: "fixture-onboarding", name: "Atelier fictif" },
         user: {
           id: "fixture-user",
           name: "Camille Exemple",
+          email: "camille@example.invalid",
           role: options.canManage === false ? "member" : "admin",
         },
+        permissions: workspacePermissions(
+          options.canManage === false ? "member" : "admin",
+        ),
         csrfToken: "fixture-csrf-only",
         simulation: true,
       };
-    else if (path === "/api/capabilities")
+    else if (path === "/api/capabilities" && method === "GET")
       body = { scanner: "disabled_in_local_simulation" };
-    else if (path === "/api/account/workspaces")
+    else if (path === "/api/account/workspaces" && method === "GET")
       body = {
         items: [
           {
@@ -76,8 +81,21 @@ async function fixture(
           },
         ],
       };
-    else if (path === "/api/account/sessions")
+    else if (path === "/api/account/sessions" && method === "GET")
       body = { items: [], hasMore: false };
+    else if (path === "/api/account/contacts" && method === "GET")
+      body = {
+        items: [
+          {
+            id: "fixture-administrator-contact",
+            name: "Ari Responsable",
+            email: "responsable@example.invalid",
+            role: "admin",
+            permissions: workspacePermissions("admin"),
+          },
+        ],
+        hasMore: false,
+      };
     else if (path === "/api/account/expert-approval" && method === "GET")
       body = data;
     else if (
@@ -86,12 +104,24 @@ async function fixture(
     ) {
       const input = route.request().postDataJSON();
       calls.push({ path, body: input });
-      data.connections[1].policy = {
-        ...input,
-        revision: 3,
-        updatedAt: new Date().toISOString(),
-      };
-      body = data;
+      if (
+        !data.canManage ||
+        data.connections[1].status !== "active" ||
+        route.request().headers()["x-csrf-token"] !== "fixture-csrf-only"
+      ) {
+        unexpected.push(`${method} ${path}`);
+        status = 403;
+        body = {
+          error: { code: "FORBIDDEN", message: "Synthetic authority refused" },
+        };
+      } else {
+        data.connections[1].policy = {
+          ...input,
+          revision: 3,
+          updatedAt: new Date().toISOString(),
+        };
+        body = data;
+      }
     } else {
       unexpected.push(`${method} ${path}`);
       status = 500;
@@ -147,7 +177,7 @@ test("a direct link focuses only the selected connection without granting author
     ),
   ).toBe(false);
   await connection.screenshot({
-    path: `test-results/expert-onboarding-${info.project.name}.png`,
+    path: info.outputPath("selected-connection.png"),
   });
   await connection
     .getByRole("button", { name: "Confirmer l’activation" })
