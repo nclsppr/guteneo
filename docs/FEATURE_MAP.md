@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **16 domaines · 119 fonctionnalités · 15 parcours** — mis à jour le 2026-10-04.
+> **17 domaines · 129 fonctionnalités · 17 parcours** — mis à jour le 2026-10-09.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -59,6 +59,9 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Supprimer modèle | Propriétaire | Propriétaire | Propriétaire | Non | Propriétaire + scopes |
 | Voir PDF généré privé | Créateur seulement | Créateur seulement | Créateur seulement | Selon accès autorisé | Selon propriétaire et contexte |
 | Profil / langue / ses sessions | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
+| Lire profil et contacts de son atelier | Navigateur | Navigateur | Navigateur | Navigateur | Non |
+| Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
+| Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
 
 Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -68,9 +71,9 @@ Les deux options du superviseur sont indépendantes et fermées par défaut. Le 
 
 **État :** Implémenté · disponibilité à vérifier.
 
-Contrat : [IDENTITY_MCP.md](IDENTITY_MCP.md) · Source : [apps/api/src/auth.ts](../apps/api/src/auth.ts).
+Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/auth.ts](../apps/api/src/auth.ts).
 
-**Surfaces :** Navigateur authentifié. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts).
+**Surfaces :** Web navigateur ; contrats natifs existants préservés ; pas de nouveau droit REST/MCP. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
 
 - Connexion Auth0, compte vérifié et politique MFA
 - Création d’atelier et administrateur initial
@@ -79,6 +82,8 @@ Contrat : [IDENTITY_MCP.md](IDENTITY_MCP.md) · Source : [apps/api/src/auth.ts](
 - Changement d’atelier avec droits courants
 - Connexions OAuth : rattachement, révocation et scopes
 - Demande de suppression du compte ; traitement complet restant à qualifier
+- Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile
+- Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
 
 ### 02 · Équipe et responsabilités
 
@@ -86,13 +91,15 @@ Contrat : [IDENTITY_MCP.md](IDENTITY_MCP.md) · Source : [apps/api/src/auth.ts](
 
 Contrat : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · Source : [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts).
 
-**Surfaces :** Navigateur authentifié. **Tests :** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts).
+**Surfaces :** Navigateur authentifié. **Tests :** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
 
 - Quatre rôles humains et options indépendantes du superviseur
 - Gestion des membres, changement de droits et révocation atomique
 - Protection du dernier administrateur
 - Invitation individuelle ou CSV ; aperçu et confirmation du lot
 - Acceptation à adresse vérifiée, expiration et révocation des invitations
+- Contacts navigateur des responsables de l’atelier, bornés et filtrés sur la membership courante
+- Adresses de connexion pour distinguer les membres homonymes ; droits effectifs lisibles
 
 ### 03 · Documents et sécurité
 
@@ -327,23 +334,38 @@ Contrat : [RUNBOOK.md](RUNBOOK.md) · Source : [scripts/deploy-public.mjs](../sc
 - Publication depuis main propre, synchronisé et vérifié
 - Manifestes de release, empreintes des assets et santé distante
 
+### 17 · Belvédère et supervision plateforme
+
+**État :** Intégré au candidat ; activation et publication non qualifiées.
+
+Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts).
+
+**Surfaces :** Navigateur Veilleur seulement ; aucune autorité atelier/native/OAuth/MCP supplémentaire. **Tests :** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts).
+
+- Autorité Veilleur privée et lecture seule : session/identité vérifiées, adresse serveur secrète, autorisation distincte des rôles atelier
+- Sept vues : ateliers, membres, envois, connexions, finances et infrastructure avec vue d’ensemble
+- Observation minimale des connexions par pays et rétention bornée de 90 jours
+- Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts
+- Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés
+- Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
+
 ## Parcours clients et reprise sur erreur
 
 ### J01 · Découvrir puis entrer
 
 **Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
 
-Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits.
+Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits. → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.
 
-**Blocage / reprise :** Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité.
+**Blocage / reprise :** Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback signé et à la politique Auth0.
 
-Référence : [IDENTITY_MCP.md](IDENTITY_MCP.md).
+Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
 ### J02 · Administrer une équipe
 
 **Acteur :** Administrateur navigateur. **Branche :** ÉQUIPE.
 
-Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès.
+Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier.
 
 **Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente.
 
@@ -413,9 +435,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Superviseur habilité / observateur. **Branche :** SUIVI.
 
-Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine.
+Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation.
 
-**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés.
+**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -478,6 +500,26 @@ Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main 
 **Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification.
 
 Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
+
+### J16 · Vérifier son compte et contacter un responsable
+
+**Acteur :** Membre navigateur dans son atelier courant. **Branche :** IDENTITÉ → RESPONSABILITÉS.
+
+Lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0.
+
+**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle.
+
+Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
+
+### J17 · Superviser la plateforme avec Belvédère
+
+**Acteur :** Veilleur navigateur avec identité vérifiée explicitement autorisée. **Branche :** PLATEFORME PRIVÉE.
+
+Ouvrir adresse privée → garde actuelle session/identité → vues globales en lecture seule → distinguer les modes et les sources financières → examiner mesures Cloudflare selon configuration.
+
+**Blocage / reprise :** Autre identité, rôle atelier seul, assistant, adresse incorrecte ou configuration absente : refus sans divulgation. Migration 0052 et configuration privée requises ; aucune donnée fournisseur simulée présentée comme réelle.
+
+Référence : [BELVEDERE.md](BELVEDERE.md).
 
 ## Frontières d’activation et preuves
 

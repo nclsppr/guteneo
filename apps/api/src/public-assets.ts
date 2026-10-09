@@ -49,6 +49,8 @@ export async function servePublicAssets(
       headers: privateHeaders,
     });
   if (!["GET", "HEAD"].includes(request.method)) return null;
+  if (pathname === "/belvedere" || pathname.startsWith("/belvedere/"))
+    return null;
   if (
     site.privatePrefixes.some(
       (prefix) =>

@@ -62,6 +62,8 @@ export function RolePermissionNotice({
           : msg(
               "Votre rôle ne permet pas cette action. Un administrateur peut modifier vos droits.",
             )}{" "}
+        <a href="#/app/account">{msg("Contacter un responsable")}</a>
+        {" · "}
         <a href="/roles/">{msg("Comprendre les rôles")}</a>
       </p>
     </div>

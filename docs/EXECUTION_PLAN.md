@@ -1,5 +1,13 @@
 # Execution plan and handoff
 
+9 October integration candidate: visible personal identity, read-only login email,
+current workshop role/permissions and browser-only responsible contacts, with an
+explicit Auth0 account-change action. Belvédère is reconciled with current main
+and its additive migration becomes 0052. See [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md)
+and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
+executed proof. Merge, production migration/configuration and deployment remain
+separate evidence.
+
 2 October separate Horizon branch: EUR30/month credit-funded plan, administrator
 billing gate, private veraPDF PDF/UA/PDF/A checks, shared web/REST/MCP journey
 and four-language publicity preparation. Migrations 0050–0051 and a qualified
@@ -19,6 +27,16 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+## Belvédère candidate — 2 October 2026
+
+The dedicated `codex/belvedere-control-tower` branch adds a private read-only
+platform dashboard for the verified `nicolas@pieper.fr` browser identity.
+The connections/distribution globe, global jobs, workshop/member drilldowns,
+access-country telemetry, explicit financial evidence
+and optional Cloudflare reads are documented in [BELVEDERE.md](BELVEDERE.md).
+Migration 0052 and server-only configuration are required before activation.
+Local and fixture checks do not establish hosted authentication or provider access.
+No deployment, production migration, merge or real communication is performed.
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

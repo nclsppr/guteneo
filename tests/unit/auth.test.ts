@@ -1,3 +1,5 @@
+import { authorizeBelvedere } from "../../apps/api/src/belvedere";
+import type { Env } from "../../apps/api/src/env";
 import { readFile, readdir } from "node:fs/promises";
 import {
   afterAll,
@@ -887,6 +889,91 @@ describe("identity and authentication boundaries", () => {
       handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
+  it("binds Belvédère privilege to the signed verified callback and preserves proof on session rotation", async () => {
+    const flow = await signedBetaLogin({ email: "Nicolas@Pieper.fr" });
+    const completed = await flow.complete();
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      flow.configured,
+    );
+    const proof = await env.DB.prepare(
+      "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+    )
+      .bind(session.tokenHash)
+      .first();
+    expect(proof).toMatchObject({
+      issuer,
+      subject: flow.sub,
+      verified_email: "nicolas@pieper.fr",
+    });
+    const towerEnv = {
+      ...flow.configured,
+      ENVIRONMENT: "production",
+      BELVEDERE_SECRET_SLUG: "fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+    } as Env;
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${cookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
+    const nextOrg = `org_${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Second verified atelier','production',?)",
+      ).bind(nextOrg, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(nextOrg, session.context.userId, new Date().toISOString()),
+    ]);
+    const switched = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        { organizationId: nextOrg },
+        { Cookie: cookie, "X-CSRF-Token": session.csrfToken },
+      ),
+      flow.configured,
+    );
+    const nextCookie = switched!.headers.get("Set-Cookie")!.split(";")[0];
+    const next = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: nextCookie }),
+      flow.configured,
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(next.tokenHash)
+        .first(),
+    ).toEqual(proof);
+    expect(
+      await env.DB.prepare(
+        "SELECT 1 FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(session.tokenHash)
+        .first(),
+    ).toBeNull();
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${nextCookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
+  });
   it("switches only between current memberships and rotates the browser session", async () => {
     const original = await login();
     await env.DB.prepare(
@@ -1280,6 +1367,12 @@ describe("identity and authentication boundaries", () => {
   });
   it.each([
     {
+      label: "mismatched signed access subject",
+      id: { email: "nicolas@pieper.fr" },
+      access: { sub: "auth0|mismatched-identity" },
+      code: "LOGIN_STATE_INVALID",
+    },
+    {
       label: "missing ID proof",
       id: { "https://guteneo.com/verified_account": undefined },
       access: {},
@@ -1313,7 +1406,7 @@ describe("identity and authentication boundaries", () => {
     "free beta refuses $label before creating an account or grant",
     async ({ id, access, code }) => {
       const before = await env.DB.prepare(
-        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
       ).first();
       const flow = await signedBetaLogin(id, access);
       await expect(flow.complete()).rejects.toMatchObject({ code });
@@ -1324,7 +1417,7 @@ describe("identity and authentication boundaries", () => {
       ).toBeNull();
       expect(
         await env.DB.prepare(
-          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
         ).first(),
       ).toEqual(before);
     },
@@ -1477,6 +1570,123 @@ describe("identity and authentication boundaries", () => {
         .first(),
     ).toEqual({ preferred_locale: "lb" });
   });
+  it("refreshes only the signed identity's verified address while preserving their name, language and login evidence", async () => {
+    const first = await signedBetaLogin(
+      { email: "first@example.test" },
+      {},
+      { path: "/auth/signup?locale=lb" },
+    );
+    await first.complete();
+    const identity = await env.DB.prepare(
+      "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
+    )
+      .bind(issuer, first.sub)
+      .first<{ user_id: string }>();
+    await env.DB.prepare(
+      "UPDATE users SET name='Chosen personal name' WHERE id=?",
+    )
+      .bind(identity!.user_id)
+      .run();
+    const second = await signedBetaLogin(
+      { email: "Changed@Example.test", name: "Provider replacement" },
+      {},
+      {
+        path: "/auth/login?intent=switch-account&locale=en",
+        subject: first.sub,
+      },
+    );
+    const completed = await second.complete();
+    expect(
+      await env.DB.prepare(
+        "SELECT name,email,preferred_locale FROM users WHERE id=?",
+      )
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({
+      name: "Chosen personal name",
+      email: "changed@example.test",
+      preferred_locale: "lb",
+    });
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    // The login email is bound to this signed browser login. A mutable contact
+    // address cannot masquerade as a different authenticated account.
+    await env.DB.prepare(
+      "UPDATE users SET email='contact-only@example.test' WHERE id=?",
+    )
+      .bind(identity!.user_id)
+      .run();
+    const session = await handleAuthRoute(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      second.configured,
+    );
+    expect(await session!.json()).toMatchObject({
+      user: {
+        id: identity!.user_id,
+        name: "Chosen personal name",
+        email: "changed@example.test",
+        preferredLocale: "lb",
+        role: "admin",
+      },
+    });
+    const current = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      second.configured,
+    );
+    const nextOrg = `org_${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Another workshop','production',?)",
+      ).bind(nextOrg, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'viewer',?)",
+      ).bind(nextOrg, identity!.user_id, new Date().toISOString()),
+    ]);
+    const rotated = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        {
+          organizationId: nextOrg,
+        },
+        { Cookie: cookie, "X-CSRF-Token": current.csrfToken },
+      ),
+      second.configured,
+    );
+    expect(await rotated!.json()).toMatchObject({
+      user: { email: "changed@example.test", role: "viewer" },
+      organization: { id: nextOrg },
+    });
+    const unverified = await signedBetaLogin(
+      { email: "unverified@example.test", email_verified: false },
+      {},
+      { subject: first.sub },
+    );
+    await expect(unverified.complete()).rejects.toMatchObject({
+      code: "EMAIL_VERIFICATION_REQUIRED",
+    });
+    expect(
+      await env.DB.prepare("SELECT email FROM users WHERE id=?")
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({ email: "contact-only@example.test" });
+    const unrelated = await signedBetaLogin({
+      email: "contact-only@example.test",
+    });
+    await unrelated.complete();
+    const separate = await env.DB.prepare(
+      "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
+    )
+      .bind(issuer, unrelated.sub)
+      .first<{ user_id: string }>();
+    expect(separate!.user_id).not.toBe(identity!.user_id);
+    expect(
+      await env.DB.prepare("SELECT name,preferred_locale FROM users WHERE id=?")
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({ name: "Chosen personal name", preferred_locale: "lb" });
+  });
   it("negotiates new account language from browser preferences and bounds unsupported login hints", async () => {
     const flow = await signedBetaLogin(
       {},
@@ -1515,6 +1725,33 @@ describe("identity and authentication boundaries", () => {
     expect(destination.searchParams.get("prompt")).toBe("login");
     expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
     expect(destination.searchParams.get("scope")).toBe("openid profile email");
+  });
+  it("requests explicit account switching without changing ordinary SSO login or the PKCE binding", async () => {
+    const regular = await handleAuthRoute(request("/auth/login"), realEnv());
+    const regularDestination = new URL(regular!.headers.get("Location")!);
+    expect(regularDestination.searchParams.has("prompt")).toBe(false);
+    expect(regularDestination.searchParams.has("max_age")).toBe(false);
+    const response = await handleAuthRoute(
+      request("/auth/login?intent=switch-account&returnTo=%2F%23%2Fapp"),
+      realEnv(),
+    );
+    const destination = new URL(response!.headers.get("Location")!);
+    expect(destination.searchParams.get("prompt")).toBe("login");
+    expect(destination.searchParams.get("max_age")).toBe("0");
+    expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
+    expect(destination.searchParams.get("scope")).toBe("openid profile email");
+    const state = destination.searchParams.get("state")!;
+    await expect(
+      handleAuthRoute(
+        request(
+          `/auth/callback?state=${state}&code=fixture-code`,
+          "GET",
+          undefined,
+          { Cookie: "guteneo_login=foreign" },
+        ),
+        realEnv(),
+      ),
+    ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
   it.each([
     {

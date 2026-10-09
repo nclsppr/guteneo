@@ -1,4 +1,6 @@
 import { msg } from "./messages";
+import { DashboardIdentity } from "./workspace-identity";
+import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
@@ -217,6 +219,8 @@ export function Overview({ session }: { session: Session }) {
   return (
     <>
       <PageHeading title={t.overview.title} intro={t.overview.intro} />
+      <DashboardIdentity session={session} />
+      <WorkspaceContacts session={session} compact />
       {attention > 0 && (
         <div className="notice warning overview-attention" role="status">
           <WarningCircle size={22} aria-hidden="true" />

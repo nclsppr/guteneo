@@ -1,12 +1,12 @@
 {
   "title": "Guteneo · atlas technique",
-  "updated": "2026-10-04",
+  "updated": "2026-10-09",
   "scope": "Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.",
   "roleNote": "Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.",
   "groups": [
     {
       "title": "Accès et identité",
-      "doc": "IDENTITY_MCP.md",
+      "doc": "ACCOUNT_IDENTITY.md",
       "source": "apps/api/src/auth.ts",
       "features": [
         "Connexion Auth0, compte vérifié et politique MFA",
@@ -15,13 +15,17 @@
         "Sessions web : consultation, révocation et déconnexion",
         "Changement d’atelier avec droits courants",
         "Connexions OAuth : rattachement, révocation et scopes",
-        "Demande de suppression du compte ; traitement complet restant à qualifier"
+        "Demande de suppression du compte ; traitement complet restant à qualifier",
+        "Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile",
+        "Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
-        "tests/unit/auth.test.ts"
+        "tests/unit/auth.test.ts",
+        "tests/unit/account.test.ts",
+        "tests/e2e/account-identity.spec.ts"
       ],
-      "surfaces": "Navigateur authentifié"
+      "surfaces": "Web navigateur ; contrats natifs existants préservés ; pas de nouveau droit REST/MCP"
     },
     {
       "title": "Équipe et responsabilités",
@@ -32,11 +36,15 @@
         "Gestion des membres, changement de droits et révocation atomique",
         "Protection du dernier administrateur",
         "Invitation individuelle ou CSV ; aperçu et confirmation du lot",
-        "Acceptation à adresse vérifiée, expiration et révocation des invitations"
+        "Acceptation à adresse vérifiée, expiration et révocation des invitations",
+        "Contacts navigateur des responsables de l’atelier, bornés et filtrés sur la membership courante",
+        "Adresses de connexion pour distinguer les membres homonymes ; droits effectifs lisibles"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
-        "tests/integration/workspace-roles.test.ts"
+        "tests/integration/workspace-roles.test.ts",
+        "tests/unit/account.test.ts",
+        "tests/e2e/account-identity.spec.ts"
       ],
       "surfaces": "Navigateur authentifié"
     },
@@ -328,6 +336,26 @@
         "apps/pdf-validator/tests/probe-credentials.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés"
+    },
+    {
+      "title": "Belvédère et supervision plateforme",
+      "doc": "BELVEDERE.md",
+      "source": "apps/api/src/belvedere.ts",
+      "features": [
+        "Autorité Veilleur privée et lecture seule : session/identité vérifiées, adresse serveur secrète, autorisation distincte des rôles atelier",
+        "Sept vues : ateliers, membres, envois, connexions, finances et infrastructure avec vue d’ensemble",
+        "Observation minimale des connexions par pays et rétention bornée de 90 jours",
+        "Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts",
+        "Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés",
+        "Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée"
+      ],
+      "status": "Intégré au candidat ; activation et publication non qualifiées",
+      "tests": [
+        "tests/unit/belvedere.test.ts",
+        "tests/belvedere-e2e/control-tower.spec.ts",
+        "tests/unit/belvedere-finance.test.ts"
+      ],
+      "surfaces": "Navigateur Veilleur seulement ; aucune autorité atelier/native/OAuth/MCP supplémentaire"
     }
   ],
   "journeys": [
@@ -335,16 +363,16 @@
       "id": "J01",
       "title": "Découvrir puis entrer",
       "actor": "Visiteur → membre",
-      "steps": "Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits.",
+      "steps": "Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits. → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.",
       "branch": "INVITATIONS / IDENTITY",
-      "doc": "IDENTITY_MCP.md",
-      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité."
+      "doc": "ACCOUNT_IDENTITY.md",
+      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback signé et à la politique Auth0."
     },
     {
       "id": "J02",
       "title": "Administrer une équipe",
       "actor": "Administrateur navigateur",
-      "steps": "Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès.",
+      "steps": "Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier.",
       "branch": "ÉQUIPE",
       "doc": "WORKSPACE_ROLES.md",
       "failure": "Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente."
@@ -407,10 +435,10 @@
       "id": "J09",
       "title": "Superviser et observer",
       "actor": "Superviseur habilité / observateur",
-      "steps": "Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine.",
+      "steps": "Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation.",
       "branch": "SUIVI",
       "doc": "WORKSPACE_ROLES.md",
-      "failure": "Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés."
+      "failure": "Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé."
     },
     {
       "id": "J10",
@@ -465,6 +493,24 @@
       "branch": "RELEASE",
       "doc": "MAIN_RELEASE.md",
       "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification."
+    },
+    {
+      "id": "J16",
+      "title": "Vérifier son compte et contacter un responsable",
+      "actor": "Membre navigateur dans son atelier courant",
+      "steps": "Lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0.",
+      "branch": "IDENTITÉ → RESPONSABILITÉS",
+      "doc": "ACCOUNT_IDENTITY.md",
+      "failure": "Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle."
+    },
+    {
+      "id": "J17",
+      "title": "Superviser la plateforme avec Belvédère",
+      "actor": "Veilleur navigateur avec identité vérifiée explicitement autorisée",
+      "steps": "Ouvrir adresse privée → garde actuelle session/identité → vues globales en lecture seule → distinguer les modes et les sources financières → examiner mesures Cloudflare selon configuration.",
+      "branch": "PLATEFORME PRIVÉE",
+      "doc": "BELVEDERE.md",
+      "failure": "Autre identité, rôle atelier seul, assistant, adresse incorrecte ou configuration absente : refus sans divulgation. Migration 0052 et configuration privée requises ; aucune donnée fournisseur simulée présentée comme réelle."
     }
   ],
   "roles": [
@@ -602,6 +648,30 @@
       "Personnel",
       "Personnel",
       "Pas d’administration navigateur"
+    ],
+    [
+      "Lire profil et contacts de son atelier",
+      "Navigateur",
+      "Navigateur",
+      "Navigateur",
+      "Navigateur",
+      "Non"
+    ],
+    [
+      "Modifier son nom et sa langue",
+      "Navigateur",
+      "Navigateur",
+      "Navigateur",
+      "Navigateur",
+      "Non"
+    ],
+    [
+      "Ouvrir Belvédère global",
+      "Aucun droit par rôle atelier",
+      "Aucun droit par rôle atelier",
+      "Aucun droit par rôle atelier",
+      "Aucun droit par rôle atelier",
+      "Non"
     ]
   ]
 }

@@ -4,6 +4,11 @@ import {
 } from "../../../packages/contracts/src/roles";
 import { z } from "zod";
 import {
+  accountEmail,
+  MAX_WORKSPACE_CONTACTS,
+  type WorkspaceContacts,
+} from "../../../packages/contracts/src/account-identity";
+import {
   supportedLocales,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
@@ -217,6 +222,7 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
     user: {
       id: session.context.userId,
       name: user!.name,
+      email: session.user.email,
       role: session.context.role,
       supervisorCanApprove: session.context.supervisorCanApprove === true,
       supervisorCanReport: session.context.supervisorCanReport === true,
@@ -233,6 +239,47 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
       canApprove: session.context.supervisorCanApprove,
       canReport: session.context.supervisorCanReport,
     }),
+  };
+}
+
+async function workspaceContacts(
+  env: AuthEnv,
+  session: AuthenticatedSession,
+): Promise<WorkspaceContacts> {
+  const timestamp = now();
+  const rows = await env.DB.prepare(
+    `SELECT m.user_id id,u.name,u.email,m.role,m.supervisor_can_approve,m.supervisor_can_report
+    FROM memberships m JOIN users u ON u.id=m.user_id
+    WHERE m.organization_id=? AND m.user_id<>? AND m.role IN ('admin','supervisor')
+    AND ${authority(false, env)}
+    ORDER BY CASE m.role WHEN 'admin' THEN 0 ELSE 1 END,u.name,m.user_id LIMIT ?`,
+  )
+    .bind(
+      session.context.organizationId,
+      session.context.userId,
+      ...authorityArgs(session, timestamp),
+      MAX_WORKSPACE_CONTACTS + 1,
+    )
+    .all<{
+      id: string;
+      name: string;
+      email: string;
+      role: "admin" | "supervisor";
+      supervisor_can_approve: number;
+      supervisor_can_report: number;
+    }>();
+  return {
+    items: rows.results.slice(0, MAX_WORKSPACE_CONTACTS).map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: accountEmail(row.email),
+      role: row.role,
+      permissions: workspacePermissions(row.role, {
+        canApprove: row.supervisor_can_approve === 1,
+        canReport: row.supervisor_can_report === 1,
+      }),
+    })),
+    hasMore: rows.results.length > MAX_WORKSPACE_CONTACTS,
   };
 }
 
@@ -297,6 +344,7 @@ export async function handleAccountRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url);
   const profile = url.pathname === "/api/account";
+  const contacts = url.pathname === "/api/account/contacts";
   const expert = url.pathname === "/api/account/expert-approval";
   const expertMatch = url.pathname.match(
     /^\/api\/account\/expert-approval\/([^/]+)$/,
@@ -311,6 +359,7 @@ export async function handleAccountRoute(
   );
   if (
     !profile &&
+    !contacts &&
     !expert &&
     !expertMatch &&
     !sessions &&
@@ -350,6 +399,10 @@ export async function handleAccountRoute(
     );
   const org = session.context.organizationId;
   const userId = session.context.userId;
+  if (contacts && request.method === "GET") {
+    parse(z.object({}).strict(), Object.fromEntries(url.searchParams));
+    return json(await workspaceContacts(env, session));
+  }
   if (expert && request.method === "GET")
     return json(await expertAccount(env, session));
   if (expertMatch && request.method === "PUT") {
@@ -512,7 +565,7 @@ export async function handleAccountRoute(
       Object.fromEntries(url.searchParams),
     );
     const result = await env.DB.prepare(
-      `SELECT m.user_id id,u.name,m.role,m.supervisor_can_approve supervisorCanApprove,m.supervisor_can_report supervisorCanReport,m.created_at joinedAt,
+      `SELECT m.user_id id,u.name,u.email,m.role,m.supervisor_can_approve supervisorCanApprove,m.supervisor_can_report supervisorCanReport,m.created_at joinedAt,
       (SELECT COUNT(*) FROM browser_sessions s WHERE s.organization_id=m.organization_id AND s.user_id=m.user_id AND s.expires_at>?) sessions,
       (SELECT COUNT(*) FROM authorized_connections c WHERE c.organization_id=m.organization_id AND c.user_id=m.user_id AND c.status='active') connections
       FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organization_id=? AND m.user_id>? ORDER BY m.user_id LIMIT ?`,
@@ -520,11 +573,13 @@ export async function handleAccountRoute(
       .bind(now(), org, query.cursor ?? "", query.limit + 1)
       .all<{
         id: string;
+        email: string;
         supervisorCanApprove: number;
         supervisorCanReport: number;
       }>();
     const items = result.results.slice(0, query.limit).map((member) => ({
       ...member,
+      email: accountEmail(member.email),
       supervisorCanApprove: member.supervisorCanApprove === 1,
       supervisorCanReport: member.supervisorCanReport === 1,
     }));

@@ -21,6 +21,7 @@ export type Session = {
   user: {
     id: string;
     name: string;
+    email?: string | null;
     role: string;
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;

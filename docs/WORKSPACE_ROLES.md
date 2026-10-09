@@ -240,3 +240,13 @@ Ces preuves utilisent uniquement une simulation déterministe et des données
 fictives. Le déploiement du code et de la migration distante nécessite une
 autorisation explicite, une sauvegarde et les contrôles habituels de publication.
 Aucun envoi réel ni activation de fournisseur n’est nécessaire à cette évolution.
+
+## Identité et contacts — candidat du 9 octobre 2026
+
+La navigation et le profil affichent nom, adresse de connexion et rôle courant.
+Tous les membres navigateur peuvent consulter les administrateurs et superviseurs
+de leur atelier via une projection bornée sans sessions ni connexions. Les options
+réelles du superviseur déterminent sa capacité à approuver. Les adresses dans la
+liste administrative distinguent les homonymes ; le nom personnel ne modifie aucun
+droit. Les refus orientent vers les contacts. Aucun annuaire ni nouveau droit MCP
+n’est ajouté. Voir [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) et ses preuves.

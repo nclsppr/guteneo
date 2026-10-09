@@ -236,6 +236,11 @@ jobs:
         run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }}
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/preview-playwright.json
+      - name: Verify the private control tower with fictional local data
+        if: ${{ matrix.preview != '' }}
+        run: npx playwright test --config playwright.belvedere.config.ts --project=${{ matrix.preview }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/belvedere-playwright.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -244,6 +249,7 @@ jobs:
             test-results/ci/
             test-results/application/
             test-results/preview/
+            test-results/belvedere/
             reports/screenshots/
           if-no-files-found: error
           retention-days: 14
