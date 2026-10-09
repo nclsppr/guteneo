@@ -49,6 +49,18 @@ La preuve signée et l’invalidation de l’ancien cookie sont vérifiées ; le
 contrôles de rôle et révocation restent courants. Une nouvelle CI est requise
 sur le SHA exact de ces corrections.
 
+La PR 54 a été fusionnée dans `820b51c` après réussite complète de la CI
+`37909805642` sur `9ebbe18` : 1 926 tests applicatifs dans 102 fichiers,
+242 tests de sécurité, 561 scénarios applicatifs, 146 preview et 20 Belvédère.
+La CI de main `37912466748` a réussi onze jobs préalables à la collecte finale,
+mais le job iPhone a dépassé son budget total de quinze minutes : ses
+187 tests applicatifs et 76 tests preview avaient réussi, et les dix tests
+Belvédère n'ont pas pu démarrer. L'annotation GitHub confirme cette limite
+de durée. Le budget navigateur passe à vingt minutes pour inclure le checkout,
+l'installation et toutes les suites, sans changer les délais internes,
+les assertions ou la couverture. La PR corrective et la CI de main après
+sa fusion portent la preuve complète sur les SHAs exacts.
+
 ## Fusion et limites
 
 La PR rattachée contient les résultats des vérifications complètes sur son SHA
@@ -66,8 +78,10 @@ dans `test-results/identity-final2/`. Les journaux de cette exécution sont sous
 `/tmp/guteneo-identity-*.log`. Ils ne contiennent que les scénarios synthétiques.
 
 Aucun déploiement, migration distante, configuration Auth0/Cloudflare, envoi réel,
-provisionnement payant ou activation de mandat n’est effectué. Belvédère exige
-encore la migration 0052, une configuration serveur privée et une nouvelle connexion
+provisionnement payant ou activation de mandat n’est effectué. La migration 0052
+doit précéder toute publication du nouveau backend : elle porte aussi les preuves
+signées d'identité Auth0 obligatoires au callback, même si Belvédère est désactivé.
+Belvédère exige une configuration serveur privée et une nouvelle connexion
 vérifiée pour la qualification hébergée. Les contacts web n’ajoutent pas d’annuaire
 natif/MCP ni de rôle atelier. Les connexions Auth0 et les fournisseurs sociaux
 restent à qualifier en hébergement ; Changer de compte demande la réauthentification
