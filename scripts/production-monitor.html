@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="fr">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guteneo — État de production</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, sans-serif;
+      color: #24272d;
+      background: #f5f3ed;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+    }
+    main {
+      max-width: 1100px;
+      padding: 32px 24px 80px;
+      margin: auto;
+    }
+    header {
+      border-bottom: 1px solid #cbc9c0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 20px;
+    }
+    .brand {
+      font:
+        32px Georgia,
+        serif;
+      color: #181b22;
+    }
+    .eyebrow,
+    th {
+      font-size: 12px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font:
+        clamp(32px, 6vw, 54px)/1.08 Georgia,
+        serif;
+      margin: 36px 0 16px;
+    }
+    h2 {
+      font-size: 22px;
+      margin-top: 38px;
+    }
+    p {
+      line-height: 1.6;
+      max-width: 78ch;
+    }
+    .muted {
+      color: #595d65;
+    }
+    #state {
+      border-left: 5px solid #806219;
+      padding: 16px 20px;
+      background: #fff8dc;
+      font-weight: 650;
+    }
+    #state[data-state="pass"] {
+      border-color: #287345;
+      background: #e7f1e8;
+    }
+    #state[data-state="fail"] {
+      border-color: #a4352e;
+      background: #fceae5;
+    }
+    .facts {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding: 20px 0;
+      border-bottom: 1px solid #cbc9c0;
+    }
+    .facts p {
+      margin: 0;
+    }
+    .facts strong {
+      display: block;
+      font-variant-numeric: tabular-nums;
+    }
+    a {
+      color: #2540a5;
+      text-underline-offset: 3px;
+    }
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #2540a5;
+      outline-offset: 4px;
+    }
+    button {
+      min-height: 44px;
+      background: #fff;
+      border: 1px solid #a5a6a8;
+      border-radius: 3px;
+      padding: 9px 16px;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: left;
+    }
+    th,
+    td {
+      padding: 14px 10px;
+      border-bottom: 1px solid #d7d5cc;
+      vertical-align: top;
+    }
+    th:first-child,
+    td:first-child {
+      padding-left: 0;
+    }
+    td {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .table {
+      overflow-x: auto;
+    }
+    .label {
+      white-space: nowrap;
+      font-weight: 650;
+    }
+    .pass {
+      color: #236239;
+    }
+    .fail {
+      color: #9b2b24;
+    }
+    .unknown {
+      color: #71530a;
+    }
+    code {
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+    summary {
+      cursor: pointer;
+      padding: 18px 0;
+      font-weight: 650;
+      min-height: 44px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 24px 0;
+    }
+    nav a {
+      padding-block: 8px;
+    }
+    @media (max-width: 600px) {
+      main {
+        padding: 20px 16px 48px;
+      }
+      td,
+      th {
+        padding: 12px 6px;
+      }
+      .facts {
+        gap: 16px;
+      }
+      .coverage td:last-child {
+        min-width: 190px;
+      }
+    }
+  </style>
+  <main>
+    <header>
+      <span class="brand">guteneo</span
+      ><span class="eyebrow">Production · Vue locale</span
+      ><button id="pause" type="button" aria-pressed="false">
+        Mettre en pause
+      </button>
+    </header>
+    <h1>Ce que l’on sait.<br />Ce qu’il reste à prouver.</h1>
+    <p class="muted">
+      Contrôles publics réels, toutes les 60 secondes pendant que cet outil est
+      ouvert. Aucun document créé, aucun envoi. Une absence de preuve reste
+      visible.
+    </p>
+    <div id="state" role="status" aria-live="polite">
+      Première mesure en cours…
+    </div>
+    <div class="facts">
+      <p>Dernière mesure<strong id="time">En attente</strong></p>
+      <p>Contrôles réussis<strong id="count">—</strong></p>
+      <p>
+        Source publiée<strong><code id="commit">—</code></strong>
+      </p>
+    </div>
+    <h2>Couverture des fonctionnalités</h2>
+    <p>
+      « Non testé » ne signifie pas en panne. Un canal configuré ne prouve ni sa
+      remise au fournisseur ni sa livraison au destinataire.
+    </p>
+    <div class="table">
+      <table class="coverage">
+        <thead>
+          <tr>
+            <th scope="col">Fonction</th>
+            <th scope="col">Preuve</th>
+            <th scope="col">Limite observée</th>
+          </tr>
+        </thead>
+        <tbody id="coverage"></tbody>
+      </table>
+    </div>
+    <details open>
+      <summary>Contrôles publics et protection des accès</summary>
+      <p class="muted">
+        Même version sur les deux adresses, pages comparées au manifeste publié,
+        langues, en-têtes de sécurité et refus des accès anonymes. Ce manifeste
+        ne remplace pas une preuve indépendante du code publié.
+      </p>
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Adresse / parcours</th>
+              <th scope="col">Résultat</th>
+              <th scope="col">HTTP</th>
+              <th scope="col">Durée</th>
+            </tr>
+          </thead>
+          <tbody id="checks"></tbody>
+        </table>
+      </div>
+    </details>
+    <h2>Pour enquêter</h2>
+    <p>
+      Les métriques privées complètent cette vue : erreurs, dernier cron, âge
+      des files, résultats inconnus et signatures antivirus. Une mesure devient
+      périmée après deux minutes.
+    </p>
+    <nav aria-label="Tableaux Cloudflare">
+      <a
+        href="https://dash.cloudflare.com/39ac9fada6cba44d9ecf09d467609e69/workers/services/view/guteneo-app/production"
+        target="_blank"
+        rel="noreferrer"
+        >Application</a
+      ><a
+        href="https://dash.cloudflare.com/39ac9fada6cba44d9ecf09d467609e69/workers/services/view/guteneo-documents/production"
+        target="_blank"
+        rel="noreferrer"
+        >Documents</a
+      ><a
+        href="https://dash.cloudflare.com/39ac9fada6cba44d9ecf09d467609e69/workers/services/view/guteneo-scanner/production"
+        target="_blank"
+        rel="noreferrer"
+        >Antivirus</a
+      ><a href="/status" target="_blank" rel="noreferrer">Preuve JSON</a>
+    </nav>
+    <p class="muted">
+      Cette vue ne surveille plus la production après l’arrêt du processus
+      local. Les temps affichés sont des échantillons depuis cette machine, sans
+      garantie de disponibilité globale.
+    </p>
+    <noscript
+      >Activez JavaScript pour les mesures, ou consultez la preuve
+      JSON.</noscript
+    >
+  </main>
+  <script>
+    let latest = null;
+    let paused = false;
+    let busy = false;
+    let connectionFailed = false;
+    const byId = (id) => document.getElementById(id);
+    function row(values) {
+      const tr = document.createElement("tr");
+      for (const [text, className] of values) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        if (className) td.className = className;
+        tr.append(td);
+      }
+      return tr;
+    }
+    function freshness() {
+      const state = byId("state");
+      const stale =
+        !latest ||
+        Date.now() - Date.parse(latest.checkedAt) >
+          latest.staleAfterSeconds * 1000;
+      const failed = latest?.status !== "public_checks_passed";
+      state.dataset.state =
+        stale || failed || connectionFailed
+          ? "fail"
+          : paused
+            ? "unknown"
+            : "pass";
+      const text = paused
+        ? "Affichage en pause — les mesures affichées ne sont plus actualisées."
+        : connectionFailed
+          ? "Connexion au suivi interrompue — résultat actuel inconnu."
+          : stale
+            ? "Mesure absente ou périmée — état actuel inconnu."
+            : failed
+              ? "Un contrôle public demande une vérification."
+              : "Contrôles publics réussis — qualification produit partielle.";
+      if (state.textContent !== text) state.textContent = text;
+    }
+    async function update() {
+      if (paused || busy) return;
+      busy = true;
+      try {
+        const response = await fetch("/status", {
+          cache: "no-store",
+          signal: AbortSignal.timeout(5000),
+        });
+        if (!response.ok) throw new Error("unavailable");
+        const report = await response.json();
+        connectionFailed = false;
+        if (latest?.checkedAt !== report.checkedAt) {
+          latest = report;
+          byId("time").textContent = new Date(report.checkedAt).toLocaleString(
+            "fr-FR",
+            { timeZone: "Europe/Paris" },
+          );
+          byId("commit").textContent = report.sourceCommit ?? "Indisponible";
+          byId("count").textContent =
+            report.checks.filter((c) => c.status === "pass").length +
+            " / " +
+            report.checks.length;
+          byId("coverage").replaceChildren(
+            ...report.coverage.map((c) =>
+              row([
+                [c.feature],
+                [
+                  c.state === "disabled" ? "Désactivé" : "Non testé",
+                  c.state === "disabled" ? "muted label" : "unknown label",
+                ],
+                [c.evidence],
+              ]),
+            ),
+          );
+          byId("checks").replaceChildren(
+            ...report.checks.map((c) =>
+              row([
+                [new URL(c.origin).host + c.path],
+                [
+                  c.status === "pass" ? "Vérifié" : "Échec",
+                  c.status + " label",
+                ],
+                [String(c.httpStatus ?? "—")],
+                [c.durationMs + " ms"],
+              ]),
+            ),
+          );
+        }
+      } catch {
+        connectionFailed = true;
+      } finally {
+        busy = false;
+        freshness();
+      }
+    }
+    byId("pause").addEventListener("click", () => {
+      paused = !paused;
+      byId("pause").setAttribute("aria-pressed", String(paused));
+      byId("pause").textContent = paused
+        ? "Reprendre le suivi"
+        : "Mettre en pause";
+      freshness();
+      if (!paused) void update();
+    });
+    setInterval(update, 10000);
+    setInterval(freshness, 1000);
+    void update();
+  </script>
+</html>

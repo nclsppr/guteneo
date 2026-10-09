@@ -2,9 +2,18 @@
 
 Cette tranche ajoute un suivi localement testé ; sa présence dans Git ne prouve pas son déploiement. Vérifier la version Cloudflare et les réglages publiés après chaque livraison. Aucun envoi, paiement, activation de canal ou nouvelle infrastructure n’est effectué par les outils ci-dessous.
 
+## Revue et moniteur du 9 octobre 2026
+
+La [revue courante](PRODUCTION_REVIEW_2026_10_09.md) décrit les observations réelles,
+les corrections et le plan de canaris. `npm run monitor:prod:live` fournit une
+vue locale sur `http://127.0.0.1:8796` : mesures publiques chaque minute,
+qualification partielle par fonction et expiration visible à 120 secondes.
+Aucune surveillance permanente, notification externe ou communication réelle
+n’est activée. Les tableaux privés et canaris sont une proposition distincte.
+
 ## En une minute
 
-Exécuter `node scripts/production-status.mjs`. Cette commande effectue uniquement trois lectures anonymes sur `https://guteneo.com` : `/api/health`, `/api/capabilities` et `/release.json`. Elle ne lit aucun fichier de secrets, n’accepte aucun argument, refuse les redirections et affiche seulement une projection bornée : disponibilité, source publiée, configuration de l’identité/scanner et interrupteur d’envoi. `attention` produit un code de sortie 1. Un résultat `ok` ne prouve ni connexion réelle, ni parcours fournisseur, ni fonctionnement des files ou du cron ; `deliveryQualification` reste `not_checked`.
+Exécuter `node scripts/production-status.mjs`. Cette commande effectue uniquement trois lectures anonymes sur `https://guteneo.com` : `/api/health`, `/api/capabilities` et `/release.json`. Elle ne lit aucun fichier de secrets, n’accepte aucun argument, refuse les redirections et affiche seulement une projection bornée : disponibilité, source publiée, configuration de l’identité/scanner et interrupteur d’envoi. `attention` produit un code de sortie 1. Un résultat `ok` ne prouve ni connexion réelle, ni parcours fournisseur, ni fonctionnement des files ou du cron ; `deliveryQualification` reste `not_checked`. Le résultat exige désormais une identité configurée, un binding scanner, la simulation fermée et des drapeaux d’envoi cohérents avec le manifeste ; il ne sonde pas la fraîcheur du scanner.
 
 Ouvrir ensuite le Worker concerné puis **Observability** pour les journaux, **Metrics** pour les erreurs/durée CPU/requêtes, et **Deployments** pour la version :
 

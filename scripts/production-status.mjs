@@ -21,7 +21,10 @@ export async function productionStatus(fetcher = fetch) {
           headers: { Accept: "application/json" },
           signal: AbortSignal.timeout(10000),
         });
-        if (!response.ok) return { status: response.status, data: null };
+        if (!response.ok) {
+          await response.body?.cancel();
+          return { status: response.status, data: null };
+        }
         // Keep the operator tool bounded even if the upstream response is incorrect.
         const reader = response.body?.getReader();
         if (!reader) return { status: response.status, data: null };
@@ -32,7 +35,8 @@ export async function productionStatus(fetcher = fetch) {
             const { value, done } = await reader.read();
             if (done) break;
             size += value.byteLength;
-            if (size > 65536) return { status: response.status, data: null };
+            if (size > (path === "/release.json" ? 524288 : 65536))
+              return { status: response.status, data: null };
             chunks.push(value);
           }
         } finally {
@@ -72,8 +76,11 @@ export async function productionStatus(fetcher = fetch) {
   const capabilityResponseValid =
     capabilities.status === 200 &&
     capabilities.data?.mode === "production" &&
+    capabilities.data?.simulation === false &&
     boolean(capabilities.data?.liveSending) === liveSending &&
-    registration !== null;
+    registration === true &&
+    capabilities.data?.scanner === "connected" &&
+    release.data?.liveSendsEnabled === liveSending;
   return {
     checkedAt: new Date().toISOString(),
     status:
@@ -95,6 +102,8 @@ export async function productionStatus(fetcher = fetch) {
     scannerConnected: capabilities.data?.scanner === "connected",
     // A green HTTP probe does not qualify a provider, browser login, queue, or cron.
     deliveryQualification: "not_checked",
+    scannerFreshness: "not_checked",
+    dependencyReadiness: "not_checked",
     operationalHistory:
       "Consulter Observability : erreurs, dernier cron, files et inconnus.",
     dashboards: dashboardLinks,

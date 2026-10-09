@@ -63,6 +63,7 @@ test("the operator summary performs only three fixed anonymous reads and project
     { status: "ok", mode: "production", liveSending: false, secret: sentinel },
     {
       mode: "production",
+      simulation: false,
       liveSending: false,
       registration: { enabled: true },
       scanner: "connected",
@@ -73,6 +74,7 @@ test("the operator summary performs only three fixed anonymous reads and project
       mode: "production",
       publicPreview: false,
       sourceDirty: false,
+      liveSendsEnabled: false,
       secret: sentinel,
     },
   ];
@@ -103,6 +105,10 @@ test("unreachable, preview, oversized, invalid or inconsistent responses fail th
     "oversized",
     "inconsistent",
     "invalid",
+    "identity_missing",
+    "simulation",
+    "scanner_missing",
+    "release_mismatch",
   ]) {
     let call = 0;
     const result = await productionStatus(async () => {
@@ -117,15 +123,21 @@ test("unreachable, preview, oversized, invalid or inconsistent responses fail th
           : index === 1
             ? {
                 mode: "production",
+                simulation: scenario === "simulation",
                 liveSending: scenario === "inconsistent",
-                registration: { enabled: true },
-                scanner: "connected",
+                registration: { enabled: scenario !== "identity_missing" },
+                scanner:
+                  scenario === "scanner_missing"
+                    ? "missing_quarantine"
+                    : "connected",
               }
             : {
                 sourceCommit: "a".repeat(40),
                 mode: "production",
+                simulation: scenario === "simulation",
                 publicPreview: scenario === "preview",
                 sourceDirty: false,
+                liveSendsEnabled: scenario === "release_mismatch",
               },
       );
     });

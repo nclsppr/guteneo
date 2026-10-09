@@ -40,7 +40,10 @@
     "test:videos:narration": "npm --prefix videos/guteneo-film run test:narration",
     "deploy:pdf-validator": "node scripts/deploy-pdf-validator.mjs",
     "preview:belvedere": "npm run build:web && node --import tsx scripts/belvedere-preview.mjs",
-    "test:belvedere": "playwright test --config playwright.belvedere.config.ts"
+    "test:belvedere": "playwright test --config playwright.belvedere.config.ts",
+    "status:prod": "node scripts/production-status.mjs",
+    "monitor:prod": "node scripts/production-monitor.mjs",
+    "monitor:prod:live": "node scripts/production-monitor.mjs --serve"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
