@@ -1,12 +1,16 @@
 # Amazon SES connection evidence — 2026-09-17
 
-## Callback migration pending — 2026-10-09
+## Dormant SES excluded from this release — 2026-10-10
 
-The intended SES/SNS endpoint is now **`https://guteneo.com/webhooks/ses`**. The confirmed subscription documented below used `https://guteneo-app.nclsppr.workers.dev/webhooks/ses`; that September observation has not been replaced by fresh AWS subscription evidence. No subscription migration, confirmation or removal was performed on October 9. The local machine has no configured AWS CLI credentials, and the AWS browser session currently requires sign-in; an authenticated operator handoff is pending.
+The publisher explicitly confirmed that SES is unused and authorized closing workers.dev without preserving or migrating its dormant callback. SNS migration is excluded from this release and no AWS handoff is required for that closure. The historical subscription is left untouched: no new AWS inventory, subscription migration, confirmation or removal has been performed. Closing the route makes the documented legacy endpoint unreachable; it does not migrate SNS to guteneo.com.
 
-To preserve the documented callback while that migration is pending, the operator temporarily restored the Cloudflare workers.dev route and verified `enabled=true`, `previews_enabled=false` at **2026-10-09T20:57:49Z**. This is Cloudflare route evidence only, not proof of the current SNS subscription or a successful SES event. The request to close the technical address remains incomplete; retain the route until the canonical subscription is confirmed and read back, and the old dependency is removed. A deployment that disables workers.dev must wait for the same evidence.
+Public production `/api/capabilities` read-back at **2026-10-09T23:49:29.168Z** (October 10 in Paris) reported `mode="production"` and email `liveSending=false`, provider `Resend`, status `not_configured`. This matches the reviewed deployment configuration `EMAIL_PROVIDER="resend"`, `LIVE_SEND_CHANNELS="fax,postal"`. It proves that the application email channel is disabled and SES is not selected at that check; it does not establish current AWS credentials, sandbox, configuration-set gates or SNS subscription state. The bounded read-back is retained outside the repository as `unused-ses-proof.json`.
 
-Use the existing topic, account and Paris region. Freshly inspect the old and any canonical subscription; create only a missing HTTPS canonical replacement, keeping SNS v2 and raw delivery disabled; confirm through a fresh signed-handler receipt; read back the exact canonical endpoint, owner, topic and confirmation attributes; purge only the consumed token; then remove only the verified old subscription and inspect again. [The private procedure](SES_SUBSCRIPTION_CONFIRMATION.md) records the full sequence and receipt-selection limitation. No SES send, new topic, new credentials, IAM expansion or sending-gate activation is part of this migration. The runtime stores the topic ARN, not a subscription ARN; record the new subscription ARN as operator evidence.
+SES sending must remain disabled; no SES activation or provider change is part of this release. Before any future, separately authorized SES reactivation, confirm and read back **`https://guteneo.com/webhooks/ses`** on the existing topic, qualify the notification path and all sending gates, and resolve the historical subscription. [The private procedure](SES_SUBSCRIPTION_CONFIRMATION.md) records that future sequence and the receipt-selection limitation. The runtime stores the topic ARN, not a subscription ARN; retain any future confirmed ARN as operator evidence.
+
+## Historical temporary route restoration — 2026-10-09
+
+Before the publisher excluded dormant SES from the closure, the operator temporarily restored the Cloudflare workers.dev route and verified `enabled=true`, `previews_enabled=false` at **2026-10-09T20:57:49Z**. This dated observation is Cloudflare route evidence only, not proof of the current route, SNS subscription or a successful SES event. Retaining that route is no longer a release prerequisite.
 
 All AWS state, credential installation and handshake observations below are dated **2026-09-17**. They do not establish the current AWS sandbox, quota, credentials or subscription state.
 
@@ -40,7 +44,7 @@ Secret-name inspection confirmed `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `
 
 ## Notification handshake confirmed — 2026-09-17
 
-The endpoint inspected on September 17 was **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. The brand root also served the application after that cutover; the technical callback was not changed during that cutover. This is the historical endpoint, not the target for the pending canonical migration.
+The endpoint inspected on September 17 was **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. The brand root also served the application after that cutover; the technical callback was not changed during that cutover. This is the historical endpoint; any future SES reactivation must first qualify the canonical callback on guteneo.com.
 
 On 2026-09-17 the authenticated AWS CloudShell confirmation succeeded for subscription **`arn:aws:sns:eu-west-3:982055099242:guteneo-ses-events:54d3e8f5-538e-4c83-b32b-806634db1430`**. Read-back verified the exact topic, account, HTTPS endpoint, `PendingConfirmation=false`, `ConfirmationWasAuthenticated=true` and `RawMessageDelivery=false`. The consumed token was removed only from verified receipt `e2c768ce-a778-444d-bfdd-8b3102494ee0`; the targeted update affected one row and read-back returned a null token type. The local transfer helper was stopped and the clipboard replaced with public text.
 
