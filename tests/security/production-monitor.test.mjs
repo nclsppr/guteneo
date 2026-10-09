@@ -149,6 +149,20 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
 test("wrong release, corrupted bytes, access regression, missing bindings and malformed public data cannot pass", async () => {
   const scenarios = [
     (r, u) => {
+      if (u.pathname === "/release.json") {
+        const d = JSON.parse(r.body);
+        d.sourceSnapshotSha256 = { toString: "PRIVATE" };
+        r.body = JSON.stringify(d);
+      }
+    },
+    (r, u) => {
+      if (u.pathname === "/api/capabilities") {
+        const d = JSON.parse(r.body);
+        d.channels = [null];
+        r.body = JSON.stringify(d);
+      }
+    },
+    (r, u) => {
       if (u.pathname === "/release.json" && u.host.includes("workers.dev"))
         r.body = r.body.replace(sha, "d".repeat(40));
     },

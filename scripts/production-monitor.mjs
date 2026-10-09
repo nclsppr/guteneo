@@ -98,6 +98,9 @@ function validManifest(value) {
     value?.mode === "production" &&
     value.publicPreview === false &&
     value.sourceDirty === false &&
+    typeof value.sourceCommit === "string" &&
+    typeof value.sourceSnapshotSha256 === "string" &&
+    typeof value.assetsSha256 === "string" &&
     /^[a-f0-9]{40}$/.test(value.sourceCommit ?? "") &&
     /^[a-f0-9]{64}$/.test(value.sourceSnapshotSha256 ?? "") &&
     /^[a-f0-9]{64}$/.test(value.assetsSha256 ?? "") &&
@@ -160,6 +163,8 @@ export async function productionMonitor(
           (!expectedCommit || release.sourceCommit === expectedCommit) &&
           release.sourceSnapshotSha256 === primary.sourceSnapshotSha256 &&
           release.assetsSha256 === primary.assetsSha256 &&
+          JSON.stringify(release.liveSendChannels) ===
+            JSON.stringify(primary.liveSendChannels) &&
           release.liveSendsEnabled === capabilities?.liveSending;
       } else if (r.path === "/api/health") {
         kind = "liveness";
@@ -208,6 +213,9 @@ export async function productionMonitor(
         passed =
           r.httpStatus === 200 &&
           entry &&
+          Buffer.isBuffer(r.body) &&
+          Number.isSafeInteger(entry.bytes) &&
+          typeof entry.sha256 === "string" &&
           r.body?.length === entry.bytes &&
           digest(r.body) === entry.sha256 &&
           r.text?.includes(`<html lang="${locale}">`) &&
