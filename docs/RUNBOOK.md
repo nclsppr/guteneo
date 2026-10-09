@@ -20,7 +20,17 @@ Local: `npm ci`, `npx playwright install chromium`, `npm run demo`. Uses local D
 
 Staging/production: use separate reviewed configurations based on `wrangler.staging.json.example` / `wrangler.production.json.example`. `npm run deploy:plan -- staging` prints commands only. Never deploy the root local configuration. `node scripts/check-deployment.mjs path/to/reviewed.json` rejects placeholders, local endpoints, missing service bindings and initially enabled live sends. Verify D1 EU jurisdiction in the account after creation; an ID string cannot prove location. Set secrets via Wrangler secret, not committed vars.
 
-The user authorized and received the public design preview at guteneo.com and a separate production-mode backend at guteneo-app.nclsppr.workers.dev. Use the actual `wrangler.live.jsonc` for that backend; root-domain migration awaits verified managed login. EU D1/R2, queues, private scanning/rendering and Telnyx credentials exist. See LIVE_RELEASE.md for exact release identities and remaining activation gates.
+The production publication contract uses **https://guteneo.com** as its only application origin. Before the first closure, complete and verify the existing SES SNS callback migration described in [SES_SUBSCRIPTION_CONFIRMATION.md](SES_SUBSCRIPTION_CONFIRMATION.md); [SES_STATUS.md](SES_STATUS.md) records rollout status separately. Publish with `wrangler.live.jsonc`, retaining `workers_dev: false` and `preview_urls: false`; the former application hostname and application version preview URLs must then remain closed. The fictional browser-only design preview is a separate Worker at **https://guteneo-preview.nclsppr.workers.dev**, with no business bindings. Its configuration and journeys remain separate; see [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md).
+
+Follow [MAIN_RELEASE.md](MAIN_RELEASE.md): publish from clean, synchronized `main` after the exact merged commit passes CI. Verify the canonical release manifest and asset bytes with:
+
+```sh
+node scripts/verify-release.mjs https://guteneo.com dist/web/release.json
+```
+
+Record the deployed version and traffic, canonical health/capabilities and read-only public browser proof. Separately verify that the former application hostname and version preview URLs no longer serve Guteneo pages, manifest, API or authentication; retain the observed responses and Cloudflare configuration. Do not compare release asset bytes on a closed origin. No additional closure command is required: the reviewed Wrangler flags persist at publication. Dated two-origin evidence in [LIVE_RELEASE.md](LIVE_RELEASE.md) remains historical.
+
+Browser login and the Auth0 callback must use the canonical origin so the host-only login cookie accompanies its callback. Callback, logout and allowed-origin configuration must exclude the closed application hostname. Public page checks do not qualify a real human account, callback/session or reconnection; those require separate authorized browser proof. Keep public release checks away from `/auth/login` and business POST actions. EU D1/R2, queues and private scanning/rendering retain their existing boundaries; domain closure does not change roles or sending authority.
 
 ## Activation gates
 
