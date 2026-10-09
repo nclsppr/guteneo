@@ -124,7 +124,8 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The same WebKit dependency mirrors precede the renderer/security tests.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -133,6 +134,8 @@ jobs:
           cache: npm
       - run: npm ci
       # Security setup forms exercise both engines, not just Chromium.
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps chromium webkit
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
@@ -191,8 +194,9 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    # Includes browser installation, the complete app and public media suite.
-    timeout-minutes: 15
+    # Include the large checkout, slow dependency mirrors and all three suites.
+    # WebKit setup alone can take ten minutes before any assertion executes.
+    timeout-minutes: 30
     env:
       # WebKit's legacy Linux playbin stalls on valid H.264/AAC media in its
       # download buffer. Use its supported playbin3 pipeline; native Safari is
@@ -219,6 +223,8 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
