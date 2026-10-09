@@ -12,8 +12,8 @@ l’administration est expressément autorisée ; production et activation ne le
 | TypeScript, ESLint et `git diff --check`       | Réussis sur le candidat final                                                                                                                                                                                                       |
 | Atlas technique et matrice/parcours            | Régénérés et vérifiés                                                                                                                                                                                                               |
 | Migrations                                     | 52 migrations, 362 objets, schéma équivalent, `quickCheck: ok`, zéro violation FK                                                                                                                                                   |
-| Suite locale complète                          | 1 920 tests applicatifs et 242 tests de sécurité réussis avant les corrections de télémétrie ; le dernier SHA est vérifié en CI                                                                                                                                                                            |
-| Authentification, compte, Belvédère et finance | 92 tests réussis, incluant les vrais triggers D1 de débit Horizon et les six régressions de télémétrie                                                                                                                                                                   |
+| Suite locale complète                          | 1 920 tests applicatifs et 242 tests de sécurité réussis avant les corrections de télémétrie ; le dernier SHA est vérifié en CI                                                                                                     |
+| Authentification, compte, Belvédère et finance | 92 tests réussis, incluant les vrais triggers D1 de débit Horizon et les six régressions de télémétrie                                                                                                                              |
 | Identité/profil/contacts/homonymes             | 30 tests navigateur réussis, trois projets, quatre langues                                                                                                                                                                          |
 | Régression dashboard/compte/facturation/rôles  | 75 réussis, 3 skips desktop intentionnels                                                                                                                                                                                           |
 | Belvédère, navigation et finance               | 20 tests réussis, ordinateur et iPhone WebKit                                                                                                                                                                                       |
@@ -76,6 +76,25 @@ passe à vingt minutes pour couvrir ce même miroir avant les tests de sécurit�
 Les 36 scénarios de configuration postale passent avec cette capture sur
 Chromium desktop, Chromium mobile et iPhone WebKit. TypeScript, ESLint,
 format YAML/TypeScript et atlas technique passent aussi sur le correctif.
+
+Le run `37921928774` sur `ba6890a` confirme que le budget seul ne corrige pas
+le débit : APT reçoit 116 MB en 23 min 15 s (83,4 kB/s) depuis Azure ;
+l'installation WebKit dure 23 min 43 s. GitHub interrompt alors le job iPhone
+à trente minutes, pendant la suite applicative. Les onze autres jobs préalables
+réussissent, mais ce résultat reste incomplet. Le correctif préfère les archives
+HTTPS Canonical déjà présentes dans le mirrorlist GitHub et conserve Azure
+en secours, en changeant uniquement sa priorité de 1 à 4 avant les installations
+Playwright. Il vérifie la référence active et les trois entrées attendues,
+refuse sans mutation une configuration inconnue et ne réécrit rien au second
+passage. Les suites, clés de signature et sandbox restent inchangées.
+Ce choix suit le [mirrorlist officiel GitHub](https://github.com/actions/runner-images/blob/c74a28e5f8943ae6a39cac7c3701dd6bd0a2ea51/images/ubuntu/scripts/build/configure-apt-sources.sh)
+et l'[ordre de sélection documenté par APT](https://manpages.debian.org/bookworm/apt/apt-transport-mirror.1.en.html#Fallback_order_for_mirrors).
+Le gain de débit et la complétude exigent une nouvelle CI sur le SHA exact.
+Dix-huit vérifications ciblées passent sur fixtures en mémoire : sources deb822 et
+legacy avec options, commentaire, source désactivée, URI proche, doublon,
+priorité inattendue, URI inconnue, absence de source, CRLF, idempotence,
+valeurs de désactivation alternatives et champ Enabled ambigu.
+Elles ne modifient aucun fichier système et ne contactent aucun miroir.
 
 ## Fusion et limites
 

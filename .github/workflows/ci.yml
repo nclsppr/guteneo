@@ -134,6 +134,8 @@ jobs:
           cache: npm
       - run: npm ci
       # Security setup forms exercise both engines, not just Chromium.
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps chromium webkit
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
@@ -221,6 +223,8 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
