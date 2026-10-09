@@ -349,6 +349,11 @@ test("PDF validation preserves source evidence, exports JSON and keeps human che
   await page.setViewportSize({ width: 320, height: 740 });
   const state = await fixture(page, { entitled: true });
   await page.goto(`/#/app/documents?document=${state.document.id}`);
+  // The lazy PDF renderer changes the mobile page layout while loading.
+  // Exercise the report only after the source preview has actually rendered.
+  const preview = page.locator(".pdf-preview .pdf-canvas-wrap");
+  await expect(preview).toHaveAttribute("aria-busy", "false");
+  await expect(preview.getByRole("img")).toBeVisible();
   const panel = page.locator(".pdf-validation");
   await expect(panel.getByLabel("Profil de validation")).toBeVisible();
   await expect(panel.locator("select option")).toHaveCount(6);
