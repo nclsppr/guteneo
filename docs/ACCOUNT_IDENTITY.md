@@ -10,6 +10,9 @@ courant dans la navigation, même sur mobile. Le profil personnel est accessible
 par ce bloc ainsi que par l’entrée Compte. Le dashboard décrit les droits effectifs,
 y compris les options indépendantes d’approbation et de rapports du superviseur.
 Le rôle dépend de l’atelier actif ; il ne se modifie pas dans le profil personnel.
+Au retour dans un onglet, la session est relue pour réconcilier un changement de
+compte ou d’atelier effectué ailleurs. Une langue choisie dans l’interface reste
+conservée quand la même personne revient avec une préférence serveur inchangée.
 
 Le nom d’affichage et la langue restent modifiables par la personne. L’adresse
 est en lecture seule : elle provient de l’identité de connexion et ne se change

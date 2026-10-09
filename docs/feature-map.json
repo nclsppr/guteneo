@@ -17,7 +17,8 @@
         "Connexions OAuth : rattachement, révocation et scopes",
         "Demande de suppression du compte ; traitement complet restant à qualifier",
         "Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile",
-        "Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel"
+        "Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel",
+        "Retour d’onglet : identité et atelier réconciliés, choix explicite de langue conservé si la préférence serveur reste inchangée"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [

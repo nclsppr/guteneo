@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **17 domaines · 129 fonctionnalités · 17 parcours** — mis à jour le 2026-10-09.
+> **17 domaines · 130 fonctionnalités · 17 parcours** — mis à jour le 2026-10-09.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -84,6 +84,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Demande de suppression du compte ; traitement complet restant à qualifier
 - Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile
 - Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
+- Retour d’onglet : identité et atelier réconciliés, choix explicite de langue conservé si la préférence serveur reste inchangée
 
 ### 02 · Équipe et responsabilités
 

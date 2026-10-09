@@ -13,14 +13,14 @@ l’administration est expressément autorisée ; production et activation ne le
 | Atlas technique et matrice/parcours | Régénérés et vérifiés |
 | Migrations | 52 migrations, 362 objets, schéma équivalent, `quickCheck: ok`, zéro violation FK |
 | Authentification, compte, Belvédère et finance | 86 tests réussis, incluant les vrais triggers D1 de débit Horizon |
-| Identité/profil/contacts/homonymes | 24 tests navigateur réussis, trois projets, quatre langues |
+| Identité/profil/contacts/homonymes | 27 tests navigateur réussis, trois projets, quatre langues |
 | Régression dashboard/compte/facturation/rôles | 75 réussis, 3 skips desktop intentionnels |
 | Belvédère, navigation et finance | 20 tests réussis, ordinateur et iPhone WebKit |
 | Build application + Worker dry-run | Réussi ; aucun Worker publié |
 | Build preview | Réussi ; aucune publication |
 | Preview public | Premier run : 145 réussis, 6 skips et une mesure de header instable avant chargement des fontes. Attente des fontes ajoutée ; les 6 scénarios iPhone de navigation/langue passent ensuite. La CI vérifie de nouveau toute la suite. |
 
-Les 24 nouveaux scénarios couvrent identité persistante, profil/locale enregistrés,
+Les 27 nouveaux scénarios couvrent identité persistante, profil/locale enregistrés,
 email en lecture seule, superviseur aux options indépendantes, contacts et droits,
 homonymes, erreur et reprise, changement d’atelier et changement de compte dans
 un autre onglet encore actif. Tous leurs appels sont interceptés : ce sont des
@@ -41,7 +41,7 @@ exact et l’état de fusion. La CI de main se vérifie aussi après la fusion. 
 anciennes preuves Belvédère restent historiques et ne qualifient pas cette intégration.
 
 Captures fictives revues hors du dépôt sous `/tmp/guteneo-identity-ui/` et résultats
-dans `test-results/identity-final/`. Les journaux de cette exécution sont sous
+dans `test-results/identity-final2/`. Les journaux de cette exécution sont sous
 `/tmp/guteneo-identity-*.log`. Ils ne contiennent que les scénarios synthétiques.
 
 Aucun déploiement, migration distante, configuration Auth0/Cloudflare, envoi réel,

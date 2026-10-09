@@ -69,7 +69,7 @@ async function fixture(
     body: Record<string, unknown>;
   }[] = [];
   const unmatched: string[] = [];
-  const state = { failContacts: false, contactReads: 0 };
+  const state = { failContacts: false, contactReads: 0, sessionReads: 0 };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname.slice(4);
@@ -78,8 +78,10 @@ async function fixture(
       writes.push({ method, path, body: request.postDataJSON() });
     let status = 200;
     let body: unknown;
-    if (path === "/session") body = session;
-    else if (path === "/capabilities")
+    if (path === "/session") {
+      state.sessionReads++;
+      body = session;
+    } else if (path === "/capabilities")
       body = { scanner: "ready", simulation: false };
     else if (path === "/connections") body = { items: [] };
     else if (path === "/overview")
@@ -413,6 +415,52 @@ test("returning to a healthy tab reconciles a different account and workshop tog
     "Samira Validation",
   );
   await expect(identity).not.toContainText("Camille Nom partagé");
+  expect(data.writes).toEqual([]);
+  expect(data.unmatched).toEqual([]);
+});
+
+test("same-account focus reconciliation preserves an explicit interface language choice", async ({
+  page,
+}) => {
+  const data = await fixture(page, { locale: "fr" });
+  await page.goto("/#/app");
+  const identity = page.locator("aside .workspace-identity");
+  await expect(identity).toHaveAttribute("aria-label", "Votre compte");
+  await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
+  await page.locator(".workspace-language select").selectOption("en");
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  const previousReads = data.state.sessionReads;
+  const rechecked = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/api/session" &&
+      response.request().method() === "GET",
+  );
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      return data.state.sessionReads;
+    })
+    .toBeGreaterThan(previousReads);
+  expect((await rechecked).status()).toBe(200);
+  // Let the resolved session reach React and its locale effects before asserting.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(identity).toContainText("Camille Nom partagé");
+  await expect(page.locator(".workspace-language select")).toHaveValue("en");
+  await expect(
+    page.getByRole("region", {
+      name: "Your role in this workshop",
+      exact: true,
+    }),
+  ).toContainText(
+    "You prepare dispatches; an authorized person approves them.",
+  );
+  expect(data.session.user.preferredLocale).toBe("fr");
   expect(data.writes).toEqual([]);
   expect(data.unmatched).toEqual([]);
 });

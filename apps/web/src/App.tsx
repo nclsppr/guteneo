@@ -674,7 +674,12 @@ function WorkspaceApplication({
             current.organization.id !== session?.organization.id
           )
             go("/app");
-          setSession(current, languageVersion === getLocaleSelectionVersion());
+          setSession(
+            current,
+            (current.user.id !== session?.user.id ||
+              current.user.preferredLocale !== session?.user.preferredLocale) &&
+              languageVersion === getLocaleSelectionVersion(),
+          );
           updateSession(current);
           setSessionExpired(false);
         })
