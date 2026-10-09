@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="État du service guteneo, preuves de vérification et suivi d’exploitation."
+    />
+    <title>guteneo — État du service</title>
+    <link rel="icon" href="assets/logo.webp" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+    <script src="seasonal.js" defer></script>
+  </head>
+  <body>
+    <canvas
+      id="season-canvas"
+      class="season-canvas"
+      aria-hidden="true"
+    ></canvas>
+    <p id="preview-banner" class="preview-banner" hidden>
+      Prévisualisation locale · ces données ne constituent pas la preuve du
+      service publié.
+    </p>
+    <a class="skip" href="#contenu">Aller au rapport</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/" aria-label="guteneo, début du rapport"
+        ><img src="assets/logo.webp" alt="" width="38" height="38" /><span
+          >guteneo</span
+        ></a
+      ><span class="report-label">État du service</span
+      ><a class="source-link" href="https://guteneo.com">Ouvrir guteneo</a>
+    </header>
+    <main id="contenu" class="wrap" tabindex="-1">
+      <div class="page-heading">
+        <div>
+          <h1>État du service</h1>
+          <p>
+            La situation observée, les preuves disponibles et les points à
+            vérifier.
+          </p>
+        </div>
+        <button id="refresh" class="button" type="button">
+          Relire la mesure
+        </button>
+      </div>
+      <section aria-label="Bilan de la dernière observation" class="overview">
+        <div
+          id="live-state"
+          class="live-state"
+          data-state="loading"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="state-dot" aria-hidden="true"></span>
+          <div>
+            <strong id="state-title">Lecture de la dernière mesure…</strong>
+            <p id="state-detail">Lecture du service de mesure.</p>
+          </div>
+          <span id="freshness-label" class="freshness-label">En attente</span>
+        </div>
+        <div class="summary-grid" id="summary-grid" data-current="false">
+          <div class="summary-block">
+            <div class="summary-heading">
+              <h2>Contrôles publics</h2>
+              <span id="public-total">— contrôles</span>
+            </div>
+            <div class="totals">
+              <button type="button" data-shortcut="pass" class="metric success">
+                <strong id="passed-count">—</strong><span>Réussis</span></button
+              ><button
+                type="button"
+                data-shortcut="fail"
+                class="metric failure"
+              >
+                <strong id="failed-count">—</strong><span>En écart</span>
+              </button>
+            </div>
+            <p>Site public, configuration annoncée et protection des accès.</p>
+          </div>
+          <div class="summary-block">
+            <div class="summary-heading">
+              <h2>Fonctionnalités métier</h2>
+              <span id="business-total">— fonctionnalités</span>
+            </div>
+            <div class="totals">
+              <button
+                type="button"
+                data-shortcut="not_checked"
+                class="metric pending"
+              >
+                <strong id="untested-count">—</strong
+                ><span>Sans preuve complète</span></button
+              ><button
+                type="button"
+                data-shortcut="disabled"
+                class="metric disabled"
+              >
+                <strong id="disabled-count">—</strong><span>Désactivées</span>
+              </button>
+            </div>
+            <p>Une réponse publique ne prouve pas un parcours complet.</p>
+          </div>
+        </div>
+        <div class="measurement">
+          <span id="proof-caption">Dernière mesure</span
+          ><time id="checked-time">En attente</time
+          ><span id="measure-age">Âge inconnu</span
+          ><span>Source : observation publique</span>
+        </div>
+      </section>
+      <div class="tabs" role="tablist" aria-label="Vues du rapport">
+        <button
+          type="button"
+          id="tab-service"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-service"
+          tabindex="0"
+          data-tab="service"
+        >
+          <img
+            src="assets/icon-pulse.svg"
+            class="ui-icon"
+            alt=""
+            width="24"
+            height="24"
+          />Service</button
+        ><button
+          type="button"
+          id="tab-verification"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-verification"
+          tabindex="-1"
+          data-tab="verification"
+        >
+          <img
+            src="assets/icon-shield.svg"
+            class="ui-icon"
+            alt=""
+            width="24"
+            height="24"
+          />Vérifications</button
+        ><button
+          type="button"
+          id="tab-operations"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-operations"
+          tabindex="-1"
+          data-tab="operations"
+        >
+          <img
+            src="assets/icon-wrench.svg"
+            class="ui-icon"
+            alt=""
+            width="24"
+            height="24"
+          />Exploitation
+        </button>
+      </div>
+      <section
+        id="panel-service"
+        role="tabpanel"
+        aria-labelledby="tab-service"
+        tabindex="0"
+        class="panel"
+      >
+        <section class="history-panel" aria-labelledby="history-title">
+          <div class="panel-heading">
+            <h2 id="history-title">
+              <img
+                src="assets/icon-chart.svg"
+                class="ui-icon"
+                alt=""
+                width="24"
+                height="24"
+              />Disponibilité observée
+            </h2>
+            <fieldset class="filters history-periods">
+              <legend class="sr-only">Période de l’historique</legend>
+              <button type="button" data-days="7" aria-pressed="true">
+                7 jours</button
+              ><button type="button" data-days="30" aria-pressed="false">
+                30 jours</button
+              ><button type="button" data-days="365" aria-pressed="false">
+                1 an
+              </button>
+            </fieldset>
+          </div>
+          <p
+            id="history-state"
+            class="explanation"
+            role="status"
+            aria-live="polite"
+          >
+            Lecture de l’historique…
+          </p>
+          <dl class="history-totals">
+            <div>
+              <dt>Mesures réussies</dt>
+              <dd id="history-availability">—</dd>
+            </div>
+            <div>
+              <dt>Couverture des mesures</dt>
+              <dd id="history-coverage">—</dd>
+            </div>
+            <div>
+              <dt>Latence moyenne observée</dt>
+              <dd id="history-latency">—</dd>
+            </div>
+          </dl>
+          <div
+            id="history-chart"
+            class="history-chart"
+            role="img"
+            aria-label="Historique en attente de données."
+          ></div>
+          <div class="history-caption">
+            <span id="history-range">Journées en UTC</span
+            ><span
+              ><i class="legend-dot success" aria-hidden="true"></i>Réussite
+              <i class="legend-dot pending" aria-hidden="true"></i>Écart
+              <i class="legend-dot disabled" aria-hidden="true"></i>Sans
+              mesure</span
+            >
+          </div>
+          <p id="history-start" class="section-note">
+            L’historique commence à l’activation de la collecte. Les jours
+            précédents restent sans données.
+          </p>
+          <details class="history-details">
+            <summary>Consulter les mesures quotidiennes</summary>
+            <div
+              class="table-scroll"
+              tabindex="0"
+              role="region"
+              aria-label="Mesures quotidiennes"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Date UTC</th>
+                    <th scope="col">Réussite observée</th>
+                    <th scope="col">Mesures reçues / attendues</th>
+                    <th scope="col">Latence moyenne</th>
+                  </tr>
+                </thead>
+                <tbody id="history-rows"></tbody>
+              </table>
+            </div>
+          </details>
+          <p class="section-note">
+            La disponibilité porte uniquement sur les mesures reçues. Une
+            couverture incomplète laisse des périodes inconnues ; la latence
+            moyenne ne constitue pas un engagement de service.
+          </p>
+        </section>
+
+        <div class="panel-heading">
+          <h2>Résultat par fonctionnalité</h2>
+          <span class="badge pending">Preuve partielle</span>
+        </div>
+        <p id="service-explanation" class="explanation">
+          Le fonctionnement complet de ces parcours n’est pas établi par les
+          mesures publiques. Une preuve absente ne signifie pas une panne.
+        </p>
+        <fieldset class="filters">
+          <legend class="sr-only">Filtrer les fonctionnalités</legend>
+          <button type="button" data-filter="all" aria-pressed="true">
+            Toutes</button
+          ><button type="button" data-filter="not_checked" aria-pressed="false">
+            À vérifier</button
+          ><button type="button" data-filter="disabled" aria-pressed="false">
+            Désactivées
+          </button>
+        </fieldset>
+        <p id="coverage-count" class="result-count" aria-live="polite">
+          En attente de données.
+        </p>
+        <div id="coverage" class="results" data-current="false">
+          <p class="empty">Aucune mesure reçue.</p>
+        </div>
+        <p class="section-note">
+          Cette vue présente la situation connue du service. Elle ne garantit ni
+          l’absence de bugs ni la livraison d’un document particulier.
+        </p>
+      </section>
+      <section
+        id="panel-verification"
+        role="tabpanel"
+        aria-labelledby="tab-verification"
+        tabindex="0"
+        class="panel"
+        hidden
+      >
+        <div class="panel-heading">
+          <h2>Ce que les preuves établissent</h2>
+          <span class="dated">Lecture technique</span>
+        </div>
+        <p class="explanation">
+          Chaque résultat conserve son environnement et sa portée. Un test local
+          ou un fournisseur simulé ne devient jamais une réussite en production.
+        </p>
+        <div class="evidence-register">
+          <article class="evidence-row">
+            <div>
+              <h3>Production · lectures publiques</h3>
+              <p>
+                Mesures enregistrées par le service de statut, détaillées
+                ci-dessous. Aucune opération métier n’est exécutée par ces
+                sondes.
+              </p>
+            </div>
+            <span id="public-evidence-state" class="badge pending"
+              >En attente</span
+            >
+          </article>
+          <article class="evidence-row">
+            <div>
+              <h3>Validation métier · environnement local</h3>
+              <p id="qualification-summary">
+                Lecture du rapport de qualification locale. Aucun résultat local
+                ne sera présenté comme une réussite en production.
+              </p>
+              <p id="qualification-date" class="proof-date">
+                Date de qualification indisponible.
+              </p>
+              <details
+                id="qualification-detail"
+                class="qualification-detail"
+                hidden
+              >
+                <summary>Parcours exercés et limites</summary>
+                <div id="qualification-scope"></div>
+                <div id="qualification-limits"></div>
+              </details>
+            </div>
+            <span id="qualification-state" class="badge pending"
+              >En attente</span
+            >
+          </article>
+          <article class="evidence-row">
+            <div>
+              <h3>Contrôle à blanc · production</h3>
+              <p>
+                Le candidat relit un envoi déjà préparé sans consommer ou
+                renouveler son devis. Aucun résultat de cette validation en
+                production n’est disponible ici.
+              </p>
+            </div>
+            <span class="badge pending">Non exécuté</span>
+          </article>
+          <article class="evidence-row">
+            <div>
+              <h3>Parcours complets · environnement isolé</h3>
+              <p>
+                La qualification locale ci-dessus exerce les scénarios
+                sélectionnés. La couverture complète des files, des moteurs
+                d’analyse et de tous les parcours conserve ses preuves
+                distinctes ; elle n’est pas acquise par ce seul résultat.
+              </p>
+            </div>
+            <span class="badge pending">À compléter</span>
+          </article>
+        </div>
+        <details class="report-detail">
+          <summary>
+            Pourquoi le contrôle à blanc reste une preuve partielle
+          </summary>
+          <div class="detail-body">
+            <p>
+              Il relit l’état préparé, l’absence de tentative, le devis et les
+              restrictions applicables. Il ne crée aucun devis, accord, crédit
+              réservé, message en file ou appel fournisseur. Les échéances
+              continuent de s’appliquer.
+            </p>
+            <p>
+              L’acceptation atomique et la livraison sont explicitement non
+              exécutées. Les comptes et droits courants restent nécessaires. Les
+              compteurs techniques d’accès peuvent évoluer ; une lecture réelle
+              de production utilise aussi l’infrastructure.
+            </p>
+            <p>
+              Le candidat n’est pas déployé. Aucun test authentifié ni envoi
+              réel n’est exécuté par cette page. La collecte publique est
+              distincte des tests métier.
+            </p>
+          </div>
+        </details>
+        <div class="panel-heading verification-heading">
+          <h2>Contrôles publics observés</h2>
+          <span id="tab-public-count" class="badge disabled">—</span>
+        </div>
+        <p id="live-explanation" class="explanation">
+          En attente d’une mesure exploitable.
+        </p>
+        <div class="toolbar">
+          <fieldset class="filters">
+            <legend class="sr-only">Filtrer les contrôles</legend>
+            <button type="button" data-check-filter="all" aria-pressed="true">
+              Tous</button
+            ><button
+              type="button"
+              data-check-filter="fail"
+              aria-pressed="false"
+            >
+              En écart</button
+            ><button
+              type="button"
+              data-check-filter="pass"
+              aria-pressed="false"
+            >
+              Réussis
+            </button>
+          </fieldset>
+          <label class="search"
+            ><span class="sr-only">Rechercher un contrôle</span
+            ><input
+              id="check-search"
+              type="search"
+              placeholder="Rechercher un contrôle…"
+              autocomplete="off"
+          /></label>
+        </div>
+        <p id="result-count" class="result-count" aria-live="polite">
+          En attente de la première mesure.
+        </p>
+        <div id="probes" class="results" data-current="false">
+          <p class="empty">
+            Les résultats apparaîtront dès que le moniteur répondra.
+          </p>
+        </div>
+        <p class="section-note">
+          Un résultat réussi prouve uniquement son attendu. Un refus HTTP 401
+          est ici un succès : l’accès anonyme doit être bloqué. Les détails
+          d’assertion individuels ne sont pas exportés.
+        </p>
+      </section>
+      <section
+        id="panel-operations"
+        role="tabpanel"
+        aria-labelledby="tab-operations"
+        tabindex="0"
+        class="panel"
+        hidden
+      >
+        <div class="panel-heading">
+          <h2>
+            <img
+              src="assets/icon-wrench.svg"
+              class="ui-icon"
+              alt=""
+              width="24"
+              height="24"
+            />Suivi de maintenance et d’astreinte
+          </h2>
+          <span class="dated">Preuve · âge · action</span>
+        </div>
+        <p class="explanation">
+          Une mesure manquante ou trop ancienne indique un état inconnu. Les
+          lignes sans preuve privée restent à vérifier ; elles ne constituent
+          pas des incidents confirmés.
+        </p>
+        <div class="operation-list">
+          <article class="operation">
+            <div class="operation-heading">
+              <h3>Observation publique</h3>
+              <span id="operations-measure-state" class="badge pending"
+                >En attente</span
+              >
+            </div>
+            <dl class="operation-facts">
+              <div>
+                <dt>Preuve</dt>
+                <dd id="operations-measure-proof">Aucune mesure reçue.</dd>
+              </div>
+              <div>
+                <dt>Âge</dt>
+                <dd id="operations-measure-age">Indisponible</dd>
+              </div>
+              <div>
+                <dt>Action</dt>
+                <dd>
+                  Relire le résultat existant. Si la mesure manque ou dépasse
+                  son seuil de fraîcheur, vérifier le processus de collecte
+                  avant de conclure.
+                </dd>
+              </div>
+            </dl>
+          </article>
+          <article class="operation">
+            <div class="operation-heading">
+              <h3>Analyse et rendu des PDF</h3>
+              <span class="badge pending">Preuve privée absente</span>
+            </div>
+            <dl class="operation-facts">
+              <div>
+                <dt>Preuve attendue</dt>
+                <dd>
+                  Analyse d’un fichier connu, fraîcheur des signatures, octets
+                  exacts et rendu de toutes les pages.
+                </dd>
+              </div>
+              <div>
+                <dt>Âge</dt>
+                <dd>Dernière réussite indisponible dans ce rapport.</dd>
+              </div>
+              <div>
+                <dt>Action</dt>
+                <dd>
+                  Exécuter et archiver le parcours local isolé. Une
+                  configuration annoncée ne suffit pas à valider le traitement
+                  réel.
+                </dd>
+              </div>
+            </dl>
+          </article>
+          <article class="operation">
+            <div class="operation-heading">
+              <h3>Files et traitements différés</h3>
+              <span class="badge pending">Mesure absente</span>
+            </div>
+            <dl class="operation-facts">
+              <div>
+                <dt>Preuve attendue</dt>
+                <dd>
+                  Dernière exécution terminée, âge du plus ancien travail et
+                  comportement après interruption.
+                </dd>
+              </div>
+              <div>
+                <dt>Âge</dt>
+                <dd>Aucune mesure de file reçue ici.</dd>
+              </div>
+              <div>
+                <dt>Action</dt>
+                <dd>
+                  Tester les reprises avec les files locales et un fournisseur
+                  simulé. Une issue fournisseur inconnue ne doit pas provoquer
+                  un nouvel envoi.
+                </dd>
+              </div>
+            </dl>
+          </article>
+          <article class="operation">
+            <div class="operation-heading">
+              <h3>Réception et livraison</h3>
+              <span class="badge pending">Non exécutées</span>
+            </div>
+            <dl class="operation-facts">
+              <div>
+                <dt>Preuve attendue</dt>
+                <dd>
+                  Événement authentifié, rapprochement de l’envoi et état final
+                  conforme.
+                </dd>
+              </div>
+              <div>
+                <dt>Âge</dt>
+                <dd>Aucune preuve de livraison issue de cette vérification.</dd>
+              </div>
+              <div>
+                <dt>Action</dt>
+                <dd>
+                  Exercer les scénarios de succès, rejet, doublon et délai avec
+                  des événements simulés. Aucun appel de livraison réel dans la
+                  stratégie sans débit métier.
+                </dd>
+              </div>
+            </dl>
+          </article>
+          <article class="operation">
+            <div class="operation-heading">
+              <h3>Sauvegarde et restauration</h3>
+              <span class="badge pending">Preuve à réunir</span>
+            </div>
+            <dl class="operation-facts">
+              <div>
+                <dt>Preuve attendue</dt>
+                <dd>Restauration isolée et contrôle de cohérence documenté.</dd>
+              </div>
+              <div>
+                <dt>Âge</dt>
+                <dd>Aucune date de restauration vérifiée fournie ici.</dd>
+              </div>
+              <div>
+                <dt>Action</dt>
+                <dd>
+                  Restaurer une base de test locale, vérifier les relations et
+                  conserver le résultat. Ne pas modifier les données de
+                  production pour ce test.
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+        <details class="report-detail">
+          <summary>Stratégie de tests sans débit métier</summary>
+          <div class="detail-body">
+            <ol class="test-policy">
+              <li>
+                Exécuter localement le code applicatif avec des données
+                fictives, des bases D1 et objets R2 isolés, les files et les
+                composants PDF requis.
+              </li>
+              <li>
+                Interdire le réseau externe et exclure les secrets de
+                production. Le dernier appel de livraison utilise exclusivement
+                un fournisseur simulé ; tout accès réseau inattendu fait échouer
+                le test.
+              </li>
+              <li>
+                Conserver les preuves par scénario : environnement, résultat,
+                date, durée et limite. Un scénario non exécuté ne reçoit aucun
+                état vert.
+              </li>
+              <li>
+                Conserver la production hors de cette boucle. La collecte
+                publique est limitée et utilise l’infrastructure ; son coût ne
+                peut pas être présenté comme nul. Aucun parcours métier
+                facturable ne doit être inclus dans cette boucle.
+              </li>
+            </ol>
+            <p>
+              Objectif : aucun devis réel consommé, aucun crédit métier réservé
+              et aucun paiement fournisseur. Les ressources de la machine et
+              d’une éventuelle CI restent distinctes. La qualification locale
+              publie son résultat daté dans Vérifications. Les scénarios non
+              couverts restent à compléter.
+            </p>
+          </div>
+        </details>
+        <details class="report-detail">
+          <summary>Règles d’alerte à mettre en place</summary>
+          <div class="detail-body">
+            <p>
+              Signaler un échec observé, une preuve périmée ou une absence de
+              mesure. Associer chaque alerte à la fonctionnalité, à
+              l’environnement de test, à l’heure et à la preuve correspondante.
+            </p>
+            <p>
+              Notifier l’apparition, l’évolution utile et le rétablissement ;
+              dédupliquer les rappels. Aucun canal d’alerte ou service
+              d’astreinte n’est configuré par cette page.
+            </p>
+          </div>
+        </details>
+      </section>
+      <noscript
+        ><p class="notice">
+          JavaScript est nécessaire pour les mesures et les vues interactives.
+          Aucune mesure ne peut être affichée sans JavaScript.
+        </p></noscript
+      >
+    </main>
+    <footer class="status-footer">
+      <div class="footer-top wrap">
+        <div>
+          <a class="footer-wordmark" href="https://guteneo.com">guteneo</a>
+          <p>Un service suivi, des preuves à portée de main.</p>
+        </div>
+        <button
+          type="button"
+          id="motion-toggle"
+          class="button"
+          aria-pressed="false"
+        >
+          Animations : désactivées
+        </button>
+      </div>
+      <div class="status-landscape" aria-hidden="true">
+        <img
+          src="assets/luxembourg-blue-panorama.webp"
+          alt=""
+          width="2172"
+          height="724"
+          loading="lazy"
+          decoding="async"
+        /><span class="status-bird bird-one"
+          ><span class="status-wingbeat"></span></span
+        ><span class="status-bird bird-two"
+          ><span class="status-wingbeat"></span></span
+        ><span class="status-bird bird-three"
+          ><span class="status-wingbeat"></span
+        ></span>
+      </div>
+      <div class="footer-bottom wrap">
+        <nav aria-label="Liens utiles">
+          <a href="https://guteneo.com">Retour à guteneo</a
+          ><a href="https://guteneo.com/support/">Assistance</a
+          ><a href="https://guteneo.com/mentions-legales/">Mentions légales</a
+          ><a href="https://guteneo.com/confidentialite/">Confidentialité</a>
+        </nav>
+        <p>
+          Mesures publiques et tests locaux restent distincts. Une preuve trop
+          ancienne ne décrit plus l’état courant.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

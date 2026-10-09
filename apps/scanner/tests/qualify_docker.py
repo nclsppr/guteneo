@@ -59,7 +59,7 @@ def qualification_build_id(*responses):
 
 
 def main():
-    subprocess.run(["docker", "run", "--rm", "-d", "--platform", "linux/amd64", "--name", NAME, "--network", "none", "--memory", "4g", "--cpus", "0.5", "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,size=128m", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", IMAGE], check=True, capture_output=True)
+    subprocess.run(["docker", "run", "--pull=never", "--rm", "-d", "--platform", "linux/amd64", "--name", NAME, "--network", "none", "--memory", "4g", "--cpus", "0.5", "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,size=128m", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", IMAGE], check=True, capture_output=True)
     started = time.monotonic()
     try:
         health = None

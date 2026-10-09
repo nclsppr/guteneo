@@ -1,5 +1,12 @@
 # Architecture
 
+10 October status service: an independent public Worker and dedicated D1 retain
+bounded public observations and daily aggregates, separate from business data.
+Read-only dispatch validation reuses domain checks without approval, acceptance,
+quote refresh or provider calls. See [STATUS_SERVICE.md](STATUS_SERVICE.md) and
+[PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md); local qualification and deployed
+evidence remain distinct.
+
 9 October integration candidate: visible personal identity, read-only login email,
 current workshop role/permissions and browser-only responsible contacts, with an
 explicit Auth0 account-change action. Belvédère is reconciled with current main

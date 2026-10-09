@@ -38,6 +38,10 @@ import {
 import { ensureCreditPeriod, readWelcomeCredit } from "./welcome-credit";
 import { readFaxPricing, readFaxPricingBatch } from "./live-fax-usage";
 import type { FaxPricing } from "../../contracts/src/fax-pricing";
+import type {
+  DispatchValidationCheck,
+  DispatchValidationResult,
+} from "../../contracts/src/dispatch-validation";
 import {
   DISPATCH_GROUPS,
   isDispatchGroup,
@@ -1397,6 +1401,112 @@ export class DomainService {
     }
     return this.dispatch(ctx, id);
   }
+  /** Observe existing preparation without approval, reservation or provider work. */
+  async validateDispatch(
+    ctx: ActorContext,
+    id: string,
+  ): Promise<DispatchValidationResult> {
+    // The same tenant, membership and private-document visibility as getDispatch.
+    const row = await this.dispatch(ctx, id);
+    const checkedAt = this.time();
+    const prepared = row.status === "prepared";
+    const checks: DispatchValidationCheck[] = [
+      {
+        id: "prepared_state",
+        status: prepared ? "passed" : "blocked",
+        ...(!prepared ? { code: "INVALID_STATE" } : {}),
+      },
+    ];
+    const inspect = async (
+      checkId: DispatchValidationCheck["id"],
+      operation: () => Promise<unknown>,
+    ) => {
+      try {
+        await operation();
+        checks.push({ id: checkId, status: "passed" });
+      } catch (error) {
+        if (!(error instanceof DomainError)) throw error;
+        checks.push({ id: checkId, status: "blocked", code: error.code });
+      }
+    };
+    if (prepared) {
+      const attempt = await this.db
+        .prepare(
+          "SELECT 1 FROM attempts WHERE organization_id=? AND dispatch_id=? LIMIT 1",
+        )
+        .bind(ctx.organizationId, row.id)
+        .first();
+      const started =
+        attempt !== null ||
+        row.provider !== null ||
+        row.provider_id !== null ||
+        row.active_attempt_id !== null;
+      checks.push({
+        id: "submission_not_started",
+        status: started ? "blocked" : "passed",
+        ...(started ? { code: "SUBMISSION_ALREADY_STARTED" } : {}),
+      });
+      if (row.mode === "production")
+        await inspect("quote", () =>
+          this.validateDispatchQuote(row, checkedAt),
+        );
+      else
+        checks.push({
+          id: "quote",
+          status: "not_checked",
+          code: "SIMULATION_NOT_PRODUCTION_PROOF",
+        });
+      if (JSON.parse(row.options_json).emailDeliveryMode === "protected_link")
+        await inspect("protected_document", () => this.validateProtection(row));
+      else
+        checks.push({
+          id: "protected_document",
+          status: "not_checked",
+          code: "NOT_APPLICABLE",
+        });
+      if (row.channel === "email")
+        await inspect("recipient_suppression", () =>
+          this.validateEmailRecipient(row),
+        );
+      else
+        checks.push({
+          id: "recipient_suppression",
+          status: "not_checked",
+          code: "NOT_APPLICABLE",
+        });
+    } else {
+      for (const checkId of [
+        "submission_not_started",
+        "quote",
+        "protected_document",
+        "recipient_suppression",
+      ] as const)
+        checks.push({
+          id: checkId,
+          status: "not_checked",
+          code: "DISPATCH_NOT_PREPARED",
+        });
+    }
+    // SQL acceptance guards, consent and funding are not exercised by these reads.
+    for (const checkId of ["acceptance", "provider_delivery"] as const)
+      checks.push({
+        id: checkId,
+        status: "not_checked",
+        code: "NOT_EXECUTED",
+      });
+    return {
+      schema: 1,
+      execution: "validation_only",
+      dispatchId: row.id,
+      fingerprint: row.fingerprint,
+      dispatchMode: row.mode,
+      checkedAt,
+      status: checks.some((check) => check.status === "blocked")
+        ? "blocked"
+        : "partial",
+      checks,
+    };
+  }
   async confirmDispatch(
     ctx: ActorContext,
     id: string,
@@ -1420,45 +1530,10 @@ export class DomainService {
         403,
       );
     const now = this.time();
-    if (
-      row.mode === "production" &&
-      row.channel === "fax" &&
-      row.status === "prepared"
-    )
-      await validateLiveFaxQuote(
-        this.db,
-        row,
-        this.config.liveFaxIdentity,
-        now,
-      );
-    if (
-      row.mode === "production" &&
-      row.channel !== "fax" &&
-      row.status === "prepared"
-    )
-      await validateLiveDeliveryQuote(
-        this.db,
-        row,
-        this.config.liveDeliveryIdentity?.[row.channel],
-        now,
-      );
+    if (row.status === "prepared") await this.validateDispatchQuote(row, now);
     if (row.status === "prepared") await this.validateProtection(row);
-    if (row.channel === "email" && row.status === "prepared") {
-      const recipient = JSON.parse(row.recipient_json) as { email: string };
-      if (
-        await this.db
-          .prepare(
-            "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
-          )
-          .bind(ctx.organizationId, recipient.email)
-          .first()
-      )
-        throw new DomainError(
-          "RECIPIENT_SUPPRESSED",
-          "Ce destinataire est bloqué pour cette organisation.",
-          409,
-        );
-    }
+    if (row.channel === "email" && row.status === "prepared")
+      await this.validateEmailRecipient(row);
     const hash = await sha256(
       canonicalJson({ id, fingerprint: row.fingerprint }),
     );
@@ -1717,6 +1792,38 @@ export class DomainService {
       .bind(ctx.organizationId, id, ...visibility.values, LIMITS.campaignRows)
       .all<Dispatch>();
     return { campaign, dispatches: dispatches.results };
+  }
+  private async validateDispatchQuote(row: Dispatch, now: string) {
+    if (row.mode !== "production") return;
+    if (row.channel === "fax")
+      return validateLiveFaxQuote(
+        this.db,
+        row,
+        this.config.liveFaxIdentity,
+        now,
+      );
+    return validateLiveDeliveryQuote(
+      this.db,
+      row,
+      this.config.liveDeliveryIdentity?.[row.channel],
+      now,
+    );
+  }
+  private async validateEmailRecipient(row: Dispatch) {
+    const recipient = JSON.parse(row.recipient_json) as { email: string };
+    if (
+      await this.db
+        .prepare(
+          "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
+        )
+        .bind(row.organization_id, recipient.email)
+        .first()
+    )
+      throw new DomainError(
+        "RECIPIENT_SUPPRESSED",
+        "Ce destinataire est bloqué pour cette organisation.",
+        409,
+      );
   }
   private async validateProtection(row: Dispatch) {
     const options = JSON.parse(row.options_json);

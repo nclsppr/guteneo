@@ -1049,6 +1049,7 @@ function WorkspaceApplication({
           <Brand app variant="simple" compact />
           <span>{session.organization.name}</span>
           <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+          <a href="https://status.guteneo.com/">{msg("État du service")}</a>
         </footer>
       </div>
     </div>

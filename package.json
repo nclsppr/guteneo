@@ -43,7 +43,11 @@
     "test:belvedere": "playwright test --config playwright.belvedere.config.ts",
     "status:prod": "node scripts/production-status.mjs",
     "monitor:prod": "node scripts/production-monitor.mjs",
-    "monitor:prod:live": "node scripts/production-monitor.mjs --serve"
+    "monitor:prod:live": "node scripts/production-monitor.mjs --serve",
+    "test:prod:dry-run": "node --import tsx scripts/production-dry-run.ts",
+    "test:offline": "node scripts/test-offline.mjs",
+    "build:status": "node scripts/build-status.mjs",
+    "deploy:status": "node scripts/deploy-status.mjs"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

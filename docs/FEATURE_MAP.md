@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **17 domaines · 133 fonctionnalités · 18 parcours** — mis à jour le 2026-10-09.
+> **19 domaines · 147 fonctionnalités · 20 parcours** — mis à jour le 2026-10-10.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -44,6 +44,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Capacité | Administrateur | Superviseur | Opérateur | Observateur | Assistant connecté |
 | --- | --- | --- | --- | --- | --- |
 | Lire contenus accessibles | Oui | Oui | Oui | Oui | Selon membre + scopes |
+| Contrôler à blanc un envoi existant | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Membre + dispatches:read + accès à l’envoi ; aucune approbation |
 | Importer / préparer | Oui | Oui | Oui | Non | Selon membre + scopes |
 | Approuver / confirmer / annuler | Oui | Option Approbation | Non | Non | Mandat expert distinct uniquement |
 | Rapports agrégés | Oui | Option Rapports | Non | Non | Selon membre + scopes |
@@ -63,6 +64,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
 | Lire le moniteur public local | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
+| Lire le statut hébergé et son historique | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
 
 Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -219,7 +221,23 @@ Contrat : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · Source : [apps/api/src/pro
 - Préparation, approbation, suivi et politique fournisseur
 - Resend/SES : disponibilité contrôlée, activation séparée
 
-### 10 · Campagnes et supervision
+### 10 · Contrôle à blanc des envois
+
+**État :** Candidat local du 10 octobre · non déployé ; qualification authentifiée en production restante.
+
+Contrat : [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md) · Source : [packages/domain/src/index.ts](../packages/domain/src/index.ts).
+
+**Surfaces :** REST / MCP / CLI ; aucun nouveau bouton web, écran natif ou route mobile dédiée. **Tests :** [tests/integration/dispatch-validation.test.ts](../tests/integration/dispatch-validation.test.ts), [tests/unit/mcp-dispatch-validation.test.ts](../tests/unit/mcp-dispatch-validation.test.ts), [tests/unit/production-dry-run.test.ts](../tests/unit/production-dry-run.test.ts).
+
+- Validation d’un envoi existant, limitée à l’atelier authentifié et à l’accès documentaire courant
+- Lecture des gardes de préparation, absence de tentative, devis et restrictions applicables au canal
+- Résultat partiel ou bloqué ; acceptation et livraison toujours non exécutées, simulation distincte de la production
+- Aucun devis créé, renouvelé ou consommé ; expiration conservée ; aucune approbation, réservation, outbox ou tentative fournisseur
+- Automatisable via REST GET ou MCP avec dispatches:read ; aucune autorité de préparation ou d’approbation ajoutée
+- Lecture seule métier ; compteurs HTTP et observabilité MCP distincts, annotations de lecture observée conservées
+- Runner test:prod:dry-run : 1–10 envois existants, GET séquentiels canonique, jeton de lecture injecté, preuve récente expurgée ; résultat toujours partiel
+
+### 11 · Campagnes et supervision
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -235,7 +253,7 @@ Contrat : [API_CONTRACT.md](API_CONTRACT.md) · Source : [apps/api/src/index.ts]
 - Annulation admissible et revue des opérations incertaines
 - Administration des canaux et plafonds sans relance aveugle
 
-### 11 · Crédits et facturation
+### 12 · Crédits et facturation
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -250,7 +268,7 @@ Contrat : [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · Source : [apps/api/src/billi
 - Consultation administrative des crédits et facturation
 - Connecteur Stripe préparé ; qualification commerciale séparée
 
-### 12 · Assistants et API
+### 13 · Assistants et API
 
 **État :** Implémenté · métadonnées du 4 octobre à publier et rescanner ; autorisations serveur inchangées.
 
@@ -269,7 +287,7 @@ Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [apps/api/src/mcp.ts](../apps
 - Paquets plugin et dossier marketplace ; soumission distincte
 - Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion
 
-### 13 · Compagnon iPhone et iPad
+### 14 · Compagnon iPhone et iPad
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -285,7 +303,7 @@ Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/
 - Revue finale dans navigateur authentifié ; pas de consentement natif
 - Signature, appareil physique, TestFlight et App Store à qualifier
 
-### 14 · Expérience publique et langues
+### 15 · Expérience publique et langues
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -302,7 +320,7 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 - Maquette publique fictive isolée du backend
 - Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43
 
-### 15 · Horizon et diagnostic PDF
+### 16 · Horizon et diagnostic PDF
 
 **État :** Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer.
 
@@ -319,7 +337,7 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 - Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé
 - Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale
 
-### 16 · Exploitation et fiabilité
+### 17 · Exploitation et fiabilité
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -339,7 +357,7 @@ Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · 
 - Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées
 - CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners
 
-### 17 · Belvédère et supervision plateforme
+### 18 · Belvédère et supervision plateforme
 
 **État :** Intégré au candidat ; activation et publication non qualifiées.
 
@@ -353,6 +371,22 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 - Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts
 - Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés
 - Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
+
+### 19 · État public du service
+
+**État :** Candidat local du 10 octobre · publication et première collecte distante à confirmer.
+
+Contrat : [STATUS_SERVICE.md](STATUS_SERVICE.md) · Source : [apps/status/worker.ts](../apps/status/worker.ts).
+
+**Surfaces :** Page publique autonome et GET anonymes /api/status, /api/history ; aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native. **Tests :** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts).
+
+- Service indépendant status.guteneo.com : quatorze lectures anonymes bornées du domaine canonique, toutes les quinze minutes, sans bindings ni secret métier
+- Historique D1 7/30/365 jours : disponibilité observée et couverture des créneaux distinctes, journées vides inconnues, aucune reconstitution antérieure
+- État inconnu si absence, erreur ou preuve âgée de plus de trente minutes ; aucune lecture publique ne déclenche une collecte
+- Vues Service, Vérifications et Exploitation : preuve, date, limites et action ; aucune donnée client ni identifiant de commande
+- Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté
+- Footer de marque et effets saisonniers décoratifs bornés, désactivables et respectant la réduction de mouvement
+- Publication dédiée depuis main propre avec manifeste, contrôles de source et migrations D1 statut exclusivement
 
 ## Parcours clients et reprise sur erreur
 
@@ -380,9 +414,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Administrateur / superviseur / opérateur. **Branche :** DOCUMENTS → FAX.
 
-Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi.
+Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler.
 
-**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher.
+**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison.
 
 Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
@@ -390,9 +424,9 @@ Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DOCUMENTS → POSTAL.
 
-PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi.
+PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen.
 
-**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement.
+**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue.
 
 Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
@@ -400,9 +434,9 @@ Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** E-MAIL.
 
-Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi.
+Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi.
 
-**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur.
+**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées.
 
 Référence : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md).
 
@@ -430,9 +464,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DISTRIBUTION.
 
-Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre.
+Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP.
 
-**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté.
+**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout.
 
 Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -440,9 +474,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Superviseur habilité / observateur. **Branche :** SUIVI.
 
-Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation.
+Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur.
 
-**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé.
+**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -450,9 +484,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Membre + client OAuth. **Branche :** MCP / REST.
 
-Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi.
+Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation.
 
-**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif.
+**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites.
 
 Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
@@ -470,9 +504,9 @@ Référence : [IOS_API.md](IOS_API.md).
 
 **Acteur :** Administrateur navigateur. **Branche :** FACTURATION.
 
-Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation.
+Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation. Le contrôle à blanc d’un envoi existant ne réserve et ne consomme aucun crédit.
 
-**Blocage / reprise :** Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue.
+**Blocage / reprise :** Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue. Il ne vérifie pas le solde ou les quotas disponibles et ne remplace pas la transaction d’acceptation.
 
 Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
 
@@ -535,6 +569,26 @@ Lancer monitor:prod ou monitor:prod:live → contrôler source et 17 preuves pub
 **Blocage / reprise :** Réponse incohérente, absence de scanner/identité ou protection anonyme rompue : attention et sortie non nulle. État périmé après 120 secondes ; reprise bornée chaque minute. Aucune authentification synthétique, activation, délégation, communication ni facturation automatique. Les données métier privées ne sont pas lues ; les canaris distants restent une proposition séparée.
 
 Référence : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md).
+
+### J19 · Contrôler à blanc un envoi existant
+
+**Acteur :** Lecteur actuel de l’envoi parmi les quatre rôles ; assistant OAuth avec dispatches:read. **Branche :** ENVOIS → VALIDATION SANS EXPÉDITION.
+
+Sélectionner un envoi déjà préparé et accessible → GET /api/dispatches/:id/dry-run ou dry_run_dispatch → conserver heure, empreinte et mode → distinguer gardes validées, bloquées et non exécutées → relire le même identifiant si nécessaire, sans renouveler son devis. Automatisation après publication : test:prod:dry-run sur 1–10 IDs choisis, jeton borné fourni par l’environnement et sortie expurgée ; aucun cron créé.
+
+**Blocage / reprise :** Accès atelier/document refusé : aucune preuve métier. Envoi déjà engagé, devis expiré ou révoqué, préparation réservée à la revue ou garde bloquante : arrêt explicite ; aucune correction ou relance automatique. Résultat global partial ou blocked, jamais preuve d’acceptation ou de livraison. Pas de nouveau bouton web/natif ; candidat non déployé.
+
+Référence : [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md).
+
+### J20 · Consulter la situation et les preuves du service
+
+**Acteur :** Client, équipe ou astreinte ; accès public anonyme sans privilège atelier. **Branche :** STATUT PUBLIC → PREUVES → EXPLOITATION.
+
+Ouvrir status.guteneo.com depuis Guteneo → vérifier date et fraîcheur → lire la disponibilité observée sur 7/30/365 jours et sa couverture → consulter les fonctionnalités → ouvrir Vérifications pour distinguer production, qualification locale et preuves manquantes → consulter Exploitation pour la prochaine action.
+
+**Blocage / reprise :** Mesure absente, ancienne ou illisible : état actuel inconnu. Jours sans mesure en gris ; aucune disponibilité extrapolée. Les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Publication et première collecte distante restent des preuves distinctes.
+
+Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
 
 ## Frontières d’activation et preuves
 

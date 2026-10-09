@@ -18,12 +18,14 @@ import {
 } from "../../packages/domain/src/index";
 import {
   emailRateComponents,
+  postalRateEvidence,
   type PublicEmailRateEvidence,
 } from "../../packages/domain/src/live-delivery-quotes";
 import type { DispatchValidationResult } from "../../packages/contracts/src/dispatch-validation";
 import { prepareProtectedDocument } from "../../apps/api/src/protected-documents";
 import worker from "../../apps/api/src/index";
 import type { Env } from "../../apps/api/src/env";
+import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import {
   createFaxUsageFixture,
   insertRecord,
@@ -296,6 +298,225 @@ async function emailFixture(protectedLink = false) {
     crypto.randomUUID(),
   );
   return { domain, row, policyId };
+}
+
+async function postalFixture() {
+  const senderId = `postal_${f.ctx.organizationId}`;
+  const identity = { accountId: "pingen-fixture", routeId: "pingen-fixture" };
+  const print = {
+    addressPosition: "left",
+    deliveryProduct: "cheap",
+    printMode: "duplex",
+    printSpectrum: "grayscale",
+  };
+  const rate = postalRateEvidence(stamp().slice(0, 10));
+  await insertRecord(db, "senders", {
+    id: senderId,
+    organization_id: f.ctx.organizationId,
+    channel: "postal",
+    name: "Synthetic sender",
+    address: "Fixture sender",
+    status: "verified",
+    mode: "production",
+    created_at: stamp(),
+  });
+  await insertRecord(db, "channel_controls", {
+    organization_id: f.ctx.organizationId,
+    channel: "postal",
+    enabled: 1,
+  });
+  await insertRecord(db, "usage", {
+    organization_id: f.ctx.organizationId,
+    channel: "postal",
+    period: stamp().slice(0, 7),
+    limit_count: 100,
+    limit_minor: 5000,
+    currency: "EUR",
+  });
+  await insertRecord(db, "trusted_delivery_costs", {
+    id: `postal_policy_${f.ctx.organizationId}`,
+    organization_id: f.ctx.organizationId,
+    sender_id: senderId,
+    channel: "postal",
+    provider: "pingen",
+    account_id: identity.accountId,
+    route_id: identity.routeId,
+    options_json: canonicalJson(print),
+    rate_json: canonicalJson(rate),
+    base_numerator: 0,
+    byte_numerator: 0,
+    rate_denominator: 1,
+    currency: "EUR",
+    fiscal_basis: "qualified_final_variable_cost",
+    pricing_basis: "public_list_price_ex_tax",
+    quote_ttl_seconds: 300,
+    source_reference: "ISOLATED SYNTHETIC PINGEN CALCULATOR CONTRACT",
+    source_sha256: await sha256(canonicalJson(rate)),
+    valid_from: stamp(),
+    expires_at: new Date(clock + 3600000).toISOString(),
+    status: "qualified",
+    created_at: stamp(),
+  });
+  const recipient = {
+    name: "Fixture Person",
+    line1: "1 Test Street",
+    postalCode: "1000",
+    city: "Luxembourg",
+    country: "LU",
+  };
+  const expectedAddress = "Fixture Person\n1 Test Street\n1000 Luxembourg";
+  const draft = crypto.randomUUID(),
+    letter = crypto.randomUUID(),
+    preflightId = crypto.randomUUID();
+  await insertRecord(db, "provider_drafts", {
+    id: draft,
+    organization_id: f.ctx.organizationId,
+    document_id: f.documentId,
+    document_sha256: "a".repeat(64),
+    sender_id: senderId,
+    sender_address: "Fixture sender",
+    provider: "pingen",
+    provider_id: letter,
+    recipient_json: canonicalJson(recipient),
+    expected_address: expectedAddress,
+    options_json: canonicalJson(print),
+    ceiling_minor: 400,
+    currency: "EUR",
+    status: "prepared",
+    request_hash: "d".repeat(64),
+    idempotency_key: draft,
+    created_at: stamp(),
+    updated_at: stamp(),
+  });
+  // Same synthetic rendered-review/transfer fixture as live-delivery-quotes.test.ts.
+  // Keep every migration and transfer-consent guard active; no Pingen request is made.
+  const fingerprint = await sha256(
+    canonicalJson({ recipient, print, documentSha256: "a".repeat(64), draft }),
+  );
+  await db
+    .prepare(
+      "INSERT INTO content_limits VALUES(?,10,80000000,10) ON CONFLICT(organization_id) DO NOTHING",
+    )
+    .bind(f.ctx.organizationId)
+    .run();
+  await insertRecord(db, "postal_preflights", {
+    id: preflightId,
+    organization_id: f.ctx.organizationId,
+    user_id: f.ctx.userId,
+    document_id: f.documentId,
+    document_sha256: "a".repeat(64),
+    sender_id: senderId,
+    sender_address: "Fixture sender",
+    recipient_json: canonicalJson(recipient),
+    options_json: canonicalJson(print),
+    profile_json: canonicalJson({
+      accountId: identity.accountId,
+      environment: "sandbox",
+      defaultCountry: "LU",
+      addressPosition: "left",
+      version: PINGEN_PREFLIGHT_VERSION,
+    }),
+    expected_address: expectedAddress,
+    ceiling_minor: 400,
+    request_hash: fingerprint,
+    input_hash: fingerprint,
+    idempotency_key: preflightId,
+    status: "processing",
+    budget_day: stamp().slice(0, 10),
+    processing_until: new Date(clock + 60000).toISOString(),
+    expires_at: new Date(clock + 3600000).toISOString(),
+    created_at: stamp(),
+    updated_at: stamp(),
+  });
+  const report = {
+    version: PINGEN_PREFLIGHT_VERSION,
+    status: "review_required",
+    sha256: "a".repeat(64),
+    pages: 2,
+    canSend: false,
+    issues: [],
+    requiredReviews: ["printed_recipient_matches"],
+    rendering: {
+      complete: true,
+      dpi: 144,
+      pages: [1, 2].map((page) => ({
+        page,
+        width: 1191,
+        height: 1684,
+        rasterSha256: "b".repeat(64),
+      })),
+    },
+    address: {
+      lines: expectedAddress.split("\n"),
+      issues: [],
+      textVisibility: "not_verified",
+      crop: {
+        pngBase64:
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        width: 1,
+        height: 1,
+        boundsMm: { x: 20, y: 40, width: 89.5, height: 47.5 },
+      },
+    },
+  };
+  await db.batch([
+    db
+      .prepare(
+        "UPDATE postal_preflights SET status='review_required',report_json=? WHERE id=?",
+      )
+      .bind(canonicalJson(report), preflightId),
+    db
+      .prepare(
+        "INSERT INTO postal_transfer_consents(preflight_id,organization_id,user_id,fingerprint,reviewed,transfer_only,created_at) VALUES(?,?,?,?,1,1,?)",
+      )
+      .bind(
+        preflightId,
+        f.ctx.organizationId,
+        f.ctx.userId,
+        fingerprint,
+        stamp(),
+      ),
+    db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='preparing',transfer_started_at=? WHERE id=?",
+      )
+      .bind(stamp(), preflightId),
+    db
+      .prepare(
+        "UPDATE postal_preflights SET transfer_status='prepared',provider_draft_id=? WHERE id=?",
+      )
+      .bind(draft, preflightId),
+  ]);
+  const postalQuote = vi.fn(async () => ({
+    supplierMinor: 151,
+    currency: "EUR" as const,
+    providerDraftId: draft,
+    preparedLetterId: letter,
+    evidenceSha256: "c".repeat(64),
+  }));
+  const domain = new DomainService(db, {
+    mode: "production",
+    now: () => clock,
+    liveDeliveryIdentity: { postal: identity },
+    postalQuote,
+  });
+  const row = await domain.prepareDispatch(
+    f.ctx,
+    {
+      channel: "postal",
+      documentId: f.documentId,
+      recipient,
+      ceilingMinor: 400,
+      options: {
+        ...print,
+        providerDraftId: draft,
+        preparedLetterId: letter,
+        expectedAddress,
+      },
+    },
+    crypto.randomUUID(),
+  );
+  return { domain, row, postalQuote };
 }
 
 describe("existing-dispatch validation without business effects", () => {
@@ -811,5 +1032,33 @@ describe("existing-dispatch validation without business effects", () => {
           .first("n"),
       ).toBe(2);
     }
+  });
+
+  it("rechecks an existing postal quote twice without consuming or requesting a supplier quote", async () => {
+    const { domain: source, row, postalQuote } = await postalFixture();
+    expect(postalQuote).toHaveBeenCalledOnce();
+    postalQuote.mockClear();
+    postalQuote.mockImplementation(async () => {
+      throw Error("Validation must never request a new Pingen quote");
+    });
+    await readOnly(async (domain) => {
+      for (let i = 0; i < 2; i++) {
+        const result = await domain.validateDispatch(f.ctx, row.id);
+        expect(result).toMatchObject({
+          dispatchId: row.id,
+          dispatchMode: "production",
+          status: "partial",
+        });
+        expect(check(result, "quote").status).toBe("passed");
+        noAcceptance(result);
+      }
+    }, source);
+    expect(postalQuote).not.toHaveBeenCalled();
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM approvals WHERE organization_id=?")
+        .bind(f.ctx.organizationId)
+        .first("n"),
+    ).toBe(0);
   });
 });

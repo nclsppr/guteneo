@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "guteneo-status",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "main": "apps/status/entry.ts",
+  "compatibility_date": "2026-09-16",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist/status",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "not_found_handling": "none",
+  },
+  "routes": [{ "pattern": "status.guteneo.com", "custom_domain": true }],
+  "d1_databases": [
+    {
+      "binding": "STATUS_DB",
+      "database_name": "guteneo-status",
+      "database_id": "f478b528-10b1-407e-80c4-cd406d838bb7",
+      "migrations_dir": "apps/status/migrations",
+    },
+  ],
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "limits": { "cpu_ms": 50 },
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 },
+}

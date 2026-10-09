@@ -243,7 +243,7 @@ export function routeCode(
     [`^/api/distribution-plans/dist_${id}(/resume)?$`, "distribution"],
     [`^/api/documents/doc_${id}(/(content|rescan|validation))?$`, "documents"],
     [
-      `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote))?$`,
+      `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote|dry-run))?$`,
       "dispatches",
     ],
     [`^/api/campaigns/cmp_${id}$`, "campaigns"],

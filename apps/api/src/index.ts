@@ -830,6 +830,11 @@ app.get("/api/dispatches", async (c) =>
 app.get("/api/dispatches/:id", async (c) =>
   c.json(await domain(c.env).getDispatch(c.get("actor"), c.req.param("id"))),
 );
+app.get("/api/dispatches/:id/dry-run", async (c) =>
+  c.json(
+    await domain(c.env).validateDispatch(c.get("actor"), c.req.param("id")),
+  ),
+);
 const prepareSchema = z
   .object({
     channel: z.enum(["fax", "email", "postal"]),

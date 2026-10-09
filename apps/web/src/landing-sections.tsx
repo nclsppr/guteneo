@@ -351,6 +351,7 @@ export function LuxembourgFooter() {
           <a href="/conditions/">{msg("Conditions")}</a>
           <a href="/roles/">{msg("Rôles et droits")}</a>
           <a href="/support/">{msg("Assistance")}</a>
+          <a href="https://status.guteneo.com/">{msg("État du service")}</a>
           <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
         </nav>
       </div>

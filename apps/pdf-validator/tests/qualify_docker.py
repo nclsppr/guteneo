@@ -122,7 +122,7 @@ print(json.dumps(results,separators=(",",":")))
 
 try:
     docker(
-        "run", "-d", "--network", "none", "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m",
+        "run", "--pull=never", "-d", "--network", "none", "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m",
         "--memory", RESOURCES["memory"], "--memory-swap", RESOURCES["memory"], "--cpus", RESOURCES["cpu"], "--pids-limit", "128", "--cap-drop", "ALL",
         "--security-opt", "no-new-privileges", "--env", "QUALIFICATION_ENABLED=true", "--name", NAME, IMAGE,
     )

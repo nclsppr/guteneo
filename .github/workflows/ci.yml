@@ -230,6 +230,8 @@ jobs:
       - run: npm run build:live
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview
+      - run: npm run build:status
+      - run: npx wrangler deploy --config wrangler.status.jsonc --dry-run --outdir dist/status-worker
       - uses: actions/upload-artifact@v7
         with:
           name: guteneo-browser-builds-${{ github.sha }}
@@ -310,6 +312,11 @@ jobs:
         run: npx playwright test --config playwright.belvedere.config.ts --project=${{ matrix.preview }}
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/belvedere-playwright.json
+      - name: Verify status history, stale evidence and seasonal controls
+        if: ${{ matrix.project == 'chromium' }}
+        run: npx playwright test --config playwright.status.config.ts
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/status-playwright.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -319,6 +326,7 @@ jobs:
             test-results/application/
             test-results/preview/
             test-results/belvedere/
+            test-results/status/
             reports/screenshots/
           if-no-files-found: error
           retention-days: 14

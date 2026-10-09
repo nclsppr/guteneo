@@ -16,6 +16,7 @@ comprendre.
 | Droit                                                           | Administrateur          | Superviseur            | Opérateur | Observateur |
 | --------------------------------------------------------------- | ----------------------- | ---------------------- | --------- | ----------- |
 | Consulter les documents, destinataires et envois de l’atelier   | Oui                     | Oui                    | Oui       | Oui         |
+| Contrôler à blanc un envoi existant accessible                | Selon accès à l’envoi   | Selon accès à l’envoi  | Selon accès à l’envoi | Selon accès à l’envoi |
 | Importer des documents et préparer des envois ou campagnes      | Oui                     | Oui                    | Oui       | Non         |
 | Approuver, confirmer, refuser ou annuler un envoi admissible    | Oui                     | Option « Approbation » | Non       | Non         |
 | Autoriser le transfert d’un document postal pour sa revue       | Oui                     | Option « Approbation » | Non       | Non         |
@@ -250,3 +251,41 @@ réelles du superviseur déterminent sa capacité à approuver. Les adresses dan
 liste administrative distinguent les homonymes ; le nom personnel ne modifie aucun
 droit. Les refus orientent vers les contacts. Aucun annuaire ni nouveau droit MCP
 n’est ajouté. Voir [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) et ses preuves.
+
+## Contrôle à blanc — candidat du 10 octobre 2026
+
+`GET /api/dispatches/:id/dry-run` et l’outil MCP `dry_run_dispatch` relisent un
+envoi existant avec la même autorité que sa fiche : membre courant de l’atelier,
+accès au document lié et, pour OAuth, scope `dispatches:read`. Les quatre rôles
+peuvent utiliser cette lecture ; aucune option d’approbation ou de rapports n’est
+requise, sauf l’autorité de revue déjà nécessaire pour lire le PDF privé d’un
+autre créateur. Une autorité retirée n’est pas restaurée par le contrôle.
+
+Parcours : choisir un envoi accessible déjà préparé → exécuter le contrôle →
+lire les gardes validées, bloquées et non exécutées → traiter le blocage dans le
+parcours existant. Un opérateur ou un observateur ne peut toujours pas approuver
+ou confirmer. Un assistant ne crée pas de consentement ou de mandat.
+
+Le résultat reste `partial` ou `blocked` : aucune acceptation ni livraison n’est
+exécutée. La lecture ne prépare ou ne renouvelle aucun devis, ne prolonge aucune
+expiration, ne consomme aucun devis ou crédit et ne crée ni approbation, ni
+réservation, ni outbox, ni tentative fournisseur. Les compteurs HTTP et
+l’observabilité de connexion restent distincts de ces mutations métier. Les
+annotations MCP de lecture observée ne prétendent donc pas une absence absolue
+d’écriture.
+
+Un refus d’accès conserve les protections existantes ; un devis expiré ou un
+envoi déjà engagé reste bloqué. Une erreur réseau ou une preuve non exécutée
+reste inconnue, sans renouvellement ou envoi automatique. Aucun écran web/natif,
+nouvelle permission d’approbation ou changement de rôle n’est ajouté. Ce candidat
+n’est pas déployé ; voir [le contrat et ses limites](PRODUCTION_DRY_RUN.md).
+
+## Statut public indépendant
+
+Le service `status.guteneo.com` expose les mêmes lectures anonymes à tous les
+rôles et aux visiteurs : état, historique agrégé et qualification locale
+expurgée. Aucun droit atelier, document, approbation ou administration de la
+collecte n’est obtenu. Les routes publiques ne déclenchent aucun test.
+Le Worker de statut n’a aucun binding métier et n’accepte ni identité client ni
+identifiant d’envoi. Les effets décoratifs sont propres à cette page.
+Voir [État du service](STATUS_SERVICE.md) et le parcours J20 de l’atlas.

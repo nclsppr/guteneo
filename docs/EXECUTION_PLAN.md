@@ -1,5 +1,10 @@
 # Execution plan and handoff
 
+10 October: publication of the independent status service and a link from
+Guteneo is explicitly authorized. Existing Cloudflare quotas may be used;
+business debits, quote consumption and real communication remain excluded.
+Release sequence and qualification limits: [STATUS_SERVICE.md](STATUS_SERVICE.md).
+
 9 October integration candidate: visible personal identity, read-only login email,
 current workshop role/permissions and browser-only responsible contacts, with an
 explicit Auth0 account-change action. Belvédère is reconciled with current main

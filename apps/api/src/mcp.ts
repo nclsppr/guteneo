@@ -35,6 +35,7 @@ import {
   type PostalSetup,
 } from "../../../packages/contracts/src/postal-setup";
 import { customerFaxPricing } from "../../../packages/contracts/src/fax-pricing";
+import { dispatchValidationResultSchema } from "../../../packages/contracts/src/dispatch-validation";
 import {
   dispatchGroupNames,
   type DispatchGroup,
@@ -1957,6 +1958,22 @@ export function createGuteneoMcpServer(
         }
         return dispatchSummary(dispatch, env.APP_ORIGIN);
       }),
+  );
+  registerTool(
+    "dry_run_dispatch",
+    {
+      title: "Tester un devis sans l’utiliser",
+      description:
+        "Vérifie en lecture seule métier un envoi déjà préparé : état, absence de tentative, validité du devis, protection du document et blocage du destinataire. Répétable sans consommer ou renouveler le devis, créer d’approbation, réserver de crédit/quota, mettre en file ni contacter le fournisseur. Un devis expiré reste expiré. Le résultat reste partiel : l’acceptation transactionnelle et la livraison ne sont pas exécutées et aucun succès ne vaut autorisation d’envoyer. Comme les autres lectures, cet appel peut enregistrer l’activité de la connexion.",
+      inputSchema: z.object({ dispatchId: id }).strict(),
+      outputSchema: output(dispatchValidationResultSchema),
+      annotations: observedReadAnnotations,
+      _meta: oauthMetadata("dispatches:read"),
+    },
+    ({ dispatchId }) =>
+      run("dispatches:read", () =>
+        services.domain.validateDispatch(identity.context, dispatchId),
+      ),
   );
   registerTool(
     "get_dispatch_status",

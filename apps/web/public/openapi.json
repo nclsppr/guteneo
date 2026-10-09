@@ -5170,6 +5170,75 @@
           }
         }
       }
+    },
+    "/api/dispatches/{id}/dry-run": {
+      "get": {
+        "operationId": "dryRunDispatch",
+        "tags": [
+          "Envois"
+        ],
+        "summary": "Tester un devis existant sans l’utiliser",
+        "description": "Lecture authentifiée avec dispatches:read et les mêmes droits de visibilité que le détail de l’envoi. Ne prépare ni ne renouvelle le devis, ne crée pas d’approbation et ne réserve aucun crédit/quota. Aucune transition, file ou requête fournisseur. Le devis conserve son expiration. Les validations d’acceptation SQL, de financement et la livraison restent non exécutées. Un résultat blocked est un diagnostic HTTP 200, pas une autorisation d’envoi. Les compteurs HTTP et observations de connexion peuvent être mis à jour.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Identifiant de diagnostic à conserver avec le code d’erreur ; ne jamais joindre le jeton ou le contenu du document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchValidationResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -11543,6 +11612,98 @@
             }
           }
         }
+      },
+      "DispatchValidationResult": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "number",
+            "enum": [
+              1
+            ]
+          },
+          "execution": {
+            "type": "string",
+            "enum": [
+              "validation_only"
+            ]
+          },
+          "dispatchId": {
+            "type": "string"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "dispatchMode": {
+            "type": "string",
+            "enum": [
+              "production",
+              "simulation"
+            ]
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "partial",
+              "blocked"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "prepared_state",
+                    "submission_not_started",
+                    "quote",
+                    "protected_document",
+                    "recipient_suppression",
+                    "acceptance",
+                    "provider_delivery"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "passed",
+                    "blocked",
+                    "not_checked"
+                  ]
+                },
+                "code": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*$"
+                }
+              },
+              "required": [
+                "id",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "schema",
+          "execution",
+          "dispatchId",
+          "fingerprint",
+          "dispatchMode",
+          "checkedAt",
+          "status",
+          "checks"
+        ],
+        "additionalProperties": false,
+        "description": "Lecture de validations métier existantes. status=partial signifie seulement que les contrôles exécutés passent ; acceptance et provider_delivery restent not_checked. Ce résultat ne permet pas d’envoyer."
       }
     },
     "responses": {
