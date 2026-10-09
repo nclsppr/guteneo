@@ -191,9 +191,9 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    # Include the large checkout, browser setup, app, preview and Belvédère.
-    # WebKit's complete successful suites can exceed fifteen minutes in total.
-    timeout-minutes: 20
+    # Include the large checkout, slow dependency mirrors and all three suites.
+    # WebKit setup alone can take ten minutes before any assertion executes.
+    timeout-minutes: 30
     env:
       # WebKit's legacy Linux playbin stalls on valid H.264/AAC media in its
       # download buffer. Use its supported playbin3 pipeline; native Safari is

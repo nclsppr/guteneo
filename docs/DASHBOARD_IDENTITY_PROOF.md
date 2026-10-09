@@ -56,10 +56,24 @@ La CI de main `37912466748` a réussi onze jobs préalables à la collecte final
 mais le job iPhone a dépassé son budget total de quinze minutes : ses
 187 tests applicatifs et 76 tests preview avaient réussi, et les dix tests
 Belvédère n'ont pas pu démarrer. L'annotation GitHub confirme cette limite
-de durée. Le budget navigateur passe à vingt minutes pour inclure le checkout,
+de durée. Le budget navigateur passe à trente minutes pour inclure le checkout,
 l'installation et toutes les suites, sans changer les délais internes,
 les assertions ou la couverture. La PR corrective et la CI de main après
 sa fusion portent la preuve complète sur les SHAs exacts.
+
+Le premier run du correctif `37914891327` sur `2fbdac3`, encore limité à
+vingt minutes, a mesuré dix minutes vingt-et-une secondes d'installation des
+dépendances WebKit. Les 187 tests applicatifs iPhone réussissent ensuite,
+mais le preview est interrompu à 25 scénarios sur 76 et Belvédère reste ignoré.
+La même CI mobile Chromium atteint ses assertions de configuration postale,
+puis échoue sur une capture avec `Page.captureScreenshot: Unable to capture
+screenshot` ; les 186 autres tests passent. Ces deux résultats incomplets
+restent distincts des runs verts. Le budget de trente minutes tient compte
+de l'installation lente observée ; la capture conserve une image obligatoire
+et ne reprend que cette erreur transitoire, au plus trois fois.
+Les 36 scénarios de configuration postale passent avec cette capture sur
+Chromium desktop, Chromium mobile et iPhone WebKit. TypeScript, ESLint,
+format YAML/TypeScript et atlas technique passent aussi sur le correctif.
 
 ## Fusion et limites
 
