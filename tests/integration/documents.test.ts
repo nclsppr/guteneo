@@ -703,8 +703,24 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
       .prepare("UPDATE documents SET created_at=? WHERE id=?")
       .bind(oldDate, expired.id)
       .run();
-    await maintainDocuments(env);
-    await maintainDocuments(env);
+    const deleteObject = vi.fn(bucket.delete.bind(bucket));
+    const maintenanceEnv = {
+      ...env,
+      DOCUMENTS: {
+        list: bucket.list.bind(bucket),
+        delete: deleteObject,
+      } as unknown as R2Bucket,
+    };
+    expect(await maintainDocuments(maintenanceEnv)).toMatchObject({
+      purged: 1,
+    });
+    // Traverse the empty page and restart the cursor twice: completed purges
+    // must not become new deletion work or new successful-purge counts.
+    for (let run = 0; run < 4; run++)
+      expect(await maintainDocuments(maintenanceEnv)).toMatchObject({
+        purged: 0,
+      });
+    expect(deleteObject).toHaveBeenCalledExactlyOnceWith(expired.storage_key);
     expect((await domain.getDocument(atelier, expired.id)).status).toBe(
       "purged",
     );
@@ -745,6 +761,71 @@ describe("Document lifecycle — actual Miniflare D1 and R2", () => {
         .first(),
     ).toEqual({ n: 1 });
   });
+
+  it.each(["storage", "audit"])(
+    "retries a purge interrupted at %s without treating its tombstone as completion",
+    async (failure) => {
+      const document = await documents.upload(atelier, {
+        name: "retry-purge.pdf",
+        bytes: original,
+      });
+      await db
+        .prepare("UPDATE documents SET created_at=? WHERE id=?")
+        .bind(oldDate, document.id)
+        .run();
+      const deleteObject = vi.fn(bucket.delete.bind(bucket));
+      if (failure === "storage")
+        deleteObject.mockRejectedValueOnce(
+          new Error("Synthetic purge interruption"),
+        );
+      else
+        await db
+          .prepare(
+            "CREATE TRIGGER interrupt_purge_audit BEFORE INSERT ON audit_log WHEN NEW.action='document.purged' BEGIN SELECT RAISE(ABORT,'Synthetic purge interruption'); END",
+          )
+          .run();
+      const maintenanceEnv = {
+        ...env,
+        DOCUMENTS: {
+          list: bucket.list.bind(bucket),
+          delete: deleteObject,
+        } as unknown as R2Bucket,
+      };
+      await expect(maintainDocuments(maintenanceEnv)).rejects.toThrow(
+        "Synthetic purge interruption",
+      );
+      expect((await domain.getDocument(atelier, document.id)).status).toBe(
+        "purged",
+      );
+      if (failure === "storage")
+        expect(await bucket.get(document.storage_key)).not.toBeNull();
+      else {
+        expect(await bucket.get(document.storage_key)).toBeNull();
+        await db.prepare("DROP TRIGGER interrupt_purge_audit").run();
+      }
+      expect(
+        await db
+          .prepare("SELECT id FROM audit_log WHERE id=?")
+          .bind(`purge_${document.id}`)
+          .first(),
+      ).toBeNull();
+      expect(await maintainDocuments(maintenanceEnv)).toMatchObject({
+        purged: 1,
+      });
+      for (let run = 0; run < 3; run++)
+        expect(await maintainDocuments(maintenanceEnv)).toMatchObject({
+          purged: 0,
+        });
+      expect(deleteObject).toHaveBeenCalledTimes(2);
+      expect(await bucket.get(document.storage_key)).toBeNull();
+      expect(
+        await db
+          .prepare("SELECT count(*) AS n FROM audit_log WHERE id=?")
+          .bind(`purge_${document.id}`)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
 
   it("reimports purged bytes as a new deduplicated version without reviving an approved reference", async () => {
     const expired = await documents.upload(atelier, {

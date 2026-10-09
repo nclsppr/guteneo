@@ -13,7 +13,10 @@ export async function maintainDocuments(
     ? (JSON.parse(purgeState.value) as { created_at: string; id: string })
     : { created_at: "", id: "" };
   const rows = await env.DB.prepare(
-    `SELECT id,organization_id,storage_key,created_at FROM documents WHERE (status='purged' OR created_at<?) AND (created_at>? OR (created_at=? AND id>?)) ORDER BY created_at,id LIMIT 25`,
+    `SELECT d.id,d.organization_id,d.storage_key,d.created_at,
+    CASE WHEN d.status='purged' AND a.id IS NOT NULL THEN 1 ELSE 0 END purge_complete
+    FROM documents d LEFT JOIN audit_log a ON a.id='purge_'||d.id AND a.organization_id=d.organization_id AND a.action='document.purged' AND a.resource_id=d.id
+    WHERE (d.status='purged' OR d.created_at<?) AND (d.created_at>? OR (d.created_at=? AND d.id>?)) ORDER BY d.created_at,d.id LIMIT 25`,
   )
     .bind(cutoff, after.created_at, after.created_at, after.id)
     .all<{
@@ -21,12 +24,17 @@ export async function maintainDocuments(
       organization_id: string;
       storage_key: string;
       created_at: string;
+      purge_complete: number;
     }>();
   for (const doc of rows.results) {
+    // The audit is written only after R2 deletion succeeds. Keep completed rows
+    // in the bounded cursor page, but do not delete or count them again when it
+    // wraps. A tombstone without this tenant-scoped completion proof must retry.
+    if (doc.purge_complete) continue;
     const result = await env.DB.prepare(
-      `UPDATE documents SET status='purged',name='Document supprimé' WHERE id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE document_id=? AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT EXISTS(SELECT 1 FROM protected_document_hostings h WHERE h.organization_id=documents.organization_id AND h.document_id=documents.id AND h.status='active' AND h.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) RETURNING id`,
+      `UPDATE documents SET status='purged',name='Document supprimé' WHERE organization_id=? AND id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE organization_id=documents.organization_id AND document_id=documents.id AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT EXISTS(SELECT 1 FROM protected_document_hostings h WHERE h.organization_id=documents.organization_id AND h.document_id=documents.id AND h.status='active' AND h.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) RETURNING id`,
     )
-      .bind(doc.id, cutoff, doc.id)
+      .bind(doc.organization_id, doc.id, cutoff)
       .first();
     if (!result) continue;
     await env.DOCUMENTS.delete(doc.storage_key);
