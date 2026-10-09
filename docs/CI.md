@@ -33,6 +33,69 @@ retains mouse clicks. No browser APIs are mocked in the delivered-media tests,
 and all clock/decode/seek and same-key/new-key assertions remain required.
 This is qualification of the intended device input, not proof of a WebKit fix.
 
+## Checkout optimization — 9 October 2026 candidate
+
+The exact deployed `4ce1bdd467f9aa35f98e525986db888eff3bf977` still passes
+all required checks. Its [main run 37928685996](https://github.com/nclsppr/guteneo/actions/runs/37928685996)
+took 17 min 03 s; the preceding [PR run 37926010842](https://github.com/nclsppr/guteneo/actions/runs/37926010842)
+took 24 min 24 s. These are observed workflow durations, not the optimized result.
+
+| Measured step | Main | Previous PR |
+| --- | ---: | ---: |
+| Build checkout | 186 s | 184 s |
+| iPhone checkout | 26 s | 189 s |
+| Verification checkout | 86 s | 190 s |
+| iPhone application assertions | 327 s | 431 s |
+| iPhone preview assertions | 139 s | 187 s |
+| Build-artifact upload | 26 s | 22 s |
+
+Checkout alone took 298 s on the main build → iPhone → verify critical path and
+563 s on the PR path. Initial parallel jobs each spent 163–232 s checking out
+main, while the isolated scanner and PDF-validator assertions took seconds.
+The tree has 1,804,117,453 uncompressed tracked bytes, including archived film
+production material that none of these checks consumes.
+
+The candidate uses sparse checkouts. General checks, Vitest, security, build and
+browser jobs retain all application assets, all tests and the complete narration
+package. They exclude only `videos/guteneo-gutenberg/archive/`,
+`videos/guteneo-gutenberg/media-parts/` and old `reports/screenshots/` evidence.
+All 1,528 retained files total 614,533,844 bytes: 65.9% fewer tracked bytes to
+materialize. No tracked file is deleted from the repository. Fresh screenshots
+are still generated and uploaded, and both production and preview videos remain
+covered by their existing byte, decode, progression and locale checks.
+
+| Sparse job | Retained tracked bytes | Required scope |
+| --- | ---: | --- |
+| Scanner | 643,537 | Package, shared observability source, workflow fixtures and root files |
+| PDF validator | 1,067,248 | Complete package and root files |
+| Final verification | 2,690,037 | Complete unit/integration test inventory, CI scripts and root configuration |
+
+`actions/checkout@v7` automatically fetches with `blob:none` when sparse checkout
+is requested. The binary-heavy browser-build artifact uses compression level 0
+so an already-compressed MP4/WebP bundle is not compressed again. The same
+artifact contents, same-run SHA binding, suite commands, assertions, browser
+projects, sequential database isolation, required jobs and fail-closed coverage
+gate are retained. No path-based test skipping or dependency cache trust is added.
+
+Local validation uses independent sparse copies of the deployed source, not a
+full checkout that could accidentally hide missing dependencies. It checks the
+complete scanner and PDF-validator suites, exact retained path inventory,
+public-video bytes, CI failure/coverage gate, feature-map references and all three
+asset builds. The checks passed: scanner 29 Node + 38 Python assertions,
+PDF validator 30 Node + 18 Python assertions, both package typechecks, 4 CI-gate
+and public-video-byte tests, 62 narration tests, ESLint, the feature-map checker
+and web/live/preview builds (264 live assets). A separate sparse verification
+copy also merged the five downloaded main-run blobs and accounted for all 102
+files / 1,926 passing assertions with the unchanged strict gate. Only the
+GitHub workspace prefix was rebased in temporary report copies for local path
+matching; this is report compatibility proof, not a fresh run of those assertions.
+
+This validates checkout scope; it does not establish a hosted speedup. Record the optimized GitHub run and artifact size after the PR runs,
+then compare both wall time and aggregate runner time with these two baselines.
+
+Sources: [checkout sparse-fetch implementation](https://github.com/actions/checkout/blob/v7/src/git-source-provider.ts),
+[artifact compression settings](https://github.com/actions/upload-artifact#altering-compressions-level-speed-v-size).
+
 ## Measured baseline and candidate limits
 
 Baseline read from GitHub on 17 September 2026:

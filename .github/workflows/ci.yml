@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            apps/pdf-validator
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -31,6 +34,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            apps/scanner
+            packages/observability
+            .github/workflows
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -42,10 +50,20 @@ jobs:
 
   checks:
     runs-on: ubuntu-latest
-    # Include the large checkout and fresh FFmpeg package installation.
+    # Include fresh FFmpeg package installation and every narration assertion.
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -86,6 +104,16 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -128,6 +156,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -170,6 +208,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -185,6 +233,9 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: guteneo-browser-builds-${{ github.sha }}
+          # Most bytes are already-compressed MP4/WebP; zip compression adds CPU
+          # without useful savings. Artifact contents and checks remain identical.
+          compression-level: 0
           path: |
             dist/web/
             dist/preview/
@@ -194,7 +245,7 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    # Include the large checkout, slow dependency mirrors and all three suites.
+    # Include dependency mirrors and all three complete browser suites.
     # WebKit setup alone can take ten minutes before any assertion executes.
     timeout-minutes: 30
     env:
@@ -218,6 +269,16 @@ jobs:
             preview: iphone
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -273,6 +334,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Report merging loads only the root Vitest config; retain the complete
+          # test inventory so the gate still detects missing or duplicate files.
+          sparse-checkout: |
+            scripts/ci
+            tests/unit
+            tests/integration
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
