@@ -528,7 +528,9 @@ test("operator discloses review access before preparation and approver opens the
   ).not.toBeChecked();
   await expect(page.locator(".approval-panel button")).toBeDisabled();
   const preview = page.locator(".pdf-preview");
-  await expect(preview.getByRole("img")).toBeVisible();
+  await expect(
+    preview.getByRole("img", { name: /^Aperçu · Page \d+$/ }),
+  ).toBeVisible();
   await expect(preview.locator(".pdf-canvas-wrap")).toHaveAttribute(
     "aria-busy",
     "false",

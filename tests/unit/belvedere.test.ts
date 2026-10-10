@@ -256,6 +256,43 @@ describe("Belvédère exclusive browser authority", () => {
     ).toBe(404);
   });
 });
+describe("account language in the private shell", () => {
+  it("projects only the authenticated person's current language after the access guard", async () => {
+    await db
+      .prepare("UPDATE users SET preferred_locale='en' WHERE id='usr_other'")
+      .run();
+    try {
+      for (const locale of ["fr", "en", "de", "lb", null]) {
+        await db
+          .prepare("UPDATE users SET preferred_locale=? WHERE id='usr_owner'")
+          .bind(locale)
+          .run();
+        const response = await handleBelvedereRoute(request(base), env);
+        expect(response?.status).toBe(200);
+        const html = await response!.text();
+        expect(html).toContain(
+          `<meta name="guteneo-account-locale" content="${locale ?? "automatic"}">`,
+        );
+        expect(html).not.toMatch(/usr_owner|usr_other|pieper\.fr|csrf/);
+        expect(response?.headers.get("Cache-Control")).toContain("no-store");
+      }
+      const anonymous = await handleBelvedereRoute(
+        new Request(`${origin}${base}`),
+        env,
+      );
+      expect(anonymous?.status).toBe(302);
+      expect(await anonymous!.text()).not.toContain("guteneo-account-locale");
+      const forbidden = await handleBelvedereRoute(
+        request("/belvedere/not-the-secret"),
+        env,
+      );
+      expect(forbidden?.status).toBe(404);
+      expect(await forbidden!.text()).not.toContain("guteneo-account-locale");
+    } finally {
+      await db.prepare("UPDATE users SET preferred_locale=NULL").run();
+    }
+  });
+});
 describe("read-only cross-workshop projections", () => {
   it("defaults to real workshops and separates deterministic simulation", async () => {
     const overview = (await (await handleBelvedereRoute(

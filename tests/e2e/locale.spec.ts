@@ -98,7 +98,7 @@ test("home language is available in navigation, survives reload and works on mob
   });
 });
 
-test("profile saves language for the account and keeps edited fields when switching the interface", async ({
+test("profile applies its saved language and keeps edited fields while choosing it", async ({
   page,
 }) => {
   let preferredLocale = "de";
@@ -148,14 +148,12 @@ test("profile saves language for the account and keeps edited fields when switch
   await page.goto("/#/app/account");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await page.locator("#account-name").fill("Camille Updated");
-  await page
-    .locator('.workspace-language select[name="language"]')
-    .selectOption("en");
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await page.locator(".language-preference select").selectOption("lb");
   await expect(page.locator("#account-name")).toHaveValue("Camille Updated");
-  await page
-    .getByLabel("Preferred language", { exact: true })
-    .selectOption("lb");
-  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  expect(updates).toEqual([]);
+  await page.locator('form.form-panel button[type="submit"]').click();
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(updates).toHaveLength(1);
   expect(updates[0]).toEqual({

@@ -16,6 +16,10 @@ import type {
 } from "../../../packages/contracts/src/belvedere";
 import { getBelvedereCloudflareMetrics } from "./belvedere-cloudflare";
 import { getBelvedereCloudflareBilling } from "./belvedere-cloudflare-billing";
+import {
+  isSupportedLocale,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
 
 const headers = {
   "Cache-Control": "no-store, private",
@@ -716,10 +720,10 @@ export function belvedereBasePath(env: Env): string | null {
     : null;
 }
 /** The signed login proof is deliberately independent from mutable users.email. */
-export async function authorizeBelvedere(
+async function belvedereAccess(
   request: Request,
   env: Env,
-): Promise<string | null> {
+): Promise<{ userId: string; preferredLocale: SupportedLocale | null } | null> {
   if (!belvedereBasePath(env) || request.headers.has("Authorization"))
     return null;
   if (
@@ -752,7 +756,18 @@ export async function authorizeBelvedere(
     (env.BELVEDERE_AUTH0_SUBJECT && row.subject !== env.BELVEDERE_AUTH0_SUBJECT)
   )
     return null;
-  return row.userId;
+  return {
+    userId: row.userId,
+    preferredLocale: isSupportedLocale(session.user.preferredLocale)
+      ? session.user.preferredLocale
+      : null,
+  };
+}
+export async function authorizeBelvedere(
+  request: Request,
+  env: Env,
+): Promise<string | null> {
+  return (await belvedereAccess(request, env))?.userId ?? null;
 }
 export async function handleBelvedereRoute(
   request: Request,
@@ -772,9 +787,9 @@ export async function handleBelvedereRoute(
   if (request.method !== "GET") return absent();
   const suffix = url.pathname.slice(base.length);
   const shell = suffix === "" || suffix === "/";
-  let userId: string | null;
+  let access: Awaited<ReturnType<typeof belvedereAccess>>;
   try {
-    userId = await authorizeBelvedere(request, env);
+    access = await belvedereAccess(request, env);
   } catch (error) {
     if (error instanceof AuthError) {
       if (
@@ -793,7 +808,8 @@ export async function handleBelvedereRoute(
     }
     throw error;
   }
-  if (!userId) return absent();
+  if (!access) return absent();
+  const { userId, preferredLocale } = access;
   let action:
     | "shell"
     | "overview"
@@ -839,7 +855,7 @@ export async function handleBelvedereRoute(
       return new Response("Interface indisponible", { status: 503, headers });
     const html = (await response.text()).replace(
       "<head>",
-      `<head><meta name="guteneo-belvedere" content="${base}">`,
+      `<head><meta name="guteneo-belvedere" content="${base}"><meta name="guteneo-account-locale" content="${preferredLocale ?? "automatic"}">`,
     );
     const responseHeaders = new Headers(response.headers);
     for (const [name, value] of Object.entries(headers))

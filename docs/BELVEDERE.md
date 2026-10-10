@@ -5,6 +5,15 @@ Le rôle **Veilleur** désigne l'accès personnel de Nicolas à cette surface de
 lecture. Ce n'est ni un rôle d'atelier ni un mandat donné à un assistant.
 Le [système visuel](belvedere/DESIGN.md) documente l'interface effectivement construite.
 
+Depuis le contrat du 10 octobre, la langue suit la préférence enregistrée dans
+la configuration du compte : français, anglais, allemand ou luxembourgeois.
+Belvédère ne propose aucun sélecteur supplémentaire. L’ouverture directe reçoit
+la préférence validée dans le HTML privé après sa garde habituelle ; le retour
+dans l’onglet relit la session. Sans préférence, les langues du navigateur
+s’appliquent. Libellés, messages accessibles, nombres, dates et graphiques suivent
+ce choix ; noms, identifiants et données métier conservent leurs valeurs. La
+préférence n’accorde aucun rôle ni accès supplémentaire. Voir [MULTILINGUAL.md](MULTILINGUAL.md).
+
 ## Parcours
 
 - **Synthèse** : activité quotidienne, changement de mesure dans le graphique,

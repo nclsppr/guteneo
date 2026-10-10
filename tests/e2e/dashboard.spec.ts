@@ -381,7 +381,7 @@ test("sign-out lives in the navigation menu on small screens", async ({
   ).toBeVisible();
 });
 
-test("new dashboard filters, confirmations and expiry copy follow live language changes", async ({
+test("dashboard filters, confirmations and expiry copy follow the saved account language", async ({
   page,
 }) => {
   await login(page);
@@ -419,10 +419,12 @@ test("new dashboard filters, confirmations and expiry copy follow live language 
     },
   ];
   for (const copy of copies) {
+    await page.goto("/#/app/account");
+    await page.locator(".language-preference select").selectOption(copy.locale);
+    await page.locator('form.form-panel button[type="submit"]').click();
+    await expect(page.locator("html")).toHaveAttribute("lang", copy.locale);
     await page.goto("/#/app");
-    await page
-      .locator('.workspace-language select[name="language"]')
-      .selectOption(copy.locale);
+    await expect(page.locator('select[name="language"]')).toHaveCount(0);
     const stats = page.getByRole("list", { name: copy.summary });
     await expect(stats).toBeVisible();
     await stats.locator('a[href="#/app/dispatches?group=approval"]').click();

@@ -33,6 +33,7 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+
 ## Belvédère platform oversight candidate — 2 October 2026
 
 Belvédère gives the publisher the separate **Veilleur** read-only capability:
@@ -43,7 +44,9 @@ Only the verified `nicolas@pieper.fr` browser identity can open its server-secre
 address. A workshop administrator or assistant has no platform authority.
 Promotional credits, actual receipts, verified supplier costs and unverified costs
 remain distinct; unavailable net profit is never invented. The private interface
-is French for its single intended user. See [BELVEDERE.md](BELVEDERE.md).
+follows the account language in French, English, German or Luxembourgish. The
+account configuration is the sole language control in authenticated views,
+including Belvédère. See [BELVEDERE.md](BELVEDERE.md) and [MULTILINGUAL.md](MULTILINGUAL.md).
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers

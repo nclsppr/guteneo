@@ -1,5 +1,11 @@
 # Architecture
 
+10 October account language: authenticated dashboard views and Belvédère resolve
+the same saved user preference; only account configuration exposes a selector.
+The existing private Belvédère guard supplies a validated locale enum in its HTML,
+without changing authorization or exposing account identity to public responses.
+Focus refresh reuses the existing browser session endpoint. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
 10 October status service: an independent public Worker and dedicated D1 retain
 bounded public observations and daily aggregates, separate from business data.
 Read-only dispatch validation reuses domain checks without approval, acceptance,
@@ -52,6 +58,7 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+
 ## Belvédère read-only platform boundary — 2 October 2026 candidate
 
 The browser-only `/belvedere/<server-secret>` handler provides deliberately global

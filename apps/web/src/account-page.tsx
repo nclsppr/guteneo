@@ -21,7 +21,11 @@ import {
   useAction,
   useResource,
 } from "./components";
-import { setLocale, languageCopy, type SupportedLocale } from "./locale";
+import {
+  applyAccountLocale,
+  languageCopy,
+  type SupportedLocale,
+} from "./locale";
 import { LanguageSelect } from "./language-select";
 import { ExpertApproval } from "./expert-approval";
 import {
@@ -83,7 +87,7 @@ function WorkspaceSwitcher({ session, onUpdated }: Props) {
         method: "POST",
         body: { organizationId: selected },
       });
-      setSession(next, false);
+      setSession(next);
       await onUpdated();
     });
   }
@@ -162,7 +166,8 @@ export function Account({ session, onUpdated }: Props) {
           ...(isAdmin ? { organizationName } : {}),
         },
       });
-      if (languageEdited && preferredLocale) setLocale(preferredLocale, false);
+      if (languageEdited && preferredLocale)
+        applyAccountLocale(preferredLocale);
       await onUpdated();
       setLanguageEdited(false);
       setSaved(true);
@@ -288,7 +293,11 @@ export function Account({ session, onUpdated }: Props) {
             </div>
             <LanguageSelect
               profile
-              value={preferredLocale}
+              value={
+                languageEdited
+                  ? preferredLocale
+                  : (session.user.preferredLocale ?? "")
+              }
               disabled={action.pending}
               onChange={(locale) => {
                 setPreferredLocale(locale);

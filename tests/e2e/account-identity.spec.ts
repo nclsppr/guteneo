@@ -74,6 +74,10 @@ async function fixture(
     malformedContacts: null as "missing-items" | "missing-permissions" | null,
     contactReads: 0,
     sessionReads: 0,
+    holdNextSession: null as {
+      ready: () => void;
+      gate: Promise<void>;
+    } | null,
   };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
@@ -85,7 +89,13 @@ async function fixture(
     let body: unknown;
     if (path === "/session") {
       state.sessionReads++;
-      body = session;
+      body = structuredClone(session);
+      const held = state.holdNextSession;
+      state.holdNextSession = null;
+      if (held) {
+        held.ready();
+        await held.gate;
+      }
     } else if (path === "/capabilities")
       body = { scanner: "ready", simulation: false };
     else if (path === "/connections") body = { items: [] };
@@ -437,7 +447,7 @@ test("returning to a healthy tab reconciles a different account and workshop tog
   expect(data.unmatched).toEqual([]);
 });
 
-test("same-account focus reconciliation preserves an explicit interface language choice", async ({
+test("the profile is the sole connected language setting and persists after focus and reload", async ({
   page,
 }) => {
   const data = await fixture(page, { locale: "fr" });
@@ -445,8 +455,16 @@ test("same-account focus reconciliation preserves an explicit interface language
   const identity = page.locator("aside .workspace-identity");
   await expect(identity).toHaveAttribute("aria-label", "Votre compte");
   await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
-  await page.locator(".workspace-language select").selectOption("en");
-  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await identity
+    .getByRole("link", { name: /Mon profil et mes droits/ })
+    .click();
+  const language = page.getByLabel("Langue préférée", { exact: true });
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await expect(page.locator('aside select[name="language"]')).toHaveCount(0);
+  await expect(language).toHaveValue("fr");
+  await language.selectOption("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
   const previousReads = data.state.sessionReads;
   const rechecked = page.waitForResponse(
     (response) =>
@@ -467,9 +485,29 @@ test("same-account focus reconciliation preserves an explicit interface language
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       ),
   );
-  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(identity).toHaveAttribute("aria-label", "Votre compte");
   await expect(identity).toContainText("Camille Nom partagé");
-  await expect(page.locator(".workspace-language select")).toHaveValue("en");
+  await expect(language).toHaveValue("en");
+  expect(data.session.user.preferredLocale).toBe("fr");
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Enregistrer les modifications", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(
+    page.getByLabel("Preferred language", { exact: true }),
+  ).toHaveValue("en");
+  expect(data.session.user.preferredLocale).toBe("en");
+  expect(data.writes).toEqual([
+    {
+      method: "PATCH",
+      path: "/account",
+      body: { userName: "Camille Nom partagé", preferredLocale: "en" },
+    },
+  ]);
+  await page.goto("/#/app");
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
   await expect(
     page.getByRole("region", {
       name: "Your role in this workshop",
@@ -478,9 +516,86 @@ test("same-account focus reconciliation preserves an explicit interface language
   ).toContainText(
     "You prepare dispatches; an authorized person approves them.",
   );
-  expect(data.session.user.preferredLocale).toBe("fr");
-  expect(data.writes).toEqual([]);
+  await page.reload();
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await page.goto("/#/app/account");
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await expect(
+    page.getByLabel("Preferred language", { exact: true }),
+  ).toHaveValue("en");
   expect(data.unmatched).toEqual([]);
+});
+
+test("focus during a held session read ignores its stale language and requests one fresh session", async ({
+  page,
+}) => {
+  const data = await fixture(page, { locale: "fr" });
+  await page.goto("/#/app/account");
+  await expect(page.getByLabel("Langue préférée", { exact: true })).toHaveValue(
+    "fr",
+  );
+  await page.evaluate(() => {
+    const changes: string[] = [];
+    Reflect.set(window, "fixtureLocaleChanges", changes);
+    new MutationObserver(() => {
+      changes.push(document.documentElement.lang);
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang"],
+    });
+  });
+  let release!: () => void;
+  let ready!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const held = new Promise<void>((resolve) => {
+    ready = resolve;
+  });
+  data.session.user.preferredLocale = "en";
+  data.state.holdNextSession = { ready, gate };
+  const previousReads = data.state.sessionReads;
+  const started = page.waitForRequest(
+    (request) =>
+      new URL(request.url()).pathname === "/api/session" &&
+      request.method() === "GET",
+  );
+  try {
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    const heldRequest = await started;
+    await held;
+    expect(data.state.sessionReads).toBe(previousReads + 1);
+    data.session.user.preferredLocale = "de";
+    const fresh = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/session" &&
+        response.request().method() === "GET" &&
+        response.request() !== heldRequest,
+    );
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event("focus"));
+      window.dispatchEvent(new Event("focus"));
+    });
+    expect(data.state.sessionReads).toBe(previousReads + 1);
+    release();
+    expect((await fresh).status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    await expect(
+      page.getByLabel("Bevorzugte Sprache", { exact: true }),
+    ).toHaveValue("de");
+    expect(data.state.sessionReads).toBe(previousReads + 2);
+    const changes = await page.evaluate(
+      () => Reflect.get(window, "fixtureLocaleChanges") as string[],
+    );
+    expect(changes).toContain("de");
+    expect(changes).not.toContain("en");
+    expect(data.writes).toEqual([]);
+    expect(data.unmatched).toEqual([]);
+  } finally {
+    release();
+  }
 });
 
 test("contact failure is recoverable and switching workshops removes the previous contacts", async ({

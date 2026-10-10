@@ -82,15 +82,18 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
   isMobile,
 }, testInfo) => {
   await login(page);
-  await page.goto("/#/app/templates");
-  const language = page.locator('.workspace-language select[name="language"]');
   for (const [locale, heading, quote] of [
     ["en", "Demo templates", "Demo quotation"],
     ["de", "Demovorlagen", "Demoangebot"],
     ["lb", "Demo-Virlagen", "Demo-Devis"],
     ["fr", "Modèles de démonstration", "Devis de démonstration"],
   ]) {
-    await language.selectOption(locale);
+    await page.goto("/#/app/account");
+    await page.locator(".language-preference select").selectOption(locale);
+    await page.locator('form.form-panel button[type="submit"]').click();
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
+    await page.goto("/#/app/templates");
+    await expect(page.locator('select[name="language"]')).toHaveCount(0);
     await expect(
       page.getByRole("heading", { name: heading, exact: true }),
     ).toBeVisible();

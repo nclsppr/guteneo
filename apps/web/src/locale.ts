@@ -39,7 +39,7 @@ export const localeLabels = {
       "La langue du navigateur est utilisée par défaut. Votre choix est conservé sur cet appareil.",
     preference: "Langue préférée",
     choose: "Choisissez une langue",
-    hint: "Cette langue sera utilisée dans votre compte sur le site et dans l’application iOS.",
+    hint: "Le tableau de bord, le Belvédère et l’application iOS suivent cette langue.",
     saved: "Votre langue préférée a été enregistrée.",
     saving: "Enregistrement…",
     save: "Enregistrer la langue",
@@ -53,7 +53,7 @@ export const localeLabels = {
       "Your browser language is used by default. Your choice is saved on this device.",
     preference: "Preferred language",
     choose: "Choose a language",
-    hint: "Your account will use this language on the website and in the iOS app.",
+    hint: "The dashboard, Belvédère and iOS app use this language.",
     saved: "Your preferred language has been saved.",
     saving: "Saving…",
     save: "Save language",
@@ -67,7 +67,7 @@ export const localeLabels = {
       "Standardmäßig wird die Sprache Ihres Browsers verwendet. Ihre Auswahl wird auf diesem Gerät gespeichert.",
     preference: "Bevorzugte Sprache",
     choose: "Sprache auswählen",
-    hint: "Ihr Konto verwendet diese Sprache auf der Website und in der iOS-App.",
+    hint: "Das Dashboard, Belvédère und die iOS-App verwenden diese Sprache.",
     saved: "Ihre bevorzugte Sprache wurde gespeichert.",
     saving: "Wird gespeichert…",
     save: "Sprache speichern",
@@ -81,7 +81,7 @@ export const localeLabels = {
       "Standardméisseg gëtt d'Sprooch vun Ärem Browser benotzt. Äre Choix gëtt op dësem Apparat gespäichert.",
     preference: "Bevirzuchte Sprooch",
     choose: "Wielt eng Sprooch",
-    hint: "Äre Kont benotzt dës Sprooch op der Websäit an an der iOS-App.",
+    hint: "Den Dashboard, Belvédère an d’iOS-App benotzen dës Sprooch.",
     saved: "Är bevirzuchte Sprooch gouf gespäichert.",
     saving: "Gëtt gespäichert…",
     save: "Sprooch späicheren",
@@ -163,6 +163,14 @@ function browserLocale() {
     ? navigator.languages
     : [navigator.language];
   return resolveLocale(languages);
+}
+/** Account settings never inherit a visitor's stored or URL language choice. */
+export function applyAccountLocale(preferredLocale: unknown) {
+  setLocale(
+    isSupportedLocale(preferredLocale) ? preferredLocale : browserLocale(),
+    false,
+    "account",
+  );
 }
 /** Reset this browser's choice without changing the account preference. */
 export function setAutomaticLocale() {

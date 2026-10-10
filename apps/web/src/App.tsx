@@ -25,12 +25,14 @@ import {
   api,
   ApiError,
   canAdminister,
+  isPublicPreview,
   permissionsFor,
   SESSION_EXPIRED_EVENT,
   setSession,
   type Session,
 } from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
+import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import { LanguageMenu, LanguageSelect } from "./language-select";
 import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
@@ -557,7 +559,16 @@ export function App() {
     api<Session>("/session")
       .then((s) => {
         if (alive) {
-          setSession(s, languageVersion === getLocaleSelectionVersion());
+          const enteringWorkspace =
+            window.location.pathname.startsWith("/app") ||
+            window.location.hash.startsWith("#/app");
+          setSession(
+            s,
+            !isPublicPreview &&
+              (enteringWorkspace ||
+                (isSupportedLocale(s.user.preferredLocale) &&
+                  languageVersion === getLocaleSelectionVersion())),
+          );
           updateSession(s);
         }
       })
@@ -625,6 +636,10 @@ function WorkspaceApplication({
 }) {
   const route = useRoute();
   const page = route.split("?")[0] ?? "/";
+  useEffect(() => {
+    if (session && page.startsWith("/app") && !isPublicPreview)
+      setSession(session);
+  }, [page, session]);
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
     () => window.matchMedia("(min-width: 1025px)").matches,
@@ -657,35 +672,45 @@ function WorkspaceApplication({
     // even while this tab's previous session appeared healthy.
     let alive = true;
     let pending = false;
+    let recheckRequested = false;
+    let recheckTimer: ReturnType<typeof setTimeout> | undefined;
     const controller = new AbortController();
     const recheck = () => {
-      if (document.visibilityState !== "visible" || pending) return;
+      if (document.visibilityState !== "visible") return;
+      if (pending) {
+        recheckRequested = true;
+        return;
+      }
       const now = Date.now();
-      if (now - lastSessionRead.current < 1000) return;
+      const remaining = 1000 - (now - lastSessionRead.current);
+      if (remaining > 0) {
+        recheckTimer ??= setTimeout(() => {
+          recheckTimer = undefined;
+          recheck();
+        }, remaining);
+        return;
+      }
+      clearTimeout(recheckTimer);
+      recheckTimer = undefined;
       lastSessionRead.current = now;
       pending = true;
-      const languageVersion = getLocaleSelectionVersion();
       api<Session>("/session", { signal: controller.signal })
         .then((current) => {
-          if (!alive) return;
+          if (!alive || recheckRequested) return;
           // Another account or workshop starts with fresh pages.
           if (
             current.user.id !== session?.user.id ||
             current.organization.id !== session?.organization.id
           )
             go("/app");
-          setSession(
-            current,
-            (current.user.id !== session?.user.id ||
-              current.user.preferredLocale !== session?.user.preferredLocale) &&
-              languageVersion === getLocaleSelectionVersion(),
-          );
+          setSession(current, !isPublicPreview && page.startsWith("/app"));
           updateSession(current);
           setSessionExpired(false);
         })
         .catch((error: unknown) => {
           if (
             alive &&
+            !recheckRequested &&
             error instanceof ApiError &&
             [401, 403].includes(error.status)
           )
@@ -693,17 +718,22 @@ function WorkspaceApplication({
         })
         .finally(() => {
           pending = false;
+          if (alive && recheckRequested) {
+            recheckRequested = false;
+            recheck();
+          }
         });
     };
     window.addEventListener("focus", recheck);
     document.addEventListener("visibilitychange", recheck);
     return () => {
       alive = false;
+      clearTimeout(recheckTimer);
       controller.abort();
       window.removeEventListener("focus", recheck);
       document.removeEventListener("visibilitychange", recheck);
     };
-  }, [sessionExpired, session, updateSession]);
+  }, [sessionExpired, session, updateSession, page]);
   const pathname = window.location.pathname;
   if (pathname === "/journal/") return <JournalPage />;
   const article = getArticles().find(
@@ -734,7 +764,7 @@ function WorkspaceApplication({
   const refreshSession = async () => {
     try {
       const updated = await api<Session>("/session");
-      setSession(updated, updated.user.id !== session.user.id);
+      setSession(updated, !isPublicPreview);
       updateSession(updated);
     } catch (error) {
       if (error instanceof ApiError && [401, 403].includes(error.status)) {
@@ -881,9 +911,6 @@ function WorkspaceApplication({
           </div>
         </div>
         <WorkspaceIdentity session={session} />
-        <div className="workspace-language">
-          <LanguageSelect />
-        </div>
         <details
           className="workspace-navigation"
           open={navigationOpen}
