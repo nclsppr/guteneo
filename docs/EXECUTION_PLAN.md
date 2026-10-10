@@ -8,12 +8,19 @@ evidence remains separate from local fixtures. See [MULTILINGUAL.md](MULTILINGUA
 
 Local candidate evidence: final TypeScript, ESLint and feature-map checks passed;
 47 final locale/access unit cases passed. Dashboard account, locale and boundary
-scenarios passed in Chromium, WebKit desktop and iPhone after focused reruns;
+scenarios passed in Chromium desktop/mobile and iPhone WebKit after focused reruns;
 34 distinct Belvédère browser cases are qualified by the full initial run and
 the corrected locale-suite rerun. These use deterministic fixtures. Four-language
 Belvédère captures were inspected. No real profile preference, role, provider
 configuration or communication was changed by these checks. Exact PR/main CI
 and canonical authenticated production verification remain release gates.
+The first PR browser run caught an absent account preference overwriting a
+public query and legacy Horizon fixtures relying on that query for private views.
+The correction preserves public choices without a preference and makes private
+fixtures use the account preference; two delayed-session regressions cover the
+boundary. The subsequent 93 Horizon, locale-boundary and studio browser cases
+passed in all three projects, along with 47 locale/access unit cases.
+
 
 
 10 October: publication of the independent status service and a link from

@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 import type { HorizonPlan } from "../../apps/web/src/horizon-plan";
 import type { PdfValidationReport } from "../../packages/contracts/src/pdf-validation";
+import type { SupportedLocale } from "../../packages/contracts/src/locale";
 
 const profileFixtures = {
   ua1: { rules: 106, specification: "ISO 14289-1:2014" },
@@ -34,7 +35,17 @@ const initialPlan: HorizonPlan = {
 };
 async function fixture(
   page: Page,
-  { role = "admin", enabled = true, entitled = false } = {},
+  {
+    role = "admin",
+    enabled = true,
+    entitled = false,
+    preferredLocale,
+  }: {
+    role?: string;
+    enabled?: boolean;
+    entitled?: boolean;
+    preferredLocale?: SupportedLocale;
+  } = {},
 ) {
   const writes: { path: string; body: unknown; key?: string }[] = [];
   const reads: string[] = [];
@@ -75,7 +86,12 @@ async function fixture(
     if (path === "/api/session")
       body = {
         organization: { id: "org_horizon", name: "Atelier Horizon" },
-        user: { id: `user_${role}`, name: "Camille", role },
+        user: {
+          id: `user_${role}`,
+          name: "Camille",
+          role,
+          ...(preferredLocale ? { preferredLocale } : {}),
+        },
         csrfToken: "fixture-only",
         simulation: true,
       };
@@ -471,6 +487,7 @@ for (const [locale, status, credit, renewal, topUp] of [
     await page.goto(`/?lang=${locale}#horizon`);
     const offer = page.locator(".horizon-public");
     await expect(offer.getByText(status, { exact: true })).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(offer).toContainText(credit);
     await expect(offer).toContainText(renewal);
     await expect(offer).toContainText(topUp);
@@ -654,12 +671,13 @@ for (const [locale, title, status] of [
   ["en", "Horizon plan", "Coming soon"],
   ["de", "Horizon-Tarif", "Bald verfügbar"],
   ["lb", "Horizon-Abonnement", "Geschwënn disponibel"],
-]) {
+] as const) {
   test(`Horizon offer has translated consent and status in ${locale}`, async ({
     page,
   }) => {
-    await fixture(page, { enabled: false });
-    await page.goto(`/?lang=${locale}#/app/plan`);
+    await fixture(page, { enabled: false, preferredLocale: locale });
+    await page.goto("/?lang=fr#/app/plan");
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(
       page.getByRole("heading", { name: title, exact: true }).first(),
     ).toBeVisible();

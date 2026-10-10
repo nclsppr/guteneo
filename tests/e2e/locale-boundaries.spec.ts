@@ -225,6 +225,61 @@ test("a failed language save keeps the server preference and supports an explici
   expect(writes).toEqual(["PATCH /api/account", "PATCH /api/account"]);
 });
 
+for (const requestedLocale of ["de", "lb"] as const) {
+  test(`a public ${requestedLocale} query survives a delayed session without a preference and stays separate from account fallback`, async ({
+    page,
+  }) => {
+    let releaseSession!: () => void;
+    const sessionGate = new Promise<void>((resolve) => {
+      releaseSession = resolve;
+    });
+    const { writes } = await mockAccount(
+      page,
+      { name: "Compte sans préférence", preferredLocale: null },
+      { beforeSession: () => sessionGate },
+    );
+    try {
+      await page.goto(`/?lang=${requestedLocale}`);
+      const picker = await publicLanguagePicker(page);
+      await expect(picker).toHaveValue(requestedLocale);
+      await expect(page.locator("html")).toHaveAttribute(
+        "lang",
+        requestedLocale,
+      );
+      const session = page.waitForResponse(
+        (response) => new URL(response.url()).pathname === "/api/session",
+      );
+      releaseSession();
+      expect((await session).status()).toBe(200);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
+      await expect(page.locator("html")).toHaveAttribute(
+        "lang",
+        requestedLocale,
+      );
+      await expect(picker).toHaveValue(requestedLocale);
+      await page.goto("/?lang=fr#/app/account");
+      await expect(page.locator("#account-name")).toHaveValue(
+        "Compte sans préférence",
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(
+        page.getByLabel("Preferred language", { exact: true }),
+      ).toHaveValue("");
+      expect(
+        await page.evaluate(() => localStorage.getItem("guteneo.locale")),
+      ).toBe(requestedLocale);
+      expect(writes).toEqual([]);
+    } finally {
+      releaseSession();
+    }
+  });
+}
+
 test("entering the account applies its preference after a late session while preserving the public choice", async ({
   page,
 }) => {

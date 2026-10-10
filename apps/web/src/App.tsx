@@ -32,6 +32,7 @@ import {
   type Session,
 } from "./api";
 import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
+import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import { LanguageMenu, LanguageSelect } from "./language-select";
 import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
@@ -565,7 +566,8 @@ export function App() {
             s,
             !isPublicPreview &&
               (enteringWorkspace ||
-                languageVersion === getLocaleSelectionVersion()),
+                (isSupportedLocale(s.user.preferredLocale) &&
+                  languageVersion === getLocaleSelectionVersion())),
           );
           updateSession(s);
         }
