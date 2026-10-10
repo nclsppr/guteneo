@@ -1,0 +1,1555 @@
+{
+  ". Consultez les autres appartenances depuis les ateliers.": [
+    ". View other memberships from the workshops.",
+    ". Weitere Mitgliedschaften finden Sie in den Werkstätten.",
+    ". Kuckt déi aner Memberschaften an den Atelieren."
+  ],
+  ". Position représentative du pays.": [
+    ". Representative country location.",
+    ". Repräsentative Position des Landes.",
+    ". Representativ Positioun vum Land."
+  ],
+  "24 dernières heures": [
+    "Last 24 hours",
+    "Letzte 24 Stunden",
+    "Lescht 24 Stonnen"
+  ],
+  "30 derniers jours": ["Last 30 days", "Letzte 30 Tage", "Lescht 30 Deeg"],
+  "7 derniers jours": ["Last 7 days", "Letzte 7 Tage", "Lescht 7 Deeg"],
+  "90 derniers jours": ["Last 90 days", "Letzte 90 Tage", "Lescht 90 Deeg"],
+  "99 % des exécutions sous ce seuil": [
+    "99% of executions below this threshold",
+    "99 % der Ausführungen unter diesem Wert",
+    "99 % vun den Ausféierungen ënner dësem Wäert"
+  ],
+  "Abonnement Horizon": [
+    "Horizon subscription",
+    "Horizon-Abonnement",
+    "Horizon-Abonnement"
+  ],
+  "Accepté": ["Accepted", "Angenommen", "Ugeholl"],
+  "Accès": ["Access", "Zugang", "Zougang"],
+  "Accès personnel": [
+    "Personal access",
+    "Persönlicher Zugang",
+    "Perséinlechen Zougang"
+  ],
+  "Accès refusé": ["Access denied", "Zugriff verweigert", "Zougang refuséiert"],
+  "Active": ["Active", "Aktiv", "Aktiv"],
+  "Activité de production": [
+    "Production activity",
+    "Produktionsaktivität",
+    "Produktiounsaktivitéit"
+  ],
+  "Actualiser": ["Refresh", "Aktualisieren", "Aktualiséieren"],
+  "Actualiser les données": [
+    "Refresh data",
+    "Daten aktualisieren",
+    "Daten aktualiséieren"
+  ],
+  "Actualisez après vérification de la connexion Cloudflare.": [
+    "Refresh after checking the Cloudflare connection.",
+    "Aktualisieren Sie nach Prüfung der Cloudflare-Verbindung.",
+    "Aktualiséiert nodeems d’Cloudflare-Verbindung kontrolléiert gouf."
+  ],
+  "Administrateur": ["Administrator", "Administrator", "Administrateur"],
+  "Afficher les mesures horaires": [
+    "Show hourly measurements",
+    "Stündliche Messwerte anzeigen",
+    "Stonnemesswäerter weisen"
+  ],
+  "Afficher les valeurs du graphique": [
+    "Show chart values",
+    "Diagrammwerte anzeigen",
+    "Wäerter vum Diagramm weisen"
+  ],
+  "Aller au contenu": [
+    "Skip to content",
+    "Zum Inhalt springen",
+    "Bei den Inhalt sprangen"
+  ],
+  "Annuaire des membres": [
+    "Member directory",
+    "Mitgliederverzeichnis",
+    "Membersverzeechnes"
+  ],
+  "Annulé": ["Cancelled", "Storniert", "Annuléiert"],
+  "Application native": ["Native app", "Native App", "Nativ App"],
+  "Approuvé": ["Approved", "Genehmigt", "Geneemegt"],
+  "Assistant MCP": ["MCP assistant", "MCP-Assistent", "MCP-Assistent"],
+  "Atelier": ["Workshop", "Werkstatt", "Atelier"],
+  "Atelier ou identifiant d’envoi…": [
+    "Workshop or dispatch ID…",
+    "Werkstatt oder Versand-ID…",
+    "Atelier oder Versand-ID…"
+  ],
+  "Ateliers": ["Workshops", "Werkstätten", "Atelieren"],
+  "Ateliers et consommation": [
+    "Workshops and consumption",
+    "Werkstätten und Verbrauch",
+    "Atelieren a Verbrauch"
+  ],
+  "Ateliers et rôles": [
+    "Workshops and roles",
+    "Werkstätten und Rollen",
+    "Atelieren a Rollen"
+  ],
+  "Au": ["To", "Bis", "Bis"],
+  "Aucun atelier dans ce mode.": [
+    "No workshops in this mode.",
+    "Keine Werkstätten in diesem Modus.",
+    "Keng Atelieren an dësem Modus."
+  ],
+  "Aucun atelier ne correspond.": [
+    "No matching workshops.",
+    "Keine passenden Werkstätten.",
+    "Keng passend Atelieren."
+  ],
+  "Aucun coût fournisseur vérifié sur cette période.": [
+    "No verified provider costs in this period.",
+    "Keine geprüften Anbieterkosten in diesem Zeitraum.",
+    "Keng iwwerpréift Ubidderkäschten an dëser Period."
+  ],
+  "Aucun envoi ne correspond.": [
+    "No matching dispatches.",
+    "Keine passenden Sendungen.",
+    "Keng passend Sendungen."
+  ],
+  "Aucun envoi sur cette période.": [
+    "No dispatches in this period.",
+    "Keine Sendungen in diesem Zeitraum.",
+    "Keng Sendungen an dëser Period."
+  ],
+  "Aucun envoi à répartir.": [
+    "No dispatches to break down.",
+    "Keine Sendungen für eine Aufschlüsselung.",
+    "Keng Sendunge fir eng Opdeelung."
+  ],
+  "Aucun envoi à surveiller.": [
+    "No dispatches need attention.",
+    "Keine Sendungen erfordern Aufmerksamkeit.",
+    "Keng Sendunge brauchen Opmierksamkeet."
+  ],
+  "Aucun membre dans la projection.": [
+    "No members in this view.",
+    "Keine Mitglieder in dieser Ansicht.",
+    "Keng Memberen an dëser Vue."
+  ],
+  "Aucun membre ne correspond.": [
+    "No matching members.",
+    "Keine passenden Mitglieder.",
+    "Keng passend Memberen."
+  ],
+  "Aucun pays de destination n’est renseigné sur cette période.": [
+    "No destination countries recorded in this period.",
+    "Keine Zielländer in diesem Zeitraum erfasst.",
+    "Keng Destinatiounslänner an dëser Period erfaasst."
+  ],
+  "Aucun usage facturable déclaré.": [
+    "No billable usage reported.",
+    "Keine abrechenbare Nutzung gemeldet.",
+    "Keng verrechenbar Notzung gemellt."
+  ],
+  "Aucun événement collecté": [
+    "No events collected",
+    "Keine Ereignisse erfasst",
+    "Keng Evenementer erfaasst"
+  ],
+  "Aucune consommation comptabilisée.": [
+    "No consumption recorded in the ledger.",
+    "Kein Verbrauch im Register verbucht.",
+    "Kee Verbrauch am Register verbucht."
+  ],
+  "Aucune heure mesurée.": [
+    "No hourly measurements.",
+    "Keine stündlichen Messwerte.",
+    "Keng Stonnemesswäerter."
+  ],
+  "Aucune mesure dans cette fenêtre.": [
+    "No measurements in this window.",
+    "Keine Messwerte in diesem Zeitfenster.",
+    "Keng Messwäerter an dëser Zäitfënster."
+  ],
+  "Aucune mesure n’est disponible pour cette période.": [
+    "No measurements available for this period.",
+    "Keine Messwerte für diesen Zeitraum verfügbar.",
+    "Keng Messwäerter fir dës Period disponibel."
+  ],
+  "Aucune nouvelle connexion observée.": [
+    "No new connections observed.",
+    "Keine neuen Verbindungen beobachtet.",
+    "Keng nei Verbindunge observéiert."
+  ],
+  "Aucune session dans cette vue.": [
+    "No sessions in this view.",
+    "Keine Sitzungen in dieser Ansicht.",
+    "Keng Sessiounen an dëser Vue."
+  ],
+  "Autorisée": ["Allowed", "Erlaubt", "Erlaabt"],
+  "Belvédère par guteneo": [
+    "Belvédère by guteneo",
+    "Belvédère von guteneo",
+    "Belvédère vu guteneo"
+  ],
+  "Belvédère, synthèse": [
+    "Belvédère, overview",
+    "Belvédère, Übersicht",
+    "Belvédère, Iwwersiicht"
+  ],
+  "Brouillon": ["Draft", "Entwurf", "Entworf"],
+  "Calculé le": ["Calculated on", "Berechnet am", "Berechent den"],
+  "Canal": ["Channel", "Kanal", "Kanal"],
+  "Canal / mode": ["Channel / mode", "Kanal / Modus", "Kanal / Modus"],
+  "Canal non conservé": [
+    "Channel not retained",
+    "Kanal nicht gespeichert",
+    "Kanal net gespäichert"
+  ],
+  "Ce qui circule": [
+    "What is being sent",
+    "Was versendet wird",
+    "Wat verschéckt gëtt"
+  ],
+  "Ces mesures utilisent les données analytiques échantillonnées de Cloudflare. Les erreurs sont des erreurs d’exécution du Worker ; elles ne représentent pas l’ensemble des réponses HTTP en erreur.": [
+    "These measurements use Cloudflare’s sampled analytics. Errors are Worker execution errors; they do not represent all HTTP error responses.",
+    "Diese Messwerte nutzen die stichprobenartigen Analysedaten von Cloudflare. Fehler sind Ausführungsfehler des Workers; sie bilden nicht alle fehlerhaften HTTP-Antworten ab.",
+    "Dës Messwäerter benotzen d’Analysestéchprouwe vu Cloudflare. Feeler sinn Ausféierungsfeeler vum Worker; si stellen net all feelerhaft HTTP-Äntwerten duer."
+  ],
+  "Ces statistiques couvrent le Worker configuré, tous ses accès confondus. Elles sont indépendantes du mode des ateliers.": [
+    "These statistics cover all access to the configured Worker. They are independent of the workshop mode.",
+    "Diese Statistiken umfassen alle Zugriffe auf den konfigurierten Worker. Sie sind unabhängig vom Werkstattmodus.",
+    "Dës Statistiken ëmfaassen all Zougrëff op de konfiguréierte Worker. Si sinn onofhängeg vum Modus vun den Atelieren."
+  ],
+  "Cette fenêtre est indépendante de la période et du mode des ateliers. Une heure absente ne signifie pas zéro requête.": [
+    "This window is independent of the workshop period and mode. A missing hour does not mean zero requests.",
+    "Dieses Zeitfenster ist unabhängig vom Zeitraum und Modus der Werkstätten. Eine fehlende Stunde bedeutet nicht null Anfragen.",
+    "Dës Zäitfënster ass onofhängeg vun der Period an dem Modus vun den Atelieren. Eng feelend Stonn bedeit net null Ufroen."
+  ],
+  "Changez le filtre de données pour consulter les autres ateliers.": [
+    "Change the data filter to view other workshops.",
+    "Ändern Sie den Datenfilter, um andere Werkstätten zu sehen.",
+    "Ännert den Datefilter, fir aner Atelieren ze gesinn."
+  ],
+  "Changez les filtres ou consultez l’historique des connexions.": [
+    "Change the filters or view the connection history.",
+    "Ändern Sie die Filter oder öffnen Sie den Verbindungsverlauf.",
+    "Ännert d’Filteren oder kuckt de Verbindungsverlaf."
+  ],
+  "Chaque connexion a une origine.": [
+    "Every connection has an origin.",
+    "Jede Verbindung hat einen Ursprung.",
+    "All Verbindung huet en Ursprong."
+  ],
+  "Chaque envoi, à portée de vue.": [
+    "Every dispatch in view.",
+    "Jede Sendung im Blick.",
+    "All Sendung am Bléck."
+  ],
+  "Chargement de la géographie…": [
+    "Loading geography…",
+    "Geografie wird geladen…",
+    "Geografie gëtt gelueden…"
+  ],
+  "Chargement des données": [
+    "Loading data",
+    "Daten werden geladen",
+    "Date gi gelueden"
+  ],
+  "Chargement des données…": [
+    "Loading data…",
+    "Daten werden geladen…",
+    "Date gi gelueden…"
+  ],
+  "Chargement…": ["Loading…", "Wird geladen…", "Gëtt gelueden…"],
+  "Choisissez une autre période pour consulter l’historique de cet atelier.": [
+    "Choose another period to view this workshop’s history.",
+    "Wählen Sie einen anderen Zeitraum, um den Verlauf dieser Werkstatt zu sehen.",
+    "Wielt eng aner Period, fir de Verlaf vun dësem Atelier ze gesinn."
+  ],
+  "Cloudflare attend sa connexion.": [
+    "Cloudflare metrics are not connected yet.",
+    "Cloudflare-Messwerte sind noch nicht verbunden.",
+    "Cloudflare-Messwäerter sinn nach net verbonnen."
+  ],
+  "Cloudflare n’a pas fourni de réponse exploitable. Vous pouvez actualiser cette vue pour réessayer.": [
+    "Cloudflare did not return a usable response. Refresh this view to try again.",
+    "Cloudflare hat keine verwertbare Antwort geliefert. Aktualisieren Sie diese Ansicht, um es erneut zu versuchen.",
+    "Cloudflare huet keng verwäertbar Äntwert geliwwert. Aktualiséiert dës Vue, fir nach eng Kéier ze probéieren."
+  ],
+  "Cloudflare n’a renvoyé aucune ligne pour le cycle courant ; ce n’est pas une preuve de gratuité.": [
+    "Cloudflare returned no entries for the current cycle; this does not prove there is no charge.",
+    "Cloudflare hat keine Einträge für den aktuellen Zyklus geliefert; das ist kein Nachweis für Kostenfreiheit.",
+    "Cloudflare huet keng Entréeë fir den aktuelle Zyklus geliwwert; dat beweist net, datt et gratis ass."
+  ],
+  "Cloudflare n’autorise pas la lecture des statistiques avec la configuration actuelle. Les permissions de la connexion doivent être vérifiées côté serveur.": [
+    "Cloudflare does not allow reading statistics with the current configuration. Check the connection permissions on the server.",
+    "Cloudflare erlaubt mit der aktuellen Konfiguration keinen Zugriff auf die Statistiken. Die Verbindungsrechte müssen serverseitig geprüft werden.",
+    "Cloudflare erlaabt mat der aktueller Konfiguratioun keng Liesung vun de Statistiken. D’Verbindungsrechter mussen um Server kontrolléiert ginn."
+  ],
+  "Collecte depuis le {0}.": [
+    "Collecting since {0}.",
+    "Erfassung seit {0}.",
+    "Erfaassung zënter dem {0}."
+  ],
+  "Collecte à partir des nouvelles connexions.": [
+    "Collecting from new connections.",
+    "Erfassung ab neuen Verbindungen.",
+    "Erfaassung ab neie Verbindungen."
+  ],
+  "Connecté": ["Connected", "Verbunden", "Verbonnen"],
+  "Connexions": ["Connections", "Verbindungen", "Verbindungen"],
+  "Connexions actives": [
+    "Active connections",
+    "Aktive Verbindungen",
+    "Aktiv Verbindungen"
+  ],
+  "Connexions établies": [
+    "Established connections",
+    "Hergestellte Verbindungen",
+    "Opgebaut Verbindungen"
+  ],
+  "Connexions établies avec succès": [
+    "Successfully established connections",
+    "Erfolgreich hergestellte Verbindungen",
+    "Erfollegräich opgebaut Verbindungen"
+  ],
+  "Consommation": ["Consumption", "Verbrauch", "Verbrauch"],
+  "Consommation client": [
+    "Customer consumption",
+    "Kundenverbrauch",
+    "Clienteverbrauch"
+  ],
+  "Consommation client comptabilisée": [
+    "Customer consumption recorded in the ledger",
+    "Verbuchter Kundenverbrauch",
+    "Verbuchte Clienteverbrauch"
+  ],
+  "Consommation mensuelle": [
+    "Monthly consumption",
+    "Monatlicher Verbrauch",
+    "Mountleche Verbrauch"
+  ],
+  "Consommation par canal": [
+    "Consumption by channel",
+    "Verbrauch nach Kanal",
+    "Verbrauch no Kanal"
+  ],
+  "Consommation sur la période": [
+    "Consumption in this period",
+    "Verbrauch im Zeitraum",
+    "Verbrauch an dëser Period"
+  ],
+  "Consommation totale": [
+    "Total consumption",
+    "Gesamtverbrauch",
+    "Gesamtverbrauch"
+  ],
+  "Consommation, encaissements et coûts fournisseurs distincts.": [
+    "Consumption, receipts and provider costs shown separately.",
+    "Verbrauch, Zahlungseingänge und Anbieterkosten getrennt ausgewiesen.",
+    "Verbrauch, Bezuelungsagäng an Ubidderkäschte getrennt gewisen."
+  ],
+  "Consommations simulées des envois et d’Horizon selon leur date de confirmation ou de comptabilisation. Elles ne représentent pas des encaissements réels.": [
+    "Simulated dispatch and Horizon consumption by confirmation or ledger date. These are not real receipts.",
+    "Simulierter Verbrauch für Sendungen und Horizon nach Bestätigungs- oder Buchungsdatum. Dies sind keine echten Zahlungseingänge.",
+    "Simuléierte Verbrauch fir Sendungen an Horizon nom Bestätegungs- oder Buchungsdatum. Dat si keng reell Bezuelungsagäng."
+  ],
+  "Consommations simulées selon leur mois de confirmation ou de comptabilisation.": [
+    "Simulated consumption by confirmation or ledger month.",
+    "Simulierter Verbrauch nach Bestätigungs- oder Buchungsmonat.",
+    "Simuléierte Verbrauch nom Bestätegungs- oder Buchungsmount."
+  ],
+  "Consommé": ["Consumed", "Verbraucht", "Verbraucht"],
+  "Consultation des ateliers": [
+    "Browsing workshops",
+    "Werkstätten ansehen",
+    "Atelieren ukucken"
+  ],
+  "Consulter {0}": ["View {0}", "{0} ansehen", "{0} ukucken"],
+  "Courrier postal": ["Postal mail", "Postbrief", "Postbréif"],
+  "Coût client actuel, par jour de création": [
+    "Current customer cost by creation date",
+    "Aktuelle Kundenkosten nach Erstellungsdatum",
+    "Aktuell Clientekäschten nom Erstellungsdatum"
+  ],
+  "Coût client, réservation et coût fournisseur vérifié. Le contenu des documents et les destinataires restent privés.": [
+    "Customer cost, reservation and verified provider cost. Document contents and recipients remain private.",
+    "Kundenkosten, Reservierung und geprüfte Anbieterkosten. Dokumentinhalte und Empfänger bleiben privat.",
+    "Clientekäschten, Reservatioun an iwwerpréift Ubidderkäschten. Dokumentinhalter an Empfänger bleiwe privat."
+  ],
+  "Coût fournisseur": ["Provider cost", "Anbieterkosten", "Ubidderkäschten"],
+  "Coûts fournisseurs": ["Provider costs", "Anbieterkosten", "Ubidderkäschten"],
+  "Crédit disponible": [
+    "Available credit",
+    "Verfügbares Guthaben",
+    "Verfügbare Kredit"
+  ],
+  "Crédits promotionnels": [
+    "Promotional credits",
+    "Aktionsguthaben",
+    "Promotiounsguthaben"
+  ],
+  "Créé le": ["Created on", "Erstellt am", "Erstallt den"],
+  "Cycle de facturation en cours, distinct de la période d’activité des ateliers": [
+    "Current billing cycle, separate from the workshop activity period",
+    "Aktueller Abrechnungszyklus, getrennt vom Aktivitätszeitraum der Werkstätten",
+    "Aktuellen Ofrechnungszyklus, getrennt vun der Aktivitéitsperiod vun den Atelieren"
+  ],
+  "Date": ["Date", "Datum", "Datum"],
+  "Date de connexion": [
+    "Connection date",
+    "Verbindungsdatum",
+    "Verbindungsdatum"
+  ],
+  "Dates des charges non renseignées.": [
+    "Charge dates not recorded.",
+    "Belastungsdaten nicht erfasst.",
+    "Belaaschtungsdatume net erfaasst."
+  ],
+  "Dates incluses, en UTC.": [
+    "Inclusive dates, in UTC.",
+    "Einschließlich beider Daten, in UTC.",
+    "Béid Datume mat abegraff, an UTC."
+  ],
+  "Dates personnalisées": [
+    "Custom dates",
+    "Eigene Datumsangaben",
+    "Eegen Datumen"
+  ],
+  "Dernière activité": [
+    "Last activity",
+    "Letzte Aktivität",
+    "Lescht Aktivitéit"
+  ],
+  "Dernière activité :": [
+    "Last activity:",
+    "Letzte Aktivität:",
+    "Lescht Aktivitéit:"
+  ],
+  "Dernière connexion observée": [
+    "Last observed connection",
+    "Zuletzt beobachtete Verbindung",
+    "Lescht observéiert Verbindung"
+  ],
+  "Dernière vérification :": [
+    "Last checked:",
+    "Zuletzt geprüft:",
+    "Lescht Kontroll:"
+  ],
+  "Des chiffres qui disent ce qu’ils sont.": [
+    "Figures with a clear meaning.",
+    "Zahlen mit klarer Bedeutung.",
+    "Zuele mat enger kloerer Bedeitung."
+  ],
+  "Des mesures, avec leur périmètre.": [
+    "Measurements with a defined scope.",
+    "Messwerte mit klarem Geltungsbereich.",
+    "Messwäerter mat engem definéierten Ëmfang."
+  ],
+  "Destination": ["Destination", "Ziel", "Zil"],
+  "Devis :": ["Quote:", "Angebot:", "Devis:"],
+  "Distribution": ["Distribution", "Verteilung", "Verdeelung"],
+  "Documents": ["Documents", "Dokumente", "Dokumenter"],
+  "Données": ["Data", "Daten", "Daten"],
+  "Données du globe": ["Globe data", "Globusdaten", "Globusdaten"],
+  "Du": ["From", "Von", "Vum"],
+  "Débits des envois, de l’hébergement et d’Horizon enregistrés sur la période, selon leur date de comptabilisation, y compris pour les envois supprimés depuis. Ces montants peuvent provenir de crédits promotionnels.": [
+    "Dispatch, hosting and Horizon debits recorded in this period, by ledger date, including dispatches deleted since. These amounts may come from promotional credits.",
+    "Belastungen für Sendungen, Hosting und Horizon im Zeitraum nach Buchungsdatum, einschließlich inzwischen gelöschter Sendungen. Diese Beträge können aus Aktionsguthaben stammen.",
+    "Belaaschtunge fir Sendungen, Hosting an Horizon an dëser Period nom Buchungsdatum, och fir mëttlerweil geläschte Sendungen. Dës Beträg kënnen aus Promotiounsguthabe kommen."
+  ],
+  "Débits selon leur mois de comptabilisation, y compris Horizon et l’historique des envois supprimés.": [
+    "Debits by ledger month, including Horizon and the history of deleted dispatches.",
+    "Belastungen nach Buchungsmonat, einschließlich Horizon und dem Verlauf gelöschter Sendungen.",
+    "Belaaschtungen nom Buchungsmount, och Horizon an de Verlaf vu geläschte Sendungen."
+  ],
+  "Début de la collecte": [
+    "Collection started",
+    "Beginn der Erfassung",
+    "Ufank vun der Erfaassung"
+  ],
+  "Déclaré :": ["Reported:", "Gemeldet:", "Gemellt:"],
+  "Démonstration locale — données fictives, aucun service réel.": [
+    "Local demonstration — fictional data, no real services.",
+    "Lokale Demonstration — fiktive Daten, keine echten Dienste.",
+    "Lokal Demonstratioun — fiktiv Daten, keng reell Servicer."
+  ],
+  "Détail": ["Details", "Details", "Detailer"],
+  "Détail de l’atelier": [
+    "Workshop details",
+    "Werkstattdetails",
+    "Atelierdetailer"
+  ],
+  "Détail des envois": [
+    "Dispatch details",
+    "Versanddetails",
+    "Versanddetailer"
+  ],
+  "D’où l’on se connecte.": [
+    "Where connections come from.",
+    "Woher die Verbindungen kommen.",
+    "Wou d’Verbindungen hierkommen."
+  ],
+  "E": ["E", "O", "O"],
+  "Effacer la recherche": ["Clear search", "Suche löschen", "Sich läschen"],
+  "Email": ["Email", "E-Mail", "E-Mail"],
+  "En attente": ["Pending", "Ausstehend", "Ausstoend"],
+  "En cours": ["In progress", "In Bearbeitung", "Amgaang"],
+  "Encaissements vérifiés": [
+    "Verified receipts",
+    "Geprüfte Zahlungseingänge",
+    "Iwwerpréift Bezuelungsagäng"
+  ],
+  "Envoi": ["Dispatch", "Sendung", "Sendung"],
+  "Envoi / atelier": [
+    "Dispatch / workshop",
+    "Sendung / Werkstatt",
+    "Sendung / Atelier"
+  ],
+  "Envois": ["Dispatches", "Sendungen", "Sendungen"],
+  "Envois bloqués dans la file": [
+    "Dispatches stuck in the queue",
+    "In der Warteschlange blockierte Sendungen",
+    "An der Waardeschlaang blockéiert Sendungen"
+  ],
+  "Envois créés": [
+    "Dispatches created",
+    "Erstellte Sendungen",
+    "Erstallte Sendungen"
+  ],
+  "Envois de l’atelier": [
+    "Workshop dispatches",
+    "Sendungen der Werkstatt",
+    "Sendunge vum Atelier"
+  ],
+  "Envois dont le traitement attend depuis plus d’une minute dans la file. Aucun nouvel envoi ni aucune relance n’est déclenché depuis cette vue.": [
+    "Dispatches waiting in the processing queue for over a minute. This view does not trigger any new dispatch or retry.",
+    "Sendungen, die seit über einer Minute in der Verarbeitungswarteschlange warten. Diese Ansicht löst keine neue Sendung und keinen erneuten Versuch aus.",
+    "Sendungen, déi zënter méi wéi enger Minutt an der Veraarbechtungswaardeschlaang waarden. Dës Vue léist keng nei Sendung a kee neie Versuch aus."
+  ],
+  "Envois débités": [
+    "Debited dispatches",
+    "Belastete Sendungen",
+    "Debitéiert Sendungen"
+  ],
+  "Envois en attente": [
+    "Pending dispatches",
+    "Wartende Sendungen",
+    "Sendungen, déi waarden"
+  ],
+  "Envois en échec": [
+    "Failed dispatches",
+    "Fehlgeschlagene Sendungen",
+    "Feelgeschloe Sendungen"
+  ],
+  "Envois en échec, non distribués, signalés par une plainte ou dont le résultat fournisseur est inconnu. Ouvrez l’atelier pour examiner la situation.": [
+    "Failed or undelivered dispatches, complaints, or unknown provider outcomes. Open the workshop to examine the situation.",
+    "Fehlgeschlagene oder nicht zugestellte Sendungen, Beschwerden oder unbekannte Anbieterergebnisse. Öffnen Sie die Werkstatt, um die Situation zu prüfen.",
+    "Feelgeschloen oder net zougestallte Sendungen, Reklamatiounen oder onbekannt Ubidderresultater. Maacht den Atelier op, fir d’Situatioun ze kontrolléieren."
+  ],
+  "Envois et hébergement": [
+    "Dispatches and hosting",
+    "Sendungen und Hosting",
+    "Sendungen an Hosting"
+  ],
+  "Envois refusés": [
+    "Rejected dispatches",
+    "Abgelehnte Sendungen",
+    "Refuséiert Sendungen"
+  ],
+  "Envois sur la période": [
+    "Dispatches in this period",
+    "Sendungen im Zeitraum",
+    "Sendungen an dëser Period"
+  ],
+  "Envois à vérifier": [
+    "Dispatches to check",
+    "Zu prüfende Sendungen",
+    "Sendungen ze kontrolléieren"
+  ],
+  "Erreurs": ["Errors", "Fehler", "Feeler"],
+  "Erreurs d’exécution": [
+    "Execution errors",
+    "Ausführungsfehler",
+    "Ausféierungsfeeler"
+  ],
+  "Espace privé": ["Private area", "Privater Bereich", "Privat Beräich"],
+  "Essayez un autre nom, une autre adresse email ou un autre mode.": [
+    "Try another name, email address or mode.",
+    "Versuchen Sie einen anderen Namen, eine andere E-Mail-Adresse oder einen anderen Modus.",
+    "Probéiert en aneren Numm, eng aner E-Mail-Adress oder en anere Modus."
+  ],
+  "Essayez un nom plus court ou effacez la recherche.": [
+    "Try a shorter name or clear the search.",
+    "Versuchen Sie einen kürzeren Namen oder löschen Sie die Suche.",
+    "Probéiert e méi kuerzen Numm oder läscht d’Sich."
+  ],
+  "Examiner les envois concernés": [
+    "Examine affected dispatches",
+    "Betroffene Sendungen prüfen",
+    "Betraffe Sendunge kontrolléieren"
+  ],
+  "Expiration": ["Expires", "Ablauf", "Leeft of"],
+  "Expiré": ["Expired", "Abgelaufen", "Ofgelaf"],
+  "Exécution et fiabilité de l’application": [
+    "Application execution and reliability",
+    "Ausführung und Zuverlässigkeit der Anwendung",
+    "Ausféierung an Zouverlässegkeet vun der App"
+  ],
+  "Fax": ["Fax", "Fax", "Fax"],
+  "Fenêtre Cloudflare": [
+    "Cloudflare window",
+    "Cloudflare-Zeitfenster",
+    "Cloudflare-Zäitfënster"
+  ],
+  "Fermer la navigation": [
+    "Close navigation",
+    "Navigation schließen",
+    "Navigatioun zoumaachen"
+  ],
+  "Finances": ["Finances", "Finanzen", "Finanzen"],
+  "Glisser pour explorer": [
+    "Drag to explore",
+    "Zum Erkunden ziehen",
+    "Zéien, fir ze entdecken"
+  ],
+  "Globe interactif : {0} {1}. Les mêmes données et la sélection des pays sont disponibles dans la liste.": [
+    "Interactive globe: {0} {1}. The same data and country selection are available in the list.",
+    "Interaktiver Globus: {0} {1}. Dieselben Daten und die Länderauswahl sind in der Liste verfügbar.",
+    "Interaktive Globus: {0} {1}. Déiselwecht Daten an d’Lännerauswiel sinn an der Lëscht disponibel."
+  ],
+  "Heure": ["Hour", "Stunde", "Stonn"],
+  "Historique conservé": [
+    "Retained history",
+    "Gespeicherter Verlauf",
+    "Gespäicherte Verlaf"
+  ],
+  "Historique des connexions": [
+    "Connection history",
+    "Verbindungsverlauf",
+    "Verbindungsverlaf"
+  ],
+  "Hébergement :": ["Hosting:", "Hosting:", "Hosting:"],
+  "Imprimé": ["Printed", "Gedruckt", "Gedréckt"],
+  "Indisponible": ["Unavailable", "Nicht verfügbar", "Net disponibel"],
+  "Infrastructure": ["Infrastructure", "Infrastruktur", "Infrastruktur"],
+  "Inscription": ["Registration", "Registrierung", "Umeldung"],
+  "Invocations du Worker": [
+    "Worker invocations",
+    "Worker-Aufrufe",
+    "Worker-Opriff"
+  ],
+  "Journal de tous les envois": [
+    "All dispatches log",
+    "Protokoll aller Sendungen",
+    "Protokoll vun alle Sendungen"
+  ],
+  "Journal des accès": [
+    "Access log",
+    "Zugriffsprotokoll",
+    "Zougrëffsprotokoll"
+  ],
+  "La carte se prépare.": [
+    "The map is loading.",
+    "Die Karte wird vorbereitet.",
+    "D’Kaart gëtt virbereet."
+  ],
+  "La connexion a été interrompue.": [
+    "The connection was interrupted.",
+    "Die Verbindung wurde unterbrochen.",
+    "D’Verbindung gouf ënnerbrach."
+  ],
+  "La connexion est configurée, mais Cloudflare n’a renvoyé aucune mesure pour la période choisie.": [
+    "The connection is configured, but Cloudflare returned no measurements for the selected period.",
+    "Die Verbindung ist konfiguriert, aber Cloudflare hat keine Messwerte für den gewählten Zeitraum geliefert.",
+    "D’Verbindung ass konfiguréiert, mee Cloudflare huet keng Messwäerter fir déi gewielte Period geliwwert."
+  ],
+  "La connexion serveur à l’API d’usage facturable n’est pas configurée.": [
+    "The server connection to the billable usage API is not configured.",
+    "Die Serververbindung zur API für abrechenbare Nutzung ist nicht konfiguriert.",
+    "D’Serververbindung mat der API fir verrechenbar Notzung ass net konfiguréiert."
+  ],
+  "La consommation correspond à l’état actuel des envois créés sur la période.": [
+    "Consumption reflects the current state of dispatches created in this period.",
+    "Der Verbrauch entspricht dem aktuellen Stand der im Zeitraum erstellten Sendungen.",
+    "De Verbrauch entsprécht dem aktuelle Stand vun de Sendungen, déi an dëser Period erstallt goufen."
+  ],
+  "La géographie reste à observer.": [
+    "Geography is yet to be observed.",
+    "Die Geografie muss noch beobachtet werden.",
+    "D’Geografie muss nach observéiert ginn."
+  ],
+  "La géographie reste à écrire.": [
+    "Geography is yet to be recorded.",
+    "Die Geografie muss noch erfasst werden.",
+    "D’Geografie muss nach erfaasst ginn."
+  ],
+  "La lecture des données a échoué. Vous pouvez réessayer.": [
+    "Reading data failed. You can try again.",
+    "Das Lesen der Daten ist fehlgeschlagen. Sie können es erneut versuchen.",
+    "D’Liese vun den Daten ass feelgeschloen. Dir kënnt nach eng Kéier probéieren."
+  ],
+  "La période doit être chronologique et ne pas dépasser 366 jours.": [
+    "Dates must be in chronological order and span no more than 366 days.",
+    "Die Daten müssen chronologisch sein und dürfen höchstens 366 Tage umfassen.",
+    "D’Datume mussen chronologesch sinn a maximal 366 Deeg ëmfaassen."
+  ],
+  "La répartition par canal apparaîtra après les premiers envois.": [
+    "The channel breakdown will appear after the first dispatches.",
+    "Die Kanalaufteilung erscheint nach den ersten Sendungen.",
+    "D’Kanalopdeelung erschéngt no den éischte Sendungen."
+  ],
+  "La source de télémétrie n’est pas encore configurée. Une fois reliée côté serveur, elle permettra de suivre les requêtes et erreurs du Worker.": [
+    "The telemetry source is not configured yet. Once connected on the server, it will show Worker requests and errors.",
+    "Die Telemetriequelle ist noch nicht konfiguriert. Nach der serverseitigen Verbindung zeigt sie Worker-Anfragen und -Fehler.",
+    "D’Telemetriequell ass nach net konfiguréiert. No der Verbindung um Server weist si d’Ufroen an d’Feeler vum Worker."
+  ],
+  "Latence haute · p99": [
+    "High latency · p99",
+    "Hohe Latenz · p99",
+    "Héich Latenz · p99"
+  ],
+  "Latence médiane · p50": [
+    "Median latency · p50",
+    "Mittlere Latenz · p50",
+    "Medianlatenz · p50"
+  ],
+  "Latence p50 / p99": [
+    "Latency p50 / p99",
+    "Latenz p50 / p99",
+    "Latenz p50 / p99"
+  ],
+  "Le Belvédère observe. Les actions métier restent dans les ateliers.": [
+    "Belvédère observes. Business actions stay in the workshops.",
+    "Belvédère beobachtet. Geschäftsaktionen bleiben in den Werkstätten.",
+    "Belvédère observéiert. Geschäftsaktioune bleiwen an den Atelieren."
+  ],
+  "Le monde de guteneo.": [
+    "The world of guteneo.",
+    "Die Welt von guteneo.",
+    "D’Welt vu guteneo."
+  ],
+  "Le pays est fourni par Cloudflare lors de la connexion. Une session ancienne sans mesure conserve un pays non renseigné.": [
+    "Cloudflare provides the country when the connection is established. Older sessions without a measurement keep an unspecified country.",
+    "Cloudflare liefert das Land beim Verbindungsaufbau. Ältere Sitzungen ohne Messwert behalten ein nicht erfasstes Land.",
+    "Cloudflare liwwert d’Land beim Verbindungsopbau. Eeler Sessiounen ouni Messwäert behalen en net erfaasst Land."
+  ],
+  "Le rythme de l’activité": [
+    "The pace of activity",
+    "Der Rhythmus der Aktivität",
+    "De Rhythmus vun der Aktivitéit"
+  ],
+  "Le récapitulatif apparaîtra lorsque les ateliers consommeront leurs crédits.": [
+    "The summary will appear when workshops consume their credits.",
+    "Die Zusammenfassung erscheint, sobald Werkstätten ihr Guthaben verbrauchen.",
+    "D’Iwwersiicht erschéngt, wann Atelieren hiert Guthabe verbrauchen."
+  ],
+  "Lecture seule": ["Read-only", "Nur lesen", "Nëmme liesen"],
+  "Les ateliers, dans le détail.": [
+    "Workshops in detail.",
+    "Werkstätten im Detail.",
+    "Atelieren am Detail."
+  ],
+  "Les charges complètes ne sont pas encore rapprochées. Le résultat net ne peut pas être calculé de façon fiable.": [
+    "The full costs have not been reconciled yet. Net profit cannot be calculated reliably.",
+    "Die vollständigen Kosten sind noch nicht abgeglichen. Das Nettoergebnis kann nicht zuverlässig berechnet werden.",
+    "Déi vollstänneg Käschte sinn nach net ofgeglach. D’Nettoresultat kann net zouverlässeg berechent ginn."
+  ],
+  "Les connexions établies après l’activation de la collecte apparaîtront ici.": [
+    "Connections established after collection was enabled will appear here.",
+    "Verbindungen, die nach Aktivierung der Erfassung hergestellt wurden, erscheinen hier.",
+    "Verbindungen, déi no der Aktivatioun vun der Erfaassung opgebaut goufen, erschéngen hei."
+  ],
+  "Les coûts Cloudflare restent à connecter.": [
+    "Cloudflare costs are not connected yet.",
+    "Cloudflare-Kosten sind noch nicht verbunden.",
+    "Cloudflare-Käschte sinn nach net verbonnen."
+  ],
+  "Les coûts sont momentanément indisponibles.": [
+    "Costs are temporarily unavailable.",
+    "Die Kosten sind vorübergehend nicht verfügbar.",
+    "D’Käschte sinn am Moment net disponibel."
+  ],
+  "Les crédits promotionnels donnent accès au service ; ils ne constituent pas un encaissement.": [
+    "Promotional credits provide access to the service; they are not receipts.",
+    "Aktionsguthaben ermöglicht die Nutzung des Dienstes; es ist kein Zahlungseingang.",
+    "Promotiounsguthaben erlaabt d’Notzung vum Service; et ass kee Bezuelungsagang."
+  ],
+  "Les données disponibles ne signalent aucun incident sur cette période.": [
+    "The available data shows no incidents in this period.",
+    "Die verfügbaren Daten zeigen keine Vorfälle in diesem Zeitraum.",
+    "Déi disponibel Date weisen keng Tëschefäll an dëser Period."
+  ],
+  "Les données n’ont pas pu être chargées.": [
+    "The data could not be loaded.",
+    "Die Daten konnten nicht geladen werden.",
+    "D’Date konnten net geluede ginn."
+  ],
+  "Les encaissements, la consommation et les coûts connus ne constituent pas à eux seuls un résultat comptable.": [
+    "Receipts, consumption and known costs alone do not establish an accounting result.",
+    "Zahlungseingänge, Verbrauch und bekannte Kosten allein ergeben kein buchhalterisches Ergebnis.",
+    "Bezuelungsagäng, Verbrauch a bekannt Käschten eleng erginn kee buchhalterescht Resultat."
+  ],
+  "Les membres apparaîtront après leur rattachement à l’atelier.": [
+    "Members will appear after joining the workshop.",
+    "Mitglieder erscheinen nach ihrer Zuordnung zur Werkstatt.",
+    "Memberen erschéngen no hirer Zouuerdnung zum Atelier."
+  ],
+  "Les mesures Cloudflare sont disponibles.": [
+    "Cloudflare measurements are available.",
+    "Cloudflare-Messwerte sind verfügbar.",
+    "Cloudflare-Messwäerter sinn disponibel."
+  ],
+  "Les mesures sont momentanément indisponibles.": [
+    "Measurements are temporarily unavailable.",
+    "Die Messwerte sind vorübergehend nicht verfügbar.",
+    "D’Messwäerter sinn am Moment net disponibel."
+  ],
+  "Les mois aux extrémités de la période peuvent être incomplets.": [
+    "Months at either end of the period may be incomplete.",
+    "Die Monate am Anfang und Ende des Zeitraums können unvollständig sein.",
+    "D’Méint um Ufank an um Enn vun der Period kënnen onvollstänneg sinn."
+  ],
+  "Les montants d’usage ci-dessous sont une source financière distincte des statistiques de requêtes.": [
+    "The usage amounts below are a financial source separate from request statistics.",
+    "Die untenstehenden Nutzungsbeträge sind eine von den Anfragestatistiken getrennte Finanzquelle.",
+    "D’Notzungsbeträg hei drënner sinn eng finanziell Quell, getrennt vun den Ufrostatistiken."
+  ],
+  "Les paiements vérifiés Stripe ne sont pas encore disponibles. Aucun chiffre d’affaires n’est déduit de la consommation.": [
+    "Verified Stripe payments are not available yet. No revenue is inferred from consumption.",
+    "Geprüfte Stripe-Zahlungen sind noch nicht verfügbar. Aus dem Verbrauch wird kein Umsatz abgeleitet.",
+    "Iwwerpréift Stripe-Bezuelunge sinn nach net disponibel. Aus dem Verbrauch gëtt keen Ëmsaz ofgeleet."
+  ],
+  "Les pays apparaîtront avec les nouvelles connexions. L’historique sans pays conserve la mention « non renseigné ».": [
+    "Countries will appear with new connections. History without a country remains marked “unspecified”.",
+    "Länder erscheinen mit neuen Verbindungen. Der Verlauf ohne Land bleibt als „nicht erfasst“ gekennzeichnet.",
+    "Länner erschénge mat neie Verbindungen. De Verlaf ouni Land bleift als „net erfaasst“ markéiert."
+  ],
+  "Les pays apparaîtront lors des prochaines connexions observées.": [
+    "Countries will appear with the next observed connections.",
+    "Länder erscheinen mit den nächsten beobachteten Verbindungen.",
+    "Länner erschénge mat den nächsten observéierte Verbindungen."
+  ],
+  "Les pays de destination proviennent des métadonnées validées des envois. Les adresses email et les envois anciens sans pays vérifié restent « non renseignés ». Aucun contenu ni destinataire n’est affiché.": [
+    "Destination countries come from validated dispatch metadata. Email addresses and older dispatches without a verified country remain “unspecified”. No contents or recipients are displayed.",
+    "Zielländer stammen aus validierten Versandmetadaten. E-Mail-Adressen und ältere Sendungen ohne geprüftes Land bleiben „nicht erfasst“. Inhalte und Empfänger werden nicht angezeigt.",
+    "Destinatiounslänner kommen aus validéierte Versandmetadaten. E-Mail-Adressen an eeler Sendungen ouni iwwerpréift Land bleiwe „net erfaasst“. Keng Inhalter oder Empfänger ginn ugewisen."
+  ],
+  "Les permissions de facturation doivent être vérifiées.": [
+    "Billing permissions need to be checked.",
+    "Die Abrechnungsrechte müssen geprüft werden.",
+    "D’Ofrechnungsrechter musse kontrolléiert ginn."
+  ],
+  "Les personnes derrière l’activité.": [
+    "The people behind the activity.",
+    "Die Menschen hinter der Aktivität.",
+    "D’Leit hannert der Aktivitéit."
+  ],
+  "Les points apparaîtront lorsque Cloudflare retournera des mesures.": [
+    "Points will appear when Cloudflare returns measurements.",
+    "Datenpunkte erscheinen, sobald Cloudflare Messwerte liefert.",
+    "Datepunkte erschéngen, wann Cloudflare Messwäerter liwwert."
+  ],
+  "Les points du globe et la liste partagent la même sélection.": [
+    "Globe points and the list share the same selection.",
+    "Globuspunkte und Liste teilen dieselbe Auswahl.",
+    "Globuspunkten an d’Lëscht deelen déiselwecht Auswiel."
+  ],
+  "Les états apparaîtront lorsque des envois seront créés sur la période.": [
+    "Statuses will appear when dispatches are created in this period.",
+    "Statuswerte erscheinen, sobald Sendungen im Zeitraum erstellt werden.",
+    "Statuswäerter erschéngen, wann Sendungen an dëser Period erstallt ginn."
+  ],
+  "Livré": ["Delivered", "Zugestellt", "Zougestallt"],
+  "Livrés": ["Delivered", "Zugestellt", "Zougestallt"],
+  "L’accès aux mesures doit être vérifié.": [
+    "Access to measurements needs checking.",
+    "Der Zugriff auf Messwerte muss geprüft werden.",
+    "Den Zougang zu Messwäerter muss kontrolléiert ginn."
+  ],
+  "L’activité de guteneo, des ateliers aux connexions.": [
+    "guteneo activity, from workshops to connections.",
+    "Die Aktivität von guteneo, von Werkstätten bis zu Verbindungen.",
+    "D’Aktivitéit vu guteneo, vun den Atelieren bis bei d’Verbindungen."
+  ],
+  "L’activité se dessinera ici.": [
+    "Activity will appear here.",
+    "Die Aktivität wird hier sichtbar.",
+    "D’Aktivitéit gëtt hei siichtbar."
+  ],
+  "L’activité, les membres et le détail des opérations de cet atelier.": [
+    "Activity, members and operation details for this workshop.",
+    "Aktivität, Mitglieder und Vorgangsdetails dieser Werkstatt.",
+    "Aktivitéit, Memberen an Operatiounsdetailer vun dësem Atelier."
+  ],
+  "L’état des services et les mesures disponibles chez Cloudflare.": [
+    "Service status and available Cloudflare measurements.",
+    "Dienststatus und verfügbare Cloudflare-Messwerte.",
+    "Servicestatus an disponibel Cloudflare-Messwäerter."
+  ],
+  "Membre": ["Member", "Mitglied", "Member"],
+  "Membres": ["Members", "Mitglieder", "Memberen"],
+  "Membres de l’atelier": [
+    "Workspace members",
+    "Mitglieder des Arbeitsbereichs",
+    "Membere vum Aarbechtsberäich"
+  ],
+  "Membres et accès": [
+    "Members and access",
+    "Mitglieder und Zugänge",
+    "Memberen an Zougang"
+  ],
+  "Mesure du graphique": ["Chart metric", "Diagrammkennzahl", "Diagrammmooss"],
+  "Mesures Cloudflare par heure": [
+    "Hourly Cloudflare measurements",
+    "Stündliche Cloudflare-Messwerte",
+    "Cloudflare-Stonnemesswäerter"
+  ],
+  "Mesures agrégées par Cloudflare pour le Worker de guteneo.": [
+    "Measurements aggregated by Cloudflare for the guteneo Worker.",
+    "Von Cloudflare aggregierte Messwerte für den Worker von guteneo.",
+    "Vu Cloudflare zesummegefaasst Messwäerter fir de Worker vu guteneo."
+  ],
+  "Mois": ["Month", "Monat", "Mount"],
+  "Montants arrondis au centime après agrégation de chaque sous-total ; aucune conversion de devise.": [
+    "Amounts rounded to the nearest minor unit after aggregating each subtotal; no currency conversion.",
+    "Beträge werden nach Aggregation jedes Zwischensaldos auf die kleinste Währungseinheit gerundet; keine Währungsumrechnung.",
+    "Beträg ginn nom Zesummefaasse vun all Ënnertotal op déi klengst Währungsunitéit gerënnt; keng Währungsëmrechnung."
+  ],
+  "Montants en EUR sauf indication · Dates affichées en heure locale": [
+    "Amounts in EUR unless stated · Dates shown in local time",
+    "Beträge in EUR, sofern nicht anders angegeben · Datumsangaben in Ortszeit",
+    "Beträg an EUR, wann net anescht uginn · Datumen an der lokaler Zäit"
+  ],
+  "N": ["N", "N", "N"],
+  "Navigateur": ["Browser", "Browser", "Browser"],
+  "Navigation Belvédère": [
+    "Belvédère navigation",
+    "Belvédère-Navigation",
+    "Belvédère-Navigatioun"
+  ],
+  "Nom d’un atelier…": [
+    "Workshop name…",
+    "Name einer Werkstatt…",
+    "Numm vun engem Atelier…"
+  ],
+  "Nom ou adresse email…": [
+    "Name or email address…",
+    "Name oder E-Mail-Adresse…",
+    "Numm oder E-Mail-Adress…"
+  ],
+  "Non calculable": [
+    "Cannot be calculated",
+    "Nicht berechenbar",
+    "Net berechenbar"
+  ],
+  "Non configuré": [
+    "Not configured",
+    "Nicht konfiguriert",
+    "Net konfiguréiert"
+  ],
+  "Non configurés": [
+    "Not configured",
+    "Nicht konfiguriert",
+    "Net konfiguréiert"
+  ],
+  "Non disponible": ["Unavailable", "Nicht verfügbar", "Net disponibel"],
+  "Non distribué": ["Undelivered", "Nicht zugestellt", "Net zougestallt"],
+  "Non finalisé": ["Not finalised", "Nicht abgeschlossen", "Net ofgeschloss"],
+  "Non renseigné": ["Unspecified", "Nicht erfasst", "Net erfaasst"],
+  "Non vérifié": ["Unverified", "Nicht geprüft", "Net iwwerpréift"],
+  "O": ["W", "W", "W"],
+  "Observateur": ["Observer", "Beobachter", "Observateur"],
+  "Opérateur": ["Operator", "Sachbearbeiter", "Operateur"],
+  "Origine des connexions": [
+    "Connection origins",
+    "Herkunft der Verbindungen",
+    "Ursprong vun de Verbindungen"
+  ],
+  "Ouvrir la navigation": [
+    "Open navigation",
+    "Navigation öffnen",
+    "Navigatioun opmaachen"
+  ],
+  "Où en sont les envois ?": [
+    "How are dispatches progressing?",
+    "Wie steht es um die Sendungen?",
+    "Wéi steet et mat de Sendungen?"
+  ],
+  "Où vont les envois.": [
+    "Where dispatches go.",
+    "Wohin die Sendungen gehen.",
+    "Wou d’Sendungen higinn."
+  ],
+  "Page": ["Page", "Seite", "Säit"],
+  "Page précédente": ["Previous page", "Vorherige Seite", "Vireg Säit"],
+  "Page suivante": ["Next page", "Nächste Seite", "Nächst Säit"],
+  "Pages": ["Pages", "Seiten", "Säiten"],
+  "Pages non renseignées": [
+    "Page count unspecified",
+    "Seitenzahl nicht erfasst",
+    "Säitenzuel net erfaasst"
+  ],
+  "Paiements Stripe vérifiés selon la date de création enregistrée par Stripe, regroupés par devise. Cette date ne prouve pas leur date de réception bancaire ; les crédits promotionnels sont exclus.": [
+    "Verified Stripe payments by creation date recorded by Stripe, grouped by currency. This date does not prove bank receipt; promotional credits are excluded.",
+    "Geprüfte Stripe-Zahlungen nach dem von Stripe erfassten Erstellungsdatum, gruppiert nach Währung. Dieses Datum belegt keinen Bankeingang; Aktionsguthaben ist ausgeschlossen.",
+    "Iwwerpréift Stripe-Bezuelungen nom Erstellungsdatum vu Stripe, no Währung gruppéiert. Dësen Datum beweist kee Bankagang; Promotiounsguthaben ass ausgeschloss."
+  ],
+  "Pays": ["Country", "Land", "Land"],
+  "Pays de connexion estimés par Cloudflare.": [
+    "Connection countries estimated by Cloudflare.",
+    "Von Cloudflare geschätzte Verbindungsländer.",
+    "Vu Cloudflare geschate Verbindungslänner."
+  ],
+  "Pays de destination": [
+    "Destination country",
+    "Zielland",
+    "Destinatiounsland"
+  ],
+  "Pays non renseigné": [
+    "Country unspecified",
+    "Land nicht erfasst",
+    "Land net erfaasst"
+  ],
+  "Pays observé": ["Observed country", "Beobachtetes Land", "Observéiert Land"],
+  "Pays observé lors de la connexion": [
+    "Country observed when connecting",
+    "Beim Verbindungsaufbau beobachtetes Land",
+    "Land beim Verbindungsopbau observéiert"
+  ],
+  "Pays renseigné pour la destination": [
+    "Country recorded for the destination",
+    "Für das Ziel erfasstes Land",
+    "Land fir d’Destinatioun erfaasst"
+  ],
+  "Personne": ["Person", "Person", "Persoun"],
+  "Personne / atelier": [
+    "Person / workshop",
+    "Person / Werkstatt",
+    "Persoun / Atelier"
+  ],
+  "Personne ou atelier…": [
+    "Person or workshop…",
+    "Person oder Werkstatt…",
+    "Persoun oder Atelier…"
+  ],
+  "Plafond :": ["Limit:", "Obergrenze:", "Limitt:"],
+  "Plainte reçue": [
+    "Complaint received",
+    "Beschwerde eingegangen",
+    "Reklamatioun kritt"
+  ],
+  "Points dimensionnés selon le volume": [
+    "Points sized by volume",
+    "Punktgröße nach Volumen",
+    "Punktgréisst nom Volume"
+  ],
+  "Production": ["Production", "Produktion", "Produktioun"],
+  "Périmètre": ["Scope", "Geltungsbereich", "Ëmfang"],
+  "Périmètre du service": [
+    "Service scope",
+    "Geltungsbereich des Dienstes",
+    "Ëmfang vum Service"
+  ],
+  "Période": ["Period", "Zeitraum", "Period"],
+  "Périodes déclarées du {0} au {1}.": [
+    "Reported periods from {0} to {1}.",
+    "Gemeldete Zeiträume von {0} bis {1}.",
+    "Gemellt Periode vum {0} bis den {1}."
+  ],
+  "Périodes facturables": [
+    "Billable periods",
+    "Abrechenbare Zeiträume",
+    "Verrechenbar Perioden"
+  ],
+  "Rapprochements fournisseur enregistrés sur la période": [
+    "Provider reconciliations recorded in this period",
+    "Im Zeitraum erfasste Anbieterabgleiche",
+    "Ubidderofgläicher an dëser Period erfaasst"
+  ],
+  "Recentrer le globe sur l’Europe": [
+    "Recentre the globe on Europe",
+    "Globus auf Europa zentrieren",
+    "Globus op Europa zentréieren"
+  ],
+  "Rechercher un atelier": [
+    "Search workshops",
+    "Werkstatt suchen",
+    "Atelier sichen"
+  ],
+  "Rechercher un envoi": [
+    "Search dispatches",
+    "Sendung suchen",
+    "Sendung sichen"
+  ],
+  "Rechercher un membre": [
+    "Search members",
+    "Mitglied suchen",
+    "Member sichen"
+  ],
+  "Rechercher une connexion": [
+    "Search connections",
+    "Verbindung suchen",
+    "Verbindung sichen"
+  ],
+  "Refusé": ["Rejected", "Abgelehnt", "Ofgeleent"],
+  "Remis à la poste": [
+    "Handed to the post office",
+    "An die Post übergeben",
+    "Der Post iwwerginn"
+  ],
+  "Requêtes": ["Requests", "Anfragen", "Ufroen"],
+  "Requêtes par heure": [
+    "Hourly requests",
+    "Anfragen pro Stunde",
+    "Ufroe pro Stonn"
+  ],
+  "Retour à guteneo": [
+    "Back to guteneo",
+    "Zurück zu guteneo",
+    "Zréck bei guteneo"
+  ],
+  "Retrouvez chaque équipe, ses usages et sa consommation.": [
+    "Find every team, its usage and consumption.",
+    "Jedes Team, seine Nutzung und seinen Verbrauch finden.",
+    "Fannt all Ekipp, hir Notzung an hire Verbrauch."
+  ],
+  "Rien à signaler": [
+    "Nothing to report",
+    "Nichts zu melden",
+    "Näischt ze mellen"
+  ],
+  "Récapitulatif mensuel": [
+    "Monthly summary",
+    "Monatliche Zusammenfassung",
+    "Mountlech Iwwersiicht"
+  ],
+  "Réduire la liste": [
+    "Collapse list",
+    "Liste einklappen",
+    "Lëscht reduzéieren"
+  ],
+  "Réessayer": ["Try again", "Erneut versuchen", "Nach eng Kéier probéieren"],
+  "Réinitialiser": ["Reset", "Zurücksetzen", "Zrécksetzen"],
+  "Répartition des envois et de la consommation client": [
+    "Dispatch and customer consumption breakdown",
+    "Aufschlüsselung der Sendungen und des Kundenverbrauchs",
+    "Opdeelung vun de Sendungen an dem Clienteverbrauch"
+  ],
+  "Répartition des {0} par pays": [
+    "{0} by country",
+    "{0} nach Land",
+    "{0} no Land"
+  ],
+  "Réservé": ["Reserved", "Reserviert", "Reservéiert"],
+  "Résultat inconnu": [
+    "Unknown outcome",
+    "Ergebnis unbekannt",
+    "Onbekannt Resultat"
+  ],
+  "Résultat net": ["Net profit", "Nettoergebnis", "Nettoresultat"],
+  "Résultats fournisseurs inconnus": [
+    "Unknown provider outcomes",
+    "Unbekannte Anbieterergebnisse",
+    "Onbekannt Ubidderresultater"
+  ],
+  "Résultats à confirmer": [
+    "Outcomes to confirm",
+    "Zu bestätigende Ergebnisse",
+    "Resultater ze bestätegen"
+  ],
+  "Révoquée": ["Revoked", "Widerrufen", "Zréckgezunn"],
+  "S": ["S", "S", "S"],
+  "Sans données": ["No data", "Keine Daten", "Keng Daten"],
+  "Sans expiration renseignée": [
+    "No expiry recorded",
+    "Kein Ablaufdatum erfasst",
+    "Keen Oflafdatum erfaasst"
+  ],
+  "Service": ["Service", "Dienst", "Service"],
+  "Sessions et autorisations actuelles": [
+    "Current sessions and authorisations",
+    "Aktuelle Sitzungen und Autorisierungen",
+    "Aktuell Sessiounen an Autorisatiounen"
+  ],
+  "Sessions navigateur, applications natives et assistants.": [
+    "Browser sessions, native apps and assistants.",
+    "Browsersitzungen, native Apps und Assistenten.",
+    "Browsersessiounen, nativ Appen an Assistenten."
+  ],
+  "Sessions non expirées et autorisations actives": [
+    "Unexpired sessions and active authorisations",
+    "Nicht abgelaufene Sitzungen und aktive Autorisierungen",
+    "Net ofgelafe Sessiounen an aktiv Autorisatiounen"
+  ],
+  "Simulation": ["Simulation", "Simulation", "Simulatioun"],
+  "Simulation uniquement": [
+    "Simulation only",
+    "Nur Simulation",
+    "Nëmme Simulatioun"
+  ],
+  "Simulé": ["Simulated", "Simuliert", "Simuléiert"],
+  "Solde actuel de l’atelier": [
+    "Current workshop balance",
+    "Aktuelles Werkstattguthaben",
+    "Aktuellt Atelierguthaben"
+  ],
+  "Solde restant": ["Remaining balance", "Restguthaben", "Reschtguthaben"],
+  "Sous le capot de guteneo.": [
+    "Inside guteneo.",
+    "Im Inneren von guteneo.",
+    "Am Banneschte vu guteneo."
+  ],
+  "Sous-requêtes": ["Subrequests", "Unteranfragen", "Ënnerufroen"],
+  "Superviseur": ["Supervisor", "Supervisor", "Supervisor"],
+  "Survolez ou sélectionnez un jour pour le détail": [
+    "Hover over or select a day for details",
+    "Für Details einen Tag auswählen oder mit dem Zeiger berühren",
+    "Wielt en Dag oder beweegt de Cursor driwwer fir Detailer"
+  ],
+  "Suspendu": ["Paused", "Pausiert", "Pauséiert"],
+  "Synthèse": ["Overview", "Übersicht", "Iwwersiicht"],
+  "Sélectionnez un pays": [
+    "Select a country",
+    "Land auswählen",
+    "E Land auswielen"
+  ],
+  "Temps d’exécution mural": [
+    "Wall-clock execution time",
+    "Reale Ausführungsdauer",
+    "Reell Ausféierungsdauer"
+  ],
+  "Terminé": ["Completed", "Abgeschlossen", "Ofgeschloss"],
+  "Total": ["Total", "Gesamt", "Total"],
+  "Total accordé": [
+    "Total granted",
+    "Insgesamt gewährt",
+    "Am Ganze zougestanen"
+  ],
+  "Tourner le globe vers l’est": [
+    "Rotate the globe east",
+    "Globus nach Osten drehen",
+    "Globus no Osten dréinen"
+  ],
+  "Tourner le globe vers l’ouest": [
+    "Rotate the globe west",
+    "Globus nach Westen drehen",
+    "Globus no Westen dréinen"
+  ],
+  "Tous les ateliers": ["All workshops", "Alle Werkstätten", "All Atelieren"],
+  "Tous les canaux": ["All channels", "Alle Kanäle", "All Kanäl"],
+  "Tous les envois": ["All dispatches", "Alle Sendungen", "All Sendungen"],
+  "Tous les envois et leurs coûts": [
+    "All dispatches and their costs",
+    "Alle Sendungen und ihre Kosten",
+    "All Sendungen an hir Käschten"
+  ],
+  "Tous les jobs, leur destination, leur état et leur coût détaillé.": [
+    "All dispatches, their destination, status and detailed costs.",
+    "Alle Sendungen, ihre Ziele, ihr Status und ihre detaillierten Kosten.",
+    "All Sendungen, hir Destinatioun, hire Status an hir detailléiert Käschten."
+  ],
+  "Tous les membres": ["All members", "Alle Mitglieder", "All Memberen"],
+  "Tous les membres, leurs ateliers et leurs accès.": [
+    "All members, their workshops and access.",
+    "Alle Mitglieder, ihre Werkstätten und Zugänge.",
+    "All Memberen, hir Atelieren an hiren Zougang."
+  ],
+  "Tous les pays observés": [
+    "All observed countries",
+    "Alle beobachteten Länder",
+    "All observéiert Länner"
+  ],
+  "Tous les états": ["All statuses", "Alle Statuswerte", "All Statuswäerter"],
+  "Tout voir, à la bonne hauteur.": [
+    "Everything in view, at the right level.",
+    "Alles im Blick, aus der richtigen Perspektive.",
+    "Alles am Bléck, aus der richteger Perspektiv."
+  ],
+  "Traitement": ["Processing", "Verarbeitung", "Veraarbechtung"],
+  "Traitements retardés": [
+    "Delayed processing",
+    "Verzögerte Verarbeitung",
+    "Verspéit Veraarbechtung"
+  ],
+  "Transmis": ["Submitted", "Übermittelt", "Iwwermëttelt"],
+  "Transmission": ["Submitting", "Wird übermittelt", "Gëtt iwwermëttelt"],
+  "Transport :": ["Delivery:", "Zustellung:", "Zoustellung:"],
+  "Type de connexion": ["Connection type", "Verbindungstyp", "Verbindungstyp"],
+  "Une connexion correspond à une session ou une autorisation, pas à chaque requête ni à une présence en temps réel.": [
+    "A connection represents a session or authorisation, not each request or real-time presence.",
+    "Eine Verbindung entspricht einer Sitzung oder Autorisierung, nicht jeder Anfrage oder einer Anwesenheit in Echtzeit.",
+    "Eng Verbindung entsprécht enger Sessioun oder Autorisatioun, net all Ufro oder enger Präsenz an Echtzäit."
+  ],
+  "Une géographie observée, jamais devinée.": [
+    "Observed geography, never guessed.",
+    "Beobachtete Geografie, niemals geschätzt.",
+    "Observéiert Geografie, ni geroden."
+  ],
+  "Une vue, pays par pays.": [
+    "A view, country by country.",
+    "Eine Ansicht, Land für Land.",
+    "Eng Vue, Land fir Land."
+  ],
+  "Usage déclaré": ["Reported usage", "Gemeldete Nutzung", "Gemellt Notzung"],
+  "Usage facturable Cloudflare par service": [
+    "Cloudflare billable usage by service",
+    "Abrechenbare Cloudflare-Nutzung nach Dienst",
+    "Verrechenbar Cloudflare-Notzung no Service"
+  ],
+  "Usage facturable du compte Cloudflare": [
+    "Billable usage for the Cloudflare account",
+    "Abrechenbare Nutzung des Cloudflare-Kontos",
+    "Verrechenbar Notzung vum Cloudflare-Kont"
+  ],
+  "Usage mesuré uniquement : hors abonnements, taxes et rapprochement de facture. Ces coûts peuvent inclure d’autres projets hébergés sur ce compte Cloudflare ; ils ne sont pas attribués exclusivement à guteneo et ne permettent pas de calculer son bénéfice net.": [
+    "Measured usage only: excludes subscriptions, taxes and invoice reconciliation. These costs may include other projects hosted on this Cloudflare account; they are not attributed exclusively to guteneo and cannot establish its net profit.",
+    "Nur gemessene Nutzung: ohne Abonnements, Steuern und Rechnungsabgleich. Diese Kosten können andere Projekte dieses Cloudflare-Kontos enthalten; sie sind nicht ausschließlich guteneo zugeordnet und erlauben keine Berechnung seines Nettoergebnisses.",
+    "Nëmme gemoossen Notzung: ouni Abonnementer, Steieren a Rechnungsofgläich. Dës Käschte kënnen aner Projete vun dësem Cloudflare-Kont enthalen; si gehéieren net ausschliisslech zu guteneo an erlabe keng Berechnung vu sengem Nettoresultat."
+  ],
+  "Valeur source exacte": [
+    "Exact source value",
+    "Exakter Quellwert",
+    "Exakte Quellwäert"
+  ],
+  "Valeurs quotidiennes": ["Daily values", "Tageswerte", "Dageswäerter"],
+  "Veilleur": ["Watcher", "Wächter", "Waachter"],
+  "Voir le détail financier": [
+    "View financial details",
+    "Finanzdetails ansehen",
+    "Finanzdetailer ukucken"
+  ],
+  "Voir les {0} pays": [
+    "View all {0} countries",
+    "Alle {0} Länder anzeigen",
+    "All {0} Länner weisen"
+  ],
+  "Voir l’activité de ce pays": [
+    "View activity for this country",
+    "Aktivität dieses Landes ansehen",
+    "Aktivitéit vun dësem Land ukucken"
+  ],
+  "Volume de requêtes": ["Request volume", "Anfragevolumen", "Ufrovolume"],
+  "Volume des requêtes par heure, valeurs détaillées ci-dessous": [
+    "Hourly request volume, detailed values below",
+    "Stündliches Anfragevolumen, Detailwerte unten",
+    "Ufrovolume pro Stonn, Detailwäerter hei drënner"
+  ],
+  "Volumes : envois créés sur la période. Montants : débits comptabilisés sur la période, hors abonnement Horizon.": [
+    "Volumes: dispatches created in this period. Amounts: debits recorded in the period, excluding the Horizon subscription.",
+    "Volumen: im Zeitraum erstellte Sendungen. Beträge: im Zeitraum verbuchte Belastungen, ohne Horizon-Abonnement.",
+    "Volumen: Sendungen an dëser Period erstallt. Beträg: Belaaschtungen an dëser Period verbucht, ouni Horizon-Abonnement."
+  ],
+  "Votre accès doit être vérifié.": [
+    "Your access needs to be checked.",
+    "Ihr Zugang muss geprüft werden.",
+    "Ären Zougang muss kontrolléiert ginn."
+  ],
+  "Votre accès à Belvédère a expiré ou n’est plus autorisé.": [
+    "Your access to Belvédère has expired or is no longer authorised.",
+    "Ihr Zugang zu Belvédère ist abgelaufen oder nicht mehr autorisiert.",
+    "Ären Zougang zu Belvédère ass ofgelaf oder net méi autoriséiert."
+  ],
+  "Vérification nécessaire": [
+    "Verification required",
+    "Prüfung erforderlich",
+    "Kontroll néideg"
+  ],
+  "Vérifier mon accès": [
+    "Check my access",
+    "Meinen Zugang prüfen",
+    "Mäin Zougang kontrolléieren"
+  ],
+  "actuellement réservés pour les envois créés sur la période": [
+    "currently reserved for dispatches created in this period",
+    "aktuell für im Zeitraum erstellte Sendungen reserviert",
+    "aktuell fir Sendungen aus dëser Period reservéiert"
+  ],
+  "approbation": ["approval", "Genehmigung", "Geneemegung"],
+  "ateliers": ["workshops", "Werkstätten", "Atelieren"],
+  "ateliers affichés sur": [
+    "workshops shown out of",
+    "Werkstätten angezeigt von",
+    "Atelieren ugewisen aus"
+  ],
+  "au": ["to", "bis", "bis"],
+  "connexions": ["connections", "Verbindungen", "Verbindungen"],
+  "des invocations": ["of invocations", "der Aufrufe", "vun den Opriff"],
+  "documents": ["documents", "Dokumente", "Dokumenter"],
+  "débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.": [
+    "subscription debit recorded in this period, included in total consumption. It is not counted as a dispatch.",
+    "Abonnementbelastung im Zeitraum verbucht, im Gesamtverbrauch enthalten. Sie zählt nicht als Sendung.",
+    "Abonnementbelaaschtung an dëser Period verbucht, am Gesamtverbrauch abegraff. Si zielt net als Sendung."
+  ],
+  "débits d’abonnement comptabilisés sur la période, inclus dans la consommation totale. Ils ne sont pas comptés comme des envois.": [
+    "subscription debits recorded in this period, included in total consumption. They are not counted as dispatches.",
+    "Abonnementbelastungen im Zeitraum verbucht, im Gesamtverbrauch enthalten. Sie zählen nicht als Sendungen.",
+    "Abonnementbelaaschtungen an dëser Period verbucht, am Gesamtverbrauch abegraff. Si zielen net als Sendungen."
+  ],
+  "envois": ["deliveries", "Sendungen", "Sendungen"],
+  "envois créés sur la période sans coût fournisseur vérifié. Une valeur absente ne signifie pas un coût nul.": [
+    "dispatches created in this period without verified provider costs. A missing value does not mean zero cost.",
+    "im Zeitraum erstellte Sendungen ohne geprüfte Anbieterkosten. Ein fehlender Wert bedeutet nicht null Kosten.",
+    "Sendungen an dëser Period erstallt ouni iwwerpréift Ubidderkäschten. E feelende Wäert bedeit net null Käschten."
+  ],
+  "livrés ·": ["delivered ·", "zugestellt ·", "zougestallt ·"],
+  "membres": ["members", "Mitglieder", "Memberen"],
+  "membres distincts": [
+    "distinct members",
+    "eindeutige Mitglieder",
+    "eenzegaarteg Memberen"
+  ],
+  "pages": ["pages", "Seiten", "Säiten"],
+  "pays renseignés": [
+    "countries recorded",
+    "Länder erfasst",
+    "Länner erfaasst"
+  ],
+  "rapports": ["reports", "Berichte", "Rapporten"],
+  "réservés": ["reserved", "reserviert", "reservéiert"],
+  "résultats": ["results", "Ergebnisse", "Resultater"],
+  "sessions et autorisations": [
+    "sessions and authorisations",
+    "Sitzungen und Autorisierungen",
+    "Sessiounen an Autorisatiounen"
+  ],
+  "sous-requêtes": ["subrequests", "Unteranfragen", "Ënnerufroen"],
+  "sur la période": ["in this period", "im Zeitraum", "an dëser Period"],
+  "{0} : {1} envois": [
+    "{0}: {1} dispatches",
+    "{0}: {1} Sendungen",
+    "{0}: {1} Sendungen"
+  ],
+  "{0} : {1} requêtes, {2} erreurs": [
+    "{0}: {1} requests, {2} errors",
+    "{0}: {1} Anfragen, {2} Fehler",
+    "{0}: {1} Ufroen, {2} Feeler"
+  ],
+  "{0} envois dans cette vue": [
+    "{0} dispatches in this view",
+    "{0} Sendungen in dieser Ansicht",
+    "{0} Sendungen an dëser Vue"
+  ],
+  "{0} pages": ["{0} pages", "{0} Seiten", "{0} Säiten"],
+  "{0} {1} sans position cartographique ·": [
+    "{0} {1} without a map location ·",
+    "{0} {1} ohne Kartenposition ·",
+    "{0} {1} ouni Kaartpositioun ·"
+  ],
+  "{0}–{1} sur": ["{0}–{1} of", "{0}–{1} von", "{0}–{1} vun"],
+  "· Activité filtrée sur la période": [
+    "· Activity filtered by period",
+    "· Aktivität nach Zeitraum gefiltert",
+    "· Aktivitéit no Period gefiltert"
+  ],
+  "· Créés sur la période sélectionnée": [
+    "· Created in the selected period",
+    "· Im gewählten Zeitraum erstellt",
+    "· An der gewielter Period erstallt"
+  ],
+  "· Hébergement :": ["· Hosting:", "· Hosting:", "· Hosting:"],
+  "· Les appartenances et connexions décrivent l’état actuel": [
+    "· Memberships and connections reflect the current state",
+    "· Mitgliedschaften und Verbindungen zeigen den aktuellen Stand",
+    "· Memberschaften a Verbindunge weisen den aktuelle Stand"
+  ],
+  "· Les devis et plafonds restent consultables dans le détail des ateliers.": [
+    "· Quotes and limits remain available in workshop details.",
+    "· Angebote und Obergrenzen bleiben in den Werkstattdetails verfügbar.",
+    "· Devisen a Limitte bleiwen an den Atelierdetailer disponibel."
+  ],
+  "· Les totaux d’ateliers, membres et sessions décrivent l’état actuel.": [
+    "· Workshop, member and session totals reflect the current state.",
+    "· Summen der Werkstätten, Mitglieder und Sitzungen zeigen den aktuellen Stand.",
+    "· D’Totaler vun Atelieren, Memberen a Sessioune weisen den aktuelle Stand."
+  ],
+  "· Lien protégé": [
+    "· Protected link",
+    "· Geschützter Link",
+    "· Geschützte Link"
+  ],
+  "· Pièce jointe": ["· Attachment", "· Anhang", "· Unhang"],
+  "· Source : API GraphQL Cloudflare": [
+    "· Source: Cloudflare GraphQL API",
+    "· Quelle: Cloudflare GraphQL API",
+    "· Quell: Cloudflare GraphQL API"
+  ],
+  "· agrégation quotidienne UTC": [
+    "· Daily aggregation in UTC",
+    "· Tägliche Aggregation in UTC",
+    "· Deeglech Zesummefaassung an UTC"
+  ],
+  "· flèches au clavier": [
+    "· Keyboard arrows",
+    "· Pfeiltasten",
+    "· Feiltasten"
+  ],
+  "· heures effectivement renvoyées par Cloudflare": [
+    "· Hours actually returned by Cloudflare",
+    "· Tatsächlich von Cloudflare gelieferte Stunden",
+    "· Stonnen, déi Cloudflare effektiv geliwwert huet"
+  ],
+  "· {0} livrés": ["· {0} delivered", "· {0} zugestellt", "· {0} zougestallt"],
+  "À approuver": [
+    "Awaiting approval",
+    "Zur Genehmigung",
+    "Waart op Geneemegung"
+  ],
+  "À rapprocher": [
+    "Needs reconciliation",
+    "Abgleich erforderlich",
+    "Ofgläich néideg"
+  ],
+  "À surveiller": ["Needs attention", "Zu beachten", "Ze iwwerwaachen"],
+  "À vérifier": ["Needs checking", "Zu prüfen", "Ze iwwerpréiwen"],
+  "Échec": ["Failed", "Fehlgeschlagen", "Feelgeschloen"],
+  "Échecs de traitement": [
+    "Processing failures",
+    "Verarbeitungsfehler",
+    "Veraarbechtungsfeeler"
+  ],
+  "Élargissez la période ou retirez un filtre pour retrouver les opérations recherchées.": [
+    "Widen the period or remove a filter to find the operations you need.",
+    "Erweitern Sie den Zeitraum oder entfernen Sie einen Filter, um die gesuchten Vorgänge zu finden.",
+    "Erweidert d’Period oder huelt e Filter ewech, fir déi gesichten Operatiounen ze fannen."
+  ],
+  "État": ["Status", "Status", "Status"],
+  "État actuel des crédits offerts": [
+    "Current state of granted credits",
+    "Aktueller Stand des gewährten Guthabens",
+    "Aktuelle Stand vum zougestane Guthaben"
+  ],
+  "État actuel des envois créés sur la période": [
+    "Current state of dispatches created in this period",
+    "Aktueller Stand der im Zeitraum erstellten Sendungen",
+    "Aktuelle Stand vun de Sendungen aus dëser Period"
+  ],
+  "État actuel des montants des envois créés sur la période": [
+    "Current amounts for dispatches created in this period",
+    "Aktuelle Beträge der im Zeitraum erstellten Sendungen",
+    "Aktuell Beträg vun de Sendungen aus dëser Period"
+  ],
+  "Évolution quotidienne : {0}": [
+    "Daily trend: {0}",
+    "Tägliche Entwicklung: {0}",
+    "Deeglech Entwécklung: {0}"
+  ],
+  "Événements observés sur la période sélectionnée": [
+    "Events observed in the selected period",
+    "Im gewählten Zeitraum beobachtete Ereignisse",
+    "Evenementer an der gewielter Period observéiert"
+  ],
+  "à surveiller": ["need attention", "zu beachten", "ze iwwerwaachen"],
+  "consommation client en euros": [
+    "customer consumption in euros",
+    "Kundenverbrauch in Euro",
+    "Clienteverbrauch an Euro"
+  ],
+  "{0} ateliers dans cette vue": [
+    "{0} workshops in this view",
+    "{0} Werkstätten in dieser Ansicht",
+    "{0} Atelieren an dëser Vue"
+  ],
+  "{0} personnes": ["{0} people", "{0} Personen", "{0} Persounen"],
+  "{0} jours": ["{0} days", "{0} Tage", "{0} Deeg"]
+}

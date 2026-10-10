@@ -2,7 +2,7 @@ import { msg } from "./messages";
 import {
   formatLocale,
   initializeLocale,
-  setLocale,
+  applyAccountLocale,
   t,
   getLocale,
 } from "./locale";
@@ -181,8 +181,8 @@ let csrfToken = "";
 let sessionUserId: string | null = null;
 export function setSession(session: Session | null, applyPreference = true) {
   csrfToken = session?.csrfToken ?? "";
-  if (applyPreference && session?.user.preferredLocale)
-    setLocale(session.user.preferredLocale, false);
+  if (applyPreference && session)
+    applyAccountLocale(session.user.preferredLocale);
   else if (
     applyPreference &&
     sessionUserId !== (session?.user.id ?? null) &&

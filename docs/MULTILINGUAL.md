@@ -36,14 +36,20 @@ fragment de l’URL. Même choisir explicitement la langue déjà affichée mém
 ce choix. Les contrôles tactiles mesurent au moins 44 px ; Échap referme le menu
 et rend le focus à son bouton, et un clic ou un focus extérieur le referme.
 
-Après connexion, `user.preferredLocale` fournit la préférence personnelle. Une
-réponse de session tardive ne remplace pas un choix effectué entre-temps. La
-préférence du compte n’écrase pas le choix du visiteur dans le stockage local ;
-une déconnexion ou le passage à un autre compte sans préférence le restaure.
-Le menu public change la langue sur cet appareil ; il ne sauvegarde pas une
-préférence de compte. Si une préférence personnelle existe, elle est relue à la
-prochaine ouverture, y compris après un choix temporaire « Automatique ». Pour
-modifier la langue commune au site et à l’app iOS, utiliser le profil.
+Après connexion, le seul sélecteur des vues connectées se trouve dans la
+configuration du compte. `user.preferredLocale` fournit la préférence personnelle
+à chaque lecture de session ; une personne sans préférence utilise les langues
+de son navigateur, sans hériter du choix public ou d’un autre compte. Le choix
+du visiteur reste conservé séparément et retrouve son effet après déconnexion.
+Les pages publiques gardent leur sélecteur ; celui-ci ne sauvegarde aucune
+préférence de compte.
+
+Belvédère suit la même préférence, en français, anglais, allemand et
+luxembourgeois, sans sélecteur supplémentaire. Le serveur injecte seulement la
+valeur de langue validée dans son HTML privé après la garde existante. Le retour
+dans l’onglet relit la session pour reprendre un changement enregistré depuis
+le profil. La préférence ne change ni le droit Veilleur ni les rôles d’atelier.
+Ce contrat du 10 octobre remplace le choix temporaire dans les pages du dashboard.
 
 Le profil enregistre une préférence uniquement après une modification explicite
 du sélecteur puis la sauvegarde du formulaire. Un compte sans préférence affiche
@@ -52,7 +58,7 @@ aussi de l’enregistrer pour les prochaines connexions. Une simple modification
 n’affecte pas une préférence encore absente. La langue active n’est modifiée
 qu’après une sauvegarde réussie. La préférence est commune aux organisations de
 la même personne, et ne devient pas une préférence de toute l’organisation.
-Les deux clients la relisent depuis le compte ; aucune notification temps réel
+Les clients la relisent depuis le compte ; aucune notification temps réel
 entre deux appareils déjà ouverts n’est revendiquée.
 
 ## Contrat et migration
@@ -202,7 +208,6 @@ Captures locales en luxembourgeois :
 [iPhone WebKit](screenshots/multilingual/web-iphone-lb.png),
 [écran de 320 px](screenshots/multilingual/web-320-lb.png).
 Les données affichées sont des exemples, et non une preuve d’envoi réel.
-
 
 ### Résultats iOS du 22 septembre 2026
 

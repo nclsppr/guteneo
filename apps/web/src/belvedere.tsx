@@ -56,6 +56,8 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { BelvedereGlobe } from "./belvedere-globe";
+import { bmsg } from "./belvedere-i18n";
+import { formatLocale, useLocale } from "./locale";
 import "./belvedere.css";
 
 type View =
@@ -124,13 +126,14 @@ function readWorkshop() {
   const route = window.location.hash.slice(1).split("/");
   if (route[0] !== "workshops" || !route[1]) return null;
   try {
-    return { id: decodeURIComponent(route[1]), name: "Détail de l’atelier" };
+    return { id: decodeURIComponent(route[1]), name: "" };
   } catch {
     return null;
   }
 }
 
 export default function Belvedere({ basePath }: { basePath: string }) {
+  useLocale();
   const [view, setView] = useState<View>(readView);
   const [hash, setHash] = useState(window.location.hash);
   const [filters, setFilters] = useState(() => periodFilters(30, "production"));
@@ -150,9 +153,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
     )?.content === "true";
   useEffect(() => {
     const originalTitle = document.title;
-    const originalLang = document.documentElement.lang;
     document.title = "Belvédère — guteneo";
-    document.documentElement.lang = "fr";
     const change = () => {
       setView(readView());
       setHash(window.location.hash);
@@ -178,7 +179,6 @@ export default function Belvedere({ basePath }: { basePath: string }) {
     window.addEventListener("hashchange", change);
     return () => {
       document.title = originalTitle;
-      document.documentElement.lang = originalLang;
       window.removeEventListener("hashchange", change);
       window.removeEventListener(BELVEDERE_ACCESS_EXPIRED, expire);
     };
@@ -257,7 +257,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           main.current?.focus();
         }}
       >
-        Aller au contenu
+        {bmsg("Aller au contenu")}
       </a>
       <aside
         className={`bv-sidebar${mobileNav ? " is-open" : ""}`}
@@ -272,7 +272,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           href="#overview"
           className="bv-identity"
           onClick={() => navigate("overview")}
-          aria-label="Belvédère, synthèse"
+          aria-label={bmsg("Belvédère, synthèse")}
         >
           <img
             src="/brand/guteneo-mark-128.webp"
@@ -284,7 +284,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
             guteneo<span className="bv-identity-name">Belvédère</span>
           </span>
         </a>
-        <nav aria-label="Navigation Belvédère">
+        <nav aria-label={bmsg("Navigation Belvédère")}>
           {navigation.map(({ id, label, icon: Icon }) => (
             <a
               key={id}
@@ -293,7 +293,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
               onClick={() => navigate(id)}
             >
               <Icon size={19} weight={view === id ? "fill" : "regular"} />
-              <span>{label}</span>
+              <span>{bmsg(label)}</span>
               {view === id && (
                 <span className="bv-nav-mark" aria-hidden="true" />
               )}
@@ -304,17 +304,18 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           <div className="bv-private">
             <ShieldCheck size={18} />
             <span>
-              Espace privé<span>Lecture seule</span>
+              {bmsg("Espace privé")}
+              <span>{bmsg("Lecture seule")}</span>
             </span>
           </div>
           <a href="/">
-            Retour à guteneo
+            {bmsg("Retour à guteneo")}
             <ArrowUpRight size={16} />
           </a>
           <div className="bv-account">
             <span className="bv-avatar">NP</span>
             <span>
-              Nicolas Pieper<span>Veilleur</span>
+              Nicolas Pieper<span>{bmsg("Veilleur")}</span>
             </span>
           </div>
         </div>
@@ -326,7 +327,9 @@ export default function Belvedere({ basePath }: { basePath: string }) {
             ref={navButton}
             aria-expanded={mobileNav}
             aria-label={
-              mobileNav ? "Fermer la navigation" : "Ouvrir la navigation"
+              mobileNav
+                ? bmsg("Fermer la navigation")
+                : bmsg("Ouvrir la navigation")
             }
             onClick={() => setMobileNav(!mobileNav)}
           >
@@ -337,43 +340,51 @@ export default function Belvedere({ basePath }: { basePath: string }) {
             <span>Belvédère</span>
             <span aria-hidden="true">/</span>
             <strong>
-              {navigation.find((item) => item.id === view)?.label}
+              {bmsg(navigation.find((item) => item.id === view)?.label ?? "")}
             </strong>
           </div>
           <span className="bv-topbar-access">
             <ShieldCheck size={15} />
-            Accès personnel
+            {bmsg("Accès personnel")}
           </span>
         </header>
         {demo && (
           <div className="bv-demo" role="note">
-            Démonstration locale — données fictives, aucun service réel.
+            {bmsg(
+              "Démonstration locale — données fictives, aucun service réel.",
+            )}
           </div>
         )}
         <main id="belvedere-main" ref={main} tabIndex={-1}>
           <div className="bv-heading">
             <div>
-              <h1>{workshop ? workshop.name : pageCopy[view].title}</h1>
+              <h1>
+                {workshop
+                  ? workshop.name || bmsg("Détail de l’atelier")
+                  : bmsg(pageCopy[view].title)}
+              </h1>
               <p>
                 {workshop
-                  ? "L’activité, les membres et le détail des opérations de cet atelier."
-                  : pageCopy[view].description}
+                  ? bmsg(
+                      "L’activité, les membres et le détail des opérations de cet atelier.",
+                    )
+                  : bmsg(pageCopy[view].description)}
               </p>
             </div>
             <button
               className="bv-button bv-refresh"
               onClick={refresh}
-              aria-label="Actualiser les données"
+              aria-label={bmsg("Actualiser les données")}
             >
               <ArrowClockwise size={17} />
-              <span>Actualiser</span>
+              <span>{bmsg("Actualiser")}</span>
             </button>
           </div>
           {view !== "infrastructure" && (
             <div className="bv-filterbar">
               <div className="bv-filter-fields">
                 <label>
-                  <span>Période</span>
+                  <span>{bmsg("Période")}</span>
                   <select
                     value={period}
                     onChange={(event) => {
@@ -383,14 +394,16 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                         setFilters(periodFilters(Number(value), filters.mode));
                     }}
                   >
-                    <option value="7">7 derniers jours</option>
-                    <option value="30">30 derniers jours</option>
-                    <option value="90">90 derniers jours</option>
-                    <option value="custom">Dates personnalisées</option>
+                    <option value="7">{bmsg("7 derniers jours")}</option>
+                    <option value="30">{bmsg("30 derniers jours")}</option>
+                    <option value="90">{bmsg("90 derniers jours")}</option>
+                    <option value="custom">
+                      {bmsg("Dates personnalisées")}
+                    </option>
                   </select>
                 </label>
                 <label>
-                  <span>Données</span>
+                  <span>{bmsg("Données")}</span>
                   <select
                     value={filters.mode}
                     onChange={(event) =>
@@ -400,23 +413,23 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                       })
                     }
                   >
-                    <option value="production">Production</option>
-                    <option value="simulation">Simulation</option>
+                    <option value="production">{bmsg("Production")}</option>
+                    <option value="simulation">{bmsg("Simulation")}</option>
                   </select>
                 </label>
               </div>
               <span className={`bv-evidence bv-evidence-${filters.mode}`}>
                 <span aria-hidden="true" />
                 {filters.mode === "production"
-                  ? "Activité de production"
-                  : "Simulation uniquement"}
+                  ? bmsg("Activité de production")
+                  : bmsg("Simulation uniquement")}
               </span>
             </div>
           )}
           {view !== "infrastructure" && period === "custom" && (
             <div className="bv-custom-dates">
               <label>
-                Du
+                {bmsg("Du")}
                 <input
                   type="date"
                   value={filters.from}
@@ -428,7 +441,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                 />
               </label>
               <label>
-                Au
+                {bmsg("Au")}
                 <input
                   type="date"
                   value={filters.to}
@@ -440,14 +453,16 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                   }}
                 />
               </label>
-              <span>Dates incluses, en UTC.</span>
+              <span>{bmsg("Dates incluses, en UTC.")}</span>
             </div>
           )}
           {accessError ? (
             <Failure error={accessError} retry={refresh} basePath={basePath} />
           ) : !validDates && view !== "infrastructure" ? (
             <Notice tone="warning">
-              La période doit être chronologique et ne pas dépasser 366 jours.
+              {bmsg(
+                "La période doit être chronologique et ne pas dépasser 366 jours.",
+              )}
             </Notice>
           ) : (
             <div
@@ -489,9 +504,11 @@ export default function Belvedere({ basePath }: { basePath: string }) {
             </div>
           )}
           <footer className="bv-footer">
-            <span>Belvédère par guteneo</span>
+            <span>{bmsg("Belvédère par guteneo")}</span>
             <span>
-              Montants en EUR sauf indication · Dates affichées en heure locale
+              {bmsg(
+                "Montants en EUR sauf indication · Dates affichées en heure locale",
+              )}
             </span>
           </footer>
         </main>
@@ -535,19 +552,23 @@ function Failure({
       <WarningCircle size={28} />
       <h2>
         {expired
-          ? "Votre accès doit être vérifié."
-          : "Les données n’ont pas pu être chargées."}
+          ? bmsg("Votre accès doit être vérifié.")
+          : bmsg("Les données n’ont pas pu être chargées.")}
       </h2>
-      <p>{error.message}</p>
+      <p>
+        {expired
+          ? bmsg("Votre accès à Belvédère a expiré ou n’est plus autorisé.")
+          : bmsg("La lecture des données a échoué. Vous pouvez réessayer.")}
+      </p>
       {expired ? (
         <a className="bv-button bv-button-primary" href={basePath}>
-          Vérifier mon accès
+          {bmsg("Vérifier mon accès")}
           <ArrowRight size={17} />
         </a>
       ) : (
         <button className="bv-button" onClick={retry}>
           <ArrowClockwise size={17} />
-          Réessayer
+          {bmsg("Réessayer")}
         </button>
       )}
     </div>
@@ -558,9 +579,9 @@ function Loading({ table = false }: { table?: boolean }) {
     <div
       className={`bv-loading${table ? " bv-loading-table" : ""}`}
       role="status"
-      aria-label="Chargement des données"
+      aria-label={bmsg("Chargement des données")}
     >
-      <span className="sr-only">Chargement des données…</span>
+      <span className="sr-only">{bmsg("Chargement des données…")}</span>
       <i />
       <i />
       <i />
@@ -638,9 +659,9 @@ function Mode({ mode }: { mode: string }) {
   return (
     <span className={`bv-mode bv-mode-${mode}`}>
       {mode === "production"
-        ? "Production"
+        ? bmsg("Production")
         : mode === "simulation"
-          ? "Simulation"
+          ? bmsg("Simulation")
           : mode}
     </span>
   );
@@ -648,7 +669,7 @@ function Mode({ mode }: { mode: string }) {
 function Pagination({
   data,
   onChange,
-  label = "résultats",
+  label = bmsg("résultats"),
 }: {
   data: { total: number; page: number; pageSize: number };
   onChange: (page: number) => void;
@@ -659,25 +680,30 @@ function Pagination({
     <div className="bv-pagination">
       <span>
         {data.total > 0
-          ? `${number((data.page - 1) * data.pageSize + 1)}–${number(Math.min(data.page * data.pageSize, data.total))} sur `
+          ? bmsg(
+              "{0}–{1} sur ",
+              number((data.page - 1) * data.pageSize + 1),
+              number(Math.min(data.page * data.pageSize, data.total)),
+            )
           : ""}
         {number(data.total)} {label}
       </span>
       <div>
         <button
           className="bv-icon-button"
-          aria-label="Page précédente"
+          aria-label={bmsg("Page précédente")}
           disabled={data.page <= 1}
           onClick={() => onChange(data.page - 1)}
         >
           <CaretLeft size={17} />
         </button>
         <span>
-          Page {number(data.page)} / {number(pages)}
+          {bmsg("Page ")}
+          {number(data.page)} / {number(pages)}
         </span>
         <button
           className="bv-icon-button"
-          aria-label="Page suivante"
+          aria-label={bmsg("Page suivante")}
           disabled={data.page >= pages}
           onClick={() => onChange(data.page + 1)}
         >
@@ -710,7 +736,10 @@ function Search({
         onChange={(event) => onChange(event.target.value)}
       />
       {value && (
-        <button onClick={() => onChange("")} aria-label="Effacer la recherche">
+        <button
+          onClick={() => onChange("")}
+          aria-label={bmsg("Effacer la recherche")}
+        >
           <X size={15} />
         </button>
       )}
@@ -756,26 +785,31 @@ function Overview(
     <>
       <div className="bv-stats">
         <Stat
-          label="Envois sur la période"
+          label={bmsg("Envois sur la période")}
           value={number(totals.dispatches)}
           accent
         >
-          {number(totals.delivered)} livrés · {number(totals.pages)} pages
+          {number(totals.delivered)}
+          {bmsg(" livrés · ")}
+          {number(totals.pages)}
+          {bmsg(" pages")}
         </Stat>
         <Stat
-          label="Consommation client"
+          label={bmsg("Consommation client")}
           value={money(totals.customerConsumptionMinor)}
         >
-          {money(totals.reservedMinor)} réservés
+          {money(totals.reservedMinor)}
+          {bmsg(" réservés")}
         </Stat>
-        <Stat label="Ateliers" value={number(totals.workshops)}>
-          {number(totals.members)} membres distincts
+        <Stat label={bmsg("Ateliers")} value={number(totals.workshops)}>
+          {number(totals.members)}
+          {bmsg(" membres distincts")}
         </Stat>
         <Stat
-          label="Connexions actives"
+          label={bmsg("Connexions actives")}
           value={number(totals.activeConnections)}
         >
-          Sessions non expirées et autorisations actives
+          {bmsg("Sessions non expirées et autorisations actives")}
         </Stat>
       </div>
       <BelvedereGlobe
@@ -787,15 +821,18 @@ function Overview(
       />
       <div className="bv-overview-grid">
         <section className="bv-panel bv-activity">
-          <SectionHeading title="Le rythme de l’activité">
-            Du {shortDate(filters.from)} au {shortDate(filters.to)} · agrégation
-            quotidienne UTC
+          <SectionHeading title={bmsg("Le rythme de l’activité")}>
+            {bmsg("Du ")}
+            {shortDate(filters.from)}
+            {bmsg(" au ")}
+            {shortDate(filters.to)}
+            {bmsg(" · agrégation quotidienne UTC")}
           </SectionHeading>
           <ActivityChart data={data.trend} />
         </section>
         <section className="bv-panel bv-attention">
           <SectionHeading
-            title="À surveiller"
+            title={bmsg("À surveiller")}
             aside={
               <span
                 className={`bv-count${totals.attention ? " bv-count-warning" : ""}`}
@@ -828,8 +865,8 @@ function Overview(
                     {incidentName(incident.kind)}
                     <small>
                       {incident.severity === "critical"
-                        ? "Vérification nécessaire"
-                        : "Examiner les envois concernés"}
+                        ? bmsg("Vérification nécessaire")
+                        : bmsg("Examiner les envois concernés")}
                     </small>
                   </span>
                   <strong>{number(incident.count)}</strong>
@@ -840,32 +877,34 @@ function Overview(
           ) : (
             <div className="bv-clear">
               <CheckCircle size={32} weight="light" />
-              <h3>Aucun envoi à surveiller.</h3>
+              <h3>{bmsg("Aucun envoi à surveiller.")}</h3>
               <p>
-                Les données disponibles ne signalent aucun incident sur cette
-                période.
+                {bmsg(
+                  "Les données disponibles ne signalent aucun incident sur cette période.",
+                )}
               </p>
             </div>
           )}
           <div className="bv-attention-foot">
             <ShieldCheck size={17} />
             <span>
-              Le Belvédère observe. Les actions métier restent dans les
-              ateliers.
+              {bmsg(
+                "Le Belvédère observe. Les actions métier restent dans les ateliers.",
+              )}
             </span>
           </div>
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title="Où en sont les envois ?"
+            title={bmsg("Où en sont les envois ?")}
             aside={
               <button className="bv-text-button" onClick={() => openJobs()}>
-                Tous les envois
+                {bmsg("Tous les envois")}
                 <ArrowUpRight size={16} />
               </button>
             }
           >
-            État actuel des envois créés sur la période
+            {bmsg("État actuel des envois créés sur la période")}
           </SectionHeading>
           <JobStatuses
             statuses={data.statuses}
@@ -874,37 +913,42 @@ function Overview(
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title="Ce qui circule"
+            title={bmsg("Ce qui circule")}
             aside={
               <span className="bv-subtle">
-                {number(totals.documents)} documents
+                {number(totals.documents)}
+                {bmsg(" documents")}
               </span>
             }
           >
-            Répartition des envois et de la consommation client
+            {bmsg("Répartition des envois et de la consommation client")}
           </SectionHeading>
           <Channels channels={data.channels} />
           <button
             className="bv-text-button bv-panel-link"
             onClick={() => navigate("finance")}
           >
-            Voir le détail financier
+            {bmsg("Voir le détail financier")}
             <ArrowRight size={16} />
           </button>
         </section>
       </div>
       <p className="bv-source-note">
-        Pays de connexion estimés par Cloudflare.{" "}
+        {bmsg("Pays de connexion estimés par Cloudflare.")}{" "}
         {data.telemetry.since
-          ? `Collecte depuis le ${shortDate(data.telemetry.since)}.`
-          : "Collecte à partir des nouvelles connexions."}{" "}
-        La consommation correspond à l’état actuel des envois créés sur la
-        période.
+          ? bmsg("Collecte depuis le {0}.", shortDate(data.telemetry.since))
+          : bmsg("Collecte à partir des nouvelles connexions.")}{" "}
+        {bmsg(
+          "La consommation correspond à l’état actuel des envois créés sur la période.",
+        )}
       </p>
       <p className="bv-freshness">
         <span aria-hidden="true" />
-        Calculé le {dateTime(data.generatedAt)} · Les totaux d’ateliers, membres
-        et sessions décrivent l’état actuel.
+        {bmsg("Calculé le ")}
+        {dateTime(data.generatedAt)}
+        {bmsg(
+          " · Les totaux d’ateliers, membres et sessions décrivent l’état actuel.",
+        )}
       </p>
     </>
   );
@@ -912,17 +956,17 @@ function Overview(
 function incidentName(kind: string) {
   return (
     {
-      failed: "Envois en échec",
-      unknown: "Résultats fournisseurs inconnus",
-      pending: "Envois en attente",
-      stale_outbox: "Envois bloqués dans la file",
-      outbox_failed: "Échecs de traitement",
-      rejected: "Envois refusés",
-      provider_unknown: "Résultats fournisseurs inconnus",
-      dispatch_attention: "Envois à vérifier",
-      outbox_delayed: "Traitements retardés",
-      dispatch_failed: "Envois en échec",
-      uncertain: "Résultats à confirmer",
+      failed: bmsg("Envois en échec"),
+      unknown: bmsg("Résultats fournisseurs inconnus"),
+      pending: bmsg("Envois en attente"),
+      stale_outbox: bmsg("Envois bloqués dans la file"),
+      outbox_failed: bmsg("Échecs de traitement"),
+      rejected: bmsg("Envois refusés"),
+      provider_unknown: bmsg("Résultats fournisseurs inconnus"),
+      dispatch_attention: bmsg("Envois à vérifier"),
+      outbox_delayed: bmsg("Traitements retardés"),
+      dispatch_failed: bmsg("Envois en échec"),
+      uncertain: bmsg("Résultats à confirmer"),
     }[kind] || statusName(kind)
   );
 }
@@ -957,12 +1001,12 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
   return (
     <>
       <div className="bv-chart-toolbar">
-        <div className="bv-segmented" aria-label="Mesure du graphique">
+        <div className="bv-segmented" aria-label={bmsg("Mesure du graphique")}>
           {(
             [
-              ["dispatches", "Envois"],
-              ["consumptionMinor", "Consommation"],
-              ["connections", "Connexions"],
+              ["dispatches", bmsg("Envois")],
+              ["consumptionMinor", bmsg("Consommation")],
+              ["connections", bmsg("Connexions")],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -979,12 +1023,12 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
         </div>
         <span className="bv-chart-total">
           {formatted(total)}
-          <small> sur la période</small>
+          <small>{bmsg(" sur la période")}</small>
         </span>
       </div>
       {data.length === 0 ? (
-        <Empty title="L’activité se dessinera ici.">
-          Aucune mesure n’est disponible pour cette période.
+        <Empty title={bmsg("L’activité se dessinera ici.")}>
+          {bmsg("Aucune mesure n’est disponible pour cette période.")}
         </Empty>
       ) : (
         <>
@@ -992,7 +1036,14 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
             <svg
               viewBox={compact ? "0 0 560 250" : "0 0 960 250"}
               role="group"
-              aria-label={`Évolution quotidienne : ${metric === "consumptionMinor" ? "consommation client en euros" : metric === "dispatches" ? "envois" : "connexions"}`}
+              aria-label={bmsg(
+                "Évolution quotidienne : {0}",
+                metric === "consumptionMinor"
+                  ? bmsg("consommation client en euros")
+                  : metric === "dispatches"
+                    ? bmsg("envois")
+                    : bmsg("connexions"),
+              )}
             >
               {[0, 1, 2, 3, 4].map((tick) => (
                 <g key={tick}>
@@ -1010,7 +1061,7 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
                     className="bv-chart-label"
                   >
                     {metric === "consumptionMinor"
-                      ? `${number((tick * top) / 400)} €`
+                      ? money((tick * top) / 4)
                       : number((tick * top) / 4)}
                   </text>
                 </g>
@@ -1081,27 +1132,27 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
             <span>
               <span className="bv-legend-dot" />
               {metric === "consumptionMinor"
-                ? "Coût client actuel, par jour de création"
+                ? bmsg("Coût client actuel, par jour de création")
                 : metric === "dispatches"
-                  ? "Envois créés"
-                  : "Connexions établies"}
+                  ? bmsg("Envois créés")
+                  : bmsg("Connexions établies")}
             </span>
             <span>
               {active
                 ? `${shortDate(active.date)} · ${formatted(active[metric])}`
-                : "Survolez ou sélectionnez un jour pour le détail"}
+                : bmsg("Survolez ou sélectionnez un jour pour le détail")}
             </span>
           </div>
           <details className="bv-chart-table">
-            <summary>Afficher les valeurs du graphique</summary>
-            <DataTable label="Valeurs quotidiennes">
+            <summary>{bmsg("Afficher les valeurs du graphique")}</summary>
+            <DataTable label={bmsg("Valeurs quotidiennes")}>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th className="bv-numeric">Envois</th>
-                  <th className="bv-numeric">Livrés</th>
-                  <th className="bv-numeric">Connexions</th>
-                  <th className="bv-numeric">Consommation</th>
+                  <th>{bmsg("Date")}</th>
+                  <th className="bv-numeric">{bmsg("Envois")}</th>
+                  <th className="bv-numeric">{bmsg("Livrés")}</th>
+                  <th className="bv-numeric">{bmsg("Connexions")}</th>
+                  <th className="bv-numeric">{bmsg("Consommation")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1135,9 +1186,10 @@ function Countries({
   const max = Math.max(...sorted.map((item) => item.connections), 1);
   if (!countries.length)
     return (
-      <Empty title="La géographie reste à observer.">
-        Les pays apparaîtront avec les nouvelles connexions. L’historique sans
-        pays conserve la mention « non renseigné ».
+      <Empty title={bmsg("La géographie reste à observer.")}>
+        {bmsg(
+          "Les pays apparaîtront avec les nouvelles connexions. L’historique sans pays conserve la mention « non renseigné ».",
+        )}
       </Empty>
     );
   return (
@@ -1151,11 +1203,14 @@ function Countries({
               <strong>{number(item.connections)}</strong>
               <small>
                 {total
-                  ? new Intl.NumberFormat("fr-FR", {
+                  ? new Intl.NumberFormat(formatLocale(), {
                       style: "percent",
                       maximumFractionDigits: 1,
                     }).format(item.connections / total)
-                  : "0 %"}
+                  : new Intl.NumberFormat(formatLocale(), {
+                      style: "percent",
+                      maximumFractionDigits: 1,
+                    }).format(0)}
               </small>
             </span>
             <div className="bv-country-track">
@@ -1167,8 +1222,8 @@ function Countries({
       {sorted.length > 5 && (
         <button className="bv-text-button" onClick={() => setShowAll(!showAll)}>
           {showAll
-            ? "Réduire la liste"
-            : `Voir les ${number(sorted.length)} pays`}
+            ? bmsg("Réduire la liste")
+            : bmsg("Voir les {0} pays", number(sorted.length))}
           <ArrowDown size={15} />
         </button>
       )}
@@ -1179,8 +1234,8 @@ function Channels({ channels }: { channels: BelvedereOverview["channels"] }) {
   const total = channels.reduce((sum, channel) => sum + channel.dispatches, 0);
   if (!channels.length)
     return (
-      <Empty title="Aucun envoi sur cette période.">
-        La répartition par canal apparaîtra après les premiers envois.
+      <Empty title={bmsg("Aucun envoi sur cette période.")}>
+        {bmsg("La répartition par canal apparaîtra après les premiers envois.")}
       </Empty>
     );
   return (
@@ -1189,9 +1244,12 @@ function Channels({ channels }: { channels: BelvedereOverview["channels"] }) {
         className="bv-channel-stack"
         role="img"
         aria-label={channels
-          .map(
-            (channel) =>
-              `${channelName(channel.channel)} : ${number(channel.dispatches)} envois`,
+          .map((channel) =>
+            bmsg(
+              "{0} : {1} envois",
+              channelName(channel.channel),
+              number(channel.dispatches),
+            ),
           )
           .join(", ")}
       >
@@ -1206,9 +1264,9 @@ function Channels({ channels }: { channels: BelvedereOverview["channels"] }) {
         ))}
       </div>
       <div className="bv-channel-head">
-        <span>Canal</span>
-        <span>Envois</span>
-        <span>Consommation</span>
+        <span>{bmsg("Canal")}</span>
+        <span>{bmsg("Envois")}</span>
+        <span>{bmsg("Consommation")}</span>
       </div>
       {channels.map((channel, index) => (
         <div className="bv-channel-row" key={channel.channel}>
@@ -1243,7 +1301,7 @@ function Workshops({
   return (
     <section className="bv-panel bv-table-panel">
       <SectionHeading
-        title="Tous les ateliers"
+        title={bmsg("Tous les ateliers")}
         aside={
           <Search
             value={query}
@@ -1251,15 +1309,15 @@ function Workshops({
               setQuery(value);
               setPage(1);
             }}
-            placeholder="Nom d’un atelier…"
-            label="Rechercher un atelier"
+            placeholder={bmsg("Nom d’un atelier…")}
+            label={bmsg("Rechercher un atelier")}
           />
         }
       >
         {data
-          ? `${number(data.total)} ateliers dans cette vue`
-          : "Consultation des ateliers"}{" "}
-        · Activité filtrée sur la période
+          ? bmsg("{0} ateliers dans cette vue", number(data.total))
+          : bmsg("Consultation des ateliers")}{" "}
+        {bmsg("· Activité filtrée sur la période")}
       </SectionHeading>
       {error ? (
         <Failure error={error} retry={refresh} basePath={basePath} />
@@ -1269,26 +1327,28 @@ function Workshops({
         <Empty
           title={
             search
-              ? "Aucun atelier ne correspond."
-              : "Aucun atelier dans ce mode."
+              ? bmsg("Aucun atelier ne correspond.")
+              : bmsg("Aucun atelier dans ce mode.")
           }
         >
           {search
-            ? "Essayez un nom plus court ou effacez la recherche."
-            : "Changez le filtre de données pour consulter les autres ateliers."}
+            ? bmsg("Essayez un nom plus court ou effacez la recherche.")
+            : bmsg(
+                "Changez le filtre de données pour consulter les autres ateliers.",
+              )}
         </Empty>
       ) : (
-        <DataTable label="Ateliers et consommation">
+        <DataTable label={bmsg("Ateliers et consommation")}>
           <thead>
             <tr>
-              <th>Atelier</th>
-              <th className="bv-numeric">Membres</th>
-              <th className="bv-numeric">Envois</th>
-              <th className="bv-numeric">Consommation</th>
-              <th>À surveiller</th>
-              <th>Dernière activité</th>
+              <th>{bmsg("Atelier")}</th>
+              <th className="bv-numeric">{bmsg("Membres")}</th>
+              <th className="bv-numeric">{bmsg("Envois")}</th>
+              <th className="bv-numeric">{bmsg("Consommation")}</th>
+              <th>{bmsg("À surveiller")}</th>
+              <th>{bmsg("Dernière activité")}</th>
               <th>
-                <span className="sr-only">Détail</span>
+                <span className="sr-only">{bmsg("Détail")}</span>
               </th>
             </tr>
           </thead>
@@ -1307,21 +1367,28 @@ function Workshops({
                 <td className="bv-numeric">{number(item.members)}</td>
                 <td className="bv-numeric">
                   {number(item.dispatches)}
-                  <small>{number(item.pages)} pages</small>
+                  <small>
+                    {number(item.pages)}
+                    {bmsg(" pages")}
+                  </small>
                 </td>
                 <td className="bv-numeric bv-emphasis">
                   {money(item.consumptionMinor)}
-                  <small>{money(item.reservedMinor)} réservés</small>
+                  <small>
+                    {money(item.reservedMinor)}
+                    {bmsg(" réservés")}
+                  </small>
                 </td>
                 <td>
                   {item.attention > 0 ? (
                     <span className="bv-status bv-status-warning">
-                      {number(item.attention)} envois
+                      {number(item.attention)}
+                      {bmsg(" envois")}
                     </span>
                   ) : (
                     <span className="bv-table-ok">
                       <CheckCircle size={16} />
-                      Rien à signaler
+                      {bmsg("Rien à signaler")}
                     </span>
                   )}
                 </td>
@@ -1332,7 +1399,7 @@ function Workshops({
                   <button
                     className="bv-icon-button"
                     onClick={() => openWorkshop(item)}
-                    aria-label={`Consulter ${item.name}`}
+                    aria-label={bmsg("Consulter {0}", item.name)}
                   >
                     <ArrowUpRight size={18} />
                   </button>
@@ -1342,7 +1409,9 @@ function Workshops({
           </tbody>
         </DataTable>
       )}
-      {data && <Pagination data={data} onChange={setPage} label="ateliers" />}
+      {data && (
+        <Pagination data={data} onChange={setPage} label={bmsg("ateliers")} />
+      )}
     </section>
   );
 }
@@ -1372,7 +1441,7 @@ function WorkshopDetail({
     <>
       <button className="bv-text-button bv-back" onClick={back}>
         <ArrowLeft size={17} />
-        Tous les ateliers
+        {bmsg("Tous les ateliers")}
       </button>
       {error ? (
         <Failure error={error} retry={refresh} basePath={basePath} />
@@ -1382,42 +1451,57 @@ function WorkshopDetail({
         <>
           <div className="bv-detail-meta">
             <Mode mode={data.workshop.mode} />
-            <span>Créé le {shortDate(data.workshop.createdAt)}</span>
             <span>
-              Dernière activité : {dateTime(data.workshop.lastActivityAt)}
+              {bmsg("Créé le ")}
+              {shortDate(data.workshop.createdAt)}
+            </span>
+            <span>
+              {bmsg("Dernière activité : ")}
+              {dateTime(data.workshop.lastActivityAt)}
             </span>
           </div>
           <div className="bv-stats">
             <Stat
-              label="Consommation sur la période"
+              label={bmsg("Consommation sur la période")}
               value={money(data.workshop.consumptionMinor)}
               accent
             >
-              {money(data.workshop.reservedMinor)} réservés
-            </Stat>
-            <Stat label="Envois" value={number(data.workshop.dispatches)}>
-              {number(data.workshop.attention)} à surveiller
-            </Stat>
-            <Stat label="Documents" value={number(data.workshop.documents)}>
-              {number(data.workshop.pages)} pages
+              {money(data.workshop.reservedMinor)}
+              {bmsg(" réservés")}
             </Stat>
             <Stat
-              label="Crédit disponible"
+              label={bmsg("Envois")}
+              value={number(data.workshop.dispatches)}
+            >
+              {number(data.workshop.attention)}
+              {bmsg(" à surveiller")}
+            </Stat>
+            <Stat
+              label={bmsg("Documents")}
+              value={number(data.workshop.documents)}
+            >
+              {number(data.workshop.pages)}
+              {bmsg(" pages")}
+            </Stat>
+            <Stat
+              label={bmsg("Crédit disponible")}
               value={money(data.workshop.availableCreditMinor)}
             >
-              Solde actuel de l’atelier
+              {bmsg("Solde actuel de l’atelier")}
             </Stat>
           </div>
           <div className="bv-detail-grid">
             <section className="bv-panel">
-              <SectionHeading title="Consommation par canal">
-                État actuel des montants des envois créés sur la période
+              <SectionHeading title={bmsg("Consommation par canal")}>
+                {bmsg(
+                  "État actuel des montants des envois créés sur la période",
+                )}
               </SectionHeading>
               <Channels channels={data.channels} />
             </section>
             <section className="bv-panel">
               <SectionHeading
-                title="Membres de l’atelier"
+                title={bmsg("Membres de l’atelier")}
                 aside={
                   <span className="bv-count">
                     {number(data.workshop.members)}
@@ -1443,9 +1527,10 @@ function WorkshopDetail({
                     </div>
                   ))
                 ) : (
-                  <Empty title="Aucun membre dans la projection.">
-                    Les membres apparaîtront après leur rattachement à
-                    l’atelier.
+                  <Empty title={bmsg("Aucun membre dans la projection.")}>
+                    {bmsg(
+                      "Les membres apparaîtront après leur rattachement à l’atelier.",
+                    )}
                   </Empty>
                 )}
               </div>
@@ -1457,27 +1542,28 @@ function WorkshopDetail({
                     pageSize: data.membersPageSize,
                   }}
                   onChange={setMembersPage}
-                  label="membres"
+                  label={bmsg("membres")}
                 />
               )}
             </section>
           </div>
           <section className="bv-panel bv-table-panel">
-            <SectionHeading title="Détail des envois">
-              Coût client, réservation et coût fournisseur vérifié. Le contenu
-              des documents et les destinataires restent privés.
+            <SectionHeading title={bmsg("Détail des envois")}>
+              {bmsg(
+                "Coût client, réservation et coût fournisseur vérifié. Le contenu des documents et les destinataires restent privés.",
+              )}
             </SectionHeading>
             {data.dispatches.items.length ? (
-              <DataTable label="Envois de l’atelier">
+              <DataTable label={bmsg("Envois de l’atelier")}>
                 <thead>
                   <tr>
-                    <th>Envoi</th>
-                    <th>Canal / mode</th>
-                    <th>État</th>
-                    <th className="bv-numeric">Pages</th>
-                    <th className="bv-numeric">Consommé</th>
-                    <th className="bv-numeric">Réservé</th>
-                    <th className="bv-numeric">Coût fournisseur</th>
+                    <th>{bmsg("Envoi")}</th>
+                    <th>{bmsg("Canal / mode")}</th>
+                    <th>{bmsg("État")}</th>
+                    <th className="bv-numeric">{bmsg("Pages")}</th>
+                    <th className="bv-numeric">{bmsg("Consommé")}</th>
+                    <th className="bv-numeric">{bmsg("Réservé")}</th>
+                    <th className="bv-numeric">{bmsg("Coût fournisseur")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1499,19 +1585,24 @@ function WorkshopDetail({
                       </td>
                       <td className="bv-numeric bv-emphasis">
                         {dispatch.customerActualMinor === null ? (
-                          <span className="bv-subtle">Non finalisé</span>
+                          <span className="bv-subtle">
+                            {bmsg("Non finalisé")}
+                          </span>
                         ) : (
                           money(dispatch.customerActualMinor)
                         )}
                         <small>
-                          Transport :{" "}
-                          {money(dispatch.transportActualMinor ?? null)} ·
-                          Hébergement : {money(dispatch.hostingFeeMinor ?? 0)}
+                          {bmsg("Transport :")}{" "}
+                          {money(dispatch.transportActualMinor ?? null)}
+                          {bmsg(" · Hébergement : ")}
+                          {money(dispatch.hostingFeeMinor ?? 0)}
                         </small>
                         <small>
-                          Devis : {money(dispatch.estimatedMinor)}
+                          {bmsg("Devis : ")}
+                          {money(dispatch.estimatedMinor)}
                           <br />
-                          Plafond : {money(dispatch.ceilingMinor)}
+                          {bmsg("Plafond : ")}
+                          {money(dispatch.ceilingMinor)}
                         </small>
                       </td>
                       <td className="bv-numeric">
@@ -1519,7 +1610,9 @@ function WorkshopDetail({
                       </td>
                       <td className="bv-numeric">
                         {dispatch.supplierVerifiedMinor === null ? (
-                          <span className="bv-subtle">Non vérifié</span>
+                          <span className="bv-subtle">
+                            {bmsg("Non vérifié")}
+                          </span>
                         ) : (
                           money(
                             dispatch.supplierVerifiedMinor,
@@ -1532,15 +1625,16 @@ function WorkshopDetail({
                 </tbody>
               </DataTable>
             ) : (
-              <Empty title="Aucun envoi sur cette période.">
-                Choisissez une autre période pour consulter l’historique de cet
-                atelier.
+              <Empty title={bmsg("Aucun envoi sur cette période.")}>
+                {bmsg(
+                  "Choisissez une autre période pour consulter l’historique de cet atelier.",
+                )}
               </Empty>
             )}
             <Pagination
               data={data.dispatches}
               onChange={setPage}
-              label="envois"
+              label={bmsg("envois")}
             />
           </section>
         </>
@@ -1576,7 +1670,7 @@ function Members({
   return (
     <section className="bv-panel bv-table-panel">
       <SectionHeading
-        title="Annuaire des membres"
+        title={bmsg("Annuaire des membres")}
         aside={
           <Search
             value={query}
@@ -1584,31 +1678,35 @@ function Members({
               setQuery(value);
               setPage(1);
             }}
-            placeholder="Nom ou adresse email…"
-            label="Rechercher un membre"
+            placeholder={bmsg("Nom ou adresse email…")}
+            label={bmsg("Rechercher un membre")}
           />
         }
       >
-        {data ? `${number(data.total)} personnes` : "Tous les membres"} · Les
-        appartenances et connexions décrivent l’état actuel
+        {data
+          ? bmsg("{0} personnes", number(data.total))
+          : bmsg("Tous les membres")}
+        {bmsg(" · Les appartenances et connexions décrivent l’état actuel")}
       </SectionHeading>
       {error ? (
         <Failure error={error} retry={refresh} basePath={basePath} />
       ) : !data ? (
         <Loading table />
       ) : !data.items.length ? (
-        <Empty title="Aucun membre ne correspond.">
-          Essayez un autre nom, une autre adresse email ou un autre mode.
+        <Empty title={bmsg("Aucun membre ne correspond.")}>
+          {bmsg(
+            "Essayez un autre nom, une autre adresse email ou un autre mode.",
+          )}
         </Empty>
       ) : (
-        <DataTable label="Membres et accès">
+        <DataTable label={bmsg("Membres et accès")}>
           <thead>
             <tr>
-              <th>Membre</th>
-              <th>Ateliers et rôles</th>
-              <th className="bv-numeric">Connexions actives</th>
-              <th>Dernière connexion observée</th>
-              <th>Inscription</th>
+              <th>{bmsg("Membre")}</th>
+              <th>{bmsg("Ateliers et rôles")}</th>
+              <th className="bv-numeric">{bmsg("Connexions actives")}</th>
+              <th>{bmsg("Dernière connexion observée")}</th>
+              <th>{bmsg("Inscription")}</th>
             </tr>
           </thead>
           <tbody>
@@ -1638,16 +1736,19 @@ function Members({
                           {roleName(workshop.role)}
                           {workshop.role === "supervisor" &&
                           (workshop.canApprove || workshop.canReport)
-                            ? ` · ${[workshop.canApprove ? "approbation" : "", workshop.canReport ? "rapports" : ""].filter(Boolean).join(", ")}`
+                            ? ` · ${[workshop.canApprove ? bmsg("approbation") : "", workshop.canReport ? bmsg("rapports") : ""].filter(Boolean).join(", ")}`
                             : ""}
                         </small>
                       </div>
                     ))}
                     {member.workshopsTotal > member.workshops.length && (
                       <small>
-                        {number(member.workshops.length)} ateliers affichés sur{" "}
-                        {number(member.workshopsTotal)}. Consultez les autres
-                        appartenances depuis les ateliers.
+                        {number(member.workshops.length)}
+                        {bmsg(" ateliers affichés sur")}{" "}
+                        {number(member.workshopsTotal)}
+                        {bmsg(
+                          ". Consultez les autres appartenances depuis les ateliers.",
+                        )}
                       </small>
                     )}
                   </div>
@@ -1662,7 +1763,9 @@ function Members({
           </tbody>
         </DataTable>
       )}
-      {data && <Pagination data={data} onChange={setPage} label="membres" />}
+      {data && (
+        <Pagination data={data} onChange={setPage} label={bmsg("membres")} />
+      )}
     </section>
   );
 }
@@ -1681,47 +1784,51 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
     <>
       <div className="bv-connections-top">
         <section className="bv-panel">
-          <SectionHeading title="Origine des connexions">
-            Événements observés sur la période sélectionnée
+          <SectionHeading title={bmsg("Origine des connexions")}>
+            {bmsg("Événements observés sur la période sélectionnée")}
           </SectionHeading>
           {data ? <Countries countries={data.countries} /> : <Loading table />}
         </section>
         <section className="bv-panel bv-telemetry">
           <GlobeHemisphereWest size={36} weight="light" />
-          <h2>Une géographie observée, jamais devinée.</h2>
+          <h2>{bmsg("Une géographie observée, jamais devinée.")}</h2>
           <p>
-            Le pays est fourni par Cloudflare lors de la connexion. Une session
-            ancienne sans mesure conserve un pays non renseigné.
+            {bmsg(
+              "Le pays est fourni par Cloudflare lors de la connexion. Une session ancienne sans mesure conserve un pays non renseigné.",
+            )}
           </p>
           <dl>
             <div>
-              <dt>Début de la collecte</dt>
+              <dt>{bmsg("Début de la collecte")}</dt>
               <dd>
                 {data?.since
                   ? dateTime(data.since)
-                  : "Aucun événement collecté"}
+                  : bmsg("Aucun événement collecté")}
               </dd>
             </div>
             <div>
-              <dt>Historique conservé</dt>
+              <dt>{bmsg("Historique conservé")}</dt>
               <dd>
-                {data ? `${number(data.retentionDays)} jours` : "Chargement…"}
+                {data
+                  ? bmsg("{0} jours", number(data.retentionDays))
+                  : bmsg("Chargement…")}
               </dd>
             </div>
             <div>
-              <dt>Périmètre</dt>
-              <dd>Connexions établies avec succès</dd>
+              <dt>{bmsg("Périmètre")}</dt>
+              <dd>{bmsg("Connexions établies avec succès")}</dd>
             </div>
           </dl>
           <p className="bv-source-note">
-            Une connexion correspond à une session ou une autorisation, pas à
-            chaque requête ni à une présence en temps réel.
+            {bmsg(
+              "Une connexion correspond à une session ou une autorisation, pas à chaque requête ni à une présence en temps réel.",
+            )}
           </p>
         </section>
       </div>
       <section className="bv-panel bv-table-panel">
         <SectionHeading
-          title="Journal des accès"
+          title={bmsg("Journal des accès")}
           aside={
             <Search
               value={query}
@@ -1729,12 +1836,16 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
                 setQuery(value);
                 setPage(1);
               }}
-              placeholder="Personne ou atelier…"
-              label="Rechercher une connexion"
+              placeholder={bmsg("Personne ou atelier…")}
+              label={bmsg("Rechercher une connexion")}
             />
           }
         />
-        <div className="bv-tabs" role="group" aria-label="Type de connexion">
+        <div
+          className="bv-tabs"
+          role="group"
+          aria-label={bmsg("Type de connexion")}
+        >
           <button
             aria-pressed={tab === "current"}
             onClick={() => {
@@ -1742,7 +1853,7 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
               setPage(1);
             }}
           >
-            Sessions et autorisations actuelles
+            {bmsg("Sessions et autorisations actuelles")}
             {data && <span>{number(data.current.total)}</span>}
           </button>
           <button
@@ -1752,7 +1863,7 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
               setPage(1);
             }}
           >
-            Historique des connexions
+            {bmsg("Historique des connexions")}
             {data && <span>{number(data.events.total)}</span>}
           </button>
         </div>
@@ -1761,15 +1872,15 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
         ) : tab === "current" ? (
           <>
             {data.current.items.length ? (
-              <DataTable label="Sessions et autorisations actuelles">
+              <DataTable label={bmsg("Sessions et autorisations actuelles")}>
                 <thead>
                   <tr>
-                    <th>Personne / atelier</th>
-                    <th>Accès</th>
-                    <th>Pays</th>
-                    <th>État</th>
-                    <th>Dernière connexion observée</th>
-                    <th>Expiration</th>
+                    <th>{bmsg("Personne / atelier")}</th>
+                    <th>{bmsg("Accès")}</th>
+                    <th>{bmsg("Pays")}</th>
+                    <th>{bmsg("État")}</th>
+                    <th>{bmsg("Dernière connexion observée")}</th>
+                    <th>{bmsg("Expiration")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1784,7 +1895,10 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
                           <Monitor size={16} />
                           {accessName(connection.kind)}
                         </span>
-                        <small>Créé le {shortDate(connection.createdAt)}</small>
+                        <small>
+                          {bmsg("Créé le ")}
+                          {shortDate(connection.createdAt)}
+                        </small>
                       </td>
                       <td>{countryName(connection.country)}</td>
                       <td>
@@ -1796,34 +1910,36 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
                       <td className="bv-date-cell">
                         {connection.expiresAt
                           ? dateTime(connection.expiresAt)
-                          : "Sans expiration renseignée"}
+                          : bmsg("Sans expiration renseignée")}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </DataTable>
             ) : (
-              <Empty title="Aucune session dans cette vue.">
-                Changez les filtres ou consultez l’historique des connexions.
+              <Empty title={bmsg("Aucune session dans cette vue.")}>
+                {bmsg(
+                  "Changez les filtres ou consultez l’historique des connexions.",
+                )}
               </Empty>
             )}
             <Pagination
               data={data.current}
               onChange={setPage}
-              label="sessions et autorisations"
+              label={bmsg("sessions et autorisations")}
             />
           </>
         ) : (
           <>
             {data.events.items.length ? (
-              <DataTable label="Historique des connexions">
+              <DataTable label={bmsg("Historique des connexions")}>
                 <thead>
                   <tr>
-                    <th>Date de connexion</th>
-                    <th>Personne</th>
-                    <th>Atelier</th>
-                    <th>Accès</th>
-                    <th>Pays observé</th>
+                    <th>{bmsg("Date de connexion")}</th>
+                    <th>{bmsg("Personne")}</th>
+                    <th>{bmsg("Atelier")}</th>
+                    <th>{bmsg("Accès")}</th>
+                    <th>{bmsg("Pays observé")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1843,15 +1959,16 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
                 </tbody>
               </DataTable>
             ) : (
-              <Empty title="Aucune nouvelle connexion observée.">
-                Les connexions établies après l’activation de la collecte
-                apparaîtront ici.
+              <Empty title={bmsg("Aucune nouvelle connexion observée.")}>
+                {bmsg(
+                  "Les connexions établies après l’activation de la collecte apparaîtront ici.",
+                )}
               </Empty>
             )}
             <Pagination
               data={data.events}
               onChange={setPage}
-              label="connexions"
+              label={bmsg("connexions")}
             />
           </>
         )}
@@ -1862,12 +1979,12 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
 function accessName(kind: string) {
   return (
     {
-      browser: "Navigateur",
-      native: "Application native",
-      mcp: "Assistant MCP",
-      browser_login: "Navigateur",
-      native_login: "Application native",
-      mcp_authorization: "Assistant MCP",
+      browser: bmsg("Navigateur"),
+      native: bmsg("Application native"),
+      mcp: bmsg("Assistant MCP"),
+      browser_login: bmsg("Navigateur"),
+      native_login: bmsg("Application native"),
+      mcp_authorization: bmsg("Assistant MCP"),
     }[kind] || kind
   );
 }
@@ -1885,24 +2002,34 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
       <div className="bv-finance-summary">
         <section>
           <span className="bv-finance-label">
-            Consommation client comptabilisée
+            {bmsg("Consommation client comptabilisée")}
           </span>
           <strong>{money(data.customerConsumptionMinor)}</strong>
           <p>
             {filters.mode === "production"
-              ? "Débits des envois, de l’hébergement et d’Horizon enregistrés sur la période, selon leur date de comptabilisation, y compris pour les envois supprimés depuis. Ces montants peuvent provenir de crédits promotionnels."
-              : "Consommations simulées des envois et d’Horizon selon leur date de confirmation ou de comptabilisation. Elles ne représentent pas des encaissements réels."}
+              ? bmsg(
+                  "Débits des envois, de l’hébergement et d’Horizon enregistrés sur la période, selon leur date de comptabilisation, y compris pour les envois supprimés depuis. Ces montants peuvent provenir de crédits promotionnels.",
+                )
+              : bmsg(
+                  "Consommations simulées des envois et d’Horizon selon leur date de confirmation ou de comptabilisation. Elles ne représentent pas des encaissements réels.",
+                )}
           </p>
           <span className="bv-finance-reserved">
-            {money(data.reservedMinor)} actuellement réservés pour les envois
-            créés sur la période
+            {money(data.reservedMinor)}
+            {bmsg(
+              " actuellement réservés pour les envois créés sur la période",
+            )}
           </span>
         </section>
         <section>
-          <span className="bv-finance-label">Encaissements vérifiés</span>
+          <span className="bv-finance-label">
+            {bmsg("Encaissements vérifiés")}
+          </span>
           <div className="bv-finance-cash">
             {data.cashStatus === "unconfigured" ? (
-              <strong className="bv-unavailable">Non configurés</strong>
+              <strong className="bv-unavailable">
+                {bmsg("Non configurés")}
+              </strong>
             ) : data.cashReceived.length ? (
               data.cashReceived.map((item) => (
                 <strong key={item.currency}>
@@ -1915,15 +2042,19 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           </div>
           <p>
             {data.cashStatus === "unconfigured"
-              ? "Les paiements vérifiés Stripe ne sont pas encore disponibles. Aucun chiffre d’affaires n’est déduit de la consommation."
-              : "Paiements Stripe vérifiés selon la date de création enregistrée par Stripe, regroupés par devise. Cette date ne prouve pas leur date de réception bancaire ; les crédits promotionnels sont exclus."}
+              ? bmsg(
+                  "Les paiements vérifiés Stripe ne sont pas encore disponibles. Aucun chiffre d’affaires n’est déduit de la consommation.",
+                )
+              : bmsg(
+                  "Paiements Stripe vérifiés selon la date de création enregistrée par Stripe, regroupés par devise. Cette date ne prouve pas leur date de réception bancaire ; les crédits promotionnels sont exclus.",
+                )}
           </p>
         </section>
       </div>
       <div className="bv-finance-grid">
         <section className="bv-panel">
-          <SectionHeading title="Coûts fournisseurs">
-            Rapprochements fournisseur enregistrés sur la période
+          <SectionHeading title={bmsg("Coûts fournisseurs")}>
+            {bmsg("Rapprochements fournisseur enregistrés sur la période")}
           </SectionHeading>
           <div className="bv-supplier-totals">
             {data.supplierVerified.length ? (
@@ -1935,94 +2066,110 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
               ))
             ) : (
               <p className="bv-subtle">
-                Aucun coût fournisseur vérifié sur cette période.
+                {bmsg("Aucun coût fournisseur vérifié sur cette période.")}
               </p>
             )}
           </div>
           <Notice
             tone={data.supplierUnverifiedDispatches > 0 ? "warning" : "neutral"}
           >
-            {number(data.supplierUnverifiedDispatches)} envois créés sur la
-            période sans coût fournisseur vérifié. Une valeur absente ne
-            signifie pas un coût nul.
+            {number(data.supplierUnverifiedDispatches)}
+            {bmsg(
+              " envois créés sur la période sans coût fournisseur vérifié. Une valeur absente ne signifie pas un coût nul.",
+            )}
           </Notice>
         </section>
         <section className="bv-panel bv-result">
-          <SectionHeading title="Résultat net" />
-          <strong>Non calculable</strong>
+          <SectionHeading title={bmsg("Résultat net")} />
+          <strong>{bmsg("Non calculable")}</strong>
           <p>
             {data.netResultUnavailableReason ||
-              "Les charges complètes ne sont pas encore rapprochées. Le résultat net ne peut pas être calculé de façon fiable."}
+              bmsg(
+                "Les charges complètes ne sont pas encore rapprochées. Le résultat net ne peut pas être calculé de façon fiable.",
+              )}
           </p>
           <span className="bv-source-note">
-            Les encaissements, la consommation et les coûts connus ne
-            constituent pas à eux seuls un résultat comptable.
+            {bmsg(
+              "Les encaissements, la consommation et les coûts connus ne constituent pas à eux seuls un résultat comptable.",
+            )}
           </span>
         </section>
       </div>
       <div className="bv-finance-grid">
         <section className="bv-panel">
-          <SectionHeading title="Consommation par canal">
-            Volumes : envois créés sur la période. Montants : débits
-            comptabilisés sur la période, hors abonnement Horizon.
+          <SectionHeading title={bmsg("Consommation par canal")}>
+            {bmsg(
+              "Volumes : envois créés sur la période. Montants : débits comptabilisés sur la période, hors abonnement Horizon.",
+            )}
           </SectionHeading>
           <Channels channels={data.channels} />
           <dl className="bv-finance-lines">
             <div>
-              <dt>Abonnement Horizon</dt>
+              <dt>{bmsg("Abonnement Horizon")}</dt>
               <dd>{money(data.horizonConsumptionMinor)}</dd>
             </div>
           </dl>
           <p className="bv-source-note">
             {number(data.horizonCharges)}{" "}
             {data.horizonCharges === 1
-              ? "débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi."
-              : "débits d’abonnement comptabilisés sur la période, inclus dans la consommation totale. Ils ne sont pas comptés comme des envois."}
+              ? bmsg(
+                  "débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.",
+                )
+              : bmsg(
+                  "débits d’abonnement comptabilisés sur la période, inclus dans la consommation totale. Ils ne sont pas comptés comme des envois.",
+                )}
           </p>
         </section>
         <section className="bv-panel">
-          <SectionHeading title="Crédits promotionnels">
-            État actuel des crédits offerts
+          <SectionHeading title={bmsg("Crédits promotionnels")}>
+            {bmsg("État actuel des crédits offerts")}
           </SectionHeading>
           <dl className="bv-finance-lines">
             <div>
-              <dt>Total accordé</dt>
+              <dt>{bmsg("Total accordé")}</dt>
               <dd>{money(data.promotionalGrantedMinor)}</dd>
             </div>
             <div>
-              <dt>Solde restant</dt>
+              <dt>{bmsg("Solde restant")}</dt>
               <dd>{money(data.promotionalRemainingMinor)}</dd>
             </div>
           </dl>
           <p className="bv-source-note">
-            Les crédits promotionnels donnent accès au service ; ils ne
-            constituent pas un encaissement.
+            {bmsg(
+              "Les crédits promotionnels donnent accès au service ; ils ne constituent pas un encaissement.",
+            )}
           </p>
         </section>
       </div>
       <section className="bv-panel bv-table-panel">
-        <SectionHeading title="Récapitulatif mensuel">
+        <SectionHeading title={bmsg("Récapitulatif mensuel")}>
           {filters.mode === "production"
-            ? "Débits selon leur mois de comptabilisation, y compris Horizon et l’historique des envois supprimés."
-            : "Consommations simulées selon leur mois de confirmation ou de comptabilisation."}{" "}
-          Les mois aux extrémités de la période peuvent être incomplets.
+            ? bmsg(
+                "Débits selon leur mois de comptabilisation, y compris Horizon et l’historique des envois supprimés.",
+              )
+            : bmsg(
+                "Consommations simulées selon leur mois de confirmation ou de comptabilisation.",
+              )}{" "}
+          {bmsg(
+            "Les mois aux extrémités de la période peuvent être incomplets.",
+          )}
         </SectionHeading>
         {data.monthly.length ? (
-          <DataTable label="Consommation mensuelle">
+          <DataTable label={bmsg("Consommation mensuelle")}>
             <thead>
               <tr>
-                <th>Mois</th>
-                <th className="bv-numeric">Envois débités</th>
-                <th className="bv-numeric">Envois et hébergement</th>
+                <th>{bmsg("Mois")}</th>
+                <th className="bv-numeric">{bmsg("Envois débités")}</th>
+                <th className="bv-numeric">{bmsg("Envois et hébergement")}</th>
                 <th className="bv-numeric">Horizon</th>
-                <th className="bv-numeric">Consommation totale</th>
+                <th className="bv-numeric">{bmsg("Consommation totale")}</th>
               </tr>
             </thead>
             <tbody>
               {data.monthly.map((month) => (
                 <tr key={month.month}>
                   <td>
-                    {new Intl.DateTimeFormat("fr-FR", {
+                    {new Intl.DateTimeFormat(formatLocale(), {
                       month: "long",
                       year: "numeric",
                       timeZone: "UTC",
@@ -2047,15 +2194,19 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
             </tbody>
           </DataTable>
         ) : (
-          <Empty title="Aucune consommation comptabilisée.">
-            Le récapitulatif apparaîtra lorsque les ateliers consommeront leurs
-            crédits.
+          <Empty title={bmsg("Aucune consommation comptabilisée.")}>
+            {bmsg(
+              "Le récapitulatif apparaîtra lorsque les ateliers consommeront leurs crédits.",
+            )}
           </Empty>
         )}
       </section>
       <p className="bv-freshness">
-        Calculé le {dateTime(data.generatedAt)} · Les devis et plafonds restent
-        consultables dans le détail des ateliers.
+        {bmsg("Calculé le ")}
+        {dateTime(data.generatedAt)}
+        {bmsg(
+          " · Les devis et plafonds restent consultables dans le détail des ateliers.",
+        )}
       </p>
     </>
   );
@@ -2071,33 +2222,39 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
   if (!data) return <Loading />;
   const copy = {
     not_configured: {
-      title: "Cloudflare attend sa connexion.",
-      description:
+      title: bmsg("Cloudflare attend sa connexion."),
+      description: bmsg(
         "La source de télémétrie n’est pas encore configurée. Une fois reliée côté serveur, elle permettra de suivre les requêtes et erreurs du Worker.",
-      label: "Non configuré",
+      ),
+      label: bmsg("Non configuré"),
     },
     forbidden: {
-      title: "L’accès aux mesures doit être vérifié.",
-      description:
+      title: bmsg("L’accès aux mesures doit être vérifié."),
+      description: bmsg(
         "Cloudflare n’autorise pas la lecture des statistiques avec la configuration actuelle. Les permissions de la connexion doivent être vérifiées côté serveur.",
-      label: "Accès refusé",
+      ),
+      label: bmsg("Accès refusé"),
     },
     unavailable: {
-      title: "Les mesures sont momentanément indisponibles.",
-      description:
+      title: bmsg("Les mesures sont momentanément indisponibles."),
+      description: bmsg(
         "Cloudflare n’a pas fourni de réponse exploitable. Vous pouvez actualiser cette vue pour réessayer.",
-      label: "Indisponible",
+      ),
+      label: bmsg("Indisponible"),
     },
     no_data: {
-      title: "Aucune mesure dans cette fenêtre.",
-      description:
+      title: bmsg("Aucune mesure dans cette fenêtre."),
+      description: bmsg(
         "La connexion est configurée, mais Cloudflare n’a renvoyé aucune mesure pour la période choisie.",
-      label: "Sans données",
+      ),
+      label: bmsg("Sans données"),
     },
     ok: {
-      title: "Les mesures Cloudflare sont disponibles.",
-      description: "Mesures agrégées par Cloudflare pour le Worker de guteneo.",
-      label: "Connecté",
+      title: bmsg("Les mesures Cloudflare sont disponibles."),
+      description: bmsg(
+        "Mesures agrégées par Cloudflare pour le Worker de guteneo.",
+      ),
+      label: bmsg("Connecté"),
     },
   }[data.status];
   return (
@@ -2109,7 +2266,7 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
           </span>
           <div>
             <h2>Cloudflare Workers</h2>
-            <p>Exécution et fiabilité de l’application</p>
+            <p>{bmsg("Exécution et fiabilité de l’application")}</p>
           </div>
           <span
             className={`bv-status bv-status-${data.status === "ok" ? "success" : "neutral"}`}
@@ -2118,13 +2275,13 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
           </span>
         </div>
         <label className="bv-infra-window">
-          Fenêtre Cloudflare
+          {bmsg("Fenêtre Cloudflare")}
           <select
             value={window}
             onChange={(event) => setWindow(event.target.value as "24h" | "7d")}
           >
-            <option value="24h">24 dernières heures</option>
-            <option value="7d">7 derniers jours</option>
+            <option value="24h">{bmsg("24 dernières heures")}</option>
+            <option value="7d">{bmsg("7 derniers jours")}</option>
           </select>
         </label>
       </section>
@@ -2136,21 +2293,21 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
           <div className="bv-infra-capabilities">
             <span>
               <ChartBar size={19} />
-              Volume de requêtes
+              {bmsg("Volume de requêtes")}
             </span>
             <span>
               <WarningCircle size={19} />
-              Erreurs d’exécution
+              {bmsg("Erreurs d’exécution")}
             </span>
             <span>
               <ArrowRight size={19} />
-              Latence p50 / p99
+              {bmsg("Latence p50 / p99")}
             </span>
           </div>
           {data.status === "unavailable" && (
             <button className="bv-button" onClick={refresh}>
               <ArrowClockwise size={17} />
-              Réessayer
+              {bmsg("Réessayer")}
             </button>
           )}
         </section>
@@ -2158,47 +2315,51 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
         <>
           <div className="bv-stats">
             <Stat
-              label="Invocations du Worker"
+              label={bmsg("Invocations du Worker")}
               value={number(data.metrics.requests)}
               accent
             >
-              {number(data.metrics.subrequests)} sous-requêtes
+              {number(data.metrics.subrequests)}
+              {bmsg(" sous-requêtes")}
             </Stat>
             <Stat
-              label="Erreurs d’exécution"
+              label={bmsg("Erreurs d’exécution")}
               value={number(data.metrics.errors)}
             >
-              {new Intl.NumberFormat("fr-FR", {
+              {new Intl.NumberFormat(formatLocale(), {
                 style: "percent",
                 maximumFractionDigits: 2,
               }).format(data.metrics.errorRate)}{" "}
-              des invocations
+              {bmsg("des invocations")}
             </Stat>
             <Stat
-              label="Latence médiane · p50"
+              label={bmsg("Latence médiane · p50")}
               value={
                 data.metrics.wallTimeP50Milliseconds === null
-                  ? "Non disponible"
+                  ? bmsg("Non disponible")
                   : `${number(data.metrics.wallTimeP50Milliseconds)} ms`
               }
             >
-              Temps d’exécution mural
+              {bmsg("Temps d’exécution mural")}
             </Stat>
             <Stat
-              label="Latence haute · p99"
+              label={bmsg("Latence haute · p99")}
               value={
                 data.metrics.wallTimeP99Milliseconds === null
-                  ? "Non disponible"
+                  ? bmsg("Non disponible")
                   : `${number(data.metrics.wallTimeP99Milliseconds)} ms`
               }
             >
-              99 % des exécutions sous ce seuil
+              {bmsg("99 % des exécutions sous ce seuil")}
             </Stat>
           </div>
           <section className="bv-panel">
-            <SectionHeading title="Requêtes par heure">
-              Du {dateTime(data.startAt)} au {dateTime(data.endAt)} · heures
-              effectivement renvoyées par Cloudflare
+            <SectionHeading title={bmsg("Requêtes par heure")}>
+              {bmsg("Du ")}
+              {dateTime(data.startAt)}
+              {bmsg(" au ")}
+              {dateTime(data.endAt)}
+              {bmsg(" · heures effectivement renvoyées par Cloudflare")}
             </SectionHeading>
             <InfrastructureChart series={data.series} />
           </section>
@@ -2206,26 +2367,29 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
       )}
       <div className="bv-finance-grid">
         <section className="bv-panel">
-          <SectionHeading title="Des mesures, avec leur périmètre." />
+          <SectionHeading title={bmsg("Des mesures, avec leur périmètre.")} />
           <p className="bv-prose">
-            Ces mesures utilisent les données analytiques échantillonnées de
-            Cloudflare. Les erreurs sont des erreurs d’exécution du Worker ;
-            elles ne représentent pas l’ensemble des réponses HTTP en erreur.
+            {bmsg(
+              "Ces mesures utilisent les données analytiques échantillonnées de Cloudflare. Les erreurs sont des erreurs d’exécution du Worker ; elles ne représentent pas l’ensemble des réponses HTTP en erreur.",
+            )}
           </p>
           <p className="bv-source-note">
-            Cette fenêtre est indépendante de la période et du mode des
-            ateliers. Une heure absente ne signifie pas zéro requête.
+            {bmsg(
+              "Cette fenêtre est indépendante de la période et du mode des ateliers. Une heure absente ne signifie pas zéro requête.",
+            )}
           </p>
         </section>
         <section className="bv-panel">
-          <SectionHeading title="Périmètre du service" />
+          <SectionHeading title={bmsg("Périmètre du service")} />
           <p className="bv-prose">
-            Ces statistiques couvrent le Worker configuré, tous ses accès
-            confondus. Elles sont indépendantes du mode des ateliers.
+            {bmsg(
+              "Ces statistiques couvrent le Worker configuré, tous ses accès confondus. Elles sont indépendantes du mode des ateliers.",
+            )}
           </p>
           <p className="bv-source-note">
-            Les montants d’usage ci-dessous sont une source financière distincte
-            des statistiques de requêtes.
+            {bmsg(
+              "Les montants d’usage ci-dessous sont une source financière distincte des statistiques de requêtes.",
+            )}
           </p>
         </section>
       </div>
@@ -2235,8 +2399,9 @@ function Infrastructure({ basePath, revision, refresh }: ViewProps) {
         refresh={refresh}
       />
       <p className="bv-freshness">
-        Dernière vérification : {dateTime(data.observedAt)} · Source : API
-        GraphQL Cloudflare
+        {bmsg("Dernière vérification : ")}
+        {dateTime(data.observedAt)}
+        {bmsg(" · Source : API GraphQL Cloudflare")}
       </p>
     </>
   );
@@ -2248,8 +2413,10 @@ function InfrastructureChart({
 }) {
   if (!series.length)
     return (
-      <Empty title="Aucune heure mesurée.">
-        Les points apparaîtront lorsque Cloudflare retournera des mesures.
+      <Empty title={bmsg("Aucune heure mesurée.")}>
+        {bmsg(
+          "Les points apparaîtront lorsque Cloudflare retournera des mesures.",
+        )}
       </Empty>
     );
   const max = Math.max(...series.map((item) => item.requests), 1);
@@ -2258,12 +2425,19 @@ function InfrastructureChart({
       <div
         className="bv-infra-chart"
         role="img"
-        aria-label="Volume des requêtes par heure, valeurs détaillées ci-dessous"
+        aria-label={bmsg(
+          "Volume des requêtes par heure, valeurs détaillées ci-dessous",
+        )}
       >
         {series.map((item) => (
           <div
             key={item.hour}
-            title={`${dateTime(item.hour)} : ${number(item.requests)} requêtes, ${number(item.errors)} erreurs`}
+            title={bmsg(
+              "{0} : {1} requêtes, {2} erreurs",
+              dateTime(item.hour),
+              number(item.requests),
+              number(item.errors),
+            )}
           >
             <span style={{ height: `${(item.requests / max) * 100}%` }} />
           </div>
@@ -2274,14 +2448,14 @@ function InfrastructureChart({
         <span>{dateTime(series[series.length - 1].hour)}</span>
       </div>
       <details className="bv-chart-table">
-        <summary>Afficher les mesures horaires</summary>
-        <DataTable label="Mesures Cloudflare par heure">
+        <summary>{bmsg("Afficher les mesures horaires")}</summary>
+        <DataTable label={bmsg("Mesures Cloudflare par heure")}>
           <thead>
             <tr>
-              <th>Heure</th>
-              <th className="bv-numeric">Requêtes</th>
-              <th className="bv-numeric">Erreurs</th>
-              <th className="bv-numeric">Sous-requêtes</th>
+              <th>{bmsg("Heure")}</th>
+              <th className="bv-numeric">{bmsg("Requêtes")}</th>
+              <th className="bv-numeric">{bmsg("Erreurs")}</th>
+              <th className="bv-numeric">{bmsg("Sous-requêtes")}</th>
             </tr>
           </thead>
           <tbody>
@@ -2309,16 +2483,16 @@ function CloudflareBilling({
     import("../../../packages/contracts/src/belvedere-cloudflare").BelvedereCloudflareBilling
   >(`${basePath}/api/infrastructure/billing`, revision);
   const labels = {
-    ok: "Usage déclaré",
-    not_configured: "Non configuré",
-    forbidden: "Accès refusé",
-    unavailable: "Indisponible",
-    no_data: "Sans données",
+    ok: bmsg("Usage déclaré"),
+    not_configured: bmsg("Non configuré"),
+    forbidden: bmsg("Accès refusé"),
+    unavailable: bmsg("Indisponible"),
+    no_data: bmsg("Sans données"),
   };
   return (
     <section className="bv-panel bv-table-panel">
       <SectionHeading
-        title="Usage facturable du compte Cloudflare"
+        title={bmsg("Usage facturable du compte Cloudflare")}
         aside={
           data && (
             <span className="bv-status bv-status-neutral">
@@ -2327,8 +2501,9 @@ function CloudflareBilling({
           )
         }
       >
-        Cycle de facturation en cours, distinct de la période d’activité des
-        ateliers
+        {bmsg(
+          "Cycle de facturation en cours, distinct de la période d’activité des ateliers",
+        )}
       </SectionHeading>
       {error ? (
         <Failure error={error} retry={refresh} basePath={basePath} />
@@ -2339,21 +2514,25 @@ function CloudflareBilling({
           <div className="bv-supplier-totals">
             {data.totals.map((total) => (
               <div key={total.currency}>
-                <span>Total {total.currency}</span>
+                <span>
+                  {bmsg("Total ")}
+                  {total.currency}
+                </span>
                 <strong>{money(total.amountMinor, total.currency)}</strong>
                 <small className="bv-subtle">
-                  Déclaré : {total.reportedAmountDecimal} {total.currency}
+                  {bmsg("Déclaré : ")}
+                  {total.reportedAmountDecimal} {total.currency}
                 </small>
               </div>
             ))}
           </div>
-          <DataTable label="Usage facturable Cloudflare par service">
+          <DataTable label={bmsg("Usage facturable Cloudflare par service")}>
             <thead>
               <tr>
-                <th>Service</th>
-                <th className="bv-numeric">Périodes facturables</th>
-                <th className="bv-numeric">Usage déclaré</th>
-                <th className="bv-numeric">Valeur source exacte</th>
+                <th>{bmsg("Service")}</th>
+                <th className="bv-numeric">{bmsg("Périodes facturables")}</th>
+                <th className="bv-numeric">{bmsg("Usage déclaré")}</th>
+                <th className="bv-numeric">{bmsg("Valeur source exacte")}</th>
               </tr>
             </thead>
             <tbody>
@@ -2376,38 +2555,48 @@ function CloudflareBilling({
             </tbody>
           </DataTable>
           <p className="bv-source-note">
-            Montants arrondis au centime après agrégation de chaque sous-total ;
-            aucune conversion de devise.{" "}
+            {bmsg(
+              "Montants arrondis au centime après agrégation de chaque sous-total ; aucune conversion de devise.",
+            )}{" "}
             {data.firstChargeAt && data.lastChargeAt
-              ? `Périodes déclarées du ${dateTime(data.firstChargeAt)} au ${dateTime(data.lastChargeAt)}.`
-              : "Dates des charges non renseignées."}
+              ? bmsg(
+                  "Périodes déclarées du {0} au {1}.",
+                  dateTime(data.firstChargeAt),
+                  dateTime(data.lastChargeAt),
+                )
+              : bmsg("Dates des charges non renseignées.")}
           </p>
         </>
       ) : (
         <Empty
           title={
             data.status === "not_configured"
-              ? "Les coûts Cloudflare restent à connecter."
+              ? bmsg("Les coûts Cloudflare restent à connecter.")
               : data.status === "forbidden"
-                ? "Les permissions de facturation doivent être vérifiées."
+                ? bmsg("Les permissions de facturation doivent être vérifiées.")
                 : data.status === "no_data"
-                  ? "Aucun usage facturable déclaré."
-                  : "Les coûts sont momentanément indisponibles."
+                  ? bmsg("Aucun usage facturable déclaré.")
+                  : bmsg("Les coûts sont momentanément indisponibles.")
           }
         >
           {data.status === "not_configured"
-            ? "La connexion serveur à l’API d’usage facturable n’est pas configurée."
+            ? bmsg(
+                "La connexion serveur à l’API d’usage facturable n’est pas configurée.",
+              )
             : data.status === "no_data"
-              ? "Cloudflare n’a renvoyé aucune ligne pour le cycle courant ; ce n’est pas une preuve de gratuité."
-              : "Actualisez après vérification de la connexion Cloudflare."}
+              ? bmsg(
+                  "Cloudflare n’a renvoyé aucune ligne pour le cycle courant ; ce n’est pas une preuve de gratuité.",
+                )
+              : bmsg(
+                  "Actualisez après vérification de la connexion Cloudflare.",
+                )}
         </Empty>
       )}
       <div className="bv-billing-note">
         <Notice>
-          Usage mesuré uniquement : hors abonnements, taxes et rapprochement de
-          facture. Ces coûts peuvent inclure d’autres projets hébergés sur ce
-          compte Cloudflare ; ils ne sont pas attribués exclusivement à guteneo
-          et ne permettent pas de calculer son bénéfice net.
+          {bmsg(
+            "Usage mesuré uniquement : hors abonnements, taxes et rapprochement de facture. Ces coûts peuvent inclure d’autres projets hébergés sur ce compte Cloudflare ; ils ne sont pas attribués exclusivement à guteneo et ne permettent pas de calculer son bénéfice net.",
+          )}
         </Notice>
       </div>
     </section>
@@ -2425,8 +2614,10 @@ function JobStatuses({
   const sorted = [...statuses].sort((a, b) => b.dispatches - a.dispatches);
   if (!total)
     return (
-      <Empty title="Aucun envoi à répartir.">
-        Les états apparaîtront lorsque des envois seront créés sur la période.
+      <Empty title={bmsg("Aucun envoi à répartir.")}>
+        {bmsg(
+          "Les états apparaîtront lorsque des envois seront créés sur la période.",
+        )}
       </Empty>
     );
   return (
@@ -2437,7 +2628,7 @@ function JobStatuses({
             <Status value={item.status} />
             <strong>{number(item.dispatches)}</strong>
             <small>
-              {new Intl.NumberFormat("fr-FR", {
+              {new Intl.NumberFormat(formatLocale(), {
                 style: "percent",
                 maximumFractionDigits: 1,
               }).format(item.dispatches / total)}
@@ -2515,7 +2706,7 @@ function Jobs({
   const countryOptions = observedCountries.sort((a, b) =>
     countryName(a === "unknown" ? null : a).localeCompare(
       countryName(b === "unknown" ? null : b),
-      "fr",
+      formatLocale(),
     ),
   );
   function clear() {
@@ -2530,7 +2721,7 @@ function Jobs({
     <>
       <section className="bv-panel bv-table-panel">
         <SectionHeading
-          title="Tous les envois"
+          title={bmsg("Tous les envois")}
           aside={
             <Search
               value={query}
@@ -2538,19 +2729,19 @@ function Jobs({
                 setQuery(value);
                 setPage(1);
               }}
-              placeholder="Atelier ou identifiant d’envoi…"
-              label="Rechercher un envoi"
+              placeholder={bmsg("Atelier ou identifiant d’envoi…")}
+              label={bmsg("Rechercher un envoi")}
             />
           }
         >
           {data
-            ? `${number(data.total)} envois dans cette vue`
-            : "Journal de tous les envois"}{" "}
-          · Créés sur la période sélectionnée
+            ? bmsg("{0} envois dans cette vue", number(data.total))
+            : bmsg("Journal de tous les envois")}{" "}
+          {bmsg("· Créés sur la période sélectionnée")}
         </SectionHeading>
         <div className="bv-job-filters">
           <label>
-            Canal
+            {bmsg("Canal")}
             <select
               value={channel}
               onChange={(event) => {
@@ -2558,14 +2749,14 @@ function Jobs({
                 setPage(1);
               }}
             >
-              <option value="">Tous les canaux</option>
-              <option value="email">Email</option>
-              <option value="fax">Fax</option>
-              <option value="postal">Courrier postal</option>
+              <option value="">{bmsg("Tous les canaux")}</option>
+              <option value="email">{bmsg("Email")}</option>
+              <option value="fax">{bmsg("Fax")}</option>
+              <option value="postal">{bmsg("Courrier postal")}</option>
             </select>
           </label>
           <label>
-            État
+            {bmsg("État")}
             <select
               value={statusGroup ? `group:${statusGroup}` : status}
               onChange={(event) => {
@@ -2577,9 +2768,11 @@ function Jobs({
                 setPage(1);
               }}
             >
-              <option value="">Tous les états</option>
-              <option value="group:attention">À vérifier</option>
-              <option value="group:delayed">Traitements retardés</option>
+              <option value="">{bmsg("Tous les états")}</option>
+              <option value="group:attention">{bmsg("À vérifier")}</option>
+              <option value="group:delayed">
+                {bmsg("Traitements retardés")}
+              </option>
               {jobStatuses.map((value) => (
                 <option key={value} value={value}>
                   {statusName(value)}
@@ -2588,7 +2781,7 @@ function Jobs({
             </select>
           </label>
           <label>
-            Pays de destination
+            {bmsg("Pays de destination")}
             <select
               value={country}
               onChange={(event) => {
@@ -2596,7 +2789,7 @@ function Jobs({
                 setPage(1);
               }}
             >
-              <option value="">Tous les pays observés</option>
+              <option value="">{bmsg("Tous les pays observés")}</option>
               {countryOptions.map((value) => (
                 <option key={value} value={value}>
                   {countryName(value === "unknown" ? null : value)}
@@ -2607,25 +2800,25 @@ function Jobs({
           {(query || channel || status || country || statusGroup) && (
             <button className="bv-text-button" onClick={clear}>
               <X size={14} />
-              Réinitialiser
+              {bmsg("Réinitialiser")}
             </button>
           )}
         </div>
         {statusGroup === "delayed" && (
           <div className="bv-job-explanation">
             <Notice tone="warning">
-              Envois dont le traitement attend depuis plus d’une minute dans la
-              file. Aucun nouvel envoi ni aucune relance n’est déclenché depuis
-              cette vue.
+              {bmsg(
+                "Envois dont le traitement attend depuis plus d’une minute dans la file. Aucun nouvel envoi ni aucune relance n’est déclenché depuis cette vue.",
+              )}
             </Notice>
           </div>
         )}
         {statusGroup === "attention" && (
           <div className="bv-job-explanation">
             <Notice tone="warning">
-              Envois en échec, non distribués, signalés par une plainte ou dont
-              le résultat fournisseur est inconnu. Ouvrez l’atelier pour
-              examiner la situation.
+              {bmsg(
+                "Envois en échec, non distribués, signalés par une plainte ou dont le résultat fournisseur est inconnu. Ouvrez l’atelier pour examiner la situation.",
+              )}
             </Notice>
           </div>
         )}
@@ -2634,21 +2827,22 @@ function Jobs({
         ) : !data ? (
           <Loading table />
         ) : !data.items.length ? (
-          <Empty title="Aucun envoi ne correspond.">
-            Élargissez la période ou retirez un filtre pour retrouver les
-            opérations recherchées.
+          <Empty title={bmsg("Aucun envoi ne correspond.")}>
+            {bmsg(
+              "Élargissez la période ou retirez un filtre pour retrouver les opérations recherchées.",
+            )}
           </Empty>
         ) : (
-          <DataTable label="Tous les envois et leurs coûts">
+          <DataTable label={bmsg("Tous les envois et leurs coûts")}>
             <thead>
               <tr>
-                <th>Envoi / atelier</th>
-                <th>Canal</th>
-                <th>Destination</th>
-                <th>État</th>
-                <th className="bv-numeric">Consommation client</th>
-                <th className="bv-numeric">Réservé</th>
-                <th className="bv-numeric">Coût fournisseur</th>
+                <th>{bmsg("Envoi / atelier")}</th>
+                <th>{bmsg("Canal")}</th>
+                <th>{bmsg("Destination")}</th>
+                <th>{bmsg("État")}</th>
+                <th className="bv-numeric">{bmsg("Consommation client")}</th>
+                <th className="bv-numeric">{bmsg("Réservé")}</th>
+                <th className="bv-numeric">{bmsg("Coût fournisseur")}</th>
               </tr>
             </thead>
             <tbody>
@@ -2675,12 +2869,12 @@ function Jobs({
                     <Mode mode={job.mode} />
                     <small>
                       {job.pages === null
-                        ? "Pages non renseignées"
-                        : `${number(job.pages)} pages`}
+                        ? bmsg("Pages non renseignées")
+                        : bmsg("{0} pages", number(job.pages))}
                       {job.deliveryMode === "protected_link"
-                        ? " · Lien protégé"
+                        ? bmsg(" · Lien protégé")
                         : job.deliveryMode === "attachment"
-                          ? " · Pièce jointe"
+                          ? bmsg(" · Pièce jointe")
                           : ""}
                     </small>
                   </td>
@@ -2690,23 +2884,28 @@ function Jobs({
                   </td>
                   <td className="bv-numeric bv-emphasis">
                     {job.customerActualMinor === null ? (
-                      <span className="bv-subtle">Non finalisé</span>
+                      <span className="bv-subtle">{bmsg("Non finalisé")}</span>
                     ) : (
                       money(job.customerActualMinor)
                     )}
                     <small>
-                      Transport : {money(job.transportActualMinor ?? null)}
+                      {bmsg("Transport : ")}
+                      {money(job.transportActualMinor ?? null)}
                       <br />
-                      Hébergement : {money(job.hostingFeeMinor ?? 0)}
+                      {bmsg("Hébergement : ")}
+                      {money(job.hostingFeeMinor ?? 0)}
                     </small>
                   </td>
                   <td className="bv-numeric">
                     {money(job.reservedMinor)}
-                    <small>Plafond : {money(job.ceilingMinor)}</small>
+                    <small>
+                      {bmsg("Plafond : ")}
+                      {money(job.ceilingMinor)}
+                    </small>
                   </td>
                   <td className="bv-numeric">
                     {job.supplierVerifiedMinor === null ? (
-                      <span className="bv-subtle">Non vérifié</span>
+                      <span className="bv-subtle">{bmsg("Non vérifié")}</span>
                     ) : (
                       money(
                         job.supplierVerifiedMinor,
@@ -2719,12 +2918,14 @@ function Jobs({
             </tbody>
           </DataTable>
         )}
-        {data && <Pagination data={data} onChange={setPage} label="envois" />}
+        {data && (
+          <Pagination data={data} onChange={setPage} label={bmsg("envois")} />
+        )}
       </section>
       <p className="bv-source-note">
-        Les pays de destination proviennent des métadonnées validées des envois.
-        Les adresses email et les envois anciens sans pays vérifié restent « non
-        renseignés ». Aucun contenu ni destinataire n’est affiché.
+        {bmsg(
+          "Les pays de destination proviennent des métadonnées validées des envois. Les adresses email et les envois anciens sans pays vérifié restent « non renseignés ». Aucun contenu ni destinataire n’est affiché.",
+        )}
       </p>
     </>
   );

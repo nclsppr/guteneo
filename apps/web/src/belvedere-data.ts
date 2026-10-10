@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+import { bmsg } from "./belvedere-i18n";
+import { formatLocale } from "./locale";
 import type { BelvedereFilters } from "../../../packages/contracts/src/belvedere";
 
 export const number = (value: number) =>
-  new Intl.NumberFormat("fr-FR").format(value);
+  new Intl.NumberFormat(formatLocale()).format(value);
 export const money = (value: number | null, currency = "EUR") =>
   value === null
-    ? "Non disponible"
-    : new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(
-        value / 100,
-      );
+    ? bmsg("Non disponible")
+    : new Intl.NumberFormat(formatLocale(), {
+        style: "currency",
+        currency,
+      }).format(value / 100);
 function parsedDate(value: string | null) {
   if (!value) return null;
   const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:/.test(value)
@@ -20,27 +23,28 @@ function parsedDate(value: string | null) {
 export const dateTime = (value: string | null) => {
   const date = parsedDate(value);
   return date
-    ? new Intl.DateTimeFormat("fr-FR", {
+    ? new Intl.DateTimeFormat(formatLocale(), {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date)
-    : "Non renseigné";
+    : bmsg("Non renseigné");
 };
 export const shortDate = (value: string) => {
   const date = parsedDate(`${value.slice(0, 10)}T12:00:00Z`);
   return date
-    ? new Intl.DateTimeFormat("fr-FR", {
+    ? new Intl.DateTimeFormat(formatLocale(), {
         day: "numeric",
         month: "short",
         timeZone: "UTC",
       }).format(date)
-    : "Non renseigné";
+    : bmsg("Non renseigné");
 };
 export function countryName(code: string | null) {
-  if (!code || code === "XX" || code === "T1") return "Pays non renseigné";
+  if (!code || code === "XX" || code === "T1")
+    return bmsg("Pays non renseigné");
   try {
     return (
-      new Intl.DisplayNames(["fr"], { type: "region" }).of(
+      new Intl.DisplayNames([formatLocale()], { type: "region" }).of(
         code.toUpperCase(),
       ) || code
     );
@@ -50,50 +54,50 @@ export function countryName(code: string | null) {
 }
 export const channelName = (channel: string) =>
   ({
-    email: "Email",
-    fax: "Fax",
-    postal: "Courrier postal",
-    unknown: "Canal non conservé",
+    email: bmsg("Email"),
+    fax: bmsg("Fax"),
+    postal: bmsg("Courrier postal"),
+    unknown: bmsg("Canal non conservé"),
   })[channel] || channel;
 export const roleName = (role: string) =>
   ({
-    admin: "Administrateur",
-    operator: "Opérateur",
-    member: "Opérateur",
-    supervisor: "Superviseur",
-    viewer: "Observateur",
+    admin: bmsg("Administrateur"),
+    operator: bmsg("Opérateur"),
+    member: bmsg("Opérateur"),
+    supervisor: bmsg("Superviseur"),
+    viewer: bmsg("Observateur"),
   })[role] || role;
 export const statusName = (status: string) =>
   ({
-    delivered: "Livré",
-    completed: "Terminé",
-    accepted: "Accepté",
-    queued: "En attente",
-    sending: "En cours",
-    submitted: "Transmis",
-    processing: "Traitement",
-    draft: "Brouillon",
-    prepared: "À approuver",
-    submitting: "Transmission",
-    printed: "Imprimé",
-    handed_to_post: "Remis à la poste",
-    reconciliation_required: "À rapprocher",
-    bounced: "Non distribué",
-    complained: "Plainte reçue",
-    failed: "Échec",
-    rejected: "Refusé",
-    unknown: "Résultat inconnu",
-    submission_unknown: "Résultat inconnu",
-    authorized: "Autorisée",
-    cancelled: "Annulé",
-    expired: "Expiré",
-    active: "Active",
-    revoked: "Révoquée",
-    pending: "En attente",
-    awaiting_approval: "À approuver",
-    approved: "Approuvé",
-    simulated: "Simulé",
-    paused: "Suspendu",
+    delivered: bmsg("Livré"),
+    completed: bmsg("Terminé"),
+    accepted: bmsg("Accepté"),
+    queued: bmsg("En attente"),
+    sending: bmsg("En cours"),
+    submitted: bmsg("Transmis"),
+    processing: bmsg("Traitement"),
+    draft: bmsg("Brouillon"),
+    prepared: bmsg("À approuver"),
+    submitting: bmsg("Transmission"),
+    printed: bmsg("Imprimé"),
+    handed_to_post: bmsg("Remis à la poste"),
+    reconciliation_required: bmsg("À rapprocher"),
+    bounced: bmsg("Non distribué"),
+    complained: bmsg("Plainte reçue"),
+    failed: bmsg("Échec"),
+    rejected: bmsg("Refusé"),
+    unknown: bmsg("Résultat inconnu"),
+    submission_unknown: bmsg("Résultat inconnu"),
+    authorized: bmsg("Autorisée"),
+    cancelled: bmsg("Annulé"),
+    expired: bmsg("Expiré"),
+    active: bmsg("Active"),
+    revoked: bmsg("Révoquée"),
+    pending: bmsg("En attente"),
+    awaiting_approval: bmsg("À approuver"),
+    approved: bmsg("Approuvé"),
+    simulated: bmsg("Simulé"),
+    paused: bmsg("Suspendu"),
   })[status] || status.replaceAll("_", " ");
 export function periodFilters(
   days: number,

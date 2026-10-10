@@ -20,8 +20,10 @@ par ce bloc ainsi que par l’entrée Compte. Le dashboard décrit les droits ef
 y compris les options indépendantes d’approbation et de rapports du superviseur.
 Le rôle dépend de l’atelier actif ; il ne se modifie pas dans le profil personnel.
 Au retour dans un onglet, la session est relue pour réconcilier un changement de
-compte ou d’atelier effectué ailleurs. Une langue choisie dans l’interface reste
-conservée quand la même personne revient avec une préférence serveur inchangée.
+compte ou d’atelier effectué ailleurs. La langue enregistrée dans le compte est
+relue au même moment. Depuis le 10 octobre, son seul contrôle dans les vues
+connectées est celui de la configuration du compte ; il s’applique aussi au
+Belvédère. Un compte sans préférence utilise la langue du navigateur.
 
 Le nom d’affichage et la langue restent modifiables par la personne. L’adresse
 est en lecture seule : elle provient de l’identité de connexion et ne se change

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **19 domaines · 149 fonctionnalités · 20 parcours** — mis à jour le 2026-10-10.
+> **19 domaines · 151 fonctionnalités · 20 parcours** — mis à jour le 2026-10-10.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -88,7 +88,8 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Demande de suppression du compte ; traitement complet restant à qualifier
 - Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile
 - Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
-- Retour d’onglet : identité et atelier réconciliés, choix explicite de langue conservé si la préférence serveur reste inchangée
+- Retour d’onglet : identité, atelier et langue enregistrée dans le compte réconciliés
+- Langue des vues connectées réglable seulement dans le compte ; choix visiteur séparé
 
 ### 02 · Équipe et responsabilités
 
@@ -365,7 +366,7 @@ Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · 
 
 Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts).
 
-**Surfaces :** Navigateur Veilleur seulement ; aucune autorité atelier/native/OAuth/MCP supplémentaire. **Tests :** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts).
+**Surfaces :** Navigateur Veilleur seulement ; aucune autorité atelier/native/OAuth/MCP supplémentaire. **Tests :** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts).
 
 - Autorité Veilleur privée et lecture seule : session/identité vérifiées, adresse serveur secrète, autorisation distincte des rôles atelier
 - Sept vues : ateliers, membres, envois, connexions, finances et infrastructure avec vue d’ensemble
@@ -373,6 +374,7 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 - Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts
 - Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés
 - Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
+- Quatre langues suivant le compte, y compris ouverture directe et retour d’onglet ; aucun sélecteur privé supplémentaire
 
 ### 19 · État public du service
 
@@ -556,7 +558,7 @@ Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
 **Acteur :** Veilleur navigateur avec identité vérifiée explicitement autorisée. **Branche :** PLATEFORME PRIVÉE.
 
-Ouvrir adresse privée → garde actuelle session/identité → vues globales en lecture seule → distinguer les modes et les sources financières → examiner mesures Cloudflare selon configuration.
+Ouvrir adresse privée → garde actuelle session/identité → préférence de langue du compte → vues globales en lecture seule → distinguer les modes et les sources financières → examiner mesures Cloudflare selon configuration.
 
 **Blocage / reprise :** Autre identité, rôle atelier seul, assistant, adresse incorrecte ou configuration absente : refus sans divulgation. Migration 0052 et configuration privée requises ; aucune donnée fournisseur simulée présentée comme réelle.
 

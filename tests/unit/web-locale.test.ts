@@ -3,6 +3,7 @@ import * as React from "react";
 import { renderToString } from "react-dom/server";
 import {
   catalogs,
+  applyAccountLocale,
   getLocale,
   getLocaleSelectionVersion,
   getLocaleSource,
@@ -197,11 +198,64 @@ describe("language precedence and resilient preference storage", () => {
         preferredLocale: null,
       },
     });
-    expect(getLocale()).toBe("lb");
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("account");
     // The restored ?lang=lb may be persisted again; an account's "de" must never leak into it.
     for (const call of write.mock.calls) {
       expect(call).toEqual(["guteneo.locale", "lb"]);
     }
+  });
+  it("uses only the current account preference, including a reset to the browser default", () => {
+    const write = browser("lb", ["en-GB"], "?lang=fr");
+    const session = {
+      organization: { id: "org", name: "Example" },
+      csrfToken: "",
+      simulation: true,
+      user: {
+        id: "first",
+        name: "First",
+        role: "member",
+        preferredLocale: "de" as "de" | null,
+      },
+    };
+    initializeLocale();
+    write.mockClear();
+    setSession(session);
+    expect(getLocale()).toBe("de");
+    setSession({
+      ...session,
+      user: { ...session.user, preferredLocale: null },
+    });
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("account");
+    setSession({
+      ...session,
+      user: { ...session.user, id: "second", preferredLocale: "de" },
+    });
+    expect(getLocale()).toBe("de");
+    expect(write).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?lang=fr");
+  });
+  it("hydrates private entry from bounded server metadata without browser persistence", () => {
+    const write = browser(
+      "de",
+      ["en-GB"],
+      "?lang=lb",
+      undefined,
+      "/belvedere/fixture",
+    );
+    const version = getLocaleSelectionVersion();
+    applyAccountLocale("lb");
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("account");
+    expect(document.documentElement.lang).toBe("lb");
+    applyAccountLocale("automatic");
+    expect(getLocale()).toBe("en");
+    applyAccountLocale("<script>invalid</script>");
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSelectionVersion()).toBe(version);
+    expect(write).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?lang=lb");
   });
   it("supports shareable explicit choices but rejects unsupported query values", () => {
     const persist = browser("fr", ["de"], "?lang=en-GB");

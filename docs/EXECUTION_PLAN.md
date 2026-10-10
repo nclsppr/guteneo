@@ -1,5 +1,21 @@
 # Execution plan and handoff
 
+10 October account language candidate: centralize the authenticated language
+control in account configuration and apply the saved preference to dashboard
+and Belvédère, including direct entry and focus refresh. Four-language parity,
+private access guards and account separation require fresh checks; publication
+evidence remains separate from local fixtures. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
+Local candidate evidence: final TypeScript, ESLint and feature-map checks passed;
+47 final locale/access unit cases passed. Dashboard account, locale and boundary
+scenarios passed in Chromium, WebKit desktop and iPhone after focused reruns;
+34 distinct Belvédère browser cases are qualified by the full initial run and
+the corrected locale-suite rerun. These use deterministic fixtures. Four-language
+Belvédère captures were inspected. No real profile preference, role, provider
+configuration or communication was changed by these checks. Exact PR/main CI
+and canonical authenticated production verification remain release gates.
+
+
 10 October: publication of the independent status service and a link from
 Guteneo is explicitly authorized. Existing Cloudflare quotas may be used;
 business debits, quote consumption and real communication remain excluded.
@@ -54,6 +70,7 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+
 ## Belvédère candidate — 2 October 2026
 
 The dedicated `codex/belvedere-control-tower` branch adds a private read-only

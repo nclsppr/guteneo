@@ -345,7 +345,7 @@ test("XML records determine each PDF channel and recipient without sending", asy
   ).toBeVisible();
 });
 
-test("studio language changes preserve a customer title and unsaved edits", async ({
+test("account language changes in another tab preserve the studio title and unsaved edits", async ({
   page,
   isMobile,
 }, testInfo) => {
@@ -369,14 +369,40 @@ test("studio language changes preserve a customer title and unsaved edits", asyn
     }),
   );
   await page.goto("/#/app/template/locale-studio");
-  const language = page.locator('.workspace-language select[name="language"]');
+  async function changeAccountLanguage(locale: string) {
+    const settings = await page.context().newPage();
+    try {
+      await settings.goto("/#/app/account");
+      await expect(settings.locator('select[name="language"]')).toHaveCount(1);
+      await settings
+        .locator(".language-preference select")
+        .selectOption(locale);
+      await settings.locator('form.form-panel button[type="submit"]').click();
+      await expect(settings.locator("html")).toHaveAttribute("lang", locale);
+    } finally {
+      await settings.close();
+    }
+    const rechecked = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/session" &&
+        response.request().method() === "GET",
+    );
+    await expect
+      .poll(async () => {
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        return page.locator("html").getAttribute("lang");
+      })
+      .toBe(locale);
+    expect((await rechecked).status()).toBe(200);
+    await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  }
   for (const [locale, label, save] of [
     ["en", "Template name", "Save draft"],
     ["de", "Vorlagenname", "Entwurf speichern"],
     ["lb", "Numm vun der Virlag", "Entworf späicheren"],
     ["fr", "Nom du modèle", "Enregistrer le brouillon"],
   ]) {
-    await language.selectOption(locale);
+    await changeAccountLanguage(locale);
     await expect(
       page.getByRole("heading", {
         level: 1,
@@ -398,7 +424,7 @@ test("studio language changes preserve a customer title and unsaved edits", asyn
   await page
     .getByLabel("Nom du modèle", { exact: true })
     .fill("Brouillon conservé");
-  await language.selectOption("lb");
+  await changeAccountLanguage("lb");
   await expect(
     page.getByLabel("Numm vun der Virlag", { exact: true }),
   ).toHaveValue("Brouillon conservé");
