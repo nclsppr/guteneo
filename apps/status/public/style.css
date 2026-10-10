@@ -330,6 +330,57 @@ strong {
   font-size: 11px;
   color: var(--muted);
 }
+.monitoring-cadence .cadence-value {
+  margin: 18px 0 17px;
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.monitored-panel {
+  margin-bottom: 38px;
+}
+.monitored-panel .panel-heading > a {
+  font-size: 13px;
+}
+.monitored-services {
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.monitored-services li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--line);
+}
+.monitored-services h3 {
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+.monitored-services p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.coverage-panel {
+  margin-top: 38px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 600px) {
+  .monitored-services li {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .monitored-services li > div {
+    width: 100%;
+  }
+  .monitored-panel .panel-heading {
+    align-items: start;
+  }
+}
 .measurement {
   display: flex;
   flex-wrap: wrap;
