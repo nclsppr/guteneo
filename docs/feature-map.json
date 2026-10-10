@@ -10,6 +10,7 @@
       "source": "apps/api/src/auth.ts",
       "features": [
         "Connexion Auth0, compte vérifié et politique MFA",
+        "Connexion navigateur et callback Auth0 sur guteneo.com uniquement ; ancien hôte applicatif et previews URL fermés",
         "Création d’atelier et administrateur initial",
         "Profil personnel et préférence de langue",
         "Sessions web : consultation, révocation et déconnexion",
@@ -323,18 +324,20 @@
       "features": [
         "Files interactives, lots, outbox transactionnelle et idempotence",
         "Callbacks fournisseur authentifiés et journaux sans contenu sensible",
+        "Inspection Telnyx opérateur privée en lecture seule : callbacks principal/secours projetés en statuts bornés et booléens de correspondance canonique, sans URL brute ni extraction des credentials ; état fournisseur frais à qualifier après publication",
         "Rapprochement, reprise bornée et files mortes",
         "Migrations D1 ordonnées, intégrité et bookmark de restauration",
-        "Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret",
+        "Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret ; les opérateurs deploy-pdf-validator.mjs et qualify-hosted.mjs vérifient Horizon fermé uniquement sur guteneo.com",
         "Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts",
         "Publication depuis main propre, synchronisé et vérifié",
-        "Manifestes de release, empreintes des assets et santé distante"
+        "Manifestes de release et empreintes des assets sur guteneo.com ; preuve distincte de fermeture de workers.dev et des previews URL applicatifs"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
         "tests/security/main-only-release.test.mjs",
         "tests/security/pdf-validator-release.test.mjs",
-        "apps/pdf-validator/tests/probe-credentials.test.mjs"
+        "apps/pdf-validator/tests/probe-credentials.test.mjs",
+        "tests/unit/telnyx-readiness.test.ts"
       ],
       "surfaces": "CLI / CI / services privés"
     },
@@ -365,10 +368,10 @@
       "id": "J01",
       "title": "Découvrir puis entrer",
       "actor": "Visiteur → membre",
-      "steps": "Choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée → créer ou rejoindre un atelier → lire ses droits. → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.",
+      "steps": "Ouvrir guteneo.com → choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.",
       "branch": "INVITATIONS / IDENTITY",
       "doc": "ACCOUNT_IDENTITY.md",
-      "failure": "Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback signé et à la politique Auth0."
+      "failure": "Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. Configuration et fixtures ne prouvent pas une connexion humaine réelle."
     },
     {
       "id": "J02",
@@ -491,16 +494,16 @@
       "id": "J15",
       "title": "Publier une évolution",
       "actor": "Développeur / opérateur de release",
-      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live → vérifier manifestes, assets et santé. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.",
+      "steps": "Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Inspection Telnyx privée : lire les statuts et correspondances canoniques des callbacks après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.",
       "branch": "RELEASE",
       "doc": "MAIN_RELEASE.md",
-      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification."
+      "failure": "Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification."
     },
     {
       "id": "J16",
       "title": "Vérifier son compte et contacter un responsable",
       "actor": "Membre navigateur dans son atelier courant",
-      "steps": "Lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0.",
+      "steps": "Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique.",
       "branch": "IDENTITÉ → RESPONSABILITÉS",
       "doc": "ACCOUNT_IDENTITY.md",
       "failure": "Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle."

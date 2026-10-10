@@ -3,6 +3,15 @@
 Candidat du 9 octobre 2026. Cette page décrit l’implémentation ; la fusion,
 la configuration Auth0 et la publication se qualifient séparément.
 
+Le contrat courant de production réserve l’application et sa connexion navigateur
+à `https://guteneo.com`. L’ancien hôte applicatif `workers.dev` et les URL de
+preview applicatives sont fermés ; ils ne sont pas des chemins de connexion de
+secours. Le callback, la déconnexion et les origines autorisées du client Auth0
+navigateur doivent être canoniques. La maquette fictive séparée reste hors scope.
+Voir [MAIN_RELEASE.md](MAIN_RELEASE.md). Aucune connexion, identité de retour ou
+reconnexion Auth0 avec un compte humain n’est déduite de ce contrat ni des tests
+sur fixtures.
+
 ## Parcours et autorité
 
 Tout membre navigateur retrouve son nom, son adresse de connexion et son rôle
@@ -67,3 +76,18 @@ privée et la qualification hébergée restent nécessaires avant activation.
 Les commandes exécutées, résultats et limites du candidat sont consignés dans
 [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md). Les anciennes preuves
 Belvédère restent historiques et ne qualifient pas cette intégration.
+
+### Session humaine en production — 10 octobre 2026
+
+Une connexion Auth0 humaine sur `https://guteneo.com` a été vérifiée avec le
+compte de l’opérateur, sur la version publique issue de
+`4ce1bdd467f9aa35f98e525986db888eff3bf977`. Le profil affiche l’identité, l’adresse
+de connexion et le rôle Administrateur ; les quatre droits effectifs et les
+réglages de nom, d’atelier et de langue sont visibles. L’identité et les valeurs
+existantes restent présentes après rechargement. Le dashboard affiche également
+l’identité, le rôle et l’accès administratif ; les contacts se chargent sans
+erreur, avec un état explicite lorsqu’aucun autre responsable n’est disponible.
+Les résultats bornés et la capture privée sont conservés hors dépôt, sans publier
+les coordonnées du compte. Aucun profil, rôle, mandat ou envoi n’a été modifié.
+Cette preuve qualifie ce compte Administrateur et cette session ; elle ne
+remplace pas les fixtures des autres rôles ou une qualification iOS réelle.

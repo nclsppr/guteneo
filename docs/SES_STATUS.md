@@ -1,5 +1,19 @@
 # Amazon SES connection evidence — 2026-09-17
 
+## Dormant SES excluded from this release — 2026-10-10
+
+The publisher explicitly confirmed that SES is unused and authorized closing workers.dev without preserving or migrating its dormant callback. SNS migration is excluded from this release and no AWS handoff is required for that closure. The historical subscription is left untouched: no new AWS inventory, subscription migration, confirmation or removal has been performed. Closing the route makes the documented legacy endpoint unreachable; it does not migrate SNS to guteneo.com.
+
+Public production `/api/capabilities` read-back at **2026-10-09T23:49:29.168Z** (October 10 in Paris) reported `mode="production"` and email `liveSending=false`, provider `Resend`, status `not_configured`. This matches the reviewed deployment configuration `EMAIL_PROVIDER="resend"`, `LIVE_SEND_CHANNELS="fax,postal"`. It proves that the application email channel is disabled and SES is not selected at that check; it does not establish current AWS credentials, sandbox, configuration-set gates or SNS subscription state. The bounded read-back is retained outside the repository as `unused-ses-proof.json`.
+
+SES sending must remain disabled; no SES activation or provider change is part of this release. Before any future, separately authorized SES reactivation, confirm and read back **`https://guteneo.com/webhooks/ses`** on the existing topic, qualify the notification path and all sending gates, and resolve the historical subscription. [The private procedure](SES_SUBSCRIPTION_CONFIRMATION.md) records that future sequence and the receipt-selection limitation. The runtime stores the topic ARN, not a subscription ARN; retain any future confirmed ARN as operator evidence.
+
+## Historical temporary route restoration — 2026-10-09
+
+Before the publisher excluded dormant SES from the closure, the operator temporarily restored the Cloudflare workers.dev route and verified `enabled=true`, `previews_enabled=false` at **2026-10-09T20:57:49Z**. This dated observation is Cloudflare route evidence only, not proof of the current route, SNS subscription or a successful SES event. Retaining that route is no longer a release prerequisite.
+
+All AWS state, credential installation and handshake observations below are dated **2026-09-17**. They do not establish the current AWS sandbox, quota, credentials or subscription state.
+
 Resources were prepared through the user's authorized Safari AWS session and the Cloudflare API. No Guteneo business email, mailbox-simulator message, charge or account upgrade has been sent. A production-access request was submitted on September 17 after the user explicitly confirmed the AWS Service Terms and Acceptable Use Policy.
 
 ## Production access request
@@ -28,9 +42,9 @@ One IAM access key was created through the AWS console and copied directly from 
 
 Secret-name inspection confirmed `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`, `SES_CONFIGURATION_SET`, `SES_SNS_TOPIC_ARN` and `SES_SANDBOX`. The permanent key clears any temporary session token. `SES_SANDBOX=true` accurately reflects the observed AWS account; `LIVE_SENDS_ENABLED=false` remains set.
 
-## Notification handshake confirmed
+## Notification handshake confirmed — 2026-09-17
 
-The subscription endpoint remains **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. Since the 17 September cutover, the brand root also serves the application; the established technical callback remains valid and was not changed during that cutover.
+The endpoint inspected on September 17 was **`https://guteneo-app.nclsppr.workers.dev/webhooks/ses`**. The brand root also served the application after that cutover; the technical callback was not changed during that cutover. This is the historical endpoint; any future SES reactivation must first qualify the canonical callback on guteneo.com.
 
 On 2026-09-17 the authenticated AWS CloudShell confirmation succeeded for subscription **`arn:aws:sns:eu-west-3:982055099242:guteneo-ses-events:54d3e8f5-538e-4c83-b32b-806634db1430`**. Read-back verified the exact topic, account, HTTPS endpoint, `PendingConfirmation=false`, `ConfirmationWasAuthenticated=true` and `RawMessageDelivery=false`. The consumed token was removed only from verified receipt `e2c768ce-a778-444d-bfdd-8b3102494ee0`; the targeted update affected one row and read-back returned a null token type. The local transfer helper was stopped and the clipboard replaced with public text.
 

@@ -1,5 +1,23 @@
 # Architecture
 
+## Current production origin contract
+
+The application has one production origin: `https://guteneo.com`. Its Cloudflare
+Worker disables both `workers.dev` access and version preview URLs. The former
+`https://guteneo-app.nclsppr.workers.dev` address is closed, not a fallback. The
+separate fictional browser-only design preview is outside this change and keeps
+its own static-only contract in [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md).
+
+Browser login, the host-only login cookie and the Auth0 callback use the canonical
+origin. Browser client callback, logout and allowed-origin configuration must
+exclude the closed application host; assistant callbacks remain separate.
+Publication verification compares the release manifest and assets on the canonical
+origin, then independently verifies that the closed hosts no longer serve the
+application. See [MAIN_RELEASE.md](MAIN_RELEASE.md). This origin restriction does
+not change workshop roles, membership, permissions or approval authority. Auth0
+configuration and synthetic tests do not qualify an actual human login/callback.
+Earlier dated descriptions of a second application origin remain historical.
+
 9 October integration candidate: visible personal identity, read-only login email,
 current workshop role/permissions and browser-only responsible contacts, with an
 explicit Auth0 account-change action. Belvédère is reconciled with current main

@@ -98,6 +98,7 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
     const inspection = await inspectTelnyxReadiness({
       apiKey: this.env.TELNYX_API_KEY || "",
       connectionId: this.env.TELNYX_CONNECTION_ID || "",
+      canonicalWebhookUrl: `${this.env.APP_ORIGIN}/webhooks/telnyx`,
     });
     return {
       ...inspection,

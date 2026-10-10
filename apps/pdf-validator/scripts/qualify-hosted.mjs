@@ -68,23 +68,17 @@ const proof = {
   },
 };
 async function closedGate() {
-  await Promise.all(
-    ["https://guteneo.com", "https://guteneo-app.nclsppr.workers.dev"].map(
-      async (origin) => {
-        const response = await fetch(`${origin}/api/capabilities`, {
-          redirect: "error",
-          signal: AbortSignal.timeout(15000),
-        });
-        assert.equal(response.status, 200);
-        const result = await response.json();
-        assert.equal(result.mode, "production");
-        assert.equal(
-          result.horizon?.available,
-          false,
-          "Refuse to stop a validator available to customers",
-        );
-      },
-    ),
+  const response = await fetch("https://guteneo.com/api/capabilities", {
+    redirect: "error",
+    signal: AbortSignal.timeout(15000),
+  });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.mode, "production");
+  assert.equal(
+    result.horizon?.available,
+    false,
+    "Refuse to stop a validator available to customers",
   );
 }
 async function call(path, body, media = "application/pdf", extraHeaders = {}) {

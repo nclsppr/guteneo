@@ -100,21 +100,21 @@ No real customer PDF, subscription or communication is performed by this probe.
 After qualification passes, keep Horizon closed and physically stop the
 container while the qualification gate is still enabled. This also ensures that
 the Python process cannot retain its previous qualification environment across
-the normal deployment. From the repository root, with the probe still running:
+the normal deployment. Check Horizon only on the canonical production origin;
+the closed application `workers.dev` host is not a prerequisite for this cleanup.
+From the repository root, with the probe still running:
 
 ```sh
 node --input-type=module <<'NODE'
 import assert from 'node:assert/strict';
 import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
-for (const origin of ['https://guteneo.com', 'https://guteneo-app.nclsppr.workers.dev']) {
-  const response = await fetch(`${origin}/api/capabilities`, {
-    redirect: 'error', signal: AbortSignal.timeout(15000),
-  });
-  assert.equal(response.status, 200);
-  const capabilities = await response.json();
-  assert.equal(capabilities.mode, 'production');
-  assert.equal(capabilities.horizon?.available, false);
-}
+const response = await fetch('https://guteneo.com/api/capabilities', {
+  redirect: 'error', signal: AbortSignal.timeout(15000),
+});
+assert.equal(response.status, 200);
+const capabilities = await response.json();
+assert.equal(capabilities.mode, 'production');
+assert.equal(capabilities.horizon?.available, false);
 const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
 const stopped = await call('/stop', { method: 'POST', signal: AbortSignal.timeout(48000) });
 assert.equal(stopped.status, 200);
