@@ -110,7 +110,7 @@ dans les métriques Cloudflare, sans extrapoler les timings locaux.
 
 La suite UI réutilisable se lance avec
 `npx playwright test -c playwright.status.config.ts --project=chromium`.
-Ses 23 scénarios utilisent des réponses synthétiques et un serveur statique
+Ses scénarios utilisent des réponses synthétiques et un serveur statique
 limité à la boucle locale ; ils ne lancent ni collecte ni D1. La CI les conserve
 avec les tests du service, de sécurité et du produit. Une mesure de production
 et sa première exécution Cron demeurent des preuves distinctes.
