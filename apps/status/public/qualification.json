@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "environment": "local",
-  "executedAt": "2026-10-10T00:17:45.807Z",
+  "executedAt": "2026-10-10T10:19:26.270Z",
   "status": "passed",
   "networkPolicy": "external_blocked",
   "providerMode": "simulated",
@@ -27,7 +27,7 @@
     "Les suites complètes, les moteurs Docker et les parcours réels nécessitent leurs preuves distinctes."
   ],
   "sourceCommit": null,
-  "sourceSnapshotSha256": "db8d50271dcc3d2845bd83a8d4bcdec6faed17a3dc80624b7ec5a9b45967f061",
+  "sourceSnapshotSha256": "45d922ece0455e7d333cfad59e0362fc31cd9305d96b94636ba8f4f8de48f8f1",
   "sourceSnapshotAlgorithm": "sha256-path-content-v1",
   "sourceSnapshotScope": [
     "apps/api",
@@ -53,7 +53,7 @@
   ],
   "sourceSnapshotFileCount": 207,
   "sourceUnchangedDuringRun": true,
-  "durationMs": 52296,
+  "durationMs": 54011,
   "networkEvidence": {
     "mechanism": "macos_sandbox_exec",
     "loopbackAllowed": true,

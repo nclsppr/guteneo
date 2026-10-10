@@ -1,6 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { fixtures, history, qualification, snapshot } from "./fixtures";
 
+const serviceGroups = [
+  ["pages", 7],
+  ["api", 3],
+  ["access", 4],
+] as const;
+
 for (const width of [1440, 390, 320]) {
   test(`three views, keyboard and filters at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -8,11 +14,35 @@ for (const width of [1440, 390, 320]) {
     await page.goto("/");
     await expect(page.locator("#passed-count")).toHaveText("14");
     await expect(page.locator("#panel-service")).toBeVisible();
-    await expect(page.locator("#state-title")).toContainText(
-      "parcours métier à confirmer",
+    await expect(page.locator("#live-state")).toHaveAttribute(
+      "data-state",
+      "pass",
     );
+    await expect(page.locator("#state-title")).toHaveText(
+      "Contrôles de disponibilité réussis",
+    );
+    await expect(
+      page.locator(".monitoring-cadence .cadence-value"),
+    ).toBeVisible();
+    await expect(page.locator(".monitoring-cadence .cadence-value")).toHaveText(
+      "Toutes les 15 minutes",
+    );
+    for (const [group, count] of serviceGroups) {
+      await expect(page.locator(`#service-${group}-state`)).toHaveText(
+        `${count}/${count} contrôles réussis`,
+      );
+      await expect(page.locator(`#service-${group}-state`)).toHaveClass(
+        /success/,
+      );
+    }
+    await expect(page.locator("#panel-service #coverage")).toHaveCount(0);
+    await expect(page.locator("#panel-service [data-filter]")).toHaveCount(0);
+    await expect(page.locator("#summary-grid [data-shortcut]")).toHaveCount(2);
+    await expect(
+      page.locator('[data-shortcut="not_checked"], [data-shortcut="disabled"]'),
+    ).toHaveCount(0);
     await expect(page.locator("#panel-service")).not.toContainText(
-      /GET https:|\/api\/documents|dsp_|traceId|fingerprint/,
+      /GET https:|\/api\/documents|dsp_|traceId|fingerprint|Non vérifié de bout en bout|Sans preuve complète|Preuve partielle/,
     );
     for (const tab of ["service", "verification", "operations"]) {
       await page.locator(`[data-tab="${tab}"]`).click();
@@ -21,7 +51,8 @@ for (const width of [1440, 390, 320]) {
         await page.evaluate(() => document.documentElement.scrollWidth),
       ).toBeLessThanOrEqual(width);
     }
-    await page.locator('[data-tab="service"]').click();
+    await page.locator('[data-tab="verification"]').click();
+    await expect(page.locator("#panel-verification #coverage")).toBeVisible();
     for (const [filter, count] of [
       ["disabled", 4],
       ["not_checked", 7],
@@ -30,7 +61,26 @@ for (const width of [1440, 390, 320]) {
       await page.locator(`[data-filter="${filter}"]`).click();
       await expect(page.locator(".business-row")).toHaveCount(count);
     }
-    await page.locator('[data-tab="verification"]').click();
+    await expect(
+      page.locator(".business-row > summary .badge", {
+        hasText: "Hors périmètre de ces contrôles",
+      }),
+    ).toHaveCount(7);
+    await expect(
+      page.locator(".business-row > summary .badge", { hasText: "Non activé" }),
+    ).toHaveCount(4);
+    await expect(
+      page.locator(
+        ".business-row > summary .badge.success, .business-row > summary .badge.failure, .business-row > summary .badge.pending",
+      ),
+    ).toHaveCount(0);
+    const businessDetail = page.locator(".business-row").first();
+    await businessDetail.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    await expect(businessDetail).toHaveAttribute("open", "");
+    await expect(businessDetail.locator(".detail-body")).toContainText(
+      "Aucune preuve complète et actuelle",
+    );
     await page.locator("#check-search").fill("DOCUMENTS");
     await expect(page.locator(".scenario")).toHaveCount(1);
     await page.locator(".scenario > summary").focus();
@@ -145,6 +195,16 @@ for (const state of ["stale", "missing", "offline", "future"] as const) {
     await expect(page.locator("#public-evidence-state")).not.toHaveClass(
       /success/,
     );
+    for (const [group] of serviceGroups) {
+      await expect(page.locator(`#service-${group}-state`)).toHaveText(
+        state === "stale" || state === "future"
+          ? "Mesure ancienne"
+          : "Mesure indisponible",
+      );
+      await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
+        /success/,
+      );
+    }
     expect(evidence.errors).toEqual([]);
   });
 }
@@ -161,6 +221,23 @@ test("failed control, preserved detail and network recovery", async ({
       offline ? {} : { ...data, checkedAt: new Date().toISOString() },
   });
   await page.goto("/");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "attention",
+  );
+  await expect(page.locator("#state-title")).toContainText(
+    "1 contrôle public en écart",
+  );
+  await expect(page.locator("#service-access-state")).toHaveText(
+    "1 contrôle en écart",
+  );
+  await expect(page.locator("#service-access-state")).toHaveClass(/failure/);
+  await expect(page.locator("#service-pages-state")).toHaveText(
+    "7/7 contrôles réussis",
+  );
+  await expect(page.locator("#service-api-state")).toHaveText(
+    "3/3 contrôles réussis",
+  );
   await page.locator('[data-shortcut="fail"]').click();
   await expect(page.locator(".scenario")).toHaveCount(1);
   const summary = page.locator(".scenario > summary");
@@ -184,6 +261,14 @@ test("failed control, preserved detail and network recovery", async ({
     "data-current",
     "false",
   );
+  for (const [group] of serviceGroups) {
+    await expect(page.locator(`#service-${group}-state`)).toHaveText(
+      "Mesure ancienne",
+    );
+    await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
+      /success/,
+    );
+  }
   offline = false;
   await page.locator("#refresh").click();
   await expect(page.locator("#live-state")).toHaveAttribute(
@@ -194,6 +279,131 @@ test("failed control, preserved detail and network recovery", async ({
     "data-current",
     "true",
   );
+  await expect(page.locator("#service-access-state")).toHaveText(
+    "1 contrôle en écart",
+  );
+});
+
+for (const [group, index] of [
+  ["pages", 0],
+  ["api", 8],
+] as const) {
+  test(`a failed ${group} control remains an incident despite neutral business coverage`, async ({
+    page,
+  }) => {
+    const data = snapshot();
+    data.checks[index].status = "fail";
+    data.checks[index].httpStatus = 503;
+    await fixtures(page, { status: data });
+    await page.goto("/");
+    await expect(page.locator("#live-state")).toHaveAttribute(
+      "data-state",
+      "attention",
+    );
+    await expect(page.locator("#failed-count")).toHaveText("1");
+    await expect(page.locator(`#service-${group}-state`)).toHaveText(
+      "1 contrôle en écart",
+    );
+    await expect(page.locator(`#service-${group}-state`)).toHaveClass(
+      /failure/,
+    );
+    for (const [other, count] of serviceGroups.filter(([id]) => id !== group)) {
+      await expect(page.locator(`#service-${other}-state`)).toHaveText(
+        `${count}/${count} contrôles réussis`,
+      );
+    }
+    await page.locator('[data-shortcut="fail"]').click();
+    await expect(page.locator(".scenario")).toHaveCount(1);
+    await page.locator(".scenario > summary").click();
+    await expect(page.locator(".scenario .detail-body")).toContainText(
+      "HTTP 200 attendu ; http 503 observé.",
+    );
+  });
+}
+
+test("business deep link preserves access to neutral coverage and its limits", async ({
+  page,
+}) => {
+  const evidence = await fixtures(page);
+  await page.goto("/#business");
+  await expect(page.locator("#panel-verification")).toBeVisible();
+  await expect(page.locator('[data-tab="verification"]')).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(page).toHaveURL(/#verification$/);
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
+  );
+  await page.locator('[data-filter="disabled"]').click();
+  await expect(page.locator(".business-row")).toHaveCount(4);
+  const detail = page.locator(".business-row").first();
+  await detail.locator("summary").click();
+  await expect(detail.locator(".detail-body")).toContainText(
+    "aucun succès de parcours n’est revendiqué",
+  );
+  expect(evidence.errors).toEqual([]);
+  expect(evidence.external).toEqual([]);
+});
+
+test("fresh success becomes historical during an outage while its proof stays readable", async ({
+  page,
+}) => {
+  let offline = false;
+  await fixtures(page, { status: () => (offline ? {} : snapshot()) });
+  await page.goto("/");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
+  );
+  await page.locator('[data-shortcut="pass"]').click();
+  const detail = page.locator(".scenario").first();
+  await detail.locator("summary").click();
+  const freshColor = await detail
+    .locator(".badge")
+    .evaluate((element) => getComputedStyle(element).color);
+  offline = true;
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "offline",
+  );
+  for (const [group] of serviceGroups) {
+    await expect(page.locator(`#service-${group}-state`)).toHaveText(
+      "Mesure ancienne",
+    );
+    await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
+      /success/,
+    );
+  }
+  await expect(page.locator("#public-evidence-state")).not.toHaveClass(
+    /success/,
+  );
+  await expect(page.locator("#probes")).toHaveAttribute(
+    "data-current",
+    "false",
+  );
+  await expect(detail.locator(".detail-body")).toBeVisible();
+  await expect(detail.locator(".detail-body")).toContainText("HTTP 200");
+  await expect
+    .poll(() =>
+      detail
+        .locator(".badge")
+        .evaluate((element) => getComputedStyle(element).color),
+    )
+    .not.toBe(freshColor);
+  offline = false;
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
+  );
+  for (const [group, count] of serviceGroups) {
+    await expect(page.locator(`#service-${group}-state`)).toHaveText(
+      `${count}/${count} contrôles réussis`,
+    );
+  }
 });
 
 for (const reason of [

@@ -24,6 +24,19 @@ Voir [les tests hors ligne](TESTING_OFFLINE.md) et
 
 ## Historique et lecture
 
+La vue **Service** présente les résultats de la surveillance publique, sa
+fraîcheur, les trois groupes de contrôles et leur historique. Quatorze contrôles
+récents réussis donnent un bilan positif limité à ce périmètre. Seul un écart
+observé déclenche une alerte ; une mesure absente, invalide ou ancienne reste
+inconnue. Le manque de couverture d’un parcours métier ne constitue pas une
+panne et ne dégrade pas ce bilan.
+
+La vue **Vérifications** conserve les résultats détaillés, les preuves locales
+et la couverture des parcours. Les fonctions hors du périmètre public et les
+fonctions non activées y sont présentées avec des badges neutres. Cette
+séparation ne transforme ni une simulation ni une configuration en preuve de
+livraison réelle.
+
 Les vues 7 jours, 30 jours et 365 jours utilisent des observations réelles.
 Le taux de disponibilité porte uniquement sur les mesures reçues ; la couverture
 des créneaux attendus est affichée séparément. Une journée sans mesure demeure
@@ -97,7 +110,7 @@ dans les métriques Cloudflare, sans extrapoler les timings locaux.
 
 La suite UI réutilisable se lance avec
 `npx playwright test -c playwright.status.config.ts --project=chromium`.
-Ses 23 scénarios utilisent des réponses synthétiques et un serveur statique
+Ses scénarios utilisent des réponses synthétiques et un serveur statique
 limité à la boucle locale ; ils ne lancent ni collecte ni D1. La CI les conserve
 avec les tests du service, de sécurité et du produit. Une mesure de production
 et sa première exécution Cron demeurent des preuves distinctes.

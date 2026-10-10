@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="État du service guteneo, preuves de vérification et suivi d’exploitation."
+      content="Disponibilité de guteneo, contrôles automatiques et historique du service."
     />
     <title>guteneo — État du service</title>
     <link rel="icon" href="assets/logo.webp" />
@@ -36,10 +36,7 @@
       <div class="page-heading">
         <div>
           <h1>État du service</h1>
-          <p>
-            La situation observée, les preuves disponibles et les points à
-            vérifier.
-          </p>
+          <p>La disponibilité observée et l’historique du service.</p>
         </div>
         <button id="refresh" class="button" type="button">
           Relire la mesure
@@ -79,28 +76,10 @@
             </div>
             <p>Site public, configuration annoncée et protection des accès.</p>
           </div>
-          <div class="summary-block">
-            <div class="summary-heading">
-              <h2>Fonctionnalités métier</h2>
-              <span id="business-total">— fonctionnalités</span>
-            </div>
-            <div class="totals">
-              <button
-                type="button"
-                data-shortcut="not_checked"
-                class="metric pending"
-              >
-                <strong id="untested-count">—</strong
-                ><span>Sans preuve complète</span></button
-              ><button
-                type="button"
-                data-shortcut="disabled"
-                class="metric disabled"
-              >
-                <strong id="disabled-count">—</strong><span>Désactivées</span>
-              </button>
-            </div>
-            <p>Une réponse publique ne prouve pas un parcours complet.</p>
+          <div class="summary-block monitoring-cadence">
+            <div class="summary-heading"><h2>Surveillance automatique</h2></div>
+            <p class="cadence-value">Toutes les 15 minutes</p>
+            <p>Retrouvez leur synthèse quotidienne dans l’historique.</p>
           </div>
         </div>
         <div class="measurement">
@@ -168,6 +147,49 @@
         tabindex="0"
         class="panel"
       >
+        <section class="monitored-panel" aria-labelledby="monitored-title">
+          <div class="panel-heading">
+            <h2 id="monitored-title">Services surveillés</h2>
+            <a href="#verification">Voir les vérifications</a>
+          </div>
+          <ul class="monitored-services">
+            <li>
+              <div>
+                <h3>Site et pages publiques</h3>
+                <p>Accueil dans les quatre langues et guides d’utilisation.</p>
+              </div>
+              <span id="service-pages-state" class="badge historical"
+                >En attente</span
+              >
+            </li>
+            <li>
+              <div>
+                <h3>Services web</h3>
+                <p>Réponse de l’API, version et configuration publiées.</p>
+              </div>
+              <span id="service-api-state" class="badge historical"
+                >En attente</span
+              >
+            </li>
+            <li>
+              <div>
+                <h3>Protection des accès</h3>
+                <p>
+                  Refus des accès sans connexion aux documents, envois et
+                  assistants.
+                </p>
+              </div>
+              <span id="service-access-state" class="badge historical"
+                >En attente</span
+              >
+            </li>
+          </ul>
+          <p class="section-note">
+            Ces contrôles surveillent les accès publics. Ils ne réalisent aucun
+            envoi. Le suivi de vos documents reste disponible dans votre
+            atelier.
+          </p>
+        </section>
         <section class="history-panel" aria-labelledby="history-title">
           <div class="panel-heading">
             <h2 id="history-title">
@@ -177,7 +199,7 @@
                 alt=""
                 width="24"
                 height="24"
-              />Disponibilité observée
+              />Historique des contrôles
             </h2>
             <fieldset class="filters history-periods">
               <legend class="sr-only">Période de l’historique</legend>
@@ -258,35 +280,6 @@
             moyenne ne constitue pas un engagement de service.
           </p>
         </section>
-
-        <div class="panel-heading">
-          <h2>Résultat par fonctionnalité</h2>
-          <span class="badge pending">Preuve partielle</span>
-        </div>
-        <p id="service-explanation" class="explanation">
-          Le fonctionnement complet de ces parcours n’est pas établi par les
-          mesures publiques. Une preuve absente ne signifie pas une panne.
-        </p>
-        <fieldset class="filters">
-          <legend class="sr-only">Filtrer les fonctionnalités</legend>
-          <button type="button" data-filter="all" aria-pressed="true">
-            Toutes</button
-          ><button type="button" data-filter="not_checked" aria-pressed="false">
-            À vérifier</button
-          ><button type="button" data-filter="disabled" aria-pressed="false">
-            Désactivées
-          </button>
-        </fieldset>
-        <p id="coverage-count" class="result-count" aria-live="polite">
-          En attente de données.
-        </p>
-        <div id="coverage" class="results" data-current="false">
-          <p class="empty">Aucune mesure reçue.</p>
-        </div>
-        <p class="section-note">
-          Cette vue présente la situation connue du service. Elle ne garantit ni
-          l’absence de bugs ni la livraison d’un document particulier.
-        </p>
       </section>
       <section
         id="panel-verification"
@@ -437,6 +430,42 @@
           est ici un succès : l’accès anonyme doit être bloqué. Les détails
           d’assertion individuels ne sont pas exportés.
         </p>
+        <section class="coverage-panel" aria-label="Couverture des parcours">
+          <div class="panel-heading">
+            <h2>Couverture des parcours</h2>
+            <span id="business-total" class="badge disabled"
+              >— fonctionnalités</span
+            >
+          </div>
+          <p id="service-explanation" class="explanation">
+            Ces parcours nécessitent des contrôles distincts des mesures de
+            disponibilité. Le détail ci-dessous décrit le périmètre suivi.
+          </p>
+          <fieldset class="filters">
+            <legend class="sr-only">Filtrer les fonctionnalités</legend>
+            <button type="button" data-filter="all" aria-pressed="true">
+              Toutes</button
+            ><button
+              type="button"
+              data-filter="not_checked"
+              aria-pressed="false"
+            >
+              Suivi complémentaire</button
+            ><button type="button" data-filter="disabled" aria-pressed="false">
+              Non activées
+            </button>
+          </fieldset>
+          <p id="coverage-count" class="result-count" aria-live="polite">
+            En attente de données.
+          </p>
+          <div id="coverage" class="results" data-current="false">
+            <p class="empty">Aucune mesure reçue.</p>
+          </div>
+          <p class="section-note">
+            Les résultats locaux, les contrôles de production et les livraisons
+            effectives constituent des preuves distinctes.
+          </p>
+        </section>
       </section>
       <section
         id="panel-operations"
@@ -693,10 +722,7 @@
           ><a href="https://guteneo.com/mentions-legales/">Mentions légales</a
           ><a href="https://guteneo.com/confidentialite/">Confidentialité</a>
         </nav>
-        <p>
-          Mesures publiques et tests locaux restent distincts. Une preuve trop
-          ancienne ne décrit plus l’état courant.
-        </p>
+        <p>Disponibilité observée, historique et détail des vérifications.</p>
       </div>
     </footer>
   </body>

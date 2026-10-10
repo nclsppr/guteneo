@@ -182,9 +182,24 @@ function setState(state, title, detail) {
   put(
     "service-explanation",
     current
-      ? "Le fonctionnement complet de ces parcours n’est pas établi par les mesures publiques. Une preuve absente ne signifie pas une panne."
+      ? "Ces parcours nécessitent des contrôles distincts des mesures de disponibilité. Leur couverture est documentée ci-dessous ; elle ne constitue pas un signal d’incident."
       : "La situation actuelle n’est pas connue. Les éventuels résultats ci-dessous proviennent de la dernière preuve reçue.",
   );
+  for (const id of ["pages", "api", "access"]) {
+    const checks = publicChecks().filter((check) => groupId(check) === id);
+    const failures = checks.filter((check) => check.status === "fail").length;
+    setBadge(
+      `service-${id}-state`,
+      !current
+        ? hasMeasure()
+          ? "Mesure ancienne"
+          : "Mesure indisponible"
+        : failures
+          ? `${failures} contrôle${failures > 1 ? "s" : ""} en écart`
+          : `${checks.length}/${checks.length} contrôles réussis`,
+      !current ? "historical" : failures ? "failure" : "success",
+    );
+  }
   put(
     "live-explanation",
     !current
@@ -270,8 +285,7 @@ function updateFreshness() {
     return;
   }
   const checks = publicChecks(),
-    bad = checks.filter((c) => c.status === "fail"),
-    untested = latest.coverage.filter((c) => c.state === "not_checked").length;
+    bad = checks.filter((c) => c.status === "fail");
   if (!checks.length)
     setState(
       "offline",
@@ -287,7 +301,7 @@ function updateFreshness() {
         " public" +
         (bad.length > 1 ? "s" : "") +
         " en écart",
-      "Une vérification est nécessaire. Ce constat ne suffit pas à qualifier tous les parcours.",
+      "Une anomalie a été détectée. Consultez les services concernés et le détail des contrôles.",
     );
   else if (checks.length !== 14)
     setState(
@@ -295,20 +309,11 @@ function updateFreshness() {
       "Mesure publique incomplète",
       checks.length + " contrôles reçus sur les 14 attendus.",
     );
-  else if (untested)
-    setState(
-      "attention",
-      "Site public vérifié · parcours métier à confirmer",
-      checks.length +
-        " contrôles publics réussis. " +
-        untested +
-        " fonctionnalités sans preuve complète en production.",
-    );
   else
     setState(
       "pass",
-      "Contrôles publics réussis",
-      "Ce résultat porte uniquement sur les contrôles publics affichés.",
+      "Contrôles de disponibilité réussis",
+      `${checks.length} contrôles publics réussis. Aucune anomalie détectée dans ce périmètre.`,
     );
 }
 function preserve(container) {
@@ -496,9 +501,9 @@ function renderCoverage() {
         !hasMeasure()
           ? "État non mesuré"
           : feature.state === "disabled"
-            ? "Désactivé"
-            : "Non vérifié de bout en bout",
-        feature.state === "disabled" ? "disabled" : "pending",
+            ? "Non activé"
+            : "Hors périmètre de ces contrôles",
+        "disabled",
       ),
     );
     const body = node("div", undefined, "detail-body"),
@@ -551,18 +556,6 @@ function renderSnapshot() {
     bad = checks.length - pass;
   put("passed-count", hasMeasure() ? String(pass) : "—");
   put("failed-count", hasMeasure() ? String(bad) : "—");
-  put(
-    "untested-count",
-    hasMeasure()
-      ? String(latest.coverage.filter((c) => c.state === "not_checked").length)
-      : "—",
-  );
-  put(
-    "disabled-count",
-    hasMeasure()
-      ? String(latest.coverage.filter((c) => c.state === "disabled").length)
-      : "—",
-  );
   put("public-total", `${checks.length} contrôles`);
   put("business-total", `${latest.coverage.length} fonctionnalités`);
   put("tab-public-count", checks.length + " contrôles");
@@ -581,7 +574,7 @@ function renderSnapshot() {
   updateFreshness();
 }
 const tabAliases = {
-  business: "service",
+  business: "verification",
   public: "verification",
   coverage: "operations",
 };
@@ -681,12 +674,12 @@ for (const button of document.querySelectorAll("[data-shortcut]"))
       $("check-search").value = "";
       setCheckFilter(value);
     } else setCoverageFilter(value);
-    selectTab(isPublic ? "verification" : "service");
+    selectTab("verification");
     const target = isPublic
       ? checkButtons.find((b) => b.dataset.checkFilter === value)
       : coverageButtons.find((b) => b.dataset.filter === value);
     target.focus({ preventScroll: true });
-    $("panel-" + (isPublic ? "verification" : "service")).scrollIntoView({
+    $("panel-verification").scrollIntoView({
       block: "start",
       behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
         ? "instant"

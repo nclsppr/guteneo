@@ -64,7 +64,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
 | Lire le moniteur public local | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
-| Lire le statut hébergé et son historique | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
+| Lire le statut hébergé et son historique | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture publique anonyme seulement |
 
 Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -378,17 +378,17 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 
 ### 19 · État public du service
 
-**État :** Publié le 10 octobre dans c953596 ; premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; parcours métier distincts.
+**État :** Séparation état public/couverture implémentée ; preuves locales du 10 octobre 2026 : 27 tests UI réussis, 3 réexécutions ciblées de la cadence réussies, 98 tests fonctionnels réussis sur 6 suites. Preuve historique distincte : service publié le 10 octobre dans c953596, premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; cette observation ne qualifie ni la nouvelle UI ni les parcours métier.
 
 Contrat : [STATUS_SERVICE.md](STATUS_SERVICE.md) · Source : [apps/status/worker.ts](../apps/status/worker.ts).
 
-**Surfaces :** Page publique autonome et GET anonymes /api/status, /api/history ; aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native. **Tests :** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts).
+**Surfaces :** Page publique autonome et GET anonymes /api/status, /api/history en lecture seule ; aucune authentification requise, aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native. **Tests :** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts).
 
 - Service indépendant status.guteneo.com : quatorze lectures anonymes bornées du domaine canonique, toutes les quinze minutes, sans bindings ni secret métier
-- Historique D1 7/30/365 jours : disponibilité observée et couverture des créneaux distinctes, journées vides inconnues, aucune reconstitution antérieure
-- État inconnu si absence, erreur ou preuve âgée de plus de trente minutes ; aucune lecture publique ne déclenche une collecte
-- Vues Service, Vérifications et Exploitation : preuve, date, limites et action ; aucune donnée client ni identifiant de commande
-- Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté
+- Historique D1 7/30/365 jours : réussite des contrôles observés et couverture des créneaux distinctes, synthèses quotidiennes, journées vides inconnues, aucune reconstitution antérieure
+- Quatorze contrôles récents réussis donnent un bilan positif limité au périmètre public ; un écart reste visible dans le bilan et le groupe concerné. Mesure absente, invalide, indisponible ou périmée (seuil de trente minutes) : état actuel inconnu et anciens résultats neutralisés ; aucune lecture publique ne déclenche une collecte
+- Vue Service : fraîcheur, groupes Site et pages publiques, Services web et Protection des accès, puis historique. Vue Vérifications : contrôles détaillés, preuve locale et couverture des parcours ; fonctions hors périmètre ou non activées en badges neutres, sans dégrader le bilan public. Vue Exploitation : limites et actions ; aucune donnée client ni identifiant de commande
+- Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté ; aucune preuve locale ou absence de couverture ne devient une preuve de livraison ou un incident de production
 - Footer de marque et effets saisonniers décoratifs bornés, désactivables et respectant la réduction de mouvement
 - Publication dédiée depuis main propre avec manifeste, contrôles de source et migrations D1 statut exclusivement
 
@@ -586,11 +586,11 @@ Référence : [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md).
 
 ### J20 · Consulter la situation et les preuves du service
 
-**Acteur :** Client, équipe ou astreinte ; accès public anonyme sans privilège atelier. **Branche :** STATUT PUBLIC → PREUVES → EXPLOITATION.
+**Acteur :** Client, équipe ou astreinte ; accès public anonyme en lecture seule, sans privilège atelier. **Branche :** STATUT PUBLIC → PREUVES → EXPLOITATION.
 
-Ouvrir status.guteneo.com depuis Guteneo → vérifier date et fraîcheur → lire la disponibilité observée sur 7/30/365 jours et sa couverture → consulter les fonctionnalités → ouvrir Vérifications pour distinguer production, qualification locale et preuves manquantes → consulter Exploitation pour la prochaine action.
+Ouvrir status.guteneo.com depuis Guteneo → dans Service, vérifier date et fraîcheur puis lire le bilan des quatorze contrôles publics et les trois groupes surveillés → consulter les synthèses quotidiennes sur 7/30/365 jours et la couverture des créneaux → ouvrir Vérifications pour les contrôles détaillés, la qualification locale et la couverture des parcours, présentées séparément → consulter Exploitation pour les limites et la prochaine action. Un bilan public positif reste limité aux contrôles exécutés ; les parcours hors périmètre ou non activés portent des badges neutres.
 
-**Blocage / reprise :** Mesure absente, ancienne ou illisible : état actuel inconnu. Jours sans mesure en gris ; aucune disponibilité extrapolée. Les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Publication et première collecte distante restent des preuves distinctes.
+**Blocage / reprise :** Contrôle en écart : alerte dans le bilan et le groupe concerné, détail consultable dans Vérifications. Mesure absente, ancienne, indisponible ou illisible : état actuel inconnu et résultats précédents datés, sans succès courant. Jours sans mesure en gris ; aucune disponibilité extrapolée. Une couverture métier absente ne signifie pas une panne et ne dégrade pas le bilan public ; les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Tests locaux de cette présentation et observation distante historique restent des preuves distinctes.
 
 Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
 
