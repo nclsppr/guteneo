@@ -104,6 +104,14 @@ et sa première exécution Cron demeurent des preuves distinctes.
 
 ## Publication et retour arrière
 
+Publication observée le **10 octobre 2026** : le service et l’application
+exposent le commit `c953596dc0650961a7294da622703f5edc3a764d`. Les **20 assets**
+publics du statut ont été vérifiés. La première collecte Cron a terminé à
+**02:45:05.570 UTC**, avec **14 contrôles publics réussis sur 14**. La lecture
+à 02:45:37.358 UTC confirme une mesure enregistrée dans chacune des fenêtres
+7/30/365 jours ; les jours antérieurs restent sans mesure. Ces preuves publiques
+ne qualifient aucun parcours métier authentifié ni aucune livraison.
+
 `npm run build:status` produit les fichiers statiques et leur manifeste lié aux
 sources. La preuve locale est incluse uniquement si son périmètre et son empreinte
 correspondent aux sources actuelles ; sinon elle apparaît indisponible. Cette
