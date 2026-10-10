@@ -331,6 +331,7 @@ strong {
   color: var(--muted);
 }
 .monitoring-cadence .cadence-value {
+  display: block;
   margin: 18px 0 17px;
   font-size: 23px;
   font-weight: 600;

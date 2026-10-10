@@ -21,6 +21,12 @@ for (const width of [1440, 390, 320]) {
     await expect(page.locator("#state-title")).toHaveText(
       "Contrôles de disponibilité réussis",
     );
+    await expect(
+      page.locator(".monitoring-cadence .cadence-value"),
+    ).toBeVisible();
+    await expect(page.locator(".monitoring-cadence .cadence-value")).toHaveText(
+      "Toutes les 15 minutes",
+    );
     for (const [group, count] of serviceGroups) {
       await expect(page.locator(`#service-${group}-state`)).toHaveText(
         `${count}/${count} contrôles réussis`,
