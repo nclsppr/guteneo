@@ -1,8 +1,14 @@
 # Contrôle à blanc d’un envoi existant
 
-Candidat local du 10 octobre 2026, non déployé. Ce contrat décrit une validation
-utilisable avec les données de production après une publication autorisée ; aucun
-appel sur un envoi de production n’a été effectué pour cette évolution.
+Contrat déployé le **10 octobre 2026 à 02:30:52 UTC** avec l’application
+`c953596dc0650961a7294da622703f5edc3a764d` ; 262 assets publics ont été vérifiés.
+Le contrôle anonyme `GET /api/dispatches/status-probe/dry-run` a répondu
+**401 avec `Cache-Control: no-store`**. Cette preuve établit le refus d’accès
+anonyme de la route, pas l’exécution de ses gardes métier.
+
+Le **parcours authentifié reste non qualifié en production** : aucun dry-run
+authentifié n’a été exécuté sur un envoi de production et aucune livraison
+n’a été effectuée pour cette qualification.
 
 Le contrôle relit un envoi déjà préparé et ses preuves enregistrées. Il ne prépare
 pas un nouveau devis, ne renouvelle pas celui qui existe et ne le consomme pas.
@@ -115,7 +121,8 @@ limitation. Un changement de l’envoi, des droits, du devis ou du temps peut ch
 le résultat entre deux lectures. Les gardes sont lues successivement, sans
 verrouillage ni réservation : une modification concurrente peut rendre la mesure
 périmée. Seuls les contrôles du parcours réel autorisent ensuite son acceptation.
-Aucun planificateur ni secret de production n’est installé par ce candidat.
+Aucun planificateur de dry-run ni secret de production n’est installé pour
+cette fonction.
 
 Les refus d’authentification, de scope, d’atelier ou d’accès documentaire restent
 des erreurs d’accès, pas des contrôles métier réussis. Reconnecter ou corriger
@@ -125,7 +132,7 @@ relecture est permise, sans lancer de préparation, de renouvellement ou d’env
 Un devis expiré demande une action distincte via le parcours existant ; une
 ancienne approbation ne se reporte pas implicitement sur un devis renouvelé.
 
-## Exécution automatisable après publication
+## Exécution automatisable en production
 
 Le runner `scripts/production-dry-run.ts` effectue uniquement ces lectures sur
 `https://guteneo.com`. Il accepte de 1 à 10 identifiants distincts d’envois
@@ -133,8 +140,8 @@ existants, via un argument `--dispatch` par envoi. Aucun domaine arbitraire ni
 redirection n’est accepté. Les requêtes sont séquentielles, chacune bornée à
 10 secondes et à 64 Kio de réponse.
 
-Prérequis : publication autorisée du contrat, jeton OAuth encore valide avec
-`dispatches:read`, appartenance actuelle à l’atelier, accès à chaque envoi choisi
+Prérequis : version publiée compatible avec ce contrat, jeton OAuth encore
+valide avec `dispatches:read`, appartenance actuelle à l’atelier, accès à chaque envoi choisi
 et devis préparés non expirés. Le jeton est injecté dans
 `GUTENEO_DRY_RUN_TOKEN` par le gestionnaire de secrets du processus ; ne pas le
 placer dans les arguments ou les journaux. Remplacer l’identifiant illustratif
@@ -188,7 +195,7 @@ postal prépare une fixture D1 avec préflight, consentement et devis ; deux lec
 conservent toutes les tables métier et ne rappellent ni résolveur ni fournisseur.
 Les preuves des suites MCP et runner sont distinctes.
 
-La qualification hébergée reste à faire après publication autorisée, avec un
+La qualification authentifiée en production reste à faire, avec un
 compte de test réel et un envoi existant explicitement choisi. Le contrôle ne
 qualifie pas une nouvelle connexion Auth0, les octets réellement stockés, la
 fraîcheur des signatures antivirus, l’analyse ou le rendu effectifs, la
