@@ -399,21 +399,21 @@
       "source": "apps/status/worker.ts",
       "features": [
         "Service indépendant status.guteneo.com : quatorze lectures anonymes bornées du domaine canonique, toutes les quinze minutes, sans bindings ni secret métier",
-        "Historique D1 7/30/365 jours : disponibilité observée et couverture des créneaux distinctes, journées vides inconnues, aucune reconstitution antérieure",
-        "État inconnu si absence, erreur ou preuve âgée de plus de trente minutes ; aucune lecture publique ne déclenche une collecte",
-        "Vues Service, Vérifications et Exploitation : preuve, date, limites et action ; aucune donnée client ni identifiant de commande",
-        "Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté",
+        "Historique D1 7/30/365 jours : réussite des contrôles observés et couverture des créneaux distinctes, synthèses quotidiennes, journées vides inconnues, aucune reconstitution antérieure",
+        "Quatorze contrôles récents réussis donnent un bilan positif limité au périmètre public ; un écart reste visible dans le bilan et le groupe concerné. Mesure absente, invalide, indisponible ou périmée (seuil de trente minutes) : état actuel inconnu et anciens résultats neutralisés ; aucune lecture publique ne déclenche une collecte",
+        "Vue Service : fraîcheur, groupes Site et pages publiques, Services web et Protection des accès, puis historique. Vue Vérifications : contrôles détaillés, preuve locale et couverture des parcours ; fonctions hors périmètre ou non activées en badges neutres, sans dégrader le bilan public. Vue Exploitation : limites et actions ; aucune donnée client ni identifiant de commande",
+        "Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté ; aucune preuve locale ou absence de couverture ne devient une preuve de livraison ou un incident de production",
         "Footer de marque et effets saisonniers décoratifs bornés, désactivables et respectant la réduction de mouvement",
         "Publication dédiée depuis main propre avec manifeste, contrôles de source et migrations D1 statut exclusivement"
       ],
-      "status": "Publié le 10 octobre dans c953596 ; premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; parcours métier distincts",
+      "status": "Séparation état public/couverture implémentée ; preuves locales du 10 octobre 2026 : 27 tests UI réussis, 3 réexécutions ciblées de la cadence réussies, 98 tests fonctionnels réussis sur 6 suites. Preuve historique distincte : service publié le 10 octobre dans c953596, premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; cette observation ne qualifie ni la nouvelle UI ni les parcours métier",
       "tests": [
         "tests/integration/status-service.test.ts",
         "tests/security/status-release.test.mjs",
         "tests/security/test-offline.test.mjs",
         "tests/status-e2e/status.spec.ts"
       ],
-      "surfaces": "Page publique autonome et GET anonymes /api/status, /api/history ; aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native"
+      "surfaces": "Page publique autonome et GET anonymes /api/status, /api/history en lecture seule ; aucune authentification requise, aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native"
     }
   ],
   "journeys": [
@@ -591,11 +591,11 @@
     {
       "id": "J20",
       "title": "Consulter la situation et les preuves du service",
-      "actor": "Client, équipe ou astreinte ; accès public anonyme sans privilège atelier",
-      "steps": "Ouvrir status.guteneo.com depuis Guteneo → vérifier date et fraîcheur → lire la disponibilité observée sur 7/30/365 jours et sa couverture → consulter les fonctionnalités → ouvrir Vérifications pour distinguer production, qualification locale et preuves manquantes → consulter Exploitation pour la prochaine action.",
+      "actor": "Client, équipe ou astreinte ; accès public anonyme en lecture seule, sans privilège atelier",
+      "steps": "Ouvrir status.guteneo.com depuis Guteneo → dans Service, vérifier date et fraîcheur puis lire le bilan des quatorze contrôles publics et les trois groupes surveillés → consulter les synthèses quotidiennes sur 7/30/365 jours et la couverture des créneaux → ouvrir Vérifications pour les contrôles détaillés, la qualification locale et la couverture des parcours, présentées séparément → consulter Exploitation pour les limites et la prochaine action. Un bilan public positif reste limité aux contrôles exécutés ; les parcours hors périmètre ou non activés portent des badges neutres.",
       "branch": "STATUT PUBLIC → PREUVES → EXPLOITATION",
       "doc": "STATUS_SERVICE.md",
-      "failure": "Mesure absente, ancienne ou illisible : état actuel inconnu. Jours sans mesure en gris ; aucune disponibilité extrapolée. Les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Publication et première collecte distante restent des preuves distinctes."
+      "failure": "Contrôle en écart : alerte dans le bilan et le groupe concerné, détail consultable dans Vérifications. Mesure absente, ancienne, indisponible ou illisible : état actuel inconnu et résultats précédents datés, sans succès courant. Jours sans mesure en gris ; aucune disponibilité extrapolée. Une couverture métier absente ne signifie pas une panne et ne dégrade pas le bilan public ; les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Tests locaux de cette présentation et observation distante historique restent des preuves distinctes."
     }
   ],
   "roles": [
@@ -776,11 +776,11 @@
     ],
     [
       "Lire le statut hébergé et son historique",
-      "Anonyme, aucun droit acquis",
-      "Anonyme, aucun droit acquis",
-      "Anonyme, aucun droit acquis",
-      "Anonyme, aucun droit acquis",
-      "Lectures publiques seulement"
+      "Lecture anonyme seulement, aucun droit acquis",
+      "Lecture anonyme seulement, aucun droit acquis",
+      "Lecture anonyme seulement, aucun droit acquis",
+      "Lecture anonyme seulement, aucun droit acquis",
+      "Lecture publique anonyme seulement"
     ]
   ]
 }
