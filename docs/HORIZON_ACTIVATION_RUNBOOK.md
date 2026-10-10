@@ -4,6 +4,12 @@ This developer-only runbook separates an authorization, an implemented safeguard
 an isolated test result and a production observation. Do not publish it in public
 assets or treat an unchecked row as a passed release gate.
 
+Current production application checks use only `https://guteneo.com`. The former
+application `workers.dev` host and application version preview URLs must remain
+closed. Record their closure separately from Horizon availability checks.
+Follow [MAIN_RELEASE.md](MAIN_RELEASE.md) for this hosting contract.
+Earlier dated release observations below remain historical evidence.
+
 ## Authorization and scope
 
 On 3 October 2026, Nicolas explicitly requested all remaining Horizon activation
@@ -36,17 +42,17 @@ an artifact location only after the observation. Evidence labels in application
 JSON describe the application's mode; a synthetic fixture carrying
 `evidence: "production"` does not establish a real customer transaction.
 
-| Gate | Prepared evidence | Production observation |
-| --- | --- | --- |
-| Application availability | One `horizonAvailable` predicate requires the exact flag, private validator, production scanner and coherent production mode; focused capabilities regression | Not recorded by this runbook |
-| Account debit and authority | Real isolated D1 triggers in `tests/unit/monthly-plan.test.ts` | Not recorded by this runbook |
-| Exact-file PDF adapter and ownership | Real isolated D1/R2 with intercepted engine responses in `tests/unit/pdf-validation.test.ts` | Not recorded by this runbook |
-| Real engine profiles | Pinned veraPDF 1.30.2 local Docker proof; hosted matrix is separate | Not recorded by this runbook |
-| Production browser subscription/cancellation | Protocol below; genuine browser administrator required | Not recorded by this runbook |
-| Natural monthly renewal | Calendar, concurrency, insufficient-funds and cancellation tests; no accelerated production clock | Not observed; first due date is in the future |
-| Credit replenishment and commercial offer | Deferred by Nicolas; no implemented top-up claimed | Unavailable until a separately completed release |
-| OAuth assistant host | Local MCP permission/parity tests are available | Not recorded by this runbook |
-| Human accessibility review | Protocol below; automated PDF result always retains manual-review notice | Not recorded by this runbook |
+| Gate                                         | Prepared evidence                                                                                                                                             | Production observation                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Application availability                     | One `horizonAvailable` predicate requires the exact flag, private validator, production scanner and coherent production mode; focused capabilities regression | Not recorded by this runbook                     |
+| Account debit and authority                  | Real isolated D1 triggers in `tests/unit/monthly-plan.test.ts`                                                                                                | Not recorded by this runbook                     |
+| Exact-file PDF adapter and ownership         | Real isolated D1/R2 with intercepted engine responses in `tests/unit/pdf-validation.test.ts`                                                                  | Not recorded by this runbook                     |
+| Real engine profiles                         | Pinned veraPDF 1.30.2 local Docker proof; hosted matrix is separate                                                                                           | Not recorded by this runbook                     |
+| Production browser subscription/cancellation | Protocol below; genuine browser administrator required                                                                                                        | Not recorded by this runbook                     |
+| Natural monthly renewal                      | Calendar, concurrency, insufficient-funds and cancellation tests; no accelerated production clock                                                             | Not observed; first due date is in the future    |
+| Credit replenishment and commercial offer    | Deferred by Nicolas; no implemented top-up claimed                                                                                                            | Unavailable until a separately completed release |
+| OAuth assistant host                         | Local MCP permission/parity tests are available                                                                                                               | Not recorded by this runbook                     |
+| Human accessibility review                   | Protocol below; automated PDF result always retains manual-review notice                                                                                      | Not recorded by this runbook                     |
 
 For the shared availability fix, a focused local invocation of
 `live-capabilities.test.ts`, `monthly-plan.test.ts` and `pdf-validation.test.ts`
@@ -62,8 +68,8 @@ or a live account debit. CI must run on the final candidate and its merged main.
    the actual production migration ledger; never edit an applied migration.
 2. From exact clean synchronized main, run
    `npm run deploy:pdf-validator -- --qualification` for the bounded prelaunch
-   qualification. The wrapper first requires both application origins to report
-   production mode and Horizon closed; unknown/error/open results prevent
+   qualification. The wrapper first requires `https://guteneo.com/api/capabilities`
+   to report production mode and Horizon closed; unknown/error/open results prevent
    deployment. This explicit option temporarily enables only the account-private
    `ValidatorQualification` RPC. It does not enable Horizon. Deploy the private
    pinned validator with no public route, no workers.dev or
@@ -94,10 +100,14 @@ or a live account debit. CI must run on the final candidate and its merged main.
    existing customer's account or debit reserved communication credit.
 6. Enable the exact string `HORIZON_ENABLED="true"` in the reviewed production
    configuration and release the same clean main. Read `/release.json`,
-   `/api/health` and `/api/capabilities` on **both** canonical and workers.dev
-   application origins. `horizon.available` and
+   `/api/health` and `/api/capabilities` only on `https://guteneo.com`.
+   `horizon.available` and
    `documents.validation.available` must agree. Read authenticated `/api/plan`
    in the operator account; its entitlement remains inactive until consent.
+   Separately record that the former application `workers.dev` host and
+   application version preview URLs no longer serve application pages, the
+   release manifest, API or authentication. Closed hosts are not targets for
+   release asset comparisons or Horizon availability checks.
 7. Execute the browser/account and document protocols below. Preserve minimal
    redacted evidence without session cookies, CSRF values, signed URLs or PDF
    content in reports/logs. If a material hosted gate fails, disable the launch
@@ -138,15 +148,17 @@ npm --prefix apps/pdf-validator run qualify:hosted -- \
   --proof "$HORIZON_PROOF_PATH"
 ```
 
-The driver checks that the customer application is closed before stopping the
-container, exercises the actual private service using pinned upstream references,
-and writes pass/fail evidence locally. Its process-deadline probe deliberately
-kills harmless synthetic Python work; it proves the process-group deadline,
+The driver requires production mode and Horizon closed on `https://guteneo.com`
+before stopping the container. It exercises the actual private service using
+pinned upstream references and writes pass/fail evidence locally. Its
+process-deadline probe deliberately kills harmless synthetic Python work; it
+proves the process-group deadline,
 not an observed forty-second timeout of a real Java PDF. A failed hosted driver
 does not authorize activation. Keep the original failure and diagnosis.
 
-Before the normal private redeployment, while both origins remain closed, stop
-the container through the loopback-only bridge and stop Wrangler dev. Then run
+Before the normal private redeployment, while Horizon remains closed on
+`https://guteneo.com`, stop the container through the loopback-only bridge and
+stop Wrangler dev. Then run
 `npm run deploy:pdf-validator` and re-read actual deployed settings and health.
 Do not bind the named `ValidatorQualification` entrypoint to the customer app;
 the normal `PDF_VALIDATOR` service binding exposes its restricted health/validate
@@ -166,18 +178,18 @@ flow. Recorded human/admin consent comes from the real browser acceptance;
 creating a database session or labelling an assistant request as browser consent
 would not qualify this step. Subscription is not an MCP or native operation.
 
-| Step | Expected result and minimal proof |
-| --- | --- |
-| Read the inactive plan as administrator | `/api/plan` returns 3000 minor units (EUR30), EUR currency, current terms version, `enabled=true`, `entitled=false`, management allowed and the actual available balance; private response is `no-store` |
-| Confirm available credits | Read the account's balance/reservations through normal admin surfaces or an operator read-only account-scoped SQL check; require at least 3000 available minor units and keep all unrelated reservation amounts unchanged |
-| Inspect unchecked consent | Browser visibly explains EUR30/month, debit from shared credits and automatic monthly renewal; submit stays unavailable before acceptance |
-| Explicitly accept and subscribe | Administrator checks acceptance and submits; the real same-origin CSRF-protected POST records the exact `termsVersion`; note request's idempotency key only in a redacted/local artifact |
-| Inspect resulting account | Plan is active/entitled, period begins now and ends at its UTC calendar anniversary; credit available falls by exactly 3000 and one immutable charge/consent action exists for that period |
-| Replay the same browser request | Reuse its key through the existing genuine browser flow; no extra charge, no new term and no changed balance; avoid HAR retention containing credentials |
-| Attempt restoration after cancellation | See cancellation protocol below; restoration in the same paid period does not debit again or move the end date |
-| Read as supervisor/member/viewer | All can read account status; `creditAvailableMinor=null`, `billingManagementAllowed=false`; none can subscribe/cancel or read financial management records |
-| Assistant/native separation | Genuine OAuth/native credentials cannot call plan management; bearer plan routes return `BILLING_BROWSER_REQUIRED`; OAuth capabilities never expose the financial balance or management rights |
-| Tenant separation | An authenticated second tenant sees its own inactive plan and own balance only; no caller-supplied organization overrides authenticated membership |
+| Step                                    | Expected result and minimal proof                                                                                                                                                                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read the inactive plan as administrator | `/api/plan` returns 3000 minor units (EUR30), EUR currency, current terms version, `enabled=true`, `entitled=false`, management allowed and the actual available balance; private response is `no-store`                  |
+| Confirm available credits               | Read the account's balance/reservations through normal admin surfaces or an operator read-only account-scoped SQL check; require at least 3000 available minor units and keep all unrelated reservation amounts unchanged |
+| Inspect unchecked consent               | Browser visibly explains EUR30/month, debit from shared credits and automatic monthly renewal; submit stays unavailable before acceptance                                                                                 |
+| Explicitly accept and subscribe         | Administrator checks acceptance and submits; the real same-origin CSRF-protected POST records the exact `termsVersion`; note request's idempotency key only in a redacted/local artifact                                  |
+| Inspect resulting account               | Plan is active/entitled, period begins now and ends at its UTC calendar anniversary; credit available falls by exactly 3000 and one immutable charge/consent action exists for that period                                |
+| Replay the same browser request         | Reuse its key through the existing genuine browser flow; no extra charge, no new term and no changed balance; avoid HAR retention containing credentials                                                                  |
+| Attempt restoration after cancellation  | See cancellation protocol below; restoration in the same paid period does not debit again or move the end date                                                                                                            |
+| Read as supervisor/member/viewer        | All can read account status; `creditAvailableMinor=null`, `billingManagementAllowed=false`; none can subscribe/cancel or read financial management records                                                                |
+| Assistant/native separation             | Genuine OAuth/native credentials cannot call plan management; bearer plan routes return `BILLING_BROWSER_REQUIRED`; OAuth capabilities never expose the financial balance or management rights                            |
+| Tenant separation                       | An authenticated second tenant sees its own inactive plan and own balance only; no caller-supplied organization overrides authenticated membership                                                                        |
 
 For initial subscriptions a replayed response alone is insufficient financial
 proof. The read-only check must correlate the single `horizon_plan_charges` row,
@@ -299,10 +311,12 @@ PDF's reading order, meaningful alternatives and contrast: veraPDF cannot
 complete those checks or certify legal compliance.
 
 The final release record contains exact main SHA, 13-job CI result (or updated
-required inventory), application/validator versions and image digest, both
-origins' manifests/health/capability flags, integrity/migration baseline, synthetic
-reference hashes, authenticated journey results and operator account's intended
-final subscription state. It lists all unobserved future renewal/top-up/assistant
+required inventory), application/validator versions and image digest, the
+canonical manifest/health/capability flags, separate evidence of closure for the
+former application `workers.dev` host and application preview URLs,
+integrity/migration baseline, synthetic reference hashes, authenticated journey
+results and operator account's intended final subscription state. It lists all
+unobserved future renewal/top-up/assistant
 host/human-review items. Never include credentials, billing session URLs,
 customer document bodies or another tenant's financial rows.
 

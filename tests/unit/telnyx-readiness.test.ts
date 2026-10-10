@@ -9,6 +9,7 @@ import type { Fetcher } from "../../packages/providers/types";
 const config = {
   apiKey: "fixture-private-key",
   connectionId: "1000000000000000001",
+  canonicalWebhookUrl: "https://guteneo.com/webhooks/telnyx",
 };
 
 it("derives a stable internal account reference only from a canonical Ed25519 public key", async () => {
@@ -82,6 +83,152 @@ function mocked(responses: unknown[]) {
 }
 
 describe("read-only Telnyx inspection", () => {
+  const unknownWebhook = {
+    status: "unknown",
+    present: null,
+    matchesCanonical: null,
+  };
+  const absentWebhook = {
+    status: "absent",
+    present: false,
+    matchesCanonical: false,
+  };
+  const canonicalWebhook = {
+    status: "canonical",
+    present: true,
+    matchesCanonical: true,
+  };
+  const differentWebhook = {
+    status: "different",
+    present: true,
+    matchesCanonical: false,
+  };
+  const fallbackWebhook =
+    "https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx";
+
+  it.each([
+    {
+      label: "canonical primary and explicitly unset failover",
+      primary: config.canonicalWebhookUrl,
+      failover: null,
+      expectedPrimary: canonicalWebhook,
+      expectedFailover: absentWebhook,
+    },
+    {
+      label: "former worker primary and explicitly empty failover",
+      primary: fallbackWebhook,
+      failover: "",
+      expectedPrimary: differentWebhook,
+      expectedFailover: absentWebhook,
+    },
+    {
+      label: "canonical primary with former worker failover",
+      primary: config.canonicalWebhookUrl,
+      failover: fallbackWebhook,
+      expectedPrimary: canonicalWebhook,
+      expectedFailover: differentWebhook,
+    },
+    {
+      label: "both callbacks canonical",
+      primary: config.canonicalWebhookUrl,
+      failover: config.canonicalWebhookUrl,
+      expectedPrimary: canonicalWebhook,
+      expectedFailover: canonicalWebhook,
+    },
+    {
+      label: "both callbacks explicitly empty",
+      primary: "",
+      failover: "",
+      expectedPrimary: absentWebhook,
+      expectedFailover: absentWebhook,
+    },
+    {
+      label: "omitted fields remain unknown",
+      primary: undefined,
+      failover: undefined,
+      expectedPrimary: unknownWebhook,
+      expectedFailover: unknownWebhook,
+    },
+    {
+      label: "unexpected primary null and missing failover remain unknown",
+      primary: null,
+      failover: undefined,
+      expectedPrimary: unknownWebhook,
+      expectedFailover: unknownWebhook,
+    },
+    {
+      label: "malformed field types remain unknown",
+      primary: { secret: "must-not-escape" },
+      failover: false,
+      expectedPrimary: unknownWebhook,
+      expectedFailover: unknownWebhook,
+    },
+    {
+      label: "canonical-looking URLs with query or trailing slash differ",
+      primary: `${config.canonicalWebhookUrl}?token=must-not-escape`,
+      failover: `${config.canonicalWebhookUrl}/`,
+      expectedPrimary: differentWebhook,
+      expectedFailover: differentWebhook,
+    },
+    {
+      label: "credentials and non-HTTP schemes remain unknown",
+      primary: "https://user:must-not-escape@guteneo.com/webhooks/telnyx",
+      failover: "javascript:must-not-escape",
+      expectedPrimary: unknownWebhook,
+      expectedFailover: unknownWebhook,
+    },
+    {
+      label: "oversized field and arbitrary text remain unknown",
+      primary: `https://private.invalid/${"x".repeat(2048)}`,
+      failover: "must-not-escape",
+      expectedPrimary: unknownWebhook,
+      expectedFailover: unknownWebhook,
+    },
+    {
+      label: "URL normalization never grants an exact canonical match",
+      primary: "https://GUTENEO.com/webhooks/telnyx",
+      failover: "https://guteneo.com/webhooks/%74elnyx",
+      expectedPrimary: differentWebhook,
+      expectedFailover: differentWebhook,
+    },
+  ])(
+    "projects callbacks privately: $label",
+    async ({ primary, failover, expectedPrimary, expectedFailover }) => {
+      const fetcher = mocked([
+        {
+          data: {
+            id: config.connectionId,
+            active: true,
+            webhook_event_url: primary,
+            webhook_event_failover_url: failover,
+          },
+        },
+        page([], 1, 0),
+      ]);
+      const result = await inspectTelnyxReadiness(config, fetcher);
+      expect(result.application?.webhooks).toEqual({
+        primary: expectedPrimary,
+        failover: expectedFailover,
+      });
+      expect(result.status).toBe("ok");
+      expect(result.liveSendingVerified).toBe(false);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(
+        fetcher.mock.calls.map(([input, init]) => {
+          expect(init?.method).toBe("GET");
+          expect(init?.body).toBeUndefined();
+          return new URL(String(input)).pathname;
+        }),
+      ).toEqual([
+        `/v2/fax_applications/${config.connectionId}`,
+        "/v2/phone_numbers",
+      ]);
+      expect(JSON.stringify(result)).not.toMatch(
+        /https?:|must-not-escape|fixture-private-key/,
+      );
+    },
+  );
+
   it("retains validated restrictions while an invalid monetary setting stays unknown", async () => {
     const result = await inspectTelnyxReadiness(
       config,
@@ -153,6 +300,18 @@ describe("read-only Telnyx inspection", () => {
       active: true,
       outboundVoiceProfileId: profileId,
       outboundChannelLimit: 2,
+      webhooks: {
+        primary: {
+          status: "different",
+          present: true,
+          matchesCanonical: false,
+        },
+        failover: {
+          status: "unknown",
+          present: null,
+          matchesCanonical: null,
+        },
+      },
     });
     expect(result.numbers).toHaveLength(2);
     expect(result.numbers[0]).toEqual({
@@ -256,6 +415,12 @@ describe("read-only Telnyx inspection", () => {
       { ...config, connectionId: "100?other=account" },
       { ...config, apiKey: "secret\nheader" },
       { ...config, apiKey: "" },
+      { ...config, canonicalWebhookUrl: "" },
+      {
+        ...config,
+        canonicalWebhookUrl:
+          "https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx",
+      },
     ]) {
       const result = await inspectTelnyxReadiness(invalid, fetcher);
       expect(result.errors).toEqual([

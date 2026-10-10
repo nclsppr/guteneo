@@ -5,6 +5,28 @@ Guteneo is explicitly authorized. Existing Cloudflare quotas may be used;
 business debits, quote consumption and real communication remain excluded.
 Release sequence and qualification limits: [STATUS_SERVICE.md](STATUS_SERVICE.md).
 
+## Current release origin contract
+
+Production application access is restricted to `https://guteneo.com`.
+The application Worker must keep `workers_dev: false` and `preview_urls: false`;
+the former `guteneo-app.nclsppr.workers.dev` address and application version
+preview URLs are closed. The separate fictional design preview remains outside
+this change. Workshop roles and existing authorization rules are unchanged.
+
+For the next publication, retain clean-main and exact-commit CI evidence, deploy
+the canonical-only configuration, run `scripts/verify-release.mjs` against
+`https://guteneo.com`, and separately record that the closed origins no longer
+serve the application. Do not run release asset comparisons against those closed
+hosts or reopen them as a fallback. Public browser checks remain read-only on
+the canonical domain. Follow [MAIN_RELEASE.md](MAIN_RELEASE.md).
+
+Qualify the browser Auth0 callback, logout and allowed-origin configuration for
+the canonical domain separately from application publication. A real verified
+account, callback/session, account change and reconnection still require their
+own human-browser proof; public page checks and fixture tests do not establish
+them. Earlier dated alternate-origin and two-origin release evidence stays
+historical and is not the current hosting contract.
+
 9 October integration candidate: visible personal identity, read-only login email,
 current workshop role/permissions and browser-only responsible contacts, with an
 explicit Auth0 account-change action. Belvédère is reconciled with current main

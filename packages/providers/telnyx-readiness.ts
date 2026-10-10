@@ -18,9 +18,12 @@ const id = z.string().regex(/^\d{1,30}$/);
 const optionalFlag = z.boolean().optional();
 const limit = z.number().int().nonnegative().nullable().optional();
 const decimal = z.string().regex(/^\d{1,15}(?:\.\d{1,8})?$/);
+const CANONICAL_WEBHOOK_URL = "https://guteneo.com/webhooks/telnyx";
 const applicationSchema = z.object({
   id,
   active: z.boolean(),
+  webhook_event_url: z.unknown().optional(),
+  webhook_event_failover_url: z.unknown().optional(),
   outbound: z
     .object({
       outbound_voice_profile_id: id.nullable().optional(),
@@ -102,6 +105,47 @@ class InspectionFailure extends Error {
   }
 }
 
+export type TelnyxWebhookProjection =
+  | { status: "unknown"; present: null; matchesCanonical: null }
+  | { status: "absent"; present: false; matchesCanonical: false }
+  | { status: "canonical"; present: true; matchesCanonical: true }
+  | { status: "different"; present: true; matchesCanonical: false };
+
+function projectWebhook(
+  value: unknown,
+  canonical: string,
+  nullable: boolean,
+): TelnyxWebhookProjection {
+  if (value === "" || (nullable && value === null))
+    return { status: "absent", present: false, matchesCanonical: false };
+  const unknown: TelnyxWebhookProjection = {
+    status: "unknown",
+    present: null,
+    matchesCanonical: null,
+  };
+  if (
+    typeof value !== "string" ||
+    value.length > 2048 ||
+    !/^https?:\/\//i.test(value) ||
+    /[\u0000-\u0020]/.test(value)
+  )
+    return unknown;
+  try {
+    const url = new URL(value);
+    if (
+      !["https:", "http:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    )
+      return unknown;
+  } catch {
+    return unknown;
+  }
+  return value === canonical
+    ? { status: "canonical", present: true, matchesCanonical: true }
+    : { status: "different", present: true, matchesCanonical: false };
+}
+
 export type TelnyxReadiness = {
   provider: "telnyx";
   mode: "read_only";
@@ -111,6 +155,10 @@ export type TelnyxReadiness = {
     active: boolean;
     outboundVoiceProfileId: string | null;
     outboundChannelLimit: number | null | "unknown";
+    webhooks: {
+      primary: TelnyxWebhookProjection;
+      failover: TelnyxWebhookProjection;
+    };
   } | null;
   numbers: {
     id: string;
@@ -143,7 +191,11 @@ export type TelnyxReadiness = {
  * The caller must keep this result private: attached phone numbers are account data.
  */
 export async function inspectTelnyxReadiness(
-  config: { apiKey: string; connectionId: string },
+  config: {
+    apiKey: string;
+    connectionId: string;
+    canonicalWebhookUrl: string;
+  },
   fetcher: Fetcher = fetch,
 ): Promise<TelnyxReadiness> {
   const result: TelnyxReadiness = {
@@ -170,6 +222,7 @@ export async function inspectTelnyxReadiness(
   };
   if (
     !id.safeParse(config.connectionId).success ||
+    config.canonicalWebhookUrl !== CANONICAL_WEBHOOK_URL ||
     typeof config.apiKey !== "string" ||
     !/^[\x21-\x7e]{1,4096}$/.test(config.apiKey)
   ) {
@@ -230,6 +283,18 @@ export async function inspectTelnyxReadiness(
         app.outbound?.channel_limit === undefined
           ? "unknown"
           : app.outbound.channel_limit,
+      webhooks: {
+        primary: projectWebhook(
+          app.webhook_event_url,
+          config.canonicalWebhookUrl,
+          false,
+        ),
+        failover: projectWebhook(
+          app.webhook_event_failover_url,
+          config.canonicalWebhookUrl,
+          true,
+        ),
+      },
     };
   } catch (error) {
     failed("application", error);

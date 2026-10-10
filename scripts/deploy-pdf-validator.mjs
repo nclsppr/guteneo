@@ -5,10 +5,7 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { verifyMainSource } from "./deploy-public.mjs";
 
-const origins = [
-  "https://guteneo.com",
-  "https://guteneo-app.nclsppr.workers.dev",
-];
+const productionOrigin = "https://guteneo.com";
 async function publicCapabilities(origin) {
   const response = await fetch(`${origin}/api/capabilities`, {
     redirect: "error",
@@ -56,15 +53,13 @@ export async function deployPdfValidator({
   if (qualification) {
     let capabilities;
     try {
-      capabilities = await Promise.all(origins.map(readCapabilities));
+      capabilities = await readCapabilities(productionOrigin);
     } catch {
       throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED");
     }
     if (
-      capabilities.some(
-        (value) =>
-          value?.mode !== "production" || value.horizon?.available !== false,
-      )
+      capabilities?.mode !== "production" ||
+      capabilities.horizon?.available !== false
     )
       throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED");
   }
