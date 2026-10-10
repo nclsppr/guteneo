@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "environment": "local",
+  "executedAt": "2026-10-10T00:17:45.807Z",
+  "status": "passed",
+  "networkPolicy": "external_blocked",
+  "providerMode": "simulated",
+  "counts": {
+    "testsPassed": 98,
+    "testsFailed": 0,
+    "suitesPassed": 6,
+    "suitesFailed": 0,
+    "testsSkipped": 0
+  },
+  "scope": [
+    "Fax, email et postal : devis existants, approbations et envois testés sur D1 locale.",
+    "Diagnostics sans mutation métier, isolation des ateliers, rôles et droits sur les documents.",
+    "Documents protégés et résultats fournisseur incertains avec transports synthétiques.",
+    "Rendu PDF réel dans Chromium local : cinq documents synthétiques et gardes du moteur."
+  ],
+  "limitations": [
+    "Qualification locale sélectionnée ; ce résultat ne prouve pas le fonctionnement de la production.",
+    "Aucun fournisseur réel, communication réelle, ressource payante, dépôt distant ou téléchargement.",
+    "Le réseau sortant est bloqué pour le processus et ses descendants ; la boucle locale reste autorisée pour D1, R2 et les services de test.",
+    "Les transports, réponses fournisseur et preuves de scan métier sont synthétiques ; les données sont fictives.",
+    "Le rendu PDF local ne qualifie pas le service PDF ou l’antivirus déployé.",
+    "Les suites complètes, les moteurs Docker et les parcours réels nécessitent leurs preuves distinctes."
+  ],
+  "sourceCommit": null,
+  "sourceSnapshotSha256": "db8d50271dcc3d2845bd83a8d4bcdec6faed17a3dc80624b7ec5a9b45967f061",
+  "sourceSnapshotAlgorithm": "sha256-path-content-v1",
+  "sourceSnapshotScope": [
+    "apps/api",
+    "apps/documents",
+    "migrations",
+    "package-lock.json",
+    "package.json",
+    "packages",
+    "scripts/pdfme-docx-fixture.ts",
+    "scripts/pdfme-spike.ts",
+    "scripts/test-offline.d.mts",
+    "scripts/test-offline.mjs",
+    "tests/fixtures",
+    "tests/helpers",
+    "tests/integration/dispatch-validation.test.ts",
+    "tests/integration/live-delivery-quotes.test.ts",
+    "tests/integration/protected-documents.test.ts",
+    "tests/integration/resend-email.test.ts",
+    "tests/integration/templates-renderer.test.ts",
+    "tests/integration/trusted-fax-quotes.test.ts",
+    "tsconfig.json",
+    "vitest.config.ts"
+  ],
+  "sourceSnapshotFileCount": 207,
+  "sourceUnchangedDuringRun": true,
+  "durationMs": 52296,
+  "networkEvidence": {
+    "mechanism": "macos_sandbox_exec",
+    "loopbackAllowed": true,
+    "externalBlocked": true,
+    "childProcessProtected": true,
+    "denialCode": "EPERM"
+  }
+}

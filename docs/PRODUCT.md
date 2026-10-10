@@ -1,5 +1,10 @@
 # Guteneo product contract
 
+10 October service status: clients, maintainers and on-call staff share a public
+status page with 7/30/365-day observations and separately labelled local feature
+qualification. Missing history is unknown; successful HTTP checks do not claim
+provider delivery. See [STATUS_SERVICE.md](STATUS_SERVICE.md).
+
 9 October integration candidate: visible personal identity, read-only login email,
 current workshop role/permissions and browser-only responsible contacts, with an
 explicit Auth0 account-change action. Belvédère is reconciled with current main

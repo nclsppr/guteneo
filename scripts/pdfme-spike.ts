@@ -11,6 +11,12 @@ import { syntheticDocxFixture } from "./pdfme-docx-fixture";
 import { importDocxTemplate } from "../packages/templates/docx";
 import { invoiceTemplate, letterTemplate } from "../packages/templates/gallery";
 import type { TemplateEnvelope } from "../packages/contracts/src/templates";
+import { verifyInheritedNetworkBoundary } from "./test-offline.mjs";
+
+const offlineSandbox =
+  process.platform === "darwin" &&
+  process.env.GUTENEO_OFFLINE_SANDBOX === "macos-network";
+if (offlineSandbox) await verifyInheritedNetworkBoundary();
 
 const directory = resolve("reports/template-engine");
 await mkdir(directory, { recursive: true });
@@ -21,6 +27,9 @@ const launch = async () => {
   const browser = await puppeteer.launch({
     executablePath: chromium.executablePath(),
     headless: true,
+    // macOS cannot nest Chromium's seatbelt inside sandbox-exec. Only synthetic
+    // local qualification uses this branch, after a real inherited-network probe.
+    ...(offlineSandbox ? { args: ["--no-sandbox"] } : {}),
   });
   browser.on("targetcreated", async (target) => {
     const page = await target.page();

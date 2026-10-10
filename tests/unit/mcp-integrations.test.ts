@@ -763,6 +763,7 @@ describe("distributable LLM integrations", () => {
           list_documents: [false, false, false, false],
           read_document_pages: [false, false, false, false],
           get_dispatch_status: [false, false, false, false],
+          dry_run_dispatch: [false, false, false, false],
           list_dispatches: [false, false, false, false],
           get_postal_requirements: [false, false, false, false],
           get_postal_setup: [false, false, false, false],
