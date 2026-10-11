@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **19 domaines · 151 fonctionnalités · 20 parcours** — mis à jour le 2026-10-10.
+> **20 domaines · 164 fonctionnalités · 21 parcours** — mis à jour le 2026-10-11.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -60,6 +60,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Supprimer modèle | Propriétaire | Propriétaire | Propriétaire | Non | Propriétaire + scopes |
 | Voir PDF généré privé | Créateur seulement | Créateur seulement | Créateur seulement | Selon accès autorisé | Selon propriétaire et contexte |
 | Profil / langue / ses sessions | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
+| Sauvegarder Classique / V2 de son compte | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Non ; aucun outil ajouté |
 | Lire profil et contacts de son atelier | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
@@ -81,7 +82,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Connexion Auth0, compte vérifié et politique MFA
 - Connexion navigateur et callback Auth0 sur guteneo.com uniquement ; ancien hôte applicatif et previews URL fermés
 - Création d’atelier et administrateur initial
-- Profil personnel et préférence de langue
+- Profil personnel, langue et apparence d’Atelier enregistrées pour la personne
 - Sessions web : consultation, révocation et déconnexion
 - Changement d’atelier avec droits courants
 - Connexions OAuth : rattachement, révocation et scopes
@@ -90,6 +91,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
 - Retour d’onglet : identité, atelier et langue enregistrée dans le compte réconciliés
 - Langue des vues connectées réglable seulement dans le compte ; choix visiteur séparé
+- Apparence Classique/V2 près de la langue ; migration 0053, compte en bas de navigation et préférence serveur réconciliée après changement d’identité
 
 ### 02 · Équipe et responsabilités
 
@@ -295,7 +297,7 @@ Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [apps/api/src/mcp.ts](../apps
 
 Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/api/src/mobile.ts).
 
-**Surfaces :** iOS / API mobile / revue navigateur. **Tests :** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts).
+**Surfaces :** iOS / API mobile / revue navigateur. **Tests :** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts).
 
 - Authentification système et sessions mobiles dédiées
 - Navigation adaptative iPhone/iPad et accessibilité
@@ -304,6 +306,7 @@ Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/
 - Préparation fax/e-mail et suivi
 - Revue finale dans navigateur authentifié ; pas de consentement natif
 - Signature, appareil physique, TestFlight et App Store à qualifier
+- Lecture de preferredDashboardAppearance dans compte/session ; aucun réglage ni PATCH natif de cette préférence web
 
 ### 15 · Expérience publique et langues
 
@@ -322,7 +325,27 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 - Maquette publique fictive isolée du backend
 - Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43
 
-### 16 · Horizon et diagnostic PDF
+### 16 · Atelier V2 et apparence personnelle
+
+**État :** Candidat local · préférence personnelle et 29 cas UI validés localement · publication à réaliser.
+
+Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx).
+
+**Surfaces :** Atelier web et profil navigateur ; lecture additive compte/session natifs ; REST métier et MCP sans nouveau pouvoir ; maquette fictive isolée. **Tests :** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts).
+
+- Version complète de l’Atelier web réel : mêmes compte, tenant, ressources et opérations ; aucun environnement métier fictif parallèle
+- Compte en bas de navigation ; Version de l’atelier près de la langue, Classique ou V2 appliquée après sauvegarde réussie du profil
+- Préférence personnelle users.preferred_dashboard_appearance, migration 0053, défaut classic ; même personne entre ateliers, sessions et appareils après relecture
+- PATCH navigateur du compte : preferredDashboardAppearance strict, Origin/CSRF, autorité courante et audit de noms de champs ; tous les rôles peuvent modifier seulement leur propre choix
+- URL atelier=v2 ou atelier=classic : forçage temporaire sans sauvegarde serveur ; supprimé après sauvegarde d’un choix d’apparence explicite ou changement d’identité détecté ; cache local non autoritaire
+- Accueil avec alertes et activité avant introduction si historique ; accueil complet sinon ; aperçu du contenu avant accord dans l’ordre de lecture et clavier
+- Présentation cohérente documents, préparation, revue, suivi, assistants, compte, Studio, Horizon, crédits, tableaux et formulaires ; Belvédère conserve sa présentation distincte
+- Portrait officiel, mot-symbole noir minuscules et trois gravures préservés ; illustrations limitées à accueil, documents vides et assistants
+- Libellés FR/EN/DE/LB ; aucune mention expérimentale sur V2 réelle ; bandeaux de simulation maintenus uniquement pour les sessions simulées
+- Mêmes quatre rôles, options indépendantes du superviseur, accès privés et consentements ; aucun nouveau mandat, canal, endpoint métier ou outil MCP
+- Lectures natives compte/session enrichies sans setter natif d’apparence ; anciens PATCH navigateur nom/langue compatibles, PATCH natif de langue préservé ; migration distante, CI et usage hébergé à qualifier
+
+### 17 · Horizon et diagnostic PDF
 
 **État :** Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer.
 
@@ -339,7 +362,7 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 - Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé
 - Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale
 
-### 17 · Exploitation et fiabilité
+### 18 · Exploitation et fiabilité
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -360,7 +383,7 @@ Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · 
 - Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées
 - CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners
 
-### 18 · Belvédère et supervision plateforme
+### 19 · Belvédère et supervision plateforme
 
 **État :** Intégré au candidat ; activation et publication non qualifiées.
 
@@ -376,7 +399,7 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 - Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
 - Quatre langues suivant le compte, y compris ouverture directe et retour d’onglet ; aucun sélecteur privé supplémentaire
 
-### 19 · État public du service
+### 20 · État public du service
 
 **État :** Séparation état public/couverture implémentée ; preuves locales du 10 octobre 2026 : 27 tests UI réussis, 3 réexécutions ciblées de la cadence réussies, 98 tests fonctionnels réussis sur 6 suites. Preuve historique distincte : service publié le 10 octobre dans c953596, premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; cette observation ne qualifie ni la nouvelle UI ni les parcours métier.
 
@@ -398,9 +421,9 @@ Contrat : [STATUS_SERVICE.md](STATUS_SERVICE.md) · Source : [apps/status/worker
 
 **Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
 
-Ouvrir guteneo.com → choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire.
+Ouvrir guteneo.com → choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire. Dans le candidat V2, ouvrir Mon compte en bas de navigation → Version de l’atelier près de la langue → enregistrer Classique ou V2 ; même identité et atelier courant. Un lien ?atelier=v2#/app force seulement la présentation temporairement. En V2, un atelier sans historique conserve les étapes d’accueil complètes ; un atelier ayant des envois présente d’abord son travail en cours.
 
-**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. Configuration et fixtures ne prouvent pas une connexion humaine réelle.
+**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. Configuration et fixtures ne prouvent pas une connexion humaine réelle. La préférence de présentation appartient au compte authentifié ; un ancien cache local ne doit pas prévaloir sur la personne courante. Migration 0053 et publication V2 encore à qualifier.
 
 Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
@@ -408,9 +431,9 @@ Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
 **Acteur :** Administrateur navigateur. **Branche :** ÉQUIPE.
 
-Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier.
+Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier. La coque web V2 facultative conserve ces mêmes actions et le rôle courant.
 
-**Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente.
+**Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente. Le choix V2 ne modifie ni membership ni option du superviseur.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -418,9 +441,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Administrateur / superviseur / opérateur. **Branche :** DOCUMENTS → FAX.
 
-Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler.
+Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler. Avec V2 facultative, utiliser les mêmes pages documents, préparation, revue et suivi, avec le même identifiant et la même API. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
 
-**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison.
+**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison. Changer de présentation ne prépare ni ne confirme un fax et ne remplace pas le consentement ; opérations réelles signalées sur session réelle.
 
 Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
@@ -428,9 +451,9 @@ Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DOCUMENTS → POSTAL.
 
-PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen.
+PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen. Avec V2 facultative, les mêmes préflights, transfert, devis et revue restent nécessaires. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
 
-**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue.
+**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue. Le choix V2 ne vaut jamais consentement au transfert du PDF, à l’approbation ou à l’envoi.
 
 Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
@@ -438,9 +461,9 @@ Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** E-MAIL.
 
-Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi.
+Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi. Avec V2, la saisie, la préparation et la revue utilisent les mêmes composants et API métier ; enregistrer Classique dans Mon compte pour un retour durable. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
 
-**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées.
+**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées. Enregistrer l’apparence soumet seulement le profil, jamais le formulaire de préparation, l’acceptation du devis ou un envoi.
 
 Référence : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md).
 
@@ -448,9 +471,9 @@ Référence : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md).
 
 **Acteur :** Préparateur avec droits de ressource. **Branche :** MODÈLES.
 
-Exemple/copie privée, page vierge ou DOCX → designer et schéma → données d’essai → aperçu PDF → publier une version → partager les droits précis.
+Exemple/copie privée, page vierge ou DOCX → designer et schéma → données d’essai → aperçu PDF → publier une version → partager les droits précis. La présentation V2 du Studio, de ses tableaux et formulaires conserve les mêmes données et droits.
 
-**Blocage / reprise :** Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés. Via MCP, présenter écrasement du brouillon, archivage ou révocation de partage et respecter les confirmations hôte ; aucune permission élargie.
+**Blocage / reprise :** Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés. Via MCP, présenter écrasement du brouillon, archivage ou révocation de partage et respecter les confirmations hôte ; aucune permission élargie. Aucun droit de ressource n’est accordé par la préférence V2.
 
 Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -458,9 +481,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Préparateur propriétaire des données. **Branche :** DONNÉES → GÉNÉRATION.
 
-Import CSV/XLSX/XML/JSON → analyse et profil → choisir mapping → valider → générer → consulter résultats/provenance → reprendre les seuls records échoués.
+Import CSV/XLSX/XML/JSON → analyse et profil → choisir mapping → valider → générer → consulter résultats/provenance → reprendre les seuls records échoués. La coque web V2 facultative conserve ce parcours métier existant ; aucune copie fictive des données n’est créée.
 
-**Blocage / reprise :** Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur. Annulation explicite : arrêter le lot sans effacer ses PDF ; le même lot annulé ne se reprend pas. MCP signale cette annulation comme destructive.
+**Blocage / reprise :** Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur. Annulation explicite : arrêter le lot sans effacer ses PDF ; le même lot annulé ne se reprend pas. MCP signale cette annulation comme destructive. La préférence de présentation ne modifie ni accès privé, ni transfert IA, ni génération.
 
 Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -468,9 +491,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DISTRIBUTION.
 
-Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP.
+Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP. Les revues et le suivi peuvent employer la présentation V2 facultative, avec les mêmes demandes préparées.
 
-**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout.
+**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout. Le choix d’apparence ne confirme ni un envoi ni un lot.
 
 Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -478,9 +501,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Superviseur habilité / observateur. **Branche :** SUIVI.
 
-Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur.
+Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur. Dans V2 facultative, retrouver les mêmes envois, détails et restrictions ; rapports affichés seulement selon l’autorité courante. Sur un atelier V2 déjà actif, alertes et activité récente passent avant les éléments d’introduction, avec indicateurs toujours soumis au droit de rapports.
 
-**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis.
+**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis. V2 ne donne ni préparation à l’observateur, ni rapports ou approbation au superviseur sans l’option correspondante.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -488,9 +511,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Membre + client OAuth. **Branche :** MCP / REST.
 
-Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation.
+Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète.
 
-**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites.
+**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant.
 
 Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
@@ -498,9 +521,9 @@ Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
 **Acteur :** Membre sur client natif. **Branche :** NATIF → NAVIGATEUR.
 
-Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi.
+Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi. Le client natif lit la préférence d’apparence personnelle dans compte/session sans contrôle de modification ; la revue navigateur utilise la préférence de la personne après authentification.
 
-**Blocage / reprise :** Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement.
+**Blocage / reprise :** Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement. Le PATCH natif refuse preferredDashboardAppearance ; le seul PATCH natif de langue le conserve. Cette lecture n’ajoute aucun consentement ou droit natif.
 
 Référence : [IOS_API.md](IOS_API.md).
 
@@ -508,9 +531,9 @@ Référence : [IOS_API.md](IOS_API.md).
 
 **Acteur :** Administrateur navigateur. **Branche :** FACTURATION.
 
-Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation. Le contrôle à blanc d’un envoi existant ne réserve et ne consomme aucun crédit.
+Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation. Le contrôle à blanc d’un envoi existant ne réserve et ne consomme aucun crédit. La coque web V2 facultative conserve les données financières et le contrat d’acceptation existants.
 
-**Blocage / reprise :** Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue. Il ne vérifie pas le solde ou les quotas disponibles et ne remplace pas la transaction d’acceptation.
+**Blocage / reprise :** Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue. Il ne vérifie pas le solde ou les quotas disponibles et ne remplace pas la transaction d’acceptation. Le changement de présentation ne réserve ni ne consomme de crédits.
 
 Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
 
@@ -518,9 +541,9 @@ Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
 
 **Acteur :** Administrateur navigateur pour abonnement ; administrateur, superviseur, opérateur ou assistant autorisé pour diagnostic ; lecteur autorisé du PDF pour historique. **Branche :** HORIZON · OUVERTURE SUR CRÉDITS.
 
-Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF.
+Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF. La coque web V2 facultative conserve l’accès au parcours Horizon existant, sans en changer la disponibilité.
 
-**Blocage / reprise :** Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois. Le diagnostic MCP annonce idempotentHint=false pour l’activité de connexion ; sa clé conserve la non-duplication métier, sans nouveau débit implicite.
+**Blocage / reprise :** Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois. Le diagnostic MCP annonce idempotentHint=false pour l’activité de connexion ; sa clé conserve la non-duplication métier, sans nouveau débit implicite. V2 n’active ni abonnement, ni diagnostic, ni canal et ne remplace aucun consentement récurrent.
 
 Référence : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
 
@@ -538,9 +561,9 @@ Référence : [PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md).
 
 **Acteur :** Développeur / opérateur de release. **Branche :** RELEASE.
 
-Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Inspection Telnyx privée : lire les statuts et correspondances canoniques des callbacks après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées.
+Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Inspection Telnyx privée : lire les statuts et correspondances canoniques des callbacks après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées. Pour la V2 personnelle : appliquer et vérifier la migration 0053 avant le code qui lit sa colonne → confirmer le défaut Classique et la sauvegarde de préférence sur le domaine canonique après publication.
 
-**Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification.
+**Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification. Migration 0053 absente ou non qualifiée : ne pas publier le code qui dépend de la colonne. Les anciens tests de présentation locale ne qualifient pas le nouveau parcours de compte ; autorisation de fusion, CI et preuves distantes restent distinctes.
 
 Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
@@ -548,9 +571,9 @@ Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
 **Acteur :** Membre navigateur dans son atelier courant. **Branche :** IDENTITÉ → RESPONSABILITÉS.
 
-Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique.
+Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique. Depuis le compte en bas de navigation, sélectionner Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès serveur ; retrouver cette préférence de personne sur ses autres ateliers et appareils après relecture de session.
 
-**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle.
+**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle. La sélection seule ne modifie rien côté serveur ; le PATCH de profil sauvegarde la préférence personnelle, avec Origin/CSRF et revalidation de l’autorité. Échec visible, aucun succès inventé. Un changement d’identité abandonne l’ancien forçage URL et applique la préférence de la nouvelle personne.
 
 Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
@@ -593,6 +616,16 @@ Ouvrir status.guteneo.com depuis Guteneo → dans Service, vérifier date et fra
 **Blocage / reprise :** Contrôle en écart : alerte dans le bilan et le groupe concerné, détail consultable dans Vérifications. Mesure absente, ancienne, indisponible ou illisible : état actuel inconnu et résultats précédents datés, sans succès courant. Jours sans mesure en gris ; aucune disponibilité extrapolée. Une couverture métier absente ne signifie pas une panne et ne dégrade pas le bilan public ; les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Tests locaux de cette présentation et observation distante historique restent des preuves distinctes.
 
 Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
+
+### J21 · Choisir l’Atelier V2 dans son compte et retrouver sa préférence
+
+**Acteur :** Membre navigateur authentifié parmi les quatre rôles, pour son propre compte et avec son autorité courante. **Branche :** COMPTE PERSONNEL → APPARENCE ATELIER.
+
+Après migration et publication qualifiées, ouvrir Mon compte depuis le bas de la navigation → dans Mon profil, choisir Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès et lire la confirmation → retrouver la même préférence entre ateliers, sessions et appareils après relecture authentifiée. Un lien atelier=v2 ou atelier=classic force temporairement la présentation sans écriture ; la sauvegarde d’un choix d’apparence explicite et le changement d’identité abandonnent le forçage. Utiliser les mêmes documents, préparations, revues et suivis avec leurs droits ; atelier actif centré sur son activité, accueil complet si vide, aperçu avant accord au clavier.
+
+**Blocage / reprise :** Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Parcours final validé par 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; CI, migration distante, publication et usage humain hébergé non prouvés. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL.
+
+Référence : [DASHBOARD_V2.md](DASHBOARD_V2.md).
 
 ## Frontières d’activation et preuves
 

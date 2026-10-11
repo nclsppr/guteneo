@@ -13,6 +13,10 @@ import {
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
 import {
+  dashboardAppearances,
+  type DashboardAppearance,
+} from "../../../packages/contracts/src/dashboard-appearance";
+import {
   expertPolicyInput,
   type ExpertApprovalAccount,
 } from "../../../packages/contracts/src/expert-approval";
@@ -35,6 +39,7 @@ const profileSchema = z
     userName: displayName.optional(),
     organizationName: displayName.optional(),
     preferredLocale: z.enum(supportedLocales).optional(),
+    preferredDashboardAppearance: z.enum(dashboardAppearances).optional(),
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0);
@@ -209,10 +214,14 @@ function revokeStatements(
 
 async function account(env: AuthEnv, session: AuthenticatedSession) {
   const user = await env.DB.prepare(
-    "SELECT name,preferred_locale FROM users WHERE id=?",
+    "SELECT name,preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
   )
     .bind(session.context.userId)
-    .first<{ name: string; preferred_locale: SupportedLocale | null }>();
+    .first<{
+      name: string;
+      preferred_locale: SupportedLocale | null;
+      preferred_dashboard_appearance: DashboardAppearance;
+    }>();
   const organization = await env.DB.prepare(
     "SELECT name FROM organizations WHERE id=?",
   )
@@ -227,6 +236,7 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
       supervisorCanApprove: session.context.supervisorCanApprove === true,
       supervisorCanReport: session.context.supervisorCanReport === true,
       preferredLocale: user!.preferred_locale,
+      preferredDashboardAppearance: user!.preferred_dashboard_appearance,
     },
     organization: {
       id: session.context.organizationId,
@@ -513,6 +523,12 @@ export async function handleAccountRoute(
             env.DB.prepare(
               `UPDATE users SET preferred_locale=? WHERE id=? AND ${marker}`,
             ).bind(input.preferredLocale, userId, org, auditId),
+          );
+        if (input.preferredDashboardAppearance !== undefined)
+          statements.push(
+            env.DB.prepare(
+              `UPDATE users SET preferred_dashboard_appearance=? WHERE id=? AND ${marker}`,
+            ).bind(input.preferredDashboardAppearance, userId, org, auditId),
           );
         return statements;
       },

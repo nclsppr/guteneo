@@ -11,6 +11,7 @@ import {
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
 import { hashSecret } from "../../apps/api/src/auth";
+import { handleAccountRoute } from "../../apps/api/src/account";
 import {
   authenticateNative,
   handleMobileRoute,
@@ -238,6 +239,43 @@ async function connect(principal = owner) {
 }
 
 describe("native mobile boundary on actual D1 and R2", () => {
+  it("reads the personal web appearance without adding a native appearance mutation", async () => {
+    const { token } = await connect();
+    const other = await connect(outsider);
+    const browserUpdate = await handleAccountRoute(
+      new Request(`${env.APP_ORIGIN}/api/account`, {
+        method: "PATCH",
+        headers: {
+          Origin: env.APP_ORIGIN,
+          Cookie: owner.cookie,
+          "X-CSRF-Token": owner.csrf,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ preferredDashboardAppearance: "v2" }),
+      }),
+      env,
+    );
+    expect(browserUpdate!.status).toBe(200);
+    for (const path of ["/session", "/account"])
+      expect(await (await call(path, token)).json()).toMatchObject({
+        user: { id: owner.userId, preferredDashboardAppearance: "v2" },
+      });
+    expect(await (await call("/account", other.token)).json()).toMatchObject({
+      user: { preferredDashboardAppearance: "classic" },
+    });
+    await expect(
+      call("/account", token, "PATCH", {
+        preferredDashboardAppearance: "classic",
+      }),
+    ).rejects.toThrow();
+    expect(
+      await (
+        await call("/account", token, "PATCH", { preferredLocale: "de" })
+      ).json(),
+    ).toMatchObject({
+      user: { preferredLocale: "de", preferredDashboardAppearance: "v2" },
+    });
+  });
   it("persists only the current native user's locale and exposes changes to every session", async () => {
     const { token } = await connect();
     const second = await connect();

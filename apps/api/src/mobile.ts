@@ -1,5 +1,6 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { workspacePermissions } from "../../../packages/contracts/src/roles";
+import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { z } from "zod";
 import {
   supportedLocales,
@@ -83,6 +84,7 @@ type NativeSession = {
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
+    preferredDashboardAppearance?: DashboardAppearance;
   };
   simulation: boolean;
   verifiedAccount: boolean;
@@ -94,6 +96,7 @@ type SessionRow = {
   organization_name: string;
   user_name: string;
   preferred_locale: string | null;
+  preferred_dashboard_appearance: DashboardAppearance;
   role: ActorContext["role"];
   supervisor_can_approve: number;
   supervisor_can_report: number;
@@ -155,7 +158,7 @@ export async function authenticateNative(
   const timestamp = now();
   const row = await env.DB.prepare(
     `SELECT s.organization_id,s.user_id,s.expires_at,
-    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,m.role,m.supervisor_can_approve,m.supervisor_can_report,b.is_development,b.verified_account,b.mfa
+    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,u.preferred_dashboard_appearance,m.role,m.supervisor_can_approve,m.supervisor_can_report,b.is_development,b.verified_account,b.mfa
     FROM native_sessions s JOIN browser_sessions b ON b.token_hash=s.browser_session_hash
     AND b.organization_id=s.organization_id AND b.user_id=s.user_id
     JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
@@ -214,6 +217,7 @@ export async function authenticateNative(
       supervisorCanApprove: row.supervisor_can_approve === 1,
       supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: normalizeLocale(row.preferred_locale),
+      preferredDashboardAppearance: row.preferred_dashboard_appearance,
     },
     simulation: env.MODE === "simulation",
     verifiedAccount: row.verified_account === 1,

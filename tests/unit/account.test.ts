@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { handleAccountRoute } from "../../apps/api/src/account";
 import { MAX_WORKSPACE_CONTACTS } from "../../packages/contracts/src/account-identity";
+import { WORKSPACE_ROLES } from "../../packages/contracts/src/roles";
 import {
   handleAuthRoute,
   hashSecret,
@@ -42,6 +43,19 @@ beforeAll(async () => {
   )
     .filter((file) => file.endsWith(".sql"))
     .sort()) {
+    if (filename === "0053_user_dashboard_appearance.sql")
+      await db
+        .prepare(
+          "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+        )
+        .bind(
+          "user_before_appearance_migration",
+          "Existing profile",
+          "migration@example.invalid",
+          "2026-10-11T00:00:00.000Z",
+          "de",
+        )
+        .run();
     const sql = await readFile(
       new URL(`../../migrations/${filename}`, import.meta.url),
       "utf8",
@@ -175,6 +189,22 @@ async function count(table: string, organization = org) {
 }
 
 describe("browser account and organization administration", () => {
+  it("adds the classic default to an existing profile without rewriting its identity or language", async () => {
+    expect(
+      await db
+        .prepare(
+          "SELECT name,email,created_at,preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
+        )
+        .bind("user_before_appearance_migration")
+        .first(),
+    ).toEqual({
+      name: "Existing profile",
+      email: "migration@example.invalid",
+      created_at: "2026-10-11T00:00:00.000Z",
+      preferred_locale: "de",
+      preferred_dashboard_appearance: "classic",
+    });
+  });
   it("identifies the current account by email without making it editable through the profile", async () => {
     await db
       .prepare("UPDATE users SET email=? WHERE id=?")
@@ -494,7 +524,153 @@ describe("browser account and organization administration", () => {
         .run(),
     ).rejects.toThrow(/CHECK constraint failed/);
   });
-  it("rechecks revoked membership before committing a language preference", async () => {
+  it("persists the person's dashboard appearance across sessions and authenticated workspaces", async () => {
+    expect(await response("/api/account", member)).toMatchObject({
+      user: { preferredDashboardAppearance: "classic" },
+    });
+    expect(
+      await response("/api/account", member, "PATCH", {
+        preferredDashboardAppearance: "v2",
+      }),
+    ).toMatchObject({
+      user: { id: member.userId, preferredDashboardAppearance: "v2" },
+    });
+    const secondSession = await login(org, member.userId);
+    const restored = await handleAuthRoute(
+      req("/api/session", secondSession),
+      env,
+    );
+    expect(await restored!.json()).toMatchObject({
+      user: { id: member.userId, preferredDashboardAppearance: "v2" },
+    });
+    const samePerson = await user(otherOrg, "viewer", member.userId);
+    expect(await response("/api/account", samePerson)).toMatchObject({
+      user: { preferredDashboardAppearance: "v2" },
+    });
+    for (const principal of [owner, outsider])
+      expect(await response("/api/account", principal)).toMatchObject({
+        user: { preferredDashboardAppearance: "classic" },
+      });
+    const audit = await db
+      .prepare(
+        "SELECT details_json FROM audit_log WHERE organization_id=? AND user_id=?",
+      )
+      .bind(org, member.userId)
+      .first<{ details_json: string }>();
+    expect(JSON.parse(audit!.details_json)).toEqual({
+      fields: ["preferredDashboardAppearance"],
+    });
+  });
+  it("lets every membership role change only its personal appearance without changing authority", async () => {
+    for (const role of WORKSPACE_ROLES) {
+      const principal = await user(org, role);
+      const before = await response("/api/account", principal);
+      for (const preferredDashboardAppearance of ["v2", "classic"]) {
+        const after = await response("/api/account", principal, "PATCH", {
+          preferredDashboardAppearance,
+        });
+        expect(after).toMatchObject({
+          user: { role, preferredDashboardAppearance },
+          permissions: before.permissions,
+          organization: before.organization,
+        });
+      }
+    }
+  });
+  it("preserves dashboard appearance through older profile and language updates", async () => {
+    await response("/api/account", member, "PATCH", {
+      preferredDashboardAppearance: "v2",
+    });
+    expect(
+      await response("/api/account", member, "PATCH", {
+        userName: "Camille",
+        preferredLocale: "de",
+      }),
+    ).toMatchObject({
+      user: {
+        name: "Camille",
+        preferredLocale: "de",
+        preferredDashboardAppearance: "v2",
+      },
+    });
+    expect(
+      await response("/api/account", member, "PATCH", {
+        preferredDashboardAppearance: "classic",
+      }),
+    ).toMatchObject({
+      user: {
+        name: "Camille",
+        preferredLocale: "de",
+        preferredDashboardAppearance: "classic",
+      },
+    });
+  });
+  it("rejects invalid appearances, foreign targets and missing CSRF without changing the preference", async () => {
+    for (const preferredDashboardAppearance of [
+      "V2",
+      "new",
+      "",
+      null,
+      1,
+      ["v2"],
+    ])
+      await expect(
+        handleAccountRoute(
+          req("/api/account", member, "PATCH", {
+            preferredDashboardAppearance,
+          }),
+          env,
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    for (const target of [
+      { userId: owner.userId },
+      { organizationId: otherOrg },
+    ])
+      await expect(
+        handleAccountRoute(
+          req("/api/account", member, "PATCH", {
+            ...target,
+            preferredDashboardAppearance: "v2",
+          }),
+          env,
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(
+      handleAccountRoute(
+        req(
+          "/api/account",
+          member,
+          "PATCH",
+          {
+            preferredDashboardAppearance: "v2",
+          },
+          { "X-CSRF-Token": "" },
+        ),
+        env,
+      ),
+    ).rejects.toMatchObject({ code: "CSRF_REJECTED" });
+    expect(await response("/api/account", member)).toMatchObject({
+      user: { preferredDashboardAppearance: "classic" },
+    });
+    expect(await count("audit_log")).toBe(0);
+    await expect(
+      db
+        .prepare(
+          "UPDATE users SET preferred_dashboard_appearance='future' WHERE id=?",
+        )
+        .bind(member.userId)
+        .run(),
+    ).rejects.toThrow(/CHECK constraint failed/);
+    await expect(
+      db
+        .prepare(
+          "UPDATE users SET preferred_dashboard_appearance=NULL WHERE id=?",
+        )
+        .bind(member.userId)
+        .run(),
+    ).rejects.toThrow(/NOT NULL constraint failed/);
+  });
+  it("rechecks revoked membership before committing language and appearance together", async () => {
     const wrapped = new Proxy(db, {
       get(target, property) {
         if (property === "batch")
@@ -521,16 +697,22 @@ describe("browser account and organization administration", () => {
       handleAccountRoute(
         req("/api/account", member, "PATCH", {
           preferredLocale: "en",
+          preferredDashboardAppearance: "v2",
         }),
         { ...env, DB: wrapped },
       ),
     ).rejects.toMatchObject({ code: "ACCESS_CHANGED" });
     expect(
       await db
-        .prepare("SELECT preferred_locale FROM users WHERE id=?")
+        .prepare(
+          "SELECT preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
+        )
         .bind(member.userId)
         .first(),
-    ).toEqual({ preferred_locale: null });
+    ).toEqual({
+      preferred_locale: null,
+      preferred_dashboard_appearance: "classic",
+    });
     expect(await count("audit_log")).toBe(0);
   });
   it("allows verified-email beta administrators to manage the account while retaining honest MFA status", async () => {

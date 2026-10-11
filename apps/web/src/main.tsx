@@ -13,6 +13,7 @@ import { observePublicLinks } from "./public-sharing";
 import { App } from "./App";
 import "./styles.css";
 import "./protected-document.css";
+import "./dashboard-v2.css";
 
 // Crawlable entry links hand off to the existing browser router before rendering.
 if (

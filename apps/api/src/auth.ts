@@ -1,5 +1,6 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
+import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import {
   workspacePermissions,
@@ -58,6 +59,7 @@ interface Membership {
   user_name: string;
   user_email: string | null;
   preferred_locale: SupportedLocale | null;
+  preferred_dashboard_appearance: DashboardAppearance;
   role: AuthContext["role"];
   supervisor_can_approve: number;
   supervisor_can_report: number;
@@ -73,6 +75,7 @@ export interface AuthenticatedSession {
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
+    preferredDashboardAppearance: DashboardAppearance;
   };
   csrfToken: string;
   simulation: boolean;
@@ -321,7 +324,7 @@ async function memberships(
   userId: string,
 ): Promise<Membership[]> {
   const result = await env.DB.prepare(
-    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name,u.email user_email, u.preferred_locale, m.role,m.supervisor_can_approve,m.supervisor_can_report
+    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name,u.email user_email, u.preferred_locale,u.preferred_dashboard_appearance, m.role,m.supervisor_can_approve,m.supervisor_can_report
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
   )
@@ -356,6 +359,7 @@ function sessionResult(
       supervisorCanApprove: row.supervisor_can_approve === 1,
       supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: row.preferred_locale,
+      preferredDashboardAppearance: row.preferred_dashboard_appearance,
     },
     csrfToken: row.csrf_token,
     simulation: env.MODE === "simulation",
@@ -459,7 +463,7 @@ export async function authenticateBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,COALESCE(e.verified_email,u.email) user_email,u.preferred_locale
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,COALESCE(e.verified_email,u.email) user_email,u.preferred_locale,u.preferred_dashboard_appearance
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     LEFT JOIN browser_identity_evidence e ON e.token_hash=s.token_hash
