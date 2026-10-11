@@ -134,6 +134,7 @@ Les preuves antérieures sont conservées sans les étendre à la préférence s
 | Présentation de 15 routes d’Atelier à 320 px, dont Studio, Horizon et crédits | Incluse dans la suite navigateur application en Classique et V2 ; absence de débordement et accès au compte contrôlés, sans qualification d’appareil physique |
 | Régressions de navigation étroite, identité longue, devis fax, contrôle PDF et fermeture des interceptions de test | 122/122 cas réussis après correction : 105 sur les trois navigateurs, puis 17 supplémentaires sur iPhone WebKit ; captures de devis et PDF relues |
 | Migration de devis historiques avec le nouveau schéma utilisateur | 16/16 tests réussis ; la fixture copie les quatre colonnes du schéma historique, sans modifier les assertions métier |
+| Verrou transitoire de la base locale des tests | 18/18 tests du reset borné et 5/5 scénarios V2 Chromium réussis ; seules les erreurs `SQLITE_BUSY` explicites permettent de reprendre le reset idempotent, jamais un scénario ni une opération métier |
 | Builds preview et live | Réussis après les corrections de navigation et de sauvegarde nom seul ; journaux locaux `release-build-preview.log` et `release-build-live.log` |
 | Typecheck et lint | Dernière exécution réussie après les changements finaux ; journal `/tmp/guteneo-v2-qa/release-lint.log` |
 | Atlas développeur | Génération puis contrôle de synchronisation réussis ; 20 domaines, 164 fonctionnalités, 21 parcours |
