@@ -461,7 +461,7 @@ test("saving a name from a temporary V2 link leaves the account appearance uncha
   ).toBe("v2");
 });
 
-test("V2 keeps the account reachable below scrollable navigation and supports every workspace at 320 pixels", async ({
+test("V2 keeps the account reachable below scrollable navigation and both appearances support every workspace at 320 pixels", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -494,34 +494,36 @@ test("V2 keeps the account reachable below scrollable navigation and supports ev
     ).toBeVisible();
   }
   await page.setViewportSize({ width: 320, height: 812 });
-  for (const route of [
-    "",
-    "/documents",
-    "/templates",
-    "/datasets",
-    "/generations",
-    "/dispatches",
-    "/campaigns",
-    "/connection",
-    "/senders",
-    "/usage",
-    "/plan",
-    "/billing",
-    "/account",
-    "/admin",
-    "/prepare",
-  ]) {
-    await page.goto(`/?atelier=v2#/app${route}`);
-    await expect(page.locator("#main-content h1")).toBeVisible();
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      "v2",
-    );
-    await expect
-      .poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
-        message: `horizontal overflow at ${route || "/app"}`,
-      })
-      .toBeLessThanOrEqual(320);
+  for (const appearance of ["classic", "v2"]) {
+    for (const route of [
+      "",
+      "/documents",
+      "/templates",
+      "/datasets",
+      "/generations",
+      "/dispatches",
+      "/campaigns",
+      "/connection",
+      "/senders",
+      "/usage",
+      "/plan",
+      "/billing",
+      "/account",
+      "/admin",
+      "/prepare",
+    ]) {
+      await page.goto(`/?atelier=${appearance}#/app${route}`);
+      await expect(page.locator("#main-content h1")).toBeVisible();
+      await expect(page.locator(".workspace")).toHaveAttribute(
+        "data-appearance",
+        appearance,
+      );
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+          message: `${appearance} horizontal overflow at ${route || "/app"}`,
+        })
+        .toBeLessThanOrEqual(320);
+    }
   }
   expect(errors).toEqual([]);
   expect(writes).toEqual([]);

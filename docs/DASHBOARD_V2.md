@@ -131,7 +131,9 @@ Les preuves antérieures sont conservées sans les étendre à la préférence s
 | Amorçage, URL temporaire, stockage indisponible et traductions | 7/7 tests de `tests/unit/dashboard-appearance.test.ts` réussis |
 | Maquette isolée : contrôle de compte, proximité de la langue, 4 langues, ordre de lecture et mobile | 14/14 cas réussis, dont 8 V2 et 6 baseline ; desktop et iPhone WebKit, sans backend métier |
 | Application locale : sauvegarde personnelle, navigateur vierge, nom seul avec URL forcée, brouillon, consentement, rôles et compte en bas de navigation | 15/15 cas réussis, 5 scénarios sur Chromium, mobile Chromium et iPhone WebKit ; API locale de simulation et sessions interceptées selon le scénario |
-| Présentation de 15 routes d’Atelier à 320 px, dont Studio, Horizon et crédits | Incluse dans la suite navigateur application ; absence de débordement et accès au compte contrôlés, sans qualification d’appareil physique |
+| Présentation de 15 routes d’Atelier à 320 px, dont Studio, Horizon et crédits | Incluse dans la suite navigateur application en Classique et V2 ; absence de débordement et accès au compte contrôlés, sans qualification d’appareil physique |
+| Régressions de navigation étroite, identité longue, devis fax, contrôle PDF et fermeture des interceptions de test | 122/122 cas réussis après correction : 105 sur les trois navigateurs, puis 17 supplémentaires sur iPhone WebKit ; captures de devis et PDF relues |
+| Migration de devis historiques avec le nouveau schéma utilisateur | 16/16 tests réussis ; la fixture copie les quatre colonnes du schéma historique, sans modifier les assertions métier |
 | Builds preview et live | Réussis après les corrections de navigation et de sauvegarde nom seul ; journaux locaux `release-build-preview.log` et `release-build-live.log` |
 | Typecheck et lint | Dernière exécution réussie après les changements finaux ; journal `/tmp/guteneo-v2-qa/release-lint.log` |
 | Atlas développeur | Génération puis contrôle de synchronisation réussis ; 20 domaines, 164 fonctionnalités, 21 parcours |
@@ -148,6 +150,13 @@ Les rapports du parcours de compte sont conservés hors du dépôt dans
 zéro cas ignoré et zéro cas instable. Le rapport HTML applicatif est dans
 `/tmp/guteneo-v2-qa/account-app-html/`. Les journaux de builds sont sous le même
 répertoire de preuves ; ils ne sont pas des preuves de publication.
+
+Les contrôles complémentaires après les premiers résultats CI sont conservés
+dans `/tmp/guteneo-v2-qa/ci-fix/focused-results.json`,
+`/tmp/guteneo-v2-qa/ci-fix/iphone-regressions.json` et
+`/tmp/guteneo-v2-qa/trusted-fax-quotes-v2.json`. Le build web, le typecheck et le
+lint complet ont également réussi après ces corrections ; cette preuve locale
+ne remplace pas la nouvelle CI du commit final.
 
 Le test de navigateur vierge qualifie la relecture locale de la préférence
 serveur avec la même identité ; il ne représente pas deux appareils humains
