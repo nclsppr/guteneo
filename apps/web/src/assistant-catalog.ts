@@ -228,6 +228,9 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           label: "Claude Code",
           prerequisites: [
             msg("Claude Code installé et les plugins locaux autorisés."),
+            msg(
+              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+            ),
           ],
           steps: [
             {
@@ -344,6 +347,9 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           prerequisites: [
             msg(
               "Grok Build installé et les serveurs MCP personnalisés autorisés.",
+            ),
+            msg(
+              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
             ),
           ],
           steps: [
@@ -661,6 +667,9 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           prerequisites: [
             msg("Cursor avec les serveurs MCP personnalisés autorisés."),
             msg(
+              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+            ),
+            msg(
               "En entreprise, la liste de serveurs autorisés doit permettre l’adresse de Guteneo.",
             ),
           ],
@@ -716,6 +725,9 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           label: msg("Plugin Cursor local"),
           prerequisites: [
             msg("Cursor avec l’import de plugins locaux autorisé."),
+            msg(
+              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+            ),
           ],
           steps: [
             {

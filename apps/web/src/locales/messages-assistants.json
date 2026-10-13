@@ -1429,6 +1429,11 @@
     "Claude Code ist installiert und lokale Plugins sind erlaubt.",
     "Claude Code ass installéiert a lokal Plugins sinn erlaabt."
   ],
+  "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.": [
+    "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
+    "Ein für diese Anwendung registrierter OAuth-Client oder eine geprüfte automatische Registrierung. Wenn die Anwendung eine Client-ID verlangt oder die Rückleitungsadresse ablehnt, kontaktieren Sie den Guteneo-Support, bevor Sie fortfahren.",
+    "En OAuth-Client, dee fir dës Applikatioun registréiert ass, oder eng kontrolléiert automatesch Registréierung. Wann d’Applikatioun eng Client-ID freet oder d’Réckleedungsadress refuséiert, kontaktéiert d’Guteneo-Assistenz, ier Dir weiderfuert."
+  ],
   "Chargez le plugin pour cette session": [
     "Load the plugin for this session",
     "Plugin für diese Sitzung laden",
