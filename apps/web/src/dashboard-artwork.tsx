@@ -10,15 +10,20 @@ export function DashboardArtwork({
   if (appearance !== "v2") return null;
   const heights = { atelier: 853, documents: 960, horizon: 427 };
   return (
-    <img
+    <div
       className={`dashboard-artwork dashboard-artwork-${scene}`}
-      src={`/brand/dashboard-v2/${scene}.webp`}
-      width="1280"
-      height={heights[scene]}
-      alt=""
       aria-hidden="true"
-      decoding="async"
-      loading="lazy"
-    />
+    >
+      <img
+        src={`/brand/dashboard-v2/${scene}.webp`}
+        width="1280"
+        height={heights[scene]}
+        alt=""
+        decoding="async"
+        loading="lazy"
+      />
+      <span className="swallow-wingbeat dashboard-artwork-swallow dashboard-artwork-swallow-near" />
+      <span className="swallow-wingbeat dashboard-artwork-swallow dashboard-artwork-swallow-far" />
+    </div>
   );
 }

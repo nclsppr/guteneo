@@ -297,19 +297,64 @@
   margin: 0;
 }
 .dashboard-artwork {
+  position: relative;
   width: 100%;
-  height: auto;
-  object-fit: contain;
-  mix-blend-mode: multiply;
   pointer-events: none;
 }
+.dashboard-artwork > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: inherit;
+  object-fit: contain;
+  object-position: inherit;
+  mix-blend-mode: multiply;
+}
+/* Two fixed poses from the approved footer sprite stay inside the engraving's
+   blank space. No wingbeat runs here, including with reduced motion enabled. */
+.dashboard-artwork .dashboard-artwork-swallow {
+  position: absolute;
+  animation: none;
+}
+.dashboard-artwork-swallow-near {
+  top: 18%;
+  left: 13%;
+  width: 13%;
+  background-position: 0 0;
+}
+.dashboard-artwork-swallow-far {
+  top: 7%;
+  left: 34%;
+  width: 8%;
+  background-position: 100% 100%;
+}
 .dashboard-artwork-atelier {
+  max-width: 270px;
   max-height: 180px;
+}
+.dashboard-artwork-documents .dashboard-artwork-swallow-near {
+  top: 20%;
+  left: 7%;
+}
+.dashboard-artwork-documents .dashboard-artwork-swallow-far {
+  top: 9%;
+  left: 25%;
+}
+.dashboard-artwork-horizon .dashboard-artwork-swallow-near {
+  top: 8%;
+  left: 40%;
+  width: 9%;
+}
+.dashboard-artwork-horizon .dashboard-artwork-swallow-far {
+  top: 16%;
+  left: 56%;
+  width: 5.5%;
 }
 .workspace-v2 .dashboard-editorial-heading-horizon {
   grid-template-columns: minmax(0, 1.15fr) minmax(180px, 0.85fr);
 }
 .dashboard-artwork-horizon {
+  max-width: 480px;
   max-height: 160px;
 }
 .workspace-v2 .dashboard-document-empty {
@@ -705,6 +750,7 @@
     display: none;
   }
   .dashboard-artwork-horizon {
+    max-width: 330px;
     max-height: 110px;
     object-position: left center;
   }
@@ -717,7 +763,7 @@
     gap: 0;
     padding: 20px 0;
   }
-  .workspace-v2 .dashboard-document-empty > img {
+  .workspace-v2 .dashboard-document-empty > .dashboard-artwork {
     width: 180px;
   }
   .workspace-v2 .dashboard-document-empty .empty-state {

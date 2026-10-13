@@ -340,7 +340,7 @@ Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-p
 - URL atelier=v2 ou atelier=classic : forçage temporaire sans sauvegarde serveur ; supprimé après sauvegarde d’un choix d’apparence explicite ou changement d’identité détecté ; cache local non autoritaire
 - Accueil avec alertes et activité avant introduction si historique ; accueil complet sinon ; aperçu du contenu avant accord dans l’ordre de lecture et clavier
 - Présentation cohérente documents, préparation, revue, suivi, assistants, compte, Studio, Horizon, crédits, tableaux et formulaires ; Belvédère conserve sa présentation distincte
-- Portrait officiel, mot-symbole noir minuscules et trois gravures préservés ; illustrations limitées à accueil, documents vides et assistants
+- Portrait officiel, mot-symbole noir minuscules, trois gravures et hirondelles bleues approuvées ; décorations discrètes limitées à accueil, documents vides et assistants
 - Libellés FR/EN/DE/LB ; aucune mention expérimentale sur V2 réelle ; bandeaux de simulation maintenus uniquement pour les sessions simulées
 - Mêmes quatre rôles, options indépendantes du superviseur, accès privés et consentements ; aucun nouveau mandat, canal, endpoint métier ou outil MCP
 - Lectures natives compte/session enrichies sans setter natif d’apparence ; anciens PATCH navigateur nom/langue compatibles, PATCH natif de langue préservé ; migration distante, CI et usage hébergé à qualifier
