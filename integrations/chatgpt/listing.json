@@ -2,8 +2,8 @@
   "documentType": "guteneo_internal_submission_worksheet",
   "officialOpenAISchema": false,
   "preparedAt": "2026-09-17",
-  "submissionStatus": "draft_031_saved_not_submitted",
-  "pluginVersion": "0.3.1",
+  "submissionStatus": "in_review_032_not_published_not_live",
+  "pluginVersion": "0.3.2",
   "listing": {
     "name": "Guteneo",
     "shortDescription": "PDFs, email and dispatches",
@@ -52,8 +52,8 @@
       "Review estimates and spending limits",
       "Track Guteneo dispatches"
     ],
-    "candidateSource": "integrations/guteneo/plugin.json (0.3.1; legacy metadata saved, no global ZIP import or submission)",
-    "metadataScope": "manifest_0.3.1_metadata_entered_and_saved_in_legacy_editor"
+    "candidateSource": "Historical 0.3.1 wording retained; fresh 0.3.2 portal metadata not fully verified this pass",
+    "metadataScope": "historical_wording_not_current_portal_or_034_candidate_attestation"
   },
   "connection": {
     "mcpServerUrl": "https://guteneo.com/mcp",
@@ -61,84 +61,97 @@
     "authentication": "oauth",
     "resource": "https://guteneo.com/mcp",
     "authorizationServer": "https://pieper.eu.auth0.com",
+    "actualIssuer": "https://pieper.eu.auth0.com/",
     "readOnlyScopes": ["documents:read", "dispatches:read"],
     "additionalWriteScopes": [
       "documents:write",
       "dispatches:prepare",
       "dispatches:send"
     ],
-    "oauthClientId": null,
-    "oauthRedirectUri": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
-    "reviewerCredentials": "reviewer_authenticated_identity_matched_P1_P2_P3_bounded_codex_passed_remaining_cases_pending",
+    "oauthClientId": "2vjfO7mSnP8TPMh4RRyZCx6r9D8ADXzX",
+    "oauthClientIdIsPublic": true,
+    "oauthRedirectUri": "https://chatgpt.com/connector/oauth_callback",
+    "reviewerCredentials": "not_qualified_for_handoff_current_exact_D1_identity_restriction_match_pending",
+    "clientRegistration": "existing_dedicated_public_review_client_no_creation_or_change_this_pass",
+    "oauthConfigurationObservationDate": "2026-10-13",
+    "currentOAuthVerification": "manual_reconnection_and_bounded_Codex_reads_succeeded_refresh_not_enabled_identity_not_compared_to_D1_this_pass",
     "domainVerification": {
-      "status": "domain_verified_in_portal_2026-10-02",
-      "challengeBaseUrl": "https://guteneo.com",
-      "challengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
-      "tokenReceived": true,
-      "tokenSourcePath": "apps/web/public/.well-known/openai-apps-challenge",
-      "tokenBytes": 43,
-      "publicDeploymentVerified": null,
-      "verified": true,
-      "observedOn": "2026-10-02",
+      "status": "domain_verified_in_portal",
+      "observedOn": "2026-10-13",
       "portalLabel": "Domain verified",
+      "verified": true,
       "challengePublicBytesRecheckedThisRun": false
-    },
-    "clientRegistration": "existing_oauth_scanner_authenticated_chat_connector_reconnected_capabilities_call_succeeded",
-    "oauthConfigurationObservationDate": "2026-09-21",
-    "currentOAuthVerification": "portal_scanner_and_codex_P1_P2_P3_succeeded_exact_reviewer_account_tenant_client_matched"
+    }
   },
   "currentPublicObservation": {
-    "observedOn": "2026-10-02",
+    "observedOn": "2026-10-13",
     "timezone": "Europe/Paris",
-    "method": "Public GETs; no authenticated reviewer data or provider call",
-    "sourceCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
+    "method": "Bounded public GETs, archive hashes and read-only source comparison; no deployment",
+    "sourceCommit": "f1a2681ce45ac4396fede5e7472a1722bca567d3",
     "sourceDirty": false,
-    "builtAt": "2026-10-02T12:43:39.396Z",
+    "builtAt": "2026-10-10T03:52:00.751Z",
+    "mainSourceCommit": "54639e7f6331433a5b24b0449c50c1f4ce5bb57d",
+    "mode": "production",
+    "simulation": false,
     "marketplacePublicationVerified": false,
+    "deploymentPerformedByThisTask": false,
     "publicUrlStatus": {
-      "/confidentialite/": 200,
-      "/conditions/": 200,
-      "/support/": 200,
+      "/release.json": 200,
       "/mcp": 401,
       "/.well-known/oauth-protected-resource/mcp": 200,
-      "/review/reviewer-original.pdf": 200,
-      "/review/guteneo-chatgpt-demo-20260921.mp4": 200
+      "/integrations/guteneo-plugin.zip": 200
     },
-    "authenticatedAccountQualification": "P1_P2_P3_bounded_Codex_MCP_passed_after_exact_reviewer_identity_match_other_cases_pending",
-    "fixture": {
-      "url": "https://guteneo.com/review/reviewer-original.pdf",
-      "bytes": 4290,
-      "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
-      "synthetic": true,
-      "externalSendAuthorized": false
-    },
-    "historicalDemo": {
-      "url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
-      "recordingDateFromFilename": "2026-09-21",
-      "bytes": 2367095,
-      "sha256": "8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2",
-      "publicBytesVerified": true,
-      "currentReviewerWorkflowQualifiedByThisGet": false
-    },
-    "deploymentPerformedByThisTask": false,
     "publicIntegrationArchive": {
-      "bytes": 1289274,
-      "sha256": "983e6fc7ca6f2f3f7bf603e2d05e2a50791ba8e9080e8b5410851b3774a9a8b4",
-      "doesNotQualifyNewLocalRebuild": true
+      "version": "0.3.2",
+      "bytes": 1310328,
+      "sha256": "4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c",
+      "manifestMatches": true,
+      "replacedThisPass": false,
+      "initialMainReconstructionMatches": true,
+      "initialReconstructionSourceCommit": "1e5ab18a464adfdb22af85d71f291600149ff330"
+    },
+    "authenticatedAccountQualification": "separate_partial_Codex_observation_below_no_full_reviewer_qualification",
+    "initialMainComparison": {
+      "sourceCommit": "1e5ab18a464adfdb22af85d71f291600149ff330",
+      "mcpApiIntegrationsMatchedProductionAtInitialAudit": true,
+      "scope": "Historical initial audit comparison, not the latest main or candidate CI"
+    },
+    "mainMcpContractAndIntegrationsUnchangedSinceInitialAudit": true,
+    "mainFullApiMatchesProduction": false,
+    "mainApiChangesSinceInitialAudit": [
+      "authentication profile projection",
+      "account/dashboard appearance",
+      "mobile profile"
+    ],
+    "latestMainMergedFeature": {
+      "pullRequest": 61,
+      "feature": "Dashboard V2",
+      "migration": "migrations/0053_user_dashboard_appearance.sql",
+      "productionDeploymentOfThisFeatureProvenThisPass": false
+    },
+    "productionReleaseRecheckedAfterLatestMainFetch": {
+      "status": 200,
+      "sourceCommit": "f1a2681ce45ac4396fede5e7472a1722bca567d3",
+      "sourceDirty": false,
+      "builtAt": "2026-10-10T03:52:00.751Z",
+      "advertisedIssuerStillMissingTrailingSlash": true
     }
   },
   "unresolvedSubmissionFields": [
-    "Verify CI after integration of final email guardrail changes; base015f7c3 CI succeeded12/12 but does not qualify later local changes",
-    "Requalify current preparation-only reviewer references after user Telnyx login and read-only source/profile-association refresh",
-    "Retake P5 and P6 with valid non-sending references without enabling channels or changing mandates",
-    "Retake R1, R2 and R3 in a controlled host with only Guteneo reviewer available; partial R1 lost its plugin mention, R2 used a separate connected Gmail read-only tool, and R3 was not attempted; no isolated negative case qualified",
-    "Update and qualify the demo for the 0.3.1 scope including disabled email, protected-PDF links and four-language web interface",
-    "Verify effective OAuth settings and review-access lifetime without assuming repository defaults are deployed",
-    "Have the authorized developer complete the six legal/policy attestations: fresh page after four Passed has six boxes at0, Submit disabled, and only issue Submit is incomplete Confirm this statement.; no attestations performed",
-    "Perform Submit for review in the portal and verify resulting state; saved version 0.3.1 is currently Not submitted",
-    "Treat later directory publication and possible global-ZIP migration as distinct steps after approval and authorization"
+    "Finish candidate reconciliation on main54639e7 and qualify its exact new head with build/CI; initial main1e5ab18 checks remain historical",
+    "Any future latest-main production deployment includes Dashboard V2 and migration0053: verify ledger and follow the normal authorized migration/release gate without bypass",
+    "Resolve OpenAI package OAuth metadata extensions.com.openai.auth against portable MCP 1.0.0 schema before claiming new package installation; existing portal scan is distinct",
+    "Obtain the publisher human license choice before Cursor open-source submission; prepare a small distribution repository and host marketplace indexes separately",
+    "Restore GET-only Auth0 CLI inspection and review the exact redacted state/change fingerprint before any authorized renewal apply",
+    "Apply only an explicitly authorized reviewer renewal plan; verify both live Actions and bounded rotating policy, then observe real host expiry, refresh and revocation",
+    "Deploy the local exact-issuer discovery fix only under separate release authorization and verify the public metadata",
+    "Privately match exact issuer/subject, tenant, client and D1 prepare_only reviewer restriction before credential handoff or fresh qualification",
+    "Restore and import the exact synthetic PDF fixture; P3 is not currently qualified",
+    "Requalify non-sending preparation references and P1/P2/P3/P5/P6 plus R1/R2/R3 in the intended controlled host",
+    "Qualify current demo and fresh exact candidate CI; a 67-tool scan and historical individual checks do not satisfy this",
+    "Keep the 0.3.2 active review and public archive intact; obtain separate authorization before any cancellation, replacement submission or directory publication"
   ],
-  "updatedAt": "2026-10-02",
+  "updatedAt": "2026-10-13",
   "historicalPublicObservation": {
     "observedOn": "2026-09-17",
     "sourceCommit": "c3798f59cb6cff4e1dcaddb524f43d59b1009822",
@@ -152,194 +165,57 @@
     "marketplacePublicationVerified": false
   },
   "portalObservation": {
-    "observedOn": "2026-10-02",
+    "observedOn": "2026-10-13",
     "timezone": "Europe/Paris",
-    "surface": "Safari OpenAI plugin management",
+    "surface": "OpenAI plugin portal inspection, existing scanner reauthentication and rescan",
     "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
-    "version": "0.3.1",
-    "portalUrl": "https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f",
-    "status": "draft_saved_not_submitted",
-    "statusLabel": "Version 0.3.1 · Not submitted",
+    "version": "0.3.2",
+    "status": "in_review",
+    "statusLabel": "In review",
     "publicationLabel": "Not published",
-    "submitted": false,
+    "availabilityLabel": "Not live",
+    "submitted": true,
     "submittedAt": null,
     "published": false,
-    "rejectionReason": null,
     "rejectionObserved": false,
     "domainVerificationLabel": "Domain verified",
-    "authorizationLabel": "Authorized",
-    "toolCount": 24,
-    "toolCatalogueStatus": "fresh_portal_scan_complete_24_tools",
+    "toolCount": 67,
+    "skillsCount": 6,
+    "skillsStatus": "Checks passed",
     "currentScan": {
-      "attempted": true,
+      "observedAt": "2026-10-13T13:56:30+02:00",
+      "timezone": "Europe/Paris",
       "succeeded": true,
-      "flow": "User completed Auth0 login for existing legacy-editor scanner",
+      "toolCount": 67,
+      "resultLabel": "No findings in the latest MCP scan.",
       "authorizationRenewed": true,
-      "reauthenticationPending": false,
-      "toolCatalogueUpdated": true,
-      "toolCount": 24,
-      "annotationTripletsAndJustificationsImported": 24,
-      "continueAllowed": true,
       "doesNotQualifyFreshReviewerCases": true,
-      "sourceAlreadyDeployedWhenScanPerformed": true,
-      "additionalScanPerformedAfterDraft031Save": false
+      "doesNotQualifyAutomaticRenewal": true
     },
-    "directReviewerConnector": {
-      "connection": "Guteneo Review MCP connector in this Codex chat",
-      "reconnectionFlow": "ChatGPT Safari plugin page Reconnect then Continue",
-      "reconnectionToast": "Primary is now connected",
-      "result": "get_capabilities succeeded",
-      "reauthenticationRequired": false,
-      "realToolCall": {
-        "tool": "get_capabilities",
-        "observedAtUtc": "2026-10-02T16:02:05.789Z",
-        "surface": "Codex",
-        "mode": "production",
-        "simulation": false,
-        "expertActive": false,
-        "expertActivationPerformed": false
-      },
-      "submissionReviewerTenantMatchConfirmed": true,
-      "allEightFreshCasesQualified": false,
-      "reviewerIdentityVerification": "Exact expected account, tenant and OAuth client matched in D1 before import; identifiers remain private"
-    },
-    "updateUploadBlockedWhileReviewActive": false,
-    "activeReviewCancelled": true,
+    "activeReviewCancelled": false,
     "newSubmissionPerformed": false,
-    "versionEvidence": "Exit returned dashboard Version 0.3.1 · Not submitted and MCP configured",
-    "reviewCancellationReason": "Explicit replacement of existing 0.2.2 submission",
-    "reviewCancellationDoesNotMeanDenied": true,
-    "legacyMcpEditorEditableAfterReload": true,
-    "metadataUpdatesPersisted": true,
-    "candidateUploadAttempted": false,
-    "candidateUploadAccepted": false,
-    "candidatePackageSaved": false,
     "publicationPerformed": false,
-    "historicalScanFailure": {
-      "attempted": true,
-      "succeeded": false,
-      "message": "Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt.",
-      "recovery": "Reconnect the account in the plugin editor and rescan",
-      "doesNotEstablishReviewRejection": true
-    },
-    "candidateZipImportAttempts": [
-      {
-        "result": "Image selected instead of ZIP; rejected without package import",
-        "packageSaved": false
-      },
-      {
-        "result": "Rejected because root name must preserve existing app identity",
-        "requiredPackageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-        "packageSaved": false
-      },
-      {
-        "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-        "version": "0.2.3",
-        "bytes": 1283344,
-        "sha256": "bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885",
-        "accepted": false,
-        "packageSaved": false,
-        "messages": [
-          "Keep the existing MCP connection",
-          "Publish the existing MCP app before updating its plugin ZIP."
-        ],
-        "meaning": "Existing MCP app migration prerequisite; no quality-review rejection established"
-      }
-    ],
-    "submitClicked": false,
-    "metadataPersistenceEvidence": "English version/subtitle/description, French description and release notes entered from manifest 0.3.1 and saved via Exit",
-    "metadataFieldsUpdated": [
-      "version",
-      "englishSubtitle",
-      "englishDescription",
-      "frenchDescription",
-      "releaseNotes"
-    ],
-    "currentArchiveGlobalUploadAttempted": false,
-    "globalZipImportAccepted": false,
-    "legacyMetadataVersionSaved": "0.3.1",
-    "skills": {
-      "individualZipImports": 4,
-      "get-started": {
-        "imported": true,
-        "lastExplicitScanStatus": "Passed",
-        "persistedAfterLegacyReload": true,
-        "zipBytesMatchPassed023Zip": true,
-        "reuploadedForVersion031": true,
-        "cachedPassedResultReused": true
-      },
-      "fax-pdf": {
-        "imported": true,
-        "lastExplicitScanStatus": "Passed",
-        "persistedAfterLegacyReload": true,
-        "zipBytesMatchPassed023Zip": true
-      },
-      "postal-pdf": {
-        "imported": true,
-        "lastExplicitScanStatus": "Passed",
-        "persistedAfterLegacyReload": true,
-        "zipBytesMatchPassed023Zip": true
-      },
-      "scanMaximumHoursShownByPortal": 2,
-      "skillsIncompleteMessageOnSubmitPage": false,
-      "allIndividualScansExplicitlyPassed": true,
-      "scope": "legacy_editor_individual_skill_zips",
-      "allThreePassedPersistedAfterReload": true,
-      "allFourIndividualScansExplicitlyPassed": true,
-      "emailFinalScanPending": false,
-      "email": {
-        "imported": true,
-        "lastExplicitScanStatus": "Passed",
-        "firstImportedZipBytes": 4340,
-        "firstImportedZipSha256": "bfd817ce00fc931e50b6dbe207ac1193b53f75180b6709f1ee4265243744d46f",
-        "firstImportedZipHistorical": true,
-        "guardrailsAddedAfterFirstImport": true,
-        "replacementImportPerformed": true,
-        "replacementArchiveStatus": "final_zip_uploaded_and_passed_after_legacy_reload",
-        "finalPassedProven": true,
-        "finalZipBytes": 5179,
-        "finalZipSha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
-        "guardrailsValidatedLocally": true,
-        "firstImportedZipLastExplicitScanStatus": "Passed",
-        "firstImportedZipPassedDoesNotQualifyReplacement": true,
-        "persistedAfterLegacyReload": true,
-        "previousFinalReplacementScanStatus": "Scanning"
-      },
-      "allFourPassedPersistedAfterReload": true,
-      "finalObservationSurface": "Legacy editor reloaded, then Skills opened; all four explicit Passed",
-      "submitPageObservationAfterFinalFourPassed": true
-    },
-    "submissionPolicyConfirmations": {
-      "visibleCheckboxes": 6,
-      "checked": 0,
-      "lastVisibleValidationBlockers": "Submit is incomplete Confirm this statement.",
-      "attestationsMadeThisRun": false,
-      "submitClicked": false,
-      "doesNotProveFreshReviewerTests": true,
-      "observationScope": "Fresh Submit page read after all four final skills explicitly Passed; Exit saved again",
-      "onlyVisiblePluginIssue": "Submit is incomplete Confirm this statement.",
-      "skillsIncompleteMessageVisible": false,
-      "submitForReviewEnabled": false,
-      "privateScreenshotFilename": "submit-attestations-pending.png",
-      "privateScreenshotOutsideGit": true
-    },
-    "mcpConfiguredAfterReload": true,
-    "metadataFieldsIndividuallyVerifiedAfterReload": [],
-    "globalMetadataAndSkillsView": {
-      "skillsLabel": "No Skills in this version",
-      "reviewLabel": "Review Unavailable",
-      "context": "Existing MCP app without a globally imported plugin package",
-      "doesNotReplaceLegacyIndividualSkillResults": true,
-      "doesNotEstablishReviewRejection": true,
-      "observationScope": "Historical observation on version 0.2.3 before subsequent draft 0.3.1 save"
-    },
-    "countrySetting": "All countries",
-    "countrySettingChanged": false,
-    "emailEnabled": false,
-    "webInterfaceLanguages": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
-    "historicalGlobalZipAttemptsRetained": true
+    "candidate034UploadAttempted": false,
+    "directReviewerConnector": {
+      "surface": "Codex development reviewer plugin",
+      "toolCount": 24,
+      "distinctFromMainScanned67Tools": true,
+      "reconnectionSucceeded": true,
+      "realToolsSucceeded": [
+        "get_capabilities",
+        "list_documents",
+        "expert_status"
+      ],
+      "mode": "production",
+      "simulation": false,
+      "expertActive": false,
+      "expertActivationPerformed": false,
+      "exactD1IdentityRestrictionMatchedThisPass": false,
+      "allEightFreshCasesQualified": false
+    }
   },
   "reviewPreparation": {
+    "observedOn": "2026-10-13",
     "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
     "negativeTestCaseIds": ["R1", "R2", "R3"],
     "additionalInternalCaseIds": [
@@ -353,161 +229,71 @@
       "N6",
       "N7"
     ],
-    "executionStatus": "P1_P2_P3_bounded_codex_MCP_passed_P5_P6_R1_R2_R3_not_retaken",
-    "toolScanStatus": "fresh_portal_scan_complete_24_tools",
-    "annotationJustificationsStatus": "24_triplets_and_justifications_imported_in_legacy_editor_modern_zip_flow_has_no_required_justification_fields",
-    "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
-    "selectionStatus": "five_positive_three_negative_plan_retained_current_execution_pending",
-    "negativeCaseCompatibility": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; N1/N2/N4 remain internal authorization/isolation checks. The Oct2 controls did not execute these cases.",
-    "candidateReleaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
-    "composerIconStatus": "portal_light_dark_previews_checked_and_preserved_after_reload",
-    "fixture": {
-      "path": "integrations/chatgpt/fixtures/reviewer-original.pdf",
-      "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
-      "bytes": 4290,
-      "synthetic": true,
-      "containsRecipient": false,
-      "externalSendAuthorized": false
-    },
-    "demoScript": "integrations/chatgpt/demo-recording.md",
-    "toolCount": 24,
-    "reviewPricingFreshness": {
-      "referenceMaximumHours": 168,
-      "authorityMaximumDays": 30,
-      "authorityDoesNotRenewReference": true,
-      "currentReviewerReferenceVerified": false,
-      "historicalSeptember21ReferenceQualifiesOctober2WithoutRefresh": false,
-      "reviewerReferenceExpired": true,
-      "reviewerReferenceExpiryDate": "2026-09-24",
-      "historicalRateDeckAssociationExpired": true,
-      "telnyxUserLoginRequestedForReadOnlyRefresh": true,
-      "readOnlySourceRefreshCompleted": false,
-      "operatorRequalificationPerformed": false,
-      "realSendAuthorizedByThisPreparation": false,
-      "mandateChanged": false
-    },
-    "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
-    "demoPublicBytesVerifiedOn": "2026-10-02",
-    "historicalDemoDoesNotQualifyCurrentReviewerRun": true,
-    "currentPositiveCasesPassed": 3,
-    "currentNegativeCasesPassed": null,
-    "freshCaseResultsRecorded": true,
-    "freshClientObservations": [
-      {
-        "relatedCase": "P1",
-        "tool": "get_capabilities",
-        "surface": "Codex",
-        "observedAtUtc": "2026-10-02T16:02:05.789Z",
-        "succeeded": true,
-        "simulation": false,
-        "submissionReviewerTenantMatchConfirmed": true,
-        "qualifiesAllFivePositiveCases": false
-      }
-    ],
-    "currentPositivePassedSurface": "Codex MCP",
-    "freshNegativeCaseResultsRecorded": false,
-    "submissionReviewerTenantMatchConfirmed": true,
-    "reviewerIdentityCheck": "Exact expected account, tenant and OAuth client matched in D1 before import; identifiers retained privately",
+    "executionStatus": "partial_reads_observed_full_reviewer_qualification_pending",
+    "toolScanStatus": "latest_portal_scan_67_tools_no_findings",
+    "toolCount": 67,
+    "reviewerConnectorToolCount": 24,
+    "currentPositiveCasesPassed": [],
+    "currentNegativeCasesPassed": [],
+    "allSubmissionRequirementsQualified": false,
+    "submissionReviewerTenantMatchConfirmed": false,
+    "reviewerIdentityCheck": "issuer_subject_tenant_client_and_prepare_only_D1_restriction_not_compared_this_pass",
     "fullChatGPTAutomaticToolSelectionQualified": false,
+    "observedRuntimeSourceCommit": "f1a2681ce45ac4396fede5e7472a1722bca567d3",
+    "qualifiedRuntimeSourceCommit": null,
     "freshCaseResults": {
       "P1": {
-        "status": "passed_bounded",
-        "surface": "Codex MCP",
+        "status": "access_observed_identity_not_requalified",
+        "surface": "Codex development reviewer plugin",
         "tool": "get_capabilities",
-        "observedAtUtc": "2026-10-02T16:02:05.789Z",
         "mode": "production",
-        "simulation": false,
-        "expertActive": false,
-        "expertActivationPerformed": false
+        "simulation": false
       },
       "P2": {
-        "status": "passed_bounded",
-        "surface": "Codex MCP",
+        "status": "read_observed_fixture_and_identity_not_requalified",
+        "surface": "Codex development reviewer plugin",
         "tool": "list_documents",
-        "limit": 5,
-        "returnedDocuments": 1,
-        "nextPage": false
+        "observedDocumentCount": 6,
+        "expectedFixtureSha256Found": false
       },
       "P3": {
-        "status": "passed_bounded",
-        "surface": "Codex MCP",
-        "tools": ["import_document", "get_document"],
-        "fixtureBytes": 4290,
-        "fixturePages": 2,
-        "fixtureSha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
-        "documentStatus": "ready",
-        "simulation": false,
-        "deduplicatedExistingPdf": true,
-        "newAntivirusScanProven": false
+        "status": "not_qualified_currently",
+        "reason": "No current import and status verification for the exact expected fixture; October 2 result remains historical"
       },
       "P5": {
-        "status": "not_retaken",
-        "reason": "Current preparation-only references require requalification"
+        "status": "not_requalified_this_pass"
       },
       "P6": {
-        "status": "not_retaken"
+        "status": "not_requalified_this_pass"
       },
       "R1": {
-        "status": "not_retaken"
+        "status": "not_requalified_this_pass"
       },
       "R2": {
-        "status": "not_retaken"
+        "status": "not_requalified_this_pass"
       },
       "R3": {
-        "status": "not_retaken"
+        "status": "not_requalified_this_pass"
       }
     },
-    "privateRetakeReport": {
-      "path": "reports/reviewer-retake-2026-10-02.json",
-      "permissions": "0600",
-      "gitIgnored": true,
-      "redacted": true,
-      "notAPublicEvidenceAsset": true
+    "expertStatusObservation": {
+      "tool": "expert_status",
+      "succeeded": true,
+      "expertActive": false,
+      "expertActivationPerformed": false
     },
-    "evidenceScope": "Saved legacy portal draft 0.3.1; P1/P2/P3 are bounded Codex MCP calls on deployed source a808307, not qualification of automatic ChatGPT selection, fresh remaining cases, email activation or a new demo.",
-    "localCandidate031Qualified": false,
-    "savedPortalReleaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
-    "qualifiedRuntimeSourceCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
-    "allSubmissionRequirementsQualified": false,
-    "demo031UpdatedAndQualified": false,
-    "emailFinalScanPending": false,
-    "partialHostNegativeCaseObservations": {
-      "surface": "ChatGPT Work",
-      "modelLabel": "GPT-6.1 Sol Light",
-      "qualifiedNegativeCases": false,
-      "R1": {
-        "attempted": true,
-        "qualified": false,
-        "responseObserved": "Host requested a PDF attachment and signature type",
-        "guteneoToolVisible": false,
-        "pluginMentionPreserved": false,
-        "pluginMentionObservation": "Plugin mention was likely removed when composer text was replaced; exact cause not established",
-        "status": "pending_controlled_host_retake"
-      },
-      "R2": {
-        "attempted": true,
-        "qualified": false,
-        "guteneoReviewMentionPreserved": true,
-        "mentionScreenshotCaptured": true,
-        "promptType": "Natural Gmail attachment request",
-        "hostUsedOtherConnectedTool": "Gmail read-only search",
-        "hostStatedGuteneoReviewCannotReadGmail": true,
-        "communicationSent": false,
-        "retrievedContentOrMetadataRecordedHere": false,
-        "isolatedGuteneoNonInvocationQualified": false,
-        "status": "pending_controlled_host_retake",
-        "stoppedWhenGmailUsageObserved": true,
-        "gmailReadAlreadyOccurredBeforeStop": true
-      },
-      "R3": {
-        "attempted": false,
-        "qualified": false,
-        "reason": "Avoid triggering unrelated host communication services",
-        "status": "pending_controlled_host_retake"
-      },
-      "requiredRetakeScope": "Controlled host where only the Guteneo reviewer plugin is available",
-      "doesNotProveHostHasNoGmailAccess": true
-    }
+    "fixture": {
+      "url": "https://guteneo.com/review/reviewer-original.pdf",
+      "referenceBytes": 4290,
+      "referencePages": 2,
+      "referenceSha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+      "synthetic": true,
+      "expectedSha256FoundInObservedAccount": false,
+      "externalSendAuthorized": false
+    },
+    "reviewerDeliveryPolicy": "prepare_only_required_separate_exact_identity_D1_verification_pending",
+    "historicalDemoDoesNotQualifyCurrentReviewerRun": true,
+    "reviewerTestsDocument": "integrations/chatgpt/reviewer-tests.md"
   },
   "submissionSources": [
     "https://developers.openai.com/plugins/deploy/submission",
@@ -523,86 +309,72 @@
     "published": false
   },
   "candidateCi": {
-    "commit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-    "runId": "37033236823",
-    "url": "https://github.com/nclsppr/guteneo/actions/runs/37033236823",
-    "allChecks": "success",
-    "successfulChecks": 12,
-    "totalChecks": 12,
-    "doesNotQualifyOpenAiSubmission": true,
+    "status": "pending_final_candidate_head_after_latest_main_rebase",
     "productionDeploymentProvenByThisRun": false,
-    "laterChangesQualifiedByThisExactRun": false,
-    "status": "completed",
-    "finalEmailGuardrailChangesQualifiedByThisExactRun": false
+    "doesNotQualifyOpenAiSubmission": true,
+    "baseCommit": "54639e7f6331433a5b24b0449c50c1f4ce5bb57d",
+    "initialMainChecksRemainHistorical": true
   },
   "authorization": {
-    "source": "explicit_publisher_instructions_in_task",
-    "submitAuthorized": true,
-    "publicPagesAndDomainVerificationAuthorized": true,
-    "reviewerAccountAndTestsAndVideoAuthorized": true,
-    "publisherSaysTermsReadAndAcceptanceAuthorized": true,
-    "attestationsMustRemainEvidenceBased": true
+    "source": "Current goal authorizes read-only audit and local reviewable preparation; historical permissions retained in worksheet snapshot",
+    "submitPerformedThisPass": false,
+    "reviewCancellationPerformedThisPass": false,
+    "productionDeploymentPerformedThisPass": false,
+    "renewalApplyRequiresExplicitAuthorizationOfReviewedPlan": true,
+    "replacementRequiresSeparateAuthorization": true,
+    "attestationsMustRemainEvidenceBased": true,
+    "externalConfigurationOrPublicationChangesPerformedThisPass": false,
+    "existingReviewerReauthenticationAndPortalRescanPerformedThisPass": true
   },
   "candidateUpdate": {
-    "version": "0.3.1",
-    "preparedAt": "2026-10-02",
-    "notes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
-    "portalUpdated": true,
-    "submitted": false,
-    "publishedToDirectory": false,
-    "onboardingSkill": "./skills/get-started/SKILL.md",
+    "version": "0.3.4",
+    "preparedAt": "2026-10-13",
+    "scope": "English skills/public links, installation guides, OAuth diagnostics; separate local server issuer discovery fix",
+    "sourceManifest": "integrations/guteneo/plugin.json",
+    "archiveBytes": 1315169,
+    "archiveSha256": "3749a558dd4bb36dedea813348dd534947e997a202c20945f002e7991f327474",
+    "archiveStatus": "local_candidate_not_public_or_portal_package",
+    "portalUpdated": false,
     "uploadAttempted": false,
     "uploadAccepted": false,
-    "packageSavedInPortal": false,
-    "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-    "archiveBytes": 1290534,
-    "archiveSha256": "25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6",
-    "archiveStatus": "final_local_archive_verified_not_imported_or_submitted",
-    "uploadBlocker": "Publish the existing MCP app before updating its plugin ZIP.",
-    "uploadBlockerObservedForVersion": "0.2.3",
-    "legacyMcpEditorFallback": "used_metadata_031_saved_all_four_individual_skills_passed_after_reload",
-    "combinedRelease": "0.3.1; email implementation merged dormant; four-language web interface; no new portal submission",
-    "savedPortalVersion": "0.3.1",
-    "savedPortalArchiveDoesNotQualifyLocalCandidate": true,
-    "upstreamRuntimeChangesNotDeployedByThisTask": true,
-    "requiredSkillYamlInterfaceFields": ["display_name", "short_description"],
-    "legacyMetadataSaved": true,
-    "portalStatus": "Version 0.3.1 · Not submitted",
-    "individualSkillImports": 4,
-    "legacyOriginalThreeSkillsAllPassed": true,
-    "legacyIndividualSkillsAllPassed": true,
-    "globalZipCurrentArchiveUploadAttempted": false,
-    "globalZipImportAccepted": false,
-    "packageValidation": {
-      "firstBuildSourceCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-      "targetedTestsPassed": 32,
-      "targetedTestsTotal": 32,
-      "officialSchemaPassed": true,
-      "zipCrcPassed": true,
-      "privacyCheckPassed": true,
-      "finalEmailGuardrailRebuildPending": false,
-      "sourceBaseCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-      "includesLaterLocalEmailGuardrailChanges": true,
-      "finalTargetedTestsPassed": 32,
-      "finalTargetedTestsTotal": 32,
-      "determinismPassed": true,
-      "privateBindingGuardsPassed": true,
-      "reportPath": "/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json",
-      "reportOutsideRepository": true,
-      "finalArchiveQualifiedByBaseCi": false
+    "submitted": false,
+    "publishedToDirectory": false,
+    "public032ArchivePreserved": true,
+    "active032ReviewPreserved": true,
+    "auth0ActivationPerformed": false,
+    "productionDeploymentPerformed": false,
+    "separate033Candidate": {
+      "pr": 52,
+      "state": "OPEN",
+      "draft": true,
+      "mergeState": "DIRTY",
+      "head": "2f259be581fd0203845d9da12f7b33c31b2e1701",
+      "currentWorktreeNotItsQualifiedHead": true
     },
-    "skillCount": 4,
-    "emailFinalScanPending": false,
-    "emailSkillArchive": {
-      "bytes": 5179,
-      "sha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
-      "guardrailsValidated": true,
-      "replacementImportedInPortal": true,
-      "finalScanPassed": true,
-      "lastExplicitScanStatus": "Passed",
-      "passedPersistedAfterLegacyReload": true
+    "openAiPackageOAuthMetadata": {
+      "enabled": false,
+      "configurationPath": "extensions.com.openai.auth",
+      "portableMcpSchemaVersion": "1.0.0",
+      "blocker": "HTTP additionalProperties:false rejects extensions; resolve package contract without weakening vendor schema or inferring client/DCR",
+      "portalOAuthScanDoesNotQualifyNewPackageOAuth": true
     },
-    "legacyIndividualSkillsPersistedAfterReload": true
+    "publicDistributionPrerequisites": {
+      "cursorOpenSourceLicense": "human_choice_pending_no_LICENSE_or_recognized_GitHub_license",
+      "repositoryCloneApproximateBytes": 1800000000,
+      "marketplaceRootIndexesAdded": false,
+      "smallDedicatedDistributionRepository": "future_preparation_after_license_and_OAuth_contract_resolution"
+    },
+    "baseCommit": "54639e7f6331433a5b24b0449c50c1f4ce5bb57d",
+    "rebaseStatus": "final_head_pending_rebase_completion_by_root",
+    "archivePreparedBeforeLatestMainRebase": true,
+    "latestBaseRebuildAndCiQualified": false,
+    "normalProductionReleaseGates": {
+      "dashboardV2IncludedByLatestMain": true,
+      "migration0053LedgerMustBeChecked": true,
+      "migration0053AppliedByThisPass": false,
+      "migrationMustFollowNormalAuthorizedReleaseProcess": true,
+      "mcpFixCannotBypassMigrationGate": true
+    }
   },
   "historicalPublicObservations": [
     {
@@ -1074,27 +846,17 @@
     "portalUpdated": false,
     "publishedToDirectory": false
   },
-  "candidateStatus": "legacy_031_metadata_saved_all_four_individual_skills_passed_no_submit",
+  "candidateStatus": "local_034_prepared_active_032_review_and_public_archive_preserved",
   "currentSubmissionFlow": {
-    "observedOn": "2026-10-02",
-    "packageSource": "ZIP plugin package",
-    "importedFieldsReadOnlyInPortal": true,
-    "annotationJustificationsRequiredAsSubmissionFields": false,
-    "annotationsMustMatchToolEffects": true,
-    "internalWorksheetIsOfficialUploadArtifact": false,
-    "activeReviewMustBeCancelledBeforeUpdatedUpload": true,
-    "cancellationPerformed": true,
-    "source": "https://developers.openai.com/plugins/deploy/submission",
-    "existingMcpAppZipMigrationPrerequisite": "Publish the existing MCP app before updating its plugin ZIP.",
-    "rootPackageIdentityMustBePreserved": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-    "flowUsed": "existing_mcp_editor_with_individual_skill_zips",
-    "importedFieldsReadOnlyRuleAppliesTo": "modern_global_zip_import_flow",
-    "annotationJustificationsRequiredAsSubmissionFieldsAppliesTo": "modern_global_zip_import_flow",
-    "legacyAnnotationTripletsAndJustificationsImported": 24,
-    "legacyMetadataEditingAndExitSaveSucceeded": true,
+    "observedOn": "2026-10-13",
+    "activeReviewVersion": "0.3.2",
+    "activeReviewPreserved": true,
+    "replacementRequiresSeparateAuthorization": true,
+    "cancellationPerformed": false,
     "submitActionPerformed": false,
     "preparationDoesNotSubmit": true,
-    "publicationIsSeparateFromApproval": true
+    "publicationIsSeparateFromApproval": true,
+    "internalWorksheetIsOfficialUploadArtifact": false
   },
   "historicalListingCandidate": {
     "shortDescription": "PDFs, postal mail and fax",
@@ -1113,12 +875,40 @@
     ]
   },
   "oauthSourceDiagnosis": {
-    "evidenceType": "repository_source_only",
-    "preparedConfigurationRefreshTokensEnabled": false,
+    "observedOn": "2026-10-13",
+    "evidenceType": "authenticated_Auth0_Dashboard_read_only_observation_plus_local_source_fixtures",
+    "advertisedIssuer": "https://pieper.eu.auth0.com",
+    "actualIssuer": "https://pieper.eu.auth0.com/",
+    "issuerDiscoveryFixPreparedLocally": true,
+    "issuerDiscoveryFixDeployed": false,
     "localAccessTokenMaximumAgeSeconds": 3600,
-    "liveEffectiveAuth0SettingsVerified": false,
-    "definitiveCauseOfPortalAuthorizationErrorEstablished": false,
-    "liveOAuthConfigurationChanged": false
+    "liveApiMaximumAccessTokenLifetimeSeconds": 3600,
+    "liveReviewClientRefreshGrantEnabled": false,
+    "liveApiOfflineAccessEnabled": false,
+    "observedDeployedIdentityActionRefreshBranch": false,
+    "confirmedRenewalBlockers": [
+      "review_client_refresh_grant_disabled",
+      "api_offline_access_disabled",
+      "observed_identity_action_initial_PKCE_only"
+    ],
+    "fullTwoActionSourcesAndBindingsVerified": false,
+    "cliInspection": "review_client_GET_failed_expired_CLI_credential_please_login",
+    "liveReviewedFingerprint": null,
+    "renewalMigrationPrepared": "scripts/enable-openai-review-renewal.mjs",
+    "renewalPolicy": {
+      "rotation": "rotating",
+      "idleDays": 30,
+      "absoluteDays": 90,
+      "leewaySeconds": 3
+    },
+    "liveOAuthConfigurationChanged": false,
+    "migrationApplied": false,
+    "automaticRenewalVerified": false,
+    "definitiveCauseOfAllPortalAuthorizationErrorsEstablished": false,
+    "cliFullInspectionSucceeded": false,
+    "cachedTenantSelectionWorks": true,
+    "cachedTenantMatchesExpected": true,
+    "browserDashboardAuthenticationDistinctFromCli": true
   },
   "historicalCandidateUpdates": [
     {
@@ -1190,8 +980,8 @@
       "historical": true
     }
   ],
-  "lastSubmittedVersion": "0.2.2",
-  "currentDraftVersion": "0.3.1",
+  "lastSubmittedVersion": "0.3.2",
+  "currentDraftVersion": null,
   "pluginCreatorDiscovery": {
     "plugin": "Plugin Creator",
     "publicVersion": "0.1.22",
@@ -1219,7 +1009,10 @@
     "localReferencedFilesRead": 3,
     "preparationInstructionsApplied": true,
     "portalSubmitPerformed": false,
-    "localCreatorReadUpdateToolsExposed": false
+    "localCreatorReadUpdateToolsExposed": false,
+    "historicalObservationOnly": true,
+    "historicalObservedOn": "2026-10-02",
+    "freshlyVerifiedThisPass": false
   },
   "historicalDirectReviewerConnectorObservations": [
     {
@@ -1238,124 +1031,23 @@
     }
   ],
   "savedPortalCandidate": {
-    "version": "0.3.1",
-    "preparedAt": "2026-10-02",
-    "notes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
-    "portalUpdated": true,
-    "submitted": false,
+    "version": "0.3.2",
+    "status": "In review",
     "publishedToDirectory": false,
-    "onboardingSkill": "./skills/get-started/SKILL.md",
-    "uploadAttempted": false,
-    "uploadAccepted": false,
-    "packageSavedInPortal": false,
-    "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-    "archiveBytes": 1290534,
-    "archiveSha256": "25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6",
-    "archiveStatus": "final_local_archive_verified_not_imported_or_submitted",
-    "uploadBlocker": "Publish the existing MCP app before updating its plugin ZIP.",
-    "uploadBlockerObservedForVersion": "0.2.3",
-    "legacyMcpEditorFallback": "used_metadata_031_saved_all_four_individual_skills_passed_after_reload",
-    "combinedRelease": "0.3.1; email implementation merged dormant; four-language web interface; no new portal submission",
-    "savedPortalVersion": "0.3.1",
-    "savedPortalArchiveDoesNotQualifyLocalCandidate": true,
-    "upstreamRuntimeChangesNotDeployedByThisTask": true,
-    "requiredSkillYamlInterfaceFields": ["display_name", "short_description"],
-    "legacyMetadataSaved": true,
-    "portalStatus": "Version 0.3.1 · Not submitted",
-    "individualSkillImports": 4,
-    "legacyOriginalThreeSkillsAllPassed": true,
-    "legacyIndividualSkillsAllPassed": true,
-    "globalZipCurrentArchiveUploadAttempted": false,
-    "globalZipImportAccepted": false,
-    "packageValidation": {
-      "firstBuildSourceCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-      "targetedTestsPassed": 32,
-      "targetedTestsTotal": 32,
-      "officialSchemaPassed": true,
-      "zipCrcPassed": true,
-      "privacyCheckPassed": true,
-      "finalEmailGuardrailRebuildPending": false,
-      "sourceBaseCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-      "includesLaterLocalEmailGuardrailChanges": true,
-      "finalTargetedTestsPassed": 32,
-      "finalTargetedTestsTotal": 32,
-      "determinismPassed": true,
-      "privateBindingGuardsPassed": true,
-      "reportPath": "/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json",
-      "reportOutsideRepository": true,
-      "finalArchiveQualifiedByBaseCi": false
-    },
-    "skillCount": 4,
-    "emailFinalScanPending": false,
-    "emailSkillArchive": {
-      "bytes": 5179,
-      "sha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
-      "guardrailsValidated": true,
-      "replacementImportedInPortal": true,
-      "finalScanPassed": true,
-      "lastExplicitScanStatus": "Passed",
-      "passedPersistedAfterLegacyReload": true
-    },
-    "legacyIndividualSkillsPersistedAfterReload": true
+    "candidate034Saved": false,
+    "fullMetadataAndPackageBytesFreshlyCompared": false
   },
   "savedPortalListing": {
-    "name": "Guteneo",
-    "shortDescription": "PDFs, email and dispatches",
-    "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed.",
-    "category": "Productivity",
-    "primaryLanguage": "en-US",
-    "supportedLanguages": ["en-US", "fr-FR"],
-    "websiteUrl": "https://guteneo.com",
-    "supportEmail": "guteneo@pieper.fr",
-    "privacyPolicyUrl": "https://guteneo.com/confidentialite/",
-    "publisherDisplayName": null,
-    "logoUrl": "https://guteneo.com/brand/guteneo-mark.png",
-    "logoLocalPath": "apps/web/public/brand/guteneo-mark.png",
-    "logoSha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
-    "logoWidth": 512,
-    "logoHeight": 512,
-    "screenshots": [],
-    "conversationStarters": [
-      "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
-      "Prepare a fax estimate for this PDF without sending it.",
-      "What is the status of my latest Guteneo dispatch?"
-    ],
-    "supportUrl": "https://guteneo.com/support/",
-    "termsOfServiceUrl": "https://guteneo.com/conditions/",
-    "availabilityCountries": null,
-    "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
-    "publisherIdentityStatus": "verified_individual_selected_in_portal_legal_name_not_stored",
-    "composerIconUrl": "https://guteneo.com/brand/guteneo-composer.png",
-    "composerIconLocalPath": "apps/web/public/brand/guteneo-composer.png",
-    "composerIconSha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
-    "composerIconWidth": 1254,
-    "composerIconHeight": 1254,
-    "publicInformationStatus": "https_privacy_terms_and_support_public_get_verified_2026-10-02",
-    "translations": [
-      {
-        "locale": "fr-FR",
-        "shortDescription": "PDF, devis et suivi des envois",
-        "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. L’e-mail reste désactivé jusqu’à la qualification de ses contrôles opérationnels. Le mot de passe du PDF reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Aucune livraison ni certification documentaire n’est garantie."
-      }
-    ],
-    "serviceInterfaceLanguage": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
-    "candidateSource": "integrations/guteneo/plugin.json (0.3.1; legacy metadata saved, no global ZIP import or submission)",
-    "metadataScope": "EN subtitle/description, FR description and release notes entered from current manifest and saved via Exit; dashboard version verified",
-    "version": "0.3.1",
-    "releaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
-    "countrySetting": "All countries"
+    "version": "0.3.2",
+    "status": "In review",
+    "fullListingFieldsFreshlyVerified": false,
+    "historicalFieldValuesRetainedInWorksheetSnapshots": true
   },
   "candidateCapabilities": {
-    "emailProvider": "resend",
-    "emailModes": ["none", "attachment", "protected_link"],
-    "passwordAccess": "authenticated_sender_browser_only",
-    "reviewerSendingEnabled": false,
-    "futureOnly": [
-      "multi_format_recipient_lists",
-      "excel_and_other_attachment_formats",
-      "recipient_accounts"
-    ],
-    "qualification": "requires_deployed_configuration_and_account_capabilities"
+    "qualification": "existing_account_gates_preserved_no_provider_channel_or_mandate_activation",
+    "installedPackageDoesNotGrantExpertAuthority": true,
+    "reviewerSendingEnabledByThisCandidate": false,
+    "reviewerDeliveryRestrictionLiveIdentityMatchedThisPass": false
   },
   "historicalSavedPortalListings": [
     {
@@ -1432,14 +1124,7 @@
     "legalAttestationInstruction": "Have the authorized developer complete legal/policy attestations.",
     "legalAttestationsCompletedByAgent": false
   },
-  "currentPullRequest": {
-    "number": 38,
-    "url": "https://github.com/nclsppr/guteneo/pull/38",
-    "branch": "codex/plugin-review-draft-progress",
-    "baseCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
-    "observedHeadCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
-    "mergedByThisTask": false
-  },
+  "currentPullRequest": null,
   "historicalPullRequests": [
     {
       "number": 34,
@@ -1461,10 +1146,770 @@
     }
   ],
   "knownGaps": {
-    "negativeHostCases": "R1/R2/R3 remain pending in a controlled host with only Guteneo reviewer available",
-    "R1PartialAttempt": "Plugin mention likely removed; PDF/signature clarification and absence of visible Guteneo tool do not qualify the selected-plugin case",
-    "R2PartialAttempt": "Preserved Guteneo Review mention but connected host Gmail tool performed read-only search; attempt stopped when use was observed after Gmail read had already occurred, no communication sent; isolated Guteneo non-invocation not qualified",
-    "R3NotAttempted": true,
-    "otherPreviouslyRecordedGapsRemainOpen": true
-  }
+    "currentReviewerIdentityMatch": false,
+    "expectedFixtureAvailableInObservedAccount": false,
+    "P3QualifiedCurrently": false,
+    "fullReviewerQualification": false,
+    "automaticRenewalVerified": false,
+    "otherHostsFreshlyQualified": false,
+    "noUniversalPluginCatalogueCompatibilityClaim": true
+  },
+  "historicalWorksheetSnapshots": [
+    {
+      "observedOn": "2026-10-02",
+      "scope": "Superseded current worksheet fields preserved verbatim; not current reviewer or portal proof",
+      "fields": {
+        "submissionStatus": "draft_031_saved_not_submitted",
+        "pluginVersion": "0.3.1",
+        "listing": {
+          "name": "Guteneo",
+          "shortDescription": "PDFs, email and dispatches",
+          "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed.",
+          "category": "Productivity",
+          "primaryLanguage": "en-US",
+          "supportedLanguages": ["en-US", "fr-FR"],
+          "websiteUrl": "https://guteneo.com",
+          "supportEmail": "guteneo@pieper.fr",
+          "privacyPolicyUrl": "https://guteneo.com/confidentialite/",
+          "publisherDisplayName": null,
+          "logoUrl": "https://guteneo.com/brand/guteneo-mark.png",
+          "logoLocalPath": "apps/web/public/brand/guteneo-mark.png",
+          "logoSha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
+          "logoWidth": 512,
+          "logoHeight": 512,
+          "screenshots": [],
+          "conversationStarters": [
+            "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
+            "Prepare a fax estimate for this PDF without sending it.",
+            "What is the status of my latest Guteneo dispatch?"
+          ],
+          "supportUrl": "https://guteneo.com/support/",
+          "termsOfServiceUrl": "https://guteneo.com/conditions/",
+          "availabilityCountries": null,
+          "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+          "publisherIdentityStatus": "verified_individual_selected_in_portal_legal_name_not_stored",
+          "composerIconUrl": "https://guteneo.com/brand/guteneo-composer.png",
+          "composerIconLocalPath": "apps/web/public/brand/guteneo-composer.png",
+          "composerIconSha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
+          "composerIconWidth": 1254,
+          "composerIconHeight": 1254,
+          "publicInformationStatus": "https_privacy_terms_and_support_public_get_verified_2026-10-02",
+          "translations": [
+            {
+              "locale": "fr-FR",
+              "shortDescription": "PDF, devis et suivi des envois",
+              "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. L’e-mail reste désactivé jusqu’à la qualification de ses contrôles opérationnels. Le mot de passe du PDF reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Aucune livraison ni certification documentaire n’est garantie."
+            }
+          ],
+          "serviceInterfaceLanguage": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
+          "capabilities": [
+            "Find and import PDFs",
+            "Prepare fax and postal mail",
+            "Prepare email and password-protected PDF links when enabled",
+            "Review estimates and spending limits",
+            "Track Guteneo dispatches"
+          ],
+          "candidateSource": "integrations/guteneo/plugin.json (0.3.1; legacy metadata saved, no global ZIP import or submission)",
+          "metadataScope": "manifest_0.3.1_metadata_entered_and_saved_in_legacy_editor"
+        },
+        "connection": {
+          "mcpServerUrl": "https://guteneo.com/mcp",
+          "transport": "streamable-http",
+          "authentication": "oauth",
+          "resource": "https://guteneo.com/mcp",
+          "authorizationServer": "https://pieper.eu.auth0.com",
+          "readOnlyScopes": ["documents:read", "dispatches:read"],
+          "additionalWriteScopes": [
+            "documents:write",
+            "dispatches:prepare",
+            "dispatches:send"
+          ],
+          "oauthClientId": null,
+          "oauthRedirectUri": "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
+          "reviewerCredentials": "reviewer_authenticated_identity_matched_P1_P2_P3_bounded_codex_passed_remaining_cases_pending",
+          "domainVerification": {
+            "status": "domain_verified_in_portal_2026-10-02",
+            "challengeBaseUrl": "https://guteneo.com",
+            "challengeUrl": "https://guteneo.com/.well-known/openai-apps-challenge",
+            "tokenReceived": true,
+            "tokenSourcePath": "apps/web/public/.well-known/openai-apps-challenge",
+            "tokenBytes": 43,
+            "publicDeploymentVerified": null,
+            "verified": true,
+            "observedOn": "2026-10-02",
+            "portalLabel": "Domain verified",
+            "challengePublicBytesRecheckedThisRun": false
+          },
+          "clientRegistration": "existing_oauth_scanner_authenticated_chat_connector_reconnected_capabilities_call_succeeded",
+          "oauthConfigurationObservationDate": "2026-09-21",
+          "currentOAuthVerification": "portal_scanner_and_codex_P1_P2_P3_succeeded_exact_reviewer_account_tenant_client_matched"
+        },
+        "currentPublicObservation": {
+          "observedOn": "2026-10-02",
+          "timezone": "Europe/Paris",
+          "method": "Public GETs; no authenticated reviewer data or provider call",
+          "sourceCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
+          "sourceDirty": false,
+          "builtAt": "2026-10-02T12:43:39.396Z",
+          "marketplacePublicationVerified": false,
+          "publicUrlStatus": {
+            "/confidentialite/": 200,
+            "/conditions/": 200,
+            "/support/": 200,
+            "/mcp": 401,
+            "/.well-known/oauth-protected-resource/mcp": 200,
+            "/review/reviewer-original.pdf": 200,
+            "/review/guteneo-chatgpt-demo-20260921.mp4": 200
+          },
+          "authenticatedAccountQualification": "P1_P2_P3_bounded_Codex_MCP_passed_after_exact_reviewer_identity_match_other_cases_pending",
+          "fixture": {
+            "url": "https://guteneo.com/review/reviewer-original.pdf",
+            "bytes": 4290,
+            "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+            "synthetic": true,
+            "externalSendAuthorized": false
+          },
+          "historicalDemo": {
+            "url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+            "recordingDateFromFilename": "2026-09-21",
+            "bytes": 2367095,
+            "sha256": "8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2",
+            "publicBytesVerified": true,
+            "currentReviewerWorkflowQualifiedByThisGet": false
+          },
+          "deploymentPerformedByThisTask": false,
+          "publicIntegrationArchive": {
+            "bytes": 1289274,
+            "sha256": "983e6fc7ca6f2f3f7bf603e2d05e2a50791ba8e9080e8b5410851b3774a9a8b4",
+            "doesNotQualifyNewLocalRebuild": true
+          }
+        },
+        "unresolvedSubmissionFields": [
+          "Verify CI after integration of final email guardrail changes; base015f7c3 CI succeeded12/12 but does not qualify later local changes",
+          "Requalify current preparation-only reviewer references after user Telnyx login and read-only source/profile-association refresh",
+          "Retake P5 and P6 with valid non-sending references without enabling channels or changing mandates",
+          "Retake R1, R2 and R3 in a controlled host with only Guteneo reviewer available; partial R1 lost its plugin mention, R2 used a separate connected Gmail read-only tool, and R3 was not attempted; no isolated negative case qualified",
+          "Update and qualify the demo for the 0.3.1 scope including disabled email, protected-PDF links and four-language web interface",
+          "Verify effective OAuth settings and review-access lifetime without assuming repository defaults are deployed",
+          "Have the authorized developer complete the six legal/policy attestations: fresh page after four Passed has six boxes at0, Submit disabled, and only issue Submit is incomplete Confirm this statement.; no attestations performed",
+          "Perform Submit for review in the portal and verify resulting state; saved version 0.3.1 is currently Not submitted",
+          "Treat later directory publication and possible global-ZIP migration as distinct steps after approval and authorization"
+        ],
+        "portalObservation": {
+          "observedOn": "2026-10-02",
+          "timezone": "Europe/Paris",
+          "surface": "Safari OpenAI plugin management",
+          "pluginId": "asdk_app_6ab05fbae9a881918dc6ee4e2f235d93",
+          "version": "0.3.1",
+          "portalUrl": "https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f",
+          "status": "draft_saved_not_submitted",
+          "statusLabel": "Version 0.3.1 · Not submitted",
+          "publicationLabel": "Not published",
+          "submitted": false,
+          "submittedAt": null,
+          "published": false,
+          "rejectionReason": null,
+          "rejectionObserved": false,
+          "domainVerificationLabel": "Domain verified",
+          "authorizationLabel": "Authorized",
+          "toolCount": 24,
+          "toolCatalogueStatus": "fresh_portal_scan_complete_24_tools",
+          "currentScan": {
+            "attempted": true,
+            "succeeded": true,
+            "flow": "User completed Auth0 login for existing legacy-editor scanner",
+            "authorizationRenewed": true,
+            "reauthenticationPending": false,
+            "toolCatalogueUpdated": true,
+            "toolCount": 24,
+            "annotationTripletsAndJustificationsImported": 24,
+            "continueAllowed": true,
+            "doesNotQualifyFreshReviewerCases": true,
+            "sourceAlreadyDeployedWhenScanPerformed": true,
+            "additionalScanPerformedAfterDraft031Save": false
+          },
+          "directReviewerConnector": {
+            "connection": "Guteneo Review MCP connector in this Codex chat",
+            "reconnectionFlow": "ChatGPT Safari plugin page Reconnect then Continue",
+            "reconnectionToast": "Primary is now connected",
+            "result": "get_capabilities succeeded",
+            "reauthenticationRequired": false,
+            "realToolCall": {
+              "tool": "get_capabilities",
+              "observedAtUtc": "2026-10-02T16:02:05.789Z",
+              "surface": "Codex",
+              "mode": "production",
+              "simulation": false,
+              "expertActive": false,
+              "expertActivationPerformed": false
+            },
+            "submissionReviewerTenantMatchConfirmed": true,
+            "allEightFreshCasesQualified": false,
+            "reviewerIdentityVerification": "Exact expected account, tenant and OAuth client matched in D1 before import; identifiers remain private"
+          },
+          "updateUploadBlockedWhileReviewActive": false,
+          "activeReviewCancelled": true,
+          "newSubmissionPerformed": false,
+          "versionEvidence": "Exit returned dashboard Version 0.3.1 · Not submitted and MCP configured",
+          "reviewCancellationReason": "Explicit replacement of existing 0.2.2 submission",
+          "reviewCancellationDoesNotMeanDenied": true,
+          "legacyMcpEditorEditableAfterReload": true,
+          "metadataUpdatesPersisted": true,
+          "candidateUploadAttempted": false,
+          "candidateUploadAccepted": false,
+          "candidatePackageSaved": false,
+          "publicationPerformed": false,
+          "historicalScanFailure": {
+            "attempted": true,
+            "succeeded": false,
+            "message": "Authorization for scanning is missing or no longer works. Reconnect your account in the plugin editor, then rescan. Results are from the last available review, not this failed attempt.",
+            "recovery": "Reconnect the account in the plugin editor and rescan",
+            "doesNotEstablishReviewRejection": true
+          },
+          "candidateZipImportAttempts": [
+            {
+              "result": "Image selected instead of ZIP; rejected without package import",
+              "packageSaved": false
+            },
+            {
+              "result": "Rejected because root name must preserve existing app identity",
+              "requiredPackageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+              "packageSaved": false
+            },
+            {
+              "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+              "version": "0.2.3",
+              "bytes": 1283344,
+              "sha256": "bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885",
+              "accepted": false,
+              "packageSaved": false,
+              "messages": [
+                "Keep the existing MCP connection",
+                "Publish the existing MCP app before updating its plugin ZIP."
+              ],
+              "meaning": "Existing MCP app migration prerequisite; no quality-review rejection established"
+            }
+          ],
+          "submitClicked": false,
+          "metadataPersistenceEvidence": "English version/subtitle/description, French description and release notes entered from manifest 0.3.1 and saved via Exit",
+          "metadataFieldsUpdated": [
+            "version",
+            "englishSubtitle",
+            "englishDescription",
+            "frenchDescription",
+            "releaseNotes"
+          ],
+          "currentArchiveGlobalUploadAttempted": false,
+          "globalZipImportAccepted": false,
+          "legacyMetadataVersionSaved": "0.3.1",
+          "skills": {
+            "individualZipImports": 4,
+            "get-started": {
+              "imported": true,
+              "lastExplicitScanStatus": "Passed",
+              "persistedAfterLegacyReload": true,
+              "zipBytesMatchPassed023Zip": true,
+              "reuploadedForVersion031": true,
+              "cachedPassedResultReused": true
+            },
+            "fax-pdf": {
+              "imported": true,
+              "lastExplicitScanStatus": "Passed",
+              "persistedAfterLegacyReload": true,
+              "zipBytesMatchPassed023Zip": true
+            },
+            "postal-pdf": {
+              "imported": true,
+              "lastExplicitScanStatus": "Passed",
+              "persistedAfterLegacyReload": true,
+              "zipBytesMatchPassed023Zip": true
+            },
+            "scanMaximumHoursShownByPortal": 2,
+            "skillsIncompleteMessageOnSubmitPage": false,
+            "allIndividualScansExplicitlyPassed": true,
+            "scope": "legacy_editor_individual_skill_zips",
+            "allThreePassedPersistedAfterReload": true,
+            "allFourIndividualScansExplicitlyPassed": true,
+            "emailFinalScanPending": false,
+            "email": {
+              "imported": true,
+              "lastExplicitScanStatus": "Passed",
+              "firstImportedZipBytes": 4340,
+              "firstImportedZipSha256": "bfd817ce00fc931e50b6dbe207ac1193b53f75180b6709f1ee4265243744d46f",
+              "firstImportedZipHistorical": true,
+              "guardrailsAddedAfterFirstImport": true,
+              "replacementImportPerformed": true,
+              "replacementArchiveStatus": "final_zip_uploaded_and_passed_after_legacy_reload",
+              "finalPassedProven": true,
+              "finalZipBytes": 5179,
+              "finalZipSha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
+              "guardrailsValidatedLocally": true,
+              "firstImportedZipLastExplicitScanStatus": "Passed",
+              "firstImportedZipPassedDoesNotQualifyReplacement": true,
+              "persistedAfterLegacyReload": true,
+              "previousFinalReplacementScanStatus": "Scanning"
+            },
+            "allFourPassedPersistedAfterReload": true,
+            "finalObservationSurface": "Legacy editor reloaded, then Skills opened; all four explicit Passed",
+            "submitPageObservationAfterFinalFourPassed": true
+          },
+          "submissionPolicyConfirmations": {
+            "visibleCheckboxes": 6,
+            "checked": 0,
+            "lastVisibleValidationBlockers": "Submit is incomplete Confirm this statement.",
+            "attestationsMadeThisRun": false,
+            "submitClicked": false,
+            "doesNotProveFreshReviewerTests": true,
+            "observationScope": "Fresh Submit page read after all four final skills explicitly Passed; Exit saved again",
+            "onlyVisiblePluginIssue": "Submit is incomplete Confirm this statement.",
+            "skillsIncompleteMessageVisible": false,
+            "submitForReviewEnabled": false,
+            "privateScreenshotFilename": "submit-attestations-pending.png",
+            "privateScreenshotOutsideGit": true
+          },
+          "mcpConfiguredAfterReload": true,
+          "metadataFieldsIndividuallyVerifiedAfterReload": [],
+          "globalMetadataAndSkillsView": {
+            "skillsLabel": "No Skills in this version",
+            "reviewLabel": "Review Unavailable",
+            "context": "Existing MCP app without a globally imported plugin package",
+            "doesNotReplaceLegacyIndividualSkillResults": true,
+            "doesNotEstablishReviewRejection": true,
+            "observationScope": "Historical observation on version 0.2.3 before subsequent draft 0.3.1 save"
+          },
+          "countrySetting": "All countries",
+          "countrySettingChanged": false,
+          "emailEnabled": false,
+          "webInterfaceLanguages": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
+          "historicalGlobalZipAttemptsRetained": true
+        },
+        "reviewPreparation": {
+          "positiveTestCaseIds": ["P1", "P2", "P3", "P5", "P6"],
+          "negativeTestCaseIds": ["R1", "R2", "R3"],
+          "additionalInternalCaseIds": [
+            "P4",
+            "P7",
+            "N1",
+            "N2",
+            "N3",
+            "N4",
+            "N5",
+            "N6",
+            "N7"
+          ],
+          "executionStatus": "P1_P2_P3_bounded_codex_MCP_passed_P5_P6_R1_R2_R3_not_retaken",
+          "toolScanStatus": "fresh_portal_scan_complete_24_tools",
+          "annotationJustificationsStatus": "24_triplets_and_justifications_imported_in_legacy_editor_modern_zip_flow_has_no_required_justification_fields",
+          "releaseNotes": "Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo.",
+          "selectionStatus": "five_positive_three_negative_plan_retained_current_execution_pending",
+          "negativeCaseCompatibility": "R1 electronic PDF signature, R2 Gmail attachments and R3 SMS request expect no Guteneo call; N1/N2/N4 remain internal authorization/isolation checks. The Oct2 controls did not execute these cases.",
+          "candidateReleaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
+          "composerIconStatus": "portal_light_dark_previews_checked_and_preserved_after_reload",
+          "fixture": {
+            "path": "integrations/chatgpt/fixtures/reviewer-original.pdf",
+            "sha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+            "bytes": 4290,
+            "synthetic": true,
+            "containsRecipient": false,
+            "externalSendAuthorized": false
+          },
+          "demoScript": "integrations/chatgpt/demo-recording.md",
+          "toolCount": 24,
+          "reviewPricingFreshness": {
+            "referenceMaximumHours": 168,
+            "authorityMaximumDays": 30,
+            "authorityDoesNotRenewReference": true,
+            "currentReviewerReferenceVerified": false,
+            "historicalSeptember21ReferenceQualifiesOctober2WithoutRefresh": false,
+            "reviewerReferenceExpired": true,
+            "reviewerReferenceExpiryDate": "2026-09-24",
+            "historicalRateDeckAssociationExpired": true,
+            "telnyxUserLoginRequestedForReadOnlyRefresh": true,
+            "readOnlySourceRefreshCompleted": false,
+            "operatorRequalificationPerformed": false,
+            "realSendAuthorizedByThisPreparation": false,
+            "mandateChanged": false
+          },
+          "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+          "demoPublicBytesVerifiedOn": "2026-10-02",
+          "historicalDemoDoesNotQualifyCurrentReviewerRun": true,
+          "currentPositiveCasesPassed": 3,
+          "currentNegativeCasesPassed": null,
+          "freshCaseResultsRecorded": true,
+          "freshClientObservations": [
+            {
+              "relatedCase": "P1",
+              "tool": "get_capabilities",
+              "surface": "Codex",
+              "observedAtUtc": "2026-10-02T16:02:05.789Z",
+              "succeeded": true,
+              "simulation": false,
+              "submissionReviewerTenantMatchConfirmed": true,
+              "qualifiesAllFivePositiveCases": false
+            }
+          ],
+          "currentPositivePassedSurface": "Codex MCP",
+          "freshNegativeCaseResultsRecorded": false,
+          "submissionReviewerTenantMatchConfirmed": true,
+          "reviewerIdentityCheck": "Exact expected account, tenant and OAuth client matched in D1 before import; identifiers retained privately",
+          "fullChatGPTAutomaticToolSelectionQualified": false,
+          "freshCaseResults": {
+            "P1": {
+              "status": "passed_bounded",
+              "surface": "Codex MCP",
+              "tool": "get_capabilities",
+              "observedAtUtc": "2026-10-02T16:02:05.789Z",
+              "mode": "production",
+              "simulation": false,
+              "expertActive": false,
+              "expertActivationPerformed": false
+            },
+            "P2": {
+              "status": "passed_bounded",
+              "surface": "Codex MCP",
+              "tool": "list_documents",
+              "limit": 5,
+              "returnedDocuments": 1,
+              "nextPage": false
+            },
+            "P3": {
+              "status": "passed_bounded",
+              "surface": "Codex MCP",
+              "tools": ["import_document", "get_document"],
+              "fixtureBytes": 4290,
+              "fixturePages": 2,
+              "fixtureSha256": "d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc",
+              "documentStatus": "ready",
+              "simulation": false,
+              "deduplicatedExistingPdf": true,
+              "newAntivirusScanProven": false
+            },
+            "P5": {
+              "status": "not_retaken",
+              "reason": "Current preparation-only references require requalification"
+            },
+            "P6": {
+              "status": "not_retaken"
+            },
+            "R1": {
+              "status": "not_retaken"
+            },
+            "R2": {
+              "status": "not_retaken"
+            },
+            "R3": {
+              "status": "not_retaken"
+            }
+          },
+          "privateRetakeReport": {
+            "path": "reports/reviewer-retake-2026-10-02.json",
+            "permissions": "0600",
+            "gitIgnored": true,
+            "redacted": true,
+            "notAPublicEvidenceAsset": true
+          },
+          "evidenceScope": "Saved legacy portal draft 0.3.1; P1/P2/P3 are bounded Codex MCP calls on deployed source a808307, not qualification of automatic ChatGPT selection, fresh remaining cases, email activation or a new demo.",
+          "localCandidate031Qualified": false,
+          "savedPortalReleaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
+          "qualifiedRuntimeSourceCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
+          "allSubmissionRequirementsQualified": false,
+          "demo031UpdatedAndQualified": false,
+          "emailFinalScanPending": false,
+          "partialHostNegativeCaseObservations": {
+            "surface": "ChatGPT Work",
+            "modelLabel": "GPT-6.1 Sol Light",
+            "qualifiedNegativeCases": false,
+            "R1": {
+              "attempted": true,
+              "qualified": false,
+              "responseObserved": "Host requested a PDF attachment and signature type",
+              "guteneoToolVisible": false,
+              "pluginMentionPreserved": false,
+              "pluginMentionObservation": "Plugin mention was likely removed when composer text was replaced; exact cause not established",
+              "status": "pending_controlled_host_retake"
+            },
+            "R2": {
+              "attempted": true,
+              "qualified": false,
+              "guteneoReviewMentionPreserved": true,
+              "mentionScreenshotCaptured": true,
+              "promptType": "Natural Gmail attachment request",
+              "hostUsedOtherConnectedTool": "Gmail read-only search",
+              "hostStatedGuteneoReviewCannotReadGmail": true,
+              "communicationSent": false,
+              "retrievedContentOrMetadataRecordedHere": false,
+              "isolatedGuteneoNonInvocationQualified": false,
+              "status": "pending_controlled_host_retake",
+              "stoppedWhenGmailUsageObserved": true,
+              "gmailReadAlreadyOccurredBeforeStop": true
+            },
+            "R3": {
+              "attempted": false,
+              "qualified": false,
+              "reason": "Avoid triggering unrelated host communication services",
+              "status": "pending_controlled_host_retake"
+            },
+            "requiredRetakeScope": "Controlled host where only the Guteneo reviewer plugin is available",
+            "doesNotProveHostHasNoGmailAccess": true
+          }
+        },
+        "candidateCi": {
+          "commit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+          "runId": "37033236823",
+          "url": "https://github.com/nclsppr/guteneo/actions/runs/37033236823",
+          "allChecks": "success",
+          "successfulChecks": 12,
+          "totalChecks": 12,
+          "doesNotQualifyOpenAiSubmission": true,
+          "productionDeploymentProvenByThisRun": false,
+          "laterChangesQualifiedByThisExactRun": false,
+          "status": "completed",
+          "finalEmailGuardrailChangesQualifiedByThisExactRun": false
+        },
+        "candidateUpdate": {
+          "version": "0.3.1",
+          "preparedAt": "2026-10-02",
+          "notes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
+          "portalUpdated": true,
+          "submitted": false,
+          "publishedToDirectory": false,
+          "onboardingSkill": "./skills/get-started/SKILL.md",
+          "uploadAttempted": false,
+          "uploadAccepted": false,
+          "packageSavedInPortal": false,
+          "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+          "archiveBytes": 1290534,
+          "archiveSha256": "25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6",
+          "archiveStatus": "final_local_archive_verified_not_imported_or_submitted",
+          "uploadBlocker": "Publish the existing MCP app before updating its plugin ZIP.",
+          "uploadBlockerObservedForVersion": "0.2.3",
+          "legacyMcpEditorFallback": "used_metadata_031_saved_all_four_individual_skills_passed_after_reload",
+          "combinedRelease": "0.3.1; email implementation merged dormant; four-language web interface; no new portal submission",
+          "savedPortalVersion": "0.3.1",
+          "savedPortalArchiveDoesNotQualifyLocalCandidate": true,
+          "upstreamRuntimeChangesNotDeployedByThisTask": true,
+          "requiredSkillYamlInterfaceFields": [
+            "display_name",
+            "short_description"
+          ],
+          "legacyMetadataSaved": true,
+          "portalStatus": "Version 0.3.1 · Not submitted",
+          "individualSkillImports": 4,
+          "legacyOriginalThreeSkillsAllPassed": true,
+          "legacyIndividualSkillsAllPassed": true,
+          "globalZipCurrentArchiveUploadAttempted": false,
+          "globalZipImportAccepted": false,
+          "packageValidation": {
+            "firstBuildSourceCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+            "targetedTestsPassed": 32,
+            "targetedTestsTotal": 32,
+            "officialSchemaPassed": true,
+            "zipCrcPassed": true,
+            "privacyCheckPassed": true,
+            "finalEmailGuardrailRebuildPending": false,
+            "sourceBaseCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+            "includesLaterLocalEmailGuardrailChanges": true,
+            "finalTargetedTestsPassed": 32,
+            "finalTargetedTestsTotal": 32,
+            "determinismPassed": true,
+            "privateBindingGuardsPassed": true,
+            "reportPath": "/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json",
+            "reportOutsideRepository": true,
+            "finalArchiveQualifiedByBaseCi": false
+          },
+          "skillCount": 4,
+          "emailFinalScanPending": false,
+          "emailSkillArchive": {
+            "bytes": 5179,
+            "sha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
+            "guardrailsValidated": true,
+            "replacementImportedInPortal": true,
+            "finalScanPassed": true,
+            "lastExplicitScanStatus": "Passed",
+            "passedPersistedAfterLegacyReload": true
+          },
+          "legacyIndividualSkillsPersistedAfterReload": true
+        },
+        "candidateStatus": "legacy_031_metadata_saved_all_four_individual_skills_passed_no_submit",
+        "currentSubmissionFlow": {
+          "observedOn": "2026-10-02",
+          "packageSource": "ZIP plugin package",
+          "importedFieldsReadOnlyInPortal": true,
+          "annotationJustificationsRequiredAsSubmissionFields": false,
+          "annotationsMustMatchToolEffects": true,
+          "internalWorksheetIsOfficialUploadArtifact": false,
+          "activeReviewMustBeCancelledBeforeUpdatedUpload": true,
+          "cancellationPerformed": true,
+          "source": "https://developers.openai.com/plugins/deploy/submission",
+          "existingMcpAppZipMigrationPrerequisite": "Publish the existing MCP app before updating its plugin ZIP.",
+          "rootPackageIdentityMustBePreserved": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+          "flowUsed": "existing_mcp_editor_with_individual_skill_zips",
+          "importedFieldsReadOnlyRuleAppliesTo": "modern_global_zip_import_flow",
+          "annotationJustificationsRequiredAsSubmissionFieldsAppliesTo": "modern_global_zip_import_flow",
+          "legacyAnnotationTripletsAndJustificationsImported": 24,
+          "legacyMetadataEditingAndExitSaveSucceeded": true,
+          "submitActionPerformed": false,
+          "preparationDoesNotSubmit": true,
+          "publicationIsSeparateFromApproval": true
+        },
+        "oauthSourceDiagnosis": {
+          "evidenceType": "repository_source_only",
+          "preparedConfigurationRefreshTokensEnabled": false,
+          "localAccessTokenMaximumAgeSeconds": 3600,
+          "liveEffectiveAuth0SettingsVerified": false,
+          "definitiveCauseOfPortalAuthorizationErrorEstablished": false,
+          "liveOAuthConfigurationChanged": false
+        },
+        "lastSubmittedVersion": "0.2.2",
+        "currentDraftVersion": "0.3.1",
+        "currentPullRequest": {
+          "number": 38,
+          "url": "https://github.com/nclsppr/guteneo/pull/38",
+          "branch": "codex/plugin-review-draft-progress",
+          "baseCommit": "a808307c5687588eb8c0aab45c9e559aa70a03dc",
+          "observedHeadCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+          "mergedByThisTask": false
+        },
+        "savedPortalCandidate": {
+          "version": "0.3.1",
+          "preparedAt": "2026-10-02",
+          "notes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
+          "portalUpdated": true,
+          "submitted": false,
+          "publishedToDirectory": false,
+          "onboardingSkill": "./skills/get-started/SKILL.md",
+          "uploadAttempted": false,
+          "uploadAccepted": false,
+          "packageSavedInPortal": false,
+          "packageName": "app-6ab05fbae9a881918dc6ee4e2f235d93",
+          "archiveBytes": 1290534,
+          "archiveSha256": "25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6",
+          "archiveStatus": "final_local_archive_verified_not_imported_or_submitted",
+          "uploadBlocker": "Publish the existing MCP app before updating its plugin ZIP.",
+          "uploadBlockerObservedForVersion": "0.2.3",
+          "legacyMcpEditorFallback": "used_metadata_031_saved_all_four_individual_skills_passed_after_reload",
+          "combinedRelease": "0.3.1; email implementation merged dormant; four-language web interface; no new portal submission",
+          "savedPortalVersion": "0.3.1",
+          "savedPortalArchiveDoesNotQualifyLocalCandidate": true,
+          "upstreamRuntimeChangesNotDeployedByThisTask": true,
+          "requiredSkillYamlInterfaceFields": [
+            "display_name",
+            "short_description"
+          ],
+          "legacyMetadataSaved": true,
+          "portalStatus": "Version 0.3.1 · Not submitted",
+          "individualSkillImports": 4,
+          "legacyOriginalThreeSkillsAllPassed": true,
+          "legacyIndividualSkillsAllPassed": true,
+          "globalZipCurrentArchiveUploadAttempted": false,
+          "globalZipImportAccepted": false,
+          "packageValidation": {
+            "firstBuildSourceCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+            "targetedTestsPassed": 32,
+            "targetedTestsTotal": 32,
+            "officialSchemaPassed": true,
+            "zipCrcPassed": true,
+            "privacyCheckPassed": true,
+            "finalEmailGuardrailRebuildPending": false,
+            "sourceBaseCommit": "015f7c3b046bac192bf5d6109d89e637ad14402c",
+            "includesLaterLocalEmailGuardrailChanges": true,
+            "finalTargetedTestsPassed": 32,
+            "finalTargetedTestsTotal": 32,
+            "determinismPassed": true,
+            "privateBindingGuardsPassed": true,
+            "reportPath": "/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json",
+            "reportOutsideRepository": true,
+            "finalArchiveQualifiedByBaseCi": false
+          },
+          "skillCount": 4,
+          "emailFinalScanPending": false,
+          "emailSkillArchive": {
+            "bytes": 5179,
+            "sha256": "2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166",
+            "guardrailsValidated": true,
+            "replacementImportedInPortal": true,
+            "finalScanPassed": true,
+            "lastExplicitScanStatus": "Passed",
+            "passedPersistedAfterLegacyReload": true
+          },
+          "legacyIndividualSkillsPersistedAfterReload": true
+        },
+        "savedPortalListing": {
+          "name": "Guteneo",
+          "shortDescription": "PDFs, email and dispatches",
+          "description": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed.",
+          "category": "Productivity",
+          "primaryLanguage": "en-US",
+          "supportedLanguages": ["en-US", "fr-FR"],
+          "websiteUrl": "https://guteneo.com",
+          "supportEmail": "guteneo@pieper.fr",
+          "privacyPolicyUrl": "https://guteneo.com/confidentialite/",
+          "publisherDisplayName": null,
+          "logoUrl": "https://guteneo.com/brand/guteneo-mark.png",
+          "logoLocalPath": "apps/web/public/brand/guteneo-mark.png",
+          "logoSha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
+          "logoWidth": 512,
+          "logoHeight": 512,
+          "screenshots": [],
+          "conversationStarters": [
+            "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
+            "Prepare a fax estimate for this PDF without sending it.",
+            "What is the status of my latest Guteneo dispatch?"
+          ],
+          "supportUrl": "https://guteneo.com/support/",
+          "termsOfServiceUrl": "https://guteneo.com/conditions/",
+          "availabilityCountries": null,
+          "demoRecordingUrl": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+          "publisherIdentityStatus": "verified_individual_selected_in_portal_legal_name_not_stored",
+          "composerIconUrl": "https://guteneo.com/brand/guteneo-composer.png",
+          "composerIconLocalPath": "apps/web/public/brand/guteneo-composer.png",
+          "composerIconSha256": "2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc",
+          "composerIconWidth": 1254,
+          "composerIconHeight": 1254,
+          "publicInformationStatus": "https_privacy_terms_and_support_public_get_verified_2026-10-02",
+          "translations": [
+            {
+              "locale": "fr-FR",
+              "shortDescription": "PDF, devis et suivi des envois",
+              "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. L’e-mail reste désactivé jusqu’à la qualification de ses contrôles opérationnels. Le mot de passe du PDF reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Aucune livraison ni certification documentaire n’est garantie."
+            }
+          ],
+          "serviceInterfaceLanguage": ["fr-FR", "en-GB", "de-DE", "lb-LU"],
+          "candidateSource": "integrations/guteneo/plugin.json (0.3.1; legacy metadata saved, no global ZIP import or submission)",
+          "metadataScope": "EN subtitle/description, FR description and release notes entered from current manifest and saved via Exit; dashboard version verified",
+          "version": "0.3.1",
+          "releaseNotes": "Adds guided account onboarding, clearer fax and postal workflows, updated support and legal links, and instructions for email and password-protected PDF links. Supports a four-language Guteneo web interface. Clarifies excluded document data, account limits, approval requirements and the mandatory stop for review-only estimates. Email remains disabled until its provider and operational gates are qualified. Uses existing Guteneo account access; no purchases or credit top-ups.",
+          "countrySetting": "All countries"
+        },
+        "candidateCapabilities": {
+          "emailProvider": "resend",
+          "emailModes": ["none", "attachment", "protected_link"],
+          "passwordAccess": "authenticated_sender_browser_only",
+          "reviewerSendingEnabled": false,
+          "futureOnly": [
+            "multi_format_recipient_lists",
+            "excel_and_other_attachment_formats",
+            "recipient_accounts"
+          ],
+          "qualification": "requires_deployed_configuration_and_account_capabilities"
+        },
+        "knownGaps": {
+          "negativeHostCases": "R1/R2/R3 remain pending in a controlled host with only Guteneo reviewer available",
+          "R1PartialAttempt": "Plugin mention likely removed; PDF/signature clarification and absence of visible Guteneo tool do not qualify the selected-plugin case",
+          "R2PartialAttempt": "Preserved Guteneo Review mention but connected host Gmail tool performed read-only search; attempt stopped when use was observed after Gmail read had already occurred, no communication sent; isolated Guteneo non-invocation not qualified",
+          "R3NotAttempted": true,
+          "otherPreviouslyRecordedGapsRemainOpen": true
+        },
+        "authorization": {
+          "source": "explicit_publisher_instructions_in_task",
+          "submitAuthorized": true,
+          "publicPagesAndDomainVerificationAuthorized": true,
+          "reviewerAccountAndTestsAndVideoAuthorized": true,
+          "publisherSaysTermsReadAndAcceptanceAuthorized": true,
+          "attestationsMustRemainEvidenceBased": true
+        }
+      }
+    }
+  ],
+  "localCandidateVersion": "0.3.4"
 }

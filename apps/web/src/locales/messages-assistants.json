@@ -697,10 +697,10 @@
     "Anleitungen des Anbieters",
     "D’Instruktioune vum Ubidder"
   ],
-  "Documentation vérifiée le 20 septembre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.": [
-    "Documentation checked on 20 September 2026. Menus and access options may vary depending on your account.",
-    "Dokumentation am 20. September 2026 geprüft. Menüs und Zugangsmöglichkeiten können je nach Konto variieren.",
-    "Dokumentatioun den 20. September 2026 kontrolléiert. Menüen an Zougangsméiglechkeete kënne jee no Kont variéieren."
+  "Documentation vérifiée le 13 octobre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.": [
+    "Documentation checked on 13 October 2026. Menus and access options may vary depending on your account.",
+    "Dokumentation am 13. Oktober 2026 geprüft. Menüs und Zugangsmöglichkeiten können je nach Konto variieren.",
+    "Dokumentatioun den 13. Oktober 2026 kontrolléiert. Menüen an Zougangsméiglechkeete kënne jee no Kont variéieren."
   ],
   "Ce guide n’existe pas.": [
     "This guide does not exist.",
@@ -1343,5 +1343,195 @@
     "Installation in {0}",
     "Installation in {0}",
     "Installatioun a {0}"
+  ],
+  "Un compte ChatGPT qui autorise les plugins personnalisés.": [
+    "A ChatGPT account that allows custom plugins.",
+    "Ein ChatGPT-Konto, das benutzerdefinierte Plugins erlaubt.",
+    "E ChatGPT-Kont, dee personaliséiert Plugins erlaabt."
+  ],
+  "Ouvrez les plugins ChatGPT": [
+    "Open ChatGPT plugins",
+    "ChatGPT-Plugins öffnen",
+    "D’ChatGPT-Plugins opmaachen"
+  ],
+  "Ouvrez Plugins, puis + → Add custom MCP server. Si cette option manque, vérifiez les possibilités de votre compte et les règles de votre espace.": [
+    "Open Plugins, then + → Add custom MCP server. If this option is missing, check your account features and workspace rules.",
+    "Öffnen Sie Plugins und dann + → Add custom MCP server. Fehlt diese Option, prüfen Sie die Funktionen Ihres Kontos und die Regeln Ihres Arbeitsbereichs.",
+    "Maacht Plugins op an duerno + → Add custom MCP server. Wann dës Optioun feelt, kontrolléiert d’Méiglechkeete vun Ärem Kont an d’Reegele vun Ärem Beräich."
+  ],
+  "Nommez la connexion Guteneo, collez cette adresse dans le champ du serveur MCP et choisissez OAuth.": [
+    "Name the connection Guteneo, paste this address into the MCP server field and choose OAuth.",
+    "Nennen Sie die Verbindung Guteneo, fügen Sie diese Adresse im MCP-Server-Feld ein und wählen Sie OAuth.",
+    "Nennt d’Verbindung Guteneo, setzt dës Adress an d’Feld fir de MCP-Server a wielt OAuth."
+  ],
+  "Suivez l’authentification Guteneo, examinez les permissions et choisissez Create as a plugin. Vérifiez les outils proposés, puis installez votre plugin personnel.": [
+    "Complete Guteneo authentication, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
+    "Melden Sie sich bei Guteneo an, prüfen Sie die Berechtigungen und wählen Sie Create as a plugin. Prüfen Sie die angebotenen Werkzeuge und installieren Sie dann Ihr persönliches Plugin.",
+    "Mellt Iech bei Guteneo un, kontrolléiert d’Berechtegungen a wielt Create as a plugin. Kontrolléiert déi ugebuede Funktiounen an installéiert duerno Äre perséinleche Plugin."
+  ],
+  "Ouvrez une nouvelle conversation, sélectionnez Guteneo avec @ ou dans le menu des outils, puis utilisez la demande de vérification ci-dessous.": [
+    "Open a new conversation, select Guteneo with @ or in the tools menu, then use the verification request below.",
+    "Öffnen Sie eine neue Unterhaltung, wählen Sie Guteneo mit @ oder im Werkzeugmenü und verwenden Sie dann die Prüfanfrage unten.",
+    "Maacht en neit Gespréich op, wielt Guteneo mat @ oder am Menü vun de Funktiounen a benotzt duerno d’Kontrollufro hei ënnen."
+  ],
+  "Je ne vois pas Plugins ou l’ajout personnalisé": [
+    "I cannot see Plugins or the custom add option",
+    "Ich sehe Plugins oder die Option zum Hinzufügen nicht",
+    "Ech gesinn Plugins oder d’Optioun fir eng personaliséiert Verbindung net"
+  ],
+  "Choisissez un connecteur distant ou le plugin Guteneo pour Claude.": [
+    "Choose a remote connector or the Guteneo plugin for Claude.",
+    "Wählen Sie einen Remote-Konnektor oder das Guteneo-Plugin für Claude.",
+    "Wielt e Remote-Konnektor oder de Guteneo-Plugin fir Claude."
+  ],
+  "Plugin Claude web et Desktop": [
+    "Claude web and Desktop plugin",
+    "Plugin für Claude Web und Desktop",
+    "Plugin fir Claude Web an Desktop"
+  ],
+  "Un compte Claude autorisant les plugins et les connecteurs personnalisés.": [
+    "A Claude account that allows plugins and custom connectors.",
+    "Ein Claude-Konto, das Plugins und benutzerdefinierte Konnektoren erlaubt.",
+    "E Claude-Kont, dee Plugins a personaliséiert Konnektoren erlaabt."
+  ],
+  "Téléchargez le paquet Guteneo": [
+    "Download the Guteneo package",
+    "Guteneo-Paket herunterladen",
+    "De Guteneo-Pak eroflueden"
+  ],
+  "Téléchargez le ZIP ci-dessous. Conservez le fichier ZIP pour l’import dans Claude.": [
+    "Download the ZIP below. Keep the ZIP file for uploading to Claude.",
+    "Laden Sie die ZIP-Datei unten herunter. Behalten Sie sie für den Import in Claude.",
+    "Luet d’ZIP-Datei hei ënnen erof. Haalt d’ZIP-Datei fir den Import a Claude."
+  ],
+  "Chargez le plugin dans Claude": [
+    "Load the plugin in Claude",
+    "Plugin in Claude laden",
+    "De Plugin a Claude lueden"
+  ],
+  "Dans Plugins → Add → Upload plugin, sélectionnez le ZIP Guteneo. Examinez les skills et le connecteur inclus.": [
+    "In Plugins → Add → Upload plugin, select the Guteneo ZIP. Review the included skills and connector.",
+    "Wählen Sie unter Plugins → Add → Upload plugin die Guteneo-ZIP-Datei. Prüfen Sie die enthaltenen Skills und den Konnektor.",
+    "Wielt ënner Plugins → Add → Upload plugin d’Guteneo-ZIP-Datei. Kontrolléiert déi enthalen Skills an de Konnektor."
+  ],
+  "Dans Connectors, connectez Guteneo et vérifiez les permissions. Utilisez ensuite la demande de vérification dans une nouvelle conversation.": [
+    "In Connectors, connect Guteneo and review the permissions. Then use the verification request in a new conversation.",
+    "Verbinden Sie Guteneo unter Connectors und prüfen Sie die Berechtigungen. Verwenden Sie dann die Prüfanfrage in einer neuen Unterhaltung.",
+    "Verbannt Guteneo ënner Connectors a kontrolléiert d’Berechtegungen. Benotzt duerno d’Kontrollufro an engem neie Gespréich."
+  ],
+  "Guide officiel des plugins Claude": [
+    "Official Claude plugins guide",
+    "Offizielle Anleitung für Claude-Plugins",
+    "Offiziell Uleedung fir Claude-Plugins"
+  ],
+  "Claude Code installé et les plugins locaux autorisés.": [
+    "Claude Code installed with local plugins allowed.",
+    "Claude Code ist installiert und lokale Plugins sind erlaubt.",
+    "Claude Code ass installéiert a lokal Plugins sinn erlaabt."
+  ],
+  "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.": [
+    "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
+    "Ein für diese Anwendung registrierter OAuth-Client oder eine geprüfte automatische Registrierung. Wenn die Anwendung eine Client-ID verlangt oder die Rückleitungsadresse ablehnt, kontaktieren Sie den Guteneo-Support, bevor Sie fortfahren.",
+    "En OAuth-Client, dee fir dës Applikatioun registréiert ass, oder eng kontrolléiert automatesch Registréierung. Wann d’Applikatioun eng Client-ID freet oder d’Réckleedungsadress refuséiert, kontaktéiert d’Guteneo-Assistenz, ier Dir weiderfuert."
+  ],
+  "Chargez le plugin pour cette session": [
+    "Load the plugin for this session",
+    "Plugin für diese Sitzung laden",
+    "De Plugin fir dës Sëtzung lueden"
+  ],
+  "Lancez cette commande pour charger le paquet public. Depuis un clone du dépôt, vous pouvez aussi utiliser claude --plugin-dir ./integrations/guteneo.": [
+    "Run this command to load the public package. From a repository clone, you can also use claude --plugin-dir ./integrations/guteneo.",
+    "Führen Sie diesen Befehl aus, um das öffentliche Paket zu laden. In einer Kopie des Repositorys können Sie auch claude --plugin-dir ./integrations/guteneo verwenden.",
+    "Féiert dëse Kommando aus fir den ëffentleche Pak ze lueden. Aus enger Kopie vum Repository kënnt Dir och claude --plugin-dir ./integrations/guteneo benotzen."
+  ],
+  "Ouvrez /mcp dans Claude Code et suivez l’authentification de guteneo. Le client OAuth de Claude Code est distinct de celui de Claude web.": [
+    "Open /mcp in Claude Code and complete guteneo authentication. Claude Code uses a separate OAuth client from Claude web.",
+    "Öffnen Sie /mcp in Claude Code und melden Sie sich bei guteneo an. Claude Code verwendet einen anderen OAuth-Client als Claude Web.",
+    "Maacht /mcp a Claude Code op a mellt Iech bei guteneo un. Claude Code benotzt en aneren OAuth-Client wéi Claude Web."
+  ],
+  "Utilisez la demande de vérification ci-dessous. Le chargement du paquet seul ne confirme pas la connexion à votre compte.": [
+    "Use the verification request below. Loading the package alone does not confirm a connection to your account.",
+    "Verwenden Sie die Prüfanfrage unten. Das Laden des Pakets allein bestätigt keine Verbindung zu Ihrem Konto.",
+    "Benotzt d’Kontrollufro hei ënnen. D’Luede vum Pak eleng bestätegt keng Verbindung mat Ärem Kont."
+  ],
+  "Guide officiel Claude Code": [
+    "Official Claude Code guide",
+    "Offizielle Anleitung für Claude Code",
+    "Offiziell Uleedung fir Claude Code"
+  ],
+  "Grok Build installé et les serveurs MCP personnalisés autorisés.": [
+    "Grok Build installed with custom MCP servers allowed.",
+    "Grok Build ist installiert und benutzerdefinierte MCP-Server sind erlaubt.",
+    "Grok Build ass installéiert a personaliséiert MCP-Servere sinn erlaabt."
+  ],
+  "Dans Grok Build, ajoutez Guteneo comme serveur HTTP distant avec cette commande.": [
+    "In Grok Build, add Guteneo as a remote HTTP server with this command.",
+    "Fügen Sie Guteneo in Grok Build mit diesem Befehl als Remote-HTTP-Server hinzu.",
+    "Füügt Guteneo a Grok Build mat dësem Kommando als Remote-HTTP-Server derbäi."
+  ],
+  "Ouvrez /mcps pour connecter Guteneo. Examinez les permissions, puis contrôlez la connexion avec cette commande.": [
+    "Open /mcps to connect Guteneo. Review the permissions, then check the connection with this command.",
+    "Öffnen Sie /mcps, um Guteneo zu verbinden. Prüfen Sie die Berechtigungen und kontrollieren Sie dann die Verbindung mit diesem Befehl.",
+    "Maacht /mcps op fir Guteneo ze verbannen. Kontrolléiert d’Berechtegungen an duerno d’Verbindung mat dësem Kommando."
+  ],
+  "Guide officiel Grok Build": [
+    "Official Grok Build guide",
+    "Offizielle Anleitung für Grok Build",
+    "Offiziell Uleedung fir Grok Build"
+  ],
+  "Plugin Cursor local": [
+    "Local Cursor plugin",
+    "Lokales Cursor-Plugin",
+    "Lokale Cursor-Plugin"
+  ],
+  "Cursor avec l’import de plugins locaux autorisé.": [
+    "Cursor with local plugin imports allowed.",
+    "Cursor mit erlaubtem Import lokaler Plugins.",
+    "Cursor mat erlaabtem Import vu lokale Plugins."
+  ],
+  "Décompressez le ZIP et copiez tout son contenu, y compris les dossiers cachés, dans ~/.cursor/plugins/local/guteneo/.": [
+    "Extract the ZIP and copy all its contents, including hidden folders, to ~/.cursor/plugins/local/guteneo/.",
+    "Entpacken Sie die ZIP-Datei und kopieren Sie den gesamten Inhalt einschließlich versteckter Ordner nach ~/.cursor/plugins/local/guteneo/.",
+    "Entpaakt d’ZIP-Datei a kopéiert de ganzen Inhalt, och déi verstoppt Dossieren, an ~/.cursor/plugins/local/guteneo/."
+  ],
+  "Rechargez Cursor": [
+    "Reload Cursor",
+    "Cursor neu laden",
+    "Cursor nei lueden"
+  ],
+  "Exécutez Developer: Reload Window, puis retrouvez Guteneo dans Customize. Un lien symbolique vers un dossier externe ne suffit pas.": [
+    "Run Developer: Reload Window, then find Guteneo in Customize. A symbolic link to an external folder is not sufficient.",
+    "Führen Sie Developer: Reload Window aus und suchen Sie Guteneo unter Customize. Ein symbolischer Link zu einem externen Ordner reicht nicht aus.",
+    "Féiert Developer: Reload Window aus a sicht Guteneo ënner Customize. E symbolesche Link op en externen Dossier geet net duer."
+  ],
+  "Connectez le serveur guteneo, examinez les permissions et lancez la demande de vérification ci-dessous.": [
+    "Connect the guteneo server, review the permissions and use the verification request below.",
+    "Verbinden Sie den Server guteneo, prüfen Sie die Berechtigungen und verwenden Sie die Prüfanfrage unten.",
+    "Verbannt de Server guteneo, kontrolléiert d’Berechtegungen a benotzt d’Kontrollufro hei ënnen."
+  ],
+  "Guide officiel des plugins Cursor": [
+    "Official Cursor plugins guide",
+    "Offizielle Anleitung für Cursor-Plugins",
+    "Offiziell Uleedung fir Cursor-Plugins"
+  ],
+  "Aucun plugin Guteneo n’est publié dans le catalogue de {0} pour le moment. Suivez le parcours manuel décrit dans ce guide.": [
+    "No Guteneo plugin is published in the {0} directory yet. Follow the manual setup described in this guide.",
+    "Im Katalog von {0} ist derzeit kein Guteneo-Plugin veröffentlicht. Folgen Sie der manuellen Einrichtung in dieser Anleitung.",
+    "Am Katalog vu {0} ass de Moment kee Guteneo-Plugin publizéiert. Follegt der manueller Installatioun an dëser Uleedung."
+  ],
+  "Le plugin Guteneo": [
+    "The Guteneo plugin",
+    "Das Guteneo-Plugin",
+    "De Guteneo-Plugin"
+  ],
+  "Télécharger le plugin (ZIP)": [
+    "Download the plugin (ZIP)",
+    "Plugin herunterladen (ZIP)",
+    "De Plugin eroflueden (ZIP)"
+  ],
+  "Le paquet contient les skills et la connexion MCP. Choisissez le guide de votre application pour l’installation et la vérification de votre compte.": [
+    "The package includes skills and the MCP connection. Choose your application’s guide to install it and verify your account connection.",
+    "Das Paket enthält Skills und die MCP-Verbindung. Wählen Sie die Anleitung Ihrer Anwendung für die Installation und die Prüfung Ihrer Kontoverbindung.",
+    "De Pak enthält Skills an d’MCP-Verbindung. Wielt d’Uleedung vun Ärer Applikatioun fir d’Installatioun an d’Kontroll vun Ärer Kontverbindung."
   ]
 }

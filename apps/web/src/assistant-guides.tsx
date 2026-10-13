@@ -259,8 +259,12 @@ function GuideArticle({
           id={stepsId}
           aria-label={msg("Installation dans {0}", variant.label)}
         >
-          <SectionHeading>{msg("Installer par MCP")}</SectionHeading>
-          {assistant.id === "claude" && <ClaudeConnect />}
+          <SectionHeading>
+            {msg("Installation dans {0}", variant.label)}
+          </SectionHeading>
+          {assistant.id === "claude" && variant.id !== "code" && (
+            <ClaudeConnect />
+          )}
           <ol className="assistant-guide-steps">
             {variant.steps.map((step, index) => (
               <li key={`${variant.id}-${step.title}`}>
@@ -322,12 +326,22 @@ function GuideArticle({
               {msg("Plugin du catalogue")}
             </SectionHeading>
             <p>
-              {msg("Aucun plugin Guteneo n’est publié dans le catalogue de")}{" "}
-              {assistant.name}{" "}
               {msg(
-                " pour le moment. Utilisez l’installation par MCP décrite ci-dessus.",
+                "Aucun plugin Guteneo n’est publié dans le catalogue de {0} pour le moment. Suivez le parcours manuel décrit dans ce guide.",
+                assistant.name,
               )}
             </p>
+            {["claude", "cursor", "grok"].includes(assistant.id) && (
+              <GuideLink
+                link={{
+                  label: msg(
+                    "Télécharger le paquet du plugin (installation manuelle)",
+                  ),
+                  href: "/integrations/guteneo-plugin.zip",
+                  download: true,
+                }}
+              />
+            )}
           </section>
 
           <section
@@ -378,7 +392,7 @@ function GuideArticle({
             </ul>
             <p>
               {msg(
-                "Documentation vérifiée le 20 septembre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.",
+                "Documentation vérifiée le 13 octobre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.",
               )}
             </p>
           </footer>

@@ -1,6 +1,50 @@
 # Recette de soumission ChatGPT
 
-## Reprise vérifiée du 2 octobre 2026 — brouillon 0.3.1
+## Observation du 13 octobre 2026 — accès rétabli, recette non qualifiée
+
+**0.3.2 reste In review, Not published et Not live.** Le scan du portail à
+**13:56:30 CEST** affiche 67 outils et « No findings in the latest MCP scan. »
+Il ne prouve ni les cas ci-dessous ni la durée d’accès du compte reviewer.
+Le paquet public 0.3.2 est préservé ; 0.3.4 est un candidat local.
+
+La production relue reste `f1a2681…`, build propre du 10 octobre. La dernière
+base main est `54639e7f6331433a5b24b0449c50c1f4ce5bb57d` (#61 Dashboard V2) :
+contrat MCP et intégrations inchangés depuis l’audit initial `1e5ab18…`, mais
+auth/profil/mobile ont évolué. La recette et la CI du candidat doivent être
+rapprochées de son futur head exact ; l’ancienne CI ne qualifie pas cette base.
+Une release depuis cette base nécessite les contrôles habituels de la migration
+0053, sans activation ni migration dans cette recette.
+
+Après reconnexion, `get_capabilities`, `list_documents` et `expert_status` ont
+réussi en production avec `simulation:false`, sans activation expert. La surface
+est **Codex / plugin reviewer de développement, 24 outils**, distinct du catalogue
+principal scanné de 67 outils. Ne pas convertir ces lectures en recette ChatGPT
+complète ou en réussite de sélection automatique du plugin.
+
+| Contrôle          | Observation fraîche                                                                           | État de qualification                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| P1 / capacités    | Appel réel réussi ; mode production, sans simulation.                                         | Accès borné observé ; identité D1 attendue non rapprochée ce tour.                                |
+| P2 / documents    | Six documents observés ; aucun avec le SHA-256 synthétique attendu.                           | Lecture observée, données de recette et périmètre compte non requalifiés.                         |
+| P3 / import exact | Aucun import et suivi de la fixture attendue attestés dans cette passe.                       | **Non qualifié actuellement** ; réussite du 2 octobre historique.                                 |
+| Expert            | `expert_status` réussi, sans activation ni extension de mandat.                               | N’accorde aucune autorité supplémentaire.                                                         |
+| P5/P6/R1/R2/R3    | Aucun résultat actuel qualifié.                                                               | Références non envoyables valides et hôte contrôlé requis.                                        |
+| Durée OAuth       | Refresh grant et offline access désactivés ; Action déployée exige le protocole initial PKCE. | Migrateur local testé ; inspection CLI bloquée, aucune empreinte live/apply ni preuve de refresh. |
+
+Avant remise de credentials ou nouvelle qualification : rapprocher en privé
+issuer/subject, compte, tenant, client et restriction D1 `prepare_only`, rétablir
+la fixture synthétique exacte, puis reprendre la sélection P1/P2/P3/P5/P6 et
+R1/R2/R3. Garder expéditions, canaux et mandats fermés pendant ces tests.
+[Parcours d’activation et limites des preuves](../../docs/MCP_PLATFORM_READINESS.md).
+
+L’inspection CLI a tenté le GET du client reviewer : credential expiré / « please
+login ». La liste des tenants en cache confirme seulement la sélection attendue ;
+la connexion Dashboard navigateur ne renouvelle pas cette session CLI. Aucun
+plan live complet ni empreinte de revue n’a été obtenu.
+
+Les résultats et tableaux de la reprise du 2 octobre ci-dessous restent
+historiques et ne remplacent pas cet état courant.
+
+## Historique vérifié du 2 octobre 2026 — brouillon 0.3.1
 
 Le tableau de bord du portail affiche **Version 0.3.1 · Not submitted** et **MCP configured** après sauvegarde par Exit. Le sous-titre anglais, les descriptions EN/FR et les notes de version du manifeste courant ont été saisis et sauvegardés, avec e-mail désactivé jusqu’à qualification et quatre langues web. All countries reste inchangé. Le scanner OAuth est authentifié et son **scan complet des 24 outils** est récent ; les 24 triplets d’annotations et leurs justifications ont été importés dans l’éditeur legacy. Aucun nouveau scan supplémentaire n’a été lancé : le serveur courant était déjà déployé lors du scan. Aucun Submit, aucune attestation, publication OpenAI, expédition, activation, modification de mandat ou déploiement n’a été effectué dans cette reprise.
 

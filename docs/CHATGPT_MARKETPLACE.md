@@ -1,6 +1,70 @@
-# Dossier marketplace ChatGPT — reprise du 4 octobre 2026
+# Dossier marketplace ChatGPT — état du 13 octobre 2026
 
-## Point de reprise du 4 octobre — préparation en cours, aucune soumission
+## État courant — revue conservée, qualification incomplète
+
+Le portail affiche **0.3.2 · In review · Not published · Not live**. Après
+reconnexion du compte de scan, le scan du **13 octobre à 13:56:30 CEST** découvre
+**67 outils** et affiche **« No findings in the latest MCP scan. »** Les six
+skills affichent **Checks passed**. Aucune revue n’a été annulée ou remplacée,
+aucune nouvelle soumission ou publication n’a été effectuée dans cette passe.
+
+La production relue le 13 octobre à 18:56 UTC correspond désormais à main
+`6a27eff665cd1fe9a330448f0dd92864650f7354`, build
+`2026-10-13T18:36:46.854Z`, après Dashboard V2 (#61) et sa stabilisation (#62).
+Le contrat MCP et les intégrations restent inchangés depuis l’audit initial
+`1e5ab18…` ; les évolutions API et web sont distinctes du correctif d’issuer.
+Le ZIP public relu à 18:59 UTC reste **0.3.2**, 19 fichiers, 1 310 328 octets,
+SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`.
+Le candidat **0.3.4 est local**, distinct du brouillon 0.3.3 de PR #52,
+rebasé sur cette dernière main. La correction de l’issuer Auth0 exact reste
+locale et non déployée. Voir [la matrice plateformes](MCP_PLATFORM_READINESS.md).
+
+Deux SELECT D1 bornés relus à 18:58 UTC confirment la migration 0053 dans le
+ledger et la colonne personnelle présente : ce préalable de release est
+satisfait. Le constat précédent de leur absence à 16:18 UTC reste historique.
+Aucune migration, fusion ni publication n’a été effectuée par cette passe.
+La CI du nouveau candidat doit porter sur son commit exact ; les contrôles
+plus anciens ne la qualifient pas.
+
+Les métadonnées OAuth `extensions.com.openai.auth` du **nouveau paquet** restent
+à résoudre avec le schéma MCP portable 1.0.0 qui refuse cette propriété HTTP.
+0.3.4 ne les active pas ; le scan de la configuration OAuth du portail existant
+ne qualifie pas l’installation OAuth du candidat. Le titulaire conserve le
+plugin propriétaire : le catalogue public Cursor, qui exige l’open source,
+est exclu ; l’installation locale ou privée reste à qualifier.
+
+La reconnexion **Guteneo Review** a permis `get_capabilities`, `list_documents`
+et `expert_status` en production, `simulation:false`, sans activation expert.
+La surface est le connecteur reviewer de développement **Codex, 24 outils**,
+distinct des 67 outils scannés. Six documents ont été observés, sans le SHA-256
+de la fixture attendue. L’identité et la restriction D1 n’ont pas été rapprochées
+ce tour ; **P3 et la recette complète restent non qualifiés**. Un ancien P3 réussi
+ne remplace pas ces contrôles actuels.
+
+La lecture du Dashboard Auth0 confirme les trois blocages de durée reviewer :
+grant refresh désactivé, API offline access désactivée et Action d’identité
+déployée limitée au protocole initial PKCE. Le migrateur est préparé et testé
+localement. Le CLI a ensuite été reconnecté avec l’autorisation explicite du
+titulaire pour les lectures seules. Le premier GET a refusé la constante de
+callback générique du candidat : le client live conserve exactement
+`https://chatgpt.com/connector/oauth/aAwc9dso12_L`, déjà consigné dans l’historique
+ci-dessous. Cette constante est corrigée sans changer Auth0 ; une inspection
+complète et l’application restent des preuves distinctes.
+La source corrigée a ensuite réussi l’inspection complète en GET ; elle produit
+la même synthèse que la copie indépendante. Les deux Actions draft/déployées,
+l’API, les quatre connexions, listes clients et bindings sont reconnus ; le plan
+précis reste non appliqué. Les 96 tests ciblés passent et la revue indépendante
+confirme que le callback n’est jamais réécrit. Vérifier la CI du nouveau commit
+séparément des 13 jobs réussis à `6b80d0a`.
+L’autorisation du plan, son application, le rapprochement D1, la recette des huit
+cas et le renouvellement réel restent à faire. Ne pas annuler la revue 0.3.2 pour
+installer un candidat sans autorisation distincte du titulaire.
+
+Les observations du 4 octobre et des sections suivantes sont **historiques** :
+leurs versions, statuts de portail, catalogues et cas réussis ne constituent pas
+l’état courant ci-dessus.
+
+## Historique du 4 octobre — préparation en cours, aucune soumission
 
 La reconnexion OAuth du scanner dans l’éditeur existant a réussi. Le portail a affiché **Tools scanned successfully** avec **66 outils** et **Domain verified**. Ce nouveau scan remplace le catalogue historique de 24 outils ; les 42 nouveaux outils demandaient leurs justifications d’annotations dans le parcours legacy. L’import partiel a ensuite affiché **Updated 62 tool justifications**, **Imported 62 / Skipped 0 / Missing 4 / Mismatched 0**. Cette découverte ne qualifie ni les scénarios reviewer, ni les annotations corrigées après ce scan, ni la durée d’accès OAuth pendant la revue.
 

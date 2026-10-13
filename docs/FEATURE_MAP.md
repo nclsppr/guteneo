@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **20 domaines · 166 fonctionnalités · 21 parcours** — mis à jour le 2026-10-13.
+> **21 domaines · 180 fonctionnalités · 22 parcours** — mis à jour le 2026-10-13.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -39,21 +39,23 @@ mindmap
 
 ## Droits en un coup d’œil
 
-Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership.
+Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership. Installer un paquet ou renouveler un jeton ne modifie ni la membership, ni les scopes consentis, ni l’autorité d’approbation ; les réglages Auth0 sont une opération de plateforme distincte.
 
 | Capacité | Administrateur | Superviseur | Opérateur | Observateur | Assistant connecté |
 | --- | --- | --- | --- | --- | --- |
-| Lire contenus accessibles | Oui | Oui | Oui | Oui | Selon membre + scopes |
+| Installer un paquet / consentir à sa connexion personnelle | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Consentement humain requis ; installation sans autorité métier supplémentaire |
+| Configurer le renouvellement Auth0 du reviewer | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucune route métier REST/MCP ; opérateur Auth0 autorisé distinct et autorisation explicite |
+| Lire contenus accessibles | Oui | Oui | Oui | Oui | Selon membre + scopes ; installation et renouvellement sans élévation de rôle |
 | Parcourir le PDF dans la revue navigateur stable | Selon accès documentaire courant | Selon accès documentaire courant | Selon accès documentaire courant ; sans approbation | Selon accès documentaire courant ; lecture seule | Revue navigateur par humain ; aucun nouveau droit MCP |
 | Contrôler à blanc un envoi existant | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Membre + dispatches:read + accès à l’envoi ; aucune approbation |
-| Importer / préparer | Oui | Oui | Oui | Non | Selon membre + scopes |
+| Importer / préparer | Oui | Oui | Oui | Non | Selon membre + scopes ; fichier et canal effectivement qualifiés |
 | Approuver / confirmer / annuler | Oui | Option Approbation | Non | Non | Mandat expert distinct uniquement |
 | Rapports agrégés | Oui | Option Rapports | Non | Non | Selon membre + scopes |
 | Gérer atelier / membres | Oui | Non | Non | Non | Non |
 | Gérer facturation / souscrire Horizon | Navigateur ; consentement pour souscrire | Non | Non | Non | Non |
 | Déclencher un diagnostic Horizon | Plan actif + accès PDF | Plan actif + accès PDF | Plan actif + accès PDF | Non | Plan actif + accès PDF + documents:write ; clé métier conservée |
 | Lire / exporter l’historique Horizon | Selon accès PDF | Selon accès PDF | Selon accès PDF | Selon accès PDF | Accès PDF + documents:read |
-| Accorder / renouveler mandat expert | Navigateur | Non | Non | Non | Non |
+| Accorder / renouveler mandat expert | Navigateur | Non | Non | Non | Non ; connexion OAuth et installation ne créent aucun mandat |
 | Modifier modèle partagé | Droits sur ressource | Droits sur ressource | Droits sur ressource | Non | Membre + scopes + ressource ; confirmation hôte pour écrasement |
 | Archiver modèle | Droit publier sur ressource | Droit publier sur ressource | Droit publier sur ressource | Non | Membre + templates:publish + ressource ; effet destructif signalé |
 | Modifier partage du modèle | Droit partager sur ressource | Droit partager sur ressource | Droit partager sur ressource | Non | Membre + templates:share + ressource ; révocation signalée |
@@ -74,11 +76,11 @@ Les deux options du superviseur sont indépendantes et fermées par défaut. Le 
 
 ### 01 · Accès et identité
 
-**État :** Implémenté · disponibilité à vérifier.
+**État :** Connexion implémentée · correction de découverte de l’issuer préparée localement, déploiement à vérifier.
 
 Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/auth.ts](../apps/api/src/auth.ts).
 
-**Surfaces :** Web navigateur ; contrats natifs existants préservés ; pas de nouveau droit REST/MCP. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
+**Surfaces :** Web navigateur et découverte OAuth de la ressource MCP ; contrats natifs existants préservés ; aucun nouveau droit REST/MCP. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
 
 - Connexion Auth0, compte vérifié et politique MFA
 - Connexion navigateur et callback Auth0 sur guteneo.com uniquement ; ancien hôte applicatif et previews URL fermés
@@ -87,6 +89,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Sessions web : consultation, révocation et déconnexion
 - Changement d’atelier avec droits courants
 - Connexions OAuth : rattachement, révocation et scopes
+- Découverte OAuth par métadonnées de ressource : issuer Auth0 exact, slash final conservé ; contrat testé par le SDK MCP officiel sans réseau externe
 - Demande de suppression du compte ; traitement complet restant à qualifier
 - Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile
 - Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
@@ -276,24 +279,44 @@ Contrat : [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · Source : [apps/api/src/billi
 
 ### 13 · Assistants et API
 
-**État :** Implémenté · métadonnées du 4 octobre à publier et rescanner ; autorisations serveur inchangées.
+**État :** Serveur implémenté · issuer exact et paquet 0.3.4 préparés localement ; publication, installation OAuth et renouvellement à qualifier par hôte.
 
 Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [apps/api/src/mcp.ts](../apps/api/src/mcp.ts).
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts).
+**Surfaces :** Web / REST / MCP distant et paquets clients locaux ; accès disque/adaptateur local configuré séparément ; aucune nouvelle autorité native. **Tests :** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts).
 
 - Découverte des capacités et limites du compte
 - Catalogue REST/OpenAPI et MCP Streamable HTTP
-- Guides ChatGPT, Claude, Copilot et Cursor
+- Guides d’installation ChatGPT, Claude web/Desktop et Code, Grok web et Build, Cursor et Copilot ; connexion OAuth à qualifier par surface
 - Import adapté au transport fichier effectivement disponible
 - Documents, modèles, données, génération et préparation via outils
 - Revue navigateur avant envoi ; scopes sans élévation de rôle
 - Délégation experte bornée à un client OAuth, optionnelle
 - Mandat accordé/révoqué par administrateur navigateur seulement
-- Paquets plugin et dossier marketplace ; soumission distincte
+- Candidat local plugin 0.3.4 : six skills, manifestes portables et descriptions anglaises ; distinct du ZIP public 0.3.2 et de sa revue active
+- Installation manuelle : plugin MCP personnel ChatGPT ; ZIP Claude et chargement Code ; connecteur/paquet candidat Grok Build ; dossier local Cursor ; modèles Copilot distincts
+- Enregistrement OAuth : callback exact et client réel par hôte ; annonce DCR/CIMD sans qualification ne prouve pas une installation automatique
 - Annotations MCP explicites : écrasement, archivage, révocation de partage et annulation de génération signalés à l’hôte ; diagnostic non idempotent pour l’activité de connexion
 
-### 14 · Compagnon iPhone et iPad
+### 14 · Qualification OAuth du reviewer
+
+**État :** Migrateur local et tests de sécurité préparés ; callback exact corrigé après GET live · aucun réglage Auth0 de production appliqué, aucun renouvellement réel attesté.
+
+Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [scripts/enable-openai-review-renewal.mjs](../scripts/enable-openai-review-renewal.mjs).
+
+**Surfaces :** CLI opérateur Auth0 autorisé ; aucune route métier web/native/REST/MCP supplémentaire et aucun droit issu d’un rôle atelier. **Tests :** [tests/security/openai-review-renewal.test.mjs](../tests/security/openai-review-renewal.test.mjs), [tests/security/chatgpt-reviewer-setup.test.mjs](../tests/security/chatgpt-reviewer-setup.test.mjs), [tests/security/claude-renewal.test.mjs](../tests/security/claude-renewal.test.mjs).
+
+- Inspection GET seule par défaut : client reviewer OpenAI existant exact, callback historique /connector/oauth/aAwc9dso12_L conservé sans écriture, propriétaire, scopes/API, connexions et versions draft/déployées des deux Actions
+- Plan expurgé et empreinte de l’état et des changements ; aucun jeton, secret client ou contenu privé exposé
+- Application après autorisation explicite seulement, avec --apply --expect et empreinte revue ; aucun client ni compte provisionné
+- Déployer les deux Actions exactes avant offline_access de l’API puis grant refresh du seul reviewer ; conserver ownClients, clients tiers, associations, bindings et consentement
+- Refresh rotatif borné : 30 jours d’inactivité, 90 jours absolus, tolérance de 3 secondes ; access token API au plus 3 600 secondes
+- Dérive avant chaque écriture, collision, autre client Guteneo renouvelable ou Action inconnue : arrêt ; aucune écriture retentée automatiquement
+- État partiel connu : inspecter de nouveau, revoir l’empreinte fraîche et appliquer seulement les étapes restantes ; issue fournisseur inconnue sans reprise aveugle
+- prepare-chatgpt-reviewer --qualify-client --expect-renewal : qualification GET seule de l’état complet exact ; aucun auto-provisionnement ni achèvement de migration partielle
+- Reconnexion, renouvellement et révocation réels restent à qualifier ; aucune modification de restriction prepare_only, de configuration d’envoi, d’approbation ou de mandat
+
+### 15 · Compagnon iPhone et iPad
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -310,15 +333,17 @@ Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/
 - Signature, appareil physique, TestFlight et App Store à qualifier
 - Lecture de preferredDashboardAppearance dans compte/session ; aucun réglage ni PATCH natif de cette préférence web
 
-### 15 · Expérience publique et langues
+### 16 · Expérience publique et langues
 
 **État :** Implémenté · disponibilité à vérifier.
 
 Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json).
 
-**Surfaces :** Web public / maquette. **Tests :** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts).
+**Surfaces :** Web public / maquette. **Tests :** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts).
 
 - Présentation, fonctionnalités, rôles et guides assistants
+- Hub assistants et guides FR/EN/DE/LB préparés localement : lien ZIP et étapes manuelles ChatGPT/Claude/Grok/Cursor ; OAuth, skills et publication qualifiés séparément
+- Téléchargement du paquet et manifeste version/SHA-256 : comparer la version publiée au candidat local avant installation ; aucun téléchargement ne consent à OAuth
 - Journal, articles, notices légales et confidentialité
 - Français, anglais, allemand et luxembourgeois
 - Préférence personnelle et choix anonyme
@@ -327,7 +352,7 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 - Maquette publique fictive isolée du backend
 - Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43
 
-### 16 · Atelier V2 et apparence personnelle
+### 17 · Atelier V2 et apparence personnelle
 
 **État :** PR #61 fusionnée après CI verte ; revue documentaire stable validée localement (36 cas) ; nouvelle CI et publication à réaliser.
 
@@ -348,7 +373,7 @@ Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-p
 - Mêmes quatre rôles, options indépendantes du superviseur, accès privés et consentements ; aucun nouveau mandat, canal, endpoint métier ou outil MCP
 - Lectures natives compte/session enrichies sans setter natif d’apparence ; anciens PATCH navigateur nom/langue compatibles, PATCH natif de langue préservé ; migration distante, CI et usage hébergé à qualifier
 
-### 17 · Horizon et diagnostic PDF
+### 18 · Horizon et diagnostic PDF
 
 **État :** Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer.
 
@@ -365,7 +390,7 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 - Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé
 - Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale
 
-### 18 · Exploitation et fiabilité
+### 19 · Exploitation et fiabilité
 
 **État :** Implémenté · disponibilité à vérifier.
 
@@ -386,7 +411,7 @@ Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · 
 - Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées
 - CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners
 
-### 19 · Belvédère et supervision plateforme
+### 20 · Belvédère et supervision plateforme
 
 **État :** Intégré au candidat ; activation et publication non qualifiées.
 
@@ -402,7 +427,7 @@ Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](.
 - Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
 - Quatre langues suivant le compte, y compris ouverture directe et retour d’onglet ; aucun sélecteur privé supplémentaire
 
-### 20 · État public du service
+### 21 · État public du service
 
 **État :** Séparation état public/couverture implémentée ; preuves locales du 10 octobre 2026 : 27 tests UI réussis, 3 réexécutions ciblées de la cadence réussies, 98 tests fonctionnels réussis sur 6 suites. Preuve historique distincte : service publié le 10 octobre dans c953596, premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; cette observation ne qualifie ni la nouvelle UI ni les parcours métier.
 
@@ -424,9 +449,9 @@ Contrat : [STATUS_SERVICE.md](STATUS_SERVICE.md) · Source : [apps/status/worker
 
 **Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
 
-Ouvrir guteneo.com → choisir la langue → consulter l’offre et les guides → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire. Dans le candidat V2, ouvrir Mon compte en bas de navigation → Version de l’atelier près de la langue → enregistrer Classique ou V2 ; même identité et atelier courant. Un lien ?atelier=v2#/app force seulement la présentation temporairement. En V2, un atelier sans historique conserve les étapes d’accueil complètes ; un atelier ayant des envois présente d’abord son travail en cours.
+Ouvrir guteneo.com → choisir français, anglais, allemand ou luxembourgeois → consulter l’offre et le hub assistants → choisir le guide de son hôte et, si utile, récupérer le ZIP en comparant version/SHA-256 au manifeste → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire. Dans le candidat V2, ouvrir Mon compte en bas de navigation → Version de l’atelier près de la langue → enregistrer Classique ou V2 ; même identité et atelier courant. Un lien ?atelier=v2#/app force seulement la présentation temporairement. En V2, un atelier sans historique conserve les étapes d’accueil complètes ; un atelier ayant des envois présente d’abord son travail en cours.
 
-**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. Configuration et fixtures ne prouvent pas une connexion humaine réelle. La préférence de présentation appartient au compte authentifié ; un ancien cache local ne doit pas prévaloir sur la personne courante. Migration 0053 et publication V2 encore à qualifier.
+**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Le candidat local 0.3.4 ne remplace pas automatiquement le ZIP public 0.3.2 ; guide, téléchargement et fixtures ne prouvent ni installation OAuth réelle ni publication en catalogue. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. La préférence de présentation appartient au compte authentifié ; un ancien cache local ne doit pas prévaloir sur la personne courante. Migration 0053 et publication V2 encore à qualifier.
 
 Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
@@ -512,11 +537,11 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 ### J10 · Travailler avec un assistant
 
-**Acteur :** Membre + client OAuth. **Branche :** MCP / REST.
+**Acteur :** Membre avec compte Guteneo existant et droits courants + client OAuth selon les règles de l’hôte. **Branche :** MCP / REST.
 
-Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
+Choisir le guide et vérifier la version du paquet → installer le MCP personnel ChatGPT, le ZIP/connecteur Claude ou sa variante Code, le connecteur Grok web ou le paquet candidat Grok Build, ou le dossier local Cursor → connecter personnellement Guteneo avec un client et un callback réels, PKCE S256 et consentement OAuth → découvrir les outils et lire get_capabilities → vérifier rôle/scopes, compte et canaux disponibles → chercher/importer/créer selon le transfert de fichier réellement qualifié → préparer → ouvrir la revue humaine → suivre les IDs et nextActions. Après expiration ou modification des permissions, reconnecter puis refaire une lecture ; renouvellement et révocation sont qualifiés séparément par hôte. Les annotations signalent les effets destructifs sans modifier les gardes serveur. Après préparation, dry_run_dispatch avec dispatches:read relit les gardes de l’envoi existant sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
+**Blocage / reprise :** Issuer différent, slash compris, callback refusé, client statique non enregistré ou scopes absents : corriger la configuration adaptée à l’hôte ; DCR/CIMD annoncé ne prouve pas l’enregistrement automatique. Refresh dans ChatGPT relit les métadonnées, sans prouver le renouvellement du jeton. Sans transfert qualifié, déposer le PDF dans Guteneo ; fichier privé, expiré, redirigé ou en quarantaine refusé. Installation, scan et tests locaux ne prouvent ni consentement, ni renouvellement, ni publication du candidat 0.3.4. Conserver seulement une preuve datée expurgée, sans jeton, contenu privé ni URL signée. Aucun consentement implicite d’envoi ; mandat expert navigateur distinct, borné et révocable. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false ; issue inconnue sans renvoi automatique. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
@@ -564,9 +589,9 @@ Référence : [PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md).
 
 **Acteur :** Développeur / opérateur de release. **Branche :** RELEASE.
 
-Mettre à jour arbre, droits et parcours → tests/PR → merge → CI sur main → migrations/services qualifiés → deploy:live sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Inspection Telnyx privée : lire les statuts et correspondances canoniques des callbacks après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées. Pour la V2 personnelle : appliquer et vérifier la migration 0053 avant le code qui lit sa colonne → confirmer le défaut Classique et la sauvegarde de préférence sur le domaine canonique après publication.
+Mettre à jour arbre, droits et parcours → tests/PR → merge explicitement autorisé → CI sur main → migrations/services qualifiés → deploy:live explicitement autorisé sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Pour le candidat plugin 0.3.4 : comparer archive/version/SHA-256, qualifier l’installation, le consentement, le renouvellement et la révocation par hôte ; soumission, revue, approbation et publication en catalogue restent des étapes distinctes. La correction locale de l’issuer et le migrateur reviewer ne publient ni n’activent ces étapes. Inspection Telnyx privée : lire les statuts et correspondances canoniques après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées. Pour la V2 personnelle : appliquer et vérifier la migration 0053 avant le code qui lit sa colonne → confirmer le défaut Classique et la sauvegarde de préférence sur le domaine canonique après publication.
 
-**Blocage / reprise :** Authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification. Migration 0053 absente ou non qualifiée : ne pas publier le code qui dépend de la colonne. Les anciens tests de présentation locale ne qualifient pas le nouveau parcours de compte ; autorisation de fusion, CI et preuves distantes restent distinctes.
+**Blocage / reprise :** Autorisation ou authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Paquet local valide ou scan du reviewer : aucune preuve de publication en catalogue ; ne pas remplacer la revue active 0.3.2 sans autorisation distincte. Auth0 : inspecter et revoir l’état exact avant toute application autorisée ; aucun réglage de production effectué par la préparation locale. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification. Migration 0053 absente ou non qualifiée : ne pas publier le code qui dépend de la colonne. Les anciens tests de présentation locale ne qualifient pas le nouveau parcours de compte ; autorisation de fusion, CI et preuves distantes restent distinctes.
 
 Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
@@ -619,6 +644,16 @@ Ouvrir status.guteneo.com depuis Guteneo → dans Service, vérifier date et fra
 **Blocage / reprise :** Contrôle en écart : alerte dans le bilan et le groupe concerné, détail consultable dans Vérifications. Mesure absente, ancienne, indisponible ou illisible : état actuel inconnu et résultats précédents datés, sans succès courant. Jours sans mesure en gris ; aucune disponibilité extrapolée. Une couverture métier absente ne signifie pas une panne et ne dégrade pas le bilan public ; les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Tests locaux de cette présentation et observation distante historique restent des preuves distinctes.
 
 Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
+
+### J22 · Qualifier le renouvellement OAuth du reviewer
+
+**Acteur :** Opérateur Auth0 autorisé, distinct des quatre rôles de membership ; titulaire du compte pour le consentement OAuth réel. **Branche :** PLATEFORME AUTH0 → REVIEWER MCP.
+
+Disposer de la session du tenant Auth0 exact et du reviewer OpenAI déjà enregistré avec son callback exact historique /connector/oauth/aAwc9dso12_L → inspecter en GET avec enable-openai-review-renewal → lire le plan expurgé et son empreinte, les deux Actions draft/live et les gardes → obtenir l’autorisation explicite du changement précis → appliquer uniquement --apply --expect EMPREINTE_REVUE → déployer les deux Actions conservant ownClients avant offline_access de l’API puis le grant/politique rotative du seul reviewer, 30 jours d’inactivité et 90 jours absolus → réinspecter l’état complet → qualifier en GET avec prepare-chatgpt-reviewer --qualify-client CALLBACK_EXACT --expect-renewal EMPREINTE_FINALE → reconnecter personnellement dans l’hôte et qualifier lecture, renouvellement réel et révocation sans envoi. Aucun de ces réglages n’est appliqué par la préparation locale du candidat.
+
+**Blocage / reprise :** Empreinte différente, callback générique, callback/propriétaire inattendu, source inconnue, collision, autre client Guteneo avec refresh actif ou dérive avant une écriture : arrêter sans élargir la configuration. Après échec ou issue inconnue, aucune mutation retentée : inspecter l’état réel, revoir une empreinte fraîche et reprendre uniquement un état partiel canonique. La qualification --expect-renewal refuse un reviewer absent ou une migration incomplète et reste GET seule. Aucun client créé ni client tiers, secret, association, mandat, approbation ou restriction prepare_only modifié ; aucune autorité Auth0 acquise par le rôle atelier ou par l’installation du plugin. Tests locaux et état configuré ne prouvent pas le renouvellement ni la révocation réels ; exclure jetons, codes, secrets et URL signées des preuves.
+
+Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
 ### J21 · Choisir l’Atelier V2 dans son compte et retrouver sa préférence
 
