@@ -229,6 +229,12 @@ empreinte et idempotence gardent leurs contrats existants. La simulation et
 les projections ne valent ni communication réelle, ni preuve fournisseur, ni
 qualification physique iPhone.
 
+### Attendre la confirmation de sauvegarde du profil
+
+La CI du correctif de revue a également révélé une course dans le test du lien temporaire V2. Le helper attendait les en-têtes du PATCH puis une apparence déjà active grâce à l’URL ; ce n’était pas une preuve de fin de sauvegarde. Dans la trace, l’assertion d’adresse démarre à 81 015,604 ms, avant la réception complète du corps à 81 047,457 ms. La capture ultérieure montre la confirmation de sauvegarde.
+
+Le helper attend désormais le statut visible **Votre profil a été enregistré.**, affiché après la réponse, l’application de l’apparence et la relecture du compte. Les assertions d’URL, de payload et de préférence serveur restent inchangées. Aucun délai arbitraire, retry de scénario ou changement du code de compte n’est ajouté. Cette correction de synchronisation du test ne modifie ni rôle, ni droit, ni opération métier. Les quinze cas du fichier `dashboard-v2.spec.ts` passent ensuite sur les trois navigateurs, avec lint et contrôle de diff réussis ; rapport hors dépôt `/tmp/guteneo-v2-qa/account-save-sync/final.json`.
+
 ## Publication et retour
 
 L’utilisateur a autorisé le 13 octobre 2026 la fusion de la PR puis la mise en ligne après validation. Cette autorisation ne remplace pas la CI du candidat final et du commit fusionné. Appliquer et vérifier la migration distante `0053_user_dashboard_appearance.sql` avant de publier le code qui lit la nouvelle colonne, puis suivre [MAIN_RELEASE.md](MAIN_RELEASE.md) depuis `main` propre et synchronisé, avec le commit exact vérifié. L’ancien hôte applicatif `workers.dev` et les URL de preview applicatives restent fermés ; aucune publication parallèle sur ces hôtes ne remplace le parcours canonique.
