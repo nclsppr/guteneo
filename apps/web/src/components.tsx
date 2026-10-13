@@ -602,10 +602,12 @@ export function PdfPreview({
   id,
   title = t.preview,
   dispatchId,
+  stableViewport = false,
 }: {
   id: string;
   title?: string;
   dispatchId?: string;
+  stableViewport?: boolean;
 }) {
   const download = useAction();
   async function downloadSample() {
@@ -621,6 +623,11 @@ export function PdfPreview({
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
     });
   }
+  const viewer = (
+    <Suspense fallback={<Loading />}>
+      <LazyPdfViewer id={id} dispatchId={dispatchId} />
+    </Suspense>
+  );
   return (
     <div className="pdf-preview">
       <div className="preview-label">
@@ -646,9 +653,18 @@ export function PdfPreview({
           </a>
         )}
       </div>
-      <Suspense fallback={<Loading />}>
-        <LazyPdfViewer id={id} dispatchId={dispatchId} />
-      </Suspense>
+      {stableViewport ? (
+        <div
+          className="pdf-preview-viewport"
+          role="region"
+          aria-label={title}
+          tabIndex={0}
+        >
+          {viewer}
+        </div>
+      ) : (
+        viewer
+      )}
       <ErrorNotice error={download.error} />
       <p className="field-hint">
         {isPublicPreview

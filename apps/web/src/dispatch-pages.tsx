@@ -2304,6 +2304,7 @@ export function DispatchDetailPage({
               id={d.document_id}
               dispatchId={d.id}
               title={t.dispatch.documentPreview}
+              stableViewport
             />
           )}
         </section>
