@@ -58,7 +58,8 @@ async function fixture(
         day: "2026-10-02",
         connections: [],
       };
-    else if (path === "/account/sessions") body = { items: [], hasMore: false };
+    else if (path === "/account/sessions" || path === "/account/contacts")
+      body = { items: [], hasMore: false };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
     else if (path === "/admin/members")
       body = { items: [member], nextCursor: null };
@@ -402,8 +403,14 @@ test("an invalid optional workspace response leaves the account form usable", as
     "Camille Exemple",
   );
   await page.getByLabel("Votre nom", { exact: true }).fill("Camille Modifié");
+  await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
+    "Camille Modifié",
+  );
   await expect(
     page.getByRole("button", { name: "Enregistrer les modifications" }),
   ).toBeEnabled();
   await expect(page.getByLabel("Atelier actif")).toHaveCount(0);
+  await expect(
+    page.locator(".workspace-contacts").getByRole("alert"),
+  ).toHaveCount(0);
 });

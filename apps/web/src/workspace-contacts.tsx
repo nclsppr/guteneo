@@ -101,7 +101,11 @@ function WorkspaceContactDirectory({
           "Un administrateur gère vos accès et la facturation. Pour valider un envoi, contactez une personne dont le droit d’approbation est indiqué ci-dessous.",
         )}
       </p>
-      <ErrorNotice error={error} retry={contacts.refresh} />
+      <ErrorNotice
+        error={error}
+        retry={contacts.refresh}
+        focusOnError={false}
+      />
       {contacts.loading && !data ? (
         <Loading />
       ) : (

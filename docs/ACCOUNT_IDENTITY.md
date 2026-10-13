@@ -95,6 +95,8 @@ réseau ont un état explicite et une reprise manuelle ; les lectures sont rafra
 au retour dans l’onglet. Les refus de permissions orientent vers le profil et les
 contacts. Le profil ne permet jamais une auto-promotion.
 
+Une erreur de lecture de cet annuaire conserve le focus dans le contrôle déjà utilisé. Elle reste annoncée par `role=alert` et propose **Réessayer**, sans détourner la saisie du profil ni accorder de droits. Ce choix concerne seulement l’annuaire chargé en arrière-plan ; les erreurs d’action conservent leur comportement de focalisation habituel. Aucun endpoint, contenu, destinataire ou règle de membership n’est modifié.
+
 La liste administrative des membres inclut l’adresse pour distinguer les
 homonymes. Seul l’administrateur peut modifier les rôles, inviter ou déconnecter les accès d’un
 membre. La protection du dernier administrateur et la révocation des sessions,

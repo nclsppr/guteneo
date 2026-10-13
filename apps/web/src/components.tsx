@@ -200,14 +200,16 @@ export function useAction() {
 export function ErrorNotice({
   error,
   retry,
+  focusOnError = true,
 }: {
   error?: Error;
   retry?: () => void;
+  focusOnError?: boolean;
 }) {
   const notice = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (error) notice.current?.focus();
-  }, [error]);
+    if (error && focusOnError) notice.current?.focus();
+  }, [error, focusOnError]);
   if (!error) return null;
   return (
     <div className="notice error" role="alert" tabIndex={-1} ref={notice}>
