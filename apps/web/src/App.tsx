@@ -80,6 +80,10 @@ import { HomepageFilm } from "./homepage-film";
 import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
+import {
+  DashboardAppearanceProvider,
+  useDashboardAppearance,
+} from "./dashboard-appearance";
 import "./homepage.css";
 import "./document-studio.css";
 import {
@@ -550,9 +554,25 @@ const navigation = [
 ] as const;
 
 export function App() {
+  return (
+    <DashboardAppearanceProvider>
+      <Application />
+    </DashboardAppearanceProvider>
+  );
+}
+
+function Application() {
   const locale = useLocale();
   const [session, updateSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const { applyAccountAppearance } = useDashboardAppearance();
+  useEffect(() => {
+    if (session && !isPublicPreview)
+      applyAccountAppearance(
+        session.user.preferredDashboardAppearance ?? "classic",
+        session.user.id,
+      );
+  }, [session, applyAccountAppearance]);
   useEffect(() => {
     let alive = true;
     const languageVersion = getLocaleSelectionVersion();
@@ -640,6 +660,7 @@ function WorkspaceApplication({
     if (session && page.startsWith("/app") && !isPublicPreview)
       setSession(session);
   }, [page, session]);
+  const { appearance } = useDashboardAppearance();
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
     () => window.matchMedia("(min-width: 1025px)").matches,
@@ -885,7 +906,10 @@ function WorkspaceApplication({
     }
   };
   return (
-    <div className="workspace">
+    <div
+      className={appearance === "v2" ? "workspace workspace-v2" : "workspace"}
+      data-appearance={appearance}
+    >
       <a
         href="#main-content"
         className="skip-link"
@@ -910,7 +934,6 @@ function WorkspaceApplication({
             <small>{msg("L’atelier")}</small>
           </div>
         </div>
-        <WorkspaceIdentity session={session} />
         <details
           className="workspace-navigation"
           open={navigationOpen}
@@ -932,6 +955,7 @@ function WorkspaceApplication({
           </summary>
           <nav aria-label={msg("Navigation de l’atelier")}>
             {navigation
+              .filter((n) => appearance !== "v2" || n.id !== "account")
               .filter(
                 (n) =>
                   (!["admin", "billing"].includes(n.id) ||
@@ -991,6 +1015,9 @@ function WorkspaceApplication({
             {t.login.logout}
           </button>
         </details>
+        <div className="sidebar-account">
+          <WorkspaceIdentity session={session} />
+        </div>
         <div className="sidebar-footer">
           <p>{t.tagline}</p>
           <button onClick={() => void logout()}>

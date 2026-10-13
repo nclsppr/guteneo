@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { DashboardArtwork } from "./dashboard-artwork";
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
@@ -279,12 +280,15 @@ export function Connection({
         </>
       ) : (
         <>
-          <PageHeading
-            title={msg("Vos assistants, votre correspondance.")}
-            intro={msg(
-              "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.",
-            )}
-          />
+          <div className="dashboard-editorial-heading dashboard-editorial-heading-horizon">
+            <PageHeading
+              title={msg("Vos assistants, votre correspondance.")}
+              intro={msg(
+                "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.",
+              )}
+            />
+            <DashboardArtwork scene="horizon" />
+          </div>
           {assistantId && (
             <p className="notice info">
               {msg(

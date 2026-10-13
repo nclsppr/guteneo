@@ -476,24 +476,31 @@ test("signup and login preserve the requested guide or direct sending route", as
       await route.fulfill({ response });
     }
   });
-  for (const destination of [
-    "/#/app/connection/chatgpt",
-    "/#/app/prepare?entry=direct",
-  ]) {
-    await page.goto(`${testOrigin}${destination}`);
-    const signup = page.getByRole("link", {
-      name: "Créer mon compte",
-      exact: true,
-    });
-    await expect(signup).toBeVisible();
-    const login = page.locator('a[href^="/auth/login?"]');
-    await expect(login).toBeVisible();
-    for (const link of [signup, login]) {
-      const href = await link.getAttribute("href");
-      expect(new URL(href!, testOrigin).searchParams.get("returnTo")).toBe(
-        destination,
-      );
+  try {
+    for (const destination of [
+      "/#/app/connection/chatgpt",
+      "/#/app/prepare?entry=direct",
+    ]) {
+      await page.goto(`${testOrigin}${destination}`);
+      const signup = page.getByRole("link", {
+        name: "Créer mon compte",
+        exact: true,
+      });
+      await expect(signup).toBeVisible();
+      const login = page.locator('a[href^="/auth/login?"]');
+      await expect(login).toBeVisible();
+      for (const link of [signup, login]) {
+        const href = await link.getAttribute("href");
+        expect(new URL(href!, testOrigin).searchParams.get("returnTo")).toBe(
+          destination,
+        );
+      }
     }
+  } finally {
+    // Static requests are proxied from the reserved origin to the local server.
+    // Drain these handlers before Playwright disposes their request context;
+    // waiting preserves route errors instead of leaking them into the next test.
+    await page.unrouteAll({ behavior: "wait" });
   }
   expect(unexpected).toEqual([]);
 });

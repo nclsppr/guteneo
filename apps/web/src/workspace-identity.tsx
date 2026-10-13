@@ -9,7 +9,25 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
   const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
   return (
     <section className="workspace-identity" aria-label={msg("Votre compte")}>
-      <a className="workspace-identity-profile" href="#/app/account">
+      <a
+        className="workspace-identity-profile"
+        href="#/app/account"
+        aria-current={
+          window.location.hash.split("?")[0] === "#/app/account"
+            ? "page"
+            : undefined
+        }
+      >
+        <span className="workspace-identity-avatar" aria-hidden="true">
+          {session.user.name
+            .trim()
+            .split(/\s+/)
+            .filter((part) => /[\p{L}\p{N}]/u.test(part))
+            .slice(0, 2)
+            .map((part) => Array.from(part)[0])
+            .join("")
+            .toLocaleUpperCase()}
+        </span>
         <span className="workspace-identity-label">{msg("Connecté avec")}</span>
         <strong>{session.user.name}</strong>
         <span className="workspace-identity-email">
@@ -37,9 +55,14 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
 export function DashboardIdentity({ session }: { session: Session }) {
   const permissions = permissionsFor(session);
   return (
-    <section className="dashboard-identity" aria-label={msg("Votre rôle dans cet atelier")}>
+    <section
+      className="dashboard-identity"
+      aria-label={msg("Votre rôle dans cet atelier")}
+    >
       <div>
-        <span className="workspace-identity-label">{session.organization.name}</span>
+        <span className="workspace-identity-label">
+          {session.organization.name}
+        </span>
         <h2>{session.user.name}</h2>
         <p>
           <span className="workspace-role">{roleLabel(session.user.role)}</span>
@@ -48,8 +71,12 @@ export function DashboardIdentity({ session }: { session: Session }) {
             : permissions.approveDispatches
               ? msg("Vous pouvez préparer et valider les envois.")
               : permissions.prepareDispatches
-                ? msg("Vous préparez les envois ; une personne habilitée les valide.")
-                : msg("Vous consultez l’activité de cet atelier en lecture seule.")}
+                ? msg(
+                    "Vous préparez les envois ; une personne habilitée les valide.",
+                  )
+                : msg(
+                    "Vous consultez l’activité de cet atelier en lecture seule.",
+                  )}
         </p>
       </div>
       <a className="text-link" href="#/app/account">

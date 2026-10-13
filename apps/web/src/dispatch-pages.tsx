@@ -1,10 +1,13 @@
 import { msg } from "./messages";
+import { DashboardArtwork } from "./dashboard-artwork";
+import { useDashboardAppearance } from "./dashboard-appearance";
 import { DashboardIdentity } from "./workspace-identity";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
+  Fragment,
   useCallback,
   useEffect,
   useRef,
@@ -179,6 +182,7 @@ function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
 }
 
 export function Overview({ session }: { session: Session }) {
+  const { appearance } = useDashboardAppearance();
   const permissions = permissionsFor(session);
   const overview = useResource<DispatchOverview>(
     permissions.viewReports ? "/overview" : null,
@@ -193,6 +197,10 @@ export function Overview({ session }: { session: Session }) {
   useRefreshOnFocus(refresh);
   const counts = overview.data;
   const attention = counts?.dispatches.attention ?? 0;
+  const dailyOverview =
+    appearance === "v2" &&
+    ((counts?.dispatches.total ?? 0) > 0 ||
+      (dispatches.data?.items.length ?? 0) > 0);
   const stats = [
     {
       href: "#/app/documents",
@@ -216,45 +224,58 @@ export function Overview({ session }: { session: Session }) {
       value: counts?.dispatches.total,
     },
   ];
-  return (
-    <>
-      <PageHeading title={t.overview.title} intro={t.overview.intro} />
-      <DashboardIdentity session={session} />
-      <WorkspaceContacts session={session} compact />
-      {attention > 0 && (
-        <div className="notice warning overview-attention" role="status">
-          <WarningCircle size={22} aria-hidden="true" />
-          <div>
-            <strong>{t.overview.attentionTitle}</strong>
-            <p>{t.overview.attentionBody}</p>
-            <a className="text-link" href="#/app/dispatches?group=attention">
-              {t.overview.attentionAction}
-              <ArrowRight size={17} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      )}
-      {/* The starting choice comes before the statistics, so a new workshop
-          does not open on empty counters (docs/ASSISTANT_HUB.md). */}
-      {permissions.prepareDispatches && (
-        <OverviewAssistantStart session={session} />
-      )}
-      {!isPublicPreview && permissions.prepareDispatches && (
-        <nav
-          className="studio-entry-links"
-          aria-label={msg("Créer des documents personnalisés")}
-        >
-          <a className="button" href="#/app/templates?new=blank">
-            {msg("Créer un document")} <ArrowRight size={17} />
-          </a>
-          <a className="button" href="#/app/templates">
-            {msg("Utiliser un modèle")} <ArrowRight size={17} />
-          </a>
-          <a className="button" href="#/app/datasets">
-            {msg("Importer mes données")} <ArrowRight size={17} />
-          </a>
-        </nav>
-      )}
+  const identity = <DashboardIdentity key="identity" session={session} />;
+  const contacts = (
+    <WorkspaceContacts key="contacts" session={session} compact />
+  );
+  const attentionNotice = attention > 0 && (
+    <div
+      key="attention"
+      className="notice warning overview-attention"
+      role="status"
+    >
+      <WarningCircle size={22} aria-hidden="true" />
+      <div>
+        <strong>{t.overview.attentionTitle}</strong>
+        <p>{t.overview.attentionBody}</p>
+        <a className="text-link" href="#/app/dispatches?group=attention">
+          {t.overview.attentionAction}
+          <ArrowRight size={17} aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  );
+  const assistantStart =
+    permissions.prepareDispatches &&
+    (dailyOverview ? (
+      <div className="dashboard-daily-shortcuts" key="assistant">
+        <a className="text-link" href="#/app/connection">
+          {msg("Consulter mes connexions")}
+          <ArrowRight size={17} aria-hidden="true" />
+        </a>
+      </div>
+    ) : (
+      <OverviewAssistantStart key="assistant" session={session} />
+    ));
+  const studioLinks = !isPublicPreview && permissions.prepareDispatches && (
+    <nav
+      key="studio"
+      className="studio-entry-links"
+      aria-label={msg("Créer des documents personnalisés")}
+    >
+      <a className="button" href="#/app/templates?new=blank">
+        {msg("Créer un document")} <ArrowRight size={17} />
+      </a>
+      <a className="button" href="#/app/templates">
+        {msg("Utiliser un modèle")} <ArrowRight size={17} />
+      </a>
+      <a className="button" href="#/app/datasets">
+        {msg("Importer mes données")} <ArrowRight size={17} />
+      </a>
+    </nav>
+  );
+  const activity = (
+    <Fragment key="activity">
       {permissions.viewReports && (
         <ul className="overview-stats" aria-label={t.overview.statsLabel}>
           {stats.map((stat) => (
@@ -296,6 +317,35 @@ export function Overview({ session }: { session: Session }) {
           }
         />
       )}
+    </Fragment>
+  );
+  // Keyed regions move without remounting the contact directory. Existing
+  // workshops lead with their work; classic and empty workshops retain the
+  // full introductory order (docs/ASSISTANT_HUB.md).
+  const regions = dailyOverview
+    ? [
+        attentionNotice,
+        activity,
+        assistantStart,
+        studioLinks,
+        identity,
+        contacts,
+      ]
+    : [
+        identity,
+        contacts,
+        attentionNotice,
+        assistantStart,
+        studioLinks,
+        activity,
+      ];
+  return (
+    <>
+      <div className="dashboard-editorial-heading">
+        <PageHeading title={t.overview.title} intro={t.overview.intro} />
+        <DashboardArtwork scene="atelier" />
+      </div>
+      {regions}
     </>
   );
 }
@@ -727,10 +777,13 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
           </table>
         </div>
       ) : (
-        <EmptyState
-          title={t.documents.emptyTitle}
-          text={t.documents.emptyBody}
-        />
+        <div className="dashboard-document-empty">
+          {resource.data && <DashboardArtwork scene="documents" />}
+          <EmptyState
+            title={t.documents.emptyTitle}
+            text={t.documents.emptyBody}
+          />
+        </div>
       )}
       <LoadMore
         path="/documents"
@@ -2081,8 +2134,8 @@ export function DispatchDetailPage({
           </button>
         </section>
       )}
-      <div className="dispatch-detail-layout">
-        <section>
+      <div className="dispatch-detail-layout dispatch-review-regions">
+        <section className="dispatch-review-facts">
           <dl className="dispatch-facts">
             <Definition label={t.channel}>
               <ChannelLabel channel={d.channel} />
@@ -2234,6 +2287,27 @@ export function DispatchDetailPage({
             canManage={canPrepare}
             canRevoke={canApprove}
           />
+        </section>
+        <section className="content-preview">
+          {d.html && (
+            <>
+              <h2>{t.dispatch.htmlPreview}</h2>
+              <EmailPreview html={d.html} />
+              <details className="text-version">
+                <summary>{t.dispatch.textPreview}</summary>
+                <pre>{d.text}</pre>
+              </details>
+            </>
+          )}
+          {d.document_id && (
+            <PdfPreview
+              id={d.document_id}
+              dispatchId={d.id}
+              title={t.dispatch.documentPreview}
+            />
+          )}
+        </section>
+        <section className="dispatch-review-actions">
           {pendingApproval && !canApprove && <RolePermissionNotice />}
           {canApprove &&
             pendingApproval &&
@@ -2391,25 +2465,6 @@ export function DispatchDetailPage({
               )}
             </dl>
           </details>
-        </section>
-        <section className="content-preview">
-          {d.html && (
-            <>
-              <h2>{t.dispatch.htmlPreview}</h2>
-              <EmailPreview html={d.html} />
-              <details className="text-version">
-                <summary>{t.dispatch.textPreview}</summary>
-                <pre>{d.text}</pre>
-              </details>
-            </>
-          )}
-          {d.document_id && (
-            <PdfPreview
-              id={d.document_id}
-              dispatchId={d.id}
-              title={t.dispatch.documentPreview}
-            />
-          )}
         </section>
       </div>
       <section className="timeline-section">

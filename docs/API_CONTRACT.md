@@ -2,6 +2,10 @@
 
 État vérifié dans le code le 16 septembre 2026. Cette référence décrit les routes livrées, pas un engagement de stabilité d’une API publique. REST, MCP et l’interface utilisent `DomainService` et `DocumentService`.
 
+Ajout local du 11 octobre 2026 : le contrat d’apparence personnelle ci-dessous
+décrit un candidat non publié, avec migration D1 `0053` à appliquer avant son
+code. Il ne vaut pas preuve de disponibilité distante.
+
 ## Conventions et accès
 
 La base est `APP_ORIGIN`, par exemple `http://localhost:8787` en développement. Les réponses métier sont JSON, sauf les PDF et les redirections d’authentification. Les identifiants sont opaques ; les dates sont ISO 8601 UTC ; les montants sont des entiers en centimes avec `currency: "EUR"`. `known_minor: null` signifie coût fournisseur inconnu. Conserver `X-Correlation-ID` pour diagnostiquer une erreur sans copier le contenu du document.
@@ -31,7 +35,7 @@ Les restrictions de rôle et de session humaine s’ajoutent aux scopes. Les rou
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /auth/login`                           | Option `returnTo` relative à la même origine ; redirection vers Auth0 avec PKCE. Retour par défaut : `/#/app`.                                                             |
 | `GET /auth/callback`                        | Retour Auth0 avec `state` et `code` ; vérifie et consomme l’état une fois, crée la session puis redirige.                                                                  |
-| `GET /api/session`                          | `{organization:{id,name},user:{id,name,role},csrfToken,simulation,mfa,verifiedAccount}`.                                                                                                   |
+| `GET /api/session`                          | `{organization:{id,name},user:{id,name,role,…},csrfToken,simulation,mfa,verifiedAccount}` ; le candidat du 11 octobre ajoute `user.preferredDashboardAppearance: "classic"\|"v2"`, voir le contrat de compte ci-dessous. |
 | `POST /api/logout`                          | Révoque la session Guteneo courante ; `{signedOut:true}`. Ce n’est pas une déconnexion globale Auth0.                                                                      |
 | `GET /api/connections`                      | `{items:[{id,client_id,organization_id,status,created_at,updated_at}]}` ; connexions du membre courant dans son organisation, maximum 100.                                 |
 | `POST /api/connections`                     | `{clientId}` ; rattache ce client OAuth à l’organisation courante, invalide ses anciens jetons pour ce rattachement ; `{bound:true,reconnectRequired:true}`.               |
@@ -41,6 +45,43 @@ Les restrictions de rôle et de session humaine s’ajoutent aux scopes. Les rou
 | `POST /api/dev/mcp-token`                   | Session locale et CSRF requis ; `{token,expiresAt,simulation:true}`. Jeton local valable une heure, inutilisable hors de ce mode. Ne pas le journaliser.                   |
 
 Une nouvelle inscription Auth0 crée une organisation sans crédit de transport et avec les canaux désactivés. Le navigateur ne propose pas encore de sélection multi-organisation. Une connexion OAuth ne constitue pas une approbation d’expédition.
+
+## Apparence personnelle du compte — candidat du 11 octobre 2026
+
+| Méthode et chemin | Entrée et résultat |
+| --- | --- |
+| `GET /api/account` | Session navigateur ; `user.preferredDashboardAppearance` vaut `classic` ou `v2`, avec les champs existants du profil, les permissions et l’organisation courante. |
+| `PATCH /api/account` | Session navigateur, Origin et CSRF ; corps JSON strict existant étendu par le champ facultatif `preferredDashboardAppearance: "classic"\|"v2"`. Renvoie le profil mis à jour. |
+| `GET /api/mobile/v1/session`, `GET /api/mobile/v1/account` | Lecture additive de la même préférence sous `user.preferredDashboardAppearance` avec la session native autorisée. |
+| `PATCH /api/mobile/v1/account` | Aucun setter d’apparence ajouté ; `preferredDashboardAppearance` est refusé. La seule mutation native de profil est `preferredLocale` ; elle conserve la préférence d’apparence. |
+
+Le contrat partagé est `packages/contracts/src/dashboard-appearance.ts`. La
+migration `0053_user_dashboard_appearance.sql` ajoute
+`users.preferred_dashboard_appearance TEXT NOT NULL DEFAULT 'classic'`, avec
+contrainte `CHECK` sur `classic` et `v2`. Les comptes existants et nouveaux
+restent classiques tant que la personne n’enregistre pas V2.
+
+La préférence est celle de l’utilisateur authentifié, commune à ses ateliers et
+relue par ses sessions et appareils. La mutation déduit l’identité et l’atelier
+de la session ; les champs de ciblage `userId` ou `organizationId` ne sont pas
+acceptés. Les quatre rôles peuvent modifier leur propre présentation sans
+modifier leur autorité. Une option d’apparence omise est conservée, permettant
+aux anciens clients de continuer leurs modifications de nom/langue.
+
+Valeur incorrecte ou champ inconnu : `400 INVALID_INPUT`. CSRF invalide :
+`403 CSRF_REJECTED`. Session ou membership révoquée avant mutation :
+`409 ACCESS_CHANGED`, sans mise à jour partielle. La mutation et l’audit
+`account.updated` partagent la garde transactionnelle existante ; l’audit expose
+seulement les noms des champs modifiés. Les réponses restent `no-store`.
+
+La préférence est appliquée par l’interface après réussite du PATCH. Le
+paramètre navigateur `atelier=v2` ou `atelier=classic` est un forçage temporaire,
+sans écriture de compte. Aucun endpoint supplémentaire, scope, outil MCP ou
+champ de préparation, approbation ou confirmation n’est introduit. Les
+assistants OAuth ne peuvent pas employer ce contrat navigateur pour changer le
+profil ; aucun réglage natif V2 n’est ajouté. Voir [DASHBOARD_V2.md](DASHBOARD_V2.md)
+pour la réconciliation, les parcours, les preuves locales et les limites de
+publication.
 
 ## Capacités et documents
 

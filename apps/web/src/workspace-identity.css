@@ -82,6 +82,9 @@
   min-height: 44px;
 }
 @media (max-width: 1024px) {
+  .workspace .sidebar-account {
+    grid-column: 1 / -1;
+  }
   .workspace .workspace-identity {
     grid-column: 1 / -1;
     margin: 0;

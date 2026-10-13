@@ -7,6 +7,7 @@ import {
   getLocale,
 } from "./locale";
 import type { SupportedLocale } from "../../../packages/contracts/src/locale";
+import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
@@ -26,6 +27,7 @@ export type Session = {
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale?: SupportedLocale | null;
+    preferredDashboardAppearance?: DashboardAppearance;
   };
   csrfToken: string;
   simulation: boolean;

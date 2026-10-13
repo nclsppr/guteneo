@@ -27,6 +27,10 @@ import {
   type SupportedLocale,
 } from "./locale";
 import { LanguageSelect } from "./language-select";
+import {
+  useDashboardAppearance,
+  type DashboardAppearance,
+} from "./dashboard-appearance";
 import { ExpertApproval } from "./expert-approval";
 import {
   WORKSPACE_ROLES,
@@ -65,6 +69,36 @@ function PreviewNotice() {
           "Dans cet aperçu, les comptes et les accès sont fictifs. Leur modification sera disponible dans votre atelier connecté.",
         )}
       </p>
+    </div>
+  );
+}
+
+function DashboardAppearanceSelect({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value: DashboardAppearance;
+  onChange: (appearance: DashboardAppearance) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="field dashboard-appearance-control">
+      <label htmlFor="dashboard-appearance">
+        {msg("Version de l’atelier")}
+      </label>
+      <select
+        id="dashboard-appearance"
+        className="dashboard-appearance-select"
+        value={value}
+        disabled={disabled}
+        onChange={(event) =>
+          onChange(event.currentTarget.value === "v2" ? "v2" : "classic")
+        }
+      >
+        <option value="classic">{msg("Classique")}</option>
+        <option value="v2">V2</option>
+      </select>
     </div>
   );
 }
@@ -133,6 +167,16 @@ function WorkspaceSwitcher({ session, onUpdated }: Props) {
 
 export function Account({ session, onUpdated }: Props) {
   const permissions = permissionsFor(session);
+  const { appearance, setAppearance, saveAccountAppearance } =
+    useDashboardAppearance();
+  const [draftAppearance, setDraftAppearance] =
+    useState<DashboardAppearance | null>(null);
+  const selectedAppearance =
+    draftAppearance ?? session.user.preferredDashboardAppearance ?? "classic";
+  const appearanceChanged =
+    draftAppearance !== null &&
+    selectedAppearance !==
+      (session.user.preferredDashboardAppearance ?? "classic");
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
@@ -151,6 +195,8 @@ export function Account({ session, onUpdated }: Props) {
   );
   const isAdmin = canAdminister(session);
   const changed =
+    appearanceChanged ||
+    (draftAppearance !== null && selectedAppearance !== appearance) ||
     (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
@@ -163,13 +209,19 @@ export function Account({ session, onUpdated }: Props) {
         body: {
           userName,
           ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
+          ...(appearanceChanged
+            ? { preferredDashboardAppearance: selectedAppearance }
+            : {}),
           ...(isAdmin ? { organizationName } : {}),
         },
       });
       if (languageEdited && preferredLocale)
         applyAccountLocale(preferredLocale);
+      if (draftAppearance !== null)
+        saveAccountAppearance(selectedAppearance, session.user.id);
       await onUpdated();
       setLanguageEdited(false);
+      setDraftAppearance(null);
       setSaved(true);
     });
   }
@@ -227,7 +279,13 @@ export function Account({ session, onUpdated }: Props) {
         <>
           <PreviewNotice />
           <section className="form-panel">
-            <LanguageSelect profile />
+            <div className="account-display-preferences">
+              <LanguageSelect profile />
+              <DashboardAppearanceSelect
+                value={appearance}
+                onChange={setAppearance}
+              />
+            </div>
             <p className="field-hint">{languageCopy().browser}</p>
           </section>
         </>
@@ -291,21 +349,32 @@ export function Account({ session, onUpdated }: Props) {
                   : msg("Seul un administrateur peut renommer cet atelier.")}
               </small>
             </div>
-            <LanguageSelect
-              profile
-              value={
-                languageEdited
-                  ? preferredLocale
-                  : (session.user.preferredLocale ?? "")
-              }
-              disabled={action.pending}
-              onChange={(locale) => {
-                setPreferredLocale(locale);
-                setLanguageEdited(true);
-                setSaved(false);
-                action.clear();
-              }}
-            />
+            <div className="account-display-preferences">
+              <LanguageSelect
+                profile
+                value={
+                  languageEdited
+                    ? preferredLocale
+                    : (session.user.preferredLocale ?? "")
+                }
+                disabled={action.pending}
+                onChange={(locale) => {
+                  setPreferredLocale(locale);
+                  setLanguageEdited(true);
+                  setSaved(false);
+                  action.clear();
+                }}
+              />
+              <DashboardAppearanceSelect
+                value={selectedAppearance}
+                disabled={action.pending}
+                onChange={(next) => {
+                  setDraftAppearance(next);
+                  setSaved(false);
+                  action.clear();
+                }}
+              />
+            </div>
             <button
               className="button primary"
               type="submit"
