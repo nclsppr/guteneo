@@ -8,29 +8,30 @@ reconnexion du compte de scan, le scan du **13 octobre à 13:56:30 CEST** décou
 skills affichent **Checks passed**. Aucune revue n’a été annulée ou remplacée,
 aucune nouvelle soumission ou publication n’a été effectuée dans cette passe.
 
-La production, relue après le fetch, reste
-`f1a2681ce45ac4396fede5e7472a1722bca567d3`, source propre, build
-`2026-10-10T03:52:00.751Z`. La base main actuelle est
-`54639e7f6331433a5b24b0449c50c1f4ce5bb57d` après Dashboard V2 (#61) : MCP et
-intégrations inchangés depuis l’audit initial `1e5ab18…`, mais API auth/profil/mobile
-et interface ont évolué. Le ZIP
-public **0.3.2**, 1 310 328 octets, SHA-256
-`4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`, est
-préservé. Le candidat **0.3.4 est local**, distinct du brouillon 0.3.3 de PR #52.
-La correction de l’issuer Auth0 exact, slash final conservé, est locale et non
-déployée. Voir [la matrice plateformes et le parcours d’activation](MCP_PLATFORM_READINESS.md).
+La production relue le 13 octobre à 18:56 UTC correspond désormais à main
+`6a27eff665cd1fe9a330448f0dd92864650f7354`, build
+`2026-10-13T18:36:46.854Z`, après Dashboard V2 (#61) et sa stabilisation (#62).
+Le contrat MCP et les intégrations restent inchangés depuis l’audit initial
+`1e5ab18…` ; les évolutions API et web sont distinctes du correctif d’issuer.
+Le ZIP public relu à 18:59 UTC reste **0.3.2**, 19 fichiers, 1 310 328 octets,
+SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`.
+Le candidat **0.3.4 est local**, distinct du brouillon 0.3.3 de PR #52,
+rebasé sur cette dernière main. La correction de l’issuer Auth0 exact reste
+locale et non déployée. Voir [la matrice plateformes](MCP_PLATFORM_READINESS.md).
 
-Le candidat se reconstruit sur cette dernière base. Les contrôles de `1e5ab18…`
-restent historiques ; la CI du candidat final doit porter sur son nouveau head.
-Un futur déploiement inclurait Dashboard V2 et la migration 0053 : vérifier le
-ledger et respecter le parcours normal de migration/release, sans contournement
-au titre du correctif MCP. Aucune migration ou publication n’est attestée ici.
+Deux SELECT D1 bornés relus à 18:58 UTC confirment la migration 0053 dans le
+ledger et la colonne personnelle présente : ce préalable de release est
+satisfait. Le constat précédent de leur absence à 16:18 UTC reste historique.
+Aucune migration, fusion ni publication n’a été effectuée par cette passe.
+La CI du nouveau candidat doit porter sur son commit exact ; les contrôles
+plus anciens ne la qualifient pas.
 
 Les métadonnées OAuth `extensions.com.openai.auth` du **nouveau paquet** restent
 à résoudre avec le schéma MCP portable 1.0.0 qui refuse cette propriété HTTP.
 0.3.4 ne les active pas ; le scan de la configuration OAuth du portail existant
-ne qualifie pas l’installation OAuth du candidat. La licence open source requise
-pour une soumission Cursor reste également à choisir par le titulaire.
+ne qualifie pas l’installation OAuth du candidat. Le titulaire conserve le
+plugin propriétaire : le catalogue public Cursor, qui exige l’open source,
+est exclu ; l’installation locale ou privée reste à qualifier.
 
 La reconnexion **Guteneo Review** a permis `get_capabilities`, `list_documents`
 et `expert_status` en production, `simulation:false`, sans activation expert.
@@ -43,9 +44,18 @@ ne remplace pas ces contrôles actuels.
 La lecture du Dashboard Auth0 confirme les trois blocages de durée reviewer :
 grant refresh désactivé, API offline access désactivée et Action d’identité
 déployée limitée au protocole initial PKCE. Le migrateur est préparé et testé
-localement ; le **GET reviewer CLI échoue sur credential expiré / please login**,
-malgré le tenant attendu dans le cache. L’authentification Dashboard navigateur
-est distincte : **aucune inspection CLI complète, empreinte live ou application**.
+localement. Le CLI a ensuite été reconnecté avec l’autorisation explicite du
+titulaire pour les lectures seules. Le premier GET a refusé la constante de
+callback générique du candidat : le client live conserve exactement
+`https://chatgpt.com/connector/oauth/aAwc9dso12_L`, déjà consigné dans l’historique
+ci-dessous. Cette constante est corrigée sans changer Auth0 ; une inspection
+complète et l’application restent des preuves distinctes.
+La source corrigée a ensuite réussi l’inspection complète en GET ; elle produit
+la même synthèse que la copie indépendante. Les deux Actions draft/déployées,
+l’API, les quatre connexions, listes clients et bindings sont reconnus ; le plan
+précis reste non appliqué. Les 96 tests ciblés passent et la revue indépendante
+confirme que le callback n’est jamais réécrit. Vérifier la CI du nouveau commit
+séparément des 13 jobs réussis à `6b80d0a`.
 L’autorisation du plan, son application, le rapprochement D1, la recette des huit
 cas et le renouvellement réel restent à faire. Ne pas annuler la revue 0.3.2 pour
 installer un candidat sans autorisation distincte du titulaire.

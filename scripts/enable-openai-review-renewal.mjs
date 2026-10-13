@@ -14,7 +14,7 @@ import {
 
 export const OPENAI_REVIEW_CLIENT_ID = "2vjfO7mSnP8TPMh4RRyZCx6r9D8ADXzX";
 export const OPENAI_REVIEW_CALLBACK =
-  "https://chatgpt.com/connector/oauth_callback";
+  "https://chatgpt.com/connector/oauth/aAwc9dso12_L";
 const OWNER = "guteneo-openai-review-v1";
 const SETUP_OWNER = "guteneo-setup-v1";
 const ACTION_NAMES = [

@@ -10,7 +10,6 @@ import {
   setupPlan,
 } from "../../scripts/setup-auth0.mjs";
 import {
-  OPENAI_REVIEW_CALLBACK,
   OPENAI_REVIEW_CLIENT_ID,
   reviewerRenewalSources,
   runOpenAIReviewRenewal,
@@ -38,7 +37,7 @@ function fixture() {
         },
         app_type: "regular_web",
         token_endpoint_auth_method: "none",
-        callbacks: [OPENAI_REVIEW_CALLBACK],
+        callbacks: ["https://chatgpt.com/connector/oauth/aAwc9dso12_L"],
         grant_types: ["authorization_code"],
         jwt_configuration: { alg: "RS256", lifetime_in_seconds: 3600 },
         is_first_party: true,
@@ -222,12 +221,29 @@ test("default inspection is GET-only with a redacted state-and-change fingerprin
   assert.deepEqual(result.refreshTokenPolicy, HOSTED_REFRESH_TOKEN_POLICY);
   assert.equal(result.automaticRenewalVerified, false);
   assert.equal(result.deliveryPolicy, "prepare_only_unchanged");
+  assert.equal(
+    result.callback,
+    "https://chatgpt.com/connector/oauth/aAwc9dso12_L",
+  );
   assert.equal(JSON.stringify(result).includes(SECRET), false);
   assert.ok(
     f.calls
       .filter((call) => call.path.startsWith("clients?"))
       .every((call) => !call.path.includes("client_secret")),
   );
+});
+
+test("refuses the legacy generic reviewer callback during inspection and apply without rewriting it", async () => {
+  const f = fixture();
+  const plan = await inspect(f);
+  f.state.clients[3].callbacks = [
+    "https://chatgpt.com/connector/oauth_callback",
+  ];
+  const original = structuredClone(f.state);
+  for (const attempt of [() => inspect(f), () => apply(f, plan.fingerprint)])
+    await assert.rejects(attempt, { code: "REVIEW_RENEWAL_REQUIRES_REVIEW" });
+  assert.deepEqual(f.state, original);
+  assert.deepEqual(mutations(f), []);
 });
 
 test("Actions deploy before offline access and reviewer grant; other clients, scopes, associations and bindings stay exact", async () => {
