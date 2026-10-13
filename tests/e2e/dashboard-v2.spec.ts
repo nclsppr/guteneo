@@ -36,6 +36,12 @@ async function saveProfileAppearance(page: Page, appearance: "classic" | "v2") {
     .getByRole("button", { name: "Enregistrer les modifications", exact: true })
     .click();
   expect((await saved).status()).toBe(200);
+  // Response headers can arrive before the account save updates browser state.
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Votre profil a été enregistré." }),
+  ).toBeVisible();
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
     appearance,

@@ -41,15 +41,31 @@ const dispatch = {
   updated_at: "2026-09-21T10:00:00Z",
 };
 
-async function fixture(page: Page) {
+async function fixture(
+  page: Page,
+  pdfOptions: {
+    ready?: Promise<void>;
+    pageSize?: [number, number];
+    secondPage?: boolean;
+    unavailable?: boolean;
+  } = {},
+) {
   const writes: { path: string; body: Record<string, unknown> }[] = [];
   const pdf = await PDFDocument.create();
-  pdf.addPage().drawText("Fictional protected document UI fixture.");
+  pdf
+    .addPage(pdfOptions.pageSize)
+    .drawText("Fictional protected document UI fixture.");
+  if (pdfOptions.secondPage) pdf.addPage().drawText("Second fixture page.");
   const bytes = Buffer.from(await pdf.save());
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     if (path.endsWith("/content")) {
+      await pdfOptions.ready;
+      if (pdfOptions.unavailable) {
+        await route.fulfill({ status: 503, body: "PDF unavailable" });
+        return;
+      }
       await route.fulfill({ contentType: "application/pdf", body: bytes });
       return;
     }
@@ -98,6 +114,207 @@ async function fixture(page: Page) {
     });
   });
   return writes;
+}
+
+function gate() {
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { ready, release };
+}
+
+for (const appearance of ["classic", "v2"] as const) {
+  test(`${appearance} review keeps consent stationary through PDF loading and a held pointer`, async ({
+    page,
+    isMobile,
+    browserName,
+  }, testInfo) => {
+    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+    const moduleGate = gate();
+    const contentGate = gate();
+    const writes = await fixture(page, {
+      ready: contentGate.ready,
+      pageSize: [595, 2000],
+      secondPage: true,
+    });
+    await page.route("**/assets/pdf-viewer-*.js", async (route) => {
+      await moduleGate.ready;
+      await route.continue();
+    });
+    try {
+      await page.goto(
+        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
+      );
+      const viewport = page.getByRole("region", {
+        name: "Aperçu du document approuvé",
+      });
+      const contentConsent = page.getByRole("checkbox", {
+        name: /J’ai vérifié le contenu/,
+      });
+      const recipientConsent = page.getByRole("checkbox", {
+        name: /ce destinataire a demandé/,
+      });
+      const send = page.getByRole("button", {
+        name: "Approuver et envoyer",
+        exact: true,
+      });
+      await expect(viewport.getByRole("status")).toBeVisible();
+      await expect(contentConsent).toBeVisible();
+      await page.evaluate(() => document.fonts.ready);
+      const documentY = () =>
+        recipientConsent.evaluate(
+          (element) => element.getBoundingClientRect().top + window.scrollY,
+        );
+      const frameHeight = () =>
+        viewport.evaluate((element) => element.getBoundingClientRect().height);
+      const initialY = await documentY();
+      const initialHeight = await frameHeight();
+      moduleGate.release();
+      await expect(
+        viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+      ).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+      await contentConsent.check();
+      await expect(send).toBeDisabled();
+      await expect(recipientConsent).not.toBeChecked();
+      await recipientConsent.scrollIntoViewIfNeeded();
+      const target = await recipientConsent.boundingBox();
+      if (!target) throw new Error("Recipient consent has no clickable box");
+      await page.mouse.move(
+        target.x + target.width / 2,
+        target.y + target.height / 2,
+      );
+      await page.mouse.down();
+      contentGate.release();
+      await expect(
+        viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      ).toBeVisible();
+      await expect(viewport.locator("canvas")).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+      await page.mouse.up();
+      await expect(recipientConsent).toBeChecked();
+      await expect(contentConsent).toBeChecked();
+      await expect(send).toBeEnabled();
+      expect(writes).toEqual([]);
+
+      // The whole long page and its navigation remain reachable without moving consent.
+      await viewport.focus();
+      await expect(viewport).toBeFocused();
+      await page.keyboard.press("End");
+      await expect
+        .poll(() => viewport.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      await page.keyboard.press("Tab");
+      await expect(viewport).not.toBeFocused();
+      const nextPage = viewport.getByRole("button", { name: "Page suivante" });
+      // Safari's native tab order may skip buttons; verify their activation separately.
+      if (browserName === "webkit") await nextPage.focus();
+      await expect(nextPage).toBeFocused();
+      await page.keyboard.press("Space");
+      await expect(viewport.locator("canvas")).toHaveAccessibleName(
+        "Aperçu · Page 2",
+      );
+      await expect(
+        viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      ).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+      await page.keyboard.press("Tab");
+      expect(
+        await viewport.evaluate((element) =>
+          element.contains(document.activeElement),
+        ),
+      ).toBe(false);
+      if (browserName !== "webkit") await expect(contentConsent).toBeFocused();
+      await expect(contentConsent).toBeChecked();
+      await expect(recipientConsent).toBeChecked();
+      expect(writes).toEqual([]);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: testInfo.outputPath(`stable-review-${appearance}.png`),
+        fullPage: true,
+      });
+    } finally {
+      moduleGate.release();
+      contentGate.release();
+      await page.mouse.up();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  });
+
+  test(`${appearance} review keeps consent stationary when the PDF fails`, async ({
+    page,
+    isMobile,
+  }, testInfo) => {
+    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+    const contentGate = gate();
+    const writes = await fixture(page, {
+      ready: contentGate.ready,
+      unavailable: true,
+    });
+    try {
+      await page.goto(
+        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
+      );
+      const viewport = page.getByRole("region", {
+        name: "Aperçu du document approuvé",
+      });
+      const contentConsent = page.getByRole("checkbox", {
+        name: /J’ai vérifié le contenu/,
+      });
+      const recipientConsent = page.getByRole("checkbox", {
+        name: /ce destinataire a demandé/,
+      });
+      await expect(
+        viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+      ).toBeVisible();
+      await page.evaluate(() => document.fonts.ready);
+      const documentY = () =>
+        recipientConsent.evaluate(
+          (element) => element.getBoundingClientRect().top + window.scrollY,
+        );
+      const initialY = await documentY();
+      const initialHeight = await viewport.evaluate(
+        (element) => element.getBoundingClientRect().height,
+      );
+      await contentConsent.check();
+      contentGate.release();
+      await expect(viewport.getByRole("alert")).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(
+        await viewport.evaluate(
+          (element) => element.getBoundingClientRect().height,
+        ),
+      ).toBeCloseTo(initialHeight, 0);
+      await expect(contentConsent).toBeChecked();
+      await expect(recipientConsent).not.toBeChecked();
+      await expect(
+        page.getByRole("button", { name: "Approuver et envoyer", exact: true }),
+      ).toBeDisabled();
+      await expect(
+        page.locator(".pdf-preview .preview-label a"),
+      ).toHaveAttribute(
+        "href",
+        `/api/documents/${sampleDocument.id}/content?dispatchId=${dispatch.id}`,
+      );
+      expect(writes).toEqual([]);
+      await page.screenshot({
+        path: testInfo.outputPath(`stable-review-error-${appearance}.png`),
+        fullPage: true,
+      });
+    } finally {
+      contentGate.release();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  });
 }
 
 async function fillMessage(page: Page) {

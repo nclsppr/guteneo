@@ -2415,6 +2415,22 @@ ol {
   }
 }
 
+/* Reserve the review's PDF space before lazy loading so consent stays still. */
+.pdf-preview-viewport {
+  block-size: clamp(260px, 60svh, 640px);
+  overflow: auto;
+  scrollbar-gutter: stable;
+  border: 1px solid var(--line);
+  background: #eeeee7;
+}
+.pdf-preview-viewport:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.pdf-preview-viewport .pdf-viewer {
+  min-height: 100%;
+  border: 0;
+}
 .pdf-viewer {
   border: 1px solid var(--line);
   background: #eeeee7;

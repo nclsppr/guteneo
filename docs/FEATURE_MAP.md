@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **20 domaines · 164 fonctionnalités · 21 parcours** — mis à jour le 2026-10-11.
+> **20 domaines · 166 fonctionnalités · 21 parcours** — mis à jour le 2026-10-13.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -44,6 +44,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Capacité | Administrateur | Superviseur | Opérateur | Observateur | Assistant connecté |
 | --- | --- | --- | --- | --- | --- |
 | Lire contenus accessibles | Oui | Oui | Oui | Oui | Selon membre + scopes |
+| Parcourir le PDF dans la revue navigateur stable | Selon accès documentaire courant | Selon accès documentaire courant | Selon accès documentaire courant ; sans approbation | Selon accès documentaire courant ; lecture seule | Revue navigateur par humain ; aucun nouveau droit MCP |
 | Contrôler à blanc un envoi existant | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Membre + dispatches:read + accès à l’envoi ; aucune approbation |
 | Importer / préparer | Oui | Oui | Oui | Non | Selon membre + scopes |
 | Approuver / confirmer / annuler | Oui | Option Approbation | Non | Non | Mandat expert distinct uniquement |
@@ -61,7 +62,7 @@ Le contrat définit quatre rôles humains. La cinquième colonne décrit l’ass
 | Voir PDF généré privé | Créateur seulement | Créateur seulement | Créateur seulement | Selon accès autorisé | Selon propriétaire et contexte |
 | Profil / langue / ses sessions | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
 | Sauvegarder Classique / V2 de son compte | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Non ; aucun outil ajouté |
-| Lire profil et contacts de son atelier | Navigateur | Navigateur | Navigateur | Navigateur | Non |
+| Lire profil et contacts de son atelier ; erreur annuaire sans détourner le focus | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
 | Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
 | Lire le moniteur public local | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
@@ -92,6 +93,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Retour d’onglet : identité, atelier et langue enregistrée dans le compte réconciliés
 - Langue des vues connectées réglable seulement dans le compte ; choix visiteur séparé
 - Apparence Classique/V2 près de la langue ; migration 0053, compte en bas de navigation et préférence serveur réconciliée après changement d’identité
+- Erreur tardive de l’annuaire : alerte et reprise accessibles sans prendre le focus ni interrompre la saisie du profil, en Classique et V2
 
 ### 02 · Équipe et responsabilités
 
@@ -327,11 +329,11 @@ Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src
 
 ### 16 · Atelier V2 et apparence personnelle
 
-**État :** Candidat local · préférence personnelle et 29 cas UI validés localement · publication à réaliser.
+**État :** PR #61 fusionnée après CI verte ; revue documentaire stable validée localement (36 cas) ; nouvelle CI et publication à réaliser.
 
 Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx).
 
-**Surfaces :** Atelier web et profil navigateur ; lecture additive compte/session natifs ; REST métier et MCP sans nouveau pouvoir ; maquette fictive isolée. **Tests :** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts).
+**Surfaces :** Atelier web et profil navigateur ; lecture additive compte/session natifs ; REST métier et MCP sans nouveau pouvoir ; maquette fictive isolée. **Tests :** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts).
 
 - Version complète de l’Atelier web réel : mêmes compte, tenant, ressources et opérations ; aucun environnement métier fictif parallèle
 - Compte en bas de navigation ; Version de l’atelier près de la langue, Classique ou V2 appliquée après sauvegarde réussie du profil
@@ -339,6 +341,7 @@ Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-p
 - PATCH navigateur du compte : preferredDashboardAppearance strict, Origin/CSRF, autorité courante et audit de noms de champs ; tous les rôles peuvent modifier seulement leur propre choix
 - URL atelier=v2 ou atelier=classic : forçage temporaire sans sauvegarde serveur ; supprimé après sauvegarde d’un choix d’apparence explicite ou changement d’identité détecté ; cache local non autoritaire
 - Accueil avec alertes et activité avant introduction si historique ; accueil complet sinon ; aperçu du contenu avant accord dans l’ordre de lecture et clavier
+- Revue Classique/V2 : cadre PDF stable au chargement, au rendu et en erreur ; défilement interne accessible au clavier, sans déplacement des consentements ni modification des octets ou de l’autorité
 - Présentation cohérente documents, préparation, revue, suivi, assistants, compte, Studio, Horizon, crédits, tableaux et formulaires ; Belvédère conserve sa présentation distincte
 - Portrait officiel, mot-symbole noir minuscules, trois gravures et hirondelles bleues approuvées ; décorations discrètes limitées à accueil, documents vides et assistants
 - Libellés FR/EN/DE/LB ; aucune mention expérimentale sur V2 réelle ; bandeaux de simulation maintenus uniquement pour les sessions simulées
@@ -433,7 +436,7 @@ Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
 Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier. La coque web V2 facultative conserve ces mêmes actions et le rôle courant.
 
-**Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente. Le choix V2 ne modifie ni membership ni option du superviseur.
+**Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente. Le choix V2 ne modifie ni membership ni option du superviseur. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -441,9 +444,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Administrateur / superviseur / opérateur. **Branche :** DOCUMENTS → FAX.
 
-Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler. Avec V2 facultative, utiliser les mêmes pages documents, préparation, revue et suivi, avec le même identifiant et la même API. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
+Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler. Avec V2 facultative, utiliser les mêmes pages documents, préparation, revue et suivi, avec le même identifiant et la même API. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison. Changer de présentation ne prépare ni ne confirme un fax et ne remplace pas le consentement ; opérations réelles signalées sur session réelle.
+**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison. Changer de présentation ne prépare ni ne confirme un fax et ne remplace pas le consentement ; opérations réelles signalées sur session réelle. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
@@ -451,9 +454,9 @@ Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DOCUMENTS → POSTAL.
 
-PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen. Avec V2 facultative, les mêmes préflights, transfert, devis et revue restent nécessaires. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
+PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen. Avec V2 facultative, les mêmes préflights, transfert, devis et revue restent nécessaires. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue. Le choix V2 ne vaut jamais consentement au transfert du PDF, à l’approbation ou à l’envoi.
+**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue. Le choix V2 ne vaut jamais consentement au transfert du PDF, à l’approbation ou à l’envoi. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
@@ -461,9 +464,9 @@ Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** E-MAIL.
 
-Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi. Avec V2, la saisie, la préparation et la revue utilisent les mêmes composants et API métier ; enregistrer Classique dans Mon compte pour un retour durable. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
+Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi. Avec V2, la saisie, la préparation et la revue utilisent les mêmes composants et API métier ; enregistrer Classique dans Mon compte pour un retour durable. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées. Enregistrer l’apparence soumet seulement le profil, jamais le formulaire de préparation, l’acceptation du devis ou un envoi.
+**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées. Enregistrer l’apparence soumet seulement le profil, jamais le formulaire de préparation, l’acceptation du devis ou un envoi. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md).
 
@@ -491,9 +494,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Préparateur → approbateur. **Branche :** DISTRIBUTION.
 
-Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP. Les revues et le suivi peuvent employer la présentation V2 facultative, avec les mêmes demandes préparées.
+Sélectionner les PDF → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP. Les revues et le suivi peuvent employer la présentation V2 facultative, avec les mêmes demandes préparées. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout. Le choix d’apparence ne confirme ni un envoi ni un lot.
+**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout. Le choix d’apparence ne confirme ni un envoi ni un lot. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -501,9 +504,9 @@ Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 
 **Acteur :** Superviseur habilité / observateur. **Branche :** SUIVI.
 
-Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur. Dans V2 facultative, retrouver les mêmes envois, détails et restrictions ; rapports affichés seulement selon l’autorité courante. Sur un atelier V2 déjà actif, alertes et activité récente passent avant les éléments d’introduction, avec indicateurs toujours soumis au droit de rapports.
+Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur. Dans V2 facultative, retrouver les mêmes envois, détails et restrictions ; rapports affichés seulement selon l’autorité courante. Sur un atelier V2 déjà actif, alertes et activité récente passent avant les éléments d’introduction, avec indicateurs toujours soumis au droit de rapports. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis. V2 ne donne ni préparation à l’observateur, ni rapports ou approbation au superviseur sans l’option correspondante.
+**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis. V2 ne donne ni préparation à l’observateur, ni rapports ou approbation au superviseur sans l’option correspondante. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie.
 
 Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
@@ -511,9 +514,9 @@ Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
 
 **Acteur :** Membre + client OAuth. **Branche :** MCP / REST.
 
-Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète.
+Connecter le client → vérifier capacités/scopes → chercher/importer/créer → préparer → ouvrir la revue humaine → suivre les IDs et les nextActions. Les annotations signalent les effets destructifs à l’hôte, sans modifier les gardes serveur ni autoriser un envoi. Après préparation, dry_run_dispatch avec dispatches:read expose les gardes de l’envoi existant, sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant.
+**Blocage / reprise :** Assistant sans consentement implicite ; délégation experte séparée, bornée, révocable et contrôlée côté serveur. Un scan ancien ne prouve pas les métadonnées actuelles ; publier puis rescanner le correctif. L’activité de connexion peut être enregistrée : annotations readOnlyHint/idempotentHint false, destructiveHint/openWorldHint false. Les preuves non exécutées restent explicites. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
@@ -521,9 +524,9 @@ Référence : [LLM_SETUP.md](LLM_SETUP.md).
 
 **Acteur :** Membre sur client natif. **Branche :** NATIF → NAVIGATEUR.
 
-Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi. Le client natif lit la préférence d’apparence personnelle dans compte/session sans contrôle de modification ; la revue navigateur utilise la préférence de la personne après authentification.
+Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi. Le client natif lit la préférence d’apparence personnelle dans compte/session sans contrôle de modification ; la revue navigateur utilise la préférence de la personne après authentification. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement. Le PATCH natif refuse preferredDashboardAppearance ; le seul PATCH natif de langue le conserve. Cette lecture n’ajoute aucun consentement ou droit natif.
+**Blocage / reprise :** Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement. Le PATCH natif refuse preferredDashboardAppearance ; le seul PATCH natif de langue le conserve. Cette lecture n’ajoute aucun consentement ou droit natif. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation.
 
 Référence : [IOS_API.md](IOS_API.md).
 
@@ -573,7 +576,7 @@ Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
 
 Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique. Depuis le compte en bas de navigation, sélectionner Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès serveur ; retrouver cette préférence de personne sur ses autres ateliers et appareils après relecture de session.
 
-**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle. La sélection seule ne modifie rien côté serveur ; le PATCH de profil sauvegarde la préférence personnelle, avec Origin/CSRF et revalidation de l’autorité. Échec visible, aucun succès inventé. Un changement d’identité abandonne l’ancien forçage URL et applique la préférence de la nouvelle personne.
+**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle. La sélection seule ne modifie rien côté serveur ; le PATCH de profil sauvegarde la préférence personnelle, avec Origin/CSRF et revalidation de l’autorité. Échec visible, aucun succès inventé. Un changement d’identité abandonne l’ancien forçage URL et applique la préférence de la nouvelle personne. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie.
 
 Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
@@ -621,9 +624,9 @@ Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
 
 **Acteur :** Membre navigateur authentifié parmi les quatre rôles, pour son propre compte et avec son autorité courante. **Branche :** COMPTE PERSONNEL → APPARENCE ATELIER.
 
-Après migration et publication qualifiées, ouvrir Mon compte depuis le bas de la navigation → dans Mon profil, choisir Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès et lire la confirmation → retrouver la même préférence entre ateliers, sessions et appareils après relecture authentifiée. Un lien atelier=v2 ou atelier=classic force temporairement la présentation sans écriture ; la sauvegarde d’un choix d’apparence explicite et le changement d’identité abandonnent le forçage. Utiliser les mêmes documents, préparations, revues et suivis avec leurs droits ; atelier actif centré sur son activité, accueil complet si vide, aperçu avant accord au clavier.
+Après migration et publication qualifiées, ouvrir Mon compte depuis le bas de la navigation → dans Mon profil, choisir Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès et lire la confirmation → retrouver la même préférence entre ateliers, sessions et appareils après relecture authentifiée. Un lien atelier=v2 ou atelier=classic force temporairement la présentation sans écriture ; la sauvegarde d’un choix d’apparence explicite et le changement d’identité abandonnent le forçage. Utiliser les mêmes documents, préparations, revues et suivis avec leurs droits ; atelier actif centré sur son activité, accueil complet si vide, aperçu avant accord au clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements.
 
-**Blocage / reprise :** Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Parcours final validé par 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; CI, migration distante, publication et usage humain hébergé non prouvés. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL.
+**Blocage / reprise :** Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Parcours final validé par 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; CI, migration distante, publication et usage humain hébergé non prouvés. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Correctif de stabilité du PDF : 36 cas locaux réussis sur trois navigateurs, sans communication réelle ; CI du correctif et publication encore à qualifier. Le test du lien temporaire attend la confirmation visible de sauvegarde après le corps du PATCH et la relecture du compte, puis conserve les assertions strictes d’URL et de préférence serveur. Les 15 cas du fichier dashboard-v2.spec.ts passent après cette synchronisation ; la CI finale reste requise. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie.
 
 Référence : [DASHBOARD_V2.md](DASHBOARD_V2.md).
 

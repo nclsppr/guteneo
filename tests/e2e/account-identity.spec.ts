@@ -78,6 +78,10 @@ async function fixture(
       ready: () => void;
       gate: Promise<void>;
     } | null,
+    holdNextContacts: null as {
+      ready: () => void;
+      gate: Promise<void>;
+    } | null,
   };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
@@ -134,6 +138,12 @@ async function fixture(
       body = session;
     } else if (path === "/account/contacts") {
       state.contactReads++;
+      const held = state.holdNextContacts;
+      state.holdNextContacts = null;
+      if (held) {
+        held.ready();
+        await held.gate;
+      }
       if (state.malformedContacts === "missing-items") body = {};
       else if (state.malformedContacts === "missing-permissions")
         body = {
@@ -646,6 +656,74 @@ test("contact failure is recoverable and switching workshops removes the previou
   ]);
   expect(data.unmatched).toEqual([]);
 });
+
+for (const appearance of ["classic", "v2"] as const) {
+  for (const failure of ["network", "malformed"] as const) {
+    test(`${appearance} profile keeps typing focus when delayed contacts are ${failure}`, async ({
+      page,
+    }) => {
+      const data = await fixture(page);
+      data.state.failContacts = failure === "network";
+      data.state.malformedContacts =
+        failure === "malformed" ? "missing-items" : null;
+      let release!: () => void;
+      let requested!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const ready = new Promise<void>((resolve) => {
+        requested = resolve;
+      });
+      data.state.holdNextContacts = { ready: requested, gate };
+      try {
+        await page.goto(`/?atelier=${appearance}#/app/account`);
+        await ready;
+        const name = page.getByLabel("Votre nom", { exact: true });
+        const contacts = page.getByRole("region", {
+          name: "Qui contacter dans cet atelier ?",
+          exact: true,
+        });
+        const save = page.getByRole("button", {
+          name: "Enregistrer les modifications",
+          exact: true,
+        });
+        await name.fill("Camille en cours");
+        await expect(name).toBeFocused();
+        await expect(save).toBeEnabled();
+        release();
+        await expect(contacts.getByRole("alert")).toContainText(
+          failure === "network"
+            ? "contacts sont temporairement indisponibles"
+            : "Impossible de vérifier les contacts",
+        );
+        await expect(name).toBeFocused();
+        // Use the current keyboard target: refocusing the locator would hide stolen focus.
+        await page.keyboard.insertText(" de saisie");
+        await expect(name).toHaveValue("Camille en cours de saisie");
+        await expect(name).toBeFocused();
+        await expect(save).toBeEnabled();
+        expect(data.writes).toEqual([]);
+        data.state.failContacts = false;
+        data.state.malformedContacts = null;
+        await contacts
+          .getByRole("button", { name: "Réessayer", exact: true })
+          .click();
+        await expect(
+          contacts.getByRole("link", { name: /validation@example.invalid/ }),
+        ).toBeVisible();
+        await expect(contacts.getByRole("alert")).toHaveCount(0);
+        await expect(name).toHaveValue("Camille en cours de saisie");
+        await expect(save).toBeEnabled();
+        expect(data.state.contactReads).toBe(2);
+        expect(data.writes).toEqual([]);
+        expect(data.unmatched).toEqual([]);
+      } finally {
+        release();
+        await page.unrouteAll({ behavior: "wait" });
+      }
+    });
+  }
+}
 
 test("malformed contacts leave the profile usable and support an explicit retry", async ({
   page,
