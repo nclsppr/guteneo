@@ -709,7 +709,7 @@ export async function authenticateMcp(
 export function protectedResourceMetadata(env: AuthEnv): Response {
   return json({
     resource: `${env.APP_ORIGIN}/mcp`,
-    authorization_servers: [auth0Issuer(env).replace(/\/$/, "")],
+    authorization_servers: [auth0Issuer(env)],
     scopes_supported: MCP_SCOPES,
     bearer_methods_supported: ["header"],
     resource_name: "Guteneo",

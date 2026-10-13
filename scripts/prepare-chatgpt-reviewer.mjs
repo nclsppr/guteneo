@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { actionSources, cliJson, setupPlan, TENANT } from "./setup-auth0.mjs";
+import { runOpenAIReviewRenewal } from "./enable-openai-review-renewal.mjs";
 
 const CONNECTION = "Guteneo-Accounts";
 const OWNER = "guteneo-openai-review-v1";
@@ -37,7 +38,9 @@ export function validateCallback(value) {
   if (
     url.href !== value ||
     url.origin !== "https://chatgpt.com" ||
-    !/^\/connector\/oauth\/[A-Za-z0-9_-]{1,200}$/.test(url.pathname) ||
+    !/^\/connector\/(?:oauth\/[A-Za-z0-9_-]{1,200}|oauth_callback)$/.test(
+      url.pathname,
+    ) ||
     url.search ||
     url.hash ||
     url.username ||
@@ -85,7 +88,7 @@ async function inventory(request = api) {
   )
     fail("CONNECTION_NOT_QUALIFIED");
   const clients = await pages(
-    "clients?fields=client_id,name,callbacks,client_metadata,app_type,token_endpoint_auth_method,grant_types,oidc_conformant,is_first_party&include_fields=true",
+    "clients?fields=client_id,name,callbacks,client_metadata,app_type,token_endpoint_auth_method,grant_types,refresh_token,jwt_configuration,oidc_conformant,is_first_party&include_fields=true",
     "clients",
     request,
   );
@@ -311,11 +314,15 @@ async function qualifyLoginPolicy(state, request) {
     fail("DEPLOYED_ACTION_REQUIRES_REVIEW");
 }
 
-function qualifyClient(client, callback) {
+function qualifyClient(client, callback, reviewedRenewal = false) {
   if (
     JSON.stringify(client.callbacks) !== JSON.stringify([callback]) ||
-    JSON.stringify(client.grant_types) !==
-      JSON.stringify(["authorization_code"]) ||
+    !Array.isArray(client.grant_types) ||
+    (reviewedRenewal
+      ? JSON.stringify([...client.grant_types].sort()) !==
+        JSON.stringify(["authorization_code", "refresh_token"])
+      : JSON.stringify(client.grant_types) !==
+        JSON.stringify(["authorization_code"])) ||
     client.token_endpoint_auth_method !== "none" ||
     client.app_type !== "regular_web" ||
     client.oidc_conformant !== true ||
@@ -359,12 +366,30 @@ async function qualifyAssociations(state, clientId, request) {
 
 export async function createClient(
   callback,
-  { request = api, persist = privateJson } = {},
+  { request = api, persist = privateJson, reviewedRenewalFingerprint } = {},
 ) {
   validateCallback(callback);
+  if (
+    reviewedRenewalFingerprint !== undefined &&
+    !/^[a-f0-9]{64}$/.test(reviewedRenewalFingerprint)
+  )
+    fail("INVALID_RENEWAL_FINGERPRINT");
   const state = await inventory(request);
-  if (state.client) qualifyClient(state.client, callback);
-  await qualifyLoginPolicy(state, request);
+  if (reviewedRenewalFingerprint !== undefined) {
+    // Explicit read-only qualification of the dedicated migrator's COMPLETE
+    // reviewed state. This option never creates a client or changes Auth0/D1.
+    if (!state.client) fail("RENEWAL_CLIENT_MUST_EXIST");
+    const renewal = await runOpenAIReviewRenewal({ api: { request } });
+    if (
+      renewal.fingerprint !== reviewedRenewalFingerprint ||
+      renewal.changes.length
+    )
+      fail("RENEWAL_POLICY_REQUIRES_REVIEW");
+    qualifyClient(state.client, callback, true);
+  } else {
+    if (state.client) qualifyClient(state.client, callback);
+    await qualifyLoginPolicy(state, request);
+  }
   if (state.client) {
     await qualifyAssociations(state, state.client.client_id, request);
     return {
@@ -446,7 +471,10 @@ if (
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   try {
-    const [mode, argument] = process.argv.slice(2);
+    const [mode, argument, option, fingerprint, ...extra] =
+      process.argv.slice(2);
+    if (extra.length || (option !== undefined && mode !== "--qualify-client"))
+      fail("INVALID_ARGUMENTS");
     let result;
     if (!mode)
       result = {
@@ -455,6 +483,7 @@ if (
           "--inspect [ABSOLUTE_PRIVATE_CONFIG_JSON]",
           "--create-user ABSOLUTE_PRIVATE_CONFIG_JSON",
           "--create-client EXACT_CHATGPT_CALLBACK",
+          "--qualify-client EXACT_CHATGPT_CALLBACK --expect-renewal REVIEWED_FINGERPRINT",
         ],
         privateConfig: {
           requiredField: "email",
@@ -475,6 +504,15 @@ if (
       result = await createUser(argument);
     else if (mode === "--create-client" && argument)
       result = await createClient(argument);
+    else if (
+      mode === "--qualify-client" &&
+      argument &&
+      option === "--expect-renewal" &&
+      fingerprint
+    )
+      result = await createClient(argument, {
+        reviewedRenewalFingerprint: fingerprint,
+      });
     else fail("INVALID_ARGUMENTS");
     console.log(JSON.stringify(result, null, 2));
   } catch (error) {

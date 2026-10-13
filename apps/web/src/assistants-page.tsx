@@ -1,6 +1,11 @@
 import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  DownloadSimple,
+} from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
 import { getAssistant } from "./assistant-catalog";
@@ -73,6 +78,27 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
               </p>
             </section>
             <AssistantPicker />
+            <section
+              className="assistant-direct-route"
+              aria-labelledby="plugin-package-title"
+            >
+              <div>
+                <h2 id="plugin-package-title">{msg("Le plugin Guteneo")}</h2>
+                <p>
+                  {msg(
+                    "Le paquet contient les skills et la connexion MCP. Choisissez le guide de votre application pour l’installation et la vérification de votre compte.",
+                  )}
+                </p>
+              </div>
+              <a
+                className="button"
+                href="/integrations/guteneo-plugin.zip"
+                download
+              >
+                {msg("Télécharger le plugin (ZIP)")}
+                <DownloadSimple size={18} aria-hidden="true" />
+              </a>
+            </section>
             <section
               className="assistant-direct-route"
               aria-labelledby="direct-route-title"

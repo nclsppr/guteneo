@@ -1,6 +1,60 @@
-# Dossier marketplace ChatGPT — reprise du 4 octobre 2026
+# Dossier marketplace ChatGPT — état du 13 octobre 2026
 
-## Point de reprise du 4 octobre — préparation en cours, aucune soumission
+## État courant — revue conservée, qualification incomplète
+
+Le portail affiche **0.3.2 · In review · Not published · Not live**. Après
+reconnexion du compte de scan, le scan du **13 octobre à 13:56:30 CEST** découvre
+**67 outils** et affiche **« No findings in the latest MCP scan. »** Les six
+skills affichent **Checks passed**. Aucune revue n’a été annulée ou remplacée,
+aucune nouvelle soumission ou publication n’a été effectuée dans cette passe.
+
+La production, relue après le fetch, reste
+`f1a2681ce45ac4396fede5e7472a1722bca567d3`, source propre, build
+`2026-10-10T03:52:00.751Z`. La base main actuelle est
+`54639e7f6331433a5b24b0449c50c1f4ce5bb57d` après Dashboard V2 (#61) : MCP et
+intégrations inchangés depuis l’audit initial `1e5ab18…`, mais API auth/profil/mobile
+et interface ont évolué. Le ZIP
+public **0.3.2**, 1 310 328 octets, SHA-256
+`4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`, est
+préservé. Le candidat **0.3.4 est local**, distinct du brouillon 0.3.3 de PR #52.
+La correction de l’issuer Auth0 exact, slash final conservé, est locale et non
+déployée. Voir [la matrice plateformes et le parcours d’activation](MCP_PLATFORM_READINESS.md).
+
+Le candidat se reconstruit sur cette dernière base. Les contrôles de `1e5ab18…`
+restent historiques ; la CI du candidat final doit porter sur son nouveau head.
+Un futur déploiement inclurait Dashboard V2 et la migration 0053 : vérifier le
+ledger et respecter le parcours normal de migration/release, sans contournement
+au titre du correctif MCP. Aucune migration ou publication n’est attestée ici.
+
+Les métadonnées OAuth `extensions.com.openai.auth` du **nouveau paquet** restent
+à résoudre avec le schéma MCP portable 1.0.0 qui refuse cette propriété HTTP.
+0.3.4 ne les active pas ; le scan de la configuration OAuth du portail existant
+ne qualifie pas l’installation OAuth du candidat. La licence open source requise
+pour une soumission Cursor reste également à choisir par le titulaire.
+
+La reconnexion **Guteneo Review** a permis `get_capabilities`, `list_documents`
+et `expert_status` en production, `simulation:false`, sans activation expert.
+La surface est le connecteur reviewer de développement **Codex, 24 outils**,
+distinct des 67 outils scannés. Six documents ont été observés, sans le SHA-256
+de la fixture attendue. L’identité et la restriction D1 n’ont pas été rapprochées
+ce tour ; **P3 et la recette complète restent non qualifiés**. Un ancien P3 réussi
+ne remplace pas ces contrôles actuels.
+
+La lecture du Dashboard Auth0 confirme les trois blocages de durée reviewer :
+grant refresh désactivé, API offline access désactivée et Action d’identité
+déployée limitée au protocole initial PKCE. Le migrateur est préparé et testé
+localement ; le **GET reviewer CLI échoue sur credential expiré / please login**,
+malgré le tenant attendu dans le cache. L’authentification Dashboard navigateur
+est distincte : **aucune inspection CLI complète, empreinte live ou application**.
+L’autorisation du plan, son application, le rapprochement D1, la recette des huit
+cas et le renouvellement réel restent à faire. Ne pas annuler la revue 0.3.2 pour
+installer un candidat sans autorisation distincte du titulaire.
+
+Les observations du 4 octobre et des sections suivantes sont **historiques** :
+leurs versions, statuts de portail, catalogues et cas réussis ne constituent pas
+l’état courant ci-dessus.
+
+## Historique du 4 octobre — préparation en cours, aucune soumission
 
 La reconnexion OAuth du scanner dans l’éditeur existant a réussi. Le portail a affiché **Tools scanned successfully** avec **66 outils** et **Domain verified**. Ce nouveau scan remplace le catalogue historique de 24 outils ; les 42 nouveaux outils demandaient leurs justifications d’annotations dans le parcours legacy. L’import partiel a ensuite affiché **Updated 62 tool justifications**, **Imported 62 / Skipped 0 / Missing 4 / Mismatched 0**. Cette découverte ne qualifie ni les scénarios reviewer, ni les annotations corrigées après ce scan, ni la durée d’accès OAuth pendant la revue.
 

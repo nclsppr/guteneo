@@ -44,7 +44,7 @@ export type AssistantDefinition = {
 };
 
 // These describe documented host setup, never a Guteneo connection status.
-// Official source pages were checked on 20 September 2026.
+// Official source pages were checked on 13 October 2026.
 export function getAssistantCatalog(): readonly AssistantDefinition[] {
   return [
     {
@@ -63,41 +63,39 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
             "Dans ChatGPT, le menu « Plugins » sert aussi à créer votre connexion MCP personnalisée. Vous ajoutez vous-même Guteneo avec son adresse, sans passer par un plugin publié dans le catalogue.",
           ),
           prerequisites: [
-            msg(
-              "Un compte ChatGPT qui autorise le mode développeur et les plugins personnalisés.",
-            ),
+            msg("Un compte ChatGPT qui autorise les plugins personnalisés."),
             msg(
               "Dans un espace professionnel, l’autorisation de son administrateur peut être nécessaire.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez les réglages ChatGPT"),
+              title: msg("Ouvrez les plugins ChatGPT"),
               text: msg(
-                "Dans Paramètres → Sécurité et connexion, activez le mode développeur s’il est disponible pour votre compte.",
+                "Ouvrez Plugins, puis + → Add custom MCP server. Si cette option manque, vérifiez les possibilités de votre compte et les règles de votre espace.",
               ),
               link: {
                 label: msg("Ouvrir ChatGPT"),
-                href: "https://chatgpt.com/",
+                href: "https://chatgpt.com/plugins",
               },
             },
             {
               title: msg("Ajoutez le serveur Guteneo"),
               text: msg(
-                "Ouvrez Plugins, choisissez le bouton +, puis nommez la connexion Guteneo. Collez cette adresse dans le champ du serveur MCP.",
+                "Nommez la connexion Guteneo, collez cette adresse dans le champ du serveur MCP et choisissez OAuth.",
               ),
               endpoint: true,
             },
             {
               title: msg("Connectez votre compte Guteneo"),
               text: msg(
-                "Suivez l’authentification proposée et examinez les permissions avant de les accorder. Revenez ensuite dans ChatGPT.",
+                "Suivez l’authentification Guteneo, examinez les permissions et choisissez Create as a plugin. Vérifiez les outils proposés, puis installez votre plugin personnel.",
               ),
             },
             {
               title: msg("Choisissez Guteneo dans une conversation"),
               text: msg(
-                "Ouvrez une nouvelle conversation, puis son menu d’outils et sélectionnez la connexion Guteneo que vous venez d’ajouter. Utilisez la demande de vérification ci-dessous.",
+                "Ouvrez une nouvelle conversation, sélectionnez Guteneo avec @ ou dans le menu des outils, puis utilisez la demande de vérification ci-dessous.",
               ),
             },
           ],
@@ -109,7 +107,7 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           ],
           troubleshooting: [
             {
-              question: msg("Je ne vois pas le mode développeur ou Plugins"),
+              question: msg("Je ne vois pas Plugins ou l’ajout personnalisé"),
               answer: msg(
                 "Consultez les possibilités de votre compte et les règles de votre espace ChatGPT. L’ajout personnalisé doit être autorisé avant de poursuivre.",
               ),
@@ -123,7 +121,7 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "Claude",
       logo: "/brands/claude.svg",
       description: msg(
-        "Ajoutez un connecteur web, puis choisissez les conversations où l’utiliser.",
+        "Choisissez un connecteur distant ou le plugin Guteneo pour Claude.",
       ),
       audience: msg("Conversation web"),
       variants: [
@@ -180,6 +178,93 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
               ),
             },
           ],
+        },
+        {
+          id: "plugin",
+          label: msg("Plugin Claude web et Desktop"),
+          prerequisites: [
+            msg(
+              "Un compte Claude autorisant les plugins et les connecteurs personnalisés.",
+            ),
+          ],
+          steps: [
+            {
+              title: msg("Téléchargez le paquet Guteneo"),
+              text: msg(
+                "Téléchargez le ZIP ci-dessous. Conservez le fichier ZIP pour l’import dans Claude.",
+              ),
+              link: {
+                label: msg(
+                  "Télécharger le paquet du plugin (installation manuelle)",
+                ),
+                href: "/integrations/guteneo-plugin.zip",
+                download: true,
+              },
+            },
+            {
+              title: msg("Chargez le plugin dans Claude"),
+              text: msg(
+                "Dans Plugins → Add → Upload plugin, sélectionnez le ZIP Guteneo. Examinez les skills et le connecteur inclus.",
+              ),
+            },
+            {
+              title: msg("Connectez votre compte Guteneo"),
+              text: msg(
+                "Dans Connectors, connectez Guteneo et vérifiez les permissions. Utilisez ensuite la demande de vérification dans une nouvelle conversation.",
+              ),
+              endpoint: true,
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Guide officiel des plugins Claude"),
+              href: "https://claude.com/docs/plugins/overview",
+            },
+          ],
+          troubleshooting: [],
+        },
+        {
+          id: "code",
+          label: "Claude Code",
+          prerequisites: [
+            msg("Claude Code installé et les plugins locaux autorisés."),
+          ],
+          steps: [
+            {
+              title: msg("Chargez le plugin pour cette session"),
+              text: msg(
+                "Lancez cette commande pour charger le paquet public. Depuis un clone du dépôt, vous pouvez aussi utiliser claude --plugin-dir ./integrations/guteneo.",
+              ),
+              code: "claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip",
+              link: {
+                label: msg(
+                  "Télécharger le paquet du plugin (installation manuelle)",
+                ),
+                href: "/integrations/guteneo-plugin.zip",
+                download: true,
+              },
+            },
+            {
+              title: msg("Connectez-vous à Guteneo"),
+              text: msg(
+                "Ouvrez /mcp dans Claude Code et suivez l’authentification de guteneo. Le client OAuth de Claude Code est distinct de celui de Claude web.",
+              ),
+              endpoint: true,
+            },
+            {
+              title: msg("Vérifiez les outils dans votre conversation"),
+              text: msg(
+                "Utilisez la demande de vérification ci-dessous. Le chargement du paquet seul ne confirme pas la connexion à votre compte.",
+              ),
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Guide officiel Claude Code"),
+              href: "https://code.claude.com/docs/en/plugins/create",
+            },
+          ],
+          troubleshooting: [],
         },
       ],
     },
@@ -252,6 +337,45 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
               ),
             },
           ],
+        },
+        {
+          id: "build",
+          label: "Grok Build",
+          prerequisites: [
+            msg(
+              "Grok Build installé et les serveurs MCP personnalisés autorisés.",
+            ),
+          ],
+          steps: [
+            {
+              title: msg("Ajoutez le serveur Guteneo"),
+              text: msg(
+                "Dans Grok Build, ajoutez Guteneo comme serveur HTTP distant avec cette commande.",
+              ),
+              code: "grok mcp add --transport http guteneo https://guteneo.com/mcp",
+              endpoint: true,
+            },
+            {
+              title: msg("Connectez-vous à Guteneo"),
+              text: msg(
+                "Ouvrez /mcps pour connecter Guteneo. Examinez les permissions, puis contrôlez la connexion avec cette commande.",
+              ),
+              code: "grok mcp doctor guteneo",
+            },
+            {
+              title: msg("Vérifiez les outils dans votre conversation"),
+              text: msg(
+                "Utilisez la demande de vérification ci-dessous. Le chargement du paquet seul ne confirme pas la connexion à votre compte.",
+              ),
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Guide officiel Grok Build"),
+              href: "https://docs.x.ai/build/features/mcp-servers",
+            },
+          ],
+          troubleshooting: [],
         },
       ],
     },
@@ -586,6 +710,48 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
               ),
             },
           ],
+        },
+        {
+          id: "plugin",
+          label: msg("Plugin Cursor local"),
+          prerequisites: [
+            msg("Cursor avec l’import de plugins locaux autorisé."),
+          ],
+          steps: [
+            {
+              title: msg("Téléchargez le paquet Guteneo"),
+              text: msg(
+                "Décompressez le ZIP et copiez tout son contenu, y compris les dossiers cachés, dans ~/.cursor/plugins/local/guteneo/.",
+              ),
+              link: {
+                label: msg(
+                  "Télécharger le paquet du plugin (installation manuelle)",
+                ),
+                href: "/integrations/guteneo-plugin.zip",
+                download: true,
+              },
+            },
+            {
+              title: msg("Rechargez Cursor"),
+              text: msg(
+                "Exécutez Developer: Reload Window, puis retrouvez Guteneo dans Customize. Un lien symbolique vers un dossier externe ne suffit pas.",
+              ),
+            },
+            {
+              title: msg("Connectez-vous à Guteneo"),
+              text: msg(
+                "Connectez le serveur guteneo, examinez les permissions et lancez la demande de vérification ci-dessous.",
+              ),
+              endpoint: true,
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Guide officiel des plugins Cursor"),
+              href: "https://cursor.com/docs/plugins",
+            },
+          ],
+          troubleshooting: [],
         },
       ],
     },

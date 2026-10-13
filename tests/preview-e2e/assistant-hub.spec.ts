@@ -272,3 +272,97 @@ test("assistant pages remain readable and linked with JavaScript disabled", asyn
     await context.close();
   }
 });
+
+test("manual plugin variants keep hosted and local OAuth instructions separate", async ({
+  page,
+}, info) => {
+  const calls = observeServiceCalls(page);
+  await page.goto("/assistants/claude/");
+  await expect(page.locator(".claude-client-field")).toBeVisible();
+  const claudeVersions = page.getByRole("group", {
+    name: "Choisir la version de Claude",
+  });
+  await claudeVersions
+    .getByRole("button", { name: "Claude Code", exact: true })
+    .click();
+  await expect(page.locator(".claude-client-field")).toHaveCount(0);
+  await expect(page.locator(".assistant-guide-command")).toContainText(
+    "claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip",
+  );
+  await claudeVersions
+    .getByRole("button", { name: "Plugin Claude web et Desktop", exact: true })
+    .click();
+  await expect(page.locator(".claude-client-field")).toBeVisible();
+  await expect(
+    page.locator(".assistant-guide-instructions a[download]").first(),
+  ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+  await capturePublicPage(
+    page,
+    `assistants/claude-plugin-${info.project.name}.png`,
+  );
+
+  await page.goto("/assistants/grok/");
+  await page
+    .getByRole("group", { name: "Choisir la version de Grok" })
+    .getByRole("button", { name: "Grok Build", exact: true })
+    .click();
+  await expect(page.locator(".assistant-guide-command").first()).toContainText(
+    "grok mcp add --transport http guteneo https://guteneo.com/mcp",
+  );
+  await expect(page.locator(".assistant-guide-command").last()).toContainText(
+    "grok mcp doctor guteneo",
+  );
+
+  await page.goto("/assistants/cursor/");
+  await page
+    .getByRole("group", { name: "Choisir la version de Cursor" })
+    .getByRole("button", { name: "Plugin Cursor local", exact: true })
+    .click();
+  await expect(page.locator(".assistant-guide-instructions")).toContainText(
+    "~/.cursor/plugins/local/guteneo/",
+  );
+  await expect(page.locator(".assistant-guide-instructions")).toContainText(
+    "dossiers cachés",
+  );
+  await expect(
+    page.locator(".assistant-guide-instructions a[download]").first(),
+  ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(page.viewportSize()!.width);
+  expect(calls).toEqual([]);
+});
+
+test("plugin setup stays localized and usable at 320px in all four languages", async ({
+  page,
+}, info) => {
+  const calls = observeServiceCalls(page);
+  await page.setViewportSize({ width: 320, height: 850 });
+  const languages = [
+    ["fr", "Télécharger le plugin (ZIP)", "Plugin Claude web et Desktop"],
+    ["en", "Download the plugin (ZIP)", "Claude web and Desktop plugin"],
+    ["de", "Plugin herunterladen (ZIP)", "Plugin für Claude Web und Desktop"],
+    ["lb", "De Plugin eroflueden (ZIP)", "Plugin fir Claude Web an Desktop"],
+  ] as const;
+  for (const [language, download, claudePlugin] of languages) {
+    await page.goto(`/assistants/?lang=${language}`);
+    await expect(page.locator("html")).toHaveAttribute("lang", language);
+    await expect(
+      page.getByRole("link", { name: download, exact: true }),
+    ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(320);
+    await page.goto(`/assistants/claude/?lang=${language}`);
+    await page.getByRole("button", { name: claudePlugin, exact: true }).click();
+    await expect(page.locator(".claude-client-field")).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBe(320);
+    await capturePublicPage(
+      page,
+      `assistants/claude-plugin-${language}-320-${info.project.name}.png`,
+    );
+  }
+  expect(calls).toEqual([]);
+});

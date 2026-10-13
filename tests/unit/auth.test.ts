@@ -11,6 +11,7 @@ import {
   vi,
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import { discoverAuthorizationServerMetadata } from "@modelcontextprotocol/client";
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
 import {
   authenticateBrowser,
@@ -774,7 +775,7 @@ describe("identity and authentication boundaries", () => {
       authorization_servers: string[];
     };
     expect(discovery.resource).toBe(`${origin}/mcp`);
-    expect(discovery.authorization_servers).toEqual([issuer.slice(0, -1)]);
+    expect(discovery.authorization_servers).toEqual([issuer]);
     for (const path of [
       "//attacker.invalid",
       "/\\attacker.invalid",
@@ -783,6 +784,56 @@ describe("identity and authentication boundaries", () => {
     ])
       expect(safeReturnPath(path)).toBe("/#/app");
   });
+  it.each([
+    "/.well-known/oauth-protected-resource",
+    "/.well-known/oauth-protected-resource/mcp",
+  ])(
+    "discovers the exact Auth0 issuer from %s with the official MCP client and rejects issuer drift",
+    async (path) => {
+      const response = await handleAuthRoute(request(path), realEnv());
+      expect(response?.status).toBe(200);
+      const resourceMetadata = (await response!.json()) as {
+        resource: string;
+        authorization_servers: string[];
+      };
+      expect(resourceMetadata.resource).toBe(`${origin}/mcp`);
+      const authorizationServer = resourceMetadata.authorization_servers[0];
+      const authorizationMetadata = {
+        issuer,
+        authorization_endpoint: `${issuer}authorize`,
+        token_endpoint: `${issuer}oauth/token`,
+        response_types_supported: ["code"],
+        code_challenge_methods_supported: ["S256"],
+      };
+      const fetchFn = vi.fn(
+        async (input: RequestInfo | URL, init?: RequestInit) => {
+          const target = input instanceof Request ? input.url : String(input);
+          expect(target).toBe(
+            `${issuer}.well-known/oauth-authorization-server`,
+          );
+          expect(init?.method ?? "GET").toBe("GET");
+          return Response.json(authorizationMetadata);
+        },
+      );
+      await expect(
+        discoverAuthorizationServerMetadata(authorizationServer, { fetchFn }),
+      ).resolves.toMatchObject({ issuer });
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+
+      const foreignIssuer = "https://other-tenant.auth0.example/";
+      fetchFn.mockResolvedValueOnce(
+        Response.json({ ...authorizationMetadata, issuer: foreignIssuer }),
+      );
+      await expect(
+        discoverAuthorizationServerMetadata(authorizationServer, { fetchFn }),
+      ).rejects.toMatchObject({
+        name: "IssuerMismatchError",
+        kind: "metadata",
+        expected: issuer,
+        received: foreignIssuer,
+      });
+    },
+  );
   it("grants one shared welcome credit after verified PKCE signup without enabling any channel", async () => {
     const configured = { ...realEnv(), MODE: "production" as const };
     const response = await handleAuthRoute(request("/auth/login"), configured);
