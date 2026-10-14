@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 20
     env:
       SOURCE_COMMIT: b12ef2c4789b2acfcbc7de63a7fb846d61910050
-      EVIDENCE_DIR: ${{ runner.temp }}/guteneo-scanner-native-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -30,6 +29,8 @@ jobs:
           node-version: "24"
       - name: Verify exact source, source modes and native runner
         run: |
+          EVIDENCE_DIR="$RUNNER_TEMP/guteneo-scanner-native-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          printf 'EVIDENCE_DIR=%s\n' "$EVIDENCE_DIR" >> "$GITHUB_ENV"
           test "$GITHUB_REF" = refs/heads/codex/scanner-native-qualification
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           test -z "$(git status --porcelain --untracked-files=all)"
@@ -138,7 +139,7 @@ jobs:
         if: always()
         with:
           name: scanner-native-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ env.EVIDENCE_DIR }}/
+          path: ${{ runner.temp }}/guteneo-scanner-native-${{ github.run_id }}-${{ github.run_attempt }}/
           if-no-files-found: warn
           retention-days: 30
           compression-level: 0
