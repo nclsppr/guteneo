@@ -23,6 +23,7 @@ import type {
 import { api, bytes, date, permissionsFor, type Session } from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
+  DateTimezone,
   ErrorNotice,
   Field,
   go,
@@ -145,6 +146,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
           </button>
         </form>
       )}
+      {!!resource.data?.items.length && <DateTimezone />}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : (
@@ -876,6 +878,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
         {bytes(dataset.size)} {msg("· suppression de la source prévue le ")}
         {date(dataset.expiresAt)} · {profile.sheets.length} {msg("feuille(s) ")}
       </p>
+      <DateTimezone />
       {!!profile.issues.length && (
         <details className="studio-section" open>
           <summary>

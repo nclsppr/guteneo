@@ -13,6 +13,7 @@ import {
   type ExpertApprovalSettings,
 } from "./api";
 import {
+  DateTimezone,
   ErrorNotice,
   Loading,
   RefreshButton,
@@ -269,6 +270,7 @@ function ConnectionSettings({
           </div>
         </dl>
       )}
+      {policy && <DateTimezone />}
       <p className="field-hint">
         {msg("Aujourd’hui (UTC) : ")}
         {connection.usage.count} {msg(" envoi")}

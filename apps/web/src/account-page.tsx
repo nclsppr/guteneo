@@ -13,6 +13,7 @@ import {
 } from "./api";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -463,6 +464,7 @@ export function Account({ session, onUpdated }: Props) {
             />
             <ErrorNotice error={sessions.error} retry={sessions.refresh} />
             <ErrorNotice error={sessionAction.error} />
+            {!!sessions.data?.items.length && <DateTimezone />}
             {sessions.loading && !sessions.data ? (
               <Loading />
             ) : (

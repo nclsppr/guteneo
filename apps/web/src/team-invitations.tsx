@@ -6,6 +6,7 @@ import {
 import { api, ApiError, date, type Page } from "./api";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -331,6 +332,7 @@ export function TeamInvitations() {
         />
       </div>
       <ErrorNotice error={resource.error} retry={resource.refresh} />
+      {!!resource.data?.items.length && <DateTimezone />}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : !resource.data?.items.length ? (

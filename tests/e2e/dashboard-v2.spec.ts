@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import type { Locator } from "@playwright/test";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -57,6 +58,168 @@ async function returnToWorkspace(page: Page, appearance: "classic" | "v2") {
     appearance,
   );
 }
+
+async function expectClearV2Shell(page: Page) {
+  await expect(page.locator(".workspace .brand")).toHaveCount(1);
+  await expect(page.locator(".app-footer")).toHaveCount(0);
+  await expect(page.locator(".app-topbar")).toHaveCount(0);
+  await expect(page.locator(".sidebar .organization")).toBeVisible();
+  await expect(
+    page.locator('.sidebar-account a[href="#/app/account"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('.sidebar-account a[href="https://status.guteneo.com/"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('a[href="https://status.guteneo.com/"]'),
+  ).toHaveCount(1);
+}
+
+async function expectProminentAction(action: Locator, touch: boolean) {
+  await expect(action).toBeVisible();
+  await expect(action).toHaveClass(/\bprimary\b/);
+  const readPresentation = () =>
+    action.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const rgb = (color: string) =>
+        color
+          .match(/[\d.]+/g)!
+          .slice(0, 3)
+          .map(Number);
+      const luminance = (color: string) => {
+        const channels = rgb(color).map((value) => {
+          const component = value / 255;
+          return component <= 0.04045
+            ? component / 12.92
+            : ((component + 0.055) / 1.055) ** 2.4;
+        });
+        return (
+          channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+        );
+      };
+      const foreground = luminance(style.color);
+      const background = luminance(style.backgroundColor);
+      return {
+        contrast:
+          (Math.max(foreground, background) + 0.05) /
+          (Math.min(foreground, background) + 0.05),
+        background: style.backgroundColor,
+        height: element.getBoundingClientRect().height,
+      };
+    });
+  // Button prominence changes with a 150 ms background transition. Check the
+  // rendered primary state without sampling an intermediate animation frame.
+  await expect
+    .poll(async () => (await readPresentation()).contrast)
+    .toBeGreaterThanOrEqual(4.5);
+  const presentation = await readPresentation();
+  expect(presentation.background).not.toBe("rgba(0, 0, 0, 0)");
+  if (touch) expect(presentation.height).toBeGreaterThanOrEqual(44);
+}
+
+test("V2 gives each creation page one prominent action and keeps account utilities outside mobile navigation", async ({
+  page,
+  isMobile,
+}) => {
+  // An empty history must not duplicate the heading's primary new-send action.
+  await page.route("**/api/dispatches", (route) =>
+    route.fulfill({ json: { items: [], nextCursor: null } }),
+  );
+  await login(page, "v2");
+  const writes = observeWrites(page);
+  const main = page.locator("#main-content");
+  for (const destination of [
+    {
+      path: "documents",
+      title: "La matière première.",
+      action: "Importer un PDF",
+    },
+    { path: "templates", title: "Modèles", action: "Créer un document" },
+    {
+      path: "datasets",
+      title: "Mes données",
+      action: "Importer et reconnaître les données",
+    },
+    { path: "generations", title: "Générations", action: "Créer un document" },
+    { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
+  ]) {
+    await page.goto(`/?atelier=v2#/app/${destination.path}`);
+    await expect(
+      main.getByRole("heading", {
+        level: 1,
+        name: destination.title,
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expectClearV2Shell(page);
+    const primary = main.locator(".button.primary");
+    await expect(primary).toHaveCount(1);
+    await expect(primary).toHaveAccessibleName(destination.action);
+    await expectProminentAction(primary, isMobile);
+    if (destination.path !== "dispatches") {
+      await expect(page.locator(".workspace-create")).not.toHaveClass(
+        /\bprimary\b/,
+      );
+      if (isMobile)
+        await expect(page.locator(".workspace-create")).toBeHidden();
+    } else await expect(page.locator(".workspace-create")).toHaveCount(0);
+  }
+
+  await page.goto("/?atelier=v2#/app/templates");
+  const create = main.getByRole("button", {
+    name: "Créer un document",
+    exact: true,
+  });
+  await create.click();
+  await expect(create).toHaveAttribute("aria-expanded", "true");
+  await expect(create).not.toHaveClass(/\bprimary\b/);
+  await expect(main.locator(".button.primary")).toHaveCount(1);
+  await expectProminentAction(
+    main.getByRole("button", { name: "Ouvrir le studio", exact: true }),
+    isMobile,
+  );
+  await create.click();
+  await expect(create).toHaveAttribute("aria-expanded", "false");
+  await expectProminentAction(create, isMobile);
+
+  await page.goto("/?atelier=v2#/app/documents");
+  const importPdf = main.getByRole("button", {
+    name: "Importer un PDF",
+    exact: true,
+  });
+  await importPdf.click();
+  await expect(importPdf).not.toHaveClass(/\bprimary\b/);
+  await expect(main.locator(".button.primary")).toHaveCount(1);
+  await expectProminentAction(
+    main.getByRole("button", { name: "Importer et contrôler", exact: true }),
+    isMobile,
+  );
+  await main
+    .locator(".form-panel")
+    .getByRole("button", { name: "Fermer", exact: true })
+    .click();
+  await expectProminentAction(importPdf, isMobile);
+
+  // The utility link remains directly reachable when the compact navigation is closed.
+  await page.locator('.sidebar-account a[href="#/app/account"]').click();
+  await expect(page.locator("#dashboard-appearance")).toBeVisible();
+  await expectClearV2Shell(page);
+  if (isMobile) {
+    await expect(page.locator(".workspace-navigation")).not.toHaveAttribute(
+      "open",
+      "",
+    );
+    await page.locator(".workspace-navigation summary").click();
+  }
+  const globalAction = page.locator(".workspace-create");
+  await expect(globalAction).toBeVisible();
+  await globalAction.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#\/app\/prepare$/);
+  await expect(main.locator("form.prepare-layout")).toBeVisible();
+  await expect(page.locator(".workspace-create")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
 
 test("account language and appearance save together, survive a fresh browser, and retain another tab's draft", async ({
   page,
@@ -188,6 +351,25 @@ test("V2 prepares through the existing API and requires explicit consent before 
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
+  const backToHistory = page.locator('.back-link[href="#/app/dispatches"]');
+  await expect(backToHistory).toBeVisible();
+  await expect(page.locator(".app-topbar")).toHaveCount(0);
+  await backToHistory.click();
+  await expect(page).toHaveURL(/#\/app\/dispatches$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Le fil des envois." }),
+  ).toBeVisible();
+  await page.goto(`/#/app/dispatch/${prepared.id}`);
+  await expect(backToHistory).toBeVisible();
+  const reviewFacts = page.locator(".dispatch-review-facts");
+  await expect(reviewFacts.getByText("Créé le", { exact: true })).toBeVisible();
+  const timezone = await page.evaluate(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+  );
+  await expect(reviewFacts.locator(".timestamp-context")).toHaveText(
+    `Heures affichées : ${timezone}`,
+  );
+  await expect(reviewFacts.locator(".timestamp-context")).toBeVisible();
   await expect(
     page
       .frameLocator(".email-preview")
@@ -392,6 +574,16 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.getByRole("alert")).toHaveCount(0);
     if (!scenario.preparation)
       await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
+    await page.goto("/?atelier=v2#/app/generations");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Générations" }),
+    ).toBeVisible();
+    await expect(page.locator("#main-content .button.primary")).toHaveCount(
+      scenario.preparation ? 1 : 0,
+    );
+    await expect(page.locator(".workspace-create")).toHaveCount(
+      scenario.preparation ? 1 : 0,
+    );
     await page.goto("/?atelier=v2#/app/dispatch/v2-review");
     await expect(
       page.getByRole("heading", { name: "Le bon à envoyer." }),
@@ -467,7 +659,7 @@ test("saving a name from a temporary V2 link leaves the account appearance uncha
   ).toBe("v2");
 });
 
-test("V2 keeps the account reachable below scrollable navigation and both appearances support every workspace at 320 pixels", async ({
+test("V2 keeps the account reachable below scrollable navigation and both appearances support every workspace at the native viewport and 320 pixels", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -499,36 +691,42 @@ test("V2 keeps the account reachable below scrollable navigation and both appear
       account.locator('a[href="#/app/account"]').first(),
     ).toBeVisible();
   }
-  await page.setViewportSize({ width: 320, height: 812 });
-  for (const appearance of ["classic", "v2"]) {
-    for (const route of [
-      "",
-      "/documents",
-      "/templates",
-      "/datasets",
-      "/generations",
-      "/dispatches",
-      "/campaigns",
-      "/connection",
-      "/senders",
-      "/usage",
-      "/plan",
-      "/billing",
-      "/account",
-      "/admin",
-      "/prepare",
-    ]) {
-      await page.goto(`/?atelier=${appearance}#/app${route}`);
-      await expect(page.locator("#main-content h1")).toBeVisible();
-      await expect(page.locator(".workspace")).toHaveAttribute(
-        "data-appearance",
-        appearance,
-      );
-      await expect
-        .poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
-          message: `${appearance} horizontal overflow at ${route || "/app"}`,
-        })
-        .toBeLessThanOrEqual(320);
+  for (const dimensions of [viewport!, { width: 320, height: 812 }]) {
+    await page.setViewportSize(dimensions);
+    for (const appearance of ["classic", "v2"]) {
+      for (const route of [
+        "",
+        "/documents",
+        "/templates",
+        "/datasets",
+        "/generations",
+        "/dispatches",
+        "/campaigns",
+        "/connection",
+        "/senders",
+        "/usage",
+        "/plan",
+        "/billing",
+        "/account",
+        "/admin",
+        "/prepare",
+      ]) {
+        await page.goto(`/?atelier=${appearance}#/app${route}`);
+        await expect(page.locator("#main-content h1")).toBeVisible();
+        await expect(page.locator(".workspace")).toHaveAttribute(
+          "data-appearance",
+          appearance,
+        );
+        if (appearance === "v2") await expectClearV2Shell(page);
+        await expect
+          .poll(
+            () => page.evaluate(() => document.documentElement.scrollWidth),
+            {
+              message: `${appearance} horizontal overflow at ${route || "/app"} (${dimensions.width}px)`,
+            },
+          )
+          .toBeLessThanOrEqual(dimensions.width);
+      }
     }
   }
   expect(errors).toEqual([]);

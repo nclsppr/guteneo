@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { useDashboardAppearance } from "./dashboard-appearance";
 import { DashboardArtwork } from "./dashboard-artwork";
 import { useState, type FormEvent } from "react";
 import {
@@ -11,6 +12,7 @@ import {
 import { api, date, isPublicPreview, type Session } from "./api";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   Field,
   Loading,
@@ -40,6 +42,7 @@ function ConnectionDiagnostics() {
 }
 
 export function OverviewAssistantStart({ session }: { session: Session }) {
+  const { appearance } = useDashboardAppearance();
   const connections = useAssistantConnections();
   const { direct, chooseDirect } = useDirectChoice(session);
   if (direct) return null;
@@ -98,7 +101,10 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
             )}
           </p>
         </div>
-        <a className="button primary" href="#/app/connection">
+        <a
+          className={appearance === "v2" ? "button" : "button primary"}
+          href="#/app/connection"
+        >
           {msg("Utiliser mon assistant ")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
@@ -185,6 +191,7 @@ export function Connection({
         error={connections.error ?? action.error}
         retry={connections.refresh}
       />
+      {hasConnections && <DateTimezone />}
       {connections.loading && !connections.data ? (
         <Loading />
       ) : connections.error ? (

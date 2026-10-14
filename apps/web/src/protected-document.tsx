@@ -2,7 +2,13 @@ import { msg } from "./messages";
 import { useEffect, useState } from "react";
 import { Copy, LockKey, Check } from "@phosphor-icons/react";
 import { api, date, money, type Dispatch } from "./api";
-import { ErrorNotice, Field, useAction, useResource } from "./components";
+import {
+  DateTimezone,
+  ErrorNotice,
+  Field,
+  useAction,
+  useResource,
+} from "./components";
 
 export type ProtectedDelivery = {
   hostingId: string;
@@ -178,6 +184,7 @@ export function ProtectedDocumentSummary({
           date(protection.expiresAt),
         )}
       </p>
+      <DateTimezone />
       <p className="field-hint">
         {msg(
           "L’e-mail contient un lien, sans pièce jointe. Transmettez le mot de passe par téléphone ou une autre messagerie.",

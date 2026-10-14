@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { useDashboardAppearance } from "./dashboard-appearance";
 import {
   lazy,
   Suspense,
@@ -32,6 +33,7 @@ import { api, date, permissionsFor, type Session } from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   BEFORE_WORKSPACE_NAVIGATION,
   Field,
@@ -104,6 +106,7 @@ export function TemplateLibrary({
   startBlank: boolean;
   canPrepare: boolean;
 }) {
+  const { appearance } = useDashboardAppearance();
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
   const [name, setName] = useState(msg("Mon document"));
@@ -172,7 +175,11 @@ export function TemplateLibrary({
         action={
           canPrepare && (
             <button
-              className="button primary"
+              className={
+                appearance === "v2" && showBlank ? "button" : "button primary"
+              }
+              aria-expanded={showBlank}
+              aria-controls={showBlank ? "blank-template-form" : undefined}
               onClick={() => setShowBlank(!showBlank)}
             >
               <Plus size={18} />
@@ -185,6 +192,7 @@ export function TemplateLibrary({
       {!canPrepare && <RolePermissionNotice />}
       {canPrepare && showBlank && (
         <form
+          id="blank-template-form"
           className="studio-section"
           onSubmit={(e) => {
             e.preventDefault();
@@ -251,6 +259,7 @@ export function TemplateLibrary({
           {msg("Le modèle « {0} » a été supprimé.", deletedName)}
         </p>
       )}
+      {!!templates.data?.items.length && <DateTimezone />}
       {templates.loading && !templates.data ? (
         <Loading />
       ) : (

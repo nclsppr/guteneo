@@ -1,11 +1,13 @@
-import { ArrowRight, UserCircle } from "@phosphor-icons/react";
+import { ArrowRight, ArrowUpRight, UserCircle } from "@phosphor-icons/react";
 import { isPublicPreview, permissionsFor, type Session } from "./api";
 import { getLocale } from "./locale";
 import { msg } from "./messages";
+import { useDashboardAppearance } from "./dashboard-appearance";
 import { roleLabel } from "./role-guide";
 import "./workspace-identity.css";
 
 export function WorkspaceIdentity({ session }: { session: Session }) {
+  const { appearance } = useDashboardAppearance();
   const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
   return (
     <section className="workspace-identity" aria-label={msg("Votre compte")}>
@@ -40,19 +42,31 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
           <ArrowRight size={15} aria-hidden="true" />
         </span>
       </a>
-      {!isPublicPreview && (
-        <a
-          className="workspace-switch-account"
-          href={`/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`}
-        >
-          {msg("Changer de compte")}
-        </a>
-      )}
+      <div className="workspace-account-utilities">
+        {!isPublicPreview && (
+          <a
+            className="workspace-switch-account"
+            href={`/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`}
+          >
+            {msg("Changer de compte")}
+          </a>
+        )}
+        {appearance === "v2" && (
+          <a
+            className="workspace-service-status"
+            href="https://status.guteneo.com/"
+          >
+            {msg("État du service")}
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        )}
+      </div>
     </section>
   );
 }
 
 export function DashboardIdentity({ session }: { session: Session }) {
+  const { appearance } = useDashboardAppearance();
   const permissions = permissionsFor(session);
   return (
     <section
@@ -60,10 +74,14 @@ export function DashboardIdentity({ session }: { session: Session }) {
       aria-label={msg("Votre rôle dans cet atelier")}
     >
       <div>
-        <span className="workspace-identity-label">
-          {session.organization.name}
-        </span>
-        <h2>{session.user.name}</h2>
+        {appearance !== "v2" && (
+          <>
+            <span className="workspace-identity-label">
+              {session.organization.name}
+            </span>
+            <h2>{session.user.name}</h2>
+          </>
+        )}
         <p>
           <span className="workspace-role">{roleLabel(session.user.role)}</span>
           {permissions.manageMembers

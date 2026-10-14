@@ -252,20 +252,42 @@
 .workspace-v2 .workspace-identity-profile[aria-current="page"] {
   background: #e2e4e0;
 }
-.workspace-v2 .workspace-switch-account {
+.workspace-v2 .workspace-account-utilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
   margin-left: 46px;
-  min-height: 30px;
-  font-size: 11px;
 }
-.workspace-v2 .app-topbar {
-  height: auto;
-  min-height: 64px;
-  padding: 10px 36px;
-  background: var(--paper);
+.workspace-v2 :is(.workspace-switch-account, .workspace-service-status) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  text-underline-offset: 3px;
 }
-.workspace-v2 .app-topbar > span {
+.workspace-v2 .workspace-service-status:hover {
+  color: var(--ink);
+}
+.workspace-v2 .sidebar nav a.workspace-create {
+  justify-content: flex-start;
+  margin: 0 0 12px;
+  border: 1px solid #b0b6c0;
+  background: transparent;
   color: var(--heading-ink);
-  font-size: 15px;
+}
+.workspace-v2 .sidebar nav a.workspace-create:hover {
+  background: #e2e4e0;
+  border-color: var(--muted);
+}
+.workspace-v2 .timestamp-context {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
 }
 .workspace-v2 main {
   padding: 32px 36px 56px;
@@ -633,11 +655,6 @@
 .workspace-v2 .dispatch-facts address {
   font-size: 16px;
 }
-.workspace-v2 .app-footer {
-  padding: 20px 36px;
-  font-size: 12px;
-  align-items: center;
-}
 @media (max-width: 1150px) and (min-width: 1025px) {
   .workspace-v2 {
     grid-template-columns: 232px minmax(0, 1fr);
@@ -676,10 +693,6 @@
   .workspace-v2 main {
     padding: 26px 22px 40px;
   }
-  .workspace-v2 .app-topbar,
-  .workspace-v2 .app-footer {
-    padding-inline: 22px;
-  }
   .workspace-v2 .sidebar-account {
     grid-column: 1 / -1;
     margin-top: 8px;
@@ -697,8 +710,16 @@
     width: 32px;
     height: 32px;
   }
-  .workspace-v2 .workspace-switch-account {
-    margin-left: 42px;
+  .workspace-v2 .workspace-account-utilities {
+    margin-left: 0;
+  }
+  .workspace-v2 :is(.workspace-switch-account, .workspace-service-status) {
+    min-height: 44px;
+  }
+  .workspace-v2 .sidebar nav a.workspace-create {
+    grid-column: 1 / -1;
+    width: fit-content;
+    margin-bottom: 4px;
   }
   .workspace-v2 .page-heading h1 {
     font-size: 36px;
@@ -723,10 +744,6 @@
   }
   .workspace-v2 main {
     padding: 24px 16px 36px;
-  }
-  .workspace-v2 .app-topbar,
-  .workspace-v2 .app-footer {
-    padding-inline: 16px;
   }
   .workspace-v2
     :is(
@@ -807,8 +824,9 @@
   .workspace-v2 .dispatch-filter a {
     min-height: 44px;
   }
-  .workspace-v2 .app-footer {
-    flex-wrap: wrap;
+  .workspace-v2 .page-heading > .button.primary {
+    width: 100%;
+    margin-top: 8px;
   }
 }
 @media (forced-colors: active) {
