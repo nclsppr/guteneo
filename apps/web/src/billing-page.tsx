@@ -13,6 +13,7 @@ import {
   type Session,
 } from "./api";
 import {
+  DateTimezone,
   Definition,
   EmptyState,
   ErrorNotice,
@@ -356,6 +357,7 @@ function BillingWorkspace({
             <div className="section-toolbar">
               <h2 id="billing-invoices-title">{msg("Factures")}</h2>
             </div>
+            {!!invoices.data?.items.length && <DateTimezone />}
             {invoices.loading && !invoices.data ? (
               <Loading />
             ) : invoices.error ? (
@@ -464,6 +466,7 @@ function BillingWorkspace({
             <div className="section-toolbar">
               <h2 id="billing-payments-title">{msg("Paiements")}</h2>
             </div>
+            {!!payments.data?.items.length && <DateTimezone />}
             {payments.loading && !payments.data ? (
               <Loading />
             ) : payments.error ? (
@@ -553,6 +556,7 @@ function BillingWorkspace({
             <div className="section-toolbar">
               <h2 id="billing-subscriptions-title">{msg("Abonnements")}</h2>
             </div>
+            {!!data.subscriptions.length && <DateTimezone />}
             {!data.subscriptions.length ? (
               <p>{msg("Aucun abonnement enregistré pour cet espace.")}</p>
             ) : (

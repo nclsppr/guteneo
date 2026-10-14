@@ -954,6 +954,14 @@ function WorkspaceApplication({
             {msg("Navigation de l’atelier")}
           </summary>
           <nav aria-label={msg("Navigation de l’atelier")}>
+            {appearance === "v2" &&
+              permissions.prepareDispatches &&
+              !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (
+                <a className="button workspace-create" href="#/app/prepare">
+                  <Plus size={19} aria-hidden="true" />
+                  {t.dispatch.new}
+                </a>
+              )}
             {navigation
               .filter((n) => appearance !== "v2" || n.id !== "account")
               .filter(
@@ -1057,39 +1065,41 @@ function WorkspaceApplication({
             }}
           />
         )}
-        <div className="app-topbar">
-          <span>
-            {
-              t.nav[
-                navigation.find((n) => n.path === page)?.id ??
-                  (page === "/app/prepare" ||
-                  page.startsWith("/app/dispatch/") ||
-                  page.startsWith("/app/postal/")
-                    ? "dispatches"
-                    : page.startsWith("/app/template/")
-                      ? "templates"
-                      : page.startsWith("/app/dataset/")
-                        ? "datasets"
-                        : page.startsWith("/app/generation/") ||
-                            page.startsWith("/app/distribution/")
-                          ? "generations"
-                          : page.startsWith("/app/connection/")
-                            ? "connection"
-                            : page.startsWith("/app/campaign/")
-                              ? "campaigns"
-                              : "overview")
-              ]
-            }
-          </span>
-          {/* These pages already lead to the preparation form themselves. */}
-          {permissions.prepareDispatches &&
-            !["/app/prepare", "/app/dispatches"].includes(page) && (
-              <a className="button small primary" href="#/app/prepare">
-                <Plus size={16} aria-hidden="true" />
-                {t.dispatch.new}
-              </a>
-            )}
-        </div>
+        {appearance !== "v2" && (
+          <div className="app-topbar">
+            <span>
+              {
+                t.nav[
+                  navigation.find((n) => n.path === page)?.id ??
+                    (page === "/app/prepare" ||
+                    page.startsWith("/app/dispatch/") ||
+                    page.startsWith("/app/postal/")
+                      ? "dispatches"
+                      : page.startsWith("/app/template/")
+                        ? "templates"
+                        : page.startsWith("/app/dataset/")
+                          ? "datasets"
+                          : page.startsWith("/app/generation/") ||
+                              page.startsWith("/app/distribution/")
+                            ? "generations"
+                            : page.startsWith("/app/connection/")
+                              ? "connection"
+                              : page.startsWith("/app/campaign/")
+                                ? "campaigns"
+                                : "overview")
+                ]
+              }
+            </span>
+            {/* These pages already lead to the preparation form themselves. */}
+            {permissions.prepareDispatches &&
+              !["/app/prepare", "/app/dispatches"].includes(page) && (
+                <a className="button small primary" href="#/app/prepare">
+                  <Plus size={16} aria-hidden="true" />
+                  {t.dispatch.new}
+                </a>
+              )}
+          </div>
+        )}
         {/* A new identity starts from fresh pages, without the previous state. */}
         <main
           id="main-content"
@@ -1099,12 +1109,14 @@ function WorkspaceApplication({
           <ErrorNotice error={logoutError} />
           {content}
         </main>
-        <footer className="app-footer">
-          <Brand app variant="simple" compact />
-          <span>{session.organization.name}</span>
-          <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
-          <a href="https://status.guteneo.com/">{msg("État du service")}</a>
-        </footer>
+        {appearance !== "v2" && (
+          <footer className="app-footer">
+            <Brand app variant="simple" compact />
+            <span>{session.organization.name}</span>
+            <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+            <a href="https://status.guteneo.com/">{msg("État du service")}</a>
+          </footer>
+        )}
       </div>
     </div>
   );

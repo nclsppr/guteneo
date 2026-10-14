@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { useDashboardAppearance } from "./dashboard-appearance";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
@@ -11,6 +12,7 @@ import type { SourceCell } from "../../../packages/contracts/src/datasets";
 import { api, date, type Channel, type Sender } from "./api";
 import {
   ErrorNotice,
+  DateTimezone,
   Field,
   go,
   Loading,
@@ -31,13 +33,16 @@ const stateLabel: Record<string, string> = {
   generated: "PDF généré",
 };
 export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
+  const { appearance } = useDashboardAppearance();
   const resource = useResource<Page<GenerationJobView>>("/generation-jobs");
   return (
     <>
       <PageHeading
         title={msg("Générations")}
         intro={msg(
-          "Chaque résultat conserve son identifiant, sa version de modèle et son PDF exact. La génération ne déclenche aucun envoi.",
+          appearance === "v2"
+            ? "Retrouvez vos PDF générés. La génération ne déclenche aucun envoi."
+            : "Chaque résultat conserve son identifiant, sa version de modèle et son PDF exact. La génération ne déclenche aucun envoi.",
         )}
         action={
           canPrepare && (
@@ -48,6 +53,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
         }
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
+      {!!resource.data?.items.length && <DateTimezone />}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : (
@@ -144,6 +150,7 @@ export function GenerationDetail({
         }
       />
       <ErrorNotice error={action.error ?? job.error ?? results.error} />
+      <DateTimezone />
       <section className="studio-section">
         <h2>
           {current.generated} / {current.total} {msg("PDF générés ")}
@@ -1065,11 +1072,17 @@ export function DistributionDetail({
   canPrepare: boolean;
   canApprove: boolean;
 }) {
+  const { appearance } = useDashboardAppearance();
   const resource = useResource<DistributionView>("/distribution-plans/" + id);
   const action = useAction();
   const keys = useRef<Record<string, string>>({});
   return (
     <>
+      {appearance === "v2" && (
+        <a className="back-link" href="#/app/generations">
+          {msg("← Générations ")}
+        </a>
+      )}
       <PageHeading
         title={msg("Distribution préparée")}
         intro={msg(

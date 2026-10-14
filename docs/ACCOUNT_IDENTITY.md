@@ -1,11 +1,10 @@
 # Compte connecté et responsables de l’atelier
 
-Candidat du 9 octobre 2026. Cette page décrit l’implémentation ; la fusion,
-la configuration Auth0 et la publication se qualifient séparément.
-
-Extension locale du 11 octobre : préférence personnelle de version de l’Atelier,
-près de la langue, et accès au compte en bas de navigation. Cette extension et
-sa migration `0053` ne sont pas encore publiées ; voir [DASHBOARD_V2.md](DASHBOARD_V2.md).
+Contrat de compte enrichi les 9 et 11 octobre 2026 ; simplification de la coque V2
+du 14 octobre en cours de qualification. Cette page décrit l’implémentation ;
+la CI, la configuration Auth0 et la publication se qualifient séparément. Les
+preuves historiques et celles du candidat courant figurent dans
+[DASHBOARD_V2.md](DASHBOARD_V2.md).
 
 Le contrat courant de production réserve l’application et sa connexion navigateur
 à `https://guteneo.com`. L’ancien hôte applicatif `workers.dev` et les URL de
@@ -20,7 +19,7 @@ sur fixtures.
 
 Tout membre navigateur retrouve son nom, son adresse de connexion et son rôle
 courant dans la navigation, même sur mobile. Le profil personnel est accessible
-par ce bloc ainsi que par l’entrée Compte. Le dashboard décrit les droits effectifs,
+par ce bloc ; Classique conserve également son entrée Compte. Le dashboard décrit les droits effectifs,
 y compris les options indépendantes d’approbation et de rapports du superviseur.
 Le rôle dépend de l’atelier actif ; il ne se modifie pas dans le profil personnel.
 Au retour dans un onglet, la session est relue pour réconcilier un changement de
@@ -41,7 +40,7 @@ peut conserver son propre choix de compte ; l’interface affiche donc toujours
 l’identité réellement revenue du callback, sans promettre un sélecteur universel.
 L’état, le PKCE, la politique de vérification et le retour local restent vérifiés.
 
-## Apparence personnelle de l’Atelier — candidat du 11 octobre
+## Apparence personnelle de l’Atelier
 
 Le compte est ancré en bas de la navigation de gauche sur ordinateur, avec nom,
 adresse, rôle, accès au profil et changement de compte. Dans Mon profil,
@@ -51,6 +50,17 @@ modifications** et réussite du `PATCH /api/account` existant. Les libellés son
 disponibles en français, anglais, allemand et luxembourgeois. La V2 réelle ne
 porte pas de mention expérimentale ; les sessions simulées conservent leur
 bandeau de simulation.
+
+Dans le candidat V2 du 14 octobre, le nom d’atelier reste dans la navigation et
+l’identité personnelle dans le bloc de compte ; le tableau de bord conserve les
+droits effectifs sans recopier ces deux identités. Le pied de page redondant est
+retiré et le lien public **État du service** rejoint **Changer de compte** dans
+la ligne d’utilitaires du bloc d’identité.
+Ce bloc et ce lien restent accessibles sur mobile quand le menu est fermé.
+Le fuseau horaire du navigateur accompagne les dates concernées, sans nouveau
+réglage de profil ni changement de leur formatage. Classique garde sa coque.
+Ces déplacements ne changent ni l’adresse de connexion, ni les contacts, ni le
+rôle, ni la sauvegarde du profil et n’ajoutent aucune lecture métier.
 
 Le champ facultatif strict `preferredDashboardAppearance: "classic" | "v2"`
 est personnel. Tout rôle navigateur peut le modifier pour sa propre identité,
@@ -123,6 +133,19 @@ privée et la qualification hébergée restent nécessaires avant activation.
 Les commandes exécutées, résultats et limites du candidat sont consignés dans
 [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md). Les anciennes preuves
 Belvédère restent historiques et ne qualifient pas cette intégration.
+
+### Simplification V2 — candidat du 14 octobre 2026
+
+Les vérifications du compte visible sur ordinateur et mobile, du menu fermé,
+du lien de statut et des actions soumises aux permissions passent dans les
+18 cas navigateur du candidat, avec persistance et consentement conservés.
+Quinze routes racines sont parcourues en Classique/V2 au viewport de chacun
+des trois projets puis à 320 px ; aucune qualification d’appareil physique
+n’est déduite. Typecheck, lint, build web, atlas et 40 tests de locale/apparence
+réussissent. CI du commit exact et contrôle authentifié après publication restent
+distincts et à qualifier ; preuves dans [DASHBOARD_V2.md](DASHBOARD_V2.md).
+Aucune modification du contrat compte/session, migration, identité Auth0, droit
+ou surface native/REST/MCP n’est requise par cette simplification.
 
 ### Préférence d’apparence — qualification locale du 11 octobre 2026
 

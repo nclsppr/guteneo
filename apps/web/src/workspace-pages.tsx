@@ -31,6 +31,7 @@ import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
   ConfirmAction,
+  DateTimezone,
   Definition,
   DispatchTable,
   EmptyState,
@@ -410,6 +411,7 @@ export function Campaigns({
         <h2>{t.campaigns.list}</h2>
         <RefreshButton onClick={campaigns.refresh} />
       </div>
+      {!!campaigns.data?.items.length && <DateTimezone />}
       {campaigns.loading && !campaigns.data ? (
         <Loading />
       ) : !campaigns.data?.items.length ? (
@@ -895,6 +897,7 @@ export function Admin({ children }: { children?: ReactNode }) {
       </div>
       <section className="dead-letters">
         <h2 className="section-title">{t.admin.deadLetters}</h2>
+        {!!diagnostics.data?.deadLetters?.length && <DateTimezone />}
         {diagnostics.data?.deadLetters?.length ? (
           <div className="table-scroll">
             <table className="responsive-table" role="table">

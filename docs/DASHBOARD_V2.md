@@ -1,6 +1,6 @@
 # Atelier V2 et préférence personnelle d’apparence
 
-État au 13 octobre 2026 : **PR #61 fusionnée après CI verte ; publication en attente du correctif de stabilité de la revue et de sa validation**. La V2 est une version complète de l’Atelier web, sélectionnable dans le compte à côté de la langue. Elle ne porte pas de mention « à l’essai ». Les comptes existants et nouveaux conservent `classic` par défaut ; choisir V2 reste une décision personnelle.
+État du candidat au 14 octobre 2026 : **simplification V2 validée localement ; CI du commit exact et publication encore à qualifier, publication autorisée après validation**. Les résultats du 11 au 13 octobre ci-dessous sont des preuves historiques, distinctes du candidat courant. La V2 est une version complète de l’Atelier web, sélectionnable dans le compte à côté de la langue. Elle ne porte pas de mention « à l’essai ». Les comptes existants et nouveaux conservent `classic` par défaut ; choisir V2 reste une décision personnelle.
 
 Ce document et l’atlas des fonctionnalités sont réservés au dépôt. Ils ne doivent pas être importés, copiés, publiés ou reliés au site officiel. La présence du code, des tests et des illustrations ne constitue pas une preuve de migration distante, de déploiement ou d’usage authentifié hébergé.
 
@@ -11,6 +11,57 @@ La V2 utilise le compte connecté, l’atelier courant, les données réelles ac
 La présentation couvre la navigation, l’accueil, les documents, la préparation, la revue et le suivi des envois, les assistants, le compte, le Studio, Horizon, les crédits, les tableaux et les formulaires. Belvédère conserve sa présentation et son autorité plateforme distinctes. Les contrats métier de ces surfaces restent inchangés.
 
 Le portrait officiel est conservé et le mot-symbole `guteneo` reste en minuscules, en encre noire `#181b22`. Les gravures bleues sont limitées à l’accueil, à l’état vide des documents et à l’espace assistants. Elles n’accompagnent pas chaque formulaire ou tableau. Pour un atelier ayant déjà des envois, les alertes puis l’activité récente précèdent l’introduction ; les indicateurs restent soumis au droit de rapports. Le bloc assistants devient un raccourci compact. L’atelier sans historique conserve l’accueil complet. Dans la revue, le contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
+
+## Clarté de la navigation et des actions — 14 octobre 2026
+
+La coque V2 ne répète plus son titre de section au-dessus du titre de page et ne présente plus de pied de page applicatif. Le logo officiel reste en haut de la navigation et le nom de l’atelier dans son bloc dédié. Le compte conserve le nom de la personne, son adresse et son rôle ; l’accueil conserve l’explication de ses droits sans recopier cette identité et le nom de l’atelier. Le repère de navigation actif et le titre principal remplissent deux fonctions distinctes et restent présents.
+
+**État du service** est regroupé avec **Changer de compte** dans la ligne d’utilitaires du bloc d’identité. Sur ordinateur, cette zone reste au bas de la navigation ; sur mobile, elle reste accessible lorsque le menu est fermé. Le fuseau du navigateur est annoncé par **Heures affichées : …** auprès des listes ou sections datées, plutôt qu’en pied de page éloigné des dates. Cette indication utilise le fuseau déjà employé pour afficher les dates ; elle ne change ni les heures stockées ni la préférence du compte.
+
+Les détails conservent un lien de retour vers leur contexte. Le raccourci global **Nouvel envoi** est une action secondaire dans la navigation ; il n’est pas répété sur l’accueil, Préparer un envoi et Envois, où la tâche dispose déjà de son entrée. L’accueil V2 présente ainsi **Nouvel envoi** comme action principale locale pour les membres habilités. Sur mobile, ce raccourci s’ouvre avec le menu. L’action principale appartient à la page ou à l’étape en cours : elle se distingue des actions de retour, de consultation et des raccourcis globaux. Les formulaires et confirmations gardent leurs récapitulatifs, leurs consentements explicites et leurs droits ; le style d’un bouton ne crée aucune autorité.
+
+Sur **Générations**, **Créer un document** reste l’action principale. L’introduction devient « Retrouvez vos PDF générés. La génération ne déclenche aucun envoi. » ; les identifiants, versions et précisions sur le PDF exact restent dans le parcours de détail. Les portes d’entrée vers les modèles et vers la préparation d’un envoi correspondent à des tâches différentes et sont conservées selon les permissions.
+
+Ces changements ciblent V2 ; la coque Classique reste inchangée. Les libellés existent en français, anglais, allemand et luxembourgeois. Aucune nouvelle illustration, API, requête métier, relance automatique, ressource fournisseur, migration ou permission n’est introduite. Les gravures approuvées, l’accès aux documents privés et les gardes serveur restent inchangés.
+
+### Qualification de ce candidat
+
+| Preuve | État au moment de l’implémentation |
+| --- | --- |
+| Sources, atlas et matrice de droits | Mis à jour avec les parcours affectés ; génération puis contrôle réussis : 21 domaines, 183 fonctionnalités, 22 parcours |
+| Navigation, titres, actions et dates sur ordinateur et mobile | 18/18 cas navigateur réussis, sans échec, cas ignoré ou instable, sur Chromium, mobile Chromium et iPhone WebKit ; quinze routes racines parcourues en Classique/V2 au viewport de chaque projet puis à 320 px ; aucune preuve d’appareil physique déduite |
+| Rôles, retour des détails, accès au compte et statut menu fermé | Inclus dans les 18 cas : permissions, consentement explicite, persistance, retours, compte hors menu mobile fermé, CTA principal et fuseau avec liste remplie ; même API de simulation locale ou fixtures selon le cas |
+| Contrôles locaux | Typecheck, lint, build web et atlas réussis ; 40/40 tests unitaires de locale/apparence réussis, sans échec ni cas ignoré |
+| Vérification visuelle locale | Générations à 1440 × 1000 et 390 × 844, accueil à 1025 × 900 relus dans le navigateur ; repères, CTA et zones de compte cohérents sur ces captures |
+| CI du commit exact | À qualifier sur la PR puis sur le commit fusionné avant publication |
+| Empreinte, assets servis et session humaine après publication | À vérifier séparément après le déploiement autorisé |
+| Coût et ressources | Six essais locaux bornés terminés : mêmes 9 lectures API simulées, une ressource statique en moins, aucun appel pendant 10 s d’inactivité ; JS/CSS chargés +836 octets gzip. Détail et limites ci-dessous ; aucune mesure de facturation ou de CPU Worker hébergé |
+| Communication réelle, activation ou débit fournisseur | Aucun nécessaire pour qualifier cette présentation |
+
+Les résultats locaux finaux sont conservés hors dépôt dans `/tmp/guteneo-v2-clarity/dashboard-v2.json` (18 cas, 76,7 s) et `unit.json` (40 tests). Les captures `desktop-generations.jpg` et `mobile-generations.jpg` documentent la lecture visuelle locale. Les tests de simulation, le contrôle d’assets publics et la vérification authentifiée restent des catégories distinctes ; aucun succès ancien n’est utilisé comme preuve du commit courant. La CI et la publication ne sont pas déduites de cette qualification locale.
+
+### Ressources du candidat — mesure locale du 14 octobre
+
+Comparaison avec `b12ef2c4789b2acfcbc7de63a7fb846d61910050`, reconstruit depuis un clone `main` propre ; dépendances verrouillées inchangées. Le candidat correspond au build web final du 14 octobre à 13 h 12, capturé avant mesure avec ses empreintes de fichiers et le diff source SHA-256 `c436508125be761b736212c521fdb739abfc17d6a5af8371b2bcd99702dec06a`. Ce diff correspond encore à la source au terme de la mesure ; une modification ultérieure invaliderait cette correspondance.
+
+Trois essais à cache froid par variante V2, ordre alterné, Chromium `153.0.8010.12`, 1440 × 1000, français et fuseau Europe/Paris. Les parcours sont l’accueil vide, les documents vides, une génération synthétique et les assistants. Toutes les lectures API sont interceptées par des fixtures ; les origines externes et toute méthode autre que GET sont bloquées. Les fichiers sont servis uniquement sur `127.0.0.1:4481/4482`, puis les serveurs sont arrêtés. Aucun backend, fournisseur, document privé, envoi ou abonnement n’est sollicité.
+
+| Mesure, médiane des trois essais | V2 de base | Candidat V2 |
+| --- | --- | --- |
+| Démarrage jusqu’au titre visible, polices et images initiales prêtes | 138,1 ms | 129,9 ms |
+| Durée du parcours contrôlé, dont quatre pauses de 500 ms | 2 155,0 ms | 2 147,3 ms |
+| Travail du renderer à la fin du parcours (`TaskDuration`) | 133,5 ms | 129,6 ms |
+| Travail du renderer au démarrage | 99,2 ms | 91,6 ms |
+| Tas JavaScript à la fin du parcours | 6 623 332 octets | 6 614 704 octets |
+| Travail du renderer pendant 10 s d’inactivité | 0,572 ms | 0,659 ms |
+| Requêtes du parcours, dont lectures API simulées | 36, dont 9 | 35, dont 9 |
+| Requêtes pendant les 10 s d’inactivité | 0 | 0 |
+
+Aucune erreur JavaScript, réponse HTTP en échec ou requête interdite tentée dans les six essais. La ressource statique retirée du parcours est le portrait compact du pied de page, `brand/guteneo-mark-128.webp` (8 798 octets) ; le portrait officiel principal reste chargé. Les huit fichiers JS/CSS effectivement chargés passent de 1 782 877 à 1 786 178 octets bruts, soit **+3 301 octets**, et de 524 152 à 524 988 octets gzip, soit **+836 octets**. Sur les vingt chunks JS/CSS du build complet, le delta est de +3 291 octets bruts et +838 octets gzip ; cette seconde somme inclut des chunks non chargés dans les quatre parcours.
+
+Ces trois essais par variante ne démontrent pas un gain de CPU ni une amélioration de latence de production. La charge de l’hôte n’est pas contrôlée, aucun ralentissement réseau/CPU n’est appliqué et le corpus est petit. `TaskDuration` mesure le renderer, pas le Worker hébergé ; le tas JS exclut mémoire native, images décodées et GPU. Les temps du parcours incluent deux secondes de pauses et ne sont pas une latence de tâche utilisateur. L’inactivité est observée dix secondes seulement. Les sommes gzip servent à comparer les builds ; le Brotli et le cache de production diffèrent. Aucune requête hébergée facturable, mémoire Worker ou facture n’est mesurée ; aucun nouveau service, binding, polling ou appel fournisseur n’est introduit par ce changement. Les prix et mesures historiques ci-dessous ne sont pas réattribués au candidat.
+
+Scripts, manifests de fichiers, diff source, journal du build de base, essais bruts et synthèse sont conservés hors dépôt dans `/tmp/guteneo-v2-clarity/resources/`, notamment `measurements.json` et `summary.json`. Cette preuve contrôlée est distincte des scénarios de navigation, de la CI du commit final et de la qualification authentifiée après publication.
 
 ## Stabilité de la revue documentaire
 
@@ -26,7 +77,7 @@ Ce correctif de présentation n’ajoute aucune illustration, requête réseau, 
 
 Le bloc de compte se trouve au bas de la navigation de gauche sur ordinateur. Il conserve l’identité réellement connectée, le rôle courant, le lien vers le profil et l’action de changement de compte. Il reste accessible dans la navigation adaptée au mobile.
 
-1. Ouvrir **Mon compte** depuis ce bloc ou l’entrée Compte.
+1. Ouvrir **Mon compte** depuis ce bloc ; Classique conserve également son entrée Compte.
 2. Dans **Mon profil**, choisir **Classique** ou **V2** dans **Version de l’atelier**, à côté de la langue.
 3. Cliquer sur **Enregistrer les modifications**.
 4. Après succès serveur, appliquer la version et afficher **Votre profil a été enregistré.**
@@ -35,7 +86,7 @@ La sélection seule prépare une modification du profil ; elle ne la persiste pa
 
 Le choix suit la même personne entre ses ateliers, sessions et appareils lorsqu’ils relisent sa session authentifiée. Il ne suit pas un autre utilisateur partageant l’appareil. Il ne change pas la préférence de langue ; les deux réglages peuvent être enregistrés ensemble. Les libellés sont traduits en français, anglais, allemand et luxembourgeois.
 
-Les points d’entrée canoniques de présentation prévus après publication restent :
+Les points d’entrée canoniques de présentation sont :
 
 - `https://guteneo.com/?atelier=v2#/app` ;
 - `https://guteneo.com/?atelier=classic#/app`.
@@ -183,7 +234,7 @@ Les preuves antérieures sont conservées sans les étendre à la préférence s
 - l’ancienne commande de version directement dans la navigation avait 14 cas preview et 9 cas application réussis ; elle a été remplacée par le réglage de compte, donc ces 23 cas ne qualifient pas le parcours final ;
 - les 7 tests unitaires d’amorçage et les 62 tests de sécurité de publication antérieurs ne démontrent pas à eux seuls la sauvegarde personnelle.
 
-| Validation finale du présent périmètre                                                                                                                  | État                                                                                                                                                                                                  |
+| Qualification historique des 11–13 octobre 2026                                                                                                                  | État                                                                                                                                                                                                  |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Compte/session, migration, rôles, refus OAuth/CSRF, révocation et lecture native                                                                        | 91 tests locaux ciblés réussis : 27 dans `tests/unit/account.test.ts`, 47 dans `tests/unit/auth.test.ts`, 17 dans `tests/integration/mobile.test.ts`                                                  |
 | Amorçage, URL temporaire, stockage indisponible et traductions                                                                                          | 7/7 tests de `tests/unit/dashboard-appearance.test.ts` réussis                                                                                                                                        |

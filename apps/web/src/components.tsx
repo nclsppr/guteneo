@@ -30,6 +30,7 @@ import {
 } from "./api";
 import { t } from "./locale";
 import { horizonErrorMessage } from "./horizon-errors";
+import { useDashboardAppearance } from "./dashboard-appearance";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
@@ -429,6 +430,20 @@ export function Loading() {
     </div>
   );
 }
+/** Local timestamps use the browser timezone; keep its context beside dates. */
+export function DateTimezone() {
+  const { appearance } = useDashboardAppearance();
+  if (appearance !== "v2") return null;
+  return (
+    <p className="timestamp-context">
+      {msg(
+        "Heures affichées : {0}",
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      )}
+    </p>
+  );
+}
+
 export function PageHeading({
   title,
   intro,
@@ -510,12 +525,14 @@ export function DispatchTable({
   items: Dispatch[];
   canPrepare?: boolean;
 }) {
+  const { appearance } = useDashboardAppearance();
   if (!items.length)
     return (
       <EmptyState
         title={t.dispatch.countEmpty}
         action={
-          canPrepare && (
+          canPrepare &&
+          appearance !== "v2" && (
             <a className="button primary" href="#/app/prepare">
               {t.dispatch.new}
               <ArrowRight size={17} />
@@ -525,77 +542,80 @@ export function DispatchTable({
       />
     );
   return (
-    <div className="table-scroll">
-      <table className="responsive-table" role="table">
-        <thead role="rowgroup">
-          <tr role="row">
-            <th role="columnheader" scope="col">
-              {t.recipient}
-            </th>
-            <th role="columnheader" scope="col">
-              {t.channel}
-            </th>
-            <th role="columnheader" scope="col">
-              {t.status}
-            </th>
-            <th role="columnheader" scope="col">
-              {t.created}
-            </th>
-            <th role="columnheader" scope="col">
-              <span className="sr-only">{t.open}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody role="rowgroup">
-          {items.map((d) => (
-            <tr role="row" key={d.id}>
-              <td role="cell">
-                <span className="mobile-cell-label" aria-hidden="true">
-                  {t.recipient}
-                </span>
-                <a className="row-link" href={`#/app/dispatch/${d.id}`}>
-                  {recipientLabel(d) || d.id}
-                  <span className="reference mono">{d.id}</span>
-                </a>
-              </td>
-              <td role="cell">
-                <span className="mobile-cell-label" aria-hidden="true">
-                  {t.channel}
-                </span>
-                <ChannelLabel channel={d.channel} />
-              </td>
-              <td role="cell">
-                <span className="mobile-cell-label" aria-hidden="true">
-                  {t.status}
-                </span>
-                <Status status={d.status} channel={d.channel} />
-                {d.mode === "simulation" && (
-                  <small className="sub-label">{t.simulation}</small>
-                )}
-              </td>
-              <td role="cell" className="date-cell">
-                <span className="mobile-cell-label" aria-hidden="true">
-                  {t.created}
-                </span>
-                {date(d.created_at)}
-              </td>
-              <td role="cell">
-                <span className="mobile-cell-label" aria-hidden="true">
-                  {t.open}
-                </span>
-                <a
-                  className="icon-link"
-                  href={`#/app/dispatch/${d.id}`}
-                  aria-label={`${t.open} ${d.id}`}
-                >
-                  <ArrowRight size={20} />
-                </a>
-              </td>
+    <>
+      <DateTimezone />
+      <div className="table-scroll">
+        <table className="responsive-table" role="table">
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader" scope="col">
+                {t.recipient}
+              </th>
+              <th role="columnheader" scope="col">
+                {t.channel}
+              </th>
+              <th role="columnheader" scope="col">
+                {t.status}
+              </th>
+              <th role="columnheader" scope="col">
+                {t.created}
+              </th>
+              <th role="columnheader" scope="col">
+                <span className="sr-only">{t.open}</span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody role="rowgroup">
+            {items.map((d) => (
+              <tr role="row" key={d.id}>
+                <td role="cell">
+                  <span className="mobile-cell-label" aria-hidden="true">
+                    {t.recipient}
+                  </span>
+                  <a className="row-link" href={`#/app/dispatch/${d.id}`}>
+                    {recipientLabel(d) || d.id}
+                    <span className="reference mono">{d.id}</span>
+                  </a>
+                </td>
+                <td role="cell">
+                  <span className="mobile-cell-label" aria-hidden="true">
+                    {t.channel}
+                  </span>
+                  <ChannelLabel channel={d.channel} />
+                </td>
+                <td role="cell">
+                  <span className="mobile-cell-label" aria-hidden="true">
+                    {t.status}
+                  </span>
+                  <Status status={d.status} channel={d.channel} />
+                  {d.mode === "simulation" && (
+                    <small className="sub-label">{t.simulation}</small>
+                  )}
+                </td>
+                <td role="cell" className="date-cell">
+                  <span className="mobile-cell-label" aria-hidden="true">
+                    {t.created}
+                  </span>
+                  {date(d.created_at)}
+                </td>
+                <td role="cell">
+                  <span className="mobile-cell-label" aria-hidden="true">
+                    {t.open}
+                  </span>
+                  <a
+                    className="icon-link"
+                    href={`#/app/dispatch/${d.id}`}
+                    aria-label={`${t.open} ${d.id}`}
+                  >
+                    <ArrowRight size={20} />
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 const LazyPdfViewer = lazy(() => import("./pdf-viewer"));

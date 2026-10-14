@@ -8,6 +8,7 @@ import {
   type DocumentRecord,
 } from "./api";
 import {
+  DateTimezone,
   ErrorNotice,
   Field,
   Loading,
@@ -264,6 +265,7 @@ export function PdfReport({
       <p>
         {date(report.createdAt)} · {report.engine.name} {report.engine.version}
       </p>
+      <DateTimezone />
       {report.evidence === "simulation" && (
         <p className="notice info">
           {msg(

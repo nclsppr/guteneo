@@ -24,6 +24,7 @@ comprendre.
 | Gérer l’atelier, ses membres et leurs droits                    | Oui                     | Non                    | Non       | Non         |
 | Gérer la facturation et la configuration des expéditeurs/canaux | Oui                     | Non                    | Non       | Non         |
 | Activer ou renouveler une délégation à un assistant             | Oui, dans le navigateur | Non                    | Non       | Non         |
+| Régler sa langue et sa version Classique/V2 dans son compte     | Personnel, navigateur  | Personnel, navigateur  | Personnel, navigateur | Personnel, navigateur |
 
 - **Administrateur** : responsable de l’atelier et de ses accès. Il dispose de
   tous les droits applicatifs de l’atelier. Au moins un administrateur doit rester.
@@ -46,6 +47,24 @@ Le prix et le statut d’un envoi restent visibles dans sa fiche pour tous les
 membres qui peuvent la lire. L’option « Rapports » contrôle les synthèses agrégées
 et la consommation de l’atelier ; elle ne masque pas tous les montants ni les
 contenus individuels.
+
+## Présentation V2 et actions disponibles
+
+La simplification V2 du 14 octobre 2026 conserve cette matrice. Chaque action
+principale reste conditionnée au droit courant : notamment aucune importation,
+préparation ou création de document pour l’observateur ; aucune approbation pour
+l’opérateur ou le superviseur sans son option. Le raccourci global **Nouvel envoi**
+est secondaire dans la navigation et n’est rendu que pour une personne autorisée
+à préparer. Une action locale mise en valeur ne contourne aucun contrôle serveur.
+
+Les quatre rôles retrouvent leur propre compte et leur rôle même lorsque le menu
+mobile est fermé. Le lien **État du service** près du compte mène au service public
+sans autorité supplémentaire. L’accueil conserve les droits effectifs sans répéter
+l’identité personnelle et le nom d’atelier. La disparition du pied de page V2 et du
+titre de section redondant ne retire ni les récapitulatifs nécessaires au consentement,
+ni le retour des détails, ni le fuseau associé aux dates. Classique et les clients
+natifs/REST/MCP conservent leurs contrats. Les preuves du candidat sont suivies dans
+[DASHBOARD_V2.md](DASHBOARD_V2.md), séparément de la publication et de l’usage hébergé.
 
 ## Attribuer et expliquer les accès
 

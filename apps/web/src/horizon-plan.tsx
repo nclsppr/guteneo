@@ -9,6 +9,7 @@ import {
   type Session,
 } from "./api";
 import {
+  DateTimezone,
   ErrorNotice,
   Loading,
   PageHeading,
@@ -266,9 +267,12 @@ export function HorizonOffer({
         </p>
       )}
       {plan.currentPeriodEnd && (
-        <p>
-          {msg("Période en cours jusqu’au {0}.", date(plan.currentPeriodEnd))}
-        </p>
+        <>
+          <p>
+            {msg("Période en cours jusqu’au {0}.", date(plan.currentPeriodEnd))}
+          </p>
+          <DateTimezone />
+        </>
       )}
       {!admin && (
         <p>

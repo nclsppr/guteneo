@@ -75,6 +75,7 @@ import { PdfValidation } from "./pdf-validation";
 import {
   ChannelLabel,
   ConfirmAction,
+  DateTimezone,
   Definition,
   DispatchTable,
   EmailPreview,
@@ -309,7 +310,10 @@ export function Overview({ session }: { session: Session }) {
           text={t.overview.emptyBody}
           action={
             permissions.prepareDispatches && (
-              <a className="button primary" href="#/app/documents">
+              <a
+                className={appearance === "v2" ? "button" : "button primary"}
+                href="#/app/documents"
+              >
                 {t.documents.import}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
@@ -342,7 +346,19 @@ export function Overview({ session }: { session: Session }) {
   return (
     <>
       <div className="dashboard-editorial-heading">
-        <PageHeading title={t.overview.title} intro={t.overview.intro} />
+        <PageHeading
+          title={t.overview.title}
+          intro={t.overview.intro}
+          action={
+            appearance === "v2" &&
+            permissions.prepareDispatches && (
+              <a className="button primary" href="#/app/prepare">
+                <Plus size={18} aria-hidden="true" />
+                {t.dispatch.new}
+              </a>
+            )
+          }
+        />
         <DashboardArtwork scene="atelier" />
       </div>
       {regions}
@@ -351,6 +367,7 @@ export function Overview({ session }: { session: Session }) {
 }
 
 export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
+  const { appearance } = useDashboardAppearance();
   const resource = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
   const route = useRoute();
@@ -468,7 +485,11 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
                 {t.documents.render}
               </button>
               <button
-                className="button primary"
+                className={
+                  appearance === "v2" && (tab || selected)
+                    ? "button"
+                    : "button primary"
+                }
                 disabled={isPublicPreview}
                 onClick={() => {
                   setTab("import");
@@ -672,7 +693,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
           />
           {canPrepare && (
             <a
-              className={`button primary ${selected.status !== "ready" ? "disabled-link" : ""}`}
+              className={`button ${appearance === "v2" && tab ? "" : "primary"} ${selected.status !== "ready" ? "disabled-link" : ""}`}
               href={
                 selected.status !== "ready"
                   ? undefined
@@ -687,6 +708,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
           )}
         </section>
       )}
+      {!!resource.data?.items.length && <DateTimezone />}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : resource.data?.items.length ? (
@@ -2210,6 +2232,7 @@ export function DispatchDetailPage({
             )}
             <Definition label={t.created}>{date(d.created_at)}</Definition>
           </dl>
+          <DateTimezone />
           {pendingApproval &&
             d.channel === "postal" &&
             d.mode === "production" && (
@@ -2470,6 +2493,9 @@ export function DispatchDetailPage({
       </div>
       <section className="timeline-section">
         <h2>{t.dispatch.timeline}</h2>
+        {(events.length > 0 || !!resource.data?.attempts.length) && (
+          <DateTimezone />
+        )}
         {!events.length ? (
           <p className="muted">{t.dispatch.noEvents}</p>
         ) : (
