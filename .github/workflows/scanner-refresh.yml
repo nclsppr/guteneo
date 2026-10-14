@@ -1,54 +1,144 @@
 name: Refresh private scanner signatures
 
+# Temporary branch-only qualification. Main retains its production workflow.
 on:
-  schedule:
-    - cron: "17 8 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
   actions: read
 
-# Never cancel a publication after its image push or Worker deployment began.
 concurrency:
-  group: guteneo-production-scanner-refresh
+  group: guteneo-scanner-native-qualification
   cancel-in-progress: false
 
 jobs:
-  refresh:
-    if: github.event_name == 'workflow_dispatch' || vars.SCANNER_REFRESH_ENABLED == 'true'
+  native-qualification:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/codex/scanner-native-qualification' && github.repository == 'nclsppr/guteneo'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 20
+    env:
+      SOURCE_COMMIT: b12ef2c4789b2acfcbc7de63a7fb846d61910050
+      EVIDENCE_DIR: ${{ runner.temp }}/guteneo-scanner-native-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - name: Require reviewed main and the dedicated scanner credential
-        env:
-          CLOUDFLARE_SCANNER_API_TOKEN: ${{ secrets.CLOUDFLARE_SCANNER_API_TOKEN }}
-        run: |
-          test "$GITHUB_REF" = refs/heads/main || { echo "Scanner refresh requires reviewed main."; exit 1; }
-          test -n "$CLOUDFLARE_SCANNER_API_TOKEN" || { echo "Missing CLOUDFLARE_SCANNER_API_TOKEN: scanner refresh is not activated."; exit 1; }
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.sha }}
+          ref: b12ef2c4789b2acfcbc7de63a7fb846d61910050
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: apps/scanner/package-lock.json
-      - run: npm ci --prefix apps/scanner
-      - name: Build, qualify, publish and verify only the private scanner
-        run: node apps/scanner/scripts/ci-refresh.mjs
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SCANNER_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: "39ac9fada6cba44d9ecf09d467609e69"
-          WRANGLER_SEND_METRICS: "false"
-          SCANNER_REFRESH_ENABLED: ${{ vars.SCANNER_REFRESH_ENABLED }}
-          CI: "true"
+      - name: Verify exact source, source modes and native runner
+        run: |
+          test "$GITHUB_REF" = refs/heads/codex/scanner-native-qualification
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          test "$RUNNER_ARCH" = X64
+          case "$(docker info --format '{{.OSType}} {{.Architecture}}')" in 'linux x86_64'|'linux amd64') ;; *) exit 1 ;; esac
+          test "$(git ls-files -s apps/scanner/container/clamd.conf | cut -d ' ' -f 1)" = 100644
+          test "$(stat -c '%a' apps/scanner/container/clamd.conf)" = 644
+          echo 'e19579be1893c4da66a2d46dd8327e903d4ffde40e129d19d2fa09a16b81a50b  apps/scanner/tests/qualify_docker.py' | sha256sum --check --status
+          echo '46997d7b84d06c081c40e1ff4809c110a2c0932c0e64b3d5106d6d0d2e32e3fb  apps/scanner/scripts/ci-refresh.mjs' | sha256sum --check --status
+          mkdir -p "$EVIDENCE_DIR" "$RUNNER_TEMP/scanner-native-home"
+          printf '%s\n' "sha-$SOURCE_COMMIT-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT" > "$EVIDENCE_DIR/build-id.txt"
+          printf '%s\n' "$SOURCE_COMMIT" > "$EVIDENCE_DIR/source-commit.txt"
+          printf '%s\n' "$GITHUB_SHA" > "$EVIDENCE_DIR/workflow-commit.txt"
+          printf '%s\n' "$GITHUB_RUN_ID" > "$EVIDENCE_DIR/run-id.txt"
+          printf '%s\n' "$GITHUB_RUN_ATTEMPT" > "$EVIDENCE_DIR/run-attempt.txt"
+          printf '%s\n' "$(uname -s) $(uname -m) $RUNNER_ARCH" > "$EVIDENCE_DIR/runner.txt"
+          docker info --format '{{.OSType}} {{.Architecture}}' > "$EVIDENCE_DIR/docker-host.txt"
+      - name: Install only the locked scanner dependencies without credentials
+        run: |
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" CI=true \
+            NPM_CONFIG_CACHE="$RUNNER_TEMP/scanner-native-npm-cache" npm ci --prefix apps/scanner
+      - name: Build one fresh local amd64 image
+        id: build
+        working-directory: apps/scanner
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          refresh="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          build_id="$(cat "$EVIDENCE_DIR/build-id.txt")"
+          printf '%s\n' "$refresh" > "$EVIDENCE_DIR/signature-refresh.txt"
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" \
+            docker build --pull --no-cache --platform linux/amd64 \
+            --build-arg "SIGNATURE_REFRESH=$refresh" --build-arg "SCANNER_BUILD_ID=$build_id" \
+            -t guteneo-scanner:local .
+          docker image inspect --format '{{.Id}}' guteneo-scanner:local > "$EVIDENCE_DIR/image-id.txt"
+      - name: Run unchanged official cold-start fixtures without credentials
+        id: fixture
+        working-directory: apps/scanner
+        run: |
+          echo 'e19579be1893c4da66a2d46dd8327e903d4ffde40e129d19d2fa09a16b81a50b  tests/qualify_docker.py' | sha256sum --check --status
+          timeout --signal=TERM --kill-after=5s 300s \
+            env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" \
+            python3 tests/qualify_docker.py > "$EVIDENCE_DIR/local-qualification.json"
+      - name: Verify exact image identity, real signatures and fixture result
+        id: qualify
+        working-directory: apps/scanner
+        run: |
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" \
+            node --input-type=module - "$EVIDENCE_DIR" <<'NODE'
+          import fs from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import { assertFreshEngine, imageIdentity } from './scripts/ci-refresh.mjs';
+          const dir = process.argv[2];
+          const read = (name) => fs.readFileSync(`${dir}/${name}`, 'utf8').trim();
+          const demand = (ok, code) => { if (!ok) throw new Error(code); };
+          const local = JSON.parse(read('local-qualification.json'));
+          const image = imageIdentity(execFileSync('docker', ['image', 'inspect', 'guteneo-scanner:local'], { encoding: 'utf8', timeout: 30000, maxBuffer: 2000000 }));
+          demand(image.Id === read('image-id.txt'), 'QUALIFIED_IMAGE_CHANGED');
+          demand(local.buildId === read('build-id.txt'), 'NATIVE_BUILD_ID_MISMATCH');
+          demand(local.runtime === 'local-docker-linux-amd64' && Number.isFinite(local.coldReadySeconds) && local.coldReadySeconds >= 0, 'OFFICIAL_COLD_RESULT_REQUIRED');
+          demand(local.cleanPdf?.verdict === 'clean' && local.eicarVerdict === 'infected' && local.emptyRejected === true && local.oversizeRejected === true && local.limits?.internet === false && local.limits.memory === '4 GiB' && local.limits.cpu === 0.5 && local.documentLogs === 0 && local.temporaryFilesRemaining === 0, 'OFFICIAL_FIXTURES_INCOMPLETE');
+          assertFreshEngine(local.engine);
+          const result = { schemaVersion: 1, status: 'qualified-native-local-only', sourceCommit: read('source-commit.txt'), workflowCommit: read('workflow-commit.txt'), runId: read('run-id.txt'), runAttempt: read('run-attempt.txt'), runner: read('runner.txt'), imageId: image.Id, imageOs: image.Os, imageArchitecture: image.Architecture, buildId: local.buildId, signatureRefresh: read('signature-refresh.txt'), fixtureSha256: 'e19579be1893c4da66a2d46dd8327e903d4ffde40e129d19d2fa09a16b81a50b', freshnessValidatorSourceSha256: '46997d7b84d06c081c40e1ff4809c110a2c0932c0e64b3d5106d6d0d2e32e3fb', officialColdStartQualified: true, fullQualifiedNativeLocal: true, coldReadySeconds: local.coldReadySeconds, engine: local.engine, qualificationMaximumSignatureAgeSeconds: 172800, privateCloudflareQualified: false, registryPublished: false, workerDeployed: false, customerDocuments: 0, externalSends: 0 };
+          fs.writeFileSync(`${dir}/result.json`, JSON.stringify(result, null, 2) + '\n', { mode: 0o600 });
+          console.log(JSON.stringify({ status: result.status, imageId: image.Id, officialColdStartQualified: true, privateCloudflareQualified: false }));
+          NODE
+      - name: Save the exact built image for review, without registry publication
+        if: always() && steps.build.outcome == 'success'
+        working-directory: apps/scanner
+        run: |
+          image_id="$(cat "$EVIDENCE_DIR/image-id.txt")"
+          test "$(docker image inspect --format '{{.Id}}' guteneo-scanner:local)" = "$image_id"
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" \
+            docker image save --output "$EVIDENCE_DIR/scanner-image.tar" "$image_id"
+          test "$(docker image inspect --format '{{.Id}}' guteneo-scanner:local)" = "$image_id"
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/scanner-native-home" TMPDIR="$RUNNER_TEMP" \
+            python3 - "$EVIDENCE_DIR" <<'PY'
+          import hashlib, json, pathlib, sys, tarfile
+          directory = pathlib.Path(sys.argv[1])
+          image_id = (directory / 'image-id.txt').read_text().strip()
+          archive = directory / 'scanner-image.tar'
+          with tarfile.open(archive, 'r') as saved:
+              manifest = json.load(saved.extractfile('manifest.json'))
+              assert len(manifest) == 1
+              config = saved.extractfile(manifest[0]['Config']).read()
+              assert 'sha256:' + hashlib.sha256(config).hexdigest() == image_id
+          digest = hashlib.sha256()
+          with archive.open('rb') as data:
+              for chunk in iter(lambda: data.read(1024 * 1024), b''):
+                  digest.update(chunk)
+          proof = {'schemaVersion': 1, 'imageId': image_id, 'imageTarSha256': digest.hexdigest(), 'imageTarBytes': archive.stat().st_size, 'savedConfigMatchesImageId': True, 'registryPublished': False, 'workerDeployed': False}
+          (directory / 'image-export.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps(proof))
+          PY
+      - name: Clean only test containers on this isolated runner
+        if: always()
+        run: |
+          docker ps -a --filter 'name=^guteneo-scanner-qa-' --format '{{.Names}}' | while IFS= read -r name; do
+            if [[ "$name" =~ ^guteneo-scanner-qa-[a-f0-9]{10}$ ]]; then
+              timeout 20s docker rm -f "$name" >/dev/null 2>&1 || true
+            fi
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: scanner-refresh-${{ github.run_id }}-${{ github.run_attempt }}
-          path: apps/scanner/dist/ci-refresh/
+          name: scanner-native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.EVIDENCE_DIR }}/
           if-no-files-found: warn
           retention-days: 30
+          compression-level: 0
