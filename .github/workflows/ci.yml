@@ -73,6 +73,10 @@ jobs:
       - run: npm run lint
       - name: Require a synchronized developer feature tree and valid references
         run: node docs/build-feature-map.mjs --check
+      - name: Audit every advertised MCP tool annotation and justification
+        run: npm run audit:mcp
+      - name: Require synchronized annotation review documentation
+        run: node scripts/build-mcp-annotation-docs.mjs --check
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
       - name: Run every offline narration test
