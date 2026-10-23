@@ -761,3 +761,42 @@ test("bounds container convergence and rejects unrelated image, scope, public or
     assert.equal(reads, 1);
   }
 });
+
+test("convergence rejects late read success and propagates one shared request deadline", async () => {
+  let time = 0;
+  await assert.rejects(
+    waitForContainerImage(
+      async (signal) => {
+        assert.ok(signal instanceof AbortSignal);
+        time = 301_000;
+        return {
+          application: container,
+          deployments: deployment,
+          subdomain: { enabled: false, previews_enabled: false },
+        };
+      },
+      image,
+      "previous",
+      version,
+      { clock: () => time, timeoutMs: 300_000 },
+    ),
+    /SCANNER_CONTAINER_CONVERGENCE_TIMEOUT/,
+  );
+
+  const control = new AbortController();
+  let observed;
+  await assert.rejects(
+    requestJson(
+      "https://api.cloudflare.com/test",
+      "synthetic",
+      async (_url, options) => {
+        observed = options.signal;
+        control.abort();
+        options.signal.throwIfAborted();
+      },
+      { signal: control.signal },
+    ),
+    { name: "AbortError" },
+  );
+  assert.equal(observed.aborted, true);
+});

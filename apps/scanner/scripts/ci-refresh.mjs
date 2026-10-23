@@ -54,7 +54,12 @@ export function assertCiEnvironment(env) {
 }
 
 /** JSON APIs are read-only; no token, response text or arbitrary URL is logged. */
-export async function requestJson(url, token, fetcher = fetch) {
+export async function requestJson(
+  url,
+  token,
+  fetcher = fetch,
+  { signal } = {},
+) {
   const response = await fetcher(url, {
     method: "GET",
     redirect: "error",
@@ -66,7 +71,9 @@ export async function requestJson(url, token, fetcher = fetch) {
         ? { "X-GitHub-Api-Version": "2022-11-28" }
         : {}),
     },
-    signal: AbortSignal.timeout(20_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(20_000)])
+      : AbortSignal.timeout(20_000),
   });
   demand(response.ok, `READ_API_FAILED_${response.status}`);
   const reader = response.body?.getReader();
@@ -301,8 +308,21 @@ export async function waitForContainerImage(
   } = {},
 ) {
   const deadline = clock() + timeoutMs;
+  const signal = AbortSignal.timeout(timeoutMs);
   while (clock() < deadline) {
-    const { application, deployments, subdomain } = await readState();
+    let state;
+    try {
+      state = await readState(signal);
+    } catch (error) {
+      if (signal.aborted || clock() >= deadline)
+        throw new Error("SCANNER_CONTAINER_CONVERGENCE_TIMEOUT");
+      throw error;
+    }
+    demand(
+      !signal.aborted && clock() < deadline,
+      "SCANNER_CONTAINER_CONVERGENCE_TIMEOUT",
+    );
+    const { application, deployments, subdomain } = state;
     const deploymentId = assertDeployment(deployments, version);
     demand(
       subdomain.enabled === false && subdomain.previews_enabled === false,
@@ -567,7 +587,8 @@ export async function refreshScanner({
   const buildId = `sha-${env.GITHUB_SHA}-run-${env.GITHUB_RUN_ID}-attempt-${env.GITHUB_RUN_ATTEMPT}`;
   const tag = `guteneo-scanner-ci:${env.GITHUB_SHA.slice(0, 12)}-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`;
   const api = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
-  const cf = (path) => request(`${api}${path}`, env.CLOUDFLARE_API_TOKEN);
+  const cf = (path, signal) =>
+    request(`${api}${path}`, env.CLOUDFLARE_API_TOKEN, undefined, { signal });
   const baseline = await cf(`/containers/applications/${CONTAINER_ID}`);
   demand(baseline.id === CONTAINER_ID, "EXISTING_SCANNER_CONTAINER_REQUIRED");
   const source = await readConfiguration();
@@ -687,11 +708,14 @@ export async function refreshScanner({
     stage: "worker_deployment_acknowledged_not_yet_qualified",
   });
   const deploymentId = await waitForContainerImage(
-    async () => ({
-      application: await cf(`/containers/applications/${CONTAINER_ID}`),
-      deployments: await cf(`/workers/scripts/${SCANNER_NAME}/deployments`),
-      subdomain: await cf(`/workers/scripts/${SCANNER_NAME}/subdomain`),
-    }),
+    async (signal) => {
+      const [application, deployments, subdomain] = await Promise.all([
+        cf(`/containers/applications/${CONTAINER_ID}`, signal),
+        cf(`/workers/scripts/${SCANNER_NAME}/deployments`, signal),
+        cf(`/workers/scripts/${SCANNER_NAME}/subdomain`, signal),
+      ]);
+      return { application, deployments, subdomain };
+    },
     image,
     baseline.configuration?.image,
     version,

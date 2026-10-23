@@ -49,7 +49,7 @@ pas les comptes et ne déploie pas l'application publique.
 
 ## Preuves locales de cette livraison
 
-La suite du scanner couvre 43 tests Node et 38 tests Python, avec vérification
+La suite du scanner couvre 44 tests Node et 38 tests Python, avec vérification
 des types. Un vrai conteneur Linux amd64 issu du commit `5b5041ab` a également été
 construit et exécuté sans réseau, avec 4 GiB et 0,5 CPU : ClamAV 1.5.4, signatures
 28162 du 23 octobre à 06:24:08 UTC, PDF propre accepté, EICAR détecté, empreintes
