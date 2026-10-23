@@ -80,6 +80,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     "/roles/": getRoleGuide(),
     "/confidentialite/": {
       label: msg("Confidentialité"),
+      updated: msg("Mise à jour le 23 octobre 2026"),
       title: (
         <>
           {msg("Vos données, ")}
@@ -383,6 +384,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     },
     "/conditions/": {
       label: msg("Conditions d’utilisation"),
+      updated: msg("Mise à jour le 23 octobre 2026"),
       title: (
         <>
           {msg("Un cadre ")}
