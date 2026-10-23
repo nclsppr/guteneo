@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { downloadQualification } from "./qualification-artifact.mjs";
 import {
   ACCOUNT_ID,
   CONTAINER_ID,
@@ -37,6 +38,8 @@ const ERROR_CODES = new Set([
   "SCANNER_LATEST_REFRESH_FAILED_OR_SKIPPED",
   "SCANNER_QUALIFIED_REFRESH_MISSING_OR_OVERDUE",
   "SCANNER_QUALIFICATION_ARTIFACT_MISSING",
+  "SCANNER_QUALIFICATION_ARTIFACT_INVALID",
+  "SCANNER_QUALIFIED_RUNTIME_CHANGED",
   "SCANNER_CURRENT_IMAGE_INVALID",
   "SCANNER_PUBLIC_ENDPOINT_ENABLED",
   "SCANNER_PRIVATE_HEALTH_INVALID",
@@ -217,6 +220,7 @@ export async function checkMaintenance({
   request = requestJson,
   bridge = startBridge,
   health = currentHealth,
+  download = downloadQualification,
   now = Date.now,
 } = {}) {
   const settings = checkSettings(env, now(), true);
@@ -234,31 +238,47 @@ export async function checkMaintenance({
     `${github}/actions/runs/${run.id}/artifacts?per_page=100`,
     env.GH_TOKEN,
   );
-  demand(
-    artifacts?.artifacts?.some(
-      (artifact) =>
-        artifact.name === `scanner-refresh-${run.id}-${run.run_attempt}` &&
-        artifact.expired === false &&
-        artifact.size_in_bytes > 0,
-    ),
-    "SCANNER_QUALIFICATION_ARTIFACT_MISSING",
+  const matching = artifacts?.artifacts?.filter(
+    (artifact) =>
+      artifact.name === `scanner-refresh-${run.id}-${run.run_attempt}` &&
+      artifact.expired === false &&
+      artifact.size_in_bytes > 0,
   );
+  demand(matching?.length === 1, "SCANNER_QUALIFICATION_ARTIFACT_MISSING");
+  const artifact = matching[0];
+  demand(
+    artifact.workflow_run?.id === run.id &&
+      artifact.workflow_run?.head_sha === run.head_sha,
+    "SCANNER_QUALIFICATION_ARTIFACT_INVALID",
+  );
+  const qualified = await download(artifact, env.GH_TOKEN);
+  const buildId = `sha-${run.head_sha}-run-${run.id}-attempt-${run.run_attempt}`;
+  demand(
+    qualified?.status === "qualified" &&
+      qualified.sourceCommit === run.head_sha &&
+      qualified.buildId === buildId &&
+      UUID.test(qualified.version ?? "") &&
+      typeof qualified.deploymentId === "string" &&
+      qualified.deploymentId.length > 0 &&
+      qualified.trafficPercent === 100 &&
+      qualified.private === true &&
+      qualified.customerDocuments === 0 &&
+      qualified.externalSends === 0,
+    "SCANNER_QUALIFICATION_ARTIFACT_INVALID",
+  );
+  assertFreshEngine(qualified.engine, now());
   const api = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
   const cloud = (path) => request(`${api}${path}`, env.CLOUDFLARE_API_TOKEN);
   const deployments = await cloud(
     `/workers/scripts/${SCANNER_NAME}/deployments`,
   );
-  const latest = [...(deployments?.deployments ?? [])].sort(
-    (a, b) => Date.parse(b.created_on) - Date.parse(a.created_on),
-  )[0];
-  const workerVersion = latest?.versions?.[0]?.version_id;
+  const workerVersion = qualified.version;
   demand(
-    UUID.test(workerVersion ?? ""),
-    "SCANNER_EXACT_VERSION_100_PERCENT_REQUIRED",
+    assertDeployment(deployments, workerVersion) === qualified.deploymentId,
+    "SCANNER_QUALIFIED_RUNTIME_CHANGED",
   );
-  assertDeployment(deployments, workerVersion);
   const container = await cloud(`/containers/applications/${CONTAINER_ID}`);
-  const image = container?.configuration?.image;
+  const image = qualified.image;
   demand(
     new RegExp(
       `^registry\\.cloudflare\\.com/${ACCOUNT_ID}/guteneo-scanner-ci@sha256:[a-f0-9]{64}$`,
@@ -271,14 +291,22 @@ export async function checkMaintenance({
     endpoint?.enabled === false && endpoint?.previews_enabled === false,
     "SCANNER_PUBLIC_ENDPOINT_ENABLED",
   );
-  const buildId = `sha-${run.head_sha}-run-${run.id}-attempt-${run.run_attempt}`;
   const control = await bridge(env);
   let observed;
   try {
     observed = await health(control, { workerVersion, buildId });
-    assertDeployment(
-      await cloud(`/workers/scripts/${SCANNER_NAME}/deployments`),
-      workerVersion,
+    demand(
+      ["name", "version", "signatureVersion", "signatureDate"].every(
+        (key) => observed.engine?.[key] === qualified.engine[key],
+      ),
+      "SCANNER_QUALIFIED_RUNTIME_CHANGED",
+    );
+    demand(
+      assertDeployment(
+        await cloud(`/workers/scripts/${SCANNER_NAME}/deployments`),
+        workerVersion,
+      ) === qualified.deploymentId,
+      "SCANNER_QUALIFIED_RUNTIME_CHANGED",
     );
     assertContainer(
       await cloud(`/containers/applications/${CONTAINER_ID}`),

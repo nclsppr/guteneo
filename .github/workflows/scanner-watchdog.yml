@@ -13,6 +13,7 @@ permissions:
 concurrency:
   group: guteneo-production-scanner-refresh
   cancel-in-progress: false
+  queue: max
 
 jobs:
   watchdog:

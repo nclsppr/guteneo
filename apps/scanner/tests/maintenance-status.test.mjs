@@ -59,6 +59,19 @@ const container = {
   constraints: { jurisdiction: "eu" },
 };
 const expected = { workerVersion: version, buildId };
+const qualifiedResult = {
+  status: "qualified",
+  sourceCommit: sha,
+  buildId,
+  version,
+  deploymentId: "deployment1",
+  trafficPercent: 100,
+  image,
+  engine,
+  private: true,
+  customerDocuments: 0,
+  externalSends: 0,
+};
 const control = { assertRunning() {} };
 const healthyResponse = (body = { status: "ready", engine }, headers = {}) =>
   Response.json(body, {
@@ -272,7 +285,13 @@ function harness(overrides = {}) {
     if (url.includes("/artifacts?"))
       return {
         artifacts: [
-          { name: "scanner-refresh-123-1", expired: false, size_in_bytes: 100 },
+          {
+            id: 456,
+            name: "scanner-refresh-123-1",
+            expired: false,
+            size_in_bytes: 100,
+            workflow_run: { id: 123, head_sha: sha },
+          },
         ],
       };
     if (url.endsWith("/deployments")) return structuredClone(deployment);
@@ -292,6 +311,7 @@ function harness(overrides = {}) {
       env,
       now: () => now,
       request,
+      download: async () => structuredClone(qualifiedResult),
       bridge: async () => ({
         ...control,
         stop: async () => {
@@ -379,6 +399,47 @@ test("failure output never reflects arbitrary remote errors or credentials", () 
   );
 });
 
+test("a later unqualified deployment or image cannot borrow an older successful run's identity", async () => {
+  for (const change of ["version", "image", "deployment", "engine", "proof"]) {
+    const h = harness();
+    await assert.rejects(
+      checkMaintenance({
+        ...h.dependencies,
+        download: async () => ({
+          ...structuredClone(qualifiedResult),
+          ...(change === "proof" ? { status: "failed" } : {}),
+        }),
+        request: async (url, token) => {
+          const value = await h.request(url, token);
+          if (url.endsWith("/deployments")) {
+            if (change === "version")
+              value.deployments[0].versions[0].version_id =
+                "11111111-1111-1111-1111-111111111111";
+            if (change === "deployment")
+              value.deployments[0].id = "deployment2";
+          }
+          if (
+            change === "image" &&
+            url.endsWith(`/applications/${CONTAINER_ID}`)
+          )
+            value.configuration.image = image.replace(
+              "b".repeat(64),
+              "c".repeat(64),
+            );
+          return value;
+        },
+        health: async () => ({
+          engine:
+            change === "engine"
+              ? { ...engine, signatureVersion: 28163 }
+              : engine,
+        }),
+      }),
+      /SCANNER_(?:EXACT_VERSION_100_PERCENT_REQUIRED|CONTAINER_IMAGE_OR_SCOPE_MISMATCH|QUALIFIED_RUNTIME_CHANGED|QUALIFICATION_ARTIFACT_INVALID)/,
+    );
+  }
+});
+
 test("separate watchdog has a bounded schedule, read-only permissions and no silent activation skip", async () => {
   const workflow = await readFile(
     new URL("../../../.github/workflows/scanner-watchdog.yml", import.meta.url),
@@ -389,6 +450,7 @@ test("separate watchdog has a bounded schedule, read-only permissions and no sil
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /group: guteneo-production-scanner-refresh/);
   assert.match(workflow, /cancel-in-progress: false/);
+  assert.match(workflow, /queue: max/);
   assert.match(workflow, /maintenance-status.mjs --watchdog/);
   assert.doesNotMatch(
     workflow,

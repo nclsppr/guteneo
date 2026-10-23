@@ -634,6 +634,16 @@ Lancer monitor:prod ou monitor:prod:live → contrôler source et 17 preuves pub
 
 Référence : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md).
 
+La maintenance antivirus utilise un passage quotidien hébergé et un contrôle
+distinct toutes les six heures. Ce dernier compare la santé privée et la version,
+l'image et les signatures réellement chargées au résultat du dernier passage
+qualifié. Activation ou accès manquant, échéance du jeton, passage échoué/ignoré,
+preuve de plus de trente heures ou signatures de plus de quarante-huit heures :
+échec visible dans GitHub Actions. Les notifications dépendent des préférences du
+mainteneur ; une supervision hors GitHub reste nécessaire si GitHub lui-même ne
+déclenche plus les contrôles. Aucun document client ni envoi réel n'est utilisé.
+Référence : [SCANNER_CI.md](SCANNER_CI.md).
+
 ### J19 · Contrôler à blanc un envoi existant
 
 **Acteur :** Lecteur actuel de l’envoi parmi les quatre rôles ; assistant OAuth avec dispatches:read. **Branche :** ENVOIS → VALIDATION SANS EXPÉDITION.

@@ -649,6 +649,7 @@ test("workflow refuses disabled schedules visibly, stays read-only in GitHub and
   assert.match(workflow, /actions: read/);
   assert.doesNotMatch(workflow, /(contents|actions|pull-requests): write/);
   assert.match(workflow, /cancel-in-progress: false/);
+  assert.match(workflow, /queue: max/);
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /secrets\.CLOUDFLARE_SCANNER_API_TOKEN/);
   assert.doesNotMatch(workflow, /pull_request:|git (push|commit)|deploy:live/);

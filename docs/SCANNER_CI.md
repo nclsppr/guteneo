@@ -44,7 +44,7 @@ pas les comptes et ne déploie pas l'application publique.
 
 ## Preuves locales de cette livraison
 
-La suite du scanner couvre 37 tests Node et 38 tests Python, avec vérification
+La suite du scanner couvre 41 tests Node et 38 tests Python, avec vérification
 des types. Un vrai conteneur Linux amd64 issu du commit `5b5041ab` a également été
 construit et exécuté sans réseau, avec 4 GiB et 0,5 CPU : ClamAV 1.5.4, signatures
 28162 du 23 octobre à 06:24:08 UTC, PDF propre accepté, EICAR détecté, empreintes
@@ -98,9 +98,14 @@ si aucune qualification réussie avec artefact n'a moins de trente heures, ou si
 le jeton manque, expire ou approche de son échéance. Il exige aussi une santé
 privée actuelle avec signatures de moins de quarante-huit heures, l'identité de
 construction du passage qualifié, la version du Worker à 100 %, l'image immuable
-et le périmètre privé du conteneur. Il tolère un démarrage à froid pendant cinq
+et le périmètre privé du conteneur. Le résultat de qualification est lu dans
+l'archive GitHub, après vérification de son empreinte et avec des limites de taille,
+sans extraire de fichier. Version, déploiement, image et signatures doivent
+correspondre à cette preuve précise ; un redéploiement ultérieur ne peut pas
+emprunter la réussite d'un ancien passage. Il tolère un démarrage à froid pendant cinq
 minutes, mais jamais une réponse de signatures périmées. Les deux workflows sont
-sérialisés pour éviter une mesure pendant une publication.
+sérialisés pour éviter une mesure pendant une publication ; leur file conserve
+jusqu'à cent passages en attente au lieu de remplacer le précédent.
 
 Ce contrôle ne fait que des lectures et des `GET /health` par service binding :
 il ne scanne aucun document, ne publie aucune image et ne déploie aucun service.
