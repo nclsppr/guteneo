@@ -18,11 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SOURCE_COMMIT: b12ef2c4789b2acfcbc7de63a7fb846d61910050
+      SOURCE_COMMIT: 5b5041ab04b235b57fccfa60814e7efa5683e17d
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: b12ef2c4789b2acfcbc7de63a7fb846d61910050
+          ref: 5b5041ab04b235b57fccfa60814e7efa5683e17d
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
