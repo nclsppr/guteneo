@@ -14,7 +14,7 @@ revue restent hors de ce fichier et du dépôt.
 | Motif du refus | Notification pour annotations d’outils ; booléens explicites et justifications demandés | Aucun outil ni instantané exact incriminé n’a été identifié par cette notification |
 | Correctif | PR #65 fusionnée, commit `5b5041ab04b235b57fccfa60814e7efa5683e17d` | Le correctif ne prouve pas une approbation de revue |
 | CI main | 13 contrôles réussis, [run 39914778387](https://github.com/nclsppr/guteneo/actions/runs/39914778387) | Preuve locale et automatisée du commit, distincte de la production |
-| Application | Publication réussie, version Worker `0334ff69-f89e-419c-ba11-6cf4d035cd88` ; manifeste public conforme ; 265 ressources exactes, robots conforme, `/_headers` identifié comme configuration | Sur 268 entrées, seul `/videos/guteneo-vertical-v6-en.mp4` renvoie HTTP 500 ; aucune réussite complète ; catalogue MCP authentifié encore à qualifier |
+| Application | Publication réussie, version Worker `0334ff69-f89e-419c-ba11-6cf4d035cd88` ; vérification complète inchangée réussie à 08:11:41 UTC : 266 ressources exactes, robots et en-têtes conformes | Catalogue MCP authentifié encore à qualifier séparément |
 | Annotations locales | 67 outils, 268 booléens, 216 références de code ; aucun écart structurel ; documents générés synchronisés | Ne remplace ni l’audit sémantique ni le scan sauvegardé du portail |
 | Paquet | 0.3.5, 19 fichiers, 1 315 855 octets ; schéma, CRC et reconstruction déterministe conformes | Double audit des exigences terminé ; 32 tests du paquet réussis ; paquet pas importé ni soumis |
 | Portail | 0.3.2 « Changes required », « Not published » ; configuration MCP indisponible, aucun contrôle de rescan accessible | Mise à jour ZIP bloquée par « Configure the existing MCP app before updating its plugin ZIP. » |
@@ -31,19 +31,13 @@ non exécuté n’a été déclarée.
 
 ## Ordre de reprise
 
-1. **Terminer la vérification de la release application.** Le contrôle borné des
-   268 entrées laisse une seule ressource en échec : l’ancien film non catalogué
-   `/videos/guteneo-vertical-v6-en.mp4`, HTTP 500 sans octets lors de deux lectures
-   avec clés de cache distinctes. Les 265 autres ressources publiques ont les
-   tailles et SHA-256 attendus ; robots, configuration `/_headers` et en-têtes de
-   l’accueil sont contrôlés. Les 41 autres MP4 sont conformes. Diagnostiquer et
-   rétablir cette URL avec ses octets exacts, sans retirer le fichier ni affaiblir
-   le vérificateur. Ne déclarer la release entièrement vérifiée qu’après succès.
-   Capturer ensuite le catalogue
-   MCP authentifié du bon client, en vérifiant les 67 noms, descriptions, schémas
-   et annotations, notamment les deux `destructiveHint` corrigés. Conserver la
-   preuve expurgée hors du dépôt. Ne pas redéployer un candidat sans rapport avec
-   cette empreinte pour faire disparaître un échec de vérification.
+1. **Qualification MCP après la release vérifiée.** Le vérificateur complet
+   inchangé a réussi le 23 octobre à 08:11:41 UTC : 266 ressources publiques,
+   robots et en-têtes conformes. L’ancienne vidéo a récupéré sans mutation ; ne
+   pas rejouer un plan de réparation. Capturer ensuite le catalogue MCP
+   authentifié du bon client, en vérifiant les 67 noms, descriptions, schémas et
+   annotations, notamment les deux `destructiveHint` corrigés. Conserver la
+   preuve expurgée hors du dépôt.
 2. **Rétablir la configuration de l’application MCP existante dans le portail.**
    Relire l’état frais et les contrôles disponibles. Résoudre le blocage de
    configuration avant de réessayer le ZIP. Si le portail reste indisponible,
@@ -111,7 +105,9 @@ Les artefacts locaux de cette passe se trouvent hors du dépôt dans
 `annotation-audit/`, `submission/`, `SCANNER_REVIEW_READINESS.md`,
 `scanner-preparation/READY_FOR_AUTHORIZATION.md`,
 `public-assets-bounded-verification.json`, `PUBLIC_RELEASE_ASSET_DIAGNOSIS.md`
-et les rapports expurgés du scanner. Le clone `release/` est distinct du worktree du paquet.
+`LEGACY_ASSET_RECOVERY.md`, `legacy-asset-repair/full-release-verification.log`,
+`SUPPORT_EMAIL_SENT.md`, les deux matrices complètes des exigences et les rapports
+expurgés du scanner. Le clone `release/` est distinct du worktree du paquet.
 Un fichier de rapport créé mais vide ou une commande en cours ne constitue pas
 un résultat réussi.
 

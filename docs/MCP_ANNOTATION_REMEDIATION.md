@@ -7,18 +7,16 @@ La [PR #65](https://github.com/nclsppr/guteneo/pull/65) est fusionnée dans
 Les **13 contrôles de la CI main** sont réussis sur ce commit exact
 ([run 39914778387](https://github.com/nclsppr/guteneo/actions/runs/39914778387)).
 La publication de l’application a réussi avec la version Worker
-`0334ff69-f89e-419c-ba11-6cf4d035cd88`. Après trois délais dépassés du vérificateur
-initial, un contrôle indépendant borné a inspecté les **268 entrées** du manifeste :
-**265 ressources publiques** correspondent exactement à leur taille et SHA-256,
-la politique dynamique `robots.txt` est conforme, et `/_headers` est reconnu
-comme configuration de déploiement. Le manifeste public correspond au commit
-attendu ; les en-têtes de sécurité et d’indexation de l’accueil sont conformes.
-La seule ressource restante, `/videos/guteneo-vertical-v6-en.mp4`, renvoie
-**HTTP 500 sans octets** lors de deux lectures avec clés de cache distinctes.
-Ce film ancien, inchangé depuis le 2 octobre et absent du catalogue vidéo courant,
-ne doit ni être ignoré ni retiré du contrôle pour obtenir une réussite.
-Les 41 autres MP4 sont conformes. **La vérification complète reste en échec**,
-et le catalogue MCP authentifié doit encore être rapproché séparément.
+`0334ff69-f89e-419c-ba11-6cf4d035cd88`. Le vérificateur complet inchangé a réussi
+le 23 octobre à **08:11:41 UTC** : les **266 ressources publiques** correspondent
+exactement à leurs tailles et SHA-256, la politique dynamique `robots.txt` et les
+en-têtes de sécurité sont conformes, et `/_headers` est reconnu comme
+configuration. Le manifeste correspond au commit attendu, sans source modifiée ;
+son snapshot est `733ca2fd31ec81bc537b055800364f8707d270066a9e3b365ddcd4dabb57710b`.
+L’ancien film `/videos/guteneo-vertical-v6-en.mp4`, initialement en HTTP 500,
+a retrouvé ses octets exacts sans purge ni changement de configuration. Les
+lectures de son URL canonique et de l’URL de preuve sont conformes.
+Le catalogue MCP authentifié doit encore être rapproché séparément.
 
 Le portail existant affiche **0.3.2 — Changes required — Not published**.
 Sa configuration MCP est indisponible et aucun contrôle de nouveau scan n’est
