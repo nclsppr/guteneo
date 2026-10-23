@@ -285,6 +285,42 @@ export function assertContainer(application, image) {
   );
 }
 
+/** Container updates converge after Wrangler returns. Only the observed previous
+ * image may remain during this read-only wait; scope or Worker drift fails now.
+ * There is no deployment retry or rollback here.
+ */
+export async function waitForContainerImage(
+  readState,
+  image,
+  previousImage,
+  version,
+  {
+    pause = (ms) => new Promise((done) => setTimeout(done, ms)),
+    clock = Date.now,
+    timeoutMs = 300_000,
+  } = {},
+) {
+  const deadline = clock() + timeoutMs;
+  while (clock() < deadline) {
+    const { application, deployments, subdomain } = await readState();
+    const deploymentId = assertDeployment(deployments, version);
+    demand(
+      subdomain.enabled === false && subdomain.previews_enabled === false,
+      "SCANNER_PUBLIC_ENDPOINT_ENABLED",
+    );
+    // Validate scope even while the old image is still reported.
+    assertContainer(application, application?.configuration?.image);
+    const observed = application.configuration.image;
+    if (observed === image) return deploymentId;
+    demand(
+      typeof previousImage === "string" && observed === previousImage,
+      "SCANNER_UNEXPECTED_CONTAINER_IMAGE",
+    );
+    await pause(Math.min(5000, Math.max(0, deadline - clock())));
+  }
+  throw new Error("SCANNER_CONTAINER_CONVERGENCE_TIMEOUT");
+}
+
 function childEnvironment(env, cloud = false) {
   const result = { ...env, CI: "true", WRANGLER_SEND_METRICS: "false" };
   delete result.GH_TOKEN;
@@ -642,15 +678,23 @@ export async function refreshScanner({
   );
   const version = output.match(/Current Version ID:\s*([a-f0-9-]{36})/)?.[1];
   demand(UUID.test(version ?? ""), "DEPLOYED_SCANNER_VERSION_MISSING");
-  const deploymentId = assertDeployment(
-    await cf(`/workers/scripts/${SCANNER_NAME}/deployments`),
+  // Preserve the acknowledged write before any control-plane convergence check.
+  await write("deployment-acknowledged.json", {
     version,
-  );
-  assertContainer(await cf(`/containers/applications/${CONTAINER_ID}`), image);
-  const subdomain = await cf(`/workers/scripts/${SCANNER_NAME}/subdomain`);
-  demand(
-    subdomain.enabled === false && subdomain.previews_enabled === false,
-    "SCANNER_PUBLIC_ENDPOINT_ENABLED",
+    buildId,
+    image,
+    previousImage: baseline.configuration?.image,
+    stage: "worker_deployment_acknowledged_not_yet_qualified",
+  });
+  const deploymentId = await waitForContainerImage(
+    async () => ({
+      application: await cf(`/containers/applications/${CONTAINER_ID}`),
+      deployments: await cf(`/workers/scripts/${SCANNER_NAME}/deployments`),
+      subdomain: await cf(`/workers/scripts/${SCANNER_NAME}/subdomain`),
+    }),
+    image,
+    baseline.configuration?.image,
+    version,
   );
   await write("deployment.json", {
     version,

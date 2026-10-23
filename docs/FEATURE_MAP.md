@@ -681,7 +681,7 @@ Référence : [DASHBOARD_V2.md](DASHBOARD_V2.md).
 
 Qualifier main et sa CI → configurer le jeton et son échéance réelle → lancer une actualisation manuelle → vérifier PDF synthétique propre, EICAR, image immuable et version privée réelles → activer les passages quotidiens → contrôler toutes les six heures la dernière preuve et la santé chargée.
 
-**Blocage / reprise :** Activation ou accès manquant, jeton expirant, mise à jour échouée/ignorée, preuve de plus de trente heures, signatures de plus de quarante-huit heures ou identité différente : échec visible. La production refuse toujours les signatures de plus de soixante-douze heures. Les notifications dépendent des préférences GitHub ; une supervision extérieure doit couvrir l'arrêt de GitHub ou du contrôle lui-même. Aucun document client, envoi réel, élargissement de permission ou retour arrière automatique.
+**Blocage / reprise :** Convergence du conteneur bornée à cinq minutes après déploiement, sans nouvelle tentative de publication ; image inattendue ou dérive de périmètre refusée immédiatement. Activation ou accès manquant, jeton expirant, mise à jour échouée/ignorée, preuve de plus de trente heures, signatures de plus de quarante-huit heures ou identité différente : échec visible. La production refuse toujours les signatures de plus de soixante-douze heures. Les notifications dépendent des préférences GitHub ; une supervision extérieure doit couvrir l'arrêt de GitHub ou du contrôle lui-même. Aucun document client, envoi réel, élargissement de permission ou retour arrière automatique.
 
 Référence : [SCANNER_CI.md](SCANNER_CI.md).
 

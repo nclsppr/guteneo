@@ -23,7 +23,12 @@ Le job vérifie le commit exact de `main` et sa CI réussie, notamment les contr
 teste cette image sans réseau : PDF propre, EICAR inoffensif, empreintes exactes,
 limites et absence de conservation des documents de test. Il publie cette même
 image, référencée par son empreinte immuable, puis met à jour uniquement le Worker
-privé `guteneo-scanner`. Il recontrôle `main` avant les publications.
+privé `guteneo-scanner`. Il recontrôle `main` avant les publications. Après
+l'acquittement du déploiement, il conserve sa version dans l'artefact et attend au
+plus cinq minutes que le conteneur passe de l'image précédente à l'image exacte
+qualifiée. Cette attente ne fait que des lectures : une autre image, un changement
+de Worker, de périmètre ou d'exposition publique interrompt immédiatement le
+contrôle. Aucun nouveau déploiement n'est tenté automatiquement.
 
 Une passerelle de qualification locale au runner appelle le scanner distant par
 son service binding privé. Elle n'est jamais déployée et ne donne aucun accès aux
@@ -44,7 +49,7 @@ pas les comptes et ne déploie pas l'application publique.
 
 ## Preuves locales de cette livraison
 
-La suite du scanner couvre 41 tests Node et 38 tests Python, avec vérification
+La suite du scanner couvre 43 tests Node et 38 tests Python, avec vérification
 des types. Un vrai conteneur Linux amd64 issu du commit `5b5041ab` a également été
 construit et exécuté sans réseau, avec 4 GiB et 0,5 CPU : ClamAV 1.5.4, signatures
 28162 du 23 octobre à 06:24:08 UTC, PDF propre accepté, EICAR détecté, empreintes
@@ -53,8 +58,18 @@ conservé. Cette construction locale ne prétend pas porter l'identité d'un pas
 hébergé. La disponibilité initiale mesurée est de 52,85 secondes sur
 le Docker local ; elle ne mesure pas la performance Cloudflare.
 
-Ces résultats ne constituent pas un déploiement ni un succès du futur
-jeton GitHub. La première exécution hébergée reste à qualifier.
+Le premier passage hébergé `39923762583`, issu de `main` `5b5041ab`, a publié
+l'image qualifiée et déployé le Worker, puis a échoué à 08:21:01 UTC : le contrôle
+immédiat lisait encore l'ancienne image. Cloudflare a terminé la convergence à
+08:21:58 UTC. Ce passage reste enregistré comme un échec ; il n'est pas réécrit
+en réussite. À 08:27:39 UTC, une qualification privée distincte, sans nouvelle
+publication ni nouveau déploiement, a validé la version
+`6f9f4e2d-ade1-4c67-abc2-d490988a9fe0` et l'image immuable
+`sha256:d96e8fd958361ae694e4e3fec9b07e2c99a43cb09abeb10577c5e71069fea752` :
+PDF propre, EICAR, empreintes, rejets des entrées vides et mauvais formats,
+signatures 28162 du jour, trafic à 100 %, service privé, conteneur européen unique.
+Aucun document client ni envoi externe n'a été utilisé. L'activation quotidienne
+attend encore la fusion de cette correction et un passage hébergé réussi.
 
 ## Activation initiale
 
@@ -85,9 +100,8 @@ Write** du compte hébergeant Guteneo ; qualifier le périmètre réel lors du p
 Le code n'a pas besoin des bases D1, des documents R2, des fournisseurs d'envoi,
 des routes publiques ou de la facturation. Si Cloudflare exige un droit
 supplémentaire pour son mécanisme de prévisualisation distante, identifier le
-refus exact avant d'élargir ce jeton. La connexion disponible pendant cette
-livraison ne permettait pas de gérer les jetons de compte ; aucun jeton n'a été
-créé ni copié automatiquement dans GitHub.
+refus exact avant d'élargir ce jeton. La création effective, explicitement
+autorisée dans l'interface, et sa portée différente sont détaillées ci-dessous.
 
 ## Périmètre autorisé le 23 octobre 2026
 
