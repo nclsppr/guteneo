@@ -48,6 +48,34 @@ membres qui peuvent la lire. L’option « Rapports » contrôle les synthèses 
 et la consommation de l’atelier ; elle ne masque pas tous les montants ni les
 contenus individuels.
 
+## Annotations MCP — candidat du 20 octobre 2026
+
+La [remédiation des annotations](MCP_ANNOTATION_REMEDIATION.md) conserve cette
+matrice, les scopes OAuth et les droits sur les ressources. Les annotations
+décrivent les effets pour les confirmations de l’hôte ; elles ne donnent aucun
+droit supplémentaire et ne remplacent aucun mandat.
+
+`review_dispatch` est signalé comme destructif parce qu’une nouvelle revue
+terminée remplace le jeton précédent du même envoi et de la même connexion.
+L’accès demeure soumis aux scopes de revue et au mandat expert existants ; il ne
+devient pas une simple lecture accessible à un rôle non habilité.
+`prepare_distribution` est également signalé comme destructif : la création du
+plan fige le lot et interdit toute reprise de ses records échoués, y compris
+ceux exclus de la sélection. Le propriétaire doit terminer les reprises voulues
+avant de préparer le plan ; ensuite, les éléments à régénérer nécessitent un
+nouveau lot. Les accès au plan et les droits d’approbation restent distincts.
+
+Les lectures métier MCP conservent `readOnlyHint:false` et
+`idempotentHint:false` car un succès peut enregistrer en production la dernière
+activité visible de la connexion. Cette observation ne change aucun rôle ni
+scope et ne crée pas une approbation. Le 20 octobre, les neuf suites ciblées ont
+réussi leurs 260 tests, auxquels s’ajoutent trois tests ciblés d’observation des
+connexions. Le typecheck et le lint complets ont réussi ; l’audit local a vérifié
+les 67 outils, leurs 268 booléens et 216 références de code sans écart.
+Ces preuves locales restent distinctes de la CI du commit exact, du serveur
+déployé, du catalogue du portail et de l’approbation OpenAI, comme le précise
+le dossier de remédiation.
+
 ## Présentation V2 et actions disponibles
 
 La simplification V2 du 14 octobre 2026 conserve cette matrice. Chaque action

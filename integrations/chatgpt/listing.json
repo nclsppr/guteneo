@@ -2,7 +2,22 @@
   "documentType": "guteneo_internal_submission_worksheet",
   "officialOpenAISchema": false,
   "preparedAt": "2026-09-17",
-  "submissionStatus": "in_review_032_not_published_not_live",
+  "submissionStatus": "rejected_032_user_notice_portal_not_reverified",
+  "rejectionNotice": {
+    "receivedInConversationOn": "2026-10-20",
+    "source": "rejection_email_supplied_by_publisher",
+    "version": "0.3.2",
+    "reason": "Tool annotations may not match behavior; explicit booleans and per-value justifications requested.",
+    "affectedToolNamesProvided": false,
+    "reviewedScanIdentified": false,
+    "portalIndependentlyReverified": false,
+    "localRemediation": "docs/MCP_ANNOTATION_REMEDIATION.md",
+    "localMatrix": "integrations/chatgpt/tool-annotations.json",
+    "localCatalogueTools": 67,
+    "deployedByThisRemediation": false,
+    "portalRescannedByThisRemediation": false,
+    "resubmittedByThisRemediation": false
+  },
   "pluginVersion": "0.3.2",
   "listing": {
     "name": "Guteneo",
@@ -846,9 +861,11 @@
     "portalUpdated": false,
     "publishedToDirectory": false
   },
-  "candidateStatus": "local_034_prepared_active_032_review_and_public_archive_preserved",
+  "candidateStatus": "local_server_annotation_remediation_032_rejected_no_package_version_change",
   "currentSubmissionFlow": {
     "observedOn": "2026-10-13",
+    "historicalObservationOnly": true,
+    "supersededByRejectionNotice": true,
     "activeReviewVersion": "0.3.2",
     "activeReviewPreserved": true,
     "replacementRequiresSeparateAuthorization": true,
@@ -1031,6 +1048,8 @@
     }
   ],
   "savedPortalCandidate": {
+    "observedOn": "2026-10-13",
+    "historicalObservationOnly": true,
     "version": "0.3.2",
     "status": "In review",
     "publishedToDirectory": false,
@@ -1038,6 +1057,8 @@
     "fullMetadataAndPackageBytesFreshlyCompared": false
   },
   "savedPortalListing": {
+    "observedOn": "2026-10-13",
+    "historicalObservationOnly": true,
     "version": "0.3.2",
     "status": "In review",
     "fullListingFieldsFreshlyVerified": false,

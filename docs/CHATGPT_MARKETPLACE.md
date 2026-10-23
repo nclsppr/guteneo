@@ -1,6 +1,21 @@
-# Dossier marketplace ChatGPT — état du 13 octobre 2026
+# Dossier marketplace ChatGPT — état du 20 octobre 2026
 
-## État courant — revue conservée, qualification incomplète
+## Refus 0.3.2 signalé le 20 octobre — remédiation locale
+
+Le courriel fourni par le titulaire annonce **0.3.2 non approuvée**, pour des
+annotations potentiellement incohérentes avec les effets des outils. Il demande
+des booléens explicites et une justification par valeur, sans identifier les
+outils ou le scan concernés. Le portail n’a pas été relu pendant cette reprise.
+
+L’audit du catalogue local couvre 67 outils. Le correctif signale comme
+destructifs le remplacement d’un jeton de revue valide et le gel définitif d’un
+lot lors de sa préparation pour distribution ; il complète la matrice et ses
+contrôles de couverture. Les preuves, tests et étapes restantes sont décrits
+dans [MCP_ANNOTATION_REMEDIATION.md](MCP_ANNOTATION_REMEDIATION.md).
+Cette préparation ne modifie pas le paquet 0.3.4, ne prouve pas un déploiement
+et ne constitue ni un scan portail ni une resoumission.
+
+## Dernière observation du portail — 13 octobre, historique
 
 Le portail affiche **0.3.2 · In review · Not published · Not live**. Après
 reconnexion du compte de scan, le scan du **13 octobre à 13:56:30 CEST** découvre

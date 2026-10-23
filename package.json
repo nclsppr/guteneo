@@ -13,6 +13,7 @@
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "audit:mcp": "node --import tsx scripts/audit-mcp-annotations.ts",
     "test": "vitest run && node --test tests/security/*.test.mjs",
     "test:e2e": "playwright test",
     "test:preview": "playwright test --config playwright.preview.config.ts",

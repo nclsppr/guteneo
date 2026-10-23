@@ -2401,6 +2401,78 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       service.retryGeneration(owner, generation.id, ["a"]),
     ).rejects.toMatchObject({ code: "GENERATION_FROZEN" });
   });
+  it("preparing a distribution closes retries for failed records excluded from its manifest", async () => {
+    const generation = await job();
+    const upload = vi
+      .spyOn(service.documents, "upload")
+      .mockRejectedValueOnce(
+        new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+      );
+    try {
+      await service.processPending(2);
+      expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+        state: "partial",
+        generated: 1,
+        failed: 1,
+      });
+      expect(
+        await service.retryGeneration(owner, generation.id, ["a"]),
+      ).toMatchObject({ pending: 1, failed: 0 });
+      upload.mockRejectedValueOnce(
+        new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+      );
+      await service.processPending(1);
+      const before = await service.generationResults(owner, generation.id);
+      expect(before.items).toEqual([
+        expect.objectContaining({
+          recordId: "a",
+          state: "failed",
+          attempts: 2,
+          documentId: null,
+        }),
+        expect.objectContaining({ recordId: "b", state: "generated" }),
+      ]);
+
+      const distribution = await service.prepareDistribution(
+        owner,
+        {
+          jobId: generation.id,
+          entries: [
+            {
+              entryId: "successful-only",
+              recordId: "b",
+              channel: "email",
+              recipientFields: { email: "email" },
+              subject: "Synthetic distribution",
+              text: "Requested synthetic message",
+            },
+          ],
+        },
+        "freeze-excluded-failure",
+      );
+      expect(distribution.entries).toEqual([
+        expect.objectContaining({
+          recordId: "b",
+          documentId: before.items[1].documentId,
+          dispatchId: expect.any(String),
+          errorCode: null,
+        }),
+      ]);
+      // Record a still has a remaining attempt and is not in the manifest.
+      // Creating the distribution nevertheless closes recovery for the whole job.
+      await expect(
+        service.retryGeneration(owner, generation.id, ["a"]),
+      ).rejects.toMatchObject({ code: "GENERATION_FROZEN" });
+      expect(await service.generationResults(owner, generation.id)).toEqual(
+        before,
+      );
+      expect(await service.processPending(1)).toEqual({ processed: 0 });
+      for (const table of ["approvals", "reservations", "outbox", "attempts"])
+        expect(await count(table)).toBe(0);
+    } finally {
+      upload.mockRestore();
+    }
+  });
   it("purges normalized generation data and duplicate artefacts after retention while retaining historical hashes", async () => {
     const generation = await job([
       {
@@ -2484,14 +2556,15 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         discovery.tools.find((t) => t.name === "get_generation_job")
           ?.annotations?.readOnlyHint,
       ).toBe(false); // Current MCP reads record successful connection use.
-      // These operations overwrite drafts, disable use, revoke access or cancel
-      // pending work. Host safeguards cover those effects even when published
-      // versions and already generated PDFs remain available.
+      // These operations overwrite drafts, disable use, revoke access, cancel
+      // pending work or close retries for a partially failed generation job.
+      // Preserving versions and generated PDFs does not remove those effects.
       for (const name of [
         "update_template",
         "archive_template",
         "share_template",
         "cancel_generation_job",
+        "prepare_distribution",
       ]) {
         expect(
           discovery.tools.find((tool) => tool.name === name)?.annotations,

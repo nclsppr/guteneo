@@ -1,5 +1,38 @@
 # Expert journey inside the assistant
 
+## Local annotation remediation — 20 October 2026
+
+The candidate labels `review_dispatch` with `destructiveHint:true`: completing
+another review replaces the previous token for the same dispatch and connection,
+including when that token is still valid. This describes the existing server
+behavior; it does not broaden roles, OAuth scopes, mandates or permission to send.
+The host's confirmations still apply.
+
+Before review, explain this replacement where relevant. Read every required page,
+keep only the latest completed review token, and use the exact returned
+fingerprint and ceiling. `EXPERT_REVIEW_INVALID` can mean that a later review
+replaced the token. Read the same dispatch's status and use a current complete
+review or review it again when necessary; never create another send or infer
+non-delivery from the token error.
+
+Business reads such as `read_document_pages` do not alter the document or create
+a review token. Successful MCP calls can nevertheless persist the visible
+production connection activity, so the complete tool contract retains
+`readOnlyHint:false` and `idempotentHint:false`. Descriptions disclose this common
+effect centrally.
+
+The [remediation dossier](MCP_ANNOTATION_REMEDIATION.md) covers all 67 tools, all
+four boolean justifications and actual local `tools/list` validation through
+`npm run audit:mcp`. On 20 October, the audit passed for 67 tools, 268 explicit
+booleans and 216 code references with no issues. All 46 expert-approval tests,
+including replacement of a still-valid token, all 20 paginated-review tests and
+all 16 annotation-audit tests passed. Three targeted connection-observation tests
+and the full typecheck and lint also passed. These are local candidate results,
+not exact-commit CI, deployment, portal scan or approval evidence. The historical
+release evidence below does not qualify this candidate.
+
+## Historical published baseline
+
 Published on 17 September 2026 at `649c0794c6c93619dd258a70cc839c941391f595`
 through [PR #10](https://github.com/nclsppr/guteneo/pull/10). The exact merged
 commit passed [main CI](https://github.com/nclsppr/guteneo/actions/runs/35227582669):
@@ -24,7 +57,9 @@ local follow-up described in [EXPERT_STANDARD_FONTS.md](EXPERT_STANDARD_FONTS.md
   of the conversation. Bounded delayed status reads resume the same document;
   the normal waiting path does not require visiting the website.
 - `read_document_pages` makes the ready original readable before any dispatch
-  exists, including the postal preflight. It is read-only and issues no token.
+  exists, including the postal preflight. Its business operation is read-only
+  and issues no token; the current complete MCP contract also records connection
+  activity as described above.
 - `review_dispatch` normally returns up to three full-page images at a time,
   with bounded text-layer extraction and a next-page pointer. Originals up to
   10 MiB and 100 pages use this path. All pages must be provided before a review
@@ -32,6 +67,9 @@ local follow-up described in [EXPERT_STANDARD_FONTS.md](EXPERT_STANDARD_FONTS.md
   the immutable dispatch/document and canonical scan evidence. The sent PDF
   remains the original. Explicit `format:"pdf"` preserves the existing exact
   embedded-PDF alternative for capable hosts, limited to 1 MiB.
+- Completing another review replaces the previous token for that dispatch and
+  connection. A replaced token cannot be used for delegated acceptance; this
+  existing effect is now made explicit in the candidate's destructive annotation.
 - Errors return readable text and structured recovery. Expired reviews resume
   the same dispatch, missing rights prompt the correct reconnection/mandate
   action, and unknown outcomes never become a fresh send. Integrity errors stop

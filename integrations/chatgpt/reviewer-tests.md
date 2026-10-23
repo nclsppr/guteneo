@@ -1,5 +1,19 @@
 # Recette de soumission ChatGPT
 
+## Notification du 20 octobre 2026 — refus et preuves à renouveler
+
+Le titulaire a fourni le courriel de refus de la version 0.3.2 pour des
+annotations d’outils. Aucun nom d’outil ou scan exact n’y figure. L’état
+« In review » du 13 octobre ci-dessous est désormais historique ; le portail
+n’a pas été vérifié indépendamment pendant cette remédiation.
+
+Le [dossier de remédiation](../../docs/MCP_ANNOTATION_REMEDIATION.md) et la
+[matrice des 67 outils](tool-annotations.json) préparent la correction.
+Les tests locaux d’annotations et de leurs effets ne qualifient aucun cas
+reviewer ci-dessous. Après publication autorisée du correctif, rapprocher
+le nouveau scan du catalogue réel et reprendre les cas sur le bon compte,
+sans expédition réelle.
+
 ## Observation du 13 octobre 2026 — accès rétabli, recette non qualifiée
 
 **0.3.2 reste In review, Not published et Not live.** Le scan du portail à

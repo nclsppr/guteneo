@@ -1,5 +1,36 @@
 # Modèles, données et distribution
 
+## Annotations MCP — candidat local du 20 octobre 2026
+
+`prepare_distribution` déclare désormais `destructiveHint:true` pour un effet
+déjà présent : créer le premier plan interdit définitivement de reprendre les
+records échoués du même lot de génération, y compris les records exclus du plan.
+Cette classification et sa description n’ajoutent aucun droit, aucune route ni
+aucun envoi. Les rôles, scopes et contrôles de propriétaire restent identiques.
+L’assistant expose cette conséquence avant l’appel et respecte les confirmations
+de l’hôte.
+
+Avant de créer un plan, le propriétaire reprend les échecs qu’il souhaite encore
+traiter. Après création, `retry_generation_records` refuse ce lot avec
+`GENERATION_FROZEN` ; les éléments exclus à régénérer nécessitent un nouveau lot.
+`resume_distribution` continue seulement les préparations du plan figé, sans
+rouvrir la génération, approuver un envoi ou reprendre une issue fournisseur
+inconnue. Les PDF existants et leur provenance sont conservés.
+
+Le [dossier de remédiation](MCP_ANNOTATION_REMEDIATION.md) conserve les
+justifications des quatre booléens de chacun des 67 outils. Les descriptions
+signalent aussi l’activité de connexion persistée après succès en production :
+le contrat complet conserve `readOnlyHint:false` et `idempotentHint:false`,
+y compris pour une lecture métier. `npm run audit:mcp` vérifie le catalogue
+local réel `tools/list` et sa couverture. Le 20 octobre, les 55 tests de
+`tests/integration/template-workflow.test.ts`, dont le gel des records exclus du
+plan, et les 16 tests de `tests/unit/mcp-annotation-audit.test.ts` ont réussi.
+L’audit local a contrôlé 67 outils, 268 booléens et 216 références de code sans
+écart ; le typecheck et le lint complets ont aussi réussi. Ces résultats locaux
+ne prouvent ni une CI du commit exact, ni un déploiement, ni une vérification du
+portail ou une approbation OpenAI. Les preuves historiques ci-dessous restent
+distinctes.
+
 Reprise locale du 2 octobre 2026 sur `a808307c5687588eb8c0aab45c9e559aa70a03dc`,
 dans le worktree `templates-workflow`. Le travail du 21 septembre a été récupéré
 du snapshot `20d7b8249b1aa8d942c45b59d56ec9e768503b8e` (base `c5319253`).
@@ -256,8 +287,13 @@ si leurs canaux diffèrent. Le plan ne crée aucune approbation, tentative d’e
 ou réservation de crédit.
 Une préparation postale qui référence un brouillon fournisseur déjà qualifié peut
 consulter le fournisseur pour obtenir son devis ; elle ne soumet aucun envoi.
-Les erreurs par entrée restent visibles. Reprendre un rendu après
-création d’un plan est refusé afin de ne pas y réintroduire silencieusement un PDF.
+Les erreurs par entrée restent visibles. La création du premier plan fige
+l’ensemble du lot de génération, pas seulement les records sélectionnés.
+Reprendre un rendu échoué est ensuite refusé avec `GENERATION_FROZEN`, même pour
+un record exclu du plan, afin de ne pas y réintroduire silencieusement un PDF.
+Terminer les reprises souhaitées avant cette étape ; après celle-ci, créer un
+nouveau lot pour les éléments à régénérer. La reprise de préparation du plan
+reste distincte de la reprise de génération et de l’envoi.
 
 Les canaux réellement activés, profils expéditeurs, devis, facturation, mode
 Review, contrôles postaux et mandats experts restent ceux de Guteneo. Le fait

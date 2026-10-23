@@ -778,7 +778,7 @@ describe("distributable LLM integrations", () => {
           import_document: [false, false, false, true],
           render_pdf: [false, false, false, false],
           rescan_document: [false, false, false, false],
-          review_dispatch: [false, false, false, false],
+          review_dispatch: [false, true, false, false],
           transfer_postal_draft: [false, true, false, false],
           approve_and_send_dispatch: [false, true, false, true],
           confirm_dispatch: [false, true, false, true],
