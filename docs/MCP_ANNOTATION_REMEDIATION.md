@@ -1,6 +1,69 @@
-# Remédiation du refus Guteneo 0.3.2 — 20 octobre 2026
+# Remédiation du refus Guteneo 0.3.2 — suivi au 23 octobre 2026
 
-## État et périmètre de preuve
+## État courant du 23 octobre 2026
+
+La [PR #65](https://github.com/nclsppr/guteneo/pull/65) est fusionnée dans
+`main` au commit `5b5041ab04b235b57fccfa60814e7efa5683e17d`.
+Les **13 contrôles de la CI main** sont réussis sur ce commit exact
+([run 39914778387](https://github.com/nclsppr/guteneo/actions/runs/39914778387)).
+La publication de l’application a réussi avec la version Worker
+`0334ff69-f89e-419c-ba11-6cf4d035cd88`. Après trois délais dépassés du vérificateur
+initial, un contrôle indépendant borné a inspecté les **268 entrées** du manifeste :
+**265 ressources publiques** correspondent exactement à leur taille et SHA-256,
+la politique dynamique `robots.txt` est conforme, et `/_headers` est reconnu
+comme configuration de déploiement. Le manifeste public correspond au commit
+attendu ; les en-têtes de sécurité et d’indexation de l’accueil sont conformes.
+La seule ressource restante, `/videos/guteneo-vertical-v6-en.mp4`, renvoie
+**HTTP 500 sans octets** lors de deux lectures avec clés de cache distinctes.
+Ce film ancien, inchangé depuis le 2 octobre et absent du catalogue vidéo courant,
+ne doit ni être ignoré ni retiré du contrôle pour obtenir une réussite.
+Les 41 autres MP4 sont conformes. **La vérification complète reste en échec**,
+et le catalogue MCP authentifié doit encore être rapproché séparément.
+
+Le portail existant affiche **0.3.2 — Changes required — Not published**.
+Sa configuration MCP est indisponible et aucun contrôle de nouveau scan n’est
+accessible. L’import du paquet **0.3.5** est refusé avec le message exact :
+« Configure the existing MCP app before updating its plugin ZIP. »
+Aucun import réussi, nouveau scan, resoumission ou approbation n’est établi.
+Le paquet 0.3.5 a passé la validation de schéma, l’inventaire de 19 fichiers,
+le contrôle CRC et la reconstruction déterministe ; son SHA-256 est
+`717748d2b61b0ea3aee64d329fa3ad35c95a650f02106188bffd287790feae88`.
+Il conserve l’identité du plugin et le serveur existants.
+Le double audit complet des exigences a identifié des précisions de
+confidentialité et de restrictions documentaires, un lien de présentation à
+remplacer par la page informative, ainsi que des preuves reviewer manquantes.
+Les corrections du serveur et des pages figurent dans la PR #67, encore non
+déployée. Les corrections du paquet et ses 32 tests sont terminées localement.
+La demande de support autorisée a été envoyée à 10:03 Paris après cet audit,
+puis vérifiée dans les messages envoyés. Aucune réponse ni résolution n’est
+encore établie ; les qualifications runtime restent distinctes.
+
+Un second obstacle, distinct des annotations, est confirmé : le scanner privé
+répond **HTTP 503 `SIGNATURES_STALE`** le 23 octobre à 09:23:31, heure de Paris.
+Le plan de contrôle confirme encore le déploiement du 2 octobre et son image
+immuable. Une publication de l’application seule ne rafraîchit pas cette image.
+Les contrôles de fraîcheur restent fermés ; aucune importation de fixture ne
+doit être présentée comme qualifiée sur cette base. Le titulaire a depuis
+autorisé la restauration du scanner et sa maintenance automatique ; cette
+autorisation ne prouve pas encore leur exécution ni leur qualification.
+
+La restriction dédiée `prepare_only` du compte reviewer a été restaurée et
+relue le 23 octobre : l’insertion privée protégée a modifié exactement une ligne,
+et les trois contrôles `target_guard_matches`, `exact_restriction_present` et
+`intended_user_prepare_only` valent chacun `1`. Aucun canal, mandat, solde ou
+envoi n’a été modifié. Le connecteur courant « Guteneo Review » cible toutefois
+un autre tenant : il ne qualifie pas le compte de soumission.
+La configuration Auth0 de renouvellement a déjà été
+appliquée le 13 octobre ; le renouvellement OAuth réellement exécuté dans l’hôte
+reste non qualifié. Les anciennes mentions « renouvellement désactivé » décrivent
+donc un état historique, pas la configuration courante.
+
+La [liste persistante de reprise](OPENAI_RESUBMISSION_TODO.md) ordonne les preuves
+restantes et conserve les cas reviewer existants. Les sections ci-dessous
+décrivent l’audit du 20 octobre ; leurs états « local » ou « non publié » ne
+remplacent pas les observations datées de cette section.
+
+## Historique du 20 octobre : état et périmètre de preuve
 
 Le titulaire a fourni le 20 octobre 2026 un courriel annonçant le refus de
 Guteneo **0.3.2** : au moins une annotation ne correspondrait pas au comportement,
@@ -188,8 +251,9 @@ soumission rejetée 0.3.2 ou promus implicitement par cette remédiation.
 5. Compléter les attestations par le titulaire et effectuer une resoumission
    autorisée. La réponse de revue et la publication restent des étapes distinctes.
 
-Aucun déploiement, modification du portail, attestation, courriel envoyé,
-resoumission ou approbation n’est établi par ce dossier. La source actuellement
-déployée et l’instantané exact examiné n’ont pas été récupérés ici. Une demande
-de précision non envoyée est préparée dans
+Au terme de la passe du 20 octobre, aucun déploiement, modification du portail,
+attestation, courriel envoyé, resoumission ou approbation n’était établi. La source
+alors déployée et l’instantané exact examiné n’avaient pas été récupérés.
+L’état du 23 octobre figure en tête de ce dossier. Une demande de précision
+préparée pendant la passe historique reste dans
 [annotation-review-response.en.md](../integrations/chatgpt/annotation-review-response.en.md).
