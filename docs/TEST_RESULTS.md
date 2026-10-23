@@ -20,6 +20,14 @@ cases in 111 files**, followed by **328 Node security cases**, with no failures
 or skips. Exact-head hosted CI is separate evidence, recorded with the pull
 request and outside-repository logs.
 
+The first hosted run on `08b7cab` passed all application/browser test jobs, but
+the checks job reached its 20-minute limit while installing FFmpeg from the
+Azure Ubuntu mirror, before narration assertions ran. That run did not pass:
+checks were cancelled and the aggregate verification failed.
+The checks job now uses the existing guarded Ubuntu archive preference already
+used by the security/browser jobs; no test, assertion or deadline was removed.
+The replacement exact-head run is recorded separately with the pull request.
+
 The exact Claude archives pass official Claude Code 2.1.309 strict format
 validation. The directory profile still returns `LICENSE_MISSING`; actual
 installation, OAuth and live Claude Code calls remain unqualified. No new
