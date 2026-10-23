@@ -58,6 +58,16 @@ et les trois contrôles `target_guard_matches`, `exact_restriction_present` et
 `intended_user_prepare_only` valent chacun `1`. Aucun canal, mandat, solde ou
 envoi n’a été modifié. Le connecteur courant « Guteneo Review » cible toutefois
 un autre tenant : il ne qualifie pas le compte de soumission.
+Pour P5, l’autorisation explicite reçue à **11:19:24 UTC** a été appliquée et
+vérifiée indépendamment à **11:31:58 UTC** : exactement un ancien tarif expiré
+révoqué, l’ancienne autorité conservée, une autorité `review_prepare_only` et un
+tarif de revue créés. L’autorité expire le `2026-11-22T00:00:00Z` ; le tarif
+expire dès le `2026-10-30T11:10:26.278Z`, borne de son association la plus courte.
+Les limites sont **7 pages**, **200 centimes**, **900 secondes** par devis ;
+l’estimation supérieure de référence est de **166 centimes**. Aucun envoi,
+canal, mandat expert ou solde n’a changé. Cette préparation ne qualifie pas P5
+dans l’hôte : la connexion au compte reviewer attendu reste à rétablir.
+
 La configuration Auth0 de renouvellement a déjà été
 appliquée le 13 octobre ; le renouvellement OAuth réellement exécuté dans l’hôte
 reste non qualifié. Les anciennes mentions « renouvellement désactivé » décrivent

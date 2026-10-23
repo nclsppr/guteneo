@@ -76,11 +76,16 @@ non exécuté n’a été déclarée.
    Conserver P1/P2/P3/P5/P6 et R1/R2/R3, avec leurs critères réels décrits dans
    [reviewer-tests.md](../integrations/chatgpt/reviewer-tests.md). P3 exige le PDF
    synthétique exact, son SHA-256 et le statut confirmé. P5 exige un document
-   prêt et une autorité opérateur fraîche, étroitement bornée au numéro et au
-   plafond de recette, puis un devis valide : l’autorité de revue fax précédente
-   a expiré le `2026-10-21T00:00:00Z`, et les contrôles courants comptent zéro
-   autorité et zéro tarif valides. Le numéro et le plafond historiques seuls ne
-   suffisent donc pas. Cette autorité ne vaut pas autorisation d’expédition.
+   prêt, une autorité opérateur fraîche et un devis valide. L’autorisation explicite
+   reçue le 23 octobre à 11:19:24 UTC a été appliquée et vérifiée indépendamment à
+   11:31:58 UTC : ancien tarif expiré révoqué, ancienne autorité conservée, une
+   nouvelle autorité `review_prepare_only` et son tarif de revue créés. Les bornes
+   sont de 7 pages, 200 centimes et 900 secondes par devis ; estimation supérieure
+   de référence : 166 centimes. L’autorité expire le `2026-11-22T00:00:00Z` ; le
+   tarif, limité par son association la plus courte, le `2026-10-30T11:10:26.278Z`.
+   Recontrôler ces échéances au moment du cas. Aucun envoi, canal, mandat expert ou
+   solde n’a changé. Cette autorité ne vaut pas autorisation d’expédition ; P5
+   dans l’hôte reste non qualifié tant que sa connexion cible le mauvais compte.
    P6 réutilise cette référence préparée sans approbation ni envoi. Les trois
    cas négatifs doivent s’exécuter dans un hôte contrôlé où seul Guteneo est
    disponible. Ne pas substituer des cas plus faciles ou transformer un scan
