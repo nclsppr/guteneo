@@ -3,6 +3,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/ajv";
+import {
+  claudeMarketplaceRoot,
+  claudePluginRoot,
+  claudeMarketplaceFiles,
+  claudePluginFiles,
+  validateClaudePackage,
+} from "./claude/package.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 export const packageFiles = [
@@ -34,19 +41,57 @@ const configFiles = [
   "copilot-cli-mcp.json",
 ];
 
-export async function validateIntegrationPackage() {
+export async function validateIntegrationPackage(
+  packageDirectory = join(root, "guteneo"),
+) {
   const validator = new AjvJsonSchemaValidator();
+  const values = {};
   for (const name of ["plugin", "mcp"]) {
     const schema = JSON.parse(
       await readFile(join(root, "schemas", `${name}.schema.json`), "utf8"),
     );
     const value = JSON.parse(
-      await readFile(join(root, "guteneo", `${name}.json`), "utf8"),
+      await readFile(join(packageDirectory, `${name}.json`), "utf8"),
     );
     const result = validator.getValidator(schema)(value);
     if (!result.valid)
       throw new Error(`Invalid ${name}.json: ${result.errorMessage}`);
+    values[name] = value;
   }
+  const release = JSON.parse(
+    await readFile(join(root, "../package.json"), "utf8"),
+  );
+  if (values.plugin.version !== release.version)
+    throw new Error("Plugin and application release versions differ");
+  for (const filename of [
+    "plugin.json",
+    ".claude-plugin/plugin.json",
+    ".cursor-plugin/plugin.json",
+  ]) {
+    const manifest = JSON.parse(
+      await readFile(join(packageDirectory, filename), "utf8"),
+    );
+    if (manifest.version !== release.version)
+      throw new Error(`Release version differs: ${filename}`);
+    if (
+      manifest.apps != null ||
+      manifest.extensions?.["com.openai"]?.apps != null
+    )
+      throw new Error("Public upload must not include private app bindings");
+  }
+  const compatibility = JSON.parse(
+    await readFile(join(packageDirectory, ".mcp.json"), "utf8"),
+  );
+  const serverNames = Object.keys(values.mcp.mcpServers).sort();
+  if (
+    JSON.stringify(serverNames) !==
+      JSON.stringify(Object.keys(compatibility.mcpServers ?? {}).sort()) ||
+    serverNames.some(
+      (name) =>
+        values.mcp.mcpServers[name].url !== compatibility.mcpServers[name].url,
+    )
+  )
+    throw new Error("Portable and compatibility MCP connections differ");
 }
 
 function crc32(bytes) {
@@ -122,6 +167,36 @@ export async function buildIntegrationPackage(
   const archive = deterministicZip(entries);
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(join(outputDirectory, "guteneo-plugin.zip"), archive);
+  const claudeIdentity = await validateClaudePackage();
+  const claude = {};
+  for (const [kind, source, files, filename] of [
+    ["plugin", claudePluginRoot, claudePluginFiles, "guteneo-claude-code.zip"],
+    [
+      "marketplace",
+      claudeMarketplaceRoot,
+      claudeMarketplaceFiles,
+      "guteneo-claude-marketplace.zip",
+    ],
+  ]) {
+    const bytes = deterministicZip(
+      await Promise.all(
+        files.map(async (name) => ({
+          name,
+          bytes: await readFile(join(source, name)),
+        })),
+      ),
+    );
+    await writeFile(join(outputDirectory, filename), bytes);
+    claude[kind] = {
+      ...claudeIdentity,
+      archive: filename,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+      bytes: bytes.length,
+      files,
+      hostQualification: "pending",
+      publishedToDirectories: false,
+    };
+  }
   for (const file of configFiles)
     await writeFile(
       join(outputDirectory, file),
@@ -140,6 +215,7 @@ export async function buildIntegrationPackage(
     files: packageFiles,
     hostQualification: "pending",
     publishedToDirectories: false,
+    claude,
   };
   await writeFile(
     join(outputDirectory, "manifest.json"),

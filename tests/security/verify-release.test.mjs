@@ -19,6 +19,7 @@ const asset = (path, body) => ({
   sha256: createHash("sha256").update(body).digest("hex"),
 });
 const manifest = {
+  version: "1.0.0",
   sourceCommit: "a".repeat(40),
   sourceDirty: false,
   sourceSnapshotSha256: "b".repeat(64),
@@ -116,6 +117,14 @@ test("release proof rejects an indexed fallback or a noindex canonical page", as
 });
 
 test("runtime robots verification never weakens other assets or release identity", async () => {
+  await assert.rejects(
+    verifyRelease(
+      primary,
+      manifest,
+      fixture(primary, { remote: { ...manifest, version: "0.3.5" } }).fetcher,
+    ),
+    /Deployed release mismatch: version/,
+  );
   for (const overrides of [{ html: html + " " }, { css: css + " " }])
     await assert.rejects(
       verifyRelease(fallback, manifest, fixture(fallback, overrides).fetcher),

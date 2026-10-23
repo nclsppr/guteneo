@@ -5,6 +5,7 @@ import worker, { getCapabilities } from "../../apps/api/src/index";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
 import type { Env } from "../../apps/api/src/env";
 import { DomainService } from "../../packages/domain/src/index";
+import release from "../../package.json" with { type: "json" };
 
 const hosted = {
   ENVIRONMENT: "production",
@@ -17,6 +18,15 @@ const hosted = {
 } as Env;
 
 describe("truthful live transport capabilities", () => {
+  it("announces the application release through the public capability endpoint", async () => {
+    const response = await worker.fetch(
+      new Request("https://guteneo.com/api/capabilities"),
+      hosted,
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ version: release.version });
+  });
+
   it("reports Horizon configuration readiness consistently with its production gates", () => {
     const validator = {
       fetch: async () => new Response("fixture"),
@@ -38,10 +48,7 @@ describe("truthful live transport capabilities", () => {
       [{ PDF_VALIDATOR: undefined }, false],
       [{ SCANNER: undefined }, false],
       [{ MODE: "simulation" }, false],
-      [
-        { ENVIRONMENT: "local", MODE: "simulation", SCANNER: undefined },
-        true,
-      ],
+      [{ ENVIRONMENT: "local", MODE: "simulation", SCANNER: undefined }, true],
     ];
     for (const [overrides, available] of cases) {
       const capabilities = getCapabilities({ ...ready, ...overrides });

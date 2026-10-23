@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "0.3.5",
+  "version": "1.0.0",
   "description": "Prepare PDFs and dispatches, and check PDF/UA or PDF/A when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -43,7 +43,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Version 0.3.5 accompanies corrected MCP destructive annotations for review_dispatch and prepare_distribution, reflecting review-token invalidation and irreversible generation-plan creation. All 67 tools have explicit boolean annotations and documented per-value justifications. Skill titles and descriptions and public links use English while preserving account language preferences. Existing document restrictions, account permissions, approval requirements and sending safeguards remain in effect. Document studio and PDF diagnostics instructions now explicitly apply the same restricted-data limits as the other journeys.",
+        "release_notes": "Version 1.0.0 synchronizes application, MCP and package version identifiers, updates security-sensitive dependencies, and bounds MCP request bodies and tool arguments while preserving supported dataset limits. Web reads discard obsolete responses after navigation or session changes. Template AI suggestions recheck current access, revision and transfer consent before inference and before returning a proposal. All 67 tools retain explicit boolean annotations and per-value justifications. Existing content restrictions, account permissions, immutable approvals and sending safeguards remain in effect. This package retains the existing public Guteneo plugin identity.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

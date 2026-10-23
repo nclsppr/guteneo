@@ -1,5 +1,14 @@
 # Guteneo — e-mails et correspondance PDF
 
+Ce dossier prépare le candidat **1.0.0**. La version du paquet, les capacités
+applicatives et l’identité du serveur MCP suivent la même version source ;
+l’empreinte de publication permet de vérifier le code réellement servi.
+Une archive construite localement ne met pas à jour le serveur ni un annuaire.
+Le build produit aussi deux archives Claude Code dédiées :
+`guteneo-claude-code.zip` et `guteneo-claude-marketplace.zip`, avec des parcours
+adaptés à Claude. Leurs README distinguent validation du format, installation,
+connexion OAuth et qualification réelle.
+
 ## Fonctions et accès
 
 Ce paquet réunit le serveur MCP Guteneo et les parcours `get-started`, `email`,
@@ -32,6 +41,11 @@ La vidéo référencée dans le manifeste est l’enregistrement public du **21 
 ## Installation manuelle
 
 Parcours relus dans les sources officielles le **13 octobre 2026**. Le [ZIP public](https://guteneo.com/integrations/guteneo-plugin.zip) et son [manifeste de version et SHA-256](https://guteneo.com/integrations/manifest.json) permettent de récupérer le paquet sans attendre sa publication dans un catalogue. Le [dépôt public](https://github.com/nclsppr/guteneo) contient aussi son dossier `integrations/guteneo/` sur `main`. Le chargement d’un dossier ne nécessite pas de compiler Guteneo ; la reconstruction du ZIP utilise `npm ci`, puis `npm run build:integrations` depuis la racine du dépôt.
+
+Les commandes Claude Code et le chargement de ZIP dans Claude web/Desktop ont
+été revérifiés le **23 octobre 2026**, avec Claude Code 2.1.309 et les guides
+officiels. La distribution Claude dédiée précise ses prérequis OAuth ; les
+instructions ci-dessous conservent aussi la compatibilité du paquet combiné.
 
 Les liens du site et de `main` fournissent leurs versions respectives. Vérifiez
 la version et l’empreinte du paquet choisi avant l’installation. Les preuves de

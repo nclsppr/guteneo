@@ -1448,6 +1448,18 @@ export class TemplateWorkflowService {
         "Un administrateur doit autoriser ce transfert dans les réglages.",
         403,
       );
+    const assertCurrentSuggestionAuthority = async () => {
+      const current = await this.templateRow(ctx, id, "edit");
+      if (current.revision !== row.revision)
+        fail("REVISION_CONFLICT", "Le modèle a changé.");
+      const currentPolicy = await this.getAiPolicy(ctx);
+      if (!currentPolicy.enabled || !currentPolicy.transferApproved)
+        fail(
+          "AI_TRANSFER_NOT_AUTHORIZED",
+          "Le transfert IA a été désactivé pendant la suggestion.",
+          403,
+        );
+    };
     const day = now().slice(0, 10);
     const reserved = await this.env.DB.prepare(
       "INSERT INTO workflow_ai_usage(organization_id,day,calls) SELECT ?,?,1 WHERE EXISTS(SELECT 1 FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1 AND daily_limit>0) ON CONFLICT(organization_id,day) DO UPDATE SET calls=calls+1 WHERE calls<(SELECT daily_limit FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1)",
@@ -1460,7 +1472,7 @@ export class TemplateWorkflowService {
         "Le budget quotidien d’aide IA est épuisé.",
         429,
       );
-    await this.authorize(ctx, true);
+    await assertCurrentSuggestionAuthority();
     const suggestion = await suggestTemplateWithOpenAI(
       parseJson<TemplateEnvelope>(row.draft_json),
       {
@@ -1471,6 +1483,7 @@ export class TemplateWorkflowService {
       },
       value.instruction,
     );
+    await assertCurrentSuggestionAuthority();
     return { ...suggestion, templateId: id, expectedRevision: row.revision };
   }
   async createMapping(ctx: WorkflowActor, input: unknown) {

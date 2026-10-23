@@ -1,4 +1,5 @@
 import { ImportSourceError, type DocumentService } from "./documents";
+import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
 import {
   type TemplateWorkflowService,
@@ -348,6 +349,76 @@ function output<T extends z.ZodType>(data: T) {
 }
 const id = z.string().min(1).max(200);
 const key = z.string().min(1).max(200);
+export const MCP_LIMITS = Object.freeze({
+  requestBytes: 2 * 1024 * 1024,
+  // Preserve 100,000 dataset cells plus their rows and envelope keys.
+  toolInputElements: 120_000,
+});
+
+// Agents' legacy compatibility lane does not forward maxRequestBodySize.
+// Bound raw bytes before either lane can clone, parse, or validate the body.
+async function boundedMcpRequest(
+  request: Request,
+  origin: string,
+): Promise<Request | Response> {
+  if (request.method !== "POST" || !request.body) return request;
+  const reject = (status: number, message: string) =>
+    Response.json(
+      { jsonrpc: "2.0", id: null, error: { code: -32000, message } },
+      {
+        status,
+        headers: {
+          "Cache-Control": "no-store",
+          "Access-Control-Allow-Origin": origin,
+        },
+      },
+    );
+  const tooLarge = () => reject(413, "MCP request body exceeds 2 MiB.");
+  if (Number(request.headers.get("content-length")) > MCP_LIMITS.requestBytes) {
+    void request.body.cancel().catch(() => undefined);
+    return tooLarge();
+  }
+  const reader = request.body.getReader();
+  const cancel = () => void reader.cancel().catch(() => undefined);
+  request.signal.addEventListener("abort", cancel, { once: true });
+  let bytes = new Uint8Array(0);
+  let size = 0;
+  try {
+    while (true) {
+      if (request.signal.aborted) {
+        cancel();
+        return reject(499, "MCP request aborted.");
+      }
+      const { done, value } = await reader.read();
+      if (request.signal.aborted) return reject(499, "MCP request aborted.");
+      if (done) break;
+      if (value.byteLength > MCP_LIMITS.requestBytes - size) {
+        cancel();
+        return tooLarge();
+      }
+      const required = size + value.byteLength;
+      if (required > bytes.byteLength) {
+        const grown = new Uint8Array(
+          Math.min(
+            MCP_LIMITS.requestBytes,
+            Math.max(required, bytes.byteLength * 2, 16_384),
+          ),
+        );
+        grown.set(bytes.subarray(0, size));
+        bytes = grown;
+      }
+      bytes.set(value, size);
+      size = required;
+    }
+  } catch {
+    cancel();
+    return reject(400, "MCP request body could not be read.");
+  } finally {
+    request.signal.removeEventListener("abort", cancel);
+    reader.releaseLock();
+  }
+  return new Request(request, { body: bytes.subarray(0, size) });
+}
 type ExplicitToolAnnotations = ToolAnnotations &
   Record<
     "readOnlyHint" | "destructiveHint" | "idempotentHint" | "openWorldHint",
@@ -639,17 +710,20 @@ export function createGuteneoMcpServer(
   env: AuthEnv,
   services: McpServices,
 ): McpServer {
-  const server = new McpServer({
-    name: "guteneo",
-    version: "0.3.0",
-    icons: [
-      {
-        src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
-        mimeType: "image/png",
-        sizes: ["512x512"],
-      },
-    ],
-  });
+  const server = new McpServer(
+    {
+      name: "guteneo",
+      version: GUTENEO_VERSION,
+      icons: [
+        {
+          src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
+          mimeType: "image/png",
+          sizes: ["512x512"],
+        },
+      ],
+    },
+    { maxToolInputElements: MCP_LIMITS.toolInputElements },
+  );
   function registerTool<Input extends z.ZodType, Output extends z.ZodType>(
     name: string,
     config: {
@@ -2197,15 +2271,18 @@ export async function handleMcp(
         headers: { "Retry-After": "60", "Cache-Control": "no-store" },
       },
     );
+  const boundedRequest = await boundedMcpRequest(request, env.APP_ORIGIN);
+  if (boundedRequest instanceof Response) return boundedRequest;
   const handler = createMcpHandler(
     () => createGuteneoMcpServer(identity, env, services),
     {
       route: "/mcp",
+      maxRequestBodySize: MCP_LIMITS.requestBytes,
       allowedHostnames: [new URL(env.APP_ORIGIN).hostname],
       corsOptions: { origin: env.APP_ORIGIN },
     },
   );
-  const response = await handler.fetch(request, {
+  const response = await handler.fetch(boundedRequest, {
     authInfo: {
       token: identity.token,
       clientId: identity.clientId,

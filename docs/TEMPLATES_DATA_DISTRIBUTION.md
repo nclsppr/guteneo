@@ -1,5 +1,18 @@
 # Modèles, données et distribution
 
+## Suggestion IA — candidat 1.0.0 du 23 octobre 2026
+
+Le droit de modification du modèle, la membership, la connexion OAuth, la
+révision et le consentement de transfert IA doivent encore être valides juste
+avant l’inférence et avant la restitution de sa proposition. Une révocation,
+un retrait de partage ou une modification concurrente bloque le résultat devenu
+obsolète. Relire l’état courant et demander une nouvelle proposition explicitement ;
+aucune application, publication ou expédition automatique ne suit. Ces contrôles
+serveur sont communs au navigateur, à REST et au MCP. Le quota réservé reste
+consommé, conformément au contrat existant. Les régressions utilisent une
+inférence synthétique interceptée ; aucun appel fournisseur réel n’est qualifié
+par ces tests. Voir [V1_RELEASE_CANDIDATE.md](V1_RELEASE_CANDIDATE.md).
+
 ## Annotations MCP — candidat local du 20 octobre 2026
 
 `prepare_distribution` déclare désormais `destructiveHint:true` pour un effet
