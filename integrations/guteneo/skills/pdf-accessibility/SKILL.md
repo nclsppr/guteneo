@@ -5,8 +5,20 @@ description: Check an existing Guteneo PDF against automated PDF/UA accessibilit
 
 # PDF accessibility and archival diagnostics
 
-Use only tools actually exposed by the connected Guteneo server. This candidate
-does not imply that the hosted service or account has enabled diagnostics.
+Use only tools actually exposed by the connected Guteneo server. Check that
+diagnostics are available for the connected account before starting a validation.
+
+This journey excludes PCI-covered payment-card data, protected health information
+(PHI), government identifiers, authentication secrets, and sensitive personal data.
+Explain this limitation before requesting or processing a document. If such data
+is known to be present in a supplied file, an existing Guteneo PDF, or a diagnostic
+report, do not import, read, validate, or retrieve its contents or report. Ask for
+a version from which the user has removed the excluded data before sharing it.
+Do not request the excluded values or suggest a web upload to bypass this limit.
+A successful security scan or a ready state does not establish that the file is
+free of excluded data. See the
+[privacy policy](https://guteneo.com/confidentialite/?lang=en#donnees) for processing
+and available controls.
 
 1. Reuse the exact original with `get_document` / `list_documents`. If needed,
    import its exact bytes using the established import journey. Never recreate

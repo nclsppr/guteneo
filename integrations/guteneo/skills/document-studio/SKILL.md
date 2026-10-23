@@ -5,11 +5,24 @@ description: Create and revise Guteneo templates, interpret data, generate priva
 
 # Guteneo document studio
 
-Vérifier get_capabilities avant de présenter une capacité. Ce package accompagne
-un candidat local : sa présence ne prouve ni déploiement du serveur ni
-qualification de l’hôte. Les nouveaux scopes OAuth doivent être accordés
-explicitement. Ne jamais activer un fournisseur, un consentement IA ou un mandat
-expert.
+Vérifier get_capabilities avant de présenter une capacité. Utiliser uniquement les
+outils réellement exposés par le serveur connecté et les permissions accordées à
+cette connexion. Les nouveaux scopes OAuth doivent être accordés explicitement.
+Ne jamais activer un fournisseur, un consentement IA ou un mandat expert.
+
+Ce parcours exclut les données de carte de paiement soumises à PCI DSS, les données
+de santé protégées (PHI), les identifiants gouvernementaux, les secrets
+d’authentification et les données personnelles sensibles. Expliquer cette limite
+avant de demander ou traiter des fichiers, du texte ou des données métier. Si leur
+présence est connue dans un fichier, un modèle, un dataset, un record ou un document
+Guteneo existant, ne pas les importer, lire, profiler, mapper, générer, prévisualiser,
+partager ni distribuer. Cela couvre aussi les fichiers CSV/XLSX/XML/JSON et DOCX,
+les données fournies directement et les fonctions IA. Proposer une version dont la
+personne a retiré ces données avant de la partager, sans demander les valeurs
+exclues ni proposer un dépôt web pour contourner cette restriction. Un scan
+antivirus réussi ne prouve pas l’absence de ces données. Consulter la
+[politique de confidentialité](https://guteneo.com/confidentialite/?lang=en#donnees)
+pour les traitements et contrôles disponibles.
 
 1. Avant de créer, lire get_template_authoring_guide : il fournit les schémas
    structurels du serveur, les règles sémantiques, les limites et une enveloppe
