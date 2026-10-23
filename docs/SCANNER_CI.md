@@ -49,7 +49,7 @@ pas les comptes et ne déploie pas l'application publique.
 
 ## Preuves locales de cette livraison
 
-La suite du scanner couvre 44 tests Node et 38 tests Python, avec vérification
+La suite du scanner couvre 46 tests Node et 38 tests Python, avec vérification
 des types. Un vrai conteneur Linux amd64 issu du commit `5b5041ab` a également été
 construit et exécuté sans réseau, avec 4 GiB et 0,5 CPU : ClamAV 1.5.4, signatures
 28162 du 23 octobre à 06:24:08 UTC, PDF propre accepté, EICAR détecté, empreintes
@@ -129,7 +129,10 @@ et le périmètre privé du conteneur. Le résultat de qualification est lu dans
 l'archive GitHub, après vérification de son empreinte et avec des limites de taille,
 sans extraire de fichier. Version, déploiement, image et signatures doivent
 correspondre à cette preuve précise ; un redéploiement ultérieur ne peut pas
-emprunter la réussite d'un ancien passage. Il tolère un démarrage à froid pendant cinq
+emprunter la réussite d'un ancien passage. Après la santé ou la qualification distante,
+les contrôles finaux relisent aussi la fermeture du sous-domaine et des URL de
+prévisualisation ; une exposition apparue pendant le préchauffage interdit la réussite.
+Il tolère un démarrage à froid pendant cinq
 minutes, mais jamais une réponse de signatures périmées. Les deux workflows sont
 sérialisés pour éviter une mesure pendant une publication ; leur file conserve
 jusqu'à cent passages en attente au lieu de remplacer le précédent.

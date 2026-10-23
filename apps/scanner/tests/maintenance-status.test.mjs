@@ -457,3 +457,29 @@ test("separate watchdog has a bounded schedule, read-only permissions and no sil
     /permissions:[\s\S]*?\bwrite\b|if:.*SCANNER_REFRESH_ENABLED|wrangler deploy|gh issue|mailto:/,
   );
 });
+
+test("watchdog rejects either public endpoint enabled during health warmup and closes the bridge", async () => {
+  for (const endpoint of [
+    { enabled: true, previews_enabled: false },
+    { enabled: false, previews_enabled: true },
+  ]) {
+    const h = harness();
+    let afterHealth = false;
+    await assert.rejects(
+      checkMaintenance({
+        ...h.dependencies,
+        health: async (...args) => {
+          const result = await h.dependencies.health(...args);
+          afterHealth = true;
+          return result;
+        },
+        request: async (url, token) =>
+          afterHealth && url.endsWith("/subdomain")
+            ? endpoint
+            : h.request(url, token),
+      }),
+      /SCANNER_PUBLIC_ENDPOINT_ENABLED/,
+    );
+    assert.equal(h.stopped, 1);
+  }
+});

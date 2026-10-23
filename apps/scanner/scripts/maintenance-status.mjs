@@ -312,6 +312,14 @@ export async function checkMaintenance({
       await cloud(`/containers/applications/${CONTAINER_ID}`),
       image,
     );
+    const finalEndpoint = await cloud(
+      `/workers/scripts/${SCANNER_NAME}/subdomain`,
+    );
+    demand(
+      finalEndpoint?.enabled === false &&
+        finalEndpoint?.previews_enabled === false,
+      "SCANNER_PUBLIC_ENDPOINT_ENABLED",
+    );
   } finally {
     await control.stop();
   }

@@ -800,3 +800,36 @@ test("convergence rejects late read success and propagates one shared request de
   );
   assert.equal(observed.aborted, true);
 });
+
+test("refresh never certifies privacy when an endpoint opens during remote qualification", async () => {
+  for (const endpoint of [
+    { enabled: true, previews_enabled: false },
+    { enabled: false, previews_enabled: true },
+  ]) {
+    const h = harness();
+    let afterQualification = false;
+    await assert.rejects(
+      refreshScanner({
+        ...h.dependencies,
+        run: async (command, args, options) => {
+          const result = await h.run(command, args, options);
+          if (args[0] === "tests/qualify_scanner_remote.py")
+            afterQualification = true;
+          return result;
+        },
+        request: async (url, token) =>
+          afterQualification && url.endsWith("/subdomain")
+            ? endpoint
+            : h.request(url, token),
+      }),
+      /SCANNER_PUBLIC_ENDPOINT_ENABLED/,
+    );
+    assert.equal(h.stopCount, 2);
+    assert.equal(h.writes.has("result.json"), false);
+    assert.equal(
+      h.calls.filter((c) => c.type === "command" && c.args[1] === "deploy")
+        .length,
+      1,
+    );
+  }
+});
