@@ -1,5 +1,9 @@
 # Qualification Claude.ai — 17 septembre 2026
 
+Pour le candidat Claude Code 1.0.0 du 23 octobre, consulter
+[CLAUDE_PLUGIN.md](CLAUDE_PLUGIN.md). La preuve ci-dessous reste historique et
+ne qualifie ni ce paquet ni une session Claude Code.
+
 La configuration Auth0 dédiée à Claude.ai a été créée et relue. **Le consentement, le retour OAuth réussi, la découverte de 21 outils et un appel réel de `get_capabilities` sont qualifiés dans le vrai navigateur.** L’appel a réussi le **17 septembre 2026 à 17:55 UTC**, en mode `production` avec `simulation:false`. Ce constat concerne Claude.ai dans Safari avec le compte Free observé ; il ne qualifie ni Claude Code ni d’autres comptes ou surfaces Claude.
 
 Suite du 18 septembre : le bouton d’installation et le renouvellement rotatif

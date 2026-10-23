@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "0.3.5",
+  "version": "1.0.0",
   "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"

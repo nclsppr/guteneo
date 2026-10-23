@@ -1,5 +1,12 @@
 # Guteneo product contract
 
+23 October 2026: the [1.0.0 candidate](V1_RELEASE_CANDIDATE.md) adds synchronized
+application/MCP/package identity, bounded MCP input handling, current-authority
+checks around template AI suggestions and cancellation-safe web reads. A
+[dedicated Claude Code package](CLAUDE_PLUGIN.md) preserves the existing six
+workflows and account safeguards. These are candidate changes; live host and
+production qualification remain separate.
+
 10 October service status: clients, maintainers and on-call staff share a public
 status page with 7/30/365-day observations and separately labelled local feature
 qualification. Missing history is unknown; successful HTTP checks do not claim

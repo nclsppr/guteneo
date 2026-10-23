@@ -168,6 +168,7 @@ export async function getDocumentContent(
       signal,
     },
   );
+  signal?.throwIfAborted();
   if (!response.ok) {
     announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
@@ -176,7 +177,9 @@ export async function getDocumentContent(
       response.status,
     );
   }
-  return new Uint8Array(await response.arrayBuffer());
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  signal?.throwIfAborted();
+  return bytes;
 }
 
 let csrfToken = "";
@@ -254,7 +257,11 @@ export async function api<T>(
       0,
     );
   }
+  init.signal?.throwIfAborted();
   const data: unknown = await response.json().catch(() => null);
+  // A session/account change can abort while an already received body is
+  // parsing. Such a response must not expire the new session or update its UI.
+  init.signal?.throwIfAborted();
   if (!response.ok) {
     announceSessionExpiry(path, response.status);
     const failure = data as {

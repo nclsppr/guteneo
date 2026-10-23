@@ -1,5 +1,35 @@
 # Executed verification
 
+## Candidate 1.0.0 — 23 October 2026
+
+The [candidate contract](V1_RELEASE_CANDIDATE.md) records implementation and
+remaining activation/host boundaries. Targeted evidence before the final full
+run: 235 backend tests, 95 MCP/auth tests, 30 web/API unit cases and nine browser
+cases passed. These groups overlap and must not be summed. Three new campaign
+and stale-session browser cases fail on the base source and pass on the fix;
+eight AI-suggestion cases cover unchanged authority and concurrent changes.
+Twelve actual local Worker cases exercise MCP raw-byte limits, legacy/modern
+protocols, authentication-before-read, cancellation and host/origin guards.
+All use synthetic fixtures and qualify no live communications.
+
+The complete Node security suite passed 328 cases. Full npm audit reports zero
+known vulnerabilities after the lockfile updates. Typechecking, lint, annotation
+audit, feature-map synchronization and the application build have passed in the
+preparation workspace. The final local `npm test` run passed all **2,125 Vitest
+cases in 111 files**, followed by **328 Node security cases**, with no failures
+or skips. Exact-head hosted CI is separate evidence, recorded with the pull
+request and outside-repository logs.
+
+The exact Claude archives pass official Claude Code 2.1.309 strict format
+validation. The directory profile still returns `LICENSE_MISSING`; actual
+installation, OAuth and live Claude Code calls remain unqualified. No new
+production deployment, OpenAI submission or Anthropic listing is claimed.
+
+The feature-map generator's layout is unchanged, and generated output/reference
+checks pass. Visual inspection of the local HTML was not executed: this session's
+browser security policy refused the `file:` URL. No alternate browser or local
+server was used to bypass that refusal. The HTML remains repository-only.
+
 ## Reconciliation with workshop roles — 2 October 2026
 
 The deployment candidate integrates main `8b060bb`, including workshop roles and

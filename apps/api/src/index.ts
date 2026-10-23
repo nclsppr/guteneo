@@ -1,4 +1,5 @@
 import { handleBelvedereRoute } from "./belvedere";
+import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { cleanupBelvedereTelemetry } from "./belvedere-telemetry";
 import { handleInvitationRoute } from "./invitations";
 import {
@@ -106,7 +107,7 @@ function identityConfigured(env: Env) {
 export function getCapabilities(env: Env) {
   return {
     name: "Guteneo",
-    version: "0.2.2",
+    version: GUTENEO_VERSION,
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",
@@ -356,21 +357,22 @@ app.use("*", async (c, next) => {
   await next();
   observation.finish(c.res.status);
 });
-app.use(
-  "*",
-  bodyLimit({
-    maxSize: LIMITS.pdfBytes + 262144,
-    onError: (c) =>
-      c.json(
-        {
-          error: {
-            code: "REQUEST_TOO_LARGE",
-            message: "Requête trop volumineuse.",
-          },
+const ordinaryBodyLimit = bodyLimit({
+  maxSize: LIMITS.pdfBytes + 262144,
+  onError: (c) =>
+    c.json(
+      {
+        error: {
+          code: "REQUEST_TOO_LARGE",
+          message: "Requête trop volumineuse.",
         },
-        413,
-      ),
-  }),
+      },
+      413,
+    ),
+});
+// MCP authenticates and applies its smaller byte bound before buffering.
+app.use("*", (c, next) =>
+  c.req.path === "/mcp" ? next() : ordinaryBodyLimit(c, next),
 );
 app.get("/api/health", (c) =>
   c.json({

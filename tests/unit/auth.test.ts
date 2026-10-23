@@ -31,9 +31,15 @@ import {
   validateAuth0Token,
   type AuthEnv,
 } from "../../apps/api/src/auth";
-import { handleMcp, type McpServices } from "../../apps/api/src/mcp";
+import {
+  handleMcp,
+  MCP_LIMITS,
+  type McpServices,
+} from "../../apps/api/src/mcp";
 import { recordSuccessfulConnectionTool } from "../../apps/api/src/connection-observations";
 import { DomainService } from "../../packages/domain/src/index";
+import worker from "../../apps/api/src/index";
+import { DocumentService } from "../../apps/api/src/documents";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -2017,6 +2023,241 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
         : JSON.parse(raw);
     return { response, payload };
   }
+  function streamedMcpRequest(
+    token: string,
+    chunks: Uint8Array[],
+    options: {
+      version?: string;
+      headers?: Record<string, string>;
+      signal?: AbortSignal;
+      cancelNeverSettles?: boolean;
+    } = {},
+  ) {
+    let chunk = 0;
+    const cancel = vi.fn(() =>
+      options.cancelNeverSettles ? new Promise<void>(() => {}) : undefined,
+    );
+    const pull = vi.fn(
+      (controller: ReadableStreamDefaultController<Uint8Array>) => {
+        if (chunk < chunks.length) controller.enqueue(chunks[chunk++]);
+        else controller.close();
+      },
+    );
+    const req = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Origin: origin,
+        Host: "localhost:8787",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+        "MCP-Protocol-Version": options.version ?? "2025-11-25",
+        ...options.headers,
+      },
+      body: new ReadableStream({ pull, cancel }, { highWaterMark: 0 }),
+      duplex: "half",
+      signal: options.signal,
+    } as RequestInit);
+    return { req, pull, cancel };
+  }
+  const mcpMessage = (method = "tools/list", params: unknown = {}) =>
+    JSON.stringify({ jsonrpc: "2.0", id: "bounded-request", method, params });
+  async function mcpWorker(request: Request) {
+    return worker.fetch(request, env as Env);
+  }
+  async function mcpPayload(response: Response) {
+    const text = await response.text();
+    const data = text.split("\n").find((line) => line.startsWith("data:"));
+    return JSON.parse(data ? data.slice(5) : text);
+  }
+  it.each([
+    ["2025-11-25", "missing"],
+    ["2025-11-25", "underdeclared"],
+    ["2026-07-28", "missing"],
+    ["2026-07-28", "underdeclared"],
+  ])(
+    "MCP byte gate stops oversized %s bodies with %s length at the Worker entry",
+    async (version, length) => {
+      const auth = await credential();
+      const render = vi.spyOn(DocumentService.prototype, "render");
+      const message = new TextEncoder().encode(
+        mcpMessage("tools/call", {
+          name: "render_pdf",
+          arguments: { name: "bounded", html: "<p>Synthetic</p>" },
+        }),
+      );
+      const full = new Uint8Array(MCP_LIMITS.requestBytes).fill(32);
+      full.set(message);
+      const stream = streamedMcpRequest(
+        auth.token,
+        [full, new Uint8Array([32]), new Uint8Array([32])],
+        {
+          version,
+          headers: {
+            "Mcp-Method": "tools/call",
+            "Mcp-Name": "render_pdf",
+            ...(length === "underdeclared" ? { "Content-Length": "1" } : {}),
+          },
+          cancelNeverSettles: true,
+        },
+      );
+      const response = await mcpWorker(stream.req);
+      expect(response.status).toBe(413);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+      expect(await response.json()).toMatchObject({
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32000 },
+      });
+      expect(stream.pull).toHaveBeenCalledTimes(2);
+      expect(stream.cancel).toHaveBeenCalledTimes(1);
+      expect(render).not.toHaveBeenCalled();
+      expect(stream.req.body?.locked).toBe(false);
+    },
+  );
+  it.each(["2025-11-25", "2026-07-28"])(
+    "MCP byte gate accepts the exact UTF-8 byte boundary and discovery for %s",
+    async (version) => {
+      const auth = await credential();
+      const base = mcpMessage("tools/list", {
+        _meta: {
+          padding: "",
+          ...(version === "2026-07-28"
+            ? {
+                "io.modelcontextprotocol/protocolVersion": version,
+                "io.modelcontextprotocol/clientCapabilities": {},
+              }
+            : {}),
+        },
+      });
+      const remaining =
+        MCP_LIMITS.requestBytes - new TextEncoder().encode(base).length;
+      const padded = base.replace(
+        '"padding":""',
+        `"padding":"${"é".repeat(Math.floor(remaining / 2))}${" ".repeat(remaining % 2)}"`,
+      );
+      const bytes = new TextEncoder().encode(padded);
+      expect(bytes.byteLength).toBe(MCP_LIMITS.requestBytes);
+      expect(padded.length).toBeLessThan(MCP_LIMITS.requestBytes);
+      const stream = streamedMcpRequest(
+        auth.token,
+        [bytes.subarray(0, 17), bytes.subarray(17)],
+        { version, headers: { "Mcp-Method": "tools/list" } },
+      );
+      const response = await mcpWorker(stream.req);
+      const payload = await mcpPayload(response);
+      expect(response.status, JSON.stringify(payload)).toBe(200);
+      expect(
+        payload.result.tools.some(
+          (tool: { name: string }) => tool.name === "render_pdf",
+        ),
+      ).toBe(true);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+      expect(stream.cancel).not.toHaveBeenCalled();
+    },
+  );
+  it("MCP byte gate rejects a multibyte overrun delivered in one chunk", async () => {
+    const auth = await credential();
+    const bytes = new TextEncoder().encode(
+      "é".repeat(MCP_LIMITS.requestBytes / 2 + 1),
+    );
+    const stream = streamedMcpRequest(auth.token, [bytes]);
+    expect((await mcpWorker(stream.req)).status).toBe(413);
+    expect(stream.pull).toHaveBeenCalledTimes(1);
+    expect(stream.cancel).toHaveBeenCalledTimes(1);
+  });
+  it("MCP byte gate rejects declared oversize without reading and never parses an unauthenticated body", async () => {
+    const auth = await credential();
+    const declared = streamedMcpRequest(auth.token, [new Uint8Array([32])], {
+      headers: { "Content-Length": String(MCP_LIMITS.requestBytes + 1) },
+      cancelNeverSettles: true,
+    });
+    expect((await mcpWorker(declared.req)).status).toBe(413);
+    expect(declared.pull).not.toHaveBeenCalled();
+    expect(declared.cancel).toHaveBeenCalledTimes(1);
+    const unauthenticated = streamedMcpRequest(
+      "",
+      [new Uint8Array(MCP_LIMITS.requestBytes + 1)],
+      { headers: { Authorization: "" } },
+    );
+    const response = await mcpWorker(unauthenticated.req);
+    expect(response.status).toBe(401);
+    expect(response.headers.get("WWW-Authenticate")).toContain(
+      "oauth-protected-resource/mcp",
+    );
+    expect(unauthenticated.pull).not.toHaveBeenCalled();
+  });
+  it.each(["host", "origin"])(
+    "MCP byte gate preserves the SDK %s rejection for bounded requests",
+    async (guard) => {
+      const auth = await credential();
+      const stream = streamedMcpRequest(
+        auth.token,
+        [new TextEncoder().encode(mcpMessage())],
+        {
+          headers:
+            guard === "host"
+              ? { Host: "foreign.invalid" }
+              : { Origin: "https://foreign.invalid" },
+        },
+      );
+      const response = await mcpWorker(stream.req);
+      expect(response.status).toBe(403);
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+    },
+  );
+  it("MCP byte gate rejects an interrupted body without disclosing the stream error", async () => {
+    const auth = await credential();
+    const request = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        "Content-Type": "application/json",
+      },
+      body: new ReadableStream(
+        {
+          pull(controller) {
+            controller.error(new Error("private synthetic stream detail"));
+          },
+        },
+        { highWaterMark: 0 },
+      ),
+      duplex: "half",
+    } as RequestInit);
+    const response = await mcpWorker(request);
+    expect(response.status).toBe(400);
+    expect(await response.text()).not.toContain("private synthetic");
+    expect(request.body?.locked).toBe(false);
+  });
+  it("MCP byte gate cancels an aborted pending read without waiting for source cancellation", async () => {
+    const auth = await credential();
+    const controller = new AbortController();
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const request = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        "Content-Type": "application/json",
+      },
+      body: new ReadableStream(
+        {
+          pull() {
+            controller.abort();
+          },
+          cancel,
+        },
+        { highWaterMark: 0 },
+      ),
+      duplex: "half",
+      signal: controller.signal,
+    } as RequestInit);
+    expect((await mcpWorker(request)).status).toBe(499);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(request.body?.locked).toBe(false);
+  });
+
   it("advertises exact file schema and never exposes a human approval tool", async () => {
     const auth = await credential();
     const { response, payload } = await rpc(auth.token, "tools/list");

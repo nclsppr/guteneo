@@ -8,6 +8,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   createGuteneoMcpServer,
+  MCP_LIMITS,
   type McpDocuments,
   type McpServices,
 } from "../../apps/api/src/mcp";
@@ -24,6 +25,7 @@ import {
   assistantRecoverySchema,
 } from "../../packages/contracts/src/assistant-recovery";
 import { ContentError } from "../../packages/contracts/src/content";
+import { GUTENEO_VERSION } from "../../packages/contracts/src/release";
 import {
   prepareTemplateRender,
   validateTemplateEnvelope,
@@ -118,11 +120,13 @@ async function connected<T>(
   documentServices: Partial<McpDocuments> = {},
   onToolFailure?: McpServices["onToolFailure"],
   postal?: McpServices["postal"],
+  workflow?: McpServices["workflow"],
 ) {
   const server = createGuteneoMcpServer(principal, env, {
     domain,
     onToolFailure,
     postal,
+    workflow,
     capabilities: () => ({ mode: "simulation", liveSendsEnabled: false }),
     documents: {
       async importFile() {
@@ -167,6 +171,63 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("preserves the supported 100,000-cell JSON dataset before domain validation", async () => {
+    const importDataset = vi.fn(async () => {
+      throw new DomainError(
+        "SYNTHETIC_REACHED",
+        "Synthetic validation boundary",
+      );
+    });
+    const data = Array.from({ length: 5000 }, (_, row) =>
+      Object.fromEntries(
+        Array.from({ length: 20 }, (_, column) => [`field${column}`, row]),
+      ),
+    );
+    expect(Buffer.byteLength(JSON.stringify(data))).toBeLessThan(
+      MCP_LIMITS.requestBytes,
+    );
+    await connected(
+      async (client) => {
+        const result = await call(client, "import_json_dataset", {
+          name: "Synthetic cells",
+          data,
+        });
+        expect(result.structuredContent?.error?.code).toBe("SYNTHETIC_REACHED");
+        expect(importDataset).toHaveBeenCalledTimes(1);
+      },
+      identity,
+      {},
+      undefined,
+      undefined,
+      { importDataset } as unknown as McpServices["workflow"],
+    );
+  });
+
+  it("rejects excessive tool argument elements before validation or document access", async () => {
+    const importFile = vi.fn(async () => {
+      throw new Error("A rejected call must not reach document services");
+    });
+    await connected(
+      async (client) => {
+        const result = await call(client, "import_document", {
+          file: {
+            download_url: "https://files.example.invalid/original.pdf",
+            file_id: "fixture",
+          },
+          excessive: Array.from(
+            { length: MCP_LIMITS.toolInputElements },
+            () => null,
+          ),
+        });
+        expect(result.isError).toBe(true);
+        expect(JSON.stringify(result)).toMatch(/element|limit|complex|large/i);
+        expect(importFile).not.toHaveBeenCalled();
+      },
+      identity,
+      { importFile },
+    );
+  });
+
   it.each([
     ["DOCUMENT_INTEGRITY_ERROR", "contact_support", null],
     ["CORRUPT_PDF", "replace_file", null],
@@ -563,7 +624,7 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.3.5");
+      expect(manifest.version).toBe(GUTENEO_VERSION);
       expect(manifest.version).toBe(plugin.version);
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
@@ -743,7 +804,7 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.3.0",
+          version: GUTENEO_VERSION,
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,

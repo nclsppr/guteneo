@@ -71,6 +71,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - name: Reject known high and critical dependency advisories
+        run: npm run audit:dependencies
       - name: Require a synchronized developer feature tree and valid references
         run: node docs/build-feature-map.mjs --check
       - name: Audit every advertised MCP tool annotation and justification

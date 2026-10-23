@@ -1,5 +1,11 @@
 # Guteneo dans ChatGPT, Claude, Grok, Cursor et GitHub Copilot
 
+Le [candidat 1.0.0](V1_RELEASE_CANDIDATE.md) ajoute une distribution Claude Code
+dédiée : [paquet, catalogue local et qualification](CLAUDE_PLUGIN.md). Les formats
+Claude et commandes de chargement ont été relus le 23 octobre 2026 ; la validation
+du paquet et sa connexion OAuth réelle restent deux preuves distinctes. Les
+constats datés ci-dessous restent historiques pour leurs versions respectives.
+
 Parcours d’installation relus dans les sources officielles le **13 octobre 2026**. Serveur cible : **https://guteneo.com/mcp**, transport Streamable HTTP, OAuth par utilisateur. La disponibilité du serveur, le téléchargement du paquet, sa connexion réelle dans un hôte et sa publication dans un catalogue sont quatre preuves distinctes. Les parcours ci-dessous expliquent l’installation manuelle ; ils ne constituent pas une nouvelle qualification des clients ou une approbation de marketplace. Les offres, versions et politiques de votre espace peuvent limiter les installations personnalisées.
 
 Dans ChatGPT, la connexion de développement privée, la lecture, le transfert exact d’un PDF et sa vérification ont été observés dans le vrai client en septembre 2026. Un fax a ensuite été livré sur une route luxembourgeoise après approbation dans Guteneo : voir [la qualification datée et ses limites](CHATGPT_QUALIFICATION.md). Ces preuves ne qualifient ni le paquet complet actuel, ni tous les modèles ou destinations, ni le renouvellement et la révocation OAuth. Le [dossier de soumission ChatGPT](CHATGPT_MARKETPLACE.md) conserve les pièces et les prérequis ; le statut courant de revue doit être relu dans le portail avant toute publication.

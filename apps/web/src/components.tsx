@@ -10,6 +10,7 @@ import {
   Suspense,
   type ReactNode,
   type ReactElement,
+  type SetStateAction,
 } from "react";
 import {
   ArrowClockwise,
@@ -129,31 +130,71 @@ export function useRoute() {
   return route;
 }
 export function useResource<T>(path: string | null) {
-  const [data, setData] = useState<T>();
-  const [error, setError] = useState<Error>();
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<{
+    path: string | null;
+    data?: T;
+    error?: Error;
+    loading: boolean;
+  }>({ path, loading: Boolean(path) });
   const [version, setVersion] = useState(0);
   const refresh = useCallback(() => setVersion((v) => v + 1), []);
+  const setData = useCallback(
+    (value: SetStateAction<T | undefined>) => {
+      setState((current) =>
+        current.path === path
+          ? {
+              ...current,
+              data:
+                typeof value === "function"
+                  ? (value as (previous: T | undefined) => T | undefined)(
+                      current.data,
+                    )
+                  : value,
+            }
+          : current,
+      );
+    },
+    [path],
+  );
   useEffect(() => {
     if (!path) {
-      setLoading(false);
+      setState({ path, loading: false });
       return;
     }
     const controller = new AbortController();
-    setLoading(true);
-    setError(undefined);
+    // A refresh retains this resource. Navigation must never show an editable
+    // model from the previous path while the new request is pending or fails.
+    setState((current) => ({
+      path,
+      data: current.path === path ? current.data : undefined,
+      loading: true,
+    }));
     api<T>(path, { signal: controller.signal })
-      .then(setData)
-      .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError"))
-          setError(error as Error);
+      .then((data) => {
+        if (!controller.signal.aborted)
+          setState({ path, data, loading: false });
       })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+      .catch((error: unknown) => {
+        // Aborting fetch is not sufficient when parsing or another transport
+        // has already completed. Late successes and failures are both stale.
+        if (!controller.signal.aborted)
+          setState((current) => ({
+            ...current,
+            error: error as Error,
+            loading: false,
+          }));
       });
     return () => controller.abort();
   }, [path, version]);
-  return { data, error, loading, refresh, setData };
+  // Effects run after render; hide a different path's data immediately.
+  const current = state.path === path ? state : undefined;
+  return {
+    data: current?.data,
+    error: current?.error,
+    loading: current?.loading ?? Boolean(path),
+    refresh,
+    setData,
+  };
 }
 /**
  * Re-read a resource when the person comes back to this tab, for example

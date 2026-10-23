@@ -1,5 +1,13 @@
 # Compte connecté et responsables de l’atelier
 
+Le candidat 1.0.0 ignore les réponses d’une lecture web annulée, y compris un
+401 reçu pendant le changement de compte ou d’atelier. Elles ne doivent ni
+remplacer le contenu courant ni expirer la nouvelle session. Le hook partagé
+masque immédiatement les données d’un ancien chemin, et conserve seulement la
+ressource identique pendant son rafraîchissement. Les régressions observées sur
+fixtures couvrent le suivi de campagnes et le changement de compte ; les
+éditeurs déjà remontés par identifiant conservent leurs protections existantes.
+
 Contrat de compte enrichi les 9 et 11 octobre 2026 ; simplification de la coque V2
 du 14 octobre en cours de qualification. Cette page décrit l’implémentation ;
 la CI, la configuration Auth0 et la publication se qualifient séparément. Les

@@ -1,5 +1,11 @@
 # Guteneo
 
+The [1.0.0 release candidate](docs/V1_RELEASE_CANDIDATE.md) consolidates the web,
+MCP and integration versions with additional security and navigation checks.
+The [dedicated Claude package](docs/CLAUDE_PLUGIN.md) has its own plugin and local
+marketplace archives. Candidate preparation, production availability and directory
+publication are tracked separately in those documents.
+
 An independent, MCP-first correspondence product: exact PDF → fax or physical post, HTML → PDF, and HTML/text → individual email. French editorial frontend inspired by printing craft. Telnyx, Amazon SES and Pingen connectors. No VBS dependency.
 
 **Production application:** [guteneo.com](https://guteneo.com) is the canonical production origin, including browser login and the authenticated dashboard. The application uses private EU D1/R2 storage, queues and private PDF services. Account/profile/session/team management, billing tracking and MCP/plugin packages are implemented; actual identity-provider, assistant and delivery qualification remain separate evidence. The publication contract disables the application’s `workers.dev` hostname and Cloudflare version preview URLs. On 10 October 2026, the user accepted deferring migration of the dormant SES SNS subscription while SES is unused and business email sending remains disabled; canonical callback qualification is required before any future SES activation. See [current release procedure](docs/MAIN_RELEASE.md), [accepted SES deferral](docs/SES_STATUS.md) and [dated release evidence](docs/LIVE_RELEASE.md).

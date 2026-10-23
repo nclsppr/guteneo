@@ -3289,6 +3289,172 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       inference.mockRestore();
     }
   });
+  it.each([
+    ["unchanged", null, "during"],
+    ["consent", "AI_TRANSFER_NOT_AUTHORIZED", "during"],
+    ["membership", "FORBIDDEN", "during"],
+    ["oauth", "CONNECTION_REVOKED", "during"],
+    ["sharing", "TEMPLATE_NOT_FOUND", "during"],
+    ["revision", "REVISION_CONFLICT", "during"],
+    ["sharing", "TEMPLATE_NOT_FOUND", "before"],
+    ["revision", "REVISION_CONFLICT", "before"],
+  ] as const)(
+    "rechecks template suggestion authority after %s changes (%s) %s synthetic inference",
+    async (change, expectedCode, stage) => {
+      env.DATASET_OPENAI_API_KEY = "synthetic-not-a-secret";
+      env.DATASET_OPENAI_MODEL = "synthetic-contract-model";
+      await service.setAiPolicy(owner, {
+        enabled: true,
+        transferApproved: true,
+        dailyLimit: 1,
+      });
+      const created = await service.createTemplate(owner, {
+        envelope: envelope(),
+      });
+      const template = await service.shareTemplate(owner, created.id, {
+        expectedRevision: created.revision,
+        visibility: "selected",
+        syntheticSamplesConfirmed: true,
+        grants: [
+          {
+            userId: member.userId,
+            use: true,
+            edit: true,
+            publish: false,
+            share: false,
+          },
+        ],
+      });
+      const connectionId = `template-ai-${crypto.randomUUID()}`;
+      await db
+        .prepare(
+          "INSERT INTO authorized_connections(id,issuer,user_id,client_id,organization_id,status,created_at,updated_at) VALUES(?,?,?,?,?,'active',?,?)",
+        )
+        .bind(
+          connectionId,
+          "https://synthetic.invalid",
+          member.userId,
+          connectionId,
+          member.organizationId,
+          new Date().toISOString(),
+          new Date().toISOString(),
+        )
+        .run();
+      const ctx: WorkflowActor = {
+        ...member,
+        actor: "mcp",
+        authority: { connectionId, authorizationRevision: 0 },
+      };
+      const interleave = async () => {
+        if (change === "consent")
+          await service.setAiPolicy(owner, {
+            enabled: false,
+            transferApproved: false,
+            dailyLimit: 1,
+          });
+        else if (change === "membership")
+          await db
+            .prepare(
+              "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+            )
+            .bind(member.organizationId, member.userId)
+            .run();
+        else if (change === "oauth")
+          await db
+            .prepare(
+              "UPDATE authorized_connections SET not_before=not_before+1 WHERE id=?",
+            )
+            .bind(connectionId)
+            .run();
+        else if (change === "sharing")
+          await service.shareTemplate(owner, template.id, {
+            expectedRevision: template.revision,
+            visibility: "private",
+            syntheticSamplesConfirmed: true,
+            grants: [],
+          });
+        else if (change === "revision")
+          await service.updateTemplate(owner, template.id, {
+            expectedRevision: template.revision,
+            envelope: { ...template.envelope, name: "Fresh human edit" },
+          });
+      };
+      const permissionRead =
+        stage === "before" ? afterTemplateRead(interleave) : undefined;
+      let calls = 0;
+      const originalFetch = globalThis.fetch;
+      const inference = vi
+        .spyOn(globalThis, "fetch")
+        .mockImplementation(async (input, init) => {
+          if (String(input) !== "https://api.openai.com/v1/responses")
+            return originalFetch(input, init);
+          calls++;
+          if (stage === "during") await interleave();
+          return Response.json({
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  {
+                    type: "output_text",
+                    text: JSON.stringify({
+                      galleryId: null,
+                      patches: [],
+                      warnings: [],
+                    }),
+                  },
+                ],
+              },
+            ],
+            usage: { input_tokens: 100, output_tokens: 20 },
+          });
+        });
+      try {
+        const result = service.suggestTemplate(ctx, template.id, {
+          expectedRevision: template.revision,
+          instruction: "Vérifier cette proposition sans l’adopter.",
+        });
+        if (expectedCode)
+          await expect(result).rejects.toMatchObject({ code: expectedCode });
+        else
+          await expect(result).resolves.toMatchObject({
+            status: "needs_review",
+            templateId: template.id,
+            expectedRevision: template.revision,
+            envelope: template.envelope,
+          });
+        expect(calls).toBe(stage === "before" ? 0 : 1);
+        expect(
+          await db
+            .prepare(
+              "SELECT calls FROM workflow_ai_usage WHERE organization_id=?",
+            )
+            .bind(owner.organizationId)
+            .first(),
+        ).toEqual({ calls: 1 });
+        const current = await service.getTemplate(owner, template.id);
+        expect(current.envelope).toEqual(
+          change === "revision"
+            ? { ...template.envelope, name: "Fresh human edit" }
+            : template.envelope,
+        );
+        for (const table of [
+          "template_versions",
+          "generation_jobs",
+          "dispatches",
+          "approvals",
+          "reservations",
+          "outbox",
+          "attempts",
+        ])
+          expect(await count(table)).toBe(0);
+      } finally {
+        inference.mockRestore();
+        permissionRead?.mockRestore();
+      }
+    },
+  );
   it("requires explicit configured AI access and never lets an assistant grant organization transfer consent", async () => {
     const source = await service.importDataset(owner, {
       name: "data.json",

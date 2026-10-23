@@ -56,6 +56,7 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
   };
   const remote = await (await fetchPublic("/release.json")).json();
   for (const field of [
+    "version",
     "sourceCommit",
     "sourceDirty",
     "sourceSnapshotSha256",
@@ -134,6 +135,7 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
     throw new Error("Public page indexing header does not match its host.");
   return {
     origin: origin.origin,
+    version: remote.version,
     sourceCommit: remote.sourceCommit,
     sourceDirty: remote.sourceDirty,
     sourceSnapshotSha256: remote.sourceSnapshotSha256,

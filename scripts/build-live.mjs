@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { build } from "vite";
 import { buildIntegrationPackage } from "../integrations/build.mjs";
 import { buildPublicPages } from "./build-public-pages.mjs";
+import release from "../package.json" with { type: "json" };
 
 import {
   collectAssets,
@@ -43,7 +44,7 @@ await writeFile(
   JSON.stringify(
     {
       product: "Guteneo",
-      version: "0.2.0",
+      version: release.version,
       mode: "production",
       publicPreview: false,
       ...(await liveReleaseSending(root)),

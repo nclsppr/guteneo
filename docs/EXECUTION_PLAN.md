@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
+identity, dependency security, MCP request bounds, web navigation cancellation
+and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a
+separate native plugin and local marketplace candidate. Complete exact-source
+CI and the documented host/production gates before claiming release readiness;
+the existing OpenAI 0.3.5 follow-up continues independently.
+
 10 October account language candidate: centralize the authenticated language
 control in account configuration and apply the saved preference to dashboard
 and Belvédère, including direct entry and focus refresh. Four-language parity,

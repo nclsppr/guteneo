@@ -1,5 +1,13 @@
 # Architecture
 
+23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
+version for application capabilities, MCP server identity and public release
+metadata. MCP input is bounded before schema/domain work. Template suggestions
+revalidate current membership/OAuth authority, edit permission, revision and AI
+transfer consent before inference and before returning content. Web resource
+state is scoped to its path; cancelled reads cannot expire a newer session.
+No database migration or new business authority is introduced.
+
 10 October account language: authenticated dashboard views and Belvédère resolve
 the same saved user preference; only account configuration exposes a selector.
 The existing private Belvédère guard supplies a validated locale enum in its HTML,
