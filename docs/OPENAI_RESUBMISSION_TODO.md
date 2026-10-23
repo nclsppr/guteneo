@@ -58,7 +58,7 @@ non exécuté n’a été déclarée.
    vers ce compte ; une connexion différente ne reçoit pas cette qualification.
 4. **Terminer la maintenance automatique du scanner restauré.** La restauration
    autorisée est qualifiée à 08:27:39 UTC sur l’image réellement servie : PDF
-   synthétique propre, EICAR, empreinte incorrecte, contenu vide et type incorrect
+   synthétique propre, EICAR, empreintes exactes, contenu vide et type incorrect
    contrôlés ; aucune donnée client ni communication réelle. Le run
    [39923762583](https://github.com/nclsppr/guteneo/actions/runs/39923762583)
    conserve son échec initial : le plan de contrôle a convergé après sa lecture
