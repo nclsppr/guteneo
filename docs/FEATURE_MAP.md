@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo · atlas technique
 
-> **21 domaines · 187 fonctionnalités · 22 parcours** — mis à jour le 2026-10-20.
+> **21 domaines · 188 fonctionnalités · 23 parcours** — mis à jour le 2026-10-20.
 > Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
 
 Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
@@ -405,7 +405,7 @@ Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src
 
 Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · Source : [scripts/deploy-public.mjs](../scripts/deploy-public.mjs).
 
-**Surfaces :** CLI / CI / services privés ; vue locale anonyme sans droit supplémentaire web/native/REST/MCP. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts).
+**Surfaces :** CLI / CI / services privés ; vue locale anonyme sans droit supplémentaire web/native/REST/MCP. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs).
 
 - Files interactives, lots, outbox transactionnelle et idempotence
 - Callbacks fournisseur authentifiés et journaux sans contenu sensible
@@ -419,6 +419,7 @@ Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · 
 - Moniteur local de production : lectures anonymes bornées sur le domaine canonique et contrôle de fermeture de l’ancien hôte, hashes de pages, refus des accès privés, état périmé après 120 s et qualification partielle par fonction ; aucun envoi ni tâche permanente
 - Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées
 - CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners
+- Maintenance antivirus quotidienne avec activation et jeton explicites ; contrôle distinct toutes les six heures de la qualification hébergée exacte, de la santé privée, des signatures chargées et de l'échéance du jeton ; échecs visibles sans scans clients ni envois, supervision hors GitHub encore nécessaire pour couvrir son propre arrêt
 
 ### 20 · Belvédère et supervision plateforme
 
@@ -634,16 +635,6 @@ Lancer monitor:prod ou monitor:prod:live → contrôler source et 17 preuves pub
 
 Référence : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md).
 
-La maintenance antivirus utilise un passage quotidien hébergé et un contrôle
-distinct toutes les six heures. Ce dernier compare la santé privée et la version,
-l'image et les signatures réellement chargées au résultat du dernier passage
-qualifié. Activation ou accès manquant, échéance du jeton, passage échoué/ignoré,
-preuve de plus de trente heures ou signatures de plus de quarante-huit heures :
-échec visible dans GitHub Actions. Les notifications dépendent des préférences du
-mainteneur ; une supervision hors GitHub reste nécessaire si GitHub lui-même ne
-déclenche plus les contrôles. Aucun document client ni envoi réel n'est utilisé.
-Référence : [SCANNER_CI.md](SCANNER_CI.md).
-
 ### J19 · Contrôler à blanc un envoi existant
 
 **Acteur :** Lecteur actuel de l’envoi parmi les quatre rôles ; assistant OAuth avec dispatches:read. **Branche :** ENVOIS → VALIDATION SANS EXPÉDITION.
@@ -683,6 +674,16 @@ Après migration et publication qualifiées, ouvrir Mon compte depuis le bas de 
 **Blocage / reprise :** Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Qualification historique du 11 octobre : 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; ces résultats ne qualifient pas le candidat de simplification du 14 octobre. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Correctif de stabilité du PDF : 36 cas locaux réussis sur trois navigateurs, sans communication réelle ; preuve antérieure distincte du candidat courant. Le test du lien temporaire attend la confirmation visible de sauvegarde après le corps du PATCH et la relecture du compte, puis conserve les assertions strictes d’URL et de préférence serveur. Les 15 cas du fichier dashboard-v2.spec.ts passent après cette synchronisation ; la CI du commit courant reste requise. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une action absente pour défaut de droit ne devient pas disponible par sa présentation. La disparition du pied de page ne doit pas supprimer le lien de statut, le fuseau utile ou l’accès mobile au compte. Qualification locale du candidat : 18 cas navigateur sans échec/skip/instabilité sur trois projets, quinze routes en Classique/V2 au viewport natif et à 320 px, plus 40 tests locale/apparence ; CI exacte et publication restent à qualifier, voir DASHBOARD_V2.md.
 
 Référence : [DASHBOARD_V2.md](DASHBOARD_V2.md).
+
+### J23 · Maintenir les signatures du scanner privé
+
+**Acteur :** Opérateur autorisé ; GitHub Actions avec jeton dédié et périmètre explicitement approuvé. **Branche :** EXPLOITATION → SCANNER PRIVÉ.
+
+Qualifier main et sa CI → configurer le jeton et son échéance réelle → lancer une actualisation manuelle → vérifier PDF synthétique propre, EICAR, image immuable et version privée réelles → activer les passages quotidiens → contrôler toutes les six heures la dernière preuve et la santé chargée.
+
+**Blocage / reprise :** Activation ou accès manquant, jeton expirant, mise à jour échouée/ignorée, preuve de plus de trente heures, signatures de plus de quarante-huit heures ou identité différente : échec visible. La production refuse toujours les signatures de plus de soixante-douze heures. Les notifications dépendent des préférences GitHub ; une supervision extérieure doit couvrir l'arrêt de GitHub ou du contrôle lui-même. Aucun document client, envoi réel, élargissement de permission ou retour arrière automatique.
+
+Référence : [SCANNER_CI.md](SCANNER_CI.md).
 
 ## Frontières d’activation et preuves
 

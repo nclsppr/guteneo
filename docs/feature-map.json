@@ -413,7 +413,8 @@
         "Manifestes de release, empreintes des assets et santé distante sur guteneo.com ; preuve distincte de fermeture de workers.dev et des previews URL applicatifs",
         "Moniteur local de production : lectures anonymes bornées sur le domaine canonique et contrôle de fermeture de l’ancien hôte, hashes de pages, refus des accès privés, état périmé après 120 s et qualification partielle par fonction ; aucun envoi ni tâche permanente",
         "Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées",
-        "CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners"
+        "CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners",
+        "Maintenance antivirus quotidienne avec activation et jeton explicites ; contrôle distinct toutes les six heures de la qualification hébergée exacte, de la santé privée, des signatures chargées et de l'échéance du jeton ; échecs visibles sans scans clients ni envois, supervision hors GitHub encore nécessaire pour couvrir son propre arrêt"
       ],
       "status": "Implémenté · disponibilité à vérifier",
       "tests": [
@@ -423,7 +424,9 @@
         "tests/security/production-monitor.test.mjs",
         "tests/security/observability.test.mjs",
         "tests/integration/documents.test.ts",
-        "tests/unit/telnyx-readiness.test.ts"
+        "tests/unit/telnyx-readiness.test.ts",
+        "apps/scanner/tests/maintenance-status.test.mjs",
+        "apps/scanner/tests/qualification-artifact.test.mjs"
       ],
       "surfaces": "CLI / CI / services privés ; vue locale anonyme sans droit supplémentaire web/native/REST/MCP"
     },
@@ -672,6 +675,15 @@
       "branch": "COMPTE PERSONNEL → APPARENCE ATELIER",
       "doc": "DASHBOARD_V2.md",
       "failure": "Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Qualification historique du 11 octobre : 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; ces résultats ne qualifient pas le candidat de simplification du 14 octobre. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Correctif de stabilité du PDF : 36 cas locaux réussis sur trois navigateurs, sans communication réelle ; preuve antérieure distincte du candidat courant. Le test du lien temporaire attend la confirmation visible de sauvegarde après le corps du PATCH et la relecture du compte, puis conserve les assertions strictes d’URL et de préférence serveur. Les 15 cas du fichier dashboard-v2.spec.ts passent après cette synchronisation ; la CI du commit courant reste requise. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une action absente pour défaut de droit ne devient pas disponible par sa présentation. La disparition du pied de page ne doit pas supprimer le lien de statut, le fuseau utile ou l’accès mobile au compte. Qualification locale du candidat : 18 cas navigateur sans échec/skip/instabilité sur trois projets, quinze routes en Classique/V2 au viewport natif et à 320 px, plus 40 tests locale/apparence ; CI exacte et publication restent à qualifier, voir DASHBOARD_V2.md."
+    },
+    {
+      "id": "J23",
+      "title": "Maintenir les signatures du scanner privé",
+      "actor": "Opérateur autorisé ; GitHub Actions avec jeton dédié et périmètre explicitement approuvé",
+      "steps": "Qualifier main et sa CI → configurer le jeton et son échéance réelle → lancer une actualisation manuelle → vérifier PDF synthétique propre, EICAR, image immuable et version privée réelles → activer les passages quotidiens → contrôler toutes les six heures la dernière preuve et la santé chargée.",
+      "branch": "EXPLOITATION → SCANNER PRIVÉ",
+      "doc": "SCANNER_CI.md",
+      "failure": "Activation ou accès manquant, jeton expirant, mise à jour échouée/ignorée, preuve de plus de trente heures, signatures de plus de quarante-huit heures ou identité différente : échec visible. La production refuse toujours les signatures de plus de soixante-douze heures. Les notifications dépendent des préférences GitHub ; une supervision extérieure doit couvrir l'arrêt de GitHub ou du contrôle lui-même. Aucun document client, envoi réel, élargissement de permission ou retour arrière automatique."
     }
   ],
   "roles": [

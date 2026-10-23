@@ -1,10 +1,10 @@
 # Maintenance automatique du scanner
 
-État vérifié au 23 octobre 2026 : la santé privée du scanner de production répond
+Constat initial du 23 octobre 2026 à 07:23 UTC : la santé privée du scanner répond
 `SIGNATURES_STALE`. Le déploiement en place date du 2 octobre. Le secret GitHub
-dédié et la variable d'activation sont absents ; les passages planifiés récents
+dédié et la variable d'activation étaient absents ; les passages planifiés récents
 étaient ignorés. Aucun premier passage de publication depuis GitHub n'a été
-qualifié. La présente livraison rend cette situation visible et ajoute un contrôle
+qualifié à ce constat initial. La présente livraison rend cette situation visible et ajoute un contrôle
 distinct ; sa présence dans Git ne prouve pas son activation. La tâche
 locale Codex `maintenir-l-antivirus-guteneo` a été suspendue : elle dépendait du
 Mac et n'est pas le mécanisme retenu.
@@ -88,6 +88,19 @@ supplémentaire pour son mécanisme de prévisualisation distante, identifier le
 refus exact avant d'élargir ce jeton. La connexion disponible pendant cette
 livraison ne permettait pas de gérer les jetons de compte ; aucun jeton n'a été
 créé ni copié automatiquement dans GitHub.
+
+## Périmètre autorisé le 23 octobre 2026
+
+Le sélecteur Cloudflare n'a pas proposé la portée limitée à un seul Worker.
+Après explication de cette différence, le propriétaire a explicitement autorisé
+un jeton de quatre-vingt-dix jours avec **Workers Editor** et **Containers Write**
+sur le compte Guteneo. Cette portée peut modifier les autres Workers du compte ;
+elle n'est pas présentée comme limitée au seul scanner. Aucun droit D1, R2,
+routes, facturation ou gestion des jetons n'a été ajouté. Le jeton a été enregistré
+directement dans le secret GitHub dédié le 23 octobre à 08:18 UTC ; son expiration
+réelle, `2027-01-21T22:59:59Z`, est enregistrée dans `SCANNER_TOKEN_EXPIRES_AT`.
+Les opérations du workflow restent limitées au scanner existant. Réexaminer une
+portée par Worker au renouvellement ; aucun élargissement automatique n'est permis.
 
 ## Échecs et mises à jour du moteur
 
