@@ -30,20 +30,27 @@ Il conserve l’identité du plugin et le serveur existants.
 Le double audit complet des exigences a identifié des précisions de
 confidentialité et de restrictions documentaires, un lien de présentation à
 remplacer par la page informative, ainsi que des preuves reviewer manquantes.
-Les corrections du serveur et des pages figurent dans la PR #67, encore non
-déployée. Les corrections du paquet et ses 32 tests sont terminées localement.
+Les corrections du serveur et des pages figurent dans la PR #67, fusionnée au
+commit `f5d7c9aea1f938719bede15f4a6edd4892520ff1`, encore non déployée.
+Les corrections du paquet et ses 32 tests sont terminées ; leur publication
+avec les pages corrigées est explicitement autorisée.
 La demande de support autorisée a été envoyée à 10:03 Paris après cet audit,
 puis vérifiée dans les messages envoyés. Aucune réponse ni résolution n’est
 encore établie ; les qualifications runtime restent distinctes.
 
-Un second obstacle, distinct des annotations, est confirmé : le scanner privé
-répond **HTTP 503 `SIGNATURES_STALE`** le 23 octobre à 09:23:31, heure de Paris.
-Le plan de contrôle confirme encore le déploiement du 2 octobre et son image
-immuable. Une publication de l’application seule ne rafraîchit pas cette image.
-Les contrôles de fraîcheur restent fermés ; aucune importation de fixture ne
-doit être présentée comme qualifiée sur cette base. Le titulaire a depuis
-autorisé la restauration du scanner et sa maintenance automatique ; cette
-autorisation ne prouve pas encore leur exécution ni leur qualification.
+Le scanner privé, initialement bloqué par **HTTP 503 `SIGNATURES_STALE`**, a été
+restauré et qualifié à **08:27:39 UTC** : ClamAV **1.5.4**, signatures **28162**
+du 23 octobre à **06:24:08 UTC**, version
+`6f9f4e2d-ade1-4c67-abc2-d490988a9fe0`, trafic privé à 100 %. Les contrôles
+synthétiques propres et négatifs portent sur l’image réellement servie, sans
+document client ni communication réelle. Le run initial reste en échec après
+une lecture trop précoce du plan de contrôle ; la qualification après convergence
+n’a pas répété le déploiement. La PR #66 corrige cette attente et prépare la
+surveillance indépendante. Le credential dédié autorisé pour 90 jours est
+installé dans GitHub ; l’activation quotidienne attend encore un nouveau run
+manuel réussi et la vérification de la surveillance. Le courriel GitHub de
+l’échec initial a effectivement été reçu. Une release application ne constitue
+toujours pas une preuve de fraîcheur du scanner.
 
 La restriction dédiée `prepare_only` du compte reviewer a été restaurée et
 relue le 23 octobre : l’insertion privée protégée a modifié exactement une ligne,

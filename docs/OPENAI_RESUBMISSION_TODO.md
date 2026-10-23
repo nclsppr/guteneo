@@ -18,7 +18,8 @@ revue restent hors de ce fichier et du dépôt.
 | Annotations locales | 67 outils, 268 booléens, 216 références de code ; aucun écart structurel ; documents générés synchronisés | Ne remplace ni l’audit sémantique ni le scan sauvegardé du portail |
 | Paquet | 0.3.5, 19 fichiers, 1 315 855 octets ; schéma, CRC et reconstruction déterministe conformes | Double audit des exigences terminé ; 32 tests du paquet réussis ; paquet pas importé ni soumis |
 | Portail | 0.3.2 « Changes required », « Not published » ; configuration MCP indisponible, aucun contrôle de rescan accessible | Mise à jour ZIP bloquée par « Configure the existing MCP app before updating its plugin ZIP. » |
-| Scanner | Lecture privée à 09:23:31 Paris : HTTP 503 `SIGNATURES_STALE` ; version du 2 octobre confirmée à 100 % du trafic ; restauration et maintenance automatique désormais autorisées | Exécution et qualification non encore établies ; une release application ne rafraîchit pas les signatures |
+| Scanner | Restauration qualifiée à 08:27:39 UTC : ClamAV 1.5.4, signatures 28162 du 23 octobre à 06:24:08 UTC, version `6f9f4e2d-ade1-4c67-abc2-d490988a9fe0`, trafic privé à 100 % | Le run initial reste en échec après une lecture trop précoce du plan de contrôle ; maintenance planifiée encore inactive |
+| Corrections complémentaires | PR #67 fusionnée au commit `f5d7c9aea1f938719bede15f4a6edd4892520ff1` ; publication des PR #67 et #68 explicitement autorisée | Nouvelle publication et vérification publique encore à effectuer |
 | Support OpenAI | Courriel envoyé à 10:03 Paris après double audit complet ; destinataire et texte vérifiés dans les messages envoyés | Demande de restauration de la configuration existante ; aucune réponse ou résolution encore établie |
 | Reviewer | Restriction `prepare_only` restaurée : insertion protégée d’une ligne et trois contrôles de relecture exacts réussis | Connecteur « Guteneo Review » actuellement sur un autre tenant ; ses appels ne prouvent pas le compte de soumission |
 | OAuth | Configuration de renouvellement Auth0 appliquée le 13 octobre | Refresh réel dans l’hôte toujours non qualifié |
@@ -55,21 +56,22 @@ non exécuté n’a été déclarée.
    Ne pas rejouer l’insertion déjà réussie. Vérifier en privé la correspondance
    du client OAuth et du tenant au moment de corriger la connexion de l’hôte
    vers ce compte ; une connexion différente ne reçoit pas cette qualification.
-4. **Restaurer le scanner privé et sa maintenance autorisés.** Le titulaire a
-   autorisé cette restauration et la maintenance automatique. Le plan de travail
-   précis est conservé hors dépôt dans
-   `scanner-preparation/READY_FOR_AUTHORIZATION.md` ; son nom historique ne
-   signifie pas que l’autorisation doit être redemandée. Construire une image fraîche
-   depuis la source revue, qualifier les contrôles synthétiques existants,
-   publier son digest immuable et relire la version réellement servie. Conserver
+4. **Terminer la maintenance automatique du scanner restauré.** La restauration
+   autorisée est qualifiée à 08:27:39 UTC sur l’image réellement servie : PDF
+   synthétique propre, EICAR, empreinte incorrecte, contenu vide et type incorrect
+   contrôlés ; aucune donnée client ni communication réelle. Le run
+   [39923762583](https://github.com/nclsppr/guteneo/actions/runs/39923762583)
+   conserve son échec initial : le plan de contrôle a convergé après sa lecture
+   prématurée. La requalification n’a effectué aucune nouvelle publication.
+   La PR #66 ajoute une attente bornée en lecture seule, sans répétition du
+   déploiement, et une surveillance indépendante. Le secret GitHub dédié est
+   installé ; l’accès Workers et conteneurs à l’échelle du compte a été autorisé
+   pour 90 jours, jusqu’au `2027-01-21T22:59:59Z`. Le courriel GitHub d’échec a
+   effectivement été reçu. Après fusion et CI réussie du main final, obtenir un
+   nouveau run manuel réussi et qualifier son artefact et son runtime, puis
+   activer `SCANNER_REFRESH_ENABLED` et vérifier le watchdog. Cette activation
+   n’est pas encore établie. Suivre [SCANNER_CI.md](SCANNER_CI.md), en conservant
    les limites privées/EU, la borne d’instance et le rejet des signatures âgées.
-   La preuve doit porter sur l’image et les signatures chargées ; le résultat du
-   2 octobre ou une image du 14 octobre ne suffit plus. Suivre
-   [SCANNER_CI.md](SCANNER_CI.md) pour le credential dédié et le contrôle manuel
-   qualifié préalable à la maintenance planifiée. Les métadonnées inspectées
-   le 23 octobre n’exposaient ni `SCANNER_REFRESH_ENABLED` ni
-   `CLOUDFLARE_SCANNER_API_TOKEN` ; les cinq dernières exécutions planifiées
-   étaient ignorées. Ne pas présenter la maintenance comme active avant preuve.
 5. **Reprendre les huit cas existants sur le compte et l’hôte attendus.**
    Conserver P1/P2/P3/P5/P6 et R1/R2/R3, avec leurs critères réels décrits dans
    [reviewer-tests.md](../integrations/chatgpt/reviewer-tests.md). P3 exige le PDF
