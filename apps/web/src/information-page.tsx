@@ -147,6 +147,11 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </ul>
               <p>
                 {msg(
+                  "L’atelier peut aussi traiter les sources CSV, XLSX, XML, JSON ou Word que vous fournissez, leurs profils et exemples de données, les modèles, les correspondances de champs, les données de génération et les manifestes de distribution. Lorsque les diagnostics PDF/UA ou PDF/A sont disponibles, leurs rapports sont associés au document exact et à son empreinte. Ces informations servent aux créations, contrôles et consultations que vous demandez ; elles peuvent être retournées à votre assistant selon ses permissions.",
+                )}
+              </p>
+              <p>
+                {msg(
                   "Ces données proviennent de vous, des membres autorisés du compte, de l’assistant que vous connectez ou du prestataire qui retourne un statut. Guteneo reçoit les paramètres et fichiers transmis à ses outils ; connecter un assistant ne lui donne pas accès à toute votre conversation. Les informations retournées à cet assistant deviennent néanmoins accessibles à ce service selon ses propres règles.",
                 )}
               </p>
@@ -157,7 +162,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </p>
               <p>
                 {msg(
-                  "Dans le connecteur ChatGPT, ne transmettez pas de données de carte de paiement soumises à PCI DSS, de données de santé protégées, d’identifiants gouvernementaux ni de secrets d’authentification. Les données personnelles sensibles ne sont pas admises dans ce parcours de la bêta. Un contrôle antivirus ne constitue pas un filtre de ces catégories.",
+                  "Dans les parcours ChatGPT et Codex, ne transmettez pas de données de carte de paiement soumises à PCI DSS, de données de santé protégées, d’identifiants gouvernementaux, de secrets d’authentification ni de données personnelles sensibles. Cette limite concerne les documents, messages, modèles et jeux de données, y compris ceux déjà enregistrés. Un contrôle antivirus ne constitue pas un filtre de ces catégories.",
                 )}
               </p>
             </>
@@ -229,6 +234,12 @@ export function getInformationPages(): Record<string, InformationPageContent> {
                   )}
                 </li>
                 <li>
+                  <strong>{msg("Aide IA optionnelle de l’atelier :")}</strong>{" "}
+                  {msg(
+                    " si un administrateur l’a activée et a autorisé ce transfert, OpenAI peut recevoir des extraits bornés des données ou du modèle, leur structure et votre instruction pour produire la proposition demandée. L’appel utilise l’option store:false ; cela ne signifie pas qu’aucune conservation ne s’applique chez ce prestataire. Cette aide est distincte de votre assistant connecté et ne déclenche aucun envoi.",
+                  )}
+                </li>
+                <li>
                   <strong>
                     {msg("Votre assistant connecté, par exemple ChatGPT :")}
                   </strong>{" "}
@@ -273,6 +284,16 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </p>
               <p>
                 {msg(
+                  "Les sources de données et leurs profils deviennent supprimables après 30 jours, sauf lorsqu’une génération liée est encore en attente ou en cours. Les originaux Word deviennent supprimables après 30 jours. Les données par enregistrement et les artefacts intermédiaires de génération deviennent supprimables après 90 jours, une fois la génération arrêtée. La maintenance effectue ces suppressions par lots ; les PDF générés suivent les règles de conservation des PDF.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "Les modèles, versions publiées, correspondances de champs, manifestes et rapports de diagnostic restent dans l’historique du compte ; la suppression de leurs fichiers sources ne les efface pas automatiquement. Leur nécessité est examinée lors d’une demande d’effacement ou de clôture selon les besoins résiduels décrits ci-dessus.",
+                )}
+              </p>
+              <p>
+                {msg(
                   "Les données de compte sont conservées pendant son utilisation, puis selon ces mêmes besoins résiduels à sa clôture. Les demandes d’assistance sont conservées jusqu’à leur résolution, puis seulement si leur suivi ou une contestation le nécessite. Il n’existe pas actuellement de suppression complète du compte en libre-service : adressez votre demande à ",
                 )}
                 {contact}.
@@ -280,6 +301,11 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               <p>
                 {msg(
                   "Le suivi d’exploitation enregistre les connexions réussies, leur date, le compte et le membre concernés, le type d’accès et le pays estimé par Cloudflare lorsqu’il est disponible. Ce registre ne conserve ni adresse IP ni navigateur détaillé. Il est réservé à l’éditeur pour la sécurité et le suivi du service. Les événements de connexion et les consultations de ce tableau de contrôle sont exclus des vues après 90 jours, puis supprimés par la maintenance.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "Pour chaque connexion à un assistant, la date de la dernière utilisation réussie d’un outil est conservée avec cette connexion pour indiquer si elle fonctionne. Ce suivi ne conserve pas le contenu de l’appel. Vous pouvez révoquer la connexion dans Mon compte pour empêcher ses prochains accès ; les demandes d’effacement de cet historique suivent la procédure de droits ci-dessous.",
                 )}
               </p>
               <p>
@@ -417,7 +443,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </p>
               <p>
                 {msg(
-                  "Le parcours ChatGPT exclut les données personnelles sensibles, les données de santé protégées, les identifiants gouvernementaux, les données de carte de paiement soumises à PCI DSS et les secrets d’authentification. N’importez pas de document qui en contient dans ce connecteur.",
+                  "Les parcours ChatGPT et Codex excluent les données personnelles sensibles, les données de santé protégées, les identifiants gouvernementaux, les données de carte de paiement soumises à PCI DSS et les secrets d’authentification. N’y transmettez pas de document, message, modèle ou jeu de données qui en contient, même déjà enregistré.",
                 )}
               </p>
               <p>
