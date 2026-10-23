@@ -341,7 +341,7 @@ export function execute(command, args, options = {}) {
   });
 }
 
-async function startBridge(env) {
+export async function startBridge(env) {
   const child = spawn(
     process.execPath,
     [

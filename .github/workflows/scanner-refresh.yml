@@ -16,16 +16,19 @@ concurrency:
 
 jobs:
   refresh:
-    if: github.event_name == 'workflow_dispatch' || vars.SCANNER_REFRESH_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - name: Require reviewed main and the dedicated scanner credential
         env:
           CLOUDFLARE_SCANNER_API_TOKEN: ${{ secrets.CLOUDFLARE_SCANNER_API_TOKEN }}
+          SCANNER_REFRESH_ENABLED: ${{ vars.SCANNER_REFRESH_ENABLED }}
         run: |
           test "$GITHUB_REF" = refs/heads/main || { echo "Scanner refresh requires reviewed main."; exit 1; }
           test -n "$CLOUDFLARE_SCANNER_API_TOKEN" || { echo "Missing CLOUDFLARE_SCANNER_API_TOKEN: scanner refresh is not activated."; exit 1; }
+          if test "$GITHUB_EVENT_NAME" = schedule; then
+            test "$SCANNER_REFRESH_ENABLED" = true || { echo "SCANNER_REFRESH_ENABLED must be true: scheduled refresh is disabled."; exit 1; }
+          fi
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
@@ -36,6 +39,13 @@ jobs:
           cache: npm
           cache-dependency-path: apps/scanner/package-lock.json
       - run: npm ci --prefix apps/scanner
+      - name: Require a tracked, unexpired maintenance credential
+        run: node apps/scanner/scripts/maintenance-status.mjs --check-settings
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SCANNER_API_TOKEN }}
+          SCANNER_REFRESH_ENABLED: ${{ vars.SCANNER_REFRESH_ENABLED }}
+          SCANNER_TOKEN_EXPIRES_AT: ${{ vars.SCANNER_TOKEN_EXPIRES_AT }}
       - name: Build, qualify, publish and verify only the private scanner
         run: node apps/scanner/scripts/ci-refresh.mjs
         env:
@@ -52,3 +62,9 @@ jobs:
           path: apps/scanner/dist/ci-refresh/
           if-no-files-found: warn
           retention-days: 30
+      - name: Explain an incomplete scanner refresh
+        if: failure()
+        run: |
+          echo "## Scanner refresh needs attention" >> "$GITHUB_STEP_SUMMARY"
+          echo "The scanner has not been newly qualified by this run. Inspect the failed step and retained evidence before retrying a publication or deployment." >> "$GITHUB_STEP_SUMMARY"
+          echo "Check SCANNER_REFRESH_ENABLED, CLOUDFLARE_SCANNER_API_TOKEN, SCANNER_TOKEN_EXPIRES_AT and the exact main CI. Never extend the 72-hour signature limit." >> "$GITHUB_STEP_SUMMARY"

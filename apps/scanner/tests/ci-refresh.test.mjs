@@ -627,7 +627,7 @@ test("pre-publication binding probe accepts an old scanner but rejects HTML, aut
   );
 });
 
-test("workflow stays opt-in on schedule, read-only in GitHub and non-cancellable during publication", async () => {
+test("workflow refuses disabled schedules visibly, stays read-only in GitHub and never cancels publication", async () => {
   const workflow = await readFile(
     new URL("../../../.github/workflows/scanner-refresh.yml", import.meta.url),
     "utf8",
@@ -641,7 +641,10 @@ test("workflow stays opt-in on schedule, read-only in GitHub and non-cancellable
     ),
   );
   assert.match(workflow, /cron: "17 8 \* \* \*"/);
-  assert.match(workflow, /vars\.SCANNER_REFRESH_ENABLED == 'true'/);
+  assert.doesNotMatch(workflow, /if: github\.event_name/);
+  assert.match(workflow, /test "\$SCANNER_REFRESH_ENABLED" = true/);
+  assert.match(workflow, /maintenance-status\.mjs --check-settings/);
+  assert.match(workflow, /vars\.SCANNER_TOKEN_EXPIRES_AT/);
   assert.match(workflow, /contents: read/);
   assert.match(workflow, /actions: read/);
   assert.doesNotMatch(workflow, /(contents|actions|pull-requests): write/);
