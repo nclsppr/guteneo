@@ -1,12 +1,12 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Prepare PDFs and dispatches, and check PDF/UA or PDF/A when enabled for your Guteneo account.",
   "author": {
-    "name": "Guteneo"
+    "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
   },
-  "homepage": "https://guteneo.com/?lang=en",
+  "homepage": "https://guteneo.com/a-propos/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
   "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
@@ -15,7 +15,7 @@
         "displayName": "Guteneo",
         "shortDescription": "PDFs, email and dispatches",
         "longDescription": "Use your connected Guteneo account to find PDF documents, import an original PDF supplied by the host, prepare email with or without a PDF, password-protected PDF links, fax or postal mail, review estimates and spending limits, and track recorded dispatches. The assistant asks for missing sender, recipient and delivery details. An authenticated administrator can configure the account's postal sender. In standard mode, you review and approve the document, recipient and cost in Guteneo before sending. Optional expert approval requires a separate, bounded and expiring administrator mandate for this OAuth connection; installing the plugin grants no mandate. Available actions depend on your account's permissions, balance, enabled channels, destinations and document requirements. A review-only estimate cannot be approved or sent. Documents containing payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data are excluded. The plugin uses existing account access and does not initiate purchases, subscriptions, upgrades or credit top-ups. File import depends on the host's ability to provide the original PDF. The Guteneo web interface supports French, English, German and Luxembourgish. Email remains disabled until its provider and operational gates are qualified. Protected-document passwords are available only in the authenticated sender browser and must be shared separately. No delivery or document certification is guaranteed. When enabled for an existing Horizon account, validate_pdf checks the automated PDF/UA accessibility or PDF/A archival rules with veraPDF; get_pdf_validation reads hash-bound reports. Automated checks require human review and do not certify accessibility or legal compliance. The plugin cannot subscribe to or manage a plan.",
-        "developerName": "Guteneo",
+        "developerName": "NICOLAS PATRICK HENRI FRANK PIEPER",
         "category": "Productivity",
         "capabilities": [
           "Find and import PDFs",
@@ -25,7 +25,7 @@
           "Track Guteneo dispatches",
           "Read and run PDF/UA and PDF/A diagnostics when enabled"
         ],
-        "websiteURL": "https://guteneo.com/?lang=en",
+        "websiteURL": "https://guteneo.com/a-propos/?lang=en",
         "supportURL": "https://guteneo.com/support/?lang=en",
         "privacyPolicyURL": "https://guteneo.com/confidentialite/?lang=en",
         "termsOfServiceURL": "https://guteneo.com/conditions/?lang=en",
@@ -43,7 +43,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Candidate 0.3.4 standardizes five skill descriptions and titles in English and adds English public links, preserving account language preferences. It documents manual installation in ChatGPT, Claude web/Desktop/Code, Grok web/Build and Cursor, with OAuth discovery and reconnection diagnostics. A server-side issuer discovery correction is prepared in the accompanying source; this package does not deploy it. Existing capability checks, document restrictions, account permissions and review-before-send requirements remain unchanged. Automatic OAuth renewal and real host qualification remain pending per client. No Auth0 activation, production deployment, marketplace replacement, submission, approval or publication is claimed. The 0.3.2 review and separate 0.3.3 draft remain distinct from this local candidate.",
+        "release_notes": "Version 0.3.5 accompanies corrected MCP destructive annotations for review_dispatch and prepare_distribution, reflecting review-token invalidation and irreversible generation-plan creation. All 67 tools have explicit boolean annotations and documented per-value justifications. Skill titles and descriptions and public links use English while preserving account language preferences. Existing document restrictions, account permissions, approval requirements and sending safeguards remain in effect. Document studio and PDF diagnostics instructions now explicitly apply the same restricted-data limits as the other journeys.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

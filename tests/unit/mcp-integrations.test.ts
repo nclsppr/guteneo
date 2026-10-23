@@ -563,7 +563,7 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.3.4");
+      expect(manifest.version).toBe("0.3.5");
       expect(manifest.version).toBe(plugin.version);
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");

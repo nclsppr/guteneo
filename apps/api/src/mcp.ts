@@ -380,7 +380,7 @@ const oauthMetadata = (scope?: string | string[]) => ({
 });
 
 const CHATGPT_DOCUMENT_NOTICE =
-  " Dans le parcours ChatGPT uniquement, avant d’importer ou de créer un nouveau PDF, rappeler que ce parcours exclut les données personnelles sensibles, les données de carte de paiement soumises à PCI DSS, les données de santé protégées (PHI), les identifiants gouvernementaux et les secrets d’authentification. Ne pas solliciter ces données ni appeler import_document ou render_pdf lorsque leur présence est connue dans le contenu fourni ou décrit ; expliquer la restriction et renvoyer vers https://guteneo.com/confidentialite/#donnees.";
+  " Dans les parcours ChatGPT et Codex, avant de demander un contenu, rappeler que ces parcours excluent les données personnelles sensibles, les données de carte de paiement soumises à PCI DSS, les données de santé protégées (PHI), les identifiants gouvernementaux et les secrets d’authentification. Si leur présence est connue dans un document, un message, un modèle ou un jeu de données, même déjà enregistré, ne pas importer, générer, lire, analyser, revoir ni transmettre ce contenu avec les outils. Demander une version expurgée par la personne avant partage, sans solliciter les valeurs exclues ni proposer un dépôt web pour contourner cette limite. Un contrôle antivirus ou le statut ready ne prouve pas l’absence de ces données. Voir https://guteneo.com/confidentialite/?lang=en#donnees.";
 
 export const FAX_WORKFLOW = [
   "1. Appeler get_capabilities et annoncer explicitement simulation ou production ainsi que les blocages. Lire approval.expert.connection ou get_expert_status pour le mandat de cette connexion, ses canaux, ses plafonds et son expiration. expert.available décrit seulement la fonction générale. Ne pas commencer un parcours expert si canUseExpert=false ; expliquer l’action précise demandée, sans prétendre activer ou renouveler le mandat.",
@@ -689,7 +689,12 @@ export function createGuteneoMcpServer(
       name,
       {
         ...config,
-        description: config.description + CONNECTION_ACTIVITY_NOTICE,
+        description:
+          config.description +
+          CONNECTION_ACTIVITY_NOTICE +
+          (config.description.includes(CHATGPT_DOCUMENT_NOTICE)
+            ? ""
+            : CHATGPT_DOCUMENT_NOTICE),
       },
       observed as ToolCallback<Input>,
     );
