@@ -1146,7 +1146,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 {array && (
                   <Field label={msg("Source of table rows")}>
                     <select
-                      value={arraySource}
+                      value={
+                        arraySource === "same"
+                          ? "same"
+                          : (resolveDatasetSheet(profile, arraySource)?.name ??
+                            arraySource)
+                      }
                       onChange={(e) =>
                         configureArray(arrayPath, e.target.value)
                       }

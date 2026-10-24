@@ -100,6 +100,15 @@ describe("bounded data import and normalization", () => {
     ] as const) {
       const profile = await profileDataset(encode(text), format);
       expect(profile.sheets.map((sheet) => sheet.name)).toEqual(["Data"]);
+      expect(profile.sheets[0].nameOrigin).toBe("generated");
+      const profileWithoutOrigin = structuredClone(profile);
+      delete profileWithoutOrigin.sheets[0].nameOrigin;
+      expect(datasetStructureSignature(profile)).toBe(
+        datasetStructureSignature(profileWithoutOrigin),
+      );
+      expect(datasetStructureSignature(profile, csvMapping)).toBe(
+        datasetStructureSignature(profileWithoutOrigin, csvMapping),
+      );
       for (const sourceSheet of ["Data", "Données"]) {
         const result = validateMapping(profile, { ...csvMapping, sourceSheet });
         expect(result.status).toBe("ready");
@@ -124,6 +133,230 @@ describe("bounded data import and normalization", () => {
       );
       expect(JSON.stringify(storedLegacyProfile)).toBe(before);
     }
+  });
+  it.each(["Data", "Données"])(
+    "uses format provenance for historical CSV but requires exact historical JSON names (%s)",
+    async (storedName) => {
+      for (const format of ["csv", "json"] as const) {
+        const profile = await profileDataset(
+          encode(
+            format === "csv"
+              ? "id,name,postal\n001,Demo,00120"
+              : '[{"id":"001","name":"Demo","postal":"00120"}]',
+          ),
+          format,
+        );
+        profile.sheets[0].name = storedName;
+        delete profile.sheets[0].nameOrigin;
+        const before = JSON.stringify(profile);
+        expect(
+          validateMapping(profile, { ...csvMapping, sourceSheet: storedName })
+            .status,
+        ).toBe("ready");
+        const aliased = validateMapping(profile, {
+          ...csvMapping,
+          sourceSheet: storedName === "Data" ? "Données" : "Data",
+        });
+        if (format === "csv") {
+          expect(aliased.status).toBe("ready");
+          expect(aliased.records[0].provenance["customer.name"][0].sheet).toBe(
+            storedName,
+          );
+        } else {
+          expect(aliased.status).toBe("needs_review");
+          expect(aliased.issues).toContainEqual(
+            expect.objectContaining({ code: "MISSING_SHEET" }),
+          );
+          expect(aliased.records).toEqual([]);
+        }
+        expect(JSON.stringify(profile)).toBe(before);
+      }
+    },
+  );
+  it.each([
+    ["xlsx", "Data", "Données"],
+    ["xlsx", "Données", "Data"],
+    ["json", "Data", "Données"],
+    ["json", "Données", "Data"],
+    ["xlsx", "Data.items.item", "Données.items.item"],
+    ["xlsx", "Données.items.item", "Data.items.item"],
+    ["json", "Data.items.item", "Données.items.item"],
+    ["json", "Données.items.item", "Data.items.item"],
+  ] as const)(
+    "requires exact %s table names for main mappings and joins: %s is not %s",
+    async (format, storedName, requestedName) => {
+      const table = [
+        { id: "001", name: "Exact user content", postal: "00120" },
+      ];
+      const parseTables = (tables: Record<string, typeof table>) =>
+        profileDataset(
+          format === "json"
+            ? encode(JSON.stringify(tables))
+            : makeWorkbook(
+                Object.entries(tables).map(([name, values]) => ({
+                  name,
+                  rows: [Object.keys(values[0]), ...values.map(Object.values)],
+                })),
+              ),
+          format,
+        );
+      const profile = await parseTables({ [storedName]: table });
+      expect(profile.sheets[0].nameOrigin).toBe("source");
+      for (const historical of [false, true]) {
+        if (historical) delete profile.sheets[0].nameOrigin;
+        const missing = validateMapping(profile, {
+          ...csvMapping,
+          sourceSheet: requestedName,
+        });
+        expect(missing.status).toBe("needs_review");
+        expect(missing.issues).toContainEqual(
+          expect.objectContaining({ code: "MISSING_SHEET" }),
+        );
+        expect(missing.records).toEqual([]);
+        const exact = validateMapping(profile, {
+          ...csvMapping,
+          sourceSheet: storedName,
+        });
+        expect(exact.status).toBe("ready");
+        expect(exact.records[0].provenance["customer.name"][0].sheet).toBe(
+          storedName,
+        );
+      }
+      const joinedProfile = await parseTables({
+        Parents: table,
+        [storedName]: table,
+      });
+      const plan: MappingPlan = {
+        ...csvMapping,
+        sourceSheet: "Parents",
+        joins: [
+          {
+            sheet: requestedName,
+            headerRow: 1,
+            parentKey: "id",
+            childKey: "id",
+            target: "items",
+            cardinality: "one-to-one",
+            expectedHeaders: csvMapping.expectedHeaders,
+            fields: [{ source: "name", target: "name", type: "text" }],
+          },
+        ],
+      };
+      for (const historical of [false, true]) {
+        if (historical)
+          joinedProfile.sheets.forEach((sheet) => {
+            delete sheet.nameOrigin;
+          });
+        expect(validateMapping(joinedProfile, plan).issues).toContainEqual(
+          expect.objectContaining({ code: "MISSING_SHEET" }),
+        );
+        expect(
+          validateMapping(joinedProfile, {
+            ...plan,
+            joins: [{ ...plan.joins[0], sheet: storedName }],
+          }).status,
+        ).toBe("ready");
+      }
+    },
+  );
+  it.each(["Data", "Données"])(
+    "resolves historical XML root and repeated-table defaults without rewriting %s names",
+    async (storedName) => {
+      const profile = await profileDataset(
+        encode(
+          "<customers><customer><id>001</id><name>Demo</name><postal>00120</postal><items><item><name>One</name></item><item><name>Two</name></item></items></customer></customers>",
+        ),
+        "xml",
+      );
+      expect(
+        profile.sheets.every((sheet) => sheet.nameOrigin === "generated"),
+      ).toBe(true);
+      for (const sheet of profile.sheets) {
+        sheet.name = sheet.name.replace(/^Data/, storedName);
+        delete sheet.nameOrigin;
+      }
+      const before = JSON.stringify(profile);
+      const requested = storedName === "Data" ? "Données" : "Data";
+      const result = validateMapping(profile, {
+        ...csvMapping,
+        sourceSheet: requested,
+        expectedHeaders: profile.sheets[0].rows[0].cells.map(
+          (cell) => cell.raw!,
+        ),
+        joins: [
+          {
+            sheet: `${requested}.items.item`,
+            headerRow: 1,
+            parentKey: "__xml_record_id",
+            childKey: "__xml_parent_id",
+            target: "items",
+            cardinality: "one-to-many",
+            expectedHeaders: profile.sheets[1].rows[0].cells.map(
+              (cell) => cell.raw!,
+            ),
+            fields: [{ source: "name", target: "name", type: "text" }],
+          },
+        ],
+      });
+      expect(result.status).toBe("ready");
+      expect(result.records[0].data.items).toEqual([
+        { name: "One" },
+        { name: "Two" },
+      ]);
+      expect(result.records[0].provenance["customer.name"][0].sheet).toBe(
+        storedName,
+      );
+      expect(result.records[0].provenance["items[0].name"][0].sheet).toBe(
+        `${storedName}.items.item`,
+      );
+      expect(JSON.stringify(profile)).toBe(before);
+    },
+  );
+  it("uses resolved mapping and join header rows in structure signatures while retaining stored names", async () => {
+    const profile = await profileDataset(
+      encode(
+        "<customers><customer><id>001</id><items><item><name>One</name></item><item><name>Two</name></item></items></customer></customers>",
+      ),
+      "xml",
+    );
+    for (const sheet of profile.sheets) {
+      sheet.rows[0].rowNumber = 3;
+      sheet.rows.unshift({
+        rowNumber: 1,
+        hidden: false,
+        cells: [{ column: 1, address: "A1", raw: "Title", kind: "text" }],
+      });
+      sheet.headerCandidates = [1];
+    }
+    const plan: MappingPlan = {
+      ...csvMapping,
+      headerRow: 3,
+      joins: [
+        {
+          sheet: "Données.items.item",
+          headerRow: 3,
+          parentKey: "__xml_record_id",
+          childKey: "__xml_parent_id",
+          target: "items",
+          cardinality: "one-to-many",
+          expectedHeaders: ["name", "__xml_parent_id"],
+          fields: [{ source: "name", target: "name", type: "text" }],
+        },
+      ],
+    };
+    const signature = datasetStructureSignature(profile, plan);
+    expect(JSON.parse(signature)).toEqual([
+      { name: "Data", headers: ["__xml_record_id", "id"] },
+      { name: "Data.items.item", headers: ["__xml_parent_id", "name"] },
+    ]);
+    expect(signature).toBe(
+      datasetStructureSignature(profile, {
+        ...plan,
+        sourceSheet: "Data",
+        joins: [{ ...plan.joins[0], sheet: "Data.items.item" }],
+      }),
+    );
+    expect(signature).not.toBe(datasetStructureSignature(profile));
   });
   it("prefers exact uploaded sheet names when English and legacy names coexist", async () => {
     for (const suffix of ["", ".items.item"]) {

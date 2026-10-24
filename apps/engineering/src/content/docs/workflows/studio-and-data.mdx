@@ -51,9 +51,13 @@ does not silently reinterpret an already generated document.
 - Mapping paths do not permit user scripts, arbitrary expressions or network calls.
 
 New generated root sheets use `Data`; repeated XML child sheets use `Data.<path>`.
-Exact uploaded names take precedence over the explicit `Data`/legacy `Données`
-prefix compatibility alias. The lookup does not rewrite original bytes, saved
-profiles, plans or provenance when both spellings exist.
+Compatibility with historical `Données` names applies only to parser-generated
+names with established provenance. XLSX sheets and explicitly named JSON tables
+require exact matching; matching headers never authorize selecting another table.
+An absent mapping or join sheet produces `MISSING_SHEET` and requires review.
+Older JSON profiles without naming provenance also require exact names: use the
+retained name, or import the source again and revalidate the mapping. Lookup
+does not rewrite original bytes, saved profiles, plans or source-cell provenance.
 
 ## Validation, generation and provenance
 

@@ -37,7 +37,11 @@ import {
 } from "../../apps/api/src/template-workflow-routes";
 import type { Env } from "../../apps/api/src/env";
 import { blankTemplate, textBlock } from "../../packages/templates/gallery";
-import type { MappingPlan } from "../../packages/contracts/src/datasets";
+import type {
+  DatasetProfile,
+  MappingPlan,
+} from "../../packages/contracts/src/datasets";
+import { makeWorkbook } from "../unit/datasets-fixtures";
 import { Hono } from "hono";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
@@ -1815,6 +1819,172 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     expect(routeCode(request("/render/template"), "documents")).toBe("render");
     expect(routeCode(request("/scan-source"), "scanner")).toBe("scan");
   });
+  it.each([
+    ["xlsx", "Data", "Données"],
+    ["xlsx", "Données", "Data"],
+    ["json", "Data", "Données"],
+    ["json", "Données", "Data"],
+  ] as const)(
+    "requires exact persisted %s sheet names for pagination, mapping and generation: %s is not %s",
+    async (format, storedName, requestedName) => {
+      const rows = [{ id: "01", nom: "Alice", email: "alice@example.invalid" }];
+      const source = await service.importDataset(owner, {
+        name: `explicit.${format}`,
+        format,
+        bytes:
+          format === "json"
+            ? new TextEncoder().encode(JSON.stringify({ [storedName]: rows }))
+            : makeWorkbook([
+                {
+                  name: storedName,
+                  rows: [Object.keys(rows[0]), Object.values(rows[0])],
+                },
+              ]),
+      });
+      expect(source.status).toBe("ready");
+      const { profile } = await service.getDatasetProfile(owner, source.id);
+      expect(profile.sheets[0]).toMatchObject({
+        name: storedName,
+        nameOrigin: "source",
+      });
+      await expect(
+        service.datasetProfilePage(owner, source.id, requestedName),
+      ).rejects.toMatchObject({ code: "SHEET_NOT_FOUND" });
+      expect(
+        (await service.datasetProfilePage(owner, source.id, storedName))
+          .pagination.sheet,
+      ).toBe(storedName);
+      // A mapping validated against a generated default must be checked again
+      // against this new source, even when every header is identical.
+      const generatedSource = await service.importDataset(owner, {
+        name: "generated.csv",
+        format: "csv",
+        bytes: new TextEncoder().encode(
+          "id,nom,email\n01,Alice,alice@example.invalid",
+        ),
+      });
+      const saved = await service.createMapping(owner, {
+        datasetId: generatedSource.id,
+        plan: { ...mapping, sourceSheet: requestedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, saved.id, {
+            datasetId: generatedSource.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      const validation = await service.validateMapping(owner, saved.id, {
+        datasetId: source.id,
+        version: 1,
+      });
+      expect(validation.status).toBe("needs_review");
+      expect(validation.issues).toContainEqual(
+        expect.objectContaining({ code: "MISSING_SHEET" }),
+      );
+      expect(validation.examples).toEqual([]);
+      const template = await published();
+      await expect(
+        service.createGeneration(
+          owner,
+          {
+            templateId: template.id,
+            mode: "generate_only",
+            datasetId: source.id,
+            mappingId: saved.id,
+            mappingVersion: 1,
+          },
+          "wrong-source-name",
+        ),
+      ).rejects.toMatchObject({ code: "MAPPING_REVIEW_REQUIRED" });
+      const exact = await service.createMapping(owner, {
+        datasetId: source.id,
+        plan: { ...mapping, sourceSheet: storedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: source.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      expect(await count("generation_jobs")).toBe(0);
+      expect(await count("outbox")).toBe(0);
+      expect(renders).toBe(0);
+    },
+  );
+  it.each(["Data", "Données"])(
+    "keeps historical JSON profiles exact-only (%s) and records provenance on reimport",
+    async (storedName) => {
+      const bytes = new TextEncoder().encode(
+        '[{"id":"01","nom":"Alice","email":"alice@example.invalid"}]',
+      );
+      const source = await service.importDataset(owner, {
+        name: "array.json",
+        format: "json",
+        bytes,
+      });
+      const { profile } = await service.getDatasetProfile(owner, source.id);
+      const historical: DatasetProfile = structuredClone(profile);
+      historical.sheets[0].name = storedName;
+      delete historical.sheets[0].nameOrigin;
+      const historicalJson = JSON.stringify(historical);
+      const historicalKey = `${owner.organizationId}/workflow/datasets/${source.id}/profile-${await sha256(historicalJson)}.json`;
+      await bucket.put(historicalKey, historicalJson);
+      await db
+        .prepare(
+          "UPDATE workflow_datasets SET profile_key=? WHERE organization_id=? AND id=?",
+        )
+        .bind(historicalKey, owner.organizationId, source.id)
+        .run();
+      const alias = storedName === "Data" ? "Données" : "Data";
+      await expect(
+        service.datasetProfilePage(owner, source.id, alias),
+      ).rejects.toMatchObject({ code: "SHEET_NOT_FOUND" });
+      expect(
+        (await service.datasetProfilePage(owner, source.id, storedName))
+          .pagination.sheet,
+      ).toBe(storedName);
+      const exact = await service.createMapping(owner, {
+        datasetId: source.id,
+        plan: { ...mapping, sourceSheet: storedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: source.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      const reimported = await service.importDataset(owner, {
+        name: "array.json",
+        format: "json",
+        bytes,
+      });
+      expect(reimported.sha256).toBe(source.sha256);
+      const page = await service.datasetProfilePage(
+        owner,
+        reimported.id,
+        "Données",
+      );
+      expect(page.pagination.sheet).toBe("Data");
+      expect(page.profile.sheets[0].nameOrigin).toBe("generated");
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: reimported.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      expect(await (await bucket.get(historicalKey))!.text()).toBe(
+        historicalJson,
+      );
+    },
+  );
   it("imports exact XML over multipart REST with a persisted explicit record path", async () => {
     const xml =
       "<export><meta>Fictional fixture</meta><clients><client><id>001</id><name>Alice</name><email>alice@example.invalid</email></client><client><id>002</id><name>Bob</name><email>bob@example.invalid</email></client></clients></export>";

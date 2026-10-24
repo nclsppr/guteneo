@@ -314,7 +314,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - CSV, XLSX, XML and JSON imports with a private original
 - Sheet/header selection and XML record paths
-- English generated Data sheet names, with explicit legacy mapping aliases and exact uploaded-name precedence
+- English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names
 - Profiling, anomalies and paginated inspection
 - Resume analysis of the same original
 - Versioned field/group/join mappings
@@ -324,7 +324,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [DATA_IMPORT.md](DATA_IMPORT.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 

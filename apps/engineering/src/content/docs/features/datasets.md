@@ -20,7 +20,7 @@ Implemented; private-source and optional AI-transfer gates apply.
 <ol>
 <li id="feature-c30d6283604c">CSV, XLSX, XML and JSON imports with a private original</li>
 <li id="feature-4505e9415713">Sheet/header selection and XML record paths</li>
-<li id="feature-c39779048368">English generated Data sheet names, with explicit legacy mapping aliases and exact uploaded-name precedence</li>
+<li id="feature-34984f3b9bc1">English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names</li>
 <li id="feature-2e7661d36254">Profiling, anomalies and paginated inspection</li>
 <li id="feature-8b84483a97d3">Resume analysis of the same original</li>
 <li id="feature-9bf3c806a59c">Versioned field/group/join mappings</li>

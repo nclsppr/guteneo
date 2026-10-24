@@ -1,6 +1,6 @@
 # Repository and interface harmonization — 24 October 2026
 
-This report records the local review candidate on `codex/harmonize-guteneo`.
+This dated report records the initial local review checkpoint on `codex/harmonize-guteneo`.
 Work was performed in an isolated worktree, preserving the original dirty
 checkout. This branch has not been merged or deployed; this work sent no real
 communication and activated no provider, paid service or delegation mandate.
@@ -19,8 +19,9 @@ communication and activated no provider, paid service or delegation mandate.
 - Canonical public, application and API links use English independently of display
   language. Published legacy public paths have explicit redirects preserving
   query parameters. New generated dataset sheets use `Data` and `Data.<path>`;
-  exact-first legacy aliases preserve existing mappings without rewriting source
-  bytes, stored profiles or approval fingerprints. See the [route registry](../packages/contracts/src/public-site.json)
+  provenance-bound legacy aliases preserve generated-name mappings without
+  rewriting source bytes, stored profiles or approval fingerprints. Uploaded
+  XLSX names and explicitly named JSON tables require exact matching. See the [route registry](../packages/contracts/src/public-site.json)
   and [dataset compatibility contract](DATA_IMPORT.md#english-generated-sheet-names-and-saved-mapping-compatibility).
 - Web source uses English `msg`/`msgIn` inputs with explicit contexts for ambiguous
   labels. Native source and all 261 catalog keys use English; the complete set of

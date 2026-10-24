@@ -4,6 +4,7 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import {
   DATASET_LIMITS,
   DEFAULT_DATASET_SHEET,
+  resolveDatasetSheet,
   XmlRecordPathSchema,
   type DatasetFormat,
   type DatasetProfile,
@@ -78,7 +79,11 @@ function makeCell(
     );
   return { column, address: `${columnName(column)}${row}`, raw, kind };
 }
-function sheetFromRows(name: string, rows: (string | null)[][]): ProfileSheet {
+function sheetFromRows(
+  name: string,
+  rows: (string | null)[][],
+  nameOrigin: NonNullable<ProfileSheet["nameOrigin"]>,
+): ProfileSheet {
   if (
     rows.length > DATASET_LIMITS.rows ||
     rows.some((row) => row.length > DATASET_LIMITS.columns) ||
@@ -90,6 +95,7 @@ function sheetFromRows(name: string, rows: (string | null)[][]): ProfileSheet {
     );
   return {
     name,
+    nameOrigin,
     hidden: false,
     merges: [],
     headerCandidates: [],
@@ -174,10 +180,14 @@ function parseJson(text: string): ProfileSheet[] {
       );
     const records = values.map((record) => flatten(record));
     const keys = [...new Set(records.flatMap(Object.keys))];
-    return sheetFromRows(name, [
-      keys,
-      ...records.map((record) => keys.map((key) => record[key] ?? null)),
-    ]);
+    return sheetFromRows(
+      name,
+      [
+        keys,
+        ...records.map((record) => keys.map((key) => record[key] ?? null)),
+      ],
+      Array.isArray(value) ? "generated" : "source",
+    );
   });
 }
 
@@ -484,10 +494,11 @@ function parseXmlDataset(
   ] as Array<[string, Record<string, string | null>[]]>;
   return tables.map(([name, rows]) => {
     const keys = [...new Set(rows.flatMap(Object.keys))];
-    return sheetFromRows(name, [
-      keys,
-      ...rows.map((value) => keys.map((key) => value[key] ?? null)),
-    ]);
+    return sheetFromRows(
+      name,
+      [keys, ...rows.map((value) => keys.map((key) => value[key] ?? null))],
+      "generated",
+    );
   });
 }
 async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
@@ -620,6 +631,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
     const { meta, rows, sheet, maxRow, maxColumn } = metadata[index];
     return {
       name: parsedSheet.sheet,
+      nameOrigin: "source",
       hidden: ["hidden", "veryHidden"].includes(String(meta["@_state"])),
       headerCandidates: [],
       merges: nodes(obj(sheet.mergeCells).mergeCell).map((node) =>
@@ -763,7 +775,7 @@ export async function profileDataset(
           rows.push(parsed.data.map((value) => (value === "" ? null : value)));
         },
       });
-      sheets = [sheetFromRows(DEFAULT_DATASET_SHEET, rows)];
+      sheets = [sheetFromRows(DEFAULT_DATASET_SHEET, rows, "generated")];
     }
   }
   const profile: DatasetProfile = {
@@ -909,10 +921,13 @@ export function datasetStructureSignature(
             .find(
               (row) =>
                 row.rowNumber ===
-                (mapping?.sourceSheet === sheet.name
+                (mapping &&
+                resolveDatasetSheet(profile, mapping.sourceSheet) === sheet
                   ? mapping.headerRow
-                  : (mapping?.joins.find((join) => join.sheet === sheet.name)
-                      ?.headerRow ??
+                  : (mapping?.joins.find(
+                      (join) =>
+                        resolveDatasetSheet(profile, join.sheet) === sheet,
+                    )?.headerRow ??
                     sheet.headerCandidates[0] ??
                     1)),
             )

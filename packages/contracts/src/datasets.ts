@@ -53,6 +53,8 @@ export type ProfileCell = {
 };
 export type ProfileSheet = {
   name: string;
+  /** Recorded by the parser; absent on profiles saved before naming provenance. */
+  nameOrigin?: "generated" | "source";
   hidden: boolean;
   rows: Array<{ rowNumber: number; hidden: boolean; cells: ProfileCell[] }>;
   headerCandidates: number[];
@@ -69,21 +71,32 @@ export type DatasetProfile = {
 export const DEFAULT_DATASET_SHEET = "Data";
 const LEGACY_DEFAULT_DATASET_SHEET = "Données";
 
-/** Preserve saved mapping references while newly generated sheet names use English. */
+/** Alias only parser-generated defaults; user-owned sheet names always match exactly. */
 export function resolveDatasetSheet(
   profile: DatasetProfile,
   name: string,
 ): ProfileSheet | undefined {
   const exact = profile.sheets.find((sheet) => sheet.name === name);
   if (exact) return exact;
+  if (profile.format === "xlsx") return undefined;
 
   for (const [from, to] of [
     [LEGACY_DEFAULT_DATASET_SHEET, DEFAULT_DATASET_SHEET],
     [DEFAULT_DATASET_SHEET, LEGACY_DEFAULT_DATASET_SHEET],
   ]) {
-    if (name === from || name.startsWith(`${from}.`)) {
+    if (
+      name === from ||
+      (profile.format === "xml" && name.startsWith(`${from}.`))
+    ) {
       const alias = `${to}${name.slice(from.length)}`;
-      return profile.sheets.find((sheet) => sheet.name === alias);
+      const sheet = profile.sheets.find((sheet) => sheet.name === alias);
+      // CSV and XML have always generated these names. Historical JSON profiles
+      // cannot distinguish a root array from explicitly named tables.
+      const generated =
+        sheet?.nameOrigin === "generated" ||
+        (sheet?.nameOrigin === undefined &&
+          (profile.format === "csv" || profile.format === "xml"));
+      return generated ? sheet : undefined;
     }
   }
   return undefined;
