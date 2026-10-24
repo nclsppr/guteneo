@@ -523,9 +523,8 @@ function WorkspaceApplication({
     scanner: string;
     registration?: { enabled: boolean };
   }>(
-    !session &&
-      page.startsWith("/app") &&
-      new URLSearchParams(window.location.search).has("auth")
+    page.startsWith("/app") &&
+      (session || new URLSearchParams(window.location.search).has("auth"))
       ? "/capabilities"
       : null,
   );
