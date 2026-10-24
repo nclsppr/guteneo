@@ -1,9 +1,6 @@
-import { LanguageMenu } from "./language-select";
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import type { ReactNode } from "react";
-import { ArrowLeft } from "@phosphor-icons/react";
-import { Brand } from "./brand";
-import { LegalLinks } from "./legal-links";
+import { PublicFooter, PublicHeader } from "./public-chrome";
 import "./legal-page.css";
 import { getRoleGuide } from "./role-guide";
 
@@ -19,53 +16,53 @@ const contact = <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>;
 
 export function getInformationPages(): Record<string, InformationPageContent> {
   return {
-    "/a-propos/": {
-      label: msg("À propos de Guteneo"),
-      title: msg("À propos de Guteneo"),
+    "/about/": {
+      label: msg("About Guteneo"),
+      title: msg("About Guteneo"),
       updated: null,
       description: msg(
-        "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté.",
+        "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant.",
       ),
       sections: [
         {
           id: "service",
-          label: msg("Le service"),
+          label: msg("The service"),
           content: (
             <>
-              <h2>{msg("Le service et sa bêta")}</h2>
+              <h2>{msg("The service and its beta")}</h2>
               <p>
                 {msg(
-                  "Guteneo est actuellement proposé en bêta. L’activité n’est pas encore immatriculée et aucune vente n’est ouverte sur le site.",
+                  "Guteneo is currently offered in beta. The business is not yet registered and no sales are open on the website.",
                 )}
               </p>
               <p>
-                <a href="/conditions/">{msg("Conditions")}</a>
+                <a href="/terms/">{msg("Terms")}</a>
                 {" · "}
                 <a href="/assistants/">{msg("Assistants")}</a>
                 {" · "}
-                <a href="/developpeurs/">{msg("Développeurs")}</a>
+                <a href="/developers/">{msg("Developers")}</a>
               </p>
             </>
           ),
         },
         {
-          id: "editeur",
-          label: msg("L’éditeur"),
+          id: "publisher",
+          label: msg("Publisher"),
           content: (
             <>
-              <h2>{msg("L’éditeur")}</h2>
+              <h2>{msg("Publisher")}</h2>
               <p>
                 {msg(
-                  "Le site Guteneo est édité par Nicolas Pieper, également responsable de la publication.",
+                  "The Guteneo website is published by Nicolas Pieper, who is also responsible for its publication.",
                 )}
               </p>
               <p>
                 <a href="https://nicolaspieper.com">Nicolas Pieper</a>
                 {" · "}
-                <a href="/mentions-legales/">{msg("Mentions légales")}</a>
+                <a href="/legal/">{msg("Legal notice")}</a>
               </p>
               <p>{contact}</p>
-              <nav aria-label={msg("Profils de Nicolas Pieper")}>
+              <nav aria-label={msg("Nicolas Pieper’s profiles")}>
                 <a href="https://www.linkedin.com/in/nicolaspieper">LinkedIn</a>
                 {" · "}
                 <a href="https://github.com/nclsppr">GitHub</a>
@@ -78,240 +75,240 @@ export function getInformationPages(): Record<string, InformationPageContent> {
       ],
     },
     "/roles/": getRoleGuide(),
-    "/confidentialite/": {
-      label: msg("Confidentialité"),
-      updated: msg("Mise à jour le 23 octobre 2026"),
+    "/privacy/": {
+      label: msg("Privacy"),
+      updated: msg("Updated on 23 October 2026"),
       title: (
         <>
-          {msg("Vos données, ")}
-          <em>{msg("vos droits.")}</em>
+          {msg("Your data, ")}
+          <em>{msg("your rights.")}</em>
         </>
       ),
       description: msg(
-        "Les données utilisées par Guteneo, leurs destinataires, leur conservation et les moyens d’exercer vos droits.",
+        "The data Guteneo uses, who receives it, how long it is kept and how to exercise your rights.",
       ),
       sections: [
         {
-          id: "responsable",
-          label: msg("Qui vous répond"),
+          id: "controller",
+          label: msg("Who responds to you"),
           content: (
             <>
-              <h2>{msg("Qui vous répond")}</h2>
+              <h2>{msg("Who responds to you")}</h2>
               <p>
                 {msg(
-                  "Nicolas Pieper est responsable des traitements nécessaires au fonctionnement de Guteneo : comptes, accès, préparation et suivi des envois, sécurité et assistance. Vous pouvez le joindre à",
+                  "Nicolas Pieper is the controller for the processing necessary to operate Guteneo: accounts, access, dispatch preparation and tracking, security and support. You can contact him at",
                 )}{" "}
                 {contact}
                 {msg(
-                  ", ou par courrier au 59 rue du général de Gaulle, 57330 Hettange-Grande, France.",
+                  ", or by post at 59 rue du général de Gaulle, 57330 Hettange-Grande, France.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Cette politique couvre le site et le service Guteneo, y compris ses connexions aux assistants. Si une organisation vous donne accès à son compte ou fournit vos coordonnées dans un document, elle demeure responsable des finalités de cette utilisation. Elle est votre premier interlocuteur pour le contenu qu’elle confie au service ; nous pouvons vous aider à identifier la demande concernée.",
+                  "This policy covers the Guteneo website and service, including its assistant connections. If an organisation gives you access to its account or includes your contact details in a document, it remains responsible for the purposes of that use. It is your first point of contact for the content it entrusts to the service; we can help you identify the relevant request.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "donnees",
-          label: msg("Les données utilisées"),
+          id: "data",
+          label: msg("The data used"),
           content: (
             <>
-              <h2>{msg("Les données utilisées")}</h2>
+              <h2>{msg("The data used")}</h2>
               <ul>
                 <li>
-                  <strong>{msg("Compte et connexions :")}</strong>{" "}
+                  <strong>{msg("Account and connections:")}</strong>{" "}
                   {msg(
-                    " identité et adresse électronique, appartenance au compte, rôle, connexions à des assistants, permissions, sessions et éventuels mandats de délégation.",
+                    " identity and email address, account membership, role, assistant connections, permissions, sessions and any delegation mandates.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Documents :")}</strong>{" "}
+                  <strong>{msg("Documents:")}</strong>{" "}
                   {msg(
-                    " PDF transmis ou importés à votre demande, nom, taille, nombre de pages, empreinte du fichier et résultat des contrôles. Un contenu fourni pour créer un PDF, ses rendus et les images de pages demandées peuvent aussi être traités.",
+                    " PDFs sent or imported at your request, name, size, page count, file fingerprint and check results. Content supplied to create a PDF, its renderings and requested page images may also be processed.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Envois :")}</strong>{" "}
+                  <strong>{msg("Dispatches:")}</strong>{" "}
                   {msg(
-                    " expéditeur, destinataire, canal, options, devis, plafond, approbation ou délégation utilisée, statut, événements et référence du prestataire.",
+                    " sender, recipient, channel, options, quote, spending limit, approval or delegation used, status, events and provider reference.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Fonctionnement :")}</strong>{" "}
+                  <strong>{msg("Operation:")}</strong>{" "}
                   {msg(
-                    " crédit et réservations, consommation, traces d’accès et de sécurité, données techniques de connexion et échanges avec l’assistance.",
+                    " credit and reservations, usage, access and security logs, technical connection data and support exchanges.",
                   )}
                 </li>
               </ul>
               <p>
                 {msg(
-                  "L’atelier peut aussi traiter les sources CSV, XLSX, XML, JSON ou Word que vous fournissez, leurs profils et exemples de données, les modèles, les correspondances de champs, les données de génération et les manifestes de distribution. Lorsque les diagnostics PDF/UA ou PDF/A sont disponibles, leurs rapports sont associés au document exact et à son empreinte. Ces informations servent aux créations, contrôles et consultations que vous demandez ; elles peuvent être retournées à votre assistant selon ses permissions.",
+                  "The workspace can also process CSV, XLSX, XML, JSON or Word sources you provide, their profiles and sample data, templates, field mappings, generation data and distribution manifests. When PDF/UA or PDF/A diagnostics are available, their reports are linked to the exact document and its fingerprint. This information supports the creation, checks and retrieval you request; it may be returned to your assistant according to its permissions.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Ces données proviennent de vous, des membres autorisés du compte, de l’assistant que vous connectez ou du prestataire qui retourne un statut. Guteneo reçoit les paramètres et fichiers transmis à ses outils ; connecter un assistant ne lui donne pas accès à toute votre conversation. Les informations retournées à cet assistant deviennent néanmoins accessibles à ce service selon ses propres règles.",
+                  "This data comes from you, authorised account members, the assistant you connect or the provider returning a status. Guteneo receives the parameters and files sent to its tools; connecting an assistant does not give it access to your entire conversation. Information returned to that assistant nevertheless becomes accessible to that service under its own rules.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les données de compte nécessaires à l’authentification et les informations exigées pour l’envoi sont indispensables à ces fonctions. Sans elles, la connexion ou l’envoi ne peut pas aboutir. Fournissez seulement les données utiles et assurez-vous de pouvoir utiliser les documents et coordonnées de tiers.",
+                  "Account data required for authentication and information required for dispatch are essential to those functions. Without them, sign-in or dispatch cannot be completed. Provide only necessary data and ensure you are entitled to use third-party documents and contact details.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Dans les parcours ChatGPT et Codex, ne transmettez pas de données de carte de paiement soumises à PCI DSS, de données de santé protégées, d’identifiants gouvernementaux, de secrets d’authentification ni de données personnelles sensibles. Cette limite concerne les documents, messages, modèles et jeux de données, y compris ceux déjà enregistrés. Un contrôle antivirus ne constitue pas un filtre de ces catégories.",
-                )}
-              </p>
-            </>
-          ),
-        },
-        {
-          id: "finalites",
-          label: msg("Pourquoi et sur quelle base"),
-          content: (
-            <>
-              <h2>{msg("Pourquoi et sur quelle base")}</h2>
-              <p>
-                {msg(
-                  "La création du compte et l’exécution des fonctions que vous demandez reposent sur l’exécution du service : importer un document, le contrôler, établir un devis, recueillir l’autorisation, transmettre l’envoi et en restituer le suivi.",
-                )}
-              </p>
-              <p>
-                {msg(
-                  "La prévention des abus, la protection des accès, le diagnostic des incidents et la conservation des éléments nécessaires à une contestation reposent sur l’intérêt légitime à exploiter un service sûr et à défendre les droits des personnes concernées. Pour les coordonnées de destinataires fournies par un utilisateur, cet intérêt comprend l’acheminement de sa correspondance autorisée. Vous pouvez vous opposer à ces traitements dans les conditions prévues par la réglementation.",
-                )}
-              </p>
-              <p>
-                {msg(
-                  "Les demandes d’exercice de droits et les obligations légales applicables sont traitées pour respecter ces obligations. Une approbation d’envoi ou un mandat technique n’est pas un consentement général à réutiliser vos données pour d’autres finalités.",
-                )}
-              </p>
-              <p>
-                {msg(
-                  "Les contrôles de document, de droits, de crédit et de destination peuvent bloquer automatiquement une opération. Vous pouvez demander une explication à l’assistance. Guteneo n’utilise pas ces contrôles pour établir un profil publicitaire.",
+                  "In ChatGPT and Codex workflows, do not transmit payment-card data covered by PCI DSS, protected health information, government identifiers, authentication secrets or sensitive personal data. This restriction covers documents, messages, templates and datasets, including those already stored. Antivirus checks do not filter these categories.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "destinataires",
-          label: msg("Avec qui elles sont partagées"),
+          id: "purposes",
+          label: msg("Why and on what basis"),
           content: (
             <>
-              <h2>{msg("Avec qui elles sont partagées")}</h2>
+              <h2>{msg("Why and on what basis")}</h2>
               <p>
                 {msg(
-                  "Les membres autorisés de votre compte accèdent aux informations selon leurs droits. L’éditeur peut traiter les informations nécessaires à l’assistance, à la sécurité et à l’exploitation. Les prestataires interviennent uniquement pour les fonctions concernées :",
+                  "Account creation and the functions you request are based on performance of the service: importing a document, checking it, producing a quote, obtaining authorisation, transmitting the dispatch and providing its tracking.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "Preventing abuse, protecting access, diagnosing incidents and keeping evidence needed for a dispute are based on the legitimate interest in operating a safe service and defending the rights of those concerned. For recipient contact details supplied by a user, this interest includes delivering their authorised correspondence. You may object to this processing under the conditions provided by applicable regulations.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "Requests to exercise rights and applicable legal obligations are handled to comply with those obligations. A dispatch approval or technical mandate is not general consent to reuse your data for other purposes.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "Document, permission, credit and destination checks may automatically block an operation. You can ask support for an explanation. Guteneo does not use these checks to build an advertising profile.",
+                )}
+              </p>
+            </>
+          ),
+        },
+        {
+          id: "recipients",
+          label: msg("Who data is shared with"),
+          content: (
+            <>
+              <h2>{msg("Who data is shared with")}</h2>
+              <p>
+                {msg(
+                  "Authorised members of your account access information according to their permissions. The publisher may process information necessary for support, security and operation. Providers are involved only for the relevant functions:",
                 )}
               </p>
               <ul>
                 <li>
                   <strong>Cloudflare :</strong>{" "}
                   {msg(
-                    " hébergement du site et du service, base de données, stockage de fichiers, traitements techniques et sécurité.",
+                    " website and service hosting, database, file storage, technical processing and security.",
                   )}
                 </li>
                 <li>
                   <strong>Auth0 :</strong>{" "}
-                  {msg(" authentification et gestion de la connexion.")}
+                  {msg(" authentication and sign-in management.")}
                 </li>
                 <li>
                   <strong>Telnyx :</strong>{" "}
                   {msg(
-                    " document et informations nécessaires à un fax lorsque ce canal est disponible et l’envoi autorisé.",
+                    " document and information needed for a fax when that channel is available and the dispatch is authorised.",
                   )}
                 </li>
                 <li>
                   <strong>
-                    {msg("Pingen et les opérateurs postaux concernés :")}
+                    {msg("Pingen and the relevant postal operators:")}
                   </strong>{" "}
                   {msg(
-                    "préparation, impression et acheminement du courrier. Le transfert d’un brouillon chez Pingen peut précéder l’ordre d’envoi ; il exige son autorisation distincte.",
+                    "preparation, printing and delivery of postal mail. A draft may be transferred to Pingen before the dispatch order; that transfer requires separate authorisation.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Aide IA optionnelle de l’atelier :")}</strong>{" "}
+                  <strong>{msg("Optional workspace AI assistance:")}</strong>{" "}
                   {msg(
-                    " si un administrateur l’a activée et a autorisé ce transfert, OpenAI peut recevoir des extraits bornés des données ou du modèle, leur structure et votre instruction pour produire la proposition demandée. L’appel utilise l’option store:false ; cela ne signifie pas qu’aucune conservation ne s’applique chez ce prestataire. Cette aide est distincte de votre assistant connecté et ne déclenche aucun envoi.",
+                    " if an administrator has enabled it and authorized this transfer, OpenAI may receive bounded excerpts of the data or template, their structure and your instruction to produce the requested proposal. The request uses store:false; this does not mean the provider retains no data. This assistance is separate from your connected assistant and does not initiate any delivery.",
                   )}
                 </li>
                 <li>
                   <strong>
-                    {msg("Votre assistant connecté, par exemple ChatGPT :")}
+                    {msg("Your connected assistant, such as ChatGPT:")}
                   </strong>{" "}
                   {msg(
-                    "résultats des outils, métadonnées, contenu ou pages de document demandés, selon les permissions accordées.",
+                    "tool results, metadata, requested document content or pages, according to the permissions granted.",
                   )}
                 </li>
               </ul>
               <p>
                 {msg(
-                  "Le destinataire final reçoit naturellement la correspondance autorisée. L’envoi d’e-mails par Guteneo et les achats de crédit ne sont pas ouverts dans cette version de la bêta.",
+                  "The final recipient naturally receives the authorised correspondence. Sending emails through Guteneo and purchasing credit are not available in this version of the beta.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les bases et le stockage de documents Guteneo utilisent les options de juridiction européenne de Cloudflare. Cela ne garantit pas que tous les traitements de Cloudflare, Auth0, des prestataires d’envoi ou de l’assistant restent dans l’Union européenne. Leur intervention peut impliquer d’autres pays, notamment les États-Unis. Pour connaître les lieux et garanties de transfert applicables à votre utilisation et obtenir les informations disponibles sur ces garanties, contactez ",
+                  "Guteneo’s databases and document storage use Cloudflare’s European jurisdiction options. This does not guarantee that all processing by Cloudflare, Auth0, dispatch providers or the assistant remains within the European Union. Their involvement may include other countries, particularly the United States. To learn about the locations and transfer safeguards applicable to your use and obtain available information about those safeguards, contact ",
                 )}
                 {contact}
                 {msg(
-                  ". Aucune localisation européenne intégrale n’est annoncée.",
+                  ". No claim of wholly European processing is made.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "conservation",
-          label: msg("Combien de temps"),
+          id: "retention",
+          label: msg("How long data is kept"),
           content: (
             <>
-              <h2>{msg("Combien de temps")}</h2>
+              <h2>{msg("How long data is kept")}</h2>
               <p>
-                <strong>{msg("PDF stockés par Guteneo :")}</strong>{" "}
+                <strong>{msg("PDFs stored by Guteneo:")}</strong>{" "}
                 {msg(
-                  " leur suppression automatique devient possible 90 jours après leur création. Elle intervient lors d’un passage de maintenance, lorsque plus aucun envoi associé n’est en cours ou dans un état encore non résolu. Un envoi ouvert peut donc prolonger cette conservation. Ce mécanisme n’est pas une garantie de suppression à la minute ou au jour près ; conservez votre propre original.",
+                  " automatic deletion becomes possible 90 days after creation. It takes place during a maintenance run, when no associated dispatch is ongoing or still unresolved. An open dispatch can therefore extend retention. This mechanism does not guarantee deletion to the exact minute or day; keep your own original.",
                 )}
               </p>
               <p>
                 {msg(
-                  "La suppression du fichier n’efface pas automatiquement toutes ses métadonnées ni l’historique de l’envoi. Les références, statuts, approbations, mouvements de crédit et éléments d’audit sont conservés pour gérer les opérations, répondre aux demandes et établir ce qui s’est passé en cas de contestation. Leur nécessité est examinée lors d’une demande de suppression ou de clôture : les éléments devenus inutiles sont supprimés ou anonymisés ; une obligation applicable, une opération non résolue ou un litige peut justifier une conservation limitée aux éléments concernés et à sa durée nécessaire.",
+                  "Deleting a file does not automatically delete all its metadata or dispatch history. References, statuses, approvals, credit movements and audit records are kept to manage operations, respond to requests and establish what happened in a dispute. Their necessity is reviewed when deletion or closure is requested: records no longer needed are deleted or anonymised; an applicable obligation, unresolved operation or dispute may justify retention limited to the relevant records and the time needed.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les sources de données et leurs profils deviennent supprimables après 30 jours, sauf lorsqu’une génération liée est encore en attente ou en cours. Les originaux Word deviennent supprimables après 30 jours. Les données par enregistrement et les artefacts intermédiaires de génération deviennent supprimables après 90 jours, une fois la génération arrêtée. La maintenance effectue ces suppressions par lots ; les PDF générés suivent les règles de conservation des PDF.",
+                  "Data sources and their profiles become eligible for deletion after 30 days, unless a related generation job is still queued or running. Word originals become eligible for deletion after 30 days. Per-record data and intermediate generation artifacts become eligible after 90 days, once generation has stopped. Maintenance performs these deletions in batches; generated PDFs follow the PDF retention rules.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les modèles, versions publiées, correspondances de champs, manifestes et rapports de diagnostic restent dans l’historique du compte ; la suppression de leurs fichiers sources ne les efface pas automatiquement. Leur nécessité est examinée lors d’une demande d’effacement ou de clôture selon les besoins résiduels décrits ci-dessus.",
+                  "Templates, published versions, field mappings, manifests and diagnostic reports remain in the account history; deleting their source files does not automatically erase them. Their continued necessity is reviewed when you request erasure or account closure, according to the residual needs described above.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les données de compte sont conservées pendant son utilisation, puis selon ces mêmes besoins résiduels à sa clôture. Les demandes d’assistance sont conservées jusqu’à leur résolution, puis seulement si leur suivi ou une contestation le nécessite. Il n’existe pas actuellement de suppression complète du compte en libre-service : adressez votre demande à ",
+                  "Account data is kept while the account is in use, then according to the same remaining needs after closure. Support requests are kept until resolved, then only if follow-up or a dispute requires it. Full self-service account deletion is not currently available: send your request to ",
                 )}
                 {contact}.
               </p>
               <p>
                 {msg(
-                  "Le suivi d’exploitation enregistre les connexions réussies, leur date, le compte et le membre concernés, le type d’accès et le pays estimé par Cloudflare lorsqu’il est disponible. Ce registre ne conserve ni adresse IP ni navigateur détaillé. Il est réservé à l’éditeur pour la sécurité et le suivi du service. Les événements de connexion et les consultations de ce tableau de contrôle sont exclus des vues après 90 jours, puis supprimés par la maintenance.",
+                  "Operational monitoring records successful connections, their date, the account and member concerned, the access type and the country estimated by Cloudflare when available. This register stores neither IP addresses nor detailed browser information. It is restricted to the publisher for security and service monitoring. Connection events and access records for this control panel are excluded from views after 90 days, then deleted during maintenance.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Pour chaque connexion à un assistant, la date de la dernière utilisation réussie d’un outil est conservée avec cette connexion pour indiquer si elle fonctionne. Ce suivi ne conserve pas le contenu de l’appel. Vous pouvez révoquer la connexion dans Mon compte pour empêcher ses prochains accès ; les demandes d’effacement de cet historique suivent la procédure de droits ci-dessous.",
+                  "For each assistant connection, the date of its last successful tool use is kept with the connection to indicate whether it works. This tracking does not store the call’s content. You can revoke the connection in My account to prevent future access; requests to erase this history follow the rights procedure below.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les sessions et autorisations temporaires ont une date d’expiration ; la maintenance nettoie les entrées expirées. Les compteurs journaliers de consultation de contenu sont nettoyés au-delà de 31 jours. Une copie déjà transmise à un destinataire, à un assistant ou à un prestataire suit aussi ses propres règles de conservation ; supprimer le fichier chez Guteneo ne rappelle pas un envoi.",
+                  "Sessions and temporary authorisations have expiry dates; maintenance clears expired entries. Daily content-view counters are cleared after 31 days. A copy already sent to a recipient, assistant or provider is also subject to their own retention rules; deleting the file at Guteneo does not recall a dispatch.",
                 )}
               </p>
             </>
@@ -319,62 +316,62 @@ export function getInformationPages(): Record<string, InformationPageContent> {
         },
         {
           id: "cookies",
-          label: msg("Cookies et sécurité"),
+          label: msg("Cookies and security"),
           content: (
             <>
-              <h2>{msg("Cookies et sécurité")}</h2>
+              <h2>{msg("Cookies and security")}</h2>
               <p>
                 {msg(
-                  "La connexion utilise des cookies de session et de protection du parcours d’authentification. Le navigateur peut aussi mémoriser votre préférence de connexion à un assistant. L’application n’intègre pas de traceur publicitaire. Les fournisseurs d’authentification et de sécurité peuvent traiter les informations techniques nécessaires à leurs fonctions.",
+                  "Sign-in uses session cookies and cookies protecting the authentication flow. The browser may also remember your assistant connection preference. The app includes no advertising tracker. Authentication and security providers may process technical information needed for their functions.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Votre choix de langue peut être conservé dans ce navigateur. Si vous l’enregistrez dans votre profil, il est associé à votre compte pour le site et l’application iOS.",
+                  "Your language choice may be saved in this browser. If you save it in your profile, it is linked to your account for the website and iOS app.",
                 )}
               </p>
               <p>
                 {msg(
-                  "L’accès au service est contrôlé par le compte, les rôles et les permissions. Les accès temporaires aux documents expirent et les PDF sont soumis aux contrôles configurés avant leur utilisation. Ces mesures réduisent les risques sans rendre tout incident impossible. N’envoyez pas de mot de passe, de jeton d’accès ni de secret à l’assistance.",
+                  "Access to the service is controlled by the account, roles and permissions. Temporary document access expires and PDFs undergo the configured checks before use. These measures reduce risks without making every incident impossible. Do not send passwords, access tokens or secrets to support.",
                 )}
               </p>
               <p>
                 {msg(
-                  "L’aperçu public de démonstration utilise des données fictives dans la mémoire de l’onglet ; il ne transmet aucun courrier. Il est distinct du compte connecté et de ses documents persistants.",
+                  "The public demo preview uses fictional data in the tab’s memory; it sends no postal mail. It is separate from the signed-in account and its persistent documents.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "droits",
-          label: msg("Exercer vos droits"),
+          id: "rights",
+          label: msg("Exercise your rights"),
           content: (
             <>
-              <h2>{msg("Exercer vos droits")}</h2>
+              <h2>{msg("Exercise your rights")}</h2>
               <p>
                 {msg(
-                  "Vous pouvez demander l’accès, la rectification, l’effacement ou la limitation du traitement de vos données, ainsi que leur portabilité lorsqu’elle s’applique. Vous pouvez vous opposer à un traitement fondé sur l’intérêt légitime pour des raisons tenant à votre situation. Ces droits peuvent être limités par les droits d’autres personnes, une obligation légale ou la nécessité de régler une opération ou une contestation.",
+                  "You may request access, rectification, erasure or restriction of processing of your data, and portability where applicable. You may object to processing based on legitimate interest for reasons relating to your situation. These rights may be limited by other people’s rights, a legal obligation or the need to resolve an operation or dispute.",
                 )}
               </p>
               <p>
-                {msg("Écrivez à ")}
+                {msg("Write to ")}
                 {contact}{" "}
                 {msg(
-                  " en précisant votre demande et le compte concerné. Une information complémentaire d’identité ne sera demandée qu’en cas de doute raisonnable, de manière proportionnée. Une réponse est apportée dans un délai d’un mois ; en cas de demande complexe ou de demandes nombreuses, une prolongation maximale de deux mois peut être nécessaire et vous sera expliquée durant le premier mois.",
+                  " with your request and the account concerned. Additional identity information will be requested only if there is reasonable doubt, in a proportionate manner. A response is provided within one month; for complex or numerous requests, an extension of up to two months may be needed and will be explained during the first month.",
                 )}
               </p>
               <p>
-                {msg("Vous pouvez consulter les")}{" "}
+                {msg("You can read the")}{" "}
                 <a href="https://www.cnil.fr/fr/les-droits-pour-maitriser-vos-donnees-personnelles">
-                  {msg("explications de la CNIL sur vos droits")}
+                  {msg("CNIL’s explanation of your rights")}
                 </a>{" "}
-                {msg("et")}{" "}
+                {msg("and")}{" "}
                 <a href="https://www.cnil.fr/fr/adresser-une-plainte">
-                  {msg("adresser une réclamation à la CNIL")}
+                  {msg("lodge a complaint with the CNIL")}
                 </a>
                 {msg(
-                  ". Cette politique sera actualisée si le service ou ses traitements évoluent.",
+                  ". This policy will be updated if the service or its processing changes.",
                 )}
               </p>
             </>
@@ -382,108 +379,105 @@ export function getInformationPages(): Record<string, InformationPageContent> {
         },
       ],
     },
-    "/conditions/": {
-      label: msg("Conditions d’utilisation"),
-      updated: msg("Mise à jour le 23 octobre 2026"),
+    "/terms/": {
+      label: msg("Terms of use"),
+      updated: msg("Updated on 23 October 2026"),
       title: (
         <>
-          {msg("Un cadre ")}
-          <em>{msg("pour vos envois.")}</em>
+          {msg("A framework ")}
+          <em>{msg("for your dispatches.")}</em>
         </>
       ),
       description: msg(
-        "Conditions d’utilisation de la bêta Guteneo : accès, documents, autorisations, crédit d’essai et limites des envois.",
+        "Guteneo beta terms of use: access, documents, authorisations, trial credit and dispatch limits.",
       ),
       sections: [
         {
           id: "service",
-          label: msg("La bêta"),
+          label: msg("The beta"),
           content: (
             <>
-              <h2>{msg("Le service et sa bêta")}</h2>
+              <h2>{msg("The service and its beta")}</h2>
               <p>
                 {msg(
-                  "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté. Ses coordonnées figurent dans les ",
+                  "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant. His contact details appear in the ",
                 )}
-                <a href="/mentions-legales/">{msg("mentions légales")}</a>
+                <a href="/legal/">{msg("legal notice")}</a>
                 {msg(
-                  ". Les présentes conditions décrivent la bêta accessible actuellement.",
-                )}
-              </p>
-              <p>
-                {msg(
-                  "Le fax et le courrier postal sont disponibles selon les droits du compte, les destinations, les limites et les prestataires configurés. Une fonction visible n’est pas une garantie que toute destination est ouverte. L’envoi d’e-mails et l’achat de crédit sont désactivés. Les démonstrations et simulations utilisent des résultats fictifs et n’établissent aucune preuve d’acheminement réel.",
+                  ". These terms describe the beta currently available.",
                 )}
               </p>
               <p>
                 {msg(
-                  "La bêta peut évoluer, être interrompue pour maintenance ou être limitée pour traiter un incident. Aucun délai de disponibilité, d’assistance ou d’acheminement n’est garanti. Une modification importante de ces conditions sera indiquée sur cette page et, lorsqu’elle affecte l’utilisation du compte, portée à votre attention dans le service ou par un moyen adapté.",
+                  "Fax and postal mail are available depending on account permissions, destinations, limits and configured providers. A visible feature does not guarantee that every destination is available. Email sending and credit purchases are disabled. Demonstrations and simulations use fictional results and provide no evidence of real transmission.",
+                )}
+              </p>
+              <p>
+                {msg(
+                  "The beta may change, be interrupted for maintenance or be limited to handle an incident. No availability, support or delivery time is guaranteed. A material change to these terms will be indicated on this page and, when it affects account use, brought to your attention in the service or through an appropriate channel.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "compte",
-          label: msg("Votre compte"),
+          id: "account",
+          label: msg("Your account"),
           content: (
             <>
-              <h2>{msg("Votre compte et vos documents")}</h2>
+              <h2>{msg("Your account and documents")}</h2>
               <p>
                 {msg(
-                  "Utilisez une identité et des coordonnées exactes. Protégez vos accès, accordez seulement les permissions utiles et signalez un accès non autorisé à ",
+                  "Use accurate identity and contact details. Protect your access, grant only necessary permissions and report unauthorised access to ",
                 )}
                 {contact}
                 {msg(
-                  ". Les administrateurs gèrent les membres et les connexions de leur compte.",
+                  ". Administrators manage their account’s members and connections.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Vous devez disposer du droit de transmettre le document et d’utiliser les coordonnées du destinataire. Vérifiez le contenu, les pages, l’expéditeur, le destinataire et les options avant approbation. Il est interdit d’utiliser Guteneo pour des contenus illicites, la fraude, le harcèlement, l’usurpation d’identité, des envois non autorisés ou pour contourner les contrôles du service.",
+                  "You must have the right to transmit the document and use the recipient’s contact details. Check the content, pages, sender, recipient and options before approval. Using Guteneo for unlawful content, fraud, harassment, impersonation, unauthorised dispatches or to bypass the service’s checks is prohibited.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Les parcours ChatGPT et Codex excluent les données personnelles sensibles, les données de santé protégées, les identifiants gouvernementaux, les données de carte de paiement soumises à PCI DSS et les secrets d’authentification. N’y transmettez pas de document, message, modèle ou jeu de données qui en contient, même déjà enregistré.",
+                  "ChatGPT and Codex workflows exclude sensitive personal data, protected health information, government identifiers, payment-card data covered by PCI DSS and authentication secrets. Do not transmit any document, message, template or dataset containing them, even if already stored.",
                 )}
               </p>
               <p>
                 {msg(
-                  "La déclaration d’un expéditeur postal atteste que vous êtes autorisé à utiliser cette identité et cette adresse ; elle ne constitue pas une vérification physique de l’adresse. Les contrôles techniques d’un PDF ne certifient ni l’exactitude, ni la légalité, ni l’authenticité de son contenu.",
+                  "Declaring a postal sender attests that you are authorised to use that identity and address; it is not physical verification of the address. Technical PDF checks certify neither the accuracy, lawfulness nor authenticity of its content.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Conservez vos originaux et les éléments dont vous avez besoin. Guteneo n’est pas un service d’archivage permanent. Les règles de traitement et de conservation figurent dans la",
+                  "Keep your originals and any records you need. Guteneo is not a permanent archiving service. Processing and retention rules are set out in the",
                 )}{" "}
-                <a href="/confidentialite/">
-                  {msg("politique de confidentialité")}
-                </a>
-                .
+                <a href="/privacy/">{msg("privacy policy")}</a>.
               </p>
             </>
           ),
         },
         {
-          id: "autorisation",
-          label: msg("Autoriser un envoi"),
+          id: "authorization",
+          label: msg("Authorise a dispatch"),
           content: (
             <>
-              <h2>{msg("Autoriser un envoi")}</h2>
+              <h2>{msg("Authorise a dispatch")}</h2>
               <p>
                 {msg(
-                  "La préparation d’un document ou d’un devis ne vaut pas ordre d’envoi. L’autorisation porte sur le document exact, son destinataire, les options et le coût ou plafond présenté. Une modification de ces éléments ou l’expiration du devis peut nécessiter une nouvelle autorisation. Vérifiez également les indications de taxe et de devise du devis.",
+                  "Preparing a document or quote is not an instruction to send. Authorisation applies to the exact document, its recipient, options and the displayed cost or spending limit. Changes to these details or quote expiry may require new authorisation. Also check the quote’s tax and currency information.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Par défaut, la validation se fait par une personne dans le parcours prévu. Un administrateur authentifié peut, dans le navigateur, donner à un assistant un mandat distinct, limité et temporaire. Les opérations effectuées dans ses limites sont enregistrées comme une approbation déléguée, pas comme une nouvelle validation humaine. L’assistant ne peut pas activer ni prolonger lui-même ce mandat. Les confirmations demandées par votre assistant et les limites du service continuent de s’appliquer.",
+                  "By default, a person approves through the designated flow. An authenticated administrator can, in the browser, give an assistant a separate, limited and temporary mandate. Operations within its limits are recorded as delegated approval, not as a new human approval. The assistant cannot enable or extend this mandate itself. Your assistant’s confirmation requests and the service’s limits continue to apply.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Le transfert d’un brouillon postal au prestataire demande son autorisation propre, même avant l’impression ou l’acheminement. Connecter un assistant ou lui donner accès à vos documents ne l’autorise pas à lui seul à envoyer une correspondance.",
+                  "Transferring a postal draft to the provider requires its own authorisation, even before printing or delivery. Connecting an assistant or giving it access to your documents does not by itself authorise it to send correspondence.",
                 )}
               </p>
             </>
@@ -491,72 +485,72 @@ export function getInformationPages(): Record<string, InformationPageContent> {
         },
         {
           id: "credit",
-          label: msg("Crédit et coûts"),
+          label: msg("Credit and costs"),
           content: (
             <>
-              <h2>{msg("Crédit et coûts")}</h2>
+              <h2>{msg("Credit and costs")}</h2>
               <p>
                 {msg(
-                  "La bêta peut attribuer un crédit d’essai selon les conditions affichées dans votre compte. Ce crédit sert aux opérations éligibles ; il ne constitue pas une somme déposée, un moyen de paiement général ou une somme remboursable en espèces. Aucun rechargement payant n’est proposé dans cette version.",
+                  "The beta may grant trial credit under the conditions shown in your account. This credit is for eligible operations; it is not a deposit, a general means of payment or an amount redeemable for cash. This version offers no paid top-ups.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Le devis et le plafond applicables sont présentés avant l’autorisation. Une réservation de crédit peut être créée au moment de l’acceptation, puis régularisée selon le résultat de l’opération. Un état en attente ou incertain peut retarder cette régularisation ; contactez l’assistance pour une différence ou une réservation qui vous paraît anormale.",
+                  "The applicable quote and spending limit are shown before authorisation. A credit reservation may be created at acceptance, then settled according to the operation’s outcome. A pending or uncertain status may delay settlement; contact support about any difference or reservation that seems abnormal.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "suivi",
-          label: msg("Suivi et annulation"),
+          id: "tracking",
+          label: msg("Tracking and cancellation"),
           content: (
             <>
-              <h2>{msg("Suivi, annulation et limites")}</h2>
+              <h2>{msg("Tracking, cancellation and limits")}</h2>
               <p>
                 {msg(
-                  "L’acceptation par Guteneo, l’acceptation par un prestataire et la remise au destinataire sont des étapes distinctes. Les statuts dépendent des informations du prestataire et peuvent arriver avec retard. La remise d’une lettre à l’opérateur postal n’atteste pas à elle seule sa réception par le destinataire.",
+                  "Acceptance by Guteneo, acceptance by a provider and delivery to the recipient are separate steps. Statuses depend on provider information and may arrive late. Handover of a letter to a postal operator does not by itself prove receipt by the recipient.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Une annulation n’est possible que tant que l’état de l’envoi le permet. Une correspondance déjà transmise peut ne plus être rappelable. Si le résultat est inconnu, ne recommencez pas l’envoi : vérifiez le suivi ou contactez l’assistance afin d’éviter un doublon.",
+                  "Cancellation is possible only while the dispatch status permits it. Correspondence already transmitted may no longer be recallable. If the outcome is unknown, do not send again: check tracking or contact support to avoid a duplicate.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Le service ne garantit pas qu’un fax ou un courrier soit admis pour une démarche particulière, reçu avant une échéance, lu, ou doté d’une valeur de recommandé ou de signature électronique. Vérifiez les exigences du destinataire et choisissez une solution adaptée aux délais ou formalités de votre démarche.",
+                  "The service does not guarantee that a fax or letter will be accepted for a particular procedure, received before a deadline, read, or have the value of registered mail or an electronic signature. Check the recipient’s requirements and choose a solution suited to your procedure’s deadlines or formalities.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "assistance",
-          label: msg("Assistance et clôture"),
+          id: "support",
+          label: msg("Support and closure"),
           content: (
             <>
-              <h2>{msg("Assistance, suspension et clôture")}</h2>
+              <h2>{msg("Support, suspension and closure")}</h2>
               <p>
                 {msg(
-                  "Pour un incident, une contestation ou une demande de clôture, écrivez à ",
+                  "For an incident, dispute or closure request, write to ",
                 )}
                 {contact}
-                {msg(". La page ")}
-                <a href="/support/">{msg("assistance")}</a>{" "}
+                {msg(". The page ")}
+                <a href="/support/">{msg("support page")}</a>{" "}
                 {msg(
-                  "précise les informations utiles. Les données encore nécessaires au règlement d’une opération ou d’un litige suivent les règles de conservation expliquées dans la politique de confidentialité.",
+                  "sets out the useful information. Data still needed to resolve an operation or dispute follows the retention rules explained in the privacy policy.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Un accès ou une opération peut être suspendu en cas de risque de sécurité, d’abus, d’utilisation illicite ou de non-respect de ces conditions. Lorsque cela est possible sans compromettre la sécurité ou une obligation applicable, le motif vous est expliqué et vous pouvez le contester auprès de l’assistance.",
+                  "Access or an operation may be suspended in the event of a security risk, abuse, unlawful use or breach of these terms. Where possible without compromising security or an applicable obligation, the reason is explained and you may challenge it through support.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Ces conditions ne retirent aucun droit impératif que vous reconnaît la loi et n’excluent pas une responsabilité qui ne peut légalement l’être. Pour toute difficulté, nous vous invitons à nous contacter afin de rechercher une solution.",
+                  "These terms do not remove any mandatory legal rights you have or exclude liability that cannot legally be excluded. If you encounter a problem, please contact us so we can seek a solution.",
                 )}
               </p>
             </>
@@ -565,40 +559,40 @@ export function getInformationPages(): Record<string, InformationPageContent> {
       ],
     },
     "/support/": {
-      label: msg("Assistance"),
+      label: msg("Support"),
       title: (
         <>
-          {msg("Besoin ")}
-          <em>{msg("d’un coup de main ?")}</em>
+          {msg("Need ")}
+          <em>{msg("a helping hand?")}</em>
         </>
       ),
       description: msg(
-        "Contactez l’assistance Guteneo pour un document, un envoi, une connexion ou une demande relative à vos données.",
+        "Contact Guteneo support about a document, dispatch, connection or data-related request.",
       ),
       sections: [
         {
           id: "contact",
-          label: msg("Nous écrire"),
+          label: msg("Write to us"),
           content: (
             <>
-              <h2>{msg("Nous écrire")}</h2>
+              <h2>{msg("Write to us")}</h2>
               <p>
                 {msg(
-                  "Pour une question, un incident ou une demande sur votre compte, écrivez à ",
+                  "For a question, incident or account request, write to ",
                 )}
                 <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
                 {msg(
-                  ". Votre interlocuteur est Nicolas Pieper, éditeur de Guteneo.",
+                  ". Your contact is Nicolas Pieper, Guteneo’s publisher.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Indiquez l’adresse du compte concerné, la référence du document ou de l’envoi, la date approximative, l’action tentée et le message d’erreur. Une capture masquant les données personnelles peut aider. Ne joignez pas le PDF original, les coordonnées complètes du destinataire ou d’autres données sensibles au premier message si ces éléments ne sont pas nécessaires. N’envoyez jamais de mot de passe, de code de connexion ou de jeton d’accès.",
+                  "Include the relevant account address, document or dispatch reference, approximate date, action attempted and error message. A screenshot with personal data hidden may help. Do not attach the original PDF, the recipient’s full contact details or other sensitive data to the first message unless necessary. Never send a password, sign-in code or access token.",
                 )}
               </p>
               <p>
                 {msg(
-                  "La bêta ne propose pas d’assistance d’urgence ni de délai de réponse garanti pour les demandes techniques. Si votre démarche comporte une échéance impérative, prévoyez un autre moyen adapté.",
+                  "The beta offers no emergency support or guaranteed response time for technical requests. If your procedure has a strict deadline, arrange another suitable method.",
                 )}
               </p>
             </>
@@ -606,89 +600,89 @@ export function getInformationPages(): Record<string, InformationPageContent> {
         },
         {
           id: "document",
-          label: msg("Un PDF refusé"),
+          label: msg("A rejected PDF"),
           content: (
             <>
-              <h2>{msg("Un PDF refusé ou indisponible")}</h2>
+              <h2>{msg("A rejected or unavailable PDF")}</h2>
               <p>
                 {msg(
-                  "Vérifiez que le fichier est un PDF lisible et que sa taille et son nombre de pages respectent les limites indiquées par le service. Pour une importation par lien, le document doit être accessible par une adresse HTTPS publique autorisée ; un lien vers un fichier local ou nécessitant une connexion ne convient pas.",
+                  "Check that the file is a readable PDF and that its size and page count meet the limits stated by the service. For a link import, the document must be accessible at an authorised public HTTPS address; a link to a local file or one requiring sign-in is not suitable.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Attendez la fin des contrôles avant de préparer l’envoi. Si un document est bloqué ou n’est plus conservé, le suivi peut rester visible sans que son fichier soit disponible. Conservez toujours votre original et signalez le code d’erreur à l’assistance si le blocage persiste.",
+                  "Wait for the checks to finish before preparing the dispatch. If a document is blocked or no longer retained, its tracking may remain visible even though the file is unavailable. Always keep your original and report the error code to support if the block persists.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "envoi",
-          label: msg("Un envoi en attente"),
+          id: "dispatch",
+          label: msg("A pending dispatch"),
           content: (
             <>
-              <h2>{msg("Un envoi en attente ou un crédit réservé")}</h2>
+              <h2>{msg("A pending dispatch or reserved credit")}</h2>
               <p>
                 {msg(
-                  "Consultez d’abord le détail de l’envoi dans votre compte ou demandez son suivi à votre assistant. Un devis ou un brouillon n’est pas un envoi ; une acceptation n’est pas encore une remise au destinataire.",
+                  "First check the dispatch details in your account or ask your assistant to track it. A quote or draft is not a dispatch; acceptance is not yet delivery to the recipient.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Si le résultat est inconnu, ne relancez pas une seconde fois. Transmettez la référence à l’assistance pour éviter les doublons. Indiquez aussi cette référence si une réservation de crédit reste ouverte ou si le montant ne correspond pas au devis approuvé. Les achats et rechargements payants ne sont pas ouverts.",
+                  "If the outcome is unknown, do not retry. Send the reference to support to avoid duplicates. Also include that reference if a credit reservation remains open or the amount differs from the approved quote. Paid purchases and top-ups are not available.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "connexion",
-          label: msg("Assistant et permissions"),
+          id: "connection",
+          label: msg("Assistant and permissions"),
           content: (
             <>
-              <h2>{msg("Assistant et permissions")}</h2>
+              <h2>{msg("Assistant and permissions")}</h2>
               <p>
-                {msg("Les ")}
-                <a href="/assistants/">{msg("guides de connexion")}</a>{" "}
+                {msg("The ")}
+                <a href="/assistants/">{msg("connection guides")}</a>{" "}
                 {msg(
-                  " présentent les étapes propres à chaque assistant. Vérifiez le compte Guteneo utilisé et les permissions accordées. Une connexion réussie ne rend pas automatiquement tous les canaux ou toutes les destinations disponibles.",
+                  " show the steps for each assistant. Check the Guteneo account used and the permissions granted. A successful connection does not automatically make every channel or destination available.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Un administrateur peut examiner les connexions et les mandats dans les réglages du compte. Révoquez une connexion ou une délégation devenue inutile. Si vous soupçonnez un accès non autorisé, indiquez-le explicitement à l’assistance et protégez également le compte de votre fournisseur d’identité.",
+                  "An administrator can review connections and mandates in account settings. Revoke any connection or delegation no longer needed. If you suspect unauthorised access, explicitly tell support and also secure your identity provider account.",
                 )}
               </p>
             </>
           ),
         },
         {
-          id: "donnees",
-          label: msg("Vos données et vos droits"),
+          id: "data",
+          label: msg("Your data and rights"),
           content: (
             <>
-              <h2>{msg("Vos données et vos droits")}</h2>
+              <h2>{msg("Your data and rights")}</h2>
               <p>
                 {msg(
-                  "Pour consulter, corriger ou supprimer vos données, demander la clôture du compte ou signaler un incident de confidentialité, écrivez à ",
+                  "To view, correct or delete your data, request account closure or report a privacy incident, write to ",
                 )}
                 {contact}
                 {msg(
-                  ". Précisez votre demande ; une pièce d’identité n’est pas demandée systématiquement.",
+                  ". Specify your request; an identity document is not requested as a matter of course.",
                 )}
               </p>
               <p>
-                {msg("La")}{" "}
-                <a href="/confidentialite/#droits">
-                  {msg("politique de confidentialité")}
+                {msgIn("singular-article", "The")}{" "}
+                <a href="/privacy/#rights">
+                  {msg("privacy policy")}
                 </a>{" "}
                 {msg(
-                  "explique les droits, les délais de réponse applicables et la conservation des documents. Les",
+                  "explains the rights, applicable response times and document retention. The",
                 )}{" "}
-                <a href="/conditions/">{msg("conditions d’utilisation")}</a>{" "}
+                <a href="/terms/">{msg("terms of use")}</a>{" "}
                 {msg(
-                  " décrivent les autorisations, le crédit d’essai et les limites du service.",
+                  " describe authorisations, trial credit and service limits.",
                 )}
               </p>
             </>
@@ -707,29 +701,21 @@ export function InformationPage({
   return (
     <div className="legal-page">
       <a className="skip-link" href="#information-content">
-        {msg("Aller au contenu")}
+        {msg("Skip to content")}
       </a>
-      <header className="site-header">
-        <Brand />
-        <LanguageMenu />
-        <a className="legal-back" href="/">
-          <ArrowLeft size={18} aria-hidden="true" />{" "}
-          {msg(" Retour à l’accueil")}
-        </a>
-      </header>
+      <PublicHeader />
       <main id="information-content" className="legal-document" tabIndex={-1}>
         <div className="legal-intro">
-          <p className="legal-label">{content.label}</p>
           <h1>{content.title}</h1>
           <p>{content.description}</p>
           {content.updated !== null && (
             <p className="legal-date">
-              {content.updated ?? msg("Mise à jour le 22 septembre 2026")}
+              {content.updated ?? msg("Updated on 22 September 2026")}
             </p>
           )}
         </div>
         <div className="legal-layout">
-          <nav aria-label={msg("Sur cette page")} className="legal-index">
+          <nav aria-label={msg("On this page")} className="legal-index">
             {content.sections.map((section) => (
               <a href={`#${section.id}`} key={section.id}>
                 {section.label}
@@ -745,10 +731,7 @@ export function InformationPage({
           </div>
         </div>
       </main>
-      <footer className="legal-colophon">
-        <Brand variant="simple" compact />
-        <LegalLinks />
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

@@ -88,7 +88,7 @@ function requireConfiguration(env: BillingEnv): number {
   if (!billingConfigured(env))
     fail(
       "BILLING_CONFIGURATION_REQUIRED",
-      "La facturation Stripe doit être raccordée avant cette opération.",
+      "Stripe billing must be connected before this operation.",
       503,
     );
   return env.STRIPE_MODE === "live" ? 1 : 0;
@@ -119,20 +119,20 @@ async function stripeRequest(
   } catch {
     fail(
       "BILLING_PROVIDER_UNAVAILABLE",
-      "Stripe est temporairement indisponible.",
+      "Stripe is temporarily unavailable.",
       503,
     );
   }
   if (!response.ok)
     fail(
       "BILLING_PROVIDER_UNAVAILABLE",
-      "Stripe n’a pas confirmé cette opération.",
+      "Stripe has not confirmed this operation.",
       503,
     );
   try {
     return await response.json();
   } catch {
-    fail("BILLING_PROVIDER_INVALID", "La réponse de Stripe est invalide.", 502);
+    fail("BILLING_PROVIDER_INVALID", "The Stripe response is invalid.", 502);
   }
 }
 async function account(env: BillingEnv, organizationId: string, live: number) {
@@ -151,7 +151,7 @@ async function requireAdmin(env: BillingEnv, actor: AuthContext) {
   if (actor.actor !== "browser" || membership?.role !== "admin")
     fail(
       "BILLING_ADMIN_REQUIRED",
-      "La facturation est réservée aux administrateurs de l’espace.",
+      "Billing is restricted to workspace administrators.",
       403,
     );
   await requireHorizonPlan(env, actor);
@@ -233,7 +233,7 @@ export class BillingService {
           .first<{ created: number; id: string }>()
       : null;
     if (after && !cursor)
-      fail("NOT_FOUND", "Page de facturation introuvable.", 404);
+      fail("NOT_FOUND", "Billing page not found.", 404);
     const columns =
       kind === "invoices"
         ? "id,number,status,currency,total_minor,amount_due_minor,amount_paid_minor,amount_remaining_minor,created,due_date,synced_at"
@@ -267,7 +267,7 @@ export class BillingService {
     if (live && org?.mode !== "production")
       fail(
         "BILLING_MODE_MISMATCH",
-        "Un espace de simulation ne peut pas utiliser la facturation réelle.",
+        "A simulation workspace cannot use live billing.",
         409,
       );
     const now = Date.now();
@@ -290,7 +290,7 @@ export class BillingService {
     if (now - mapping.provision_started_at > 23 * 3_600_000)
       fail(
         "BILLING_RECONCILIATION_REQUIRED",
-        "Le rattachement Stripe doit être vérifié par un opérateur.",
+        "An operator must verify the Stripe account binding.",
         409,
       );
     const result = z
@@ -317,7 +317,7 @@ export class BillingService {
     )
       fail(
         "BILLING_PROVIDER_INVALID",
-        "Le compte Stripe reçu ne correspond pas à cet espace.",
+        "The returned Stripe account does not match this workspace.",
         502,
       );
     await this.env.DB.prepare(
@@ -334,7 +334,7 @@ export class BillingService {
     if (final?.customer_id !== result.data.id)
       fail(
         "BILLING_RECONCILIATION_REQUIRED",
-        "Le rattachement Stripe doit être vérifié par un opérateur.",
+        "An operator must verify the Stripe account binding.",
         409,
       );
     await requireAdmin(this.env, actor);
@@ -347,13 +347,13 @@ export class BillingService {
     if (!idempotencyKey || !/^[A-Za-z0-9_-]{8,128}$/.test(idempotencyKey))
       fail(
         "IDEMPOTENCY_REQUIRED",
-        "Une clé Idempotency-Key de 8 à 128 caractères est requise.",
+        "An Idempotency-Key of 8 to 128 characters is required.",
       );
     const mapping = await account(this.env, actor.organizationId, live);
     if (!mapping?.customer_id)
       fail(
         "BILLING_CUSTOMER_REQUIRED",
-        "Rattachez d’abord cet espace à Stripe.",
+        "Connect this workspace to Stripe first.",
         409,
       );
     const fields = new URLSearchParams({
@@ -385,7 +385,7 @@ export class BillingService {
     )
       fail(
         "BILLING_PROVIDER_INVALID",
-        "Le portail Stripe reçu est invalide.",
+        "The returned Stripe portal is invalid.",
         502,
       );
     const url = new URL(result.data.url);
@@ -398,7 +398,7 @@ export class BillingService {
     )
       fail(
         "BILLING_PROVIDER_INVALID",
-        "Le portail Stripe reçu est invalide.",
+        "The returned Stripe portal is invalid.",
         502,
       );
     await requireAdmin(this.env, actor);
@@ -415,7 +415,7 @@ export async function handleBillingRoute(
   if (request.headers.has("Authorization"))
     fail(
       "BILLING_BROWSER_REQUIRED",
-      "Ouvrez la facturation dans votre navigateur.",
+      "Open billing in your browser.",
       403,
     );
   const mutation = !["GET", "HEAD", "OPTIONS"].includes(request.method);
@@ -431,7 +431,7 @@ export async function handleBillingRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       {
@@ -459,13 +459,13 @@ export async function handleBillingRoute(
   ) {
     // Never accept a client customer, tenant, return URL, plan or monetary amount.
     const raw = await request.text();
-    if (raw.length > 128) fail("VALIDATION_ERROR", "Données invalides.");
+    if (raw.length > 128) fail("VALIDATION_ERROR", "Invalid data.");
     try {
       z.object({})
         .strict()
         .parse(raw ? JSON.parse(raw) : {});
     } catch {
-      fail("VALIDATION_ERROR", "Données invalides.");
+      fail("VALIDATION_ERROR", "Invalid data.");
     }
     if (url.pathname.endsWith("customer")) {
       const result = await service.createCustomer(session.context);
@@ -477,7 +477,7 @@ export async function handleBillingRoute(
       )
         fail(
           "BILLING_ADMIN_REQUIRED",
-          "La session de facturation a changé.",
+          "The billing session has changed.",
           403,
         );
       return json(result);
@@ -497,7 +497,7 @@ export async function handleBillingRoute(
     )
       fail(
         "BILLING_ADMIN_REQUIRED",
-        "La session de facturation a changé. Réessayez depuis votre espace.",
+        "The billing session has changed. Try again from your workspace.",
         403,
       );
     return json(portal);
@@ -506,7 +506,7 @@ export async function handleBillingRoute(
     {
       error: {
         code: "NOT_FOUND",
-        message: "Route de facturation introuvable.",
+        message: "Billing route not found.",
       },
     },
     404,
@@ -526,7 +526,7 @@ async function verifySignature(
     !/^\d{10}$/.test(timestamp) ||
     Math.abs(Date.now() / 1000 - Number(timestamp)) > 300
   )
-    fail("BILLING_SIGNATURE_INVALID", "Signature Stripe invalide.", 400);
+    fail("BILLING_SIGNATURE_INVALID", "Invalid Stripe signature.", 400);
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
@@ -547,7 +547,7 @@ async function verifySignature(
     )
       return;
   }
-  fail("BILLING_SIGNATURE_INVALID", "Signature Stripe invalide.", 400);
+  fail("BILLING_SIGNATURE_INVALID", "Invalid Stripe signature.", 400);
 }
 
 export async function handleStripeWebhook(
@@ -560,7 +560,7 @@ export async function handleStripeWebhook(
   const live = requireConfiguration(env);
   const raw = await request.text();
   if (encoder.encode(raw).length > 262_144)
-    fail("REQUEST_TOO_LARGE", "Événement Stripe trop volumineux.", 413);
+    fail("REQUEST_TOO_LARGE", "Stripe event is too large.", 413);
   await verifySignature(
     raw,
     request.headers.get("Stripe-Signature"),
@@ -570,16 +570,16 @@ export async function handleStripeWebhook(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    fail("BILLING_EVENT_INVALID", "Événement Stripe invalide.");
+    fail("BILLING_EVENT_INVALID", "Invalid Stripe event.");
   }
   const validation = eventSchema.safeParse(parsed);
   if (!validation.success)
-    fail("BILLING_EVENT_INVALID", "Événement Stripe invalide.");
+    fail("BILLING_EVENT_INVALID", "Invalid Stripe event.");
   const event = validation.data;
   if (event.account || Number(event.livemode) !== live)
     fail(
       "BILLING_MODE_MISMATCH",
-      "Ce webhook Stripe ne correspond pas à ce service.",
+      "This Stripe webhook does not match this service.",
     );
   const kind: ResourceKind | null = event.type.startsWith("invoice.")
     ? "invoices"
@@ -614,7 +614,7 @@ export async function handleStripeWebhook(
   if (!lock)
     fail(
       "BILLING_SYNC_BUSY",
-      "Synchronisation en cours. Réessayez cet événement.",
+      "Synchronization is in progress. Retry this event.",
       503,
     );
   try {
@@ -640,7 +640,7 @@ export async function handleStripeWebhook(
     )
       fail(
         "BILLING_PROVIDER_INVALID",
-        "L’objet Stripe ne correspond pas au compte attendu.",
+        "The Stripe object does not match the expected account.",
         502,
       );
     const synced = new Date().toISOString();
@@ -733,7 +733,7 @@ export async function handleStripeWebhook(
     if (result[0].meta.changes !== 1 || result[1].meta.changes !== 1)
       fail(
         "BILLING_SYNC_EXPIRED",
-        "Synchronisation expirée. Réessayez cet événement.",
+        "Synchronization expired. Retry this event.",
         503,
       );
     return json({ received: true });

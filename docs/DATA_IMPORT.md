@@ -107,7 +107,7 @@ text with attributes uses `#text`. These are source column names; the mapping
 chooses separate safe template paths.
 
 Repeated elements such as `items.item` become a secondary sheet
-`Données.items.item`. The main sheet contains `__xml_record_id`, and the secondary
+`Data.items.item`. The main sheet contains `__xml_record_id`, and the secondary
 sheet contains `__xml_parent_id`. Select these keys in an explicit one-to-many
 join to populate the template table. Records containing only one item use the
 same child sheet as records with many items. Nothing is silently discarded.
@@ -268,3 +268,14 @@ Chromium desktop, mobile Chromium and iPhone WebKit, including explicit
 Windows-1252/tab imports with accented content and zero-prefixed identifiers.
 See `reports/templates-data/data-ui-final.json`; these are local browser checks,
 not physical-device qualification.
+
+## English generated sheet names and saved-mapping compatibility
+
+New generated CSV, JSON-array and XML root sheets use `Data`; repeated XML children
+use `Data.<path>`. Existing saved mappings referring to historical `Données` or
+`Données.<path>` resolve through an explicit prefix alias only when no exact sheet
+name exists. Exact names always win, including uploads containing both spellings.
+Source-file bytes and stored profile names are never rewritten by this lookup.
+English names also resolve against retained legacy profiles under the same
+exact-match rule. API pagination, AI header extraction and the browser editor
+share the pure resolver; lookup never changes a saved plan, version or fingerprint.

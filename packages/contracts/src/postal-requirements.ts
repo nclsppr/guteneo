@@ -25,7 +25,7 @@ export function postalAddressGuidance(options: PingenPreflightOptions) {
         : "deutsche_post";
   const countryLine = domestic ? null : countries[country];
   const exampleRecipient = {
-    name: "DESTINATAIRE FICTIF",
+    name: "SYNTHETIC RECIPIENT",
     line1:
       country === "FR"
         ? "12 RUE EXEMPLE"
@@ -81,9 +81,9 @@ export function postalAddressGuidance(options: PingenPreflightOptions) {
         ...(countryLine ? [countryLine] : []),
       ],
       limitations: [
-        "Le schéma actuel accepte un nom et une seule ligne de rue ou de boîte postale. Il ne permet pas de ligne supplémentaire pour un service, bâtiment, étage ou complément.",
-        "Ne supprimez jamais une information nécessaire pour respecter ce schéma. Signalez que le format d’adresse complet n’est pas pris en charge et demandez une adresse complète représentable, sans inventer de contenu.",
-        "L’adresse doit déjà être imprimée dans le PDF original. Les champs MCP servent à la comparer, pas à l’ajouter ou à la déplacer.",
+        "The current schema accepts a name and a single street or post-office-box line. It cannot represent an additional department, building, floor or address-complement line.",
+        "Never remove necessary information to fit this schema. Explain that the complete address format is unsupported and ask for a complete representable address without inventing content.",
+        "The address must already be printed in the original PDF. MCP fields compare it; they do not add or move it.",
       ],
     },
     addressRules: {
@@ -203,7 +203,7 @@ export function postalAddressGuidance(options: PingenPreflightOptions) {
       addressCropAccess: "authenticated_browser_session_only",
       mcpEmbeddedVisualEvidenceAvailable: false,
       visualReviewFallback:
-        "Le MCP retourne le texte extrait et des liens privés, pas une image lisible avec OAuth. Examinez votre PDF original en vérifiant son empreinte ou utilisez reviewUrl dans Guteneo ; ne prétendez pas avoir vu un extrait inaccessible.",
+        "MCP returns extracted text and private links, not an OAuth-readable image. Inspect the original PDF after checking its hash or use reviewUrl in Guteneo; never claim to have seen an inaccessible excerpt.",
     },
     workflow: [
       "get_postal_requirements",

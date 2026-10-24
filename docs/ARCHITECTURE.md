@@ -107,7 +107,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native companion candidate — 22 September 2026
 

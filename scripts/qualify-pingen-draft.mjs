@@ -30,16 +30,16 @@ async function bounded(promise, timeoutMs, code) {
 }
 export const DRIVER_MESSAGES = Object.freeze({
   connection_timeout:
-    "Connexion privee expiree avant l'obtention du proxy : aucune RPC declenchee.",
-  connection_failed: "Connexion privee indisponible : aucune RPC declenchee.",
+    "Private connection expired before obtaining the proxy: no RPC started.",
+  connection_failed: "Private connection unavailable: no RPC started.",
   create_timeout:
-    "Resultat de creation potentiellement inconnu. Ne pas relancer la creation ; utiliser uniquement --inspect-created pour consulter le run.",
+    "Creation outcome may be unknown. Do not restart creation; use only --inspect-created to read the run.",
   create_failed:
-    "Resultat de creation potentiellement inconnu. Ne pas relancer la creation ; utiliser uniquement --inspect-created pour consulter le run.",
+    "Creation outcome may be unknown. Do not restart creation; use only --inspect-created to read the run.",
   operation_timeout:
-    "Lecture ou nettoyage interrompu : resultat non confirme. Consulter le run avec --inspect-created.",
+    "Read or cleanup interrupted: result unconfirmed. Read the run with --inspect-created.",
   operation_failed:
-    "Lecture ou nettoyage non confirme. Consulter le run avec --inspect-created.",
+    "Read or cleanup unconfirmed. Read the run with --inspect-created.",
 });
 const RUN_ID = "20260917-synthetic-v1";
 const SOURCE_SHA256 =
@@ -213,7 +213,7 @@ if (
   } catch (error) {
     console.error(
       DRIVER_MESSAGES[error?.code] ??
-        "Commande de qualification invalide ou indisponible. Aucun resultat n'est infere.",
+        "Invalid or unavailable qualification command. No result is inferred.",
     );
     process.exit(1);
   }

@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -37,7 +38,12 @@ const DashboardAppearanceContext = createContext<AppearanceContext>({
 });
 
 function requestedAppearance(search: string): DashboardAppearance | undefined {
-  const requested = new URLSearchParams(search).get("atelier");
+  const parameters = new URLSearchParams(search);
+  // English links are canonical; an old bookmark remains an inbound alias.
+  const values = parameters.getAll(
+    parameters.has("appearance") ? "appearance" : "atelier",
+  );
+  const requested = values.length === 1 ? values[0] : undefined;
   return isDashboardAppearance(requested) ? requested : undefined;
 }
 
@@ -77,7 +83,8 @@ export function dashboardAppearanceUrl(
   appearance: DashboardAppearance,
 ): string {
   const url = new URL(href);
-  url.searchParams.set("atelier", appearance);
+  url.searchParams.delete("atelier");
+  url.searchParams.set("appearance", appearance);
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
@@ -107,11 +114,26 @@ export function DashboardAppearanceProvider({
   );
   const accountUser = useRef<string | undefined>(undefined);
   const accountPreference = useRef<DashboardAppearance | undefined>(undefined);
+  useEffect(() => {
+    if (!requested.current) return;
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("atelier"))
+        window.history.replaceState(
+          window.history.state,
+          "",
+          dashboardAppearanceUrl(url.href, requested.current),
+        );
+    } catch {
+      // Inbound aliases remain usable when browser history is restricted.
+    }
+  }, []);
   const removeRequestedAppearance = useCallback(() => {
     requested.current = undefined;
     try {
       const url = new URL(window.location.href);
       url.searchParams.delete("atelier");
+      url.searchParams.delete("appearance");
       window.history.replaceState(
         window.history.state,
         "",

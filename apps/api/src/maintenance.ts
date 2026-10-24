@@ -34,7 +34,7 @@ export async function maintainDocuments(
     // wraps. A tombstone without this tenant-scoped completion proof must retry.
     if (doc.purge_complete) continue;
     const result = await env.DB.prepare(
-      `UPDATE documents SET status='purged',name='Document supprimé' WHERE organization_id=? AND id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE organization_id=documents.organization_id AND document_id=documents.id AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT EXISTS(SELECT 1 FROM protected_document_hostings h WHERE h.organization_id=documents.organization_id AND h.document_id=documents.id AND h.status='active' AND h.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) RETURNING id`,
+      `UPDATE documents SET status='purged',name='Deleted document' WHERE organization_id=? AND id=? AND (status='purged' OR created_at<?) AND NOT EXISTS(SELECT 1 FROM dispatches WHERE organization_id=documents.organization_id AND document_id=documents.id AND status NOT IN ('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT EXISTS(SELECT 1 FROM protected_document_hostings h WHERE h.organization_id=documents.organization_id AND h.document_id=documents.id AND h.status='active' AND h.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) RETURNING id`,
     )
       .bind(doc.organization_id, doc.id, cutoff)
       .first();

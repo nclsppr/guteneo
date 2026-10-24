@@ -13,9 +13,9 @@ Earlier dated release observations below remain historical evidence.
 ## Authorization and scope
 
 On 3 October 2026, Nicolas explicitly requested all remaining Horizon activation
-steps: “Fais toutes ces étape et pas grave pour l'offre commerciale, les gens
-pourront au moins tester un mois grâce à ça et d'ici à la fin du mois ils pourront
-racheter du crédit”. This authorizes the private validator provisioning,
+steps, accepting that commercial-offer work could follow while existing credits
+funded a first month and requesting later credit replenishment. This authorizes
+the private validator provisioning,
 qualification, application binding, activation and production release already
 discussed. It defers credit replenishment and durable commercial offer work; it
 does not authorize a customer communication, an invented invoice, a promise that

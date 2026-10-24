@@ -1,301 +1,530 @@
-# Atelier V2 et préférence personnelle d’apparence
+# Workspace V2 and personal appearance preference
 
-État du candidat au 14 octobre 2026 : **simplification V2 validée localement ; CI du commit exact et publication encore à qualifier, publication autorisée après validation**. Les résultats du 11 au 13 octobre ci-dessous sont des preuves historiques, distinctes du candidat courant. La V2 est une version complète de l’Atelier web, sélectionnable dans le compte à côté de la langue. Elle ne porte pas de mention « à l’essai ». Les comptes existants et nouveaux conservent `classic` par défaut ; choisir V2 reste une décision personnelle.
+Candidate status on 14 October 2026: **V2 simplification locally validated;
+exact-commit CI and publication still require qualification, with publication
+authorized after validation**. Results dated 11–13 October below are historical,
+separate from that candidate. V2 is a complete web workspace version, selectable
+beside language in the account. It has no trial label. Existing/new accounts
+retain `classic` by default; V2 remains a personal choice.
 
-Ce document et l’atlas des fonctionnalités sont réservés au dépôt. Ils ne doivent pas être importés, copiés, publiés ou reliés au site officiel. La présence du code, des tests et des illustrations ne constitue pas une preuve de migration distante, de déploiement ou d’usage authentifié hébergé.
+This document and the feature map are repository-only. Never import, copy,
+publish or link them in the official website. Source, tests and illustrations
+prove neither remote migration, deployment nor authenticated hosted usage.
 
-## Périmètre et entrée
+The canonical account/session contract is maintained in
+[ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md); membership authority is maintained
+in [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md). This page owns V2 presentation,
+appearance-specific behavior and dated evidence rather than duplicating those
+complete contracts.
 
-La V2 utilise le compte connecté, l’atelier courant, les données réelles accessibles à cette personne et les opérations existantes. Elle ne crée ni copie fictive ni environnement métier parallèle. La session, la membership courante, les droits sur chaque ressource et les capacités serveur restent nécessaires.
+## Scope and entry
 
-La présentation couvre la navigation, l’accueil, les documents, la préparation, la revue et le suivi des envois, les assistants, le compte, le Studio, Horizon, les crédits, les tableaux et les formulaires. Belvédère conserve sa présentation et son autorité plateforme distinctes. Les contrats métier de ces surfaces restent inchangés.
+V2 uses the signed-in account, current workspace, actual data available to
+that person and existing operations. It creates neither fictional copies nor
+a parallel business environment. Session, current membership, resource rights
+and server capabilities remain required.
 
-Le portrait officiel est conservé et le mot-symbole `guteneo` reste en minuscules, en encre noire `#181b22`. Les gravures bleues sont limitées à l’accueil, à l’état vide des documents et à l’espace assistants. Elles n’accompagnent pas chaque formulaire ou tableau. Pour un atelier ayant déjà des envois, les alertes puis l’activité récente précèdent l’introduction ; les indicateurs restent soumis au droit de rapports. Le bloc assistants devient un raccourci compact. L’atelier sans historique conserve l’accueil complet. Dans la revue, le contenu précède les actions d’approbation dans l’ordre de lecture et de clavier.
+Presentation covers navigation, overview, documents, dispatch preparation/
+review/tracking, assistants, account, Studio, Horizon, credits, tables and forms.
+Belvédère retains its separate presentation/platform authority. Business
+contracts remain unchanged.
 
-## Clarté de la navigation et des actions — 14 octobre 2026
+Preserve the official portrait and lowercase ink-black `guteneo` wordmark
+`#181b22`. Blue engravings are limited to overview, empty Documents and
+assistants, not every form/table. For workspaces with dispatch history,
+alerts and recent activity precede the introduction; metrics remain subject
+to reporting rights. Assistants become a compact shortcut. Empty workspaces
+retain the full welcome. Review content precedes approval actions in reading
+and keyboard order.
 
-La coque V2 ne répète plus son titre de section au-dessus du titre de page et ne présente plus de pied de page applicatif. Le logo officiel reste en haut de la navigation et le nom de l’atelier dans son bloc dédié. Le compte conserve le nom de la personne, son adresse et son rôle ; l’accueil conserve l’explication de ses droits sans recopier cette identité et le nom de l’atelier. Le repère de navigation actif et le titre principal remplissent deux fonctions distinctes et restent présents.
+## Navigation and action clarity — 14 October 2026
 
-**État du service** est regroupé avec **Changer de compte** dans la ligne d’utilitaires du bloc d’identité. Sur ordinateur, cette zone reste au bas de la navigation ; sur mobile, elle reste accessible lorsque le menu est fermé. Le fuseau du navigateur est annoncé par **Heures affichées : …** auprès des listes ou sections datées, plutôt qu’en pied de page éloigné des dates. Cette indication utilise le fuseau déjà employé pour afficher les dates ; elle ne change ni les heures stockées ni la préférence du compte.
+V2 no longer repeats a section title above the page title or displays an
+application footer. The official logo stays at navigation top; workspace name
+has its own block. Account retains person name/email/role; overview explains
+rights without repeating identity/workspace name. Active navigation and main
+heading serve distinct purposes and remain.
 
-Les détails conservent un lien de retour vers leur contexte. Le raccourci global **Nouvel envoi** est une action secondaire dans la navigation ; il n’est pas répété sur l’accueil, Préparer un envoi et Envois, où la tâche dispose déjà de son entrée. L’accueil V2 présente ainsi **Nouvel envoi** comme action principale locale pour les membres habilités. Sur mobile, ce raccourci s’ouvre avec le menu. L’action principale appartient à la page ou à l’étape en cours : elle se distingue des actions de retour, de consultation et des raccourcis globaux. Les formulaires et confirmations gardent leurs récapitulatifs, leurs consentements explicites et leurs droits ; le style d’un bouton ne crée aucune autorité.
+**Service status** joins **Switch account** in identity utilities, at navigation
+bottom on desktop and accessible with the mobile menu closed. **Times shown:
+…** announces browser timezone near dated lists/sections instead of a distant
+footer. It uses the existing display timezone, changing neither stored times
+nor account preference.
 
-Sur **Générations**, **Créer un document** reste l’action principale. L’introduction devient « Retrouvez vos PDF générés. La génération ne déclenche aucun envoi. » ; les identifiants, versions et précisions sur le PDF exact restent dans le parcours de détail. Les portes d’entrée vers les modèles et vers la préparation d’un envoi correspondent à des tâches différentes et sont conservées selon les permissions.
+Details retain contextual back links. Global **New dispatch** is secondary
+navigation and is not repeated on overview, Prepare dispatch or Dispatches,
+where the task already has an entry. V2 overview therefore presents it as
+the local primary action for authorized members. On mobile the global shortcut
+opens with the menu. Primary action belongs to the current page/step and differs
+from back/read/global shortcuts. Summaries, explicit consent and rights remain;
+button styling creates no authority.
 
-Ces changements ciblent V2 ; la coque Classique reste inchangée. Les libellés existent en français, anglais, allemand et luxembourgeois. Aucune nouvelle illustration, API, requête métier, relance automatique, ressource fournisseur, migration ou permission n’est introduite. Les gravures approuvées, l’accès aux documents privés et les gardes serveur restent inchangés.
+On **Generations**, **Create a document** remains primary. The introduction
+explains finding generated PDFs and that generation sends nothing. Exact PDF
+IDs/versions/details remain in the detail journey. Template and preparation
+entries serve different tasks and remain permission dependent.
 
-### Qualification de ce candidat
+These changes target V2; Classic retains its shell. Labels exist in FR/EN/DE/LB.
+No illustration, API, business request, automatic retry, provider resource,
+migration or permission is introduced. Approved engravings, private-document
+access and server guards remain.
 
-| Preuve | État au moment de l’implémentation |
+### Candidate qualification
+
+| Evidence | State at implementation |
 | --- | --- |
-| Sources, atlas et matrice de droits | Mis à jour avec les parcours affectés ; génération puis contrôle réussis : 21 domaines, 183 fonctionnalités, 22 parcours |
-| Navigation, titres, actions et dates sur ordinateur et mobile | 18/18 cas navigateur réussis, sans échec, cas ignoré ou instable, sur Chromium, mobile Chromium et iPhone WebKit ; quinze routes racines parcourues en Classique/V2 au viewport de chaque projet puis à 320 px ; aucune preuve d’appareil physique déduite |
-| Rôles, retour des détails, accès au compte et statut menu fermé | Inclus dans les 18 cas : permissions, consentement explicite, persistance, retours, compte hors menu mobile fermé, CTA principal et fuseau avec liste remplie ; même API de simulation locale ou fixtures selon le cas |
-| Contrôles locaux | Typecheck, lint, build web et atlas réussis ; 40/40 tests unitaires de locale/apparence réussis, sans échec ni cas ignoré |
-| Vérification visuelle locale | Générations à 1440 × 1000 et 390 × 844, accueil à 1025 × 900 relus dans le navigateur ; repères, CTA et zones de compte cohérents sur ces captures |
-| CI du commit exact | À qualifier sur la PR puis sur le commit fusionné avant publication |
-| Empreinte, assets servis et session humaine après publication | À vérifier séparément après le déploiement autorisé |
-| Coût et ressources | Six essais locaux bornés terminés : mêmes 9 lectures API simulées, une ressource statique en moins, aucun appel pendant 10 s d’inactivité ; JS/CSS chargés +836 octets gzip. Détail et limites ci-dessous ; aucune mesure de facturation ou de CPU Worker hébergé |
-| Communication réelle, activation ou débit fournisseur | Aucun nécessaire pour qualifier cette présentation |
+| Source, feature map and permission matrix | Affected journeys updated; generation/check passed: 21 domains, 183 features, 22 journeys |
+| Desktop/mobile navigation, titles, actions and dates | 18/18 browser cases passed, no failures/skips/flakes, on desktop/mobile Chromium and iPhone WebKit; 15 root routes in Classic/V2 at each project's viewport and 320 px; no physical-device inference |
+| Roles, detail return, account/status with menu closed | Included in 18 cases: permissions, explicit consent, persistence, returns, account outside closed mobile menu, primary action/timezone with populated list; local simulation API or fixtures by scenario |
+| Local checks | Typecheck, lint, web build and feature map passed; 40/40 locale/appearance unit tests without failure/skip |
+| Local visual verification | Generations at 1440 × 1000 and 390 × 844, overview at 1025 × 900 inspected; consistent landmarks/actions/account areas |
+| Exact-commit CI | Qualify on PR and merged commit before publication |
+| Postpublication fingerprint, served assets and human session | Verify separately after authorized deployment |
+| Cost/resources | Six bounded local trials: same 9 simulated API reads, one fewer static asset, no request during 10 s idle; loaded JS/CSS +836 gzip bytes. Limits below; no hosted Worker CPU/billing measurement |
+| Real communication, provider activation/debit | None needed for presentation qualification |
 
-Les résultats locaux finaux sont conservés hors dépôt dans `/tmp/guteneo-v2-clarity/dashboard-v2.json` (18 cas, 76,7 s) et `unit.json` (40 tests). Les captures `desktop-generations.jpg` et `mobile-generations.jpg` documentent la lecture visuelle locale. Les tests de simulation, le contrôle d’assets publics et la vérification authentifiée restent des catégories distinctes ; aucun succès ancien n’est utilisé comme preuve du commit courant. La CI et la publication ne sont pas déduites de cette qualification locale.
+Final local results remain outside the repository at
+`/tmp/guteneo-v2-clarity/dashboard-v2.json` (18 cases, 76.7 s) and `unit.json`
+(40 tests). `desktop-generations.jpg`/`mobile-generations.jpg` document local
+visual review. Simulation tests, public-asset checks and authenticated
+verification are distinct evidence classes. No old success proves the current
+commit; local qualification implies neither CI nor publication.
 
-### Ressources du candidat — mesure locale du 14 octobre
+### Candidate resources — local measurement on 14 October
 
-Comparaison avec `b12ef2c4789b2acfcbc7de63a7fb846d61910050`, reconstruit depuis un clone `main` propre ; dépendances verrouillées inchangées. Le candidat correspond au build web final du 14 octobre à 13 h 12, capturé avant mesure avec ses empreintes de fichiers et le diff source SHA-256 `c436508125be761b736212c521fdb739abfc17d6a5af8371b2bcd99702dec06a`. Ce diff correspond encore à la source au terme de la mesure ; une modification ultérieure invaliderait cette correspondance.
+Comparison against `b12ef2c4789b2acfcbc7de63a7fb846d61910050`, rebuilt from a
+clean `main` clone with unchanged locked dependencies. Candidate: final
+14 October web build at 13:12, captured before measurement with file fingerprints
+and source-diff SHA-256
+`c436508125be761b736212c521fdb739abfc17d6a5af8371b2bcd99702dec06a`.
+That diff still matched source afterward; subsequent changes invalidate it.
 
-Trois essais à cache froid par variante V2, ordre alterné, Chromium `153.0.8010.12`, 1440 × 1000, français et fuseau Europe/Paris. Les parcours sont l’accueil vide, les documents vides, une génération synthétique et les assistants. Toutes les lectures API sont interceptées par des fixtures ; les origines externes et toute méthode autre que GET sont bloquées. Les fichiers sont servis uniquement sur `127.0.0.1:4481/4482`, puis les serveurs sont arrêtés. Aucun backend, fournisseur, document privé, envoi ou abonnement n’est sollicité.
+Three cold-cache trials per V2 variant, alternating order, Chromium
+`153.0.8010.12`, 1440 × 1000, French, Europe/Paris. Journeys: empty overview,
+empty documents, synthetic generation and assistants. All API reads use
+intercepted fixtures; external origins/non-GET methods are blocked. Files
+are served only at `127.0.0.1:4481/4482`, then servers stop. No backend,
+provider, private document, dispatch or subscription is used.
 
-| Mesure, médiane des trois essais | V2 de base | Candidat V2 |
+| Median of three trials | Base V2 | Candidate V2 |
 | --- | --- | --- |
-| Démarrage jusqu’au titre visible, polices et images initiales prêtes | 138,1 ms | 129,9 ms |
-| Durée du parcours contrôlé, dont quatre pauses de 500 ms | 2 155,0 ms | 2 147,3 ms |
-| Travail du renderer à la fin du parcours (`TaskDuration`) | 133,5 ms | 129,6 ms |
-| Travail du renderer au démarrage | 99,2 ms | 91,6 ms |
-| Tas JavaScript à la fin du parcours | 6 623 332 octets | 6 614 704 octets |
-| Travail du renderer pendant 10 s d’inactivité | 0,572 ms | 0,659 ms |
-| Requêtes du parcours, dont lectures API simulées | 36, dont 9 | 35, dont 9 |
-| Requêtes pendant les 10 s d’inactivité | 0 | 0 |
-
-Aucune erreur JavaScript, réponse HTTP en échec ou requête interdite tentée dans les six essais. La ressource statique retirée du parcours est le portrait compact du pied de page, `brand/guteneo-mark-128.webp` (8 798 octets) ; le portrait officiel principal reste chargé. Les huit fichiers JS/CSS effectivement chargés passent de 1 782 877 à 1 786 178 octets bruts, soit **+3 301 octets**, et de 524 152 à 524 988 octets gzip, soit **+836 octets**. Sur les vingt chunks JS/CSS du build complet, le delta est de +3 291 octets bruts et +838 octets gzip ; cette seconde somme inclut des chunks non chargés dans les quatre parcours.
-
-Ces trois essais par variante ne démontrent pas un gain de CPU ni une amélioration de latence de production. La charge de l’hôte n’est pas contrôlée, aucun ralentissement réseau/CPU n’est appliqué et le corpus est petit. `TaskDuration` mesure le renderer, pas le Worker hébergé ; le tas JS exclut mémoire native, images décodées et GPU. Les temps du parcours incluent deux secondes de pauses et ne sont pas une latence de tâche utilisateur. L’inactivité est observée dix secondes seulement. Les sommes gzip servent à comparer les builds ; le Brotli et le cache de production diffèrent. Aucune requête hébergée facturable, mémoire Worker ou facture n’est mesurée ; aucun nouveau service, binding, polling ou appel fournisseur n’est introduit par ce changement. Les prix et mesures historiques ci-dessous ne sont pas réattribués au candidat.
-
-Scripts, manifests de fichiers, diff source, journal du build de base, essais bruts et synthèse sont conservés hors dépôt dans `/tmp/guteneo-v2-clarity/resources/`, notamment `measurements.json` et `summary.json`. Cette preuve contrôlée est distincte des scénarios de navigation, de la CI du commit final et de la qualification authentifiée après publication.
-
-## Stabilité de la revue documentaire
-
-Sur mobile, la revue présente le PDF avant les consentements en Classique comme en V2. Le cadre de cet aperçu garde une hauteur fixe pendant le chargement du module, le rendu des pages et l’affichage d’une erreur ; le document se parcourt à l’intérieur par défilement, y compris au clavier. Les commandes PDF et le téléchargement restent accessibles. Ce cadre concerne seulement la revue d’un envoi : les autres aperçus conservent leur présentation.
-
-Cette stabilité empêche un PDF chargé pendant un geste de déplacer la case visée. Le problème a été reproduit avec une réponse documentaire locale retenue entre l’appui et le relâchement : déplacement vertical de 281 px et case non cochée avant correction. Le test de régression retient cette réponse, conserve le geste en cours puis vérifie la position et le consentement en Classique et V2. Le test existant d’approbation explicite et de reprise du même envoi conserve ses assertions. Le fichier complet passe 36/36 cas sur Chromium, mobile Chromium et iPhone WebKit : douze nouveaux cas et vingt-quatre cas existants, sans reprise automatique. L’ordre Tab complet est vérifié sur Chromium ; WebKit vérifie la sortie du cadre, le défilement et l’activation Espace du bouton focalisé, sa navigation Tab native sautant certains contrôles. Il ne s’agit pas d’une preuve de clavier sur iPhone physique. Rapports et captures : `/tmp/guteneo-v2-qa/stable-review/final.json` et `final/`.
-
-L’accès documentaire reste soumis aux droits courants pour les quatre rôles ; l’aperçu n’accorde aucune permission d’approbation. Les octets du PDF, son moteur de rendu, les consentements, les empreintes, les requêtes et l’idempotence ne changent pas. Les surfaces natives, REST et MCP n’acquièrent aucune nouvelle action ; les retours natifs et assistants vers la revue navigateur utilisent ce même cadre. Une erreur de lecture reste explicite et n’accorde aucun consentement.
-
-Ce correctif de présentation n’ajoute aucune illustration, requête réseau, endpoint, polling, binding ni ressource hébergée. Les mesures de coût ci-dessous restent des mesures datées du candidat indiqué ; elles ne sont pas attribuées au commit correctif et ne mesurent toujours pas le CPU Worker hébergé.
-
-## Choisir la version depuis le compte
-
-Le bloc de compte se trouve au bas de la navigation de gauche sur ordinateur. Il conserve l’identité réellement connectée, le rôle courant, le lien vers le profil et l’action de changement de compte. Il reste accessible dans la navigation adaptée au mobile.
-
-1. Ouvrir **Mon compte** depuis ce bloc ; Classique conserve également son entrée Compte.
-2. Dans **Mon profil**, choisir **Classique** ou **V2** dans **Version de l’atelier**, à côté de la langue.
-3. Cliquer sur **Enregistrer les modifications**.
-4. Après succès serveur, appliquer la version et afficher **Votre profil a été enregistré.**
-
-La sélection seule prépare une modification du profil ; elle ne la persiste pas et ne déclenche aucune opération d’envoi. L’application de la préférence durable intervient après le succès de `PATCH /api/account`. Un échec garde un état explicite et ne doit jamais être présenté comme une sauvegarde réussie. Le changement n’accorde aucun consentement métier et ne réinitialise pas les documents ou envois.
-
-Le choix suit la même personne entre ses ateliers, sessions et appareils lorsqu’ils relisent sa session authentifiée. Il ne suit pas un autre utilisateur partageant l’appareil. Il ne change pas la préférence de langue ; les deux réglages peuvent être enregistrés ensemble. Les libellés sont traduits en français, anglais, allemand et luxembourgeois.
-
-Les points d’entrée canoniques de présentation sont :
-
-- `https://guteneo.com/?atelier=v2#/app` ;
-- `https://guteneo.com/?atelier=classic#/app`.
-
-Le paramètre `atelier` est un **forçage temporaire de présentation**, pas une écriture du profil. Pour rendre ce choix durable, l’utilisateur l’enregistre depuis Mon compte. Seule une sauvegarde réussie après sélection explicite de l’apparence supprime le paramètre ; une sauvegarde du nom ou de la langue seulement ne persiste pas le forçage et ne le retire pas. Le sélecteur présente la préférence enregistrée du compte, pas l’apparence temporairement forcée. Un changement d’identité détecté dans l’application supprime aussi l’ancien forçage. Les autres paramètres et la route restent conservés.
-
-## Contrat serveur et réconciliation
-
-| Point                   | Contrat                                                                                                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Valeurs                 | `classic` ou `v2`, définies dans `packages/contracts/src/dashboard-appearance.ts`                                                                                        |
-| Stockage durable        | `users.preferred_dashboard_appearance`, préférence de personne, pas d’organisation                                                                                       |
-| Migration               | `0053_user_dashboard_appearance.sql` ; colonne `TEXT NOT NULL DEFAULT 'classic'` avec contrainte `CHECK` sur les deux valeurs                                            |
-| Lecture navigateur      | `user.preferredDashboardAppearance` dans `GET /api/session` et `GET /api/account`                                                                                        |
-| Écriture                | Champ facultatif `preferredDashboardAppearance` dans le corps strict existant de `PATCH /api/account`                                                                    |
-| Autorité                | Session navigateur authentifiée courante, Origin et CSRF ; tous les rôles peuvent modifier leur propre préférence                                                        |
-| Ciblage                 | Identité et atelier issus de la session ; aucun `userId` ou `organizationId` de ciblage accepté dans le corps                                                            |
-| Champ omis              | Préférence conservée, notamment lors d’une modification du nom ou de la langue par un ancien client                                                                      |
-| Audit                   | Événement `account.updated` ; noms des champs modifiés, sans journaliser leurs valeurs ou des données documentaires                                                      |
-| Refus                   | Valeur invalide ou champ inconnu : `INVALID_INPUT` ; CSRF invalide : `CSRF_REJECTED` ; autorité révoquée avant mutation : `ACCESS_CHANGED`, aucune mise à jour partielle |
-| Compte authentifié      | Préférence relue avec la session ; même utilisateur conservé lors d’un changement d’atelier, identité différente réconciliée                                             |
-| URL                     | `atelier=v2` ou `atelier=classic` valide prime temporairement pour cette entrée ; ne persiste pas côté serveur                                                           |
-| Cache navigateur        | `guteneo.dashboard.appearance` en `localStorage`, amorçage et cache best-effort uniquement ; la session authentifiée demeure l’autorité hors forçage explicite           |
-| Cache indisponible      | Lecture/écriture protégées ; la préférence de compte continue de fonctionner après lecture de session                                                                    |
-| Historique indisponible | Une restriction de `history.replaceState` ne doit pas bloquer l’application de la préférence sauvegardée                                                                 |
-
-Le cache local contient uniquement la valeur d’apparence. Il n’enregistre ni contenu, ni destinataire, ni jeton, ni URL signée. Une ancienne valeur du même navigateur ne doit pas remplacer la préférence d’une personne authentifiée. Le mécanisme utilise les lectures de session existantes ; il n’ajoute ni polling ni synchronisation en temps réel entre onglets. La prise en compte à distance dépend d’une nouvelle lecture de session, notamment au retour dans l’onglet.
-
-Les réponses de compte restent privées, `Cache-Control: no-store`. La préférence personnelle traverse les memberships de la même personne, mais aucun contenu, droit d’organisation ou document privé n’est partagé par ce choix. La mutation et l’audit recontrôlent l’autorité dans la transaction existante.
-
-## Droits, consentement et autres clients
-
-Les quatre rôles humains restent ceux de `packages/contracts/src/roles.ts`. L’assistant connecté est un acteur OAuth distinct, sans cinquième rôle de membership.
-
-| Capacité                       | Administrateur         | Superviseur            | Opérateur              | Observateur            | Assistant connecté                         |
-| ------------------------------ | ---------------------- | ---------------------- | ---------------------- | ---------------------- | ------------------------------------------ |
-| Sauvegarder son apparence      | Navigateur, son compte | Navigateur, son compte | Navigateur, son compte | Navigateur, son compte | Non                                        |
-| Lire des contenus              | Accès courant          | Accès courant          | Accès courant          | Accès courant          | Membre, scopes et ressource                |
-| Importer et préparer           | Oui                    | Oui                    | Oui                    | Non                    | Contrat existant selon membre et scopes    |
-| Approuver, confirmer, annuler  | Oui                    | Option Approbation     | Non                    | Non                    | Mandat expert existant distinct uniquement |
-| Rapports agrégés               | Oui                    | Option Rapports        | Non                    | Non                    | Contrat existant selon membre et scopes    |
-| Administrer atelier et membres | Oui                    | Non                    | Non                    | Non                    | Non                                        |
-
-Approbation et Rapports restent deux options indépendantes du superviseur. L’accès aux données dépend toujours de la membership et de la propriété des ressources. La revue reste liée au contenu, au destinataire, aux options, au coût et à l’empreinte immuables ; un choix de présentation ne constitue pas un consentement. L’acceptation, la réservation et l’outbox restent atomiques. Une issue fournisseur inconnue reste à rapprocher, sans nouvelle tentative automatique.
-
-Les requêtes de préparation et d’envoi ne reçoivent aucun champ d’apparence. L’extension de schéma concerne seulement le profil et ses lectures de session. REST métier, scopes, outils MCP et mandats ne sont pas modifiés. Un jeton OAuth ne devient pas une session navigateur et aucun outil assistant ne permet de régler cette préférence.
-
-Les lectures natives de session et de compte exposent également `preferredDashboardAppearance`. Le client natif n’offre aucun réglage V2 et son `PATCH /api/mobile/v1/account` refuse ce champ ; son PATCH de langue existant conserve la préférence. Le retour vers la revue navigateur utilise la préférence de la personne après authentification. Aucun droit natif d’approuver ou d’envoyer n’est ajouté.
-
-Cette livraison n’autorise pas l’assistant qui la prépare à effectuer une communication réelle, à activer un canal, à accorder ou prolonger un mandat ou à contourner un contrôle serveur. Voir [les rôles](WORKSPACE_ROLES.md), [le contrat API](API_CONTRACT.md) et [l’identité du compte](ACCOUNT_IDENTITY.md).
-
-## Parcours et reprise
-
-| Parcours                                | Résultat attendu                                                            | Erreur ou reprise                                                                                           |
-| --------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Connexion et retour d’onglet            | Identité réelle, atelier courant et apparence personnelle réconciliés       | Échec de session : parcours Auth0 habituel ; pas de données privées d’un autre utilisateur                  |
-| Compte → langue et version → sauvegarde | Même personne, préférence durable appliquée après succès                    | Échec réseau, CSRF ou autorité modifiée : état explicite ; aucune réussite inventée                         |
-| Lien `atelier=v2` ou `atelier=classic`  | Forçage temporaire sans PATCH de profil                                     | Paramètre inconnu ignoré ; enregistrer dans Mon compte pour rendre le choix durable                         |
-| Changer d’atelier                       | Même préférence personnelle, nouveaux droits et données selon la membership | Aucun maintien de privilège de l’ancien atelier                                                             |
-| Changer de compte                       | Préférence du compte revenu, ancien forçage abandonné                       | Ne pas présenter le cache local de l’ancien compte comme préférence du nouveau                              |
-| Documents → préparation → revue → suivi | Mêmes ressources, demandes et gardes, nouvelle présentation                 | Quarantaine, devis expiré, canal fermé, droits insuffisants et issue inconnue gardent leur reprise actuelle |
-| Studio, Horizon et crédits              | Présentation cohérente, contrat et autorité inchangés                       | Aucun abonnement, quota, débit ou transfert créé par l’apparence                                            |
-| Assistant → revue navigateur            | Mêmes scopes et consentements, préférence personnelle navigateur            | Aucun outil, mandat ou consentement implicite ajouté                                                        |
-
-Les parcours et la matrice sont également maintenus dans [feature-map.json](feature-map.json). La maquette publique demeure fictive et isolée du backend : ses réglages ne modifient aucun compte serveur. Elle conserve son bandeau de simulation, comme toute session réellement simulée. Supprimer la mention expérimentale de la V2 réelle ne supprime pas ces indications de simulation.
-
-## Illustrations et ressources
-
-Les trois illustrations ont été générées avec le véritable outil `image_gen`, puis redimensionnées et encodées en WebP. Les masters, prompts et empreintes sont conservés dans `assets/brand/dashboard-v2/`. Le portrait officiel n’a pas été régénéré.
-
-| Asset servi                                         | Dimensions | Octets  | Vérification de l’export                    |
-| --------------------------------------------------- | ---------- | ------- | ------------------------------------------- |
-| `apps/web/public/brand/dashboard-v2/atelier.webp`   | 1280 × 853 | 158 328 | Original et largeur d’usage 440 px examinés |
-| `apps/web/public/brand/dashboard-v2/documents.webp` | 1280 × 960 | 75 294  | Original et largeur d’usage 320 px examinés |
-| `apps/web/public/brand/dashboard-v2/horizon.webp`   | 1280 × 427 | 105 592 | Original et largeur d’usage 600 px examinés |
-
-Les preuves d’affichage sont hors dépôt dans `/tmp/guteneo-v2-qa/artwork/`. Images décoratives avec texte alternatif vide, sur fond ivoire opaque ; aucune information de consentement ou de livraison n’est incorporée. L’horizon évoque le Luxembourg sans prétendre à une fidélité géographique. Les informations métier et les aperçus documentaires restent des éléments accessibles distincts.
-
-Les trois gravures totalisent 339 214 octets. Les deux hirondelles décoratives réutilisent le sprite officiel `luxembourg-blue-swallow-sheet.webp` de 72 336 octets, sans animation. Un parcours qui télécharge les quatre ressources consomme donc 411 550 octets hors en-têtes. Les gravures utilisent `loading=lazy` et `decoding=async` ; le sprite est un fond CSS, sans garantie de chargement différé. Classique ne monte pas ces décorations.
-
-## Qualification de ressources et de coût — 13 octobre 2026
-
-La configuration retenue réutilise le Worker et D1 existants : zéro nouveau service, container ou instance provisionnée, aucune modification de taille, de veille, de cron ou de consommateur de queue. Le réglage ne crée ni polling périodique ni travail de génération d’image à la demande. Les réconciliations de session au retour de focus existaient avant la PR. Cette décision évite une infrastructure dédiée à une présentation ; elle ne démontre pas un coût nul.
-
-### Mesure locale reproductible et limites
-
-Comparaison de `1e5ab18a464adfdb22af85d71f291600149ff330` avec `7ffff9e242d8e1359716d7f93908567726be50f0` et son complément hirondelles relu (diff SHA-256 `3ec28206ce4595d8756cc496174f83056c9a1f69768059477f35d84ca06a838b`). Builds Vite production séparés, dépendances verrouillées identiques, Chromium 153.0.8010.12 sous macOS arm64, viewport 1440 × 1000, trois essais par variante. Chaque essai ouvre un contexte vierge, parcourt accueil vide → documents vides → connexions, puis reste dix secondes au repos. Les huit lectures API sont interceptées avec les mêmes données fictives ; toute écriture et toute destination externe sont interdites. Aucun backend ni fournisseur n’est appelé par cette mesure navigateur.
-
-| Mesure locale, médiane de trois essais                                     | Base Classique | Candidat Classique | Candidat V2 |
-| -------------------------------------------------------------------------- | -------------: | -----------------: | ----------: |
-| Démarrage jusqu’au titre visible et aux polices prêtes, ms                 |          112,7 |              121,4 |       121,4 |
-| Temps de tâche du renderer Chromium (`TaskDuration`), parcours complet, ms |          112,1 |              110,5 |       118,1 |
-| Durée du parcours contrôlé, s, dont trois pauses de mesure de 500 ms       |          1,627 |              1,635 |       1,641 |
-| Tas JavaScript en fin de parcours, MB décimaux                             |           6,55 |               6,54 |        6,56 |
-| Temps de tâche du renderer pendant les dix secondes de repos, ms           |          0,675 |              0,715 |       0,485 |
-| Requêtes navigateur du parcours, dont huit GET API synthétiques            |             30 |                 30 |          34 |
-| Requêtes supplémentaires pendant les dix secondes de repos                 |              0 |                  0 |           0 |
-
-Zéro erreur JavaScript ou HTTP sur ces neuf essais. Le candidat ajoute quatre ressources distinctes en V2 : trois gravures et le sprite. Les chunks JavaScript et CSS communs effectivement chargés, y compris le chunk API, ajoutent 5 062 octets JavaScript et 14 619 octets CSS bruts, soit 4 243 octets gzip supplémentaires au total ; ces imports statiques touchent aussi Classique et les pages publiques. Aucun gain de CPU n’est conclu de trois essais. `TaskDuration` est une mesure du renderer, pas du CPU Worker ; le tas JS exclut mémoire native, images décodées et GPU. Ce corpus vide, sans limitation réseau/CPU, ne qualifie ni un atelier volumineux, ni un téléphone, ni la latence de production. La durée contrôlée incluant 1,5 seconde de pauses n’est pas une latence utilisateur.
-
-Une deuxième mesure exécute directement les vrais handlers compte/session sur deux bases Miniflare isolées, chacune avec ses migrations et un utilisateur, atelier et session synthétiques. Trois passages par opération, hors middleware HTTP global ; les `.first()` passent par la même requête `.all()` pour conserver les métadonnées D1, sans journaliser SQL lié, identité ou contenu.
-
-| Opération locale                                                                      | Base : statements / lignes lues / écrites | Candidat : statements / lignes lues / écrites |
-| ------------------------------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------- |
-| GET session                                                                           | 1 / 4 / 0                                 | 1 / 4 / 0                                     |
-| GET compte                                                                            | 4 / 7–8 / 1–2                             | 4 / 7–8 / 1–2                                 |
-| PATCH minimal `preferredLocale`, plus `preferredDashboardAppearance` dans le candidat | 6 / 13 / 5                                | 7 / 15 / 6                                    |
-
-Le supplément mesuré de la sauvegarde conjointe est un UPDATE, deux lignes lues et une écrite. L’UI conserve un PATCH suivi d’une relecture de session ; aucun nouvel aller-retour n’est ajouté à ce parcours existant. La durée SQL cumulée locale est de 0 à 1 ms par opération, résolution trop grossière pour conclure à un gain ou une régression. Les durées murales médianes des handlers sont respectivement 5,0 / 19,8 / 23,5 ms pour la base et 5,0 / 18,7 / 27,8 ms pour le candidat ; elles incluent le pont Node/Miniflare et ne sont pas du CPU facturable.
-
-`wrangler deploy --dry-run --config wrangler.live.jsonc` réussit : bundle Worker 4 071,63 KiB, gzip 935,93 KiB. Ce dry-run ne publie rien et ne fournit **pas** de temps de démarrage Worker. CPU actif Worker, mémoire Worker, démarrage à froid hébergé, temps actif/inactif hébergé, lignes D1 et requêtes réellement facturées restent **inconnus avant publication**. Le démarrage indiqué par Wrangler lors de la publication et les métriques Cloudflare ultérieures devront être conservés séparément ; le temps HTTP ne remplace pas le CPU. Aucun réglage de ressource ou de veille n’est déduit du benchmark navigateur.
-
-Sources, scripts de reproduction et résultats bruts hors dépôt : `/tmp/guteneo-v2-qa/cost-qualification/measure.mjs`, `measurements.json`, `d1-measure.mts`, `d1-measurements.json`, `swallow-source.diff`, journaux de builds et `worker-dry-run.log`. Les builds Vite sont lancés avec `VITE_PUBLIC_PREVIEW=false` et des sorties séparées `base-bundle`/`candidate-bundle` ; le script navigateur se relance avec Node et le script D1 avec le `tsx` verrouillé du dépôt. Les scripts contiennent les fixtures exactes et les bornes de mesure, sans accès à une base ou session réelle.
-
-### Tarifs, allocations partagées et coût par opération
-
-Tarifs officiels relus le **13 octobre 2026**, en USD hors taxes, sous l’hypothèse Workers Paid/Standard : minimum compte 5 USD/mois ; 10 millions de requêtes et 30 millions de CPU-ms inclus, puis 0,30 USD/million de requêtes et 0,02 USD/million de CPU-ms. La durée murale n’est pas facturée comme du CPU. L’allocation est partagée avec les autres usages du compte : ni son solde, ni un contrat Enterprise éventuel ne sont établis par cette qualification. [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/).
-
-D1 Paid inclut 25 milliards de lignes lues, 50 millions de lignes écrites et 5 GB par mois ; dépassements à 0,001 USD/million de lectures, 1 USD/million d’écritures et 0,75 USD/GB-mois. Les index et les autres bases partagent ces allocations. Une colonne supplémentaire ne multiplie pas à elle seule les lignes lues ; sa taille physique et le coût de la migration doivent être observés, pas assimilés à sept octets facturés par utilisateur. [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).
-
-**Les images ne sont pas supposées exemptes de requête Worker** : `wrangler.live.jsonc` fixe `assets.run_worker_first: true`. Chaque téléchargement réseau passe donc par le Worker applicatif, même si l’asset est statique ; un cache navigateur évitant le réseau peut éviter cette invocation. Le stockage d’Assets n’a pas de coût additionnel documenté. [Static Assets billing](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
-
-Hors allocations déjà consommées, pour un parcours froid chargeant les quatre décorations, le supplément requêtes est `4 × 0,30 / 1 000 000 = 0,00000120 USD`. À **1 ms de CPU Worker par asset**, hypothèse non mesurée, le total requêtes + CPU vaut 0,00000128 USD par parcours ; à **10 ms**, 0,00000200 USD. Soit 1,28 ou 2,00 USD par million de ces parcours, sans constituer un plafond ni une facture. Un cache chaud, le viewport ou un parcours plus court changent ce nombre. Les coûts des requêtes/API déjà présentes, du stockage, des fournisseurs et du compte entier sont exclus de ce supplément.
-
-Pour ajouter l’apparence à la sauvegarde de langue, le delta D1 local `+2 lectures, +1 écriture` correspond à `2 × 0,001 / 1 000 000 + 1 / 1 000 000 = 0,000001002 USD` hors allocation, soit 1,002 USD par million de sauvegardes comparables, **avant CPU et stockage**. Une sauvegarde dédiée au seul changement d’apparence conserve le coût complet du PATCH et du GET session ; ce delta ne les rend pas gratuits. Le profil complet, la cardinalité des ateliers et les métriques D1 distantes peuvent différer de la fixture minimale.
-
-Cette qualification donne un budget dimensionné et des limites explicites, pas une facture. La publication doit garder le même périmètre de service et rapprocher les observations hébergées des métriques de la période ; une valeur indisponible reste inconnue. Il n’y a pas de nouvelle instrumentation, de collecte de contenu ou de permission fournisseur à activer pour cette V2.
-
-## Sources et preuves
-
-| Source                                                                 | Rôle                                                           |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `packages/contracts/src/dashboard-appearance.ts`                       | Valeurs partagées et défaut                                    |
-| `migrations/0053_user_dashboard_appearance.sql`                        | Colonne utilisateur et contraintes                             |
-| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Sauvegarde navigateur, lecture compte/session et limite native |
-| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Réconciliation, compte, sauvegarde et forçage temporaire       |
-| `apps/web/src/workspace-identity.tsx`                                  | Identité et accès au compte en bas de navigation               |
-| `apps/web/src/dashboard-v2.css`, `dashboard-artwork.tsx`               | Style cohérent et illustrations limitées                       |
-| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Hiérarchie quotidienne, revue et assistants                    |
-| `apps/web/src/locales/messages-dashboard-v2.json`                      | Traductions FR, EN, DE et LB                                   |
-
-Les preuves antérieures sont conservées sans les étendre à la préférence serveur :
-
-- avant ce dernier changement de périmètre, la suite Vitest complète comptait 2 052 tests réussis dans 108 fichiers ;
-- l’ancienne commande de version directement dans la navigation avait 14 cas preview et 9 cas application réussis ; elle a été remplacée par le réglage de compte, donc ces 23 cas ne qualifient pas le parcours final ;
-- les 7 tests unitaires d’amorçage et les 62 tests de sécurité de publication antérieurs ne démontrent pas à eux seuls la sauvegarde personnelle.
-
-| Qualification historique des 11–13 octobre 2026                                                                                                                  | État                                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Compte/session, migration, rôles, refus OAuth/CSRF, révocation et lecture native                                                                        | 91 tests locaux ciblés réussis : 27 dans `tests/unit/account.test.ts`, 47 dans `tests/unit/auth.test.ts`, 17 dans `tests/integration/mobile.test.ts`                                                  |
-| Amorçage, URL temporaire, stockage indisponible et traductions                                                                                          | 7/7 tests de `tests/unit/dashboard-appearance.test.ts` réussis                                                                                                                                        |
-| Maquette isolée : contrôle de compte, proximité de la langue, 4 langues, ordre de lecture et mobile                                                     | 14/14 cas réussis, dont 8 V2 et 6 baseline ; desktop et iPhone WebKit, sans backend métier                                                                                                            |
-| Application locale : sauvegarde personnelle, navigateur vierge, nom seul avec URL forcée, brouillon, consentement, rôles et compte en bas de navigation | 15/15 cas réussis, 5 scénarios sur Chromium, mobile Chromium et iPhone WebKit ; API locale de simulation et sessions interceptées selon le scénario                                                   |
-| Présentation de 15 routes d’Atelier à 320 px, dont Studio, Horizon et crédits                                                                           | Incluse dans la suite navigateur application en Classique et V2 ; absence de débordement et accès au compte contrôlés, sans qualification d’appareil physique                                         |
-| Régressions de navigation étroite, identité longue, devis fax, contrôle PDF et fermeture des interceptions de test                                      | 122/122 cas réussis après correction : 105 sur les trois navigateurs, puis 17 supplémentaires sur iPhone WebKit ; captures de devis et PDF relues                                                     |
-| Migration de devis historiques avec le nouveau schéma utilisateur                                                                                       | 16/16 tests réussis ; la fixture copie les quatre colonnes du schéma historique, sans modifier les assertions métier                                                                                  |
-| Verrou transitoire de la base locale des tests                                                                                                          | 18/18 tests du reset borné et 5/5 scénarios V2 Chromium réussis ; seules les erreurs `SQLITE_BUSY` explicites permettent de reprendre le reset idempotent, jamais un scénario ni une opération métier |
-| Builds preview et live                                                                                                                                  | Réussis après les corrections de navigation et de sauvegarde nom seul ; journaux locaux `release-build-preview.log` et `release-build-live.log`                                                       |
-| Typecheck et lint                                                                                                                                       | Dernière exécution réussie après les changements finaux ; journal `/tmp/guteneo-v2-qa/release-lint.log`                                                                                               |
-| Atlas développeur                                                                                                                                       | Génération puis contrôle de synchronisation réussis ; 20 domaines, 166 fonctionnalités, 21 parcours                                                                                                   |
-| Suite Vitest complète                                                                                                                                   | 2 052/2 052 dans 108 fichiers avant les derniers changements ; validation ciblée de 91 tests après extension du profil, pas de nouvelle preuve complète sur cette version                             |
-| Sécurité de publication                                                                                                                                 | 62 tests `main-only-release` et `preview-release-assets` réussis avant l’extension compte ; code de publication inchangé, preuve bornée                                                               |
-| Parcours manuel de compte local                                                                                                                         | Français et V2 sélectionnés puis enregistrés avec succès ; paramètre `atelier` retiré, route conservée et pages suivantes en V2 depuis la préférence serveur ; API locale en simulation uniquement    |
-| Revue PDF stable, consentement, erreur, multipage et clavier | 36/36 cas du fichier `protected-email.spec.ts` réussis sur les trois projets navigateur ; typecheck, lint et build web réussis. CI du correctif à réaliser. |
-| CI du commit exact | PR #61 : 13/13 contrôles verts sur `207cf04` ; main fusionné `54639e7` : échec iPhone sur la stabilité du PDF pendant un consentement. Publication suspendue jusqu’à validation du correctif et CI du nouveau main. |
-| Migration D1 distante et déploiement canonique                                                                                                          | Non réalisés pour ce candidat à la rédaction                                                                                                                                                          |
-| Usage humain authentifié sur données réelles et autres appareils                                                                                        | Non qualifié par les tests locaux                                                                                                                                                                     |
-| Communication réelle ou livraison fournisseur pour cette qualification                                                                                  | Aucune réalisée                                                                                                                                                                                       |
-
-Les rapports du parcours de compte sont conservés hors du dépôt dans
-`/tmp/guteneo-v2-qa/account-preview-results.json` (14 cas, 9,1 s) et
-`/tmp/guteneo-v2-qa/account-app-results.json` (15 cas, 51,6 s), avec zéro échec,
-zéro cas ignoré et zéro cas instable. Le rapport HTML applicatif est dans
-`/tmp/guteneo-v2-qa/account-app-html/`. Les journaux de builds sont sous le même
-répertoire de preuves ; ils ne sont pas des preuves de publication.
-
-Les contrôles complémentaires après les premiers résultats CI sont conservés
-dans `/tmp/guteneo-v2-qa/ci-fix/focused-results.json`,
-`/tmp/guteneo-v2-qa/ci-fix/iphone-regressions.json` et
-`/tmp/guteneo-v2-qa/trusted-fax-quotes-v2.json`. Le build web, le typecheck et le
-lint complet ont également réussi après ces corrections ; cette preuve locale
-ne remplace pas la nouvelle CI du commit final.
-
-Le test de navigateur vierge qualifie la relecture locale de la préférence
-serveur avec la même identité ; il ne représente pas deux appareils humains
-connectés au service hébergé. Les scénarios distinguent API D1/queue en
-simulation et sessions interceptées pour les projections de droits et de
-surfaces. Ils vérifient aussi que changer seulement le nom depuis un lien V2
-ne sauvegarde pas l’apparence temporaire, et que préparation, consentement,
-empreinte et idempotence gardent leurs contrats existants. La simulation et
-les projections ne valent ni communication réelle, ni preuve fournisseur, ni
-qualification physique iPhone.
-
-### Attendre la confirmation de sauvegarde du profil
-
-La CI du correctif de revue a également révélé une course dans le test du lien temporaire V2. Le helper attendait les en-têtes du PATCH puis une apparence déjà active grâce à l’URL ; ce n’était pas une preuve de fin de sauvegarde. Dans la trace, l’assertion d’adresse démarre à 81 015,604 ms, avant la réception complète du corps à 81 047,457 ms. La capture ultérieure montre la confirmation de sauvegarde.
-
-Le helper attend désormais le statut visible **Votre profil a été enregistré.**, affiché après la réponse, l’application de l’apparence et la relecture du compte. Les assertions d’URL, de payload et de préférence serveur restent inchangées. Aucun délai arbitraire, retry de scénario ou changement du code de compte n’est ajouté. Cette correction de synchronisation du test ne modifie ni rôle, ni droit, ni opération métier. Les quinze cas du fichier `dashboard-v2.spec.ts` passent ensuite sur les trois navigateurs, avec lint et contrôle de diff réussis ; rapport hors dépôt `/tmp/guteneo-v2-qa/account-save-sync/final.json`.
-
-### Préserver la saisie lorsqu’une lecture annexe échoue
-
-Une erreur tardive de l’annuaire des responsables pouvait prendre le focus du champ de profil avant l’insertion d’un texte. Le cas a été reproduit avec une réponse contacts retenue : erreur 404 → focus déplacé sur l’alerte → insertion perdue ; réponse valide → texte conservé et sauvegarde disponible. La fixture du test des ateliers incomplets omettait involontairement ce second endpoint.
-
-L’annuaire conserve désormais son alerte accessible et son bouton de reprise sans prendre automatiquement le focus. Cette option est locale à `WorkspaceContacts` ; les erreurs d’action gardent le comportement par défaut de `ErrorNotice`. La fixture des rôles fournit un annuaire valide et vérifie explicitement le nom saisi. Une régression distincte provoque l’erreur pendant l’édition en Classique et V2, sans écriture de compte, et contrôle focus, saisie et reprise. Les permissions, données privées, surfaces natives et MCP ne changent pas.
-
-Le nouveau scénario échoue sur l’ancien build précisément après l’affichage de l’alerte, lorsque le focus quitte le champ. Avec le correctif, les deux fichiers complets `account-identity.spec.ts` et `workspace-roles.spec.ts` passent : **69/69 cas** sur Chromium, mobile Chromium et iPhone WebKit, dont douze régressions de focus couvrant Classique/V2 et erreur serveur/réponse malformée. La reprise de saisie utilise le clavier sans refocaliser le champ ; le bouton de reprise recharge les contacts sans écriture de compte. Build web, typecheck, lint et contrôle de diff réussis. Rapports hors dépôt : `/tmp/guteneo-v2-qa/workspace-form-diagnostic/red.json` et `verified.json`. Cette preuve locale ne remplace pas la CI du commit final ni la qualification authentifiée hébergée.
-
-## Publication et retour
-
-L’utilisateur a autorisé le 13 octobre 2026 la fusion de la PR puis la mise en ligne après validation. Cette autorisation ne remplace pas la CI du candidat final et du commit fusionné. Appliquer et vérifier la migration distante `0053_user_dashboard_appearance.sql` avant de publier le code qui lit la nouvelle colonne, puis suivre [MAIN_RELEASE.md](MAIN_RELEASE.md) depuis `main` propre et synchronisé, avec le commit exact vérifié. L’ancien hôte applicatif `workers.dev` et les URL de preview applicatives restent fermés ; aucune publication parallèle sur ces hôtes ne remplace le parcours canonique.
-
-Vérifier séparément migration D1, CI, manifeste et assets servis sur `guteneo.com`, puis le parcours humain authentifié et la persistance du compte. La publication n’active pas V2 par défaut. **Classique** enregistré dans Mon compte restaure durablement l’ancienne présentation ; `?atelier=classic#/app` permet un retour temporaire sans modifier la préférence serveur. Aucun retour d’apparence ne supprime des données ou des envois.
+| Startup to visible title, fonts/initial images ready | 138.1 ms | 129.9 ms |
+| Controlled journey including four 500 ms pauses | 2,155.0 ms | 2,147.3 ms |
+| Renderer work at journey end (`TaskDuration`) | 133.5 ms | 129.6 ms |
+| Renderer work at startup | 99.2 ms | 91.6 ms |
+| JavaScript heap at journey end | 6,623,332 bytes | 6,614,704 bytes |
+| Renderer work during 10 s idle | 0.572 ms | 0.659 ms |
+| Journey requests, including simulated API reads | 36, including 9 | 35, including 9 |
+| Requests during 10 s idle | 0 | 0 |
+
+No JavaScript error, failed HTTP response or forbidden request attempt in six
+trials. Removed asset: compact footer emblem `brand/guteneo-mark-128.webp`
+(8,798 bytes); the principal official portrait remains loaded. Eight actually
+loaded JS/CSS files grow from 1,782,877 to 1,786,178 raw bytes (**+3,301**) and
+524,152 to 524,988 gzip bytes (**+836**). Across all twenty build chunks,
+delta is +3,291 raw/+838 gzip bytes; that includes chunks absent from these
+four journeys.
+
+Three trials per variant prove neither CPU savings nor production latency
+improvement. Host load is uncontrolled; no network/CPU throttling, small
+corpus. `TaskDuration` measures renderer, not hosted Worker; JS heap excludes
+native memory, decoded images and GPU. Journey times include two seconds of
+pauses and are not user-task latency. Idle observation lasts only ten seconds.
+Gzip sums compare builds; production Brotli/cache differ. No billable hosted
+request, Worker memory or invoice is measured. This change adds no service,
+binding, polling or provider call. Historical prices/measurements below are
+not reassigned to this candidate.
+
+Scripts, file manifests, source diff, base-build log, raw trials and summary
+remain outside the repository at `/tmp/guteneo-v2-clarity/resources/`, including
+`measurements.json`/`summary.json`. This controlled evidence is distinct from
+navigation scenarios, final-commit CI and authenticated postpublication
+qualification.
+
+## Document-review stability
+
+On mobile, Classic/V2 review presents PDF before consent. Its preview frame
+retains fixed height while the module loads, pages render or an error displays.
+The document scrolls inside it, including keyboard scrolling. PDF controls
+and download remain available. Only dispatch review uses this frame; other
+previews retain their layout.
+
+This prevents a PDF loading midgesture from moving the targeted checkbox.
+The issue was reproduced with a local document response held between pointer
+down/up: 281 px vertical movement and unchecked consent before correction.
+Regression holds the response through the gesture and checks position/consent
+in Classic/V2. Existing explicit-approval/same-dispatch recovery assertions
+remain. The full file passes 36/36 cases on desktop/mobile Chromium and iPhone
+WebKit: 12 new/24 existing, without automatic retry. Full Tab order is checked
+in Chromium; WebKit checks frame exit, scrolling and Space activation of the
+focused button because native Tab skips some controls. This is not physical
+iPhone keyboard evidence. Reports/captures:
+`/tmp/guteneo-v2-qa/stable-review/final.json` and `final/`.
+
+Document access remains subject to current rights for all four roles; preview
+grants no approval permission. PDF bytes/renderer, consent, fingerprints,
+requests and idempotency are unchanged. Native/REST/MCP acquire no action;
+native/assistant browser-review returns use the same frame. Read errors remain
+explicit and grant no consent.
+
+This presentation fix adds no illustration, request, endpoint, polling, binding
+or hosted resource. Cost figures below remain dated measures of their stated
+candidate, not the fix; they still do not measure hosted Worker CPU.
+
+## Selecting the version in account settings
+
+The desktop account block sits at left-navigation bottom and remains accessible
+on mobile, retaining actual identity, current role, profile and account switching.
+
+1. Open **My account** from the block; Classic also retains Account navigation.
+2. In **My profile**, choose **Classic** or **V2** under **Workspace version**,
+   beside language.
+3. Select **Save changes**.
+4. After server success, apply appearance and show **Your profile has been saved.**
+
+Selection only prepares a profile edit. Persistence/application follows
+successful `PATCH /api/account`; failure remains explicit. Appearance never
+authorizes sending or resets documents/dispatches. It follows the same person
+across memberships/sessions/devices on authenticated session reread, not
+another user sharing the browser. Language remains independent; both can save
+together. Labels are available in all four languages.
+
+Canonical appearance entry points are:
+
+- `https://guteneo.com/?appearance=v2#/app`;
+- `https://guteneo.com/?appearance=classic#/app`.
+
+`appearance` is a **temporary presentation override**, not a profile write.
+Legacy `atelier` links are accepted inbound for compatibility. Save explicitly
+in My account for persistence. Only successful saving after explicit appearance
+selection removes the override; name/language-only saving neither persists
+nor removes it. The selector shows saved account preference, not temporary
+override. Detected identity change also drops an old override; other parameters
+and route remain.
+
+## Server contract and reconciliation
+
+| Item | Contract |
+| --- | --- |
+| Values | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts` |
+| Durable storage | Personal `users.preferred_dashboard_appearance`, not organization preference |
+| Migration | `0053_user_dashboard_appearance.sql`; `TEXT NOT NULL DEFAULT 'classic'`, `CHECK` on both values |
+| Browser reads | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account` |
+| Write | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body |
+| Authority | Current browser session, Origin/CSRF; every role can change its own preference |
+| Target | Session identity/workspace; no body `userId`/`organizationId` targeting |
+| Omitted field | Preserves preference, including older name/language clients |
+| Audit | `account.updated`, changed field names without values/document data |
+| Refusal | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update |
+| Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled |
+| URL | Valid `appearance=v2`/`appearance=classic` temporarily wins for that entry without persistence; legacy `atelier` accepted inbound |
+| Browser cache | `guteneo.dashboard.appearance` in `localStorage`, best-effort bootstrap/cache; authenticated session authoritative outside explicit override |
+| Unavailable cache | Guarded reads/writes; account preference works after session read |
+| Unavailable history | `history.replaceState` restrictions do not block applying saved preference |
+
+Cache contains appearance only: no content, recipient, token or signed URL.
+Old browser values cannot replace authenticated preference. Existing session
+reads are reused; no polling/real-time cross-tab synchronization. Remote
+changes appear on a new session read, including tab return. Account responses
+remain private `Cache-Control: no-store`; preference crosses same-person
+memberships without sharing content/rights/private documents. Mutation/audit
+recheck authority in the existing transaction.
+
+## Rights, consent and other clients
+
+The four human roles remain those in `packages/contracts/src/roles.ts`;
+a connected assistant is a distinct OAuth actor, not a fifth membership role.
+All browser roles may save their own appearance. Existing resource access,
+preparation, independently optional supervisor approval/reporting, administrator
+management and assistant member/scope/mandate restrictions remain those in
+[WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
+
+Review binds immutable content, recipient, options, cost and fingerprint;
+presentation is not consent. Acceptance/reservation/outbox remain atomic.
+Unknown provider outcomes require reconciliation without automatic retry.
+Preparation/send requests gain no appearance field; only profile/session
+schema extends. Business REST, scopes, MCP tools and mandates remain unchanged.
+OAuth tokens do not become browser sessions; no assistant tool edits appearance.
+
+Native session/account reads also expose `preferredDashboardAppearance`, but
+the native client offers no V2 setting and `PATCH /api/mobile/v1/account`
+rejects it. Existing native language PATCH preserves it. Authenticated browser
+review uses personal preference; native gains no approval/send right.
+
+This delivery authorizes its assistant to perform neither real communication,
+channel activation, mandate grant/extension nor server-check bypass. See
+[API_CONTRACT.md](API_CONTRACT.md) and [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
+
+## Journeys and recovery
+
+| Journey | Expected result | Error/recovery |
+| --- | --- | --- |
+| Login/tab return | Actual identity/current workspace/personal appearance reconciled | Normal Auth0 recovery; no other-user private data |
+| Account → language/version → save | Same person; durable preference after success | Network/CSRF/authority failure explicit; no invented success |
+| Appearance link | Temporary override without profile PATCH | Unknown parameter ignored; save explicitly for persistence |
+| Workspace switch | Same preference, current membership rights/data | No previous-workspace privilege retained |
+| Account switch | Returned account preference; old override discarded | Old local cache never presented as new account preference |
+| Documents → preparation → review → tracking | Same resources/requests/guards, new presentation | Existing quarantine, quote-expiry, closed-channel, permission and unknown-outcome recovery |
+| Studio/Horizon/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
+| Assistant → browser review | Same scopes/consent, browser preference | No added tool, mandate or implicit consent |
+
+Journeys/matrix are also maintained in [feature-map.json](feature-map.json).
+Public mockup remains fictional/backend isolated; its settings change no
+server account. It retains simulation banners, as do genuinely simulated
+sessions. Removing real V2's experimental label removes no simulation cue.
+
+## Illustrations and resources
+
+Three illustrations were generated with actual `image_gen`, then resized/
+WebP encoded. Masters/prompts/fingerprints: `assets/brand/dashboard-v2/`.
+The official portrait was not regenerated.
+
+| Served asset | Dimensions | Bytes | Export verification |
+| --- | --- | --- | --- |
+| `apps/web/public/brand/dashboard-v2/atelier.webp` | 1280 × 853 | 158,328 | Original/440 px use inspected |
+| `apps/web/public/brand/dashboard-v2/documents.webp` | 1280 × 960 | 75,294 | Original/320 px use inspected |
+| `apps/web/public/brand/dashboard-v2/horizon.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
+
+Display evidence: `/tmp/guteneo-v2-qa/artwork/`, outside the repository.
+Decorative images have empty alt text on opaque ivory; no consent/delivery
+information is embedded. Horizon evokes Luxembourg without claiming geographic
+accuracy. Business information/document previews remain separate accessible
+content.
+
+The engravings total 339,214 bytes. Two decorative swallows reuse official
+72,336-byte `luxembourg-blue-swallow-sheet.webp` without animation. A journey
+loading all four resources consumes 411,550 bytes excluding headers.
+Engravings use `loading=lazy`/`decoding=async`; the CSS sprite has no guaranteed
+lazy loading. Classic mounts none of these decorations.
+
+## Resource and cost qualification — 13 October 2026
+
+The configuration reuses existing Worker/D1: zero newly provisioned service,
+container or instance, no size/sleep/cron/queue-consumer change. It adds neither
+periodic polling nor on-demand image generation. Focus-return session
+reconciliation predates the PR. This avoids dedicated presentation infrastructure
+without proving zero cost.
+
+### Reproducible local measurement and limits
+
+Comparison: `1e5ab18a464adfdb22af85d71f291600149ff330` against
+`7ffff9e242d8e1359716d7f93908567726be50f0` with reviewed swallow supplement
+(diff SHA-256
+`3ec28206ce4595d8756cc496174f83056c9a1f69768059477f35d84ca06a838b`).
+Separate production Vite builds, identical locked dependencies, Chromium
+153.0.8010.12 on macOS arm64, 1440 × 1000, three trials/variant. Each opens a
+fresh context, visits empty overview → empty documents → connections, then
+idles ten seconds. Eight API reads use identical fictional interceptions;
+all writes/external destinations are forbidden. No backend/provider is called.
+
+| Median of three local trials | Base Classic | Candidate Classic | Candidate V2 |
+| --- | ---: | ---: | ---: |
+| Startup to visible title/fonts ready, ms | 112.7 | 121.4 | 121.4 |
+| Chromium renderer `TaskDuration`, full journey, ms | 112.1 | 110.5 | 118.1 |
+| Controlled journey including three 500 ms pauses, s | 1.627 | 1.635 | 1.641 |
+| End-of-journey JavaScript heap, decimal MB | 6.55 | 6.54 | 6.56 |
+| Renderer work during ten idle seconds, ms | 0.675 | 0.715 | 0.485 |
+| Browser requests, including eight synthetic API GETs | 30 | 30 | 34 |
+| Extra requests during ten idle seconds | 0 | 0 | 0 |
+
+Zero JavaScript/HTTP errors in nine trials. V2 adds four resources: three
+engravings and sprite. Actually loaded shared JS/CSS chunks, including API,
+add 5,062 JS and 14,619 CSS raw bytes, totaling +4,243 gzip bytes. Static imports
+also affect Classic/public pages. Three trials justify no CPU-gain claim.
+Renderer `TaskDuration` is not Worker CPU; JS heap excludes native memory,
+decoded images/GPU. Empty corpus without network/CPU throttling qualifies
+neither large workspaces, phones nor production latency. Controlled duration
+includes 1.5 s pauses and is not user latency.
+
+A second measurement runs actual account/session handlers against two isolated
+Miniflare databases with migrations and synthetic user/workspace/session.
+Three runs/operation, outside global HTTP middleware. `.first()` uses the same
+`.all()` query to preserve D1 metadata without logging bound SQL, identity
+or content.
+
+| Local operation | Base: statements / rows read / written | Candidate: statements / rows read / written |
+| --- | --- | --- |
+| GET session | 1 / 4 / 0 | 1 / 4 / 0 |
+| GET account | 4 / 7–8 / 1–2 | 4 / 7–8 / 1–2 |
+| Minimal `preferredLocale` PATCH, plus candidate `preferredDashboardAppearance` | 6 / 13 / 5 | 7 / 15 / 6 |
+
+Measured joint-save delta: one UPDATE, two rows read, one written. UI retains
+one PATCH then session reread, without an extra round trip. Cumulative local
+SQL time is 0–1 ms/operation, too coarse to infer gain/regression. Median
+handler wall times are 5.0 / 19.8 / 23.5 ms for base and 5.0 / 18.7 / 27.8 ms
+for candidate; they include Node/Miniflare bridging, not billable CPU.
+
+`wrangler deploy --dry-run --config wrangler.live.jsonc` passes: Worker bundle
+4,071.63 KiB, gzip 935.93 KiB. Dry-run publishes nothing and supplies **no**
+Worker startup time. Active Worker CPU, memory, hosted cold startup,
+active/idle time, D1 rows and actually billed requests remain **unknown before
+publication**. Retain deployment-reported Wrangler startup and subsequent
+Cloudflare metrics separately; HTTP time is not CPU. Infer no resource/sleep
+change from browser benchmarks.
+
+Sources/reproduction/raw output outside repository:
+`/tmp/guteneo-v2-qa/cost-qualification/measure.mjs`, `measurements.json`,
+`d1-measure.mts`, `d1-measurements.json`, `swallow-source.diff`, build logs and
+`worker-dry-run.log`. Vite uses `VITE_PUBLIC_PREVIEW=false` with separate
+`base-bundle`/`candidate-bundle` outputs; rerun browser script with Node and D1
+script with locked repository `tsx`. Scripts retain exact fixtures/bounds,
+without actual database/session access.
+
+### Prices, shared allowances and per-operation cost
+
+Official prices checked **13 October 2026**, USD before tax, assuming Workers
+Paid/Standard: $5/account/month minimum; 10 million requests and 30 million
+CPU-ms included, then $0.30/million requests and $0.02/million CPU-ms.
+Wall time is not billed as CPU. Other account usage shares allowances;
+remaining allowance and any Enterprise contract are not established here.
+[Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/).
+
+D1 Paid includes 25 billion rows read, 50 million written and 5 GB/month;
+overage $0.001/million reads, $1/million writes, $0.75/GB-month. Indexes/other
+databases share allowances. One extra column does not alone multiply read
+rows; observe physical size/migration cost instead of assuming seven billed
+bytes/user. [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).
+
+**Images are not assumed exempt from Worker requests**:
+`wrangler.live.jsonc` sets `assets.run_worker_first: true`. Each network download
+passes through the app Worker even for static assets; network-avoiding browser
+cache may avoid that invocation. Assets storage has no documented added cost.
+[Static Assets billing](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
+
+After shared allowances are exhausted, a cold journey loading four decorations
+adds `4 × 0.30 / 1,000,000 = 0.00000120 USD` in request cost. At **1 ms Worker
+CPU/asset**, an unmeasured assumption, requests+CPU total $0.00000128/journey;
+at **10 ms**, $0.00000200. That is $1.28/$2.00 per million such journeys,
+neither cap nor invoice. Warm cache, viewport/shorter journey change it.
+Existing API/request, storage, provider and whole-account costs are excluded.
+
+The measured joint language/appearance-save D1 delta, `+2 reads, +1 write`,
+corresponds outside allowances to
+`2 × 0.001 / 1,000,000 + 1 / 1,000,000 = 0.000001002 USD`, or $1.002/million
+comparable saves, **before CPU/storage**. Appearance-only saves retain full
+PATCH/session-GET cost; the delta does not make them free. Complete profile,
+workspace cardinality and remote D1 metrics may differ from the minimal fixture.
+
+This qualification supplies a bounded budget/explicit limits, not an invoice.
+Publication must preserve service scope and reconcile hosted observations
+with period metrics; unavailable values remain unknown. V2 requires no new
+instrumentation, content collection or provider permission activation.
+
+## Sources and evidence
+
+| Source | Role |
+| --- | --- |
+| `packages/contracts/src/dashboard-appearance.ts` | Shared values/default |
+| `migrations/0053_user_dashboard_appearance.sql` | User column/constraints |
+| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts` | Browser save, account/session reads, native boundary |
+| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override |
+| `apps/web/src/workspace-identity.tsx` | Identity/account access at navigation bottom |
+| `apps/web/src/dashboard-v2.css`, `dashboard-artwork.tsx` | Consistent style/limited illustrations |
+| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx` | Daily hierarchy, review, assistants |
+| `apps/web/src/locales/messages-dashboard-v2.json` | FR/EN/DE/LB translations |
+
+Earlier evidence is retained without extending it to server preference:
+
+- Before the last scope change, full Vitest passed 2,052 tests in 108 files.
+- The previous navigation-direct version control passed 14 preview/9 application
+  cases; account settings replaced it, so those 23 do not qualify the final
+  journey.
+- Earlier 7 bootstrap unit tests/62 release-security tests alone do not prove
+  personal saving.
+
+| Historical qualification, 11–13 October 2026 | State |
+| --- | --- |
+| Account/session, migration, roles, OAuth/CSRF refusal, revocation/native read | 91 targeted local tests: 27 `tests/unit/account.test.ts`, 47 `tests/unit/auth.test.ts`, 17 `tests/integration/mobile.test.ts` |
+| Bootstrap, temporary URL, unavailable storage/translations | 7/7 `tests/unit/dashboard-appearance.test.ts` passed |
+| Isolated mockup: account control, language proximity, four languages, reading/mobile order | 14/14 passed: 8 V2, 6 baseline; desktop/iPhone WebKit without business backend |
+| Local app: personal save, fresh browser, name-only forced URL, draft, consent, roles/account bottom | 15/15: five scenarios on three browsers; local simulation API/intercepted sessions by scenario |
+| Fifteen workspace routes at 320 px including Studio/Horizon/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
+| Narrow navigation, long identity, fax quote/PDF and test-interception closure regressions | 122/122 after fixes: 105 on three browsers, 17 additional iPhone WebKit; quote/PDF captures reviewed |
+| Historical quote migration with new user schema | 16/16; fixture copies four historical-schema columns without changing business assertions |
+| Transient local test-database lock | 18/18 bounded-reset tests, 5/5 Chromium V2 scenarios; only explicit `SQLITE_BUSY` retries idempotent reset, never scenario/business operation |
+| Preview/live builds | Passed after navigation/name-only-save fixes; `release-build-preview.log`, `release-build-live.log` |
+| Typecheck/lint | Final run passed after final changes; `/tmp/guteneo-v2-qa/release-lint.log` |
+| Developer feature map | Generation/sync passed: 20 domains, 166 features, 21 journeys |
+| Full Vitest | 2,052/2,052 in 108 files before final changes; 91 targeted after profile extension, no renewed full-suite proof |
+| Release security | 62 `main-only-release`/`preview-release-assets` passed before account extension; release code unchanged, bounded evidence |
+| Manual local account | French/V2 selected/saved, historical `atelier` parameter removed, route retained/subsequent pages use server V2; simulation API only |
+| Stable PDF review, consent, error, multipage/keyboard | 36/36 `protected-email.spec.ts` cases across three projects; typecheck/lint/web build passed. Fix CI pending. |
+| Exact-commit CI | PR #61: 13/13 green on `207cf04`; merged main `54639e7`: iPhone PDF-stability failure during consent. Publication held for fix/new-main CI. |
+| Remote D1 migration/canonical deployment | Not performed for that candidate at writing |
+| Authenticated human use on actual data/other devices | Not qualified by local tests |
+| Real communication/provider delivery | None performed |
+
+Account reports outside repository:
+`/tmp/guteneo-v2-qa/account-preview-results.json` (14 cases, 9.1 s),
+`/tmp/guteneo-v2-qa/account-app-results.json` (15 cases, 51.6 s), zero failures,
+skips or flakes; HTML: `/tmp/guteneo-v2-qa/account-app-html/`. Build logs share
+the evidence folder and do not prove publication.
+
+Follow-up checks after initial CI:
+`/tmp/guteneo-v2-qa/ci-fix/focused-results.json`,
+`/tmp/guteneo-v2-qa/ci-fix/iphone-regressions.json`,
+`/tmp/guteneo-v2-qa/trusted-fax-quotes-v2.json`. Web build/typecheck/full lint
+also passed afterward; local results do not replace final-commit CI.
+
+Fresh-browser tests qualify local server-preference reread with the same
+identity, not two actual devices on hosted service. Scenarios distinguish
+D1/queue simulation from intercepted rights/surface projections. They verify
+that name-only edits from a V2 link do not save temporary appearance and
+preserve preparation/consent/fingerprint/idempotency contracts. Simulation/
+projections are neither communication, provider proof nor physical-iPhone
+qualification.
+
+### Waiting for profile-save confirmation
+
+Review-fix CI also exposed a temporary-V2-link test race. The helper awaited
+PATCH headers then appearance already active through URL, not save completion.
+Trace: URL assertion starts at 81,015.604 ms, before full body arrives at
+81,047.457 ms. A later capture shows save confirmation.
+
+The helper now awaits visible **Your profile has been saved.**, displayed
+after response, appearance application and account reread. URL/payload/server-
+preference assertions remain. No arbitrary delay, scenario retry or account-code
+change. This test synchronization changes no role/right/business operation.
+All fifteen `dashboard-v2.spec.ts` cases then pass on three browsers, with lint/
+diff checks; report `/tmp/guteneo-v2-qa/account-save-sync/final.json` outside
+repository.
+
+### Preserving input when an auxiliary read fails
+
+A late contacts-directory error could steal profile-field focus before text
+insertion. Held-contact-response reproduction: 404 → focus moves to alert →
+input lost; valid response → text retained/save available. Incomplete-workspace
+test fixture unintentionally omitted that second endpoint.
+
+The directory now keeps its accessible alert/retry without automatic focus.
+This option is local to `WorkspaceContacts`; action errors retain default
+`ErrorNotice` behavior. Role fixture returns valid contacts and explicitly
+checks entered name. A separate Classic/V2 regression triggers failure while
+editing without account write, checking focus/input/recovery. Permissions,
+private data, native/MCP surfaces remain unchanged.
+
+The new scenario fails on the old build precisely after alert display/focus
+loss. With the fix, full `account-identity.spec.ts` and `workspace-roles.spec.ts`
+pass **69/69** on three browsers, including twelve Classic/V2 × server-error/
+malformed-response focus regressions. Keyboard input resumes without
+refocusing; retry reloads contacts without account write. Web build/typecheck/
+lint/diff pass. Outside-repository reports:
+`/tmp/guteneo-v2-qa/workspace-form-diagnostic/red.json`, `verified.json`.
+This local evidence replaces neither final-commit CI nor authenticated hosted
+qualification.
+
+## Publication and return
+
+On 13 October 2026 the user authorized PR merge and publication after validation.
+That does not replace final-candidate/merged-commit CI. Apply/verify remote
+`0053_user_dashboard_appearance.sql` before publishing code reading the new
+column; follow [MAIN_RELEASE.md](MAIN_RELEASE.md) from clean synchronized
+`main` with exact verified commit. The former application `workers.dev` host
+and application preview URLs remain closed; parallel publication there does
+not replace the canonical journey.
+
+Separately verify D1 migration, CI, manifest/served assets on `guteneo.com`,
+then authenticated human journey/account persistence. Publication does not
+enable V2 by default. Saving **Classic** in My account restores the old
+presentation durably; `?appearance=classic#/app` returns temporarily without
+changing server preference. Appearance reversal deletes no data or dispatch.

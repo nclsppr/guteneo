@@ -20,12 +20,12 @@ struct DocumentsWorkspaceView: View {
                             Image(systemName: "doc.text.magnifyingglass")
                                 .font(.largeTitle).foregroundStyle(Brand.cobalt)
                                 .accessibilityHidden(true)
-                            Text("Chaque original,\nà sa place.")
+                            Text("Every original,\nin its place.")
                                 .font(.system(.largeTitle, design: .serif))
                                 .foregroundStyle(Brand.ink)
-                            Text("Choisissez un document dans la liste pour consulter sa vérification, lire le PDF original ou préparer un fax.")
+                            Text("Choose a document from the list to check its verification, read the original PDF or prepare a fax.")
                                 .font(.title3).foregroundStyle(.secondary)
-                            Text("Pour ajouter un document, utilisez « Importer un PDF » dans la liste.")
+                            Text("To add a document, use “Import a PDF” in the list.")
                                 .foregroundStyle(.secondary)
                         }
                         .fixedSize(horizontal: false, vertical: true)
@@ -59,12 +59,12 @@ struct DocumentsView: View {
         documentList
         .paperList().navigationTitle("Documents")
         .accessibilityIdentifier("documents.list")
-        .searchable(text: $search, prompt: "Rechercher un document")
+        .searchable(text: $search, prompt: "Search documents")
         .refreshable { await model.refresh() }
         .sensoryFeedback(.success, trigger: importedDocumentID)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { importing = true } label: { Label("Importer un PDF", systemImage: "plus") }
+                Button { importing = true } label: { Label("Import PDF", systemImage: "plus") }
                     .disabled(uploading || model.session?.canPrepare != true)
                     .accessibilityIdentifier("importPDF")
             }
@@ -84,7 +84,7 @@ struct DocumentsView: View {
                     catch { self.error = APIError.safeMessage(for: error) }
                 }
             case .failure:
-                error = "Le fichier n’a pas pu être ouvert. Choisissez de nouveau le PDF dans Fichiers."
+                error = "The file could not be opened. Select the PDF again in Files."
             }
         }
     }
@@ -103,9 +103,9 @@ struct DocumentsView: View {
         if let error = error ?? model.errorMessage {
             Section { Notice(text: error, symbol: "exclamationmark.circle") }
         }
-        if uploading { Section { ProgressView("Dépôt du PDF…") } }
+        if uploading { Section { ProgressView("Uploading PDF…") } }
         if documents.isEmpty && !model.isLoading {
-            ContentUnavailableView(LocalizedStringKey(search.isEmpty ? "Vos PDF, ici" : "Aucun document trouvé"), systemImage: "doc.text", description: Text(LocalizedStringKey(search.isEmpty ? "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation." : "Essayez un autre nom ou chargez les documents suivants.")))
+            ContentUnavailableView(LocalizedStringKey(search.isEmpty ? "Your PDFs, here" : "No documents found"), systemImage: "doc.text", description: Text(LocalizedStringKey(search.isEmpty ? "Import a PDF from Files. Its original will be preserved and verified before use." : "Try another name or load more documents.")))
                 .listRowBackground(Color.clear)
         }
         ForEach(documents) { document in
@@ -119,11 +119,11 @@ struct DocumentsView: View {
             .accessibilityIdentifier("document.row.\(document.id)")
         }
         if model.hasMoreDocuments {
-            Button("Charger les documents suivants") { Task { await model.loadMoreDocuments() } }
+            Button("Load more documents") { Task { await model.loadMoreDocuments() } }
                 .disabled(model.isLoading)
         }
         Section {
-            Notice(text: "Les PDF restent privés à votre organisation. Leur vérification peut prendre quelques minutes.", symbol: "lock.doc")
+            Notice(text: "PDFs remain private to your organisation. Verification may take a few minutes.", symbol: "lock.doc")
         }
     }
 }
@@ -143,15 +143,15 @@ struct DocumentDetailView: View {
             if let document {
                 Section {
                     DocumentRow(document: document)
-                    LabeledContent("Importé le", value: GuteneoDate.label(document.createdAt, locale: locale))
+                    LabeledContent("Imported on", value: GuteneoDate.label(document.createdAt, locale: locale))
                 }
-                Section("Vérification") {
+                Section("Verification") {
                     if let analysis = document.analysis {
                         Text(LocalizedStringKey(analysis.safeTitle)).font(.headline)
                         Text(LocalizedStringKey(analysis.safeMessage)).foregroundStyle(.secondary)
                     } else { Text(LocalizedStringKey(document.statusTitle)) }
                     if document.canRescan {
-                        Button("Relancer la vérification") {
+                        Button("Retry verification") {
                             Task {
                                 working = true
                                 defer { working = false }
@@ -163,21 +163,21 @@ struct DocumentDetailView: View {
                 }
                 if document.isReady {
                     Section {
-                        Button { reading = true } label: { Label("Lire le PDF original", systemImage: "doc.text.magnifyingglass") }
-                        Button { composing = true } label: { Label("Préparer un fax", systemImage: "printer") }
+                        Button { reading = true } label: { Label("Read original PDF", systemImage: "doc.text.magnifyingglass") }
+                        Button { composing = true } label: { Label("Prepare a fax", systemImage: "printer") }
                             .disabled(model.session?.canPrepare != true)
                     }
                 }
-                Section("Original conservé") {
-                    Text("Le document envoyé correspond au PDF importé. Guteneo ne modifie pas ses pages.")
+                Section("Original preserved") {
+                    Text("The document sent matches the imported PDF. Guteneo does not modify its pages.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    DisclosureGroup("Empreinte du document") {
+                    DisclosureGroup("Document fingerprint") {
                         Text(document.sha256).font(.caption.monospaced()).textSelection(.enabled)
-                            .accessibilityLabel("Empreinte SHA 256 : \(document.sha256)")
+                            .accessibilityLabel("SHA 256 fingerprint: \(document.sha256)")
                     }
                 }
-            } else if error == nil { ProgressView("Ouverture du document…") }
-            Button("Actualiser") { Task { await load() } }.disabled(working)
+            } else if error == nil { ProgressView("Opening document…") }
+            Button("Refresh") { Task { await load() } }.disabled(working)
         }.paperList().navigationTitle("Document").navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("document.detail")
             .task { await load() }
@@ -204,15 +204,15 @@ struct PDFReaderView: View {
             if let data { NativePDF(data: data) }
             else if let error {
                 ContentUnavailableView {
-                    Label("PDF indisponible", systemImage: "doc.badge.ellipsis")
+                    Label("PDF unavailable", systemImage: "doc.badge.ellipsis")
                 } description: { Text(LocalizedStringKey(error)) } actions: {
-                    Button("Réessayer") { Task { await load() } }
+                    Button("Try again") { Task { await load() } }
                 }
-            } else { ProgressView("Ouverture du PDF…") }
+            } else { ProgressView("Opening PDF…") }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).background(Brand.paper)
         .navigationTitle(name).navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Fermer") { dismiss() } } }
+        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Close") { dismiss() } } }
         .task { await load() }
         .onDisappear { data = nil }
     }
@@ -222,7 +222,7 @@ struct PDFReaderView: View {
             let bytes = try await model.documentContent(id: id)
             try Task.checkCancellation()
             guard PDFDocument(data: bytes) != nil else {
-                error = "Ce PDF ne peut pas être lu. Réessayez ou contactez l’assistance."
+                error = "This PDF cannot be read. Try again or contact support."
                 return
             }
             data = bytes
@@ -242,10 +242,10 @@ struct NativePDF: UIViewRepresentable {
         view.backgroundColor = .secondarySystemBackground
         view.document = PDFDocument(data: data)
         view.accessibilityIdentifier = "nativePDF"
-        view.accessibilityLabel = L10n.text("PDF original. Faites défiler pour lire toutes les pages.", locale: locale)
+        view.accessibilityLabel = L10n.text("Original PDF. Scroll to read every page.", locale: locale)
         return view
     }
     func updateUIView(_ view: PDFView, context: Context) {
-        view.accessibilityLabel = L10n.text("PDF original. Faites défiler pour lire toutes les pages.", locale: locale)
+        view.accessibilityLabel = L10n.text("Original PDF. Scroll to read every page.", locale: locale)
     }
 }

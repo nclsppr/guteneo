@@ -1,0 +1,112 @@
+{
+  "sender-setup\u0004Enable postal mail": [
+    "Activer le courrier",
+    "Briefpost aktivieren",
+    "Bréifpost aktivéieren"
+  ],
+  "document-source\u0004Source": [
+    "Source",
+    "Quelle",
+    "Quell"
+  ],
+  "invoice\u0004Cancelled": [
+    "Annulée",
+    "Storniert",
+    "Annuléiert"
+  ],
+  "table-settings\u0004Column {0} title": [
+    "Titre de la colonne {0}",
+    "Titel der Spalte {0}",
+    "Titel vun der Kolonn {0}"
+  ],
+  "distribution\u0004Documents for this destination": [
+    "Documents concernés par la destination",
+    "Dokumente für dieses Ziel",
+    "Dokumenter fir dëst Zil"
+  ],
+  "single-email\u0004Email subject": [
+    "Objet de l’e-mail",
+    "E-Mail-Betreff",
+    "E-Mail-Betreff"
+  ],
+  "account-action\u0004Sign out": [
+    "Me déconnecter",
+    "Abmelden",
+    "Ofmellen"
+  ],
+  "workspace-account\u0004Switch workspace": [
+    "Changer d’atelier",
+    "Arbeitsbereich wechseln",
+    "Atelier wiesselen"
+  ],
+  "access\u0004Available": [
+    "Accessibles",
+    "Zugänglich",
+    "Zougänglech"
+  ],
+  "access\u0004Unavailable": [
+    "Non accessibles",
+    "Nicht zugänglich",
+    "Net zougänglech"
+  ],
+  "postal-preflight\u0004Checking…": [
+    "Contrôle en cours…",
+    "Prüfung läuft…",
+    "Kontroll leeft…"
+  ],
+  "payment\u0004Paid": [
+    "Réglé",
+    "Bezahlt",
+    "Bezuelt"
+  ],
+  "payment\u0004Updated on": [
+    "Actualisé le",
+    "Aktualisiert am",
+    "Aktualiséiert den"
+  ],
+  "action\u0004Open Grok connectors": [
+    "Ouvrir les connecteurs Grok",
+    "Grok-Konnektoren öffnen",
+    "D’Grok-Konnektoren opmaachen"
+  ],
+  "connection\u0004Sign in to Guteneo": [
+    "Connectez-vous à Guteneo",
+    "Bei Guteneo anmelden",
+    "Bei Guteneo aloggen"
+  ],
+  "postal-timeline\u0004Handed to postal service": [
+    "Remise à la poste",
+    "An die Post übergeben",
+    "Un d’Post iwwerreecht"
+  ],
+  "mail-channel\u0004Post": [
+    "Courrier",
+    "Briefpost",
+    "Bréifpost"
+  ],
+  "singular-article\u0004The": [
+    "La",
+    "Die",
+    "Dës"
+  ],
+  "short-status\u0004Coming soon": [
+    "Bientôt",
+    "Demnächst",
+    "Geschwënn"
+  ],
+  "belvedere-plural\u0004Delivered": [
+    "Livrés",
+    "Zugestellt",
+    "Zougestallt"
+  ],
+  "belvedere-plural\u0004Not configured": [
+    "Non configurés",
+    "Nicht konfiguriert",
+    "Net konfiguréiert"
+  ],
+  "generation-state\u0004Cancelled": [
+    "Annulée",
+    "Storniert",
+    "Annuléiert"
+  ]
+}

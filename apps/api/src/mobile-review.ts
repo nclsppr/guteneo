@@ -19,23 +19,23 @@ const escape = (value: unknown) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 const statusLabels: Record<string, string> = {
-  prepared: "À vérifier",
-  queued: "En attente de traitement",
-  submitting: "Transmission en cours",
-  submission_unknown: "Résultat à vérifier : ne renvoyez pas cet envoi",
-  accepted: "Accepté par le fournisseur",
-  delivered: "Livré",
-  failed: "Échec",
-  cancelled: "Annulé",
-  bounced: "Non distribué",
-  complained: "Réclamation reçue",
-  printed: "Imprimé",
-  handed_to_post: "Remis au réseau postal",
+  prepared: "Needs verification",
+  queued: "Awaiting processing",
+  submitting: "Transmission in progress",
+  submission_unknown: "Outcome unconfirmed: do not send this dispatch again",
+  accepted: "Accepted by provider",
+  delivered: "Delivered",
+  failed: "Failed",
+  cancelled: "Cancelled",
+  bounced: "Not delivered",
+  complained: "Complaint received",
+  printed: "Printed",
+  handed_to_post: "Handed to the postal network",
 };
 function html(locale: SupportedLocale, content: string, status = 200) {
   const t = (key: string) => mobileText(key, locale);
   return new Response(
-    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${t("Vérifier l’envoi")} · guteneo</title><style>body{font-family:system-ui,sans-serif;background:#f6f5ef;color:#181b22;max-width:52rem;margin:0 auto;padding:24px;line-height:1.55}header{font-family:Georgia,serif;font-size:2rem;margin:16px 0 36px}h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.2}h1{font-size:2.2rem}h2{margin-top:32px}section{border-top:1px solid #d3d7e1;padding-top:12px}dl{display:grid;grid-template-columns:minmax(7rem,1fr) minmax(0,2fr);gap:8px 16px}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}iframe{width:100%;height:65vh;border:1px solid #d3d7e1;border-radius:8px;background:#fffefa}.message{height:20rem}button,.button{display:inline-block;font:inherit;font-weight:600;border:0;border-radius:12px;background:#2450db;color:white;padding:14px 20px;min-height:48px;cursor:pointer;text-decoration:none}button.secondary{background:transparent;color:#181b22;border:1px solid #181b22}label{display:block;margin:20px 0}input[type=checkbox]{width:22px;height:22px;vertical-align:middle;margin-right:8px}.notice{padding:16px;border:1px solid #aa6842;border-radius:12px;background:#fff7ea}a{color:inherit;text-underline-offset:3px}code{overflow-wrap:anywhere;font-size:.8rem}footer{margin:36px 0;color:#5d6678}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b36d49;outline-offset:4px}@media(max-width:480px){body{padding:20px}dl{grid-template-columns:1fr;gap:3px}dd{margin-bottom:10px}}</style></head><body><header aria-label="Guteneo">guteneo</header><main>${content}</main><footer>${t("Cette page sert uniquement à vérifier cet envoi. Fermez-la pour revenir à l’application.")}</footer></body></html>`,
+    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${t("Review dispatch")} · guteneo</title><style>body{font-family:system-ui,sans-serif;background:#f6f5ef;color:#181b22;max-width:52rem;margin:0 auto;padding:24px;line-height:1.55}header{font-family:Georgia,serif;font-size:2rem;margin:16px 0 36px}h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.2}h1{font-size:2.2rem}h2{margin-top:32px}section{border-top:1px solid #d3d7e1;padding-top:12px}dl{display:grid;grid-template-columns:minmax(7rem,1fr) minmax(0,2fr);gap:8px 16px}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}iframe{width:100%;height:65vh;border:1px solid #d3d7e1;border-radius:8px;background:#fffefa}.message{height:20rem}button,.button{display:inline-block;font:inherit;font-weight:600;border:0;border-radius:12px;background:#2450db;color:white;padding:14px 20px;min-height:48px;cursor:pointer;text-decoration:none}button.secondary{background:transparent;color:#181b22;border:1px solid #181b22}label{display:block;margin:20px 0}input[type=checkbox]{width:22px;height:22px;vertical-align:middle;margin-right:8px}.notice{padding:16px;border:1px solid #aa6842;border-radius:12px;background:#fff7ea}a{color:inherit;text-underline-offset:3px}code{overflow-wrap:anywhere;font-size:.8rem}footer{margin:36px 0;color:#5d6678}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b36d49;outline-offset:4px}@media(max-width:480px){body{padding:20px}dl{grid-template-columns:1fr;gap:3px}dd{margin-bottom:10px}}</style></head><body><header aria-label="Guteneo">guteneo</header><main>${content}</main><footer>${t("This page is only for reviewing this dispatch. Close it to return to the app.")}</footer></body></html>`,
     {
       status,
       headers: {
@@ -72,18 +72,18 @@ function safeFailure(error: unknown): string {
       "CHANNEL_DISABLED",
     ].includes(code)
   )
-    return "Cet envoi ne peut pas être confirmé actuellement. Aucun nouvel envoi n’a été déclenché. Vous pouvez conserver votre préparation et contacter l’assistance si nécessaire.";
+    return "This dispatch cannot be confirmed right now. No new dispatch was triggered. You can keep your preparation and contact support if needed.";
   if (["LIVE_QUOTE_INVALID", "QUOTE_EXPIRED"].includes(code))
-    return "Le devis n’est plus valable. Actualisez cette page pour consulter les possibilités de renouvellement, puis vérifiez la nouvelle proposition.";
+    return "The quote is no longer valid. Refresh this page to check renewal options, then review the new quote.";
   if (code === "FINGERPRINT_MISMATCH")
-    return "La version affichée a changé. Actualisez cette page et relisez l’envoi avant de continuer.";
+    return "The displayed version has changed. Refresh this page and review the dispatch before continuing.";
   if (["CSRF_REJECTED", "ORIGIN_REJECTED"].includes(code))
-    return "La confirmation de sécurité n’est plus valide. Actualisez la page avant de continuer.";
+    return "The security confirmation is no longer valid. Refresh the page before continuing.";
   if (code === "RECIPIENT_REQUEST_REQUIRED")
-    return "Confirmez que le destinataire a demandé cet e-mail avant de l’approuver.";
+    return "Confirm that the recipient requested this email before approving it.";
   if (code === "FAX_REVIEW_PREPARATION_ONLY")
-    return "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.";
-  return "L’opération n’a pas pu être confirmée. Actualisez le suivi avant de recommencer ; ne préparez pas un nouvel envoi pour remplacer un résultat incertain.";
+    return "This quote is for viewing only. It cannot be approved or sent. No amount is reserved or charged.";
+  return "The operation could not be confirmed. Refresh tracking before trying again; do not prepare a new dispatch to replace an uncertain outcome.";
 }
 
 /** Separate browser-only human review. A native credential never enters here. */
@@ -107,10 +107,10 @@ export async function handleMobileReview(
   if (url.origin !== env.APP_ORIGIN)
     return redirect(new URL(url.pathname + url.search, env.APP_ORIGIN).href);
   if (!["GET", "POST"].includes(request.method))
-    return render(`<h1>${t("Opération indisponible")}</h1>`, 405);
+    return render(`<h1>${t("Operation unavailable")}</h1>`, 405);
   if (request.headers.has("Authorization"))
     return render(
-      `<h1>${t("Connexion navigateur requise")}</h1><p>${t("Utilisez la connexion sécurisée dans votre navigateur pour vérifier cet envoi.")}</p>`,
+      `<h1>${t("Browser sign-in required")}</h1><p>${t("Use secure sign-in in your browser to review this dispatch.")}</p>`,
       403,
     );
   const login = new URL("/auth/login", env.APP_ORIGIN);
@@ -137,7 +137,7 @@ export async function handleMobileReview(
     )
       return redirect(login.href);
     return render(
-      `<h1>${t("Reconnectez-vous pour continuer")}</h1><p>${t("Votre session ou sa confirmation de sécurité n’est plus valide. L’opération n’a pas été effectuée.")}</p><a class="button" href="${escape(login.href)}">${t("Connexion sécurisée")}</a>`,
+      `<h1>${t("Sign in again to continue")}</h1><p>${t("Your session or its security confirmation is no longer valid. The operation was not performed.")}</p><a class="button" href="${escape(login.href)}">${t("Secure sign-in")}</a>`,
       403,
     );
   }
@@ -154,7 +154,7 @@ export async function handleMobileReview(
     detail = await domain.getDispatch(session.context, id);
   } catch {
     return render(
-      `<h1>${t("Envoi indisponible")}</h1><p>${t("Vous ne pouvez pas consulter cet envoi depuis cet espace.")}</p>`,
+      `<h1>${t("Dispatch unavailable")}</h1><p>${t("You cannot view this dispatch from this workspace.")}</p>`,
       404,
     );
   }
@@ -239,30 +239,30 @@ export async function handleMobileReview(
   const recipient = JSON.parse(d.recipient_json) as Record<string, unknown>;
   const options = JSON.parse(d.options_json) as Record<string, unknown>;
   const optionNames: Record<string, string> = {
-    printMode: "Impression",
-    printSpectrum: "Couleur",
-    deliveryProduct: "Acheminement",
-    addressPosition: "Position de l’adresse",
-    kind: "Type de message",
-    paper: "Papier",
-    paperType: "Papier",
-    paperTypes: "Papier",
+    printMode: "Printing",
+    printSpectrum: "Colour",
+    deliveryProduct: "Delivery service",
+    addressPosition: "Address position",
+    kind: "Message type",
+    paper: "Paper",
+    paperType: "Paper",
+    paperTypes: "Paper",
   };
   const optionValues: Record<string, string> = {
-    simplex: "Recto",
-    duplex: "Recto verso",
-    grayscale: "Noir et blanc",
-    color: "Couleur",
-    cheap: "Économique",
-    fast: "Rapide",
-    left: "À gauche",
-    right: "À droite",
-    transactional: "Transactionnel",
+    simplex: "Single-sided",
+    duplex: "Double-sided",
+    grayscale: "Black and white",
+    color: "Colour",
+    cheap: "Economy",
+    fast: "Fast",
+    left: "Left",
+    right: "Right",
+    transactional: "Transactional",
     normal: "Standard",
   };
   const describe = (value: unknown): string => {
-    if (typeof value === "boolean") return t(value ? "Oui" : "Non");
-    if (value === null) return t("Non défini");
+    if (typeof value === "boolean") return t(value ? "Yes" : "No");
+    if (value === null) return t("Not set");
     if (Array.isArray(value)) return value.map(describe).join(", ");
     if (typeof value === "object")
       return Object.entries(value as Record<string, unknown>)
@@ -283,14 +283,14 @@ export async function handleMobileReview(
     )
     .join("");
   const estimate = d.faxPricing
-    ? t("{low} à {high}")
+    ? t("{low} to {high}")
         .replace("{low}", nanoMoney(d.faxPricing.estimatedLowNanoeur))
         .replace("{high}", nanoMoney(d.faxPricing.estimatedHighNanoeur))
     : d.quote_customer_nanoeur != null
       ? nanoMoney(d.quote_customer_nanoeur)
       : money(d.estimated_minor);
   const emailPreview = d.html
-    ? `<iframe class="message" title="${t("Contenu final de l’e-mail")}" sandbox srcdoc="${escape(`<!doctype html><meta charset=utf-8><meta http-equiv=Content-Security-Policy content="default-src 'none'"><body>${d.html}</body>`)}"></iframe>`
+    ? `<iframe class="message" title="${t("Final email content")}" sandbox srcdoc="${escape(`<!doctype html><meta charset=utf-8><meta http-equiv=Content-Security-Policy content="default-src 'none'"><body>${d.html}</body>`)}"></iframe>`
     : `<pre>${escape(d.text)}</pre>`;
   const permissions = workspacePermissions(session.context.role, {
     canApprove: session.context.supervisorCanApprove,
@@ -309,15 +309,15 @@ export async function handleMobileReview(
     expired &&
     detail.attempts.length === 0;
   return render(
-    `<h1>${t("Vérifier l’envoi")}</h1><p>${escape(t(statusLabels[d.status] ?? "Suivi en cours"))}</p>${d.mode === "simulation" ? `<p class="notice">${t("Simulation : aucune communication réelle.")}</p>` : ""}${notice ? `<p class="notice" role="alert">${escape(notice)}</p>` : ""}
-    <section><h2>${t("Destinataire et coût")}</h2><dl><dt>${t("Canal")}</dt><dd>${escape(t({ fax: "Fax", email: "E-mail", postal: "Courrier postal" }[d.channel]))}</dd><dt>${t("Destinataire")}</dt><dd>${Object.values(recipient).map(escape).join("<br>")}</dd><dt>${t("Expéditeur")}</dt><dd>${escape(d.sender_address)}</dd>${d.subject ? `<dt>${t("Objet")}</dt><dd>${escape(d.subject)}</dd>` : ""}<dt>${t("Estimation")}${d.mode === "production" ? t(" HT") : ""}</dt><dd>${escape(estimate)}</dd><dt>${t("Plafond ferme")}${d.mode === "production" ? t(" HT") : ""}</dt><dd>${escape(money(d.ceiling_minor))}</dd>${d.quote_expires_at ? `<dt>${t("Devis valable jusqu’au")}</dt><dd>${escape(date(d.quote_expires_at))}</dd>` : ""}${optionDetails}</dl>
-    ${reviewPreparationOnly ? `<p class="notice">${t("Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun montant n’est réservé ou débité. La capacité Local Calling reste non confirmée.")}</p>` : d.faxPricing ? `<p>${t("Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.")}</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? `<p class="notice">${t("Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.")}</p>` : ""}` : ""}
-    ${!reviewPreparationOnly && d.quote_customer_nanoeur != null ? `<p>${t("Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.")}</p>` : ""}</section>
-    <section><h2>${t("Contenu exact")}</h2>${doc ? `<p>${escape(doc.name)} · ${doc.pages} ${t(doc.pages > 1 ? "pages" : "page")}</p>${documentReady ? `<iframe title="${t("PDF original exact")}" src="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}"></iframe><p><a href="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}" target="_blank" rel="noopener">${t("Ouvrir le PDF original")}</a></p>` : `<p class="notice">${t("Le PDF doit terminer sa vérification avant approbation.")}</p>`}<p>${t("Empreinte SHA-256")} : <code>${escape(doc.sha256)}</code></p>` : ""}${d.channel === "email" ? emailPreview : ""}</section>
-    ${expired ? `<p class="notice">${t("Le devis a expiré.")} ${t(canRenew ? "Renouvelez-le ci-dessous, puis vérifiez sa nouvelle version." : "Cet envoi ne peut pas être confirmé avec ce devis.")}</p>` : ""}${canRenew ? `<form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="renew"><button type="submit">${t("Renouveler le devis")}</button></form>` : ""}
-    ${canAct && !approved ? `<section><h2>${t("Votre validation")}</h2><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="approve"><label><input type="checkbox" name="reviewed" value="yes" required>${escape(t("J’ai vérifié le contenu exact, le destinataire et les options. J’accepte le coût dans la limite de {amount} pour cette version.").replace("{amount}", money(d.ceiling_minor) + (d.mode === "production" ? t(" HT") : "")))}</label>${d.channel === "email" && d.mode === "production" ? `<label><input type="checkbox" name="recipientRequested" value="yes" required>${t("Ce destinataire a demandé cet e-mail et son contenu.")}</label>` : ""}<button type="submit">${t("Valider cette version")}</button></form></section>` : ""}
-    ${canAct && approved ? `<section><h2>${t("Version validée")}</h2><p>${t("La validation est enregistrée. Confirmez maintenant l’expédition de cette version au destinataire affiché.")}</p><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="confirm"><label><input type="checkbox" name="sendConfirmed" value="yes" required>${t(d.mode === "production" ? "Je confirme l’envoi réel de cette version." : "Je confirme la simulation de cette version.")}</label><button type="submit">${t(d.mode === "production" ? "Confirmer l’envoi" : "Lancer la simulation")}</button></form></section>` : ""}
-    ${["prepared", "queued"].includes(d.status) && permissions.approveDispatches ? `<form method="post" action="${escape(reviewPath)}"><p>${fields}<input type="hidden" name="action" value="cancel"><button class="secondary" type="submit">${t("Annuler cet envoi")}</button></p></form>` : ""}<p><a href="${escape(reviewPath)}">${t("Actualiser le suivi")}</a></p>`,
+    `<h1>${t("Review dispatch")}</h1><p>${escape(t(statusLabels[d.status] ?? "Tracking in progress"))}</p>${d.mode === "simulation" ? `<p class="notice">${t("Simulation: no real communication.")}</p>` : ""}${notice ? `<p class="notice" role="alert">${escape(notice)}</p>` : ""}
+    <section><h2>${t("Recipient and cost")}</h2><dl><dt>${t("Channel")}</dt><dd>${escape(t({ fax: "Fax", email: "Email", postal: "Postal letter" }[d.channel]))}</dd><dt>${t("Recipient")}</dt><dd>${Object.values(recipient).map(escape).join("<br>")}</dd><dt>${t("Sender")}</dt><dd>${escape(d.sender_address)}</dd>${d.subject ? `<dt>${t("Subject")}</dt><dd>${escape(d.subject)}</dd>` : ""}<dt>${t("Estimate")}${d.mode === "production" ? t(" excl. tax") : ""}</dt><dd>${escape(estimate)}</dd><dt>${t("Firm limit")}${d.mode === "production" ? t(" excl. tax") : ""}</dt><dd>${escape(money(d.ceiling_minor))}</dd>${d.quote_expires_at ? `<dt>${t("Quote valid until")}</dt><dd>${escape(date(d.quote_expires_at))}</dd>` : ""}${optionDetails}</dl>
+    ${reviewPreparationOnly ? `<p class="notice">${t("For review preparation only. This reference range excluding tax uses real rates and duration assumptions; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No amount is reserved or charged. Local Calling capability remains unconfirmed.")}</p>` : d.faxPricing ? `<p>${t("The cost of this entire fax depends on transmission duration. The limit is reserved when you confirm. The final cost is determined after usage verification and cannot exceed the limit. Fractions of a cent are accumulated across dispatches.")}</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? `<p class="notice">${t("Luxembourg test authorised by the operator. Local Calling capability is unconfirmed; the provider may reject transmission.")}</p>` : ""}` : ""}
+    ${!reviewPreparationOnly && d.quote_customer_nanoeur != null ? `<p>${t("Fractions of a cent are accumulated across dispatches before rounding. The limit remains reserved until the outcome is known.")}</p>` : ""}</section>
+    <section><h2>${t("Exact content")}</h2>${doc ? `<p>${escape(doc.name)} · ${doc.pages} ${t(doc.pages > 1 ? "pages" : "page")}</p>${documentReady ? `<iframe title="${t("Exact original PDF")}" src="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}"></iframe><p><a href="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}" target="_blank" rel="noopener">${t("Open original PDF")}</a></p>` : `<p class="notice">${t("PDF verification must finish before approval.")}</p>`}<p>${t("SHA-256 fingerprint")} : <code>${escape(doc.sha256)}</code></p>` : ""}${d.channel === "email" ? emailPreview : ""}</section>
+    ${expired ? `<p class="notice">${t("The quote has expired.")} ${t(canRenew ? "Renew it below, then review the new version." : "This dispatch cannot be confirmed using this quote.")}</p>` : ""}${canRenew ? `<form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="renew"><button type="submit">${t("Renew quote")}</button></form>` : ""}
+    ${canAct && !approved ? `<section><h2>${t("Your approval")}</h2><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="approve"><label><input type="checkbox" name="reviewed" value="yes" required>${escape(t("I have reviewed the exact content, recipient and options. I accept the cost up to {amount} for this version.").replace("{amount}", money(d.ceiling_minor) + (d.mode === "production" ? t(" excl. tax") : "")))}</label>${d.channel === "email" && d.mode === "production" ? `<label><input type="checkbox" name="recipientRequested" value="yes" required>${t("This recipient requested this email and its content.")}</label>` : ""}<button type="submit">${t("Approve this version")}</button></form></section>` : ""}
+    ${canAct && approved ? `<section><h2>${t("Version approved")}</h2><p>${t("Your approval is recorded. Now confirm sending this version to the displayed recipient.")}</p><form method="post" action="${escape(reviewPath)}">${fields}<input type="hidden" name="action" value="confirm"><label><input type="checkbox" name="sendConfirmed" value="yes" required>${t(d.mode === "production" ? "I confirm the real sending of this version." : "I confirm the simulation of this version.")}</label><button type="submit">${t(d.mode === "production" ? "Confirm sending" : "Run simulation")}</button></form></section>` : ""}
+    ${["prepared", "queued"].includes(d.status) && permissions.approveDispatches ? `<form method="post" action="${escape(reviewPath)}"><p>${fields}<input type="hidden" name="action" value="cancel"><button class="secondary" type="submit">${t("Cancel this dispatch")}</button></p></form>` : ""}<p><a href="${escape(reviewPath)}">${t("Refresh tracking")}</a></p>`,
     responseStatus,
   );
 }

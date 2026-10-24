@@ -45,15 +45,15 @@ export async function loadUploadConfig(
   if (!configuredRoot || !path.isAbsolute(configuredRoot))
     fail(
       "ROOT_REQUIRED",
-      "GUTENEO_PROJECT_ROOT doit désigner un dossier de projet absolu.",
+      "GUTENEO_PROJECT_ROOT must identify an absolute project directory.",
     );
   let projectRoot: string;
   try {
     projectRoot = await realpath(configuredRoot);
     if (!(await stat(projectRoot)).isDirectory())
-      fail("ROOT_INVALID", "Le dossier de projet est invalide.");
+      fail("ROOT_INVALID", "The project directory is invalid.");
   } catch {
-    fail("ROOT_INVALID", "Le dossier de projet est inaccessible.");
+    fail("ROOT_INVALID", "The project directory is inaccessible.");
   }
   if (
     projectRoot === path.parse(projectRoot).root ||
@@ -61,14 +61,14 @@ export async function loadUploadConfig(
   ) {
     fail(
       "ROOT_TOO_BROAD",
-      "Choisissez un dossier de projet, pas la racine du disque ni votre dossier personnel.",
+      "Choose a project directory, not the disk root or your home directory.",
     );
   }
   let url: URL;
   try {
     url = new URL(env.GUTENEO_URL ?? "");
   } catch {
-    fail("URL_INVALID", "GUTENEO_URL doit être une origine HTTPS explicite.");
+    fail("URL_INVALID", "GUTENEO_URL must be an explicit HTTPS origin.");
   }
   const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (
@@ -81,14 +81,14 @@ export async function loadUploadConfig(
   ) {
     fail(
       "URL_INVALID",
-      "Utilisez une origine HTTPS sans identifiants ni chemin ; HTTP est limité à localhost.",
+      "Use an HTTPS origin without credentials or a path; HTTP is restricted to localhost.",
     );
   }
   const accessToken = env.GUTENEO_ACCESS_TOKEN ?? "";
   if (!accessToken || accessToken.length > 16384 || /\s/.test(accessToken))
     fail(
       "TOKEN_REQUIRED",
-      "GUTENEO_ACCESS_TOKEN est requis et doit être un jeton valide.",
+      "GUTENEO_ACCESS_TOKEN is required and must be a valid token.",
     );
   return { projectRoot, origin: url.origin, accessToken };
 }
@@ -104,7 +104,7 @@ async function checkedPath(root: string, input: string): Promise<string> {
   ) {
     fail(
       "PATH_DENIED",
-      "Le PDF doit être un chemin relatif au projet autorisé.",
+      "The PDF path must be relative to the authorised project.",
     );
   }
   const parts = input.split("/");
@@ -113,32 +113,32 @@ async function checkedPath(root: string, input: string): Promise<string> {
       (part) => !part || part === "." || part === ".." || part.includes(":"),
     )
   )
-    fail("PATH_DENIED", "Le chemin contient un segment interdit.");
+    fail("PATH_DENIED", "The path contains a forbidden segment.");
   const target = path.resolve(root, ...parts);
   if (!inside(root, target))
-    fail("PATH_DENIED", "Le fichier est hors du projet autorisé.");
+    fail("PATH_DENIED", "The file is outside the authorised project.");
   let current = root;
   try {
     if ((await realpath(root)) !== root)
       fail(
         "PATH_CHANGED",
-        "Le dossier de projet a changé ; redémarrez la connexion.",
+        "The project directory changed; restart the connection.",
       );
     for (let index = 0; index < parts.length; index++) {
       current = path.join(current, parts[index]);
       const entry = await lstat(current);
       if (entry.isSymbolicLink())
-        fail("SYMLINK_DENIED", "Les liens symboliques ne sont pas autorisés.");
+        fail("SYMLINK_DENIED", "Symbolic links are not allowed.");
       if (index < parts.length - 1 && !entry.isDirectory())
-        fail("PATH_DENIED", "Le chemin ne désigne pas un fichier du projet.");
+        fail("PATH_DENIED", "The path does not identify a project file.");
     }
     if ((await realpath(target)) !== target)
-      fail("SYMLINK_DENIED", "Les liens symboliques ne sont pas autorisés.");
+      fail("SYMLINK_DENIED", "Symbolic links are not allowed.");
   } catch (error) {
     if (error instanceof UploadError) throw error;
     fail(
       "FILE_UNAVAILABLE",
-      "Le fichier est inaccessible dans le projet autorisé.",
+      "The file is inaccessible within the authorised project.",
     );
   }
   return target;
@@ -161,15 +161,15 @@ export async function readProjectPdf(
     if (!before.isFile() || before.nlink !== 1n)
       fail(
         "FILE_TYPE_DENIED",
-        "Un fichier ordinaire sans lien physique est requis.",
+        "A regular file without hard links is required.",
       );
     if (before.size < 5n || before.size > BigInt(MAX_PDF_BYTES))
-      fail("PDF_SIZE", "Le PDF doit contenir au maximum 10 Mio.");
+      fail("PDF_SIZE", "The PDF must contain at most 10 MiB.");
     // On Linux, inspect the opened descriptor as well as the path to resist parent-directory swaps.
     if (process.platform === "linux") {
       const openedPath = await realpath(`/proc/self/fd/${handle.fd}`);
       if (openedPath !== target || !inside(root, openedPath))
-        fail("PATH_CHANGED", "Le fichier a changé pendant son ouverture.");
+        fail("PATH_CHANGED", "The file changed while being opened.");
     }
     const bytes = new Uint8Array(Number(before.size));
     let offset = 0;
@@ -183,7 +183,7 @@ export async function readProjectPdf(
       if (!bytesRead)
         fail(
           "FILE_CHANGED",
-          "Le fichier a changé pendant sa lecture. Réessayez une fois sa génération terminée.",
+          "The file changed during reading. Retry after generation finishes.",
         );
       offset += bytesRead;
     }
@@ -201,14 +201,11 @@ export async function readProjectPdf(
     ) {
       fail(
         "FILE_CHANGED",
-        "Le fichier a changé pendant sa lecture. Réessayez une fois sa génération terminée.",
+        "The file changed during reading. Retry after generation finishes.",
       );
     }
     if (new TextDecoder().decode(bytes.subarray(0, 5)) !== "%PDF-")
-      fail(
-        "NOT_PDF",
-        "Le contenu du fichier ne commence pas par une signature PDF.",
-      );
+      fail("NOT_PDF", "File content does not start with a PDF signature.");
     return {
       bytes,
       name: path.basename(target),
@@ -218,7 +215,7 @@ export async function readProjectPdf(
     if (error instanceof UploadError) throw error;
     return fail(
       "FILE_UNAVAILABLE",
-      "Le PDF est inaccessible ou a changé pendant la lecture.",
+      "The PDF is inaccessible or changed during reading.",
     );
   } finally {
     await handle?.close();
@@ -272,7 +269,7 @@ export class CursorUploader {
     } catch {
       fail(
         "UPLOAD_UNCONFIRMED",
-        "La réponse d’import n’a pas été reçue. Vérifiez les documents Guteneo avant de relancer.",
+        "The import response was not received. Check Guteneo documents before retrying.",
       );
     }
     if (!response.ok) {
@@ -280,18 +277,18 @@ export class CursorUploader {
       if (response.status === 401 || response.status === 403)
         fail(
           "AUTH_REQUIRED",
-          "Reconnectez votre compte avec le scope documents:write.",
+          "Reconnect your account with the documents:write scope.",
         );
       fail(
         "UPLOAD_REJECTED",
-        `Guteneo a refusé l’import (HTTP ${response.status}). Consultez le tableau de bord.`,
+        `Guteneo refused the import (HTTP ${response.status}). Check the dashboard.`,
       );
     }
     const reader = response.body?.getReader();
     if (!reader)
       fail(
         "RESPONSE_INVALID",
-        "Guteneo n’a pas renvoyé de référence documentaire vérifiable.",
+        "Guteneo returned no verifiable document reference.",
       );
     const chunks: Uint8Array[] = [];
     let length = 0;
@@ -303,7 +300,7 @@ export class CursorUploader {
         if (length > MAX_RESPONSE_BYTES)
           fail(
             "RESPONSE_INVALID",
-            "La réponse d’import dépasse la taille autorisée.",
+            "The import response exceeds the allowed size.",
           );
         chunks.push(result.value);
       }
@@ -320,18 +317,18 @@ export class CursorUploader {
     try {
       parsed = JSON.parse(new TextDecoder().decode(joined));
     } catch {
-      fail("RESPONSE_INVALID", "La réponse d’import est invalide.");
+      fail("RESPONSE_INVALID", "The import response is invalid.");
     }
     const result = documentResponse.safeParse(parsed);
     if (!result.success)
       fail(
         "RESPONSE_INVALID",
-        "Guteneo n’a pas renvoyé de référence documentaire vérifiable.",
+        "Guteneo returned no verifiable document reference.",
       );
     if (result.data.sha256 !== sha256 || result.data.size !== bytes.length)
       fail(
         "INTEGRITY_MISMATCH",
-        "L’empreinte ou la taille du document importé ne correspond pas au PDF local.",
+        "The imported document’s hash or size does not match the local PDF.",
       );
     return {
       document_id: result.data.id,
@@ -351,9 +348,9 @@ export function createCursorServer(uploader: CursorUploader): McpServer {
   server.registerTool(
     "upload_local_pdf",
     {
-      title: "Importer un PDF exact depuis ce projet",
+      title: "Import an exact PDF from this project",
       description:
-        "Transfère les octets du PDF local vers Guteneo, sans le reconstruire. Le chemin est relatif au seul projet autorisé. Retourne une référence durable, une empreinte et le statut de quarantaine. Cet outil ne prépare, ne confirme et n’expédie aucun envoi.",
+        "Transfer exact local PDF bytes to Guteneo without reconstruction. The path is relative to the single authorised project. Return a durable reference, hash and quarantine status. This tool prepares, confirms and sends no dispatch.",
       inputSchema: z
         .object({
           path: z
@@ -361,7 +358,7 @@ export function createCursorServer(uploader: CursorUploader): McpServer {
             .min(1)
             .max(2048)
             .describe(
-              "Chemin relatif au projet, par exemple documents/lettre.pdf ; aucun lien symbolique.",
+              "Project-relative path, for example documents/letter.pdf; no symbolic links.",
             ),
         })
         .strict(),
@@ -394,7 +391,7 @@ export function createCursorServer(uploader: CursorUploader): McpServer {
             ? error
             : new UploadError(
                 "UPLOAD_FAILED",
-                "L’import a échoué. Aucun envoi n’a été préparé.",
+                "Import failed. No dispatch was prepared.",
               );
         return {
           isError: true,
@@ -428,7 +425,7 @@ if (
     .catch((error) => {
       const code = error instanceof UploadError ? error.code : "STARTUP_FAILED";
       process.stderr.write(
-        `Guteneo: configuration refusée (${code}). Consultez docs/CURSOR.md.\n`,
+        `Guteneo: configuration refused (${code}). See docs/CURSOR.md.\n`,
       );
       process.exitCode = 1;
     });

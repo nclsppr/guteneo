@@ -47,7 +47,7 @@ const cases: {
 }[] = [1, 30, 200].map((count) => {
   const envelope = invoiceTemplate();
   const items = Array.from({ length: count }, (_, i) => ({
-    description: `LIGNE-${String(i + 1).padStart(3, "0")} — préparation, étude française ; Ä Ö Ü ß €`,
+    description: `LIGNE-${String(i + 1).padStart(3, "0")} — preparation, French glyph sample ; Ä Ö Ü ß €`,
     quantity: (i % 3) + 1,
     unitPriceMinor: 1250,
   }));
@@ -62,7 +62,7 @@ const letter = letterTemplate();
 const paragraphs = Array.from(
   { length: 45 },
   (_, i) =>
-    `PARAGRAPHE-${String(i + 1).padStart(3, "0")} : La préparation d’un courrier exige une pagination complète et lisible. Accents français : é è ê ç œ. Allemand : Ä Ö Ü ß. Montant : 125,00 €. ${"Ce texte vérifie les retours à la ligne et la conservation de chaque paragraphe. ".repeat(3)}`,
+    `PARAGRAPHE-${String(i + 1).padStart(3, "0")} : Preparing a letter requires complete, readable pagination. French accents: é è ê ç œ. German: Ä Ö Ü ß. Amount: 125,00 €. ${"This text checks line wrapping and preservation of every paragraph. ".repeat(3)}`,
 );
 cases.push({
   name: "letter-long",

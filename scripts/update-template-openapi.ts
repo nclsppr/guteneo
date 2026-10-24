@@ -63,9 +63,9 @@ jsonSchema("DatasetAnalyze", datasetAnalyzeSchema);
 jsonSchema("GenerationInput", generationInputSchema);
 jsonSchema("DistributionInput", distributionInputSchema);
 schemas.GenerationInput.description =
-  "Données records OU datasetId + mappingId + mappingVersion, exclusivement. Version du modèle figée au lancement, generate_only sans envoi. Clé d’idempotence liée à l’organisation.";
+  "Supply records OR datasetId + mappingId + mappingVersion exclusively. The template version freezes on launch; generate_only sends nothing. Idempotency key is organization scoped.";
 schemas.DistributionInput.description =
-  "Chaque entrée choisit recipient, recipientFields OU recipientFieldsByChannel exclusivement. Le canal est explicite OU résolu par channelField dans les données figées (fax/email/postal uniquement). Les chemins recipientFields sont résolus dans les données figées du record. Multicanal uniquement avec explicitMultichannel:true ; aucune fusion implicite.";
+  "Every entry selects recipient, recipientFields OR recipientFieldsByChannel exclusively. Channel is explicit OR resolved through channelField in frozen data (fax/email/postal only). recipientFields paths resolve against the record's frozen data. Multiple channels require explicitMultichannel:true; no implicit merge.";
 schemas.TemplateView = object({
   id: str,
   name: str,
@@ -242,7 +242,7 @@ schemas.TemplateUpdate = object(
   ["expectedRevision"],
 );
 schemas.TemplateUpdate.description =
-  "Fournir envelope OU patch. expectedRevision protège contre les modifications concurrentes. Toute modification ouvre un brouillon sans modifier les versions publiées.";
+  "Supply envelope OR patch. expectedRevision protects concurrent changes. Every modification opens a draft without changing published versions.";
 schemas.MappingCreate = object(
   {
     datasetId: str,
@@ -253,7 +253,7 @@ schemas.MappingCreate = object(
   ["datasetId", "plan"],
 );
 schemas.MappingCreate.description =
-  "Sans mappingId, crée une correspondance privée. Avec mappingId et expectedVersion, crée une nouvelle version immuable.";
+  "Without mappingId, creates a private mapping. With mappingId and expectedVersion, creates a new immutable version.";
 schemas.DatasetIssue = object(
   {
     code: str,
@@ -313,7 +313,7 @@ schemas.DatasetAnalysis = object(
   ["provider", "status", "mapping", "ambiguities", "usage", "validation"],
 );
 schemas.DatasetAnalysis.description =
-  "Proposition privée à revoir. schemaSuggestion n’est présent que pour proposeSchema:true : schéma métier et enveloppe pdfme à exemples synthétiques, sans création implicite. La validation des données garde au plus trois exemples privés. Un appel IA et le budget existant sont utilisés.";
+  "Private proposal requiring review. schemaSuggestion appears only with proposeSchema:true: business schema and pdfme envelope with synthetic examples, without implicit creation. Data validation retains at most three private examples. Uses one AI call and the existing budget.";
 schemas.DistributionView = object({
   pendingCount: integer,
   errorCount: integer,
@@ -386,30 +386,30 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/templates/authoring-guide",
     id: "getTemplateAuthoringGuide",
-    summary: "Lire le schéma et les règles de création des modèles",
+    summary: "Read the template schema and authoring rules",
     output: ref("TemplateAuthoringGuide"),
     description:
-      "Guide authentifié en lecture seule, dérivé des contrats actuels. Fournit règles sémantiques, enveloppe minimale et parcours de création sans appel IA ni génération.",
+      "Authenticated read-only guide derived from current contracts. Provides semantic rules, a minimal envelope and the authoring journey without AI calls or generation.",
   },
   {
     method: "get",
     path: "/api/templates/examples",
     id: "listTemplateExamples",
-    summary: "Lister les exemples synthétiques de modèles",
+    summary: "List synthetic template examples",
     output: { type: "array", items: ref("TemplateExampleMetadata") },
   },
   {
     method: "get",
     path: "/api/templates/examples/{exampleId}",
     id: "getTemplateExample",
-    summary: "Lire une enveloppe synthétique complète à adapter",
+    summary: "Read a complete synthetic envelope to adapt",
     output: object({ id: str, envelope: ref("TemplateEnvelope") }),
   },
   {
     method: "get",
     path: "/api/templates",
     id: "listTemplates",
-    summary: "Lister les modèles accessibles",
+    summary: "List accessible templates",
     output: ref("TemplateViewPage"),
     page: true,
   },
@@ -417,9 +417,9 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates",
     id: "createTemplate",
-    summary: "Créer un modèle rééditable",
+    summary: "Create an editable template",
     description:
-      "Consulter authoring-guide pour le schéma et les règles, ou examples pour adapter une enveloppe fictive. La création enregistre un brouillon privé, sans génération ni envoi implicite.",
+      "Read authoring-guide for the schema and rules, or examples to adapt a fictional envelope. Creation saves a private draft without implicit generation or sending.",
     input: object({ envelope: ref("TemplateEnvelope") }),
     output: ref("TemplateView"),
     status: 201,
@@ -428,7 +428,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/import-docx",
     id: "importTemplateDocx",
-    summary: "Importer Word en blocs rééditables",
+    summary: "Import Word into editable blocks",
     input: object({ file: { type: "string", format: "binary" } }),
     output: object({
       template: ref("TemplateView"),
@@ -438,30 +438,30 @@ const operations: Operation[] = [
     multipart: true,
     status: 201,
     description:
-      "DOCX seulement, 5 Mio. Extraction éditable sans fidélité de mise en page Word ; consulter les avertissements. Original privé, conservé 30 jours.",
+      "DOCX only, 5 MiB. Editable extraction without Word layout fidelity; read the warnings. The private original is retained for 30 days.",
   },
   {
     method: "get",
     path: "/api/templates/{id}",
     id: "getTemplate",
-    summary: "Lire un modèle et ses droits",
+    summary: "Read a template and its permissions",
     output: ref("TemplateView"),
   },
   {
     method: "delete",
     path: "/api/templates/{id}",
     id: "deleteTemplate",
-    summary: "Supprimer un modèle du studio en conservant son historique",
+    summary: "Delete a studio template while retaining its history",
     input: revision,
     output: object({ id: str, deleted: { type: "boolean", enum: [true] } }),
     description:
-      "Réservé au propriétaire non lecteur. expectedRevision protège contre les modifications concurrentes. Le modèle supprimé n’est plus accessible ni réutilisable ; les versions, lots et PDF historiques sont conservés.",
+      "Restricted to the owner with a role other than viewer. expectedRevision protects concurrent changes. A deleted template is inaccessible and cannot be reused; historical versions, batches and PDFs are retained.",
   },
   {
     method: "patch",
     path: "/api/templates/{id}",
     id: "updateTemplate",
-    summary: "Modifier le brouillon ou appliquer un changement sémantique",
+    summary: "Edit the draft or apply a semantic change",
     input: ref("TemplateUpdate"),
     output: ref("TemplateView"),
   },
@@ -469,7 +469,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/publish",
     id: "publishTemplate",
-    summary: "Figer une version publiée",
+    summary: "Freeze a published version",
     input: revision,
     output: ref("TemplateView"),
   },
@@ -477,7 +477,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/duplicate",
     id: "duplicateTemplate",
-    summary: "Dupliquer dans un modèle privé",
+    summary: "Duplicate into a private template",
     output: ref("TemplateView"),
     status: 201,
   },
@@ -485,7 +485,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/share",
     id: "shareTemplate",
-    summary: "Configurer les droits du modèle",
+    summary: "Configure template permissions",
     input: ref("TemplateShare"),
     output: ref("TemplateView"),
   },
@@ -493,7 +493,7 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/templates/{id}/sharing",
     id: "getTemplateSharing",
-    summary: "Lire les droits et membres éligibles",
+    summary: "Read permissions and eligible members",
     output: object({
       members: { type: "array", items: object({ userId: str, name: str }) },
       grants: { type: "array", items: grant },
@@ -503,7 +503,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/archive",
     id: "archiveTemplate",
-    summary: "Archiver sans détruire les versions historiques",
+    summary: "Archive without destroying historical versions",
     input: revision,
     output: ref("TemplateView"),
   },
@@ -511,7 +511,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/preview",
     id: "previewTemplate",
-    summary: "Rendre un aperçu serveur sans envoi",
+    summary: "Render a server preview without sending",
     input: object({ expectedRevision: integer, data: bag }),
     output: ref("Document"),
     status: 201,
@@ -520,7 +520,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/templates/{id}/suggest",
     id: "suggestTemplate",
-    summary: "Proposer des modifications sémantiques avec une IA configurée",
+    summary: "Suggest semantic changes using configured AI",
     input: object({
       expectedRevision: integer,
       instruction: { type: "string", minLength: 1, maxLength: 2000 },
@@ -537,20 +537,20 @@ const operations: Operation[] = [
       expectedRevision: integer,
     }),
     description:
-      "Appel externe explicite soumis au consentement de transfert administrateur, configuration et quota. Retourne une proposition sans enregistrer, publier, approuver ou envoyer. 503 si non configuré.",
+      "Explicit external call requires administrator transfer consent, configuration and quota. Returns a proposal without saving, publishing, approving or sending. Returns 503 when unconfigured.",
   },
   {
     method: "get",
     path: "/api/templates/{id}/schema",
     id: "getTemplateSchema",
-    summary: "Lire le schéma des données métier",
+    summary: "Read the business-data schema",
     output: bag,
   },
   {
     method: "get",
     path: "/api/datasets",
     id: "listDatasets",
-    summary: "Lister les sources privées",
+    summary: "List private sources",
     output: ref("DatasetViewPage"),
     page: true,
   },
@@ -558,7 +558,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/datasets",
     id: "importDataset",
-    summary: "Importer CSV, XLSX, XML ou JSON sans appel IA",
+    summary: "Import CSV, XLSX, XML or JSON without an AI call",
     input: object({
       name: str,
       format: { type: "string", enum: ["json"] },
@@ -567,30 +567,30 @@ const operations: Operation[] = [
     output: ref("DatasetView"),
     status: 201,
     description:
-      "JSON : {name,format:'json',data}. Multipart : file binaire CSV/XLSX/XML/JSON, encoding facultatif utf-8 ou windows-1252, delimiter facultatif ; xmlRecordPath facultatif (chemin absolu littéral des enregistrements XML). 5 Mio, 12 feuilles, 5 000 lignes, 100 000 cellules ; archives décompressées bornées à 24 Mio.",
+      "JSON: {name,format:'json',data}. Multipart: binary CSV/XLSX/XML/JSON file, optional utf-8 or windows-1252 encoding and delimiter; optional xmlRecordPath (literal absolute XML record path). Limits: 5 MiB, 12 sheets, 5 000 rows, 100 000 cells; decompressed archives are bounded to 24 MiB.",
   },
   {
     method: "get",
     path: "/api/datasets/{id}",
     id: "getDataset",
-    summary: "Lire l’état d’une source privée",
+    summary: "Read a private source's status",
     output: ref("DatasetView"),
   },
   {
     method: "post",
     path: "/api/datasets/{id}/retry-analysis",
     id: "retryDatasetAnalysis",
-    summary: "Réessayer l’analyse du même original privé",
+    summary: "Retry analysis of the same private original",
     input: object({}, []),
     output: ref("DatasetView"),
     description:
-      "Mutation bornée à trois tentatives au total. Même source, hash et options de parsing. La lecture ne relance rien ; résultat rejeté ou budget épuisé restent fermés.",
+      "Mutation bounded to three total attempts. Same source, hash and parsing options. Reading triggers no retry; rejected results and exhausted budgets remain closed.",
   },
   {
     method: "get",
     path: "/api/datasets/{id}/profile",
     id: "getDatasetProfile",
-    summary: "Lire le profil technique sans appel IA",
+    summary: "Read the technical profile without an AI call",
     output: object({
       dataset: ref("DatasetView"),
       profile: bag,
@@ -609,17 +609,17 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/datasets/{id}/analyze",
     id: "analyzeDataset",
-    summary: "Demander explicitement une proposition IA",
+    summary: "Explicitly request an AI proposal",
     input: ref("DatasetAnalyze"),
     output: ref("DatasetAnalysis"),
     description:
-      "Requiert fournisseur configuré, politique administrateur de transfert et budget. Envoie seulement un échantillon borné à OpenAI direct. proposeSchema:true ajoute un schéma métier et un modèle synthétique proposés à partir du mapping validé, avec un seul appel IA. Retour needs_review ; adoption par création explicite du modèle et mapping puis validation/publication séparées. 503 si indisponible, jamais de faux résultat.",
+      "Requires a configured provider, administrator transfer policy and budget. Sends only a bounded sample directly to OpenAI. proposeSchema:true also suggests a business schema and synthetic template from the validated mapping using one AI call. Returns needs_review; adoption requires explicit template/mapping creation and separate validation/publication. Returns 503 when unavailable; never fabricates a result.",
   },
   {
     method: "get",
     path: "/api/mappings",
     id: "listMappings",
-    summary: "Lister les correspondances privées",
+    summary: "List private mappings",
     output: ref("MappingViewPage"),
     page: true,
   },
@@ -627,7 +627,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/mappings",
     id: "createMapping",
-    summary: "Créer ou versionner une correspondance",
+    summary: "Create or version a mapping",
     input: ref("MappingCreate"),
     output: ref("MappingView"),
     status: 201,
@@ -636,14 +636,14 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/mappings/{id}",
     id: "getMapping",
-    summary: "Lire une correspondance et sa version",
+    summary: "Read a mapping and its version",
     output: ref("MappingView"),
   },
   {
     method: "post",
     path: "/api/mappings/{id}/validate",
     id: "validateMapping",
-    summary: "Valider toutes les lignes et les jointures",
+    summary: "Validate every row and join",
     input: object({ datasetId: str, version: integer }),
     output: ref("MappingValidation"),
   },
@@ -651,7 +651,7 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/generation-jobs",
     id: "listGenerationJobs",
-    summary: "Lister les générations privées",
+    summary: "List private generations",
     output: ref("GenerationJobPage"),
     page: true,
   },
@@ -659,7 +659,7 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/generation-jobs",
     id: "createGeneration",
-    summary: "Lancer une génération durable sans envoi",
+    summary: "Start durable generation without sending",
     input: ref("GenerationInput"),
     output: ref("GenerationJob"),
     status: 202,
@@ -669,14 +669,14 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/generation-jobs/{id}",
     id: "getGeneration",
-    summary: "Lire la progression sans relancer le traitement",
+    summary: "Read progress without restarting processing",
     output: ref("GenerationJob"),
   },
   {
     method: "get",
     path: "/api/generation-jobs/{id}/results",
     id: "getGenerationResults",
-    summary: "Lire les résultats par recordId",
+    summary: "Read results by recordId",
     output: ref("GenerationResultPage"),
     page: true,
   },
@@ -684,7 +684,7 @@ const operations: Operation[] = [
     method: "get",
     path: "/api/generation-jobs/{id}/provenance",
     id: "getGenerationProvenance",
-    summary: "Relier un record aux cellules et versions ayant produit son PDF",
+    summary: "Link a record to the cells and versions that produced its PDF",
     output: object({
       jobId: str,
       recordId: str,
@@ -699,20 +699,20 @@ const operations: Operation[] = [
       renderMetadata: bag,
     }),
     description:
-      "Privé au propriétaire du job. Coordonnées source par champ, hashes source et entrée, versions du mapping, modèle, moteur, adaptateur et police. Une génération directe a une provenance de cellule vide.",
+      "Private to the job owner. Per-field source coordinates, source/input hashes, mapping/template/engine/adapter/font versions. Direct generation has empty cell provenance.",
   },
   {
     method: "post",
     path: "/api/generation-jobs/{id}/cancel",
     id: "cancelGeneration",
-    summary: "Annuler les records non terminés",
+    summary: "Cancel unfinished records",
     output: ref("GenerationJob"),
   },
   {
     method: "post",
     path: "/api/generation-jobs/{id}/retry",
     id: "retryGeneration",
-    summary: "Reprendre les records en échec explicitement désignés",
+    summary: "Resume explicitly selected failed records",
     input: object({ recordIds: strings }),
     output: ref("GenerationJob"),
     status: 202,
@@ -721,40 +721,40 @@ const operations: Operation[] = [
     method: "post",
     path: "/api/distribution-plans",
     id: "prepareDistribution",
-    summary: "Figer les associations et préparer les envois existants",
+    summary: "Freeze associations and prepare existing dispatches",
     input: ref("DistributionInput"),
     output: ref("DistributionView"),
     status: 201,
     key: true,
     description:
-      "Aucune approbation, réservation ou tentative fournisseur. Les erreurs par entrée restent visibles. Chaque approbation ultérieure porte sur le devis et le PDF exacts ; un plan ne vaut pas consentement.",
+      "No approval, reservation or provider attempt. Per-entry errors remain visible. Every later approval binds the exact quote and PDF; a plan is not consent.",
   },
   {
     method: "post",
     path: "/api/distribution-plans/{id}/resume",
     id: "resumeDistribution",
-    summary: "Poursuivre trois préparations au maximum",
+    summary: "Continue at most three preparations",
     input: object({ retryFailed: boolean }, []),
     output: ref("DistributionView"),
     description:
-      "Mutation explicite, limitée à trois entrées. Les lectures ne préparent rien. retryFailed:true autorise la reprise des erreurs de préparation ; les tentatives fournisseur ne sont jamais relancées par cette opération.",
+      "Explicit mutation bounded to three entries. Reads prepare nothing. retryFailed:true authorizes retrying preparation errors; this operation never retries provider attempts.",
   },
   {
     method: "post",
     path: "/api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
     id: "createDistributionPostalPreflight",
-    summary: "Ouvrir le contrôle postal du document et destinataire figés",
+    summary: "Open postal preflight for the frozen document and recipient",
     input: object({}, []),
     output: ref("DistributionView"),
     key: true,
     description:
-      "Crée l’analyse postale existante, sans transfert du document au fournisseur, devis, consentement ou envoi. Les lectures du profil fournisseur existantes peuvent être nécessaires. Le manifeste doit inclure expéditeur, plafond et options postales explicites ; sinon nouveau plan requis. Les consentements, dérivations, transferts et devis restent dans le parcours postal protégé.",
+      "Creates the existing postal analysis without provider document transfer, quote, consent or sending. Existing provider-profile reads may be necessary. The manifest must include an explicit sender, ceiling and postal options; otherwise create a new plan. Consent, derivation, transfers and quotes remain in the protected postal journey.",
   },
   {
     method: "get",
     path: "/api/distribution-plans/{id}",
     id: "getDistribution",
-    summary: "Lire le manifeste et ses préparations",
+    summary: "Read the manifest and its preparations",
     output: ref("DistributionView"),
   },
 ];
@@ -816,16 +816,16 @@ for (const operation of operations) {
     parameters.push({ $ref: "#/components/parameters/IdempotencyKey" });
   const response = {
     description:
-      "Résultat métier ; un succès HTTP ne vaut ni PDF prêt ni envoi.",
+      "Business result; HTTP success means neither a ready PDF nor sending.",
     content: { "application/json": { schema: operation.output ?? bag } },
   };
   const entry: Schema = {
     operationId: operation.id,
-    tags: ["Studio documentaire"],
+    tags: ["Document studio"],
     summary: operation.summary,
     description:
       operation.description ??
-      "Opération tenant-scopée. Le service recontrôle l’adhésion, les droits propres à la ressource et les limites.",
+      "Tenant-scoped operation. The service rechecks membership, resource permissions and limits.",
     security: [
       {
         GuteneoOAuth:
@@ -843,23 +843,23 @@ for (const operation of operations) {
     responses: {
       [operation.status ?? 200]: response,
       "400": { $ref: "#/components/responses/BadRequest" },
-      "403": { description: "Droits ou scope insuffisants." },
+      "403": { description: "Insufficient permissions or scope." },
       "404": {
-        description: "Ressource introuvable, supprimée ou non accessible.",
+        description: "Resource not found, deleted or inaccessible.",
       },
       "409": {
         description:
-          "Révision, idempotence, structure, version ou état incompatible.",
+          "Incompatible revision, idempotency, structure, version or state.",
       },
-      "413": { description: "Limite de taille dépassée." },
-      "429": { description: "Quota ou budget épuisé." },
-      "503": { description: "Moteur, scanner ou IA indisponible." },
+      "413": { description: "Size limit exceeded." },
+      "429": { description: "Quota or budget exhausted." },
+      "503": { description: "Engine, scanner or AI unavailable." },
     },
   };
   // Existing document uses inline errors; retain a local reusable error if absent.
   spec.components.responses ??= {};
   spec.components.responses.BadRequest ??= {
-    description: "Entrée invalide ; corriger les champs retournés.",
+    description: "Invalid input; correct the returned fields.",
     content: { "application/json": { schema: ref("Error") } },
   };
   if (!schemas.Error)
@@ -889,10 +889,10 @@ spec.paths["/api/datasets"].post.requestBody.content["multipart/form-data"] = {
   ),
 };
 spec.tags ??= [];
-if (!spec.tags.some((t: { name: string }) => t.name === "Studio documentaire"))
+if (!spec.tags.some((t: { name: string }) => t.name === "Document studio"))
   spec.tags.push({
-    name: "Studio documentaire",
-    description: "Modèles, données, génération et préparation séparées.",
+    name: "Document studio",
+    description: "Templates, data, generation and preparation remain separate.",
   });
 const oauth =
   spec.components.securitySchemes.GuteneoOAuth.flows.authorizationCode.scopes;
@@ -907,7 +907,7 @@ for (const scope of [
   "generations:write",
 ])
   oauth[scope] =
-    "Autorisation dédiée " + scope + " ; attribution OAuth explicite requise.";
+    "Dedicated " + scope + " authority; explicit OAuth grant required.";
 for (const documentPath of [
   "/api/documents/{id}",
   "/api/documents/{id}/content",
@@ -923,10 +923,10 @@ for (const documentPath of [
     required: false,
     schema: { type: "string", minLength: 1 },
     description:
-      "Contexte de revue facultatif : demande du même atelier liée à ce PDF exact. Pour un PDF privé d’un autre membre, exige le droit actuel d’approbation et, en OAuth, documents:read et dispatches:read. Ne donne aucun accès à la bibliothèque générale ; droit réévalué à chaque lecture.",
+      "Optional review context: a same-workspace request bound to this exact PDF. A different member's private PDF requires current approval permission and, for OAuth, documents:read and dispatches:read. Grants no general library access; authority is rechecked on every read.",
   });
 }
 await writeFile(path, JSON.stringify(spec, null, 2) + "\n");
 console.log(
-  "OpenAPI : " + operations.length + " opérations du studio synchronisées.",
+  "OpenAPI: " + operations.length + " studio operations synchronized.",
 );

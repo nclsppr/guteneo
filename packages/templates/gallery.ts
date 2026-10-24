@@ -23,7 +23,7 @@ export function textBlock(
     height,
     fontName: "GuteneoSans",
     fontSize,
-    fontColor: "#202827",
+    fontColor: "#182338",
     lineHeight: 1.25,
     characterSpacing: 0,
     alignment: "left",
@@ -48,14 +48,14 @@ export function tableBlock(
     lineHeight: 1.2,
     borderWidth: border,
     padding,
-    fontColor: "#202827",
-    borderColor: "#D9DEDA",
+    fontColor: "#182338",
+    borderColor: "#D5D9DE",
     backgroundColor: "",
   };
   return {
     name,
     type: "table",
-    content: JSON.stringify([headers.map(() => "Exemple")]),
+    content: JSON.stringify([headers.map(() => "Example")]),
     position: { x: 20, y },
     width: 170,
     height: 22,
@@ -63,9 +63,9 @@ export function tableBlock(
     repeatHead: true,
     head: headers,
     headWidthPercentages: headers.map(() => 100 / headers.length),
-    tableStyles: { borderWidth: 0, borderColor: "#D9DEDA" },
-    headStyles: { ...style, fontColor: "#FFFFFF", backgroundColor: "#24594C" },
-    bodyStyles: { ...style, alternateBackgroundColor: "#F4F6F3" },
+    tableStyles: { borderWidth: 0, borderColor: "#D5D9DE" },
+    headStyles: { ...style, fontColor: "#FFFFFF", backgroundColor: "#234CE0" },
+    bodyStyles: { ...style, alternateBackgroundColor: "#F7F5EF" },
     columnStyles: {},
     readOnly: false,
   };
@@ -77,17 +77,17 @@ function base(name: string, description: string): TemplateEnvelope {
     engineVersion: PDFME_VERSION,
     name,
     description,
-    locale: "fr-FR",
+    locale: "en-GB",
     definition: {
       basePdf: {
         width: 210,
         height: 297,
         padding: [22, 20, 20, 20],
         staticSchema: [
-          textBlock("header", "ENTREPRISE EXEMPLE", 20, 10, 170, 6, 8),
+          textBlock("header", "EXAMPLE COMPANY", 20, 10, 170, 6, 8),
           textBlock(
             "footer",
-            "Données fictives · Page {currentPage} / {totalPages}",
+            "Fictional data · Page {currentPage} / {totalPages}",
             20,
             283,
             170,
@@ -108,28 +108,28 @@ function base(name: string, description: string): TemplateEnvelope {
 }
 export function letterTemplate(): TemplateEnvelope {
   const envelope = base(
-    "Courrier professionnel",
-    "Un courrier personnalisable avec adresse, objet et paragraphes. Les exemples sont fictifs.",
+    "Business letter",
+    "A customisable letter with address, subject and paragraphs. Examples are fictional.",
   );
   envelope.definition.schemas[0] = [
     textBlock(
       "recipient",
-      "Entreprise Exemple\n12 rue des Ateliers\n75002 Paris",
+      "Example Company\n12 rue des Ateliers\n75002 Paris",
       112,
       35,
       78,
       25,
     ),
-    textBlock("reference", "Objet du courrier", 20, 76, 170, 12, 16),
+    textBlock("reference", "Letter subject", 20, 76, 170, 12, 16),
     textBlock(
       "body",
-      "Madame, Monsieur,\n\nVotre courrier personnalisé commence ici.\n\nCordialement,",
+      "Dear Sir or Madam,\n\nYour personalised letter starts here.\n\nKind regards,",
       20,
       96,
       170,
       60,
     ),
-    textBlock("signature", "L’équipe Exemple", 20, 165, 170, 15),
+    textBlock("signature", "The Example team", 20, 165, 170, 15),
   ];
   envelope.inputSchema = {
     type: "object",
@@ -137,16 +137,20 @@ export function letterTemplate(): TemplateEnvelope {
       recipient: {
         type: "object",
         properties: {
-          address: { type: "string", title: "Nom et adresse", maxLength: 600 },
+          address: {
+            type: "string",
+            title: "Name and address",
+            maxLength: 600,
+          },
         },
         required: ["address"],
       },
-      subject: { type: "string", title: "Objet", maxLength: 300 },
-      body: { type: "string", title: "Courrier" },
+      subject: { type: "string", title: "Subject", maxLength: 300 },
+      body: { type: "string", title: "Letter body" },
       signature: {
         type: "string",
         title: "Signature",
-        default: "L’équipe Exemple",
+        default: "The Example team",
       },
     },
     required: ["recipient", "subject", "body"],
@@ -183,45 +187,40 @@ export function letterTemplate(): TemplateEnvelope {
   ];
   envelope.sampleData = {
     recipient: {
-      address: "Entreprise Exemple\n12 rue des Ateliers\n75002 Paris",
+      address: "Example Company\n12 rue des Ateliers\n75002 Paris",
     },
-    subject: "Votre compte rendu personnalisé",
-    body: "Madame, Monsieur,\n\nVeuillez trouver notre compte rendu. Les caractères français et allemands sont conservés : é è ê ç œ — Ä Ö Ü ß — 125,00 €.\n\nCordialement,",
-    signature: "L’équipe Exemple",
+    subject: "Your personalised report",
+    body: "Dear Sir or Madam,\n\nPlease find our report. French and German characters are preserved: é è ê ç œ — Ä Ö Ü ß — €125.00.\n\nKind regards,",
+    signature: "The Example team",
   };
   return validateTemplateEnvelope(envelope);
 }
 export function invoiceTemplate(): TemplateEnvelope {
   const envelope = base(
-    "Facture de démonstration",
-    "Exemple de lignes variables et total calculé en unités mineures entières. Aucune certification de conformité fiscale.",
+    "Demo invoice",
+    "An example with variable line items and a total calculated in integer minor units. No certification of tax compliance.",
   );
   envelope.definition.schemas[0] = [
-    textBlock("title", "FACTURE · DÉMONSTRATION", 20, 27, 170, 13, 21),
-    textBlock("customer", "Entreprise Exemple", 110, 47, 80, 20),
+    textBlock("title", "INVOICE · DEMONSTRATION", 20, 27, 170, 13, 21),
+    textBlock("customer", "Example Company", 110, 47, 80, 20),
     textBlock("reference", "EX-001", 20, 49, 80),
     textBlock("date", "21/09/2026", 20, 63, 80),
-    tableBlock("items", [
-      "Description",
-      "Quantité",
-      "Prix unitaire",
-      "Montant",
-    ]),
-    textBlock("total", "Total : 25,00 €", 110, 124, 80, 15, 14),
+    tableBlock("items", ["Description", "Quantity", "Unit price", "Amount"]),
+    textBlock("total", "Total: 25.00 €", 110, 124, 80, 15, 14),
   ];
   envelope.inputSchema = {
     type: "object",
     properties: {
       customer: {
         type: "object",
-        properties: { name: { type: "string", title: "Client" } },
+        properties: { name: { type: "string", title: "Customer" } },
         required: ["name"],
       },
-      reference: { type: "string", title: "Référence" },
+      reference: { type: "string", title: "Reference" },
       date: { type: "string", title: "Date", format: "date" },
       items: {
         type: "array",
-        title: "Lignes",
+        title: "Rows",
         maxItems: 500,
         items: {
           type: "object",
@@ -231,10 +230,10 @@ export function invoiceTemplate(): TemplateEnvelope {
               title: "Description",
               maxLength: 1500,
             },
-            quantity: { type: "integer", title: "Quantité" },
+            quantity: { type: "integer", title: "Quantity" },
             unitPriceMinor: {
               type: "integer",
-              title: "Prix unitaire (centimes)",
+              title: "Unit price (minor units)",
             },
           },
           required: ["description", "quantity", "unitPriceMinor"],
@@ -256,7 +255,7 @@ export function invoiceTemplate(): TemplateEnvelope {
       kind: "value",
       path: "reference",
       format: "text",
-      prefix: "Référence : ",
+      prefix: "Reference: ",
       required: true,
     },
     {
@@ -280,20 +279,20 @@ export function invoiceTemplate(): TemplateEnvelope {
           required: true,
         },
         {
-          title: "Quantité",
+          title: "Quantity",
           path: "quantity",
           format: "integer",
           required: true,
         },
         {
-          title: "Prix unitaire",
+          title: "Unit price",
           path: "unitPriceMinor",
           format: "money",
           currency: "EUR",
           required: true,
         },
         {
-          title: "Montant",
+          title: "Amount",
           path: "unitPriceMinor",
           multiplyBy: "quantity",
           format: "money",
@@ -310,17 +309,17 @@ export function invoiceTemplate(): TemplateEnvelope {
       multiplyBy: "quantity",
       format: "money",
       currency: "EUR",
-      prefix: "Total : ",
+      prefix: "Total: ",
       required: true,
     },
   ];
   envelope.sampleData = {
-    customer: { name: "Entreprise Exemple — München" },
+    customer: { name: "Example Company — München" },
     reference: "EX-001",
     date: "2026-09-21",
     items: [
       {
-        description: "Conseil et préparation documentaire",
+        description: "Consulting and document preparation",
         quantity: 2,
         unitPriceMinor: 1250,
       },
@@ -330,21 +329,21 @@ export function invoiceTemplate(): TemplateEnvelope {
 }
 export function statementTemplate(): TemplateEnvelope {
   const envelope = base(
-    "Relevé tabulaire",
-    "Un tableau multipage avec des lignes regroupées par destinataire.",
+    "Tabular statement",
+    "A multipage table with rows grouped by recipient.",
   );
   envelope.definition.schemas[0] = [
-    textBlock("title", "RELEVÉ D’ACTIVITÉ", 20, 28, 170, 13, 21),
-    textBlock("customer", "Entreprise Exemple", 20, 49, 170, 12),
-    tableBlock("entries", ["Date", "Description", "Statut"], 72),
+    textBlock("title", "ACTIVITY STATEMENT", 20, 28, 170, 13, 21),
+    textBlock("customer", "Example Company", 20, 49, 170, 12),
+    tableBlock("entries", ["Date", "Description", "Status"], 72),
   ];
   envelope.inputSchema = {
     type: "object",
     properties: {
-      customer: { type: "string", title: "Client" },
+      customer: { type: "string", title: "Customer" },
       entries: {
         type: "array",
-        title: "Lignes",
+        title: "Rows",
         items: {
           type: "object",
           properties: {
@@ -380,36 +379,36 @@ export function statementTemplate(): TemplateEnvelope {
           format: "text",
           required: true,
         },
-        { title: "Statut", path: "status", format: "text", required: true },
+        { title: "Status", path: "status", format: "text", required: true },
       ],
     },
   ];
   envelope.sampleData = {
-    customer: "Entreprise Exemple",
+    customer: "Example Company",
     entries: [
       {
         date: "2026-09-21",
-        description: "Préparation du dossier",
-        status: "Terminé",
+        description: "Case preparation",
+        status: "Completed",
       },
     ],
   };
   return validateTemplateEnvelope(envelope);
 }
 export function blankTemplate(): TemplateEnvelope {
-  return validateTemplateEnvelope(base("Nouveau modèle", "Page vierge."));
+  return validateTemplateEnvelope(base("New template", "Blank page."));
 }
 
 export function quoteTemplate(): TemplateEnvelope {
   const envelope = invoiceTemplate();
-  envelope.name = "Devis de démonstration";
+  envelope.name = "Demo quotation";
   envelope.description =
-    "Une proposition avec prestations, quantités, total et date de validité. Données fictives à adapter avant utilisation.";
+    "A quotation with services, quantities, a total and an expiry date. Fictional data to adapt before use.";
   const blocks = envelope.definition.schemas[0];
   blocks.find((block) => block.name === "title")!.content =
-    "DEVIS · DÉMONSTRATION";
+    "QUOTE · DEMONSTRATION";
   blocks.find((block) => block.name === "date")!.position.y = 63;
-  blocks.push(textBlock("validUntil", "Validité du devis", 20, 76, 170, 8, 10));
+  blocks.push(textBlock("validUntil", "Quote validity", 20, 76, 170, 8, 10));
   envelope.inputSchema.properties!.validUntil = {
     type: "string",
     title: "Valable jusqu’au",
@@ -425,22 +424,22 @@ export function quoteTemplate(): TemplateEnvelope {
     required: true,
   });
   envelope.bindings.find((binding) => binding.block === "date")!.prefix =
-    "Établi le : ";
+    "Issued on: ";
   envelope.bindings.find((binding) => binding.block === "total")!.prefix =
-    "Total proposé : ";
+    "Proposed total: ";
   envelope.sampleData = {
-    customer: { name: "Atelier Exemple — Luxembourg" },
+    customer: { name: "Example Workshop — Luxembourg" },
     reference: "DEVIS-DEMO-001",
     date: "2026-10-02",
     validUntil: "2026-10-31",
     items: [
       {
-        description: "Conception du dossier",
+        description: "Case design",
         quantity: 1,
         unitPriceMinor: 18000,
       },
       {
-        description: "Préparation des exemplaires",
+        description: "Copy preparation",
         quantity: 12,
         unitPriceMinor: 450,
       },
@@ -451,16 +450,16 @@ export function quoteTemplate(): TemplateEnvelope {
 
 export function deliveryNoteTemplate(): TemplateEnvelope {
   const envelope = base(
-    "Bon de livraison de démonstration",
-    "Un destinataire, une référence et les articles livrés, sans prix. Toutes les coordonnées sont fictives.",
+    "Demo delivery note",
+    "A recipient, a reference and the delivered items, without prices. All contact details are fictional.",
   );
   envelope.definition.schemas[0] = [
     textBlock("title", "BON DE LIVRAISON", 20, 27, 170, 13, 21),
-    textBlock("recipient", "Destinataire de démonstration", 110, 47, 80, 28),
+    textBlock("recipient", "Demo recipient", 110, 47, 80, 28),
     textBlock("reference", "BL-DEMO-001", 20, 49, 80),
     textBlock("date", "02/10/2026", 20, 63, 80),
-    tableBlock("items", ["Référence article", "Désignation", "Quantité"], 92),
-    textBlock("notes", "Remarques de livraison", 20, 128, 170, 22, 10),
+    tableBlock("items", ["Item reference", "Description", "Quantity"], 92),
+    textBlock("notes", "Delivery notes", 20, 128, 170, 22, 10),
   ];
   envelope.inputSchema = {
     type: "object",
@@ -468,26 +467,30 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       recipient: {
         type: "object",
         properties: {
-          address: { type: "string", title: "Nom et adresse", maxLength: 600 },
+          address: {
+            type: "string",
+            title: "Name and address",
+            maxLength: 600,
+          },
         },
         required: ["address"],
       },
-      reference: { type: "string", title: "Référence de livraison" },
-      date: { type: "string", title: "Date de livraison", format: "date" },
+      reference: { type: "string", title: "Delivery reference" },
+      date: { type: "string", title: "Delivery date", format: "date" },
       items: {
         type: "array",
-        title: "Articles livrés",
+        title: "Delivered items",
         maxItems: 500,
         items: {
           type: "object",
           properties: {
-            sku: { type: "string", title: "Référence article" },
+            sku: { type: "string", title: "Item reference" },
             description: {
               type: "string",
-              title: "Désignation",
+              title: "Description",
               maxLength: 1500,
             },
-            quantity: { type: "integer", title: "Quantité livrée" },
+            quantity: { type: "integer", title: "Delivered quantity" },
           },
           required: ["sku", "description", "quantity"],
         },
@@ -495,7 +498,7 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       notes: {
         type: "string",
         title: "Remarques",
-        default: "Livraison de démonstration, sans expédition réelle.",
+        default: "Demo delivery, without actual dispatch.",
       },
     },
     required: ["recipient", "reference", "date", "items"],
@@ -513,7 +516,7 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       kind: "value",
       path: "reference",
       format: "text",
-      prefix: "Référence : ",
+      prefix: "Reference: ",
       required: true,
     },
     {
@@ -531,19 +534,19 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       required: true,
       columns: [
         {
-          title: "Référence article",
+          title: "Item reference",
           path: "sku",
           format: "text",
           required: true,
         },
         {
-          title: "Désignation",
+          title: "Description",
           path: "description",
           format: "text",
           required: true,
         },
         {
-          title: "Quantité",
+          title: "Quantity",
           path: "quantity",
           format: "integer",
           required: true,
@@ -560,18 +563,20 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
     },
   ];
   envelope.sampleData = {
-    recipient: { address: "Atelier Exemple\n12 rue des Ateliers\n75002 Paris" },
+    recipient: {
+      address: "Example Workshop\n12 rue des Ateliers\n75002 Paris",
+    },
     reference: "BL-DEMO-001",
     date: "2026-10-02",
     items: [
-      { sku: "DOS-001", description: "Dossier de présentation", quantity: 12 },
+      { sku: "DOS-001", description: "Presentation folder", quantity: 12 },
       {
         sku: "ENV-002",
-        description: "Enveloppe de démonstration",
+        description: "Demo envelope",
         quantity: 12,
       },
     ],
-    notes: "Exemple fictif : contrôler les quantités avant utilisation.",
+    notes: "Fictional example: check quantities before use.",
   };
   return validateTemplateEnvelope(envelope);
 }

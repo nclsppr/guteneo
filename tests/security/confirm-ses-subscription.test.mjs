@@ -249,7 +249,7 @@ for (const browserType of [chromium, webkit]) {
         });
       });
       await page.goto(setup.url);
-      const input = page.getByLabel("Jeton SNS privé", { exact: true });
+      const input = page.getByLabel("Private SNS token", { exact: true });
       assert.equal(await input.getAttribute("type"), "password");
       await input.focus();
       await page.keyboard.press(
@@ -263,17 +263,17 @@ for (const browserType of [chromium, webkit]) {
       assert.ok(!(await page.locator("body").innerText()).includes(token));
       assert.equal(await page.locator("form").count(), 0);
       await page
-        .getByRole("button", { name: "Copier le jeton", exact: true })
+        .getByRole("button", { name: "Copy token", exact: true })
         .click();
       await page
         .getByRole("status")
-        .filter({ hasText: "Jeton copié." })
+        .filter({ hasText: "Token copied." })
         .waitFor();
       assert.equal(await page.evaluate(() => window.fixtureCopiedToken), token);
       assert.equal(await input.inputValue(), "");
       assert.equal(
         await page
-          .getByRole("button", { name: "Copier le jeton", exact: true })
+          .getByRole("button", { name: "Copy token", exact: true })
           .isDisabled(),
         true,
       );

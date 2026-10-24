@@ -1,35 +1,84 @@
-# Resend et documents protégés
+# Resend and protected documents
 
-Candidat du 21 septembre 2026. L’état de publication et les essais réels sont consignés dans `RESEND_PROOF.md` ; les tests locaux ne prouvent pas une livraison réelle.
+21 September 2026 candidate. [RESEND_PROOF.md](RESEND_PROOF.md) records publication
+and real tests; local tests do not prove actual delivery.
 
-## Parcours
+## Journey
 
-Un e-mail peut être envoyé sans document, avec son PDF exact en pièce jointe, ou avec un lien protégé. L’import direct dans le formulaire attend l’analyse du PDF. L’expéditeur vérifie le destinataire, le message, le document, l’expiration et le coût avant d’approuver et d’envoyer. Le champ Message suffit ; HTML reste facultatif. Le domaine d’envoi est Guteneo, avec Reply-To vers l’adresse vérifiée de l’auteur. Une désactivation du canal par un administrateur n’est jamais annulée par la configuration automatique.
+Email supports no document, the exact PDF as an attachment, or a protected link.
+Direct import in the form waits for PDF analysis. Before approval and sending,
+the sender checks recipient, message, document, expiration and cost. Message text
+is sufficient; HTML is optional. Guteneo supplies the sending domain and the
+author's verified address supplies Reply-To. Automatic configuration never
+reverses an administrator's channel shutdown.
 
-Le lien ouvre une page Guteneo sans compte destinataire. Le mot de passe est généré, révélé uniquement à un membre autorisé dans son navigateur et transmis séparément par l’expéditeur. Il ne figure jamais dans l’e-mail, les options, les réponses MCP ou les journaux. Le lien opaque fait partie du contenu exact approuvé. Les clients ChatGPT/Claude utilisent le même `prepare_dispatch` avec `options.emailDeliveryMode=protected_link` et `protectedDays` de 1, 7 ou 30 jours (7 par défaut). Les permissions de revue et de confirmation restent identiques. Un assistant ne peut ni activer une délégation, ni révéler le mot de passe.
+The link opens a Guteneo page without a recipient account. Its generated password
+is revealed only to an authorized member in their browser and is shared separately
+by the sender. It never appears in email, options, MCP responses or logs. The
+opaque link belongs to the exact approved content. ChatGPT/Claude use the same
+`prepare_dispatch` with `options.emailDeliveryMode=protected_link` and
+`protectedDays` of 1, 7 or 30 days (default 7). Review and confirmation permissions
+are unchanged. An assistant cannot enable delegation or reveal the password.
 
-## Coûts et durée
+## Cost and duration
 
-L’hébergement coûte 100 centimes d’euro par document et période d’hébergement. Un hébergement encore actif est réutilisé sans nouveau débit, y compris pour plusieurs destinataires et deux confirmations concurrentes. Sa durée et son expiration effectives sont affichées avant approbation. Après expiration ou révocation, un nouvel hébergement nécessite une nouvelle acceptation de son prix.
+Hosting costs 100 euro cents per document and hosting period. Existing active
+hosting is reused without another debit, including multiple recipients and two
+concurrent confirmations. Effective duration and expiration are shown before
+approval. After expiration or revocation, new hosting requires new price acceptance.
 
-Le tarif de transport Resend est distinct : référence commerciale publique Pro, e-mails supplémentaires à 0,90 USD/1 000, multipliée par deux avec conversion commerciale BCE figée du 16 septembre 2026 (1 EUR = 1,1537 USD). Il s’agit d’une référence de prix public, pas d’une déclaration du coût réel marginal du compte Free. Les PDF n’ajoutent aucun prix par octet. Les fractions de centime des e-mails restent cumulées avant débit.
+Resend transport pricing is separate: the public Pro reference of USD0.90 per
+1,000 additional emails, multiplied by two using the frozen ECB commercial
+conversion of 16 September 2026 (EUR1 = USD1.1537). This is a public price reference,
+not a claim about the Free account's actual marginal cost. PDFs add no per-byte
+price. Fractional email cents accumulate before debit.
 
-À la confirmation, la même transaction vérifie l’approbation, réserve le transport, débite au plus une fois les 100 centimes, active l’hébergement et insère l’outbox. La réservation du transport exclut la partie déjà débitée pour l’hébergement ; les plafonds mensuels comptent les deux. Annuler ou subir un rejet de l’e-mail ne supprime pas l’hébergement activé : son prix n’est pas remboursé automatiquement. Il reste accessible jusqu’à sa révocation ou expiration. Le crédit promotionnel existant finance ces montants ; le réapprovisionnement Stripe reste un chantier séparé.
+One confirmation transaction checks approval, reserves transport, debits the
+100 cents at most once, activates hosting and inserts the outbox. Transport
+reservation excludes hosting already debited; monthly ceilings include both.
+Cancellation or email rejection does not remove activated hosting or automatically
+refund it. Access continues until revocation or expiration. Existing promotional
+credits fund these amounts; Stripe replenishment is separate work.
 
 ## Protection
 
-L’original privé reste lié à son organisation et à son SHA-256 approuvé. Le lien remplace la pièce jointe sans supprimer cette liaison. Un jeton aléatoire de 256 bits est stocké sous forme d’empreinte ; le mot de passe possède 144 bits aléatoires, avec vérificateur PBKDF2 salé. Le jeton récupérable et le mot de passe sont chiffrés AES-GCM avec `PROTECTED_DOCUMENTS_KEY`, associés à l’organisation, au document et à son empreinte. La clé de 32 octets est un secret Cloudflare, jamais un paramètre du navigateur.
+The private original remains bound to its organization and approved SHA-256.
+A protected link replaces the attachment without removing that binding. A random
+256-bit token is stored as a hash; the password has 144 random bits and a salted
+PBKDF2 verifier. The recoverable token and password use AES-GCM with
+`PROTECTED_DOCUMENTS_KEY`, associated with organization, document and hash. The
+32-byte key is a Cloudflare secret, never a browser setting.
 
-Après vérification du mot de passe, une session HttpOnly de 15 minutes reste limitée à cet hébergement. La lecture passe par le Worker et vérifie encore son état et l’intégrité des octets ; aucun lien R2 ne contourne la protection. Une simple ouverture du lien, notamment par un scanner d’e-mail, ne consomme aucun accès. Les tentatives sont bornées, les pages et les fichiers ne sont pas mis en cache et n’envoient aucun référent. La révocation invalide aussi les sessions existantes et concerne tous les destinataires du lien partagé. La purge conserve un original tant qu’un hébergement actif le nécessite.
+Password verification issues a 15-minute HttpOnly session limited to this hosting.
+Worker reads recheck state and byte integrity; no R2 URL bypasses protection.
+Opening the link, including by an email scanner, consumes no access. Attempts are
+bounded; pages and files are uncached and send no referrer. Revocation invalidates
+existing sessions for every recipient sharing the link. Purging retains an
+original while active hosting needs it.
 
-Ce service protège l’accès au document ; ce n’est pas un chiffrement de bout en bout. Guteneo analyse le PDF et le destinataire télécharge un PDF normal. Révoquer un lien ne récupère pas une copie déjà téléchargée. Le lien et le mot de passe ne prouvent pas l’identité du lecteur.
+This protects access, with no end-to-end encryption claim. Guteneo analyzes the
+PDF and the recipient downloads an ordinary PDF. Revocation cannot recover a
+previous download. Possession of the link and password does not identify a reader.
 
-## Activation et limites
+## Activation and limits
 
-Migrations 0039 à 0041, secret d’envoi Resend, secret de signature des événements, identité qualifiée du compte/domaine, qualification de tarif datée, clé d’hébergement et activation explicite du canal sont nécessaires. Les limites de compte s’appliquent avant tout appel au fournisseur, avec réservations conservées pour un résultat inconnu ; aucun nouvel essai automatique n’est autorisé après une issue incertaine.
+Required gates: migrations 0039–0041, Resend sending and event-signing secrets,
+qualified account/domain identity, dated tariff qualification, hosting key and
+explicit channel activation. Account limits apply before provider calls.
+Reservations remain held for unknown outcomes; an uncertain outcome never permits
+automatic retry.
 
-Compte observé le 21 septembre : offre Free, domaine guteneo.com vérifié, 100 e-mails/jour, 3 000/mois, 10 requêtes/seconde. Les plafonds Guteneo peuvent réserver une marge pour le trafic Auth0 indépendant. Un changement d’offre, de compte ou de domaine doit être qualifié à nouveau. Le fournisseur Auth0 installé séparément reste hors de cette activation métier.
+Account observation on 21 September: Free plan, verified guteneo.com domain,
+100 emails/day, 3,000/month and 10 requests/second. Guteneo ceilings may retain
+headroom for independent Auth0 traffic. Requalify account, domain or plan changes.
+The separately installed Auth0 provider is outside this business activation.
 
-L’import d’une liste de destinataires dans tout format et la distribution d’Excel ou d’autres fichiers sont annoncés comme à venir. Le contrat actif reste PDF pour les documents et CSV validé pour les listes. Les comptes destinataires personnels sont prévus plus tard.
+Recipient-list import in arbitrary formats and distribution of Excel or other
+files are future work. The active contract is PDF documents and validated CSV
+lists. Personal recipient accounts are planned later.
 
-Sources : [Resend envoi](https://resend.com/docs/api-reference/emails/send-email), [pièces jointes](https://resend.com/docs/dashboard/emails/attachments), [tarifs](https://resend.com/pricing), [signature des webhooks](https://resend.com/docs/webhooks/verify-webhooks-requests), [chiffrement R2](https://developers.cloudflare.com/r2/reference/data-security/).
+Sources: [Resend sending](https://resend.com/docs/api-reference/emails/send-email),
+[attachments](https://resend.com/docs/dashboard/emails/attachments),
+[pricing](https://resend.com/pricing),
+[webhook signatures](https://resend.com/docs/webhooks/verify-webhooks-requests),
+[R2 encryption](https://developers.cloudflare.com/r2/reference/data-security/).

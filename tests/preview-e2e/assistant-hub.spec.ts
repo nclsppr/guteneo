@@ -37,24 +37,48 @@ async function capturePublicPage(page: Page, path: string) {
 }
 
 async function expectPublicNavigation(page: Page) {
-  const navigation = page.getByRole("navigation", {
-    name: "Navigation principale",
-  });
+  const header = page.locator("header.public-header");
+  const toggle = header.locator(".public-menu-toggle");
+  const mobile = await toggle.isVisible();
+  const navigation = header.locator(
+    mobile ? ".public-mobile-navigation" : ".public-desktop-navigation",
+  );
+  const headerBounds = await header.boundingBox();
+  expect(headerBounds).not.toBeNull();
+  if (mobile) {
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(navigation).toHaveAttribute(
+      "id",
+      (await toggle.getAttribute("aria-controls"))!,
+    );
+  }
+  await expect(navigation).toBeVisible();
   await expect(
     navigation.getByRole("link", { name: "Assistants", exact: true }),
   ).toBeVisible();
   await expect(
     navigation.getByRole("link", { name: "Tarifs", exact: true }),
   ).toBeVisible();
-  const header = await page.locator(".assistants-header").boundingBox();
-  expect(header).not.toBeNull();
   for (const link of await navigation.getByRole("link").all()) {
     const bounds = await link.boundingBox();
     expect(bounds).not.toBeNull();
-    expect(bounds!.y).toBeGreaterThanOrEqual(header!.y);
-    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(
-      header!.y + header!.height,
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+      page.viewportSize()!.width,
     );
+    expect(bounds!.y).toBeGreaterThanOrEqual(headerBounds!.y);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(
+      mobile
+        ? page.viewportSize()!.height
+        : headerBounds!.y + headerBounds!.height,
+    );
+  }
+  if (mobile) {
+    expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
+    await toggle.click();
+    await expect(navigation).toBeHidden();
   }
 }
 

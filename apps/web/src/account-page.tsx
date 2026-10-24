@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
   canAdminister,
@@ -67,7 +67,7 @@ function PreviewNotice() {
     <div className="notice info" role="note">
       <p>
         {msg(
-          "Dans cet aperçu, les comptes et les accès sont fictifs. Leur modification sera disponible dans votre atelier connecté.",
+          "Accounts and access in this preview are fictional. You can edit them in your signed-in workspace.",
         )}
       </p>
     </div>
@@ -85,9 +85,7 @@ function DashboardAppearanceSelect({
 }) {
   return (
     <div className="field dashboard-appearance-control">
-      <label htmlFor="dashboard-appearance">
-        {msg("Version de l’atelier")}
-      </label>
+      <label htmlFor="dashboard-appearance">{msg("Workspace version")}</label>
       <select
         id="dashboard-appearance"
         className="dashboard-appearance-select"
@@ -97,7 +95,7 @@ function DashboardAppearanceSelect({
           onChange(event.currentTarget.value === "v2" ? "v2" : "classic")
         }
       >
-        <option value="classic">{msg("Classique")}</option>
+        <option value="classic">{msg("Classic")}</option>
         <option value="v2">V2</option>
       </select>
     </div>
@@ -132,9 +130,9 @@ function WorkspaceSwitcher({ session, onUpdated }: Props) {
       onSubmit={(event) => void change(event)}
       aria-busy={action.pending}
     >
-      <h2>{msg("Changer d’atelier")}</h2>
+      <h2>{msgIn("workspace-account", "Switch workspace")}</h2>
       <div className="field">
-        <label htmlFor="account-workspace">{msg("Atelier actif")}</label>
+        <label htmlFor="account-workspace">{msg("Active workspace")}</label>
         <select
           id="account-workspace"
           value={selected}
@@ -150,16 +148,14 @@ function WorkspaceSwitcher({ session, onUpdated }: Props) {
       </div>
       <p className="field-hint">
         {msg(
-          "Vos documents et vos droits dépendent de l’atelier choisi. Le changement ouvre une nouvelle session dans cet atelier.",
+          "Your documents and permissions depend on the selected workspace. Switching opens a new session in that workspace.",
         )}
       </p>
       <button
         className="button"
         disabled={action.pending || selected === session.organization.id}
       >
-        {action.pending
-          ? msg("Connexion en cours…")
-          : msg("Ouvrir cet atelier")}
+        {action.pending ? msg("Signing in…") : msg("Open this workspace")}
       </button>
       <ErrorNotice error={action.error} />
     </form>
@@ -239,39 +235,37 @@ export function Account({ session, onUpdated }: Props) {
   return (
     <>
       <PageHeading
-        title={msg("Mon compte")}
+        title={msg("My account")}
         intro={msg(
-          "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.",
+          "Your identity, assistant permissions and workspace sessions.",
         )}
       />
       <section
         className="form-panel account-identity"
         aria-labelledby="account-identity-title"
       >
-        <h2 id="account-identity-title">{msg("Votre compte")}</h2>
+        <h2 id="account-identity-title">{msg("Your account")}</h2>
         <dl className="account-identity-details">
           <div>
-            <dt>{msg("Votre nom")}</dt>
+            <dt>{msg("Your name")}</dt>
             <dd>{session.user.name}</dd>
           </div>
           <div>
-            <dt>{msg("Adresse de connexion")}</dt>
-            <dd>
-              {session.user.email || msg("Adresse de connexion indisponible")}
-            </dd>
+            <dt>{msg("Sign-in email")}</dt>
+            <dd>{session.user.email || msg("Sign-in email unavailable")}</dd>
           </div>
           <div>
-            <dt>{msg("L’atelier")}</dt>
+            <dt>{msg("Workshop")}</dt>
             <dd>{session.organization.name}</dd>
           </div>
           <div>
-            <dt>{msg("Votre rôle dans cet atelier")}</dt>
+            <dt>{msg("Your role in this workshop")}</dt>
             <dd>{roleLabel(session.user.role)}</dd>
           </div>
         </dl>
         <p className="field-hint">
           {msg(
-            "Votre adresse de connexion est fournie par votre compte d’identité. Elle ne se modifie pas dans Guteneo.",
+            "Your sign-in email comes from your identity account. It cannot be changed in Guteneo.",
           )}
         </p>
       </section>
@@ -297,14 +291,14 @@ export function Account({ session, onUpdated }: Props) {
             onSubmit={(event) => void save(event)}
             aria-busy={action.pending}
           >
-            <h2>{msg("Mon profil")}</h2>
+            <h2>{msg("My profile")}</h2>
             <p className="field-hint">
               {msg(
-                "Votre nom de profil est partagé entre vos ateliers. Votre adresse de connexion et vos facteurs de sécurité restent gérés par le fournisseur d’identité.",
+                "Your profile name is shared across your workspaces. Your sign-in address and security factors remain managed by your identity provider.",
               )}
             </p>
             <div className="field">
-              <label htmlFor="account-name">{msg("Votre nom")}</label>
+              <label htmlFor="account-name">{msg("Your name")}</label>
               <input
                 id="account-name"
                 name="name"
@@ -324,7 +318,7 @@ export function Account({ session, onUpdated }: Props) {
             </div>
             <div className="field">
               <label htmlFor="account-organization">
-                {msg("Nom de l’atelier")}
+                {msg("Workspace name")}
               </label>
               <input
                 id="account-organization"
@@ -344,10 +338,8 @@ export function Account({ session, onUpdated }: Props) {
               />
               <small id="account-organization-help">
                 {isAdmin
-                  ? msg(
-                      "Ce nom sera visible par tous les membres de cet atelier.",
-                    )
-                  : msg("Seul un administrateur peut renommer cet atelier.")}
+                  ? msg("All members of this workspace can see this name.")
+                  : msg("Only an administrator can rename this workspace.")}
               </small>
             </div>
             <div className="account-display-preferences">
@@ -381,12 +373,10 @@ export function Account({ session, onUpdated }: Props) {
               type="submit"
               disabled={action.pending || !changed}
             >
-              {action.pending
-                ? msg("Enregistrement…")
-                : msg("Enregistrer les modifications")}
+              {action.pending ? msg("Saving…") : msg("Save changes")}
             </button>
             {saved && (
-              <p role="status">{msg("Votre profil a été enregistré.")}</p>
+              <p role="status">{msg("Your profile has been saved.")}</p>
             )}
             <div id="account-form-error">
               <ErrorNotice error={action.error} />
@@ -396,55 +386,53 @@ export function Account({ session, onUpdated }: Props) {
             className="form-panel account-role"
             aria-labelledby="account-role-title"
           >
-            <h2 id="account-role-title">
-              {msg("Vos droits dans cet atelier")}
-            </h2>
+            <h2 id="account-role-title">{msg("Your workspace permissions")}</h2>
             <p>
               <strong>{roleLabel(session.user.role)}</strong> —{" "}
               {roleDescription(session.user.role)}
             </p>
             <dl className="account-permissions">
               <div>
-                <dt>{msg("Documents et envois")}</dt>
+                <dt>{msg("Documents and dispatches")}</dt>
                 <dd>
                   {permissions.prepareDispatches
-                    ? msg("Préparation autorisée")
-                    : msg("Consultation seulement")}
+                    ? msg("Preparation allowed")
+                    : msg("Read only")}
                 </dd>
               </div>
               <div>
-                <dt>{msg("Approbation des envois")}</dt>
+                <dt>{msg("Dispatch approval")}</dt>
                 <dd>
                   {permissions.approveDispatches
-                    ? msg("Autorisée")
-                    : msg("Non autorisée")}
+                    ? msg("Allowed")
+                    : msg("Not allowed")}
                 </dd>
               </div>
               <div>
-                <dt>{msg("Rapports de l’atelier")}</dt>
+                <dt>{msg("Workshop reports")}</dt>
                 <dd>
                   {permissions.viewReports
-                    ? msg("Accessibles")
-                    : msg("Non accessibles")}
+                    ? msgIn("access", "Available")
+                    : msgIn("access", "Unavailable")}
                 </dd>
               </div>
               <div>
-                <dt>{msg("Membres et facturation")}</dt>
+                <dt>{msg("Members and billing")}</dt>
                 <dd>
                   {permissions.manageMembers && permissions.manageBilling
-                    ? msg("Gestion autorisée")
-                    : msg("Administrateur requis")}
+                    ? msg("Management allowed")
+                    : msg("Administrator required")}
                 </dd>
               </div>
             </dl>
             {!permissions.manageMembers && (
               <p className="field-hint">
                 {msg(
-                  "Pour changer de rôle ou de droits, contactez un administrateur de cet atelier.",
+                  "To change your role or permissions, contact an administrator of this workshop.",
                 )}
               </p>
             )}
-            <a href="/roles/">{msg("Comprendre les rôles")}</a>
+            <a href="/roles/">{msg("Understand roles")}</a>
           </section>
           <WorkspaceContacts session={session} />
           <ExpertApproval />
@@ -452,10 +440,10 @@ export function Account({ session, onUpdated }: Props) {
             className="form-panel"
             aria-labelledby="account-sessions-title"
           >
-            <h2 id="account-sessions-title">{msg("Vos sessions actives")}</h2>
+            <h2 id="account-sessions-title">{msg("Your active sessions")}</h2>
             <p className="field-hint">
               {msg(
-                "Les sessions de cet atelier expirent après une heure. Révoquer une session coupe son accès à Guteneo ; cela ne déconnecte pas votre compte du fournisseur d’identité.",
+                "Sessions in this workspace expire after one hour. Revoking a session removes its access to Guteneo; it does not sign you out of your identity provider account.",
               )}
             </p>
             <RefreshButton
@@ -474,10 +462,10 @@ export function Account({ session, onUpdated }: Props) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          {msg("Ouverture")}
+                          {msg("Started")}
                         </th>
                         <th role="columnheader" scope="col">
-                          {msg("Expiration")}
+                          {msg("Expiry")}
                         </th>
                         <th role="columnheader" scope="col">
                           {msg("Session")}
@@ -495,7 +483,7 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              {msg("Ouverture")}
+                              {msg("Started")}
                             </span>
                             {date(item.createdAt)}
                           </td>
@@ -504,7 +492,7 @@ export function Account({ session, onUpdated }: Props) {
                               className="mobile-cell-label"
                               aria-hidden="true"
                             >
-                              {msg("Expiration")}
+                              {msg("Expiry")}
                             </span>
                             {date(item.expiresAt)}
                           </td>
@@ -516,8 +504,8 @@ export function Account({ session, onUpdated }: Props) {
                               {msg("Session")}
                             </span>
                             {item.current
-                              ? msg("Cet appareil")
-                              : msg("Autre session")}
+                              ? msg("This device")
+                              : msg("Other session")}
                             {item.development
                               ? " · simulation"
                               : item.mfa
@@ -538,14 +526,14 @@ export function Account({ session, onUpdated }: Props) {
                               onClick={() => void revoke(item.id)}
                               aria-label={msg(
                                 item.current
-                                  ? "Me déconnecter de la session ouverte le {0}"
-                                  : "Révoquer la session ouverte le {0}",
+                                  ? "Sign me out of the session opened on {0}"
+                                  : "Revoke the session opened on {0}",
                                 date(item.createdAt),
                               )}
                             >
                               {item.current
-                                ? msg("Me déconnecter")
-                                : msg("Révoquer")}
+                                ? msgIn("account-action", "Sign out")
+                                : msg("Revoke")}
                             </button>
                           </td>
                         </tr>
@@ -558,7 +546,7 @@ export function Account({ session, onUpdated }: Props) {
             {sessions.data?.hasMore && (
               <p className="field-hint">
                 {msg(
-                  "Les 100 sessions les plus récentes sont affichées. Révoquez-en pour afficher les suivantes.",
+                  "The 100 most recent sessions are shown. Revoke some to display older ones.",
                 )}
               </p>
             )}
@@ -606,23 +594,23 @@ function MemberRow({
     <tr role="row">
       <th scope="row" role="rowheader">
         <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Membre")}
+          {msg("Member")}
         </span>
         <span className="member-name">
           {member.name}
-          {member.id === currentUserId ? msg(" (vous)") : ""}
+          {member.id === currentUserId ? msg(" (you)") : ""}
         </span>
         <span className="member-email">
-          {member.email || msg("Adresse de connexion indisponible")}
+          {member.email || msg("Sign-in email unavailable")}
         </span>
       </th>
       <td role="cell" className="member-role-cell">
         <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Rôle")}
+          {msg("Role")}
         </span>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor={`member-role-${member.id}`} className="sr-only">
-            {msg("Rôle de ")}
+            {msg("Role of ")}
             {memberLabel}
           </label>
           <select
@@ -650,14 +638,14 @@ function MemberRow({
           </p>
           {role === "supervisor" && (
             <fieldset className="member-rights" disabled={disabled}>
-              <legend>{msg("Droits de {0}", memberLabel)}</legend>
+              <legend>{msg("Permissions for {0}", memberLabel)}</legend>
               <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={canApprove}
                   onChange={(event) => setCanApprove(event.target.checked)}
                 />
-                <span>{msg("Approuver et refuser les requêtes")}</span>
+                <span>{msg("Approve and reject requests")}</span>
               </label>
               <label className="checkbox-label">
                 <input
@@ -665,7 +653,7 @@ function MemberRow({
                   checked={canReport}
                   onChange={(event) => setCanReport(event.target.checked)}
                 />
-                <span>{msg("Consulter les rapports")}</span>
+                <span>{msg("Read reports")}</span>
               </label>
             </fieldset>
           )}
@@ -673,7 +661,7 @@ function MemberRow({
       </td>
       <td role="cell">
         <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Accès actifs")}
+          {msg("Active access")}
         </span>
         {msg(
           member.sessions === 1 ? "{0} session" : "{0} sessions",
@@ -682,8 +670,8 @@ function MemberRow({
         <br />
         {msg(
           member.connections === 1
-            ? "{0} connexion d’assistant"
-            : "{0} connexions d’assistant",
+            ? "{0} assistant connection"
+            : "{0} assistant connections",
           member.connections,
         )}
       </td>
@@ -703,27 +691,27 @@ function MemberRow({
                 supervisorCanReport: role === "supervisor" && canReport,
               })
             }
-            aria-label={msg("Enregistrer le rôle de {0}", memberLabel)}
+            aria-label={msg("Save the role for {0}", memberLabel)}
           >
-            {msg("Enregistrer le rôle")}
+            {msg("Save role")}
           </button>
           <ConfirmAction
             className="text-button"
             disabled={disabled || (!member.sessions && !member.connections)}
             onConfirm={onRevoke}
-            ariaLabel={msg("Déconnecter {0} de cet atelier", memberLabel)}
-            label={msg("Déconnecter les accès")}
+            ariaLabel={msg("Sign {0} out of this workshop", memberLabel)}
+            label={msg("Disconnect access")}
             question={
               member.id === currentUserId
                 ? msg(
-                    "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter.",
+                    "Disconnect your own sessions and assistants? You will need to sign in again.",
                   )
                 : msg(
-                    "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.",
+                    "Disconnect {0}’s sessions and assistants? They remain a member and can sign in again.",
                     memberLabel,
                   )
             }
-            confirmLabel={msg("Oui, déconnecter")}
+            confirmLabel={msg("Yes, disconnect")}
           />
         </div>
       </td>
@@ -755,8 +743,8 @@ export function TeamAdmin({ session, onUpdated }: Props) {
         members.refresh();
         setMessage(
           rights
-            ? "Le rôle a été modifié. Ce membre doit se reconnecter."
-            : "Les accès ont été déconnectés. Le membre peut se reconnecter à son compte.",
+            ? "The role has been changed. This member must sign in again."
+            : "Access has been disconnected. The member can sign in to their account again.",
         );
       }
     });
@@ -766,30 +754,28 @@ export function TeamAdmin({ session, onUpdated }: Props) {
       className="form-panel team-admin"
       aria-labelledby="team-admin-title"
     >
-      <h2 id="team-admin-title">{msg("Membres de l’atelier")}</h2>
+      <h2 id="team-admin-title">{msg("Workspace members")}</h2>
       <details className="role-guide-details">
-        <summary>{msg("Comprendre les rôles")}</summary>
+        <summary>{msg("Understand roles")}</summary>
         <RolesOverview />
-        <a href="/roles/">{msg("Lire le guide des rôles et droits")}</a>
+        <a href="/roles/">{msg("Read the roles and permissions guide")}</a>
       </details>
       {isPublicPreview ? (
         <PreviewNotice />
       ) : !canAdminister(session) ? (
         <p>
-          {msg(
-            "La gestion des membres est réservée aux administrateurs de cet atelier.",
-          )}
+          {msg("Only administrators of this workspace can manage members.")}
         </p>
       ) : (
         <>
           <p className="field-hint">
             {msg(
-              "Un changement de rôle déconnecte les sessions et les assistants du membre concerné. Si vous modifiez votre propre rôle, vous devrez vous reconnecter. L’atelier conserve toujours au moins un administrateur.",
+              "Changing a role disconnects that member’s sessions and assistants. If you change your own role, you must sign in again. The workspace always retains at least one administrator.",
             )}
           </p>
           <p className="field-hint">
             {msg(
-              "Déconnecter les accès ne retire pas la qualité de membre : la personne pourra se reconnecter.",
+              "Disconnecting access does not remove membership: the person can sign in again.",
             )}
           </p>
           <RefreshButton
@@ -811,13 +797,13 @@ export function TeamAdmin({ session, onUpdated }: Props) {
                     <thead role="rowgroup">
                       <tr role="row">
                         <th role="columnheader" scope="col">
-                          {msg("Membre")}
+                          {msg("Member")}
                         </th>
                         <th role="columnheader" scope="col">
-                          {msg("Rôle")}
+                          {msg("Role")}
                         </th>
                         <th role="columnheader" scope="col">
-                          {msg("Accès actifs")}
+                          {msg("Active access")}
                         </th>
                         <th role="columnheader" scope="col">
                           {msg("Actions")}

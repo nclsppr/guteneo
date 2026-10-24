@@ -1,133 +1,125 @@
-# Claude : paquet 1.0.0 et preuves distinctes
+# Claude: package 1.0.0 and separate evidence
 
-État du candidat au **23 octobre 2026**. Le répertoire
-`integrations/claude/plugins/guteneo` contient un vrai paquet Claude Code autonome :
-manifeste, connexion HTTP distante et six skills adaptés aux limites de cet hôte.
-Le catalogue local `integrations/claude/.claude-plugin/marketplace.json` le référence
-sans chemin externe. Le manifeste Claude du paquet combiné reste disponible à la
-même version ; ces deux distributions alternatives ne doivent pas être installées
-simultanément sous le nom `guteneo`.
+Candidate state as of **23 October 2026**.
+`integrations/claude/plugins/guteneo` contains a standalone Claude Code package:
+manifest, remote HTTP connection and six skills adapted to that host's limits.
+Local catalog `integrations/claude/.claude-plugin/marketplace.json` references
+it without an external path. The combined package's Claude manifest remains
+available at the same version; do not install both alternative distributions
+simultaneously under the `guteneo` name.
 
-## Trois surfaces à distinguer
+## Three separate surfaces
 
-| Surface                           | Livrable / accès                                                      | Preuve actuelle                                                                                                              |
-| --------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Plugin Claude Code                | ZIP dédié, répertoire local ou catalogue local `guteneo-plugins`      | Format des deux ZIP extraits validé par Claude Code 2.1.309 ; installation et appels réels à qualifier.                      |
-| Connecteur personnalisé Claude.ai | URL `https://guteneo.com/mcp`, connexion OAuth propre à l'utilisateur | Connexion et `get_capabilities` observés le 17 septembre seulement, dans [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). |
-| Annuaire Anthropic                | Soumission séparée du connecteur ou du plugin                         | Aucune soumission, inscription ou approbation affirmée. Un catalogue local ne publie rien dans cet annuaire.                 |
+| Surface | Deliverable/access | Current evidence |
+| --- | --- | --- |
+| Claude Code plugin | Dedicated ZIP, local directory or `guteneo-plugins` local catalog | Both extracted ZIP formats validated by Claude Code 2.1.309; installation/actual calls unqualified. |
+| Claude.ai custom connector | `https://guteneo.com/mcp`, per-user OAuth | Connection/`get_capabilities` observed only on 17 September; [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). |
+| Anthropic directory | Separate connector/plugin submission | No submission, listing or approval claimed. Local catalogs publish nothing there. |
 
-Les [formats Claude Code](https://code.claude.com/docs/en/plugins-reference)
-utilisent `.claude-plugin/plugin.json` et découvrent les skills et `.mcp.json` dans
-leurs emplacements standards. Le nom reste `guteneo`, la version suit le produit,
-et le transport existant conserve ses scopes. Le paquet ne contient aucun secret,
-script, hook ou règle accordant automatiquement des permissions. Les instructions
-et le guide de modèles restent des fichiers du paquet.
+[Claude Code formats](https://code.claude.com/docs/en/plugins-reference) use
+`.claude-plugin/plugin.json` and discover skills/`.mcp.json` in standard
+locations. Name stays `guteneo`, version follows the product, transport retains
+existing scopes. The package contains no secret, script, hook or automatically
+granted permission. Instructions/template guide remain package files.
 
-## Construction et validation
+## Build and validation
 
-Depuis la racine du dépôt :
+From repository root:
 
 ```sh
 npm run build:integrations
 node --test tests/security/claude-plugin.test.mjs
 ```
 
-Le constructeur produit dans `dist/integrations/` :
+The builder produces in `dist/integrations/`:
 
-- `guteneo-claude-code.zip` : racine du plugin ; après extraction,
-  `claude plugin validate ./guteneo-claude-code`, puis, si l'utilisateur choisit
-  de l'utiliser, `claude --plugin-dir ./guteneo-claude-code`.
-- `guteneo-claude-marketplace.zip` : racine du catalogue, avec le même plugin sous
-  `plugins/guteneo/`. Le README embarqué donne la commande de validation et les
-  commandes distinctes d'enregistrement et d'installation.
+- `guteneo-claude-code.zip`: plugin root; after extraction,
+  `claude plugin validate ./guteneo-claude-code`, then, if the user chooses
+  to use it, `claude --plugin-dir ./guteneo-claude-code`.
+- `guteneo-claude-marketplace.zip`: catalog root with the same plugin under
+  `plugins/guteneo/`. Bundled README gives validation and separate registration/
+  installation commands.
 
-Les tests vérifient le contenu exact des archives, les chemins contenus, la parité
-de version/connexion, les limites d'autorité et le refus de configurations ajoutant
-des secrets ou des permissions. Ils ne simulent pas un résultat de l'hôte.
-`claude plugin validate` est le validateur Anthropic de référence ; son résultat
-doit être conservé avec la version du CLI, séparément de la recette OAuth.
-Le [catalogue local](https://code.claude.com/docs/en/plugin-marketplaces) reste un
-mode de distribution propre à Guteneo, pas une présence dans l'annuaire Anthropic.
+Tests verify exact archive contents, contained paths, version/connection parity,
+authority limits and rejection of added secrets/permissions. They do not simulate
+host success. `claude plugin validate` is Anthropic's reference validator;
+retain output and CLI version separately from OAuth qualification. The
+[local catalog](https://code.claude.com/docs/en/plugin-marketplaces) is Guteneo's
+distribution method, not Anthropic-directory presence.
 
-Le 23 octobre, le binaire officiel **Claude Code 2.1.309** a validé les deux
-archives extraites avec `plugin validate --strict`, sans erreur ni avertissement
-de manifeste. Le runtime npm était isolé hors du dépôt, sans script d'installation,
-avec une configuration Claude vide et le réseau interdit pendant les validations.
-Aucune connexion ni installation du plugin n'a été effectuée. Les cinq tests de
-paquet passent, dont la vérification des octets réellement archivés et du refus
-des substitutions de credentials, commandes, scopes, chemins et permissions.
+On 23 October, official **Claude Code 2.1.309** validated both extracted
+archives using `plugin validate --strict`, with no manifest errors/warnings.
+The npm runtime was isolated outside the repository, without install scripts,
+with empty Claude configuration and network blocked during validation.
+No connection/plugin installation occurred. Five package tests pass, including
+actual archived bytes and rejection of credential, command, scope, path and
+permission substitutions.
 
-Le contrôle supplémentaire `--profile directory --strict` échoue uniquement sur
-`LICENSE_MISSING`. Il faut une décision du titulaire des droits sur la licence de
-distribution avant une soumission à l'annuaire ; ni une licence libre inventée ni
-la simple validation locale ne lève ce point. L'icône 512 × 512 existante et les
-URLs publiques de support, confidentialité et conditions sont incluses. Le CLI
-précise que ses vérifications ne remplacent pas l'analyse de sécurité et la revue
-de politique de l'annuaire.
+Additional `--profile directory --strict` fails only on `LICENSE_MISSING`.
+The rights holder must decide distribution licensing before directory
+submission; neither an invented open-source license nor local validation
+resolves this. Existing 512 × 512 icon and public support/privacy/terms URLs
+are included. CLI checks do not replace directory security/policy review.
 
-## Prérequis OAuth Claude Code
+## Claude Code OAuth prerequisites
 
-Le paquet distant utilise la découverte standard. Sa compatibilité effective
-DCR/CIMD n'est pas démontrée ici. L'identifiant historique du client Claude.ai
-`IhJieRsvZBAnl1uJO125X2SPoIHxT8ed` vise le callback hébergé
-`https://claude.ai/api/mcp/auth_callback` ; il n'est pas un client localhost
-qualifié pour Claude Code. Aucun nouvel identifiant, secret ou callback n'est
-créé par le paquet.
+The remote package uses standard discovery. Actual DCR/CIMD compatibility is
+not demonstrated here. Historical Claude.ai client ID
+`IhJieRsvZBAnl1uJO125X2SPoIHxT8ed` targets hosted callback
+`https://claude.ai/api/mcp/auth_callback`; it is not a qualified localhost
+Claude Code client. The package creates no identifier, secret or callback.
 
-Si l'enregistrement automatique est refusé, vérifier avec l'opérateur un client
-public existant réellement enregistré pour le callback du CLI avant de le
-configurer. Le modèle `integrations/config/claude-static-oauth.json` documente le
-port 8788, mais son marqueur n'est pas une configuration utilisable. Ne pas copier
-ce marqueur dans le plugin, ni modifier une inscription OAuth pour faire passer
-la validation. Le [guide MCP Claude Code](https://code.claude.com/docs/en/mcp)
-décrit `oauth.clientId`, le callback fixe et `/mcp` ; les permissions de l'hôte et
-les droits Guteneo restent applicables. Aucune authentification n'a été exécutée
-pour préparer ce candidat.
+If automatic registration is refused, work with the operator to verify an
+existing public client actually registered for the CLI callback before
+configuring it. `integrations/config/claude-static-oauth.json` documents port
+8788, but its marker is not usable configuration. Copy neither marker into
+the plugin nor modify OAuth registration merely to pass validation. The
+[Claude Code MCP guide](https://code.claude.com/docs/en/mcp) describes
+`oauth.clientId`, fixed callback and `/mcp`; host permissions/Guteneo rights
+still apply. No authentication was performed to prepare this candidate.
 
-La documentation actuelle indique également que les connecteurs Claude.ai peuvent
-apparaître dans Claude Code sous une connexion Claude.ai compatible. Ce chemin
-reste à constater dans le vrai compte : il ne prouve ni le fonctionnement de la
-connexion embarquée dans ce plugin, ni la réutilisation de son client OAuth.
+Current documentation also says Claude.ai connectors may appear in Claude
+Code under a compatible Claude.ai login. Observe that in the actual account
+before claiming it: it proves neither this plugin's bundled connection nor
+reuse of its OAuth client.
 
-## Recette avant toute affirmation de compatibilité réelle
+## Qualification before claiming actual compatibility
 
-1. Valider les deux répertoires extraits avec le CLI Anthropic et enregistrer sa
-   version, le SHA-256 des ZIP et les sorties sans secret.
-2. Après choix explicite d'installation, constater les six skills, le serveur et
-   les confirmations normales. Faire la connexion OAuth normale du bon compte.
-3. Appeler uniquement `get_capabilities` ; vérifier le mode, le tenant associé et
-   les blocages réels sans créer de document ou d'envoi. La présence d'un outil
-   n'est pas une preuve d'exécution ou d'autorité.
-4. Qualifier séparément l'expiration, un vrai renouvellement et la révocation.
-   Le code de rotation ou une reconnexion ne prouvent pas un échange de refresh.
-5. Avec un PDF synthétique autorisé, constater les octets exacts, le scan et la
-   lecture des pages. Ce paquet ne fournit aucun transfert local ou extraction
-   de pièce jointe Claude. Le dépôt navigateur reste un parcours distinct.
-6. Qualifier les préparations séparément, avec destinataire/plafond exacts et
-   autorisation applicable. Un résultat `review_prepare_only` s'arrête avant la
-   revue expert, le transfert fournisseur, l'approbation ou l'envoi. Aucun envoi
-   réel n'est nécessaire pour valider le format du plugin.
+1. Validate both extracted directories with Anthropic CLI; record its version,
+   ZIP SHA-256 and secret-free output.
+2. After explicit installation choice, observe six skills, server and normal
+   confirmations. Complete normal OAuth for the correct account.
+3. Call only `get_capabilities`; verify mode, bound tenant and actual blocks
+   without creating documents/dispatches. Tool presence proves neither
+   execution nor authority.
+4. Separately qualify expiry, actual renewal and revocation. Rotation code
+   or reconnection does not prove refresh exchange.
+5. With an authorized synthetic PDF, verify exact bytes, scan/page reading.
+   The package provides no local transfer or Claude attachment extraction;
+   browser upload remains separate.
+6. Qualify preparations separately with exact recipient/cap and applicable
+   authority. `review_prepare_only` stops before expert review, provider
+   transfer, approval or sending. Plugin-format validation needs no real send.
 
-Les workflows conservent les restrictions de contenu, les originaux immuables,
-la revue navigateur par défaut, les mandats préexistants bornés par client, les
-incertitudes fournisseur sans retry et les tarifs retournés par le serveur.
-Les [skills Claude](https://code.claude.com/docs/en/skills) n'accordent ici aucun
-`allowed-tools` : ce champ peut préautoriser des outils et ne remplace pas les
-contrôles d'autorité du produit.
+Workflows retain content restrictions, immutable originals, default browser
+review, preexisting client-bounded mandates, uncertain outcomes without retry
+and server-returned prices. [Claude skills](https://code.claude.com/docs/en/skills)
+grant no `allowed-tools` here; that field can preauthorize tools and does not
+replace product authority checks.
 
-## Claude.ai et annuaire
+## Claude.ai and directory
 
-Le [lien officiel de connecteur personnalisé](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Guteneo&connectorUrl=https%3A%2F%2Fguteneo.com%2Fmcp)
-préremplit uniquement le nom et l'URL. L'utilisateur doit encore confirmer la
-configuration et s'authentifier. L'installation privée n'accorde aucun badge,
-publication ou référencement. La [distinction annuaire/connecteur personnalisé](https://claude.com/docs/connectors/building/directory-vs-custom)
-et le [contrat d'authentification Anthropic](https://claude.com/docs/connectors/building/authentication)
-imposent de qualifier le mécanisme d'identité choisi pour cette surface.
-Une configuration de client hébergé ou une ancienne preuve de consentement ne
-qualifie pas le CLI. Les modifications d'authentification, installations et
-soumissions externes restent des opérations séparées de ce candidat source.
+The [official custom-connector link](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Guteneo&connectorUrl=https%3A%2F%2Fguteneo.com%2Fmcp)
+prefills only name/URL. Users must still confirm and authenticate. Private
+installation grants no badge, publication or listing. The
+[directory/custom-connector distinction](https://claude.com/docs/connectors/building/directory-vs-custom)
+and [Anthropic authentication contract](https://claude.com/docs/connectors/building/authentication)
+require qualification of the chosen identity mechanism for that surface.
+Hosted-client configuration/old consent evidence do not qualify CLI.
+Authentication changes, installations and external submissions remain separate
+from this source candidate.
 
-Sources primaires consultées le 23 octobre 2026. Les notes de septembre dans
-[CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md) et [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md)
-restent historiques ; elles ne sont pas converties en preuve de recette du
-paquet 1.0.0.
+Primary sources consulted on 23 October 2026. September notes in
+[CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md) and
+[CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md) remain historical and do
+not become package-1.0.0 qualification evidence.

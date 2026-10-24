@@ -84,12 +84,12 @@ export const privatePdfValidationResult = z
       ctx.addIssue({ code: "custom", message: "Incomplete validation result" });
   });
 export const pdfManualChecks = [
-  { id: "reading_order", title: "Ordre de lecture et structure" },
-  { id: "alternative_text", title: "Pertinence des textes alternatifs" },
-  { id: "visual_contrast", title: "Contraste et lisibilité" },
+  { id: "reading_order", title: "Reading order and structure" },
+  { id: "alternative_text", title: "Alternative-text suitability" },
+  { id: "visual_contrast", title: "Contrast and readability" },
   {
     id: "keyboard_navigation",
-    title: "Navigation au clavier et lecteur d’écran",
+    title: "Keyboard and screen-reader navigation",
   },
 ] as const;
 export const pdfValidationReportSchema = z

@@ -1,24 +1,23 @@
-# Guteneo pour iOS et iPadOS
+# Guteneo for iOS and iPadOS
 
-Application SwiftUI native, Swift 6, iOS/iPadOS 17 minimum. Le projet partagé
-`Guteneo.xcodeproj` contient l'app, les tests unitaires `GuteneoTests` et les tests
-d'interface `GuteneoUITests`. Il n'ajoute aucune dépendance tierce. Le bundle est
-`com.guteneo.ios`, version `1.0`, build `1`.
+Native SwiftUI application, Swift 6, minimum iOS/iPadOS 17. The shared
+`Guteneo.xcodeproj` contains the app, `GuteneoTests` unit tests and
+`GuteneoUITests` interface tests. It adds no third-party dependency.
+Bundle: `com.guteneo.ios`, version `1.0`, build `1`.
 
-Il s'agit d'un candidat local. La présence du projet, d'un build ou d'une archive
-ne prouve ni une intégration de production, ni une publication App Store. Le
-contrat mobile doit être déployé et qualifié avant une soumission. Les conditions
-détaillées se trouvent dans [AppStore/REVIEW_POLICY.md](AppStore/REVIEW_POLICY.md).
+This is a local candidate. Project, build or archive presence proves neither
+production integration nor App Store publication. Deploy and qualify the
+mobile contract before submission. Detailed conditions are in
+[AppStore/REVIEW_POLICY.md](AppStore/REVIEW_POLICY.md).
 
-## Ouvrir et compiler
+## Open and build
 
-Ouvrir `ios/Guteneo.xcodeproj`, choisir le scheme partagé **Guteneo**, puis un
-simulateur iPhone ou iPad. Les groupes suivent les dossiers `Guteneo`,
-`GuteneoTests` et `GuteneoUITests` : les nouveaux fichiers Swift y sont inclus
-automatiquement. `Info.plist` est exclu des ressources copiées et utilisé comme
-fichier de configuration de l'app.
+Open `ios/Guteneo.xcodeproj`, choose the shared **Guteneo** scheme, then an
+iPhone/iPad simulator. Groups follow the `Guteneo`, `GuteneoTests` and
+`GuteneoUITests` folders: new Swift files are included automatically.
+`Info.plist` is excluded from copied resources and used as app configuration.
 
-Depuis la racine du dépôt :
+From the repository root:
 
 ```sh
 bash ios/scripts/doctor.sh
@@ -26,20 +25,19 @@ bash ios/scripts/build.sh
 bash ios/scripts/build.sh --release --device
 ```
 
-Les scripts utilisent explicitement
-`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` par défaut et ne
-modifient pas la sélection globale des outils. Définir `DEVELOPER_DIR` si Xcode
-est installé ailleurs. Ils conservent leurs sorties dans `ios/.build/` ;
-`GUTENEO_BUILD_ROOT` permet de choisir un autre dossier.
+Scripts explicitly use
+`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` by default and do not
+change the global tool selection. Set `DEVELOPER_DIR` if Xcode is installed
+elsewhere. They retain output in `ios/.build/`; `GUTENEO_BUILD_ROOT` selects
+another folder.
 
-`build.sh` compile pour un simulateur avec une signature ad hoc locale, sans
-certificat de distribution. Cette signature permet notamment de tester le
-trousseau dans les conditions du simulateur. `--device` compile pour
-un appareil physique, également sans signature ; cela ne permet pas son
-installation. `--release` utilise la configuration distribuable, sans les
-fixtures réservées à Debug.
+`build.sh` builds for a simulator with local ad hoc signing and no distribution
+certificate. This permits testing Keychain under simulator conditions.
+`--device` builds for a physical device without signing, which does not permit
+installation. `--release` uses the distributable configuration without
+Debug-only fixtures.
 
-## Tests et démonstration locale
+## Tests and local demonstration
 
 ```sh
 bash ios/scripts/test.sh
@@ -47,211 +45,193 @@ bash ios/scripts/test.sh --unit
 bash ios/scripts/test.sh --ui
 ```
 
-Le simulateur par défaut est **iPhone 17 Pro**, sur le dernier runtime installé.
-Choisir explicitement un autre appareil avec `--destination`, par exemple en
-reprenant son identifiant dans la liste affichée par `doctor.sh` :
+The default simulator is **iPhone 17 Pro** on the latest installed runtime.
+Choose another explicitly with `--destination`, for example using its
+identifier from `doctor.sh`:
 
 ```sh
-bash ios/scripts/test.sh --destination 'platform=iOS Simulator,id=IDENTIFIANT_DU_SIMULATEUR'
+bash ios/scripts/test.sh --destination 'platform=iOS Simulator,id=SIMULATOR_IDENTIFIER'
 ```
 
-Les tests utilisent une exécution séquentielle et créent un nouveau résultat
-`.xcresult` à chaque passage. Ils ne suppriment pas les résultats précédents.
+Tests run sequentially and create a new `.xcresult` each time. They do not
+delete previous results.
 
-Deux arguments de lancement sont réservés à la configuration Debug :
+Two launch arguments are reserved for Debug:
 
-- `--uitesting-preview` ouvre les données fictives locales. La mention
-  « Simulation · aucun envoi réel. » doit rester visible. Cette démonstration ne
-  qualifie pas le serveur, les fournisseurs ni une livraison.
-- `--uitesting-signed-out` ouvre le parcours de connexion pour le contrôle de
-  l'écran d'accueil.
+- `--uitesting-preview` opens local fictional data. The localized simulation/
+  no-real-dispatch notice must remain visible. This demonstration qualifies
+  neither server, providers nor delivery.
+- `--uitesting-signed-out` opens the login journey for welcome-screen checks.
 
-Les tests d'interface vérifient le parcours de connexion, la navigation entre
-Atelier, Documents, Envois et Compte, la lecture du PDF synthétique, l'ouverture
-et la fermeture de la préparation sans envoi, la navigation en taille de texte
-d'accessibilité et l'absence d'invitation à recharger sur ces écrans. Ils joignent
-des captures au résultat de test. Un scénario dédié vérifie aussi qu’un devis
-de référence limité à la préparation n’offre pas de validation ou d’envoi.
-Un sixième scénario change la sélection d'un document prêt à un document en
-vérification, puis d'un envoi préparé à un envoi distribué : le détail et ses
-actions doivent être remplacés. Sur iPad, il vérifie aussi la conservation de
-la sélection après une rotation paysage puis portrait. Le lien de l'Atelier
-vers tous les documents doit sélectionner le véritable onglet de bibliothèque.
-Cela ne remplace pas une revue de toutes les erreurs et pages web ouvertes par
-l'app, ni les essais sur appareil physique et avec VoiceOver.
+Interface tests cover login, navigation between Workspace, Documents,
+Dispatches and Account, synthetic-PDF reading, opening/closing preparation
+without sending, accessibility text size and absence of top-up invitations.
+They attach captures to the test result. A dedicated scenario also checks
+that a preparation-only reference quote offers no validation or sending.
+A sixth scenario switches from a ready document to one under verification,
+then from a prepared dispatch to a delivered one: detail and actions must be
+replaced. On iPad it also checks selection persistence through landscape and
+portrait rotations. The workspace's all-documents link must select the actual
+library tab. This replaces neither review of every error/opened web page nor
+physical-device and VoiceOver tests.
 
-`bash ios/scripts/export-screenshots.sh` suivi du chemin d'un résultat
-`.xcresult` exporte ses captures et leur manifeste dans un nouveau dossier de
-`ios/.build/Screenshots/`. Les images ne sont ni recadrées ni retouchées.
+`bash ios/scripts/export-screenshots.sh` followed by a `.xcresult` path exports
+captures and their manifest to a new `ios/.build/Screenshots/` folder.
+Images are neither cropped nor edited.
 
-## Archives et signature
+## Archives and signing
 
 ```sh
 bash ios/scripts/archive.sh --unsigned
 ```
 
-Cette commande produit une archive Release locale et contrôle la présence du
-fichier de configuration, du catalogue d'assets et du manifeste de
-confidentialité. Une archive non signée sert uniquement à l'inspection. Elle
-n'est pas un paquet App Store.
+This produces a local Release archive and checks configuration, asset catalog
+and privacy manifest presence. An unsigned archive is for inspection only;
+it is not an App Store package.
 
-Pour produire une archive signée, définir `GUTENEO_TEAM_ID` avec l'équipe Apple
-Developer réellement autorisée, configurer la signature du bundle dans Xcode,
-puis lancer `bash ios/scripts/archive.sh --signed`. Le script n'ajoute pas
-`-allowProvisioningUpdates` et ne crée pas de certificat ni de profil distant.
+For a signed archive, set `GUTENEO_TEAM_ID` to the actually authorized Apple
+Developer team, configure bundle signing in Xcode, then run
+`bash ios/scripts/archive.sh --signed`. The script adds no
+`-allowProvisioningUpdates` and creates no remote certificate or profile.
 
-L'export local App Store utilise `bash ios/scripts/export.sh` suivi du chemin
-de l'archive signée. Il exige :
+Local App Store export uses `bash ios/scripts/export.sh` followed by the
+signed archive path. It requires:
 
-- `GUTENEO_TEAM_ID` : l'équipe propriétaire du bundle ;
-- `GUTENEO_PROFILE_NAME` : le nom ou UUID du profil App Store installé pour
-  `com.guteneo.ios` ;
-- une identité **Apple Distribution** utilisable avec sa clé privée.
+- `GUTENEO_TEAM_ID`: the bundle's owning team;
+- `GUTENEO_PROFILE_NAME`: installed App Store profile name/UUID for
+  `com.guteneo.ios`;
+- a usable **Apple Distribution** identity with its private key.
 
-`GUTENEO_DISTRIBUTION_CERTIFICATE` peut préciser l'empreinte SHA-1 du certificat
-de distribution choisi. Un certificat Apple Development ne satisfait pas ce
-prérequis. Xcode contrôle la compatibilité réelle du profil, de l'équipe et du
-certificat au moment de l'export.
+`GUTENEO_DISTRIBUTION_CERTIFICATE` can specify the chosen distribution
+certificate's SHA-1 fingerprint. An Apple Development certificate does not
+satisfy this prerequisite. Xcode checks actual profile/team/certificate
+compatibility during export.
 
-Le fichier d'options force `destination=export`. Aucun script ne téléverse un
-build, n'envoie de communication, ne soumet une app à review ou ne la publie.
-Signature, validation du paquet, installation TestFlight et décision d'App
-Review doivent recevoir leurs propres preuves.
+Export options force `destination=export`. No script uploads a build, sends
+a communication, submits for review or publishes. Signing, package validation,
+TestFlight installation and App Review decisions need separate evidence.
 
-## Diagnostic de l'environnement du 22 septembre 2026
+## Environment diagnosis on 22 September 2026
 
-Xcode `27.0` (`27A266a`) est présent. La lecture du projet et des paramètres de
-compilation réussit. La sélection système des outils peut encore pointer sur
-CommandLineTools : les scripts évitent cette ambiguïté avec `DEVELOPER_DIR`.
+Xcode `27.0` (`27A266a`) is present. Project and build-setting reads pass.
+System tool selection may still point to CommandLineTools; scripts avoid
+that ambiguity with `DEVELOPER_DIR`.
 
-Le contrôle initial signalait un CoreSimulator installé (`1171.6.0`) plus ancien
-que la version attendue (`1171.7.0`). L'installation proposée par l'interface
-officielle de Xcode a été lancée et s'est terminée. Le contrôle
-`-checkFirstLaunchStatus` renvoie désormais un succès. La compilation Release
-pour appareil physique a également réussi, sans signature.
+The initial check reported installed CoreSimulator `1171.6.0`, older than
+expected `1171.7.0`. Installation offered by the official Xcode interface
+was started and completed. `-checkFirstLaunchStatus` now succeeds. The
+unsigned physical-device Release build also passed.
 
-Ne pas modifier un numéro de version, remplacer manuellement un framework,
-neutraliser une vérification de signature ou tuer un installateur système pour
-faire disparaître un tel état. Terminer l'installation officielle dans Xcode ;
-si macOS exige une authentification ou la fin d'une mise à jour déjà engagée,
-l'utilisateur doit la compléter. Relancer ensuite `doctor.sh` puis les tests.
-La liste d'appareils fournie par un outil CoreSimulator existant ne prouve pas
-que Xcode peut exécuter les tests avec son propre SDK.
+Do not modify a version number, manually replace a framework, bypass signature
+verification or kill a system installer to hide that state. Complete official
+Xcode installation; if macOS requires authentication or completion of an
+ongoing update, the user must finish it. Then rerun `doctor.sh` and tests.
+An existing CoreSimulator tool's device list does not prove Xcode can execute
+tests with its own SDK.
 
-Après mise à jour des composants, la campagne de composition adaptative réussit
-vingt-deux tests unitaires et six tests UI sur iPhone 17e, iOS 26.5, puis six
-tests UI sur iPadOS 27 en mode sombre. Le lot iPad le plus récent réussit aussi
-les six scénarios en mode clair, avec l'icône Icon Composer intégrée. Les contrôles comprennent la
-portée des devis de référence, le contraste des couleurs du catalogue et la
-transparence du portrait compilé. Ils utilisent une signature ad hoc et un
-véritable cycle d'écriture, lecture et suppression dans le trousseau.
-Les premiers builds de simulateur sans signature empêchaient la suppression de
-la session et affichaient une erreur ; la signature des builds et tests de
-simulateur a été corrigée, sans masquer l'erreur dans l'interface.
+After updating components, adaptive-composition qualification passed 22 unit
+and 6 UI tests on iPhone 17e/iOS 26.5, then 6 UI tests in dark mode on iPadOS 27.
+The latest iPad batch also passed all six scenarios in light mode with the
+Icon Composer icon integrated. Checks include reference-quote scope, catalog
+color contrast and compiled-portrait transparency. They use ad hoc signing
+and a real Keychain write/read/delete cycle. Early unsigned simulator builds
+prevented session deletion and displayed an error; simulator build/test
+signing was corrected without hiding the interface error.
 
-Les six scénarios d'interface couvrent le texte XXXL, la marque unique, le PDF,
-la préparation sans envoi et le remplacement du détail sélectionné. La rotation
-iPad vérifie la conservation de la sélection. Une capture paysage initiale mal
-cadrée reste distincte du résultat fonctionnel. Le diagnostic confirme une
-géométrie paysage et une capture brute correcte par `XCUIScreen`, tandis que
-`app.screenshot()` reste mal cadré dans ce contexte. Seule la capture d'écran
-entier sert de preuve paysage retenue. Le redimensionnement
-d'une véritable fenêtre iPad étroite reste à qualifier. Le détail des lots, les
-limites et les captures sont dans
-[QA/Screenshots/README.md](QA/Screenshots/README.md). Les choix Liquid Glass et
-les sources 2026 figurent dans [l'audit Apple UI](QA/APPLE_UI_AUDIT.md).
+The six interface scenarios cover XXXL text, one brand signature, PDF,
+preparation without sending and selected-detail replacement. iPad rotation
+checks selection persistence. An initially misframed landscape capture remains
+separate from the functional result. Diagnosis confirms actual landscape
+geometry and a correct raw `XCUIScreen` capture while `app.screenshot()`
+remains misframed in this context. Only the full-screen capture is retained
+as landscape evidence. Actual narrow iPad window resizing remains unqualified.
+Batch details, limits and captures are in
+[QA/Screenshots/README.md](QA/Screenshots/README.md). Liquid Glass decisions
+and 2026 sources are in the [Apple UI audit](QA/APPLE_UI_AUDIT.md).
 
-L’archive Release non signée contient l’app universelle iPhone/iPad, le manifeste,
-les assets et les symboles de diagnostic. Aucune identité Apple Distribution utilisable
-n'était présente dans le trousseau lors du contrôle ; une identité Apple
-Development était présente. Cela laisse l'export de distribution à qualifier.
+The unsigned Release archive contains the universal iPhone/iPad app, manifest,
+assets and diagnostic symbols. No usable Apple Distribution identity was
+present in Keychain during inspection; an Apple Development identity was
+present. Distribution export therefore remains unqualified.
 
-Les résultats de compilation, d'exécution, de capture et de distribution doivent
-être rapportés séparément, avec le build concerné. Le succès de la réparation
-des outils ne vaut pas validation de l'application.
+Report build, execution, capture and distribution results separately with
+the relevant build. Tool repair success is not application validation.
 
-## Dernière archive inspectée
+## Latest inspected archive
 
-Le 22 septembre 2026, l’archive locale
-`ios/.build/Archives/run-HJxTTP/Guteneo-unsigned.xcarchive` a été produite après
-la composition adaptative et l'icône Icon Composer, à partir des sources
-applicatives du commit `b7e0d4d0865b635ec53a056d668d3d69ade9122e`.
-Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
-(build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
-de confidentialité et les symboles. Le catalogue validé contient
-`AppIcon.iconstack` à trois plans, référencé comme icône primaire iPhone/iPad.
-Elle est explicitement non signée.
-Le SDK utilisé est iOS 27.0, avec Xcode 27.0. L'empreinte SHA-256 du binaire est
+On 22 September 2026, local archive
+`ios/.build/Archives/run-HJxTTP/Guteneo-unsigned.xcarchive` was produced after
+adaptive composition and Icon Composer integration, from application sources
+at commit `b7e0d4d0865b635ec53a056d668d3d69ade9122e`.
+Inspection confirms bundle `com.guteneo.ios`, version `1.0` (build `1`), minimum
+iOS 17, iPhone/iPad families, assets, privacy manifest and symbols. The validated
+catalog contains three-plane `AppIcon.iconstack`, referenced as the primary
+iPhone/iPad icon. It is explicitly unsigned. SDK: iOS 27.0, Xcode 27.0.
+Binary SHA-256:
 `13aaafb9f4175f536bdbcda2daa9f0fc348bf0b9f2e0bc74db8a774bc29c237c`.
 
-## Langues — candidat du 22 septembre 2026
+## Languages — 22 September 2026 candidate
 
-Français, anglais, allemand et luxembourgeois sont proposés dès l’accueil puis
-dans Compte. Le catalogue `Guteneo/Resources/Localizable.xcstrings` contient
-234 entrées dans les quatre langues, dont les erreurs, les états et les textes
-d’accessibilité. Le choix de l’accueil reste sur cet appareil ; la préférence du
-profil est sauvegardée pour le même utilisateur que sur le site et relue à la
-connexion ainsi qu’au retour dans l’app. En cas d’enregistrement non confirmé,
-le choix affiché précédent est rétabli. La préférence du profil ne remplace pas
-le choix anonyme de l’accueil, qui est rétabli à la déconnexion. Les documents, messages et destinataires
-restent dans leur langue originale. Dates, tailles de fichiers et montants
-suivent la langue sélectionnée ; le clavier et les panneaux système restent
-régis par iOS.
+French, English, German and Luxembourgish are offered on welcome and then
+Account. `Guteneo/Resources/Localizable.xcstrings` contains 234 entries in all
+four languages, including errors, states and accessibility text. The welcome
+choice stays on this device; profile preference is saved for the same user
+as on the website and reread at login and app return. An unconfirmed save
+restores the previous displayed choice. Profile preference does not replace
+the anonymous welcome choice, restored on logout. Documents, messages and
+recipients retain their original language. Dates, file sizes and amounts
+follow the selected language; iOS governs keyboards and system panels.
 
-Le changement utilise l’environnement SwiftUI et conserve la navigation ainsi
-que les champs d’un brouillon. Le parcours navigateur d’autorisation de l’app et
-de validation d’un envoi a son propre catalogue explicite en quatre langues.
-Le mode d’emploi de la migration et le contrat sont dans `docs/IOS_API.md`.
+Changes use the SwiftUI environment and preserve navigation and draft fields.
+Browser app-authorization and dispatch-validation journeys have a separate
+explicit four-language catalog. Migration instructions and contract are in
+`docs/IOS_API.md`.
 
-Validation renouvelée après reprise des changements natifs `24bbe2a`–`fea555d` :
-compilation simulateur, 23 tests unitaires et 7 tests d’interface réussis sur
-iPhone 17 Pro Max, iOS 27.0 (`run-QUTBZd/Tests.xcresult`). Les tests couvrent les
-catalogues réellement embarqués, la priorité du profil, la persistance locale,
-le retour au choix précédent après un échec serveur, l’accueil anglais puis la
-navigation conservée en allemand et luxembourgeois. Captures non retouchées dans
-[`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md). Cette preuve n’est ni un essai Auth0 en production,
-ni un essai sur appareil physique, ni une soumission TestFlight/App Store.
+Validation renewed after recovering native changes `24bbe2a`–`fea555d`:
+simulator build, 23 unit tests and 7 interface tests passed on iPhone 17 Pro
+Max/iOS 27.0 (`run-QUTBZd/Tests.xcresult`). Tests cover actual bundled catalogs,
+profile precedence, local persistence, restoration after server failure,
+English welcome and retained navigation in German/Luxembourgish. Unedited
+captures: [`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md).
+This proves neither production Auth0, physical-device use nor TestFlight/
+App Store submission.
 
-## Archive inspectée sur le candidat natif initial
+## Archive inspected on the initial native candidate
 
-Le 22 septembre 2026, l’archive locale
-`ios/.build/Archives/run-ekw9rF/Guteneo-unsigned.xcarchive` a été produite après
-la correction du contraste sombre, à partir des sources applicatives du commit
-`24bbe2a`. Le contrôle confirme le bundle `com.guteneo.ios`, la version `1.0`
-(build `1`), iOS 17 minimum, les familles iPhone/iPad, les assets, le manifeste
-de confidentialité et les symboles. Elle est explicitement non signée.
+On 22 September 2026, local archive
+`ios/.build/Archives/run-ekw9rF/Guteneo-unsigned.xcarchive` was produced after
+the dark-contrast correction from application sources at commit `24bbe2a`.
+Inspection confirms bundle `com.guteneo.ios`, version `1.0` (build `1`), minimum
+iOS 17, iPhone/iPad families, assets, privacy manifest and symbols. It is
+explicitly unsigned.
 
-Les marqueurs `Atelier Horizon`, `Dossier de souscription` et
-`--uitesting-preview` sont absents du binaire Release. Le script d’archive
-contrôle également cette exclusion lors des prochains passages. Ce contrôle
-ne constitue ni une installation sur appareil ni une validation App Store.
+Fixture markers `Atelier Horizon`, `Dossier de souscription` and
+`--uitesting-preview` are absent from the Release binary. The archive script
+checks that exclusion on subsequent runs. This is neither device installation
+nor App Store validation.
 
+## Integrated multilingual archive
 
+Local archive `ios/.build/Archives/run-b967tj/Guteneo-unsigned.xcarchive` was
+regenerated on 22 September 2026 from application sources at commit `ec8fe77`,
+after integrating the latest native changes. Release compilation, asset/
+manifest presence and exclusion of all three Debug fixture markers passed.
+The bundled manifest also declares UserDefaults reason `CA92.1` for device
+language choice. The archive remains unsigned and nondistributable; signing,
+physical-device and publication evidence remain separate.
 
-## Archive multilingue intégrée
+## Reconciliation on 2 October 2026
 
-L’archive locale `ios/.build/Archives/run-b967tj/Guteneo-unsigned.xcarchive`
-a été régénérée le 22 septembre 2026 depuis les sources applicatives du commit
-`ec8fe77`, après intégration des derniers changements natifs. La compilation
-Release, la présence des assets et du manifeste, ainsi que l’exclusion des trois
-marqueurs de fixtures Debug ont réussi. Le manifeste embarqué déclare également
-UserDefaults avec la raison `CA92.1` pour le choix de langue sur l’appareil.
-L’archive reste non signée et non distribuable ; les preuves de signature,
-appareil physique et publication restent distinctes.
+Native/multilingual branches are combined in local candidate
+`codex/native-reconciliation-october`. Recent iPad composition and icon coexist
+with personal preferences; 252 catalog entries also cover new empty states
+and workspace steps. Backend tests pass (82/82). App/test targets compile for
+simulator with Xcode 27.0. The official XCTest execution script remains
+stopped by Xcode's incomplete first-launch configuration.
+See [QA/READINESS.md](QA/READINESS.md) for exact evidence scope.
 
-## Réconciliation du 2 octobre 2026
-
-Les branches natives et multilingues sont réunies dans le candidat local
-`codex/native-reconciliation-october`. La composition iPad et l’icône récentes
-coexistent avec les préférences personnelles ; les 252 entrées du catalogue
-comprennent aussi les nouveaux états vides et les étapes de l’Atelier.
-Les tests backend réussissent (82/82). L’application et les cibles de tests
-compilent pour simulateur avec Xcode 27.0. Le script d’exécution XCTest reste
-arrêté par la configuration initiale incomplète signalée par Xcode.
-Voir [QA/READINESS.md](QA/READINESS.md) pour la portée exacte de ces preuves.
-
-Une exécution directe supplémentaire de `xcodebuild test-without-building`
-réussit sur le binaire du commit `5296838` : 25 tests unitaires et 8 scénarios UI
-sur iPhone 17 Pro Max / iOS 27.0, zéro échec. Elle est distinguée du script
-officiel, dont le contrôle initial Xcode renvoie toujours 69. Le résultat exact
-est `/tmp/guteneo-native-direct-xctests-20261002.xcresult`.
+An additional direct `xcodebuild test-without-building` run passes on the
+commit `5296838` binary: 25 unit tests and 8 UI scenarios on iPhone 17 Pro Max/
+iOS 27.0, zero failures. It is distinguished from the official script, whose
+initial Xcode check still returns 69. Exact result:
+`/tmp/guteneo-native-direct-xctests-20261002.xcresult`.

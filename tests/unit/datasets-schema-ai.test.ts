@@ -37,20 +37,18 @@ const config = {
   remainingCalls: 1,
 };
 function provider(proposal: unknown) {
-  return vi
-    .fn<typeof fetch>()
-    .mockResolvedValue(
-      Response.json({
-        status: "completed",
-        output: [
-          {
-            type: "message",
-            content: [{ type: "output_text", text: JSON.stringify(proposal) }],
-          },
-        ],
-        usage: { input_tokens: 120, output_tokens: 80 },
-      }),
-    );
+  return vi.fn<typeof fetch>().mockResolvedValue(
+    Response.json({
+      status: "completed",
+      output: [
+        {
+          type: "message",
+          content: [{ type: "output_text", text: JSON.stringify(proposal) }],
+        },
+      ],
+      usage: { input_tokens: 120, output_tokens: 80 },
+    }),
+  );
 }
 const profile = () =>
   profileDataset(
@@ -76,7 +74,7 @@ describe("new business schema suggestions with explicit synthetic OpenAI transpo
       "string",
     );
     expect(result.schemaSuggestion.envelope.sampleData).toEqual({
-      customer: { name: "Exemple" },
+      customer: { name: "Example" },
       amount: "12.34",
     });
     expect(JSON.stringify(result.schemaSuggestion.envelope)).not.toContain(
@@ -163,12 +161,10 @@ describe("new business schema suggestions with explicit synthetic OpenAI transpo
       result.schemaSuggestion.fields.filter((entry) => entry.repeated),
     ).toHaveLength(3);
     expect(envelope.sampleData.customer).toEqual({
-      name: "Exemple",
-      postalCode: "Exemple",
+      name: "Example",
+      postalCode: "Example",
     });
-    expect(result.schemaSuggestion.warnings.join(" ")).toContain(
-      "unités mineures",
-    );
+    expect(result.schemaSuggestion.warnings.join(" ")).toContain("minor units");
     for (const record of result.validation.records)
       expect(() => validateTemplateData(envelope, record.data)).not.toThrow();
   });
@@ -210,7 +206,7 @@ describe("new business schema suggestions with explicit synthetic OpenAI transpo
     ).toBe(true);
     expect(result.validation.status).toBe("ready");
     expect(result.schemaSuggestion.envelope.sampleData.contact).toEqual({
-      phone: "Exemple",
+      phone: "Example",
     });
   });
   it("checks every normalized record against array limits before allowing generation", async () => {
@@ -242,7 +238,7 @@ describe("new business schema suggestions with explicit synthetic OpenAI transpo
       }),
     );
     expect(result.schemaSuggestion.envelope.sampleData.items).toEqual([
-      { label: "Exemple" },
+      { label: "Example" },
     ]);
   });
   it("rejects oversized or incompatible business schemas instead of silently dropping fields", async () => {

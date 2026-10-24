@@ -3,41 +3,41 @@ import { msg } from "./messages";
 export function horizonErrorMessage(code: string): string | undefined {
   const errors: Record<string, string> = {
     HORIZON_PLAN_REQUIRED: msg(
-      "Un forfait Horizon actif est nécessaire pour ce contrôle. L’administrateur peut consulter l’offre dans l’atelier.",
+      "An active Horizon plan is required for this check. The administrator can view the offer in the workspace.",
     ),
     HORIZON_DISABLED: msg(
-      "Le forfait Horizon est en préparation. La souscription n’est pas encore ouverte.",
+      "The Horizon plan is being prepared. Subscriptions are not open yet.",
     ),
     HORIZON_UNAVAILABLE: msg(
-      "Le service Horizon est actuellement indisponible. Actualisez l’offre dans votre atelier avant de recommencer.",
+      "The Horizon service is currently unavailable. Refresh the offer in your workspace before trying again.",
     ),
     HORIZON_TERMS_CHANGED: msg(
-      "Les conditions du forfait ont changé. Actualisez l’offre avant de confirmer.",
+      "The plan terms have changed. Refresh the offer before confirming.",
     ),
     HORIZON_CONSENT_REQUIRED: msg(
-      "Les conditions du forfait ont changé. Actualisez l’offre avant de confirmer.",
+      "The plan terms have changed. Refresh the offer before confirming.",
     ),
     INSUFFICIENT_CREDIT: msg(
-      "Le compte ne dispose pas des crédits nécessaires. Actualisez le solde avant de recommencer.",
+      "The account does not have enough credit. Refresh the balance before trying again.",
     ),
     HORIZON_CREDIT_INSUFFICIENT: msg(
-      "Le compte ne dispose pas des crédits nécessaires. Actualisez le solde avant de recommencer.",
+      "The account does not have enough credit. Refresh the balance before trying again.",
     ),
-    HORIZON_MODE_MISMATCH: msg("Le mode de cet espace est incompatible."),
+    HORIZON_MODE_MISMATCH: msg("This workspace’s mode is incompatible."),
     PDF_VALIDATOR_CONFIGURATION_REQUIRED: msg(
-      "Le service de validation PDF n’est pas encore activé. Votre document est conservé et aucun résultat de conformité n’a été produit.",
+      "The PDF validation service is not activated yet. Your document is retained and no compliance result has been produced.",
     ),
     PDF_VALIDATION_BUSY: msg(
-      "Un contrôle de ce PDF est déjà en cours. Actualisez ses rapports avant de recommencer.",
+      "A check of this PDF is already running. Refresh its reports before trying again.",
     ),
     PDF_VALIDATION_QUOTA_EXCEEDED: msg(
-      "La limite de contrôles PDF est atteinte pour cette période. Réessayez plus tard.",
+      "The PDF check limit for this period has been reached. Try again later.",
     ),
     PDF_VALIDATION_FAILED: msg(
-      "Le contrôle n’a pas abouti. Aucun résultat de conformité n’a été produit ; vous pouvez demander un nouveau contrôle.",
+      "The check did not complete. No compliance result was produced; you can request a new check.",
     ),
     DOCUMENT_NOT_READY: msg(
-      "Le PDF doit d’abord terminer sa vérification de sécurité avant un contrôle d’accessibilité ou d’archivage.",
+      "The PDF must first finish its security check before accessibility or archival validation.",
     ),
   };
   return errors[code];

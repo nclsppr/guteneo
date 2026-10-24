@@ -1,237 +1,245 @@
-# Langues de l’interface
+# Interface languages
 
-Les films de présentation et la vidéo du guide des rôles suivent également la
-langue résolue et la préférence personnelle. Chaque langue possède son MP4 et
-son poster ; changer de langue arrête la lecture précédente. Cette règle est
-inscrite dans `AGENTS.md`. Voir `HOMEPAGE_FILM.md` et `ROLES_FILM.md` pour les
-sources et la régénération. Ces ajouts constituent un candidat local tant qu’ils
-ne sont pas publiés avec le code correspondant.
+Repository source, comments and documentation are authored in English.
+Frontend/video localization is the exception; see
+[repository standards](REPOSITORY_STANDARDS.md). URL paths, fragments and API
+identifiers remain English regardless of displayed language. This document's
+dated qualification sections are historical evidence, not renewed release
+claims.
 
-Candidat local du 22 septembre 2026. Le site et le client iOS prennent en charge
-le français (`fr`), l’anglais (`en`), l’allemand (`de`) et le luxembourgeois (`lb`).
-Cette note ne constitue pas une preuve de déploiement, de migration distante,
-de connexion Auth0 réelle ou de publication sur l’App Store.
+Presentation films and the role-guide film also follow resolved language and
+personal preference. Every language has its own MP4/poster; language changes
+stop previous playback. `AGENTS.md` records this rule. See `HOMEPAGE_FILM.md`
+and `ROLES_FILM.md` for sources/regeneration. Such additions remain local
+candidates until published with corresponding code.
 
-## Choix et conservation
+The 22 September 2026 local candidate supports French (`fr`), English (`en`),
+German (`de`) and Luxembourgish (`lb`) on website/iOS. This note proves no
+deployment, remote migration, actual Auth0 login or App Store publication.
 
-Sur l’accueil mobile, le header tient sur une ligne : logo et bouton « Menu ».
-Le sélecteur natif de langue est dans ce menu, qui s’ouvre au-dessus du contenu
-sans agrandir le header. Sur ordinateur et sur les autres pages publiques, un
-contrôle compact avec un globe ouvre le sélecteur. Le profil conserve le réglage
-personnel du compte. Les langues sont nommées dans leur propre langue, sans drapeau.
-La langue de l’interface change immédiatement, sans recharger la page ni vider
-les formulaires. L’attribut HTML `lang`, les libellés accessibles, les dates,
-les nombres et les montants suivent ce choix.
+## Selection and retention
 
-Avant connexion, une indication publique `?lang=de` est prioritaire, puis le choix
-explicite conservé dans ce navigateur, puis les langues du navigateur. Les variantes
-régionales telles que `de-AT` sont reconnues. Sans langue prise en charge, le
-français est utilisé. Un stockage navigateur indisponible ne bloque pas le choix.
-Un choix explicite sur une page publique ajoute ou actualise `lang` dans l’URL, afin que le lien copié conserve la langue. Les liens internes publics conservent aussi ce choix, y compris si le stockage local est bloqué. Les routes privées gardent leur comportement existant.
-Le choix « Automatique » rétablit la première langue prise en charge parmi les
-préférences du navigateur ; sur le Web, ce signal reflète généralement les réglages
-du système, sans accès direct à la langue d’iOS. Il retire le choix conservé sur
-cet appareil et le paramètre `lang`, en conservant les autres paramètres et le
-fragment de l’URL. Même choisir explicitement la langue déjà affichée mémorise
-ce choix. Les contrôles tactiles mesurent au moins 44 px ; Échap referme le menu
-et rend le focus à son bouton, et un clic ou un focus extérieur le referme.
+Public pages share `PublicHeader` in `apps/web/src/public-chrome.tsx`. A compact
+globe control opens language selection on desktop and mobile; narrow screens
+also expose the shared navigation disclosure. It overlays content without
+expanding header height. Account configuration retains personal preference.
+Languages use their own names without flags. Interface language changes
+immediately without reloading or clearing forms. HTML `lang`, accessible
+labels, dates, numbers and amounts follow the choice.
 
-Après connexion, le seul sélecteur des vues connectées se trouve dans la
-configuration du compte. `user.preferredLocale` fournit la préférence personnelle
-à chaque lecture de session ; une personne sans préférence utilise les langues
-de son navigateur, sans hériter du choix public ou d’un autre compte. Le choix
-du visiteur reste conservé séparément et retrouve son effet après déconnexion.
-Les pages publiques gardent leur sélecteur ; celui-ci ne sauvegarde aucune
-préférence de compte.
+Before login, explicit public `?lang=de` takes precedence, followed by this
+browser's saved selection and browser languages. Regional variants such as
+`de-AT` are recognized. Unsupported languages fall back to French. Unavailable
+browser storage does not block selection. Public explicit selection adds/
+updates `lang` so copied links retain language. Internal public links retain
+it even when local storage is blocked. Private routes keep existing behavior.
+Automatic selection restores the first supported browser preference; on web
+this usually reflects system settings without directly reading iOS language.
+It removes device-saved choice/`lang` while preserving other URL parameters
+and fragment. Explicitly selecting the displayed language also saves it.
+Touch controls are at least 44 px; Escape closes disclosures/restores button
+focus, and outside click/focus closes them.
 
-Belvédère suit la même préférence, en français, anglais, allemand et
-luxembourgeois, sans sélecteur supplémentaire. Le serveur injecte seulement la
-valeur de langue validée dans son HTML privé après la garde existante. Le retour
-dans l’onglet relit la session pour reprendre un changement enregistré depuis
-le profil. La préférence ne change ni le droit Veilleur ni les rôles d’atelier.
-Ce contrat du 10 octobre remplace le choix temporaire dans les pages du dashboard.
+After login, authenticated views expose their only selector in account
+configuration. `user.preferredLocale` supplies personal preference on each
+session read. People without one use browser languages without inheriting
+public/other-account choices. Visitor choice stays separate and resumes after
+logout. Public selectors save no account preference.
 
-Le profil enregistre une préférence uniquement après une modification explicite
-du sélecteur puis la sauvegarde du formulaire. Un compte sans préférence affiche
-un choix vide explicite ; sélectionner la langue actuellement affichée permet
-aussi de l’enregistrer pour les prochaines connexions. Une simple modification du nom
-n’affecte pas une préférence encore absente. La langue active n’est modifiée
-qu’après une sauvegarde réussie. La préférence est commune aux organisations de
-la même personne, et ne devient pas une préférence de toute l’organisation.
-Les clients la relisent depuis le compte ; aucune notification temps réel
-entre deux appareils déjà ouverts n’est revendiquée.
+Belvédère follows the same French/English/German/Luxembourgish preference
+without another selector. The server injects only a validated locale in private
+HTML after the existing guard. Tab return rereads the session for profile
+changes. Preference changes neither Watcher access nor workspace roles.
+This 10 October contract supersedes temporary dashboard-page selection.
 
-## Contrat et migration
+Profile preference saves only after explicit selector change and form save.
+An account without one shows an explicit empty choice; selecting the currently
+displayed language can save it for future logins. Name-only edits do not affect
+an absent preference. Active language changes only after successful saving.
+Preference is shared across the person's organizations, not organization-wide.
+Clients reread it from the account; no real-time cross-device notification
+is claimed.
 
-`packages/contracts/src/locale.ts` définit les quatre valeurs et la négociation
-bornée des variantes et de `Accept-Language`. `GET /api/session` et
-`GET /api/account` exposent `user.preferredLocale`, nullable pour les comptes
-existants. `PATCH /api/account` accepte `preferredLocale` sans rendre obligatoires
-les champs des anciens clients. Le serveur refuse les autres valeurs, les champs
-inconnus et les requêtes sans session/CSRF valide. L’identité provient de la
-session authentifiée ; la préférence ne donne aucun nouveau droit.
+## Contract and migration
 
-La migration additive `0038_user_locale.sql` ajoute les colonnes contraintes dans
-`users` et `auth_transactions`. Le numéro 0037 est réservé au candidat natif.
-Appliquer 0038 avant de publier le serveur qui lit ces colonnes. Aucun compte
-existant n’est réécrit. Le parcours de création de compte conserve la langue dans
-la transaction PKCE à usage unique ; une connexion ultérieure ne remplace pas
-une préférence existante. Les anciens parcours de connexion restent acceptés.
+`packages/contracts/src/locale.ts` defines four values and bounded regional/
+`Accept-Language` negotiation. `GET /api/session` and `GET /api/account` expose
+nullable `user.preferredLocale` for existing accounts. `PATCH /api/account`
+accepts `preferredLocale` without requiring old clients' fields. The server
+rejects other values, unknown fields and requests without valid session/CSRF.
+Identity comes from authenticated session; preference grants no right.
 
-La langue souhaitée est transmise à Auth0 par `ui_locales`. Sa prise en charge
-réelle par l’écran hébergé et les messages d’Auth0 dépend de la configuration du
-fournisseur ; elle n’est pas assimilée aux traductions de Guteneo. Les parcours
-privés du navigateur restent distincts des opérations OAuth publiques de l’API.
+Additive `0038_user_locale.sql` adds constrained columns in `users` and
+`auth_transactions`. Number 0037 is reserved for the native candidate. Apply
+0038 before publishing the server that reads them. No existing account is
+rewritten. Account creation retains language in the single-use PKCE
+transaction; later login does not replace an existing preference. Older
+login journeys remain accepted.
 
-## Catalogue et contenu
+Desired language reaches Auth0 through `ui_locales`. Hosted screens/messages
+actually supporting it depends on provider configuration and is separate from
+Guteneo translation. Private browser journeys remain separate from public
+API OAuth operations.
 
-Le catalogue français définit 398 feuilles de texte obligatoires pour chaque
-langue. Les catalogues complémentaires traduisent les écrans de compte, les guides,
-les avis de prix, les validations et reprises, les pages publiques et le journal.
-Les catalogues sont versionnés avec le code. Les libellés conservés en état sont
-traduits au rendu, et les ensembles éditoriaux sont produits à la demande pour
-éviter de figer la langue au chargement du module.
+## Catalogs and content
 
-Les paramètres métier et les valeurs techniques ne sont jamais traduits : chemins,
-identifiants, statuts internes, attributs ARIA normalisés, API, options de fournisseur,
-contenu des PDF, noms et coordonnées saisis, montants et empreintes d’approbation.
-Les noms propres, titres bibliographiques et inscriptions des timbres sont
-conservés. Les variantes traduites des exemples fictifs ne modifient pas les
-communications préparées par les utilisateurs.
+The current common catalog has 455 required text leaves for each language.
+Additional catalogs translate account screens, guides, pricing notices,
+validation/recovery, public pages and journal. Catalogs are versioned with
+source. State-held labels translate at render; editorial groups are produced
+on demand to avoid freezing language at module load.
 
-Le format des montants conserve la précision entière/nano-EUR des devis. Les
-navigateurs dont ICU ne connaît pas `lb-LU` utilisent les formats régionaux
-`de-LU`, avec les textes luxembourgeois. Depuis le candidat du 3 octobre, les URL publiques portant une langue explicite
-servent aussi le HTML initial dans cette langue, avec les métadonnées de partage,
-les URL canoniques, les alternatives de langue et les données structurées adaptées.
-Le lien générique reste une page initiale française avec un aperçu de partage neutre
-(logo et domaine), puis le client applique les préférences du visiteur. Les variantes
-figurent dans le sitemap ; leur présence ne prouve pas leur indexation. Voir
-[TECHNICAL_SEO.md](TECHNICAL_SEO.md) pour le contrat et les limites de preuve.
+Business parameters/technical values never translate: paths, identifiers,
+internal states, standardized ARIA attributes, APIs, provider options, PDF
+content, entered names/contact details, amounts and approval fingerprints.
+Proper names, bibliographic titles and stamp inscriptions are preserved.
+Translated fictional examples never alter user-prepared communications.
 
-## Maintenir les traductions
+Amount formatting preserves integer/nano-EUR quote precision. Browsers whose
+ICU lacks `lb-LU` use `de-LU` regional formatting with Luxembourgish text.
+Since the 3 October candidate, explicitly localized public URLs also serve
+initial HTML in that language, with adapted sharing metadata, canonical URLs,
+language alternatives and structured data. The generic link remains initial
+French HTML with neutral logo/domain sharing artwork, then the client applies
+visitor preference. Sitemap variants do not prove indexing. See
+[TECHNICAL_SEO.md](TECHNICAL_SEO.md) for contract/evidence limits.
 
-Les textes communs sont définis dans `apps/web/src/i18n.ts`, avec leurs versions
-complètes dans `apps/web/src/locales/{en,de,lb}.ts`. Les textes des parcours publics
-et opérationnels utilisent les catalogues `messages-*.json` : une clé française,
-puis les traductions anglaise, allemande et luxembourgeoise dans cet ordre.
+## Maintaining translations
 
-Utiliser `t` pour le catalogue commun ou `msg(texteSource, ...paramètres)` au rendu.
-Conserver les mêmes paramètres `{0}`, `{1}` dans toutes les langues. Ne pas appeler
-`msg` sur des identifiants, des valeurs de formulaire, des noms ou le contenu des
-utilisateurs. Les tableaux contenant des libellés doivent être construits au rendu
-ou par un getter, pour réagir au changement de langue sans rechargement.
+Common text lives in `apps/web/src/locales/{fr,en,de,lb}.ts`; `i18n.ts`
+provides the shared `Copy` structure. Public/operational code calls
+`msg("English source", ...values)` during rendering, or uses `t` for common
+catalog entries. `message-catalog.ts` derives canonical English lookup from
+existing localized `messages-*.json` catalogs. Their legacy French keys are
+localization data, not the language for new application source. Legacy
+server-message inputs remain readable for compatibility.
 
-`tests/unit/web-locale.test.ts` vérifie la parité et les paramètres des catalogues.
-Les tests navigateur `locale.spec.ts` et `locale-boundaries.spec.ts` vérifient les
-choix du visiteur et du compte. Les traductions natives sont embarquées dans le
-catalogue `ios/Guteneo/Resources/Localizable.xcstrings` du candidat iOS.
+Use `msgIn("stable-context", "English source", ...values)` only when identical
+English wording has distinct grammatical/terminology translations; maintain
+those variants in `locales/message-contexts.json`. Do not collapse them into
+whichever catalog entry happens to load first. Keep `{0}`, `{1}` parameters
+identical across languages. Never call `msg` on identifiers, form values,
+names or user content. Construct label-bearing arrays at render or through a
+getter so language changes need no reload.
 
-## Client iOS
+`tests/unit/web-locale.test.ts` checks catalog parity/parameters. Browser
+`locale.spec.ts` and `locale-boundaries.spec.ts` check visitor/account selection.
+Native translations are bundled in
+`ios/Guteneo/Resources/Localizable.xcstrings`. The current catalog contains
+261 entries with `sourceLanguage: en`; Swift source uses English lookup keys.
+All existing French, English, German and Luxembourgish display values are
+retained. The semantic key `Privacy settings` disambiguates a lookup collision
+while its English display remains `Privacy`.
 
-Le candidat natif est isolé sur `codex/multilingual-ios`, issu du travail natif
-existant. Il dispose d’un sélecteur sur l’accueil et dans le compte, de catalogues
-embarqués complets, du formatage localisé et de la même préférence serveur.
-L’environnement SwiftUI change de langue sans recréer la navigation ou les
-brouillons. Le navigateur de validation mobile et le parcours d’autorisation
-conservent aussi cette langue. Les liens publics transmettent `?lang=…`.
+English source keys are an authoring convention across web `msg`/`msgIn`,
+Belvédère and the native catalog. They do not select the displayed language or
+replace the account/browser locale rules above. These catalog/source facts
+alone establish no fresh native build, simulator, device or distribution result;
+keep the dated verification below separate.
 
-Les contrôles natifs et leur contrat de profil sont décrits dans le document
-`ios/README.md` du candidat iOS et dans son `docs/IOS_API.md`. Le code
-natif n’est pas encore présent sur la branche principale web ; les deux candidats
-restent séparés pour préserver le travail natif en cours.
+## iOS client
 
-## Vérification
+The original native multilingual candidate was isolated on
+`codex/multilingual-ios`, based on existing native work, to preserve concurrent
+changes. Native/multilingual work was subsequently reconciled into the shared
+repository; see `ios/README.md` and `ios/QA/READINESS.md` for dated integration
+evidence. It provides welcome/account selectors, complete bundled catalogs,
+localized formatting and the same server preference. SwiftUI changes language
+without recreating navigation or drafts. Mobile validation/browser authorization
+also retain it. Public links pass `?lang=…`.
 
-- Tests du serveur : persistance, séparation des utilisateurs, lecture entre
-  organisations, validation stricte, CSRF, révocation concurrente, anciens clients
-  et négociation à la création du compte.
-- Tests des catalogues : parité récursive, entrées non vides et paramètres
-  d’interpolation présents dans les trois traductions.
-- Tests navigateur : choix sur l’accueil, rechargement, sauvegarde et échec,
-  maintien des formulaires, réponse de session tardive, déconnexion, absence de
-  modification implicite, noms utilisateur inchangés et valeurs ARIA.
-- Tests natifs : compilation simulateur et appareil sans signature, XCTest et
-  parcours UI du choix initial et du profil. Aucun appareil physique, TestFlight
-  ou App Store n’est déclaré qualifié par ces contrôles.
+Native controls/profile contract are documented in `ios/README.md` and
+`docs/IOS_API.md`. Branch references below retain their historical context;
+they do not imply current separation of source trees.
 
-### Navigation compacte — candidat du 2 octobre 2026
+## Verification
 
-Le header d’accueil mesuré sous WebKit à 430 × 932 px (largeur de l’iPhone 15
-Pro Max) fait 77 px, menu fermé comme ouvert. Le contrôle à 320 px conserve une
-seule ligne et aucun débordement horizontal. Les menus de langue des pages
-publiques secondaires restent également dans l’écran à ces deux largeurs.
+- Server: persistence, user isolation, reads across organizations, strict
+  validation, CSRF, concurrent revocation, old clients and signup negotiation.
+- Catalogs: recursive parity, nonempty entries and interpolation parameters
+  in all three translations.
+- Browser: welcome selection, reload, successful/failed saves, retained forms,
+  late session responses, logout, no implicit changes, unchanged usernames
+  and ARIA values.
+- Native: unsigned simulator/device build, XCTest and initial/profile selection
+  UI journeys. These checks qualify no physical device, TestFlight or App Store.
 
-- `npm run typecheck`, `npm run lint`, `npm run build` et
-  `npm run build:preview` : réussis ; compilation Worker en `--dry-run`.
-- Suites unitaires `web-locale.test.ts` et `locale.test.ts` : 25/25 réussis.
-- Suites navigateur `locale.spec.ts` et `locale-boundaries.spec.ts` : 36/36
-  réussis sur Chromium, Chromium mobile et WebKit iPhone.
-- Nouvelle suite `language-navigation.spec.ts` : 12/12 réussis sur Chromium et
-  WebKit, couvrant détection, conservation, retour automatique, URL, ouverture
-  au clavier, fermeture et limites des menus sur mobile.
-- Tests de sécurité : 216/216 réussis.
+### Compact navigation — 2 October 2026 candidate
 
-Les contrôles de navigation, SEO et films de l’aperçu ont exercé 94 cas : après
-relance ciblée, 92 sont réussis et un est exclu conditionnellement. Le cas de
-lecture du film des rôles en anglais reste bloqué vers 0,15 s sous WebKit local ;
-le même échec a été reproduit avec le test original dans un checkout propre de
-`dda97f2`, avant cette modification. Les fichiers vidéo sont identiques et le
-lecteur n’a pas été modifié. Cette limite ne constitue pas une preuve de lecture
-qualifiée de ce film sur Safari. Les captures locales
-du menu fermé et ouvert sont dans `reports/screenshots/language-navigation/`.
-Ces vérifications utilisent des exemples et des sessions simulées ; aucune
-publication ou modification des comptes réels n’est revendiquée.
+The historical homepage header measured under WebKit at 430 × 932 px (iPhone
+15 Pro Max width) is 77 px with menu open/closed. At 320 px it retains one
+line without horizontal overflow. Secondary public-page language menus also
+stay within the viewport at both widths. These measurements precede the
+shared public header described above.
 
-### Résultats web du 22 septembre 2026
+- `npm run typecheck`, `npm run lint`, `npm run build`,
+  `npm run build:preview`: passed; Worker `--dry-run` compilation.
+- `web-locale.test.ts`/`locale.test.ts`: 25/25 passed.
+- `locale.spec.ts`/`locale-boundaries.spec.ts`: 36/36 passed on desktop/mobile
+  Chromium and iPhone WebKit.
+- New `language-navigation.spec.ts`: 12/12 passed on Chromium/WebKit,
+  covering detection, retention, automatic reset, URL, keyboard opening,
+  closing and mobile-menu bounds.
+- Security: 216/216 passed.
 
-- `npm run typecheck`, `npm run lint`, `npm run build` et
-  `npm run build:preview` : réussis. La compilation Worker utilise uniquement le
-  mode `--dry-run` local.
-- Vitest : 68 suites / 1 343 cas exercés. Le passage complet a validé 1 324 cas ;
-  les 19 échecs concernaient trois fixtures de schémas historiques. Ces fixtures
-  ont été corrigées sans changer leurs assertions métier, puis leurs trois
-  suites ont été relancées : 35/35 réussis. Les tests de catalogue et de précision
-  monétaire ont également été relancés après les derniers textes : 13/13.
-- `node --test tests/security/*.test.mjs` : 162/162 réussis.
-- `npm run test:e2e` : 324 réussis, 3 exclusions conditionnelles prévues par les
-  scénarios. Après l’ajustement de l’en-tête mobile et du choix explicite des anciens profils, les deux suites
-  de langue ont été relancées : 33/33 sur Chromium, Chromium mobile et WebKit iPhone.
-- `npm run test:preview -- --workers=2` sur la compilation finale : 59 réussis,
-  5 exclusions conditionnelles desktop/mobile prévues par les scénarios.
-- Inspection visuelle de l’accueil sur ordinateur et iPhone ; contrôle des pages
-  accueil, assistance et développeurs à 320 px : aucun débordement horizontal,
-  sélecteur contenu dans son en-tête.
+Preview navigation/SEO/film checks exercised 94 cases: after targeted rerun,
+92 pass and one is conditionally skipped. English role-film playback remains
+blocked around 0.15 s under local WebKit; the original test reproduces the
+same failure in a clean `dda97f2` checkout before this change. Video files
+are identical and the player unchanged. This does not qualify that film's
+Safari playback. Closed/open menu captures:
+`reports/screenshots/language-navigation/`. These checks use examples/simulated
+sessions and claim no publication or real-account changes.
 
-Captures locales en luxembourgeois :
-[ordinateur](screenshots/multilingual/web-desktop-lb.png),
+### Web results on 22 September 2026
+
+- `npm run typecheck`, `npm run lint`, `npm run build`,
+  `npm run build:preview`: passed; Worker uses only local `--dry-run`.
+- Vitest: 68 suites/1,343 exercised cases. Full run passed 1,324; 19 failures
+  involved three historical-schema fixtures. Fixtures were corrected without
+  changing business assertions; all three suites reran with 35/35 passes.
+  Catalog/monetary-precision tests reran after final text: 13/13.
+- `node --test tests/security/*.test.mjs`: 162/162 passed.
+- `npm run test:e2e`: 324 passed, 3 expected conditional exclusions. After
+  mobile-header/explicit-old-profile selection adjustments, both language
+  suites reran: 33/33 on desktop/mobile Chromium and iPhone WebKit.
+- `npm run test:preview -- --workers=2` on final build: 59 passed, 5 expected
+  conditional desktop/mobile exclusions.
+- Visual desktop/iPhone welcome inspection; homepage/support/developer pages
+  at 320 px: no horizontal overflow, selector within header.
+
+Local Luxembourgish captures:
+[desktop](screenshots/multilingual/web-desktop-lb.png),
 [iPhone WebKit](screenshots/multilingual/web-iphone-lb.png),
-[écran de 320 px](screenshots/multilingual/web-320-lb.png).
-Les données affichées sont des exemples, et non une preuve d’envoi réel.
+[320 px screen](screenshots/multilingual/web-320-lb.png).
+Displayed data are examples, not real-dispatch evidence.
 
-### Résultats iOS du 22 septembre 2026
+### iOS results on 22 September 2026
 
-Le candidat natif est enregistré à `384d0d0` ; les derniers changements de code
-natif ont été testés à `ec8fe77`, avant le commit de preuves et de documentation.
-Le candidat multilingue a été réconcilié avec les trois évolutions natives
-postérieures à son point de départ, jusqu’au commit `fea555d`. Les restrictions
-fax, les devis de référence sans envoi et les précisions de confidentialité et de
-revue ont été conservés. Le catalogue natif contient 234 entrées en quatre langues.
+Native candidate recorded at `384d0d0`; latest native source tested at
+`ec8fe77` before evidence/documentation commit. The multilingual candidate
+was reconciled with three later native changes through `fea555d`. Fax
+restrictions, reference quotes without sending, privacy/review clarifications
+were preserved. Native catalog: 234 entries in four languages.
 
-- Nouvelle exécution sur simulateur iPhone 17 Pro Max / iOS 27.0 : 23 tests
-  unitaires et 7 parcours UI réussis (`run-QUTBZd`).
-- Serveur du candidat iOS : 82 tests réussis ; contrôle explicite des protections
-  des devis de référence dans les quatre langues, avec les 16 tests de l’API
-  native réussis. Vérification des types et lint ciblé réussis.
-- Nouvelle archive Release pour appareil, sans signature : réussie (`run-b967tj`),
-  avec contrôle d’exclusion des marqueurs Debug. Une archive non signée n’est ni
-  une installation physique qualifiée, ni une publication TestFlight ou App Store.
+- New iPhone 17 Pro Max/iOS 27.0 simulator run: 23 unit tests and 7 UI journeys
+  passed (`run-QUTBZd`).
+- iOS candidate server: 82 passed; explicit reference-quote protections in
+  all four languages, all 16 native API tests passed. Typecheck/targeted lint
+  passed.
+- New unsigned device Release archive: passed (`run-b967tj`), including
+  Debug-marker exclusion. Unsigned archives qualify neither physical
+  installation nor TestFlight/App Store publication.
 
-Les branches de livraison restent `codex/multilingual` (web et préférence partagée)
-et `codex/multilingual-ios` (client/API natifs avec la même préférence). Aucune
-migration distante, fusion dans la branche principale ni publication n’a été
-réalisée dans cette tâche.
+Historical delivery branches were `codex/multilingual` (web/shared preference)
+and `codex/multilingual-ios` (native client/API with the same preference).
+That task performed no remote migration, main merge or publication.
 
 ### Narrow-header browser readiness
 
-The preview language-panel check waits for the actual header to be visible before measuring its closed height, then reads geometry through the attached locator. This addresses the null bounding box observed during the initial header mount on iPhone WebKit in documentation PR #47 CI. It retains the exact closed-height comparison, both 320/430px widths, all five public subpages and panel/overflow assertions; it does not change the product or exclude a browser.
+The preview language-panel check waits for the actual header to be visible
+before measuring its closed height, then reads geometry through the attached
+locator. This addresses the null bounding box observed during initial iPhone
+WebKit header mount in documentation PR #47 CI. It retains exact closed-height
+comparison, both 320/430 px widths, all five public subpages and panel/overflow
+assertions; it changes no product behavior and excludes no browser.

@@ -1,100 +1,73 @@
-# Films de présentation sur l’accueil
+# Homepage introduction films
 
-L’accueil propose une introduction en paysage **1920 × 1080** pour ordinateur
-et portrait **1320 × 2868** pour téléphone. Les quatre langues ont une narration
-naturelle **Manon Eleven v4** selon la méthode C : trois blocs de phrases
-complètes, amélioration native ElevenLabs, seconde variation du plugin. Les
-scènes suivent le débit réel de la langue, sans accélération. Le premier plan
-utilise le logo officiel simplifié ; le grand timbre de conclusion conserve
-tramage et oblitération pendant cinq secondes. Le plan Signature reste sans voix
-pendant deux secondes. La musique garde un gain constant **0,22**, pauses et logo
-compris, avec la cadence et le fondu final de la partition.
+Home offers **1920 × 1080** landscape and **1320 × 2868** phone portrait. Four
+languages use natural **Manon Eleven v4**, method C, native Enhance and second
+plugin variation. Scenes follow original speech without acceleration. First shot
+uses official simplified logo; final halftone/postmark stamp lasts five seconds.
+Signature keeps two silent seconds. Music stays **0.22** through pauses/logo with
+score cadence/end fade. [Narration procedure](VIDEO_NARRATION.md) owns generation;
+[published evidence](VIDEO_NARRATION_PUBLISHED.md) owns exact hashes/durations.
 
-## Présentation et lecture
+## Presentation and playback
 
-Le format est choisi au clic pour une fenêtre étroite ou un téléphone tactile
-tenu en paysage, puis reste inchangé pendant la session, y compris après
-rotation. Aucun MP4 n’est attaché avant ce clic. Les posters sont responsives et
-chargés paresseusement. Lecture et plein écran partent du geste utilisateur ;
-Safari dispose de `webkitEnterFullscreen`. En cas de refus du plein écran, la
-lecture reste utilisable dans la page. Reprise, fermeture et replay sont
-accessibles au clavier. Aucune vidéo ne démarre automatiquement.
+Choose format on click for narrow windows/touch phones in landscape; retain it
+through session/rotation. No MP4 attaches before click. Posters are responsive/lazy.
+User gesture starts playback/fullscreen; Safari uses `webkitEnterFullscreen`.
+Fullscreen refusal keeps inline playback. Resume/close/replay are keyboard-accessible;
+no autoplay.
 
-Le film, son poster et ses sous-titres suivent la langue résolue, y compris la
-préférence personnelle du compte. Un changement de langue arrête et décharge le
-film précédent ; le nouveau attend un clic. Cette règle figure dans `AGENTS.md`.
-Le catalogue commun `packages/contracts/src/public-videos.json` sert au lecteur,
-aux tests et à la liste exacte des vidéos publiques du serveur. La durée affichée
-est arrondie depuis `durationSeconds`, dérivée de la timeline réelle.
+Film/poster/captions follow resolved UI/account language. Changing language stops
+and unloads old film; new one waits for click. Shared
+`packages/contracts/src/public-videos.json` drives player/tests/server allowlist.
+Displayed duration rounds actual timeline `durationSeconds`. Assistant/iOS scenes
+illustrate the user's chosen final promise, not deployed-feature qualification.
+Photos/captures retain provenance; depicted actions send nothing.
 
-Les écrans d’assistants et iOS illustrent la promesse finale choisie par
-l’utilisateur ; ils ne qualifient pas les fonctions actuellement publiées. Les
-photographies et captures conservent leur provenance. Aucune opération montrée
-ne déclenche un envoi métier.
+## Regeneration and media
 
-## Langue et régénération
-
-Les compositions naturelles utilisent les mêmes scènes, polices, médias et
-animations que V5, avec une timeline propre à chaque narration. Le texte français
-de l’oblitération appartient au logo et reste identique. Les introductions sont
-en **V8** ; les rôles en **V4 EN/DE/LB** et **V3 FR** approuvée. Les huit snapshots
-locaux qualifiés permettent le rendu hors ligne, sans clé ni appel ElevenLabs.
-Les bases instrumentales historiques V5/V1 restent conservées.
+Natural compositions reuse V5 scenes/fonts/media/animation with speech-specific
+timelines. French postmark text belongs to the unchanged official logo.
+Introductions V8; roles V4 EN/DE/LB, approved V3 FR. Eight qualified snapshots render
+offline without keys/ElevenLabs; historical V5/V1 instrumentals remain.
 
 ```sh
 npm --prefix videos/guteneo-film ci
 npm run videos:render
 ```
 
-Une sélection est possible avec `--locales de,lb --kind introduction` ou
-`--kind roles`. FFmpeg, ffprobe et cwebp sont nécessaires. `--skip-existing`
-exige un MP4 conforme au hash du manifeste, son poster et les sous-titres exacts.
-Le renderer qualifie bibliothèques, sources et calages avant toute écriture.
-Les masters et preuves restent dans `videos/guteneo-film/out/`, ignoré par Git.
-Les exports publics H.264/AAC stéréo sont à 30 images/s, avec démarrage rapide et
-moins de 25 MiB par fichier. Les posters proviennent des nouvelles scènes.
+Selections, dependencies and strict `--skip-existing` rules are in
+[VIDEO_NARRATION.md](VIDEO_NARRATION.md). Qualification precedes writes; ignored
+`videos/guteneo-film/out/` keeps masters/proof. H.264/AAC stereo, 30 fps, fast-start,
+under 25 MiB/file; posters come from new scenes.
 
-Voir [la procédure de narration](VIDEO_NARRATION.md) et
-[les durées et empreintes des douze actifs](VIDEO_NARRATION_PUBLISHED.md).
-
-## Médias publics
-
-| Langue | Présentation horizontale | Présentation iPhone | Les quatre rôles |
+| Language | Landscape | iPhone | Four roles |
 | --- | --- | --- | --- |
-| Français | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v3-fr.mp4) |
+| French | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-fr.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v3-fr.mp4) |
 | English | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-en.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-en.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v4-en.mp4) |
-| Deutsch | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-de.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-de.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v4-de.mp4) |
-| Lëtzebuergesch | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v4-lb.mp4) |
+| German | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-de.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-de.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v4-de.mp4) |
+| Luxembourgish | [MP4](../apps/web/public/videos/guteneo-horizontal-v8-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-vertical-v8-lb.mp4) | [MP4](../apps/web/public/videos/guteneo-roles-v4-lb.mp4) |
 
-## Diffusion et validation
+## Serving and validation
 
-L’adaptateur de plages est limité aux douze MP4 du catalogue commun. Il permet à Safari et aux commandes de recherche de lire une plage `bytes` avec réponse `206`, sans charger tout le fichier en mémoire. Il préserve les règles de sécurité, d’indexation et le bucket privé de documents.
+Range adapter is limited to catalog's twelve MP4s, serving Safari/seeking `bytes`
+with 206 without buffering whole files. Existing security/indexing/private-document
+storage stays unchanged. Player tests cover click loading, formats/rotation,
+fullscreen/refusal, errors/recovery. Mocked API tests differ from actual MP4 playback/
+seek checks. Server tests cover ranges/suffixes/bounds/If-Range/workerd. No physical
+iPhone claim.
 
-Les tests du lecteur couvrent le chargement au clic, les deux formats, la rotation, les interactions de plein écran et leur refus, les erreurs et la reprise. Les simulations d’API sont distinctes des tests de lecture et de recherche sur les vrais MP4. Les tests du serveur couvrent les plages, suffixes, limites, `If-Range` et la diffusion avec workerd. Aucune vérification sur iPhone physique n’est revendiquée.
+Historical instrumental candidate, 2 October 2026:
 
-Le candidat instrumental historique du 2 octobre 2026 a passé :
+- TypeScript, application/Remotion lint, app/Worker dry-run and preview build passed.
+- 93 language/range/role-permission/migration tests plus 215 security checks passed.
+- 57 player tests passed on desktop Chromium/iPhone WebKit; one phone-only case skipped on desktop. Eight locale/film combinations actually decoded/searched to final card in both browsers, without video API mocks.
+- Three personal-preference tests passed in desktop/mobile Chromium/iPhone WebKit. Mock sessions check media choice, not real Auth0.
+- All twelve MP4s fully FFmpeg-decoded; size/hash/fast-start/30 fps/H.264-AAC checked; largest 11.77 MiB.
+- Two FR V5 MP4s stayed exact. Twenty-four sampled source frames matched V5; six sampled translated end cards matched French.
 
-- TypeScript, lint applicatif et Remotion, build applicatif avec Worker en
-  `--dry-run`, et build du modèle de preview.
-- 93 tests ciblés de langue, plages et permissions/migration des rôles, ainsi que
-  les 215 tests de sécurité.
-- 57 tests du lecteur sur Chromium ordinateur et WebKit au format iPhone ; un
-  cas propre au téléphone est ignoré sur ordinateur. Les huit combinaisons
-  langue/film sont réellement décodées et cherchent leur carte finale dans
-  chaque navigateur, sans simulation des API vidéo.
-- Trois tests de préférence personnelle sur Chromium ordinateur, Chromium
-  mobile et WebKit iPhone. La session y est simulée : ils vérifient le choix du
-  média, pas une connexion Auth0 réelle.
-- Décodage FFmpeg complet des douze MP4, tailles/SHA-256, démarrage rapide,
-  30 images/s et H.264/AAC stéréo. Le plus gros fichier fait 11,77 MiB.
-- Conservation exacte des deux MP4 français V5. Les sources françaises ont aussi
-  été comparées au V5 sur 24 images échantillonnées : toutes identiques ; les six
-  cartes finales traduites échantillonnées sont identiques au français.
-
-Les masters, captures, rapports navigateur et preuves de rendu/décodage sont
-conservés dans `videos/guteneo-film/out/localized/`. Ces contrôles de préparation
-sont locaux et précèdent la publication ; ils n’ont déclenché aucun déploiement,
-migration distante ou activation de fournisseur. L’écoute critique complète et la qualification sur téléphone physique
-ne sont pas revendiquées.
-
-La publication suit `docs/MAIN_RELEASE.md` : PR validée, contrôles du commit fusionné, `npm run deploy:live` sur un checkout propre de `main`, puis vérification de tous les assets avec `scripts/verify-release.mjs` sur les deux origines. Qualifier également les octets `206`, MIME, longueur et recherche dans les médias publiés.
+Masters/captures/browser/render/decode proof:
+`videos/guteneo-film/out/localized/`. Local preparation preceded publication and
+performed no deployment, remote migration or provider activation. No full critical
+listening/physical-phone qualification claimed. Release follows
+[MAIN_RELEASE.md](MAIN_RELEASE.md), exact assets plus 206 bytes/MIME/length/seek;
+current canonical-origin procedure supersedes dated two-origin instructions.

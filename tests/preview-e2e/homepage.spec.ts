@@ -134,7 +134,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(author).toHaveAttribute("href", "https://nicolaspieper.com");
   await expect(
     page.getByRole("link", { name: "Mentions légales" }),
-  ).toHaveAttribute("href", "/mentions-legales/");
+  ).toHaveAttribute("href", "/legal/");
   await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
   await expect
     .poll(() =>
@@ -328,7 +328,7 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   await expect(navigation).toBeVisible();
   await navigation.getByRole("link", { name: "Tarifs", exact: true }).click();
-  await expect(page.locator("#tarifs")).toBeFocused();
+  await expect(page.locator("#pricing")).toBeFocused();
   await expect(menu).toHaveAttribute("aria-expanded", "false");
   await expect(navigation).not.toBeVisible();
   await menu.click();

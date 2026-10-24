@@ -1,5 +1,11 @@
 # Execution plan and handoff
 
+24 October 2026: [repository and interface harmonization](HARMONIZATION.md) records
+the isolated branch, English source/documentation and canonical links, shared
+interface patterns, feature-atlas maintenance rules and bounded local evidence.
+Its local verification records full-suite, browser-preview and native UI results;
+it establishes no merge, deployment or live-provider qualification.
+
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
 and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a
@@ -118,7 +124,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native iOS candidate — 22 September 2026
 

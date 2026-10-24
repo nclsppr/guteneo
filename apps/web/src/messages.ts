@@ -1,4 +1,6 @@
 import { getLocale, catalogs } from "./locale";
+import { englishMessages, translateMessage } from "./message-catalog";
+import contexts from "./locales/message-contexts.json";
 import information from "./locales/messages-information.json";
 import editorial from "./locales/messages-editorial.json";
 import assistants from "./locales/messages-assistants.json";
@@ -54,21 +56,26 @@ export const messages: Record<string, readonly string[]> = {
   ...information,
   ...delivery,
 };
-/** Only source-owned copy is passed here. User content is never translated. */
+const english = englishMessages(messages);
+
+/** Source-owned interface copy only. Never pass user-authored document content. */
 export function msg(source: string, ...values: unknown[]): string {
-  const locale = getLocale();
-  const key = source.trim();
-  const translation =
-    locale === "fr"
-      ? key
-      : (messages[key]?.[{ en: 0, de: 1, lb: 2 }[locale]] ?? key);
-  const text =
-    source.slice(0, source.length - source.trimStart().length) +
-    translation +
-    source.slice(source.trimEnd().length);
-  return text.replace(/\{(\d+)\}/g, (placeholder, index: string) =>
-    Number(index) >= values.length
-      ? placeholder
-      : String(values[Number(index)]),
+  return translateMessage(source, getLocale(), english, messages, values);
+}
+
+/** Context keeps grammatical variants distinct when English labels coincide. */
+export function msgIn(
+  context: string,
+  source: string,
+  ...values: unknown[]
+): string {
+  return translateMessage(
+    source,
+    getLocale(),
+    english,
+    messages,
+    values,
+    context,
+    contexts,
   );
 }

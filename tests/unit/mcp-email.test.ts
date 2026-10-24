@@ -165,11 +165,11 @@ describe("email assistant contract", () => {
             expect(JSON.stringify(response)).not.toContain(value);
           if (name !== "list_dispatches") {
             expect(body.data.nextActions?.join(" ")).toContain(
-              "Sans mandat expert actif",
+              "Without an active expert mandate",
             );
             if (mode === "protected_link")
               expect(body.data.nextActions?.join(" ")).toContain(
-                "Ne jamais lire, demander ou afficher le mot de passe",
+                "Never read, request or display the password",
               );
           }
         }
@@ -235,21 +235,21 @@ describe("email assistant contract", () => {
         const prompt = JSON.stringify(
           await client.getPrompt({ name: "email" }),
         );
-        expect(prompt).toContain("Sans mandat expert actif");
-        expect(prompt).toContain("Ne pas visiter cet accès avec un outil");
+        expect(prompt).toContain("Without an active expert mandate");
+        expect(prompt).toContain("Never visit that URL with a tool");
         expect(prompt).toContain(
-          "compte de revue limité à la préparation ne peut pas envoyer",
+          "review account restricted to preparation cannot send",
         );
         expect(prompt).toContain(
-          "Si les outils du studio sont présents dans le catalogue",
+          "When studio tools exist in the catalogue",
         );
         expect(prompt).toContain(
-          "import_dataset, generate_documents puis prepare_distribution",
+          "import_dataset, generate_documents and prepare_distribution",
         );
-        expect(prompt).toContain("XML, CSV, XLSX ou JSON");
-        expect(prompt).toContain("Ce parcours e-mail reçoit le PDF final");
+        expect(prompt).toContain("XML, CSV, XLSX or JSON");
+        expect(prompt).toContain("This email workflow receives the final PDF");
         expect(prompt).toContain(
-          "les autres pièces jointes et les comptes destinataires restent indisponibles",
+          "other attachments and recipient accounts remain unavailable",
         );
         expect(prepare).not.toHaveBeenCalled();
         expect(confirm).not.toHaveBeenCalled();
@@ -265,10 +265,10 @@ describe("email assistant contract", () => {
       0,
     );
     expect(expired.nextActions.join(" ")).toContain(
-      "consulter get_dispatch_status",
+      "read get_dispatch_status",
     );
     expect(expired.nextActions.join(" ")).not.toContain(
-      "renouveler avec prepare_fax",
+      "renew through prepare_fax",
     );
     const unknown = dispatchSummary(
       { ...dispatch, status: "submission_unknown" },
@@ -276,7 +276,7 @@ describe("email assistant contract", () => {
       1,
     );
     expect(unknown.nextActions).toEqual([
-      "Attendre le rapprochement opérateur. Ne pas réexpédier cette commande.",
+      "Wait for operator reconciliation. Do not resend this command.",
     ]);
   });
 });

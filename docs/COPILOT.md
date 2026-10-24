@@ -1,41 +1,81 @@
-# Guteneo avec GitHub Copilot
+# Guteneo with GitHub Copilot
 
-Vérifié le **17 septembre 2026** sur les documentations officielles. Ce guide concerne GitHub Copilot dans **VS Code** et **Copilot CLI**. Il n’établit aucune compatibilité avec Microsoft Copilot grand public, Microsoft 365 Copilot, GitHub.com ou le coding agent hébergé. Aucune connexion réelle, publication dans un registre ou transmission depuis Copilot n’a été qualifiée ici.
+Official documentation checked **17 September 2026**. This guide covers GitHub
+Copilot in **VS Code** and **Copilot CLI**. It establishes no compatibility
+with consumer Microsoft Copilot, Microsoft 365 Copilot, GitHub.com or hosted
+coding agent. No actual connection, registry publication or Copilot transmission
+was qualified here.
 
-Le serveur cible est `https://guteneo.com/mcp`, en Streamable HTTP. L’aperçu public reste une démonstration et n’ouvre pas ce serveur. L’accès réel nécessite la configuration Guteneo, un compte autorisé et un parcours OAuth qualifié. Les politiques de votre organisation peuvent interdire les serveurs MCP externes.
+Target: Streamable HTTP `https://guteneo.com/mcp`. Public preview remains a
+demonstration and exposes no MCP server. Actual access needs configured
+Guteneo, an authorized account and qualified OAuth. Organization policy may
+prohibit external MCP servers.
 
 ## VS Code
 
-1. Installer une version actuelle de VS Code et se connecter à son compte GitHub Copilot autorisé.
-2. Télécharger [copilot-vscode-mcp.json](../integrations/config/copilot-vscode-mcp.json). Fusionner son entrée `guteneo` dans `.vscode/mcp.json`, sous la clé **`servers`**, sans remplacer les autres serveurs. La commande `MCP: Open User Configuration` permet une configuration au niveau du profil plutôt que du dépôt.
-3. Ouvrir `MCP: List Servers`, sélectionner Guteneo et démarrer la connexion. Examiner la confiance accordée au serveur et les permissions OAuth proposées. Vérifier les outils disponibles avant de les utiliser dans la conversation.
+1. Install current VS Code and sign in to your authorized GitHub Copilot account.
+2. Download [copilot-vscode-mcp.json](../integrations/config/copilot-vscode-mcp.json).
+   Merge its `guteneo` entry under **`servers`** in `.vscode/mcp.json`, preserving
+   other servers. `MCP: Open User Configuration` supports profile-level
+   configuration instead of repository settings.
+3. Open `MCP: List Servers`, select Guteneo/start connection. Review server
+   trust and OAuth permissions; verify available tools before conversational use.
 
-Le modèle contient uniquement `type: "http"` et l’URL. Il ne fournit ni jeton ni client OAuth enregistré. Si Guteneo fournit un **identifiant public préenregistré**, ajouter `"oauth": { "clientId": "IDENTIFIANT_PUBLIC_FOURNI_PAR_GUTENEO" }` dans l’objet `guteneo`. Ce marqueur n’est pas un client existant. L’enregistrement dynamique ne doit pas être supposé activé.
+The template contains only `type: "http"` and URL, no token/registered client.
+If Guteneo supplies a **preregistered public identifier**, add
+`"oauth": { "clientId": "PUBLIC_CLIENT_ID_PROVIDED_BY_GUTENEO" }` to `guteneo`.
+This marker is not an existing client. Never assume dynamic registration active.
 
-Sources : [format MCP VS Code](https://code.visualstudio.com/docs/agents/reference/mcp-configuration), [MCP dans GitHub Copilot Chat](https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/extend-copilot-chat-with-mcp).
+Sources: [VS Code MCP format](https://code.visualstudio.com/docs/agents/reference/mcp-configuration),
+[GitHub Copilot Chat MCP](https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/extend-copilot-chat-with-mcp).
 
 ## Copilot CLI
 
-Fusionner [copilot-cli-mcp.json](../integrations/config/copilot-cli-mcp.json) dans `~/.copilot/mcp-config.json`, sous **`mcpServers`**. Copilot CLI ne lit pas `.vscode/mcp.json` : les deux fichiers fournis ne sont pas interchangeables.
+Merge [copilot-cli-mcp.json](../integrations/config/copilot-cli-mcp.json) under
+**`mcpServers`** in `~/.copilot/mcp-config.json`. CLI does not read
+`.vscode/mcp.json`; the supplied files are not interchangeable.
 
-Autre possibilité, depuis le terminal :
+Alternatively:
 
 ```sh
 copilot mcp add --transport http guteneo https://guteneo.com/mcp
 ```
 
-Dans une session interactive, `/mcp` affiche les serveurs. `/mcp auth guteneo` relance l’authentification OAuth dans le navigateur quand elle est nécessaire ; `/mcp show guteneo` permet d’examiner les outils. `tools: ["*"]` expose les outils annoncés par ce serveur, sans supprimer leurs demandes de permission ni les contrôles Guteneo.
+Interactive `/mcp` lists servers. `/mcp auth guteneo` restarts browser OAuth
+when needed; `/mcp show guteneo` inspects tools. `tools: ["*"]` exposes server
+announcements without removing permission requests/Guteneo checks.
 
-Pour un client préenregistré, les champs documentés sont `oauthClientId`, `oauthPublicClient: true` et `oauthGrantType: "authorization_code"` dans l’objet `guteneo`. N’ajouter l’identifiant qu’une fois fourni et qualifié. Aucun secret fournisseur, jeton collé en clair ou flux partagé `client_credentials` n’est nécessaire dans ces modèles.
+Documented preregistered-client fields are `oauthClientId`,
+`oauthPublicClient: true`, `oauthGrantType: "authorization_code"` in `guteneo`.
+Add an ID only when supplied/qualified. These templates need no provider
+secret, plaintext token or shared `client_credentials` flow.
 
-Sources : [ajouter un serveur au CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers), [configuration et OAuth du CLI](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference).
+Sources: [add CLI servers](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers),
+[CLI configuration/OAuth](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference).
 
-## PDF, permissions et validation
+## PDFs, permissions and validation
 
-Déposer le PDF original dans l’espace Documents authentifié de Guteneo, puis le retrouver avec `list_documents` / `get_document`, si ces outils sont annoncés. Aucun transfert d’une pièce jointe Copilot, chemin local, accès au disque ou adaptateur local n’est qualifié par ces modèles. Le paquet ZIP et ses instructions `fax-pdf` / `postal-pdf` ne sont pas installés par la simple configuration MCP.
+Upload the original PDF to authenticated Guteneo Documents, then locate it
+with announced `list_documents`/`get_document`. Templates qualify no Copilot
+attachment transfer, local path/disk access or local adapter. MCP configuration
+alone installs neither ZIP package nor `fax-pdf`/`postal-pdf` instructions.
 
-Commencer par `get_capabilities`. Utiliser uniquement le canal, les outils et les tarifs retournés pour le compte. Par défaut, le document, son destinataire, ses options et son devis sont approuvés **par la personne dans Guteneo**. Le mode expert facultatif, désactivé par défaut, requiert un mandat préalable accordé dans Guteneo par un administrateur à cette connexion OAuth, avec canaux, plafonds par envoi/jour, nombre quotidien et expiration dans les 30 jours. `review_dispatch` puis `approve_and_send_dispatch` permettent alors une approbation déléguée sur la version exacte ; le dépôt postal a son outil distinct. Une permission donnée à Copilot n’accorde pas ce mandat et ne prouve pas une revue humaine. Ne changez pas les confirmations de Copilot pour contourner ses protections. Voir [EXPERT_APPROVAL.md](EXPERT_APPROVAL.md). Un résultat `submission_unknown` demande un rapprochement ; il ne doit jamais entraîner un renvoi automatique.
+Start with `get_capabilities`; use only returned account channels/tools/prices.
+Default document/recipient/options/quote approval is **human review in Guteneo**.
+Optional expert mode is off by default and requires a prior browser-admin
+mandate for that OAuth connection, bounded by channels, per-send/day caps,
+daily count and expiry within 30 days. `review_dispatch` then
+`approve_and_send_dispatch` permit delegated approval of the exact version;
+postal transfer has a separate tool. Copilot permission grants no mandate
+or human-review evidence. Never bypass Copilot confirmations. See
+[EXPERT_APPROVAL.md](EXPERT_APPROVAL.md). `submission_unknown` requires
+reconciliation, never automatic resend.
 
-## Qualification à conserver avant ouverture
+## Evidence before opening
 
-Pour chacune des deux surfaces : version exacte, permissions du compte, callback OAuth **réellement observé et enregistré**, consentement, expiration/renouvellement et révocation, isolation des organisations, PDF exact et empreinte SHA-256. Aucun callback arbitraire ou joker ne doit être ajouté pour faire fonctionner un exemple. Ne conserver aucun jeton, code OAuth, URL signée ou document personnel dans les preuves. Les tests du dépôt vérifient les fichiers distribués et l’interface locale ; ils ne constituent pas une connexion Copilot réussie.
+For each surface retain exact version, account permissions, **actually observed
+and registered** OAuth callback, consent, expiry/renewal/revocation, organization
+isolation, exact PDF and SHA-256. Add no arbitrary/wildcard callback to make
+an example work. Retain no token, OAuth code, signed URL or personal document.
+Repository tests verify distributed files/local interface, not successful
+Copilot connection.

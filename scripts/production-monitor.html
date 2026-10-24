@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Guteneo — État de production</title>
+  <title>Guteneo — production status</title>
   <style>
     :root {
       color-scheme: light;
       font-family: system-ui, sans-serif;
-      color: #24272d;
-      background: #f5f3ed;
+      color: #182338;
+      background: #f7f5ef;
     }
     * {
       box-sizing: border-box;
@@ -60,7 +60,7 @@
       color: #595d65;
     }
     #state {
-      border-left: 5px solid #806219;
+      border: 1px solid #806219;
       padding: 16px 20px;
       background: #fff8dc;
       font-weight: 650;
@@ -88,13 +88,13 @@
       font-variant-numeric: tabular-nums;
     }
     a {
-      color: #2540a5;
+      color: #234ce0;
       text-underline-offset: 3px;
     }
     a:focus-visible,
     button:focus-visible,
     summary:focus-visible {
-      outline: 3px solid #2540a5;
+      outline: 3px solid #234ce0;
       outline-offset: 4px;
     }
     button {
@@ -180,73 +180,70 @@
   <main>
     <header>
       <span class="brand">guteneo</span
-      ><span class="eyebrow">Production · Vue locale</span
+      ><span class="eyebrow">Production · Local view</span
       ><button id="pause" type="button" aria-pressed="false">
-        Mettre en pause
+        Pause monitoring
       </button>
     </header>
-    <h1>Ce que l’on sait.<br />Ce qu’il reste à prouver.</h1>
+    <h1>What we know.<br />What still needs proof.</h1>
     <p class="muted">
-      Contrôles publics réels, toutes les 60 secondes pendant que cet outil est
-      ouvert. Aucun document créé, aucun envoi. Une absence de preuve reste
-      visible.
+      Real public checks every 60 seconds while this tool is open. No document
+      creation or sending. Missing evidence stays visible.
     </p>
     <div id="state" role="status" aria-live="polite">
-      Première mesure en cours…
+      First measurement in progress…
     </div>
     <div class="facts">
-      <p>Dernière mesure<strong id="time">En attente</strong></p>
-      <p>Contrôles réussis<strong id="count">—</strong></p>
+      <p>Last measurement<strong id="time">Pending</strong></p>
+      <p>Successful checks<strong id="count">—</strong></p>
       <p>
-        Source publiée<strong><code id="commit">—</code></strong>
+        Published source<strong><code id="commit">—</code></strong>
       </p>
     </div>
-    <h2>Couverture des fonctionnalités</h2>
+    <h2>Feature coverage</h2>
     <p>
-      « Non testé » ne signifie pas en panne. Un canal configuré ne prouve ni sa
-      remise au fournisseur ni sa livraison au destinataire.
+      “Untested” does not mean broken. A configured channel proves neither
+      provider handoff nor delivery to the recipient.
     </p>
     <div class="table">
       <table class="coverage">
         <thead>
           <tr>
-            <th scope="col">Fonction</th>
-            <th scope="col">Preuve</th>
-            <th scope="col">Limite observée</th>
+            <th scope="col">Feature</th>
+            <th scope="col">Evidence</th>
+            <th scope="col">Observed limit</th>
           </tr>
         </thead>
         <tbody id="coverage"></tbody>
       </table>
     </div>
     <details open>
-      <summary>Contrôles publics et protection des accès</summary>
+      <summary>Public checks and access protection</summary>
       <p class="muted">
-        Domaine principal actif, adresse technique fermée, pages comparées au
-        manifeste publié, langues, en-têtes de sécurité et refus des accès
-        anonymes. Ce manifeste ne remplace pas une preuve indépendante du code
-        publié.
+        Canonical domain availability, retired-host closure, pages compared with
+        the published manifest, languages, security headers and anonymous-access
+        refusals. The manifest does not replace independent source-release proof.
       </p>
       <div class="table">
         <table>
           <thead>
             <tr>
-              <th scope="col">Adresse / parcours</th>
-              <th scope="col">Résultat</th>
+              <th scope="col">Address / journey</th>
+              <th scope="col">Result</th>
               <th scope="col">HTTP</th>
-              <th scope="col">Durée</th>
+              <th scope="col">Duration</th>
             </tr>
           </thead>
           <tbody id="checks"></tbody>
         </table>
       </div>
     </details>
-    <h2>Pour enquêter</h2>
+    <h2>Investigate further</h2>
     <p>
-      Les métriques privées complètent cette vue : erreurs, dernier cron, âge
-      des files, résultats inconnus et signatures antivirus. Une mesure devient
-      périmée après deux minutes.
+      Private metrics complete this view: errors, last cron, queue age, unknown
+      outcomes and antivirus signatures. Measurements become stale after two minutes.
     </p>
-    <nav aria-label="Tableaux Cloudflare">
+    <nav aria-label="Cloudflare dashboards">
       <a
         href="https://dash.cloudflare.com/39ac9fada6cba44d9ecf09d467609e69/workers/services/view/guteneo-app/production"
         target="_blank"
@@ -262,16 +259,14 @@
         target="_blank"
         rel="noreferrer"
         >Antivirus</a
-      ><a href="/status" target="_blank" rel="noreferrer">Preuve JSON</a>
+      ><a href="/status" target="_blank" rel="noreferrer">JSON evidence</a>
     </nav>
     <p class="muted">
-      Cette vue ne surveille plus la production après l’arrêt du processus
-      local. Les temps affichés sont des échantillons depuis cette machine, sans
-      garantie de disponibilité globale.
+      Monitoring stops when the local process exits. Timings are samples from
+      this machine and do not guarantee global availability.
     </p>
     <noscript
-      >Activez JavaScript pour les mesures, ou consultez la preuve
-      JSON.</noscript
+      >Enable JavaScript for measurements or read the JSON evidence.</noscript
     >
   </main>
   <script>
@@ -304,14 +299,14 @@
             ? "unknown"
             : "pass";
       const text = paused
-        ? "Affichage en pause — les mesures affichées ne sont plus actualisées."
+        ? "Display paused — shown measurements are no longer refreshed."
         : connectionFailed
-          ? "Connexion au suivi interrompue — résultat actuel inconnu."
+          ? "Monitoring connection interrupted — current result unknown."
           : stale
-            ? "Mesure absente ou périmée — état actuel inconnu."
+            ? "Measurement missing or stale — current state unknown."
             : failed
-              ? "Un contrôle public demande une vérification."
-              : "Contrôles publics réussis — qualification produit partielle.";
+              ? "A public check needs investigation."
+              : "Public checks passed — product qualification remains partial.";
       if (state.textContent !== text) state.textContent = text;
     }
     async function update() {
@@ -328,10 +323,10 @@
         if (latest?.checkedAt !== report.checkedAt) {
           latest = report;
           byId("time").textContent = new Date(report.checkedAt).toLocaleString(
-            "fr-FR",
+            "en-GB",
             { timeZone: "Europe/Paris" },
           );
-          byId("commit").textContent = report.sourceCommit ?? "Indisponible";
+          byId("commit").textContent = report.sourceCommit ?? "Unavailable";
           byId("count").textContent =
             report.checks.filter((c) => c.status === "pass").length +
             " / " +
@@ -341,7 +336,7 @@
               row([
                 [c.feature],
                 [
-                  c.state === "disabled" ? "Désactivé" : "Non testé",
+                  c.state === "disabled" ? "Disabled" : "Untested",
                   c.state === "disabled" ? "muted label" : "unknown label",
                 ],
                 [c.evidence],
@@ -353,7 +348,7 @@
               row([
                 [new URL(c.origin).host + c.path],
                 [
-                  c.status === "pass" ? "Vérifié" : "Échec",
+                  c.status === "pass" ? "Verified" : "Failed",
                   c.status + " label",
                 ],
                 [String(c.httpStatus ?? "—")],
@@ -373,8 +368,8 @@
       paused = !paused;
       byId("pause").setAttribute("aria-pressed", String(paused));
       byId("pause").textContent = paused
-        ? "Reprendre le suivi"
-        : "Mettre en pause";
+        ? "Resume monitoring"
+        : "Pause monitoring";
       freshness();
       if (!paused) void update();
     });

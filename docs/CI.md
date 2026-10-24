@@ -163,3 +163,13 @@ npx vitest run --shard=1/4 \
 Run shards 2–4 and the excluded PDF integration with the analogous unique output paths, then use `vitest run --merge-reports=test-results/ci/blobs` to merge those files. Avoid mixing reports from different source revisions. Playwright projects must run in separate checkouts/runners or sequentially; parallel processes against one `.wrangler` directory are unsupported.
 
 Sources: [Vitest sharding](https://vitest.dev/guide/improving-performance.html#sharding), [Playwright CI and browser caching](https://playwright.dev/docs/ci#caching-browsers), [GitHub required checks and skipped dependencies](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks), [Playwright reporters](https://playwright.dev/docs/test-reporters).
+
+## Documentation and repository standards
+
+CI requires `npm run docs:check` and `npm run check:standards`. Regenerate the atlas
+with `npm run docs:build`; synchronize shared integration instructions with
+`node integrations/sync-claude-workflows.mjs` and verify `node integrations/sync-claude-workflows.mjs --check`. Feature changes
+must update both the source feature tree and affected developer documentation in
+the same pull request. The [repository standards](REPOSITORY_STANDARDS.md) own the
+language, routing, deduplication and exception policy; language checks are bounded
+regression heuristics rather than linguistic or semantic proof.

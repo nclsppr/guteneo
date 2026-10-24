@@ -3,6 +3,7 @@ import readXlsxFile from "read-excel-file/universal";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 import {
   DATASET_LIMITS,
+  DEFAULT_DATASET_SHEET,
   XmlRecordPathSchema,
   type DatasetFormat,
   type DatasetProfile,
@@ -50,7 +51,10 @@ function parseXml(bytes: Uint8Array): XmlNode {
     if (token[0].startsWith("</")) depth--;
     else if (!token[0].endsWith("/>")) depth++;
     if (depth > 64)
-      throw new DatasetError("XML_DEPTH_LIMIT", "Structure XML trop profonde.");
+      throw new DatasetError(
+        "XML_DEPTH_LIMIT",
+        "XML structure is nested too deeply.",
+      );
   }
   return new XMLParser({
     maxNestedTags: 64,
@@ -70,7 +74,7 @@ function makeCell(
   if (raw !== null && raw.length > DATASET_LIMITS.cellCharacters)
     throw new DatasetError(
       "CELL_TOO_LARGE",
-      "Une cellule dépasse 12 000 caractères.",
+      "A cell exceeds 12,000 characters.",
     );
   return { column, address: `${columnName(column)}${row}`, raw, kind };
 }
@@ -82,7 +86,7 @@ function sheetFromRows(name: string, rows: (string | null)[][]): ProfileSheet {
   )
     throw new DatasetError(
       "DATASET_DIMENSION_LIMIT",
-      "Limite de lignes, colonnes ou cellules dépassée.",
+      "Row, column or cell limit exceeded.",
     );
   return {
     name,
@@ -105,29 +109,29 @@ function flatten(
   depth = 0,
 ): Record<string, string | null> {
   if (depth > 8)
-    throw new DatasetError("JSON_DEPTH_LIMIT", "Objets JSON trop imbriqués.");
+    throw new DatasetError(
+      "JSON_DEPTH_LIMIT",
+      "JSON objects are nested too deeply.",
+    );
   if (value && typeof value === "object" && !Array.isArray(value)) {
     for (const [key, child] of Object.entries(value)) {
       if (
         !/^[A-Za-z_][A-Za-z0-9_]*$/.test(key) ||
         ["__proto__", "prototype", "constructor"].includes(key)
       )
-        throw new DatasetError(
-          "INVALID_JSON_KEY",
-          "Clé JSON non prise en charge.",
-        );
+        throw new DatasetError("INVALID_JSON_KEY", "Unsupported JSON key.");
       flatten(child, prefix ? `${prefix}.${key}` : key, out, depth + 1);
     }
   } else {
     if (Array.isArray(value))
       throw new DatasetError(
         "JSON_ARRAY_FIELD",
-        "Pour des lignes répétées, fournissez des feuilles JSON distinctes et une jointure explicite.",
+        "For repeated rows, provide separate JSON sheets and an explicit join.",
       );
     if (typeof value === "number" && !Number.isSafeInteger(value))
       throw new DatasetError(
         "JSON_NUMERIC_PRECISION",
-        "Les décimales et grands nombres JSON doivent être des chaînes pour conserver leur précision.",
+        "JSON decimals and large numbers must be strings to preserve precision.",
       );
     out[prefix] = value === null ? null : String(value);
   }
@@ -141,20 +145,22 @@ function parseJson(text: string): ProfileSheet[] {
     if (token[1] && /[.eE]/.test(token[1]))
       throw new DatasetError(
         "JSON_NUMERIC_PRECISION",
-        "Les décimales et exposants JSON doivent être des chaînes pour conserver leur précision.",
+        "JSON decimals and exponents must be strings to preserve precision.",
       );
   }
   let value: unknown;
   try {
     value = JSON.parse(text);
   } catch {
-    throw new DatasetError("INVALID_JSON", "JSON invalide.");
+    throw new DatasetError("INVALID_JSON", "Invalid JSON.");
   }
-  const sheets = Array.isArray(value) ? { Données: value } : value;
+  const sheets = Array.isArray(value)
+    ? { [DEFAULT_DATASET_SHEET]: value }
+    : value;
   if (!sheets || typeof sheets !== "object")
     throw new DatasetError(
       "INVALID_JSON",
-      "Un tableau d’objets ou un objet de feuilles est attendu.",
+      "Expected an array of objects or an object of sheets.",
     );
   return Object.entries(sheets).map(([name, values]) => {
     if (
@@ -164,7 +170,7 @@ function parseJson(text: string): ProfileSheet[] {
     )
       throw new DatasetError(
         "INVALID_JSON_SHEET",
-        "Chaque feuille JSON doit contenir un tableau borné d’objets.",
+        "Each JSON sheet must contain a bounded array of objects.",
       );
     const records = values.map((record) => flatten(record));
     const keys = [...new Set(records.flatMap(Object.keys))];
@@ -187,18 +193,15 @@ function parseXmlDataset(
   )
     throw new DatasetError(
       "INVALID_XML_RECORD_PATH",
-      "Le chemin XML doit être absolu, par exemple /export/clients/client, sans expression XPath.",
+      "The XML path must be absolute, for example /export/clients/client, without XPath expressions.",
     );
   if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/u.test(xml))
-    throw new DatasetError("INVALID_XML", "Caractères XML interdits.");
+    throw new DatasetError("INVALID_XML", "Forbidden XML characters.");
   const encoding = xml.match(
     /^\s*<\?xml\s[^?]*encoding\s*=\s*["']([^"']+)["']/i,
   )?.[1];
   if (encoding && !/^utf-?8$/i.test(encoding))
-    throw new DatasetError(
-      "INVALID_XML_ENCODING",
-      "Les fichiers XML doivent utiliser UTF-8.",
-    );
+    throw new DatasetError("INVALID_XML_ENCODING", "XML files must use UTF-8.");
 
   // Tokenize quoted attributes, CDATA and comments correctly before parsing or allocating a tree.
   // Predefined/numeric character references are data; custom entities and all DTDs are forbidden.
@@ -214,7 +217,7 @@ function parseXmlDataset(
     )
       throw new DatasetError(
         "UNSAFE_XML",
-        "Seules les références de caractères XML standard sont acceptées.",
+        "Only standard XML character references are accepted.",
       );
     if (name.startsWith("#")) {
       const code = name.startsWith("#x")
@@ -228,7 +231,7 @@ function parseXmlDataset(
       )
         throw new DatasetError(
           "INVALID_XML",
-          "Référence de caractère XML interdite.",
+          "Forbidden XML character reference.",
         );
     }
   }
@@ -243,18 +246,18 @@ function parseXmlDataset(
       if (++depth > DATASET_LIMITS.xmlDepth)
         throw new DatasetError(
           "XML_DEPTH_LIMIT",
-          "Structure XML trop profonde (32 niveaux maximum).",
+          "XML structure is nested too deeply (at most 32 levels).",
         );
       if (/\/\s*>$/.test(token[0])) depth--;
       if (elements > DATASET_LIMITS.xmlElements)
         throw new DatasetError(
           "XML_ELEMENT_LIMIT",
-          "Maximum 100 000 éléments XML.",
+          "At most 100,000 XML elements.",
         );
     }
   }
   if (XMLValidator.validate(xml) !== true)
-    throw new DatasetError("INVALID_XML", "Structure XML invalide.");
+    throw new DatasetError("INVALID_XML", "Invalid XML structure.");
   let document: XmlNode;
   try {
     document = new XMLParser({
@@ -273,7 +276,7 @@ function parseXmlDataset(
   } catch {
     throw new DatasetError(
       "INVALID_XML",
-      "Structure ou noms XML non pris en charge.",
+      "Unsupported XML structure or names.",
     );
   }
   const children = (node: unknown) =>
@@ -284,7 +287,7 @@ function parseXmlDataset(
   if (roots.length !== 1 || Array.isArray(roots[0][1]))
     throw new DatasetError(
       "INVALID_XML",
-      "Le fichier XML doit avoir une seule racine.",
+      "The XML file must have a single root.",
     );
   let records: unknown[];
   if (recordPath) {
@@ -296,14 +299,14 @@ function parseXmlDataset(
       if (selected.length >= DATASET_LIMITS.rows)
         throw new DatasetError(
           "DATASET_DIMENSION_LIMIT",
-          "Maximum 4 999 enregistrements XML.",
+          "At most 4,999 XML records.",
         );
     }
     records = selected;
     if (!records.length)
       throw new DatasetError(
         "XML_RECORD_PATH_NOT_FOUND",
-        "Le chemin XML ne sélectionne aucun enregistrement.",
+        "The XML path selects no records.",
       );
   } else {
     const container = obj(roots[0][1]);
@@ -321,14 +324,14 @@ function parseXmlDataset(
     )
       throw new DatasetError(
         "XML_RECORD_PATH_REQUIRED",
-        "Indiquez le chemin des enregistrements XML, par exemple /export/clients/client.",
+        "Specify the XML record path, for example /export/clients/client.",
       );
     records = many(entries[0][1]);
   }
   if (!records.length || records.length >= DATASET_LIMITS.rows)
     throw new DatasetError(
       "DATASET_DIMENSION_LIMIT",
-      "Le fichier doit contenir de 1 à 4 999 enregistrements XML.",
+      "The file must contain 1 to 4,999 XML records.",
     );
 
   // Repeated child elements become separate tables joined explicitly by generated source keys.
@@ -339,13 +342,13 @@ function parseXmlDataset(
       if (nestedList)
         throw new DatasetError(
           "XML_NESTED_LIST",
-          "Les listes XML imbriquées nécessitent des tables séparées et des clés explicites.",
+          "Nested XML lists require separate tables and explicit keys.",
         );
       repeatedPaths.add(path);
       if (repeatedPaths.size > 8)
         throw new DatasetError(
           "SHEET_LIMIT",
-          "Maximum 8 tables XML répétées par import.",
+          "At most 8 repeated XML tables per import.",
         );
       for (const child of value) discover(child, path, true);
     } else {
@@ -366,14 +369,14 @@ function parseXmlDataset(
     if (!record || typeof record !== "object" || Array.isArray(record))
       throw new DatasetError(
         "XML_RECORD_NOT_OBJECT",
-        "Chaque enregistrement XML doit contenir des champs ou des attributs ; précisez le chemin des enregistrements.",
+        "Each XML record must contain fields or attributes; specify the record path.",
       );
     const out: Record<string, string | null> = Object.create(null);
     const add = (path: string, value: unknown) => {
       if (!path || path.length > 256 || Object.hasOwn(out, path))
         throw new DatasetError(
           "INVALID_XML_KEY",
-          "Chemin de champ XML ambigu ou trop long.",
+          "XML field path is ambiguous or too long.",
         );
       if (
         ++populatedCells > DATASET_LIMITS.cells ||
@@ -381,7 +384,7 @@ function parseXmlDataset(
       )
         throw new DatasetError(
           "DATASET_DIMENSION_LIMIT",
-          "Limite de colonnes ou cellules XML dépassée.",
+          "XML column or cell limit exceeded.",
         );
       const raw = value === "" ? null : String(value);
       makeCell(raw, 1, 1);
@@ -391,7 +394,7 @@ function parseXmlDataset(
       if (nesting > 8)
         throw new DatasetError(
           "XML_FIELD_DEPTH_LIMIT",
-          "Champs XML trop imbriqués (8 niveaux maximum).",
+          "XML fields are nested too deeply (at most 8 levels).",
         );
       if (!childTable && repeatedPaths.has(path)) {
         const rows = childTables.get(path)!;
@@ -399,7 +402,7 @@ function parseXmlDataset(
           if (rows.length >= DATASET_LIMITS.rows - 1)
             throw new DatasetError(
               "DATASET_DIMENSION_LIMIT",
-              "Maximum 4 999 lignes par table XML.",
+              "At most 4,999 rows per XML table.",
             );
           rows.push(
             flattenRecord(
@@ -416,7 +419,7 @@ function parseXmlDataset(
       if (Array.isArray(value))
         throw new DatasetError(
           "XML_NESTED_LIST",
-          "Les listes XML imbriquées nécessitent des tables séparées et des clés explicites.",
+          "Nested XML lists require separate tables and explicit keys.",
         );
       if (!value || typeof value !== "object") {
         add(path, value);
@@ -427,7 +430,7 @@ function parseXmlDataset(
       if (fields.length && typeof text === "string" && text.trim())
         throw new DatasetError(
           "XML_MIXED_CONTENT",
-          "Texte et sous-éléments XML mélangés : fournissez des champs distincts.",
+          "Mixed XML text and child elements: provide distinct fields.",
         );
       let attributes = 0;
       for (const [key, child] of Object.entries(value)) {
@@ -447,7 +450,7 @@ function parseXmlDataset(
         )
           throw new DatasetError(
             "INVALID_XML_KEY",
-            "Nom de champ XML non pris en charge ou ambigu.",
+            "XML field name is unsupported or ambiguous.",
           );
         const next = `${path ? `${path}.` : ""}${attribute ? "@" : ""}${name}`;
         if (attribute) {
@@ -463,7 +466,7 @@ function parseXmlDataset(
     if (!Object.keys(out).length)
       throw new DatasetError(
         "XML_EMPTY_RECORD",
-        "Enregistrement XML sans champs exploitables.",
+        "XML record has no usable fields.",
       );
     if (childTables.size)
       add(childTable ? "__xml_parent_id" : "__xml_record_id", recordId);
@@ -473,8 +476,11 @@ function parseXmlDataset(
     flattenRecord(record, `xml-${index + 1}`),
   );
   const tables = [
-    ["Données", values],
-    ...[...childTables].map(([path, rows]) => [`Données.${path}`, rows]),
+    [DEFAULT_DATASET_SHEET, values],
+    ...[...childTables].map(([path, rows]) => [
+      `${DEFAULT_DATASET_SHEET}.${path}`,
+      rows,
+    ]),
   ] as Array<[string, Record<string, string | null>[]]>;
   return tables.map(([name, rows]) => {
     const keys = [...new Set(rows.flatMap(Object.keys))];
@@ -487,15 +493,12 @@ function parseXmlDataset(
 async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
   const files = unzipBounded(bytes);
   if (!files["xl/workbook.xml"] || !files["[Content_Types].xml"])
-    throw new DatasetError(
-      "INVALID_XLSX",
-      "Le fichier n’est pas un classeur XLSX.",
-    );
+    throw new DatasetError("INVALID_XLSX", "The file is not an XLSX workbook.");
   for (const [path, content] of Object.entries(files)) {
     if (/vbaProject|macrosheets|externalLinks|embeddings|activeX/i.test(path))
       throw new DatasetError(
         "ACTIVE_WORKBOOK",
-        "Macros, objets embarqués et liens externes non pris en charge.",
+        "Macros, embedded objects and external links are unsupported.",
       );
     if (path.endsWith(".rels")) {
       const relationships = nodes(
@@ -510,7 +513,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
       )
         throw new DatasetError(
           "EXTERNAL_WORKBOOK_LINK",
-          "Les relations externes du classeur sont interdites.",
+          "External workbook relationships are forbidden.",
         );
     }
     if (path.endsWith(".xml")) safeXml(content);
@@ -518,14 +521,14 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
   if (/macroEnabled/i.test(safeXml(files["[Content_Types].xml"])))
     throw new DatasetError(
       "ACTIVE_WORKBOOK",
-      "Classeur à macros non pris en charge.",
+      "Macro-enabled workbooks are unsupported.",
     );
   const workbook = obj(parseXml(files["xl/workbook.xml"]).workbook);
   const metas = nodes(obj(workbook.sheets).sheet);
   if (!metas.length || metas.length > DATASET_LIMITS.sheets)
     throw new DatasetError(
       "SHEET_LIMIT",
-      "Le classeur doit contenir de 1 à 12 feuilles.",
+      "The workbook must contain 1 to 12 sheets.",
     );
   const relations = files["xl/_rels/workbook.xml.rels"]
     ? nodes(
@@ -559,7 +562,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
     if (!files[path] || path.includes(".."))
       throw new DatasetError(
         "INVALID_XLSX_RELATION",
-        "Relation de feuille invalide.",
+        "Invalid sheet relationship.",
       );
     const sheet = obj(parseXml(files[path]).worksheet);
     const rows = nodes(obj(sheet.sheetData).row);
@@ -574,7 +577,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
       )
         throw new DatasetError(
           "ROW_LIMIT",
-          "Numérotation de ligne absente ou limite de 5 000 lignes dépassée.",
+          "Row numbering is missing or the 5,000-row limit was exceeded.",
         );
       maxRow = Math.max(maxRow, rowNumber);
       for (const cell of nodes(row.c)) {
@@ -585,11 +588,11 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
         )
           throw new DatasetError(
             "INVALID_CELL_ADDRESS",
-            "Référence de cellule invalide.",
+            "Invalid cell reference.",
           );
         const column = columnNumber(address);
         if (column > DATASET_LIMITS.columns)
-          throw new DatasetError("COLUMN_LIMIT", "Maximum 128 colonnes.");
+          throw new DatasetError("COLUMN_LIMIT", "At most 128 columns.");
         maxColumn = Math.max(maxColumn, column);
       }
     }
@@ -597,7 +600,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
     if (rectangularCells > DATASET_LIMITS.cells)
       throw new DatasetError(
         "CELL_LIMIT",
-        "Maximum 100 000 cellules, cellules vides comprises.",
+        "At most 100,000 cells, including empty cells.",
       );
     return { meta, rows, sheet, maxRow, maxColumn };
   });
@@ -610,7 +613,7 @@ async function parseXlsx(bytes: Uint8Array): Promise<ProfileSheet[]> {
   } catch {
     throw new DatasetError(
       "INVALID_XLSX",
-      "Le classeur ne peut pas être interprété. Vérifiez ses types et cellules en erreur.",
+      "The workbook cannot be interpreted. Check its types and error cells.",
     );
   }
   return parsed.map((parsedSheet, index) => {
@@ -691,7 +694,7 @@ export async function profileDataset(
   if (!bytes.length || bytes.length > DATASET_LIMITS.sourceBytes)
     throw new DatasetError(
       "DATASET_SIZE_LIMIT",
-      "Le fichier doit faire entre 1 octet et 5 Mio.",
+      "The file must be between 1 byte and 5 MiB.",
       413,
     );
   if (!["csv", "xlsx", "json", "xml"].includes(format))
@@ -705,7 +708,7 @@ export async function profileDataset(
     if (options.encoding && options.encoding !== "utf-8")
       throw new DatasetError(
         "INVALID_XML_ENCODING",
-        "Les fichiers XML doivent utiliser UTF-8.",
+        "XML files must use UTF-8.",
       );
     sheets = parseXmlDataset(bytes, options.xmlRecordPath);
   } else {
@@ -717,13 +720,13 @@ export async function profileDataset(
     } catch {
       throw new DatasetError(
         "DATASET_ENCODING",
-        "Encodage invalide : sélectionnez UTF-8 ou Windows-1252 explicitement.",
+        "Invalid encoding: explicitly select UTF-8 or Windows-1252.",
       );
     }
     if (text.includes("\u0000"))
       throw new DatasetError(
         "DATASET_TYPE",
-        "Fichier texte contenant des octets binaires.",
+        "Text file contains binary bytes.",
       );
     if (format === "json") sheets = parseJson(text);
     else {
@@ -743,7 +746,7 @@ export async function profileDataset(
             parser.abort();
             throw new DatasetError(
               "DATASET_DIMENSION_LIMIT",
-              "Limite de lignes, colonnes ou cellules dépassée.",
+              "Row, column or cell limit exceeded.",
             );
           }
           if (
@@ -754,13 +757,13 @@ export async function profileDataset(
             parser.abort();
             throw new DatasetError(
               "INVALID_CSV",
-              "Structure CSV invalide. Vérifiez le séparateur et les guillemets.",
+              "Invalid CSV structure. Check delimiter and quotes.",
             );
           }
           rows.push(parsed.data.map((value) => (value === "" ? null : value)));
         },
       });
-      sheets = [sheetFromRows("Données", rows)];
+      sheets = [sheetFromRows(DEFAULT_DATASET_SHEET, rows)];
     }
   }
   const profile: DatasetProfile = {
@@ -771,7 +774,7 @@ export async function profileDataset(
     sourceBytes: bytes.length,
   };
   if (!sheets.length || sheets.length > DATASET_LIMITS.sheets)
-    throw new DatasetError("SHEET_LIMIT", "Maximum 12 feuilles.");
+    throw new DatasetError("SHEET_LIMIT", "At most 12 sheets.");
   let cells = 0;
   const add = (issue: DatasetProfile["issues"][number]) => {
     if (profile.issues.length < DATASET_LIMITS.issues)
@@ -781,7 +784,7 @@ export async function profileDataset(
         code: "PROFILE_ISSUES_TRUNCATED",
         severity: "warning",
         message:
-          "Plus de 1 000 points signalés ; l’affichage du profil est limité. La validation parcourt toutes les lignes.",
+          "More than 1,000 issues reported; profile display is limited. Validation still checks every row.",
       };
   };
   if (format === "xml" && sheets.length > 1)
@@ -789,7 +792,7 @@ export async function profileDataset(
       code: "XML_REPEATED_TABLES",
       severity: "warning",
       message:
-        "Les éléments XML répétés sont conservés dans des tables séparées. Reliez __xml_record_id à __xml_parent_id par une jointure explicite pour inclure leurs lignes dans les PDF.",
+        "Repeated XML elements are retained in separate tables. Explicitly join __xml_record_id to __xml_parent_id to include their rows in PDFs.",
     });
   for (const sheet of sheets) {
     if (
@@ -799,7 +802,7 @@ export async function profileDataset(
     )
       throw new DatasetError(
         "INVALID_SHEET_NAME",
-        "Nom de feuille absent, dupliqué ou trop long.",
+        "Sheet name is missing, duplicated or too long.",
       );
     if (
       sheet.rows.length > DATASET_LIMITS.rows ||
@@ -807,11 +810,11 @@ export async function profileDataset(
     )
       throw new DatasetError(
         "DATASET_DIMENSION_LIMIT",
-        "Maximum 5 000 lignes et 128 colonnes.",
+        "At most 5,000 rows and 128 columns.",
       );
     cells += sheet.rows.reduce((count, row) => count + row.cells.length, 0);
     if (cells > DATASET_LIMITS.cells)
-      throw new DatasetError("CELL_LIMIT", "Maximum 100 000 cellules.");
+      throw new DatasetError("CELL_LIMIT", "At most 100,000 cells.");
     sheet.headerCandidates = sheet.rows
       .slice(0, 30)
       .filter((row) => row.cells.filter((cell) => cell.raw?.trim()).length > 1)
@@ -828,20 +831,20 @@ export async function profileDataset(
       add({
         code: "HIDDEN_SHEET",
         severity: "warning",
-        message: `Feuille masquée : ${sheet.name}.`,
+        message: `Hidden sheet: ${sheet.name}.`,
       });
     if (sheet.merges.length)
       add({
         code: "MERGED_CELLS",
         severity: "warning",
-        message: `Cellules fusionnées dans ${sheet.name} : aucune propagation automatique.`,
+        message: `Merged cells in ${sheet.name}: no automatic propagation.`,
       });
     for (const row of sheet.rows) {
       if (row.hidden)
         add({
           code: "HIDDEN_ROW",
           severity: "warning",
-          message: "Ligne masquée exclue par défaut.",
+          message: "Hidden row excluded by default.",
           source: {
             sheet: sheet.name,
             row: row.rowNumber,
@@ -861,8 +864,8 @@ export async function profileDataset(
             code: cell.cached ? "FORMULA_CACHED" : "FORMULA_NO_CACHE",
             severity: "warning",
             message: cell.cached
-              ? "Formule non exécutée ; valeur en cache à valider explicitement."
-              : "Formule sans résultat exploitable.",
+              ? "Formula not executed; explicitly validate the cached value."
+              : "Formula has no usable result.",
             source,
           });
         if (
@@ -876,7 +879,7 @@ export async function profileDataset(
           add({
             code: "AMBIGUOUS_DATE",
             severity: "warning",
-            message: "Ordre jour/mois à choisir explicitement.",
+            message: "Explicitly choose day/month order.",
             source,
           });
         if (cell.raw && /^\s*(subtotal|sous-total|total)\b/i.test(cell.raw))
@@ -884,7 +887,7 @@ export async function profileDataset(
             code: "POSSIBLE_SUBTOTAL",
             severity: "warning",
             message:
-              "Sous-total possible : sélectionner une exclusion explicite si nécessaire.",
+              "Possible subtotal: select an explicit exclusion if needed.",
             source,
           });
       }

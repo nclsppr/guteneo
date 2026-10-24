@@ -119,7 +119,7 @@ describe("explicit postal address-page generation over MCP", () => {
       expect(
         tools.tools.find((tool) => tool.name === "create_postal_address_page"),
       ).toMatchObject({
-        title: "Créer une page d’adresse postale",
+        title: "Create a postal address page",
         annotations: {
           readOnlyHint: false,
           destructiveHint: false,

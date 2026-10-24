@@ -1,183 +1,103 @@
-# Preuves Resend et documents protégés
+# Resend and protected-document evidence
 
-## Intégration du 2 octobre 2026
+## Integration — 2 October 2026
 
-Le code Resend et les liens protégés sont réconciliés avec le site français,
-anglais, allemand et luxembourgeois, l’API native et les corrections du tableau
-de bord. Les migrations ajoutées sont désormais `0039_resend_email_transport.sql`,
-`0040_protected_documents.sql` et `0041_prepare_only_accounts.sql`, après les
-sessions natives 0037 et la préférence personnelle 0038. Les migrations déjà
-appliquées ne sont pas modifiées.
+Resend/protected links were reconciled with FR/EN/DE/LB web, native API and dashboard
+fixes. Migrations became `0039_resend_email_transport.sql`,
+`0040_protected_documents.sql`, `0041_prepare_only_accounts.sql`, after native 0037
+and preference 0038; applied migrations unchanged.
 
-La configuration de publication conserve `LIVE_SEND_CHANNELS=fax,postal` et
-`RESEND_SENDS_ENABLED=false`. Le choix de fournisseur Resend ne donne donc aucune
-autorisation d’envoi e-mail. Le paquet 0.3.1 conserve l’identité technique de
-l’application existante et l’accueil préparé dans la PR 34. Les observations de
-portail du 2 octobre restent historiques ; cette intégration ne constitue aucune
-nouvelle soumission, connexion reviewer ou livraison réelle.
+Release configuration keeps `LIVE_SEND_CHANNELS=fax,postal`,
+`RESEND_SENDS_ENABLED=false`. Provider selection grants no email-send authority.
+Package 0.3.1 preserves existing app identity and PR34 welcome. Dated 2 October
+portal observations establish no new submission, reviewer login or delivery.
 
-### Vérification locale de l’intégration
+Local combined runtime `2255da8` plus JSON-discovery fix `5f26dde` passed typecheck,
+lint, web build/plugin package. Eight focused Resend/protection/configuration/MCP/
+catalog files: **142/142**. Resend/reviewer/main-only-release Node checks:
+**89/89**. Protected-email/recipient browser journeys: **30/30** desktop/mobile
+Chromium/iPhone WebKit. Locale negotiation retains explicit choice through unlock
+and checks exact unchanged PDF without password leakage on locked page.
 
-Le 2 octobre, le runtime combiné incluant `2255da8` et le correctif de découverte
-JSON `5f26dde` passe le typage, lint, la compilation web et le paquet plugin.
-Les huit fichiers ciblés Resend/protection/configuration/MCP/catalogues passent
-**142 tests sur 142**. Les contrôles de configuration Resend, de compte reviewer
-et de publication limitée à main passent **89 tests Node sur 89**. Les parcours
-navigateur e-mail protégé et accès destinataire passent **30 scénarios sur 30**
-sur Chromium desktop, mobile Chromium et iPhone WebKit. Le test de négociation de
-langue conserve le choix explicite jusqu’au déverrouillage et vérifie les octets
-PDF inchangés, sans révéler de mot de passe dans la page verrouillée.
+Synthetic accounts/documents/intercepted transports qualify no real delivery,
+production webhook or private settings. Initial fixture used four implicit users
+values after preference-column addition; it now names columns explicitly without
+migration/runtime-rule changes.
 
-Ces essais utilisent des comptes, documents et transports fictifs. Ils ne
-qualifient ni une livraison Resend réelle, ni un nouvel envoi, ni le webhook ou
-les paramètres privés du compte en production. Le test initial a révélé une
-fixture historique utilisant quatre valeurs implicites dans `users` après
-l’ajout de la préférence personnelle : elle utilise désormais des colonnes
-explicites, sans modifier la migration ou les règles runtime.
+## Candidate — 21 September 2026
 
-## Candidat du 21 septembre 2026
+[PR #27](https://github.com/nclsppr/guteneo/pull/27) tracks validation/publication;
+[PROTECTED_EMAIL.md](PROTECTED_EMAIL.md)/[PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md)
+own contracts. September17 history below is separate.
 
-Le candidat est suivi dans [la PR #27](https://github.com/nclsppr/guteneo/pull/27),
-qui consigne les validations et l’état de publication. Le contrat est décrit dans
-[PROTECTED_EMAIL.md](PROTECTED_EMAIL.md), et les détails d’accès dans
-[PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md). L’historique du 17 septembre est
-conservé plus bas et ne décrit pas la publication courante.
+Observed during preparation: verified guteneo.com in personal `nclsppr`, eu-west-1,
+Free plan 100/day/3,000 month/10 requests-second, no opening/click tracking. Existing
+Worker key stayed domain-limited. In-memory AES-GCM `PROTECTED_DOCUMENTS_KEY` was
+installed in Cloudflare and only presence reread; no secret retained here.
 
-État externe observé pendant la préparation du 21 septembre : domaine Resend `guteneo.com` vérifié, équipe personnelle
-`nclsppr`, région `eu-west-1`, offre Free avec 100 e-mails/jour, 3 000/mois et
-10 requêtes/seconde. Le suivi des ouvertures et des clics n’est pas configuré.
-La clé d’envoi Worker existante reste restreinte au domaine. La clé AES-GCM
-`PROTECTED_DOCUMENTS_KEY` a été générée en mémoire et installée dans Cloudflare ;
-sa présence seule a été relue. Aucune valeur secrète n’est conservée ici.
+At that stage, six-event webhook awaited requested creation confirmation;
+`RESEND_WEBHOOK_SECRET` absent. Production retained fax/postal; Resend code and
+then-numbered 0037–0039 not published. No real email; personal-inbox trials awaited
+owner-supplied address/authorization.
 
-À cette étape de préparation, le webhook applicatif à six événements est préparé
-dans Resend, en attente de la
-confirmation de création demandée dans cette tâche. `RESEND_WEBHOOK_SECRET` n’est
-pas encore installé. La production conserve ses canaux fax/postal ; le code
-Resend et les migrations 0037–0039 ne sont pas encore publiés. Aucun e-mail réel
-n’a été envoyé. Les essais destinés à une boîte personnelle attendent l’adresse
-et l’autorisation du titulaire.
+Local proof: types/lint/web/Worker build; normalized equivalent 39-migration schema
+after streamlined postal/window/review-fax integration, `quick_check=ok`, no FK
+violation. Eight Resend cases cover three modes/exact bytes/atomic acceptance/
+revocation/expiry before submit/no duplicate debit. Existing SES/Pingen quotes
+stayed byte-identical after migration. Nineteen protection/config cases include
+prepare-only reviewer. MCP/browser use synthetic data/intercepted provider.
+[Full CI for `590818a`](https://github.com/nclsppr/guteneo/actions/runs/35551544452)
+passed scanner/types/lint/migrations/unit/integration/security/build/three browsers.
+It preceded final PR28 integration; PR27 tracks reconciled-source checks. Provider/
+browser results remain synthetic.
 
-Preuves locales : types, lint, compilation web/Worker ; migration normalisée
-équivalente sur 39 migrations après intégration du parcours postal simplifié,
-du choix de fenêtre et des devis fax de revue, `quick_check=ok`, aucune violation de clé étrangère.
-Huit tests d’intégration Resend couvrent les trois modes, les octets exacts,
-l’acceptation atomique, la révocation, l’expiration juste avant soumission et
-l’absence de double débit. Les devis SES et Pingen déjà peuplés restent identiques
-après migration. Dix-neuf tests de protection/configuration vérifient notamment
-le compte reviewer limité à la préparation. Les tests MCP et les parcours
-navigateur utilisent des données fictives et des appels fournisseurs interceptés.
-La [CI complète de `590818a`](https://github.com/nclsppr/guteneo/actions/runs/35551544452)
-a réussi : scanner, types/lint, migrations, tests unitaires/intégration, sécurité,
-compilations et navigateurs Chromium, mobile Chromium et iPhone WebKit. Ce résultat
-précède l’intégration finale de la PR #28 ; la PR #27 conserve les contrôles de la
-source réconciliée. Les essais de fournisseur et de navigateur restent synthétiques.
+After local PR28 integration, **215 focused server tests/45 protected-email/postal
+browser scenarios** passed across three profiles. Fixture fix `9b35098` then passed
+**33 postal setup scenarios** plus **three EUR5.25→525-cent input checks**.
+Types/lint/web/plugin/Worker builds passed. These supplement earlier proof; full
+final-source CI remained required before release. Candidate plugin 0.3.0 and
+ChatGPT/Claude contracts were no new marketplace submission/publication.
 
-Après intégration locale du parcours postal de la PR #28, les 215 tests serveur
-ciblés et les 45 scénarios navigateur e-mail protégé/courrier passent sur les
-trois profils. Après son correctif de fixture `9b35098`, les 33 scénarios de
-configuration postale et les trois contrôles de saisie de 5,25 € vers 525 centimes
-passent aussi. Types, lint et compilation web/plugin/Worker réussissent. Ces
-contrôles complètent la preuve précédente ; la CI complète devra encore passer
-sur la dernière source intégrée avant publication.
+# Historical Resend preparation — 17 September 2026
 
-Le candidat inclut une archive plugin 0.3.0 et les contrats ChatGPT/Claude. Cela
-ne constitue ni une nouvelle soumission ni une publication dans une marketplace.
+Branch `feat/resend-email-connector`, base `c3798f5`.
 
----
+## Verified external configuration
 
-# Historique : préparation Resend
+- Authorized Safari Google login opened personal `nclsppr`.
+- Added guteneo.com, domain `0140c1df-a406-495d-adb7-78a1204607b3`, Ireland eu-west-1.
+- Cloudflare API added three records after conflict checks. Reread found ten records: seven previous unchanged plus three new.
+- Resend showed domain/DKIM/rsend/send **Verified**, browser-local verification 17 September 17:19. Independent public DKIM/DNS reads completed.
+- Receiving off, no opening/click tracking, no purchase/paid overage activation, no real email.
+- Two authorized Sending-access keys limited to guteneo.com, separately for Worker/Auth0, were created in personal workspace, not a dedicated account. Values were never displayed or stored in files/reports/commands. Historical dashboard labels identified each purpose.
+- Secure form installed `RESEND_API_KEY`; Wrangler secret listing confirmed presence. Secret Change version `9698a3ae-6ec0-4f94-b464-403fefabe567`, `2026-09-17T15:40:55.658Z`, 100% traffic.
+- Native Auth0 Resend with no-reply sender remained **disabled**. Final projection: `nativeResend:true`, `enabled:false`, `guteneoSender:true`. Initial false failure arose because Auth0 returns only name/enabled without explicit selection. Corrected read also requests `default_from_address`, never credentials, confirming existing setup without new key/provider rewrite.
+- Usage displayed transaction/marketing Free plans, not qualified business pricing/permanent free service.
 
-17 septembre 2026. Branche `feat/resend-email-connector`, base `c3798f5`.
+Filtered report `reports/resend-domain-proof.json` retains only public DKIM hash.
+Public source stayed `c3798f59cb6cff4e1dcaddb524f43d59b1009822`: no new application
+code/remote migration. `liveSending:true`, channels fax only, preserved authorized
+fax; business email stayed closed. Secret entry changed neither channels nor Auth0
+activation.
 
-## Configuration externe vérifiée
+## Local validation
 
-- Connexion Google à Resend réussie dans Safari, espace personnel `nclsppr`.
-- Domaine `guteneo.com`, ID `0140c1df-a406-495d-adb7-78a1204607b3`, région
-  `eu-west-1` (Irlande), ajouté dans Resend.
-- Trois enregistrements DNS ajoutés via l'API Cloudflare, après lecture de
-  la zone et absence de conflit. Relecture : les dix enregistrements de la
-  zone comprennent les sept précédents inchangés et les trois nouveaux.
-- L'interface Resend affiche **Verified** pour le domaine, le TXT DKIM,
-  `rsend` et `send`. L'événement de vérification affiche le 17 septembre,
-  17:19 dans le navigateur local. Lecture publique indépendante du DKIM
-  et des destinations DNS effectuée.
-- Réception désactivée, suivi des ouvertures/clics non configuré, aucun achat
-  ou dépassement payant activé. Aucun e-mail réel envoyé.
-- Après autorisation, deux clés distinctes **Sending access**, limitées à
-  `guteneo.com`, ont été créées dans l'espace personnel `nclsppr` :
-  `Guteneo Worker · envoi guteneo.com` et
-  `Guteneo Auth0 · envoi guteneo.com`. Il ne s'agit pas d'un nouveau compte
-  Resend dédié. Leurs valeurs n'ont été ni affichées ni enregistrées dans les
-  fichiers, rapports ou commandes.
-- Le secret Worker `RESEND_API_KEY` a été installé par le formulaire local ;
-  sa présence a été relue avec la liste des secrets Wrangler. La modification
-  de configuration, source **Secret Change**, porte la version
-  `9698a3ae-6ec0-4f94-b464-403fefabe567`, créée le
-  `2026-09-17T15:40:55.658Z`, avec 100 % du trafic.
-- Le fournisseur Resend natif a été préparé dans Auth0 avec
-  `no-reply@guteneo.com`, **désactivé**. La relecture finale confirme
-  `nativeResend=true`, `enabled=false`, `guteneoSender=true`. Le premier
-  contrôle avait signalé à tort un échec : Auth0 ne renvoie que `name` et
-  `enabled` sans sélection explicite des champs. Le contrôle corrigé demande
-  aussi `default_from_address`, jamais `credentials`, et confirme
-  l'installation existante sans recréer de clé ni réécrire le fournisseur.
-- L'écran Usage affiche les plans gratuits transactionnel et marketing ;
-  il ne s'agit ni d'un tarif métier qualifié ni d'un engagement de gratuité.
+- npm installation/audit passed without reported vulnerability.
+- `npm run build` passed TypeScript/web/Worker dry-run, no deployment.
+- Four mobile Chromium/iPhone WebKit scenarios passed requested-recipient attestation, SES/Resend failures, unknown outcome preventing duplicate, 320 px overflow/no send request.
+- Client/domain/callback/migration tests used fixtures/intercepted network. Migration preserved SES quotes/approvals/booked credit/suppressions, empty FK checks/quick_check OK.
+- Initial consolidated run: **1,163 Vitest/57 files**, then **150 security tests** (`reports/resend-vitest.json`, `reports/resend-full-test.log`).
+- Later key-profile/Auth0-field fixes: **14 focused tests** including Chromium form; final security **154/154** (`reports/resend-security-final.log`). Final recorded totals: **1,163 unit/integration, 154 security, four focused E2E**. Full Vitest was not claimed rerun after that fix.
+- Final typecheck/lint/build passed. Four E2E report `reports/resend-e2e.json`; fixture credentials/intercepts establish no real delivery.
 
-Rapport sans secret : `reports/resend-domain-proof.json`.
-Le DKIM est une clé publique ; seule son empreinte est conservée dans ce rapport.
+## Remaining at that stage
 
-Le code public reste celui de
-`c3798f59cb6cff4e1dcaddb524f43d59b1009822`. Aucun nouveau code applicatif ni
-migration distante n'a été déployé dans ce travail. La configuration publiée
-conserve `liveSending=true` et `liveSendChannels:["fax"]` pour le fax déjà
-autorisé ; **l'e-mail métier reste désactivé**. L'installation du secret ne
-change ni cette sélection de canaux ni l'état du fournisseur Auth0.
+Create/qualify signed Resend webhook after authorized deployment; qualify account/
+price/limits without copying SES tariffs and with Auth0 capacity headroom; complete
+native Auth0 email templates/qualification and separately authorized activation;
+apply remote migration/deploy only with authority; then test exact approved content/
+recipient and verify receipt/callback. [AUTH0_BRANDING.md](AUTH0_BRANDING.md) tracks
+visual identity separately. Local/domain evidence never implies delivery.
 
-## Validation locale
-
-- Installation `npm ci` réussie ; audit npm sans vulnérabilité signalée.
-- Construction `npm run build` réussie : vérification TypeScript, assets web
-  et Worker en `--dry-run`, sans déploiement.
-- Quatre scénarios navigateur ciblés réussis sur mobile Chromium et iPhone
-  WebKit : attestation volontaire du destinataire, erreurs SES/Resend,
-  résultat inconnu interdisant les doublons, aucun débordement à 320 px,
-  aucune requête d'envoi.
-- Tests spécifiques du client, du pont métier, des callbacks et de la
-  migration exécutés sur données fictives/interceptions réseau. La migration
-  vérifie la conservation de devis SES, approbations, crédit déjà décompté et
-  suppressions existantes ; contrôles FK vides et `quick_check=ok`.
-
-- Le premier résultat consolidé comprend **1 163 tests Vitest réussis dans
-  57 fichiers**, suivis de **150 tests de sécurité réussis**. Rapports :
-  `reports/resend-vitest.json` et `reports/resend-full-test.log`.
-- Les ajustements ultérieurs du profil de clé et du contrôle des champs Auth0
-  passent **14 tests ciblés**, dont le formulaire Chromium. La suite de
-  sécurité finale passe ensuite **154/154 tests**, sans échec ; rapport
-  `reports/resend-security-final.log`. Le total final est donc **1 163 tests
-  unitaires/intégration, 154 tests de sécurité et quatre E2E ciblés** ; la
-  suite Vitest complète n'est pas présentée comme réexécutée après ce correctif.
-- Typecheck, lint et build réussis. Les **quatre** scénarios E2E ciblés sont
-  conservés dans `reports/resend-e2e.json`. Ces preuves locales utilisent des
-  clés fictives et des réponses interceptées ; elles ne prouvent pas une
-  livraison Resend réelle.
-
-## Étapes restantes
-
-- Créer et qualifier le webhook Resend, ses événements signés et leur remise
-  au Worker après déploiement autorisé.
-- Qualifier l'identité du compte et les politiques de coût/limite. Ne pas
-  reprendre les tarifs SES pour Resend ; prévoir la capacité partagée Auth0.
-- Terminer l'installation et la qualification des templates natifs d'e-mail
-  Auth0, puis activer séparément le fournisseur après autorisation ; ses
-  e-mails sont indépendants des verrous métier Guteneo. Le suivi visuel du
-  branding est distinct dans [AUTH0_BRANDING.md](AUTH0_BRANDING.md).
-- Appliquer la migration distante et déployer uniquement après autorisation.
-- Effectuer un test réel avec destinataire et contenu explicitement approuvés,
-  vérifier réception et callbacks. Aucun succès de livraison n'est déduit des
-  tests locaux ou du domaine vérifié.
-
-Les changements préparés n'activent pas le moteur marketing de Guteneo.
-Les Broadcasts natifs Resend demeurent un chemin opérateur distinct, sans
-import d'abonnés ni publication effectués dans cette préparation.
+App marketing stays closed. Native Broadcasts remain a distinct operator path,
+with no subscriber import/publication performed by this preparation.

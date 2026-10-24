@@ -1,6 +1,8 @@
 import { msg } from "./messages";
 import { DistributionRoadmap } from "./email-composer";
-import { useId, type MouseEvent } from "react";
+import { useId } from "react";
+import { LegalLinks } from "./legal-links";
+import { scrollToPublicSection } from "./public-chrome";
 import { ArrowRight, ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { t } from "./locale";
 import { workspaceEntryHref } from "./auth-navigation";
@@ -14,20 +16,7 @@ import {
 } from "./horizon-public";
 import "./assistant-workspace.css";
 
-export function scrollToSection(
-  event: MouseEvent<HTMLAnchorElement>,
-  id: string,
-) {
-  const section = document.getElementById(id);
-  if (!section) return;
-  event.preventDefault();
-  section?.focus({ preventScroll: true });
-  section?.scrollIntoView({
-    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ? "instant"
-      : "smooth",
-  });
-}
+export const scrollToSection = scrollToPublicSection;
 
 export function Installation() {
   return (
@@ -39,46 +28,46 @@ export function Installation() {
     >
       <div className="installation-heading">
         <h2 id="installation-title">
-          {msg("Votre premier envoi.")}
-          <br /> <em>{msg("À votre façon.")}</em>
+          {msg("Your first delivery.")}
+          <br /> <em>{msg("Your way.")}</em>
         </h2>
         <p>
           {msg(
-            "Préparez votre premier envoi depuis une conversation ou directement avec votre document. Dans les deux cas, vous vérifiez les détails avant de confirmer.",
+            "Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.",
           )}
         </p>
       </div>
       <div className="start-choice">
         <div>
-          <h3>{msg("Depuis votre assistant")}</h3>
+          <h3>{msg("From your assistant")}</h3>
           <p>
             {msg(
-              "Ajoutez Guteneo à votre outil habituel. Un guide vous accompagne de la configuration au premier échange.",
+              "Add Guteneo to your usual tool. A guide takes you from setup to your first conversation.",
             )}
           </p>
           <a className="button primary" href="/assistants/">
-            {msg("Utiliser mon assistant ")}
+            {msg("Use my assistant ")}
             <ArrowRight size={18} aria-hidden="true" />
           </a>
         </div>
         <div>
-          <h3>{msg("Directement dans Guteneo")}</h3>
+          <h3>{msg("Directly in Guteneo")}</h3>
           <p>
             {msg(
-              "Ajoutez votre document, choisissez le destinataire et vérifiez le prix avant de confirmer.",
+              "Add your document, choose the recipient and check the price before confirming.",
             )}
           </p>
           <a
             className="button"
             href={workspaceEntryHref("/app/prepare?entry=direct")}
           >
-            {msg("Envoyer depuis Guteneo ")}
+            {msg("Send from Guteneo ")}
             <ArrowRight size={18} aria-hidden="true" />
           </a>
         </div>
       </div>
       <div className="start-assistant-guides">
-        <p>{msg("Vous connaissez déjà votre assistant ? Ouvrez son guide.")}</p>
+        <p>{msg("Already know your assistant? Open its guide.")}</p>
         <AssistantPicker />
       </div>
     </section>
@@ -94,7 +83,7 @@ export function WelcomePricing({
   return (
     <section
       className="pricing-section"
-      id="tarifs"
+      id="pricing"
       tabIndex={-1}
       aria-labelledby="pricing-title"
     >
@@ -333,31 +322,30 @@ export function LuxembourgFooter() {
             </a>
           </span>
         </p>
-        <nav aria-label={t.homepage.footer.nav}>
-          <a
-            href="/#installation"
-            onClick={(event) => scrollToSection(event, "installation")}
-          >
-            {t.homepage.footer.installation}
+        <div className="footer-navigation">
+          <nav aria-label={t.homepage.footer.nav}>
+            <a
+              href="/#installation"
+              onClick={(event) => scrollToSection(event, "installation")}
+            >
+              {t.homepage.footer.installation}
+            </a>
+            <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
+              FAQ
+            </a>
+            <a href={workspaceEntryHref()}>
+              {t.homepage.footer.atelier}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+            <a href="/about/">{msg("About Guteneo")}</a>
+            <a href="/journal/">{msg("The journal")}</a>
+            <a href="/developers/">{msg("Developers")}</a>
+          </nav>
+          <LegalLinks />
+          <a className="footer-contact" href="mailto:guteneo@pieper.fr">
+            guteneo@pieper.fr
           </a>
-          <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
-            FAQ
-          </a>
-          <a href={workspaceEntryHref()}>
-            {t.homepage.footer.atelier}
-            <ArrowUpRight size={14} aria-hidden="true" />
-          </a>
-          <a href="/a-propos/">{msg("À propos de Guteneo")}</a>
-          <a href="/journal/">{msg("Le journal")}</a>
-          <a href="/developpeurs/">{msg("Développeurs")}</a>
-          <a href="/mentions-legales/">{t.homepage.footer.legal}</a>
-          <a href="/confidentialite/">{msg("Confidentialité")}</a>
-          <a href="/conditions/">{msg("Conditions")}</a>
-          <a href="/roles/">{msg("Rôles et droits")}</a>
-          <a href="/support/">{msg("Assistance")}</a>
-          <a href="https://status.guteneo.com/">{msg("État du service")}</a>
-          <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
-        </nav>
+        </div>
       </div>
     </footer>
   );

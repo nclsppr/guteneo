@@ -53,7 +53,7 @@ function AssistantMark({ assistant }: { assistant: AssistantDefinition }) {
 export function AssistantPicker({
   basePath = "/assistants/",
   selectedId,
-  label = msg("Choisir votre assistant"),
+  label = msg("Choose your assistant"),
   className = "",
 }: AssistantPickerProps) {
   const prefix = basePath.endsWith("/") ? basePath : `${basePath}/`;
@@ -144,10 +144,10 @@ function CopyText({
           {label}
         </button>
         <span className="assistant-copy-feedback" id={feedbackId} role="status">
-          {result === "copied" && msg("Copié.")}
+          {result === "copied" && msg("Copied.")}
           {result === "unavailable" &&
             msg(
-              "La copie automatique est indisponible. Sélectionnez et copiez le texte ci-dessus.",
+              "Automatic copying is unavailable. Select and copy the text above.",
             )}
         </span>
       </div>
@@ -184,7 +184,7 @@ function GuideArticle({
         <AssistantMark assistant={assistant} />
         <div>
           <Title id={titleId}>
-            {msg("Ajouter Guteneo à ")}
+            {msg("Add Guteneo to ")}
             {assistant.name}
           </Title>
           <p>{assistant.description}</p>
@@ -193,11 +193,11 @@ function GuideArticle({
 
       {assistant.variants.length > 1 && (
         <div className="assistant-guide-versions">
-          <p>{msg("Quelle version utilisez-vous ?")}</p>
+          <p>{msg("Which version do you use?")}</p>
           <div
             className="assistant-guide-version-controls"
             role="group"
-            aria-label={msg("Choisir la version de {0}", assistant.name)}
+            aria-label={msg("Choose the version of {0}", assistant.name)}
           >
             {assistant.variants.map((item) => (
               <button
@@ -219,12 +219,12 @@ function GuideArticle({
       )}
 
       <div className="assistant-guide-layout">
-        <aside className="assistant-guide-before" aria-label={msg("Prérequis")}>
-          <SectionHeading>{msg("Avant de commencer")}</SectionHeading>
+        <aside className="assistant-guide-before" aria-label={msg("Prerequisites")}>
+          <SectionHeading>{msg("Before you start")}</SectionHeading>
           <ul>
             <li>
               {msg(
-                "Un compte Guteneo pour vous identifier lors de la connexion.",
+                "A Guteneo account to sign in when connecting.",
               )}
             </li>
             {variant.prerequisites.map((prerequisite) => (
@@ -235,21 +235,21 @@ function GuideArticle({
             <div className="assistant-guide-account">
               <p>
                 {msg(
-                  "Ce guide se consulte sans compte. Retrouvez-le dans votre espace pour poursuivre.",
+                  "You can read this guide without an account. Find it in your workspace to continue.",
                 )}
               </p>
               <a
                 className="assistant-guide-account-link"
                 href={workspaceEntryHref(`/#/app/connection/${assistant.id}`)}
               >
-                {msg("Créer ou ouvrir mon espace")}
+                {msg("Create or open my workspace")}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </div>
           ) : (
             <p className="assistant-guide-account-note">
               {msg(
-                "Gardez ce guide ouvert pendant l’ajout dans votre application.",
+                "Keep this guide open while adding the connection in your app.",
               )}
             </p>
           )}
@@ -258,10 +258,10 @@ function GuideArticle({
         <section
           className="assistant-guide-instructions"
           id={stepsId}
-          aria-label={msg("Installation dans {0}", variant.label)}
+          aria-label={msg("Installation in {0}", variant.label)}
         >
           <SectionHeading>
-            {msg("Installation dans {0}", variant.label)}
+            {msg("Installation in {0}", variant.label)}
           </SectionHeading>
           {assistant.id === "claude" && variant.id !== "code" && (
             <ClaudeConnect />
@@ -286,7 +286,7 @@ function GuideArticle({
                   {step.endpoint && (
                     <CopyText
                       value={assistantEndpoint}
-                      label={msg("Copier l’adresse")}
+                      label={msg("Copy address")}
                     />
                   )}
                   {step.link && <GuideLink link={step.link} />}
@@ -300,21 +300,21 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-verification`}
           >
             <SectionHeading id={`${instanceId}-verification`}>
-              {msg("Vérifier la connexion")}
+              {msg("Check the connection")}
             </SectionHeading>
             <p>
               {msg(
-                "Collez cette demande dans votre assistant pour connaître les possibilités de votre compte, sans préparer d’envoi.",
+                "Paste this prompt into your assistant to find out what your account can do, without preparing a dispatch.",
               )}
             </p>
             <CopyText
               value={getAssistantReadOnlyPrompt()}
-              label={msg("Copier la demande de vérification")}
+              label={msg("Copy verification prompt")}
               prose
             />
             <p className="assistant-guide-verification-note">
               {msg(
-                "Après une réponse utilisant les outils Guteneo, retrouvez le dernier échange réussi dans « Mes connexions » de votre espace.",
+                "After a response that uses Guteneo tools, find the latest successful exchange under My connections in your workspace.",
               )}
             </p>
           </section>
@@ -324,11 +324,11 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-plugins`}
           >
             <SectionHeading id={`${instanceId}-plugins`}>
-              {msg("Plugin du catalogue")}
+              {msg("Catalogue plugin")}
             </SectionHeading>
             <p>
               {msg(
-                "Aucun plugin Guteneo n’est publié dans le catalogue de {0} pour le moment. Suivez le parcours manuel décrit dans ce guide.",
+                "No Guteneo plugin is published in the {0} directory yet. Follow the manual setup described in this guide.",
                 assistant.name,
               )}
             </p>
@@ -336,7 +336,7 @@ function GuideArticle({
               <GuideLink
                 link={{
                   label: msg(
-                    "Télécharger le paquet du plugin (installation manuelle)",
+                    "Download the plugin package (manual installation)",
                   ),
                   href: "/integrations/guteneo-plugin.zip",
                   download: true,
@@ -350,7 +350,7 @@ function GuideArticle({
             aria-labelledby={`${instanceId}-help`}
           >
             <SectionHeading id={`${instanceId}-help`}>
-              {msg("Besoin d’aide ?")}
+              {msg("Need help?")}
             </SectionHeading>
             {variant.troubleshooting.map((item) => (
               <details key={item.question}>
@@ -360,21 +360,21 @@ function GuideArticle({
             ))}
             <details>
               <summary>
-                {msg("La connexion échoue ou revient à l’écran de connexion")}
+                {msg("The connection fails or returns to the sign-in screen")}
               </summary>
               <p>
                 {msg(
-                  "Vérifiez l’adresse du serveur et le compte Guteneo utilisé. Si l’application indique une permission refusée, un client inconnu ou une adresse de retour invalide, conservez le libellé de l’erreur et faites vérifier la configuration. Ne transmettez ni mot de passe ni jeton.",
+                  "Check the server address and the Guteneo account in use. If the app reports a denied permission, unknown client or invalid redirect address, keep the error message and have the configuration checked. Do not share any password or token.",
                 )}
               </p>
             </details>
             <details>
               <summary>
-                {msg("Mon assistant ne retrouve pas mon document")}
+                {msg("My assistant cannot find my document")}
               </summary>
               <p>
                 {msg(
-                  "Le transfert des pièces jointes dépend de votre application. Si le fichier n’est pas accessible, déposez-le dans la rubrique Documents de votre espace Guteneo, puis demandez à votre assistant de retrouver ce document.",
+                  "Attachment transfer depends on your app. If the file is not accessible, upload it in Documents in your Guteneo workspace, then ask your assistant to find that document.",
                 )}
               </p>
             </details>
@@ -382,7 +382,7 @@ function GuideArticle({
 
           <footer className="assistant-guide-sources">
             <SectionHeading>
-              {msg("Les instructions de l’éditeur")}
+              {msg("The provider’s instructions")}
             </SectionHeading>
             <ul>
               {variant.documentation.map((link) => (
@@ -393,7 +393,7 @@ function GuideArticle({
             </ul>
             <p>
               {msg(
-                "Documentation vérifiée le 13 octobre 2026. Les menus et les possibilités d’accès peuvent varier selon votre compte.",
+                "Documentation checked on 13 October 2026. Menus and access options may vary depending on your account.",
               )}
             </p>
           </footer>
@@ -412,9 +412,9 @@ export function AssistantGuide({
   if (!assistant) {
     return (
       <section className={`assistant-guide ${className}`}>
-        <h2>{msg("Ce guide n’existe pas.")}</h2>
+        <h2>{msg("This guide does not exist.")}</h2>
         <p>
-          {msg("Choisissez votre application pour retrouver ses instructions.")}
+          {msg("Choose your app to find its instructions.")}
         </p>
         <AssistantPicker
           basePath={inDashboard ? "/#/app/connection/" : "/assistants/"}

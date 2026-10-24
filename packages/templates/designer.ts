@@ -50,7 +50,7 @@ export function normalizeDesignerDefinition(raw: Definition): Definition {
   if (all.length > TEMPLATE_LIMITS.blocks)
     throw new TemplateError(
       "TEMPLATE_BLOCK_LIMIT",
-      "Le modèle dépasse 100 blocs.",
+      "The template exceeds 100 blocks.",
     );
   const reserved = new Set(all.map((block) => block.name).filter(safeName));
   const used = new Set<string>();
@@ -128,7 +128,7 @@ export function reconcileDesignerChange(
     if (candidates.length > 1) {
       throw new TemplateError(
         "TEMPLATE_BINDING_AMBIGUOUS",
-        "Plusieurs blocs identiques rendent ce renommage ambigu. Annulez puis renommez un seul bloc à la fois.",
+        "Multiple identical blocks make renaming ambiguous. Undo, then rename one block at a time.",
       );
     }
     if (candidates[0]) {
@@ -142,7 +142,7 @@ export function reconcileDesignerChange(
   )
     throw new TemplateError(
       "TEMPLATE_BINDING_RENAME_UNRESOLVED",
-      "Une liaison métier ne peut pas être réconciliée. Annulez puis renommez le bloc avant de modifier son contenu ou sa position.",
+      "A business binding cannot be reconciled. Undo, then rename the block before changing content or position.",
     );
   return {
     ...previous,

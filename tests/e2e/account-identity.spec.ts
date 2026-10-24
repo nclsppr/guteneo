@@ -676,7 +676,7 @@ for (const appearance of ["classic", "v2"] as const) {
       });
       data.state.holdNextContacts = { ready: requested, gate };
       try {
-        await page.goto(`/?atelier=${appearance}#/app/account`);
+        await page.goto(`/?appearance=${appearance}#/app/account`);
         await ready;
         const name = page.getByLabel("Votre nom", { exact: true });
         const contacts = page.getByRole("region", {

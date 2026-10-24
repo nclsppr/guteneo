@@ -78,7 +78,7 @@ describe("bounded internal template suggestions with synthetic provider transpor
     expect(body.store).toBe(false);
     expect(body.tools).toEqual([]);
     expect(body.text.format.strict).toBe(true);
-    expect(result.warnings.join(" ")).toContain("aperçu PDF");
+    expect(result.warnings.join(" ")).toContain("PDF preview");
   });
   it("uses the shared provider interface for a schema-valid targeted binding change", async () => {
     const envelope = invoiceTemplate();

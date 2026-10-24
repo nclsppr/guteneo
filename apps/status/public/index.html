@@ -1,15 +1,17 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="Disponibilité de guteneo, contrôles automatiques et historique du service."
+      content="Guteneo availability, automatic checks and service history."
     />
-    <title>guteneo — État du service</title>
+    <title>guteneo — Service status</title>
     <link rel="icon" href="assets/logo.webp" />
     <link rel="stylesheet" href="style.css" />
+    <script src="locales/fr.js" defer></script>
+    <script src="i18n.js" defer></script>
     <script src="app.js" defer></script>
     <script src="seasonal.js" defer></script>
   </head>
@@ -20,29 +22,29 @@
       aria-hidden="true"
     ></canvas>
     <p id="preview-banner" class="preview-banner" hidden>
-      Prévisualisation locale · ces données ne constituent pas la preuve du
-      service publié.
+      Local preview · this data does not establish the state of the published
+      service.
     </p>
-    <a class="skip" href="#contenu">Aller au rapport</a>
+    <a class="skip" href="#content">Skip to report</a>
     <header class="masthead wrap">
-      <a class="brand" href="/" aria-label="guteneo, début du rapport"
+      <a class="brand" href="/" aria-label="guteneo, start of report"
         ><img src="assets/logo.webp" alt="" width="38" height="38" /><span
           >guteneo</span
         ></a
-      ><span class="report-label">État du service</span
-      ><a class="source-link" href="https://guteneo.com">Ouvrir guteneo</a>
+      ><span class="report-label">Service status</span
+      ><a class="source-link" href="https://guteneo.com">Open guteneo</a>
     </header>
-    <main id="contenu" class="wrap" tabindex="-1">
+    <main id="content" class="wrap" tabindex="-1">
       <div class="page-heading">
         <div>
-          <h1>État du service</h1>
-          <p>La disponibilité observée et l’historique du service.</p>
+          <h1>Service status</h1>
+          <p>Observed availability and service history.</p>
         </div>
         <button id="refresh" class="button" type="button">
-          Relire la mesure
+          Refresh measurement
         </button>
       </div>
-      <section aria-label="Bilan de la dernière observation" class="overview">
+      <section aria-label="Latest observation summary" class="overview">
         <div
           id="live-state"
           class="live-state"
@@ -52,44 +54,44 @@
         >
           <span class="state-dot" aria-hidden="true"></span>
           <div>
-            <strong id="state-title">Lecture de la dernière mesure…</strong>
-            <p id="state-detail">Lecture du service de mesure.</p>
+            <strong id="state-title">Reading the latest measurement…</strong>
+            <p id="state-detail">Reading the monitoring service.</p>
           </div>
-          <span id="freshness-label" class="freshness-label">En attente</span>
+          <span id="freshness-label" class="freshness-label">Pending</span>
         </div>
         <div class="summary-grid" id="summary-grid" data-current="false">
           <div class="summary-block">
             <div class="summary-heading">
-              <h2>Contrôles publics</h2>
-              <span id="public-total">— contrôles</span>
+              <h2>Public checks</h2>
+              <span id="public-total">— checks</span>
             </div>
             <div class="totals">
               <button type="button" data-shortcut="pass" class="metric success">
-                <strong id="passed-count">—</strong><span>Réussis</span></button
+                <strong id="passed-count">—</strong><span>Passed</span></button
               ><button
                 type="button"
                 data-shortcut="fail"
                 class="metric failure"
               >
-                <strong id="failed-count">—</strong><span>En écart</span>
+                <strong id="failed-count">—</strong><span>Failed</span>
               </button>
             </div>
-            <p>Site public, configuration annoncée et protection des accès.</p>
+            <p>Public website, reported configuration and access protection.</p>
           </div>
           <div class="summary-block monitoring-cadence">
-            <div class="summary-heading"><h2>Surveillance automatique</h2></div>
-            <p class="cadence-value">Toutes les 15 minutes</p>
-            <p>Retrouvez leur synthèse quotidienne dans l’historique.</p>
+            <div class="summary-heading"><h2>Automatic monitoring</h2></div>
+            <p class="cadence-value">Every 15 minutes</p>
+            <p>Find daily summaries in the history.</p>
           </div>
         </div>
         <div class="measurement">
-          <span id="proof-caption">Dernière mesure</span
-          ><time id="checked-time">En attente</time
-          ><span id="measure-age">Âge inconnu</span
-          ><span>Source : observation publique</span>
+          <span id="proof-caption">Latest measurement</span
+          ><time id="checked-time">Pending</time
+          ><span id="measure-age">Unknown age</span
+          ><span>Source: public observation</span>
         </div>
       </section>
-      <div class="tabs" role="tablist" aria-label="Vues du rapport">
+      <div class="tabs" role="tablist" aria-label="Report views">
         <button
           type="button"
           id="tab-service"
@@ -121,7 +123,7 @@
             alt=""
             width="24"
             height="24"
-          />Vérifications</button
+          />Verification</button
         ><button
           type="button"
           id="tab-operations"
@@ -137,7 +139,7 @@
             alt=""
             width="24"
             height="24"
-          />Exploitation
+          />Operations
         </button>
       </div>
       <section
@@ -149,45 +151,44 @@
       >
         <section class="monitored-panel" aria-labelledby="monitored-title">
           <div class="panel-heading">
-            <h2 id="monitored-title">Services surveillés</h2>
-            <a href="#verification">Voir les vérifications</a>
+            <h2 id="monitored-title">Monitored services</h2>
+            <a href="#verification">View verification</a>
           </div>
           <ul class="monitored-services">
             <li>
               <div>
-                <h3>Site et pages publiques</h3>
-                <p>Accueil dans les quatre langues et guides d’utilisation.</p>
+                <h3>Website and public pages</h3>
+                <p>Homepage in four languages and user guides.</p>
               </div>
               <span id="service-pages-state" class="badge historical"
-                >En attente</span
+                >Pending</span
               >
             </li>
             <li>
               <div>
-                <h3>Services web</h3>
-                <p>Réponse de l’API, version et configuration publiées.</p>
+                <h3>Web services</h3>
+                <p>Published API response, release and configuration.</p>
               </div>
               <span id="service-api-state" class="badge historical"
-                >En attente</span
+                >Pending</span
               >
             </li>
             <li>
               <div>
-                <h3>Protection des accès</h3>
+                <h3>Access protection</h3>
                 <p>
-                  Refus des accès sans connexion aux documents, envois et
+                  Rejecting unauthenticated access to documents, dispatches and
                   assistants.
                 </p>
               </div>
               <span id="service-access-state" class="badge historical"
-                >En attente</span
+                >Pending</span
               >
             </li>
           </ul>
           <p class="section-note">
-            Ces contrôles surveillent les accès publics. Ils ne réalisent aucun
-            envoi. Le suivi de vos documents reste disponible dans votre
-            atelier.
+            These checks monitor public access. They do not send communications.
+            Track your documents in your workspace.
           </p>
         </section>
         <section class="history-panel" aria-labelledby="history-title">
@@ -199,16 +200,16 @@
                 alt=""
                 width="24"
                 height="24"
-              />Historique des contrôles
+              />Check history
             </h2>
             <fieldset class="filters history-periods">
-              <legend class="sr-only">Période de l’historique</legend>
+              <legend class="sr-only">History period</legend>
               <button type="button" data-days="7" aria-pressed="true">
-                7 jours</button
+                7 days</button
               ><button type="button" data-days="30" aria-pressed="false">
-                30 jours</button
+                30 days</button
               ><button type="button" data-days="365" aria-pressed="false">
-                1 an
+                1 year
               </button>
             </fieldset>
           </div>
@@ -218,19 +219,19 @@
             role="status"
             aria-live="polite"
           >
-            Lecture de l’historique…
+            Loading history…
           </p>
           <dl class="history-totals">
             <div>
-              <dt>Mesures réussies</dt>
+              <dt>Successful measurements</dt>
               <dd id="history-availability">—</dd>
             </div>
             <div>
-              <dt>Couverture des mesures</dt>
+              <dt>Measurement coverage</dt>
               <dd id="history-coverage">—</dd>
             </div>
             <div>
-              <dt>Latence moyenne observée</dt>
+              <dt>Observed average latency</dt>
               <dd id="history-latency">—</dd>
             </div>
           </dl>
@@ -238,36 +239,38 @@
             id="history-chart"
             class="history-chart"
             role="img"
-            aria-label="Historique en attente de données."
+            aria-label="History awaiting data."
           ></div>
           <div class="history-caption">
-            <span id="history-range">Journées en UTC</span
+            <span id="history-range">Days in UTC</span
             ><span
-              ><i class="legend-dot success" aria-hidden="true"></i>Réussite
-              <i class="legend-dot pending" aria-hidden="true"></i>Écart
-              <i class="legend-dot disabled" aria-hidden="true"></i>Sans
-              mesure</span
+              ><i class="legend-dot success" aria-hidden="true"></i>Success<i
+                class="legend-dot pending"
+                aria-hidden="true"
+              ></i
+              >Failure<i class="legend-dot disabled" aria-hidden="true"></i>No
+              measurement</span
             >
           </div>
           <p id="history-start" class="section-note">
-            L’historique commence à l’activation de la collecte. Les jours
-            précédents restent sans données.
+            History starts when collection is enabled. Earlier days have no
+            data.
           </p>
           <details class="history-details">
-            <summary>Consulter les mesures quotidiennes</summary>
+            <summary>View daily measurements</summary>
             <div
               class="table-scroll"
               tabindex="0"
               role="region"
-              aria-label="Mesures quotidiennes"
+              aria-label="Daily measurements"
             >
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">Date UTC</th>
-                    <th scope="col">Réussite observée</th>
-                    <th scope="col">Mesures reçues / attendues</th>
-                    <th scope="col">Latence moyenne</th>
+                    <th scope="col">UTC date</th>
+                    <th scope="col">Observed success</th>
+                    <th scope="col">Received / expected measurements</th>
+                    <th scope="col">Average latency</th>
                   </tr>
                 </thead>
                 <tbody id="history-rows"></tbody>
@@ -275,9 +278,8 @@
             </div>
           </details>
           <p class="section-note">
-            La disponibilité porte uniquement sur les mesures reçues. Une
-            couverture incomplète laisse des périodes inconnues ; la latence
-            moyenne ne constitue pas un engagement de service.
+            Availability covers received measurements only. Incomplete coverage
+            leaves unknown periods; average latency is not a service commitment.
           </p>
         </section>
       </section>
@@ -290,126 +292,119 @@
         hidden
       >
         <div class="panel-heading">
-          <h2>Ce que les preuves établissent</h2>
-          <span class="dated">Lecture technique</span>
+          <h2>What the evidence establishes</h2>
+          <span class="dated">Technical view</span>
         </div>
         <p class="explanation">
-          Chaque résultat conserve son environnement et sa portée. Un test local
-          ou un fournisseur simulé ne devient jamais une réussite en production.
+          Each result retains its environment and scope. A local test or
+          simulated provider never establishes production success.
         </p>
         <div class="evidence-register">
           <article class="evidence-row">
             <div>
-              <h3>Production · lectures publiques</h3>
+              <h3>Production · public observations</h3>
               <p>
-                Mesures enregistrées par le service de statut, détaillées
-                ci-dessous. Aucune opération métier n’est exécutée par ces
-                sondes.
+                Measurements recorded by the status service, detailed below.
+                These probes perform no business operation.
               </p>
             </div>
             <span id="public-evidence-state" class="badge pending"
-              >En attente</span
+              >Pending</span
             >
           </article>
           <article class="evidence-row">
             <div>
-              <h3>Validation métier · environnement local</h3>
+              <h3>Business validation · local environment</h3>
               <p id="qualification-summary">
-                Lecture du rapport de qualification locale. Aucun résultat local
-                ne sera présenté comme une réussite en production.
+                Reading the local qualification report. No local result will be
+                presented as production success.
               </p>
               <p id="qualification-date" class="proof-date">
-                Date de qualification indisponible.
+                Qualification date unavailable.
               </p>
               <details
                 id="qualification-detail"
                 class="qualification-detail"
                 hidden
               >
-                <summary>Parcours exercés et limites</summary>
+                <summary>Tested workflows and limits</summary>
                 <div id="qualification-scope"></div>
                 <div id="qualification-limits"></div>
               </details>
             </div>
-            <span id="qualification-state" class="badge pending"
-              >En attente</span
-            >
+            <span id="qualification-state" class="badge pending">Pending</span>
           </article>
           <article class="evidence-row">
             <div>
-              <h3>Contrôle à blanc · production</h3>
+              <h3>Dry run · production</h3>
               <p>
-                Le contrôle à blanc relit un envoi déjà préparé sans consommer
-                ou renouveler son devis. Aucun résultat de cette validation en
-                production n’est disponible ici.
+                The dry run reads an existing prepared dispatch without
+                consuming or renewing its quote. No result from this production
+                validation is available here.
               </p>
             </div>
-            <span class="badge pending">Non exécuté</span>
+            <span class="badge pending">Not executed</span>
           </article>
           <article class="evidence-row">
             <div>
-              <h3>Parcours complets · environnement isolé</h3>
+              <h3>Complete workflows · isolated environment</h3>
               <p>
-                La qualification locale ci-dessus exerce les scénarios
-                sélectionnés. La couverture complète des files, des moteurs
-                d’analyse et de tous les parcours conserve ses preuves
-                distinctes ; elle n’est pas acquise par ce seul résultat.
+                The local qualification above exercises selected scenarios. Full
+                coverage of queues, analysis engines and all workflows requires
+                separate evidence; this result alone does not establish it.
               </p>
             </div>
-            <span class="badge pending">À compléter</span>
+            <span class="badge pending">To complete</span>
           </article>
         </div>
         <details class="report-detail">
-          <summary>
-            Pourquoi le contrôle à blanc reste une preuve partielle
-          </summary>
+          <summary>Why the dry run provides partial evidence</summary>
           <div class="detail-body">
             <p>
-              Il relit l’état préparé, l’absence de tentative, le devis et les
-              restrictions applicables. Il ne crée aucun devis, accord, crédit
-              réservé, message en file ou appel fournisseur. Les échéances
-              continuent de s’appliquer.
+              It reads prepared state, absence of attempts, the quote and
+              applicable restrictions. It creates no quote, approval, reserved
+              credit, queued message or provider call. Expiry rules still apply.
             </p>
             <p>
-              L’acceptation atomique et la livraison sont explicitement non
-              exécutées. Les comptes et droits courants restent nécessaires. Les
-              compteurs techniques d’accès peuvent évoluer ; une lecture réelle
-              de production utilise aussi l’infrastructure.
+              Atomic acceptance and delivery are explicitly not executed.
+              Current accounts and permissions remain necessary. Technical
+              access counters may change; a real production read also uses
+              infrastructure.
             </p>
             <p>
-              Aucun test authentifié ni envoi réel n’est exécuté par cette page.
-              La collecte publique est distincte des tests métier.
+              This page performs no authenticated test or real dispatch. Public
+              collection is separate from business tests.
             </p>
           </div>
         </details>
         <div class="panel-heading verification-heading">
-          <h2>Contrôles publics observés</h2>
+          <h2>Observed public checks</h2>
           <span id="tab-public-count" class="badge disabled">—</span>
         </div>
         <p id="live-explanation" class="explanation">
-          En attente d’une mesure exploitable.
+          Waiting for a usable measurement.
         </p>
         <div class="toolbar">
           <fieldset class="filters">
-            <legend class="sr-only">Filtrer les contrôles</legend>
+            <legend class="sr-only">Filter checks</legend>
             <button type="button" data-check-filter="all" aria-pressed="true">
-              Tous</button
+              All</button
             ><button
               type="button"
               data-check-filter="fail"
               aria-pressed="false"
             >
-              En écart</button
+              Failed</button
             ><button
               type="button"
               data-check-filter="pass"
               aria-pressed="false"
             >
-              Réussis
+              Passed
             </button>
           </fieldset>
           <label class="search"
-            ><span class="sr-only">Rechercher un contrôle</span
+            ><span class="sr-only">Search checks</span
             ><input
               id="check-search"
               type="search"
@@ -418,52 +413,48 @@
           /></label>
         </div>
         <p id="result-count" class="result-count" aria-live="polite">
-          En attente de la première mesure.
+          Waiting for the first measurement.
         </p>
         <div id="probes" class="results" data-current="false">
-          <p class="empty">
-            Les résultats apparaîtront dès que le moniteur répondra.
-          </p>
+          <p class="empty">Results will appear when the monitor responds.</p>
         </div>
         <p class="section-note">
-          Un résultat réussi prouve uniquement son attendu. Un refus HTTP 401
-          est ici un succès : l’accès anonyme doit être bloqué. Les détails
-          d’assertion individuels ne sont pas exportés.
+          A passing result proves only its stated expectation. HTTP 401 is a
+          success here: anonymous access must be blocked. Individual assertion
+          details are not exported.
         </p>
-        <section class="coverage-panel" aria-label="Couverture des parcours">
+        <section class="coverage-panel" aria-label="Workflow coverage">
           <div class="panel-heading">
-            <h2>Couverture des parcours</h2>
-            <span id="business-total" class="badge disabled"
-              >— fonctionnalités</span
-            >
+            <h2>Workflow coverage</h2>
+            <span id="business-total" class="badge disabled">— features</span>
           </div>
           <p id="service-explanation" class="explanation">
-            Ces parcours nécessitent des contrôles distincts des mesures de
-            disponibilité. Le détail ci-dessous décrit le périmètre suivi.
+            These workflows need checks separate from availability measurements.
+            The details below describe the monitored scope.
           </p>
           <fieldset class="filters">
-            <legend class="sr-only">Filtrer les fonctionnalités</legend>
+            <legend class="sr-only">Filter features</legend>
             <button type="button" data-filter="all" aria-pressed="true">
-              Toutes</button
+              All</button
             ><button
               type="button"
               data-filter="not_checked"
               aria-pressed="false"
             >
-              Suivi complémentaire</button
+              Additional monitoring</button
             ><button type="button" data-filter="disabled" aria-pressed="false">
-              Non activées
+              Not enabled
             </button>
           </fieldset>
           <p id="coverage-count" class="result-count" aria-live="polite">
-            En attente de données.
+            Waiting for data.
           </p>
           <div id="coverage" class="results" data-current="false">
-            <p class="empty">Aucune mesure reçue.</p>
+            <p class="empty">No measurement received.</p>
           </div>
           <p class="section-note">
-            Les résultats locaux, les contrôles de production et les livraisons
-            effectives constituent des preuves distinctes.
+            Local results, production checks and actual deliveries are separate
+            evidence.
           </p>
         </section>
       </section>
@@ -483,204 +474,198 @@
               alt=""
               width="24"
               height="24"
-            />Suivi de maintenance et d’astreinte
+            />Maintenance and on-call monitoring
           </h2>
-          <span class="dated">Preuve · âge · action</span>
+          <span class="dated">Evidence · age · action</span>
         </div>
         <p class="explanation">
-          Une mesure manquante ou trop ancienne indique un état inconnu. Les
-          lignes sans preuve privée restent à vérifier ; elles ne constituent
-          pas des incidents confirmés.
+          A missing or stale measurement means the current state is unknown.
+          Rows without private evidence still need verification; they do not
+          establish an incident.
         </p>
         <div class="operation-list">
           <article class="operation">
             <div class="operation-heading">
-              <h3>Observation publique</h3>
+              <h3>Public observation</h3>
               <span id="operations-measure-state" class="badge pending"
-                >En attente</span
+                >Pending</span
               >
             </div>
             <dl class="operation-facts">
               <div>
-                <dt>Preuve</dt>
-                <dd id="operations-measure-proof">Aucune mesure reçue.</dd>
+                <dt>Evidence</dt>
+                <dd id="operations-measure-proof">No measurement received.</dd>
               </div>
               <div>
-                <dt>Âge</dt>
-                <dd id="operations-measure-age">Indisponible</dd>
+                <dt>Age</dt>
+                <dd id="operations-measure-age">Unavailable</dd>
               </div>
               <div>
                 <dt>Action</dt>
                 <dd>
-                  Relire le résultat existant. Si la mesure manque ou dépasse
-                  son seuil de fraîcheur, vérifier le processus de collecte
-                  avant de conclure.
+                  Read the existing result again. If the measurement is missing
+                  or stale, check the collection process before drawing
+                  conclusions.
                 </dd>
               </div>
             </dl>
           </article>
           <article class="operation">
             <div class="operation-heading">
-              <h3>Analyse et rendu des PDF</h3>
-              <span class="badge pending">Preuve privée absente</span>
+              <h3>PDF analysis and rendering</h3>
+              <span class="badge pending">Private evidence missing</span>
             </div>
             <dl class="operation-facts">
               <div>
-                <dt>Preuve attendue</dt>
+                <dt>Expected evidence</dt>
                 <dd>
-                  Analyse d’un fichier connu, fraîcheur des signatures, octets
-                  exacts et rendu de toutes les pages.
+                  Analysis of a known file, signature freshness, exact bytes and
+                  rendering of every page.
                 </dd>
               </div>
               <div>
-                <dt>Âge</dt>
-                <dd>Dernière réussite indisponible dans ce rapport.</dd>
+                <dt>Age</dt>
+                <dd>Latest success unavailable in this report.</dd>
               </div>
               <div>
                 <dt>Action</dt>
                 <dd>
-                  Exécuter et archiver le parcours local isolé. Une
-                  configuration annoncée ne suffit pas à valider le traitement
-                  réel.
+                  Run and archive the isolated local workflow. Reported
+                  configuration alone does not validate actual processing.
                 </dd>
               </div>
             </dl>
           </article>
           <article class="operation">
             <div class="operation-heading">
-              <h3>Files et traitements différés</h3>
-              <span class="badge pending">Mesure absente</span>
+              <h3>Queues and background processing</h3>
+              <span class="badge pending">Measurement missing</span>
             </div>
             <dl class="operation-facts">
               <div>
-                <dt>Preuve attendue</dt>
+                <dt>Expected evidence</dt>
                 <dd>
-                  Dernière exécution terminée, âge du plus ancien travail et
-                  comportement après interruption.
+                  Last completed execution, age of the oldest job and behaviour
+                  after interruption.
                 </dd>
               </div>
               <div>
-                <dt>Âge</dt>
-                <dd>Aucune mesure de file reçue ici.</dd>
+                <dt>Age</dt>
+                <dd>No queue measurement received here.</dd>
               </div>
               <div>
                 <dt>Action</dt>
                 <dd>
-                  Tester les reprises avec les files locales et un fournisseur
-                  simulé. Une issue fournisseur inconnue ne doit pas provoquer
-                  un nouvel envoi.
+                  Test recovery with local queues and a simulated provider. An
+                  unknown provider outcome must not trigger another dispatch.
                 </dd>
               </div>
             </dl>
           </article>
           <article class="operation">
             <div class="operation-heading">
-              <h3>Réception et livraison</h3>
-              <span class="badge pending">Non exécutées</span>
+              <h3>Reception and delivery</h3>
+              <span class="badge pending">Not executed</span>
             </div>
             <dl class="operation-facts">
               <div>
-                <dt>Preuve attendue</dt>
+                <dt>Expected evidence</dt>
                 <dd>
-                  Événement authentifié, rapprochement de l’envoi et état final
-                  conforme.
+                  Authenticated event, dispatch reconciliation and consistent
+                  final state.
                 </dd>
               </div>
               <div>
-                <dt>Âge</dt>
-                <dd>Aucune preuve de livraison issue de cette vérification.</dd>
+                <dt>Age</dt>
+                <dd>This verification provides no delivery evidence.</dd>
               </div>
               <div>
                 <dt>Action</dt>
                 <dd>
-                  Exercer les scénarios de succès, rejet, doublon et délai avec
-                  des événements simulés. Aucun appel de livraison réel dans la
-                  stratégie sans débit métier.
+                  Exercise success, rejection, duplicate and timeout scenarios
+                  using simulated events. The strategy without business charges
+                  makes no real delivery call.
                 </dd>
               </div>
             </dl>
           </article>
           <article class="operation">
             <div class="operation-heading">
-              <h3>Sauvegarde et restauration</h3>
-              <span class="badge pending">Preuve à réunir</span>
+              <h3>Backup and restoration</h3>
+              <span class="badge pending">Evidence needed</span>
             </div>
             <dl class="operation-facts">
               <div>
-                <dt>Preuve attendue</dt>
-                <dd>Restauration isolée et contrôle de cohérence documenté.</dd>
+                <dt>Expected evidence</dt>
+                <dd>Isolated restoration and documented consistency checks.</dd>
               </div>
               <div>
-                <dt>Âge</dt>
-                <dd>Aucune date de restauration vérifiée fournie ici.</dd>
+                <dt>Age</dt>
+                <dd>No verified restoration date provided here.</dd>
               </div>
               <div>
                 <dt>Action</dt>
                 <dd>
-                  Restaurer une base de test locale, vérifier les relations et
-                  conserver le résultat. Ne pas modifier les données de
-                  production pour ce test.
+                  Restore a local test database, check relations and retain the
+                  result. Do not alter production data for this test.
                 </dd>
               </div>
             </dl>
           </article>
         </div>
         <details class="report-detail">
-          <summary>Stratégie de tests sans débit métier</summary>
+          <summary>Test strategy without business charges</summary>
           <div class="detail-body">
             <ol class="test-policy">
               <li>
-                Exécuter localement le code applicatif avec des données
-                fictives, des bases D1 et objets R2 isolés, les files et les
-                composants PDF requis.
+                Run application code locally with synthetic data, isolated D1
+                databases and R2 objects, queues and the required PDF
+                components.
               </li>
               <li>
-                Interdire le réseau externe et exclure les secrets de
-                production. Le dernier appel de livraison utilise exclusivement
-                un fournisseur simulé ; tout accès réseau inattendu fait échouer
-                le test.
+                Block external networking and exclude production secrets. The
+                final delivery call uses only a simulated provider; any
+                unexpected network access fails the test.
               </li>
               <li>
-                Conserver les preuves par scénario : environnement, résultat,
-                date, durée et limite. Un scénario non exécuté ne reçoit aucun
-                état vert.
+                Retain evidence for each scenario: environment, result, date,
+                duration and limitation. A scenario that has not run receives no
+                passing status.
               </li>
               <li>
-                Conserver la production hors de cette boucle. La collecte
-                publique est limitée et utilise l’infrastructure ; son coût ne
-                peut pas être présenté comme nul. Aucun parcours métier
-                facturable ne doit être inclus dans cette boucle.
+                Keep production outside this loop. Public collection is bounded
+                and uses infrastructure; its cost cannot be described as zero.
+                Do not include a billable business workflow in this loop.
               </li>
             </ol>
             <p>
-              Objectif : aucun devis réel consommé, aucun crédit métier réservé
-              et aucun paiement fournisseur. Les ressources de la machine et
-              d’une éventuelle CI restent distinctes. La qualification locale
-              publie son résultat daté dans Vérifications. Les scénarios non
-              couverts restent à compléter.
+              Goal: no real quote consumed, no business credit reserved and no
+              provider payment. Machine and any CI resources remain separate.
+              Local qualification publishes a dated result under Verification.
+              Uncovered scenarios still need completion.
             </p>
           </div>
         </details>
         <details class="report-detail">
-          <summary>Règles d’alerte à mettre en place</summary>
+          <summary>Alert rules to implement</summary>
           <div class="detail-body">
             <p>
-              Signaler un échec observé, une preuve périmée ou une absence de
-              mesure. Associer chaque alerte à la fonctionnalité, à
-              l’environnement de test, à l’heure et à la preuve correspondante.
+              Report observed failures, stale evidence or missing measurements.
+              Associate each alert with the feature, test environment, time and
+              corresponding evidence.
             </p>
             <p>
-              Notifier l’apparition, l’évolution utile et le rétablissement ;
-              dédupliquer les rappels. Aucun canal d’alerte ou service
-              d’astreinte n’est configuré par cette page.
+              Notify when an issue appears, changes meaningfully or recovers;
+              deduplicate reminders. This page configures no alert channel or
+              on-call service.
             </p>
           </div>
         </details>
       </section>
       <noscript
         ><p class="notice">
-          JavaScript est nécessaire pour les mesures et les vues interactives.
-          Aucune mesure ne peut être affichée sans JavaScript.
+          JavaScript is required for measurements and interactive views. No
+          measurement can be displayed without JavaScript.
         </p></noscript
       >
     </main>
@@ -688,15 +673,22 @@
       <div class="footer-top wrap">
         <div>
           <a class="footer-wordmark" href="https://guteneo.com">guteneo</a>
-          <p>Un service suivi, des preuves à portée de main.</p>
+          <p>A monitored service with evidence at hand.</p>
         </div>
+        <label class="status-language" for="status-language"
+          >Language
+          <select id="status-language">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
         <button
           type="button"
           id="motion-toggle"
           class="button"
           aria-pressed="false"
         >
-          Animations : désactivées
+          Animations: disabled
         </button>
       </div>
       <div class="status-landscape" aria-hidden="true">
@@ -716,13 +708,13 @@
         ></span>
       </div>
       <div class="footer-bottom wrap">
-        <nav aria-label="Liens utiles">
-          <a href="https://guteneo.com">Retour à guteneo</a
-          ><a href="https://guteneo.com/support/">Assistance</a
-          ><a href="https://guteneo.com/mentions-legales/">Mentions légales</a
-          ><a href="https://guteneo.com/confidentialite/">Confidentialité</a>
+        <nav aria-label="Useful links">
+          <a href="https://guteneo.com">Return to guteneo</a
+          ><a href="https://guteneo.com/support/">Support</a
+          ><a href="https://guteneo.com/legal/">Legal notice</a
+          ><a href="https://guteneo.com/privacy/">Privacy</a>
         </nav>
-        <p>Disponibilité observée, historique et détail des vérifications.</p>
+        <p>Observed availability, history and verification details.</p>
       </div>
     </footer>
   </body>

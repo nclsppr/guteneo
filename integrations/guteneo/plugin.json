@@ -6,7 +6,7 @@
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
   },
-  "homepage": "https://guteneo.com/a-propos/?lang=en",
+  "homepage": "https://guteneo.com/about/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
   "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
@@ -25,10 +25,10 @@
           "Track Guteneo dispatches",
           "Read and run PDF/UA and PDF/A diagnostics when enabled"
         ],
-        "websiteURL": "https://guteneo.com/a-propos/?lang=en",
+        "websiteURL": "https://guteneo.com/about/?lang=en",
         "supportURL": "https://guteneo.com/support/?lang=en",
-        "privacyPolicyURL": "https://guteneo.com/confidentialite/?lang=en",
-        "termsOfServiceURL": "https://guteneo.com/conditions/?lang=en",
+        "privacyPolicyURL": "https://guteneo.com/privacy/?lang=en",
+        "termsOfServiceURL": "https://guteneo.com/terms/?lang=en",
         "defaultPrompt": [
           "Help me prepare this PDF for postal mail. Ask for missing details and show the review link before sending.",
           "Prepare a fax estimate for this PDF without sending it.",

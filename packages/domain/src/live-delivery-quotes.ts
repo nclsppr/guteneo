@@ -170,13 +170,13 @@ export type LiveDeliveryQuote = {
 const invalid = () =>
   new DomainError(
     "LIVE_QUOTE_INVALID",
-    "Le devis a expiré ou sa configuration a changé. Préparez un nouvel envoi.",
+    "The quote expired or its configuration changed. Prepare a new dispatch.",
     409,
   );
 const unqualified = () =>
   new DomainError(
     "LIVE_PRICING_REQUIRED",
-    "Tarif, devise et compte qualifiés requis pour ce canal.",
+    "A qualified rate, currency and account are required for this channel.",
     409,
   );
 function identityValid(
@@ -434,7 +434,7 @@ export async function resolveDeliveryPrice(
     if (attachmentBytes > 10_000_000)
       throw new DomainError(
         "EMAIL_ATTACHMENT_TOO_LARGE",
-        "La pièce jointe doit faire au maximum 10 Mo. Utilisez un lien protégé pour ce PDF.",
+        "Attachments must be at most 10 MB. Use a protected link for this PDF.",
         413,
       );
     numerator =

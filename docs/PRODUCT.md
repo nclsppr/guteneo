@@ -77,7 +77,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native iOS candidate — 22 September 2026
 
@@ -116,7 +116,7 @@ is performed by the migration. See [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPAR
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
 20 September postal opening: every existing or future verified account can use
-the authenticated administrator setup in **Expéditeurs**. It records the sender's
+the authenticated administrator setup in **Senders**. It records the sender's
 declared authority, not physical-address verification, and installs account-bound
 EUR calculator policies for all eight print/delivery combinations. Postal quotes
 explicitly use prices excluding tax, without FX. Individual PDF transfer and

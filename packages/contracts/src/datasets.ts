@@ -66,6 +66,29 @@ export type DatasetProfile = {
   sourceBytes: number;
 };
 
+export const DEFAULT_DATASET_SHEET = "Data";
+const LEGACY_DEFAULT_DATASET_SHEET = "Données";
+
+/** Preserve saved mapping references while newly generated sheet names use English. */
+export function resolveDatasetSheet(
+  profile: DatasetProfile,
+  name: string,
+): ProfileSheet | undefined {
+  const exact = profile.sheets.find((sheet) => sheet.name === name);
+  if (exact) return exact;
+
+  for (const [from, to] of [
+    [LEGACY_DEFAULT_DATASET_SHEET, DEFAULT_DATASET_SHEET],
+    [DEFAULT_DATASET_SHEET, LEGACY_DEFAULT_DATASET_SHEET],
+  ]) {
+    if (name === from || name.startsWith(`${from}.`)) {
+      const alias = `${to}${name.slice(from.length)}`;
+      return profile.sheets.find((sheet) => sheet.name === alias);
+    }
+  }
+  return undefined;
+}
+
 const safePath = z
   .string()
   .min(1)

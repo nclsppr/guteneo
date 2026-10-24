@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
-import { Brand } from "./brand";
+import { PublicFooter, PublicHeader } from "./public-chrome";
 import { ErrorNotice, Loading, useAction } from "./components";
-import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import { roleDescription, roleLabel } from "./role-guide";
 import type { WorkspaceRole } from "../../../packages/contracts/src/roles";
@@ -27,7 +26,7 @@ export function InvitationPage() {
   const [loading, setLoading] = useState(Boolean(token));
   const action = useAction();
   useEffect(() => {
-    document.title = `${msg("Invitation à rejoindre un atelier")} | Guteneo`;
+    document.title = `${msg("Invitation to join a workspace")} | Guteneo`;
     if (window.location.hash)
       window.history.replaceState(
         null,
@@ -62,7 +61,7 @@ export function InvitationPage() {
       if (!response.ok)
         throw new Error(
           msg(
-            "L’invitation n’a pas pu être acceptée. Rouvrez le lien reçu ou demandez une nouvelle invitation à votre administrateur.",
+            "The invitation could not be accepted. Reopen the link you received or ask your administrator for a new invitation.",
           ),
         );
       const result = (await response.json()) as { loginUrl?: string };
@@ -73,29 +72,25 @@ export function InvitationPage() {
         login.pathname !== "/auth/login"
       )
         throw new Error(
-          msg(
-            "La connexion n’est pas disponible. Réessayez depuis votre invitation.",
-          ),
+          msg("Sign-in is unavailable. Try again from your invitation."),
         );
       window.location.assign(result.loginUrl);
     });
   }
   return (
     <div className="legal-page">
-      <header className="site-header">
-        <Brand />
-        <LanguageMenu />
-      </header>
-      <main className="invitation-page">
-        <h1>{msg("Invitation à rejoindre un atelier")}</h1>
+      <a className="skip-link" href="#invitation-content">
+        {msg("Skip to content")}
+      </a>
+      <PublicHeader showWorkspaceLink={false} />
+      <main className="invitation-page" id="invitation-content" tabIndex={-1}>
+        <h1>{msg("Invitation to join a workspace")}</h1>
         {loading ? (
           <Loading />
         ) : preview ? (
           <>
             <h2>{preview.organization.name}</h2>
-            <p>
-              {msg("Cette invitation est destinée à {0}.", preview.maskedEmail)}
-            </p>
+            <p>{msg("This invitation is for {0}.", preview.maskedEmail)}</p>
             <p>
               <strong>{roleLabel(preview.role)}</strong> —{" "}
               {roleDescription(preview.role)}
@@ -103,13 +98,13 @@ export function InvitationPage() {
             {preview.role === "supervisor" && (
               <p>
                 {msg(
-                  "Approbation des requêtes : {0}. Rapports : {1}.",
+                  "Request approval: {0}. Reports: {1}.",
                   preview.supervisorCanApprove
-                    ? msg("autorisée")
-                    : msg("non autorisée"),
+                    ? msg("allowed")
+                    : msg("not allowed"),
                   preview.supervisorCanReport
-                    ? msg("accessibles")
-                    : msg("non accessibles"),
+                    ? msg("available")
+                    : msg("unavailable"),
                 )}
               </p>
             )}
@@ -117,7 +112,7 @@ export function InvitationPage() {
               <>
                 <p>
                   {msg(
-                    "Connectez-vous ou créez votre compte avec l’adresse e-mail qui a reçu l’invitation. Elle doit être vérifiée. Vous rejoindrez cet atelier avec le rôle indiqué, même si vous avez déjà un compte Guteneo.",
+                    "Sign in or create your account with the email address that received the invitation. It must be verified. You will join this workspace with the stated role, even if you already have a Guteneo account.",
                   )}
                 </p>
                 <button
@@ -127,14 +122,14 @@ export function InvitationPage() {
                   onClick={() => void accept()}
                 >
                   {action.pending
-                    ? msg("Connexion en cours…")
-                    : msg("Accepter et me connecter")}
+                    ? msg("Signing in…")
+                    : msg("Accept and sign in")}
                 </button>
               </>
             ) : (
               <p role="status">
                 {msg(
-                  "Cette invitation n’est plus disponible. Demandez une nouvelle invitation à l’administrateur de l’atelier.",
+                  "This invitation is no longer available. Ask the workspace administrator for a new invitation.",
                 )}
               </p>
             )}
@@ -143,16 +138,17 @@ export function InvitationPage() {
           !error && (
             <p>
               {msg(
-                "Ouvrez le lien complet reçu par e-mail pour consulter votre invitation.",
+                "Open the complete link from your email to view your invitation.",
               )}
             </p>
           )
         )}
         <ErrorNotice error={error ?? action.error} />
         <p>
-          <a href="/roles/">{msg("Comprendre les rôles")}</a>
+          <a href="/roles/">{msg("Understand roles")}</a>
         </p>
       </main>
+      <PublicFooter />
     </div>
   );
 }

@@ -64,7 +64,7 @@ async function encryptionKey(env: ProtectedDocumentsEnv): Promise<CryptoKey> {
   if (!tokenPattern.test(env.PROTECTED_DOCUMENTS_KEY ?? ""))
     fail(
       "PROTECTED_DOCUMENTS_NOT_CONFIGURED",
-      "La protection des documents n’est pas encore configurée.",
+      "Document protection is not yet configured.",
     );
   return crypto.subtle.importKey(
     "raw",
@@ -127,7 +127,7 @@ async function open(
   } catch {
     return fail(
       "PROTECTED_DOCUMENT_UNAVAILABLE",
-      "Le document protégé est indisponible.",
+      "The protected document is unavailable.",
     );
   }
 }
@@ -174,11 +174,11 @@ async function member(
       .bind(ctx.organizationId, ctx.userId, ctx.role)
       .first())
   )
-    fail("FORBIDDEN", "Cet espace ne vous est pas accessible.", 403);
+    fail("FORBIDDEN", "You cannot access this workspace.", 403);
   if (env.MODE !== "production")
     fail(
       "PROTECTED_DOCUMENTS_PRODUCTION_REQUIRED",
-      "Ce service nécessite le mode réel.",
+      "This service requires live mode.",
     );
 }
 export async function prepareProtectedDocument(
@@ -193,7 +193,7 @@ export async function prepareProtectedDocument(
   if (![1, 7, 30].includes(duration))
     fail(
       "INVALID_PROTECTION_DURATION",
-      "Choisissez une durée de 1, 7 ou 30 jours.",
+      "Choose a duration of 1, 7 or 30 days.",
       400,
     );
   const document = await env.DB.prepare(
@@ -201,7 +201,7 @@ export async function prepareProtectedDocument(
   )
     .bind(ctx.organizationId, input.documentId, ctx.userId)
     .first<{ id: string; sha256: string }>();
-  if (!document) fail("DOCUMENT_NOT_READY", "Un PDF vérifié est nécessaire.");
+  if (!document) fail("DOCUMENT_NOT_READY", "A verified PDF is required.");
   const material = {
     id: `host_${crypto.randomUUID()}`,
     organization_id: ctx.organizationId,
@@ -251,7 +251,7 @@ export async function prepareProtectedDocument(
   if (!row)
     fail(
       "PROTECTED_DOCUMENT_UNAVAILABLE",
-      "Le document protégé est indisponible.",
+      "The protected document is unavailable.",
     );
   const secrets = await open(env, row);
   return {
@@ -273,7 +273,7 @@ async function dispatchHosting(
   if (ctx.actor !== "browser")
     fail(
       "BROWSER_REQUIRED",
-      "Ouvrez votre espace Guteneo pour cette action.",
+      "Open your Guteneo workspace for this action.",
       403,
     );
   const row = await env.DB.prepare(
@@ -281,7 +281,7 @@ async function dispatchHosting(
   )
     .bind(ctx.organizationId, dispatchId, now, ctx.userId)
     .first<Hosting>();
-  if (!row) fail("NOT_FOUND", "Document protégé indisponible.", 404);
+  if (!row) fail("NOT_FOUND", "Protected document unavailable.", 404);
   return row;
 }
 export async function revealProtectedDocumentPassword(
@@ -309,7 +309,7 @@ export async function revokeProtectedDocument(
   if (!actorPermissions(ctx).approveDispatches)
     fail(
       "FORBIDDEN",
-      "Le droit de validation est nécessaire pour révoquer cet accès.",
+      "Approval permission is required to revoke this access.",
       403,
     );
   const row = await dispatchHosting(env, ctx, dispatchId, now);
@@ -336,7 +336,7 @@ export async function revokeProtectedDocument(
   if (results[0].meta.changes !== 1)
     fail(
       "FORBIDDEN",
-      "Vos droits ou cet accès ont changé. Actualisez la page.",
+      "Your permissions or this access have changed. Refresh the page.",
       403,
     );
   return { revoked: true };
@@ -524,7 +524,7 @@ export async function handleProtectedDocumentRoute(
       )
         return new Response(
           protectedDocumentText(
-            "Trop de tentatives. Réessayez dans quinze minutes.",
+            "Too many attempts. Try again in fifteen minutes.",
             locale,
           ),
           { status: 429, headers: { ...safeHeaders, "Retry-After": "900" } },
@@ -540,7 +540,7 @@ export async function handleProtectedDocumentRoute(
         return page(
           path,
           "locked",
-          "Ce mot de passe ne permet pas d’ouvrir le document.",
+          "This password does not unlock the document.",
         );
       const session = random(),
         expiry = new Date(
@@ -572,7 +572,7 @@ export async function handleProtectedDocumentRoute(
     const unlocked = await sessionValid(env, request, row, now);
     if (action === "content" && request.method === "GET") {
       if (!unlocked)
-        return new Response(protectedDocumentText("Accès protégé", locale), {
+        return new Response(protectedDocumentText("Protected access", locale), {
           status: 401,
           headers: safeHeaders,
         });

@@ -1,70 +1,67 @@
-# Confidentialité : données du candidat iOS
+# Privacy: iOS candidate data
 
-État du code local au 22 septembre 2026. Ce relevé prépare la fiche App Store
-Connect ; il ne remplace pas la politique publique du service ni une déclaration
-déjà soumise à Apple.
+Local source state as of 22 September 2026. This inventory prepares the App
+Store Connect listing; it replaces neither the service's public privacy policy
+nor a declaration already submitted to Apple.
 
-## Déclarations du manifeste
+## Manifest declarations
 
-`Guteneo/Resources/PrivacyInfo.xcprivacy` indique une finalité de fonctionnement
-du service pour les catégories suivantes, liées au compte et sans suivi
-publicitaire :
+`Guteneo/Resources/PrivacyInfo.xcprivacy` declares app functionality as the
+purpose for the following account-linked categories, without advertising
+tracking:
 
-| Catégorie Apple | Flux correspondant |
+| Apple category | Corresponding flow |
 | --- | --- |
-| Nom | Profil du compte, organisation et identité des expéditeurs ou destinataires. |
-| Adresse e-mail | Connexion dans le navigateur système et préparation ou suivi d'un email. |
-| Numéro de téléphone | Destinataire et expéditeur d'un fax. |
-| Adresse physique | Consultation des destinataires des courriers déjà présents dans le compte. |
-| Identifiant utilisateur | Session et rattachement à l'organisation authentifiée. |
-| Emails ou messages texte | Objet et corps des emails préparés ou consultés. |
-| Autre contenu utilisateur | PDF importés, noms de fichiers et contenu des documents. |
-| Historique des achats | Opérations de service, devis et coûts associés aux envois. L'app ne collecte pas de carte bancaire. |
+| Name | Account profile, organization and sender/recipient identities. |
+| Email address | System-browser login and email preparation or tracking. |
+| Phone number | Fax recipient and sender. |
+| Physical address | Viewing recipients of letters already in the account. |
+| User identifier | Session and association with the authenticated organization. |
+| Emails or text messages | Subject and body of prepared or viewed emails. |
+| Other user content | Uploaded PDFs, filenames and document content. |
+| Purchase history | Service operations, quotes and dispatch costs. The app collects no payment-card data. |
 
-La consultation des courriers existants justifie de considérer les données
-postales même si cette version ne prépare pas de courrier. Le contenu libre des
-PDF n'est pas utilisé pour inférer des catégories sensibles ou un profil
-publicitaire. Le relevé ne prétend pas que les documents ne peuvent pas contenir
-de données personnelles.
+Reading existing letters justifies including postal data even though this
+version does not prepare letters. Free-form PDF content is not used to infer
+sensitive categories or an advertising profile. This inventory does not claim
+that documents cannot contain personal data.
 
-Le projet n'intègre aucun SDK tiers, outil publicitaire ou outil d'analyse.
-Le manifeste ne déclare aucun domaine de tracking. Il déclare l’accès à
-UserDefaults avec la raison CA92.1 pour conserver le choix de langue de l’accueil
-dans le domaine privé de cette application. La préférence du compte reste
-distincte et est synchronisée par le serveur. Refaire l’inventaire
-si des dépendances ou des APIs de cette liste sont ajoutées.
+The project includes no third-party SDK, advertising or analytics tool. The
+manifest declares no tracking domain. It declares UserDefaults access with
+reason CA92.1 to retain the welcome language choice in this application's
+private domain. The account preference remains separate and is synchronized
+by the server. Repeat the inventory if dependencies or listed APIs are added.
 
-## Stockage et accès sur l'appareil
+## Device storage and access
 
-Le jeton natif est conservé dans le trousseau, avec accès uniquement lorsque
-l'appareil est déverrouillé et sans synchronisation entre appareils. Le client
-réseau utilise une session éphémère, sans cache sur disque, cookies ni stockage
-d'identifiants HTTP. Il refuse les redirections des requêtes authentifiées.
+The native token is stored in Keychain, accessible only while the device is
+unlocked and without synchronization between devices. The network client uses
+an ephemeral session without disk cache, cookies or HTTP credential storage.
+It refuses redirects for authenticated requests.
 
-Les PDF sont lus en mémoire par PDFKit. L'app utilise le sélecteur système de
-Fichiers ; elle ne demande pas les contacts, les photos, la caméra, le microphone
-ou la position. Un masque couvre les vues et les présentations de l'app lorsque
-la scène devient inactive. Il ne prétend pas empêcher une capture volontaire de
-l'écran, contrôler le navigateur système ou effacer les fichiers d'origine
-dans Fichiers.
+PDFKit reads PDFs in memory. The app uses the system Files picker; it requests
+no contacts, photos, camera, microphone or location access. An overlay covers
+application views and presentations when the scene becomes inactive. It does
+not claim to prevent deliberate screenshots, control the system browser or
+erase source files in Files.
 
-## Points à finaliser avant soumission
+## Finalization before submission
 
-- Valider cette fiche sur l'archive finale et les flux du service effectivement
-  déployé, y compris les journaux et sous-traitants. Le manifeste embarqué et la
-  fiche App Store Connect sont deux déclarations distinctes.
-- La politique publique du 21 septembre, vérifiée à
-  `https://guteneo.com/confidentialite/`, couvre déjà le service, les comptes,
-  l'authentification et les fournisseurs. Y intégrer les particularités du
-  client natif lors de sa mise en service et qualifier ses flux déployés.
-- Appliquer les critères de conservation déjà publiés, définir le traitement
-  opérationnel des comptes partagés et qualifier la suppression effective dans
+- Validate this inventory against the final archive and actually deployed
+  service flows, including logs and processors. The bundled manifest and
+  App Store Connect listing are separate declarations.
+- The 21 September public policy, checked at
+  `https://guteneo.com/privacy/`, already covers the service, accounts,
+  authentication and providers. Include native-client specifics when it
+  launches and qualify its deployed flows.
+- Apply the published retention criteria, define operational handling for
+  shared accounts and qualify actual deletion in
   [ACCOUNT_DELETION.md](../../docs/ACCOUNT_DELETION.md).
-- Renseigner les coordonnées et réponses réglementaires avec les informations
-  du responsable du service ; aucune durée légale ou identité n'est inventée.
+- Supply contact details and regulatory answers using the service controller's
+  information; invent no legal retention period or identity.
 
-Références Apple : [fiche de confidentialité](https://developer.apple.com/app-store/app-privacy-details/),
-[manifestes de confidentialité](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files),
-[suppression de compte](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+Apple references: [app privacy details](https://developer.apple.com/app-store/app-privacy-details/),
+[privacy manifests](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files),
+[account deletion](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
 
-Raison UserDefaults vérifiée dans la [documentation Apple des raisons autorisées](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons).
+The UserDefaults reason was checked in [Apple's approved-reasons documentation](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons).

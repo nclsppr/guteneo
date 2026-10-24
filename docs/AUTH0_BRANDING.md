@@ -1,52 +1,79 @@
-# Auth0 : identité Guteneo
+# Auth0: Guteneo identity
 
-Le script `scripts/setup-auth0-branding.mjs` applique uniquement la présentation de **New Universal Login** sur le tenant `pieper.eu.auth0.com`. Cette personnalisation a été autorisée pour Guteneo ; l’ancien produit n’utilise plus ce tenant. Le tenant doit déjà utiliser New Universal Login : le script refuse de changer de parcours.
+`scripts/setup-auth0-branding.mjs` changes only **New Universal Login** presentation
+on `pieper.eu.auth0.com`. This customization was authorized for Guteneo; the former
+product no longer uses this tenant. The tenant must already use New Universal Login:
+the script refuses to switch authentication experiences.
 
-## Présentation
+## Presentation
 
-- Papier `#f6f5ef`, formulaire `#fffefa`, texte `#181b22`, bouton et liens `#2450db`.
-- Logo de connexion : portrait sans texte à fond transparent, `https://guteneo.com/brand/guteneo-portrait.png`.
-- Favicon simple distinct : `https://guteneo.com/favicon.svg?brand=20260917`.
-- Nom d’affichage du tenant : **Guteneo**. Aucun autre champ des paramètres du tenant n’est envoyé.
-- Titres, descriptions et texte alternatif du logo en français et anglais pour les écrans `login`, `login-id`, `login-password`, `signup`, `signup-id` et `signup-password`.
-- Formulaire natif Auth0, sans police distante, gabarit HTML personnalisé, Classic Login ou domaine personnalisé.
+- Paper `#f6f5ef`, form `#fffefa`, text `#181b22`, buttons and links `#2450db`.
+- Login logo: the transparent portrait without text, `https://guteneo.com/brand/guteneo-portrait.png`.
+- Separate simple favicon: `https://guteneo.com/favicon.svg?brand=20260917`.
+- Tenant display name: **Guteneo**. No other tenant-settings field is submitted.
+- French and English titles, descriptions and logo alternative text for `login`, `login-id`, `login-password`, `signup`, `signup-id` and `signup-password`.
+- Native Auth0 form, without remote fonts, a custom HTML template, Classic Login or a custom domain.
 
-Le thème de présentation ne change ni les méthodes d’authentification ni les exigences de vérification du compte. Le nom d’affichage s’applique au tenant ; il ne renomme pas son domaine. Les nouveaux clients prennent le portrait transparent dans le plan de provisionnement. Pour mettre à jour les clients existants, limiter l’écriture à leur champ `logo_uri`, après vérification de leur propriété Guteneo ; ne pas relancer le provisionnement général pour une modification visuelle. Voir [BRAND_IDENTITY.md](BRAND_IDENTITY.md) pour la distinction avec le timbre « guteneo.com » du footer et des communications externes.
+Presentation changes neither authentication methods nor account-verification
+requirements. The display name does not rename the tenant domain. New clients use
+the transparent portrait through the provisioning plan. For existing clients,
+verify Guteneo ownership and update only `logo_uri`; do not rerun general
+provisioning for a visual change. [Brand identity](BRAND_IDENTITY.md) distinguishes
+this asset from the guteneo.com stamp used in the footer and external communications.
 
-## Utilisation
+## Usage
 
-Le CLI officiel Auth0 doit déjà être authentifié sur ce tenant. Le script ne lit aucun fichier de credentials, ne récupère pas de token pour un autre processus, ne réauthentifie pas automatiquement et ne change pas de tenant.
+The official Auth0 CLI must already be authenticated to this tenant. The script
+reads no credential file, retrieves no token for another process, performs no
+automatic reauthentication and does not switch tenants.
 
 ```sh
-# Plan local : aucun appel réseau.
+# Local plan: no network calls.
 node scripts/setup-auth0-branding.mjs
 
-# Relecture distante, sortie limitée à des états vérifiés.
+# Remote inspection with output limited to verified states.
 node scripts/setup-auth0-branding.mjs --inspect
 
-# Écritures de présentation uniquement ; requiert une autorisation opérateur.
+# Presentation writes only; requires operator authorization.
 node scripts/setup-auth0-branding.mjs --apply
 
 node --test tests/security/auth0-branding.test.mjs
 ```
 
-Le script relit l’identité du tenant actif avant chaque appel. Les routes de gestion autorisées sont limitées au branding, au thème, aux douze dictionnaires de textes et à `friendly_name`. Chaque dictionnaire est relu puis fusionné avant son remplacement pour conserver les autres textes personnalisés. Une seconde application ne réécrit pas les réglages déjà conformes. Les refus et erreurs sont projetés en codes sans corps de réponse, tokens, URLs signées ou données personnelles.
+Before every call, the script rereads the active tenant identity. Allowed
+Management API routes are limited to branding, theme, twelve text dictionaries
+and `friendly_name`. Each dictionary is read and merged before replacement to
+preserve other customized text. Reapplying skips settings that already match.
+Failures expose bounded codes without response bodies, tokens, signed URLs or
+personal data.
 
-Les commandes distantes ne sont pas une transaction : une interruption peut laisser une partie du branding déjà appliquée. Relire l’état, puis relancer le même script après résolution du motif d’échec. Ne pas interpréter une absence de thème (404) comme un refus de permission (403). Un refus de permission arrête le script sans lancer de connexion interactive.
+Remote commands are not transactional: interruption may leave partial changes.
+Inspect state, resolve the failure and rerun the same script. A missing theme
+(404) differs from permission refusal (403); permission refusal stops without
+starting interactive login.
 
-## Preuve et limites
+## Evidence and limits
 
-Application distante confirmée le **17 septembre 2026 à 01:11 UTC** : nom Guteneo, branding, thème et les douze dictionnaires relus conformes. La passe de vérification idempotente a effectué **zéro écriture**. Les six tests ciblés et le contrôle ESLint ont réussi.
+Remote application was confirmed on **17 September 2026 at 01:11 UTC**: Guteneo
+name, branding, theme and all twelve dictionaries matched on reread. Idempotent
+verification performed **zero writes**. Six focused tests and ESLint passed.
 
-La preuve filtrée, lorsqu’elle existe, est conservée dans `reports/auth0-branding-proof.json`. Elle indique l’heure de relecture, l’expérience New Universal Login et les comparaisons exactes avec les constantes du script. Elle ne contient pas de réponse Auth0 brute ni de session de connexion. Les paramètres fonctionnels des prompts et la liste des langues sont comparés avant/après par l’application complète.
+When available, `reports/auth0-branding-proof.json` stores filtered inspection
+time, the New Universal Login experience and exact comparisons against script
+constants. It contains no raw Auth0 response or login session. The full apply
+compares functional prompt settings and the language list before and after.
 
-Les tests locaux couvrent la conservation des textes et paramètres fonctionnels, l’idempotence, le refus de Classic, le contrôle du tenant, l’interdiction des routes hors périmètre et la projection des erreurs du CLI. Une relecture API ne prouve pas à elle seule le rendu dans le navigateur ou la création réussie d’un compte. Ces vérifications restent distinctes. Aucun abonnement, domaine personnalisé payant ou réglage MFA personnel n’est modifié par ce script.
+Local tests cover preservation of text and functional settings, idempotence,
+Classic refusal, tenant checks, out-of-scope route refusal and CLI error
+projection. An API reread alone proves neither browser rendering nor successful
+account creation. No subscription, paid custom domain or personal MFA setting is
+changed by this script.
 
-## Documentation primaire consultée le 17 septembre 2026
+## Primary documentation consulted on 17 September 2026
 
-- [CLI Auth0 : accès à la Management API](https://auth0.github.io/auth0-cli/auth0_api.html)
-- [Personnaliser les thèmes de New Universal Login](https://auth0.com/docs/customize/login-pages/universal-login/customize-themes)
-- [Créer un thème](https://auth0.com/docs/api/management/v2/branding/post-branding-theme) et [mettre à jour un thème](https://auth0.com/docs/api/management/v2/branding/patch-branding-theme)
-- [Paramètres de branding](https://auth0.com/docs/api/management/v2/branding/patch-branding)
-- [Personnaliser les textes](https://auth0.com/docs/customize/login-pages/universal-login/customize-text-elements) et [remplacer un dictionnaire par langue](https://auth0.com/docs/api/management/v2/prompts/put-custom-text-by-language)
-- [Schéma de thème du fournisseur Terraform officiel Auth0](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/branding_theme), notamment les valeurs admises pour les bordures
+- [Auth0 CLI Management API access](https://auth0.github.io/auth0-cli/auth0_api.html)
+- [Customize New Universal Login themes](https://auth0.com/docs/customize/login-pages/universal-login/customize-themes)
+- [Create a theme](https://auth0.com/docs/api/management/v2/branding/post-branding-theme) and [update a theme](https://auth0.com/docs/api/management/v2/branding/patch-branding-theme)
+- [Branding settings](https://auth0.com/docs/api/management/v2/branding/patch-branding)
+- [Customize text](https://auth0.com/docs/customize/login-pages/universal-login/customize-text-elements) and [replace a language dictionary](https://auth0.com/docs/api/management/v2/prompts/put-custom-text-by-language)
+- [Official Auth0 Terraform theme schema](https://registry.terraform.io/providers/auth0/auth0/latest/docs/resources/branding_theme), including accepted border values

@@ -1,44 +1,50 @@
-# Spot vertical — promesses et preuves
+# Vertical spot — claims and evidence
 
-Audit en lecture seule du 22 septembre 2026 à 00:02 UTC. Référence locale et publique : `22c24d5235dd204e48effafabef417c9bafac213`. Aucune communication, modification de compte ou publication réalisée pour cet audit.
+Read-only audit **22 September 2026 at 00:02 UTC**, local/public source
+`22c24d5235dd204e48effafabef417c9bafac213`. No communication/account change/publication.
+[Capabilities](https://guteneo.com/api/capabilities)/[release](https://guteneo.com/release.json)
+then reported 0.2.2, production, scanner bound, fax/postal live true, email false,
+500 campaign rows, PDF 10 MiB/100 pages. Flags prove no individual delivery/client
+integration. Extra requested claims below are **user-stated vision** where source/
+proof did not support current availability. Vision has no release date/commitment.
+All line references are historical audit observations, not current source locations.
 
-Sources publiques relues : [capacités](https://guteneo.com/api/capabilities), [version publiée](https://guteneo.com/release.json). Les capacités annoncent `0.2.2`, le mode production, le scanner raccordé, `fax.liveSending=true`, `postal.liveSending=true`, `email.liveSending=false`, `campaignRows=500`, un PDF de 10 MiB/100 pages au maximum. Les drapeaux d'ouverture ne constituent pas une preuve de chaque livraison ni de chaque intégration cliente.
+## Historical state matrix
 
-Les éléments supplémentaires demandés pour le nouveau spot sont conservés ci-dessous comme **vision exprimée par l'utilisateur**, lorsque le code et les preuves ne permettent pas de les présenter comme disponibles. « Vision » signifie une intention de produit, sans date ni engagement de disponibilité.
+| Pitch claim | Inspected evidence | Bounded conclusion / initial editorial guidance |
+| --- | --- | --- |
+| One document/dispatch | Immutable PDF/one recipient, approval/cost binding; PRODUCT53–55, ARCHITECTURE81; actual LU fax in CHATGPT_QUALIFICATION11–17 | Available under account/channel gates. Show document/recipient/consent. |
+| One→10,000+ documents | content.ts14–20,164–168/public campaignRows500; WELCOME_CREDIT15's10,000 is a monthly safety cap, not campaign/throughput evidence; EXECUTION_PLAN98 reserved massive materialization | **Vision** for 10,000+, no actual send counter/volume guarantee. Current individual-to-campaign language is bounded. |
+| Simple campaigns | index.ts672–698 and workspace-pages61–123; individual approval, not whole campaign; no full provider campaign test | Implemented UI/domain with per-dispatch gates; never thousands in one click. |
+| Personalized campaigns | content.ts149–162 CSV only channel/contact fields; workspace-pages107–120 reused document/subject/body; no merge/template engine found then | **Vision** for varying document content; distinct recipients do not prove personalization. |
+| Marketing campaigns | domain/index665–670 MARKETING_NOT_ENABLED; EXECUTION_PLAN85,98 unsubscribe/reputation gaps | Closed; say correspondence/document campaigns, no fabricated sent advertising. |
+| Ordinary email | SES HTML/text/attachments provider221–249; live config line26/email false | Implemented, closed to actual sending; future opening without date. |
+| Encrypted email | SES Simple lacks S/MIME/OpenPGP/content encryption; historical TLS is not end-to-end; pdf.ts43–49 rejects encrypted PDFs | **Vision**; lock imagery cannot prove active encryption. |
+| Fax | Open public channel; real ChatGPT import/LU delivery; content114–121 accepts FR/LU/DE syntax; PRODUCT16–18/TELNYX_READINESS bound LU pilot to 24 September | Actual limited evidence, subject to sender/price/route; no universal coverage/delay promise; revalidate pilot before publication. |
+| Print/postal handover | POSTAL_ACTIVATION38–48 account/PDF/check/transfer/quote/approval; first real letter separate at3–6,91 | Open journey, no first-delivered-letter proof found. Printing/enveloping/handover differ from receipt. |
+| All-Europe delivery | content129–134 and POSTAL_ACTIVATION40–41 restricted FR/LU/DE | **Vision** beyond three countries; provider coverage is not Guteneo coverage. |
+| PDF upload | Exact upload/HTTPS import, public import/exactBytes/urlImport true; PRODUCT31–36,55 | Available with document gates/limits. |
+| Reusable templates | i18n documents.defaultHtml starter/render content101–103; no catalog/versioned templates/merge found then | Starter existed; library was **vision** in that inspected scope. |
+| AI generation | render_pdf converts provided HTML, mcp855–865/documents1165–1199; ARCHITECTURE95/EXECUTION_PLAN80 no internal LLM | Rendering exists; external assistant composes. Do not invent native AI engine. |
+| Proof/quote before send | ARCHITECTURE81 immutable document/recipient/options/price; postal calculator; native approval.png | Available. Industrial/color proof certification was unproved; call it document/recipient/price review. |
+| ChatGPT | Real connection/exact import/LU fax with browser approval; CHATGPT_QUALIFICATION11–17,61–69 | Private developer installation, limited actual journey, no directory/all-model qualification or never-leave-chat promise. |
+| Claude | LLM_SETUP24–25,41–46 guides; public not_tested_in_real_client; no full actual journey found | Protocol documented, client incomplete; no implicit attachment transfer promise. |
+| Copilot | COPILOT3 historical unqualified VS Code/CLI; ASSISTANT_HUB14–18,106–111 distinguishes GitHub/Microsoft365/Studio without new actual connection | Guides only; name the exact product/environment, no global Copilot qualification. |
+| Website | Actual app/direct journey; homepage/atelier/approval captures with real-vs-fixture provenance | Available; assistant or direct guteneo.com paths. |
+| iOS | Bounded Developer-root Guteneo-folder/Swift/Xcode search in three known checkouts found no native project; TEST_RESULTS135 was responsive WebKit, not signed app | **Vision/outside inspected scope**, never absolute nonexistence; no App Store badge. |
 
-## Matrice de l'état réel — audit interne
+## User-confirmed creative choice
 
-| Promesse du pitch | Preuve actuelle | Statut | Formulation d'audit initiale, non script final |
-| --- | --- | --- | --- |
-| Un document, un envoi | Un document immuable et un destinataire par envoi ; revue et coût liés. `docs/PRODUCT.md:53-55`, `docs/ARCHITECTURE.md:81`. Un fax réel LU documenté dans `docs/CHATGPT_QUALIFICATION.md:11-17`. | Disponible sous les conditions du canal et du compte. | « Votre document. Son destinataire. Votre accord. » |
-| De 1 à plus de 10 000 documents | `packages/contracts/src/content.ts:14-20,164-168` impose 500 lignes CSV. Endpoint public : `campaignRows=500`. Le nombre 10 000 de `docs/WELCOME_CREDIT.md:15` est un plafond mensuel de sécurité, pas une preuve de capacité, de débit ou de campagne. `docs/EXECUTION_PLAN.md:98` réserve la matérialisation massive à une extension. | **Vision** pour 10 000+ ; ne pas afficher un compteur d'envois réel ou une garantie de traitement à ce volume. | Présent : « Du courrier individuel aux campagnes. » Vision : « Notre ambition : de 1 à plus de 10 000 documents. » |
-| Campagnes simples | Création et liste natives (`apps/api/src/index.ts:672-698`) ; CSV de destinataires et document partagé (`apps/web/src/workspace-pages.tsx:61-123`). Approbations individuelles, non une approbation globale (`docs/ARCHITECTURE.md:81`). Aucun essai fournisseur d'une campagne complète n'est déduit de cette implémentation. | Implémenté dans l'interface et le domaine ; ouverture réelle soumise aux règles propres à chaque envoi. | « Organisez vos destinataires en campagnes. » Éviter « des milliers envoyés en un clic ». |
-| Campagnes personnalisées | Les colonnes CSV autorisées sont seulement canal et coordonnées (`packages/contracts/src/content.ts:149-162`). La boucle réutilise le même `documentId`, sujet, HTML et texte pour chaque ligne (`apps/web/src/workspace-pages.tsx:107-120`). Aucun moteur de fusion de champs ou catalogue de modèles n'a été trouvé dans ce périmètre. | **Vision** pour publipostage avec contenu variable. Les destinataires différents ne prouvent pas la personnalisation du document. | « Notre ambition : des campagnes simples ou personnalisées. » |
-| Campagnes marketing | Refus explicite `MARKETING_NOT_ENABLED` (`packages/domain/src/index.ts:665-670`). Désinscription et réputation restent des limites produit (`docs/EXECUTION_PLAN.md:85,98`). | Fermé. | Employer « correspondance » ou « campagnes de documents » ; ne pas montrer une campagne publicitaire réellement envoyée. |
-| E-mail classique | Adaptateur SES implémenté avec HTML, texte et pièces jointes (`packages/providers/ses.ts:221-249`). Source et endpoint public gardent l'e-mail fermé : `wrangler.live.jsonc:26`. | Implémenté, **non ouvert à l'envoi réel**. | Vision : « Le même parcours pour vos e-mails. » Si le présent est nécessaire : « E-mail — ouverture à venir », sans date annoncée. |
-| E-mail chiffré | L'adaptateur envoie du contenu SES `Simple`, sans S/MIME, OpenPGP ni mécanisme de chiffrement du contenu (`packages/providers/ses.ts:229-249`). La configuration historique SES impose TLS (`docs/SES_STATUS.md:19`), ce qui ne signifie pas chiffrement de bout en bout. Les PDF chiffrés sont refusés (`packages/contracts/src/pdf.ts:43-49`). | **Vision**, aucun service d'e-mail chiffré trouvé. | « Notre ambition : l'e-mail classique ou chiffré. » Ne pas montrer un cadenas comme preuve d'une fonction active. |
-| Fax | Canal public ouvert ; import exact ChatGPT et un fax LU livré documentés (`docs/CHATGPT_QUALIFICATION.md:11-17,61-69`). Syntaxe FR/LU/DE acceptée (`packages/contracts/src/content.ts:114-121`), mais cela ne qualifie pas toutes les routes. Pilotage LU borné et échéance du 24 septembre dans `docs/PRODUCT.md:16-18` et `docs/TELNYX_READINESS.md`. | Disponible sous qualification de la destination, du prix et de l'expéditeur ; preuve réelle limitée. | « Par fax. » Sans carte de couverture universelle ni délai garanti. Revalider le pilote à la publication du spot. |
-| Impression et remise postale | Parcours ouvert ; compte, PDF, précontrôle, transfert consenti, devis puis approbation (`docs/POSTAL_ACTIVATION.md:38-48`). Impression, mise sous pli et remise à la poste sont distinctes de réception. Le premier essai postal complet demeure une preuve séparée (`docs/POSTAL_ACTIVATION.md:3-6,91`). | Parcours ouvert ; pas de preuve de première lettre livrée dans les éléments consultés. | « Imprimé. Mis sous pli. Remis à la poste. » À montrer comme illustration du parcours, sans reçu de livraison fabriqué. |
-| Distribution dans toute l'Europe | Refus serveur hors `FR`, `LU`, `DE` (`packages/contracts/src/content.ts:129-134`) ; même liste dans `docs/POSTAL_ACTIVATION.md:40-41`. La couverture du fournisseur ne remplace pas celle de Guteneo. | **Vision** pour toute l'Europe. | Présent : « Courrier vers la France, le Luxembourg et l'Allemagne. » Vision : « Notre ambition : relier toute l'Europe. » |
-| Dépôt d'un PDF | Upload, import HTTPS et conservation exacte ; endpoint public `documents.import=true`, `exactBytes=true`, `urlImport=true`. `docs/PRODUCT.md:31-36,55`. | Disponible, avec contrôles et limites du document. | « Déposez votre PDF. » |
-| Modèles de documents | Texte HTML de départ dans l'éditeur (`apps/web/src/i18n.ts`, `documents.defaultHtml`), rendu PDF standard (`packages/contracts/src/content.ts:101-103`). Aucun catalogue de templates, stockage/versionnement de modèles ni fusion de champs détecté. | Exemple de départ existant ; **vision** pour bibliothèque de modèles réutilisables. | Vision : « Un PDF, un modèle, une idée. » Pour le présent seul : « Votre PDF ou un nouveau document. » |
-| Génération IA | Outil `render_pdf` : transforme explicitement du HTML fourni en un nouveau PDF (`apps/api/src/mcp.ts:855-865`, `apps/api/src/documents.ts:1165-1199`). Pas d'appel LLM interne (`docs/ARCHITECTURE.md:95`, `docs/EXECUTION_PLAN.md:80`). L'IA est l'assistant externe qui compose. | Rendu PDF disponible ; ne pas présenter un moteur IA natif Guteneo inexistant. | « Composez avec votre assistant. Guteneo crée le PDF. » |
-| BAT et devis avant envoi | PDF final, destinataire, options, devis/plafond liés à l'approbation (`docs/ARCHITECTURE.md:81`). Postal : calculateur sur le brouillon exact (`docs/POSTAL_ACTIVATION.md:38-48`). Vue native « Le bon à envoyer » capturée dans `public/frontend/approval.png`. | Disponible. « BAT » peut suggérer une certification d'épreuve couleur/industrielle non établie. | « Le document. Le destinataire. Le prix. Vous vérifiez, vous confirmez. » Ou « Votre bon à envoyer et votre devis. » |
-| ChatGPT | Connexion et import exact réels documentés, un fax LU avec approbation navigateur (`docs/CHATGPT_QUALIFICATION.md:11-17,61-69`). Installation MCP privée ; ni publication annuaire ni tous modèles/sessions qualifiés. | Preuves réelles limitées au parcours observé. | « Préparez depuis ChatGPT. » Conserver la revue dans Guteneo ; éviter « sans jamais quitter ChatGPT ». |
-| Claude | Guide MCP/OAuth et fichiers de configuration (`docs/LLM_SETUP.md:24-25,41-46`). Aucun parcours réel complet Claude trouvé ; l'endpoint public indique `not_tested_in_real_client`. Transfert implicite de pièce jointe Claude non promis. | Compatibilité protocolaire documentée, qualification cliente incomplète. | « Connectez votre assistant par MCP. » Logos sous une mention « Guides de connexion » plutôt qu'une preuve d'envoi Claude. |
-| Copilot | `docs/COPILOT.md:3` limite la preuve historique à des configurations VS Code/CLI non qualifiées. Les nouveaux guides distinguent GitHub Copilot, Microsoft 365 et Copilot Studio (`docs/ASSISTANT_HUB.md:14-18,106-111`) sans nouvelle connexion réelle (`docs/ASSISTANT_HUB.md:3-6`). | Guides disponibles ; **pas de qualification globale de “Copilot”**. | Nommer le produit : « GitHub Copilot » ou « Microsoft 365 Copilot », avec « connexion selon votre environnement ». |
-| Site web | Application publique actuelle et parcours direct ; captures `public/frontend/homepage.png`, `atelier.png`, `approval.png`, provenance distincte site réel/fixture. | Disponible. | « Depuis votre assistant. Ou directement sur guteneo.com. » |
-| Application iOS | Aucun `guteneo-ios` à la racine ciblée `/Users/nclsppr/Developer`. Aucun Swift/Xcode trouvé dans les checkouts Guteneo principal/publication/marketplace inspectés. Les preuves iPhone du dépôt sont des tests WebKit/web responsive (`docs/TEST_RESULTS.md:135`), pas une app native signée ou publiée. | **Vision ou réalisation extérieure au périmètre inspecté, non attestée.** Ne pas conclure à une absence absolue hors des dossiers examinés. | Présent : « Sur ordinateur et mobile. » Vision : « Notre ambition : aussi sur iOS. » Aucun badge App Store. |
+After this audit the user explicitly chose the hypothetical finished-product
+promise, omitting staging/coming-soon/objective/project labels inside advertising.
+Actual state stays in this dated audit; the film certifies no current availability
+and this work published nothing externally. Requested ending stays official Guteneo
+stamp then guteneo.com, without marketplace/App Store badges.
 
-## Choix éditorial confirmé pour le spot
+## Audit boundary
 
-L'utilisateur a expressément choisi « Vision complète, on se projette comme si le produit était terminé […] On parle de la promesse finale ! » : le film adopte donc ce cadre créatif hypothétique, sans mentions « mise en scène », « bientôt », « objectif » ou « en projet » à l'intérieur de la publicité ; l'état réel demeure consigné dans cet audit et ses sources, le spot n'atteste aucune disponibilité actuelle et aucune publication externe n'est effectuée dans ce travail.
-
-La fin demandée reste sans surcharge : **le timbre Guteneo, puis `guteneo.com` en dessous**. Ne pas ajouter de badge de marketplace ou App Store.
-
-## Périmètre de l'audit
-
-- Sources locales : contrat produit, architecture, plan, implémentations campagne/PDF/SES, guides assistants, postal et preuves de qualification.
-- Sources publiques : deux lectures HTTP anonymes GET des capacités et de la version ; aucun compte ni document privé consulté.
-- Recherche iOS bornée : noms de dossiers Guteneo à la racine Developer et extensions Swift/Xcode dans trois checkouts Guteneo connus. Aucune inspection personnelle hors de ce périmètre.
-- Aucun test d'envoi ni activation. Aucun test de charge à 10 000. Les assertions d'absence sont bornées aux fichiers inspectés.
+Local product/architecture/execution/campaign/PDF/SES/assistant/postal qualification
+sources; only two anonymous public GETs, no private account/document. iOS search
+was bounded to Guteneo folder names under Developer and Swift/Xcode in three known
+checkouts, without unrelated personal inspection. No actual send/activation/10,000-load
+test. Absence claims apply only to inspected files.

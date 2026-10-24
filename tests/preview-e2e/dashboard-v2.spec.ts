@@ -36,7 +36,7 @@ test("the account appearance control sits beside language and persists for this 
     const url = new URL(page.url());
     expect(url.hash).toBe(originalHash);
     expect(url.searchParams.get("lang")).toBe("fr");
-    expect(url.searchParams.get("atelier")).toBe(appearance);
+    expect(url.searchParams.get("appearance")).toBe(appearance);
   }
 
   await page.goto("/#/app/documents");
@@ -50,7 +50,7 @@ test("the account appearance control sits beside language and persists for this 
     "v2",
   );
   // An explicit link overrides this browser's remembered choice.
-  await page.goto("/?atelier=classic#/app");
+  await page.goto("/?appearance=classic#/app");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
     "classic",
@@ -67,7 +67,7 @@ test("the appearance control follows all four workspace languages", async ({
   page,
 }) => {
   const requests = observeBusinessRequests(page);
-  await page.goto("/?atelier=v2#/app/account");
+  await page.goto("/?appearance=v2#/app/account");
   for (const [locale, label] of [
     ["fr", "Version de l’atelier"],
     ["en", "Workspace version"],
@@ -91,7 +91,7 @@ test("V2 prioritizes existing correspondence and puts readable content before co
   page,
 }) => {
   const requests = observeBusinessRequests(page);
-  await page.goto("/?atelier=v2#/app");
+  await page.goto("/?appearance=v2#/app");
   const history = page.locator("#main-content table").first();
   await expect(history.locator("tbody tr")).toHaveCount(5);
   await expect(page.locator(".dashboard-daily-shortcuts")).toBeVisible();
@@ -107,13 +107,13 @@ test("V2 prioritizes existing correspondence and puts readable content before co
     }),
   ).toBe(true);
 
-  await page.goto("/?atelier=v2#/app/dispatch/preview_atelier_dispatch_1");
+  await page.goto("/?appearance=v2#/app/dispatch/preview_atelier_dispatch_1");
   const preview = page.locator(".content-preview");
   await expect(preview.locator("canvas")).toBeVisible();
   await expect(
     page
       .frameLocator(".email-preview")
-      .getByText("Bonjour Camille,", { exact: true }),
+      .getByText("Hello Camille,", { exact: true }),
   ).toBeVisible();
   const consent = page.locator(".approval-panel input[type=checkbox]").first();
   await expect(consent).not.toBeChecked();
@@ -160,7 +160,7 @@ test("V2 keeps operational pages usable at a 320-pixel viewport without a backen
     "/admin",
     "/dispatch/preview_atelier_dispatch_1",
   ]) {
-    await page.goto(`/?atelier=v2#/app${route}`);
+    await page.goto(`/?appearance=v2#/app${route}`);
     await expect(page.locator("#main-content h1")).toBeVisible();
     await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
     if (route === "/account")

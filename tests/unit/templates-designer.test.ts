@@ -115,7 +115,7 @@ describe("Native Designer and business envelope reconciliation", () => {
     changed.name = "nouveau";
     changed.content = "Un contenu nouveau";
     expect(() => reconcileDesignerChange(previous, ambiguous)).toThrow(
-      "liaison métier",
+      "business binding",
     );
   });
 

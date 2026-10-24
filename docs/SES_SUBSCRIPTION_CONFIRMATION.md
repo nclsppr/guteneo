@@ -57,7 +57,7 @@ try:
     config = Config(retries={"max_attempts": 0}, connect_timeout=10, read_timeout=20)
     if session.client("sts", config=config).get_caller_identity().get("Account") != "982055099242":
         raise RuntimeError("Unexpected AWS account")
-    token = getpass.getpass("Jeton SNS Guteneo (saisie masquée) : ")
+    token = getpass.getpass("Guteneo SNS token (hidden input): ")
     if not re.fullmatch(r"[A-Za-z0-9+/=_-]{16,4096}", token):
         raise RuntimeError("Invalid token")
     client = session.client("sns", config=config)
@@ -67,7 +67,7 @@ try:
         raise RuntimeError("Unexpected result")
     print(arn)
 except BaseException:
-    print("Confirmation indisponible. Vérifiez la souscription AWS avant toute nouvelle tentative.", file=sys.stderr)
+    print("Confirmation unavailable. Check the AWS subscription before another attempt.", file=sys.stderr)
     sys.exit(1)
 finally:
     token = None

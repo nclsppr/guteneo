@@ -1,149 +1,138 @@
-# Direction native — Guteneo
+# Native design direction — Guteneo
 
-Le frontend web définit l'identité ; les conventions iOS définissent
-l'interaction. L'application utilise SwiftUI, les contrôles Apple, un lecteur
-PDF natif et le sélecteur de Fichiers. Le tableau de bord HTML n'est pas
-encapsulé dans une WebView.
+The web frontend defines the identity; iOS conventions define interaction.
+The application uses SwiftUI, Apple controls, a native PDF reader and the
+Files picker. It does not wrap the HTML dashboard in a WebView.
 
-## Identité et hiérarchie
+## Identity and hierarchy
 
-Conserver le mot-symbole **guteneo** avec son `g` minuscule. Une seule signature
-associe le portrait tramé transparent au mot-symbole. Elle apparaît à l'accueil,
-dans l'Atelier et dans À propos, au maximum une fois par écran. Ne pas ajouter
-un deuxième symbole, un cartouche opaque ou un autre logo dans une feuille.
-Le chargement et le masque de confidentialité n'affichent aucun logo ; la
-signature de l'accueil disparaît pendant la connexion système. Le portrait
-mesure 64 points et suit Dynamic Type jusqu'à 88 points.
+Preserve the **guteneo** wordmark with its lowercase `g`. One signature
+combines the transparent halftone portrait and wordmark. It appears on the
+welcome screen, workspace and About, at most once per screen. Do not add a
+second symbol, opaque panel or another logo inside a sheet. Loading and
+privacy overlays contain no logo; the welcome signature disappears during
+system authentication. The portrait measures 64 points and follows Dynamic
+Type up to 88 points.
 
-L'icône de lancement système est une ressource distincte : le document natif
-`AppIcon.icon` place une seule fois le portrait tramé sur un papier ivoire couvrant
-le canevas. Xcode produit le bitmap App Store opaque et les variantes système.
-Cette contrainte ne s'applique pas au portrait transparent de l'interface.
-La fabrication et les rendus sont documentés dans [Art/IconComposer](Art/IconComposer/README.md).
+The system launch icon is a separate resource: the native `AppIcon.icon`
+document places the halftone portrait once on ivory paper covering the
+canvas. Xcode produces the opaque App Store bitmap and system variants.
+This requirement does not apply to the transparent interface portrait.
+Preparation and renders are documented in [Art/IconComposer](Art/IconComposer/README.md).
 
-Le catalogue d'assets porte les couleurs adaptatives :
+The asset catalog carries adaptive colors:
 
-| Rôle | Clair | Sombre |
+| Role | Light | Dark |
 | --- | --- | --- |
-| Papier | `#F6F5EF` | `#17191E` |
-| Encre | `#181B22` | `#F6F5EF` |
-| Accent cobalt | `#2450DB` | `#90ABFF` |
+| Paper | `#F6F5EF` | `#17191E` |
+| Ink | `#181B22` | `#F6F5EF` |
+| Cobalt accent | `#2450DB` | `#90ABFF` |
 
-Les surfaces utilisent `Surface` et les couleurs sémantiques du système. Les
-titres éditoriaux emploient la variante serif des polices système ; formulaires,
-listes, montants et actions utilisent les styles typographiques iOS. Les tailles
-restent liées à Dynamic Type. Ne pas transformer les formulaires en affiches ou
-ajouter un effet de verre décoratif aux documents.
+Surfaces use `Surface` and system semantic colors. Editorial headings use
+the serif system-font variant; forms, lists, amounts and actions use iOS
+text styles. Sizes remain tied to Dynamic Type. Do not turn forms into
+posters or add decorative glass effects to documents.
 
-## L'atelier d'imprimeur
+## The print workshop
 
-L'accueil et l'Atelier évoquent une table de travail d'imprimeur : papier chaud,
-titres serif, filets discrets, documents et envois présentés dans un ordre utile.
-Les listes et les formulaires gardent leur fonctionnement natif. La personnalité
-vient du contenu éditorial et de l'illustration, sans multiplier les cadres,
-les emblèmes ou les effets décoratifs.
+The welcome screen and workspace evoke a printer's workbench: warm paper,
+serif headings, subtle rules, and documents and dispatches in a useful order.
+Lists and forms retain native behavior. Personality comes from editorial
+content and illustration, without multiplying frames, emblems or decoration.
 
-`PrintWorkshop` est une illustration originale de presse manuelle, avec une
-feuille vierge et des outils d'imprimerie. Elle ne contient ni texte, ni logo,
-ni document utilisateur. Son fond transparent appartient à la couche de contenu,
-pas à la navigation. Elle reste réservée à l'accueil et à l'Atelier ; les détails
-vides de Documents et Envois utilisent un SF Symbol et un conseil concret.
-L'illustration ne remplace aucune information et reste masquée à VoiceOver, sans
-intercepter les gestes.
+`PrintWorkshop` is an original manual-press illustration with a blank sheet
+and printing tools. It contains no text, logo or user document. Its transparent
+background belongs to the content layer, not navigation. Reserve it for the
+welcome screen and workspace; empty Documents and Dispatches detail views
+use an SF Symbol and practical guidance. The illustration replaces no
+information, is hidden from VoiceOver and intercepts no gestures.
 
-Son bleu électrique reprend le portrait réel : `#0033F9` est une couleur présente
-dans ses pixels, avec des nuances possibles pour les hachures et la gravure.
-Cette référence ne change ni les pixels du logo, ni les accents adaptatifs des
-contrôles. Conserver les surfaces ivoire et la transparence de l'illustration,
-sans rendu template, halo ou cartouche. La provenance et les contrôles du fichier
-sont consignés dans [Art/README.md](Art/README.md).
+Its electric blue matches the actual portrait: `#0033F9` appears in its
+pixels, with allowed shades for hatching and engraving. This reference changes
+neither logo pixels nor adaptive control accents. Preserve ivory surfaces and
+illustration transparency, without template rendering, halo or panel.
+File provenance and checks are recorded in [Art/README.md](Art/README.md).
 
-L'accueil et l'Atelier utilisent deux colonnes lorsque la largeur disponible
-atteint 800 points, que la classe horizontale est `regular` et que Dynamic Type
-n'utilise pas une taille d'accessibilité. Le critère est la fenêtre actuelle,
-pas le modèle d'appareil ni sa seule orientation. L'Atelier juxtapose alors les
-derniers envois et les documents récents. En fenêtre étroite ou en taille
-d'accessibilité, le contenu reprend un ordre vertical défilant. L'illustration
-de l'Atelier s'efface dans cette disposition ; l'accueil peut la conserver en
-petit format hors tailles d'accessibilité.
+The welcome screen and workspace use two columns when available width reaches
+800 points, horizontal size class is `regular` and Dynamic Type is not using
+an accessibility size. The condition is the current window, not device model
+or orientation alone. The workspace then places recent dispatches beside
+recent documents. Narrow windows or accessibility sizes return content to a
+scrolling vertical order. The workspace illustration disappears in that
+layout; the welcome screen may keep a smaller version outside accessibility
+sizes.
 
-## Navigation et actions
+## Navigation and actions
 
-Quatre onglets stables : **Atelier**, **Documents**, **Envois**, **Compte**.
-Atelier et Compte utilisent une pile de navigation native. Documents et Envois
-emploient `NavigationSplitView` : liste et détail côte à côte lorsque la fenêtre
-le permet, navigation compacte et retour natif sous le contrôle du système
-lorsqu'elle se rétrécit. La colonne de liste propose 340 points, dans une plage
-de 280 à 420 points ; elle ne force pas une largeur de fenêtre. Une sélection
-explicite ouvre le détail, sans présélection arbitraire.
+Four stable tabs: **Workspace**, **Documents**, **Dispatches**, **Account**.
+Workspace and Account use a native navigation stack. Documents and Dispatches
+use `NavigationSplitView`: list and detail side by side when the window permits,
+with compact navigation and native back behavior managed by the system as it
+narrows. The list column suggests 340 points within a 280–420-point range;
+it imposes no window width. Explicit selection opens the detail, without
+arbitrary preselection.
 
-La sélection repose sur l'identifiant du document ou de l'envoi. Le `.id` de la
-pile de détail renouvelle ses états de chargement et de présentation lorsque
-cet identifiant change : une ancienne feuille ou un ancien contenu ne doit pas
-se retrouver associé au nouvel élément. Un élément absent d'une page actualisée
-ou d'un filtre n'est pas réputé supprimé. La consultation du détail charge ses
-métadonnées ; le PDF n'est téléchargé qu'après l'action explicite « Lire le PDF
-original ».
+Selection uses the document or dispatch identifier. The detail stack's `.id`
+renews loading and presentation state when that identifier changes: an old
+sheet or content must not become associated with a new item. An item absent
+from a refreshed page or filter is not assumed deleted. Opening a detail loads
+its metadata; downloading the PDF requires the explicit “Read original PDF”
+action.
 
-La préparation d'un envoi s'ouvre dans une feuille ; les champs, erreurs et
-actions restent visibles avec le clavier et lorsque le texte est agrandi.
+Dispatch preparation opens in a sheet; fields, errors and actions remain
+visible with the keyboard and enlarged text.
 
-Les onglets, barres d'outils et feuilles utilisent les matériaux natifs fournis
-par SwiftUI : Liquid Glass sur les systèmes récents, rendu système compatible
-sur iOS 17. Ne pas dessiner un faux verre ou imposer un fond personnalisé aux
-barres. Les documents, listes et formulaires appartiennent à la couche de
-contenu ; ils conservent leur fond lisible. Les raffinements iOS 27 et les
-préférences de transparence sont laissés au système.
+Tabs, toolbars and sheets use SwiftUI's native materials: Liquid Glass on
+recent systems and compatible system rendering on iOS 17. Do not draw fake
+glass or impose custom bar backgrounds. Documents, lists and forms belong to
+the content layer and retain readable backgrounds. iOS 27 refinements and
+transparency preferences are left to the system.
 
-L'action principale prépare une opération. La validation humaine ouvre le
-navigateur système et demeure distincte de cette préparation. Le libellé doit
-expliquer le prochain geste sans laisser croire qu'un envoi a déjà eu lieu.
-Un changement de canal ne doit jamais être implicite.
+The primary action prepares an operation. Human validation opens the system
+browser and remains separate from preparation. Its label explains the next
+step without implying a dispatch has already happened. Channel changes must
+never be implicit.
 
-## Documents et états
+## Documents and states
 
-Afficher le nom du document, ses pages, son état de vérification et son contenu
-réel avant une opération. Un PDF indisponible, encore en analyse ou refusé doit
-proposer une explication exploitable. Ne pas assimiler la quarantaine à une
-infection confirmée et ne pas masquer un échec derrière un indicateur infini.
+Show the document name, page count, verification state and actual content
+before an operation. Unavailable, still-processing or rejected PDFs need an
+actionable explanation. Do not equate quarantine with confirmed infection
+or hide failure behind an endless spinner.
 
-Les listes distinguent l'attente, le traitement et les résultats confirmés.
-Associer une icône et un texte à chaque état : la couleur seule ne suffit pas.
-Les échecs et résultats inconnus utilisent l'encre adaptative, pour conserver
-le contraste du petit texte ; leur symbole et leur libellé portent le sens.
-Un état fournisseur inconnu ne doit pas être présenté comme un échec certain
-ni encourager un renvoi susceptible de créer un doublon.
+Lists distinguish waiting, processing and confirmed outcomes. Pair an icon
+and text with every state; color alone is insufficient. Failures and unknown
+outcomes use adaptive ink to preserve small-text contrast; symbols and labels
+carry their meaning. An unknown provider outcome must neither appear as a
+certain failure nor encourage resending that could create a duplicate.
 
-## Accessibilité et adaptation
+## Accessibility and adaptation
 
-Utiliser les boutons, liens, listes, onglets, formulaires et feuilles standards.
-Conserver des cibles tactiles confortables et des noms VoiceOver explicites.
-Les illustrations décoratives sont cachées aux technologies d'assistance ; les
-informations des lignes se lisent dans un ordre logique.
+Use standard buttons, links, lists, tabs, forms and sheets. Preserve comfortable
+touch targets and explicit VoiceOver names. Decorative illustrations are hidden
+from assistive technology; row information follows a logical reading order.
 
-Vérifier les noms de fichiers et adresses longs, les tailles d'accessibilité, le
-mode sombre, l'iPhone compact, l'iPad en paysage et le retour du navigateur.
-Limiter les animations ; toute animation ajoutée doit respecter Réduire les
-animations. Les transitions sont celles de la navigation et des présentations
-système. Le retour tactile de succès accompagne uniquement un dépôt PDF réussi,
-après réception de son identifiant ; il ne simule ni progression, ni vérification
-du document, ni envoi. Aucun rebond systématique ou son supplémentaire n'est
-ajouté. Les effets système plus récents doivent conserver un rendu de repli sur
-iOS 17. Ne pas revendiquer une validation VoiceOver ou appareil avant un essai
-effectif.
+Check long filenames and addresses, accessibility sizes, dark mode, compact
+iPhone, landscape iPad and return from the browser. Limit animation; every
+added animation respects Reduce Motion. Transitions come from system navigation
+and presentations. Success haptics accompany only a successful PDF upload,
+after its identifier arrives; they simulate neither progress, document
+verification nor dispatch. Add no systematic bounce or extra sound. Newer
+system effects retain an iOS 17 fallback. Do not claim VoiceOver or device
+validation before an actual test.
 
-Pendant l'inactivité, le masque de confidentialité cache aussi le contenu à
-l'accessibilité et désactive ses interactions. Son cadenas et son texte ne
-constituent pas une signature supplémentaire. La signature de l'accueil garde
-sa place mais devient invisible et inaccessible pendant la connexion système.
+While inactive, the privacy overlay also hides content from accessibility
+and disables its interactions. Its lock and text are not another brand
+signature. The welcome signature retains its layout position but becomes
+invisible and inaccessible during system authentication.
 
-## Crédits et preuves
+## Credits and evidence
 
-Le coût d'une opération et le solde existant peuvent informer une décision.
-Aucun écran ne propose d'ajouter des crédits ou de chercher où acheter. Un
-solde insuffisant doit expliquer le blocage sans invitation commerciale.
+An operation's cost and existing balance may inform a decision. No screen
+offers to add credits or find a purchase destination. Insufficient balance
+explains the block without a commercial invitation.
 
-Les aperçus Debug restent explicitement fictifs et sans envoi réel. Leur
-interface n'est pas une preuve de disponibilité serveur. Les captures de
-publication doivent provenir du binaire final, présenter des données fictives
-et décrire uniquement les fonctions réellement livrées.
+Debug previews remain explicitly fictional and perform no real dispatch.
+Their interface is not evidence of server availability. Publication captures
+must come from the final binary, show fictional data and describe only
+features actually delivered.

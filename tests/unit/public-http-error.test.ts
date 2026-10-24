@@ -51,7 +51,7 @@ describe("bounded public HTTP error documents", () => {
         expect(html).toContain(`<html lang="${locale}">`);
         expect(html).toContain(`HTTP ${status}`);
         expect(html).toContain("guteneo.com</a>");
-        for (const path of ["/", "/assistants/", "/developpeurs/", "/support/"])
+        for (const path of ["/", "/assistants/", "/developers/", "/support/"])
           expect(html).toContain(`href="${origin}${path}?lang=${locale}"`);
         expect(html).toContain('href="https://status.guteneo.com"');
         expect(html).toMatch(/PDF/);

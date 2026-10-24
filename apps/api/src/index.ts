@@ -157,7 +157,7 @@ export function getCapabilities(env: Env) {
       {
         id: "email",
         liveSending: liveSendingEnabled(env, "email"),
-        name: "E-mail",
+        name: "Email",
         deliveryModes: ["none", "attachment", "protected_link"],
         maxAttachmentBytes: 10_000_000,
         protectedDocument: {
@@ -187,8 +187,8 @@ export function getCapabilities(env: Env) {
       {
         id: "postal",
         liveSending: liveSendingEnabled(env, "postal"),
-        name: "Courrier postal",
-        provider: "Service courrier Guteneo",
+        name: "Postal letter",
+        provider: "Guteneo postal service",
         status: env.PINGEN_CLIENT_ID
           ? "configured_not_live_validated"
           : "not_configured",
@@ -349,7 +349,7 @@ app.use("*", async (c, next) => {
       {
         error: {
           code: "CONFIGURATION_INVALID",
-          message: "Configuration du service invalide.",
+          message: "Invalid service configuration.",
         },
       },
       503,
@@ -365,7 +365,7 @@ const ordinaryBodyLimit = bodyLimit({
       {
         error: {
           code: "REQUEST_TOO_LARGE",
-          message: "Requête trop volumineuse.",
+          message: "Request too large.",
         },
       },
       413,
@@ -600,7 +600,7 @@ app.use("/api/*", async (c, next) => {
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       429,
@@ -628,7 +628,7 @@ const idempotency = (value: string | undefined) => {
   if (!value)
     throw new ContentError(
       "IDEMPOTENCY_REQUIRED",
-      "En-tête Idempotency-Key requis.",
+      "Idempotency-Key header required.",
     );
   return value;
 };
@@ -713,7 +713,7 @@ app.post("/api/postal/preflights/:id/quote", async (c) => {
   if (body && body !== "{}")
     throw new ContentError(
       "POSTAL_QUOTE_INPUT_INVALID",
-      "Le devis reprend le document et le destinataire déjà vérifiés.",
+      "The quote uses the document and recipient already verified.",
     );
   return c.json(
     await new PostalService(c.env, domain(c.env)).quote(
@@ -749,9 +749,9 @@ app.post("/api/documents", async (c) => {
   const data = await c.req.raw.formData();
   const file = data.get("file");
   if (!file || typeof file === "string")
-    throw new ContentError("FILE_REQUIRED", "Choisissez un PDF.");
+    throw new ContentError("FILE_REQUIRED", "Choose a PDF.");
   if (file.size > LIMITS.pdfBytes)
-    throw new ContentError("FILE_TOO_LARGE", "PDF trop volumineux.", 413);
+    throw new ContentError("FILE_TOO_LARGE", "PDF is too large.", 413);
   return c.json(
     await new DocumentService(c.env, domain(c.env)).upload(c.get("actor"), {
       name: file.name,
@@ -946,7 +946,7 @@ app.get("/api/overview", async (c) => {
   if (c.get("actor").actor !== "browser")
     throw new ContentError(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour consulter cette synthèse.",
+      "Open Guteneo in your browser to view this summary.",
       403,
     );
   return c.json(await domain(c.env).dispatchOverview(c.get("actor")));
@@ -962,7 +962,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   if (actor.role !== "admin" || actor.actor !== "browser")
     throw new ContentError(
       "ADMIN_REQUIRED",
-      "Administrateur authentifié requis.",
+      "Authenticated administrator required.",
       403,
     );
   const channel = z
@@ -991,7 +991,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   return c.json({ channel, enabled });
 });
 app.all("/api/*", (c) =>
-  c.json({ error: { code: "NOT_FOUND", message: "Route introuvable." } }, 404),
+  c.json({ error: { code: "NOT_FOUND", message: "Route not found." } }, 404),
 );
 app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((error, c) => {
@@ -1039,7 +1039,7 @@ app.onError((error, c) => {
       {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Données invalides.",
+          message: "Invalid data.",
           fields: error.issues.map((i) => ({
             path: i.path.join("."),
             message: i.message,
@@ -1053,7 +1053,7 @@ app.onError((error, c) => {
       error: {
         code: "INTERNAL_ERROR",
         message:
-          "L’opération a échoué. Conservez l’identifiant de corrélation.",
+          "The operation failed. Keep the correlation identifier.",
       },
     },
     500,
@@ -1090,8 +1090,8 @@ const simulation: ProviderHook = {
             simulation: true,
             description:
               dispatch.channel === "postal"
-                ? "Remise à la poste simulée, aucune lettre expédiée."
-                : "Résultat de simulation déterministe, aucun envoi réel.",
+                ? "Simulated postal handover; no letter was sent."
+                : "Deterministic simulation result; no real communication.",
           },
         },
       ],

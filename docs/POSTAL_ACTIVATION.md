@@ -1,106 +1,80 @@
-# Ouverture du courrier à tous les comptes
+# Opening postal mail to all accounts
 
-Contrat de la livraison du 20 septembre 2026. L’utilisateur a demandé l’ouverture
-sur `guteneo.com` pour **tous les comptes**, confirmé que Pingen a été alimenté
-et réservé le premier essai d’expédition de bout en bout à son intervention.
-La mise à disposition du parcours n’est donc pas une preuve de livraison postale.
+20 September 2026 delivery contract. The user requested availability on
+`guteneo.com` for **all accounts**, confirmed Pingen funding and reserved the first
+real end-to-end letter test for themselves. Availability does not prove delivery.
 
-## Parcours des comptes existants et futurs
+## Existing and future accounts
 
-Dans **Expéditeurs**, un administrateur connecté déclare le nom et l’adresse de
-l’expéditeur de son organisation, puis confirme son autorisation de les utiliser.
-Le formulaire fonctionne pour les organisations déjà inscrites comme pour les
-nouvelles. Un membre ou un lecteur doit passer par un administrateur.
+In Senders, a browser administrator declares organization sender name/address
+and explicit authority to use them. Existing/new organizations share this form;
+other members ask an administrator. `GET /api/postal/setup` reads;
+`POST /api/postal/setup` needs current browser administrator, Origin, CSRF and
+explicit declaration. Assistant tokens cannot use that browser action or create/
+extend mandates; coordinates are not added to PDFs. A later separately documented
+[OAuth sender setup](MCP_POSTAL_JOURNEY.md) has its own authority contract.
 
-`GET /api/postal/setup` est une lecture. `POST /api/postal/setup` exige une session
-navigateur valide, l’origine et le CSRF, un administrateur actuel et une déclaration
-explicite. Un jeton assistant ne donne pas accès à cette opération. Aucun mandat
-expert n’est créé ou étendu. Les coordonnées ne sont pas ajoutées au PDF.
+Server read-only OAuth checks configured Pingen account, EUR, expected country/window,
+then atomically records sender/declaration/eight print-delivery policies and opens
+organization channel. Existing credits/quotas do not increase. Client input supplies
+no organization/provider account/price; transaction rechecks session/rights.
+`senders.status='verified'` means administrator-declared authority, not physical or
+Pingen verification. Evidence retains `physical_address_verified=0`; UI says
+Declared by administrator. Other channels retain their checks.
 
-Le serveur vérifie le profil du compte Pingen par OAuth en lecture seule : compte
-configuré, devise EUR, pays attendu et fenêtre d’adresse. Il enregistre atomiquement
-l’expéditeur, sa déclaration, les huit politiques d’impression/distribution et
-l’ouverture du canal de l’organisation. Les crédits et quotas existants ne sont
-pas augmentés. L’organisation, le compte fournisseur et les prix ne viennent
-jamais du formulaire. La transaction recontrôle les droits et la session.
+Identical repetition reuses sender. Revoked sender/policy and explicit channel
+shutdown are never reactivated. Policies expire after 90 days; explicit renewal
+preserves declaration and extends no approved quote. Then: exact PDF import → scan
+→ postal check → review/transfer consent → `auto_send:false` draft → quote → send
+approval/confirmation. Supported destinations remain FR/LU/DE under account profile;
+physical returns are not promised.
 
-Le statut interne `senders.status='verified'` indique ici l’autorisation déclarée
-par l’administrateur authentifié. La preuve dédiée conserve
-`physical_address_verified=0` et l’interface affiche **Déclaré par l’administrateur**.
-Il ne s’agit ni d’une vérification physique de l’adresse ni d’une vérification par
-Pingen. Les autres canaux gardent leurs vérifications propres.
+## Price and provider proof
 
-Une répétition identique ne crée pas un nouvel expéditeur. Un expéditeur révoqué,
-un arrêt explicite du canal ou une politique révoquée ne sont pas réactivés par
-ce formulaire. Les politiques expirent après 90 jours ; leur renouvellement
-explicite conserve la déclaration et ne prolonge aucun devis déjà approuvé.
+The calculator prices the exact analyzed draft/paper/country/print mode/spectrum/
+speed. Customer price is twice returned EUR, integer cents, with eight separate
+combination policies. No fixture price or fixed historical LU test amount is installed.
 
-Après activation : import du PDF exact, analyse antivirus, contrôle postal,
-revue et consentement au transfert, brouillon Pingen `auto_send:false`, devis,
-approbation et confirmation d’envoi. Les destinations actuellement supportées
-restent France, Luxembourg et Allemagne, avec les règles du profil Pingen lu.
-Les retours physiques ne sont pas promis.
+Basis `public_list_price_ex_tax`, method `pingen_price_calculator`, no FX. Pingen
+states delivery prices exclude VAT, handled at credit purchase. Sources reread
+20 September: [balance/VAT](https://help.pingen.com/en/credits-and-billing/introduction-balance-and-credits),
+[VAT statements](https://help.pingen.com/en/credits-and-billing/vat-statements),
+[calculator](https://api.pingen.com/documentation/swagger-docs).
+Ex-tax pricing establishes no Guteneo tax treatment/final invoice. Paid top-up stays off.
 
-## Prix postal et preuve fournisseur
+`0030_postal_public_pricing.sql` extends SQL ex-tax checks to EUR postal while
+preserving SES/history; `0031_postal_sender_declarations.sql` retains tenant-bound
+declarations. Approved fingerprint includes ex-tax basis. Connector reconstructs
+from validated quote, then rereads price/evidence before final PATCH. Changes,
+expiry or revocation block sending.
 
-Le tarif postal utilise le calculateur Pingen pour le brouillon exact : papier
-analysé, pays, recto/verso, couleur et vitesse. Le prix client est le double du
-montant EUR retourné ; les montants restent entiers en centimes pour ce canal.
-Les huit combinaisons proposées ont une politique distincte. Aucun prix fictif
-ou montant fixe de l’ancien essai LU n’est installé.
+## Publication and evidence
 
-La base publique est `public_list_price_ex_tax`, avec la méthode explicite
-`pingen_price_calculator`, sans conversion de devises. Pingen indique que les
-prix d’expédition excluent la TVA et que celle-ci est traitée lors de l’achat des
-crédits. Sources relues le 20 septembre :
-[crédits et TVA](https://help.pingen.com/en/credits-and-billing/introduction-balance-and-credits),
-[justificatifs TVA](https://help.pingen.com/en/credits-and-billing/vat-statements),
-[contrat du calculateur](https://api.pingen.com/documentation/swagger-docs).
-Ce prix HT n’est pas une affirmation sur la fiscalité ou la facture finale de
-Guteneo. La recharge payante reste désactivée.
+Source configuration opens fax/postal, leaves email closed. Release guard checks
+channel list/manifest; publish verified merged `main` after migrations/schema
+checks, correlating commit, release manifest, public assets, capabilities and
+Cloudflare traffic.
 
-La migration `0030_postal_public_pricing.sql` étend les contrôles SQL de la base
-HT au contrat postal EUR et préserve les devis historiques et SES. La migration
-`0031_postal_sender_declarations.sql` conserve la déclaration liée à l’organisation.
-L’empreinte approuvée inclut la base HT. Le connecteur reconstruit cette empreinte
-depuis le devis validé puis relit le prix et la preuve Pingen avant le PATCH final.
-Un changement, une expiration ou une révocation bloque l’envoi.
+PR #18 merged as `ef417c7f187bd11e327881b2127eae653288ac58` with successful PR/main
+CI. On 20 September at 19:46 UTC, both then-public origins served it, 72 asset
+hashes verified, `postal:true`, `fax:true`, `email:false`. Private Pingen OAuth/EUR/
+LU/left profile passed. Remote 0030–0031/schema/integrity checked. No sender
+declaration was made for an administrator. The [current origin contract](MAIN_RELEASE.md)
+supersedes that dated two-host arrangement.
 
-## Publication et niveau de preuve
+Audit found a stale scanner, then replaced it with private version
+`8e0bffd1-43fd-4401-8663-1f4ecdb794a5`, 100% traffic, ClamAV 1.5.4/database 28129
+of 20 September 06:26:26 UTC. Remote clean/EICAR synthetic PDFs, exact hashes and
+input refusals passed after deployment. Private postal preflight and read-only
+Pingen profile also passed; no letter was sent.
 
-La configuration source ouvre `fax,postal` et laisse l’e-mail fermé. Le garde de
-publication contrôle cette liste et son manifeste ; les sources sont publiées
-depuis le commit fusionné et vérifié de `main`. Les migrations sont appliquées et
-contrôlées avant publication. La preuve finale doit rapprocher le commit,
-`release.json`, les assets publics, les capacités par canal et le trafic Cloudflare.
+Daily signature maintenance remains required; 72-hour maximum is unchanged.
+[SCANNER_CI.md](SCANNER_CI.md) describes replacing local maintenance with Actions,
+still requiring dedicated secret/first qualified run at that date. Abandoned
+customer drafts and unknown submissions require operator intervention; uncertainty
+authorizes no automatic resend/refund. Four Pingen subscriptions were configured;
+real tracking proof accompanies the user's first test.
 
-La PR #18 a été fusionnée au commit
-`ef417c7f187bd11e327881b2127eae653288ac58`, avec ses CI de PR et de `main` réussies.
-Le 20 septembre à 19:46 UTC, les deux origines publiques servaient ce commit avec
-72 empreintes d'assets vérifiées, `postal:true`, `fax:true` et `email:false`.
-La configuration privée Pingen confirme OAuth, EUR, profil LU et fenêtre gauche.
-Les migrations 0030–0031 sont appliquées ; le schéma distant et son intégrité
-ont été vérifiés. Aucune déclaration d'expéditeur n'a été créée à la place d'un
-administrateur.
-
-Le scanner obsolète rencontré pendant l'audit a été remplacé. La version privée
-`8e0bffd1-43fd-4401-8663-1f4ecdb794a5`, à 100 % du trafic, utilise ClamAV 1.5.4
-et la base 28129 du 20 septembre à 06:26:26 UTC. Les PDF synthétiques propre et
-EICAR, leurs empreintes et les refus d'entrée ont été qualifiés à distance après
-déploiement. Le précontrôle postal privé et le profil Pingen en lecture seule ont
-également été vérifiés. Aucune lettre n'a été envoyée par ces contrôles.
-
-La maintenance quotidienne des signatures reste une obligation opérationnelle ;
-la limite de 72 heures n'est pas augmentée. Le remplacement de la maintenance
-locale par GitHub Actions est décrit dans [SCANNER_CI.md](SCANNER_CI.md) ; son
-activation exige encore le secret dédié et un premier passage qualifié.
-Le nettoyage des brouillons clients
-abandonnés chez Pingen et les résultats de soumission incertains restent gérés
-par intervention opérateur : aucun renvoi ni remboursement automatique n’est
-autorisé par l’incertitude. Les quatre abonnements Pingen sont configurés ; la
-preuve d’un suivi réel accompagnera le premier essai de l’utilisateur.
-
-Les tests locaux et CI utilisent des comptes et transports interceptés. Ils
-doivent couvrir l’isolation, l’autorité navigateur, la concurrence, les huit
-politiques, les prix gelés, les révocations et l’interface sur ordinateur/mobile.
-Aucun de ces tests n’est une lettre réellement expédiée.
+Local/CI tests use intercepted accounts/transports: isolation, browser authority,
+concurrency, eight policies, frozen prices, revocation and desktop/mobile UI.
+None is a real mailed letter.

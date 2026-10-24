@@ -79,7 +79,7 @@ export const publicSocialCopy = {
         "Vum Gespréich zur Korrespondenz. Bereet Är Dokumenter fir Fax, E-Mail oder Post mat Guteneo vir, geneemegt de Versand a verfollegt de Status.",
     },
   },
-  "/a-propos/": sourceCopy(
+  "/about/": sourceCopy(
     "À propos de Guteneo",
     "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté.",
   ),
@@ -107,15 +107,15 @@ export const publicSocialCopy = {
         "Vum Gutenberg iwwer Fax an E-Mail bis bei déi lëtzebuergesch Dréckereien: zwee dokumentéiert an illustréiert Texter iwwer d’Geschicht vum Drécken.",
     },
   },
-  "/journal/de-gutenberg-au-numerique/": sourceCopy(
+  "/journal/from-gutenberg-to-digital/": sourceCopy(
     "De Gutenberg au numérique, la longue vie d’une page",
     "De l’impression asiatique à Gutenberg, du courrier au fax et à l’e-mail : comment les pages ont appris à se multiplier, voyager et traverser les réseaux.",
   ),
-  "/journal/histoire-imprimerie-luxembourg/": sourceCopy(
+  "/journal/printing-history-luxembourg/": sourceCopy(
     "L’imprimerie au Luxembourg, une histoire de circulation",
     "Une histoire documentée de l’imprimerie au Luxembourg : le brevet de 1598, les cartes Dieudonné, la presse, la poste et le patrimoine numérique.",
   ),
-  "/mentions-legales/": {
+  "/legal/": {
     fr: {
       title: "Mentions légales | Guteneo",
       description:
@@ -137,11 +137,11 @@ export const publicSocialCopy = {
         "Informatiounen iwwer den Nicolas Pieper, den Editeur vu Guteneo, den Hosting bei Cloudflare, d’Inhalter an d’perséinlech Donnéeë vun der Websäit.",
     },
   },
-  "/confidentialite/": sourceCopy(
+  "/privacy/": sourceCopy(
     "Confidentialité",
     "Les données utilisées par Guteneo, leurs destinataires, leur conservation et les moyens d’exercer vos droits.",
   ),
-  "/conditions/": sourceCopy(
+  "/terms/": sourceCopy(
     "Conditions d’utilisation",
     "Conditions d’utilisation de la bêta Guteneo : accès, documents, autorisations, crédit d’essai et limites des envois.",
   ),
@@ -153,7 +153,7 @@ export const publicSocialCopy = {
     "Rôles et droits",
     "Choisissez qui prépare la correspondance, qui autorise les envois et qui consulte les rapports de votre atelier.",
   ),
-  "/developpeurs/": {
+  "/developers/": {
     fr: {
       title: "Développeurs · API, OAuth et référence OpenAPI | Guteneo",
       description:

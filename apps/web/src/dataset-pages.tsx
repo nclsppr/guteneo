@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -10,6 +10,7 @@ import type {
   MappingPlan,
   MappingValidation,
 } from "../../../packages/contracts/src/datasets";
+import { resolveDatasetSheet } from "../../../packages/contracts/src/datasets";
 import type { BusinessField } from "../../../packages/contracts/src/templates";
 import type { DatasetSchemaSuggestion } from "../../../packages/data/schema-ai";
 import type {
@@ -47,9 +48,9 @@ export function DatasetLibrary({ session }: { session: Session }) {
     await action.run(async () => {
       const selected = file.current?.files?.[0];
       if (!selected)
-        throw new Error(msg("Choisissez un fichier CSV, XLSX, XML ou JSON."));
+        throw new Error(msg("Choose a CSV, XLSX, XML or JSON file."));
       if (selected.size > 5 * 1024 * 1024)
-        throw new Error(msg("Le fichier dépasse 5 Mo."));
+        throw new Error(msg("The file exceeds 5 MB."));
       const form = new FormData();
       form.set("file", selected);
       if (selected.name.toLowerCase().endsWith(".csv")) {
@@ -68,26 +69,24 @@ export function DatasetLibrary({ session }: { session: Session }) {
   return (
     <>
       <PageHeading
-        title={msg("Mes données")}
+        title={msg("My data")}
         intro={msg(
-          "Importez votre fichier tel qu’il est. Choisissez les feuilles, les colonnes et les regroupements avant de générer vos documents.",
+          "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
         )}
       />
       <ErrorNotice error={action.error ?? resource.error} />
       {!canPrepare && <RolePermissionNotice />}
       {canPrepare && (
         <form className="studio-section" onSubmit={(e) => void upload(e)}>
-          <h2>{msg("Importer mes données")}</h2>
+          <h2>{msg("Import my data")}</h2>
           <p>
             {msg(
-              "CSV, Excel .xlsx, XML ou JSON. Le fichier original reste privé. L’import n’appelle aucune IA et ne prépare aucun envoi. ",
+              "CSV, Excel .xlsx, XML or JSON. The original file stays private. Importing does not call AI or prepare any sends. ",
             )}
           </p>
           <Field
-            label={msg("Fichier de données")}
-            hint={msg(
-              "5 Mo maximum, 12 feuilles, 5 000 lignes et 100 000 cellules au maximum.",
-            )}
+            label={msg("Data file")}
+            hint={msg("Maximum 5 MB, 12 sheets, 5,000 rows and 100,000 cells.")}
           >
             <input
               ref={file}
@@ -97,9 +96,9 @@ export function DatasetLibrary({ session }: { session: Session }) {
             />
           </Field>
           <details>
-            <summary>{msg("Options CSV")}</summary>
+            <summary>{msg("CSV options")}</summary>
             <div className="studio-mapping-grid">
-              <Field label={msg("Encodage CSV")}>
+              <Field label={msg("CSV encoding")}>
                 <select
                   value={encoding}
                   onChange={(e) => setEncoding(e.target.value)}
@@ -108,26 +107,26 @@ export function DatasetLibrary({ session }: { session: Session }) {
                   <option value="windows-1252">{msg("Windows-1252")}</option>
                 </select>
               </Field>
-              <Field label={msg("Séparateur CSV")}>
+              <Field label={msg("CSV delimiter")}>
                 <select
                   value={delimiter}
                   onChange={(e) => setDelimiter(e.target.value)}
                 >
-                  <option value="">{msg("Détection automatique")}</option>
-                  <option value=",">{msg("Virgule")}</option>
-                  <option value=";">{msg("Point-virgule")}</option>
-                  <option value={"\t"}>{msg("Tabulation")}</option>
-                  <option value="|">{msg("Barre verticale")}</option>
+                  <option value="">{msg("Detect automatically")}</option>
+                  <option value=",">{msg("Comma")}</option>
+                  <option value=";">{msg("Semicolon")}</option>
+                  <option value={"\t"}>{msg("Tab")}</option>
+                  <option value="|">{msg("Vertical bar")}</option>
                 </select>
               </Field>
             </div>
           </details>
           <details>
-            <summary>{msg("Options XML")}</summary>
+            <summary>{msg("XML options")}</summary>
             <Field
-              label={msg("Chemin des enregistrements XML")}
+              label={msg("XML record path")}
               hint={msg(
-                "Facultatif pour une seule collection. Exemple : /export/clients/client. Si plusieurs collections existent, précisez celle à importer.",
+                "Optional for a single collection. Example: /export/clients/client. If there are multiple collections, specify which one to import.",
               )}
             >
               <input
@@ -141,8 +140,8 @@ export function DatasetLibrary({ session }: { session: Session }) {
           <button className="button primary" disabled={action.pending}>
             <UploadSimple size={18} />
             {action.pending
-              ? msg("Analyse technique…")
-              : msg("Importer et reconnaître les données")}
+              ? msg("Checking file…")
+              : msg("Import and recognise data")}
           </button>
         </form>
       )}
@@ -153,7 +152,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
         <div className="studio-list">
           {!resource.data?.items.length && (
             <p className="studio-list-row">
-              {msg("Vos fichiers apparaîtront ici après import. ")}
+              {msg("Your files will appear here after import. ")}
             </p>
           )}
           {resource.data?.items.map((item) => (
@@ -165,17 +164,17 @@ export function DatasetLibrary({ session }: { session: Session }) {
                 <p>
                   {item.format.toUpperCase()} · {bytes(item.size)} ·{" "}
                   {item.status === "ready"
-                    ? msg("Reconnu")
+                    ? msg("Recognised")
                     : item.status === "quarantined"
-                      ? msg("En vérification")
+                      ? msg("Being checked")
                       : item.status === "purged"
-                        ? msg("Supprimé")
-                        : msg("Refusé")}{" "}
+                        ? msg("Deleted")
+                        : msg("Rejected")}{" "}
                   · {date(item.createdAt)}
                 </p>
               </div>
               <a className="button small" href={"#/app/dataset/" + item.id}>
-                {canPrepare ? msg("Interpréter ") : msg("Ouvrir ")}
+                {canPrepare ? msg("Map data ") : msg("Open ")}
                 <ArrowRight size={16} />
               </a>
             </article>
@@ -240,7 +239,7 @@ function defaultPlan(profile: DatasetProfile): MappingPlan {
     header = sheet.headerCandidates[0] ?? sheet.rows[0]?.rowNumber ?? 1;
   return {
     version: 1,
-    name: msg("Correspondance de données"),
+    name: msg("Data mapping"),
     sourceSheet: sheet.name,
     headerRow: header,
     recordKey: [],
@@ -286,9 +285,9 @@ function useMappingHeaders(
     ...plan.joins.map((join) => [join.sheet, join.headerRow]),
   ]);
   const initial = (sheet: string, row: number) =>
-    profile.sheets
-      .find((entry) => entry.name === sheet)
-      ?.rows.find((entry) => entry.rowNumber === row);
+    resolveDatasetSheet(profile, sheet)?.rows.find(
+      (entry) => entry.rowNumber === row,
+    );
   useEffect(() => {
     const controller = new AbortController();
     const rows = JSON.parse(selection) as [string, number][];
@@ -298,26 +297,27 @@ function useMappingHeaders(
         Number.isInteger(row) &&
         row > 0 &&
         row <= 5000 &&
-        !profile.sheets
-          .find((entry) => entry.name === sheet)
-          ?.rows.some((entry) => entry.rowNumber === row),
+        !resolveDatasetSheet(profile, sheet)?.rows.some(
+          (entry) => entry.rowNumber === row,
+        ),
     );
     void Promise.all(
       missing.map(async ([sheet, row]) => {
         const page = await api<PagedProfileView>(
-          profilePagePath(id, sheet, row - 1, 1),
+          profilePagePath(
+            id,
+            resolveDatasetSheet(profile, sheet)?.name ?? sheet,
+            row - 1,
+            1,
+          ),
           { signal: controller.signal },
         );
-        const result = page.profile.sheets
-          .find((entry) => entry.name === sheet)
-          ?.rows.find((entry) => entry.rowNumber === row);
+        const result = resolveDatasetSheet(page.profile, sheet)?.rows.find(
+          (entry) => entry.rowNumber === row,
+        );
         if (!result)
           throw new Error(
-            msg(
-              "La ligne d’en-têtes {0} n’existe pas dans la feuille {1}.",
-              row,
-              sheet,
-            ),
+            msg("Header row {0} does not exist in sheet {1}.", row, sheet),
           );
         return [
           JSON.stringify([sheet, row]),
@@ -352,7 +352,9 @@ function DatasetPreview({
   value: PagedProfileView;
   sourceSheet: string;
 }) {
-  const [sheet, setSheet] = useState(sourceSheet);
+  const [sheet, setSheet] = useState(
+    resolveDatasetSheet(value.profile, sourceSheet)?.name ?? sourceSheet,
+  );
   const [cursor, setCursor] = useState(0);
   const resource = useResource<PagedProfileView>(
     profilePagePath(value.dataset.id, sheet, cursor),
@@ -371,10 +373,8 @@ function DatasetPreview({
   return (
     <>
       <Field
-        label={msg("Feuille de l’aperçu")}
-        hint={msg(
-          "Parcourez toutes les feuilles sans modifier votre correspondance.",
-        )}
+        label={msg("Preview sheet")}
+        hint={msg("Browse all sheets without changing your mapping.")}
       >
         <select
           value={sheet}
@@ -386,7 +386,7 @@ function DatasetPreview({
           {value.profile.sheets.map((entry) => (
             <option key={entry.name} value={entry.name}>
               {entry.name}
-              {entry.hidden ? msg(" (masquée)") : ""}
+              {entry.hidden ? msg(" (hidden)") : ""}
             </option>
           ))}
         </select>
@@ -402,23 +402,23 @@ function DatasetPreview({
               role="region"
               onKeyDown={scrollStudioTable}
               tabIndex={0}
-              aria-label={msg("Aperçu original — ") + sheet}
+              aria-label={msg("Original preview — ") + sheet}
               aria-busy={resource.loading}
             >
               <table>
                 <caption>
-                  {msg("Aperçu original — ")}
-                  {sheet} {msg(": lignes ")}
-                  {rows[0]?.rowNumber ?? 0} {msg("à")}{" "}
-                  {rows.at(-1)?.rowNumber ?? 0} {msg("sur ")}
+                  {msg("Original preview — ")}
+                  {sheet} {msg(": rows ")}
+                  {rows[0]?.rowNumber ?? 0} {msg("to")}{" "}
+                  {rows.at(-1)?.rowNumber ?? 0} {msg("of ")}
                   {pagination!.totalRows}
                 </caption>
                 <thead>
                   <tr>
-                    <th>{msg("Ligne")}</th>
+                    <th>{msg("Row")}</th>
                     {Array.from({ length: columns }, (_, index) => (
                       <th key={index}>
-                        {msg("Colonne ")}
+                        {msg("Column ")}
                         {index + 1}
                       </th>
                     ))}
@@ -429,7 +429,7 @@ function DatasetPreview({
                     <tr key={row.rowNumber}>
                       <th scope="row">
                         {row.rowNumber}
-                        {row.hidden ? msg(" · masquée") : ""}
+                        {row.hidden ? msg(" · hidden") : ""}
                       </th>
                       {Array.from({ length: columns }, (_, index) => {
                         const cell = row.cells[index];
@@ -439,10 +439,10 @@ function DatasetPreview({
                             {cell?.formula && (
                               <span className="studio-meta">
                                 {" "}
-                                {msg("· formule ")}
+                                {msg("· formula ")}
                                 {cell.cached
-                                  ? msg(" (cache)")
-                                  : msg(" sans résultat")}
+                                  ? msg(" (cached)")
+                                  : msg(" no result")}
                               </span>
                             )}
                           </td>
@@ -454,26 +454,23 @@ function DatasetPreview({
               </table>
             </div>
             <p className="studio-meta">
-              {msg("Les valeurs longues sont limitées à")}{" "}
+              {msg("Long values are limited to")}{" "}
               {pagination!.sampleValuesTruncatedAt}{" "}
               {msg(
-                "caractères dans cet aperçu. Le fichier complet est utilisé pour la validation. ",
+                "characters in this preview. Validation uses the complete file. ",
               )}
             </p>
           </>
         )
       )}
-      <nav
-        className="button-group"
-        aria-label={msg("Pages de l’aperçu des données")}
-      >
+      <nav className="button-group" aria-label={msg("Data preview pages")}>
         <button
           type="button"
           className="button small"
           disabled={cursor === 0 || resource.loading}
           onClick={() => setCursor(0)}
         >
-          {msg("Première page ")}
+          {msg("First page ")}
         </button>
         <button
           type="button"
@@ -481,7 +478,7 @@ function DatasetPreview({
           disabled={cursor === 0 || resource.loading}
           onClick={() => setCursor(Math.max(0, cursor - 30))}
         >
-          {msg("Page précédente ")}
+          {msg("Previous page ")}
         </button>
         <button
           type="button"
@@ -494,7 +491,7 @@ function DatasetPreview({
               setCursor(pagination.nextCursor);
           }}
         >
-          {msg("Page suivante ")}
+          {msg("Next page ")}
         </button>
       </nav>
     </>
@@ -511,7 +508,7 @@ function parseExcludedRows(text: string): number[] {
   )
     throw new Error(
       msg(
-        "Indiquez des numéros de ligne de 1 à 5 000 séparés par des virgules, par exemple 8, 14.",
+        "Enter row numbers from 1 to 5,000 separated by commas, for example 8, 14.",
       ),
     );
   return [...new Set(parts.map(Number))];
@@ -530,9 +527,9 @@ export function DatasetMapper({
     return (
       <>
         <PageHeading
-          title={msg("Reconnaissance du fichier")}
+          title={msg("File recognition")}
           intro={msg(
-            "Le fichier original est conservé séparément de son interprétation.",
+            "The original file is stored separately from its interpretation.",
           )}
         />
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -550,7 +547,7 @@ export function DatasetMapper({
     return (
       <>
         <a className="back-link" href="#/app/datasets">
-          {msg("← Mes données ")}
+          {msg("← My data ")}
         </a>
         <PageHeading title={resource.data.dataset.name} />
         <RolePermissionNotice />
@@ -585,33 +582,31 @@ function DatasetRecovery({
   }, [status.data]);
   return (
     <section className="studio-section">
-      <h2>{msg("Vérification de votre fichier")}</h2>
+      <h2>{msg("Checking your file")}</h2>
       <ErrorNotice error={action.error ?? status.error} />
       {status.data && (
         <>
           <p>
             {status.data.status === "purged"
               ? msg(
-                  "La durée de conservation de cet original est écoulée. Importez à nouveau le fichier si nécessaire.",
+                  "This original has reached the end of its retention period. Import the file again if needed.",
                 )
               : status.data.status === "rejected"
                 ? msg(
-                    "Ce fichier n’a pas passé les contrôles. Corrigez le fichier source avant un nouvel import.",
+                    "This file did not pass the checks. Correct the source file before importing it again.",
                   )
                 : status.data.analysis.running
                   ? msg(
-                      "L’analyse est en cours. Le fichier original est conservé ; attendez avant d’actualiser.",
+                      "Analysis is in progress. The original file is retained; please wait before refreshing.",
                     )
                   : msg(
-                      "L’analyse du fichier n’a pas abouti. Cette étape protège la génération ; un état de vérification ne signifie pas à lui seul que le fichier contient un virus.",
+                      "The file analysis did not complete. This step protects generation; a verification status alone does not mean the file contains a virus.",
                     )}
           </p>
           <p>
-            {status.data.analysis.attempts} {msg("tentative(s) sur")}{" "}
+            {status.data.analysis.attempts} {msg("attempt(s) of")}{" "}
             {status.data.analysis.maxAttempts}.{" "}
-            {waitSeconds > 0
-              ? msg("Attendez {0} seconde(s).", waitSeconds)
-              : ""}
+            {waitSeconds > 0 ? msg("Wait {0} second(s).", waitSeconds) : ""}
           </p>
           <div className="button-group">
             <button
@@ -633,7 +628,7 @@ function DatasetRecovery({
                 })
               }
             >
-              {msg("Relancer l’analyse du même fichier ")}
+              {msg("Retry analysis of the same file ")}
             </button>
             <button
               className="button small"
@@ -642,12 +637,10 @@ function DatasetRecovery({
                 onReady();
               }}
             >
-              {msg("Actualiser l’état ")}
+              {msg("Refresh status ")}
             </button>
             <a className="text-link" href="#/app/datasets">
-              {canPrepare
-                ? msg("Importer un fichier corrigé ")
-                : msg("Mes données ")}
+              {canPrepare ? msg("Import a corrected file ") : msg("My data ")}
             </a>
           </div>
         </>
@@ -776,7 +769,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
       edit({ ...plan, group: undefined, joins: [] });
       return;
     }
-    const sheet = profile.sheets.find((s) => s.name === source),
+    const sheet = resolveDatasetSheet(profile, source),
       row = sheet?.headerCandidates[0] ?? 1;
     const sourceHeaders =
       source === "same" ? headers : headerRows.headers(source, row);
@@ -811,19 +804,15 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
     event.preventDefault();
     await action.run(async () => {
       if (!template)
-        throw new Error(
-          msg("Choisissez le modèle que ces données alimenteront."),
-        );
+        throw new Error(msg("Choose the template these data will populate."));
       if (headerRows.pending || headerRows.error)
         throw new Error(
-          msg(
-            "Attendez le chargement des en-têtes de chaque feuille avant de valider.",
-          ),
+          msg("Wait for the headers of every sheet to load before validating."),
         );
       if (incompatibleNumbers.length)
         throw new Error(
           msg(
-            "Les décimaux exacts nécessitent un champ texte dans le modèle. Adaptez les champs signalés avant de valider.",
+            "Exact decimals require a text field in the template. Adjust the marked fields before validating.",
           ),
         );
       const excludeRows = parseExcludedRows(excludeRowsText);
@@ -860,12 +849,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
   return (
     <>
       <a className="back-link" href="#/app/datasets">
-        {msg("← Mes données ")}
+        {msg("← My data ")}
       </a>
       <PageHeading
         title={dataset.name}
         intro={msg(
-          "Vérifiez les données reconnues, puis leur correspondance avec votre modèle. Chaque client peut regrouper plusieurs lignes.",
+          "Check the recognised data, then their mapping to your template. Each customer can group several rows.",
         )}
       />
       <ErrorNotice
@@ -874,15 +863,15 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
         }
       />
       <p className="studio-meta">
-        {msg("Original privé · ")}
-        {bytes(dataset.size)} {msg("· suppression de la source prévue le ")}
-        {date(dataset.expiresAt)} · {profile.sheets.length} {msg("feuille(s) ")}
+        {msg("Private original · ")}
+        {bytes(dataset.size)} {msg("· source deletion scheduled for ")}
+        {date(dataset.expiresAt)} · {profile.sheets.length} {msg("sheet(s) ")}
       </p>
       <DateTimezone />
       {!!profile.issues.length && (
         <details className="studio-section" open>
           <summary>
-            {profile.issues.length} {msg("points signalés dans le fichier ")}
+            {profile.issues.length} {msg("issues flagged in the file ")}
           </summary>
           <ul className="studio-warning-list">
             {profile.issues.slice(0, 50).map((issue, i) => (
@@ -897,11 +886,14 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
       )}
       <form onSubmit={(e) => void validate(e)}>
         <section className="studio-section">
-          <h2>{msg("1. Reconnaître la structure")}</h2>
+          <h2>{msg("1. Recognise the structure")}</h2>
           <div className="studio-mapping-grid">
-            <Field label={msg("Feuille principale")}>
+            <Field label={msg("Main sheet")}>
               <select
-                value={plan.sourceSheet}
+                value={
+                  resolveDatasetSheet(profile, plan.sourceSheet)?.name ??
+                  plan.sourceSheet
+                }
                 onChange={(e) => {
                   const sheet = profile.sheets.find(
                     (s) => s.name === e.target.value,
@@ -919,12 +911,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 {profile.sheets.map((sheet) => (
                   <option key={sheet.name} value={sheet.name}>
                     {sheet.name}
-                    {sheet.hidden ? msg(" (masquée)") : ""}
+                    {sheet.hidden ? msg(" (hidden)") : ""}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label={msg("Ligne des en-têtes")}>
+            <Field label={msg("Header row")}>
               <input
                 type="number"
                 min={1}
@@ -943,10 +935,8 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               />
             </Field>
             <Field
-              label={msg("Clé du document / client")}
-              hint={msg(
-                "Plusieurs lignes avec la même clé forment un document.",
-              )}
+              label={msg("Document / customer key")}
+              hint={msg("Rows with the same key form one document.")}
             >
               <select
                 value={plan.recordKey[0] ?? ""}
@@ -957,17 +947,17 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                   })
                 }
               >
-                <option value="">{msg("Une ligne par document")}</option>
+                <option value="">{msg("One row per document")}</option>
                 {headers.map((h, i) => (
                   <option key={i} value={h}>
-                    {h || msg("Colonne ") + (i + 1) + msg(" vide")}
+                    {h || msg("Column ") + (i + 1) + msg(" empty")}
                   </option>
                 ))}
               </select>
             </Field>
           </div>
           {headerRows.pending && (
-            <p role="status">{msg("Chargement des en-têtes sélectionnés…")}</p>
+            <p role="status">{msg("Loading selected headers…")}</p>
           )}
           <DatasetPreview
             key={plan.sourceSheet}
@@ -975,9 +965,9 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             sourceSheet={plan.sourceSheet}
           />
           <Field
-            label={msg("Lignes à exclure explicitement")}
+            label={msg("Rows to explicitly exclude")}
             hint={msg(
-              "Numéros séparés par des virgules : par exemple 8, 14 pour les sous-totaux.",
+              "Comma-separated numbers: for example 8, 14 for subtotals.",
             )}
           >
             <input
@@ -1019,9 +1009,9 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 edit({ ...plan, includeHidden: e.target.checked })
               }
             />
-            {msg("Inclure les lignes et feuilles masquées ")}
+            {msg("Include hidden rows and sheets ")}
           </label>
-          <Field label={msg("Cellules de formule")}>
+          <Field label={msg("Formula cells")}>
             <select
               value={plan.formulaPolicy}
               onChange={(e) =>
@@ -1031,24 +1021,22 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 })
               }
             >
-              <option value="reject">{msg("Demander une correction")}</option>
+              <option value="reject">{msg("Require a correction")}</option>
               <option value="cached">
-                {msg(
-                  "Utiliser uniquement le résultat déjà enregistré dans le fichier ",
-                )}
+                {msg("Use only the result already saved in the file ")}
               </option>
             </select>
           </Field>
         </section>
         <section className="studio-section">
-          <h2>{msg("2. Relier les champs")}</h2>
-          <Field label={msg("Modèle à remplir")}>
+          <h2>{msg("2. Map fields")}</h2>
+          <Field label={msg("Template to populate")}>
             <select
               required
               value={templateId}
               onChange={(e) => selectTemplate(e.target.value)}
             >
-              <option value="">{msg("Choisir un modèle publié")}</option>
+              <option value="">{msg("Choose a published template")}</option>
               {templates.data?.items
                 .filter((t) => t.state === "published" && t.permissions.use)
                 .map((t) => (
@@ -1060,7 +1048,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             </select>
           </Field>
           {templates.data?.nextCursor && (
-            <div role="group" aria-label={msg("Autres modèles disponibles")}>
+            <div role="group" aria-label={msg("More available templates")}>
               <LoadMore
                 path="/templates"
                 data={templates.data}
@@ -1068,7 +1056,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               />
             </div>
           )}
-          <Field label={msg("Réutiliser une correspondance enregistrée")}>
+          <Field label={msg("Reuse a saved mapping")}>
             <select
               value={reuseId}
               onChange={(e) => {
@@ -1094,7 +1082,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 }
               }}
             >
-              <option value="">{msg("Nouvelle correspondance")}</option>
+              <option value="">{msg("New mapping")}</option>
               {mappings.data?.items.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name} {msg("· v")}
@@ -1104,10 +1092,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             </select>
           </Field>
           {mappings.data?.nextCursor && (
-            <div
-              role="group"
-              aria-label={msg("Autres correspondances disponibles")}
-            >
+            <div role="group" aria-label={msg("More available mappings")}>
               <LoadMore
                 path="/mappings"
                 data={mappings.data}
@@ -1115,7 +1100,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               />
             </div>
           )}
-          <Field label={msg("Nom de la correspondance")}>
+          <Field label={msg("Mapping name")}>
             <input
               value={plan.name}
               required
@@ -1125,10 +1110,10 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           </Field>
           {!!incompatibleNumbers.length && (
             <p role="alert">
-              {msg("Les champs ")}
+              {msg("The fields ")}
               {incompatibleNumbers.join(", ")}{" "}
               {msg(
-                "du modèle attendent des nombres, alors que le type « Décimal exact » conserve une chaîne sans arrondi. Pour conserver les décimales, adaptez le modèle avec un champ texte et le format décimal. Pour des montants en unités mineures, utilisez un champ entier et le type « Montant → centimes entiers ». ",
+                "in the template expect numbers, while “Exact decimal” preserves a string without rounding. To retain decimal places, use a text field with decimal formatting. For amounts in minor units, use an integer field and “Amount → integer cents”. ",
               )}
             </p>
           )}
@@ -1139,16 +1124,16 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           />
           {template && (
             <>
-              <h3>{msg("Un tableau par document")}</h3>
+              <h3>{msg("One table per document")}</h3>
               <div className="studio-mapping-grid">
-                <Field label={msg("Tableau du modèle")}>
+                <Field label={msg("Template table")}>
                   <select
                     value={arrayPath}
                     onChange={(e) =>
                       configureArray(e.target.value, arraySource)
                     }
                   >
-                    <option value="">{msg("Pas de tableau")}</option>
+                    <option value="">{msg("No table")}</option>
                     {fieldPaths(template.envelope.inputSchema)
                       .filter((f) => f.schema.type === "array")
                       .map((f) => (
@@ -1159,7 +1144,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                   </select>
                 </Field>
                 {array && (
-                  <Field label={msg("Origine des lignes du tableau")}>
+                  <Field label={msg("Source of table rows")}>
                     <select
                       value={arraySource}
                       onChange={(e) =>
@@ -1167,13 +1152,17 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                       }
                     >
                       <option value="same">
-                        {msg("Regrouper la feuille principale ")}
+                        {msg("Group the main sheet ")}
                       </option>
                       {profile.sheets
-                        .filter((s) => s.name !== plan.sourceSheet)
+                        .filter(
+                          (s) =>
+                            s !==
+                            resolveDatasetSheet(profile, plan.sourceSheet),
+                        )
                         .map((s) => (
                           <option key={s.name} value={s.name}>
-                            {msg("Joindre la feuille ")}
+                            {msg("Join sheet ")}
                             {s.name}
                           </option>
                         ))}
@@ -1193,7 +1182,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               {plan.joins.map((join, i) => (
                 <div key={i}>
                   <div className="studio-mapping-grid">
-                    <Field label={msg("En-têtes de la feuille liée")}>
+                    <Field label={msg("Linked sheet headers")}>
                       <input
                         type="number"
                         min={1}
@@ -1218,7 +1207,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                         }
                       />
                     </Field>
-                    <Field label={msg("Clé dans la feuille principale")}>
+                    <Field label={msg("Key in the main sheet")}>
                       <select
                         required
                         value={join.parentKey}
@@ -1231,13 +1220,13 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                           })
                         }
                       >
-                        <option value="">{msg("Choisir")}</option>
+                        <option value="">{msg("Choose")}</option>
                         {headers.map((h) => (
                           <option key={h}>{h}</option>
                         ))}
                       </select>
                     </Field>
-                    <Field label={msg("Clé dans la feuille liée")}>
+                    <Field label={msg("Key in the linked sheet")}>
                       <select
                         required
                         value={join.childKey}
@@ -1250,7 +1239,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                           })
                         }
                       >
-                        <option value="">{msg("Choisir")}</option>
+                        <option value="">{msg("Choose")}</option>
                         {headerRows
                           .headers(join.sheet, join.headerRow)
                           .map((h) => (
@@ -1286,16 +1275,16 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               !!incompatibleNumbers.length
             }
           >
-            {msg("Valider toutes les lignes ")}
+            {msg("Validate all rows ")}
           </button>
         </section>
       </form>
       <section className="studio-section">
-        <h2>{msg("Aide de l’IA, sur demande")}</h2>
+        <h2>{msg("AI help, on request")}</h2>
         <StudioAiNotice available={aiPolicy.available} />
         <p>
           {msg(
-            "L’analyse envoie des métadonnées et un échantillon limité au fournisseur autorisé par votre organisation. Elle propose une correspondance ; vous gardez la validation. ",
+            "Analysis sends metadata and a limited sample to the provider authorised by your organisation. It proposes a mapping; you remain responsible for validation. ",
           )}
         </p>
         <button
@@ -1310,7 +1299,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 method: "POST",
                 body: {
                   instruction: template
-                    ? "Propose un mapping vers ces chemins métier du modèle choisi, sans inventer de valeurs. Les tableaux demandent des lignes regroupées ou jointes. Champs : " +
+                    ? "Propose a mapping to these business paths in the selected template without inventing values. Tables require grouped or joined rows. Fields: " +
                       fieldPaths(template.envelope.inputSchema)
                         .map(
                           (f) =>
@@ -1327,31 +1316,31 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                         )
                         .join("; ")
                         .slice(0, 1650)
-                    : "Propose une interprétation vérifiable des données ; chaque chemin cible sera relu avant génération.",
+                    : "Propose a verifiable interpretation of the data; every target path will be reviewed before generation.",
                 },
               });
               edit(result.mapping);
               setAiMessage(
                 msg(
-                  "Proposition reçue. Vérifiez chaque champ, puis validez toutes les lignes. ",
+                  "Proposal received. Check each field, then validate all rows. ",
                 ) + result.ambiguities.join(" "),
               );
             })
           }
         >
-          {msg("Demander une proposition IA ")}
+          {msg("Request an AI proposal ")}
         </button>
         {aiMessage && <p role="status">{aiMessage}</p>}
-        <h3>{msg("Créer un modèle depuis les données")}</h3>
+        <h3>{msg("Create a template from data")}</h3>
         <p>
           {msg(
-            "Sans modèle existant, l’IA peut proposer les champs métier, leurs types et leurs tableaux. Vous relisez cette structure avant de créer un brouillon privé ; les exemples du modèle seront entièrement synthétiques. ",
+            "Without an existing template, AI can propose business fields, their types and tables. Review this structure before creating a private draft; the template examples will be entirely synthetic. ",
           )}
         </p>
         <Field
-          label={msg("Décrire le modèle à proposer")}
+          label={msg("Describe the template to propose")}
           hint={msg(
-            "Facultatif : indiquez le document souhaité et les lignes à regrouper, sans ajouter de données sensibles.",
+            "Optional: describe the document and the rows to group, without adding sensitive data.",
           )}
         >
           <textarea
@@ -1391,17 +1380,17 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             })
           }
         >
-          {msg("Proposer un nouveau modèle avec l’IA ")}
+          {msg("Propose a new template with AI ")}
         </button>
         {schemaProposal && (
           <div aria-live="polite">
             <h4>{schemaProposal.schemaSuggestion.envelope.name}</h4>
             <p>
-              {msg("Proposition à relire ·")}{" "}
+              {msg("Proposal to review ·")}{" "}
               {schemaProposal.schemaSuggestion.fields.length}{" "}
-              {msg("champ(s) ·")} {schemaProposal.validation.documentCount}{" "}
+              {msg("field(s) ·")} {schemaProposal.validation.documentCount}{" "}
               {msg(
-                "document(s) attendu(s). La structure et un exemple synthétique ont été vérifiés par le serveur. ",
+                "expected document(s). The structure and a synthetic example have been checked by the server. ",
               )}
             </p>
             <div
@@ -1409,18 +1398,16 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               role="region"
               onKeyDown={scrollStudioTable}
               tabIndex={0}
-              aria-label={msg("Champs métier proposés et colonnes source")}
+              aria-label={msg("Proposed fields and source columns")}
             >
               <table>
-                <caption>
-                  {msg("Champs métier proposés et colonnes source")}
-                </caption>
+                <caption>{msg("Proposed fields and source columns")}</caption>
                 <thead>
                   <tr>
-                    <th>{msg("Champ du modèle")}</th>
+                    <th>{msg("Template field")}</th>
                     <th>{msg("Type")}</th>
-                    <th>{msg("Source")}</th>
-                    <th>{msg("Règle")}</th>
+                    <th>{msgIn("document-source", "Source")}</th>
+                    <th>{msg("Rule")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1430,12 +1417,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                       <td>
                         {msg(
                           {
-                            text: "Texte",
-                            integer: "Entier",
-                            decimal: "Décimal exact (texte)",
-                            minor: "Unités mineures entières",
+                            text: "Text",
+                            integer: "Integer",
+                            decimal: "Exact decimal (text)",
+                            minor: "Integer minor units",
                             date: "Date",
-                            boolean: "Oui / non",
+                            boolean: "Yes / no",
                           }[field.type],
                         )}
                       </td>
@@ -1443,10 +1430,8 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                         {field.sheet} · {field.source}
                       </td>
                       <td>
-                        {field.repeated ? msg("Dans un tableau · ") : ""}
-                        {field.required
-                          ? msg("Obligatoire")
-                          : msg("Facultatif")}
+                        {field.repeated ? msg("In a table · ") : ""}
+                        {field.required ? msg("Required") : msg("Optional")}
                       </td>
                     </tr>
                   ))}
@@ -1465,7 +1450,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               <div>
                 <p>
                   {msg(
-                    "Les données demandent encore une correction. Vous pouvez créer le brouillon ; la correspondance devra être corrigée et validée avant toute génération. ",
+                    "The data still need correction. You can create the draft; the mapping must be corrected and validated before any generation. ",
                   )}
                 </p>
                 <ul>
@@ -1484,7 +1469,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 disabled={action.pending}
                 onChange={(event) => setSchemaReviewed(event.target.checked)}
               />
-              {msg("J’ai relu les champs et les tableaux proposés. ")}
+              {msg("I have reviewed the proposed fields and tables. ")}
             </label>
             <button
               type="button"
@@ -1516,31 +1501,29 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 })
               }
             >
-              {msg("Créer le brouillon privé et sa correspondance ")}
+              {msg("Create the private draft and its mapping ")}
             </button>
             <p className="studio-meta">
               {msg(
-                "Le brouillon s’ouvrira dans l’éditeur. La correspondance sera enregistrée sous « ",
+                "The draft will open in the editor. The mapping will be saved as “ ",
               )}
               {schemaProposal.mapping.name}{" "}
-              {msg(
-                "». La publication et la génération restent des actions séparées. ",
-              )}
+              {msg("”. Publishing and generation remain separate actions. ")}
             </p>
           </div>
         )}
       </section>
       {validation && (
         <section className="studio-section" aria-live="polite">
-          <h2>{msg("3. Vérifier avant génération")}</h2>
+          <h2>{msg("3. Check before generation")}</h2>
           <p>
             <strong>
-              {validation.documentCount} {msg("document(s) attendu(s)")}
+              {validation.documentCount} {msg("expected document(s)")}
             </strong>{" "}
             ·{" "}
             {validation.status === "ready"
-              ? msg("Correspondance validée")
-              : msg("Correction nécessaire")}
+              ? msg("Mapping validated")
+              : msg("Correction needed")}
           </p>
           {!!validation.issues.length && (
             <ul className="studio-warning-list">
@@ -1557,9 +1540,9 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           {validation.examples.map((record) => (
             <details key={record.recordId}>
               <summary>
-                {msg("Exemple ")}
+                {msg("Example ")}
                 {record.recordId} · {Object.keys(record.provenance).length}{" "}
-                {msg("champs tracés ")}
+                {msg("traced fields ")}
               </summary>
               <dl>
                 {Object.entries(record.data).map(([key, entry]) => (
@@ -1567,7 +1550,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                     <dt>{key}</dt>
                     <dd>
                       {Array.isArray(entry)
-                        ? entry.length + msg(" lignes")
+                        ? entry.length + msg(" rows")
                         : typeof entry === "object"
                           ? JSON.stringify(entry)
                           : String(entry)}
@@ -1579,7 +1562,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           ))}
           <p>
             {msg(
-              "Aucun envoi n’est préparé. Les erreurs doivent être corrigées ou leurs lignes explicitement exclues. ",
+              "No send is prepared. Errors must be corrected or their rows explicitly excluded. ",
             )}
           </p>
           <button
@@ -1608,8 +1591,8 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               })
             }
           >
-            {msg("Générer ")}
-            {validation.documentCount} {msg("PDF sans envoi ")}
+            {msg("Generate ")}
+            {validation.documentCount} {msg("PDFs without sending ")}
           </button>
         </section>
       )}
@@ -1640,9 +1623,9 @@ function MappingFields({
           </legend>
           <div className="studio-mapping-grid">
             <Field
-              label={msg("Champ métier cible ") + (index + 1)}
+              label={msg("Target field ") + (index + 1)}
               hint={msg(
-                "Chemin déclaré par le modèle, par exemple customer.name ; pour un tableau, chemin relatif à sa ligne.",
+                "Path declared by the template, for example customer.name; for a table, a path relative to its row.",
               )}
             >
               <input
@@ -1651,13 +1634,13 @@ function MappingFields({
                 onChange={(e) => change(index, { target: e.target.value })}
               />
             </Field>
-            <Field label={msg("Colonne pour ") + field.target}>
+            <Field label={msg("Column for ") + field.target}>
               <select
                 value={field.source}
                 required
                 onChange={(e) => change(index, { source: e.target.value })}
               >
-                <option value="">{msg("Choisir la colonne source")}</option>
+                <option value="">{msg("Choose the source column")}</option>
                 {headers.filter(Boolean).map((header, i) => (
                   <option key={i} value={header}>
                     {header}
@@ -1665,7 +1648,7 @@ function MappingFields({
                 ))}
               </select>
             </Field>
-            <Field label={msg("Type de ") + field.target}>
+            <Field label={msg("Type of ") + field.target}>
               <select
                 value={field.type}
                 onChange={(e) =>
@@ -1675,19 +1658,17 @@ function MappingFields({
                 }
               >
                 <option value="text">
-                  {msg("Texte / identifiant / code postal")}
+                  {msg("Text / identifier / postal code")}
                 </option>
-                <option value="integer">{msg("Entier")}</option>
-                <option value="minor">
-                  {msg("Montant → centimes entiers")}
-                </option>
-                <option value="decimal">{msg("Décimal exact (chaîne)")}</option>
+                <option value="integer">{msg("Integer")}</option>
+                <option value="minor">{msg("Amount → integer cents")}</option>
+                <option value="decimal">{msg("Exact decimal (string)")}</option>
                 <option value="date">{msg("Date")}</option>
-                <option value="boolean">{msg("Oui / non")}</option>
+                <option value="boolean">{msg("Yes / no")}</option>
               </select>
             </Field>
             {field.type === "date" && (
-              <Field label={msg("Ordre de date pour ") + field.target}>
+              <Field label={msg("Date order for ") + field.target}>
                 <select
                   value={field.dateOrder ?? ""}
                   onChange={(e) =>
@@ -1697,15 +1678,15 @@ function MappingFields({
                     })
                   }
                 >
-                  <option value="">{msg("Ne pas deviner")}</option>
-                  <option value="DMY">{msg("Jour / mois / année")}</option>
-                  <option value="MDY">{msg("Mois / jour / année")}</option>
-                  <option value="YMD">{msg("Année / mois / jour")}</option>
+                  <option value="">{msg("Do not guess")}</option>
+                  <option value="DMY">{msg("Day / month / year")}</option>
+                  <option value="MDY">{msg("Month / day / year")}</option>
+                  <option value="YMD">{msg("Year / month / day")}</option>
                 </select>
               </Field>
             )}
             {["decimal", "minor"].includes(field.type) && (
-              <Field label={msg("Séparateur décimal pour ") + field.target}>
+              <Field label={msg("Decimal separator for ") + field.target}>
                 <select
                   value={field.decimalSeparator ?? ""}
                   onChange={(e) =>
@@ -1715,9 +1696,9 @@ function MappingFields({
                     })
                   }
                 >
-                  <option value="">{msg("Ne pas deviner")}</option>
-                  <option value=",">{msg("Virgule")}</option>
-                  <option value=".">{msg("Point")}</option>
+                  <option value="">{msg("Do not guess")}</option>
+                  <option value=",">{msg("Comma")}</option>
+                  <option value=".">{msg("Period")}</option>
                 </select>
               </Field>
             )}
@@ -1728,7 +1709,7 @@ function MappingFields({
               checked={field.required ?? false}
               onChange={(e) => change(index, { required: e.target.checked })}
             />
-            {msg("Champ obligatoire ")}
+            {msg("Required field ")}
           </label>
         </fieldset>
       ))}
@@ -1771,22 +1752,22 @@ function AiPolicyForm({
     action = useAction();
   return (
     <details className="studio-section">
-      <summary>{msg("Administration : analyse IA des données")}</summary>
+      <summary>{msg("Administration: AI data analysis")}</summary>
       <p>
         {msg(
-          "Fournisseur : OpenAI, API directe. Seuls des métadonnées et un échantillon borné sont transférés à la demande. La localisation de D1/R2 ne détermine pas celle de ce traitement. Le paramètre store:false ne garantit pas une rétention nulle chez le fournisseur. ",
+          "Provider: OpenAI, direct API. Only metadata and a bounded sample are transferred on request. The location of D1/R2 does not determine where this processing takes place. The store:false setting does not guarantee zero retention by the provider. ",
         )}
       </p>
       <p>
         {policy.configured
-          ? msg("Fournisseur configuré.")
+          ? msg("Provider configured.")
           : msg(
-              "L’analyse IA est indisponible : aucune configuration fournisseur utilisable.",
+              "AI analysis is unavailable: no usable provider configuration.",
             )}{" "}
-        {policy.usedToday} {msg("appel(s) comptabilisé(s) aujourd’hui.")}{" "}
+        {policy.usedToday} {msg("call(s) counted today.")}{" "}
         {policy.realProviderQualified
           ? ""
-          : msg("La qualité du fournisseur réel n’est pas encore qualifiée.")}
+          : msg("The real provider’s quality has not yet been qualified.")}
       </p>
       <form
         onSubmit={(e) => {
@@ -1808,7 +1789,7 @@ function AiPolicyForm({
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
           />
-          {msg("Activer les demandes d’analyse pour cette organisation ")}
+          {msg("Enable analysis requests for this organisation ")}
         </label>
         <label className="check-field">
           <input
@@ -1817,10 +1798,10 @@ function AiPolicyForm({
             onChange={(e) => setConsent(e.target.checked)}
           />
           {msg(
-            "J’autorise explicitement le transfert de ces échantillons au fournisseur ",
+            "I explicitly authorise transfer of these samples to the provider ",
           )}
         </label>
-        <Field label={msg("Maximum d’appels par jour")}>
+        <Field label={msg("Maximum calls per day")}>
           <input
             type="number"
             min={0}
@@ -1832,7 +1813,7 @@ function AiPolicyForm({
           />
         </Field>
         <button className="button" disabled={action.pending}>
-          {msg("Enregistrer la politique de transfert ")}
+          {msg("Save transfer policy ")}
         </button>
       </form>
     </details>

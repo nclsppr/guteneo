@@ -75,7 +75,7 @@ export function belvedereFilters(url: URL, now = new Date()): Filters {
   )
     throw new AuthError(
       "INVALID_FILTERS",
-      "Période limitée à 366 jours et pagination à 100 éléments.",
+      "The period is limited to 366 days and pagination to 100 items.",
       400,
     );
   return {
@@ -396,7 +396,7 @@ async function jobs(
     (country && country !== "unknown" && !/^[A-Z]{2}$/.test(country)) ||
     (group && !["attention", "delayed"].includes(group))
   )
-    throw new AuthError("INVALID_FILTERS", "Filtre de jobs invalide.", 400);
+    throw new AuthError("INVALID_FILTERS", "Invalid job filter.", 400);
   const conditions = [
     period(f),
     `(d.id LIKE ? ESCAPE '\\' OR o.name LIKE ? ESCAPE '\\')`,
@@ -706,7 +706,7 @@ async function finance(env: Env, f: Filters): Promise<BelvedereFinance> {
     supplierVerified: supplier,
     netResultMinor: null,
     netResultUnavailableReason:
-      "Les crédits promotionnels ne sont pas des recettes. Les factures fournisseurs, remboursements, taxes et coûts fixes ne sont pas tous rapprochés.",
+      "Promotional credits are not revenue. Supplier invoices, refunds, taxes and fixed costs have not all been reconciled.",
     channels: financialChannels,
     monthly,
   };
@@ -852,7 +852,7 @@ export async function handleBelvedereRoute(
       new Request(new URL("/", url), { method: "GET" }),
     );
     if (!response.ok)
-      return new Response("Interface indisponible", { status: 503, headers });
+      return new Response("Interface unavailable", { status: 503, headers });
     const html = (await response.text()).replace(
       "<head>",
       `<head><meta name="guteneo-belvedere" content="${base}"><meta name="guteneo-account-locale" content="${preferredLocale ?? "automatic"}">`,
@@ -873,7 +873,7 @@ export async function handleBelvedereRoute(
       const workshopId = url.searchParams.get("workshopId") ?? undefined;
       if (workshopId && !/^[A-Za-z0-9_-]{1,120}$/.test(workshopId))
         return json(
-          { error: { code: "INVALID_FILTERS", message: "Atelier invalide." } },
+          { error: { code: "INVALID_FILTERS", message: "Invalid workspace." } },
           400,
         );
       return json(await memberList(env, f, workshopId));

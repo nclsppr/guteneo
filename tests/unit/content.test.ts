@@ -25,9 +25,9 @@ describe("content boundary", () => {
     expect(phone("+49 (0)30 1234567")).toEqual({ phone: "+49301234567" });
     expect(phone("+352 (26) 12 34 56")).toEqual({ phone: "+35226123456" });
     for (const kept of ["+33 01 23 45 67 89", "+330612345678", "+49030123456"])
-      expect(() => phone(kept)).toThrow("Retirez le 0");
+      expect(() => phone(kept)).toThrow("Remove the 0");
     for (const invalid of ["123", "+353 1 234 5678", "0033123456789"])
-      expect(() => phone(invalid)).toThrow("Numéro international requis");
+      expect(() => phone(invalid)).toThrow("An international number is required");
   });
   it("rejects an unsupported postal address line instead of silently dropping it", () => {
     expect(() =>
@@ -39,7 +39,7 @@ describe("content boundary", () => {
         city: "Paris",
         country: "FR",
       }),
-    ).toThrow("complément");
+    ).toThrow("additional address line");
   });
   it("removes scripts, CSS, images, SVG and dangerous links before approval", () => {
     const html = cleanHtml(
@@ -82,7 +82,7 @@ describe("content boundary", () => {
   it("limits streaming downloads independent of content-length", async () => {
     await expect(
       readLimited(new Response(new Uint8Array(200)), 100),
-    ).rejects.toThrow("volumineux");
+    ).rejects.toThrow("too large");
   });
   it("validates actual PDF bytes without changing their hash", async () => {
     const pdf = await PDFDocument.create();

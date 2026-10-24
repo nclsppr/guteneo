@@ -42,7 +42,7 @@ export function addressPageProvenance(
   )
     throw new ContentError(
       "POSTAL_ADDRESS_PAGE_PROCESSING",
-      "La page d’adresse est en cours de préparation. Réessayez dans quelques instants avec la même demande.",
+      "The address page is being prepared. Retry the same request in a few moments.",
       409,
     );
   const profile = JSON.parse(row.profile_json);
@@ -108,7 +108,7 @@ export async function assertAddressPageBinding(
   )
     throw new ContentError(
       "POSTAL_ADDRESS_PAGE_BINDING_CHANGED",
-      "L’adresse, le mode d’impression ou le profil postal a changé. Recréez la page d’adresse depuis votre PDF d’origine.",
+      "The address, print mode or postal profile has changed. Recreate the address page from your original PDF.",
       409,
     );
 }

@@ -1,7 +1,7 @@
 /* Editorial printing-house aesthetic. Cobalt/ivory, square surfaces, 3px controls.
    Garamond references movable type; Plex gives operational UI its clarity. */
 :root {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   color: #181b22;
   background: #f6f5ef;
   font-synthesis: none;
@@ -18,12 +18,40 @@
   --error: #a12e27;
   --warning: #754509;
   --radius: 3px;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-display: "EB Garamond", Georgia, serif;
+  --font-code: "IBM Plex Mono", monospace;
+  --content-measure: 68ch;
+  --control-height: 44px;
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
+}
+::selection {
+  color: var(--ink);
+  background: #dbe4fb;
+}
+input,
+textarea {
+  caret-color: var(--blue);
+}
+input,
+select,
+textarea,
+button,
+a {
+  touch-action: manipulation;
+}
+input[type="checkbox"],
+input[type="radio"],
+progress {
+  accent-color: var(--blue);
+}
+:where(table, .definition, .timeline, .customer-price, .credit-balance) {
+  font-variant-numeric: tabular-nums;
 }
 button,
 input,
@@ -94,7 +122,7 @@ svg {
 }
 code,
 .mono {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-size: 0.79rem;
 }
 code {
@@ -190,7 +218,8 @@ ol {
   font-size: 14px;
   line-height: 1.25;
   text-decoration: none;
-  white-space: nowrap;
+  text-align: center;
+  overflow-wrap: anywhere;
   transition:
     background 0.15s,
     transform 0.15s;
@@ -282,8 +311,8 @@ ol {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
-  min-height: 38px;
+  min-width: var(--control-height);
+  min-height: var(--control-height);
   border: 0;
   background: transparent;
   color: var(--blue);
@@ -320,7 +349,7 @@ ol {
   flex-shrink: 0;
   gap: 9px;
   color: var(--ink);
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 35px;
   font-weight: 500;
   letter-spacing: -1.1px;
@@ -355,7 +384,7 @@ ol {
 
 .eyebrow {
   color: var(--blue);
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-size: 10px;
   letter-spacing: 1.6px;
   margin-bottom: 29px;
@@ -424,7 +453,7 @@ ol {
   font-size: 32px;
 }
 .atelier-label {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   color: var(--muted);
   font-size: 9px;
   letter-spacing: 2px;
@@ -447,7 +476,7 @@ ol {
   justify-content: center;
   align-items: center;
   border: 1px solid var(--line);
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 24px;
   background: var(--surface);
 }
@@ -498,7 +527,7 @@ ol {
   padding: 30px 8px 0;
 }
 .sidebar-footer p {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: -0.4px;
   color: var(--muted);
@@ -539,7 +568,7 @@ ol {
   border: 1px solid currentColor;
   padding: 3px 6px;
   text-transform: uppercase;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   letter-spacing: 0.7px;
   font-size: 9px;
   font-weight: 500;
@@ -582,11 +611,17 @@ ol {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 30px;
+  gap: 24px 30px;
   margin-bottom: 33px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.page-heading > div:first-child {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 .page-heading h1 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 44px;
   letter-spacing: -1.2px;
   line-height: 1.12;
@@ -596,13 +631,19 @@ ol {
   font-size: 13px;
   color: var(--muted);
   line-height: 1.6;
-  max-width: 580px;
+  max-width: var(--content-measure);
   margin: 0;
 }
-.page-heading > .button,
-.page-heading > .button-group {
-  flex-shrink: 0;
+.page-heading-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 100%;
   margin-top: 8px;
+}
+.page-heading-actions > .button-group {
+  max-width: 100%;
 }
 .section-toolbar {
   display: flex;
@@ -699,7 +740,7 @@ ol {
   margin-bottom: 15px;
 }
 .overview-stats strong {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 49px;
   line-height: 1;
   font-weight: 400;
@@ -829,7 +870,7 @@ ol {
   margin-bottom: 20px;
 }
 .empty-state h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 31px;
   line-height: 1.2;
   letter-spacing: -0.5px;
@@ -856,7 +897,7 @@ ol {
   gap: 28px;
 }
 .connection-callout h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 29px;
   line-height: 1.1;
   margin: 0 0 12px;
@@ -1013,7 +1054,7 @@ ol {
   cursor: pointer;
 }
 .field .code-input {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-size: 11px;
 }
 .field input:disabled,
@@ -1064,7 +1105,7 @@ ol {
 }
 .document-analysis h3 {
   margin: 0 0 7px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.4;
 }
@@ -1353,9 +1394,7 @@ ol {
 }
 .text-version pre {
   white-space: pre-wrap;
-  font:
-    12px/1.6 "IBM Plex Sans",
-    sans-serif;
+  font: 12px/1.6 var(--font-body);
   overflow-wrap: anywhere;
   padding: 18px;
   background: var(--surface);
@@ -1491,7 +1530,7 @@ ol {
 }
 .connection-setup > h2,
 .permission-panel > h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 30px;
   line-height: 1.15;
   margin-bottom: 24px;
@@ -1542,7 +1581,7 @@ ol {
   padding: 14px 0;
 }
 .diagnostics dt {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-size: 10px;
   color: var(--muted);
   overflow-wrap: anywhere;
@@ -1585,7 +1624,7 @@ ol {
 }
 .usage-ledger dd strong {
   display: block;
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 37px;
   font-weight: 400;
   line-height: 1.2;
@@ -1742,9 +1781,6 @@ ol {
   .site-header nav {
     gap: 0;
   }
-  .site-header nav > a:first-child:not(.button) {
-    display: none;
-  }
   .site-header .button.small {
     font-size: 11px;
     padding: 10px 12px;
@@ -1881,9 +1917,9 @@ ol {
     font-size: 12px;
     max-width: 440px;
   }
-  .page-heading > .button,
-  .page-heading > .button-group {
-    margin-top: 21px;
+  .page-heading-actions {
+    width: 100%;
+    margin-top: 0;
   }
   .button {
     font-size: 12px;
@@ -2434,7 +2470,7 @@ ol {
 .installation-heading h2,
 .pricing-heading h2,
 .faq-heading h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(40px, 4.2vw, 56px);
   letter-spacing: -0.025em;
   line-height: 1.06;
@@ -2586,7 +2622,7 @@ ol {
   margin-bottom: 12px;
 }
 .first-prompt > p {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 22px;
   line-height: 1.42;
   margin-bottom: 18px;
@@ -2601,7 +2637,7 @@ ol {
   padding-bottom: 30px;
 }
 .welcome-amount {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 94px;
   letter-spacing: -0.025em;
   line-height: 0.92;
@@ -2746,7 +2782,7 @@ ol {
   margin-inline: auto;
 }
 .footer-invitation-copy > p {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(39px, 4.1vw, 57px);
   letter-spacing: -0.025em;
   line-height: 1.1;
@@ -2792,7 +2828,7 @@ ol {
 .postmark-edition,
 .postmark-post,
 .postmark-date {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-weight: 500;
 }
 .postmark-place {
@@ -2811,7 +2847,7 @@ ol {
   font-size: 14px;
 }
 .postmark-signature {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 18px;
 }
@@ -2910,11 +2946,11 @@ ol {
 }
 .footer-colophon {
   border-top: 1px solid var(--line);
-  padding: 25px 0 31px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: center;
+  padding: 28px 0 32px;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 2fr);
+  gap: 24px 48px;
+  align-items: start;
   color: var(--muted);
 }
 .footer-colophon p {
@@ -2931,10 +2967,23 @@ ol {
 .footer-colophon a:hover {
   text-decoration: underline;
 }
+.footer-navigation {
+  display: grid;
+  gap: 8px;
+}
 .footer-colophon nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: 0 20px;
+  font-size: 13px;
+}
+.footer-colophon .legal-links {
+  padding-block-start: 8px;
+  border-top: 1px solid var(--line);
+}
+.footer-colophon .footer-contact {
+  justify-self: start;
+  min-height: 44px;
   font-size: 13px;
 }
 .footer-colophon nav a {
@@ -3419,5 +3468,16 @@ ol {
   }
   .workspace main {
     padding-inline: 28px;
+  }
+}
+
+@media (max-width: 760px) {
+  .footer-colophon {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
   }
 }

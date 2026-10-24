@@ -1,22 +1,47 @@
-# Notifications Pingen : inscription privée
+# Pingen notifications: private registration
 
-Ce module permet d'inspecter puis d'inscrire les notifications du compte Pingen configuré, sans compte utilisateur Guteneo, PDF, brouillon, crédit ou courrier. Il est publié dans la source `44d1d5bb64418372c5174faa1ce5601681fcc813` ; l'inscription réelle du 17 septembre 2026 est consignée ci-dessous. Il ne remplace pas la qualification du parcours utilisateur et n'active aucun envoi.
+This module inspects and registers notifications for the configured Pingen account
+without a Guteneo user account, PDF, draft, credit or letter. Published source:
+`44d1d5bb64418372c5174faa1ce5601681fcc813`. The real 17 September 2026 registration
+is recorded below. It neither qualifies the user journey nor enables sending.
 
-Le récepteur publié `/webhooks/pingen` vérifie déjà la signature HMAC-SHA256 du corps intact, l'organisation fournisseur et le canal `letters`. Il enregistre un reçu durable avant de répondre positivement, déduplique les événements et reprend les projections interrompues par cron. La présence de ce code ne prouve pas qu'un abonnement existe chez Pingen, que son secret est installé, ni qu'une notification réelle a été reçue. Les événements `issues` restent conservés comme métadonnées d'un reçu `unrecognized` ; ils ne provoquent pas automatiquement un échec définitif.
+The published `/webhooks/pingen` receiver checks HMAC-SHA256 on unchanged bytes,
+provider organization and `letters` channel. It durably records before positive
+acknowledgement, deduplicates events and resumes interrupted projections through
+cron. Code presence alone proves no subscription, installed secret or received
+real notification. `issues` events remain metadata of an `unrecognized` receipt;
+they do not automatically cause terminal failure.
 
-## Inscription réellement vérifiée — 17 septembre 2026
+## Verified registration — 17 September 2026
 
-L'inspection privée initiale a lu une liste complète : les quatre catégories étaient absentes, sans journal et sans secret local. Une clé aléatoire de 32 caractères hexadécimaux a ensuite été transmise directement à l'entrée standard de Wrangler, sans fichier, argument ni affichage de sa valeur. La relecture Cloudflare confirme le binding secret, la version `7eb55d92-4434-4c0d-9701-4a4e8c348f87` à 100 % du trafic et `LIVE_SENDS_ENABLED=false` ; la source reste `44d1d5b`.
+Initial private inspection read a complete list: all four categories absent,
+without journals or local secret. A random 32-character hexadecimal key passed
+directly to Wrangler stdin without a file, argument or displayed value. Cloudflare
+reread confirmed the secret binding, version `7eb55d92-4434-4c0d-9701-4a4e8c348f87`
+at 100% traffic and `LIVE_SENDS_ENABLED=false`; source remained `44d1d5b`.
 
-Les inscriptions ont été exécutées et leurs résultats examinés une par une : `issues`, `sent`, `undeliverable`, puis `delivered`. Une dernière inspection indépendante a relu les quatre catégories `matched` et leurs quatre journaux `registered`. Le récepteur public refuse un corps non signé avec `401 WEBHOOK_REJECTED`. Les comptes utilisateurs, organisations, documents, dispatches et reçus Pingen sont toujours à zéro dans D1.
+Registration results were inspected individually: `issues`, `sent`, `undeliverable`,
+then `delivered`. Final independent inspection found four `matched` categories and
+four `registered` journals. The public receiver rejected unsigned content with
+`401 WEBHOOK_REJECTED`. D1 user, organization, document, dispatch and Pingen-receipt
+tables still contained zero rows.
 
-Cette preuve établit la configuration des abonnements, pas la réception d'une notification signée par Pingen. Aucun bouton fournisseur de test n'a été utilisé, aucun courrier n'a été créé ou expédié et aucun crédit n'a été acheté. La recette du transport signé et du parcours applicatif reste ouverte. Preuves filtrées : `reports/pingen-webhook-registration-20260917.json`, `reports/pingen-webhook-secret-20260917.json`, `reports/pingen-webhook-public-checks-20260917.json` et `reports/pingen-webhooks-d1-counts-20260917.json`. Les heures des étapes dans le premier rapport sont celles des captures locales, pas les dates de création internes du fournisseur.
+This proves subscription configuration, not receipt of a Pingen-signed notification.
+No provider test button was used, no letter created/sent and no credit purchased.
+Signed transport and application journeys remain unqualified. Filtered reports:
+`reports/pingen-webhook-registration-20260917.json`,
+`reports/pingen-webhook-secret-20260917.json`,
+`reports/pingen-webhook-public-checks-20260917.json`,
+`reports/pingen-webhooks-d1-counts-20260917.json`. First-report timestamps are local
+capture times rather than provider-internal creation dates.
 
-## Contrat et autorité
+## Contract and authority
 
-`ProviderInspection.configurePingenWebhooks(input)` est une RPC accessible uniquement par service binding Cloudflare privé. `ProviderInspection.fetch()` reste 404. Aucun endpoint HTTP applicatif, outil MCP ou rôle utilisateur ne reçoit cette capacité. L'autorité est celle de l'opérateur autorisé à configurer ce Worker ; un accès de compte Guteneo ne donne pas cette autorité.
-
-Seules ces entrées strictes sont acceptées :
+`ProviderInspection.configurePingenWebhooks(input)` is private Cloudflare
+service-binding RPC; `ProviderInspection.fetch()` remains 404. No application HTTP
+endpoint, MCP tool or user role receives it. Only the operator authorized to
+configure this Worker has that authority; a Guteneo account does not confer it.
+Strict inputs are:
 
 ```json
 {"action":"inspect"}
@@ -26,33 +51,73 @@ Seules ces entrées strictes sont acceptées :
 {"action":"register","category":"delivered"}
 ```
 
-Tout champ supplémentaire est refusé. Le client ne choisit ni organisation, identifiant d'abonnement, secret, URL, environnement, portée OAuth ou méthode fournisseur. L'organisation et les accès proviennent des bindings existants. L'unique cible est `https://guteneo.com/webhooks/pingen`. Le service ne possède aucun chemin de modification, suppression, test de notification, dépôt, envoi ou achat.
+Additional fields are refused. The client controls no organization, subscription
+ID, secret, URL, environment, OAuth scope or provider method. Existing bindings
+supply account and credentials. The sole target is
+`https://guteneo.com/webhooks/pingen`. No update, deletion, test notification,
+upload, send or purchase path exists.
 
-Les deux actions exigent `ENVIRONMENT=production`, `MODE=production`, `PINGEN_SANDBOX=false` et les accès Pingen configurés. L'inscription exige en plus `LIVE_SENDS_ENABLED=false` et un `PINGEN_WEBHOOK_SECRET` composé d'exactement 32 caractères hexadécimaux. Le secret doit être aléatoire et installé dans le binding Cloudflare par le parcours opérateur sécurisé ; il n'est ni généré, ni rendu, ni installé par cette RPC. L'inspection reste possible sans secret, et sans aucune écriture fournisseur ou R2.
+Both actions require `ENVIRONMENT=production`, `MODE=production`,
+`PINGEN_SANDBOX=false` and configured Pingen credentials. Registration additionally
+requires `LIVE_SENDS_ENABLED=false` and exactly 32 hexadecimal characters in
+`PINGEN_WEBHOOK_SECRET`. A secure operator flow installs the random secret;
+this RPC neither generates, returns nor installs it. Inspection works without it
+and writes neither provider configuration nor R2.
 
-## Inspection complète avant création
+## Complete inspection before creation
 
-Chaque opération demande explicitement le seul scope OAuth `webhook`. Conformément à RFC 6749 §5.1, son omission dans la réponse est acceptée lorsque le scope demandé reste inchangé ; une portée annoncée différente, élargie ou malformée est refusée.
+Every operation explicitly requests only OAuth `webhook`. Under RFC 6749 §5.1,
+omission in the token response is accepted when the requested scope is unchanged;
+different, broader or malformed advertised scope is rejected.
 
-La liste des abonnements est lue sur l'organisation configurée avec `page[number]` et `page[limit]=100`. La pagination doit être cohérente et complète : au maximum 5 pages et 500 entrées, sans identités répétées. Chaque objet doit appartenir à l'organisation attendue. Les liens renvoyés par le fournisseur ne sont jamais suivis. Un résultat incomplet, un changement de compte, une réponse malformée ou excessive bloque toute création. Chaque requête et sa consommation du corps sont limitées à 8 secondes et 64 Kio ; le budget réseau total d'une opération est 30 secondes.
+List the configured organization's subscriptions using `page[number]` and
+`page[limit]=100`. Pagination must be coherent and complete: at most five pages,
+500 entries, no duplicate identities, every object in the expected organization.
+Never follow provider links. Incomplete, changed-account, malformed or excessive
+responses block creation. Each request including body consumption is bounded by
+eight seconds and 64 KiB; total network budget is 30 seconds.
 
-Les abonnements visant d'autres URL et la catégorie `channel_subscriptions` sont laissés intacts. Pour la cible canonique, une catégorie peut être absente, correspondre exactement au secret configuré, rester invérifiable sans secret, ou présenter un conflit. Deux abonnements pour la même cible/catégorie, un secret différent ou une identité enregistrée remplacée constituent un conflit. Un conflit sur l'une des quatre catégories bloque toute nouvelle création. Aucune rotation ou réparation destructive n'est implicite.
+Other URLs and `channel_subscriptions` are untouched. A canonical category may be
+missing, match the configured secret, remain unverifiable without it, or conflict.
+Duplicate target/category, a different secret or replaced recorded identity is a
+conflict. Any category conflict blocks all creation. No implicit rotation or
+destructive repair occurs.
 
-Une inspection réussie avec `configuration:unverified` confirme seulement l'existence d'un abonnement, pas son secret. La comparaison des secrets s'effectue en mémoire avec `timingSafeEqual`. Les jetons, clés, identifiants, URL reçues et messages fournisseur ne sont jamais renvoyés ou écrits dans les logs applicatifs. Seul l'identifiant d'un abonnement connu peut être conservé dans le journal privé décrit ci-dessous.
+Successful `configuration:unverified` proves existence only, not secret equality.
+Secrets compare in memory using `timingSafeEqual`. Tokens, keys, received IDs/URLs
+and provider messages are never returned or application-logged. A known
+subscription ID alone may remain in the private journal.
 
-## Concurrence et issue inconnue
+## Concurrency and uncertainty
 
-Le journal opérateur privé utilise quatre objets R2 séparés du métier, sous `configuration/pingen/webhooks/v1/{category}.json`. Il contient une empreinte du compte/client, la catégorie, la date, une révision, un état et éventuellement l'identifiant fournisseur connu. Il ne contient ni clé de signature, ni jeton, ni accès client, ni URL reçue. Il n'écrit aucune table D1 ni organisation utilisateur.
+Four private non-business R2 objects at
+`configuration/pingen/webhooks/v1/{category}.json` store account/client hash,
+category, timestamp, revision, state and optional known provider ID. They contain
+no signing key, token, client credentials or received URL. No D1/user-organization
+write occurs.
 
-Avant le seul POST de création, une écriture conditionnelle R2 `etagDoesNotMatch:*` revendique durablement la catégorie. Deux opérations concurrentes ne peuvent pas toutes deux créer. Les transitions du journal exigent ensuite l'ETag exact. Les états sont `claimed`, `registered`, `unknown` et `rejected`. Une perte de réponse R2, un crash avant ou après POST, une erreur HTTP ambiguë, une expiration ou un accusé 201 invalide ne redonnent jamais le droit de créer. Il n'existe aucun bail expirant vers une nouvelle tentative.
+Before the only creation POST, conditional R2 `etagDoesNotMatch:*` durably claims
+the category, preventing concurrent double creation. Later transitions require
+exact ETags. States are `claimed`, `registered`, `unknown`, `rejected`. Lost R2
+responses, crashes before/after POST, ambiguous HTTP, expiry or invalid 201 never
+restore creation authority. There is no retry-enabling expiring lease.
 
-Une réponse 4xx non ambiguë laisse un état `rejected`, également sans relance automatique. Les erreurs 408/409/425/429, redirections et 5xx sont conservées comme inconnues. Le fournisseur peut avoir créé l'abonnement avant la perte de réponse : recommencer le POST serait dangereux même lorsque la première liste suivante ne le retrouve pas.
+Unambiguous 4xx leaves `rejected`, still without automatic retry. 408/409/425/429,
+redirects and 5xx remain unknown. The provider may have created a subscription
+before response loss; another POST is unsafe even if the next list cannot find it.
 
-Une inspection ultérieure peut constater un abonnement unique, exactement conforme, et rendre `configuration:matched` avec un journal encore `claimed` ou `unknown`. Elle ne change pas le journal. Une action `register` explicite suivante peut finaliser ce journal par CAS à partir de cette observation, sans nouveau POST. Un abonnement conforme déjà présent sans journal est simplement reconnu sans être modifié ni adopté comme une création de cet outil. Une disparition ou un changement d'identité après inscription nécessite une décision opérateur séparée ; cet outil ne supprime jamais un verrou pour réparer automatiquement.
+Later inspection may find one exact match while the journal remains `claimed` or
+`unknown`; inspection does not mutate it. A subsequent explicit `register` can CAS
+finalize that observation without another POST. An existing matching subscription
+without a journal is recognized without mutation or attribution to this tool.
+Disappearance or identity changes require a separate operator decision; the tool
+never deletes locks to repair automatically.
 
-La protection concurrente couvre les opérations passant par ce journal. Une modification administrative simultanée directement chez Pingen ne peut pas être rendue transactionnelle avec R2 ; éviter ces modifications pendant l'inscription, puis relire l'état final.
+This guards operations through the journal. Direct concurrent provider-admin
+changes cannot be transactional with R2; avoid them during registration and reread
+final state.
 
-## Résultat filtré pour le driver
+## Filtered driver result
 
 ```ts
 type Category = "issues" | "sent" | "undeliverable" | "delivered";
@@ -79,13 +144,21 @@ type Result = {
 };
 ```
 
-Les codes sont limités à `input_invalid`, `configuration_invalid`, `secret_required`, `secret_invalid`, `request_failed`, `request_timeout`, `response_invalid`, `http_error`, `scope_mismatch`, `list_incomplete`, `webhook_conflict`, `journal_invalid`, `journal_unavailable`, `journal_conflict`, `registration_pending`, `registration_rejected`. Le statut HTTP éventuel est numérique ; aucune erreur libre n'est transmise. Les quatre catégories sont toujours présentes, y compris lors d'un échec initial.
+Codes are limited to `input_invalid`, `configuration_invalid`, `secret_required`,
+`secret_invalid`, `request_failed`, `request_timeout`, `response_invalid`,
+`http_error`, `scope_mismatch`, `list_incomplete`, `webhook_conflict`,
+`journal_invalid`, `journal_unavailable`, `journal_conflict`,
+`registration_pending`, `registration_rejected`. Optional HTTP status is numeric;
+no free-text error passes through. All four categories are always present, even
+after initial failure.
 
-Le driver doit limiter sa connexion et son appel RPC, refiltrer le résultat et ne jamais relancer une inscription après expiration. Une expiration avant l'appel RPC n'est pas une création ; après son déclenchement, l'issue peut être inconnue et la prochaine action est seulement `inspect`.
+The driver bounds connection/RPC time, refilters results and never retries
+registration after expiry. Timeout before RPC means no creation; after invocation,
+state may be unknown and the next action is `inspect` only.
 
-## Preuve requise après publication
+## Required post-publication proof
 
-Le driver opérateur dédié utilise ces commandes, une catégorie à la fois :
+The dedicated driver executes one category at a time:
 
 ```sh
 node scripts/setup-pingen-webhooks.mjs --inspect
@@ -96,15 +169,28 @@ node scripts/setup-pingen-webhooks.mjs --register delivered
 node scripts/setup-pingen-webhooks.mjs --inspect
 ```
 
-Les inscriptions ne doivent être exécutées qu'après le contrôle initial et l'installation autorisée du secret ; cette liste n'est pas un script à lancer sans examiner chaque résultat.
+This is not a batch to run without examining every result. Register only after
+initial inspection and authorized secret installation:
 
-1. Exécuter `inspect` sans secret et examiner les conflits éventuels.
-2. Si la configuration le permet et que l'opérateur l'a autorisé, installer le secret de 32 caractères hexadécimaux sans fichier, argument ou sortie contenant sa valeur.
-3. Inscrire explicitement chaque catégorie manquante, puis relire les quatre correspondances exactes. Conserver uniquement le résultat filtré.
-4. Qualifier séparément une notification réellement signée par Pingen, au moyen de son bouton officiel **Send test webhook**, sans courrier. Les chemins `requests/send-test`, `requests` et `retry` ont des opérations vides dans l'OpenAPI observé : cette tranche n'invente aucun appel à ces chemins. Ne pas fabriquer une notification locale et la présenter comme une preuve fournisseur.
+1. Inspect without a secret and examine conflicts.
+2. When configuration allows and the operator authorizes, install a random 32-character hexadecimal secret without value-bearing files, arguments or output.
+3. Explicitly register each missing category, then inspect all four exact matches; retain filtered results only.
+4. Separately qualify a real Pingen-signed notification through its official **Send test webhook** button, without a letter. Observed OpenAPI operations for `requests/send-test`, `requests` and `retry` were empty; invent no calls. Local fabricated notifications are not provider proof.
 
-Une réponse 201 d'inscription ou un résultat `matched` prouve une configuration, pas une notification. Même après un test de transport, la corrélation réelle d'une lettre, les transitions de suivi, le financement, le tarif, le compte utilisateur et le consentement restent des qualifications distinctes. `notificationsVerified` et `canSend` restent toujours faux dans cet outil.
+Registration 201 or `matched` proves configuration, not a notification. Even after
+transport testing, actual letter correlation, tracking transitions, funding,
+tariff, user account and consent remain separate. This tool always returns
+`notificationsVerified:false` and `canSend:false`.
 
-Sources primaires consultées le 17 septembre 2026 : [OpenAPI Pingen](https://api.pingen.com/documentation/swagger-docs) (`GET/POST /organisations/{organisationId}/webhooks`, scope `webhook`, clé de 20–32 caractères), [intégration officielle n8n Pingen](https://github.com/pingencom/n8n-nodes-pingen2), [RFC 6749 §5.1](https://www.rfc-editor.org/rfc/rfc6749#section-5.1), [écritures R2 conditionnelles](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/). Les documents/API officiels ne constituent pas une preuve d'exécution sur notre compte.
+Primary sources consulted 17 September 2026: [Pingen OpenAPI](https://api.pingen.com/documentation/swagger-docs)
+(`GET/POST /organisations/{organisationId}/webhooks`, `webhook`, 20–32-character key),
+[official n8n integration](https://github.com/pingencom/n8n-nodes-pingen2),
+[RFC 6749 §5.1](https://www.rfc-editor.org/rfc/rfc6749#section-5.1),
+[conditional R2 writes](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/).
+Official documentation is no account-execution evidence.
 
-Preuve locale : tests unitaires avec véritables écritures conditionnelles R2 Miniflare et transport fournisseur fictif, notamment concurrence, résultat inconnu, crash, perte d'écriture, pagination, clés/compte étrangers, entrées strictes, délais et absence de fuite. Rapport isolé `test-results/pingen-webhook-setup-vitest.json`, distinct du rapport global de release. Aucun fournisseur réel ni configuration distante n'est sollicité par ces tests.
+Local unit proof uses real Miniflare conditional R2 writes and synthetic provider
+transport: concurrency, unknown outcome, crash/write loss, pagination, foreign
+keys/accounts, strict inputs, timeout and no leakage. Separate report:
+`test-results/pingen-webhook-setup-vitest.json`, distinct from release totals.
+Tests use no real provider or remote configuration.

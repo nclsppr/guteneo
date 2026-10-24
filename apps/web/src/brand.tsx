@@ -37,7 +37,7 @@ export function Brand({
     <a
       className={`brand${compact ? " brand-compact" : ""}`}
       href={href ?? (app ? "#/app" : "/")}
-      aria-label={msg("guteneo, accueil")}
+      aria-label={msg("guteneo, home")}
     >
       <BrandMark variant={variant} />
       <span className="brand-wordmark">guteneo</span>

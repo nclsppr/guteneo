@@ -66,8 +66,8 @@ describe("Executable template authoring reference", () => {
     const envelope = validateTemplateEnvelope(request.envelope);
     expect(
       prepareTemplateRender(envelope, { personName: "Alex Exemple" }).inputs,
-    ).toEqual([{ greeting: "Bonjour Alex Exemple" }]);
-    expect(() => prepareTemplateRender(envelope, {})).toThrow("obligatoire");
+    ).toEqual([{ greeting: "Hello Alex Exemple" }]);
+    expect(() => prepareTemplateRender(envelope, {})).toThrow("required");
 
     const undeclaredPath = structuredClone(envelope);
     undeclaredPath.bindings[0].path = "undeclaredName";
@@ -115,7 +115,7 @@ describe("Executable template authoring reference", () => {
       const incomplete = structuredClone(envelope.sampleData);
       delete incomplete[required!];
       expect(() => prepareTemplateRender(envelope, incomplete)).toThrow(
-        "obligatoire",
+        "required",
       );
     },
   );
@@ -161,7 +161,7 @@ describe("Executable template authoring reference", () => {
   it("keeps quote totals exact while the delivery note has quantities without prices", () => {
     const quote = getTemplateExample("quote")!.envelope;
     const proposal = prepareTemplateRender(quote, quote.sampleData).inputs[0];
-    expect(proposal.total).toBe("Total proposé : 234,00 €");
+    expect(proposal.total).toBe("Proposed total: 234.00 €");
     expect(proposal.validUntil).toContain("31/10/2026");
     const delivery = getTemplateExample("delivery-note")!.envelope;
     const receipt = prepareTemplateRender(delivery, delivery.sampleData)

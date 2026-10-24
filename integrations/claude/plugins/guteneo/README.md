@@ -87,5 +87,5 @@ this candidate. Passing local format validation is not directory approval.
 
 [Claude Code plugin manifest](https://code.claude.com/docs/en/plugins-reference),
 [MCP authentication](https://code.claude.com/docs/en/mcp),
-[Guteneo privacy](https://guteneo.com/confidentialite/?lang=en),
+[Guteneo privacy](https://guteneo.com/privacy/?lang=en),
 [Guteneo support](https://guteneo.com/support/?lang=en).

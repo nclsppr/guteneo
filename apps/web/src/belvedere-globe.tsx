@@ -153,7 +153,7 @@ export function BelvedereGlobe({
     : null;
   const focus = hover ?? selected;
   const focusRow = data.find((row) => row.country === focus);
-  const metric = mode === "connections" ? bmsg("connexions") : bmsg("envois");
+  const metric = mode === "connections" ? bmsg("connections") : bmsg("deliveries");
   const max = Math.max(...data.map((row) => row.connections), 1);
   const selectCountry = useCallback((country: string) => {
     setSelected(country);
@@ -369,18 +369,18 @@ export function BelvedereGlobe({
     >
       <header className="bv-globe-header">
         <div>
-          <h2 id={titleId}>{bmsg("Le monde de guteneo.")}</h2>
+          <h2 id={titleId}>{bmsg("The world of guteneo.")}</h2>
           <p>
             {mode === "connections"
-              ? bmsg("D’où l’on se connecte.")
-              : bmsg("Où vont les envois.")}{" "}
-            <span>{bmsg("Une vue, pays par pays.")}</span>
+              ? bmsg("Where connections come from.")
+              : bmsg("Where dispatches go.")}{" "}
+            <span>{bmsg("A view, country by country.")}</span>
           </p>
         </div>
         <div
           className="bv-globe-switch"
           role="group"
-          aria-label={bmsg("Données du globe")}
+          aria-label={bmsg("Globe data")}
         >
           <button
             type="button"
@@ -390,7 +390,7 @@ export function BelvedereGlobe({
               setHover(null);
             }}
           >
-            {bmsg("Connexions")}
+            {bmsg("Connections")}
           </button>
           <button
             type="button"
@@ -419,7 +419,7 @@ export function BelvedereGlobe({
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,
               }).format(Math.abs(center[0]))}
-              ° {center[0] < 0 ? bmsg("O") : bmsg("E")}
+              ° {center[0] < 0 ? bmsg("W") : bmsg("E")}
             </span>
           </div>
           <canvas
@@ -428,7 +428,7 @@ export function BelvedereGlobe({
             tabIndex={0}
             role="img"
             aria-label={bmsg(
-              "Globe interactif : {0} {1}. Les mêmes données et la sélection des pays sont disponibles dans la liste.",
+              "Interactive globe: {0} {1}. The same data and country selection are available in the list.",
               format.format(total),
               metric,
             )}
@@ -495,33 +495,33 @@ export function BelvedereGlobe({
           />
           {loading && (
             <div className="bv-globe-loading" role="status">
-              {bmsg("Chargement de la géographie…")}
+              {bmsg("Loading geography…")}
             </div>
           )}
           <div className="bv-globe-toolbar">
             <p id={helpId}>
               <HandSwipeLeft size={17} aria-hidden="true" />
-              {bmsg(" Glisser pour explorer ")}
-              <span>{bmsg("· flèches au clavier")}</span>
+              {bmsg(" Drag to explore ")}
+              <span>{bmsg("· Keyboard arrows")}</span>
             </p>
             <div>
               <button
                 type="button"
-                aria-label={bmsg("Tourner le globe vers l’ouest")}
+                aria-label={bmsg("Rotate the globe west")}
                 onClick={() => rotate(-20)}
               >
                 <CaretLeft size={17} />
               </button>
               <button
                 type="button"
-                aria-label={bmsg("Recentrer le globe sur l’Europe")}
+                aria-label={bmsg("Recentre the globe on Europe")}
                 onClick={() => setCenter(DEFAULT_CENTER)}
               >
                 <ArrowCounterClockwise size={17} />
               </button>
               <button
                 type="button"
-                aria-label={bmsg("Tourner le globe vers l’est")}
+                aria-label={bmsg("Rotate the globe east")}
                 onClick={() => rotate(20)}
               >
                 <CaretRight size={17} />
@@ -534,18 +534,18 @@ export function BelvedereGlobe({
             <strong>{loading ? "—" : format.format(total)}</strong>
             <span>
               {metric}
-              {bmsg(" sur la période")}
+              {bmsg(" in this period")}
               <br />
               <b>
                 {format.format(data.filter((row) => row.country).length)}
-                {bmsg(" pays renseignés")}
+                {bmsg(" countries recorded")}
               </b>
             </span>
           </div>
           {data.length ? (
             <ol
               className="bv-globe-ranking"
-              aria-label={bmsg("Répartition des {0} par pays", metric)}
+              aria-label={bmsg("{0} by country", metric)}
             >
               {data.map((row) => (
                 <li key={row.country ?? "unknown"}>
@@ -582,7 +582,7 @@ export function BelvedereGlobe({
                     <div className="bv-globe-unknown-row">
                       <span className="bv-globe-country-code">—</span>
                       <span className="bv-globe-country-name">
-                        {bmsg("Pays non renseigné")}
+                        {bmsg("Country unspecified")}
                       </span>
                       <span className="bv-globe-country-value">
                         {format.format(row.connections)}
@@ -601,16 +601,16 @@ export function BelvedereGlobe({
               />
               <strong>
                 {loading
-                  ? bmsg("La carte se prépare.")
-                  : bmsg("La géographie reste à écrire.")}
+                  ? bmsg("The map is loading.")
+                  : bmsg("Geography is yet to be recorded.")}
               </strong>
               <p>
                 {mode === "connections"
                   ? bmsg(
-                      "Les pays apparaîtront lors des prochaines connexions observées.",
+                      "Countries will appear with the next observed connections.",
                     )
                   : bmsg(
-                      "Aucun pays de destination n’est renseigné sur cette période.",
+                      "No destination countries recorded in this period.",
                     )}
               </p>
             </div>
@@ -619,13 +619,13 @@ export function BelvedereGlobe({
             <span>
               {selectedRow
                 ? name(selectedRow.country)
-                : bmsg("Sélectionnez un pays")}
+                : bmsg("Select a country")}
             </span>
             <p>
               {selectedRow
-                ? `${format.format(selectedRow.connections)} ${metric}${mode === "distribution" && selectedDistribution ? bmsg(" · {0} livrés", format.format(selectedDistribution.delivered)) : ""}`
+                ? `${format.format(selectedRow.connections)} ${metric}${mode === "distribution" && selectedDistribution ? bmsg(" · {0} delivered", format.format(selectedDistribution.delivered)) : ""}`
                 : bmsg(
-                    "Les points du globe et la liste partagent la même sélection.",
+                    "Globe points and the list share the same selection.",
                   )}
             </p>
             {mode === "distribution" &&
@@ -635,7 +635,7 @@ export function BelvedereGlobe({
                   type="button"
                   onClick={() => onDistributionCountry(selectedRow.country)}
                 >
-                  {bmsg("Voir l’activité de ce pays")}{" "}
+                  {bmsg("View activity for this country")}{" "}
                   <ArrowRight size={15} aria-hidden="true" />
                 </button>
               )}
@@ -645,20 +645,20 @@ export function BelvedereGlobe({
       <footer className="bv-globe-footer">
         <span>
           <i />
-          {bmsg(" Points dimensionnés selon le volume")}
+          {bmsg(" Points sized by volume")}
         </span>
         <span>
           {unlocated
             ? bmsg(
-                "{0} {1} sans position cartographique · ",
+                "{0} {1} without a map location · ",
                 format.format(unlocated),
                 metric,
               )
             : ""}
           {mode === "connections"
-            ? bmsg("Pays observé lors de la connexion")
-            : bmsg("Pays renseigné pour la destination")}
-          {bmsg(". Position représentative du pays.")}
+            ? bmsg("Country observed when connecting")
+            : bmsg("Country recorded for the destination")}
+          {bmsg(". Representative country location.")}
         </span>
       </footer>
     </section>

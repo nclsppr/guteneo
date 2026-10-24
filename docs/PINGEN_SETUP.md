@@ -1,53 +1,122 @@
-# Connexion privée Pingen
+# Private Pingen connection
 
-Le parcours applicatif en cours de qualification expose maintenant le profil postal, le contrôle exact du PDF, la revue navigateur et la demande de devis. Voir [PINGEN_PREFLIGHT.md](PINGEN_PREFLIGHT.md). La création d’un brouillon est commandée séparément par `POSTAL_DRAFTS_ENABLED` ; l’expédition reste soumise à `LIVE_SENDS_ENABLED`, au devis et à l’approbation humaine. Les identifiants configurés ne prouvent aucune de ces activations.
+[Postal preflight](PINGEN_PREFLIGHT.md) owns PDF/address checks and the common
+browser/REST/MCP journey. `POSTAL_DRAFTS_ENABLED` separately gates draft creation;
+`LIVE_SENDS_ENABLED`, quote and approval still gate sending. Configured credentials
+prove none of those activations.
 
-La release `813dd717`, déployée le 17 septembre à 02:28 UTC, a introduit `POSTAL_DRAFTS_ENABLED=true` après la qualification distante du renderer et une nouvelle lecture réussie du profil EUR/LU/fenêtre gauche et de l’origine exacte de dépôt. La relecture du Worker publié confirme ce flag et le maintien de `LIVE_SENDS_ENABLED=false`. Le parcours applicatif permet uniquement le transfert explicitement consenti d’un PDF contrôlé vers un brouillon `auto_send:false`. Le test privé fictif effectué ensuite sur `5b91ad3` est décrit plus bas ; il ne qualifie pas le dépôt d’un document client, le consentement navigateur ou l’envoi.
+17 September release `813dd717` at 02:28 UTC enabled drafts after remote renderer
+qualification and a fresh EUR/LU/left-window profile plus exact upload-origin read.
+Published configuration retained `LIVE_SENDS_ENABLED=false`. The application
+allowed only explicit consented checked-PDF transfer to `auto_send:false` drafts.
+The separate synthetic `5b91ad3` test below qualifies neither customer-document
+upload, browser consent nor sending.
 
-Créer une application dédiée à Guteneo dans Pingen, type **Client Credentials**, puis lancer `node scripts/secure-setup.mjs pingen`. Le formulaire local exige `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET` et `PINGEN_ORGANIZATION_ID`. Il les transmet directement aux secrets du Worker via l’entrée standard de Wrangler ; aucun fichier d’accès, argument de processus ou sortie contenant leurs valeurs n’est produit. Voir [SECURE_CONFIGURATION.md](SECURE_CONFIGURATION.md).
+## Secure connection and inspection
 
-Cette installation ne modifie aucun flag d’activation ou d’environnement. Le secret `PINGEN_WEBHOOK_SECRET` n’est pas nécessaire pour l’authentification et la lecture de l’organisation. Aucun webhook n’est créé par ce parcours de connexion. Le secret et les quatre abonnements ont été configurés séparément le 17 septembre 2026 ; voir [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
+Create a dedicated Guteneo **Client Credentials** application, then run
+`node scripts/secure-setup.mjs pingen`. Its local form requires `PINGEN_CLIENT_ID`,
+`PINGEN_CLIENT_SECRET`, `PINGEN_ORGANIZATION_ID` and sends values through Wrangler
+stdin directly to Worker secrets, without credential files, value-bearing arguments
+or output. [Secure configuration](SECURE_CONFIGURATION.md) owns this mechanism.
+Installation changes no environment/activation flag and creates no webhook.
+`PINGEN_WEBHOOK_SECRET` is not needed to authenticate/read an organization;
+[webhook setup](PINGEN_WEBHOOK_SETUP.md) is separate.
 
-Après déploiement du point d’entrée privé, `node scripts/provider-readiness.mjs pingen` appelle le service Cloudflare `ProviderInspection`. Ce service n’expose aucune route HTTP d’inspection. Les accès restent dans Cloudflare ; le script local ne reçoit que le résultat filtré.
+After private entrypoint deployment, `node scripts/provider-readiness.mjs pingen`
+calls Cloudflare `ProviderInspection`, which has no HTTP inspection route.
+Credentials stay in Cloudflare; the local script receives filtered results only.
+Exactly two calls occur: `client_credentials` requesting only `organisation_read`,
+then `GET /organisations/{id}` for the configured account. Production hosts are
+`identity.pingen.com`/`api.pingen.com`; `PINGEN_SANDBOX=true` chooses separate staging
+hosts. For this private read only, absent sandbox flag selects production; the
+sending adapter still requires explicit configuration.
 
-L’inspection effectue exactement deux appels : un échange OAuth `client_credentials` limité à `organisation_read`, puis un `GET /organisations/{id}` pour l’organisation configurée. Elle utilise les hôtes canoniques `identity.pingen.com` et `api.pingen.com`. Si `PINGEN_SANDBOX=true`, elle utilise les hôtes staging distincts. Pour cette lecture privée uniquement, l’absence du flag désigne le compte de production ; l’adaptateur d’envoi conserve ses exigences de configuration explicite.
+Each request/body is bounded by eight seconds/64 KiB and refuses redirects.
+Inspection never lists organizations or follows returned links, reads files,
+creates drafts/quotes/purchases/letters. Output is limited to authentication,
+configured-organization match, billing currency, default destination and window.
+Errors show stage, fixed code and optional HTTP status; no name, address, balance,
+ID, token or provider message. `ok` proves access to this organization only, not
+credit, final price, printing or sending; `liveSendingVerified:false` always remains.
 
-Les redirections sont refusées, chaque requête expire après huit secondes et chaque réponse est limitée à64 Kio. Aucune liste d’organisations, aucun lien renvoyé par Pingen, aucun fichier, brouillon, devis, achat ou courrier n’est consulté ou créé. La réponse contient seulement la réussite de l’authentification, la correspondance avec l’organisation configurée, sa devise de facturation, son pays de destination par défaut et sa position d’adresse par défaut. Les erreurs exposent uniquement une étape, un code fixe et éventuellement le statut HTTP. Noms, adresses, soldes, identifiants, jetons et messages d’erreur Pingen sont exclus.
+Primary sources checked 17 September 2026:
+[Pingen OpenAPI](https://api.pingen.com/documentation/swagger-docs),
+[OAuth/environments](https://www.postman.com/pingen/pingen-v2-public-workspace/collection/t9s7epw/endpoints),
+[official organization SDK](https://github.com/pingencom/pingen2-sdk-go/blob/main/organisations/organisations.go),
+[application creation/signed notifications](https://github.com/pingencom/n8n-nodes-pingen2).
+Postman aliases `api.v2.pingen.com`/`api-staging.v2.pingen.com` did not resolve in
+that public check. Current OpenAPI/SDK hosts responded directly 401 without auth
+or redirect; the existing adapter already used them.
 
-Un résultat `ok` prouve uniquement que ces accès permettent de lire cette organisation. Il ne prouve ni un crédit disponible, ni un tarif final, ni l’aptitude à imprimer ou envoyer. `liveSendingVerified` reste toujours `false`.
+Synthetic intercepted tests cover scope, organization isolation, environments,
+no shared cache, bounds, redirects, errors and private-data omission, without real
+account/letter access.
 
-Sources officielles vérifiées le 17 septembre 2026 : [OpenAPI courant Pingen](https://api.pingen.com/documentation/swagger-docs), [documentation OAuth et environnements Pingen](https://www.postman.com/pingen/pingen-v2-public-workspace/collection/t9s7epw/endpoints), [contrat de lecture d’organisation du SDK officiel](https://github.com/pingencom/pingen2-sdk-go/blob/main/organisations/organisations.go), [création d’une application et notifications signées](https://github.com/pingencom/n8n-nodes-pingen2).
+## Separate upload-origin inspection
 
-Preuve locale : les tests interceptent les appels avec des réponses fictives. Ils couvrent portée OAuth, isolation de l’organisation, environnements, absence de cache partagé, limites, redirections, erreurs et exclusion des données privées. Aucun compte réel ni courrier n’a été utilisé dans ces tests.
+Drafts require explicit `PINGEN_SANDBOX=false` and an exact qualified
+`PINGEN_UPLOAD_ORIGINS`. OpenAPI's fictitious `s3.example` cannot establish a real
+origin. `node scripts/provider-readiness.mjs pingen-upload-origin` calls private
+`inspectPingenUploadOrigin`: OAuth then `GET /file-upload`, returning HTTPS origin
+only, never signed path/query/signature, and performing no PUT or allowlist write.
+Do not broadly allow `*.amazonaws.com`, `*.cloudscale.ch` or a fictional origin.
 
-Les alias `api.v2.pingen.com` et `api-staging.v2.pingen.com` figurent encore dans la collection Postman, mais ne résolvent pas lors de la vérification publique du 17 septembre 2026. Le client suit les hôtes de l’OpenAPI courant et du SDK officiel : `api.pingen.com` / `api-staging.pingen.com`. Leurs routes organisations répondent directement401 sans authentification, sans redirection. L’adaptateur postal existant utilise déjà ces hôtes et reste inchangé.
+The route declares `security:[{oauth2:[]}]`: token required, no additional business
+scope. Explicitly request `organisation_read`, without `letter`/`webhook`, because
+omitting scope gives all client scopes. Reject broadened OAuth response scope;
+account refusal never triggers escalation.
 
-Configuration requise avant un brouillon, désormais installée pour ce compte : `PINGEN_SANDBOX=false` et l’origine exacte qualifiée dans `PINGEN_UPLOAD_ORIGINS`. L’OpenAPI ne publie qu’une URL de stockage fictive (`s3.example`), donc aucune origine réelle ne peut être honnêtement déduite de cet exemple. La commande privée séparée `node scripts/provider-readiness.mjs pingen-upload-origin` observe seulement l’origine HTTPS renvoyée par `GET /file-upload`, sans journaliser ni renvoyer chemin, paramètres signés ou signature, et sans effectuer le `PUT`. Cette inspection reste distincte de la lecture de connexion ; elle ne modifie pas automatiquement l’allowliste. Ne pas autoriser globalement `*.amazonaws.com`, `*.cloudscale.ch` ou une origine fictive.
+Origin checks require HTTPS/public syntactically valid DNS, no credentials,
+nonstandard port, fragment, control character, IP or local name. No network call
+contacts storage. Observation proves neither jurisdiction, storage ownership nor
+upload; qualify before explicit configuration. Discard ephemeral signed URLs/tokens.
+Tests cover both environments, exact calls/scope, no PUT/link following, secret-free
+origin projection, ambiguous/local URLs, excessive bodies and no retry on failure.
 
-L’adaptateur postal demande le scope `letter` pour son préflight et ses opérations de lettres. Le scope `webhook` est réservé à l’inscription explicite et séparée de notifications ; `organisation_read` suffit au contrôle de connexion. Configurer les accès ne remplace pas les contrôles de PDF/adresse, le devis final, le secret des notifications, le financement et l’approbation humaine. Aucun flag d’envoi n’est modifié par ces utilitaires.
+Postal operations request `letter`; webhook registration separately requests
+`webhook`. Connection reading needs only `organisation_read`. Credentials never
+replace PDF/address checks, final quote, signed notifications, funding or approval;
+these utilities never activate sending.
 
-## Inspection séparée de l’origine de dépôt
+## Verified connection — 17 September 2026
 
-Le point d’entrée privé `inspectPingenUploadOrigin` effectue seulement l’échange OAuth puis `GET /file-upload`. L’OpenAPI courant déclare pour cette route `security: [{oauth2: []}]` : un jeton est requis, sans scope métier supplémentaire. La commande demande explicitement `organisation_read`, sans `letter` ni `webhook`, car Pingen accorde par défaut tous les scopes du client si le paramètre `scope` est omis. La réponse OAuth ne peut pas annoncer de portée élargie. Si le compte refuse cette lecture, le contrôle rapporte son statut sans tenter une autorisation plus large.
+A dedicated Guteneo Client Credentials application was created in the authorized
+Safari session. The private form installed the three Cloudflare credentials;
+only presence was reread. OAuth/organization read succeeded: EUR, default LU,
+left window. Portal balance was zero and no letters had been sent; no credit purchase.
 
-Seule `uploadOrigin` est rendue avec le statut technique. Le contrôle exige HTTPS, un nom DNS public syntaxiquement valide, aucun identifiant URL, port non standard, fragment, caractère de contrôle ou adresse IP ; les noms locaux sont rejetés. Aucun appel réseau ne cible le domaine de stockage. L’origine observée n’est donc ni une preuve de juridiction ou de propriété du stockage, ni une preuve de dépôt effectif : elle doit être qualifiée avant sa configuration explicite dans `PINGEN_UPLOAD_ORIGINS`. Les URL/signatures éphémères sont abandonnées après la lecture.
+Separate `/file-upload` read with only `organisation_read` returned
+`https://pingen2-production-transfer.objects.rma.cloudscale.ch`; this exact origin
+became the only `PINGEN_UPLOAD_ORIGINS` entry. `PINGEN_SANDBOX=false` represented the
+real account; `LIVE_SENDS_ENABLED=false` stayed unchanged. Initial inspection
+performed no PUT/draft/webhook/letter. Signed URLs/tokens stayed in Worker memory.
+A later private read with Wrangler 4.133.0 also succeeded.
 
-Les tests interceptés couvrent les deux environnements, les seuls appels autorisés, la portée de lecture, l’absence de `PUT` ou de suivi des liens, la projection de l’origine sans secrets, le refus des URL locales/ambiguës, les réponses excessives et les erreurs sans nouvelle tentative.
+## Synthetic draft qualification — 17 September 2026
 
-## Connexion réellement vérifiée — 17 septembre 2026
+Published source `5b91ad312ec14b40fa3441382d69782cc6343c96` returned a **151 EUR-cent**
+provider quote at 03:43:35 UTC for one normal-paper LU page, cheap/simplex/grayscale.
+This is dated account/option calculator evidence, not a universal customer tariff,
+tax qualification or invoice.
 
-L’application dédiée Guteneo, type Client Credentials, a été créée dans la session Safari autorisée. Le formulaire privé a installé les trois accès Cloudflare ; seules leurs présences ont été relues. OAuth puis la lecture de l’organisation configurée ont réussi : devise EUR, destination par défaut LU, fenêtre à gauche. Le portail affichait un solde nul et aucun courrier envoyé ; aucun achat de crédit n’a été réalisé.
+Only the embedded synthetic PDF was uploaded; `auto_send:false` draft creation
+succeeded at 03:43:56. At 03:44:16, inspection confirmed one page, expected address/
+country, normal paper and embedded fonts, without submission. Provider submit/delete
+abilities confer no Guteneo authority. `/file` 302 was observed without following
+Location or qualifying the final print preview. API deletion succeeded at 03:44:43;
+durable `deleted` was reread at 03:45:22. This proves no immediate erasure of all
+provider copies. No letter was sent; business user/organization/document/dispatch/
+fax-v3 tables stayed empty. Only the private R2 technical journal remains.
+`appJourneyVerified`, `liveSendingVerified`, `canSend` stayed false.
+Reports: `reports/pingen-synthetic-qualification-20260917.json`,
+`reports/pingen-synthetic-d1-counts-20260917.json`;
+[synthetic protocol](PINGEN_SYNTHETIC_QUALIFICATION.md).
 
-La lecture séparée de `/file-upload`, avec le seul scope `organisation_read`, a réussi et projeté `https://pingen2-production-transfer.objects.rma.cloudscale.ch`. Cette origine exacte est installée comme seule valeur de `PINGEN_UPLOAD_ORIGINS`. `PINGEN_SANDBOX=false` reflète le compte réel ; `LIVE_SENDS_ENABLED=false` reste inchangé. Cette inspection initiale n’a effectué aucun PUT ni créé de brouillon, webhook ou courrier. Les URL signées et jetons sont restés dans la mémoire du Worker. Une nouvelle lecture privée de l’organisation avec Wrangler 4.133.0 a également réussi ; le test de dépôt distinct est consigné ci-dessous.
+Four tracking subscriptions (`issues`, `sent`, `undeliverable`, `delivered`) were
+later registered and signing configuration reread exactly. Unsigned notifications
+are refused. No Pingen-generated test was yet received; see [webhook proof](PINGEN_WEBHOOK_SETUP.md).
 
-## Brouillon fictif réellement qualifié — 17 septembre 2026
-
-Sur l’application publiée `5b91ad312ec14b40fa3441382d69782cc6343c96`, la RPC privée a obtenu à 03:43:35 UTC un prix fournisseur de **151 centimes EUR** pour une page, destination LU, papier normal, cheap/simplex/grayscale. Il s’agit du résultat daté du calculateur de ce compte pour ces paramètres, pas d’un tarif client universel, d’une qualification fiscale ou d’une facture finale.
-
-Le seul PDF fictif embarqué a été déposé et son brouillon `auto_send:false` créé à 03:43:56 UTC. L’inspection à 03:44:16 UTC a confirmé une page, l’adresse et le pays attendus, le papier normal et les polices incorporées, sans soumission. Les capacités fournisseur de soumission et de suppression étaient présentes ; elles ne donnent aucune autorisation d’envoi Guteneo. Le 302 de `/file` a seulement été observé, sans suivre `Location` ni qualifier l’aperçu final d’impression.
-
-La suppression API a réussi à 03:44:43 UTC et le journal durable a été relu dans l’état `deleted` à 03:45:22 UTC. Cela ne prouve pas l’effacement immédiat de toutes les copies fournisseur. Aucun courrier n’a été expédié. Les tables utilisateurs, organisations, documents, dispatches et fax v3 sont restées vides ; le seul journal technique privé est dans R2. `appJourneyVerified`, `liveSendingVerified` et `canSend` restent faux. Preuves : `reports/pingen-synthetic-qualification-20260917.json`, `reports/pingen-synthetic-d1-counts-20260917.json` et [PINGEN_SYNTHETIC_QUALIFICATION.md](PINGEN_SYNTHETIC_QUALIFICATION.md).
-
-Les quatre abonnements de suivi (`issues`, `sent`, `undeliverable`, `delivered`) sont désormais inscrits et leur signature configurée a été relue exactement. Le récepteur rejette les notifications non signées. Aucun test émis par Pingen n'a encore été reçu ; voir [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
-
-Restent à qualifier : réception d’une notification signée par Pingen, inscription et consentement navigateur pour un document client exact, aperçu final, politique tarifaire active par compte/route, crédit fournisseur et expédition explicitement autorisée. Le test LU ne qualifie pas automatiquement la grille française La Poste, le parcours applicatif ou l’acheminement postal.
+Still separate: real signed notification, customer-document signup/browser consent,
+final preview, active account/route tariff, provider credit and explicitly authorized
+send. LU evidence does not qualify French La Poste, the app journey or delivery.

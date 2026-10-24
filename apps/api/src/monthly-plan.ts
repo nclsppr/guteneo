@@ -59,7 +59,7 @@ function requireEnabled(env: HorizonEnv): void {
   if (!horizonAvailable(env))
     fail(
       "HORIZON_UNAVAILABLE",
-      "Le forfait Horizon n’est pas encore disponible pour cet espace.",
+      "The Horizon plan is not yet available for this workspace.",
       503,
     );
 }
@@ -70,11 +70,11 @@ async function membership(env: HorizonEnv, actor: AuthContext) {
     .bind(actor.organizationId, actor.userId)
     .first<{ role: string; mode: "simulation" | "production" }>();
   if (!current)
-    fail("MEMBERSHIP_REQUIRED", "Cet espace n’est pas accessible.", 403);
+    fail("MEMBERSHIP_REQUIRED", "This workspace is inaccessible.", 403);
   if (current.mode !== env.MODE)
     fail(
       "HORIZON_MODE_MISMATCH",
-      "Le mode de cet espace est incompatible.",
+      "This workspace’s mode is incompatible.",
       403,
     );
   return current;
@@ -131,7 +131,7 @@ export async function requireHorizonPlan(
   if (!status.entitled)
     fail(
       "HORIZON_PLAN_REQUIRED",
-      "Un forfait guteneo Horizon actif est nécessaire. L’administrateur peut le gérer dans Guteneo.",
+      "An active guteneo Horizon plan is required. The administrator can manage it in Guteneo.",
       402,
     );
   return status;
@@ -154,12 +154,12 @@ export function horizonPeriodEnd(
 function key(request: Request): string {
   const value = request.headers.get("Idempotency-Key") ?? "";
   if (!/^[A-Za-z0-9_-]{8,128}$/.test(value))
-    fail("IDEMPOTENCY_KEY_REQUIRED", "Une clé de souscription est nécessaire.");
+    fail("IDEMPOTENCY_KEY_REQUIRED", "A subscription key is required.");
   return value;
 }
 async function body(request: Request, subscribing: boolean): Promise<void> {
   const raw = await request.text();
-  if (raw.length > 512) fail("VALIDATION_ERROR", "Données invalides.");
+  if (raw.length > 512) fail("VALIDATION_ERROR", "Invalid data.");
   try {
     const schema = subscribing
       ? z
@@ -174,8 +174,8 @@ async function body(request: Request, subscribing: boolean): Promise<void> {
     fail(
       subscribing ? "HORIZON_CONSENT_REQUIRED" : "VALIDATION_ERROR",
       subscribing
-        ? "Confirmez le prix de 30 € par mois, le débit des crédits et le renouvellement mensuel."
-        : "Données invalides.",
+        ? "Confirm the EUR30 monthly price, credit debit and monthly renewal."
+        : "Invalid data.",
     );
   }
 }
@@ -189,7 +189,7 @@ async function browserAction(
   if (session.context.actor !== "browser" || current.role !== "admin")
     fail(
       "BILLING_ADMIN_REQUIRED",
-      "Seul l’administrateur gère le forfait.",
+      "Only the administrator manages the plan.",
       403,
     );
   const existing = await env.DB.prepare(
@@ -199,7 +199,7 @@ async function browserAction(
     .first<{ action: string }>();
   if (existing) {
     if (existing.action !== action)
-      fail("IDEMPOTENCY_CONFLICT", "Cette clé a déjà été utilisée.", 409);
+      fail("IDEMPOTENCY_CONFLICT", "This key has already been used.", 409);
     return;
   }
   const now = new Date();
@@ -249,10 +249,10 @@ ON CONFLICT(organization_id,request_key) DO NOTHING`,
         .first<{ action: string }>();
       if (replay?.action === action) return;
       if (replay)
-        fail("IDEMPOTENCY_CONFLICT", "Cette clé a déjà été utilisée.", 409);
+        fail("IDEMPOTENCY_CONFLICT", "This key has already been used.", 409);
       fail(
         "BILLING_ADMIN_REQUIRED",
-        "Vos droits ou votre session ont changé.",
+        "Your permissions or session have changed.",
         403,
       );
     }
@@ -262,13 +262,13 @@ ON CONFLICT(organization_id,request_key) DO NOTHING`,
     if (message.includes("horizon_credit_exhausted"))
       fail(
         "HORIZON_CREDIT_INSUFFICIENT",
-        "Le forfait nécessite 30 € de crédits disponibles, hors réservations.",
+        "The plan requires EUR30 in available credits, excluding reservations.",
         409,
       );
     if (message.includes("horizon_admin_required"))
       fail(
         "BILLING_ADMIN_REQUIRED",
-        "Vos droits ou votre session ont changé.",
+        "Your permissions or session have changed.",
         403,
       );
     throw error;
@@ -283,7 +283,7 @@ export async function handleMonthlyPlanRoute(
   if (request.headers.has("Authorization"))
     fail(
       "BILLING_BROWSER_REQUIRED",
-      "Gérez le forfait dans votre navigateur.",
+      "Manage the plan in your browser.",
       403,
     );
   const mutating = request.method !== "GET";
@@ -298,7 +298,7 @@ export async function handleMonthlyPlanRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       {
@@ -328,14 +328,14 @@ export async function handleMonthlyPlanRoute(
       current.context.organizationId !== session.context.organizationId ||
       current.context.userId !== session.context.userId
     )
-      fail("BILLING_ADMIN_REQUIRED", "Votre session a changé.", 403);
+      fail("BILLING_ADMIN_REQUIRED", "Your session has changed.", 403);
     const status = await getHorizonStatus(env, current.context);
     if (!status.billingManagementAllowed)
-      fail("BILLING_ADMIN_REQUIRED", "Vos droits ont changé.", 403);
+      fail("BILLING_ADMIN_REQUIRED", "Your permissions have changed.", 403);
     return Response.json(status, { headers: { "Cache-Control": "no-store" } });
   }
   return Response.json(
-    { error: { code: "NOT_FOUND", message: "Route du forfait introuvable." } },
+    { error: { code: "NOT_FOUND", message: "Plan route not found." } },
     { status: 404, headers: { "Cache-Control": "no-store" } },
   );
 }

@@ -57,12 +57,12 @@ export function HorizonBenefits() {
   return (
     <ul className="horizon-benefits">
       {[
-        msg("100 contrôles PDF par mois, sans supplément par contrôle"),
-        msg("Contrôles PDF/UA-1 et PDF/UA-2 pour l’accessibilité"),
-        msg("Validation PDF/A-1b, 2b, 3b et 4 pour l’archivage"),
-        msg("Rapports exportables liés à l’empreinte du PDF original"),
-        msg("Repères de revue humaine et contrôles depuis votre assistant"),
-        msg("Gestion de la facturation réservée à l’administrateur"),
+        msg("100 PDF checks per month, with no per-check surcharge"),
+        msg("PDF/UA-1 and PDF/UA-2 accessibility checks"),
+        msg("PDF/A-1b, 2b, 3b and 4 archival validation"),
+        msg("Exportable reports linked to the original PDF fingerprint"),
+        msg("Human review guidance and checks from your assistant"),
+        msg("Billing management reserved for the administrator"),
       ].map((text) => (
         <li key={text}>
           <Check size={18} aria-hidden="true" />
@@ -78,12 +78,12 @@ export function HorizonCreditTerms() {
     <>
       <p className="horizon-limit">
         {msg(
-          "Si votre compte dispose encore d’au moins 30 € de crédits promotionnels, ils peuvent financer la première période. Ce montant est déduit de votre solde.",
+          "If your account still has at least €30 in promotional credits, they can fund the first period. This amount is deducted from your balance.",
         )}
       </p>
       <p className="horizon-limit">
         {msg(
-          "Sans 30 € de crédits disponibles à l’échéance, le renouvellement est suspendu à la fin de la période payée, sans dette ni solde négatif. La recharge de crédits n’est pas encore disponible.",
+          "Without €30 in available credits when the period ends, renewal is suspended at the end of the paid period, without debt or a negative balance. Credit top-ups are not available yet.",
         )}
       </p>
     </>
@@ -94,8 +94,8 @@ export function HorizonPage({ session }: { session: Session }) {
   return (
     <>
       <PageHeading
-        title={msg("Forfait Horizon")}
-        intro={msg("Des documents mieux préparés, un atelier mieux équipé.")}
+        title={msg("Horizon plan")}
+        intro={msg("Better prepared documents, a better equipped workspace.")}
       />
       <HorizonAccount key={session.organization.id} session={session} />
     </>
@@ -162,16 +162,16 @@ export function HorizonOffer({
     (plan.creditAvailableMinor !== null &&
       plan.creditAvailableMinor >= plan.plan.priceMinor);
   const status = plan.cancelAtPeriodEnd
-    ? msg("Résiliation programmée")
+    ? msg("Cancellation scheduled")
     : plan.status === "past_due"
-      ? msg("Crédit insuffisant au renouvellement")
+      ? msg("Insufficient credit at renewal")
       : plan.status === "active"
         ? available && plan.entitled
-          ? msg("Forfait actif")
-          : msg("Forfait souscrit")
+          ? msg("Plan active")
+          : msg("Plan subscribed")
         : !available
-          ? msg("Bientôt disponible")
-          : msg("Sans forfait mensuel");
+          ? msg("Coming soon")
+          : msg("No monthly plan");
 
   async function subscribe(event: FormEvent) {
     event.preventDefault();
@@ -186,9 +186,9 @@ export function HorizonOffer({
       subscribeKey.current = null;
       setNotice(
         restoreRenewal
-          ? msg("Le renouvellement mensuel a été rétabli.")
+          ? msg("Monthly renewal has been restored.")
           : msg(
-              "Le forfait a été souscrit. Actualisez son état pour consulter votre période.",
+              "Your plan has been subscribed. Refresh its status to view your period.",
             ),
       );
       setConsent(false);
@@ -208,7 +208,7 @@ export function HorizonOffer({
       cancelKey.current = null;
       setNotice(
         msg(
-          "La résiliation a été demandée. Actualisez l’état de votre forfait.",
+          "Cancellation has been requested. Refresh your plan status.",
         ),
       );
       setCancelConsent(false);
@@ -225,51 +225,51 @@ export function HorizonOffer({
       <div className="section-toolbar">
         <div>
           <p className="eyebrow">guteneo Horizon</p>
-          <h2 id="horizon-offer-title">{msg("Forfait Horizon")}</h2>
+          <h2 id="horizon-offer-title">{msg("Horizon plan")}</h2>
         </div>
         <RefreshButton onClick={refresh} disabled={loading || action.pending} />
       </div>
       <p className="horizon-price">
         <strong>{amount}</strong>
-        <span>{msg("par mois")}</span>
+        <span>{msg("per month")}</span>
       </p>
       <p className="status" role="status">
         {status}
       </p>
       <p>
         {msg(
-          "Le forfait est prélevé chaque mois sur les crédits disponibles du compte. Les envois consomment leur propre crédit.",
+          "The plan is deducted each month from the account’s available credits. Sending uses separate credit.",
         )}
       </p>
       {available && <HorizonCreditTerms />}
       <HorizonBenefits />
       <p className="horizon-limit">
         {msg(
-          "Limite incluse : 100 tentatives de contrôle par mois civil, PDF de 10 Mio et 100 pages maximum. Les contrôles interrompus comptent dans cette limite.",
+          "Included allowance: 100 check attempts per calendar month, PDFs up to 10 MiB and 100 pages. Interrupted checks count towards this limit.",
         )}
       </p>
       {!available && (
         <p className="notice info">
           {plan.status === "inactive"
             ? msg(
-                "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.",
+                "This offer is being prepared. Subscriptions and PDF checks will open once the service is activated.",
               )
             : msg(
-                "Le service Horizon est indisponible. L’administrateur peut toujours arrêter le renouvellement du forfait.",
+                "The Horizon service is unavailable. The administrator can still stop the plan’s renewal.",
               )}
         </p>
       )}
       {plan.evidence === "simulation" && (
         <p className="notice info">
           {msg(
-            "Atelier de simulation : les montants et les droits affichés sont fictifs.",
+            "Simulation workspace: the displayed amounts and entitlements are fictional.",
           )}
         </p>
       )}
       {plan.currentPeriodEnd && (
         <>
           <p>
-            {msg("Période en cours jusqu’au {0}.", date(plan.currentPeriodEnd))}
+            {msg("Current period ends on {0}.", date(plan.currentPeriodEnd))}
           </p>
           <DateTimezone />
         </>
@@ -277,13 +277,13 @@ export function HorizonOffer({
       {!admin && (
         <p>
           {msg(
-            "Seul l’administrateur de votre atelier peut souscrire, résilier et gérer la facturation.",
+            "Only your workspace administrator can subscribe, cancel and manage billing.",
           )}
         </p>
       )}
       {admin && available && plan.creditAvailableMinor !== null && (
         <p>
-          {msg("Crédit disponible : {0}.", money(plan.creditAvailableMinor))}
+          {msg("Available credit: {0}.", money(plan.creditAvailableMinor))}
         </p>
       )}
       <ErrorNotice error={action.error} />
@@ -307,7 +307,7 @@ export function HorizonOffer({
             />
             <span>
               {msg(
-                "J’accepte le forfait Horizon à {0} par mois, prélevé sur les crédits du compte, avec renouvellement mensuel jusqu’à résiliation.",
+                "I accept the Horizon plan at {0} per month, deducted from account credits, renewing monthly until cancelled.",
                 amount,
               )}
             </span>
@@ -315,14 +315,14 @@ export function HorizonOffer({
           <p id="horizon-subscribe-help">
             {restoreRenewal
               ? msg(
-                  "La période déjà payée est conservée sans nouveau débit. Les prochains renouvellements seront prélevés chaque mois sur les crédits du compte.",
+                  "The paid period is retained without a new charge. Future renewals will be deducted monthly from account credits.",
                 )
               : enoughCredit
                 ? msg(
-                    "La première période est débitée à la souscription. La résiliation arrête le prochain renouvellement.",
+                    "The first period is charged when you subscribe. Cancellation stops the next renewal.",
                   )
                 : msg(
-                    "Il faut au moins 30 € de crédits disponibles pour souscrire. La recharge de crédits n’est pas encore disponible.",
+                    "You need at least €30 in available credits to subscribe. Credit top-ups are not available yet.",
                   )}
           </p>
           <button
@@ -330,20 +330,20 @@ export function HorizonOffer({
             disabled={!consent || !enoughCredit || action.pending || loading}
           >
             {action.pending
-              ? msg("Souscription en cours…")
+              ? msg("Subscribing…")
               : restoreRenewal
-                ? msg("Rétablir le renouvellement")
-                : msg("Souscrire Horizon")}
+                ? msg("Restore renewal")
+                : msg("Subscribe to Horizon")}
           </button>
         </form>
       )}
       {canCancel && (
         <details className="horizon-cancel">
-          <summary>{msg("Résilier le forfait")}</summary>
+          <summary>{msg("Cancel the plan")}</summary>
           <form onSubmit={(event) => void cancel(event)}>
             <p>
               {msg(
-                "La résiliation arrête le prochain prélèvement mensuel, y compris si le service est indisponible.",
+                "Cancellation stops the next monthly deduction, including when the service is unavailable.",
               )}
             </p>
             <label className="checkbox-field">
@@ -354,21 +354,21 @@ export function HorizonOffer({
                 disabled={action.pending}
               />
               <span>
-                {msg("Je confirme l’arrêt du renouvellement mensuel.")}
+                {msg("I confirm stopping monthly renewal.")}
               </span>
             </label>
             <button
               className="button"
               disabled={!cancelConsent || action.pending}
             >
-              {msg("Confirmer la résiliation")}
+              {msg("Confirm cancellation")}
             </button>
           </form>
         </details>
       )}
       {!billing && horizonBillingAllowed(session, plan) && (
         <a className="button" href="#/app/billing">
-          {msg("Gérer la facturation")}
+          {msg("Manage billing")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
       )}
@@ -376,7 +376,7 @@ export function HorizonOffer({
         <ShieldCheck size={18} aria-hidden="true" />
         <span>
           {msg(
-            "Les contrôles automatiques apportent des repères techniques. Ils ne remplacent pas une revue humaine et ne constituent pas une certification de conformité légale.",
+            "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
           )}
         </span>
       </p>

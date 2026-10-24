@@ -203,7 +203,7 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
         estimate: {
           lowEur: "0.035280000",
           highEur: "0.055440000",
-          label: "Environ 0,0353 à 0,0554 € HT",
+          label: "About EUR0.0353 to 0.0554 excl. tax",
         },
         ceiling: { eur: "1.00" },
         legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
@@ -793,7 +793,7 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
           status: "prepared",
           faxPricing: {
             routeQualification: "operator_authorized_test",
-            routeNotice: expect.stringContaining("n’est pas confirmée"),
+            routeNotice: expect.stringContaining("is unconfirmed"),
             ceilingMinor: 200,
           },
         },
@@ -817,7 +817,7 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     const d = await queue(200);
     expect(d.faxPricing).toMatchObject({
       routeQualification: "operator_authorized_test",
-      routeNotice: expect.stringContaining("n’est pas confirmée"),
+      routeNotice: expect.stringContaining("is unconfirmed"),
       ceilingMinor: 200,
     });
     expect(await balance()).toEqual({

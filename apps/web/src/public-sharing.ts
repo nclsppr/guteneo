@@ -5,6 +5,12 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import { getPublicSocialCopy } from "./editorial/social-copy";
 import editorial from "./locales/messages-editorial.json";
 import shell from "./locales/messages-shell.json";
+import { englishMessages, translateMessage } from "./message-catalog";
+
+const sharingMessages = { ...editorial, ...shell };
+const sharingEnglish = englishMessages(sharingMessages);
+const translatePublicText = (source: string, locale: SupportedLocale) =>
+  translateMessage(source, locale, sharingEnglish, sharingMessages, []);
 
 const localeTags = { fr: "fr_FR", en: "en_GB", de: "de_DE", lb: "lb_LU" };
 
@@ -26,10 +32,6 @@ export function localizePublicSchema(
   };
   const urlFor = (path: string) =>
     `${site.origin}${path}${locale ? `?lang=${locale}` : ""}`;
-  const translate = (source: string, translations: readonly string[]) =>
-    language === "fr"
-      ? source
-      : translations[{ en: 0, de: 1, lb: 2 }[language]];
   function visit(value: unknown, key = ""): unknown {
     if (key === "inLanguage") return language;
     if (["url", "item", "mainEntityOfPage"].includes(key)) {
@@ -52,10 +54,10 @@ export function localizePublicSchema(
     if (source["@type"] === "ListItem") {
       const path = publicPath(source.item);
       const names: Record<string, string> = {
-        "/": translate("Accueil", editorial.Accueil),
-        "/journal/": translate("Le journal", editorial["Le journal"]),
-        "/assistants/": translate("Assistants", shell.Assistants),
-        "/developpeurs/": translate("Développeurs", shell["Développeurs"]),
+        "/": translatePublicText("Home", language),
+        "/journal/": translatePublicText("The journal", language),
+        "/assistants/": translatePublicText("Assistants", language),
+        "/developers/": translatePublicText("Developers", language),
         "/assistants/chatgpt/": "ChatGPT",
         "/assistants/claude/": "Claude",
         "/assistants/grok/": "Grok",
@@ -131,10 +133,10 @@ export function publicSocialImage(
 ) {
   if (!locale || !path.startsWith("/journal/"))
     return cards[locale ?? "neutral"];
-  const luxembourg = path === "/journal/histoire-imprimerie-luxembourg/";
+  const luxembourg = path === "/journal/printing-history-luxembourg/";
   const description = luxembourg
-    ? "Presse, caractères mobiles et livres devant une vue illustrée des toits et de la vallée de Luxembourg, gravés en bleu."
-    : "Composition illustrée réunissant une presse ancienne, des lettres, un fax et un ordinateur autour de pages imprimées.";
+    ? "A printing press, movable type and books before an illustrated view of Luxembourg’s rooftops and valley, engraved in blue."
+    : "Illustration bringing together an old printing press, letters, a fax machine and a computer around printed pages.";
   return {
     src: luxembourg
       ? "/editorial/luxembourg-printing.webp"
@@ -142,10 +144,7 @@ export function publicSocialImage(
     width: 1536,
     height: 1024,
     type: "image/webp",
-    alt:
-      locale === "fr"
-        ? description
-        : editorial[description][{ en: 0, de: 1, lb: 2 }[locale]],
+    alt: translatePublicText(description, locale),
   };
 }
 

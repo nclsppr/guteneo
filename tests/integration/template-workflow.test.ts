@@ -1854,6 +1854,21 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       sha256: await sha256(new TextEncoder().encode(xml)),
     });
     const { profile } = await service.getDatasetProfile(owner, source.id);
+    const legacySheetPage = await service.datasetProfilePage(
+      owner,
+      source.id,
+      "Données",
+      1,
+      1,
+    );
+    expect(legacySheetPage.pagination).toMatchObject({
+      sheet: "Data",
+      cursor: 1,
+      limit: 1,
+      totalRows: 3,
+    });
+    expect(legacySheetPage.profile.sheets[0].rows).toHaveLength(1);
+    expect(legacySheetPage.profile.sheets[0].rows[0].rowNumber).toBe(2);
     expect(profile.sheets[0].rows).toHaveLength(3);
     expect(profile.sheets[0].rows[1].cells.map((cell) => cell.raw)).toContain(
       "001",
@@ -2542,7 +2557,7 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       const importer = discovery.tools.find(
         (tool) => tool.name === "import_dataset",
       )!;
-      expect(importer.title).toBe("Importer un fichier de données");
+      expect(importer.title).toBe("Import a dataset file");
       expect(JSON.stringify(importer.inputSchema)).toContain('"xml"');
       expect(importer.inputSchema.properties).toHaveProperty("xmlRecordPath");
       expect(discovery.tools.some((t) => t.name === "generate_documents")).toBe(

@@ -154,9 +154,9 @@ export function Campaigns({
       <DistributionRoadmap />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
-          {msg("Pour un PDF personnalisé par client,")}{" "}
+          {msg("For a personalised PDF per customer,")}{" "}
           <a href="#/app/datasets">
-            {msg("importez vos données dans le studio documentaire")}
+            {msg("import your data into the document studio")}
           </a>
           .
         </p>
@@ -772,9 +772,9 @@ export function Admin({ children }: { children?: ReactNode }) {
       });
       setScannerMessage(
         response.status === "ready"
-          ? msg("L’analyse des PDF est prête.")
+          ? msg("PDF analysis is ready.")
           : msg(
-              "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+              "The service is preparing PDF analysis. Wait a few minutes, then restart the analysis from your document.",
             ),
       );
     });
@@ -859,10 +859,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       )}
       {!isPublicPreview && (
         <section className="form-panel">
-          <h2>{msg("Analyse des documents")}</h2>
+          <h2>{msg("Document analysis")}</h2>
           <p>
             {msg(
-              "Préparez le service avant d’importer vos PDF. Les documents en attente restent privés jusqu’à la fin de leur vérification.",
+              "Prepare the service before importing your PDFs. Pending documents remain private until verification is complete.",
             )}
           </p>
           <button
@@ -871,8 +871,8 @@ export function Admin({ children }: { children?: ReactNode }) {
             disabled={scannerAction.pending}
           >
             {scannerAction.pending
-              ? msg("Préparation…")
-              : msg("Préparer l’analyse PDF")}
+              ? msg("Preparing…")
+              : msg("Prepare PDF analysis")}
           </button>
           <ErrorNotice error={scannerAction.error} />
           {scannerMessage && <p role="status">{scannerMessage}</p>}

@@ -5,7 +5,7 @@ Generated on 2026-09-16 with the built-in image-generation tool. This is decorat
 - Website asset: `apps/web/public/press-halftone.webp`.
 - Web reference: `/press-halftone.webp`.
 - Intended use: landing-page hero, on ivory `#F6F5EF` with cobalt `#2450DB`.
-- Alternative text: `Presse typographique ancienne, illustrée en bleu, dont une feuille se prolonge en enveloppe.`
+- Alternative text: `An antique letterpress, illustrated in blue, with a sheet extending into an envelope.`
 - Generated PNG inspected visually before optimizing. Converted using Sharp to a 1200-pixel-wide WebP; original image remains in the generation output directory.
 
 ## Final generation prompt

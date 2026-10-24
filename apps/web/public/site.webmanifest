@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Guteneo — atelier de correspondance",
+  "name": "Guteneo — correspondence workspace",
   "short_name": "guteneo",
-  "lang": "fr",
+  "lang": "en",
   "start_url": "/#/app",
   "display": "browser",
   "background_color": "#f6f5ef",

@@ -1,312 +1,258 @@
-# Dossier marketplace ChatGPT — état du 20 octobre 2026
+# ChatGPT marketplace dossier — state of 20 October 2026
 
-## Refus 0.3.2 signalé le 20 octobre — remédiation locale
+For the later dated follow-up, see [23 October resubmission tasks](OPENAI_RESUBMISSION_TODO.md). Each observation below remains bounded to its date; translation does not refresh portal or provider state.
 
-Le courriel fourni par le titulaire annonce **0.3.2 non approuvée**, pour des
-annotations potentiellement incohérentes avec les effets des outils. Il demande
-des booléens explicites et une justification par valeur, sans identifier les
-outils ou le scan concernés. Le portail n’a pas été relu pendant cette reprise.
+## 0.3.2 rejection reported on 20 October — local remediation
 
-L’audit du catalogue local couvre 67 outils. Le correctif signale comme
-destructifs le remplacement d’un jeton de revue valide et le gel définitif d’un
-lot lors de sa préparation pour distribution ; il complète la matrice et ses
-contrôles de couverture. Les preuves, tests et étapes restantes sont décrits
-dans [MCP_ANNOTATION_REMEDIATION.md](MCP_ANNOTATION_REMEDIATION.md).
-Cette préparation ne modifie pas le paquet 0.3.4, ne prouve pas un déploiement
-et ne constitue ni un scan portail ni une resoumission.
+The owner's email reports **0.3.2 not approved**, citing annotations potentially inconsistent with tool effects. It requests explicit booleans and a rationale per value without identifying affected tools or scans. The portal was not reread during this resumption.
 
-## Dernière observation du portail — 13 octobre, historique
+The local catalog audit covers 67 tools. The correction marks replacement of a valid review token and permanent freezing of a batch during distribution preparation as destructive; it completes the matrix and coverage checks. Evidence, tests and remaining steps are in [MCP_ANNOTATION_REMEDIATION.md](MCP_ANNOTATION_REMEDIATION.md). This preparation neither changes package 0.3.4 nor proves deployment, a portal scan or resubmission.
 
-Le portail affiche **0.3.2 · In review · Not published · Not live**. Après
-reconnexion du compte de scan, le scan du **13 octobre à 13:56:30 CEST** découvre
-**67 outils** et affiche **« No findings in the latest MCP scan. »** Les six
-skills affichent **Checks passed**. Aucune revue n’a été annulée ou remplacée,
-aucune nouvelle soumission ou publication n’a été effectuée dans cette passe.
+## Last portal observation — 13 October, historical
 
-La production relue le 13 octobre à 18:56 UTC correspond désormais à main
-`6a27eff665cd1fe9a330448f0dd92864650f7354`, build
-`2026-10-13T18:36:46.854Z`, après Dashboard V2 (#61) et sa stabilisation (#62).
-Le contrat MCP et les intégrations restent inchangés depuis l’audit initial
-`1e5ab18…` ; les évolutions API et web sont distinctes du correctif d’issuer.
-Le ZIP public relu à 18:59 UTC reste **0.3.2**, 19 fichiers, 1 310 328 octets,
-SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`.
-Le candidat **0.3.4 est local**, distinct du brouillon 0.3.3 de PR #52,
-rebasé sur cette dernière main. La correction de l’issuer Auth0 exact reste
-locale et non déployée. Voir [la matrice plateformes](MCP_PLATFORM_READINESS.md).
+The portal shows **0.3.2 · In review · Not published · Not live**. After reconnecting the scan account, the **13 October, 13:56:30 CEST** scan discovers **67 tools** and shows **“No findings in the latest MCP scan.”** The six skills show **Checks passed**. No review was canceled or replaced, and no new submission or publication occurred in that pass.
 
-Deux SELECT D1 bornés relus à 18:58 UTC confirment la migration 0053 dans le
-ledger et la colonne personnelle présente : ce préalable de release est
-satisfait. Le constat précédent de leur absence à 16:18 UTC reste historique.
-Aucune migration, fusion ni publication n’a été effectuée par cette passe.
-La CI du nouveau candidat doit porter sur son commit exact ; les contrôles
-plus anciens ne la qualifient pas.
+Production reread on 13 October at 18:56 UTC matches main `6a27eff665cd1fe9a330448f0dd92864650f7354`, build `2026-10-13T18:36:46.854Z`, after Dashboard V2 (#61) and stabilization (#62). The MCP contract and integrations remain unchanged since initial audit `1e5ab18…`; API/web changes are separate from the issuer correction. The public ZIP reread at 18:59 UTC remains **0.3.2**, 19 files, 1,310,328 bytes, SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`. Candidate **0.3.4 is local**, separate from PR #52's 0.3.3 draft and rebased onto that latest main. The exact Auth0 issuer correction remains local and undeployed. See the [platform matrix](MCP_PLATFORM_READINESS.md).
 
-Les métadonnées OAuth `extensions.com.openai.auth` du **nouveau paquet** restent
-à résoudre avec le schéma MCP portable 1.0.0 qui refuse cette propriété HTTP.
-0.3.4 ne les active pas ; le scan de la configuration OAuth du portail existant
-ne qualifie pas l’installation OAuth du candidat. Le titulaire conserve le
-plugin propriétaire : le catalogue public Cursor, qui exige l’open source,
-est exclu ; l’installation locale ou privée reste à qualifier.
+Two bounded D1 SELECTs reread at 18:58 UTC confirm migration 0053 in the ledger and the personal column present: that release prerequisite is satisfied. Their absence observed at 16:18 UTC remains historical. That pass performed no migration, merge or release. The new candidate's CI must cover its exact commit; older checks do not qualify it.
 
-La reconnexion **Guteneo Review** a permis `get_capabilities`, `list_documents`
-et `expert_status` en production, `simulation:false`, sans activation expert.
-La surface est le connecteur reviewer de développement **Codex, 24 outils**,
-distinct des 67 outils scannés. Six documents ont été observés, sans le SHA-256
-de la fixture attendue. L’identité et la restriction D1 n’ont pas été rapprochées
-ce tour ; **P3 et la recette complète restent non qualifiés**. Un ancien P3 réussi
-ne remplace pas ces contrôles actuels.
+The **new package's** `extensions.com.openai.auth` OAuth metadata remains unresolved against portable MCP schema 1.0.0, which rejects this HTTP property. 0.3.4 does not enable it; scanning the existing portal OAuth configuration does not qualify the candidate's OAuth installation. The owner retains a proprietary plugin: Cursor's public catalog, which requires open source, is excluded; local/private installation remains unqualified.
 
-La lecture du Dashboard Auth0 confirme les trois blocages de durée reviewer :
-grant refresh désactivé, API offline access désactivée et Action d’identité
-déployée limitée au protocole initial PKCE. Le migrateur est préparé et testé
-localement. Le CLI a ensuite été reconnecté avec l’autorisation explicite du
-titulaire pour les lectures seules. Le premier GET a refusé la constante de
-callback générique du candidat : le client live conserve exactement
-`https://chatgpt.com/connector/oauth/aAwc9dso12_L`, déjà consigné dans l’historique
-ci-dessous. Cette constante est corrigée sans changer Auth0 ; une inspection
-complète et l’application restent des preuves distinctes.
-La source corrigée a ensuite réussi l’inspection complète en GET ; elle produit
-la même synthèse que la copie indépendante. Les deux Actions draft/déployées,
-l’API, les quatre connexions, listes clients et bindings sont reconnus ; le plan
-précis reste non appliqué. Les 96 tests ciblés passent et la revue indépendante
-confirme que le callback n’est jamais réécrit. Vérifier la CI du nouveau commit
-séparément des 13 jobs réussis à `6b80d0a`.
-L’autorisation du plan, son application, le rapprochement D1, la recette des huit
-cas et le renouvellement réel restent à faire. Ne pas annuler la revue 0.3.2 pour
-installer un candidat sans autorisation distincte du titulaire.
+Reconnecting **Guteneo Review** allowed `get_capabilities`, `list_documents` and `expert_status` in production with `simulation:false` and no expert activation. The surface is the **Codex development reviewer connector, 24 tools**, separate from the 67 scanned tools. Six documents were observed without the expected fixture's SHA-256. Identity and D1 restriction were not reconciled that turn; **P3 and full qualification remain unqualified**. An old successful P3 does not replace current checks.
 
-Les observations du 4 octobre et des sections suivantes sont **historiques** :
-leurs versions, statuts de portail, catalogues et cas réussis ne constituent pas
-l’état courant ci-dessus.
+The Auth0 Dashboard read confirms three reviewer-duration blockers: refresh grant disabled, API offline access disabled and deployed identity Action limited to initial PKCE protocol. The migrator is prepared and locally tested. The CLI was then reconnected with the owner's explicit permission for read-only access. The first GET rejected the candidate's generic callback constant: the live client retains exactly `https://chatgpt.com/connector/oauth/aAwc9dso12_L`, already recorded below. The constant was corrected without changing Auth0; full inspection and application remain distinct evidence.
 
-## Historique du 4 octobre — préparation en cours, aucune soumission
+The corrected source then passed full GET inspection, producing the same summary as an independent copy. Both draft/deployed Actions, the API, four connections, client lists and bindings are recognized; the precise plan remains unapplied. The 96 focused tests pass and independent review confirms that the callback is never rewritten. Check new-commit CI separately from the 13 successful jobs at `6b80d0a`. Plan authorization/application, D1 reconciliation, eight-case qualification and actual refresh remain open. Do not cancel review 0.3.2 to install a candidate without separate owner authorization.
 
-La reconnexion OAuth du scanner dans l’éditeur existant a réussi. Le portail a affiché **Tools scanned successfully** avec **66 outils** et **Domain verified**. Ce nouveau scan remplace le catalogue historique de 24 outils ; les 42 nouveaux outils demandaient leurs justifications d’annotations dans le parcours legacy. L’import partiel a ensuite affiché **Updated 62 tool justifications**, **Imported 62 / Skipped 0 / Missing 4 / Mismatched 0**. Cette découverte ne qualifie ni les scénarios reviewer, ni les annotations corrigées après ce scan, ni la durée d’accès OAuth pendant la revue.
+Observations from 4 October and the following sections are **historical**: their versions, portal statuses, catalogs and successful cases are not the state above.
 
-Le GET public de `/release.json` confirme la source propre `c5cc0ddba3c8bb2bcd6fe144bc37a17d1f9cc596`, construite le `2026-10-03T10:21:16.979Z`. Le [paquet public](https://guteneo.com/integrations/guteneo-plugin.zip) **0.3.2** contient six skills, pèse **1 310 181 octets** et porte le SHA-256 `7b8af7bc48bbe827b33fe0e18d2c6b6de08e20007c09ba8ade9439466896e813`. Le contenu de get-started, fax-pdf et postal-pdf est identique au paquet final 0.3.1 ; email a changé, document-studio et pdf-accessibility sont nouveaux. Après les trois imports, **les six skills ont été explicitement observés Passed dans le portail, puis confirmés Passed après rechargement complet**. La version **0.3.2**, les descriptions EN/FR incluant Horizon et les notes « Package 0.3.2 » ont été renseignées depuis le paquet ; **Draft saved** a été observé, puis **leur persistance a été confirmée après rechargement complet**, avec **All countries** conservé. Après **Exit**, le tableau de bord affiche **Version 0.3.2 · Not submitted**, **Not published** et **MCP Configured**. **Aucun ZIP global n’est déclaré importé.**
+## 4 October history — preparation ongoing, no submission
 
-La copie de soumission du skill pdf-accessibility ajoute uniquement `interface.display_name` et `interface.short_description` à son `agents/openai.yaml`, conformément aux [contraintes officielles](https://developers.openai.com/plugins/deploy/submission-errors#skill-agent-metadata-errors). Le YAML, ses dépendances inchangées, le CRC du ZIP et le maintien exact de SKILL.md ont été vérifiés. L’archive corrigée pèse **3 545 octets**, SHA-256 `1bed147dc2af87dc95ec34804a4320f332c72c521c76073338e729743d17fe03` ; elle est distincte de la copie fidèle du paquet public. La même correction est portée dans la source, sans modification du runtime. Les archives, champs et rapports sont conservés hors dépôt dans `/Users/nclsppr/.codex/artifacts/guteneo-plugin-publish-2026-10-04/`.
+Scanner OAuth reconnection in the existing editor succeeded. The portal showed **Tools scanned successfully**, **66 tools** and **Domain verified**. This scan replaced the historical 24-tool catalog; the 42 new tools needed annotation rationales in the legacy flow. Partial import then showed **Updated 62 tool justifications**, **Imported 62 / Skipped 0 / Missing 4 / Mismatched 0**. Discovery qualifies neither reviewer scenarios, annotations corrected after this scan, nor OAuth access duration during review.
 
-Le build local du paquet corrigé **0.3.2** a réussi : **1 310 328 octets**, SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`. Cette archive locale est distincte du ZIP public de 1 310 181 octets et n’est ni un ZIP global importé ni une preuve de soumission.
+The public GET of `/release.json` confirms clean source `c5cc0ddba3c8bb2bcd6fe144bc37a17d1f9cc596`, built at `2026-10-03T10:21:16.979Z`. The **0.3.2 [public package](https://guteneo.com/integrations/guteneo-plugin.zip)** contains six skills, weighs **1,310,181 bytes** and has SHA-256 `7b8af7bc48bbe827b33fe0e18d2c6b6de08e20007c09ba8ade9439466896e813`. Contents of get-started, fax-pdf and postal-pdf match final package 0.3.1; email changed, document-studio and pdf-accessibility are new. After three imports, **all six skills were explicitly observed Passed, then confirmed Passed after a full reload**. Version **0.3.2**, EN/FR descriptions including Horizon and “Package 0.3.2” release notes were entered from the package; **Draft saved** was observed and **persistence confirmed after a full reload**, retaining **All countries**. After **Exit**, the dashboard showed **Version 0.3.2 · Not submitted**, **Not published** and **MCP Configured**. **No global ZIP is reported imported.**
 
-La [PR #38](https://github.com/nclsppr/guteneo/pull/38) a été fusionnée le **3 octobre à 08:15:21 UTC** ; les **12 contrôles du dernier head `fde084a9e71a443ba0ed9a2b6ed6576b06408b76` ont réussi** ([CI](https://github.com/nclsppr/guteneo/actions/runs/37104362078)). Le blocage CI noté le 2 octobre est donc levé pour cette PR ; cette preuve ne valide pas les modifications de la présente reprise.
+The pdf-accessibility skill's submission copy adds only `interface.display_name` and `interface.short_description` to `agents/openai.yaml`, following [official requirements](https://developers.openai.com/plugins/deploy/submission-errors#skill-agent-metadata-errors). YAML, unchanged dependencies, ZIP CRC and exact preservation of SKILL.md were verified. The corrected archive is **3,545 bytes**, SHA-256 `1bed147dc2af87dc95ec34804a4320f332c72c521c76073338e729743d17fe03`; it is separate from the faithful public-package copy. The same correction is in source with no runtime change. Archives, fields and reports remain outside the repository at `/Users/nclsppr/.codex/artifacts/guteneo-plugin-publish-2026-10-04/`.
 
-La correction locale `a4f0904` déclare correctement quatre opérations destructives du studio documentaire ; **101 tests ciblés, les types, le lint et le contrôle de la carte fonctionnelle ont réussi**. Ce commit **n’est pas déployé** : les quatre valeurs correspondantes du catalogue actuellement scanné restent à corriger côté serveur puis à rescanner. L’import des justifications des 62 autres outils a réussi sans importer d’autre champ. Les quatre justifications manquantes concernent exactement **update_template, archive_template, share_template et cancel_generation_job**, exclues pour ne pas justifier les anciennes valeurs incorrectes. **Après rechargement complet, les 66 champs d’annotation read-only sont présents et seuls 12 champs de justification restent vides, soit les trois justifications de ces quatre outils** ; les 62 triplets importés persistent. Le domaine reste vérifié.
+Local build of corrected package **0.3.2** passed: **1,310,328 bytes**, SHA-256 `4a098e789b480b54713c2ddd448b8c32d172267f1d8eb58047140fe9080e1f4c`. This archive differs from the 1,310,181-byte public ZIP; it is neither an imported global ZIP nor submission proof.
 
-Les GET de la confidentialité, des conditions, du support et du PDF synthétique répondent **200**. La vidéo publique conserve exactement les **2 367 095 octets** et l’empreinte `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2` de l’enregistrement du 21 septembre. **Aucune nouvelle vidéo ni exécution de P5/P6/R1/R2/R3 n’est qualifiée.** La dernière preuve tarifaire du dossier reste expirée depuis le 24 septembre ; aucune nouvelle lecture D1 ni requalification de l’association Telnyx profil/CSV n’est attestée ici. Les preuves P1/P2/P3 du 2 octobre restent bornées à leur ancien serveur et client.
+[PR #38](https://github.com/nclsppr/guteneo/pull/38) merged on **3 October at 08:15:21 UTC**; **all 12 checks of final head `fde084a9e71a443ba0ed9a2b6ed6576b06408b76` passed** ([CI](https://github.com/nclsppr/guteneo/actions/runs/37104362078)). The 2 October CI blocker is therefore resolved for that PR; this does not validate changes from this resumption.
 
-### Checklist courante
+Local correction `a4f0904` correctly marks four document-studio operations destructive; **101 focused tests, types, lint and feature-map checks passed**. This commit **is not deployed**: the four corresponding values in the scanned catalog still need server correction and rescan. Rationales for the other 62 tools imported successfully without importing other fields. The four missing rationale sets are exactly **update_template, archive_template, share_template and cancel_generation_job**, excluded to avoid justifying old incorrect values. **After a full reload, all 66 read-only annotation fields are present and only 12 rationale fields remain empty: three rationales for each excluded tool**; the 62 imported triplets persist. The domain remains verified.
 
-- [x] Reconnecter OAuth et obtenir un nouveau scan de 66 outils ; domaine vérifié dans le portail.
-- [x] Vérifier le paquet public exact 0.3.2, préparer les six ZIP individuels et corriger les seuls champs d’interface manquants de pdf-accessibility.
-- [x] Vérifier la CI du dernier head de PR #38 et son état fusionné.
-- [x] Importer email, document-studio et pdf-accessibility ; observer les six skills Passed, puis renseigner version, descriptions EN/FR et notes 0.3.2 avec Draft saved.
-- [x] Recharger complètement l’éditeur et vérifier la persistance de la version, des descriptions EN/FR et des notes 0.3.2, avec All countries conservé.
-- [x] Relire les six résultats Passed après rechargement complet ; après Exit, vérifier Version 0.3.2 · Not submitted, Not published et MCP Configured.
-- [x] Importer les justifications des 62 outils compatibles avec le serveur actuel ; portail : Imported 62, Skipped 0, Missing 4, Mismatched 0. Aucun autre champ importé.
-- [x] Vérifier la persistance des 62 justifications après rechargement ; seuls les 12 champs des quatre outils exclus restent vides.
-- [ ] Corriger puis rescanner les quatre annotations du serveur sous autorisation de déploiement, et compléter leurs justifications.
-- [ ] Vérifier les réglages OAuth effectifs et la durée d’accès reviewer, sans élargir automatiquement les droits.
-- [ ] Requalifier les références tarifaires non envoyables après lecture authentifiée de l’association profil/CSV, sans activer de canal, mandat, crédit ou envoi.
-- [ ] Exécuter P5/P6 et les trois cas négatifs dans un hôte contrôlé, puis actualiser la démonstration selon le périmètre réellement disponible en 0.3.2. Aucune réussite n’est déduite du scan.
-- [ ] Présenter les preuves au développeur autorisé pour les six attestations actuellement décochées, soumettre puis vérifier le statut obtenu ; après approbation OpenAI, vérifier séparément la publication effective.
+Privacy, terms, support and synthetic-PDF GETs return **200**. The public video retains the exact **2,367,095 bytes** and hash `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2` of the 21 September recording. **No new video or P5/P6/R1/R2/R3 execution is qualified.** The dossier's latest tariff evidence remains expired since 24 September; no new D1 read or Telnyx profile/CSV association requalification is attested here. P1/P2/P3 evidence from 2 October remains bounded to its old server/client.
 
-**Dernier état après rechargement complet et import des 62 justifications : les six cases d’attestation sont décochées (`Value 0`) et Submit reste désactivé, avec MCP incomplete et Submit confirmation.** Les six valeurs à 1 observées auparavant sont historiques ; la cause du changement n’est pas établie et **l’agent n’a coché aucune case**. **Aucun Submit ni aucune publication OpenAI n’a été effectué dans cette reprise.** Les sections suivantes conservent les observations du 2 octobre et de septembre ; leurs états de portail, numéros de version et tâches ouvertes sont historiques lorsqu’ils sont remplacés explicitement ci-dessus.
+### Checklist at this historical point
 
-## Historique de la reprise du 2 octobre 2026
+- [x] Reconnect OAuth and obtain a new 66-tool scan; domain verified in the portal.
+- [x] Verify exact public package 0.3.2, prepare six individual ZIPs and correct only pdf-accessibility's missing interface fields.
+- [x] Verify final PR #38 head CI and merged status.
+- [x] Import email, document-studio and pdf-accessibility; observe all six skills Passed, then enter version, EN/FR descriptions and 0.3.2 notes with Draft saved.
+- [x] Fully reload the editor and verify persistence of version, EN/FR descriptions and 0.3.2 notes, retaining All countries.
+- [x] Reread six Passed results after full reload; after Exit, verify Version 0.3.2 · Not submitted, Not published and MCP Configured.
+- [x] Import rationales for 62 tools compatible with the current server; portal: Imported 62, Skipped 0, Missing 4, Mismatched 0. No other fields imported.
+- [x] Verify persistence of 62 rationale sets after reload; only the 12 fields for four excluded tools remain empty.
+- [ ] Correct and rescan four server annotations under deployment authorization, then complete rationales.
+- [ ] Verify effective OAuth settings and reviewer access duration without automatically expanding permissions.
+- [ ] Requalify review-only tariff references after authenticated profile/CSV association read, without activating a channel, mandate, credit or dispatch.
+- [ ] Execute P5/P6 and three negative cases in a controlled host, then update the demonstration to the actual 0.3.2 scope. Infer no success from the scan.
+- [ ] Present evidence to the authorized developer for the six currently unchecked attestations, submit and verify resulting status; after OpenAI approval, separately verify actual publication.
 
-**Le brouillon version 0.3.1 est sauvegardé dans l’éditeur MCP existant ; après Exit, le tableau de bord affiche « Version 0.3.1 · Not submitted » et MCP configured. Aucun Submit ni aucune publication OpenAI n’a été effectué.** Le sous-titre anglais, les descriptions anglaise/française et les notes de version proviennent du manifeste 0.3.1 : e-mail désactivé jusqu’à qualification, liens PDF protégés et interface web en français, anglais, allemand et luxembourgeois. Le réglage **All countries** est conservé. La revue 0.2.2 avait été annulée explicitement pour son remplacement ; aucun motif de rejet de la revue OpenAI n’a été observé. Le plugin conserve l’identité `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`.
+**Last state after full reload and import of 62 rationale sets: all six attestations are unchecked (`Value 0`), Submit remains disabled with MCP incomplete and Submit confirmation.** Six earlier values of 1 are historical; the cause is unestablished and **the agent checked no boxes**. **No Submit or OpenAI publication occurred in this resumption.** The following 2 October/September observations retain historical portal states, versions and tasks wherever explicitly superseded above.
 
-L’authentification OAuth du scanner et le **scan complet des 24 outils** ont réussi sur le serveur déjà déployé ; les 24 triplets d’annotations et leurs justifications ont été importés dans le parcours legacy. Cette reprise n’a produit aucun envoi réel, déploiement, merge, changement de mandat, attestation ou soumission. La sauvegarde du brouillon et la préparation du paquet restent distinctes de la revue OpenAI.
+## History of 2 October 2026 resumption
 
-## Todo-list de reprise — conservée à la demande du titulaire le 2 octobre
+**Draft 0.3.1 is saved in the existing MCP editor; after Exit, the dashboard shows “Version 0.3.1 · Not submitted” and MCP configured. No Submit or OpenAI publication occurred.** The English subtitle, English/French descriptions and release notes come from manifest 0.3.1: email disabled pending qualification, protected PDF links and web UI in French, English, German and Luxembourgish. **All countries** is retained. Review 0.2.2 had been explicitly canceled for replacement; no OpenAI rejection reason was observed. The plugin retains identity `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`.
 
-- [x] Préparer la [PR #38](https://github.com/nclsppr/guteneo/pull/38), branche `codex/plugin-review-draft-progress`, sur `a808307c5687588eb8c0aab45c9e559aa70a03dc`. Le paquet final, reconstruit depuis cette base avec les derniers garde-fous email, a réussi **32/32 tests ciblés**, le schéma officiel, le déterminisme, le CRC et les contrôles de confidentialité/liaisons privées. La [CI de la base de la PR `015f7c3…`](https://github.com/nclsppr/guteneo/actions/runs/37033236823) a réussi **12/12 contrôles** ; elle ne qualifie pas les derniers garde-fous email ajoutés ensuite. Les 12/12 contrôles de PR #34 restent historiques.
-- [x] Authentifier le scanner du portail, réaliser le scan complet de **24 outils** et importer leurs annotations dans l’[éditeur MCP existant](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f).
-- [x] Sauvegarder les informations **0.3.1** puis vérifier **Not submitted** et **MCP configured** sur le tableau de bord après **Exit**.
-- [x] Conserver les trois ZIP individuels aux octets identiques à ceux de 0.2.3 : **get-started Passed**, **fax-pdf Passed**, **postal-pdf Passed**. Le réimport de get-started a réutilisé son résultat Passed en cache.
-- [x] Compléter les garde-fous du quatrième skill **email** et reconstruire les ZIP finaux ; vérifier leurs octets et les 32 tests ciblés.
-- [x] Remplacer le premier ZIP email par le ZIP final de **5 179 octets**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`, puis confirmer **email Passed après rechargement**, avec get-started, fax-pdf et postal-pdf également Passed.
-- [ ] Vérifier la CI après intégration des derniers garde-fous. Le Passed final email est confirmé sur le ZIP de 5 179 octets ; le Passed du premier ZIP reste historique.
-- [x] Rétablir la connexion **Guteneo Review** et rapprocher exactement le compte, le tenant et le client OAuth attendus dans D1, sans exposer les identifiants. **P1/P2/P3** sont réussis comme appels MCP bornés dans Codex sur la source publique `a808307…`, sans simulation ni activation du mode expert ; cette preuve ne qualifie pas la sélection automatique ChatGPT ni une nouvelle analyse antivirus.
-- [ ] Après la connexion Telnyx demandée au titulaire, relire les sources du tarif reviewer et l’association CSV au profil, puis préparer la requalification non envoyable. Le tarif reviewer est expiré depuis le **24 septembre** et l’association historique dépasse **168 heures**. Ne pas renouveler automatiquement un canal, mandat, plafond ou tarif pour satisfaire un test.
-- [ ] Reprendre **P5/P6/R1/R2/R3** avec des références non envoyables valides et le vrai client ; mettre à jour la vidéo pour les fonctions annoncées en 0.3.1, notamment le traitement fidèle du canal e-mail désactivé et des liens protégés. `review_prepare_only` s’arrête avant toute approbation ou envoi. La vidéo de septembre ne vaut pas recette actuelle.
-- [ ] Vérifier les réglages OAuth effectifs et la durée d’accès nécessaire à la revue, sans les élargir automatiquement. L’absence de refresh token dans les scripts et la limite d’une heure sont des indices locaux, pas une cause live confirmée.
-- [ ] Faire compléter au développeur autorisé les six attestations légales/de politique après présentation des preuves. Après les quatre résultats Passed, la page Submit a été relue : **six cases de politique à 0**, **Submit for Review désactivé**, et seul problème visible **« Submit is incomplete Confirm this statement. »** ; aucun message Skills incomplete. Aucune case, attestation ni bouton final n’a été validé. Effectuer ensuite **Submit for review** et vérifier le statut réellement obtenu.
-- [ ] Après approbation OpenAI, traiter séparément la publication dans l’annuaire sous autorisation du titulaire, puis retenter la migration ZIP si elle devient disponible. Vérifier la fiche et la version publiées ; ne pas créer de doublon.
+Scanner OAuth authentication and a **full 24-tool scan** succeeded against the already deployed server; all 24 annotation triplets and rationales imported in the legacy flow. This resumption caused no real sending, deployment, merge, mandate change, attestation or submission. Draft saving and package preparation remain distinct from OpenAI review.
 
-Point de reprise : **CI après les derniers garde-fous, fraîcheur tarifaire, P5/P6/R1/R2/R3 et vidéo 0.3.1**, puis attestations et soumission. Cette liste ne programme aucun rappel.
+## Resumption task list — retained at the owner's request on 2 October
 
-## État du paquet et des skills
+- [x] Prepare [PR #38](https://github.com/nclsppr/guteneo/pull/38), branch `codex/plugin-review-draft-progress`, on `a808307c5687588eb8c0aab45c9e559aa70a03dc`. The final package rebuilt from that base with latest email safeguards passed **32/32 focused tests**, official schema, determinism, CRC and privacy/private-binding checks. [CI for PR base `015f7c3…`](https://github.com/nclsppr/guteneo/actions/runs/37033236823) passed **12/12 checks**; it does not qualify email safeguards added later. PR #34's 12/12 checks remain historical.
+- [x] Authenticate the portal scanner, complete the **24-tool** scan and import annotations into the [existing MCP editor](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f).
+- [x] Save **0.3.1** details and verify **Not submitted** and **MCP configured** on the dashboard after **Exit**.
+- [x] Retain three individual ZIPs byte-identical to 0.2.3: **get-started Passed**, **fax-pdf Passed**, **postal-pdf Passed**. Reimporting get-started reused its cached Passed result.
+- [x] Complete safeguards for the fourth skill, **email**, and rebuild final ZIPs; verify bytes and 32 focused tests.
+- [x] Replace the first email ZIP with the final **5,179-byte** ZIP, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`, then confirm **email Passed after reload**, with get-started, fax-pdf and postal-pdf also Passed.
+- [ ] Verify CI after integrating latest safeguards. Final email Passed is confirmed for the 5,179-byte ZIP; the first ZIP's Passed result remains historical.
+- [x] Restore **Guteneo Review** and exactly match expected account, tenant and OAuth client in D1 without exposing identifiers. **P1/P2/P3** passed as bounded MCP calls in Codex on public source `a808307…`, without simulation or expert activation; this does not qualify ChatGPT automatic selection or a fresh antivirus scan.
+- [ ] After the requested owner Telnyx connection, reread reviewer tariff sources and profile/CSV association, then prepare review-only requalification. The reviewer tariff expired on **24 September** and the historical association exceeds **168 hours**. Do not automatically renew a channel, mandate, ceiling or tariff to satisfy a test.
+- [ ] Resume **P5/P6/R1/R2/R3** with valid references that cannot authorize sending and the real client; update the video for advertised 0.3.1 functions, particularly faithful treatment of disabled email and protected links. `review_prepare_only` stops before approval or sending. September's video is not current qualification.
+- [ ] Verify effective OAuth settings and access duration needed for review without automatically extending them. Missing refresh tokens in scripts and the one-hour limit are local clues, rather than a confirmed live cause.
+- [ ] Have the authorized developer complete six legal/policy attestations after presenting evidence. After four Passed results, Submit was reread: **six policy boxes at 0**, **Submit for Review disabled**, and the sole visible issue **“Submit is incomplete Confirm this statement.”**; no Skills incomplete message. No box, attestation or final button was validated. Then perform **Submit for review** and verify actual resulting status.
+- [ ] After OpenAI approval, separately handle directory publication under owner authorization, then retry ZIP migration if available. Verify published listing/version; do not create a duplicate.
 
-Le paquet local final **0.3.1 contient quatre skills**, pèse **1 290 534 octets** et porte le SHA-256 `25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6`. Le ZIP individuel email pèse **5 179 octets**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`. Le skill email applique les restrictions de données sensibles avant lecture/import/préparation et l’arrêt avant revue/approbation/confirmation, y compris le renouvellement, si le canal est désactivé, non qualifié ou `review_prepare_only`. La reconstruction finale a réussi **32/32 tests ciblés**, le schéma officiel, le déterminisme, le CRC et les contrôles de confidentialité/liaisons privées. Son rapport reste hors dépôt à `/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json`. Ces derniers changements locaux ne sont pas qualifiés par la CI de la base `015f7c3…`. **Aucun ZIP global 0.3.1 n’a été importé ni retenté dans le portail.**
+Resume at **CI after latest safeguards, tariff freshness, P5/P6/R1/R2/R3 and video 0.3.1**, followed by attestations and submission. This list schedules no reminder.
 
-Les trois ZIP get-started/fax-pdf/postal-pdf sont inchangés et Passed. Le premier ZIP email de 4 340 octets avait obtenu Passed avant remplacement : ce résultat est historique. Le ZIP final email de **5 179 octets**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`, a ensuite remplacé ce premier ZIP. Après une phase Scanning, **email Passed a été explicitement confirmé après rechargement de l’éditeur et ouverture de Skills** ; get-started, fax-pdf et postal-pdf sont également Passed. Les **quatre scans individuels sont donc Passed**, sur les octets finaux attendus. Les interfaces YAML obligatoires `display_name` et `short_description` sont conservées. L’import individuel d’un skill, son scan, la sauvegarde des métadonnées, la soumission et la publication restent des étapes distinctes.
+## Package and skill state
 
-Historique du 2 octobre : le ZIP global 0.2.3 de **1 283 344 octets**, SHA-256 `bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885`, a été refusé avec **Keep the existing MCP connection / Publish the existing MCP app before updating its plugin ZIP**. Cette contrainte de migration ne constitue pas un rejet de qualité du plugin. Le paquet 0.2.3 corrigé de **1 283 503 octets**, SHA-256 `962b67688b7947724b28fe8846594ea3ce4fd3180db4971ed75cc9a92d861d13`, n’a pas été importé globalement et est archivé hors dépôt à `/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/guteneo-plugin-0.2.3.zip`. Son empreinte ne qualifie pas le paquet 0.3.1. Le brouillon 0.2.3 sauvegardé et ses trois scans Passed sont historiques depuis la sauvegarde 0.3.1.
+The final local **0.3.1 package contains four skills**, weighs **1,290,534 bytes** and has SHA-256 `25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6`. The individual email ZIP is **5,179 bytes**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`. The email skill applies sensitive-data restrictions before reading/import/preparation and stops before review/approval/confirmation, including renewal, when the channel is disabled, unqualified or `review_prepare_only`. Final rebuild passed **32/32 focused tests**, official schema, determinism, CRC and privacy/private-binding checks. Its report stays outside the repository at `/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json`. Base CI `015f7c3…` does not qualify these latest local changes. **No global 0.3.1 ZIP was imported or retried in the portal.**
 
-Le panneau global **Metadata & Skills** avait affiché **No Skills in this version / Review Unavailable** pour cette ancienne application MCP sans paquet global importé. Cette observation historique ne remplace pas les résultats legacy individuels. La page Submit 0.2.3 ne signalait plus Skills incomplete et affichait six cases de politique décochées ; elle ne qualifie pas le quatrième skill email ajouté ensuite.
+The three get-started/fax-pdf/postal-pdf ZIPs are unchanged and Passed. The first 4,340-byte email ZIP passed before replacement; that result is historical. The final **5,179-byte** email ZIP, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`, replaced it. After Scanning, **email Passed was explicitly confirmed after reloading the editor and opening Skills**; get-started, fax-pdf and postal-pdf are also Passed. **All four individual scans are therefore Passed** on expected final bytes. Required YAML interface fields `display_name` and `short_description` are retained. Individual skill import/scan, metadata saving, submission and publication remain separate steps.
 
-## Contrôles et dépendances encore ouverts
+2 October history: the **1,283,344-byte** global 0.2.3 ZIP, SHA-256 `bf797190a6235d4886b63738454414a90ffa3071aee77333cbd2fa5e18fa6885`, was refused with **Keep the existing MCP connection / Publish the existing MCP app before updating its plugin ZIP**. This migration constraint is not a plugin-quality rejection. Corrected package 0.2.3 of **1,283,503 bytes**, SHA-256 `962b67688b7947724b28fe8846594ea3ce4fd3180db4971ed75cc9a92d861d13`, was not imported globally and is archived outside the repository at `/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/guteneo-plugin-0.2.3.zip`. Its hash does not qualify package 0.3.1. Saved draft 0.2.3 and its three Passed scans are historical since saving 0.3.1.
 
-Le client MCP a été rétabli par **Plugin page → Reconnect → Continue** dans ChatGPT Safari, avec « Primary is now connected ». Le `get_capabilities` réel du `2026-10-02T16:02:05.789Z` a réussi dans Codex : production, sans simulation, expert inactif. Le compte, le tenant et le client reviewer attendus ont été rapprochés exactement dans D1 avant l’import. P2 a retourné un PDF avec `limit:5`, sans page suivante ; P3 a importé le PDF synthétique exact de **4 290 octets**, deux pages, SHA-256 `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`, puis `get_document` a confirmé ready sans simulation. L’import a dédupliqué un PDF existant : aucune nouvelle analyse antivirus n’est prouvée. Ces appels bornés ont utilisé le serveur public `a808307…` ; le rapport expurgé reste privé, non versionné, en permissions 0600. **P5/P6/R1/R2/R3 et la sélection automatique dans ChatGPT ne sont pas qualifiés.**
+The global **Metadata & Skills** panel had shown **No Skills in this version / Review Unavailable** for this old MCP application without an imported global package. This historical observation does not replace individual legacy results. Submit 0.2.3 no longer showed Skills incomplete and displayed six unchecked policy boxes; it does not qualify the fourth email skill added later.
 
-Deux observations partielles ont ensuite eu lieu dans ChatGPT Work, GPT-6.1 Sol Light. R1 a demandé de joindre un PDF et de préciser le type de signature, sans outil Guteneo visible ; la mention du plugin avait probablement été retirée lors du remplacement du texte du composeur, donc ce résultat n’est pas qualifié. Pour R2, la mention bleue **Guteneo Review** a été préservée et capturée ; le prompt Gmail a déclenché l’outil Gmail déjà connecté dans l’hôte, puis l’hôte a indiqué que Guteneo Review ne pouvait pas lire Gmail. La tentative a été arrêtée dès que l’usage de l’outil Gmail a été observé ; une lecture Gmail avait déjà eu lieu. Aucune communication n’a été envoyée et aucun contenu ou métadonnée récupéré n’est consigné ici. Cette lecture via Gmail ne qualifie pas un test isolé de non-invocation Guteneo. **R1/R2/R3 restent à exécuter dans un hôte contrôlé où seul le plugin Guteneo reviewer est disponible ; R3 n’a pas été tenté**, pour éviter le recours à un service de communication tiers.
+## Checks and dependencies still open at that date
 
-Le tarif reviewer a expiré le **24 septembre** ; l’association historique au CSV Telnyx dépasse **168 heures**. La connexion Telnyx du titulaire reste nécessaire pour relire les sources sans envoi. L’autorité de préparation peut durer 30 jours, mais ne prolonge ni les observations ni les devis. Les [règles review_prepare_only](REVIEW_FAX_PREPARATION.md) et la [procédure opérateur](REVIEW_FAX_OPERATOR.md) restent applicables. Les erreurs initiales d’authentification et Missing OAuth callback data restent historiques ; l’absence de refresh token dans le code et la limite d’âge d’une heure ne prouvent pas les réglages privés Auth0 effectifs ni une cause exacte.
+The MCP client was restored through **Plugin page → Reconnect → Continue** in ChatGPT Safari, with “Primary is now connected”. Actual `get_capabilities` at `2026-10-02T16:02:05.789Z` succeeded in Codex: production, no simulation, expert inactive. Expected reviewer account, tenant and client were exactly matched in D1 before import. P2 returned one PDF with `limit:5`, no next page; P3 imported the exact synthetic **4,290-byte**, two-page PDF, SHA-256 `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`, then `get_document` confirmed ready without simulation. Import deduplicated an existing PDF: no fresh antivirus scan is proved. These bounded calls used public server `a808307…`; the redacted report remains private, unversioned, permissions 0600. **P5/P6/R1/R2/R3 and automatic ChatGPT selection remain unqualified.**
 
-La lecture publique la plus récente du **2 octobre, à 16:19**, confirme la source propre `a808307c5687588eb8c0aab45c9e559aa70a03dc`, construite le `2026-10-02T12:43:39.396Z`. Le ZIP d’intégration servi publiquement pèse **1 289 274 octets**, SHA-256 `983e6fc7ca6f2f3f7bf603e2d05e2a50791ba8e9080e8b5410851b3774a9a8b4` ; ses octets sont distincts du paquet local final de 1 290 534 octets. La lecture antérieure du matin avait identifié `5dec27555ea27035b66d0f51162fe75a9755c82f`, construit le `2026-09-22T21:32:22.470Z` : elle reste historique. La publication du serveur est déjà intervenue en dehors de cette reprise ; aucun déploiement n’a été effectué par l’agent.
+Two partial observations followed in ChatGPT Work, GPT-6.1 Sol Light. R1 requested a PDF attachment and signature type without a visible Guteneo tool; the plugin mention had probably been removed when replacing composer text, so this result is unqualified. For R2, the blue **Guteneo Review** mention was retained and captured; the Gmail prompt invoked the host's already connected Gmail tool, then the host stated that Guteneo Review could not read Gmail. The attempt stopped once Gmail tool use was observed; a Gmail read had already occurred. No communication was sent and no retrieved content/metadata is recorded here. This Gmail read does not qualify an isolated Guteneo non-invocation test. **R1/R2/R3 must still run in a controlled host with only the Guteneo reviewer plugin available; R3 was not attempted**, to avoid use of a third-party communication service.
 
-Les GET publics ont aussi vérifié `/confidentialite/`, `/conditions/`, `/support/` et la découverte OAuth à **200**, et `/mcp` anonyme à **401**, refus attendu. Le [PDF synthétique](https://guteneo.com/review/reviewer-original.pdf) reste accessible avec les octets attendus ; la [vidéo historique](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) pèse **2 367 095 octets**, SHA-256 `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`. Ces GET ne qualifient pas les références tarifaires, les cas restants ou une nouvelle vidéo.
+The reviewer tariff expired on **24 September**; historical Telnyx CSV association exceeds **168 hours**. The owner's Telnyx connection is still needed for read-only source inspection. Preparation authority can last 30 days, but extends neither observations nor quotes. [review_prepare_only rules](REVIEW_FAX_PREPARATION.md) and the [operator procedure](REVIEW_FAX_OPERATOR.md) remain applicable. Initial authentication errors and Missing OAuth callback data remain historical; missing refresh tokens in code and the one-hour age limit prove neither actual private Auth0 settings nor an exact cause.
 
-La [PR #34](https://github.com/nclsppr/guteneo/pull/34) a été **fusionnée extérieurement le 2 octobre à 11:41:57** ; elle n’est plus un brouillon. Ses **12/12 contrôles sur `88ca887…`** restent une preuve historique. La reprise courante est la **PR #38**. Sa CI sur `015f7c3…` est terminée avec **12/12 contrôles réussis**, sans qualifier les derniers garde-fous email ajoutés après ce commit.
+The latest public read on **2 October at 16:19** confirms clean source `a808307c5687588eb8c0aab45c9e559aa70a03dc`, built at `2026-10-02T12:43:39.396Z`. The publicly served integration ZIP is **1,289,274 bytes**, SHA-256 `983e6fc7ca6f2f3f7bf603e2d05e2a50791ba8e9080e8b5410851b3774a9a8b4`; its bytes differ from the final local 1,290,534-byte package. The earlier morning read identified `5dec27555ea27035b66d0f51162fe75a9755c82f`, built at `2026-09-22T21:32:22.470Z`; this remains historical. Server publication occurred outside this resumption; the agent performed no deployment.
 
-## Parcours ZIP et éditeur MCP existant
+Public GETs also verified `/confidentialite/`, `/conditions/`, `/support/` and OAuth discovery at **200**, anonymous `/mcp` at the expected **401**. The [synthetic PDF](https://guteneo.com/review/reviewer-original.pdf) remains accessible with expected bytes; the [historical video](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) weighs **2,367,095 bytes**, SHA-256 `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`. These GETs qualify neither tariff references, remaining cases nor a new video. Historical localized paths record the actual observations.
 
-Le [parcours de soumission actuel](https://developers.openai.com/plugins/deploy/submission) utilise le **ZIP comme source des champs importés**, en lecture seule dans ce parcours. [listing.json](../integrations/chatgpt/listing.json) reste une feuille de suivi interne. Les justifications ne sont plus des champs requis du nouveau parcours ZIP ; le fallback legacy a néanmoins reçu les 24 triplets et justifications. Les annotations doivent correspondre aux effets réels des outils.
+[PR #34](https://github.com/nclsppr/guteneo/pull/34) **merged externally on 2 October at 11:41:57** and is no longer a draft. Its **12/12 checks at `88ca887…`** remain historical evidence. The resumption concerns **PR #38**. Its CI at `015f7c3…` finished with **12/12 checks passed**, without qualifying email safeguards added after that commit.
 
-Le **Plugin Creator officiel v0.1.22** est installé dans ChatGPT. Le skill local `prepare-plugin-submission` et ses **trois références ont maintenant été lus intégralement** depuis `/Users/nclsppr/.codex/plugins/cache/openai-curated-remote/plugin-creator/0.1.22/skills/prepare-plugin-submission/SKILL.md`. Le skill est disponible ; l’inventaire local des outils n’expose pas encore les actions Creator de lecture/mise à jour. Les actions visibles dans ChatGPT concernent création privée, mise à jour et métadonnées ; aucune API Submit n’est observée. Son instruction est : « Have the authorized developer complete legal/policy attestations. » **Continue**, **Exit**, l’installation du plugin et la préparation du paquet ne prouvent pas une soumission. Les attestations, Submit et la publication après approbation restent distincts.
+## ZIP flow and existing MCP editor
 
-## Historique conservé du 21 septembre
+The [submission flow](https://developers.openai.com/plugins/deploy/submission) uses the **ZIP as the source of imported fields**, read-only in that flow. [listing.json](../integrations/chatgpt/listing.json) remains an internal worksheet. Rationales are no longer required fields in the new ZIP flow; the legacy fallback nevertheless received all 24 triplets and rationales. Annotations must match actual tool effects.
 
-**État consigné à cette date : brouillon créé, aucune soumission ni publication encore observée.** Les sections suivantes décrivent cette préparation historique, ses exigences de formulaire et ses blocages d’alors. Les mentions « à publier », « aucun compte », « aucun scan », « aucune vidéo » ou « aucune soumission » ne décrivent pas l’état courant du 2 octobre. Les anciennes observations 404 et les anciennes versions du catalogue sont conservées pour leur provenance. La PR [#14](https://github.com/nclsppr/guteneo/pull/14) était alors présentée comme un candidat.
+Official **Plugin Creator v0.1.22** is installed in ChatGPT. Local skill `prepare-plugin-submission` and **all three references have been read in full** from `/Users/nclsppr/.codex/plugins/cache/openai-curated-remote/plugin-creator/0.1.22/skills/prepare-plugin-submission/SKILL.md`. The skill is available; local tool inventory does not yet expose Creator read/update actions. ChatGPT's visible actions concern private creation, updates and metadata; no Submit API was observed. Its instruction is “Have the authorized developer complete legal/policy attestations.” **Continue**, **Exit**, plugin installation and package preparation do not prove submission. Attestations, Submit and publication after approval remain distinct.
 
-## Préparation complémentaire du 21 septembre
+## Retained 21 September history
 
-L’éditeur a explicitement autorisé la publication des pages, la vérification du domaine, la création du compte de revue, les tests, la vidéo et la soumission. Il indique avoir lu les conditions et autorise leur validation. Cette autorisation ne remplace pas les preuves exigées pour les attestations.
+**State recorded then: draft created, no submission or publication yet observed.** The following sections describe that historical preparation, form requirements and blockers. Statements such as “to publish”, “no account”, “no scan”, “no video” and “no submission” do not describe 2 October state. Old 404 observations and catalog versions retain their provenance. [PR #14](https://github.com/nclsppr/guteneo/pull/14) was then presented as a candidate.
 
-Les pages `/confidentialite/`, `/conditions/` et `/support/` sont maintenant implémentées avec liens partagés et HTML indexable. Les contrôles locaux ont réussi : types, lint ciblé, sept tests statiques et huit tests desktop/iPhone. Leur disponibilité publique doit encore être vérifiée après le déploiement de ce candidat. Les observations 404 ci-dessous sont historiques. Les descriptions d’import et de création PDF ainsi que le workflow et le skill fax relaient les restrictions du parcours ChatGPT ; aucun filtre automatique de contenu ni nouveau consentement serveur n’est annoncé.
+## Additional preparation on 21 September
 
-Le composer dispose désormais d’un [dérivé transparent contrôlé](../integrations/chatgpt/icon-audit.md), créé avec ImageGen à partir de l’emblème : PNG RGBA de 1 254 × 1 254 px, 977 001 octets, SHA-256 `2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc`. Le logo d’annuaire reste inchangé. Le dérivé a été téléversé pour les modes clair et sombre, leurs aperçus ont été inspectés et la persistance après rechargement a été confirmée. L’archive 0.2.1 reconstruite avec cette image pèse 1 265 171 octets, SHA-256 `18485c5a5215175f051873fb2db0c15ea145ae83ad54e8d58ac2b3b7df2885a1` ; les empreintes d’archives antérieures ci-dessous restent historiques.
+The publisher explicitly authorized page publication, domain verification, review-account creation, tests, video and submission. They stated they had read the terms and authorized acceptance. This authorization does not replace evidence required for attestations.
 
-Le portail affiche le callback exact `https://chatgpt.com/connector/oauth/aAwc9dso12_L` pour un client prédéfini public. Un script ciblé prépare un client et une identité de revue isolés, sans modifier les Actions, MFA ou réglages du tenant. La revue a conduit à remplacer les recherches de sous-chaînes par une comparaison exacte des deux Actions déployées à leurs sources générées. Dix-neuf tests Auth0 et reviewer valident ces garde-fous sans réseau ; ils ne prouvent pas la connexion réelle. La reconnexion de l’administration Auth0 a expiré en attendant Touch ID ; elle doit être relancée. Aucun compte ou nouveau client n’a encore été créé.
+Pages `/confidentialite/`, `/conditions/` and `/support/` were then implemented with shared links and indexable HTML. Local checks passed: types, focused lint, seven static tests and eight desktop/iPhone tests. Public availability still needed verification after deploying this candidate. The 404 observations below are historical. PDF import/creation descriptions, workflow and fax skill convey ChatGPT journey restrictions; no automatic content filter or new server consent is claimed.
 
-Le PDF d’exemple est synthétique et sans destinataire ; le [scénario de capture](../integrations/chatgpt/demo-recording.md) est prêt. Ni vidéo ni recette exécutée avec un compte reviewer ne sont déclarées. Cloudflare confirme le rattachement existant de `guteneo.com` au Worker `guteneo-app`. Le jeton exact du challenge OpenAI a depuis été reçu dans le portail et commité dans la PR #23 ; son déploiement public et la réussite de **Verify Domain** restent à établir.
+The composer now has a [checked transparent derivative](../integrations/chatgpt/icon-audit.md), created from the emblem with ImageGen: RGBA PNG, 1,254 × 1,254 px, 977,001 bytes, SHA-256 `2dd792b032c4e244072494fef71344aa270893c4bf8e92c44600234eccb394cc`. The directory logo is unchanged. The derivative was uploaded for light/dark modes, previews inspected and persistence after reload confirmed. Rebuilt archive 0.2.1 with this image weighs 1,265,171 bytes, SHA-256 `18485c5a5215175f051873fb2db0c15ea145ae83ad54e8d58ac2b3b7df2885a1`; earlier archive hashes below remain historical.
 
-Les trois URLs publiques sont renseignées et persistent après rechargement. Le portail utilise une fiche de base anglaise : sous-titre « PDFs, fax quotes and tracking », description traduite mentionnant l’interface web française, et traduction française distincte. Les cinq scénarios positifs et les trois négatifs sont amorcés comme attendus de revue, sans preuve d’exécution ; le prompt exact de préparation du fax attend encore le destinataire contrôlé et son plafond. À ce stade initial, le compte, la vidéo et le scan restaient manquants ; le challenge a depuis été reçu et commité, sans preuve de déploiement ou de validation.
+The portal shows exact callback `https://chatgpt.com/connector/oauth/aAwc9dso12_L` for a predefined public client. A targeted script prepares an isolated review client/identity without changing Actions, MFA or tenant settings. Review replaced substring searches with exact comparison of both deployed Actions against generated sources. Nineteen Auth0/reviewer tests validate these safeguards offline; they do not prove actual connection. Auth0 administration reconnection expired while waiting for Touch ID and needs retrying. No account or new client had yet been created.
 
-Le candidat est réconcilié avec la PR #20, intégrée à `main` (`406176933da9ad7d8c3d6265b26dbfa50e493c4b`). Le serveur complet déclare désormais 22 outils. `create_postal_address_page` a un titre et une annotation de périmètre fermé cohérente avec sa génération interne ; la table couvre les 22 outils, contrôlés par 39 tests MCP ciblés. La mise en production de la page d’adresse requiert aussi la migration 0033 et le moteur privé, suivis par la livraison postale distincte.
+The sample PDF is synthetic and has no recipient; the [recording scenario](../integrations/chatgpt/demo-recording.md) is ready. Neither video nor qualification using a reviewer account is claimed. Cloudflare confirms the existing `guteneo.com` association with Worker `guteneo-app`. The exact OpenAI challenge token was subsequently received in the portal and committed in PR #23; public deployment and **Verify Domain** success remain to be established.
 
-## État du portail avant ces préparatifs
+The three public URLs are entered and persist after reload. The portal uses an English base listing: subtitle “PDFs, fax quotes and tracking”, translated description mentioning the French web interface, and a separate French translation. Five positive scenarios and three negative cases are drafted as reviewer expectations without execution evidence; the exact fax-preparation prompt still needs the controlled recipient and ceiling. At this initial point, account, video and scan were missing; the challenge was subsequently received/committed without deployment/validation proof.
 
-Le 17 septembre, dans Safari, sur `https://platform.openai.com/plugins`, organisation **Personal**, le parcours **Create plugin → With MCP** a ouvert la fenêtre :
+The candidate is reconciled with PR #20, merged into `main` (`406176933da9ad7d8c3d6265b26dbfa50e493c4b`). The complete server now declares 22 tools. `create_postal_address_page` has a title and closed-world annotation consistent with internal generation; the table covers all 22 tools, checked by 39 focused MCP tests. Production address-page release also needs migration 0033 and the private engine, tracked by the separate postal release.
+
+## Portal state before these preparations
+
+On 17 September in Safari, `https://platform.openai.com/plugins`, organization **Personal**, **Create plugin → With MCP** opened:
 
 > Complete identity verification
 >
 > You need a verified developer identity before you can create or upload a plugin.
 
-Les boutons affichés étaient **Cancel** et **Continue**. **Continue** a ouvert `https://platform.openai.com/settings/organization/general`. Aucun brouillon ni identifiant de plugin n’avait été créé à cette étape. La marque **Guteneo** ne prouve pas une entreprise immatriculée ou vérifiée.
+Visible buttons were **Cancel** and **Continue**. **Continue** opened `https://platform.openai.com/settings/organization/general`. No draft/plugin identifier had been created at this step. The **Guteneo** brand does not establish a registered or verified company.
 
-La première relecture du 21 septembre, heure de Paris, montrait encore ce blocage. **Après la vérification réalisée par le titulaire, le portail a affiché une identité individuelle vérifiée dans l’organisation Guteneo et a permis de créer le brouillon.** Le nom légal complet et les pièces de vérification ne sont pas conservés dans ce dossier.
+The first reread on 21 September, Paris time, still showed this blocker. **After owner-completed verification, the portal showed a verified individual identity in organization Guteneo and allowed draft creation.** Full legal name and verification documents are not retained here.
 
-- Plugin : `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`.
-- Version du brouillon : `asdk_app_v_6ab05fbc52b08191824184064aee539f`, version `0.2.1`.
-- [Ouvrir le brouillon dans le portail](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f).
+- Plugin: `asdk_app_6ab05fbae9a881918dc6ee4e2f235d93`.
+- Draft identifier: `asdk_app_v_6ab05fbc52b08191824184064aee539f`, version `0.2.1`.
+- [Open the draft in the portal](https://platform.openai.com/plugins/edit/asdk_app_6ab05fbae9a881918dc6ee4e2f235d93/asdk_app_v_6ab05fbc52b08191824184064aee539f).
 
-Après rechargement, le nom, la version, la description courte, la description longue, la catégorie **Productivity**, le site et l’identité sélectionnée sont conservés. Les logos d’annuaire et du composeur sont également conservés, avec les modes clair/sombre présents dans l’interface. Les trois amorces et les notes de version persistent.
+After reload, name, version, short/long descriptions, **Productivity** category, website and selected identity persist. Directory/composer logos also persist with light/dark modes in the interface. Three starters and release notes persist.
 
-**La configuration MCP attend son scan avant enregistrement effectif.** L’URL `https://guteneo.com/mcp` et le choix OAuth ont été saisis, mais étaient absents après rechargement malgré l’indication **Draft saved**. Trois tentatives **Scan Tools**, dont la dernière après chargement complet du bouton, ont affiché **Saving draft**, puis **Draft saved**, sans résultat de scan. L’exigence **MCP tools scan is required** restait affichée : aucune connexion OAuth, aucun outil scanné ni jeton de challenge n’a été obtenu. Après resaisie et **Continue**, **Exit** avait explicitement demandé de scanner les changements MCP avant de quitter. Ce prérequis explique que la saisie seule ne suffit pas ; aucun bug de sauvegarde n’est établi. **Verify Domain** n’a produit aucune réussite observée. La cause de l’absence de résultat de scan reste inconnue. Les essais ont été arrêtés ; les valeurs laissées à l’écran ne sont ni qualifiées ni confirmées persistées.
+**MCP configuration awaits its scan before effective saving.** `https://guteneo.com/mcp` and OAuth were entered but absent after reload despite **Draft saved**. Three **Scan Tools** attempts, the last after full button loading, showed **Saving draft**, then **Draft saved**, without scan results. **MCP tools scan is required** remained visible: no OAuth connection, scanned tool or challenge token was obtained. After reentry and **Continue**, **Exit** explicitly requested scanning MCP changes before leaving. This prerequisite explains why entry alone is insufficient; no save bug is established. **Verify Domain** produced no observed success. The cause of missing scan results remains unknown. Attempts stopped; values left onscreen are neither qualified nor confirmed persisted.
 
-Notes de version effectivement enregistrées : « Première version pour l’annuaire : consultation et import de PDF, préparation de fax avec estimation et plafond, puis suivi des envois. Les fonctions accessibles dépendent des droits et des canaux du compte Guteneo. » Elles décrivent le candidat ; leur saisie ne constitue pas sa publication.
+The release note actually saved described a first directory version for PDF reading/import, fax preparation with estimate/ceiling and dispatch tracking, with available functions depending on Guteneo account permissions/channels. This is an English rendering of the recorded localized note; its entry did not publish the candidate.
 
-Le bouton final **Submit for Review** est confirmé désactivé. Les messages visibles demandent **Customer support URL**, **MCP server URL**, **Test case scenario** et **Submit confirmation**. La langue par défaut **English (US)** et la disponibilité **Allow all** ne constituent pas des choix validés par l’éditeur. Le dossier restant incomplet, aucune confirmation contractuelle n’a été demandée au titulaire, aucune case contractuelle ni attestation n’a été cochée ; aucun **Submit for review** ni **Publish** n’a été effectué.
+Final **Submit for Review** was confirmed disabled. Visible messages requested **Customer support URL**, **MCP server URL**, **Test case scenario** and **Submit confirmation**. Default language **English (US)** and availability **Allow all** were not publisher-approved choices. With the dossier incomplete, the owner had not been asked for contractual confirmation; no contractual box or attestation was checked and no **Submit for review** or **Publish** performed.
 
-## Contenu prêt à reporter
+## Content ready to transfer at that date
 
-La feuille [listing.json](../integrations/chatgpt/listing.json) contient descriptions, amorces, langue, contact et paramètres publics. **C’est un document interne, pas un schéma OpenAI ni un manifeste officiel à téléverser.** Les champs `null` attendent les informations réelles du portail.
+[listing.json](../integrations/chatgpt/listing.json) holds descriptions, starters, language, contact and public settings. **It is an internal worksheet, neither an OpenAI schema nor an official upload manifest.** `null` fields await actual portal information.
 
-| Champ                        | Valeur                                                          |
-| ---------------------------- | --------------------------------------------------------------- |
-| Nom                          | Guteneo                                                         |
-| Description courte           | PDF, devis et suivi des envois                                  |
-| Catégorie / langue           | Productivity / Français (`fr-FR`)                               |
-| Site / support               | `https://guteneo.com` / `guteneo@pieper.fr`                     |
-| MCP universel                | `https://guteneo.com/mcp`                                       |
-| Transport / authentification | Streamable HTTP / OAuth par utilisateur                         |
-| Ressource / autorité OAuth   | `https://guteneo.com/mcp` / `https://pieper.eu.auth0.com`       |
-| Logo                         | `https://guteneo.com/brand/guteneo-mark.png`                    |
-| Captures d’UI native         | Aucune : le serveur ne fournit pas d’UI MCP native              |
-| Politique de confidentialité | URL complète de politique réelle encore absente                 |
-| Client/callback/reviewer     | À configurer et vérifier ; aucune valeur fictive                |
-| Enregistrement de démo       | URL absente ; ne pas remplacer par une capture du site          |
-| Challenge du domaine         | Jeton reçu et commité ; déploiement et vérification non obtenus |
+| Field | Value |
+| --- | --- |
+| Name | Guteneo |
+| Short description | PDFs, quotes and dispatch tracking (English rendering of the historical localized draft) |
+| Category / language | Productivity / French (`fr-FR`) |
+| Website / support | `https://guteneo.com` / `guteneo@pieper.fr` |
+| Universal MCP | `https://guteneo.com/mcp` |
+| Transport / authentication | Streamable HTTP / per-user OAuth |
+| Resource / OAuth authority | `https://guteneo.com/mcp` / `https://pieper.eu.auth0.com` |
+| Logo | `https://guteneo.com/brand/guteneo-mark.png` |
+| Native UI screenshots | None: the server provides no native MCP UI |
+| Privacy policy | Full URL of actual policy still missing |
+| Client/callback/reviewer | To configure and verify; no invented values |
+| Demo recording | URL missing; do not substitute a website screenshot |
+| Domain challenge | Token received and committed; deployment/verification not obtained |
 
-Le texte décrit PDF, devis, plafond, approbation et suivi, selon les fonctions du compte. Il ne promet ni tous les pays, ni e-mail/courrier actif, ni livraison garantie, ni parcours sans sortie de ChatGPT. Le mode standard utilise l’approbation navigateur ; le mode expert exige un mandat préalable accordé par un administrateur.
+Copy describes PDFs, quotes, ceilings, approval and tracking according to account functions. It promises neither all countries, active email/post, guaranteed delivery nor a journey entirely within ChatGPT. Standard mode uses browser approval; expert mode requires a prior administrator-granted mandate.
 
-## Paquet et nouveau logo
+## Package and new logo
 
-**Archive historique du 17 septembre :** le paquet `dist/integrations/guteneo-plugin.zip` **0.2.1** pesait **285 340 octets**, SHA-256 `b3c6a1f7f1d933fcf548b66b48f90edd95ffc938e3452a2aa9c468d4a709dfe4`. Ces valeurs ne décrivent pas l’archive reconstruite après la reprise. Le build n’est pas une publication. Le dossier `integrations/chatgpt/` reste une feuille de soumission séparée du paquet portable.
+**Historical 17 September archive:** package `dist/integrations/guteneo-plugin.zip` **0.2.1** weighed **285,340 bytes**, SHA-256 `b3c6a1f7f1d933fcf548b66b48f90edd95ffc938e3452a2aa9c468d4a709dfe4`. These do not describe the rebuilt archive after resumption. A build is not publication. `integrations/chatgpt/` remains a submission worksheet separate from the portable package.
 
-**Archive reconstruite le 21 septembre :** version **0.2.1**, **285 325 octets**, SHA-256 `1c9fca3eca5551ccb3b34a862c84165dc5daa32fc8e745883c0f526e5c67eb79`. Le [rapport de reprise](../reports/chatgpt-marketplace-resume-2026-09-21.json) distingue les GET publics, les contrôles locaux et les étapes du portail. Cette archive n’est ni déployée ni soumise par sa construction.
+**Archive rebuilt on 21 September:** version **0.2.1**, **285,325 bytes**, SHA-256 `1c9fca3eca5551ccb3b34a862c84165dc5daa32fc8e745883c0f526e5c67eb79`. The [resumption report](../reports/chatgpt-marketplace-resume-2026-09-21.json) distinguishes public GETs, local checks and portal steps. Building this archive neither deploys nor submits it.
 
-Selon [BRAND_IDENTITY.md](BRAND_IDENTITY.md), l’**emblème simple** sert au MCP et aux petites icônes ; le portrait transparent aux headers et à Auth0 ; le timbre « guteneo.com » au footer et aux communications externes.
+Under [BRAND_IDENTITY.md](BRAND_IDENTITY.md), the **simple emblem** serves MCP/small icons, transparent portrait serves headers/Auth0, and “guteneo.com” stamp serves the footer/external communications.
 
-`apps/web/public/brand/guteneo-mark.png` : **512 × 512**, **249 823 octets**, fond opaque, SHA-256 `d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9`. Le 17 septembre, son URL publique répondait `200 image/png` avec les mêmes octets que le fichier local. Aucune création/retouche d’image ni fausse transparence n’est revendiquée.
+`apps/web/public/brand/guteneo-mark.png`: **512 × 512**, **249,823 bytes**, opaque background, SHA-256 `d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9`. On 17 September its public URL returned `200 image/png` with bytes matching the local file. No image creation/edit or false transparency is claimed.
 
-## Observation publique du 21 septembre
+## Public observation of 21 September
 
-Les GET publics du **20 septembre à 22:19 UTC, soit le 21 septembre à 00:19 à Paris**, ont été relus avec `curl` et un User-Agent de navigateur. Une première tentative avec le client Python recevait `403` sur toutes les routes : ce refus d’accès ne prouvait ni une panne ni l’absence des pages.
+Public GETs from **20 September at 22:19 UTC, 21 September at 00:19 Paris**, were reread with `curl` and a browser User-Agent. An initial Python-client attempt received `403` on every route: access refusal established neither an outage nor missing pages.
 
-| Route / champ                                    | Résultat observé                                                                                                                                                       |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/release.json`                                  | `200`, source `ef417c7f187bd11e327881b2127eae653288ac58`, `sourceDirty:false`, build `2026-09-20T19:44:57.804Z`, application `0.2.0`                                   |
-| `/api/capabilities`                              | `200`, production sans simulation, `urlImport:true`, scanner connecté, fax et courrier avec `liveSending:true`, e-mail avec `liveSending:false`                        |
-| Approbation et achats                            | Mode standard navigateur ; voie expert disponible avec activation préalable dans le compte. Facturation non configurée, `chargingEnabled:false`                        |
-| `/mcp` sans Bearer                               | `401 AUTHENTICATION_REQUIRED`, refus attendu pour un endpoint protégé                                                                                                  |
-| `/.well-known/oauth-protected-resource/mcp`      | `200`, audience MCP, autorité Auth0 et cinq scopes annoncés                                                                                                            |
-| `/confidentialite/`, `/conditions/`, `/contact/` | `404`                                                                                                                                                                  |
-| `/mentions-legales/`                             | `200`, texte daté du 20 septembre : atelier connecté et courrier distingués de la démonstration ; la rubrique données reste centrée sur la démonstration et Cloudflare |
+| Route / field | Observed result |
+| --- | --- |
+| `/release.json` | `200`, source `ef417c7f187bd11e327881b2127eae653288ac58`, `sourceDirty:false`, build `2026-09-20T19:44:57.804Z`, application `0.2.0` |
+| `/api/capabilities` | `200`, production without simulation, `urlImport:true`, scanner connected, fax/post with `liveSending:true`, email with `liveSending:false` |
+| Approval and purchases | Standard browser mode; expert path available after prior account activation. Billing unconfigured, `chargingEnabled:false` |
+| `/mcp` without Bearer | `401 AUTHENTICATION_REQUIRED`, expected protected-endpoint refusal |
+| `/.well-known/oauth-protected-resource/mcp` | `200`, MCP audience, Auth0 authority and five advertised scopes |
+| `/confidentialite/`, `/conditions/`, `/contact/` | `404` |
+| `/mentions-legales/` | `200`, copy dated 20 September: connected workspace/post distinguished from the demonstration; data section still centered on the demonstration and Cloudflare |
 
-Ces capacités décrivent la configuration publique. Elles ne prouvent ni les droits du compte reviewer, ni une route qualifiée, ni un nouvel envoi, ni la disponibilité de chaque outil dans ChatGPT. Les champs génériques de diagnostic encore anciens ne remplacent pas les preuves datées. Les mentions légales ont progressé depuis le 17 septembre, mais ne constituent pas une politique complète des traitements du service authentifié.
+These capabilities describe public configuration. They prove neither reviewer-account permissions, a qualified route, a new dispatch nor every tool's availability in ChatGPT. Older generic diagnostic fields do not replace dated evidence. Legal notices progressed since 17 September but were not a full authenticated-service processing policy.
 
-## Preuves historiques du 17 septembre
+## Historical evidence of 17 September
 
-La lecture publique et le blocage du portail sont consignés dans le
-[rapport expurgé](../reports/chatgpt-marketplace-public.json).
+The public read and portal blocker are recorded in the [redacted report](../reports/chatgpt-marketplace-public.json).
 
-Lecture publique du 17 septembre pendant cette préparation :
+Public read during 17 September preparation:
 
-- `/release.json` : source propre `c3798f59cb6cff4e1dcaddb524f43d59b1009822`, construite à `2026-09-17T14:32:49.407Z`, version applicative `0.2.0`.
-- `/api/capabilities` : production, sans simulation, import d’URL actif ; **fax actif**, e-mail et courrier inactifs ; achats désactivés (`chargingEnabled:false`).
-- Découverte OAuth : `documents:read documents:write dispatches:prepare dispatches:send dispatches:read`. L’autorité OIDC annonce `openid`, `email` et `userinfo_endpoint` ; la réponse `email_verified` du compte reviewer n’est pas qualifiée.
-- `/mentions-legales` répond `200` mais décrit encore tout l’atelier comme une démonstration locale fictive sans envoi. `/confidentialite` et `/conditions` répondent `404`.
+- `/release.json`: clean source `c3798f59cb6cff4e1dcaddb524f43d59b1009822`, built at `2026-09-17T14:32:49.407Z`, application version `0.2.0`.
+- `/api/capabilities`: production without simulation, URL import active; **fax active**, email/post inactive; purchases disabled (`chargingEnabled:false`).
+- OAuth discovery: `documents:read documents:write dispatches:prepare dispatches:send dispatches:read`. The OIDC authority advertises `openid`, `email` and `userinfo_endpoint`; the reviewer account's `email_verified` response is unqualified.
+- `/mentions-legales` returns `200` but still describes the entire workspace as a fictional local demonstration without sending. `/confidentialite` and `/conditions` return `404`.
 
-[CHATGPT_QUALIFICATION.md](CHATGPT_QUALIFICATION.md) conserve trois preuves distinctes : installation OAuth et lectures ; import natif exact de **136 018 octets**, puis document prêt ; un fax livré sur une route luxembourgeoise, suivi d’un rapprochement manuel de consommation. Elles ne qualifient pas toutes les routes/modèles, la recette reviewer, renouvellement/révocation OAuth ou règlement automatique généralisé.
+[CHATGPT_QUALIFICATION.md](CHATGPT_QUALIFICATION.md) retains three separate proofs: OAuth installation/reads; exact native import of **136,018 bytes**, then a ready document; one fax delivered on a Luxembourg route, followed by manual usage reconciliation. They qualify neither all routes/models, reviewer cases, OAuth refresh/revocation nor general automatic settlement.
 
-Des champs publics (`not_tested_in_real_client`, `real login unverified`) et certaines notes de `LIVE_RELEASE.md` décrivent un état antérieur. Les rapprocher des preuves datées sans les présenter comme de nouveaux tests échoués, ni extrapoler une qualification globale.
+Public fields (`not_tested_in_real_client`, `real login unverified`) and some `LIVE_RELEASE.md` notes describe earlier state. Reconcile them with dated evidence without presenting them as newly failed tests or extrapolating global qualification.
 
-Validation locale du **17 septembre** : **43 tests ciblés**, types, lint, build web et package. [Rapport de validation expurgé](../reports/chatgpt-marketplace-validation.json). La CI de `bd1fd01dc5188f1ed6aaf2271169c8e2f42dff9f` a réussi. Le 21 septembre, le candidat a été rebasé sur `origin/main` à `89d126d288b86f16f9c3be2d51182135ae6907e0` ; les anciens résultats et l’ancien hash ZIP ne valident pas ce nouveau candidat. Les contrôles de reprise doivent être consignés séparément. Aucun de ces résultats ne prouve un déploiement de 0.2.1 ni son admission au marketplace.
+Local validation on **17 September**: **43 focused tests**, types, lint, web/package builds. [Redacted validation report](../reports/chatgpt-marketplace-validation.json). CI for `bd1fd01dc5188f1ed6aaf2271169c8e2f42dff9f` passed. On 21 September the candidate rebased onto `origin/main` at `89d126d288b86f16f9c3be2d51182135ae6907e0`; old results/ZIP hash do not validate this new candidate. Record resumption checks separately. None proves deployment of 0.2.1 or marketplace admission.
 
-La reprise du **21 septembre** a également réussi **43 tests ciblés**, types, lint, build web et build du paquet, selon son rapport dédié. La [CI du candidat `89b9bd79efc4040f3c6b05950e12203280a4fa9a`](https://github.com/nclsppr/guteneo/actions/runs/35541687278) a ensuite réussi tous ses contrôles, dont `verify` et `scanner`. Ces preuves locales et CI restent distinctes de la recette du compte reviewer, encore non exécutée, du déploiement et de la revue OpenAI.
+The **21 September** resumption also passed **43 focused tests**, types, lint, web/package builds according to its separate report. [CI for candidate `89b9bd79efc4040f3c6b05950e12203280a4fa9a`](https://github.com/nclsppr/guteneo/actions/runs/35541687278) then passed all checks, including `verify` and `scanner`. Local/CI evidence remains distinct from unexecuted reviewer-account qualification, deployment and OpenAI review.
 
-## Champs de soumission vérifiés le 21 septembre
+## Submission fields checked on 21 September
 
-La [référence de soumission finale](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission) impose une description courte de **30 caractères maximum**, **exactement cinq cas positifs et trois négatifs**, des notes de version, une URL de vidéo de démonstration, un challenge de domaine validé, un scan courant et une justification pour chacune des trois annotations de chaque outil. Les URLs HTTPS du site, du support, de confidentialité et des conditions sont requises pour le MCP distant. Le listing conserve `null` pour les données encore inconnues.
+The [final submission reference](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission) requires a short description of **at most 30 characters**, **exactly five positive and three negative cases**, release notes, a demo-video URL, validated domain challenge, current scan and a rationale for all three annotations of every tool. HTTPS website/support/privacy/terms URLs are required for remote MCP. The listing retains `null` for unknown data.
 
-La sélection préparée est désormais **P1, P2, P3, P5, P6 / R1, R2, R3** dans [reviewer-tests.md](../integrations/chatgpt/reviewer-tests.md). L’interface demande des prompts négatifs pour lesquels le plugin ne doit pas être appelé : R1 demande une signature électronique de PDF, R2 la lecture de pièces jointes Gmail et R3 un SMS. Aucun appel Guteneo n’est attendu. N1, N2 et N4 restent des contrôles internes de refus d’autorisation et d’isolation. Cette adaptation est préparée, pas qualifiée : tous les cas attendent leur exécution avec le compte reviewer ; un résultat attendu n’est pas une preuve.
+Prepared selection is **P1, P2, P3, P5, P6 / R1, R2, R3** in [reviewer-tests.md](../integrations/chatgpt/reviewer-tests.md). The interface requests negative prompts for which the plugin must not be called: R1 asks for PDF electronic signature, R2 reads Gmail attachments, R3 sends an SMS. No Guteneo call is expected. N1, N2 and N4 remain internal authorization/isolation refusal checks. This adaptation is prepared, not qualified: all cases await reviewer-account execution; an expected result is not evidence.
 
-L’URL de challenge observée dans le brouillon est `https://guteneo.com/.well-known/openai-apps-challenge`. Le portail a maintenant fourni le jeton exact, commité dans [l’asset public de la PR #23](../apps/web/public/.well-known/openai-apps-challenge) : 43 octets, sans retour à la ligne. Le build conserve ces octets et le Worker local répond `200 text/plain; charset=utf-8` ; ces contrôles locaux ne prouvent pas un déploiement. Publier cet asset, vérifier les octets à l’URL publique, puis obtenir **Verify Domain** dans le portail. Ne pas demander ou substituer un nouveau jeton tant que ce challenge reste celui du brouillon. Aucun jeton ne doit être inventé, ni celui d’un autre plugin écrasé. La [documentation de soumission](https://developers.openai.com/plugins/deploy/submission#domain-verification) décrit le choix de l’origine autorisée. La lecture de l’URL ne constitue pas la réussite du challenge.
+The draft's observed challenge URL is `https://guteneo.com/.well-known/openai-apps-challenge`. The portal has supplied the exact token, committed in [PR #23's public asset](../apps/web/public/.well-known/openai-apps-challenge): 43 bytes, no newline. The build preserves those bytes and the local Worker returns `200 text/plain; charset=utf-8`; these local checks do not prove deployment. Publish the asset, verify public URL bytes, then obtain **Verify Domain** in the portal. Do not request/substitute a new token while this remains the draft's challenge. Never invent a token or overwrite another plugin's. [Submission documentation](https://developers.openai.com/plugins/deploy/submission#domain-verification) describes choosing the authorized origin. Reading the URL is not challenge success.
 
-Pour chaque outil scanné, fournir séparément la valeur et la justification de `readOnlyHint`, `openWorldHint` et `destructiveHint`. Les justifications doivent expliquer les effets réels, notamment l’import, les écritures de revue, le transfert du brouillon postal et l’envoi irréversible. Le renouvellement par `prepare_fax` peut annuler la préparation précédente : le candidat le déclare comme effet destructif, sans impliquer un envoi. Les justifications ne corrigent pas une annotation fausse côté serveur. Le scan courant et la vidéo ne sont pas encore qualifiés pour cette soumission.
+For each scanned tool, separately supply value and rationale for `readOnlyHint`, `openWorldHint` and `destructiveHint`. Rationales must explain real effects, including import, review writes, postal-draft transfer and irreversible sending. Renewal through `prepare_fax` can cancel the previous preparation: the candidate declares this destructive without implying dispatch. Rationales do not fix false server annotations. Current scan/video are not yet qualified for this submission.
 
-Les [justifications des 22 outils du candidat](../integrations/chatgpt/tool-annotations.md) sont préparées à partir du code. Elles devront correspondre au snapshot publié et scanné.
+[Rationales for the candidate's 22 tools](../integrations/chatgpt/tool-annotations.md) are prepared from code. They must match the published/scanned snapshot.
 
-## Points restant à résoudre
+## Issues remaining at that historical point
 
-1. **Finaliser le brouillon :** l’identité individuelle vérifiée, les informations relues, les logos, les amorces et les notes persistent. Confirmer langue et pays ; les valeurs par défaut du portail n’ont pas été validées par l’éditeur.
-2. **Politique réelle publiée :** la page actuelle ne couvre pas les données du service authentifié. Le [brouillon de travail](CHATGPT_PRIVACY_DRAFT.md) fournit des faits à valider, pas une politique adoptée. La page canonique doit cesser de présenter les traitements réels comme une simple mémoire d’onglet.
-3. **Reviewer :** aucun compte dédié avec exemples et accès sans étape supplémentaire n’a été fourni/testé pour ce dossier. Transmettre les credentials uniquement dans les champs privés du portail.
-4. **Projet et OAuth :** terminer le scan exigé avant l’enregistrement effectif de l’URL MCP et d’OAuth, puis qualifier le client et son callback. Aucun scan réussi ni flux OAuth de cette soumission n’a été observé. Le challenge reçu et commité attend encore son déploiement et sa validation par le portail. La cause de l’absence de résultat du scan n’est pas établie. Contrôler aussi les caractéristiques du projet, notamment la résidence **Global**.
-5. **Conditions, support et disponibilité :** publier les URLs de conditions d’utilisation et de support demandées par la soumission, et choisir explicitement les pays de disponibilité du plugin. Le contact e-mail existe, mais ne remplace pas une URL requise. La disponibilité du plugin ne doit pas être confondue avec les routes fax réellement qualifiées.
-6. **Recette et scan :** valider avec le compte reviewer les cinq cas positifs et les trois prompts négatifs R1/R2/R3 préparés selon le critère « ne pas appeler le plugin ». Vérifier le challenge du domaine, scanner les outils du serveur publié et fournir les justifications de toutes leurs annotations. Conserver les refus d’autorisation comme contrôles internes.
-7. **Vidéo et notes de version :** enregistrer le parcours réellement disponible sur les surfaces annoncées, sans secret ni donnée sensible, et fournir son URL accessible aux reviewers. Les notes du listing décrivent le candidat ; elles ne déclarent pas une version déjà publiée.
+1. **Finalize the draft:** verified individual identity, reviewed information, logos, starters and notes persist. Confirm language/countries; publisher validation of portal defaults is absent.
+2. **Publish an actual policy:** the page did not cover authenticated-service data. The [working draft](CHATGPT_PRIVACY_DRAFT.md) provides facts to validate, rather than an adopted policy. The canonical page must stop describing real processing as mere tab memory.
+3. **Reviewer:** no dedicated account with examples and access without an additional step had been supplied/tested for this dossier. Pass credentials only through private portal fields.
+4. **Project/OAuth:** finish the required scan before effective MCP/OAuth URL saving, then qualify client/callback. No successful scan or OAuth flow for this submission was observed. The received/committed challenge still awaits deployment/portal validation. The cause of absent scan results is unknown. Also check project characteristics, including **Global** residency.
+5. **Terms, support and availability:** publish the terms/support URLs required for submission and explicitly select plugin countries. Existing email contact does not replace a required URL. Distinguish plugin availability from actually qualified fax routes.
+6. **Qualification/scan:** run five positive cases and negative R1/R2/R3 with the reviewer account under the “do not invoke the plugin” criterion. Verify domain challenge, scan published server tools and provide every annotation rationale. Keep authorization refusals as internal checks.
+7. **Video/release notes:** record the actually available journey on advertised surfaces without secrets/sensitive data and provide a reviewer-accessible URL. Listing notes describe the candidate, rather than a published release.
 
-Les achats sont désactivés. Les règles OpenAI permettent l’accès aux fonctions d’un compte existant mais interdisent la vente de services ou crédits numériques dans le plugin et les liens déclenchant leur achat. Ne pas ajouter recharge, souscription ou paiement intégré. Le statut juridique/commercial doit être confirmé par l’éditeur ; ce dossier n’est pas une autorisation contractuelle.
+Purchases are disabled. OpenAI rules allow access to existing-account functions but prohibit selling digital services/credits in the plugin and links triggering those purchases. Do not add top-ups, subscriptions or integrated payments. The publisher must confirm legal/commercial status; this dossier is not contractual authorization.
 
-## Après résolution
+## After resolution
 
-Compléter le brouillon existant, qualifier MCP/OAuth, obtenir **Scan Tools**, compléter champs et justifications à partir du serveur et des tests effectifs, puis **Submit for review**. Après approbation OpenAI, **Publish** est distinct. Conserver identifiant, version, statut et URL d’annuaire. Ne cocher aucune attestation non établie.
+Complete the existing draft, qualify MCP/OAuth, obtain **Scan Tools**, fill fields/rationales from the actual server/tests, then **Submit for review**. After OpenAI approval, **Publish** is separate. Retain identifier, version, status and directory URL. Check no unestablished attestation.
 
-Le dossier cible ChatGPT. Si le portail distribue aussi sur Codex, qualifier les fonctions annoncées sur cette surface avant de les attester. Ne pas joindre de captures du site en prétendant qu’il s’agit d’UI MCP native.
+This dossier targets ChatGPT. If the portal also distributes through Codex, qualify advertised functions on that surface before attesting. Do not attach website screenshots claiming native MCP UI.
 
-Sources de reprise ouvertes le 21 septembre 2026 : [soumission](https://developers.openai.com/plugins/deploy/submission), [erreurs et contraintes finales](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission). Références du dossier historique : [revue MCP](https://developers.openai.com/plugins/deploy/app-review), [règles des plugins](https://developers.openai.com/plugins/app-guidelines), [portail](https://platform.openai.com/plugins). OpenAI contrôle l’approbation et ses délais.
+Resumption sources opened on 21 September 2026: [submission](https://developers.openai.com/plugins/deploy/submission), [errors/final constraints](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission). Historical references: [MCP review](https://developers.openai.com/plugins/deploy/app-review), [plugin rules](https://developers.openai.com/plugins/app-guidelines), [portal](https://platform.openai.com/plugins). OpenAI controls approval and its timing.

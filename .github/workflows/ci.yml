@@ -73,8 +73,15 @@ jobs:
       - run: npm run lint
       - name: Reject known high and critical dependency advisories
         run: npm run audit:dependencies
-      - name: Require a synchronized developer feature tree and valid references
-        run: node docs/build-feature-map.mjs --check
+      - name: Require synchronized documentation, English sources and canonical links
+        run: npm run docs:check
+      - name: Require feature and developer documentation in the same change
+        if: github.event_name == 'pull_request'
+        env:
+          DOCS_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$DOCS_BASE_SHA"
+          node scripts/repository-standards.mjs --base "$DOCS_BASE_SHA"
       - name: Audit every advertised MCP tool annotation and justification
         run: npm run audit:mcp
       - name: Require synchronized annotation review documentation

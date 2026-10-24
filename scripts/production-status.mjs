@@ -115,7 +115,7 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   if (process.argv.length !== 2) {
-    console.error("Usage : node scripts/production-status.mjs (sans argument)");
+    console.error("Usage: node scripts/production-status.mjs (no arguments)");
     process.exitCode = 1;
   } else {
     const status = await productionStatus();

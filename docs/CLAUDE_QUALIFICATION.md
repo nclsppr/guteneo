@@ -1,56 +1,76 @@
-# Qualification Claude.ai — 17 septembre 2026
+# Claude.ai qualification — 17 September 2026
 
-Pour le candidat Claude Code 1.0.0 du 23 octobre, consulter
-[CLAUDE_PLUGIN.md](CLAUDE_PLUGIN.md). La preuve ci-dessous reste historique et
-ne qualifie ni ce paquet ni une session Claude Code.
+For the 23 October Claude Code 1.0.0 candidate, see
+[CLAUDE_PLUGIN.md](CLAUDE_PLUGIN.md). Evidence below remains historical and
+qualifies neither that package nor a Claude Code session.
 
-La configuration Auth0 dédiée à Claude.ai a été créée et relue. **Le consentement, le retour OAuth réussi, la découverte de 21 outils et un appel réel de `get_capabilities` sont qualifiés dans le vrai navigateur.** L’appel a réussi le **17 septembre 2026 à 17:55 UTC**, en mode `production` avec `simulation:false`. Ce constat concerne Claude.ai dans Safari avec le compte Free observé ; il ne qualifie ni Claude Code ni d’autres comptes ou surfaces Claude.
+Dedicated Claude.ai Auth0 configuration was created/reread. **Consent,
+successful OAuth return, discovery of 21 tools and an actual `get_capabilities`
+call were qualified in the real browser.** The call succeeded on **17 September
+2026 at 17:55 UTC**, mode `production`, `simulation:false`. This concerns
+Claude.ai in Safari with the observed Free account, not Claude Code or other
+Claude accounts/surfaces.
 
-Suite du 18 septembre : le bouton d’installation et le renouvellement rotatif
-sont préparés dans [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md). Leur validation locale
-ne modifie pas l’état distant décrit ci-dessous ; activation et qualification
-du renouvellement réel restent à effectuer.
+The 18 September installation-button/rotating-renewal follow-up is prepared
+in [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md). Local validation changes no remote
+state below; renewal activation/actual qualification remain pending.
 
-## Configuration Auth0 vérifiée
+## Verified Auth0 configuration
 
-Le client a été créé puis relu le **17 septembre 2026 à 17:48:15.683 UTC**.
+Client created/reread on **17 September 2026 at 17:48:15.683 UTC**.
 
-| Paramètre | Valeur vérifiée |
+| Parameter | Verified value |
 | --- | --- |
-| Nom | `Guteneo - Claude hosted` |
-| Identifiant public du client | `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed` |
+| Name | `Guteneo - Claude hosted` |
+| Public client identifier | `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed` |
 | Callback | `https://claude.ai/api/mcp/auth_callback` |
-| Authentification au token endpoint | `none` |
-| Grant autorisé | `authorization_code` uniquement |
-| Ressource cible | `https://guteneo.com/mcp` |
-| Connexion de compte | `Guteneo-Accounts` uniquement |
+| Token-endpoint authentication | `none` |
+| Allowed grant | `authorization_code` only |
+| Target resource | `https://guteneo.com/mcp` |
+| Account connection | `Guteneo-Accounts` only |
 
-L’identifiant du client est une configuration publique, pas un secret. La liaison à `Guteneo-Accounts` a été vérifiée par lecture de la relation `GET /connections/{id}/clients`. Aucun autre client OAuth n’a été modifié. Les Actions, les réglages du tenant et le Worker n’ont pas été redéployés ou modifiés pour cette installation.
+Client ID is public configuration, not a secret. Guteneo-Accounts binding
+was verified through `GET /connections/{id}/clients`. No other OAuth client
+changed. Actions, tenant settings and Worker were neither redeployed nor
+modified for this installation.
 
-Les codes effectivement déployés des deux Actions Auth0 ont été relus puis exécutés localement en VM avec des fixtures. Un nouveau client demandant la bonne audience, avec la bonne connexion, un compte vérifié et PKCE S256, déclenche les appels d’ajout du claim `https://guteneo.com/verified_account` dans les API simulées des jetons ID et d’accès. Les cas mauvais PKCE et mauvaise connexion sont refusés ; un compte non vérifié ne déclenche pas cet ajout. Cette vérification locale ne produit pas de JWT signé. Elle explique la couverture du nouveau client par l’audience, sans modifier les Actions, et reste distincte de la preuve du parcours réel dans Claude.ai ci-dessous.
+Actually deployed code of both Auth0 Actions was reread, then run locally in
+a VM with fixtures. A new client requesting the correct audience/connection,
+verified account and S256 PKCE triggers additions of
+`https://guteneo.com/verified_account` to simulated ID/access-token APIs.
+Wrong PKCE/connection is refused; unverified accounts trigger no claim addition.
+This local check produces no signed JWT. It explains audience coverage for
+the new client without Action changes and remains separate from actual
+Claude.ai evidence below.
 
-## Installation observée dans Claude.ai
+## Observed Claude.ai installation
 
-Dans Safari, avec l’utilisateur connecté à Claude.ai, un connecteur personnalisé nommé **Guteneo** a été ajouté avec les paramètres suivants :
+In Safari with Claude.ai signed in, a **Guteneo** custom connector was added:
 
-- Serveur : `https://guteneo.com/mcp`.
-- Transport : Streamable HTTP.
-- Client OAuth propre : identifiant public ci-dessus.
-- Secret client : champ vide.
+- Server: `https://guteneo.com/mcp`.
+- Transport: Streamable HTTP.
+- Own OAuth client: public identifier above.
+- Client secret: empty.
 
-Le consentement Auth0 réel a été accepté pour les cinq permissions `documents:read`, `documents:write`, `dispatches:prepare`, `dispatches:send` et `dispatches:read`. Ces permissions n’établissent pas qu’un outil a été invoqué ; elles ne créent pas d’approbation humaine d’envoi ni de mandat expert.
+Actual Auth0 consent accepted `documents:read`, `documents:write`,
+`dispatches:prepare`, `dispatches:send`, `dispatches:read`. These permissions
+prove no tool invocation and create neither human send approval nor expert
+mandate.
 
-Le retour Auth0 a réussi dans Claude.ai : l’interface affiche le bouton **Disconnect** et 21 outils, classés en neuf outils de lecture et douze outils d’écriture. Tous les réglages **Needs approval** ont été conservés.
+Auth0 return succeeded: Claude.ai displays **Disconnect** and 21 tools,
+nine read/twelve write. All **Needs approval** settings were preserved.
 
-## Appel réel en lecture seule
+## Actual read-only call
 
-Une nouvelle conversation avec **Sonnet 5, High** a reçu cette demande :
+A new **Sonnet 5, High** conversation received this request (English translation):
 
-> Vérifie la connexion à Guteneo en appelant uniquement son outil get_capabilities. Indique si cet appel a réussi et le mode retourné. Ne consulte aucun document ou envoi, ne crée rien et ne déclenche aucune communication.
+> Check the Guteneo connection by calling only its get_capabilities tool. State whether the call succeeded and the returned mode. Read no document or dispatch, create nothing and trigger no communication.
 
-L’approbation dans Claude a été limitée à **Allow once**. Les réglages persistants **Needs approval** restent inchangés. À **17:55 UTC**, la trace dépliée **Get capabilities** a exposé une réponse brute réussie. Les champs vérifiés sont :
+Claude approval was limited to **Allow once**. Persistent **Needs approval**
+settings remain unchanged. At **17:55 UTC**, expanded **Get capabilities**
+trace exposed a successful raw response:
 
-| Champ | Valeur observée |
+| Field | Observed value |
 | --- | --- |
 | `ok` | `true` |
 | `data.name` | `Guteneo` |
@@ -63,15 +83,27 @@ L’approbation dans Claude a été limitée à **Allow once**. Les réglages pe
 | `data.approval.expert.connection.canUseExpert` | `false` |
 | `data.approval.expert.connection.canTransferPostalDraft` | `false` |
 
-Claude a ensuite confirmé la réussite dans sa réponse finale. Cette preuve porte sur l’authentification du connecteur, la découverte des outils et cet unique appel de capacités en production. Aucun appel de `list_documents` ou `list_dispatches` n’a été effectué ; aucun document ou envoi existant n’a été consulté. La version applicative retournée ne constitue pas une preuve d’un nouveau déploiement du Worker.
+Claude then confirmed success. This proves connector authentication, discovery
+and that one production capability call. No `list_documents`/`list_dispatches`
+call occurred; no existing document/dispatch was read. Returned app version
+is not evidence of a new Worker deployment.
 
-## Qualification restant à effectuer
+## Remaining qualification
 
-1. Qualifier séparément les autres lectures et les outils d’écriture. Leur présence dans la liste ne prouve pas leur exécution.
-2. Qualifier l’expiration, la reconnexion et la révocation. Le client enregistré n’autorise que `authorization_code` et les refresh tokens restent désactivés : une reconnexion est nécessaire à l’expiration, sans preuve de ce parcours dans cette recette.
-3. Qualifier l’import exact et son SHA-256 avant toute affirmation de transfert natif d’un PDF joint à Claude. Le dépôt authentifié dans Guteneo, suivi de `list_documents` / `get_document`, reste le parcours documenté, non testé ici.
-4. Qualifier séparément les préparations, approbations et communications réelles sous leur autorisation propre. Le succès de `get_capabilities` ne qualifie aucun envoi ni transfert de document.
+1. Qualify other reads/writes separately; listed tools prove no execution.
+2. Qualify expiry/reconnection/revocation. Registered client allows only
+   `authorization_code`; refresh tokens remain disabled. Expiry requires
+   reconnection, not demonstrated in this qualification.
+3. Qualify exact import/SHA-256 before claiming native transfer of a Claude
+   PDF attachment. Authenticated Guteneo upload followed by
+   `list_documents`/`get_document` remains documented but untested here.
+4. Separately qualify preparation, approval and actual communications under
+   their own authorization. Capability success qualifies no send/file transfer.
 
-Aucun import, rendu, préparation, approbation d’envoi, envoi de communication ou activation de mandat expert n’a été effectué pour cette installation. Aucun jeton, code OAuth, URL de retour contenant un code, adresse e-mail ou contenu utilisateur n’est conservé dans cette note. L’installation privée du connecteur reste distincte de la publication dans un annuaire et de l’installation du paquet de skills.
+No import, render, preparation, send approval, communication or expert-mandate
+activation occurred. This note retains no token, OAuth code, code-bearing
+return URL, email address or user content. Private connector installation
+remains separate from directory publication/skill-package installation.
 
-Configuration générale et limites des hôtes : [LLM_SETUP.md](LLM_SETUP.md). Contrôles d’identité : [IDENTITY_MCP.md](IDENTITY_MCP.md).
+General setup/host limits: [LLM_SETUP.md](LLM_SETUP.md).
+Identity controls: [IDENTITY_MCP.md](IDENTITY_MCP.md).

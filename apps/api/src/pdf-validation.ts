@@ -29,13 +29,13 @@ function fail(code: string, message: string, status = 409): never {
 }
 const safeKey = (key: string) => {
   if (!/^[A-Za-z0-9_-]{8,128}$/.test(key))
-    fail("INVALID_IDEMPOTENCY_KEY", "Une clé d’idempotence est requise.", 400);
+    fail("INVALID_IDEMPOTENCY_KEY", "An idempotency key is required.", 400);
   return key;
 };
 const failure = () =>
   fail(
     "PDF_VALIDATION_FAILED",
-    "Le contrôle n’a pas abouti. Aucun résultat de conformité n’a été enregistré.",
+    "The check failed. No compliance result was recorded.",
     503,
   );
 
@@ -79,7 +79,7 @@ export class PdfValidationService {
     if (document.status !== "ready")
       fail(
         "DOCUMENT_NOT_READY",
-        "Le PDF doit terminer sa vérification de sécurité.",
+        "The PDF must complete its security verification.",
       );
     if (
       !this.env.PDF_VALIDATOR ||
@@ -87,7 +87,7 @@ export class PdfValidationService {
     )
       fail(
         "PDF_VALIDATOR_CONFIGURATION_REQUIRED",
-        "Le service de contrôle PDF doit être configuré.",
+        "The PDF checking service must be configured.",
         503,
       );
     const now = new Date().toISOString();
@@ -120,7 +120,7 @@ export class PdfValidationService {
         )
         .run();
       if (claimed.meta.changes !== 1)
-        fail("FORBIDDEN", "Votre session ou vos droits ont changé.", 403);
+        fail("FORBIDDEN", "Your session or permissions have changed.", 403);
     } catch (error) {
       const concurrent = await this.getByKey(actor, key);
       if (concurrent) return this.replay(concurrent, documentId, profile);
@@ -128,16 +128,16 @@ export class PdfValidationService {
       if (message.includes("pdf_validation_quota"))
         fail(
           "PDF_VALIDATION_QUOTA_EXCEEDED",
-          "Les 100 contrôles du mois ont été utilisés.",
+          "All 100 monthly checks have been used.",
           429,
         );
       if (message.includes("pdf_validation_busy"))
         fail(
           "PDF_VALIDATION_BUSY",
-          "Deux contrôles sont déjà en cours. Consultez les rapports avant de relancer.",
+          "Two checks are already in progress. View the reports before retrying.",
         );
       if (message.includes("pdf_validation_authority"))
-        fail("FORBIDDEN", "Les droits ou le forfait ont changé.", 403);
+        fail("FORBIDDEN", "Permissions or the plan have changed.", 403);
       throw error;
     }
     try {
@@ -250,7 +250,7 @@ export class PdfValidationService {
         if (write.meta.changes !== 1)
           fail(
             "FORBIDDEN",
-            "Les droits ou le forfait ont changé pendant le contrôle.",
+            "Permissions or the plan changed during the check.",
             403,
           );
         return report;
@@ -282,13 +282,13 @@ export class PdfValidationService {
     profile: string,
   ): PdfValidationReport {
     if (row.document_id !== documentId || row.profile !== profile)
-      fail("IDEMPOTENCY_CONFLICT", "Cette clé correspond à un autre contrôle.");
+      fail("IDEMPOTENCY_CONFLICT", "This key belongs to another check.");
     if (row.status === "complete" && row.result_json)
       return pdfValidationReportSchema.parse(JSON.parse(row.result_json));
     if (row.status === "processing")
       fail(
         "PDF_VALIDATION_BUSY",
-        "Le contrôle est déjà en cours. Consultez les rapports avant de relancer.",
+        "The check is already in progress. View the reports before retrying.",
       );
     return failure();
   }

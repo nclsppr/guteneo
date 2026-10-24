@@ -2,11 +2,9 @@ import { msg } from "./messages";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   Check,
   FileText,
   PaperPlaneTilt,
-  X,
   SquaresFour,
   Files,
   Stack,
@@ -37,8 +35,12 @@ import {
   initializeLocale,
   useLocale,
 } from "./locale";
+import {
+  canonicalPublicLocation,
+  canonicalPublicFragment,
+} from "../../../packages/contracts/src/public-routes";
 import { isSupportedLocale } from "../../../packages/contracts/src/locale";
-import { LanguageMenu, LanguageSelect } from "./language-select";
+import { PublicHeader } from "./public-chrome";
 import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
 import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
@@ -65,7 +67,6 @@ import {
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { Login } from "./login-page";
-import { workspaceEntryHref } from "./auth-navigation";
 import { WorkspaceIdentity } from "./workspace-identity";
 import { RolePermissionNotice } from "./role-guide";
 import { TeamInvitations } from "./team-invitations";
@@ -107,32 +108,20 @@ export function Landing() {
     capabilities.error ? undefined : capabilities.data,
     capabilities.loading,
   );
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuButton = useRef<HTMLButtonElement>(null);
-  const header = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (!menuOpen) return;
-    function closeOutside(event: Event) {
-      if (
-        event.target instanceof Node &&
-        !header.current?.contains(event.target)
-      )
-        setMenuOpen(false);
-    }
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("focusin", closeOutside);
-    return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("focusin", closeOutside);
-    };
-  }, [menuOpen]);
-  useEffect(() => {
-    const id = window.location.hash.slice(1);
+    const fragment = canonicalPublicFragment(window.location.hash);
+    if (fragment !== window.location.hash)
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search + fragment,
+      );
+    const id = fragment.slice(1);
     if (
       ![
         "how",
         "installation",
-        "tarifs",
+        "pricing",
         "horizon",
         "faq",
         "postal-cutoff-faq",
@@ -148,9 +137,6 @@ export function Landing() {
     });
     return () => cancelAnimationFrame(frame);
   }, []);
-  function closeMenu() {
-    setMenuOpen(false);
-  }
   return (
     <div className="landing homepage">
       <a
@@ -164,83 +150,7 @@ export function Landing() {
       >
         {t.skip}
       </a>
-      <header
-        ref={header}
-        className="site-header"
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && menuOpen) {
-            event.preventDefault();
-            closeMenu();
-            menuButton.current?.focus();
-          }
-        }}
-      >
-        <Brand />
-        <nav aria-label={msg("Navigation principale")}>
-          <a href="#how" onClick={(event) => scrollToSection(event, "how")}>
-            {t.landing.navHow}
-          </a>
-          <a href="/assistants/">{msg("Assistants")}</a>
-          <a
-            href="#tarifs"
-            onClick={(event) => scrollToSection(event, "tarifs")}
-          >
-            {t.homepage.navPricing}
-          </a>
-          <LanguageMenu />
-          <a className="button small" href={workspaceEntryHref()}>
-            {publicPreview ? msg("Explorer la démo") : t.login.managed}
-            <ArrowUpRight size={16} />
-          </a>
-        </nav>
-        <button
-          ref={menuButton}
-          className="mobile-menu-toggle"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? (
-            <X size={19} aria-hidden="true" />
-          ) : (
-            <List size={19} aria-hidden="true" />
-          )}
-          {msg("Menu")}
-        </button>
-        <nav
-          id="mobile-navigation"
-          className="mobile-navigation"
-          aria-label={msg("Navigation mobile")}
-          hidden={!menuOpen}
-        >
-          {[
-            ["how", t.landing.navHow],
-            ["tarifs", t.homepage.navPricing],
-          ].map(([id, label]) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              onClick={(event) => {
-                closeMenu();
-                scrollToSection(event, id);
-              }}
-            >
-              {label}
-              <ArrowRight size={17} aria-hidden="true" />
-            </a>
-          ))}
-          <a href="/assistants/" onClick={closeMenu}>
-            {msg("Assistants ")}
-            <ArrowRight size={17} aria-hidden="true" />
-          </a>
-          <a href={workspaceEntryHref()} onClick={closeMenu}>
-            {publicPreview ? msg("Explorer la démo") : t.login.managed}
-            <ArrowUpRight size={17} aria-hidden="true" />
-          </a>
-          <LanguageSelect automatic />
-        </nav>
-      </header>
+      <PublicHeader home />
       <main id="landing-main" tabIndex={-1}>
         <section className="hero">
           <div className="hero-copy">
@@ -269,8 +179,8 @@ export function Landing() {
             </div>
             <p className="hero-channels">
               {msg("Fax ")}
-              <span aria-hidden="true">·</span> {msg(" E-mail")}{" "}
-              <span aria-hidden="true">·</span> {msg(" Courrier postal")}
+              <span aria-hidden="true">·</span> {msg(" Email")}{" "}
+              <span aria-hidden="true">·</span> {msg(" Post")}
             </p>
           </div>
           <div className="hero-art">
@@ -285,39 +195,39 @@ export function Landing() {
             />
             <div
               className="hero-dispatch-note"
-              aria-label={msg("Bon d’envoi fictif")}
+              aria-label={msg("Fictional dispatch slip")}
             >
               <p className="dispatch-note-label">
-                {msg("Bon d’envoi ")}
-                <span>{msg("Exemple")}</span>
+                {msg("Dispatch slip ")}
+                <span>{msg("Example")}</span>
               </p>
               <p className="dispatch-note-document">
                 <FileText size={18} aria-hidden="true" />
-                {msg("Correspondance.pdf ")}
+                {msg("Correspondence.pdf ")}
                 <span>{msg("2 pages")}</span>
               </p>
               <dl>
                 <div>
-                  <dt>{msg("Pour")}</dt>
+                  <dt>{msg("To")}</dt>
                   <dd>
-                    {msg("Maison Exemple ")}
-                    <small>{msg("(fictif)")}</small>
+                    {msg("Example Company ")}
+                    <small>{msg("(fictional)")}</small>
                   </dd>
                 </div>
                 <div>
-                  <dt>{msg("Canal")}</dt>
+                  <dt>{msg("Channel")}</dt>
                   <dd>{msg("Fax")}</dd>
                 </div>
                 <div>
-                  <dt>{msg("Plafond")}</dt>
+                  <dt>{msg("Spending cap")}</dt>
                   <dd>
-                    0,20 € <small>{msg("(exemple)")}</small>
+                    0,20 € <small>{msg("(example)")}</small>
                   </dd>
                 </div>
               </dl>
               <p className="dispatch-note-status">
                 <Check size={16} aria-hidden="true" />
-                {msg("À vérifier avant l’envoi")}
+                {msg("Review before sending")}
               </p>
             </div>
           </div>
@@ -331,7 +241,7 @@ export function Landing() {
         <JournalTeaser />
         {publicPreview && (
           <p className="homepage-preview-note">
-            {msg("Aperçu interactif · Sans inscription · Aucun envoi réel")}
+            {msg("Interactive preview · No sign-up · No real sends")}
           </p>
         )}
       </main>
@@ -401,6 +311,16 @@ export function App() {
 
 function Application() {
   const locale = useLocale();
+  const canonicalLocation = canonicalPublicLocation(
+    window.location.pathname,
+    window.location.search,
+    window.location.hash,
+  );
+  if (
+    canonicalLocation !==
+    window.location.pathname + window.location.search + window.location.hash
+  )
+    window.history.replaceState(window.history.state, "", canonicalLocation);
   const [session, updateSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const { applyAccountAppearance } = useDashboardAppearance();
@@ -455,12 +375,12 @@ function Application() {
       article?.title ??
       (path.startsWith("/assistants")
         ? msg("Assistants")
-        : path === "/developpeurs/"
-          ? msg("Développeurs")
-          : path === "/mentions-legales/"
-            ? msg("Mentions légales")
+        : path === "/developers/"
+          ? msg("Developers")
+          : path === "/legal/"
+            ? msg("Legal notice")
             : path === "/journal/"
-              ? msg("Le journal")
+              ? msg("The journal")
               : `${t.landing.title} ${t.landing.titleItalic}`);
     document.title = `${label} | Guteneo`;
     const description =
@@ -479,7 +399,7 @@ function Application() {
     return (
       <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
     );
-  if (window.location.pathname === "/developpeurs/") return <DeveloperPage />;
+  if (window.location.pathname === "/developers/") return <DeveloperPage />;
   return (
     <WorkspaceApplication
       session={session}
@@ -610,8 +530,8 @@ function WorkspaceApplication({
     (item) => articlePath(item.slug) === pathname,
   );
   if (article) return <ArticlePage article={article} />;
-  if (pathname === "/mentions-legales/") return <LegalPage />;
-  if (page === "/mentions-legales") return <LegalPage />;
+  if (pathname === "/legal/") return <LegalPage />;
+  if (page === "/legal") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
   if (!ready)
     return (
@@ -780,7 +700,7 @@ function WorkspaceApplication({
           </span>
           <div>
             <strong>{session.organization.name}</strong>
-            <small>{msg("L’atelier")}</small>
+            <small>{msg("Workshop")}</small>
           </div>
         </div>
         <details
@@ -800,9 +720,9 @@ function WorkspaceApplication({
         >
           <summary ref={navigationSummary}>
             <List size={21} aria-hidden="true" />
-            {msg("Navigation de l’atelier")}
+            {msg("Workspace navigation")}
           </summary>
-          <nav aria-label={msg("Navigation de l’atelier")}>
+          <nav aria-label={msg("Workspace navigation")}>
             {appearance === "v2" &&
               permissions.prepareDispatches &&
               !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (
@@ -892,7 +812,7 @@ function WorkspaceApplication({
               {publicPreview && (
                 <span className="scanner-warning">
                   {msg(
-                    "Aperçu dans cet onglet uniquement. Les données sont réinitialisées au rechargement.",
+                    "Preview in this tab only. Data resets when you reload.",
                   )}
                 </span>
               )}
@@ -963,7 +883,7 @@ function WorkspaceApplication({
             <Brand app variant="simple" compact />
             <span>{session.organization.name}</span>
             <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
-            <a href="https://status.guteneo.com/">{msg("État du service")}</a>
+            <a href="https://status.guteneo.com/">{msg("Service status")}</a>
           </footer>
         )}
       </div>

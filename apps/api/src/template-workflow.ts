@@ -21,6 +21,7 @@ import {
 import {
   MappingPlanSchema,
   XmlRecordPathSchema,
+  resolveDatasetSheet,
   type DatasetProfile,
   type DatasetFormat,
   type MappingPlan,
@@ -168,7 +169,7 @@ const boundedJson = (
 ) => {
   const text = canonicalJson(value);
   if (new TextEncoder().encode(text).length > limit)
-    fail("WORKFLOW_INPUT_TOO_LARGE", "Données trop volumineuses.", 413);
+    fail("WORKFLOW_INPUT_TOO_LARGE", "Data is too large.", 413);
   return text;
 };
 // Guard raw API values before recursive Zod/schema parsing or JSON serialization.
@@ -178,13 +179,13 @@ function assertBoundedTemplateRequest(input: unknown) {
   while (pending.length) {
     const [value, depth] = pending.pop()!;
     if (++nodes > 50_000 || depth > 16)
-      fail("TEMPLATE_COMPLEXITY", "Structure du modèle trop complexe.", 422);
+      fail("TEMPLATE_COMPLEXITY", "Template structure is too complex.", 422);
     if (value && typeof value === "object") {
       for (const child of Object.values(value)) {
         if (pending.length + nodes >= 50_000)
           fail(
             "TEMPLATE_COMPLEXITY",
-            "Structure du modèle trop complexe.",
+            "Template structure is too complex.",
             422,
           );
         pending.push([child, depth + 1]);
@@ -205,7 +206,7 @@ export const templateUpdateSchema = z
   .strict()
   .refine(
     (v) => Boolean(v.envelope) !== Boolean(v.patch),
-    "Choisissez une définition ou une modification sémantique.",
+    "Choose a definition or a semantic change.",
   );
 export const revisionSchema = z
   .object({ expectedRevision: z.number().int().positive() })
@@ -266,7 +267,7 @@ export class TemplateWorkflowService {
   ) {
     await this.authorize(ctx, true);
     if (input.bytes.length > DATASET_LIMITS.sourceBytes)
-      fail("DOCX_SIZE", "Fichier Word supérieur à 5 Mio.", 413);
+      fail("DOCX_SIZE", "Word file exceeds 5 MiB.", 413);
     await this.scanSource(input.bytes, await sha256(input.bytes));
     const result = await importDocxTemplate(input.bytes, input.name);
     const template = await this.createTemplate(ctx, {
@@ -310,11 +311,7 @@ export class TemplateWorkflowService {
   ) {
     await this.authorize(ctx, true);
     if (!["staging", "production"].includes(this.env.ENVIRONMENT))
-      fail(
-        "SOURCE_NOT_ALLOWED",
-        "En local, utilisez le téléversement authentifié.",
-        422,
-      );
+      fail("SOURCE_NOT_ALLOWED", "Locally, use authenticated upload.", 422);
     const response = await fetch(permittedImportUrl(file.download_url), {
       redirect: "manual",
       signal: AbortSignal.timeout(15000),
@@ -322,7 +319,7 @@ export class TemplateWorkflowService {
     if (!response.ok)
       fail(
         "SOURCE_DOWNLOAD_FAILED",
-        "Joignez de nouveau le fichier Word avec un lien direct HTTPS.",
+        "Attach the Word file again with a direct HTTPS link.",
         422,
       );
     return this.importDocx(ctx, {
@@ -356,15 +353,11 @@ export class TemplateWorkflowService {
     )
       fail(
         "FORBIDDEN",
-        "L’accès a été révoqué ou le rôle est insuffisant.",
+        "Access has been revoked or the role is insufficient.",
         403,
       );
     if (ctx.actor === "mcp" && this.env.MODE === "production" && !ctx.authority)
-      fail(
-        "CONNECTION_REQUIRED",
-        "Reconnectez cet assistant pour poursuivre.",
-        403,
-      );
+      fail("CONNECTION_REQUIRED", "Reconnect this assistant to continue.", 403);
     if (ctx.authority) {
       const active = await this.env.DB.prepare(
         "SELECT 1 FROM authorized_connections c JOIN connection_tool_observations o ON o.connection_id=c.id WHERE c.id=? AND c.organization_id=? AND c.user_id=? AND c.status='active' AND o.authorization_revision=?",
@@ -377,7 +370,7 @@ export class TemplateWorkflowService {
         )
         .first();
       if (!active)
-        fail("CONNECTION_REVOKED", "Cette connexion a été révoquée.", 403);
+        fail("CONNECTION_REVOKED", "This connection has been revoked.", 403);
     }
   }
   private authorizationFence(ctx: WorkflowActor) {
@@ -460,7 +453,7 @@ export class TemplateWorkflowService {
     )
       fail(
         "TEMPLATE_NOT_FOUND",
-        "Modèle introuvable ou permission insuffisante.",
+        "Template not found or insufficient permission.",
         404,
       );
     return row!;
@@ -524,7 +517,7 @@ export class TemplateWorkflowService {
     await this.authorize(ctx);
     const example = getTemplateExample(exampleId);
     if (!example)
-      fail("TEMPLATE_EXAMPLE_NOT_FOUND", "Exemple de modèle introuvable.", 404);
+      fail("TEMPLATE_EXAMPLE_NOT_FOUND", "Template example not found.", 404);
     return example!;
   }
   async getTemplateSharing(ctx: WorkflowActor, id: string) {
@@ -569,7 +562,7 @@ export class TemplateWorkflowService {
       .parse(input);
     const row = await this.templateRow(ctx, id);
     if (value.expectedRevision !== row.revision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     const envelope = validateTemplateEnvelope(parseJson(row.draft_json));
     prepareTemplateRender(envelope, value.data);
     await reserveContentBudget(this.env.DB, ctx.organizationId, 0, true);
@@ -589,23 +582,23 @@ export class TemplateWorkflowService {
     ) {
       const url = new URL(this.env.DOCUMENT_RENDERER_URL);
       if (!["localhost", "127.0.0.1"].includes(url.hostname))
-        fail("INVALID_RENDERER", "Moteur local loopback requis.", 503);
+        fail("INVALID_RENDERER", "Local loopback engine required.", 503);
       response = await fetch(
         new Request(new URL("/render/template", url), request),
       );
     } else
       fail(
         "RENDERER_NOT_CONFIGURED",
-        "Le moteur pdfme n’est pas raccordé.",
+        "The pdfme engine is not connected.",
         503,
       );
     if (!response!.ok)
-      fail("TEMPLATE_RENDER_FAILED", "Le rendu du document a échoué.", 422);
+      fail("TEMPLATE_RENDER_FAILED", "Document rendering failed.", 422);
     await this.templateRow(ctx, id);
     const document = await this.documents.upload(
       ctx,
       {
-        name: `${envelope.name} — aperçu.pdf`,
+        name: `${envelope.name}— preview.pdf`,
         privateToCreator: true,
         bytes: await readLimited(response!),
       },
@@ -654,7 +647,7 @@ export class TemplateWorkflowService {
       )
       .run();
     if (!result.meta.changes)
-      fail("TEMPLATE_QUOTA", "Limite de modèles atteinte.", 429);
+      fail("TEMPLATE_QUOTA", "Template limit reached.", 429);
     return this.getTemplate(ctx, id);
   }
   async updateTemplate(ctx: WorkflowActor, id: string, input: unknown) {
@@ -668,17 +661,14 @@ export class TemplateWorkflowService {
         .strict()
         .refine(
           (v) => Boolean(v.envelope) !== Boolean(v.patch),
-          "Choisissez une définition ou une modification sémantique.",
+          "Choose a definition or a semantic change.",
         )
         .parse(input),
       row = await this.templateRow(ctx, id, "edit");
     if (row.revision !== value.expectedRevision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     if (row.state === "archived")
-      fail(
-        "TEMPLATE_ARCHIVED",
-        "Dupliquez ce modèle archivé pour le modifier.",
-      );
+      fail("TEMPLATE_ARCHIVED", "Duplicate this archived template to edit it.");
     const envelope =
       value.envelope ??
       applyTemplatePatch(
@@ -703,7 +693,7 @@ export class TemplateWorkflowService {
     if (!result.meta.changes)
       fail(
         "REVISION_CONFLICT",
-        "Le modèle a changé. Rechargez avant d’enregistrer.",
+        "The template has changed. Reload before saving.",
       );
     return this.templateView(ctx, {
       ...row,
@@ -718,9 +708,9 @@ export class TemplateWorkflowService {
     const { expectedRevision } = revisionSchema.parse(input),
       row = await this.templateRow(ctx, id, "publish");
     if (row.state === "archived")
-      fail("TEMPLATE_ARCHIVED", "Le modèle est archivé.");
+      fail("TEMPLATE_ARCHIVED", "The template is archived.");
     if (row.revision !== expectedRevision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     const envelope = validateTemplateEnvelope(parseJson(row.draft_json));
     prepareTemplateRender(envelope, envelope.sampleData);
     const version = (row.current_version ?? 0) + 1,
@@ -755,7 +745,7 @@ export class TemplateWorkflowService {
       ),
     ]);
     if (!results[1].meta.changes)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     return this.templateView(ctx, {
       ...row,
       state: "published",
@@ -786,7 +776,8 @@ export class TemplateWorkflowService {
         ...authority.values,
       )
       .run();
-    if (!result.meta.changes) fail("REVISION_CONFLICT", "Le modèle a changé.");
+    if (!result.meta.changes)
+      fail("REVISION_CONFLICT", "The template has changed.");
     return this.templateView(ctx, {
       ...row,
       state: "archived",
@@ -799,9 +790,9 @@ export class TemplateWorkflowService {
     const { expectedRevision } = revisionSchema.parse(input);
     const row = await this.templateRow(ctx, id, "read");
     if (row.owner_id !== ctx.userId)
-      fail("FORBIDDEN", "Seul le propriétaire peut supprimer ce modèle.", 403);
+      fail("FORBIDDEN", "Only the owner can delete this template.", 403);
     if (row.revision !== expectedRevision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     const authority = this.authorizationFence(ctx);
     const time = now();
     const result = await this.env.DB.prepare(
@@ -819,7 +810,7 @@ export class TemplateWorkflowService {
       .run();
     if (!result.meta.changes) {
       await this.authorize(ctx, true);
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     }
     return { id, deleted: true as const };
   }
@@ -827,9 +818,9 @@ export class TemplateWorkflowService {
     const value = templateShareSchema.parse(input);
     const row = await this.templateRow(ctx, id, "share");
     if (row.revision !== value.expectedRevision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     if (new Set(value.grants.map((g) => g.userId)).size !== value.grants.length)
-      fail("DUPLICATE_PERMISSION", "Un membre apparaît plusieurs fois.");
+      fail("DUPLICATE_PERMISSION", "A member appears more than once.");
     for (const grant of value.grants) {
       if (
         !(await this.env.DB.prepare(
@@ -840,7 +831,7 @@ export class TemplateWorkflowService {
       )
         fail(
           "MEMBER_NOT_FOUND",
-          "Un membre n’appartient pas à cette organisation.",
+          "A member does not belong to this organization.",
           404,
         );
     }
@@ -877,7 +868,7 @@ export class TemplateWorkflowService {
     ];
     const results = await this.env.DB.batch(statements);
     if (!results.at(-1)?.meta.changes)
-      fail("REVISION_CONFLICT", "Le partage a changé.");
+      fail("REVISION_CONFLICT", "Sharing has changed.");
     return this.templateView(ctx, {
       ...row,
       visibility: value.visibility,
@@ -892,7 +883,7 @@ export class TemplateWorkflowService {
       .bind(ctx.organizationId, id, version)
       .first<{ envelope_json: string; sha256: string }>();
     if (!result)
-      fail("TEMPLATE_VERSION_NOT_FOUND", "Version publiée introuvable.", 404);
+      fail("TEMPLATE_VERSION_NOT_FOUND", "Published version not found.", 404);
     return {
       envelope: parseJson<TemplateEnvelope>(result!.envelope_json),
       hash: result!.sha256,
@@ -939,7 +930,7 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, id, ctx.userId)
       .first<DatasetRow>();
-    if (!row) fail("DATASET_NOT_FOUND", "Source privée introuvable.", 404);
+    if (!row) fail("DATASET_NOT_FOUND", "Private source not found.", 404);
     return row!;
   }
   async listDatasets(
@@ -978,7 +969,7 @@ export class TemplateWorkflowService {
     z.enum(["csv", "xlsx", "json", "xml"]).parse(input.format);
     XmlRecordPathSchema.optional().parse(input.xmlRecordPath);
     if (!input.bytes.length || input.bytes.length > DATASET_LIMITS.sourceBytes)
-      fail("DATASET_SIZE", "Fichier vide ou supérieur à 5 Mio.", 413);
+      fail("DATASET_SIZE", "File is empty or exceeds 5 MiB.", 413);
     const id = uid("data"),
       hash = await sha256(input.bytes),
       storageKey = `${ctx.organizationId}/workflow/datasets/${id}/source`,
@@ -989,7 +980,7 @@ export class TemplateWorkflowService {
       .bind(ctx.organizationId)
       .first<{ n: number }>();
     if ((count?.n ?? 0) >= WORKFLOW_LIMITS.datasetsPerOrganization)
-      fail("DATASET_QUOTA", "Limite de sources conservées atteinte.", 429);
+      fail("DATASET_QUOTA", "Retained source limit reached.", 429);
     await this.env.DOCUMENTS.put(storageKey, input.bytes, {
       onlyIf: { etagDoesNotMatch: "*" },
       customMetadata: { sha256: hash },
@@ -1021,7 +1012,7 @@ export class TemplateWorkflowService {
       .run();
     if (!inserted.meta.changes) {
       await this.env.DOCUMENTS.delete(storageKey);
-      fail("DATASET_QUOTA", "Limite de sources conservées atteinte.", 429);
+      fail("DATASET_QUOTA", "Retained source limit reached.", 429);
     }
     return this.retryDatasetAnalysis(ctx, id);
   }
@@ -1032,7 +1023,7 @@ export class TemplateWorkflowService {
     if (source.status !== "quarantined" || source.expires_at <= now())
       fail(
         "DATASET_RETRY_UNAVAILABLE",
-        "Cette source n’est plus disponible pour une analyse. Importez un fichier corrigé.",
+        "This source is no longer available for analysis. Import a corrected file.",
         409,
       );
     if (source.analysis_lease_until && source.analysis_lease_until > now())
@@ -1040,7 +1031,7 @@ export class TemplateWorkflowService {
     if (source.analysis_attempts >= 3)
       fail(
         "DATASET_RETRY_EXHAUSTED",
-        "Les trois tentatives ont échoué. Corrigez la cause puis importez à nouveau le fichier.",
+        "All three attempts failed. Correct the cause, then import the file again.",
         429,
       );
     const token = uid("analysis"),
@@ -1054,7 +1045,7 @@ export class TemplateWorkflowService {
     try {
       const original = await this.env.DOCUMENTS.get(source.storage_key);
       if (!original)
-        fail("SOURCE_EXPIRED", "L’original conservé a expiré.", 410);
+        fail("SOURCE_EXPIRED", "The retained original has expired.", 410);
       const bytes = await readLimited(
         new Response(original.body),
         DATASET_LIMITS.sourceBytes,
@@ -1065,7 +1056,7 @@ export class TemplateWorkflowService {
       )
         fail(
           "SOURCE_INTEGRITY_MISMATCH",
-          "L’empreinte de l’original ne correspond plus.",
+          "The original file hash no longer matches.",
           422,
         );
       await this.scanSource(bytes, source.sha256);
@@ -1127,7 +1118,7 @@ export class TemplateWorkflowService {
     if (!this.env.SCANNER)
       fail(
         "SOURCE_SCAN_REQUIRED",
-        "La source reste en quarantaine : analyse antivirus indisponible.",
+        "The source remains quarantined: malware scanning is unavailable.",
         503,
       );
     const response = await this.env.SCANNER!.fetch(
@@ -1139,21 +1130,13 @@ export class TemplateWorkflowService {
       }),
     );
     if (!response.ok)
-      fail(
-        "SOURCE_SCAN_UNAVAILABLE",
-        "L’analyse de la source n’a pas abouti.",
-        503,
-      );
+      fail("SOURCE_SCAN_UNAVAILABLE", "Source analysis failed.", 503);
     const result = (await response.json()) as {
       sha256?: string;
       verdict?: string;
     };
     if (result.sha256 !== hash || result.verdict !== "clean")
-      fail(
-        "SOURCE_SCAN_REJECTED",
-        "La source n’a pas passé les contrôles de sécurité.",
-        422,
-      );
+      fail("SOURCE_SCAN_REJECTED", "The source failed security checks.", 422);
   }
   private async structureHash(profile: DatasetProfile) {
     return sha256(datasetStructureSignature(profile));
@@ -1163,11 +1146,11 @@ export class TemplateWorkflowService {
     if (row.status !== "ready" || !row.profile_key)
       fail(
         "DATASET_NOT_READY",
-        "La source doit être vérifiée et analysée.",
+        "The source must be verified and analyzed.",
         423,
       );
     const object = await this.env.DOCUMENTS.get(row.profile_key!);
-    if (!object) fail("SOURCE_EXPIRED", "La source a expiré.", 410);
+    if (!object) fail("SOURCE_EXPIRED", "The source has expired.", 410);
     return {
       dataset: this.datasetView(row),
       profile: parseJson<DatasetProfile>(await object!.text()),
@@ -1181,12 +1164,15 @@ export class TemplateWorkflowService {
     limit = 30,
   ) {
     const result = await this.getDatasetProfile(ctx, id);
-    const selected = sheetName ?? result.profile.sheets[0]?.name;
-    if (!result.profile.sheets.some((s) => s.name === selected))
-      fail("SHEET_NOT_FOUND", "Feuille introuvable.", 404);
+    const requested = sheetName ?? result.profile.sheets[0]?.name;
+    const selectedSheet = requested
+      ? resolveDatasetSheet(result.profile, requested)
+      : undefined;
+    if (!selectedSheet) fail("SHEET_NOT_FOUND", "Sheet not found.", 404);
     cursor = z.number().int().min(0).max(5000).parse(cursor);
     limit = z.number().int().min(1).max(50).parse(limit);
-    const sheet = result.profile.sheets.find((s) => s.name === selected)!;
+    const sheet = selectedSheet!;
+    const selected = sheet.name;
     return {
       ...result,
       profile: {
@@ -1237,11 +1223,7 @@ export class TemplateWorkflowService {
   ) {
     await this.authorize(ctx, true);
     if (!["staging", "production"].includes(this.env.ENVIRONMENT))
-      fail(
-        "SOURCE_NOT_ALLOWED",
-        "En local, utilisez le téléversement authentifié.",
-        422,
-      );
+      fail("SOURCE_NOT_ALLOWED", "Locally, use authenticated upload.", 422);
     const url = permittedImportUrl(input.file.download_url);
     const response = await fetch(url, {
       redirect: "manual",
@@ -1250,7 +1232,7 @@ export class TemplateWorkflowService {
     if (!response.ok || response.redirected)
       fail(
         "SOURCE_DOWNLOAD_FAILED",
-        "Joignez de nouveau le fichier avec un lien direct HTTPS.",
+        "Attach the file again with a direct HTTPS link.",
         422,
       );
     const bytes = await readLimited(response, DATASET_LIMITS.sourceBytes);
@@ -1281,7 +1263,7 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, ctx.userId, id, ...(version ? [version] : []))
       .first<MappingRow>();
-    if (!row) fail("MAPPING_NOT_FOUND", "Mapping privé introuvable.", 404);
+    if (!row) fail("MAPPING_NOT_FOUND", "Private mapping not found.", 404);
     return row!;
   }
   async getMapping(ctx: WorkflowActor, id: string, version?: number) {
@@ -1336,7 +1318,7 @@ export class TemplateWorkflowService {
     if (ctx.actor !== "browser" || ctx.role !== "admin")
       fail(
         "HUMAN_ADMIN_REQUIRED",
-        "Le transfert IA doit être configuré par un administrateur dans le navigateur.",
+        "An administrator must configure AI transfer in the browser.",
         403,
       );
     const value = z
@@ -1368,13 +1350,13 @@ export class TemplateWorkflowService {
     if (!policy.configured)
       fail(
         "AI_NOT_CONFIGURED",
-        "L’analyse IA est indisponible ; le mapping manuel reste disponible.",
+        "AI analysis is unavailable; manual mapping remains available.",
         503,
       );
     if (!policy.enabled || !policy.transferApproved)
       fail(
         "AI_TRANSFER_NOT_AUTHORIZED",
-        "Un administrateur doit autoriser ce transfert dans les réglages.",
+        "An administrator must authorize this transfer in settings.",
         403,
       );
     const { profile } = await this.getDatasetProfile(ctx, id);
@@ -1387,7 +1369,7 @@ export class TemplateWorkflowService {
     if (!result.meta.changes)
       fail(
         "AI_BUDGET_EXHAUSTED",
-        "Le budget quotidien d’analyse IA est épuisé.",
+        "The daily AI analysis budget is exhausted.",
         429,
       );
     await this.authorize(ctx, true);
@@ -1410,7 +1392,7 @@ export class TemplateWorkflowService {
     if (!currentPolicy.enabled || !currentPolicy.transferApproved)
       fail(
         "AI_TRANSFER_NOT_AUTHORIZED",
-        "Le transfert IA a été désactivé pendant l’analyse.",
+        "AI transfer was disabled during analysis.",
         403,
       );
     return {
@@ -1434,29 +1416,29 @@ export class TemplateWorkflowService {
       .parse(input);
     const row = await this.templateRow(ctx, id, "edit");
     if (row.revision !== value.expectedRevision)
-      fail("REVISION_CONFLICT", "Le modèle a changé.");
+      fail("REVISION_CONFLICT", "The template has changed.");
     const policy = await this.getAiPolicy(ctx);
     if (!policy.configured)
       fail(
         "AI_NOT_CONFIGURED",
-        "L’aide IA est indisponible ; l’éditeur manuel reste disponible.",
+        "AI assistance is unavailable; the manual editor remains available.",
         503,
       );
     if (!policy.enabled || !policy.transferApproved)
       fail(
         "AI_TRANSFER_NOT_AUTHORIZED",
-        "Un administrateur doit autoriser ce transfert dans les réglages.",
+        "An administrator must authorize this transfer in settings.",
         403,
       );
     const assertCurrentSuggestionAuthority = async () => {
       const current = await this.templateRow(ctx, id, "edit");
       if (current.revision !== row.revision)
-        fail("REVISION_CONFLICT", "Le modèle a changé.");
+        fail("REVISION_CONFLICT", "The template has changed.");
       const currentPolicy = await this.getAiPolicy(ctx);
       if (!currentPolicy.enabled || !currentPolicy.transferApproved)
         fail(
           "AI_TRANSFER_NOT_AUTHORIZED",
-          "Le transfert IA a été désactivé pendant la suggestion.",
+          "AI transfer was disabled during the suggestion.",
           403,
         );
     };
@@ -1469,7 +1451,7 @@ export class TemplateWorkflowService {
     if (!reserved.meta.changes)
       fail(
         "AI_BUDGET_EXHAUSTED",
-        "Le budget quotidien d’aide IA est épuisé.",
+        "The daily AI assistance budget is exhausted.",
         429,
       );
     await assertCurrentSuggestionAuthority();
@@ -1491,12 +1473,12 @@ export class TemplateWorkflowService {
     const value = mappingCreateSchema.parse(input),
       dataset = await this.datasetRow(ctx, value.datasetId);
     if (dataset.status !== "ready")
-      fail("DATASET_NOT_READY", "La source doit être prête.");
+      fail("DATASET_NOT_READY", "The source must be ready.");
     let version = 1;
     if (value.mappingId) {
       const old = await this.mappingRow(ctx, value.mappingId);
       if (value.expectedVersion !== old.version)
-        fail("REVISION_CONFLICT", "La version du mapping a changé.");
+        fail("REVISION_CONFLICT", "The mapping version has changed.");
       version = old.version + 1;
     }
     const id = value.mappingId ?? uid("map"),
@@ -1517,7 +1499,7 @@ export class TemplateWorkflowService {
       )
       .run();
     if (!created.meta.changes)
-      fail("REVISION_CONFLICT", "La version du mapping a changé.");
+      fail("REVISION_CONFLICT", "The mapping version has changed.");
     return this.getMapping(ctx, id, version);
   }
   async validateMapping(ctx: WorkflowActor, id: string, input: unknown) {
@@ -1562,21 +1544,15 @@ export class TemplateWorkflowService {
         existing.owner_id !== ctx.userId ||
         existing.request_hash !== requestHash
       )
-        fail(
-          "IDEMPOTENCY_CONFLICT",
-          "Cette clé appartient à une autre demande.",
-        );
+        fail("IDEMPOTENCY_CONFLICT", "This key belongs to another request.");
       return this.getGeneration(ctx, existing.id);
     }
     const template = await this.templateRow(ctx, value.templateId);
     if (template.state === "archived")
-      fail("TEMPLATE_ARCHIVED", "Ce modèle est archivé.");
+      fail("TEMPLATE_ARCHIVED", "This template is archived.");
     const version = value.templateVersion ?? template.current_version;
     if (!version)
-      fail(
-        "TEMPLATE_NOT_PUBLISHED",
-        "Publiez une version avant la génération.",
-      );
+      fail("TEMPLATE_NOT_PUBLISHED", "Publish a version before generation.");
     const published = await this.version(ctx, value.templateId, version!);
     let records = value.records;
     let sourceHash: string | null = null;
@@ -1588,7 +1564,10 @@ export class TemplateWorkflowService {
         value.mappingVersion,
       );
       if (mapping.state !== "validated")
-        fail("MAPPING_REVIEW_REQUIRED", "Validez le mapping avant génération.");
+        fail(
+          "MAPPING_REVIEW_REQUIRED",
+          "Validate the mapping before generation.",
+        );
       const { profile } = await this.getDatasetProfile(ctx, value.datasetId);
       sourceHash = (await this.datasetRow(ctx, value.datasetId)).sha256;
       const normalized = validateMapping(
@@ -1598,7 +1577,7 @@ export class TemplateWorkflowService {
       if (normalized.status !== "ready")
         fail(
           "MAPPING_REVIEW_REQUIRED",
-          "La structure ou les données nécessitent une nouvelle validation.",
+          "The structure or data requires new validation.",
         );
       records = normalized.records.map((r) => ({
         recordId: r.recordId,
@@ -1608,9 +1587,9 @@ export class TemplateWorkflowService {
         sourceProvenance.set(record.recordId, record.provenance);
     }
     if (!records?.length || records.length > WORKFLOW_LIMITS.recordsPerJob)
-      fail("GENERATION_VOLUME", "Un lot contient de 1 à 500 documents.", 413);
+      fail("GENERATION_VOLUME", "A batch contains 1 to 500 documents.", 413);
     if (new Set(records!.map((r) => r.recordId)).size !== records!.length)
-      fail("DUPLICATE_RECORD", "Chaque recordId doit être unique.");
+      fail("DUPLICATE_RECORD", "Every recordId must be unique.");
     const id = uid("gen"),
       time = now();
     const inputRows = await Promise.all(
@@ -1701,14 +1680,14 @@ export class TemplateWorkflowService {
     if (!created)
       fail(
         "GENERATION_QUOTA",
-        "Trois lots simultanés maximum par organisation.",
+        "A maximum of three simultaneous batches is allowed per organization.",
         429,
       );
     if (
       created!.request_hash !== requestHash ||
       created!.owner_id !== ctx.userId
     )
-      fail("IDEMPOTENCY_CONFLICT", "Cette clé appartient à une autre demande.");
+      fail("IDEMPOTENCY_CONFLICT", "This key belongs to another request.");
     return this.getGeneration(ctx, created!.id);
   }
   private async jobRow(ctx: WorkflowActor, id: string) {
@@ -1718,7 +1697,7 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, id, ctx.userId)
       .first<JobRow>();
-    if (!row) fail("GENERATION_NOT_FOUND", "Lot privé introuvable.", 404);
+    if (!row) fail("GENERATION_NOT_FOUND", "Private batch not found.", 404);
     return row!;
   }
   async getGeneration(
@@ -1811,7 +1790,7 @@ export class TemplateWorkflowService {
         render_metadata_json: string;
         input_hash: string;
       }>();
-    if (!row) fail("GENERATION_RECORD_NOT_FOUND", "Record introuvable.", 404);
+    if (!row) fail("GENERATION_RECORD_NOT_FOUND", "Record not found.", 404);
     return {
       jobId: id,
       recordId,
@@ -1844,7 +1823,7 @@ export class TemplateWorkflowService {
     await this.authorize(ctx, true);
     const job = await this.jobRow(ctx, id);
     if (job.state === "cancelled")
-      fail("GENERATION_CANCELLED", "Un lot annulé ne peut pas être repris.");
+      fail("GENERATION_CANCELLED", "A cancelled batch cannot be resumed.");
     if (
       await this.env.DB.prepare(
         "SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?",
@@ -1854,7 +1833,7 @@ export class TemplateWorkflowService {
     )
       fail(
         "GENERATION_FROZEN",
-        "Une distribution fige ce lot ; créez un nouveau lot pour les éléments exclus.",
+        "A distribution freezes this batch; create a new batch for excluded records.",
       );
     z.array(keySchema).min(1).max(500).parse(recordIds);
     const time = now();
@@ -1944,13 +1923,13 @@ export class TemplateWorkflowService {
       )
         fail(
           "CONNECTION_REQUIRED",
-          "Reconnectez cet assistant pour poursuivre.",
+          "Reconnect this assistant to continue.",
           403,
         );
       await this.authorize(ctx, true);
       const template = await this.templateRow(ctx, job.template_id);
       if (template.state === "archived")
-        fail("TEMPLATE_ARCHIVED", "Le modèle a été archivé.");
+        fail("TEMPLATE_ARCHIVED", "The template has been archived.");
       if (job.dataset_id) await this.datasetRow(ctx, job.dataset_id);
       const { envelope } = await this.version(
         ctx,
@@ -1970,13 +1949,13 @@ export class TemplateWorkflowService {
         if (!stored)
           fail(
             "GENERATION_ARTIFACT_MISSING",
-            "L’artefact conservé est indisponible.",
+            "The retained artifact is unavailable.",
           );
         bytes = new Uint8Array(await stored!.arrayBuffer());
         if ((await sha256(bytes)) !== artifactHash)
           fail(
             "GENERATION_ARTIFACT_INTEGRITY",
-            "L’intégrité du PDF conservé est invalide.",
+            "The retained PDF's integrity is invalid.",
           );
       } else {
         await reserveContentBudget(this.env.DB, ctx.organizationId, 0, true);
@@ -2002,18 +1981,18 @@ export class TemplateWorkflowService {
         ) {
           const url = new URL(this.env.DOCUMENT_RENDERER_URL);
           if (!["localhost", "127.0.0.1"].includes(url.hostname))
-            fail("INVALID_RENDERER", "Moteur local loopback requis.", 503);
+            fail("INVALID_RENDERER", "Local loopback engine required.", 503);
           response = await fetch(
             new Request(new URL("/render/template", url), request),
           );
         } else
           fail(
             "RENDERER_NOT_CONFIGURED",
-            "Le moteur pdfme n’est pas raccordé.",
+            "The pdfme engine is not connected.",
             503,
           );
         if (!response!.ok)
-          fail("TEMPLATE_RENDER_FAILED", "Le rendu du document a échoué.", 422);
+          fail("TEMPLATE_RENDER_FAILED", "Document rendering failed.", 422);
         bytes = await readLimited(response!);
         artifactHash = await sha256(bytes);
         artifactKey = `${ctx.organizationId}/workflow/generations/${job.id}/${encodeURIComponent(claimed.record_id)}/${artifactHash}.pdf`;
@@ -2037,7 +2016,7 @@ export class TemplateWorkflowService {
           )
           .run();
         if (!saved.meta.changes)
-          fail("GENERATION_CANCELLED", "Le traitement a été interrompu.");
+          fail("GENERATION_CANCELLED", "Processing was interrupted.");
       }
       await this.assertClaim(ctx, job.id, claimed.record_id, token);
       const document = await this.documents.upload(
@@ -2114,10 +2093,10 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, jobId, recordId, token)
       .first<{ template_id: string }>();
-    if (!row) fail("GENERATION_CANCELLED", "Ce traitement a été annulé.");
+    if (!row) fail("GENERATION_CANCELLED", "This processing was cancelled.");
     const template = await this.templateRow(ctx, row!.template_id);
     if (template.state === "archived")
-      fail("TEMPLATE_ARCHIVED", "Le modèle a été archivé.");
+      fail("TEMPLATE_ARCHIVED", "The template has been archived.");
   }
   private async settleJob(org: string, id: string) {
     await this.env.DB.prepare(
@@ -2140,7 +2119,7 @@ export class TemplateWorkflowService {
       if (prior.owner_id !== ctx.userId || prior.request_hash !== requestHash)
         fail(
           "IDEMPOTENCY_CONFLICT",
-          "Cette clé appartient à une autre distribution.",
+          "This key belongs to another distribution.",
         );
       return this.resumeDistribution(ctx, prior.id, true);
     }
@@ -2148,12 +2127,12 @@ export class TemplateWorkflowService {
     if (!["completed", "partial", "cancelled"].includes(job.state))
       fail(
         "GENERATION_NOT_FINISHED",
-        "Attendez la fin ou annulez le lot avant distribution.",
+        "Wait for completion or cancel the batch before distribution.",
       );
     if (
       new Set(value.entries.map((e) => e.entryId)).size !== value.entries.length
     )
-      fail("DUPLICATE_ENTRY", "Chaque entryId doit être unique.");
+      fail("DUPLICATE_ENTRY", "Every entryId must be unique.");
     const records = await this.env.DB.prepare(
       "SELECT r.*,d.sha256 AS exact_hash,d.status AS document_status FROM generation_records r JOIN documents d ON d.organization_id=r.organization_id AND d.id=r.document_id WHERE r.organization_id=? AND r.job_id=? AND r.state='generated' AND r.record_id IN (SELECT json_extract(value,'$.recordId') FROM json_each(?))",
     )
@@ -2177,7 +2156,7 @@ export class TemplateWorkflowService {
       )
         fail(
           "DOCUMENT_NOT_READY",
-          "Un résultat sélectionné doit encore être vérifié.",
+          "A selected result still needs verification.",
           423,
         );
       const sourceData = parseJson<Record<string, unknown>>(record.input_json);
@@ -2187,7 +2166,7 @@ export class TemplateWorkflowService {
       if (rawChannel === undefined || rawChannel === null || rawChannel === "")
         fail(
           "CHANNEL_FIELD_MISSING",
-          "Le canal de distribution manque dans les données figées.",
+          "The distribution channel is missing from the frozen data.",
           422,
         );
       const parsedChannel = z
@@ -2196,7 +2175,7 @@ export class TemplateWorkflowService {
       if (!parsedChannel.success)
         fail(
           "CHANNEL_FIELD_INVALID",
-          "Le canal doit être exactement fax, email ou postal.",
+          "The channel must be exactly fax, email or postal.",
           422,
         );
       const channel = parsedChannel.data;
@@ -2206,7 +2185,7 @@ export class TemplateWorkflowService {
       if (used.size > 1 && !value.explicitMultichannel)
         fail(
           "MULTICHANNEL_CONSENT_REQUIRED",
-          "Le multicanal doit être demandé explicitement.",
+          "Multiple channels must be requested explicitly.",
         );
       const recipientFields = entry.recipientFieldsByChannel
         ? entry.recipientFieldsByChannel[channel]
@@ -2214,7 +2193,7 @@ export class TemplateWorkflowService {
       if (entry.recipientFieldsByChannel && !recipientFields)
         fail(
           "RECIPIENT_CHANNEL_MAPPING_REQUIRED",
-          "Définissez les champs destinataire du canal choisi dans les données.",
+          "Define the selected channel's recipient fields in the data.",
           422,
         );
       const mappedRecipient = recipientFields
@@ -2224,7 +2203,7 @@ export class TemplateWorkflowService {
               if (value === undefined || value === null)
                 fail(
                   "RECIPIENT_FIELD_MISSING",
-                  `Le champ destinataire ${path} manque pour ${entry.recordId}.`,
+                  `The recipient field ${path} is missing for ${entry.recordId}.`,
                   422,
                 );
               return [field, value];
@@ -2294,10 +2273,7 @@ export class TemplateWorkflowService {
       .bind(ctx.organizationId, key)
       .first<{ id: string; request_hash: string }>();
     if (stored!.request_hash !== requestHash)
-      fail(
-        "IDEMPOTENCY_CONFLICT",
-        "Cette clé appartient à une autre distribution.",
-      );
+      fail("IDEMPOTENCY_CONFLICT", "This key belongs to another distribution.");
     return this.resumeDistribution(ctx, stored!.id);
   }
   /** Explicit mutation only. Stable per-entry keys recover interrupted preparation. */
@@ -2372,7 +2348,7 @@ export class TemplateWorkflowService {
     const plan = await this.getDistribution(ctx, id);
     const entry = plan.entries.find((entry) => entry.entryId === entryId);
     if (!entry || entry.channel !== "postal")
-      fail("POSTAL_ENTRY_NOT_FOUND", "Entrée postale introuvable.", 404);
+      fail("POSTAL_ENTRY_NOT_FOUND", "Postal entry not found.", 404);
     if (entry.postalReviewId) return plan;
     const parsed = postalReviewInputSchema.safeParse({
       documentId: entry.documentId,
@@ -2384,12 +2360,12 @@ export class TemplateWorkflowService {
     if (!parsed.success)
       fail(
         "POSTAL_PLAN_OPTIONS_REQUIRED",
-        "Créez un nouveau manifeste avec un expéditeur, un plafond et les trois options d’impression explicites.",
+        "Create a new manifest with a sender, a ceiling and all three explicit print options.",
         422,
       );
     const document = await this.domain.getDocument(ctx, entry.documentId);
     if (document.sha256 !== entry.documentHash || document.status !== "ready")
-      fail("DOCUMENT_NOT_READY", "Le PDF exact doit être vérifié.", 423);
+      fail("DOCUMENT_NOT_READY", "The exact PDF must be verified.", 423);
     // This deterministic key also recovers a response lost between preflight creation and association.
     const review = await create(parsed.data, `distribution:${id}:${entryId}`);
     await this.authorize(ctx, true);
@@ -2399,7 +2375,7 @@ export class TemplateWorkflowService {
     )
       fail(
         "POSTAL_DOCUMENT_MISMATCH",
-        "L’analyse postale ne correspond pas au PDF figé.",
+        "The postal analysis does not match the frozen PDF.",
         409,
       );
     await this.env.DB.prepare(
@@ -2426,7 +2402,7 @@ export class TemplateWorkflowService {
         created_at: string;
       }>();
     if (!plan)
-      fail("DISTRIBUTION_NOT_FOUND", "Distribution privée introuvable.", 404);
+      fail("DISTRIBUTION_NOT_FOUND", "Private distribution not found.", 404);
     const rows = await this.env.DB.prepare(
       `SELECT e.entry_id,e.dispatch_id,e.error_code,p.id AS postal_review_id,p.status AS postal_review_status,
         (SELECT q.dispatch_id FROM live_delivery_quotes q JOIN dispatches d ON d.organization_id=q.organization_id AND d.id=q.dispatch_id

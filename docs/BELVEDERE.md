@@ -1,138 +1,128 @@
-# Belvédère — tour de contrôle de guteneo
+# Belvédère — guteneo control tower
 
-Candidat sur `codex/belvedere-control-tower`, créé depuis `origin/main` (`8b060bb`).
-Le rôle **Veilleur** désigne l'accès personnel de Nicolas à cette surface de
-lecture. Ce n'est ni un rôle d'atelier ni un mandat donné à un assistant.
-Le [système visuel](belvedere/DESIGN.md) documente l'interface effectivement construite.
+Candidate on `codex/belvedere-control-tower`, created from `origin/main`
+(`8b060bb`). **Watcher** names Nicolas's personal access to this read-only
+surface. It is neither a workspace role nor an assistant mandate.
+The [visual system](belvedere/DESIGN.md) documents the implemented interface.
 
-Depuis le contrat du 10 octobre, la langue suit la préférence enregistrée dans
-la configuration du compte : français, anglais, allemand ou luxembourgeois.
-Belvédère ne propose aucun sélecteur supplémentaire. L’ouverture directe reçoit
-la préférence validée dans le HTML privé après sa garde habituelle ; le retour
-dans l’onglet relit la session. Sans préférence, les langues du navigateur
-s’appliquent. Libellés, messages accessibles, nombres, dates et graphiques suivent
-ce choix ; noms, identifiants et données métier conservent leurs valeurs. La
-préférence n’accorde aucun rôle ni accès supplémentaire. Voir [MULTILINGUAL.md](MULTILINGUAL.md).
+Since the 10 October contract, language follows saved account preference:
+French, English, German or Luxembourgish. Belvédère adds no selector. Direct
+entry receives the validated preference in private HTML after the normal
+guard; tab return rereads the session. Without a preference, browser languages
+apply. Labels, accessible messages, numbers, dates and charts follow that
+choice; names, identifiers and business data retain their values. Preference
+grants no role or access. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-## Parcours
+## Journeys
 
-- **Synthèse** : activité quotidienne, changement de mesure dans le graphique,
-  consommation client, ateliers et membres, sessions/autorisations, pays observés,
-  répartition des canaux et incidents à examiner. Le globe « Le monde de guteneo »
-  bascule entre connexions et distribution, conserve un classement textuel et
-  ouvre les envois du pays sélectionné. Voir [géographie et interactions](BELVEDERE_GLOBE.md).
-- **Ateliers** : recherche, pagination, détail des envois et des membres. Chaque
-  opération distingue devis, plafond, consommation réglée, réservation et coût
-  fournisseur vérifié. Aucun contenu de document ou destinataire n'est exposé.
-- **Envois** : suivi global filtrable par canal, état, pays de destination et
-  atelier. Les liens depuis les incidents ou le globe conservent les filtres de
-  période et de mode ; ouvrir un incident ne relance aucune opération.
-- **Membres** : annuaire global avec recherche, appartenance aux ateliers, rôles,
-  permissions des superviseurs et connexions. Les appartenances restent actuelles.
-- **Connexions** : sessions navigateur et natives valides, autorisations MCP,
-  journal des connexions réussies et pays fourni par Cloudflare. Une autorisation
-  n'est pas une présence en ligne ; un appel MCP n'est pas un nouvel utilisateur.
-- **Finances** : consommation des crédits, réservations, dotations promotionnelles,
-  paiements Stripe vérifiés par devise et coûts fournisseurs disponibles. Le
-  résultat net reste indisponible tant que les charges et remboursements ne sont
-  pas rapprochés. La consommation de cette vue suit la date des **débits inscrits
-  au registre**, y compris pour les envois supprimés depuis ; les frais
-  d'hébergement y figurent une seule fois. La synthèse et les ateliers suivent
-  plutôt les envois **créés** pendant la période et leur consommation réglée à
-  ce jour. Les paiements vérifiés suivent la date de création Stripe disponible,
-  sans prétendre démontrer la date de réception bancaire. Soldes et réservations
-  sont actuels. Les coûts fournisseurs suivent la date d'enregistrement du
-  rapprochement ; le nombre d'envois sans coût vérifié suit la cohorte créée
-  sur la période. Ces bases de calcul sont indiquées dans l'interface.
-- **Infrastructure** : connecteurs Cloudflare en lecture seule, état explicite
-  lorsqu'ils ne sont pas configurés. Voir [sources et limites](BELVEDERE_CLOUDFLARE.md).
+- **Overview**: daily activity, chart metric selection, customer consumption,
+  workspaces/members, sessions/authorizations, observed countries, channel
+  distribution and incidents needing review. The “guteneo's world” globe
+  switches between connections and distribution, retains a textual ranking
+  and opens selected-country dispatches. See
+  [geography and interaction](BELVEDERE_GLOBE.md).
+- **Workspaces**: search, pagination, dispatch/member details. Every operation
+  distinguishes quote, cap, settled consumption, reservation and verified
+  provider cost. No document content or recipient is exposed.
+- **Dispatches**: global tracking filtered by channel, state, destination
+  country and workspace. Incident/globe links retain period/mode filters;
+  opening an incident retries no operation.
+- **Members**: global searchable directory with workspace memberships, roles,
+  supervisor permissions and connections. Memberships remain current.
+- **Connections**: valid browser/native sessions, MCP authorizations, successful
+  login history and Cloudflare-supplied country. Authorization is not online
+  presence; an MCP call is not a new user.
+- **Finance**: credit consumption, reservations, promotional grants, verified
+  Stripe payments per currency and available provider costs. Net result remains
+  unavailable until charges/refunds are reconciled. Consumption uses **ledger
+  debit dates**, including subsequently deleted dispatches; hosting fees appear
+  once. Overview/workspaces instead use dispatches **created** in the period
+  and their settled consumption to date. Verified payments use the available
+  Stripe creation date without claiming bank-receipt dates. Balances/reservations
+  are current. Provider costs use reconciliation-recording dates; dispatches
+  without verified cost use the period-created cohort. These bases are disclosed
+  in the interface.
+- **Infrastructure**: read-only Cloudflare connectors with explicit unconfigured
+  states. See [sources and limits](BELVEDERE_CLOUDFLARE.md).
 
-Les périodes de 7, 30, 90 jours ou personnalisées sont exprimées en UTC. Production
-et simulation se consultent séparément. Les tableaux ont une pagination serveur ;
-une absence de mesure n'est pas remplacée par un chiffre inventé.
+Seven-, thirty-, ninety-day/custom periods use UTC. Production and simulation
+are viewed separately. Tables use server pagination; missing measures never
+become invented numbers.
 
-## Accès
+## Access
 
-La route est `/belvedere/<BELVEDERE_SECRET_SLUG>`. Le segment secret de 32 à 128
-caractères alphanumériques, tirets ou underscores est une configuration serveur,
-jamais une constante de l'interface. Utiliser une valeur aléatoire forte, par
-exemple 32 octets tirés par un générateur cryptographique puis encodés en hexadécimal.
-Ne pas la déposer dans Git ni dans une variable `VITE_*`.
+Route: `/belvedere/<BELVEDERE_SECRET_SLUG>`. The secret segment is 32–128
+alphanumeric, hyphen or underscore characters, configured server-side and
+never an interface constant. Use strong randomness, for example 32
+cryptographically generated bytes encoded as hexadecimal. Store it in neither
+Git nor `VITE_*` variables.
 
-L'adresse seule ne donne aucun droit. Le serveur exige :
+The address alone grants nothing. The server requires:
 
-1. L'environnement et le mode production, une configuration de route valide et
-   l'origine canonique de l'application.
-2. Une session navigateur authentifiée et valide, avec appartenance actuelle.
-3. Une preuve du dernier parcours Auth0, liée au hash de la session et à
-   l'identité fournisseur : issuer attendu, subject signé et adresse vérifiée
-   exactement `nicolas@pieper.fr` (normalisation minuscule).
-4. Si `BELVEDERE_AUTH0_SUBJECT` est configuré, le même subject Auth0. Cette
-   protection supplémentaire évite de dépendre d'une seule adresse réattribuable.
+1. Production environment/mode, valid route configuration and canonical app
+   origin.
+2. Valid authenticated browser session with current membership.
+3. Evidence of the latest Auth0 journey bound to session hash/provider
+   identity: expected issuer, signed subject and verified email exactly
+   `nicolas@pieper.fr` after lowercase normalization.
+4. If `BELVEDERE_AUTH0_SUBJECT` is configured, that same Auth0 subject. This
+   additional protection avoids relying only on a reassignable address.
 
-La preuve est capturée après validation des deux JWT et de l'adresse vérifiée.
-Les anciennes sessions doivent se reconnecter. Modifier `users.email`, posséder
-un rôle administrateur d'atelier ou fournir un token MCP/native ne confère pas
-ce privilège. La politique MFA existante reste appliquée par l'authentification.
+Evidence is captured after both JWTs and verified email validate. Old sessions
+must reconnect. Editing `users.email`, holding workspace administrator role
+or supplying MCP/native tokens grants no such privilege. Existing MFA policy
+still applies through authentication.
 
-Toute lecture JSON refait le contrôle d'accès. Les routes ne proposent aucune
-mutation métier. Les refus et adresses inconnues restent discrets ; une visite
-sans session à l'adresse exacte peut lancer le parcours Auth0. Les réponses
-privées utilisent `no-store`, `noindex`, `no-referrer`, la CSP existante et un
-marqueur HTML inerte pour ouvrir le module React. Le secret n'est pas envoyé à
-l'asset binding, aux intégrations, à la navigation ordinaire ou au sitemap.
-L'aperçu public refuse cette famille de routes et ne peut pas l'activer.
-Un refus de lecture retire les données déjà affichées. Le retour sur l'onglet
-ou une restauration du navigateur déclenche une nouvelle vérification d'accès,
-sans interrogation périodique en arrière-plan.
+Every JSON read repeats access checking. Routes expose no business mutation.
+Refusals/unknown addresses remain discreet; visiting the exact address without
+a session may start Auth0. Private responses use `no-store`, `noindex`,
+`no-referrer`, existing CSP and an inert HTML marker to open React. The secret
+is sent to neither asset binding, integrations, ordinary navigation nor sitemap.
+Public preview refuses this route family and cannot activate it. Read refusal
+removes displayed data. Tab return/browser restoration triggers new access
+checking without periodic background polling.
 
-## Données et isolation
+## Data and isolation
 
-L'accès global constitue une capacité de lecture dédiée, séparée des permissions
-et API d'atelier. Les relations entre opérations, réservations, documents,
-rapprochements et membres conservent leurs clés d'organisation. Les opérations
-métier et les règles d'approbation, d'envoi et de quota ne sont pas contournées.
+Global access is a dedicated read capability separate from workspace
+permissions/APIs. Relations between operations, reservations, documents,
+reconciliations and members retain organization keys. Business operations
+and approval/send/quota rules are not bypassed.
 
-La migration `0052_belvedere.sql` ajoute la preuve d'identité navigateur, un
-identifiant public opaque aux sessions natives, le journal de connexion, l'audit
-de consultation et les index de lecture. Les cookies, hashes de credentials,
-contenus, destinataires, IP et user agents ne figurent pas dans les projections.
+`0052_belvedere.sql` adds browser-identity evidence, opaque native-session
+public IDs, login history, read audit and indexes. Projections exclude cookies,
+credential hashes, content, recipients, IPs and user agents.
 
-Les pays proviennent uniquement de `request.cf.country`, jamais d'un en-tête
-fourni par le client, pour les **connexions**. Les **destinations** proviennent du
-pays postal normalisé ou du pays tarifaire fax qualifié ; les emails et anciens
-fax sans cette preuve restent « pays non renseigné ». Aucun pays n'est inféré
-d'un domaine email. Les marqueurs indiquent un pays, jamais une position précise.
-Les événements ne reconstruisent pas rétroactivement les
-pays des sessions anciennes. MCP est dédupliqué à une observation par connexion
-et jour ; les sessions navigateur et native sont observées à leur ouverture.
-La rotation navigateur après changement d’atelier observe aussi le nouvel
-identifiant public, avec le pays fourni par la requête courante. Ce journal est
-facultatif : son indisponibilité ne refuse pas une authentification valide. Un
-cache borné par binding D1, acteur, atelier, type, identifiant et jour UTC évite
-les tentatives d’écriture répétées dans un même isolate ; la contrainte SQL
-conserve la déduplication entre isolates. Les écritures échouées peuvent être
-observées à une requête ultérieure, sans mutation métier ni reprise d’envoi.
-Les échecs de connexion Auth0 ne sont pas disponibles dans ce journal et
-nécessiteraient un connecteur distinct aux journaux du fournisseur.
+**Connection** countries come only from `request.cf.country`, never a
+client-supplied header. **Destinations** use normalized postal country or
+qualified fax-tariff country; email/older fax lacking that evidence remain
+country unknown. No country is inferred from an email domain. Markers indicate
+countries, never precise positions. Events do not retrospectively reconstruct
+old-session countries. MCP deduplicates to one observation per connection/day;
+browser/native sessions are observed at opening. Browser rotation after
+workspace change also observes the new public ID with current-request country.
+This history is optional: unavailability does not reject valid authentication.
+A cache bounded by D1 binding, actor, workspace, type, identifier and UTC day
+avoids repeated writes within an isolate; the SQL constraint deduplicates
+across isolates. Failed writes may be observed on a later request without
+business mutation or dispatch retry. Auth0 login failures are absent and would
+require a separate provider-log connector.
 
-Les lectures excluent les événements de plus de 90 jours. Le cron supprime
-jusqu'à 1 000 anciennes lignes par table et par passage. L'audit privé consigne
-uniquement l'acteur, la date et un code d'action, sans adresse secrète ou requête.
-La page de confidentialité décrit ce suivi en FR/EN/DE/LB.
+Reads exclude events older than 90 days. Cron deletes up to 1,000 old rows
+per table/run. Private audit records only actor, date and action code, without
+secret address/query. Privacy policy describes this in FR/EN/DE/LB.
 
-## Examen local
+## Local review
 
 ```sh
 npm ci
 npm run preview:belvedere
 ```
 
-Ouvrir l'URL affichée sur `127.0.0.1:8794`. Ce serveur autonome ne charge aucune
-configuration ou binding métier. Les ateliers, personnes, événements et coûts
-sont des fixtures marquées à l'écran. Il écoute uniquement la boucle locale,
-refuse les autres en-têtes Host et les requêtes d'écriture. Il ne constitue pas
-un mode d'authentification du Worker et ne sert pas à qualifier Auth0.
+Open the printed `127.0.0.1:8794` URL. This standalone server loads no business
+configuration/binding. Workspaces, people, events and costs are screen-labeled
+fixtures. It listens only on loopback, rejecting other Host headers and write
+requests. It is not Worker authentication mode or Auth0 qualification.
 
 ```sh
 npm run typecheck
@@ -142,64 +132,58 @@ npm run build
 npm run test:belvedere
 ```
 
-Les tests navigateur dédiés vérifient le vrai bundle avec des réponses fictives.
-Les tests d'accès et de SQL utilisent les migrations réelles dans D1/Miniflare.
-Ces deux catégories de preuve restent distinctes d'un parcours Auth0 et d'un
-appel Cloudflare hébergés.
+Dedicated browser tests verify the actual bundle with fictional responses.
+Access/SQL tests use actual migrations in D1/Miniflare. These evidence classes
+remain separate from hosted Auth0 journeys/Cloudflare calls.
 
-## Activation ultérieure
+## Later activation
 
-Aucune migration distante, configuration fournisseur, fusion ou publication
-n'est autorisée par cette préparation. Après autorisation de mise en service :
-appliquer la migration additive selon la procédure du dépôt, installer les
-secrets serveur, vérifier le subject Auth0 de Nicolas et sa reconnexion, puis
-vérifier les refus depuis un autre compte, un assistant, une session expirée et
-l'aperçu public. Configurer les connecteurs Cloudflare avec leurs permissions
-minimales et vérifier leurs données sur le compte réel. Ne pas inférer leur bon
-fonctionnement à partir des réponses fictives.
+This preparation authorizes no remote migration, provider configuration,
+merge or publication. After activation authorization: apply the additive
+migration under repository procedure, install server secrets, verify Nicolas's
+Auth0 subject/reconnection, then verify refusals for another account, an
+assistant, expired session and public preview. Configure Cloudflare connectors
+with minimal permissions and verify real-account data. Do not infer operation
+from fictional responses.
 
-## Preuves
+## Evidence
 
-Vérification locale du candidat le 2 octobre 2026 :
+Local candidate verification on 2 October 2026:
 
-| Contrôle | Résultat |
+| Check | Result |
 | --- | --- |
-| TypeScript et ESLint | Réussite sur le code final |
-| `npm run build` | Bundle web et Worker compilés, dry-run uniquement |
-| `npm run build:live` et `npm run build:preview` | Réussite, sans publication |
-| Vérification locale des migrations | 44 migrations, schéma équivalent, `quickCheck: ok`, aucune violation de clé étrangère |
-| Tests Belvédère backend | 16 réussis : identité signée, refus, isolation, projections, globe, filtres des envois et finances |
-| Régressions comptables ciblées | 3 réussies : débit fractionnaire réel, conservation après suppression, hébergement compté une fois |
-| Connecteurs Cloudflare | 65 réussis sur réponses fictives : 31 métriques, 34 facturation |
-| Géographie du globe | 16 réussis : projection, hémisphères, coordonnées et pays inconnus |
-| Sécurité Node | 215 réussis, dont refus de l'omission du préfixe privé dans les règles publiques |
-| Navigateurs Belvédère | 18 réussis, Chromium desktop et WebKit iPhone, également avec le bundle de production |
-| Pages publiques concernées | 10 réussis, confidentialité/mentions/SEO et sélecteurs de langue, sur les deux navigateurs |
-| Revue visuelle | 16 captures inspectées, correction du menu mobile puis verdict `ship` |
+| TypeScript/ESLint | Passed on final source |
+| `npm run build` | Web bundle/Worker compiled; dry-run only |
+| `npm run build:live` and `npm run build:preview` | Passed without publication |
+| Local migration verification | 44 migrations, equivalent schema, `quickCheck: ok`, no FK violation |
+| Backend Belvédère tests | 16 passed: signed identity, refusals, isolation, projections, globe, dispatch filters/finance |
+| Targeted accounting regressions | 3 passed: actual fractional debit, retention after deletion, hosting counted once |
+| Cloudflare connectors | 65 passed on fictional responses: 31 metrics, 34 billing |
+| Globe geography | 16 passed: projection, hemispheres, coordinates/unknown countries |
+| Node security | 215 passed, including refusal to omit private prefix from public rules |
+| Belvédère browsers | 18 passed, desktop Chromium/iPhone WebKit, also with production bundle |
+| Affected public pages | 10 passed, privacy/legal/SEO/language selectors on both browsers |
+| Visual review | 16 captures inspected, mobile menu corrected, then `ship` verdict |
 
-La suite Vitest générale a validé 84 fichiers et 1 657 tests lors du premier
-lancement. Deux cas Belvédère ont échoué alors que le module et ses nouveaux
-tests étaient encore modifiés ; le fichier complet a ensuite été relancé sur
-le code final, avec 16 réussites. Les 16 tests du globe, ajoutés après la découverte
-initiale des fichiers, ont été exécutés séparément. Cela constitue une preuve
-locale composée de la suite générale et des relances ciblées, pas une CI distante.
-La suite de sécurité a également nécessité la mise à jour de sa fixture
-`robots.txt` pour le nouveau préfixe privé avant de réussir intégralement.
+The initial general Vitest run validated 84 files/1,657 tests. Two Belvédère
+cases failed while module/new tests were still changing; the complete file
+was rerun on final source with 16 passes. Sixteen globe tests, added after
+initial file discovery, ran separately. This is combined local general-suite/
+targeted-rerun evidence, not remote CI. Security also needed its `robots.txt`
+fixture updated for the private prefix before passing completely.
 
-Les tests navigateur couvrent les sept vues, recherche et pagination, ouverture
-d'atelier et retour, filtres de pays/canal/état, globe au clavier, distinction des
-pays inconnus, états vides, erreurs et retrait des données après expiration ou
-reprise d'onglet. Les captures n'utilisent que des fixtures. Aucune connexion
-Auth0 hébergée, dépense Cloudflare réelle, migration distante ou publication
-n'est revendiquée par ces résultats.
+Browser tests cover seven views, search/pagination, workspace opening/return,
+country/channel/state filters, keyboard globe, unknown-country distinction,
+empty/error states and data removal after expiry/tab return. Captures contain
+fixtures only. These results claim no hosted Auth0 login, actual Cloudflare
+spending, remote migration or publication.
 
-## Intégration du 9 octobre 2026
+## Integration on 9 October 2026
 
-Le candidat est réconcilié avec les modèles, Horizon et les migrations actuelles
-de main. La migration Belvédère est désormais `0052_belvedere.sql`. Les preuves
-locales du 2 octobre ci-dessus restent historiques. Les débits Horizon sont
-distingués des envois/hébergements dans la consommation comptabilisée ; les
-compteurs d’envois ne les comptent pas comme des envois. La garde Veilleur reste
-indépendante des rôles atelier. La configuration privée et la qualification
-Auth0/Cloudflare hébergée restent séparées de la fusion. Voir
+The candidate is reconciled with templates, Horizon and current main migrations.
+Belvédère migration is now `0052_belvedere.sql`. The above 2 October local
+evidence remains historical. Horizon debits are distinguished from dispatches/
+hosting in posted consumption; dispatch counts do not treat them as dispatches.
+Watcher guard remains independent of workspace roles. Private configuration
+and hosted Auth0/Cloudflare qualification remain separate from merge. See
 [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md).

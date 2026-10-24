@@ -93,6 +93,74 @@ const joinMapping: MappingPlan = {
 };
 
 describe("bounded data import and normalization", () => {
+  it("uses English generated sheet names while resolving saved legacy mapping references", async () => {
+    for (const [format, text] of [
+      ["csv", "id,name,postal\n001,Demo,00120"],
+      ["json", '[{"id":"001","name":"Demo","postal":"00120"}]'],
+    ] as const) {
+      const profile = await profileDataset(encode(text), format);
+      expect(profile.sheets.map((sheet) => sheet.name)).toEqual(["Data"]);
+      for (const sourceSheet of ["Data", "Données"]) {
+        const result = validateMapping(profile, { ...csvMapping, sourceSheet });
+        expect(result.status).toBe("ready");
+        expect(result.records[0].data).toEqual({
+          customer: { name: "Demo", postalCode: "00120" },
+        });
+        expect(result.records[0].provenance["customer.name"][0].sheet).toBe(
+          "Data",
+        );
+      }
+
+      const storedLegacyProfile = structuredClone(profile);
+      storedLegacyProfile.sheets[0].name = "Données";
+      const before = JSON.stringify(storedLegacyProfile);
+      const result = validateMapping(storedLegacyProfile, {
+        ...csvMapping,
+        sourceSheet: "Data",
+      });
+      expect(result.status).toBe("ready");
+      expect(result.records[0].provenance["customer.name"][0].sheet).toBe(
+        "Données",
+      );
+      expect(JSON.stringify(storedLegacyProfile)).toBe(before);
+    }
+  });
+  it("prefers exact uploaded sheet names when English and legacy names coexist", async () => {
+    for (const suffix of ["", ".items.item"]) {
+      const profile = await profileDataset(
+        encode(
+          JSON.stringify({
+            [`Data${suffix}`]: [
+              { id: "001", name: "English name", postal: "00120" },
+            ],
+            [`Données${suffix}`]: [
+              { id: "002", name: "Legacy name", postal: "00230" },
+            ],
+          }),
+        ),
+        "json",
+      );
+      for (const [sourceSheet, expected] of [
+        [`Data${suffix}`, "English name"],
+        [`Données${suffix}`, "Legacy name"],
+      ]) {
+        const result = validateMapping(profile, { ...csvMapping, sourceSheet });
+        expect(result.status).toBe("ready");
+        expect(result.records[0].data.customer).toMatchObject({
+          name: expected,
+        });
+        expect(result.records[0].provenance["customer.name"][0].sheet).toBe(
+          sourceSheet,
+        );
+      }
+      expect(
+        validateMapping(profile, {
+          ...csvMapping,
+          sourceSheet: `Other.Data${suffix}`,
+        }).issues,
+      ).toContainEqual(expect.objectContaining({ code: "MISSING_SHEET" }));
+    }
+  });
   it("reuses a mapping with reordered columns, retaining zeros and source coordinates", async () => {
     const first = await profileDataset(
       encode("id;name;postal\n001;Élodie;00120"),
@@ -184,7 +252,7 @@ describe("bounded data import and normalization", () => {
         { source: "x", target: "x", type: "text", required: true },
         "reject",
       ),
-    ).toThrow("Valeur obligatoire");
+    ).toThrow("Required value");
   });
   it("groups 200 child rows into one document and detects conflicting parent values", async () => {
     const csv =
@@ -318,21 +386,21 @@ describe("bounded data import and normalization", () => {
         { source: "x", target: "x", type: "minor", scale: 2 },
         "reject",
       ),
-    ).toThrow("précision");
+    ).toThrow(/precision/i);
     expect(() =>
       normalizeCell(
         cell("9007199254740993"),
         { source: "x", target: "x", type: "integer" },
         "reject",
       ),
-    ).toThrow("précision");
+    ).toThrow(/precision/i);
     expect(() =>
       normalizeCell(
         cell("2026-02-29"),
         { source: "x", target: "x", type: "date" },
         "reject",
       ),
-    ).toThrow("calendrier");
+    ).toThrow("calendar");
   });
   it("supports JSON sheets and nested objects while preserving precise lexical numbers", async () => {
     const profile = await profileDataset(
@@ -367,8 +435,8 @@ describe("bounded data import and normalization", () => {
     );
     expect(profile.format).toBe("xml");
     expect(profile.sheets.map((sheet) => sheet.name)).toEqual([
-      "Données",
-      "Données.items.item",
+      "Data",
+      "Data.items.item",
     ]);
     expect(profile.issues.map((issue) => issue.code)).toContain(
       "XML_REPEATED_TABLES",
@@ -449,10 +517,10 @@ describe("bounded data import and normalization", () => {
     });
     expect(
       result.records[0].provenance["recipient.postalCode"][0],
-    ).toMatchObject({ sheet: "Données", row: 2 });
+    ).toMatchObject({ sheet: "Data", row: 2 });
     expect(
       result.records[0].provenance["items[1].description"][0],
-    ).toMatchObject({ sheet: "Données.items.item", row: 3 });
+    ).toMatchObject({ sheet: "Data.items.item", row: 3 });
   });
   it("requires an explicit literal XML path for ambiguous roots and preserves namespaces", async () => {
     const xml = encode(
@@ -646,14 +714,14 @@ describe("bounded data import and normalization", () => {
     ).rejects.toMatchObject({ code: "UNSAFE_XML" });
     expect(() =>
       unzipBounded(zipSync({ "../outside.xml": strToU8("bad") })),
-    ).toThrow("Chemin");
+    ).toThrow("ZIP path");
     expect(() =>
       unzipBounded(zipSync({ "bomb.xml": strToU8("x".repeat(100000)) })),
-    ).toThrow("décompression");
+    ).toThrow(/decompression/i);
     const zip = zipSync({ "test.xml": strToU8("<safe>content</safe>") });
     const directory = new DataView(zip.buffer).getUint32(zip.length - 6, true);
     new DataView(zip.buffer).setUint32(directory + 24, 2, true);
     new DataView(zip.buffer).setUint32(22, 2, true);
-    expect(() => unzipBounded(zip)).toThrow("Taille réelle");
+    expect(() => unzipBounded(zip)).toThrow(/actual ZIP size/i);
   });
 });

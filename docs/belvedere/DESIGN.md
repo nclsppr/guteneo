@@ -99,7 +99,7 @@ components:
 
 ## Overview
 
-**Creative North Star: "Tout voir, à la bonne hauteur."**
+**Creative North Star: "See everything from the right perspective."**
 
 Belvédère carries guteneo's printing-house identity into a quiet private workspace. Warm paper, the existing cobalt mark and restrained serif headings give context to precise operational data. Its density comes from aligned rows, compact controls and clear separators, with room around the principal headings and figures.
 
@@ -216,7 +216,7 @@ Tables use muted header rows, separators, aligned numeric cells and a subtle row
 
 ### Globe and Country Ranking
 
-The globe is a geographic view paired with equivalent HTML data. A segmented control chooses connections or distribution; country buttons share selection with the canvas, and distribution can open the corresponding envois. Unknown geography remains an explicit row rather than an invented marker.
+The globe is a geographic view paired with equivalent HTML data. A segmented control chooses connections or distribution; country buttons share selection with the canvas, and distribution can open the corresponding dispatches. Unknown geography remains an explicit row rather than an invented marker.
 
 The canvas supports dragging, arrow keys, Home and labeled rotation controls. The country ranking provides keyboard-accessible selection and values. Latitude/longitude annotations describe the camera; markers represent countries rather than precise person locations.
 

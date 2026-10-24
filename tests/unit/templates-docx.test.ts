@@ -51,7 +51,7 @@ describe("Safe editable Word content import", () => {
         ),
         "letter.docx",
       ),
-    ).rejects.toThrow("champs automatiques");
+    ).rejects.toThrow("Automatic fields");
   });
   it("rejects external relationships, macro payloads, DTD and legacy Word", async () => {
     const paragraph = "<w:p><w:r><w:t>Hello</w:t></w:r></w:p>";
@@ -64,7 +64,7 @@ describe("Safe editable Word content import", () => {
         }),
         "letter.docx",
       ),
-    ).rejects.toThrow("externes");
+    ).rejects.toThrow("external");
     await expect(
       importDocxTemplate(
         docx(paragraph, { "word/vbaProject.bin": new Uint8Array([1]) }),
@@ -84,6 +84,6 @@ describe("Safe editable Word content import", () => {
         ),
         "letter.docx",
       ),
-    ).rejects.toThrow("cellules fusionnées");
+    ).rejects.toThrow("merged Word cells");
   });
 });

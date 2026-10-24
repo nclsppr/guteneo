@@ -1,7 +1,7 @@
 import { evidencePath } from "./evidence";
 import { expect, test } from "@playwright/test";
 
-const slugs = ["de-gutenberg-au-numerique", "histoire-imprimerie-luxembourg"];
+const slugs = ["from-gutenberg-to-digital", "printing-history-luxembourg"];
 
 for (const slug of slugs) {
   test(`editorial reading, artwork and contents: ${slug}`, async ({

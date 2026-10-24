@@ -20,20 +20,20 @@ describe("dashboard appearance browser fallback", () => {
   it("keeps the current interface by default and ignores unknown values", () => {
     expect(initialDashboardAppearance("")).toBe("classic");
     expect(
-      initialDashboardAppearance("?atelier=other", storage("corrupt")),
+      initialDashboardAppearance("?appearance=other", storage("corrupt")),
     ).toBe("classic");
   });
 
   it("remembers an explicit V2 choice before sign-in and restores it on return", () => {
     const saved = storage("classic");
-    expect(initialDashboardAppearance("?atelier=v2", saved)).toBe("v2");
+    expect(initialDashboardAppearance("?appearance=v2", saved)).toBe("v2");
     expect(saved.getItem(dashboardAppearanceStorageKey)).toBe("v2");
     expect(initialDashboardAppearance("", saved)).toBe("v2");
   });
 
   it("lets an explicit classic link override the browser V2 preference", () => {
     const saved = storage("v2");
-    expect(initialDashboardAppearance("?atelier=classic", saved)).toBe(
+    expect(initialDashboardAppearance("?appearance=classic", saved)).toBe(
       "classic",
     );
     expect(initialDashboardAppearance("", saved)).toBe("classic");
@@ -41,9 +41,9 @@ describe("dashboard appearance browser fallback", () => {
 
   it("preserves a valid browser preference when the query is unrelated or unknown", () => {
     expect(initialDashboardAppearance("?lang=de", storage("v2"))).toBe("v2");
-    expect(initialDashboardAppearance("?atelier=unknown", storage("v2"))).toBe(
-      "v2",
-    );
+    expect(
+      initialDashboardAppearance("?appearance=unknown", storage("v2")),
+    ).toBe("v2");
   });
 
   it("continues when storage is unavailable, throws on access, or rejects writes", () => {
@@ -56,8 +56,8 @@ describe("dashboard appearance browser fallback", () => {
       },
     };
     expect(initialDashboardAppearance("", blocked)).toBe("classic");
-    expect(initialDashboardAppearance("?atelier=v2", blocked)).toBe("v2");
-    expect(initialDashboardAppearance("?atelier=v2")).toBe("v2");
+    expect(initialDashboardAppearance("?appearance=v2", blocked)).toBe("v2");
+    expect(initialDashboardAppearance("?appearance=v2")).toBe("v2");
   });
 
   it("changes only appearance while preserving the route and other query parameters", () => {
@@ -66,14 +66,33 @@ describe("dashboard appearance browser fallback", () => {
       "classic",
     );
     expect(changed).toBe(
-      "/?lang=de&atelier=classic#/app/prepare?document=doc_42",
+      "/?lang=de&appearance=classic#/app/prepare?document=doc_42",
     );
     expect(
       dashboardAppearanceUrl(
         "https://guteneo.com/?lang=fr#/app/dispatches?group=attention",
         "v2",
       ),
-    ).toBe("/?lang=fr&atelier=v2#/app/dispatches?group=attention");
+    ).toBe("/?lang=fr&appearance=v2#/app/dispatches?group=attention");
+  });
+
+  it("accepts legacy bookmarks while giving an explicit English query precedence", () => {
+    expect(initialDashboardAppearance("?atelier=v2")).toBe("v2");
+    expect(initialDashboardAppearance("?atelier=v2&appearance=classic")).toBe(
+      "classic",
+    );
+    expect(initialDashboardAppearance("?atelier=v2&appearance=invalid")).toBe(
+      "classic",
+    );
+    expect(
+      initialDashboardAppearance("?appearance=v2&appearance=classic"),
+    ).toBe("classic");
+    expect(
+      dashboardAppearanceUrl(
+        "https://guteneo.com/?atelier=v2&lang=de#/app",
+        "classic",
+      ),
+    ).toBe("/?lang=de&appearance=classic#/app");
   });
 
   it("provides every appearance message in English, German, and Luxembourgish", () => {

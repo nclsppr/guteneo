@@ -92,7 +92,7 @@ export default function TemplateDesigner({
           setError(
             failure instanceof Error
               ? failure
-              : new Error(msg("Modification ambiguë du modèle.")),
+              : new Error(msg("The template change is ambiguous.")),
           );
         }
       });
@@ -101,9 +101,7 @@ export default function TemplateDesigner({
         instance.destroy();
       };
     } catch (e) {
-      setError(
-        e instanceof Error ? e : new Error(msg("Éditeur indisponible.")),
-      );
+      setError(e instanceof Error ? e : new Error(msg("Editor unavailable.")));
     }
     // Language changes update the instance without losing selection or undo history.
   }, [desktop]);
@@ -132,13 +130,13 @@ export default function TemplateDesigner({
       <ErrorNotice error={error} />
       <p className="studio-mobile-help notice info">
         {msg(
-          "L’édition graphique demande un écran de bureau. Vous pouvez consulter le modèle, remplir ses données et vérifier les PDF sur mobile. ",
+          "Visual editing requires a desktop screen. On mobile, you can view the template, enter data and check PDFs. ",
         )}
       </p>
       <div
         className="studio-designer"
         ref={container}
-        aria-label={msg("Éditeur visuel du modèle")}
+        aria-label={msg("Visual template editor")}
         onPointerDownCapture={() => {
           interacted.current = true;
         }}

@@ -7,6 +7,93 @@ const serviceGroups = [
   ["access", 4],
 ] as const;
 
+test("English source and French status views share controls and canonical links", async ({
+  page,
+}) => {
+  const evidence = await fixtures(page);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("h1")).toHaveText("Service status");
+  await expect(page.locator("#state-title")).toHaveText(
+    "Availability checks passed",
+  );
+  await expect(page.locator("#status-language")).toHaveValue("en");
+  await expect(page.locator('a[href="https://guteneo.com/legal/"]')).toHaveText(
+    "Legal notice",
+  );
+  await expect(
+    page.locator('a[href="https://guteneo.com/privacy/"]'),
+  ).toHaveText("Privacy");
+  await page.locator('[data-tab="verification"]').click();
+  await expect(page.locator("#coverage-count")).toHaveText(
+    "11 features displayed out of 11",
+  );
+  await expect(page.locator(".business-row").first()).toContainText(
+    "Sign-in and session",
+  );
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
+  await page.locator("#status-language").selectOption("fr");
+  await expect(page).toHaveURL(/lang=fr/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(page.locator("h1")).toHaveText("État du service");
+  await expect(page.locator("#state-title")).toHaveText(
+    "Contrôles de disponibilité réussis",
+  );
+  await page.goto("/?lang=fr&lang=en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  expect(evidence.errors).toEqual([]);
+  expect(evidence.external).toEqual([]);
+});
+
+test("canonical English reports and legacy labels share the same coverage contract", async ({
+  page,
+}) => {
+  const data = snapshot();
+  data.checks.find((row) => row.path === "/developers/")!.path =
+    "/developpeurs/";
+  const canonical = [
+    "Auth0 sign-in",
+    "PDF: import, antivirus, rendering",
+    "Studio: templates, data, generation",
+    "Cron, queues, callbacks, backups",
+    "MCP assistants",
+    "Fax",
+    "Postal mail",
+    "Email",
+    "Horizon / PDF validation",
+    "Stripe payments",
+    "AI proposals",
+  ];
+  data.coverage.forEach((row, index) => {
+    row.feature = canonical[index];
+  });
+  const evidence = await fixtures(page, { status: data });
+  await page.goto("/?lang=en#verification");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
+  );
+  await expect(page.locator(".business-row")).toHaveCount(11);
+  await expect(page.locator(".business-row").first()).toContainText(
+    "Sign-in and session",
+  );
+  await page.getByText("Public pages", { exact: true }).click();
+  await page.getByText("Show the developer guide", { exact: true }).click();
+  await expect(page.locator(".scenario[open] .steps")).toContainText(
+    "GET https://guteneo.com/developpeurs/",
+  );
+  data.coverage[1].feature = "Connexion Auth0";
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "offline",
+  );
+  expect(evidence.errors).toEqual([]);
+});
+
 for (const width of [1440, 390, 320]) {
   test(`three views, keyboard and filters at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });

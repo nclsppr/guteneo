@@ -170,9 +170,7 @@ describe("public browser design preview", () => {
       mode: "simulation",
     });
     expect(detail.attempts).toHaveLength(1);
-    expect(detail.events.at(-1)?.detail).toContain(
-      "Aucun fournisseur contacté",
-    );
+    expect(detail.events.at(-1)?.detail).toContain("No provider contacted");
     detail.dispatch.subject = "Caller mutation";
     expect(
       ((await preview.request(`/dispatches/${dispatch.id}`)) as DispatchDetail)

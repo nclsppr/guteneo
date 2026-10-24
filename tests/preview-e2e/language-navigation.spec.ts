@@ -100,20 +100,19 @@ test("choosing the detected language still records an explicit choice and can re
   ).toBeNull();
 });
 
-test("the iPhone 15 Pro Max and 320px headers keep one row with language choices inside Menu", async ({
+test("narrow public headers keep one row and navigation yields to language selection", async ({
   page,
 }) => {
   for (const width of [430, 320]) {
     await page.setViewportSize({ width, height: 932 });
     await page.goto("/?lang=lb");
     const header = page.locator("header.site-header");
-    const toggle = header.locator(".mobile-menu-toggle");
+    const toggle = header.locator(".public-menu-toggle");
     const brand = header.locator(":scope > .brand");
+    const languageButton = header.locator(".language-menu summary");
     await expect(toggle).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(header.locator('select[name="language"]:visible')).toHaveCount(
-      0,
-    );
     const headerBounds = await header.boundingBox();
     const brandBounds = await brand.boundingBox();
     const toggleBounds = await toggle.boundingBox();
@@ -128,12 +127,22 @@ test("the iPhone 15 Pro Max and 320px headers keep one row with language choices
     expect(toggleBounds!.y).toBeLessThan(brandBounds!.y + brandBounds!.height);
     await expectNoHorizontalOverflow(page);
 
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      header.locator(".public-mobile-navigation > a:visible"),
+    ).toHaveCount(6);
+    expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
+    // Touch activation on WebKit does not implicitly focus a button.
+    await toggle.focus();
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toBeFocused();
+
+    await toggle.click();
     const picker = await publicLanguagePicker(page);
     await expect(picker).toHaveValue("lb");
-    await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(header.locator(".mobile-navigation > a:visible")).toHaveCount(
-      4,
-    );
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
     const pickerBounds = await picker.boundingBox();
     expect(pickerBounds!.x).toBeGreaterThanOrEqual(0);
@@ -141,8 +150,7 @@ test("the iPhone 15 Pro Max and 320px headers keep one row with language choices
     await expectNoHorizontalOverflow(page);
     await picker.focus();
     await page.keyboard.press("Escape");
-    await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(toggle).toBeFocused();
+    await expect(languageButton).toBeFocused();
     await expect(picker).toBeHidden();
   }
 });
@@ -179,10 +187,10 @@ test("public subpage language panels remain fully inside narrow phone viewports"
     await page.setViewportSize({ width, height: 932 });
     for (const path of [
       "/assistants/",
-      "/developpeurs/",
+      "/developers/",
       "/journal/",
-      "/mentions-legales/",
-      "/confidentialite/",
+      "/legal/",
+      "/privacy/",
     ]) {
       await test.step(`${path} at ${width}px`, async () => {
         await page.goto(`${path}?lang=lb`);

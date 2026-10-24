@@ -43,66 +43,66 @@ struct ComposeView: View {
         Form {
             if let preparedID {
                 Section {
-                    Label("Votre envoi est préparé", systemImage: "checkmark.circle").font(.headline)
-                    Text("Il n’a pas été envoyé. Retrouvez le document, le destinataire et les conditions du devis dans son suivi.")
-                    NavigationLink("Consulter le devis") { DispatchDetailView(id: preparedID) }
-                    Button("Terminer") { dismiss() }
+                    Label("Your dispatch is prepared", systemImage: "checkmark.circle").font(.headline)
+                    Text("It has not been sent. Find the document, recipient and quote terms in its tracking view.")
+                    NavigationLink("View quote") { DispatchDetailView(id: preparedID) }
+                    Button("Done") { dismiss() }
                 }
             } else {
                 if let error { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
                 if channels.isEmpty {
                     Section {
-                        ContentUnavailableView("Préparation indisponible", systemImage: "paperplane", description: Text("Aucun mode d’envoi n’est actuellement disponible pour ce compte. Vous pouvez toujours consulter vos documents et votre suivi."))
-                        Button("Actualiser les disponibilités") { Task { await model.refresh() } }
+                        ContentUnavailableView("Preparation unavailable", systemImage: "paperplane", description: Text("No delivery method is currently available for this account. You can still view your documents and tracking."))
+                        Button("Refresh availability") { Task { await model.refresh() } }
                     }
                 } else {
-                    Section("Envoi") {
-                        Picker("Mode d’envoi", selection: $channel) {
+                    Section("Dispatch") {
+                        Picker("Delivery method", selection: $channel) {
                             ForEach(channels) { Text(LocalizedStringKey($0.title)).tag($0) }
                         }
-                        Picker("Expéditeur", selection: $selectedSender) {
-                            Text("Choisir un expéditeur").tag("")
+                        Picker("Sender", selection: $selectedSender) {
+                            Text("Choose a sender").tag("")
                             ForEach(senders) { Text($0.name ?? $0.address ?? L10n.text($0.channel.title, locale: locale)).tag($0.id) }
                         }
-                        if senders.isEmpty { Notice(text: "Aucun expéditeur n’est configuré pour ce mode d’envoi.") }
+                        if senders.isEmpty { Notice(text: "No sender is configured for this delivery method.") }
                     }
-                    Section("Destinataire") {
-                        TextField(LocalizedStringKey(channel == .fax ? "Numéro international (+33…)" : "Adresse e-mail"), text: $recipient)
+                    Section("Recipient") {
+                        TextField(LocalizedStringKey(channel == .fax ? "International number (+33…)" : "Email address"), text: $recipient)
                             .keyboardType(channel == .fax ? .phonePad : .emailAddress)
                             .textContentType(channel == .fax ? .telephoneNumber : .emailAddress)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                             .accessibilityIdentifier("recipient")
-                        if channel == .fax { Text("France, Luxembourg ou Allemagne, selon les routes disponibles.").font(.footnote).foregroundStyle(.secondary) }
+                        if channel == .fax { Text("France, Luxembourg or Germany, depending on available routes.").font(.footnote).foregroundStyle(.secondary) }
                     }
                     if channel == .fax {
-                        Section("PDF original") {
+                        Section("Original PDF") {
                             Picker("Document", selection: $selectedDocument) {
-                                Text("Choisir un PDF vérifié").tag("")
+                                Text("Choose a verified PDF").tag("")
                                 ForEach(readyDocuments) { Text($0.name).tag($0.id) }
                             }
-                            if readyDocuments.isEmpty { Notice(text: "Importez d’abord un PDF dans Documents, puis attendez la fin de sa vérification.") }
+                            if readyDocuments.isEmpty { Notice(text: "First import a PDF in Documents, then wait for verification to finish.") }
                             if !selectedDocument.isEmpty {
-                                NavigationLink("Relire le document") { DocumentDetailView(id: selectedDocument) }
+                                NavigationLink("Review document") { DocumentDetailView(id: selectedDocument) }
                             }
                         }
                     } else {
                         Section("Message") {
-                            TextField("Objet", text: $subject).onChange(of: subject) { _, value in if value.count > 200 { subject = String(value.prefix(200)) } }
+                            TextField("Subject", text: $subject).onChange(of: subject) { _, value in if value.count > 200 { subject = String(value.prefix(200)) } }
                             TextEditor(text: $message).frame(minHeight: 160)
-                                .accessibilityLabel("Texte du message")
+                                .accessibilityLabel("Message text")
                                 .onChange(of: message) { _, value in if value.utf8.count > 100_000 { message = String(value.prefix(20_000)) } }
                         }
                     }
                     Section {
-                        TextField("Plafond en euros", text: $ceiling).keyboardType(.decimalPad)
-                            .accessibilityLabel("Coût maximum en euros hors taxes")
-                    } header: { Text("Coût maximum · EUR HT") } footer: {
-                        Text("Le devis précis sera calculé par Guteneo. Préparer cet envoi n’autorise pas son expédition.")
+                        TextField("Limit in euros", text: $ceiling).keyboardType(.decimalPad)
+                            .accessibilityLabel("Maximum cost in euros excluding tax")
+                    } header: { Text("Maximum cost · EUR excl. tax") } footer: {
+                        Text("Guteneo will calculate the exact quote. Preparing this dispatch does not authorise sending it.")
                     }
                     Section {
                         Button { Task { await prepare() } } label: {
                             HStack {
-                                Text("Préparer le devis").fontWeight(.semibold)
+                                Text("Prepare quote").fontWeight(.semibold)
                                 Spacer()
                                 if working { ProgressView() } else { Image(systemName: "arrow.right") }
                             }.padding(.vertical, 6)
@@ -112,14 +112,14 @@ struct ComposeView: View {
                 }
             }
         }
-        .paperList().navigationTitle("Préparer un envoi").navigationBarTitleDisplayMode(.inline)
+        .paperList().navigationTitle("Prepare a dispatch").navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .cancellationAction) {
-            Button("Fermer") { if dirty && preparedID == nil { discard = true } else { dismiss() } }.disabled(working)
+            Button("Close") { if dirty && preparedID == nil { discard = true } else { dismiss() } }.disabled(working)
         } }
         .interactiveDismissDisabled(working || dirty && preparedID == nil)
-        .confirmationDialog("Fermer ce brouillon ?", isPresented: $discard, titleVisibility: .visible) {
-            Button("Abandonner le brouillon", role: .destructive) { dismiss() }
-        } message: { Text("Les informations non préparées ne seront pas enregistrées.") }
+        .confirmationDialog("Close this draft?", isPresented: $discard, titleVisibility: .visible) {
+            Button("Discard draft", role: .destructive) { dismiss() }
+        } message: { Text("Unprepared information will not be saved.") }
         .onChange(of: signature) { _, _ in requestKey = UUID().uuidString }
         .onChange(of: channel) { _, _ in selectedSender = senders.count == 1 ? senders[0].id : "" }
         .task {

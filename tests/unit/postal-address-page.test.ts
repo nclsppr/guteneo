@@ -797,7 +797,9 @@ describe("explicit postal address-page generation", () => {
         service().generate(authority, input, "bounded"),
       ).rejects.toMatchObject({
         code: "POSTAL_ADDRESS_PAGE_ADDRESS_TOO_LONG",
-        message: expect.stringContaining("sans retirer d’information"),
+        message: expect.stringContaining(
+          "without removing necessary information",
+        ),
       });
     await expect(
       service().generate(authority, input, "bounded"),

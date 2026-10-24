@@ -76,7 +76,7 @@ function WorkspaceContactDirectory({
       contacts.error ??
       (contacts.data !== undefined && !data
         ? new Error(
-            "Impossible de vérifier les contacts de cet atelier. Réessayez leur consultation.",
+            "The contacts for this workshop could not be verified. Try loading them again.",
           )
         : undefined),
     [contacts.error, contacts.data, data],
@@ -93,12 +93,12 @@ function WorkspaceContactDirectory({
       aria-busy={contacts.loading}
     >
       <div className="workspace-contacts-heading">
-        <h2 id={titleId}>{msg("Qui contacter dans cet atelier ?")}</h2>
+        <h2 id={titleId}>{msg("Who can help in this workshop?")}</h2>
         <RefreshButton onClick={contacts.refresh} disabled={contacts.loading} />
       </div>
       <p className="field-hint">
         {msg(
-          "Un administrateur gère vos accès et la facturation. Pour valider un envoi, contactez une personne dont le droit d’approbation est indiqué ci-dessous.",
+          "An administrator manages access and billing. To approve a dispatch, contact someone whose approval permission is listed below.",
         )}
       </p>
       <ErrorNotice
@@ -122,7 +122,7 @@ function WorkspaceContactDirectory({
                     <a
                       href={`mailto:${encodeURIComponent(contact.email)}`}
                       aria-label={msg(
-                        "Contacter {0} par e-mail à {1}",
+                        "Email {0} at {1}",
                         contact.name,
                         contact.email,
                       )}
@@ -130,26 +130,26 @@ function WorkspaceContactDirectory({
                       {contact.email}
                     </a>
                   ) : (
-                    <span>{msg("Adresse de connexion indisponible")}</span>
+                    <span>{msg("Sign-in email unavailable")}</span>
                   )}
                 </div>
                 <ul
                   className="workspace-contact-rights"
-                  aria-label={msg("Droits de {0}", contact.name)}
+                  aria-label={msg("Permissions for {0}", contact.name)}
                 >
                   {contact.permissions.manageMembers && (
-                    <li>{msg("Gère les accès et les membres")}</li>
+                    <li>{msg("Manages access and members")}</li>
                   )}
                   {contact.permissions.manageBilling && (
-                    <li>{msg("Gère la facturation")}</li>
+                    <li>{msg("Manages billing")}</li>
                   )}
                   <li>
                     {contact.permissions.approveDispatches
-                      ? msg("Peut approuver les envois")
-                      : msg("Ne peut pas approuver les envois")}
+                      ? msg("Can approve dispatches")
+                      : msg("Cannot approve dispatches")}
                   </li>
                   {contact.permissions.viewReports && (
-                    <li>{msg("Peut consulter les rapports")}</li>
+                    <li>{msg("Can view reports")}</li>
                   )}
                 </ul>
               </li>
@@ -157,15 +157,17 @@ function WorkspaceContactDirectory({
           </ul>
         ) : (
           <p>
-            {msg("Aucun autre administrateur ou superviseur dans cet atelier.")}
+            {msg(
+              "There are no other administrators or supervisors in this workshop.",
+            )}
             {session.user.role === "admin" && (
               <>
                 {" "}
                 {msg(
-                  "Vous pouvez inviter une personne ou attribuer ces rôles dans Administration.",
+                  "You can invite someone or assign these roles in Administration.",
                 )}{" "}
                 <a href="#/app/admin">
-                  {msg("Gérer les membres et les invitations")}
+                  {msg("Manage members and invitations")}
                 </a>
               </>
             )}
@@ -175,13 +177,13 @@ function WorkspaceContactDirectory({
       {!error && data?.hasMore && (
         <p className="field-hint">
           {msg(
-            "Les 50 premiers contacts sont affichés. Un administrateur peut consulter tous les membres dans Administration.",
+            "The first 50 contacts are shown. An administrator can view all members in Administration.",
           )}
         </p>
       )}
       {compact && (
         <a className="workspace-contact-profile-link" href="#/app/account">
-          {msg("Voir mon profil et mes droits")}
+          {msg("View my profile and permissions")}
         </a>
       )}
     </section>
