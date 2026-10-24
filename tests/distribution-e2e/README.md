@@ -21,6 +21,15 @@ npm run test:distribution -- tests/distribution-e2e/personal-account.e2e.ts --ta
 
 The test launcher builds the application, applies migrations and seeds only the fictional local simulation data. It starts the local renderer and Worker on ports 8788 and 8787. Each run receives fresh D1/R2 state under `.wrangler/distribution-e2e-<uuid>`, with its location recorded in `test-results/distribution-e2e-state.json`. An existing server on these ports causes a failure; no external environment may substitute for the local fixture.
 
+The charge-inspection fixture executes a fixed, tenant-scoped, read-only `SELECT`
+against that isolated local D1 state. A completed Wrangler process reporting an
+explicit SQLite busy error may be retried at most twice, after 250 and 500 ms,
+within the original 15-second total read budget. Each attempt opens a new local
+read; a persistent lock, timeout, unrelated process error or malformed result
+fails the test. Browser actions, approvals, billing mutations and assertions are
+never retried by this helper. Preserve failed-run evidence separately from any
+later successful run; this local database recovery is not provider retry policy.
+
 Reports, JUnit XML, explicit screenshots, downloads and synthetic PDF inputs remain in the ignored `test-results/` directory. Browser traces are disabled because their raw network payloads could retain an invitation POST body. The engine's public `startAttempt` extension sanitizes incoming-fragment navigation events before they reach a reporter; the event and its outcome remain visible with the invitation masked. The wrapper also buffers console lines across stream chunks and masks 64-character hex values before stdout/stderr reach CI, including error messages; source hashes remain in the checked report. After every finished run, the wrapper independently verifies in memory that none of the generated invitation secrets appear in any report file or the local server log. CI additionally checks its captured stdout before allowing an upload. An interrupted wrapper without a current privacy marker cannot upload artifacts. The fixed fictional recipient account and the explicit strong-authentication simulation fixture are local test instruments; they do not qualify the live identity provider's authentication methods, passkeys, recovery or enrollment. The invitation regression exercises the real local login redirect and same-tab reload, then uses that server fixture solely as the callback stand-in before an explicit claim.
 
 The `phone` target checks a narrow responsive viewport. It does not prove touch input or a physical mobile device. A local simulated invitation is separate from provider delivery, a deployed Cloudflare service, or a real assistant host's OAuth consent and marketplace installation.
