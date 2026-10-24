@@ -71,6 +71,18 @@ const test = base.extend<{ hosted: HostedEntry }>({
           status: 403,
           body: "Blocked by the UI fixture.",
         });
+      } else if (url.pathname === "/api/personal/session") {
+        // The unified account bootstrap probes personal authority after an
+        // unauthenticated workshop response. This fixture has neither session.
+        await route.fulfill({
+          status: 401,
+          json: {
+            error: {
+              code: "AUTHENTICATION_REQUIRED",
+              message: "Connectez-vous.",
+            },
+          },
+        });
       } else if (url.pathname === "/api/session") {
         await route.fulfill(
           state.authenticated

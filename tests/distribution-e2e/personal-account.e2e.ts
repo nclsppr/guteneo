@@ -86,6 +86,35 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+
+  // A voluntary sign-out must leave the private route. Returning to it would
+  // automatically restart hosted authentication in the production browser.
+  let authenticationRedirects = 0;
+  await browser.route(/\/auth\/(?:login|signup)(?:\?|$)/u, async (route) => {
+    authenticationRedirects += 1;
+    await route.abort();
+  });
+  const [signedOut] = await Promise.all([
+    browser.waitForResponse("**/api/personal/logout"),
+    screen.getByRole("button", "Se déconnecter").tap(),
+  ]);
+  expect(signedOut.status).toBe(200);
+  await expect(browser).toHaveURL("http://localhost:8787/");
+  await expect(browser.locator("main")).toBeVisible();
+  const publicAfterLogout = await browser.evaluate(async () => {
+    const status = (await fetch("/api/personal/session")).status;
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    return { status, publicHome: location.pathname === "/" && location.hash === "",
+      privateShell: document.querySelector(".personal-space") !== null };
+  });
+  expect(publicAfterLogout).toEqual({ status: 401, publicHome: true, privateShell: false });
+  expect(authenticationRedirects).toBe(0);
+
+  // Only this explicit action re-enters the private area; it creates no session.
+  await app.open("/#/app/my-documents");
+  await expect(screen.getByRole("button", "Ouvrir le compte destinataire fictif")).toBeVisible();
+  expect(await browser.evaluate(async () => (await fetch("/api/personal/session")).status)).toBe(401);
+  expect(authenticationRedirects).toBe(0);
 });
 
 test("creating a sending workshop keeps the recipient's Guteneo identity", async ({

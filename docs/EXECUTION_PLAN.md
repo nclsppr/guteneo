@@ -5,10 +5,15 @@ account, sensitive shared reader, explicit independent personal copy, immutable
 retention pricing and shared REST/MCP/plugin distribution service. The requested
 TesterArmy e2e framework runs locally with real browsers, local D1/R2, private
 PDF rendering and deterministic simulated delivery. Its initial complete
-four-page lifecycle run passed 12/12 desktop/phone cases. Subsequent invitation
-handoff, stale-copy recovery and production monitoring changes require their
-own final-source rerun; this dated result is not an automatic whole-candidate
-pass. Read [implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
+four-page lifecycle grew to fourteen desktop/phone cases. On candidate
+`d942fa9`, the complete local regression passed 119 Vitest files / 2,305 cases
+and 355 Node security cases. Reconciliation with main `ac795d0` preserves its
+public HTTP errors and explicit logout; 148 affected unit cases and twelve
+desktop login-entry browser cases passed. The final isolated TesterArmy run
+and exact-head GitHub checks are recorded in
+[draft PR 74](https://github.com/nclsppr/guteneo/pull/74); older local passes
+do not automatically qualify this reconciled source. Read
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
 [journeys](SECURE_DISTRIBUTION_JOURNEYS.md) and
 [the e2e guide](../tests/distribution-e2e/README.md).
 No production migration, account provisioning, real send, merge or deployment
