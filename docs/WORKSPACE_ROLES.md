@@ -421,3 +421,10 @@ collecte n’est obtenu. Les routes publiques ne déclenchent aucun test.
 Le Worker de statut n’a aucun binding métier et n’accepte ni identité client ni
 identifiant d’envoi. Les effets décoratifs sont propres à cette page.
 Voir [État du service](STATUS_SERVICE.md) et le parcours J20 de l’atlas.
+
+Le parcours J30 ajoute les rapports anonymes du navigateur. Seul le workflow
+GitHub main autorisé peut déposer son rapport lié à OIDC ; aucun des quatre
+rôles ni un assistant ne gagne cette autorité par sa membership. Les diagnostics
+du pilote sont bornés aux chemins et empreintes publics ainsi qu’aux codes
+autorisés de publication. Un artefact local ou un échec d’ingestion ne permet
+pas de déclarer le rapport enregistré ni le cycle métier qualifié.

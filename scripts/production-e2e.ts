@@ -4,6 +4,8 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { collectPublicSnapshot, type Snapshot } from "../apps/status/worker";
+import { boundedResponseJson, PublicationFailure, productionMonitorFailure, publicationResponseCode,
+  publicObservationTransport } from "./production-e2e-runtime";
 import {
   E2E_AUDIENCE, E2E_CHECK_IDS, E2E_HTTP_PATHS, E2E_PAGES,
   productionE2EReportSchema, productionReportAudience, productionReportDigest,
@@ -61,33 +63,51 @@ function runBrowser(): Promise<void> {
 export async function publishProductionReport(body: string, fetcher = fetch, env = process.env) {
   if (env.GITHUB_ACTIONS !== "true" || env.GITHUB_REPOSITORY !== "nclsppr/guteneo" ||
     env.GITHUB_REF !== "refs/heads/main" || !["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME ?? ""))
-    throw new Error("PUBLICATION_AUTHORITY_REQUIRED");
-  const endpoint = new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL ?? "");
+    throw new PublicationFailure("PUBLICATION_AUTHORITY_REQUIRED", "authority");
+  let endpoint: URL;
+  try { endpoint = new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL ?? ""); }
+  catch { throw new PublicationFailure("OIDC_ENDPOINT_INVALID", "authority"); }
   if (endpoint.protocol !== "https:" || !endpoint.hostname.endsWith(".actions.githubusercontent.com") ||
     endpoint.username || endpoint.password || !env.ACTIONS_ID_TOKEN_REQUEST_TOKEN)
-    throw new Error("OIDC_ENDPOINT_INVALID");
+    throw new PublicationFailure("OIDC_ENDPOINT_INVALID", "authority");
   endpoint.searchParams.set("audience", productionReportAudience(await productionReportDigest(body)));
-  const tokenResponse = await fetcher(endpoint, { method: "GET", redirect: "error", cache: "no-store",
-    signal: AbortSignal.timeout(10000), headers: { Authorization: `Bearer ${env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` } });
-  if (!tokenResponse.ok) throw new Error("OIDC_UNAVAILABLE");
-  const value: unknown = await tokenResponse.json();
+  let tokenResponse: Response;
+  try { tokenResponse = await fetcher(endpoint, { method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(10000), headers: { Authorization: `Bearer ${env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` } }); }
+  catch { throw new PublicationFailure("OIDC_UNAVAILABLE", "oidc"); }
+  if (!tokenResponse.ok) { void tokenResponse.body?.cancel().catch(() => {});
+    throw new PublicationFailure("OIDC_UNAVAILABLE", "oidc", tokenResponse.status); }
+  let value: unknown;
+  try { value = await boundedResponseJson(tokenResponse, 32768); }
+  catch { throw new PublicationFailure("OIDC_RESPONSE_INVALID", "oidc", tokenResponse.status); }
   const token = (value as { value?: unknown } | null)?.value;
   if (typeof token !== "string" || token.length > 16384 || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token))
-    throw new Error("OIDC_RESPONSE_INVALID");
-  const response = await fetcher(E2E_AUDIENCE, { method: "POST", redirect: "error", cache: "no-store",
-    signal: AbortSignal.timeout(10000), headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body });
-  if (response.status !== 201) throw new Error("PUBLICATION_REJECTED");
-  // Neither the token, its endpoint, upstream body nor response details are logged.
+    throw new PublicationFailure("OIDC_RESPONSE_INVALID", "oidc", tokenResponse.status);
+  let response: Response;
+  try { response = await fetcher(E2E_AUDIENCE, { method: "POST", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(10000), headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body }); }
+  catch { throw new PublicationFailure("PUBLICATION_UNAVAILABLE", "ingestion"); }
+  if (response.status !== 201) throw new PublicationFailure("PUBLICATION_REJECTED", "ingestion", response.status,
+    await publicationResponseCode(response));
+  void response.body?.cancel().catch(() => {});
+  // Only fixed diagnostic codes and HTTP status may escape; never token/endpoint/body.
 }
 
 export async function productionBrowserMonitor(publish = false) {
   const startedAt = new Date().toISOString();
   await rm(rawOutput, { recursive: true, force: true });
-  const before = await collectPublicSnapshot();
+  const before = await collectPublicSnapshot(publicObservationTransport().fetch);
   await runBrowser().catch(() => {});
   let raw: unknown = null;
   try { raw = JSON.parse(await readFile(new URL("report.json", rawOutput), "utf8")); } catch { /* Missing execution is unknown. */ }
-  const after = await collectPublicSnapshot();
+  const transport = publicObservationTransport();
+  const after = await collectPublicSnapshot(transport.fetch);
+  // Fixed public-page metadata helps distinguish representation drift from
+  // failed transport. It never substitutes for the collector's size and SHA.
+  const mismatches = after.checks.filter((check) => ["CONTENT_LENGTH_MISMATCH", "CONTENT_HASH_MISMATCH"].includes(check.code ?? ""))
+    .flatMap((check) => { const page = transport.pages.get(check.path);
+      return page ? [{ ...page, ...transport.expectedPages.get(check.path) }] : []; });
+  if (mismatches.length) console.error(JSON.stringify({ code: "PUBLIC_REPRESENTATION_MISMATCH", pages: mismatches }));
   const report = productionE2EReportSchema.parse({
     schema: 1, environment: "production", scope: "anonymous_public_browser", origin: "https://guteneo.com",
     startedAt, completedAt: new Date().toISOString(),
@@ -120,7 +140,7 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
     const summary = await productionBrowserMonitor(process.argv.includes("--publish"));
     console.log(JSON.stringify(summary));
     if (summary.status !== "passed") process.exitCode = 1;
-  } catch {
-    console.error("PRODUCTION_BROWSER_MONITOR_FAILED"); process.exitCode = 1;
+  } catch (error) {
+    console.error(JSON.stringify(productionMonitorFailure(error))); process.exitCode = 1;
   }
 }

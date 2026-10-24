@@ -77,6 +77,15 @@ Ces réponses UI sont synthétiques. Le workflow exécuté, le stockage OIDC hé
 la publication du statut et une première lecture de rapport réel restent des
 preuves séparées ; aucune de ces étapes n’est attestée par les tests UI locaux.
 
+Le premier run hébergé du 24 octobre, `40128432279` tentative 1, a donné
+21/28 contrôles réussis et un échec global ; son ingestion n’est pas qualifiée.
+Les quatorze contrôles navigateur ont réussi, tandis que sept empreintes de
+pages ont échoué sur la taille reçue. Le candidat de diagnostic demande une
+représentation sans transformation dans le pilote Node, conserve les tailles
+et SHA stricts, et distingue refus OIDC/ingestion sans journaliser de secret.
+Le Worker, ses sondes Cron et son autorité OIDC restent inchangés. Voir
+[le détail de cette preuve et ses limites](PRODUCTION_BROWSER_MONITOR.md).
+
 ## Historique et lecture
 
 La vue **Service** présente les résultats de la surveillance publique, sa
