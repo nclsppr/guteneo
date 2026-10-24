@@ -51,6 +51,10 @@ jobs:
               event:p.event_name==="workflow_dispatch", githubHosted:p.runner_environment==="github-hosted",
               subPlain:p.sub==="repo:"+plain+":ref:"+ref, subImmutable:p.sub==="repo:"+immutable+":ref:"+ref,
               hasHeadRef:!!p.head_ref, hasBaseRef:!!p.base_ref, hasJobWorkflowRef:!!p.job_workflow_ref,
+              hasJobWorkflowSha:!!p.job_workflow_sha, jobWorkflowEqualsWorkflow:p.job_workflow_ref===p.workflow_ref,
+              jobWorkflowPlain:p.job_workflow_ref===plain+"/.github/workflows/production-e2e.yml@"+ref,
+              jobWorkflowImmutable:p.job_workflow_ref===immutable+"/.github/workflows/production-e2e.yml@"+ref,
+              jobWorkflowSha:p.job_workflow_sha===e.GITHUB_SHA,
               jti:typeof p.jti==="string" && /^[A-Za-z0-9_-]{16,200}$/.test(p.jti),
               exp:Number.isInteger(p.exp) && p.exp>now, nbf:Number.isInteger(p.nbf) && p.nbf<=now+5,
               iat:Number.isInteger(p.iat) && p.iat<=now+5 && p.iat>=now-300
