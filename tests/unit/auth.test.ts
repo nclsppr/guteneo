@@ -16,6 +16,7 @@ import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
 import {
   authenticateBrowser,
   authenticateMcp,
+  authFailureRedirect,
   AuthError,
   handleAuthRoute,
   hashSecret,
@@ -790,6 +791,104 @@ describe("identity and authentication boundaries", () => {
     ])
       expect(safeReturnPath(path)).toBe("/#/app");
   });
+  it.each(["login", "signup"])(
+    "recovers %s errors in the chosen language and safe deep route without forwarding secrets",
+    async (action) => {
+      const target =
+        "/#/app/prepare?entry=direct&channel=postal&document=doc_fixture&token=private-invitation&recipient=private-recipient&url=https%3A%2F%2Fprivate.invalid";
+      const response = await worker.fetch(
+        request(
+          `/auth/${action}?locale=lb&returnTo=${encodeURIComponent(target)}`,
+        ),
+        env as Env,
+      );
+      expect(response.status).toBe(302);
+      const destination = new URL(response.headers.get("Location")!);
+      expect(destination.origin).toBe(origin);
+      expect(destination.pathname).toBe("/");
+      expect(destination.search).toBe("?auth=IDENTITY_NOT_CONFIGURED&lang=lb");
+      expect(destination.hash).toBe(
+        "#/app/prepare?entry=direct&channel=postal&document=doc_fixture",
+      );
+      expect(destination.href).not.toMatch(/private-|returnTo|token=/);
+    },
+  );
+  it("bounds recovery routes and does not trust callback query parameters before state validation", () => {
+    for (const target of [
+      "//attacker.invalid/#/app/documents",
+      "/\\attacker.invalid/#/app/documents",
+      "https://attacker.invalid/#/app/documents",
+      "/invitation#token=private-invitation",
+      "/auth/mobile/authorize?state=private-native-state",
+      "/belvedere/private-slug#jobs",
+    ]) {
+      const destination = new URL(
+        authFailureRedirect(
+          request(
+            `/auth/login?locale=de&returnTo=${encodeURIComponent(target)}`,
+          ),
+          env,
+          "LOGIN_STATE_INVALID",
+        ),
+      );
+      expect(destination.origin).toBe(origin);
+      expect(destination.hash).toBe("#/app");
+      expect(destination.searchParams.get("lang")).toBe("de");
+      expect(destination.href).not.toContain("private-");
+    }
+    const callback = new URL(
+      authFailureRedirect(
+        request(
+          "/auth/callback?locale=en&ui_locales=en&returnTo=%2F%23%2Fapp%2Faccount",
+          "GET",
+          undefined,
+          { "Accept-Language": "de-LU" },
+        ),
+        env,
+        "LOGIN_STATE_INVALID",
+      ),
+    );
+    expect(callback.hash).toBe("#/app");
+    expect(callback.searchParams.get("lang")).toBe("de");
+  });
+  it.each([
+    [
+      "/#/app/account?connection=con_fixture",
+      "#/app/account?connection=con_fixture",
+    ],
+    ["/#/app/templates?new=blank", "#/app/templates?new=blank"],
+    [
+      "/#/app/prepare?entry=other&channel=other&document=https%3A%2F%2Fprivate.invalid",
+      "#/app/prepare",
+    ],
+    ["/#/app/dispatches?group=unknown", "#/app/dispatches"],
+    ["/#http://[", "#/app"],
+    ["/#//[", "#/app"],
+    ["/#/app@https://[", "#/app"],
+    [`/#/app/documents?document=${"x".repeat(121)}`, "#/app/documents"],
+    [`/#/app/${"x".repeat(513)}`, "#/app"],
+  ])("bounds recovery navigation for %s", (target, hash) => {
+    const destination = new URL(
+      authFailureRedirect(
+        request(`/auth/login?returnTo=${encodeURIComponent(target)}`),
+        env,
+        "LOGIN_STATE_INVALID",
+      ),
+    );
+    expect(destination.hash).toBe(hash);
+  });
+  it("also preserves recovery language and entry through the configuration preflight", async () => {
+    const response = await worker.fetch(
+      request(
+        `/auth/signup?locale=en&returnTo=${encodeURIComponent("/app/prepare?entry=direct")}`,
+      ),
+      { ...env, ENVIRONMENT: "production", MODE: "production" } as Env,
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=IDENTITY_NOT_CONFIGURED&lang=en#/app/prepare?entry=direct`,
+    );
+  });
   it.each([
     "/.well-known/oauth-protected-resource",
     "/.well-known/oauth-protected-resource/mcp",
@@ -1298,9 +1397,19 @@ describe("identity and authentication boundaries", () => {
     const flow = await signedBetaLogin(
       { email: "wrong-recipient@example.test" },
       {},
-      { headers: { Cookie: invitation.invitationCookie } },
+      {
+        path: "/auth/signup?locale=lb",
+        headers: { Cookie: invitation.invitationCookie },
+      },
     );
-    await expect(flow.complete()).rejects.toBeInstanceOf(Error);
+    const failed = await worker.fetch(flow.callback, flow.configured as Env);
+    expect(failed.status).toBe(302);
+    expect(failed.headers.get("Location")).toBe(
+      `${origin}/?auth=INVITATION_EMAIL_MISMATCH&lang=lb#/app`,
+    );
+    expect(failed.headers.get("Location")).not.toContain(
+      invitation.invitationCookie,
+    );
     expect(
       await env.DB.prepare(
         "SELECT user_id FROM auth_identities WHERE subject=?",
@@ -1575,7 +1684,9 @@ describe("identity and authentication boundaries", () => {
         {},
         { path: `/auth/signup?locale=${locale}` },
       );
-      expect(flow.destination.searchParams.get("ui_locales")).toBe(locale);
+      expect(flow.destination.searchParams.get("ui_locales")).toBe(
+        locale === "lb" ? "de" : locale,
+      );
       expect(
         await env.DB.prepare(
           "SELECT preferred_locale FROM auth_transactions WHERE state_hash=?",
@@ -1810,6 +1921,86 @@ describe("identity and authentication boundaries", () => {
       ),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
   });
+  it("recovers a rejected signed callback using its browser-bound transaction rather than callback hints", async () => {
+    const flow = await signedBetaLogin(
+      { email_verified: false },
+      {},
+      {
+        path: `/auth/signup?locale=lb&returnTo=${encodeURIComponent("/#/app/prepare?entry=direct&channel=postal&document=doc_fixture")}`,
+      },
+    );
+    const callback = new URL(flow.callback.url);
+    callback.searchParams.set("locale", "en");
+    callback.searchParams.set("returnTo", "/#/app/account?token=private-token");
+    const sessionCount = await env.DB.prepare(
+      "SELECT count(*) AS count FROM browser_sessions",
+    ).first();
+    const response = await worker.fetch(
+      new Request(callback, flow.callback),
+      flow.configured as Env,
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=EMAIL_VERIFICATION_REQUIRED&lang=lb#/app/prepare?entry=direct&channel=postal&document=doc_fixture`,
+    );
+    expect(response.headers.get("Set-Cookie") ?? "").not.toContain(
+      "guteneo_session",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) AS count FROM browser_sessions",
+      ).first(),
+    ).toEqual(sessionCount);
+    const replay = await worker.fetch(
+      new Request(callback, flow.callback),
+      flow.configured as Env,
+    );
+    expect(replay.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=fr#/app`,
+    );
+  });
+  it("uses validated state to recover a provider denial without exchanging a code or forwarding provider text", async () => {
+    const started = await handleAuthRoute(
+      request(
+        `/auth/login?locale=de&returnTo=${encodeURIComponent("/#/app/dispatches?group=attention")}`,
+      ),
+      realEnv(),
+    );
+    const destination = new URL(started!.headers.get("Location")!);
+    const callback = request(
+      `/auth/callback?state=${destination.searchParams.get("state")}&error=access_denied&error_description=private-provider-text&locale=en&returnTo=%2F%23%2Fapp%2Faccount`,
+      "GET",
+      undefined,
+      { Cookie: started!.headers.get("Set-Cookie")!.split(";")[0] },
+    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const response = await worker.fetch(callback, realEnv() as Env);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=de#/app/dispatches?group=attention`,
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(response.headers.get("Location")).not.toContain(
+      "private-provider-text",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(destination.searchParams.get("state")!))
+        .first(),
+    ).toBeNull();
+  });
+  it("keeps the original deep destination on successful verified login", async () => {
+    const target = "/#/app/prepare?entry=direct&document=doc_fixture";
+    const flow = await signedBetaLogin(
+      {},
+      {},
+      { path: `/auth/login?locale=en&returnTo=${encodeURIComponent(target)}` },
+    );
+    const response = await flow.complete();
+    expect(response!.headers.get("Location")).toBe(`${origin}${target}`);
+    expect(response!.headers.get("Set-Cookie")).toContain("guteneo_session=");
+  });
   it.each([
     {
       label: "unverified email",
@@ -1896,7 +2087,12 @@ describe("identity and authentication boundaries", () => {
   it.each(["network", "invalid JSON", "null JSON"])(
     "returns a safe retry error on token exchange %s failure",
     async (failure) => {
-      const response = await handleAuthRoute(request("/auth/login"), realEnv());
+      const response = await handleAuthRoute(
+        request(
+          `/auth/login?locale=lb&returnTo=${encodeURIComponent("/#/app/prepare?entry=direct")}`,
+        ),
+        realEnv(),
+      );
       const destination = new URL(response!.headers.get("Location")!);
       const state = destination.searchParams.get("state")!;
       const sessionCount = await env.DB.prepare(
@@ -1924,6 +2120,16 @@ describe("identity and authentication boundaries", () => {
       expect(error).toBeInstanceOf(AuthError);
       expect(error).toMatchObject({ code: "LOGIN_EXCHANGE_FAILED" });
       expect(String(error)).not.toContain("provider-private-response-fixture");
+      expect(
+        authFailureRedirect(
+          callback,
+          realEnv(),
+          "LOGIN_EXCHANGE_FAILED",
+          error,
+        ),
+      ).toBe(
+        `${origin}/?auth=LOGIN_EXCHANGE_FAILED&lang=lb#/app/prepare?entry=direct`,
+      );
       expect(
         await env.DB.prepare(
           "SELECT count(*) AS count FROM browser_sessions",
@@ -2401,6 +2607,7 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
   async function flow(
     startEnv = configured("auth.guteneo.com"),
     options: {
+      path?: string;
       subject?: string;
       email?: string;
       idIssuer?: string;
@@ -2411,7 +2618,10 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       accessChanges?: Record<string, unknown>;
     } = {},
   ) {
-    const started = await handleAuthRoute(request("/auth/login"), startEnv);
+    const started = await handleAuthRoute(
+      request(options.path ?? "/auth/login"),
+      startEnv,
+    );
     const destination = new URL(started!.headers.get("Location")!);
     const tokenIssuer = `${destination.origin}/`;
     const sub = options.subject ?? `auth0|alias-${crypto.randomUUID()}`;
@@ -2466,6 +2676,7 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       sub,
       state,
       destination,
+      callback,
       fetchSpy,
       complete: (callbackEnv = startEnv) =>
         handleAuthRoute(callback, callbackEnv),
@@ -2799,5 +3010,127 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       started.complete({ ...configured(), AUTH0_DOMAIN: "another.auth0.com" }),
     ).rejects.toMatchObject({ code: "IDENTITY_CONFIG_INVALID" });
     expect(started.fetchSpy).not.toHaveBeenCalled();
+  });
+  it("uses German hosted UI for custom-domain Luxembourgish login while retaining its account language and destination", async () => {
+    const target = "/#/app/prepare?entry=direct&document=doc_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=lb&returnTo=${encodeURIComponent(target)}`,
+    });
+    expect(started.destination.origin).toBe("https://auth.guteneo.com");
+    expect(started.destination.searchParams.get("ui_locales")).toBe("de");
+    expect(
+      await env.DB.prepare(
+        "SELECT preferred_locale,authorization_issuer,identity_issuer FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toEqual({
+      preferred_locale: "lb",
+      authorization_issuer: custom,
+      identity_issuer: canonical,
+    });
+    const completed = (await started.complete())!;
+    expect(completed.headers.get("Location")).toBe(`${origin}${target}`);
+    const signedIn = await browserSession(completed, started.startEnv);
+    expect(signedIn.session.user.preferredLocale).toBe("lb");
+  });
+  it("recovers a rejected custom-domain callback from its bound route and locale rather than callback hints", async () => {
+    const target =
+      "/#/app/prepare?entry=direct&channel=postal&document=doc_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=lb&returnTo=${encodeURIComponent(target)}`,
+      idChanges: { email_verified: false },
+    });
+    const callback = new URL(started.callback.url);
+    callback.searchParams.set("locale", "en");
+    callback.searchParams.set("returnTo", "/#/app/account?token=private-token");
+    const response = await worker.fetch(
+      new Request(callback, started.callback),
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=EMAIL_VERIFICATION_REQUIRED&lang=lb#/app/prepare?entry=direct&channel=postal&document=doc_fixture`,
+    );
+    expect(response.headers.get("Location")).not.toMatch(
+      /private-token|returnTo|locale=en/,
+    );
+    expect(response.headers.get("Set-Cookie") ?? "").not.toContain(
+      "guteneo_session",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(started.sub)
+        .first(),
+    ).toBeNull();
+  });
+  it("consumes a custom-domain provider denial without exchanging a code or forwarding provider text", async () => {
+    const target = "/#/app/dispatches?group=attention";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=de&returnTo=${encodeURIComponent(target)}`,
+    });
+    const callback = new URL(started.callback.url);
+    callback.searchParams.delete("code");
+    callback.searchParams.set("error", "access_denied");
+    callback.searchParams.set("error_description", "private-provider-text");
+    callback.searchParams.set("locale", "en");
+    const response = await worker.fetch(
+      new Request(callback, started.callback),
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=de#/app/dispatches?group=attention`,
+    );
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+    expect(response.headers.get("Location")).not.toContain(
+      "private-provider-text",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toBeNull();
+  });
+  it("recovers an invalid custom-domain transaction without network or identity, credit, session or connection creation", async () => {
+    const target = "/#/app/account?connection=con_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=en&returnTo=${encodeURIComponent(target)}`,
+    });
+    const counts = () =>
+      Promise.all(
+        [
+          "auth_identities",
+          "welcome_credit_grants",
+          "browser_sessions",
+          "authorized_connections",
+        ].map((table) =>
+          env.DB.prepare(`SELECT count(*) count FROM ${table}`).first(),
+        ),
+      );
+    const before = await counts();
+    await env.DB.prepare(
+      "UPDATE auth_transactions SET authorization_issuer=? WHERE state_hash=?",
+    )
+      .bind("https://untrusted.example/", await hashSecret(started.state))
+      .run();
+    const response = await worker.fetch(
+      started.callback,
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=IDENTITY_CONFIG_INVALID&lang=en#/app/account?connection=con_fixture`,
+    );
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+    expect(await counts()).toEqual(before);
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toBeNull();
   });
 });

@@ -7,6 +7,8 @@ import {
   DownloadSimple,
 } from "@phosphor-icons/react";
 import { Brand } from "./brand";
+import { workspaceEntryHref } from "./auth-navigation";
+import { t } from "./locale";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
 import { getAssistant } from "./assistant-catalog";
 import { LuxembourgFooter } from "./landing-sections";
@@ -30,8 +32,8 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
             {msg("Assistants")}
           </a>
           <a href="/#tarifs">{msg("Tarifs")}</a>
-          <a className="button small" href="/#/app">
-            {msg("Mon espace ")}
+          <a className="button small" href={workspaceEntryHref()}>
+            {t.login.managed}
             <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         </nav>
@@ -113,7 +115,10 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
                   )}
                 </p>
               </div>
-              <a className="button" href="/#/app/prepare?entry=direct">
+              <a
+                className="button"
+                href={workspaceEntryHref("/app/prepare?entry=direct")}
+              >
                 {msg("Envoyer depuis Guteneo")}{" "}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>

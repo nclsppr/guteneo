@@ -1,4 +1,5 @@
-import { formatLocale } from "../locale";
+import { formatLocale, t } from "../locale";
+import { workspaceEntryHref } from "../auth-navigation";
 import { msg } from "../messages";
 import { LanguageMenu } from "../language-select";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
@@ -23,8 +24,8 @@ function EditorialHeader() {
       <LanguageMenu />
       <nav aria-label={msg("Navigation principale")}>
         <a href="/journal/">{msg("Le journal")}</a>
-        <a className="button small" href="/#/app">
-          {msg("Découvrir l’atelier ")}
+        <a className="button small" href={workspaceEntryHref()}>
+          {t.login.managed}
           <ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </nav>

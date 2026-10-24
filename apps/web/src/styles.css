@@ -1599,58 +1599,7 @@ ol {
   margin-top: 30px;
 }
 /* Session entry */
-.login-page {
-  max-width: 1260px;
-  margin: auto;
-  padding: 0 5%;
-}
-.login-page > .site-header > a:last-child {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  text-decoration: none;
-}
-.login-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 90px;
-  align-items: center;
-  min-height: 75dvh;
-  padding: 60px 0;
-}
-.login-intro h1 {
-  font-family: "EB Garamond", Georgia, serif;
-  font-size: 55px;
-  letter-spacing: -1.3px;
-  margin-bottom: 20px;
-}
-.login-intro > p {
-  font-size: 14px;
-  color: var(--muted);
-  max-width: 390px;
-}
-.login-intro > img {
-  width: 330px;
-  mix-blend-mode: multiply;
-}
-.login-panel {
-  border: 1px solid var(--line);
-  padding: 38px;
-  background: var(--surface);
-  align-self: center;
-}
-.login-panel > h2 {
-  font-size: 25px;
-  letter-spacing: -0.3px;
-}
-.login-panel > .notice {
-  display: block;
-  margin-bottom: 30px;
-}
-.login-panel > .notice p {
-  margin-top: 10px;
-}
+
 .organization-button {
   display: flex;
   align-items: center;
@@ -1733,12 +1682,6 @@ ol {
   .site-footer {
     gap: 27px;
   }
-  .login-layout {
-    gap: 50px;
-  }
-  .login-panel {
-    padding: 27px;
-  }
 }
 @media (max-width: 1024px) {
   .eyebrow {
@@ -1778,12 +1721,6 @@ ol {
     border-left: 0;
     border-top: 1px solid var(--line);
     padding: 25px 0 0;
-  }
-  .login-intro h1 {
-    font-size: 44px;
-  }
-  .login-layout {
-    gap: 32px;
   }
 }
 @media (max-width: 767px) {
@@ -2208,31 +2145,7 @@ ol {
   .notice strong {
     font-size: 12px;
   }
-  .login-page {
-    padding: 0 22px;
-  }
-  .login-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 25px;
-    padding: 37px 0 50px;
-    min-height: auto;
-  }
-  .login-intro h1 {
-    font-size: 43px;
-  }
-  .login-intro p {
-    font-size: 13px;
-    margin-bottom: 0;
-  }
-  .login-intro img {
-    display: none;
-  }
-  .login-panel {
-    padding: 25px 20px;
-  }
-  .login-panel h2 {
-    font-size: 23px;
-  }
+
   .organization-button {
     font-size: 13px;
   }
@@ -2240,9 +2153,6 @@ ol {
     height: 30px;
     width: 30px;
     font-size: 22px;
-  }
-  .login-panel > .notice {
-    margin-bottom: 23px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,140 @@
+.access-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding-inline: clamp(22px, 5vw, 72px);
+}
+.access-page a,
+.access-page button,
+.access-page summary {
+  touch-action: manipulation;
+}
+.access-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 104px;
+  gap: 24px;
+}
+.access-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-block: 40px 72px;
+  gap: 28px;
+}
+.access-panel {
+  width: 100%;
+  max-width: 460px;
+  padding: 44px 40px 36px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.access-panel h1 {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 38px;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-bottom: 14px;
+}
+.access-description {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.access-continue {
+  width: 100%;
+  min-height: 50px;
+  justify-content: space-between;
+  font-size: 16px;
+  padding: 13px 18px;
+}
+.access-continue[aria-disabled="true"] {
+  cursor: progress;
+}
+.access-provider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.access-locale-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.access-signup {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  margin: 28px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.access-signup a {
+  color: var(--blue);
+  display: inline-block;
+  padding-block: 8px;
+  font-weight: 500;
+}
+.access-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  min-height: 44px;
+}
+.access-back:hover,
+.access-footer a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.access-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  padding-block: 16px 24px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.access-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+.access-panel .access-error {
+  display: block;
+  margin-block: 0 24px;
+}
+.access-error p {
+  margin: 0;
+}
+@media (max-width: 520px) {
+  .access-header {
+    min-height: 88px;
+  }
+  .access-main {
+    justify-content: flex-start;
+    padding-block: 36px;
+    gap: 20px;
+  }
+  .access-panel {
+    padding: 30px 24px;
+  }
+  .access-panel h1 {
+    font-size: 34px;
+  }
+  .access-description {
+    margin-bottom: 28px;
+  }
+}

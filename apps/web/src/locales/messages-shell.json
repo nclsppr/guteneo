@@ -408,5 +408,50 @@
     "Updated on 22 September 2026",
     "Aktualisiert am 22. September 2026",
     "Aktualiséiert den 22. September 2026"
+  ],
+  "Ouverture de la connexion…": [
+    "Opening sign-in…",
+    "Anmeldung wird geöffnet…",
+    "Umeldung gëtt opgemaach…"
+  ],
+  "Redirection vers Auth0…": [
+    "Redirecting to Auth0…",
+    "Weiterleitung zu Auth0…",
+    "Weiderleedung op Auth0…"
+  ],
+  "Connexion sécurisée par Auth0.": [
+    "Secure sign-in with Auth0.",
+    "Sichere Anmeldung mit Auth0.",
+    "Sécher Umeldung mat Auth0."
+  ],
+  "Première visite ?": [
+    "New here?",
+    "Zum ersten Mal hier?",
+    "Fir d’éischt hei?"
+  ],
+  "Créer un compte": [
+    "Create an account",
+    "Konto erstellen",
+    "E Kont erstellen"
+  ],
+  "Retour au site": [
+    "Back to the website",
+    "Zurück zur Website",
+    "Zréck op de Site"
+  ],
+  "Auth0 ne propose pas le luxembourgeois. Une langue de repli sera utilisée pour cette étape.": [
+    "Auth0 does not support Luxembourgish. A fallback language will be used for this step.",
+    "Auth0 unterstützt kein Luxemburgisch. Für diesen Schritt wird eine Ersatzsprache verwendet.",
+    "Auth0 ënnerstëtzt kee Lëtzebuergesch. Fir dëse Schrëtt gëtt eng aner Sprooch benotzt."
+  ],
+  "Reprenons la connexion.": [
+    "Let’s try signing in again.",
+    "Versuchen wir die Anmeldung erneut.",
+    "Probéiere mir d’Umeldung nach eng Kéier."
+  ],
+  "Réessayez pour retrouver la page demandée.": [
+    "Try again to return to the page you requested.",
+    "Versuchen Sie es erneut, um zur gewünschten Seite zurückzukehren.",
+    "Probéiert nach eng Kéier, fir op déi gewënscht Säit zeréckzekommen."
   ]
 }

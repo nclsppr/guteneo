@@ -1,6 +1,7 @@
 import { Plus } from "@phosphor-icons/react";
 import { HorizonBenefits, HorizonCreditTerms } from "./horizon-plan";
 import { msg } from "./messages";
+import { workspaceEntryHref } from "./auth-navigation";
 
 export type PublicCapabilities = {
   mode?: string;
@@ -91,7 +92,7 @@ export function HorizonPublicOffer({
                 )}
         </p>
         <HorizonCreditTerms />
-        <a className="text-link" href="/app/plan">
+        <a className="text-link" href={workspaceEntryHref("/app/plan")}>
           {msg("Découvrir le forfait Horizon")}
         </a>
       </div>

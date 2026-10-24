@@ -3,6 +3,14 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 
 export const BRANDING_TENANT = "pieper.eu.auth0.com";
+// Universal Login supports French, English and German, but not Luxembourgish.
+// Keep this presentation plan in sync with the BFF's ui_locales mapping. The
+// tenant's enabled_locales are deliberately never changed by this script.
+// https://auth0.com/docs/customize/internationalization-and-localization/universal-login-internationalization
+export const LOCALE_FALLBACKS = { lb: "de" };
+// The official lowercase, ink wordmark is live text in EB Garamond. There is no
+// standalone wordmark asset to reuse in Auth0's image-only logo field, so retain
+// the official transparent portrait rather than substituting a different mark.
 const LOGO = "https://guteneo.com/brand/guteneo-portrait.png";
 const FAVICON = "https://guteneo.com/favicon.svg?brand=20260917";
 export const BRANDING = {
@@ -11,17 +19,17 @@ export const BRANDING = {
   favicon_url: FAVICON,
 };
 export const THEME = {
-  displayName: "Guteneo — atelier de correspondance",
+  displayName: "Guteneo — connexion",
   borders: {
-    button_border_radius: 2,
+    button_border_radius: 6,
     button_border_weight: 1,
     buttons_style: "rounded",
-    input_border_radius: 2,
+    input_border_radius: 6,
     input_border_weight: 1,
     inputs_style: "rounded",
     show_widget_shadow: false,
     widget_border_weight: 1,
-    widget_corner_radius: 4,
+    widget_corner_radius: 12,
   },
   colors: {
     body_text: "#181b22",
@@ -40,8 +48,8 @@ export const THEME = {
     widget_border: "#d9d9d2",
     error: "#b42318",
     success: "#196d49",
-    base_focus_color: "#2450db",
-    base_hover_color: "#181b22",
+    base_focus_color: "#1b3caa",
+    base_hover_color: "#17328f",
     read_only_background: "#f6f5ef",
   },
   fonts: {
@@ -61,7 +69,7 @@ export const THEME = {
     page_layout: "center",
   },
   widget: {
-    logo_height: 56,
+    logo_height: 44,
     logo_url: LOGO,
     logo_position: "center",
     header_text_alignment: "center",
@@ -71,69 +79,126 @@ export const THEME = {
 export const TEXTS = {
   fr: {
     login: {
-      title: "Bienvenue chez Guteneo",
-      description: "Connectez-vous à votre atelier de correspondance.",
+      title: "Se connecter à Guteneo",
+      description: "Retrouvez vos documents et suivez vos envois.",
+      footerText: "Première visite ?",
+      footerLinkText: "Créer un accès",
       logoAltText: "guteneo",
     },
     "login-id": {
-      title: "Bienvenue chez Guteneo",
-      description: "Connectez-vous à votre atelier de correspondance.",
+      title: "Se connecter à Guteneo",
+      description: "Retrouvez vos documents et suivez vos envois.",
+      footerText: "Première visite ?",
+      footerLinkText: "Créer un accès",
       logoAltText: "guteneo",
     },
     "login-password": {
       title: "Votre mot de passe",
-      description: "Retrouvez votre atelier Guteneo.",
+      description: "Après connexion, vous retrouverez la page demandée.",
       logoAltText: "guteneo",
     },
     signup: {
-      title: "Créez votre atelier",
-      description:
-        "Votre compte Guteneo, pour préparer et suivre votre correspondance.",
+      title: "Bienvenue chez Guteneo",
+      description: "Créez votre accès pour préparer et suivre vos envois.",
+      footerText: "Déjà inscrit ?",
+      footerLinkText: "Se connecter",
       logoAltText: "guteneo",
     },
     "signup-id": {
-      title: "Créez votre atelier",
-      description:
-        "Votre compte Guteneo, pour préparer et suivre votre correspondance.",
+      title: "Bienvenue chez Guteneo",
+      description: "Créez votre accès pour préparer et suivre vos envois.",
+      footerText: "Déjà inscrit ?",
+      footerLinkText: "Se connecter",
       logoAltText: "guteneo",
     },
     "signup-password": {
-      title: "Protégez votre atelier",
-      description: "Choisissez un mot de passe pour votre compte Guteneo.",
+      title: "Choisir un mot de passe",
+      description: "Protégez votre accès à Guteneo.",
       logoAltText: "guteneo",
     },
   },
   en: {
     login: {
-      title: "Welcome to Guteneo",
-      description: "Sign in to your correspondence workspace.",
+      title: "Sign in to Guteneo",
+      description: "Find your documents and track your deliveries.",
+      footerText: "New here?",
+      footerLinkText: "Get started",
       logoAltText: "guteneo",
     },
     "login-id": {
-      title: "Welcome to Guteneo",
-      description: "Sign in to your correspondence workspace.",
+      title: "Sign in to Guteneo",
+      description: "Find your documents and track your deliveries.",
+      footerText: "New here?",
+      footerLinkText: "Get started",
       logoAltText: "guteneo",
     },
     "login-password": {
       title: "Your password",
-      description: "Return to your Guteneo workspace.",
+      description: "After signing in, you’ll return to the page you requested.",
       logoAltText: "guteneo",
     },
     signup: {
-      title: "Create your workspace",
-      description:
-        "Your Guteneo account, to prepare and track your correspondence.",
+      title: "Welcome to Guteneo",
+      description: "Create your account to prepare and track your deliveries.",
+      footerText: "Already registered?",
+      footerLinkText: "Sign in",
       logoAltText: "guteneo",
     },
     "signup-id": {
-      title: "Create your workspace",
-      description:
-        "Your Guteneo account, to prepare and track your correspondence.",
+      title: "Welcome to Guteneo",
+      description: "Create your account to prepare and track your deliveries.",
+      footerText: "Already registered?",
+      footerLinkText: "Sign in",
       logoAltText: "guteneo",
     },
     "signup-password": {
-      title: "Protect your workspace",
-      description: "Choose a password for your Guteneo account.",
+      title: "Choose a password",
+      description: "Keep your access to Guteneo secure.",
+      logoAltText: "guteneo",
+    },
+  },
+  de: {
+    login: {
+      title: "Bei Guteneo anmelden",
+      description:
+        "Finden Sie Ihre Dokumente und verfolgen Sie Ihre Sendungen.",
+      footerText: "Zum ersten Mal hier?",
+      footerLinkText: "Zugang erstellen",
+      logoAltText: "guteneo",
+    },
+    "login-id": {
+      title: "Bei Guteneo anmelden",
+      description:
+        "Finden Sie Ihre Dokumente und verfolgen Sie Ihre Sendungen.",
+      footerText: "Zum ersten Mal hier?",
+      footerLinkText: "Zugang erstellen",
+      logoAltText: "guteneo",
+    },
+    "login-password": {
+      title: "Ihr Passwort",
+      description:
+        "Nach der Anmeldung kehren Sie zur gewünschten Seite zurück.",
+      logoAltText: "guteneo",
+    },
+    signup: {
+      title: "Willkommen bei Guteneo",
+      description:
+        "Erstellen Sie Ihren Zugang, um Ihre Sendungen vorzubereiten und zu verfolgen.",
+      footerText: "Bereits registriert?",
+      footerLinkText: "Anmelden",
+      logoAltText: "guteneo",
+    },
+    "signup-id": {
+      title: "Willkommen bei Guteneo",
+      description:
+        "Erstellen Sie Ihren Zugang, um Ihre Sendungen vorzubereiten und zu verfolgen.",
+      footerText: "Bereits registriert?",
+      footerLinkText: "Anmelden",
+      logoAltText: "guteneo",
+    },
+    "signup-password": {
+      title: "Passwort wählen",
+      description: "Sichern Sie Ihren Zugang zu Guteneo.",
       logoAltText: "guteneo",
     },
   },
@@ -244,7 +309,7 @@ export function makeBrandingApi(run = brandingCli) {
         (method === "PATCH" &&
           /^branding\/themes\/[A-Za-z0-9_-]{1,200}$/.test(path)) ||
         (["GET", "PUT"].includes(method) &&
-          /^prompts\/(login|login-id|login-password|signup|signup-id|signup-password)\/custom-text\/(fr|en)$/.test(
+          /^prompts\/(login|login-id|login-password|signup|signup-id|signup-password)\/custom-text\/(fr|en|de)$/.test(
             path,
           )) ||
         (method === "PATCH" &&
@@ -321,8 +386,12 @@ export function brandingSummary(state) {
     experience: state.prompts.universal_login_experience,
     friendlyNameMatches: state.settings.friendly_name === "Guteneo",
     enabledLocales: (state.settings.enabled_locales ?? []).filter((value) =>
-      ["fr", "en"].includes(value),
+      Object.hasOwn(TEXTS, value),
     ),
+    missingEnabledLocales: Object.keys(TEXTS).filter(
+      (language) => !(state.settings.enabled_locales ?? []).includes(language),
+    ),
+    localeFallbacks: LOCALE_FALLBACKS,
     brandingMatches: contains(state.branding, BRANDING),
     themePresent: state.theme !== null,
     themeMatches: contains(state.theme, THEME),
@@ -342,13 +411,28 @@ export function brandingSummary(state) {
 export async function applyBranding(api) {
   const before = await inspectBranding(api);
   if (!contains(before.theme, THEME)) {
-    if (before.theme)
+    if (before.theme) {
+      // PATCH requires the complete theme. Carry optional presentation fields
+      // and identifier settings through, without sending the read-only themeId.
+      const current = Object.fromEntries(
+        [
+          "displayName",
+          "borders",
+          "colors",
+          "fonts",
+          "identifiers",
+          "page_background",
+          "widget",
+        ]
+          .filter((key) => Object.hasOwn(before.theme, key))
+          .map((key) => [key, before.theme[key]]),
+      );
       await api.request(
         "PATCH",
         `branding/themes/${before.theme.themeId}`,
-        THEME,
+        merge(current, THEME),
       );
-    else await api.request("POST", "branding/themes", THEME);
+    } else await api.request("POST", "branding/themes", THEME);
   }
   if (!contains(before.branding, BRANDING))
     await api.request("PATCH", "branding", BRANDING);
@@ -406,6 +490,8 @@ if (
             branding: BRANDING,
             theme: THEME,
             texts: TEXTS,
+            localeFallbacks: LOCALE_FALLBACKS,
+            enabledLocalesUnchanged: true,
           },
           null,
           2,

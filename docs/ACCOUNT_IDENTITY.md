@@ -187,3 +187,65 @@ Cette preuve qualifie ce compte Administrateur et cette session ; elle ne
 remplace pas les fixtures des autres rôles ou une qualification iOS réelle.
 Elle précède la préférence d’apparence du 11 octobre et ne prouve ni sa migration
 distante, ni sa sauvegarde sur le service hébergé.
+
+## Entrée navigateur et continuité Auth0 — candidat du 24 octobre 2026
+
+Les liens publics « Se connecter » ouvrent directement Auth0, avec la langue
+active et la destination demandée. Le helper `auth-navigation.ts` sert aussi le
+rendu statique : accueil, journal, guides assistants, préparation directe et
+Horizon partagent la même construction d’URL. Auth0 conserve son formulaire
+natif de connexion, inscription et récupération du mot de passe. Aucun écran
+Guteneo de choix ne précède cette authentification. Une route privée ouverte
+sans session poursuit automatiquement vers Auth0 après le contrôle initial de
+session ; le démarrage est borné à une navigation et remplace l’entrée dans
+l’historique. Les liens normaux restent utilisables dans un nouvel onglet.
+
+Les repères suivent la hiérarchie observée sur le formulaire public Stripe :
+une seule action de connexion, le mot de passe oublié près du champ natif et
+l’inscription en lien secondaire. Les textes préparés nomment Guteneo dès le
+titre et précisent « Retrouvez vos documents et suivez vos envois. ».
+« Première visite ? Créer un accès » et « Déjà inscrit ? Se connecter » guident
+le changement de formulaire. L’étape mot de passe annonce le retour vers la
+page demandée. Ces textes n’ajoutent pas de connexion sociale, de champ,
+d’étape ou de droit. Référence : https://dashboard.stripe.com/login.
+
+L’écran Guteneo est réservé à une erreur de connexion. Il propose une reprise
+explicite, avec un titre unique, une description courte, l’annonce du passage
+vers Auth0 et les liens de confidentialité, conditions et assistance. Un retour
+au site reste accessible. Le portrait officiel et le mot-symbole noir sont
+conservés. Aucun grand visuel ni répétition de promesse. Une erreur ne relance
+jamais automatiquement le fournisseur. Un retour depuis le cache de navigation
+rétablit les liens. L’inscription secondaire n’est proposée sur cet écran que si
+les capacités serveur annoncent sa disponibilité. La démonstration locale et la
+maquette gardent leurs organisations fictives et leur signal de simulation.
+
+Le contrôle initial de session n’écrase pas la langue visiteur en cas d’échec,
+ni une sélection effectuée pendant sa lecture. Une session valide applique
+toujours la langue enregistrée du compte. La récupération reprend la route et
+la langue de la transaction seulement après validation et consommation du state
+lié au navigateur. Les paramètres de callback ne fournissent aucun contexte.
+La reprise ne recopie pas tokens, invitations, destinataires ou URL privées ;
+seuls les paramètres de navigation autorisés sont conservés. Un state expiré ou
+invalide revient à l’entrée générique sûre. PKCE, nonce, Origin/CSRF, membership,
+MFA, consentement et mandats sont inchangés. Les surfaces natives, REST métier
+et MCP ne reçoivent aucun droit supplémentaire.
+
+Le script `scripts/setup-auth0-branding.mjs` prépare une présentation compacte
+ivoire/cobalt avec le portrait officiel et des textes français, anglais et
+allemands. Auth0 ne prend pas en charge le luxembourgeois : Guteneo conserve
+`lb`, tandis que `ui_locales` demande `de`. Le script ne modifie pas
+`enabled_locales` ; si `de` n’est pas activé, Auth0 peut utiliser la langue par
+défaut du tenant. Le thème préserve les champs optionnels existants, les
+dictionnaires de texte et les politiques d’identité.
+
+La préparation et les tests locaux ne publient pas cette expérience. La fusion,
+la publication web, l’application du thème Auth0 et sa vérification hébergée
+restent distinctes et soumises à autorisation. Aucun identifiant n’a été saisi
+et aucun réglage Auth0 n’a été écrit pendant l’inspection visuelle.
+
+La bascule vers `auth.guteneo.com` est un chantier distinct. Les liens publics
+utilisent `/auth/login` et les endpoints serveur suivent l’issuer configuré ;
+aucun nouveau domaine n’est codé en dur dans ce parcours. Cette bascule doit
+qualifier séparément la continuité des identités et connexions, dont les clés
+incluent l’issuer exact. Le tenant Management du script de branding reste le
+tenant Auth0 d’origine, même lorsque l’interface utilise le domaine personnalisé.
