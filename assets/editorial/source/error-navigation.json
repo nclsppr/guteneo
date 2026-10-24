@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T14:18:31.055Z",
+  "tool": "image_gen",
+  "mode": "built-in",
+  "usage": "Decorative browser HTTP error illustration; text and navigation remain HTML",
+  "family": "navigation",
+  "prompt": "Use case: illustration-story. Asset type: decorative illustration for Guteneo HTTP error pages, not a UI mockup. Create a single polished square editorial vignette: an open antique paper atlas on a printer's workbench, an elegant magnifying glass searching among loose blank sheets and one unaddressed envelope. This represents finding one's way to a missing webpage, never damaged customer mail. Match the established Guteneo visual world shown in this conversation: precise antique copperplate engraving, fine blue crosshatching and stippled halftone, restrained cobalt #2450db ink on uniform warm ivory #f6f5ef, museum-quality printmaking. A compact coherent still life centered with generous clean ivory margins, clear readable silhouette at small web size. Image only: no words, numbers, lettering, logos, watermark, frame, interface, people or birds. Do not reproduce the official portrait/logo. Avoid generic 3D, gradients, cartoon clipart, modern corporate illustration and unnecessary objects. Preserve subtle tactile paper texture and crisp engraving details. One finished standalone 1024-square illustration.",
+  "source": {
+    "path": "assets/editorial/source/error-navigation.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3215636,
+    "sha256": "14205c88a26240f6b1c595ab7e3547c75cacca499ce506bd9e5fa8ea08faf1b1"
+  },
+  "exports": [
+    {
+      "path": "apps/web/public/errors/illustration-navigation-640.webp",
+      "format": "webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 92554,
+      "sha256": "434c534cfb3028b07ca5d71d349538b98f75370f2f8b26440a470b5c0e857e8a"
+    },
+    {
+      "path": "apps/web/public/errors/illustration-navigation.webp",
+      "format": "webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 225286,
+      "sha256": "11851e2b40e3321cae7f2a131f5f13a4d7fcff3c1d780b6169652a5f4a2b361c"
+    }
+  ],
+  "derivation": "Sharp0.35.5 proportional resize + WebP quality82/effort6; no crop, semantic edits or invented wordmark",
+  "officialBrandAssetsChanged": false
+}

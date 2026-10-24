@@ -15,6 +15,7 @@ import { configurePingenWebhooks } from "../../../packages/providers/pingen-webh
 
 import application from "./index";
 import { servePublicAssets } from "./public-assets";
+import { publicHttpError } from "./public-http-error";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import { startObservation } from "../../../packages/observability/src/index";
 
@@ -25,12 +26,8 @@ export default {
     try {
       asset = await servePublicAssets(request, env);
     } catch {
-      asset = new Response("Static content unavailable", {
-        status: 503,
-        headers: {
-          "Cache-Control": "no-store",
-          "X-Robots-Tag": "noindex, nofollow",
-        },
+      asset = publicHttpError(request, new URL(request.url).pathname, 503, {
+        plainMessage: "Static content unavailable",
       });
     }
     // Successful public assets do not create one log per image/font/script.

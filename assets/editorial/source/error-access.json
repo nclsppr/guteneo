@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T14:18:31.395Z",
+  "tool": "image_gen",
+  "mode": "built-in",
+  "usage": "Decorative browser HTTP error illustration; text and navigation remain HTML",
+  "family": "access",
+  "prompt": "Use case: illustration-story. Asset type: decorative illustration for Guteneo HTTP access error pages, not a UI mockup. Create one refined square editorial vignette of a handsome antique archival document box with a small closed padlock and a neatly aligned stack of blank paper beside it, on an understated printer's desk. Protection and a calm invitation to use the right entrance, not danger or a security certification. Match Guteneo's established illustrations: exceptionally precise antique copperplate engraving, fine cobalt-blue #2450db crosshatching and stippled halftone, warm uniform ivory #f6f5ef paper. Compact cohesive central composition, airy margins, readable silhouette at small web size. No text, letters, numbers, logos, watermark, border, interface, people or birds. No red alert symbols, shields, generic 3D, gradients or cartoon clipart. Do not reproduce the official brand portrait. One finished standalone 1024-square illustration, tasteful tactile print detail.",
+  "source": {
+    "path": "assets/editorial/source/error-access.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3351670,
+    "sha256": "0f3f2094b27da1a4b797354357a0b2dbf2e8d8e116cfdc09ec82a3af1918adf7"
+  },
+  "exports": [
+    {
+      "path": "apps/web/public/errors/illustration-access-640.webp",
+      "format": "webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 84038,
+      "sha256": "44d25162a45b6c611fe6699ec00db09b23f4ef6fdd1811a0bb53d1fd659a1061"
+    },
+    {
+      "path": "apps/web/public/errors/illustration-access.webp",
+      "format": "webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 209974,
+      "sha256": "c04bdb7be604add5692e77326bb9b27cb3d31f3aa85e9a5f5b4c85534e033d3e"
+    }
+  ],
+  "derivation": "Sharp0.35.5 proportional resize + WebP quality82/effort6; no crop, semantic edits or invented wordmark",
+  "officialBrandAssetsChanged": false
+}

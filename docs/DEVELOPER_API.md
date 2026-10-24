@@ -41,6 +41,17 @@ La réponse REST de préparation est un `Dispatch`, sans `approvalUrl`. Le clien
 
 ## OAuth et organisation
 
+La connexion au site et à l’application iOS commence sur `guteneo.com` et utilise
+le formulaire d’identité `auth.guteneo.com`. L’application iOS ouvre
+`/auth/mobile/authorize` : le serveur conserve le retour mobile et choisit le
+domaine navigateur configuré avant le callback sur `guteneo.com`.
+
+Les adresses du paragraphe suivant sont celles des **clients API et MCP**.
+Elles restent canoniques pour préserver les connexions OAuth déjà enregistrées ;
+elles ne désignent pas l’adresse du formulaire de connexion du site. Remplacer
+leurs issuers dans la documentation ou OpenAPI sans migration du serveur et des
+clients ferait diverger le contrat de la validation effective.
+
 Client enregistré, Authorization Code + PKCE S256, `state` vérifié, retour enregistré exact. Autorisation : `https://pieper.eu.auth0.com/authorize`. Échange du code : `https://pieper.eu.auth0.com/oauth/token`. Audience REST et MCP : `https://guteneo.com/mcp`. Le jeton d’accès passe uniquement dans `Authorization: Bearer …` ; un ID token, une clé fournisseur ou un token dans l’URL n’est pas un substitut. Aucun secret client dans un client public.
 
 Le parcours navigateur préalable crée l’espace après vérification de l’e-mail et de la preuve signée du compte. La bêta reste sur Auth0 Free avec la politique `verified_email` ; la MFA n’est pas obligatoire. L’API retrouve ensuite l’adhésion et la connexion OAuth : ni le corps de requête ni un en-tête arbitraire ne choisit le tenant. Une seule adhésion permet l’association implicite à cet espace ; plusieurs adhésions nécessitent une sélection dans les connexions. Les rôles sont `admin`, `supervisor`, `member` (opérateur) et `viewer` (observateur). Le rôle `member` prépare sans approuver, confirmer ni annuler ; le rôle `viewer` interdit les écritures même avec le scope. Le superviseur reçoit séparément les droits `supervisorCanApprove` et `supervisorCanReport` ; sans activation explicite ces droits restent désactivés. `/api/usage` exige le droit de reporting ; les scopes OAuth restent également obligatoires. Voir [la matrice et le contrat de gestion des membres](WORKSPACE_ROLES.md). Pour l’authentification, les mêmes contrôles de compte vérifié s’appliquent à un administrateur. Le claim signé `https://guteneo.com/verified_account=true` est obligatoire dans les jetons ID et d’accès du callback en mode bêta, puis la preuve `verifiedAccount` est persistée dans la session. Une ancienne session sans cette preuve doit se reconnecter. La politique historique `verified_email_and_mfa`, conservée par défaut en l’absence de configuration explicite, exige toujours la MFA pour l’administrateur. La présence des URL OAuth dans le contrat ne garantit pas l’enregistrement d’un client donné.

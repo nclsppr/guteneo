@@ -5,6 +5,10 @@ import {
   requestedPublicLocale,
 } from "../../../packages/contracts/src/public-locales";
 import { assertBaseConfiguration, type Env } from "./env";
+import {
+  isPublicDocumentNavigation,
+  publicHttpError,
+} from "./public-http-error";
 import { withPublicVideoRange } from "./public-video-range";
 
 const publicPages = new Set(site.paths);
@@ -38,9 +42,8 @@ export async function servePublicAssets(
   try {
     pathname = decodeURIComponent(url.pathname);
   } catch {
-    return new Response(request.method === "HEAD" ? null : "Invalid path", {
-      status: 400,
-      headers: privateHeaders,
+    return publicHttpError(request, url.pathname, 400, {
+      plainMessage: "Invalid path",
     });
   }
   if (isPublicLocaleAssetPath(pathname))
@@ -61,10 +64,9 @@ export async function servePublicAssets(
   try {
     assertBaseConfiguration(env, request);
   } catch {
-    return new Response(
-      request.method === "HEAD" ? null : "Service configuration unavailable",
-      { status: 503, headers: privateHeaders },
-    );
+    return publicHttpError(request, pathname, 503, {
+      plainMessage: "Service configuration unavailable",
+    });
   }
 
   if (
@@ -117,10 +119,51 @@ export async function servePublicAssets(
       await env.ASSETS.fetch(assetRequest),
     );
   } catch {
-    return new Response(
-      request.method === "HEAD" ? null : "Static content unavailable",
-      { status: 503, headers: privateHeaders },
-    );
+    return publicHttpError(request, pathname, 503, {
+      plainMessage: "Static content unavailable",
+    });
+  }
+  const missingVariant =
+    response.status === 404 && publicPages.has(url.pathname);
+  const representationType = (response.headers.get("Content-Type") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  const documentErrorRepresentation = [
+    "",
+    "text/html",
+    "text/plain",
+    "application/xhtml+xml",
+  ].includes(representationType);
+  const dispositionType = (response.headers.get("Content-Disposition") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  const protocolError =
+    request.headers.has("Range") ||
+    request.headers.has("If-Range") ||
+    response.status === 416 ||
+    response.headers.has("Content-Range") ||
+    (dispositionType !== "" && dispositionType !== "inline");
+  if (
+    !protocolError &&
+    documentErrorRepresentation &&
+    (response.status === 404 ||
+      (response.status >= 400 &&
+        response.status <= 599 &&
+        isPublicDocumentNavigation(request, pathname)))
+  ) {
+    // Discard only an error representation already owned by this public boundary.
+    // Successful bytes and non-document protocol/binary responses stay untouched.
+    try {
+      await response.body?.cancel();
+    } catch {
+      /* No upstream error data is exposed. */
+    }
+    return publicHttpError(request, pathname, response.status, {
+      allowDocument: !missingVariant,
+      protocolHeaders: response.headers,
+    });
   }
   const headers = new Headers(response.headers);
   for (const [name, value] of Object.entries(securityHeaders))
@@ -166,8 +209,8 @@ export async function servePublicAssets(
     )
   )
     headers.set("Cache-Control", "no-store");
-  // Preserve asset bytes (or the selected video range), ETag, status and redirects.
-  // Never rewrite HTML or cache across hosts.
+  // Preserve successful asset bytes (or the selected video range), ETag, status
+  // and redirects. Error documents are generated above, never cached across hosts.
   return new Response(request.method === "HEAD" ? null : response.body, {
     status: response.status,
     statusText: response.statusText,

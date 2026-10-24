@@ -23,6 +23,15 @@ delegation, administer channels or access billing.
    login, preserving the exact mobile return path. A browser page explicitly
    asks to connect the app. Its POST requires the authenticated browser cookie,
    matching Origin and CSRF token. A GET does not issue a code.
+
+   With the qualified `AUTH0_BROWSER_DOMAIN=auth.guteneo.com` configuration, that
+   browser login opens the custom hostname. The Swift client contains no Auth0
+   tenant hostname: it keeps starting at `https://guteneo.com/auth/mobile/authorize`
+   and retains the existing `guteneo://auth/callback` scheme. No native release,
+   new client, audience, callback, scope or Keychain migration is required merely
+   to select this browser hostname. The canonical MCP issuer is a separate
+   contract. Source and an HTTPS redirect-chain check do not qualify a complete
+   `ASWebAuthenticationSession` callback on a physical device.
 5. The only return target is `guteneo://auth/callback?code=CODE&state=STATE`.
    Check scheme, host `auth`, path `/callback`, state and one nonempty code.
    The code expires after 60 seconds. No access token, cookie or PDF URL appears
