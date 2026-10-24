@@ -1,5 +1,13 @@
 # Claude.ai : installation et renouvellement
 
+**Candidat du 24 octobre 2026 :** l’[enregistrement automatique MCP](MCP_REGISTRATION.md)
+prépare le mécanisme DCR natif et strict d’Auth0. Après son activation autorisée
+et sa qualification dans Claude, l’URL MCP pourra suffire sans identifiant saisi
+manuellement. Les étapes ci-dessous restent le repli statique existant. Les
+durées 30/90 jours décrivent ce client hébergé géré ; elles ne prouvent pas les
+paramètres d’un futur client créé par DCR. Le renouvellement réel, la révocation
+et la disponibilité du connecteur restent des preuves distinctes.
+
 État du **18 septembre 2026** : candidat local. La connexion réelle initiale est
 qualifiée dans [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). Le bouton et le
 renouvellement décrits ici nécessitent encore publication et activation Auth0 ;

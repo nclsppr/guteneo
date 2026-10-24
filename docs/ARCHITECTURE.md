@@ -1,5 +1,14 @@
 # Architecture
 
+24 October 2026: [automatic MCP registration](MCP_REGISTRATION.md) is a native
+Auth0 control-plane candidate. The Worker remains the same resource server,
+using the canonical issuer and its existing token/membership/connection checks.
+The controller prepares strict DCR, a domain-level account connection, a bounded
+user-only default scope grant and opt-in third-party refresh in the two exact
+identity Actions. It adds no OAuth proxy, token store, Worker endpoint, migration,
+secret or recurring work. Provider activation and each real client remain
+separate gates; open registration is a material provider access change.
+
 23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
 version for application capabilities, MCP server identity and public release
 metadata. MCP input is bounded before schema/domain work. Template suggestions

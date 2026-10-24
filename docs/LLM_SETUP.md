@@ -1,5 +1,13 @@
 # Guteneo dans ChatGPT, Claude, Grok, Cursor et GitHub Copilot
 
+Le [candidat d’enregistrement automatique MCP du 24 octobre](MCP_REGISTRATION.md)
+prépare DCR natif et strict chez Auth0, avec connexion et consentement personnels.
+Il n’est pas activé par la préparation du code. Les clients statiques décrits
+ci-dessous restent disponibles ; le parcours DCR, le renouvellement et la
+révocation doivent être qualifiés séparément dans chaque hôte. La compatibilité
+OIDC de ChatGPT avec un client strict reste un contrôle ouvert, sans changement
+de l’issuer ni de la connexion publique existante.
+
 Le [candidat 1.0.0](V1_RELEASE_CANDIDATE.md) ajoute une distribution Claude Code
 dédiée : [paquet, catalogue local et qualification](CLAUDE_PLUGIN.md). Les formats
 Claude et commandes de chargement ont été relus le 23 octobre 2026 ; la validation

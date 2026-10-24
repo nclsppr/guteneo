@@ -1,5 +1,15 @@
 # Execution plan and handoff
 
+24 October 2026: [automatic MCP client registration](MCP_REGISTRATION.md) prepares
+native strict Auth0 DCR, a user-only default grant for the existing MCP scopes,
+the existing account connection at domain level and refresh-aware identity
+Actions. This is a separate provider access change, not activated by this source
+candidate. Review a fresh inspection fingerprint and obtain explicit production
+authorization before applying. Existing clients, issuer, reviewer restrictions,
+tenant membership and approval gates remain unchanged. Missing legacy-extension
+inspection and ChatGPT's strict-client/OIDC compatibility need their own proof;
+no real host registration, refresh or marketplace submission is inferred.
+
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
 and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a

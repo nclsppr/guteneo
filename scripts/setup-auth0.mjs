@@ -216,7 +216,14 @@ export function makeAuth0Api(run = cliJson) {
           "WRONG_TENANT",
           `Select ${TENANT} in the Auth0 CLI before continuing.`,
         );
+      const registrationEndpoint =
+        (method === "GET" && /^client-grants([?]|$)/.test(path)) ||
+        (method === "POST" && path === "client-grants");
+      const legacyInspection =
+        /^(rules|hooks)([?]|$)/.test(path) && method === "GET";
       if (
+        !registrationEndpoint &&
+        !legacyInspection &&
         !/^(clients|resource-servers|connections|actions|tenants\/settings|guardian\/factors)([/?]|$)/.test(
           path,
         )
@@ -396,6 +403,7 @@ export function actionSources(
   connectionId,
   policy = "verified_email_and_mfa",
   refreshClientIds = [],
+  options = {},
 ) {
   authPolicy({ authPolicy: policy });
   if (!Array.isArray(clientIds) || !clientIds.length)
@@ -405,6 +413,18 @@ export function actionSources(
     fail("INVALID_CLIENTS", "Explicit hosted refresh client IDs are required.");
   refreshClientIds.forEach(id);
   id(connectionId);
+  if (
+    !options ||
+    typeof options !== "object" ||
+    Array.isArray(options) ||
+    Object.keys(options).some((key) => key !== "nativeMcpRegistration") ||
+    ![undefined, false, true].includes(options.nativeMcpRegistration) ||
+    (options.nativeMcpRegistration && policy !== "verified_email")
+  )
+    fail(
+      "INVALID_REGISTRATION_POLICY",
+      "Native MCP registration requires the explicit verified-email policy.",
+    );
   const scopedClients = [...new Set([...clientIds, ...refreshClientIds])];
   const scope = `const ownClients = ${JSON.stringify(scopedClients)};\n  const ownResource = event.resource_server?.identifier === ${JSON.stringify(AUDIENCE)};\n  if (!ownClients.includes(event.client?.client_id) && !ownResource) return;\n  if (event.connection?.id !== ${JSON.stringify(connectionId)}) { api.access.deny('Use the Guteneo account connection.'); return; }`;
   // The protocol is Auth0's trusted transaction type, never a request-body hint.
@@ -420,10 +440,30 @@ export function actionSources(
     policy === "verified_email_and_mfa"
       ? "if (!completed) { api.access.deny('Complete multi-factor authentication to access Guteneo.'); return; }"
       : "";
-  return [
+  const sources = [
     `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${grant}\n  if (event.user?.email_verified !== true) return;\n  ${challenge}\n};\n`,
     `// ${OWNER}\nexports.onExecutePostLogin = async (event, api) => {\n  ${scope}\n  ${grant}\n  if (event.user?.email_verified !== true) return;\n  const completed = !isRefresh && (event.authentication?.methods || []).some((method) => method.name === 'mfa' && Number.isFinite(Date.parse(method.timestamp)) && Date.now() - Date.parse(method.timestamp) >= -30000 && Date.now() - Date.parse(method.timestamp) <= 300000);\n  ${requireMfa}\n  api.idToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  api.accessToken.setCustomClaim('https://guteneo.com/verified_account', true);\n  if (completed) {\n    api.idToken.setCustomClaim('https://guteneo.com/mfa', true);\n    api.accessToken.setCustomClaim('https://guteneo.com/mfa', true);\n  }\n};\n`,
   ];
+  if (!options.nativeMcpRegistration) return sources;
+  // Auth0 assigns tpc_ to strict third-party clients. This is the trusted
+  // event.client ID, never client metadata or a request-supplied client hint.
+  // Strict clients do not support OIDC ID tokens; keep their verified claim on
+  // the MCP access token only. Static clients retain their exact old policy.
+  return sources.map((code) =>
+    code
+      .replace(
+        "  if (!ownClients.includes(event.client?.client_id) && !ownResource) return;",
+        "  const nativeMcpClient = typeof event.client?.client_id === 'string' && /^tpc_[A-Za-z0-9_-]+$/.test(event.client.client_id);\n  if (!ownClients.includes(event.client?.client_id) && !ownResource && !nativeMcpClient) return;\n  if (nativeMcpClient && (!ownResource || event.user?.email_verified !== true)) { api.access.deny('Use a verified Guteneo account for the MCP API.'); return; }",
+      )
+      .replace(
+        "!refreshClients.includes(event.client?.client_id)",
+        "(!refreshClients.includes(event.client?.client_id) && !nativeMcpClient)",
+      )
+      .replaceAll(
+        "api.idToken.setCustomClaim(",
+        "if (!nativeMcpClient) api.idToken.setCustomClaim(",
+      ),
+  );
 }
 
 async function pages(api, path, key, extra = {}) {

@@ -1,5 +1,14 @@
 # Guteneo product contract
 
+24 October 2026: the [automatic MCP registration candidate](MCP_REGISTRATION.md)
+lets compatible hosts obtain their own OAuth client through native Auth0 DCR
+after a separately authorized provider activation. Registration grants no account
+access: verified login, personal consent, current membership and connection,
+scopes and every existing approval/provider gate still apply. Expert authority
+remains off by default. Existing static clients and the separate iOS login flow
+remain available. Host support, real refresh, activation and publication are
+separate qualification steps; no universal host compatibility is claimed.
+
 23 October 2026: the [1.0.0 candidate](V1_RELEASE_CANDIDATE.md) adds synchronized
 application/MCP/package identity, bounded MCP input handling, current-authority
 checks around template AI suggestions and cancellation-safe web reads. A
