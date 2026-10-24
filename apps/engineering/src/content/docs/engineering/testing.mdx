@@ -67,6 +67,11 @@ for the relevant change. A Chromium fallback is not evidence for Safari. Preserv
 business assertions when adapting a stale label or selector, and retain failure
 traces privately rather than publishing customer-like fixtures by accident.
 
+Full-page layout screenshots use `fullPage: true` and `scale: "css"` to preserve
+the complete document at one image pixel per CSS pixel, avoiding the browser’s
+32,767-pixel bitmap limit under Retina emulation. Device viewport, pixel ratio,
+touch behavior and all layout assertions remain unchanged.
+
 ## Optional local network isolation
 
 On supported macOS hosts, `npm run test:offline` runs a fixed installed selection
