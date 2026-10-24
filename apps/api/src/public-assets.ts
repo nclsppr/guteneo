@@ -209,6 +209,29 @@ export async function servePublicAssets(
     )
   )
     headers.set("Cache-Control", "no-store");
+  if (
+    canonical &&
+    publicPages.has(url.pathname) &&
+    !protocolError &&
+    ((response.status === 200 && representationType === "text/html") ||
+      (response.status === 304 &&
+        ["", "text/html"].includes(representationType)))
+  ) {
+    // Cloudflare's automatic HTML injection must not change the bytes bound
+    // to our release manifest. no-transform must be sent by the origin, not
+    // requested by the monitor. Keep the existing cache directives and any
+    // already encoded representation, including its ETag and framing.
+    const cacheControl = headers.get("Cache-Control");
+    if (
+      !cacheControl?.split(",").some((directive) =>
+        directive.trim().toLowerCase() === "no-transform",
+      )
+    )
+      headers.set(
+        "Cache-Control",
+        cacheControl ? `${cacheControl}, no-transform` : "no-transform",
+      );
+  }
   // Preserve successful asset bytes (or the selected video range), ETag, status
   // and redirects. Error documents are generated above, never cached across hosts.
   return new Response(request.method === "HEAD" ? null : response.body, {

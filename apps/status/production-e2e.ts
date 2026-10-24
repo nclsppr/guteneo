@@ -100,6 +100,15 @@ export async function productionReportDigest(body: string): Promise<string> {
     .map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 export const productionReportAudience = (digest: string) => `${E2E_AUDIENCE}:sha256:${digest}`;
+/** Current GitHub direct jobs include both workflow claims; legacy tokens
+ * omit both. Partial/empty claims and any other workflow or revision deny.
+ */
+export function productionDirectWorkflowClaimsMatch(
+  claims: Record<string, unknown>, commit: string,
+) {
+  return (claims.job_workflow_ref === undefined && claims.job_workflow_sha === undefined) ||
+    (claims.job_workflow_ref === E2E_WORKFLOW && claims.job_workflow_sha === commit);
+}
 export function productionReportStatus(report: ProductionE2EReport): ResultStatus {
   if (!report.releaseBefore || report.releaseBefore !== report.releaseAfter ||
     report.checks.some((check) => check.status === "blocked")) return "unknown";
@@ -135,7 +144,7 @@ export async function verifyProductionReport(
     payload.run_attempt !== String(report.run.attempt) || payload.event_name !== report.run.event ||
     !["schedule", "workflow_dispatch"].includes(String(payload.event_name)) ||
     payload.runner_environment !== "github-hosted" || !subjects.includes(payload.sub!) ||
-    Boolean(payload.head_ref) || Boolean(payload.base_ref) || Boolean(payload.job_workflow_ref) ||
+    Boolean(payload.head_ref) || Boolean(payload.base_ref) || !productionDirectWorkflowClaimsMatch(payload, report.runnerCommit) ||
     !/^[A-Za-z0-9_-]{16,200}$/.test(payload.jti!) ||
     payload.iat! < completed / 1000 - 30 || payload.iat! > now / 1000 + 5)
     throw new Error("REPORT_AUTHORITY_INVALID");
