@@ -179,6 +179,12 @@ export async function uploadSyntheticPdf(
   const file = new URL(`confidential-${crypto.randomUUID()}.pdf`, directory);
   await writeFile(file, bytes);
   await app.open("/#/app/documents");
+  await expect(screen.getByRole("heading", "La matière première.")).toBeVisible();
+  // The framework matches response URLs, not HTTP methods. Let the initial
+  // GET /documents finish rendering before observing the POST on the same URL.
+  await expect(
+    browser.locator("main .responsive-table, main .dashboard-document-empty"),
+  ).toBeVisible();
   await screen.getByRole("button", "Importer un PDF").tap();
   await screen.getByLabel("Fichier PDF").setInputFiles(fileURLToPath(file));
   const [response] = await Promise.all([
