@@ -189,6 +189,11 @@ describe("MCP annotation audit", () => {
         "get_template_authoring_guide",
         "create_distribution_postal_preflight",
         "dry_run_dispatch",
+        "prepare_secure_distribution",
+        "list_secure_distributions",
+        "get_secure_distribution",
+        "confirm_secure_distribution",
+        "revoke_secure_distribution",
       ]),
     );
     const matrix: unknown = JSON.parse(

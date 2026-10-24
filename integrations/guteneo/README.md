@@ -1,6 +1,6 @@
 # Guteneo — e-mails et correspondance PDF
 
-Ce dossier prépare le candidat **1.0.0**. La version du paquet, les capacités
+Ce dossier prépare le candidat **1.1.0**. La version du paquet, les capacités
 applicatives et l’identité du serveur MCP suivent la même version source ;
 l’empreinte de publication permet de vérifier le code réellement servi.
 Une archive construite localement ne met pas à jour le serveur ni un annuaire.
@@ -12,7 +12,8 @@ connexion OAuth et qualification réelle.
 ## Fonctions et accès
 
 Ce paquet réunit le serveur MCP Guteneo et les parcours `get-started`, `email`,
-`fax-pdf`, `postal-pdf`, `document-studio` et `pdf-accessibility`. Sa version est
+`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` et
+`secure-distribution`. Sa version est
 indiquée dans `plugin.json`. Les fonctions utilisables dépendent du serveur
 connecté, des droits du compte, des canaux et services activés, et des capacités
 réelles de l’hôte. L’installation n’accorde aucun mandat et ne prouve ni recette
@@ -81,7 +82,38 @@ Le logo d’annuaire conserve l’emblème simple Guteneo approuvé dans `assets
 
 Le dossier de revue, les cas de test reproductibles et les prérequis encore ouverts sont décrits dans [CHATGPT_MARKETPLACE.md](https://github.com/nclsppr/guteneo/blob/main/docs/CHATGPT_MARKETPLACE.md). La création du dossier, sa soumission, l’approbation OpenAI et la mise en ligne sont des étapes distinctes.
 
-## E-mail et document protégé
+## Distribution sécurisée avec compte destinataire
+
+Le parcours `secure-distribution` prépare une distribution avec un compte Guteneo
+unique côté destinataire et une authentification forte récente. Il utilise
+`prepare_secure_distribution`, `list_secure_distributions`,
+`get_secure_distribution`, `confirm_secure_distribution` et
+`revoke_secure_distribution`. La durée, le droit de télécharger l’original et
+l’autorisation d’une copie personnelle font partie de la préparation et du prix
+approuvés. Une révocation ne rembourse pas la durée financée et ne supprime pas
+une copie personnelle déjà remise.
+
+Le rendu peut répondre `preparing` : consulter le même identifiant jusqu’à l’état
+préparé, sans recréer l’opération. L’activation exige une approbation navigateur
+forte enregistrée, même pour une connexion disposant d’un mandat expert.
+L’assistant ne confirme jamais l’identité du destinataire, n’effectue pas son
+association initiale et n’accède pas à ses documents personnels. Les événements
+d’affichage et de téléchargement gardent leur provenance ; ils ne prouvent pas
+une lecture intégrale, un enregistrement sur disque ou une capture d’écran.
+
+Tous les clients configurés sur `https://guteneo.com/mcp` découvrent les mêmes
+outils autorisés par le serveur : paquet universel ChatGPT/Cursor/Claude,
+paquet Claude dédié et modèles MCP Copilot/Cursor/Claude. Les scopes existants
+`dispatches:prepare`, `dispatches:read` et `dispatches:send` couvrent ce parcours ;
+ils ne donnent aucune autorité sur l’espace personnel d’autrui. Le REST décrit
+les mêmes opérations d’atelier dans `/openapi.json`.
+
+Ce candidat conserve les gates de configuration, rendu, scan, notification,
+authentification et disponibilité du compte. Une archive locale ne prouve ni
+l’activation en production ni la qualification de ces nouveaux outils dans
+chaque hôte. Le lien email historique à mot de passe reste un parcours distinct.
+
+## E-mail historique et document à mot de passe
 
 Le parcours `email` réutilise `prepare_dispatch` pour les e-mails sans pièce jointe, les PDF joints et les PDF remis par lien protégé. Le devis distingue la remise et le supplément d’hébergement lorsqu’il s’applique : 1 € par document protégé. La durée choisie est de 1, 7 ou 30 jours ; le PDF original reste soumis à sa vérification. Le destinataire consulte une page protégée par mot de passe, sans compte requis. L’expéditeur consulte le mot de passe uniquement dans son compte navigateur et le transmet séparément. Aucun outil MCP ne lit ou ne transmet ce mot de passe.
 

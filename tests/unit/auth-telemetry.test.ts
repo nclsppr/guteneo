@@ -124,6 +124,15 @@ async function loginFlow(configured: AuthEnv = env) {
     amr: ["pwd"],
     "https://guteneo.com/verified_account": true,
   };
+  // These telemetry cases exercise an existing workshop member. New signup is
+  // deliberately personal-only and is covered by personal-auth.test.ts.
+  const userId=`telemetry_user_${crypto.randomUUID()}`,organizationId=`telemetry_org_${crypto.randomUUID()}`,createdAt=new Date().toISOString();
+  await db.batch([
+    db.prepare("INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Synthetic telemetry workshop','production',?)").bind(organizationId,createdAt),
+    db.prepare("INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)").bind(userId,claims.name,claims.email,createdAt),
+    db.prepare("INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)").bind(issuer,sub,userId,createdAt),
+    db.prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)").bind(organizationId,userId,createdAt),
+  ]);
   const idToken = await sign("guteneo-telemetry-browser", {
     ...claims,
     nonce: destination.searchParams.get("nonce"),

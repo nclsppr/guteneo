@@ -1,5 +1,21 @@
 # Execution plan and handoff
 
+24 October 2026 secure distribution candidate: implement the unified personal
+account, sensitive shared reader, explicit independent personal copy, immutable
+retention pricing and shared REST/MCP/plugin distribution service. The requested
+TesterArmy e2e framework runs locally with real browsers, local D1/R2, private
+PDF rendering and deterministic simulated delivery. Its initial complete
+four-page lifecycle run passed 12/12 desktop/phone cases. Subsequent invitation
+handoff, stale-copy recovery and production monitoring changes require their
+own final-source rerun; this dated result is not an automatic whole-candidate
+pass. Read [implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
+[journeys](SECURE_DISTRIBUTION_JOURNEYS.md) and
+[the e2e guide](../tests/distribution-e2e/README.md).
+No production migration, account provisioning, real send, merge or deployment
+is performed by these local checks. Scheduled GitHub production browser reports
+and their status-page ingestion are a separate candidate; authenticated
+production test accounts and their actual strong login require qualification.
+
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
 and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a

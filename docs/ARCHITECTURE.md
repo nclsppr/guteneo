@@ -1,5 +1,18 @@
 # Architecture
 
+24 October 2026: migrations 0055–0058 separate personal authority from workshop
+membership, bind immutable secure distributions and paid terms, enforce strong
+browser approval at SQL acceptance, and retain restartable private copy jobs.
+Private page images/text and autonomous personal objects use distinct envelope
+contexts and versioned wrapping keys. Final content authorization writes its
+audit event after R2 waits and rechecks current sessions/grants. OAuth
+distribution writes use current credential fences; no atelier token opens the
+personal vault. Queue and bounded maintenance recover pending jobs without
+retrying an unknown external communication. Read
+[the secure distribution contract](SECURE_DISTRIBUTION_IMPLEMENTATION.md)
+before changing these invariants. Runtime key ownership, provider configuration
+and actual Auth0 assurance remain separately qualified deployment gates.
+
 23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
 version for application capabilities, MCP server identity and public release
 metadata. MCP input is bounded before schema/domain work. Template suggestions

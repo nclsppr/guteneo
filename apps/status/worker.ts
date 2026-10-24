@@ -1,4 +1,7 @@
-/** Public, anonymous observations only. No business bindings or write routes. */
+import { ingestProductionReport, readProductionE2EStatus } from "./production-e2e";
+
+/** Public, anonymous observations only. No business bindings. GitHub's bounded
+ * signed report ingestion is separate from the read-only public status routes. */
 export interface StatusEnv {
   STATUS_DB: D1Database;
   ASSETS: Fetcher;
@@ -680,7 +683,8 @@ export async function handleStatusRequest(
     !local
   )
     return json({ error: "HOST_NOT_ALLOWED" }, 403);
-  if (!["GET", "HEAD"].includes(request.method)) {
+  const reportWrite = url.pathname === "/api/e2e-reports" && !url.search && request.method === "POST";
+  if (!["GET", "HEAD"].includes(request.method) && !reportWrite) {
     const response = json({ error: "METHOD_NOT_ALLOWED" }, 405);
     response.headers.set("Allow", "GET, HEAD");
     return response;
@@ -692,7 +696,11 @@ export async function handleStatusRequest(
     return json({ error: "ORIGIN_NOT_ALLOWED" }, 403);
   let response: Response;
   try {
-    if (url.pathname === "/api/status" && !url.search)
+    if (reportWrite)
+      response = await ingestProductionReport(request, env.STATUS_DB, now);
+    else if (url.pathname === "/api/e2e-status" && !url.search)
+      response = await readProductionE2EStatus(env.STATUS_DB, now);
+    else if (url.pathname === "/api/status" && !url.search)
       response = await latest(env.STATUS_DB, now);
     else if (url.pathname === "/api/history") {
       // Match the raw query exactly so alternate spellings cannot bypass cache.

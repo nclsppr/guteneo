@@ -78,6 +78,12 @@ import {
   type McpIdentity,
 } from "./auth";
 import { postalMcpAuthority } from "./postal-authority";
+import {
+  secureDistributionInputSchema,
+  securePolicySchema,
+  type SecureDistributionInput,
+  type SecureDistributionView,
+} from "../../../packages/contracts/src/secure-distribution";
 
 export interface McpDocuments {
   get?: DocumentService["get"];
@@ -118,6 +124,24 @@ export interface McpServices {
     ): Promise<{ items: PdfValidationReport[] }>;
   };
   afterConfirmation?: () => Promise<void>;
+  secureDistribution?: {
+    prepare(
+      identity: McpIdentity,
+      input: SecureDistributionInput,
+      key: string,
+    ): Promise<SecureDistributionView>;
+    list(
+      identity: McpIdentity,
+      query: { cursor?: string; limit: number },
+    ): Promise<{ items: SecureDistributionView[]; nextCursor: string | null }>;
+    get(identity: McpIdentity, id: string): Promise<SecureDistributionView>;
+    confirm(
+      identity: McpIdentity,
+      id: string,
+      key: string,
+    ): Promise<SecureDistributionView>;
+    revoke(identity: McpIdentity, id: string): Promise<SecureDistributionView>;
+  };
   onToolFailure?: (
     code: "AUTH_REJECTED" | "DOMAIN_REJECTED" | "INTERNAL_ERROR",
     importFailure?: ImportFailureObservation,
@@ -349,6 +373,141 @@ function output<T extends z.ZodType>(data: T) {
 }
 const id = z.string().min(1).max(200);
 const key = z.string().min(1).max(200);
+export const secureDistributionSchema = z
+  .object({
+    id,
+    dispatchId: id.nullable(),
+    status: z.enum([
+      "preparing",
+      "prepared",
+      "active",
+      "revoked",
+      "expired",
+      "failed",
+    ]),
+    title: z.string(),
+    source: z
+      .object({
+        id,
+        name: z.string(),
+        pages: z.number().int().nonnegative(),
+        sha256: z.string(),
+      })
+      .strict(),
+    recipient: z
+      .object({ address: z.string(), name: z.string().optional() })
+      .strict(),
+    invitation: z.object({ subject: z.string(), message: z.string() }).strict(),
+    policy: securePolicySchema,
+    quote: z
+      .object({
+        sharedMinor: z.number().int().nonnegative(),
+        personalMinor: z.number().int().nonnegative(),
+        transportMinor: z.number().int().nonnegative(),
+        totalMinor: z.number().int().nonnegative(),
+        currency: z.literal("EUR"),
+        priceVersion: z.string(),
+        nonRefundable: z.literal(true),
+        taxBasis: z.literal("excluding_tax"),
+      })
+      .strict(),
+    expiresAt: z.string().nullable(),
+    approvalUrl: z.string().nullable(),
+    approved: z.boolean(),
+    approval: z
+      .object({ fingerprint: z.string(), expiresAt: z.string() })
+      .strict()
+      .nullable(),
+    audit: z.array(
+      z
+        .object({
+          id: z.string(),
+          type: z.string(),
+          createdAt: z.string(),
+          provenance: z.enum(["server", "browser", "provider"]),
+          page: z.number().int().positive().optional(),
+        })
+        .strict(),
+    ),
+    nextActions: z.array(z.string()),
+  })
+  .strict();
+
+/** Workshop metadata only. Recipient claim, binding authority, private account
+ * identity and invitation capabilities never cross the assistant boundary. */
+export function secureDistributionSummary(view: SecureDistributionView) {
+  return {
+    id: view.id,
+    dispatchId: view.dispatchId,
+    status: view.status,
+    title: view.title,
+    source: {
+      id: view.source.id,
+      name: view.source.name,
+      pages: view.source.pages,
+      sha256: view.source.sha256,
+    },
+    recipient: {
+      address: view.recipient.address,
+      ...(view.recipient.name ? { name: view.recipient.name } : {}),
+    },
+    invitation: {
+      subject: view.invitation.subject,
+      message: view.invitation.message,
+    },
+    policy: {
+      retentionDays: view.policy.retentionDays,
+      allowOriginalDownload: view.policy.allowOriginalDownload,
+      allowVaultDeposit: view.policy.allowVaultDeposit,
+      personalRetentionDays: view.policy.personalRetentionDays,
+    },
+    quote: {
+      sharedMinor: view.quote.sharedMinor,
+      personalMinor: view.quote.personalMinor,
+      transportMinor: view.quote.transportMinor,
+      totalMinor: view.quote.totalMinor,
+      currency: view.quote.currency,
+      priceVersion: view.quote.priceVersion,
+      nonRefundable: view.quote.nonRefundable,
+      taxBasis: view.quote.taxBasis,
+    },
+    expiresAt: view.expiresAt,
+    approvalUrl: view.approvalUrl,
+    approved: view.approved,
+    approval: view.approval
+      ? {
+          fingerprint: view.approval.fingerprint,
+          expiresAt: view.approval.expiresAt,
+        }
+      : null,
+    audit: view.audit.map((event) => ({
+      id: event.id,
+      type: event.type,
+      createdAt: event.createdAt,
+      provenance: event.provenance,
+      ...(event.page !== undefined ? { page: event.page } : {}),
+    })),
+    nextActions:
+      view.status === "preparing"
+        ? [
+            "Le rendu sécurisé est en cours. Consulter get_secure_distribution avec le même identifiant ; ne pas recréer la préparation.",
+          ]
+        : view.status === "prepared"
+          ? [
+              "Présenter la durée, le coût exact hors taxes et son absence de remboursement après activation, même en cas de révocation.",
+              "Faire ouvrir approvalUrl dans le navigateur pour la revue et l’approbation fortes. Aucun oui dans le chat ni mandat expert ne remplace cette approbation.",
+              "Après approbation navigateur enregistrée, appeler confirm_secure_distribution avec une clé stable. Après résultat incertain, consulter le même identifiant sans nouvelle commande.",
+            ]
+          : view.status === "active"
+            ? [
+                "Consulter les événements du partage. Une page affichée ne prouve pas sa lecture, et un téléchargement lancé ne prouve pas l’enregistrement sur disque.",
+                "La révocation bloque les prochains accès au partage et ne rembourse pas la durée financée. Les copies personnelles déjà remises restent indépendantes.",
+              ]
+            : [
+                "Consulter le statut enregistré. Aucune nouvelle diffusion ou nouvelle facturation automatique.",
+              ],
+  };
+}
 export const MCP_LIMITS = Object.freeze({
   requestBytes: 2 * 1024 * 1024,
   // Preserve 100,000 dataset cells plus their rows and envelope keys.
@@ -807,6 +966,129 @@ export function createGuteneoMcpServer(
       return result;
     }
   };
+  if (services.secureDistribution) {
+    const distribution = services.secureDistribution;
+    registerTool(
+      "prepare_secure_distribution",
+      {
+        title: "Préparer une distribution sécurisée",
+        description:
+          "Prépare la remise d’un PDF à un destinataire via son compte Guteneo et un lecteur de pages sécurisé, sans DRM. Retourne preparing pendant le rendu asynchrone, puis un devis par PDF/destinataire, durée et conservation personnelle éventuellement autorisée. La préparation n’envoie rien et n’approuve rien. Le coût de conservation devient non remboursable à l’activation, même si l’atelier révoque ensuite l’accès. Le tarif de notification est calculé séparément dans le devis total. L’original est téléchargeable seulement si la politique le permet. La remise d’une copie personnelle exige une autorisation explicite de l’atelier puis une action du destinataire. Toujours faire ouvrir approvalUrl pour une approbation navigateur forte ; aucun mandat expert ne la remplace. Ne jamais demander un code de connexion, identifier une personne, confirmer sa relation ou accéder à son espace personnel avec un outil.",
+        inputSchema: secureDistributionInputSchema.extend({
+          idempotencyKey: key,
+        }),
+        outputSchema: output(secureDistributionSchema),
+        annotations: writeAnnotations,
+        _meta: oauthMetadata("dispatches:prepare"),
+      },
+      ({ idempotencyKey, ...input }) =>
+        run("dispatches:prepare", async () =>
+          secureDistributionSummary(
+            await distribution.prepare(identity, input, idempotencyKey),
+          ),
+        ),
+    );
+    registerTool(
+      "list_secure_distributions",
+      {
+        title: "Retrouver les distributions sécurisées",
+        description:
+          "Liste avec pagination bornée les distributions de l’atelier actuellement autorisé, leurs coûts, politiques et états connus. Cette liste ne donne aucun accès au coffre personnel des destinataires et ne confirme aucune identité. L’activation et les contrôles d’accès actuels du serveur restent obligatoires.",
+        inputSchema: z
+          .object({
+            cursor: z.string().max(2048).optional(),
+            limit: z.number().int().min(1).max(50).default(20),
+          })
+          .strict(),
+        outputSchema: output(
+          z
+            .object({
+              items: z.array(secureDistributionSchema),
+              nextCursor: z.string().nullable(),
+            })
+            .strict(),
+        ),
+        annotations: observedReadAnnotations,
+        _meta: oauthMetadata("dispatches:read"),
+      },
+      (query) =>
+        run("dispatches:read", async () => {
+          const result = await distribution.list(identity, query);
+          return {
+            items: result.items.map(secureDistributionSummary),
+            nextCursor: result.nextCursor,
+          };
+        }),
+    );
+    registerTool(
+      "get_secure_distribution",
+      {
+        title: "Suivre une distribution sécurisée",
+        description:
+          "Consulte l’état, le devis, la politique et les événements auditables d’un partage de l’atelier. Les événements distinguent serveur, navigateur et fournisseur. Un affichage ne prouve pas la lecture intégrale ; le téléchargement lancé ne prouve pas l’enregistrement du fichier. Aucun suivi des captures d’écran ni des lectures d’une copie personnelle n’est promis. Après une réponse incertaine à une commande, consulter cet identifiant avant toute autre action.",
+        inputSchema: z.object({ distributionId: id }).strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: observedReadAnnotations,
+        _meta: oauthMetadata("dispatches:read"),
+      },
+      ({ distributionId }) =>
+        run("dispatches:read", async () =>
+          secureDistributionSummary(
+            await distribution.get(identity, distributionId),
+          ),
+        ),
+    );
+    registerTool(
+      "confirm_secure_distribution",
+      {
+        title: "Distribuer après approbation navigateur",
+        description:
+          "Accepte la distribution exacte après une approbation humaine forte déjà enregistrée dans le navigateur Guteneo. Peut déclencher une notification réelle, une consommation de crédit et un engagement de conservation non remboursable, même après révocation. Le modèle ne peut donner cette approbation ni la remplacer par un mandat expert. Respecter les confirmations de l’hôte. Conserver la même clé d’idempotence ; après réponse perdue ou résultat incertain, consulter get_secure_distribution sans créer une nouvelle commande.",
+        inputSchema: z
+          .object({ distributionId: id, idempotencyKey: key })
+          .strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: {
+          ...writeAnnotations,
+          destructiveHint: true,
+          openWorldHint: true,
+        },
+        _meta: oauthMetadata("dispatches:send"),
+      },
+      ({ distributionId, idempotencyKey }) =>
+        run("dispatches:send", async () => {
+          const result = await distribution.confirm(
+            identity,
+            distributionId,
+            idempotencyKey,
+          );
+          try {
+            await services.afterConfirmation?.();
+          } catch {
+            /* durable outbox owns recovery */
+          }
+          return secureDistributionSummary(result);
+        }),
+    );
+    registerTool(
+      "revoke_secure_distribution",
+      {
+        title: "Révoquer un accès partagé",
+        description:
+          "Révoque les prochains accès au partage pour un atelier et une permission actuels. Ne rembourse pas la période financée et n’efface ni les téléchargements déjà reçus ni une copie personnelle déjà remise avec autorisation. Ne supprime pas les documents personnels du destinataire et ne promet aucune récupération physique. Respecter les confirmations de l’hôte.",
+        inputSchema: z.object({ distributionId: id }).strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: { ...writeAnnotations, destructiveHint: true },
+        _meta: oauthMetadata("dispatches:send"),
+      },
+      ({ distributionId }) =>
+        run("dispatches:send", async () =>
+          secureDistributionSummary(
+            await distribution.revoke(identity, distributionId),
+          ),
+        ),
+    );
+  }
   if (services.postal) {
     const postal = services.postal;
     if (postal.getSetup)
@@ -2041,11 +2323,30 @@ export function createGuteneoMcpServer(
     },
     ({ dispatchId, idempotencyKey }) =>
       run("dispatches:send", async () => {
-        const dispatch = await services.domain.confirmDispatch(
-          identity.context,
-          dispatchId,
-          idempotencyKey,
-        );
+        let dispatch: Dispatch;
+        const current = services.secureDistribution
+          ? await services.domain.getDispatch(identity.context, dispatchId)
+          : null;
+        const descriptor = current
+          ? JSON.parse(current.dispatch.options_json).secureDistribution
+          : null;
+        if (descriptor && services.secureDistribution) {
+          // Preserve the credential fence used by the new service even when an
+          // older client still invokes the generic confirmation tool.
+          await services.secureDistribution.confirm(
+            identity,
+            descriptor.distributionId,
+            idempotencyKey,
+          );
+          dispatch = (
+            await services.domain.getDispatch(identity.context, dispatchId)
+          ).dispatch;
+        } else
+          dispatch = await services.domain.confirmDispatch(
+            identity.context,
+            dispatchId,
+            idempotencyKey,
+          );
         // Persisted outbox owns recovery. A publication failure does not make an accepted command disappear.
         try {
           await services.afterConfirmation?.();
@@ -2164,6 +2465,28 @@ export function createGuteneoMcpServer(
         ),
       ),
   );
+  if (services.secureDistribution)
+    server.registerPrompt(
+      "secure_distribution",
+      {
+        title: "Distribuer un PDF avec un compte destinataire",
+        description:
+          "Préparation, durée financée, approbation navigateur forte et suivi du partage. Aucun accès aux documents personnels du destinataire.",
+      },
+      () => ({
+        description:
+          "Préparer une distribution sécurisée sans remplacer la revue ni la vérification de la personne.",
+        messages: [
+          {
+            role: "user",
+            content: {
+              type: "text",
+              text: "Consulter get_capabilities puis utiliser prepare_secure_distribution pour un PDF prêt, un destinataire nommé et une durée explicite. Les exclusions documentaires des outils restent applicables. Recueillir séparément le téléchargement original et l’autorisation éventuelle d’une copie personnelle avec sa durée. Lire le devis exact EUR hors taxes et expliquer que l’activation finance une durée non remboursable même après révocation. Si preparing, consulter get_secure_distribution avec le même identifiant sans recréer la préparation. Faire ouvrir approvalUrl pour une approbation forte dans le navigateur : aucun oui dans le chat ni mandat expert ne la remplace. Après approbation enregistrée et confirmation de l’hôte, confirm_secure_distribution utilise une clé stable. Après résultat incertain, consulter le même identifiant sans nouvelle commande. list_secure_distributions et get_secure_distribution suivent le partage de l’atelier ; revoke_secure_distribution bloque ses prochains accès sans supprimer une copie personnelle déjà remise ni rembourser la conservation. Ne pas confirmer une identité, associer un compte destinataire, ouvrir un coffre personnel ou demander de secret de connexion. Les affichages et téléchargements gardent leur provenance et ne prouvent ni lecture intégrale, ni enregistrement sur disque, ni impression ni capture d’écran.",
+            },
+          },
+        ],
+      }),
+    );
   server.registerPrompt(
     "email",
     {

@@ -41,6 +41,8 @@ import { recordSuccessfulConnectionTool } from "../../apps/api/src/connection-ob
 import { DomainService } from "../../packages/domain/src/index";
 import worker from "../../apps/api/src/index";
 import { DocumentService } from "../../apps/api/src/documents";
+import { authenticatePersonalBrowser } from "../../apps/api/src/auth";
+import { handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -89,6 +91,40 @@ const betaEnv = () => ({
   MODE: "production",
   AUTH0_AUTH_POLICY: "verified_email",
 });
+/** Tests of workshop authority explicitly request the sending service after
+ * account login. Signup itself never manufactures a workshop or credit. */
+async function withExplicitWorkspace(
+  response: Response | null,
+  currentEnv: AuthEnv,
+) {
+  if (!response) return response;
+  const cookie = response.headers
+    .get("Set-Cookie")
+    ?.match(/guteneo_session=[^;,]+/)?.[0];
+  if (!cookie) return response;
+  const principal = await authenticatePersonalBrowser(
+    request("/api/personal/session", "GET", undefined, { Cookie: cookie }),
+    currentEnv,
+  );
+  const existing = await currentEnv.DB.prepare(
+    "SELECT 1 FROM memberships WHERE user_id=?",
+  )
+    .bind(principal.userId)
+    .first();
+  if (existing) return response;
+  const created = await handlePersonalAccountRoute(
+    request(
+      "/api/personal/workspace",
+      "POST",
+      { name: "Mon espace" },
+      { Cookie: cookie, "X-CSRF-Token": principal.csrfToken },
+    ),
+    currentEnv,
+  );
+  const headers = new Headers(response.headers);
+  headers.set("Set-Cookie", created!.headers.get("Set-Cookie")!);
+  return new Response(null, { status: response.status, headers });
+}
 async function signedBetaLogin(
   idChanges: Record<string, unknown> = {},
   accessChanges: Record<string, unknown> = {},
@@ -142,7 +178,11 @@ async function signedBetaLogin(
     sub,
     destination,
     callback,
-    complete: () => handleAuthRoute(callback, configured),
+    complete: async () =>
+      withExplicitWorkspace(
+        await handleAuthRoute(callback, configured),
+        configured,
+      ),
   };
 }
 async function login(organization = "atelier") {
@@ -939,7 +979,7 @@ describe("identity and authentication boundaries", () => {
       });
     },
   );
-  it("grants one shared welcome credit after verified PKCE signup without enabling any channel", async () => {
+  it("keeps signup personal and grants one shared welcome credit only after explicit workshop creation", async () => {
     const configured = { ...realEnv(), MODE: "production" as const };
     const response = await handleAuthRoute(request("/auth/login"), configured);
     const destination = new URL(response!.headers.get("Location")!);
@@ -988,6 +1028,19 @@ describe("identity and authentication boundaries", () => {
     )
       .bind("auth0|test-member")
       .first<{ user_id: string }>();
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM memberships WHERE user_id=?")
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) n FROM personal_workspace_creations WHERE user_id=?",
+      )
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    await withExplicitWorkspace(callback, configured);
     const budgets = await env.DB.prepare(
       "SELECT limit_count,limit_minor FROM usage WHERE organization_id IN (SELECT organization_id FROM memberships WHERE user_id=?)",
     )
@@ -2678,8 +2731,11 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       destination,
       callback,
       fetchSpy,
-      complete: (callbackEnv = startEnv) =>
-        handleAuthRoute(callback, callbackEnv),
+      complete: async (callbackEnv = startEnv) =>
+        withExplicitWorkspace(
+          await handleAuthRoute(callback, callbackEnv),
+          callbackEnv,
+        ),
     };
   }
   async function browserSession(response: Response, currentEnv: AuthEnv) {
@@ -2725,6 +2781,9 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       after.startEnv,
     );
     expect(second.session.context).toEqual(first.session.context);
+    expect(second.session.context.documentSessionHash).toBe(second.session.tokenHash);
+    expect(Object.getOwnPropertyDescriptor(second.session.context, "documentSessionHash")?.enumerable).toBe(false);
+    expect(JSON.stringify(second.session.context)).not.toContain(second.session.tokenHash);
     expect(second.session.user).toMatchObject({
       name: "Saved fixture name",
       preferredLocale: "de",

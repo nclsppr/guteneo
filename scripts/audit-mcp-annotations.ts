@@ -118,6 +118,7 @@ export async function discoverLocalMcpTools() {
     postal: service as unknown as McpServices["postal"],
     workflow: service as unknown as McpServices["workflow"],
     pdfValidation: service as unknown as McpServices["pdfValidation"],
+    secureDistribution: service as unknown as McpServices["secureDistribution"],
     capabilities: forbidden,
     afterGeneration: forbidden,
     afterConfirmation: forbidden,
