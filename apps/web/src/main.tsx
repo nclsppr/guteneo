@@ -12,6 +12,7 @@ import { api, ApiError, type Session } from "./api";
 import { observePublicLinks } from "./public-sharing";
 import { App } from "./App";
 import "./styles.css";
+import "./login-page.css";
 import "./protected-document.css";
 import "./dashboard-v2.css";
 

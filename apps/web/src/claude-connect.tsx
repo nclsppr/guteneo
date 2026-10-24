@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { ArrowUpRight, Check, Copy } from "@phosphor-icons/react";
 import { isPublicPreview } from "./api";
 import { t } from "./locale";
+import { workspaceEntryHref } from "./auth-navigation";
 
 // Public OAuth client for Claude.ai. This identifier is not a credential.
 export const claudeClientId = "IhJieRsvZBAnl1uJO125X2SPoIHxT8ed";
@@ -38,7 +39,10 @@ export function ClaudeConnect({
       <p className="claude-prerequisite">
         {copy.prerequisite}{" "}
         {showAccountLink && (
-          <a className="text-link" href="/#/app/connection">
+          <a
+            className="text-link"
+            href={workspaceEntryHref("/#/app/connection")}
+          >
             {copy.account}
           </a>
         )}

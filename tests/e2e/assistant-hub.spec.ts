@@ -434,37 +434,38 @@ test("Assistants is the second workspace destination and every private guide sur
   expect(state.unmatched).toEqual([]);
 });
 
-test("signup and login preserve the requested guide or direct sending route", async ({
+test("direct authentication and recovery preserve the requested guide or sending route", async ({
   page,
   baseURL,
 }) => {
   const unexpected: string[] = [];
-  // A reserved test origin selects the managed-login UI. All requests are
-  // intercepted; only static assets are read from the local application server.
+  const authRequests: string[] = [];
+  // The reserved origin exercises hosted entry without contacting an identity
+  // provider. Only static assets are read from the local application server.
   const testOrigin = "https://assistant-ui.example.test";
-  await page.route(`${testOrigin}/**`, async (route) => {
-    const url = new URL(route.request().url());
-    if (url.pathname === "/api/session") {
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.origin !== testOrigin || request.method() !== "GET") {
+      unexpected.push(`${request.method()} ${url.origin}${url.pathname}`);
+      await route.fulfill({ status: 403, body: "Blocked by the UI fixture." });
+    } else if (url.pathname === "/api/session") {
       await route.fulfill({
         status: 401,
-        contentType: "application/json",
-        body: JSON.stringify({
+        json: {
           error: {
             code: "AUTHENTICATION_REQUIRED",
             message: "Connectez-vous.",
           },
-        }),
+        },
       });
     } else if (url.pathname === "/api/capabilities") {
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify({ registration: { enabled: true } }),
-      });
-    } else if (
-      /^\/(api|auth|oauth|mcp)(\/|$)/.test(url.pathname) ||
-      route.request().method() !== "GET"
-    ) {
-      unexpected.push(`${route.request().method()} ${url.pathname}`);
+      await route.fulfill({ json: { registration: { enabled: true } } });
+    } else if (["/auth/login", "/auth/signup"].includes(url.pathname)) {
+      await route.fulfill({ status: 204 });
+      authRequests.push(url.href);
+    } else if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(url.pathname)) {
+      unexpected.push(`${request.method()} ${url.pathname}`);
       await route.fulfill({
         status: 403,
         body: "No external action in this UI fixture.",
@@ -472,6 +473,7 @@ test("signup and login preserve the requested guide or direct sending route", as
     } else {
       const response = await route.fetch({
         url: new URL(url.pathname + url.search, baseURL).href,
+        maxRedirects: 0,
       });
       await route.fulfill({ response });
     }
@@ -481,25 +483,47 @@ test("signup and login preserve the requested guide or direct sending route", as
       "/#/app/connection/chatgpt",
       "/#/app/prepare?entry=direct",
     ]) {
-      await page.goto(`${testOrigin}${destination}`);
+      const priorRequests = authRequests.length;
+      // The auto handoff can replace the entry before its load event. The
+      // fulfilled auth request below is the evidence that entry completed.
+      await page.goto("about:blank");
+      await page.goto(`${testOrigin}${destination}`, { waitUntil: "commit" });
+      await expect.poll(() => authRequests.length).toBe(priorRequests + 1);
+      const handoff = new URL(authRequests[priorRequests]);
+      expect(handoff.pathname).toBe("/auth/login");
+      expect(handoff.searchParams.get("returnTo")).toBe(destination);
+      expect(handoff.searchParams.get("locale")).toBe("fr");
+      await expect(page.locator(".access-panel")).toHaveCount(0);
+      await expect(
+        page.getByRole("link", { name: "Créer un compte", exact: true }),
+      ).toHaveCount(0);
+
+      // An unsuccessful Auth0 attempt offers an explicit retry without a loop.
+      await page.goto(
+        `${testOrigin}/?auth=LOGIN_EXCHANGE_FAILED${destination.slice(1)}`,
+      );
       const signup = page.getByRole("link", {
-        name: "Créer mon compte",
+        name: "Créer un compte",
         exact: true,
       });
       await expect(signup).toBeVisible();
       const login = page.locator('a[href^="/auth/login?"]');
       await expect(login).toBeVisible();
       for (const link of [signup, login]) {
-        const href = await link.getAttribute("href");
-        expect(new URL(href!, testOrigin).searchParams.get("returnTo")).toBe(
-          destination,
-        );
+        const href = new URL((await link.getAttribute("href"))!, testOrigin);
+        expect(href.searchParams.get("returnTo")).toBe(destination);
+        expect(href.searchParams.get("locale")).toBe("fr");
       }
+      expect(
+        new URL(
+          (await login.getAttribute("href"))!,
+          testOrigin,
+        ).searchParams.get("fresh"),
+      ).toBe("1");
+      expect(authRequests).toHaveLength(priorRequests + 1);
     }
   } finally {
-    // Static requests are proxied from the reserved origin to the local server.
-    // Drain these handlers before Playwright disposes their request context;
-    // waiting preserves route errors instead of leaking them into the next test.
+    // Drain the local static proxy before disposing its request context.
     await page.unrouteAll({ behavior: "wait" });
   }
   expect(unexpected).toEqual([]);

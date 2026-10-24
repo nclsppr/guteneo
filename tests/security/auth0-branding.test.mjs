@@ -11,6 +11,7 @@ import {
   BRANDING,
   THEME,
   TEXTS,
+  LOCALE_FALLBACKS,
   BrandingError,
 } from "../../scripts/setup-auth0-branding.mjs";
 
@@ -64,7 +65,7 @@ function fixture(overrides = {}) {
     prompts: { universal_login_experience: "new", identifier_first: false },
     settings: {
       friendly_name: "Old product",
-      enabled_locales: ["fr", "en"],
+      enabled_locales: ["fr", "en", "de"],
       session_lifetime: 1,
     },
     texts: {},
@@ -97,10 +98,25 @@ function fixture(overrides = {}) {
 }
 
 test("applies only branded presentation, preserves prompt dictionaries and is idempotent", async () => {
+  const nativeLogin = {
+    forgotPasswordText: "Mot de passe oublié ?",
+    passwordPlaceholder: "Mot de passe",
+    buttonText: "Continuer",
+    federatedConnectionButtonText: "Continuer avec ${connectionName}",
+  };
+  const nativePassword = {
+    forgotPasswordText: "Mot de passe oublié ?",
+    passwordPlaceholder: "Mot de passe",
+    buttonText: "Continuer",
+  };
   const f = fixture({
     texts: {
       "prompts/login/custom-text/fr": {
-        login: { forgotPasswordText: "Mot de passe oublié ?", title: "Old" },
+        login: { ...nativeLogin, title: "Old" },
+        "other-screen": { description: "Keep" },
+      },
+      "prompts/login-password/custom-text/fr": {
+        "login-password": { ...nativePassword, title: "Old" },
         "other-screen": { description: "Keep" },
       },
     },
@@ -109,10 +125,32 @@ test("applies only branded presentation, preserves prompt dictionaries and is id
   assert.equal(result.brandingMatches, true);
   assert.equal(result.themeMatches, true);
   assert.equal(result.friendlyNameMatches, true);
-  assert.equal(
-    f.state.texts["prompts/login/custom-text/fr"].login.forgotPasswordText,
-    "Mot de passe oublié ?",
-  );
+  for (const [prompt, native] of [
+    ["login", nativeLogin],
+    ["login-password", nativePassword],
+  ])
+    for (const [field, value] of Object.entries(native))
+      assert.equal(
+        f.state.texts[`prompts/${prompt}/custom-text/fr`][prompt][field],
+        value,
+      );
+  for (const [language, screens] of Object.entries(TEXTS))
+    for (const prompt of ["login", "login-id", "signup", "signup-id"]) {
+      const fields = screens[prompt];
+      assert.ok(
+        fields.footerText.trim(),
+        `${language}/${prompt} footer prompt`,
+      );
+      assert.ok(
+        fields.footerLinkText.trim(),
+        `${language}/${prompt} footer link`,
+      );
+      assert.equal(
+        f.state.texts[`prompts/${prompt}/custom-text/${language}`][prompt]
+          .footerLinkText,
+        fields.footerLinkText,
+      );
+    }
   assert.equal(
     f.state.texts["prompts/login/custom-text/fr"]["other-screen"].description,
     "Keep",
@@ -122,10 +160,90 @@ test("applies only branded presentation, preserves prompt dictionaries and is id
     identifier_first: false,
   });
   assert.equal(f.state.settings.session_lifetime, 1);
-  assert.equal(f.mutations.length, 15);
+  assert.equal(f.mutations.length, 21);
   const count = f.mutations.length;
   await applyBranding(f.api);
   assert.equal(f.mutations.length, count);
+});
+
+test("updates the full default theme while preserving optional identifier and captcha settings", async () => {
+  const identifiers = {
+    login_display: "unified",
+    otp_autocomplete: false,
+    phone_display: { formatting: "international", masking: "show_all" },
+  };
+  const f = fixture({
+    theme: {
+      ...structuredClone(THEME),
+      themeId: "existing_theme",
+      colors: {
+        ...THEME.colors,
+        primary_button: "#000000",
+        captcha_widget_theme: "dark",
+      },
+      identifiers,
+      providerReadOnlyMetadata: "private-marker",
+    },
+  });
+  await applyBranding(f.api);
+  const update = f.mutations.find(
+    ({ path }) => path === "branding/themes/existing_theme",
+  );
+  assert.equal(update.method, "PATCH");
+  assert.deepEqual(update.body.identifiers, identifiers);
+  assert.equal(update.body.colors.captcha_widget_theme, "dark");
+  assert.equal(update.body.themeId, undefined);
+  assert.equal(update.body.providerReadOnlyMetadata, undefined);
+  assert.equal(
+    f.mutations.some(({ method }) => method === "POST"),
+    false,
+  );
+  const count = f.mutations.length;
+  await applyBranding(f.api);
+  assert.equal(f.mutations.length, count);
+});
+
+test("does not report success when the provider readback ignores a branding update", async () => {
+  const f = fixture();
+  const api = {
+    request(method, path, body) {
+      if (method === "PATCH" && path === "branding") return {};
+      return f.api.request(method, path, body);
+    },
+  };
+  await assert.rejects(applyBranding(api), { code: "READBACK_MISMATCH" });
+});
+
+test("prepares German copy without enabling locales or sending unsupported Luxembourgish requests", async () => {
+  const f = fixture({
+    settings: { friendly_name: "Guteneo", enabled_locales: ["fr", "en"] },
+    texts: {
+      "prompts/signup/custom-text/de": {
+        signup: { buttonText: "Registrieren" },
+        "other-screen": { description: "Keep" },
+      },
+    },
+  });
+  const result = await applyBranding(f.api);
+  assert.deepEqual(f.state.settings.enabled_locales, ["fr", "en"]);
+  assert.deepEqual(result.missingEnabledLocales, ["de"]);
+  assert.deepEqual(result.localeFallbacks, { lb: "de" });
+  assert.equal(
+    f.state.texts["prompts/signup/custom-text/de"].signup.buttonText,
+    "Registrieren",
+  );
+  assert.equal(
+    f.state.texts["prompts/signup/custom-text/de"]["other-screen"].description,
+    "Keep",
+  );
+  assert.equal(
+    f.mutations.some(
+      ({ path }) => path === "tenants/settings" || path.endsWith("/lb"),
+    ),
+    false,
+  );
+  assert.deepEqual(Object.keys(TEXTS), ["fr", "en", "de"]);
+  assert.deepEqual(LOCALE_FALLBACKS, { lb: "de" });
 });
 
 test("refuses Classic or missing access without enabling another login mode", async () => {
@@ -163,6 +281,7 @@ test("refuses functional, subscription, credential, template and cross-tenant op
     ["POST", "clients", {}],
     ["PATCH", "branding/themes/../clients", {}],
     ["PUT", "prompts/mfa/custom-text/fr", {}],
+    ["PUT", "prompts/login/custom-text/lb", {}],
   ])
     await assert.rejects(api.request(method, path, body), {
       code: "ENDPOINT_REFUSED",
@@ -197,7 +316,7 @@ test("summary never exports unknown strings, secrets or signed URLs", async () =
     branding: { logo_url: "https://example.com/?token=secret" },
     settings: {
       friendly_name: "secret",
-      enabled_locales: ["fr", "en", "secret"],
+      enabled_locales: ["fr", "en", "de", "secret"],
     },
     texts: {
       "prompts/login/custom-text/fr": { login: { description: "private" } },
@@ -209,5 +328,5 @@ test("summary never exports unknown strings, secrets or signed URLs", async () =
   assert.deepEqual(THEME.page_background.background_color, "#f6f5ef");
   assert.deepEqual(THEME.colors.body_text, "#181b22");
   assert.deepEqual(THEME.colors.primary_button, "#2450db");
-  assert.deepEqual(Object.keys(TEXTS), ["fr", "en"]);
+  assert.deepEqual(Object.keys(TEXTS), ["fr", "en", "de"]);
 });

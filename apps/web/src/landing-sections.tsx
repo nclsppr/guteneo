@@ -3,6 +3,7 @@ import { DistributionRoadmap } from "./email-composer";
 import { useId, type MouseEvent } from "react";
 import { ArrowRight, ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { t } from "./locale";
+import { workspaceEntryHref } from "./auth-navigation";
 import { getCustomerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
 import { PostalCutoffFaq } from "./postal-cutoff-faq";
@@ -67,7 +68,10 @@ export function Installation() {
               "Ajoutez votre document, choisissez le destinataire et vérifiez le prix avant de confirmer.",
             )}
           </p>
-          <a className="button" href="/app/prepare?entry=direct">
+          <a
+            className="button"
+            href={workspaceEntryHref("/app/prepare?entry=direct")}
+          >
             {msg("Envoyer depuis Guteneo ")}
             <ArrowRight size={18} aria-hidden="true" />
           </a>
@@ -339,7 +343,7 @@ export function LuxembourgFooter() {
           <a href="/#faq" onClick={(event) => scrollToSection(event, "faq")}>
             FAQ
           </a>
-          <a href="/app">
+          <a href={workspaceEntryHref()}>
             {t.homepage.footer.atelier}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>

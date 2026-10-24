@@ -57,6 +57,7 @@ import {
   requireScope,
   handleAuthRoute,
   AuthError,
+  authFailureRedirect,
 } from "./auth";
 import { handleMcp } from "./mcp";
 import {
@@ -339,7 +340,7 @@ app.use("*", async (c, next) => {
     ) {
       observation.finish(302);
       return c.redirect(
-        `${c.env.APP_ORIGIN}/?auth=IDENTITY_NOT_CONFIGURED#/app`,
+        authFailureRedirect(c.req.raw, c.env, "IDENTITY_NOT_CONFIGURED"),
         302,
       );
     }
@@ -1012,7 +1013,7 @@ app.onError((error, c) => {
       (error instanceof DomainError && c.req.path === "/auth/callback"))
   ) {
     return c.redirect(
-      `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
+      authFailureRedirect(c.req.raw, c.env, error.code, error),
       302,
     );
   }
