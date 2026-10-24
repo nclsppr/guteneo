@@ -339,12 +339,113 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  distribution-e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - authentication: strong
+            config: e2e.config.ts
+            expected: 14
+          - authentication: verified_account
+            config: e2e.verified-account.config.ts
+            expected: 2
+    env:
+      E2E_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
+      WRANGLER_SEND_METRICS: "false"
+      WRANGLER_WRITE_LOGS: "false"
+      GUTENEO_E2E_PREBUILT: "true"
+      EXPECTED_DISTRIBUTION_RESULTS: ${{ matrix.expected }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
+      - name: Install the local PDF renderer browser
+        run: npx --no-install playwright install chromium
+      - name: Install the independent TesterArmy browser and dependencies
+        run: npx --no-install e2e-web install chromium --with-deps
+      - name: Preserve the renderer Chromium sandbox
+        run: node scripts/ci/chromium-sandbox.mjs
+      - uses: actions/download-artifact@v8
+        with:
+          name: guteneo-browser-builds-${{ github.sha }}
+          path: dist
+      - name: Exercise secure distribution and the unified account with fictional data
+        run: |
+          mkdir -p test-results/ci
+          set -o pipefail
+          npm run test:distribution -- --config '${{ matrix.config }}' | tee test-results/ci/distribution.log
+      - name: Require complete deterministic coverage on both viewports
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile } from 'node:fs/promises';
+          const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
+          const { summary, usage } = run;
+          if (run.status !== 'passed' || run.exitCode !== 0 || run.errors.length !== 0 ||
+              summary.discovered !== Number(process.env.EXPECTED_DISTRIBUTION_RESULTS) || summary.selected !== summary.discovered ||
+              summary.executed !== summary.discovered || summary.passed !== summary.discovered ||
+              summary.failed || summary.skipped || summary.flaky || summary.interrupted ||
+              run.results.some(result => result.status !== 'passed') ||
+              JSON.stringify(run.targets.map(target => target.id).sort()) !== JSON.stringify(['desktop', 'phone']) ||
+              usage.modelTokens !== 0 || usage.maxModelCallsInStep !== 0) {
+            throw new Error('Secure distribution requires every deterministic test to pass without skips or model calls.');
+          }
+          console.log(`${summary.passed} deterministic browser results verified; no model calls.`);
+          JS
+      - name: Independently clear every upload path for invitation secrets
+        if: always()
+        id: distribution-privacy
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile, appendFile } from 'node:fs/promises';
+          import { assertNoInvitationSecrets } from './scripts/test-distribution-secrets.mjs';
+          try {
+            const marker = JSON.parse(await readFile('test-results/distribution-e2e-sanitized.json', 'utf8'));
+            const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
+            if (marker.schema !== 1 || marker.runId !== run.id) throw new Error('No current artifact privacy clearance.');
+            const { state } = JSON.parse(await readFile('test-results/distribution-e2e-state.json', 'utf8'));
+            await assertNoInvitationSecrets(state, ['test-results/ci/distribution.log', 'test-results/distribution-e2e-state.json', 'test-results/distribution-e2e-sanitized.json']);
+            await appendFile(process.env.GITHUB_OUTPUT, 'verified=true\n');
+          } catch {
+            console.error('Distribution artifacts are not cleared for upload.');
+            process.exitCode = 1;
+          }
+          JS
+      - uses: actions/upload-artifact@v7
+        if: always() && steps.distribution-privacy.outputs.verified == 'true'
+        with:
+          name: ci-evidence-distribution-${{ matrix.authentication }}
+          path: |
+            test-results/distribution-e2e/
+            test-results/distribution-e2e-server.log
+            test-results/distribution-e2e-state.json
+            test-results/distribution-e2e-sanitized.json
+            test-results/ci/distribution.log
+          if-no-files-found: error
+          retention-days: 14
+
   # Branch protection keeps the same required check. A skipped/cancelled/failed
   # dependency must fail this job rather than produce a green skipped gate.
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
-    needs: [pdf-validator, scanner, checks, vitest, security, build, browser]
+    needs: [pdf-validator, scanner, checks, vitest, security, build, browser, distribution-e2e]
     runs-on: ubuntu-latest
     # Checkout and evidence download share this budget with verification.
     timeout-minutes: 10

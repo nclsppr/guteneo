@@ -1234,6 +1234,120 @@ td:first-child {
   margin-bottom: 26px;
   border-bottom: 1px solid var(--line);
 }
+.browser-panel {
+  padding: 24px;
+  margin-bottom: 34px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.browser-panel .panel-heading {
+  gap: 14px;
+  align-items: flex-start;
+}
+.browser-panel .section-note {
+  max-width: 95ch;
+}
+.browser-report-summary {
+  margin: 22px 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--line);
+}
+.browser-report-summary h3 {
+  margin-bottom: 7px;
+  font-size: 16px;
+}
+.browser-report-summary p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 90ch;
+}
+.browser-report-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 0 0 20px;
+}
+.browser-report-facts dt {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.browser-report-facts dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.browser-report-details {
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.browser-report-details > summary {
+  padding: 15px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+.browser-report-checks,
+.browser-report-history {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.browser-report-checks li,
+.browser-report-history li {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+.browser-report-checks li > div,
+.browser-report-history li > div {
+  min-width: 0;
+}
+.browser-report-checks small,
+.browser-report-history small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.browser-authenticated-scope {
+  padding-top: 20px;
+  margin-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.browser-authenticated-scope h3 {
+  font-size: 14px;
+}
+.browser-authenticated-scope p {
+  color: var(--muted);
+  font-size: 12px;
+  max-width: 90ch;
+  margin-bottom: 0;
+}
+@media (max-width: 760px) {
+  .browser-panel {
+    padding: 17px;
+  }
+  .browser-panel .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .browser-report-facts {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .browser-report-checks li,
+  .browser-report-history li {
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+}
 .history-periods {
   flex-shrink: 0;
 }

@@ -1,5 +1,6 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
@@ -46,6 +47,7 @@ export interface AuthEnv {
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: string;
+  SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
 }
 export interface AuthContext {
   organizationId: string;
@@ -54,8 +56,11 @@ export interface AuthContext {
   supervisorCanApprove?: boolean;
   supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
+  /** Internal hash of the actual authenticated browser credential. Never
+   * serialize this context or accept this field from an API request. */
+  documentSessionHash?: string;
 }
-interface Membership {
+export interface Membership {
   organization_id: string;
   organization_name: string;
   user_id: string;
@@ -85,6 +90,29 @@ export interface AuthenticatedSession {
   mfa: boolean;
   verifiedAccount: boolean;
   tokenHash: string;
+}
+/** A personal account grants no workshop authority. Authentication evidence is
+ * copied only from signature-verified login claims, never enrollment flags. */
+export interface PersonalPrincipal {
+  userId: string;
+  name: string;
+  email: string | null;
+  verifiedEmail: boolean;
+  mfa: boolean;
+  verifiedAccount: boolean;
+  /** Current persisted Auth0 subject and verified email still match this user. */
+  identityVerified?: boolean;
+  authenticatedAt: number | null;
+  amr: string[];
+  acr: string | null;
+  strongAuthentication: boolean;
+  authenticationPolicyVersion: string | null;
+  preferredLocale: SupportedLocale | null;
+  preferredDashboardAppearance: DashboardAppearance;
+  csrfToken: string;
+  tokenHash: string;
+  simulation: boolean;
+  development: boolean;
 }
 export interface McpIdentity {
   context: AuthContext;
@@ -441,8 +469,50 @@ async function validateAuth0TokenAtIssuer(
 export function hasMfa(payload: JWTPayload): boolean {
   return (
     (Array.isArray(payload.amr) && payload.amr.includes("mfa")) ||
-    payload["https://guteneo.com/mfa"] === true
+    payload["https://guteneo.com/mfa"] === true ||
+    documentAuthenticationEvidence(payload).strongAuthentication
   );
+}
+/** Call only after JWT signature/issuer/audience/nonce validation. A deployed
+ * Auth0 Action may issue this assertion only after qualifying the actual
+ * user-verified WebAuthn or equivalent enterprise authentication ceremony.
+ * Native MFA can complete after primary auth_time; its actual timestamp must
+ * lie between that authentication and this token's signed issuance time. */
+export function documentAuthenticationEvidence(payload: JWTPayload) {
+  const authenticatedAt =
+    typeof payload.auth_time === "number" &&
+    Number.isSafeInteger(payload.auth_time) &&
+    payload.auth_time > 0
+      ? payload.auth_time
+      : null;
+  const amr = Array.isArray(payload.amr)
+    ? payload.amr
+        .filter((item): item is string => typeof item === "string")
+        .slice(0, 20)
+    : [];
+  const acr =
+    typeof payload.acr === "string" ? payload.acr.slice(0, 200) : null;
+  const assertion = payload["https://guteneo.com/document_authentication"];
+  const ceremonyAt=assertion && typeof assertion==="object" && !Array.isArray(assertion)
+    ? (assertion as Record<string,unknown>).authenticated_at : null;
+  const valid =
+    !!assertion &&
+    typeof assertion === "object" &&
+    !Array.isArray(assertion) &&
+    (assertion as Record<string, unknown>).policy === "guteneo-sensitive-v1" &&
+    ((assertion as Record<string, unknown>).method === "webauthn_uv" ||
+      (assertion as Record<string, unknown>).method ===
+        "qualified_federation") &&
+    authenticatedAt !== null && typeof ceremonyAt==="number" && Number.isSafeInteger(ceremonyAt) &&
+    typeof payload.iat==="number" && Number.isSafeInteger(payload.iat) &&
+    authenticatedAt <= ceremonyAt && ceremonyAt <= payload.iat;
+  return {
+    authenticatedAt,
+    amr,
+    acr,
+    strongAuthentication: valid,
+    authenticationPolicyVersion: valid ? "guteneo-sensitive-v1" : null,
+  };
 }
 export function authenticationPolicy(
   env: Pick<AuthEnv, "AUTH0_AUTH_POLICY">,
@@ -472,7 +542,7 @@ function requireVerifiedAccount(payload: JWTPayload): void {
       403,
     );
 }
-async function memberships(
+export async function memberships(
   env: AuthEnv,
   userId: string,
 ): Promise<Membership[]> {
@@ -494,15 +564,12 @@ function sessionResult(
   tokenHash: string,
   env: AuthEnv,
 ): AuthenticatedSession {
+  const context:AuthContext={organizationId:row.organization_id,userId:row.user_id,role:row.role,supervisorCanApprove:row.supervisor_can_approve===1,supervisorCanReport:row.supervisor_can_report===1,actor:"browser"};
+  // Internal evidence must survive direct server use without appearing in JSON
+  // authority objects, public sessions or a spread into an OAuth identity.
+  Object.defineProperty(context,"documentSessionHash",{value:tokenHash,enumerable:false,writable:false});
   return {
-    context: {
-      organizationId: row.organization_id,
-      userId: row.user_id,
-      role: row.role,
-      supervisorCanApprove: row.supervisor_can_approve === 1,
-      supervisorCanReport: row.supervisor_can_report === 1,
-      actor: "browser",
-    },
+    context,
     organization: { id: row.organization_id, name: row.organization_name },
     user: {
       id: row.user_id,
@@ -535,12 +602,22 @@ export function publicSession(session: AuthenticatedSession) {
     verifiedAccount: session.verifiedAccount,
   };
 }
-async function createSession(
+export async function createSession(
   env: AuthEnv,
   membership: Membership,
   mfa: boolean,
   development: boolean,
   verifiedAccount = false,
+  authentication?: {
+    verifiedEmail: string;
+    authenticatedAt: number | null;
+    amr?: string[];
+    acr?: string | null;
+    strongAuthentication?: boolean;
+    authenticationPolicyVersion?: string | null;
+    identityIssuer?: string;
+    identitySubject?: string;
+  },
 ): Promise<{ session: AuthenticatedSession; cookie: string }> {
   const secret = randomSecret();
   const tokenHash = await hashSecret(secret);
@@ -561,6 +638,23 @@ async function createSession(
       Number(verifiedAccount),
     )
     .run();
+  await persistPersonalSession(env, {
+    tokenHash,
+    userId: membership.user_id,
+    csrfToken: csrf,
+    mfa,
+    development,
+    verifiedAccount,
+    verifiedEmail: authentication?.verifiedEmail ?? null,
+    authenticatedAt: authentication?.authenticatedAt ?? null,
+    amr: authentication?.amr,
+    acr: authentication?.acr,
+    strongAuthentication: authentication?.strongAuthentication,
+    authenticationPolicyVersion: authentication?.authenticationPolicyVersion,
+    identityIssuer: authentication?.identityIssuer,
+    identitySubject: authentication?.identitySubject,
+    expiresAt: new Date(Date.now() + HOUR).toISOString(),
+  });
   return {
     session: sessionResult(
       {
@@ -568,6 +662,290 @@ async function createSession(
         csrf_token: csrf,
         mfa: Number(mfa),
         verified_account: Number(verifiedAccount),
+      },
+      tokenHash,
+      env,
+    ),
+    cookie: cookie(env, "session", secret, 3600),
+  };
+}
+
+export async function persistPersonalSession(
+  env: AuthEnv,
+  input: {
+    tokenHash: string;
+    userId: string;
+    csrfToken: string;
+    verifiedEmail: string | null;
+    mfa: boolean;
+    verifiedAccount: boolean;
+    authenticatedAt: number | null;
+    amr?: string[];
+    acr?: string | null;
+    strongAuthentication?: boolean;
+    authenticationPolicyVersion?: string | null;
+    development: boolean;
+    expiresAt: string;
+    identityIssuer?: string;
+    identitySubject?: string;
+  },
+): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+  )
+    .bind(
+      input.tokenHash,
+      input.userId,
+      input.csrfToken,
+      input.verifiedEmail,
+      Number(input.mfa),
+      Number(input.verifiedAccount),
+      input.authenticatedAt,
+      JSON.stringify(input.amr ?? []),
+      input.acr ?? null,
+      Number(input.strongAuthentication ?? false),
+      input.authenticationPolicyVersion ?? null,
+      Number(input.development),
+      `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+      nowISO(),
+      input.expiresAt,
+      input.identityIssuer ?? null,
+      input.identitySubject ?? null,
+      input.identityIssuer ? nowISO() : null,
+    )
+    .run();
+}
+
+export async function createPersonalBrowserSession(
+  env: AuthEnv,
+  input: Omit<
+    Parameters<typeof persistPersonalSession>[1],
+    "tokenHash" | "csrfToken" | "expiresAt"
+  >,
+): Promise<{ cookie: string; tokenHash: string }> {
+  const secret = randomSecret();
+  const tokenHash = await hashSecret(secret);
+  await persistPersonalSession(env, {
+    ...input,
+    tokenHash,
+    csrfToken: randomSecret(),
+    expiresAt: new Date(Date.now() + HOUR).toISOString(),
+  });
+  return { cookie: cookie(env, "session", secret, 3600), tokenHash };
+}
+
+export async function authenticatePersonalBrowser(
+  request: Request,
+  env: AuthEnv,
+  mutating = false,
+): Promise<PersonalPrincipal> {
+  if (request.headers.has("Authorization"))
+    throw new AuthError(
+      "BROWSER_REQUIRED",
+      "Ouvrez vos documents dans votre navigateur.",
+      403,
+    );
+  const token = readCookie(request, cookieName(env, "session"));
+  if (!token || !/^[\w-]{43}$/.test(token))
+    throw new AuthError(
+      "AUTHENTICATION_REQUIRED",
+      "Connectez-vous pour continuer.",
+    );
+  const tokenHash = await hashSecret(token);
+  const row = await env.DB.prepare(
+    `SELECT p.user_id,p.csrf_token,p.verified_email,p.mfa,p.verified_account,p.authenticated_at,p.amr_json,p.acr,p.strong_authentication,p.authentication_policy_version,p.is_development,u.name,u.preferred_locale,u.preferred_dashboard_appearance,
+     EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=p.user_id AND ai.issuer=p.identity_issuer AND ai.subject=p.identity_subject AND u.email=p.verified_email) identity_verified
+     FROM personal_sessions p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND p.expires_at>?`,
+  )
+    .bind(tokenHash, nowISO())
+    .first<{
+      user_id: string;
+      csrf_token: string;
+      verified_email: string | null;
+      mfa: number;
+      verified_account: number;
+      identity_verified: number;
+      authenticated_at: number | null;
+      amr_json: string;
+      acr: string | null;
+      strong_authentication: number;
+      authentication_policy_version: string | null;
+      is_development: number;
+      name: string;
+      preferred_locale: SupportedLocale | null;
+      preferred_dashboard_appearance: DashboardAppearance;
+    }>();
+  if (!row || (row.is_development && !isLocalSimulation(request, env)))
+    throw new AuthError(
+      "SESSION_EXPIRED",
+      "Session expirée. Reconnectez-vous.",
+    );
+  if (mutating) {
+    requireSameOrigin(request, env);
+    if (
+      !constantEqual(request.headers.get("X-CSRF-Token") ?? "", row.csrf_token)
+    )
+      throw new AuthError(
+        "CSRF_REJECTED",
+        "La confirmation de session est absente ou invalide.",
+        403,
+      );
+  }
+  return {
+    userId: row.user_id,
+    name: row.name,
+    email: accountEmail(row.verified_email),
+    verifiedEmail: !!row.verified_email,
+    mfa: row.mfa === 1,
+    verifiedAccount: row.verified_account === 1,
+    identityVerified: row.identity_verified === 1,
+    authenticatedAt: row.authenticated_at,
+    amr: JSON.parse(row.amr_json),
+    acr: row.acr,
+    strongAuthentication: row.strong_authentication === 1,
+    authenticationPolicyVersion: row.authentication_policy_version,
+    preferredLocale: row.preferred_locale,
+    preferredDashboardAppearance: row.preferred_dashboard_appearance,
+    csrfToken: row.csrf_token,
+    tokenHash,
+    simulation: env.MODE === "simulation",
+    development: row.is_development === 1,
+  };
+}
+
+export function requirePersonalStrongAuthentication(
+  principal: PersonalPrincipal,
+  options: { maxAgeSeconds?: number } = {},
+): void {
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !principal.verifiedEmail ||
+    !principal.strongAuthentication ||
+    principal.authenticationPolicyVersion !== "guteneo-sensitive-v1" ||
+    principal.authenticatedAt === null ||
+    principal.authenticatedAt > now + 5 ||
+    now - principal.authenticatedAt > (options.maxAgeSeconds ?? 900)
+  )
+    throw new AuthError(
+      "STRONG_AUTHENTICATION_REQUIRED",
+      "Reconnectez-vous avec une authentification forte récente pour accéder à ce document.",
+      403,
+    );
+  if (principal.development && !principal.simulation)
+    throw new AuthError(
+      "DEVELOPMENT_AUTH_FORBIDDEN",
+      "Une connexion réelle est nécessaire.",
+      403,
+    );
+}
+
+/** Document authorization policy never upgrades the observed authentication. */
+export function requirePersonalDocumentAuthentication(
+  principal: PersonalPrincipal,
+  env: Pick<AuthEnv, "SENSITIVE_DOCUMENT_AUTHENTICATION">,
+  options: { maxAgeSeconds?: number } = {},
+): void {
+  if (documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong")
+    return requirePersonalStrongAuthentication(principal, options);
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !principal.verifiedAccount || !principal.verifiedEmail || !principal.email ||
+    !(principal.identityVerified || (principal.development && principal.simulation)) ||
+    !Number.isSafeInteger(principal.authenticatedAt) || principal.authenticatedAt === null ||
+    principal.authenticatedAt <= 0 || principal.authenticatedAt > now + 5 ||
+    now - principal.authenticatedAt > (options.maxAgeSeconds ?? 900)
+  ) throw new AuthError("DOCUMENT_AUTHENTICATION_REQUIRED", "Reconnectez-vous avec votre compte vérifié pour accéder à ce document.", 403);
+  if (principal.development && !principal.simulation)
+    throw new AuthError("DEVELOPMENT_AUTH_FORBIDDEN", "Une connexion réelle est nécessaire.", 403);
+}
+
+/** Rotate the shared cookie without extending the original authenticated
+ * lifetime. A personal session never supplies an organization by assertion. */
+export async function enterWorkspaceFromPersonal(
+  env: AuthEnv,
+  principal: PersonalPrincipal,
+  organizationId: string,
+): Promise<{ session: AuthenticatedSession; cookie: string }> {
+  const member = (await memberships(env, principal.userId)).find(
+    (item) => item.organization_id === organizationId,
+  );
+  if (!member)
+    throw new AuthError(
+      "MEMBERSHIP_REQUIRED",
+      "Vous n’êtes pas membre de cet atelier.",
+      403,
+    );
+  if (
+    !principal.development &&
+    authenticationPolicy(env) === "verified_email_and_mfa" &&
+    member.role === "admin" &&
+    !principal.mfa
+  )
+    throw new AuthError(
+      "MFA_REQUIRED",
+      "Reconnectez-vous après une double authentification.",
+      403,
+    );
+  const secret = randomSecret();
+  const tokenHash = await hashSecret(secret);
+  const csrfToken = randomSecret();
+  const timestamp = nowISO();
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account)
+      SELECT ?,p.user_id,m.organization_id,?,p.mfa,p.is_development,?,p.expires_at,p.verified_account FROM personal_sessions p
+      JOIN memberships m ON m.user_id=p.user_id JOIN organizations o ON o.id=m.organization_id
+      WHERE p.token_hash=? AND p.user_id=? AND p.csrf_token=? AND p.expires_at>? AND m.organization_id=? AND m.role=? AND m.supervisor_can_approve=? AND m.supervisor_can_report=? AND o.mode=?`,
+    ).bind(
+      tokenHash,
+      csrfToken,
+      timestamp,
+      principal.tokenHash,
+      principal.userId,
+      principal.csrfToken,
+      timestamp,
+      organizationId,
+      member.role,
+      member.supervisor_can_approve,
+      member.supervisor_can_report,
+      env.MODE,
+    ),
+    env.DB.prepare(
+      `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+      SELECT ?,user_id,?,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,?,?,expires_at,identity_issuer,identity_subject,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)`,
+    ).bind(
+      tokenHash,
+      csrfToken,
+      `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+      timestamp,
+      principal.tokenHash,
+      tokenHash,
+    ),
+    env.DB.prepare(
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+    ).bind(tokenHash, principal.tokenHash, tokenHash),
+    env.DB.prepare(
+      "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM personal_sessions WHERE token_hash=?)",
+    ).bind(principal.tokenHash, tokenHash),
+    env.DB.prepare(
+      "DELETE FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM personal_sessions WHERE token_hash=?)",
+    ).bind(principal.tokenHash, tokenHash),
+  ]);
+  if (!results[0].meta.changes)
+    throw new AuthError(
+      "ACCESS_CHANGED",
+      "Vos droits ou votre session ont changé. Reconnectez-vous.",
+      403,
+    );
+  return {
+    session: sessionResult(
+      {
+        ...member,
+        user_email: principal.email,
+        csrf_token: csrfToken,
+        mfa: Number(principal.mfa),
+        verified_account: Number(principal.verifiedAccount),
       },
       tokenHash,
       env,
@@ -1005,7 +1383,7 @@ async function handleAuthRouteOperation(
         ? await hashSecret(invitationToken)
         : null;
     await env.DB.prepare(
-      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer) VALUES(?,?,?,?,?,?,?,?,?,?)",
+      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
     )
       .bind(
         await hashSecret(state),
@@ -1018,6 +1396,9 @@ async function handleAuthRouteOperation(
         invitationHash,
         authorizationIssuer,
         config.issuer,
+        url.searchParams.get("context") === "personal"
+          ? "personal"
+          : "workshop",
       )
       .run();
     const destination = new URL("authorize", authorizationIssuer);
@@ -1037,6 +1418,14 @@ async function handleAuthRouteOperation(
     }).toString();
     if (url.pathname === "/auth/signup")
       destination.searchParams.set("screen_hint", "signup");
+    if (url.searchParams.get("context") === "personal") {
+      if (documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong")
+        destination.searchParams.set(
+          "acr_values",
+          "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
+        );
+      destination.searchParams.set("max_age", "0");
+    }
     // A fresh login allows a newly verified email or MFA enrolment to be reflected
     // in signed claims rather than reusing an old identity-provider session.
     if (
@@ -1064,13 +1453,14 @@ async function handleAuthRouteOperation(
     )
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const transaction = await env.DB.prepare(
-      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer",
+      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context",
     )
       .bind(await hashSecret(state), await hashSecret(browser), nowISO())
       .first<{
         invitation_token_hash: string | null;
         authorization_issuer: string | null;
         identity_issuer: string | null;
+        account_context: "personal" | "workshop";
         code_verifier: string;
         nonce: string;
         return_to: string;
@@ -1222,16 +1612,17 @@ async function handleAuthRouteOperation(
       identity = { user_id: userId };
     }
     if (!identity) {
-      if (policy === "verified_email_and_mfa" && !hasMfa(claims))
+      if (
+        policy === "verified_email_and_mfa" &&
+        !hasMfa(claims) &&
+        !documentAuthenticationEvidence(claims).strongAuthentication
+      )
         throw new AuthError(
           "MFA_REQUIRED",
-          "Terminez la double authentification pour créer votre espace.",
+          "Terminez l’authentification renforcée pour créer votre compte.",
           403,
         );
-      // The organization trigger grants one shared lifetime welcome credit.
-      // Per-channel quotas are safety ceilings; channels still need activation.
       const userId = `usr_${crypto.randomUUID()}`;
-      const organizationId = `org_${crypto.randomUUID()}`;
       const createdAt = nowISO();
       try {
         await env.DB.batch([
@@ -1242,37 +1633,17 @@ async function handleAuthRouteOperation(
             typeof claims.name === "string"
               ? claims.name.slice(0, 200)
               : "Utilisateur Guteneo",
-            typeof claims.email === "string" && claims.email_verified === true
-              ? claims.email.slice(0, 320)
-              : "",
+            claims.email.trim().toLowerCase(),
             createdAt,
             transaction.preferred_locale,
           ),
           env.DB.prepare(
-            "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
-          ).bind(organizationId, "Mon espace", env.MODE, createdAt),
-          env.DB.prepare(
-            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
-          ).bind(organizationId, userId, createdAt),
-          env.DB.prepare(
             "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
           ).bind(config.issuer, claims.sub, userId, createdAt),
-          env.DB.prepare(
-            "INSERT INTO content_limits(organization_id,uploads_per_day,bytes_per_day,renders_per_day) VALUES(?,10,20971520,3)",
-          ).bind(organizationId),
-          ...["fax", "email", "postal"].flatMap((channel) => [
-            env.DB.prepare(
-              "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,10000,5000,'EUR')",
-            ).bind(organizationId, channel, createdAt.slice(0, 7)),
-            env.DB.prepare(
-              "INSERT INTO channel_controls(organization_id,channel,enabled) VALUES(?,?,0)",
-            ).bind(organizationId, channel),
-          ]),
         ]);
         identity = { user_id: userId };
       } catch (error) {
-        // Concurrent valid callbacks can race to create the same identity. The
-        // failed D1 batch rolls back, then we reuse only the exact signed subject.
+        // Never merge identities by email, including concurrent callbacks.
         identity = await env.DB.prepare(
           "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
         )
@@ -1282,15 +1653,33 @@ async function handleAuthRouteOperation(
       }
     }
     const memberRows = await memberships(env, identity.user_id);
-    if (!memberRows.length) {
-      const error = new AuthError(
-        "invitation_required",
-        "Une invitation est nécessaire pour accéder à un atelier.",
-        403,
-      );
-      loginFailureContexts.set(error, failureContext.validated);
-      return redirect(authFailureRedirect(request, env, error.code, error), [
+    if (
+      !memberRows.length ||
+      (transaction.account_context === "personal" && !invitedOrganizationId)
+    ) {
+      await env.DB.prepare(
+        "UPDATE users SET email=? WHERE id=? AND EXISTS(SELECT 1 FROM auth_identities i WHERE i.user_id=users.id AND i.issuer=? AND i.subject=?)",
+      )
+        .bind(
+          claims.email.trim().toLowerCase(),
+          identity.user_id,
+          config.issuer,
+          claims.sub,
+        )
+        .run();
+      const personal = await createPersonalBrowserSession(env, {
+        userId: identity.user_id,
+        verifiedEmail: claims.email.trim().toLowerCase(),
+        mfa: hasMfa(claims),
+        verifiedAccount,
+        ...documentAuthenticationEvidence(claims),
+        identityIssuer: config.issuer,
+        identitySubject: claims.sub,
+        development: false,
+      });
+      return redirect(new URL(transaction.return_to, env.APP_ORIGIN).href, [
         cookie(env, "login", "", 0),
+        personal.cookie,
       ]);
     }
     const member = invitedOrganizationId
@@ -1333,16 +1722,18 @@ async function handleAuthRouteOperation(
       hasMfa(claims),
       false,
       verifiedAccount,
+      {
+        verifiedEmail: claims.email.trim().toLowerCase(),
+        ...documentAuthenticationEvidence(claims),
+        identityIssuer: config.issuer,
+        identitySubject: claims.sub,
+      },
     );
     await env.DB.prepare(
-      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) VALUES(?,?,?,?,?)",
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT token_hash,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL",
     )
       .bind(
         session.session.tokenHash,
-        config.issuer,
-        claims.sub,
-        claims.email.toLowerCase().trim(),
-        nowISO(),
       )
       .run();
     await observeBrowserSession(env, request, session.session);
@@ -1378,7 +1769,13 @@ async function handleAuthRouteOperation(
         "Initialisez les données de simulation.",
         503,
       );
-    const result = await createSession(env, selected, false, true);
+    const result = await createSession(env, selected, false, true, false, {
+      verifiedEmail: selected.user_email ?? "workshop@example.test",
+      authenticatedAt: Math.floor(Date.now() / 1000),
+      amr: ["simulation"],
+      strongAuthentication: true,
+      authenticationPolicyVersion: "guteneo-sensitive-v1",
+    });
     return json(publicSession(result.session), 200, {
       "Set-Cookie": result.cookie,
     });
@@ -1496,8 +1893,19 @@ async function handleAuthRouteOperation(
         current.is_development,
       ),
       env.DB.prepare(
-        "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+        "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
       ).bind(tokenHash, session.tokenHash, tokenHash),
+      env.DB.prepare(
+        `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+        SELECT ?,user_id,?,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,?,?,expires_at,identity_issuer,identity_subject,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)`,
+      ).bind(
+        tokenHash,
+        csrfToken,
+        `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+        now,
+        session.tokenHash,
+        tokenHash,
+      ),
       env.DB.prepare(
         "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
       ).bind(session.tokenHash, tokenHash),

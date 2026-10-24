@@ -118,6 +118,7 @@ export type Fixtures = {
   http?: number;
   history?: (days: number) => unknown;
   qualification?: unknown;
+  e2eStatus?: unknown;
 };
 export async function fixtures(page: Page, fixture: Fixtures = {}) {
   const errors: string[] = [],
@@ -160,6 +161,24 @@ export async function fixtures(page: Page, fixture: Fixtures = {}) {
       );
     if (url.pathname === "/qualification.json")
       return respond(fixture.qualification ?? qualification());
+    if (url.pathname === "/api/e2e-status")
+      return respond(
+        fixture.e2eStatus ?? {
+          schema: 1,
+          generatedAt: new Date().toISOString(),
+          status: "unknown",
+          freshness: "missing",
+          staleAfterSeconds: 28800,
+          releaseState: "unverified",
+          currentReleaseCommit: null,
+          latest: null,
+          history: [],
+          authenticated: {
+            status: "blocked",
+            code: "DEDICATED_AUTHENTICATED_FIXTURES_NOT_CONFIGURED",
+          },
+        },
+      );
     return route.continue();
   });
   return { errors, external };

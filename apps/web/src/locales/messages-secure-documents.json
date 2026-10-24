@@ -1,0 +1,1168 @@
+{
+  "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.": [
+    "The personal copy can be exported, even when downloading the original PDF is disabled.",
+    "Die persönliche Kopie kann exportiert werden, auch wenn das Herunterladen des Original-PDFs deaktiviert ist.",
+    "Déi perséinlech Kopie kann exportéiert ginn, och wann d’Erofluede vum Original-PDF desaktivéiert ass."
+  ],
+  "Mes documents": ["My documents", "Meine Dokumente", "Meng Dokumenter"],
+  "Espace personnel": [
+    "Personal space",
+    "Persönlicher Bereich",
+    "Perséinleche Beräich"
+  ],
+  "Utiliser Guteneo": ["Use Guteneo", "Guteneo nutzen", "Guteneo benotzen"],
+  "Compte et sécurité": [
+    "Account and security",
+    "Konto und Sicherheit",
+    "Kont a Sécherheet"
+  ],
+  "Partagés avec moi": ["Shared with me", "Mit mir geteilt", "Mat mir gedeelt"],
+  "Copies conservées": [
+    "Saved copies",
+    "Aufbewahrte Kopien",
+    "Gespäichert Kopien"
+  ],
+  "Distribution sécurisée": [
+    "Secure distribution",
+    "Sichere Bereitstellung",
+    "Séchert Deelen"
+  ],
+  "Distributions sécurisées": [
+    "Secure distributions",
+    "Sichere Bereitstellungen",
+    "Séchert Deele vun Dokumenter"
+  ],
+  "Nouveau partage": ["New share", "Neue Freigabe", "Neit Deelen"],
+  "Ouvrir": ["Open", "Öffnen", "Opmaachen"],
+  "Ouvrir le document": [
+    "Open document",
+    "Dokument öffnen",
+    "Dokument opmaachen"
+  ],
+  "Revenir à mes documents": [
+    "Back to my documents",
+    "Zurück zu meinen Dokumenten",
+    "Zréck bei meng Dokumenter"
+  ],
+  "Revenir aux distributions": [
+    "Back to distributions",
+    "Zurück zu den Bereitstellungen",
+    "Zréck bei d’Deelungen"
+  ],
+  "Un seul compte pour vos documents et les services Guteneo.": [
+    "One account for your documents and Guteneo services.",
+    "Ein Konto für Ihre Dokumente und die Guteneo-Dienste.",
+    "Ee Kont fir Är Dokumenter an d’Servicer vu Guteneo."
+  ],
+  "Ces documents restent sous le contrôle de leur expéditeur. Leur accès peut expirer ou être révoqué.": [
+    "These documents remain under the sender’s control. Access may expire or be revoked.",
+    "Diese Dokumente bleiben unter der Kontrolle des Absenders. Der Zugriff kann ablaufen oder widerrufen werden.",
+    "Dës Dokumenter bleiwen ënner der Kontroll vum Expéditeur. Den Zougang kann oflafen oder zréckgezu ginn."
+  ],
+  "Ces copies vous ont été remises pour la durée indiquée. L’atelier ne peut plus les retirer.": [
+    "These copies were delivered to you for the stated retention period. The workspace can no longer withdraw them.",
+    "Diese Kopien wurden Ihnen für die angegebene Aufbewahrungsdauer übergeben. Der Arbeitsbereich kann sie nicht mehr zurückziehen.",
+    "Dës Kopië goufen Iech fir déi uginn Dauer iwwerreecht. Den Atelier kann se net méi zeréckzéien."
+  ],
+  "Aucun document partagé": [
+    "No shared documents",
+    "Keine geteilten Dokumente",
+    "Keng gedeelt Dokumenter"
+  ],
+  "Les documents qui vous sont attribués apparaîtront ici après validation de votre accès.": [
+    "Documents assigned to you will appear here once your access has been validated.",
+    "Ihnen zugewiesene Dokumente erscheinen hier, sobald Ihr Zugriff bestätigt wurde.",
+    "Dokumenter, déi Iech zougewise sinn, erschéngen hei, soubal Ären Zougang validéiert gouf."
+  ],
+  "Aucune copie conservée": [
+    "No saved copies",
+    "Keine aufbewahrten Kopien",
+    "Keng gespäichert Kopien"
+  ],
+  "Vous pourrez conserver une copie si l’atelier expéditeur l’autorise.": [
+    "You can save a copy when the sending workspace allows it.",
+    "Sie können eine Kopie aufbewahren, wenn der sendende Arbeitsbereich dies erlaubt.",
+    "Dir kënnt eng Kopie späicheren, wann den Atelier, deen se schéckt, dat erlaabt."
+  ],
+  "Expéditeur": ["Sender", "Absender", "Expéditeur"],
+  "Disponible jusqu’au {0}": [
+    "Available until {0}",
+    "Verfügbar bis {0}",
+    "Disponibel bis den {0}"
+  ],
+  "Conservation jusqu’au {0}": [
+    "Retained until {0}",
+    "Aufbewahrung bis {0}",
+    "Gespäichert bis den {0}"
+  ],
+  "Accès révoqué": [
+    "Access revoked",
+    "Zugriff widerrufen",
+    "Zougang zréckgezunn"
+  ],
+  "Accès expiré": ["Access expired", "Zugriff abgelaufen", "Zougang ofgelaf"],
+  "Association en attente": [
+    "Association pending",
+    "Zuordnung ausstehend",
+    "Zouuerdnung amgaang"
+  ],
+  "Accès disponible": [
+    "Access available",
+    "Zugriff verfügbar",
+    "Zougang disponibel"
+  ],
+  "Copie conservée": ["Copy saved", "Kopie aufbewahrt", "Kopie gespäichert"],
+  "Votre identité de compte et votre accès doivent être vérifiés avant l’affichage du document.": [
+    "Your account identity and access must be verified before the document can be displayed.",
+    "Ihre Kontoidentität und Ihr Zugriff müssen vor der Anzeige des Dokuments überprüft werden.",
+    "Är Kontidentitéit an Ären Zougang musse kontrolléiert ginn, ier d’Dokument ugewise gëtt."
+  ],
+  "Se connecter à mon compte": [
+    "Sign in to my account",
+    "Bei meinem Konto anmelden",
+    "Op mäi Kont aloggen"
+  ],
+  "Créer mon compte Guteneo": [
+    "Create my Guteneo account",
+    "Mein Guteneo-Konto erstellen",
+    "Mäi Guteneo-Kont erstellen"
+  ],
+  "Votre compte sert aussi à utiliser les services Guteneo. Aucun atelier n’est créé pour consulter vos documents.": [
+    "Your account also gives you access to Guteneo services. No workspace is created to view your documents.",
+    "Mit Ihrem Konto können Sie auch die Guteneo-Dienste nutzen. Zum Lesen Ihrer Dokumente wird kein Arbeitsbereich erstellt.",
+    "Mat Ärem Kont kënnt Dir och d’Servicer vu Guteneo benotzen. Fir Är Dokumenter ze kucke gëtt keen Atelier erstallt."
+  ],
+  "Connexion renforcée nécessaire": [
+    "Stronger sign-in required",
+    "Stärkere Anmeldung erforderlich",
+    "Verstäerkten Aloggen néideg"
+  ],
+  "Vérifiez votre connexion": [
+    "Verify your sign-in",
+    "Überprüfen Sie Ihre Anmeldung",
+    "Kontrolléiert Är Umeldung"
+  ],
+  "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.": [
+    "Sign in again to your verified account to access your documents.",
+    "Melden Sie sich erneut bei Ihrem verifizierten Konto an, um auf Ihre Dokumente zuzugreifen.",
+    "Mellt Iech nees bei Ärem verifizéierte Kont un, fir op Är Dokumenter zouzegräifen."
+  ],
+  "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.": [
+    "Sign in again using the required security method to access your documents.",
+    "Melden Sie sich erneut mit der erforderlichen Sicherheitsmethode an, um auf Ihre Dokumente zuzugreifen.",
+    "Mellt Iech nees mat der néideger Sécherheetsmethod un, fir op Är Dokumenter zouzegräifen."
+  ],
+  "Vérifier mon accès": [
+    "Verify my access",
+    "Meinen Zugriff überprüfen",
+    "Mäin Zougang kontrolléieren"
+  ],
+  "Ouvrir mon atelier": [
+    "Open my workspace",
+    "Meinen Arbeitsbereich öffnen",
+    "Mäin Atelier opmaachen"
+  ],
+  "Choisir un atelier": [
+    "Choose a workspace",
+    "Arbeitsbereich wählen",
+    "En Atelier wielen"
+  ],
+  "Créer mon atelier": [
+    "Create my workspace",
+    "Meinen Arbeitsbereich erstellen",
+    "Mäin Atelier erstellen"
+  ],
+  "Nom de votre atelier": [
+    "Your workspace name",
+    "Name Ihres Arbeitsbereichs",
+    "Numm vun Ärem Atelier"
+  ],
+  "Votre espace d’envoi est créé uniquement à votre demande, avec le même compte.": [
+    "Your sending workspace is created only when you request it, using the same account.",
+    "Ihr Versandbereich wird nur auf Ihren Wunsch mit demselben Konto erstellt.",
+    "Ären Atelier fir ze schécke gëtt nëmmen op Är Ufro mam selwechte Kont erstallt."
+  ],
+  "Envoyer des documents": [
+    "Send documents",
+    "Dokumente versenden",
+    "Dokumenter schécken"
+  ],
+  "Préparez un envoi par e-mail, fax ou courrier postal. Vous vérifiez le contenu et le prix avant de confirmer.": [
+    "Prepare an email, fax or postal dispatch. Review the content and price before confirming.",
+    "Bereiten Sie einen Versand per E-Mail, Fax oder Briefpost vor. Prüfen Sie Inhalt und Preis vor der Bestätigung.",
+    "Bereet eng Sendung per E-Mail, Fax oder Bréifpost vir. Dir kontrolléiert den Inhalt an de Präis virum Bestätegen."
+  ],
+  "Partager un document sensible": [
+    "Share a sensitive document",
+    "Ein vertrauliches Dokument teilen",
+    "E sensibelt Dokument deelen"
+  ],
+  "Accordez un accès individuel à un document et suivez les événements de consultation disponibles.": [
+    "Grant individual access to a document and follow the available viewing events.",
+    "Gewähren Sie individuellen Zugriff auf ein Dokument und verfolgen Sie die verfügbaren Anzeigeereignisse.",
+    "Gitt individuellen Zougang zu engem Dokument a verfollegt déi disponibel Consultatiounsevenementer."
+  ],
+  "Découvrir les tarifs": ["View pricing", "Preise ansehen", "Präisser kucken"],
+  "Vos documents reçus restent accessibles sans achat de service.": [
+    "Your received documents remain accessible without purchasing a service.",
+    "Ihre empfangenen Dokumente bleiben ohne Dienstekauf zugänglich.",
+    "Är empfaangen Dokumenter bleiwen zougänglech, ouni e Service ze kafen."
+  ],
+  "Navigation personnelle": [
+    "Personal navigation",
+    "Persönliche Navigation",
+    "Perséinlech Navigatioun"
+  ],
+  "Connecté avec {0}": [
+    "Signed in as {0}",
+    "Angemeldet als {0}",
+    "Ageloggt als {0}"
+  ],
+  "Changer de compte": ["Switch account", "Konto wechseln", "Kont wiesselen"],
+  "Se déconnecter": ["Sign out", "Abmelden", "Ofmellen"],
+  "Aucun atelier associé à ce compte.": [
+    "No workspace is associated with this account.",
+    "Diesem Konto ist kein Arbeitsbereich zugeordnet.",
+    "Kee Atelier ass mat dësem Kont verbonnen."
+  ],
+  "Identité du compte": [
+    "Account identity",
+    "Kontoidentität",
+    "Kontidentitéit"
+  ],
+  "Nom": ["Name", "Name", "Numm"],
+  "Adresse e-mail": ["Email address", "E-Mail-Adresse", "E-Mail-Adress"],
+  "Enregistrer les préférences": [
+    "Save preferences",
+    "Einstellungen speichern",
+    "Astellunge späicheren"
+  ],
+  "Préférences enregistrées.": [
+    "Preferences saved.",
+    "Einstellungen gespeichert.",
+    "Astellunge gespäichert."
+  ],
+  "Vos documents et les droits de vos ateliers restent liés à ce compte unique.": [
+    "Your documents and workspace permissions remain linked to this single account.",
+    "Ihre Dokumente und Arbeitsbereichsrechte bleiben mit diesem einen Konto verknüpft.",
+    "Är Dokumenter an d’Rechter vun Ären Ateliere bleiwe mat dësem eenzege Kont verbonnen."
+  ],
+  "Sécurité du compte": [
+    "Account security",
+    "Kontosicherheit",
+    "Kontsécherheet"
+  ],
+  "L’accès au contenu est contrôlé par le serveur à chaque opération. Une vérification supplémentaire peut vous être demandée.": [
+    "The server checks content access for each operation. You may be asked to verify your identity again.",
+    "Der Server überprüft den Inhaltszugriff bei jedem Vorgang. Sie können um eine weitere Überprüfung gebeten werden.",
+    "De Server kontrolléiert den Zougang zum Inhalt bei all Operatioun. Eng zousätzlech Verifikatioun kann néideg sinn."
+  ],
+  "Gérer ma connexion": [
+    "Manage sign-in",
+    "Anmeldung verwalten",
+    "Mäin Alogge geréieren"
+  ],
+  "Sessions actives": [
+    "Active sessions",
+    "Aktive Sitzungen",
+    "Aktiv Sessiounen"
+  ],
+  "Session actuelle": [
+    "Current session",
+    "Aktuelle Sitzung",
+    "Aktuell Sessioun"
+  ],
+  "Fermer cette session": [
+    "Close this session",
+    "Diese Sitzung schließen",
+    "Dës Sessioun zoumaachen"
+  ],
+  "Fermer cet accès au compte ?": [
+    "Close this account session?",
+    "Diese Kontositzung schließen?",
+    "Dës Kontsessioun zoumaachen?"
+  ],
+  "Fermer la session": [
+    "Close session",
+    "Sitzung schließen",
+    "Sessioun zoumaachen"
+  ],
+  "Simulation locale : les comptes et documents sont fictifs.": [
+    "Local simulation: accounts and documents are fictional.",
+    "Lokale Simulation: Konten und Dokumente sind fiktiv.",
+    "Lokal Simulatioun: d’Konten an d’Dokumenter si fiktiv."
+  ],
+  "Ouvrir le compte destinataire fictif": [
+    "Open the fictional recipient account",
+    "Fiktives Empfängerkonto öffnen",
+    "De fiktiven Empfängerkont opmaachen"
+  ],
+  "Préparer un envoi": [
+    "Prepare a dispatch",
+    "Versand vorbereiten",
+    "Eng Sendung virbereeden"
+  ],
+  "Session du {0}": ["Session from {0}", "Sitzung vom {0}", "Sessioun vum {0}"],
+  "Aucune session active": [
+    "No active sessions",
+    "Keine aktiven Sitzungen",
+    "Keng aktiv Sessiounen"
+  ],
+  "Un document vous a été adressé": [
+    "A document has been sent to you",
+    "Ein Dokument wurde an Sie gesendet",
+    "En Dokument gouf Iech geschéckt"
+  ],
+  "Vérifiez le compte connecté avant de demander l’accès. L’invitation ne donne aucun droit dans l’atelier expéditeur.": [
+    "Check the signed-in account before requesting access. This invitation grants no permissions in the sender’s workspace.",
+    "Prüfen Sie das angemeldete Konto, bevor Sie Zugriff anfordern. Die Einladung gewährt keine Rechte im Arbeitsbereich des Absenders.",
+    "Kontrolléiert den ageloggte Kont, ier Dir Zougang ufrot. D’Invitatioun gëtt keng Rechter am Atelier vum Expéditeur."
+  ],
+  "L’atelier peut devoir confirmer l’association à votre compte avant de vous donner accès au contenu.": [
+    "The workspace may need to confirm the association with your account before granting access to the content.",
+    "Der Arbeitsbereich muss möglicherweise die Zuordnung zu Ihrem Konto bestätigen, bevor er Zugriff auf den Inhalt gewährt.",
+    "Den Atelier muss eventuell d’Zouuerdnung zu Ärem Kont bestätegen, ier Dir Zougang zum Inhalt kritt."
+  ],
+  "Votre demande d’accès attend la confirmation de l’atelier.": [
+    "Your access request is awaiting confirmation from the workspace.",
+    "Ihre Zugriffsanfrage wartet auf die Bestätigung des Arbeitsbereichs.",
+    "Är Zougangsufro waart op d’Bestätegung vum Atelier."
+  ],
+  "Vérification en cours…": [
+    "Verifying…",
+    "Wird überprüft…",
+    "Gëtt kontrolléiert…"
+  ],
+  "Demander l’accès au document": [
+    "Request access to the document",
+    "Zugriff auf das Dokument anfordern",
+    "Zougang zum Dokument ufroen"
+  ],
+  "Catégories de documents": [
+    "Document categories",
+    "Dokumentkategorien",
+    "Dokumentkategorien"
+  ],
+  "Document reçu": [
+    "Received document",
+    "Empfangenes Dokument",
+    "Empfaangent Dokument"
+  ],
+  "L’atelier reçoit un journal des accès autorisés et des affichages déclarés. Les captures d’écran ne sont pas détectées.": [
+    "The workspace receives a log of authorized access and reported displays. Screenshots are not detected.",
+    "Der Arbeitsbereich erhält ein Protokoll autorisierter Zugriffe und gemeldeter Anzeigen. Bildschirmaufnahmen werden nicht erkannt.",
+    "Den Atelier kritt e Protokoll vun autoriséierten Zougrëffer a gemellten Affichagen. Screenshots ginn net erkannt."
+  ],
+  "Vos consultations de cette copie personnelle ne sont pas communiquées à l’atelier expéditeur.": [
+    "Your views of this personal copy are not shared with the sending workspace.",
+    "Ihre Aufrufe dieser persönlichen Kopie werden dem sendenden Arbeitsbereich nicht mitgeteilt.",
+    "Är Consultatioune vun dëser perséinlecher Kopie ginn net un den Atelier vum Expéditeur weiderginn."
+  ],
+  "Afficher les pages": ["Show pages", "Seiten anzeigen", "Säiten uweisen"],
+  "Afficher le texte accessible": [
+    "Show accessible text",
+    "Barrierefreien Text anzeigen",
+    "Den zougänglechen Text uweisen"
+  ],
+  "{0} page(s)": ["{0} page(s)", "{0} Seite(n)", "{0} Säit(en)"],
+  "Exporter ma copie": [
+    "Export my copy",
+    "Meine Kopie exportieren",
+    "Meng Kopie exportéieren"
+  ],
+  "Télécharger le PDF original": [
+    "Download the original PDF",
+    "Original-PDF herunterladen",
+    "Den Original-PDF eroflueden"
+  ],
+  "Le fichier quittera le contrôle de Guteneo. Continuer ?": [
+    "The file will leave Guteneo’s control. Continue?",
+    "Die Datei verlässt den Kontrollbereich von Guteneo. Fortfahren?",
+    "De Fichier verléisst d’Kontroll vu Guteneo. Virufueren?"
+  ],
+  "Lancer le téléchargement": [
+    "Start download",
+    "Download starten",
+    "Den Download starten"
+  ],
+  "Téléchargement lancé. Guteneo ne peut pas confirmer l’enregistrement sur votre appareil.": [
+    "Download started. Guteneo cannot confirm that it was saved on your device.",
+    "Download gestartet. Guteneo kann das Speichern auf Ihrem Gerät nicht bestätigen.",
+    "Download gestart. Guteneo kann net bestätegen, datt de Fichier op Ärem Apparat gespäichert gouf."
+  ],
+  "Texte accessible du document": [
+    "Accessible document text",
+    "Barrierefreier Dokumenttext",
+    "Zougänglechen Dokumenttext"
+  ],
+  "Page {0}": ["Page {0}", "Seite {0}", "Säit {0}"],
+  "Aucun texte accessible n’est disponible pour cette page.": [
+    "No accessible text is available for this page.",
+    "Für diese Seite ist kein barrierefreier Text verfügbar.",
+    "Fir dës Säit ass keen zougänglechen Text disponibel."
+  ],
+  "Conserver une copie personnelle": [
+    "Save a personal copy",
+    "Eine persönliche Kopie aufbewahren",
+    "Eng perséinlech Kopie späicheren"
+  ],
+  "Cette copie sera exportable et conservée pendant {0} jours à partir de sa remise. L’atelier ne pourra plus la retirer.": [
+    "This copy can be exported and will be retained for {0} days from delivery. The workspace will no longer be able to withdraw it.",
+    "Diese Kopie ist exportierbar und wird ab der Übergabe {0} Tage lang aufbewahrt. Der Arbeitsbereich kann sie danach nicht mehr zurückziehen.",
+    "Dës Kopie kann exportéiert ginn a gëtt {0} Deeg vun hirer Iwwerreechung u gespäichert. Den Atelier kann se net méi zeréckzéien."
+  ],
+  "Conserver une copie": [
+    "Save a copy",
+    "Kopie aufbewahren",
+    "Eng Kopie späicheren"
+  ],
+  "Accepter la remise de cette copie dans votre espace personnel ?": [
+    "Accept delivery of this copy to your personal space?",
+    "Die Übergabe dieser Kopie in Ihren persönlichen Bereich akzeptieren?",
+    "D’Iwwerreechung vun dëser Kopie an Äre perséinleche Beräich unhuelen?"
+  ],
+  "Accepter et conserver": [
+    "Accept and save",
+    "Akzeptieren und aufbewahren",
+    "Unhuelen a späicheren"
+  ],
+  "Ouvrir ma copie personnelle": [
+    "Open my personal copy",
+    "Meine persönliche Kopie öffnen",
+    "Meng perséinlech Kopie opmaachen"
+  ],
+  "Page {0}. Le texte accessible est disponible avec le bouton au-dessus du document.": [
+    "Page {0}. Accessible text is available using the button above the document.",
+    "Seite {0}. Barrierefreier Text ist über die Schaltfläche oberhalb des Dokuments verfügbar.",
+    "Säit {0}. Den zougänglechen Text ass mam Knäppchen iwwer dem Dokument disponibel."
+  ],
+  "Approuvé, à activer": [
+    "Approved, awaiting activation",
+    "Genehmigt, Aktivierung ausstehend",
+    "Geneemegt, Aktivéierung steet aus"
+  ],
+  "Accès actif": ["Active access", "Aktiver Zugriff", "Aktiven Zougang"],
+  "Préparation en cours": [
+    "Preparation in progress",
+    "Vorbereitung läuft",
+    "Virbereedung amgaang"
+  ],
+  "État à vérifier": [
+    "Status needs checking",
+    "Status prüfen",
+    "Status kontrolléieren"
+  ],
+  "Un accès individuel, une durée définie et un journal des événements observables.": [
+    "Individual access, a defined term and a log of observable events.",
+    "Individueller Zugriff, eine festgelegte Dauer und ein Protokoll beobachtbarer Ereignisse.",
+    "Individuellen Zougang, eng festgeluechten Dauer an e Protokoll vun observéierbaren Evenementer."
+  ],
+  "La révocation bloque les nouveaux accès et ne rembourse pas la période activée.": [
+    "Revocation blocks new access and does not refund the activated term.",
+    "Ein Widerruf sperrt neue Zugriffe und erstattet den aktivierten Zeitraum nicht.",
+    "D’Zeréckzéie blockéiert nei Zougrëffer a rembourséiert déi aktivéiert Period net."
+  ],
+  "Voir le partage": ["View share", "Freigabe ansehen", "D’Deelung kucken"],
+  "Aucune distribution sécurisée": [
+    "No secure distributions",
+    "Keine sicheren Bereitstellungen",
+    "Keng sécher Deelungen"
+  ],
+  "Préparez un partage à partir d’un PDF vérifié dans cet atelier.": [
+    "Prepare a share from a verified PDF in this workspace.",
+    "Bereiten Sie eine Freigabe aus einem überprüften PDF in diesem Arbeitsbereich vor.",
+    "Bereet eng Deelung aus engem kontrolléierte PDF an dësem Atelier vir."
+  ],
+  "Nouveau partage sécurisé": [
+    "New secure share",
+    "Neue sichere Freigabe",
+    "Neit séchert Deelen"
+  ],
+  "Le destinataire utilise son compte Guteneo. Recevoir un document ne donne aucun droit dans votre atelier.": [
+    "The recipient uses their Guteneo account. Receiving a document grants no permissions in your workspace.",
+    "Der Empfänger nutzt sein Guteneo-Konto. Der Empfang eines Dokuments gewährt keine Rechte in Ihrem Arbeitsbereich.",
+    "Den Empfänger benotzt säi Guteneo-Kont. En Dokument ze kréie gëtt keng Rechter an Ärem Atelier."
+  ],
+  "Document et destinataire": [
+    "Document and recipient",
+    "Dokument und Empfänger",
+    "Dokument an Empfänger"
+  ],
+  "PDF vérifié": ["Verified PDF", "Überprüftes PDF", "Kontrolléierte PDF"],
+  "Le document original reste inchangé. La consultation utilise des pages préparées pour le destinataire.": [
+    "The original document remains unchanged. Viewing uses pages prepared for the recipient.",
+    "Das Originaldokument bleibt unverändert. Zur Anzeige werden für den Empfänger vorbereitete Seiten verwendet.",
+    "D’Originaldokument bleift onverännert. Fir d’Consultatioun gi Säite benotzt, déi fir den Empfänger virbereet goufen."
+  ],
+  "Choisir un document": [
+    "Choose a document",
+    "Dokument auswählen",
+    "En Dokument wielen"
+  ],
+  "Importer et vérifier un PDF": [
+    "Import and verify a PDF",
+    "PDF importieren und überprüfen",
+    "E PDF importéieren a kontrolléieren"
+  ],
+  "Nom du destinataire": [
+    "Recipient name",
+    "Name des Empfängers",
+    "Numm vum Empfänger"
+  ],
+  "Adresse e-mail du destinataire": [
+    "Recipient email address",
+    "E-Mail-Adresse des Empfängers",
+    "E-Mail-Adress vum Empfänger"
+  ],
+  "Choisissez une adresse individuelle. Le rattachement au bon compte devra être confirmé avant l’accès.": [
+    "Choose an individual address. Association with the correct account must be confirmed before access.",
+    "Wählen Sie eine persönliche Adresse. Die Zuordnung zum richtigen Konto muss vor dem Zugriff bestätigt werden.",
+    "Wielt eng individuell Adress. D’Zouuerdnung zum richtege Kont muss virum Zougang bestätegt ginn."
+  ],
+  "Durée et droits": [
+    "Term and permissions",
+    "Dauer und Rechte",
+    "Dauer a Rechter"
+  ],
+  "Durée de l’accès partagé": [
+    "Shared access term",
+    "Dauer des geteilten Zugriffs",
+    "Dauer vum gedeelt Zougang"
+  ],
+  "{0} jours · {1} HT": [
+    "{0} days · {1} excluding tax",
+    "{0} Tage · {1} zzgl. Steuern",
+    "{0} Deeg · {1} ouni Steieren"
+  ],
+  "Autoriser le téléchargement du PDF original": [
+    "Allow download of the original PDF",
+    "Download des Original-PDFs erlauben",
+    "Erofluede vum Original-PDF erlaben"
+  ],
+  "Une copie téléchargée ne peut plus être rappelée. Ses ouvertures ultérieures ne sont pas suivies.": [
+    "A downloaded copy cannot be recalled. Its subsequent openings are not tracked.",
+    "Eine heruntergeladene Kopie kann nicht zurückgerufen werden. Spätere Aufrufe werden nicht verfolgt.",
+    "Eng erofgeluede Kopie kann net zeréckgeruff ginn. Hir spéider Ouverture ginn net verfollegt."
+  ],
+  "Autoriser une copie personnelle conservée": [
+    "Allow a retained personal copy",
+    "Eine aufbewahrte persönliche Kopie erlauben",
+    "Eng gespäichert perséinlech Kopie erlaben"
+  ],
+  "Après remise, la copie reste accessible pour sa durée propre, même si vous révoquez le partage.": [
+    "Once delivered, the copy remains accessible for its own term, even if you revoke the share.",
+    "Nach der Übergabe bleibt die Kopie für ihre eigene Dauer zugänglich, auch wenn Sie die Freigabe widerrufen.",
+    "No der Iwwerreechung bleift d’Kopie fir hir eege Dauer zougänglech, och wann Dir d’Deelung zeréckzitt."
+  ],
+  "Durée de la copie personnelle": [
+    "Personal copy retention term",
+    "Aufbewahrungsdauer der persönlichen Kopie",
+    "Dauer vun der perséinlecher Kopie"
+  ],
+  "Message d’invitation": [
+    "Invitation message",
+    "Einladungsnachricht",
+    "Invitatiounsmessagë"
+  ],
+  "Objet": ["Subject", "Betreff", "Betreff"],
+  "Évitez toute information confidentielle dans l’invitation par e-mail.": [
+    "Keep confidential information out of the email invitation.",
+    "Vermeiden Sie vertrauliche Informationen in der E-Mail-Einladung.",
+    "Vermeit vertraulech Informatiounen an der E-Mail-Invitatioun."
+  ],
+  "Prix à vérifier": [
+    "Price to be confirmed",
+    "Preis prüfen",
+    "Präis ze kontrolléieren"
+  ],
+  "Conservation : {0} HT": [
+    "Retention: {0} excluding tax",
+    "Aufbewahrung: {0} zzgl. Steuern",
+    "Späicherung: {0} ouni Steieren"
+  ],
+  "Le transport de l’invitation sera ajouté au devis final. La période activée est due en totalité, même après révocation du document.": [
+    "Invitation delivery will be added to the final quote. The activated term is payable in full, even after document revocation.",
+    "Die Zustellung der Einladung wird dem endgültigen Angebot hinzugefügt. Der aktivierte Zeitraum ist vollständig zahlbar, auch nach Widerruf des Dokuments.",
+    "D’Liwwerung vun der Invitatioun gëtt zum definitiven Devis bäigerechent. Déi aktivéiert Period bleift ganz ze bezuelen, och nom Zeréckzéie vum Dokument."
+  ],
+  "Préparation en cours…": [
+    "Preparing…",
+    "Wird vorbereitet…",
+    "Gëtt virbereet…"
+  ],
+  "Préparer et vérifier le partage": [
+    "Prepare and review share",
+    "Freigabe vorbereiten und prüfen",
+    "D’Deelung virbereeden a kontrolléieren"
+  ],
+  "Partage préparé": [
+    "Share prepared",
+    "Freigabe vorbereitet",
+    "Deelung virbereet"
+  ],
+  "Partage approuvé": [
+    "Share approved",
+    "Freigabe genehmigt",
+    "Deelung geneemegt"
+  ],
+  "Partage activé et période facturée": [
+    "Share activated and term charged",
+    "Freigabe aktiviert und Zeitraum berechnet",
+    "Deelung aktivéiert a Period verrechent"
+  ],
+  "Invitation soumise au prestataire": [
+    "Invitation submitted to provider",
+    "Einladung an Dienstleister übermittelt",
+    "Invitatioun un de Fournisseur iwwerreecht"
+  ],
+  "Association du destinataire en attente": [
+    "Recipient association pending",
+    "Empfängerzuordnung ausstehend",
+    "Zouuerdnung vum Empfänger amgaang"
+  ],
+  "Association du destinataire confirmée": [
+    "Recipient association confirmed",
+    "Empfängerzuordnung bestätigt",
+    "Zouuerdnung vum Empfänger bestätegt"
+  ],
+  "Accès autorisé par le serveur": [
+    "Access authorized by server",
+    "Zugriff vom Server autorisiert",
+    "Zougang vum Server autoriséiert"
+  ],
+  "Page transmise par le serveur": [
+    "Page delivered by server",
+    "Seite vom Server übertragen",
+    "Säit vum Server iwwerdroen"
+  ],
+  "Affichage de page déclaré par le navigateur": [
+    "Page display reported by browser",
+    "Seitenanzeige vom Browser gemeldet",
+    "Affichage vun enger Säit vum Browser gemellt"
+  ],
+  "Téléchargement du PDF demandé": [
+    "PDF download requested",
+    "PDF-Download angefordert",
+    "PDF-Download ugefrot"
+  ],
+  "Transmission du PDF lancée": [
+    "PDF delivery started",
+    "PDF-Übertragung gestartet",
+    "PDF-Iwwerdroung gestart"
+  ],
+  "Copie personnelle remise": [
+    "Personal copy delivered",
+    "Persönliche Kopie übergeben",
+    "Perséinlech Kopie iwwerreecht"
+  ],
+  "Accès partagé révoqué": [
+    "Shared access revoked",
+    "Geteilter Zugriff widerrufen",
+    "Gedeelten Zougang zeréckgezunn"
+  ],
+  "Événement du partage": [
+    "Share event",
+    "Freigabeereignis",
+    "Evenement vun der Deelung"
+  ],
+  "Vérifier le partage sécurisé": [
+    "Review secure share",
+    "Sichere Freigabe prüfen",
+    "Déi sécher Deelung kontrolléieren"
+  ],
+  "PDF original": ["Original PDF", "Original-PDF", "Original-PDF"],
+  "Téléchargement autorisé": [
+    "Download allowed",
+    "Download erlaubt",
+    "Download erlaabt"
+  ],
+  "Téléchargement désactivé": [
+    "Download disabled",
+    "Download deaktiviert",
+    "Download deaktivéiert"
+  ],
+  "Copie personnelle": [
+    "Personal copy",
+    "Persönliche Kopie",
+    "Perséinlech Kopie"
+  ],
+  "Autorisée · {0} jours": [
+    "Allowed · {0} days",
+    "Erlaubt · {0} Tage",
+    "Erlaabt · {0} Deeg"
+  ],
+  "Échéance": ["Expiry", "Ablauf", "Oflaf"],
+  "{0} HT": ["{0} excluding tax", "{0} zzgl. Steuern", "{0} ouni Steieren"],
+  "La période activée est due en totalité. Révoquer ou désactiver le partage ne donne pas droit à remboursement.": [
+    "The activated term is payable in full. Revoking or disabling the share does not entitle you to a refund.",
+    "Der aktivierte Zeitraum ist vollständig zahlbar. Der Widerruf oder die Deaktivierung der Freigabe begründet keinen Erstattungsanspruch.",
+    "Déi aktivéiert Period ass ganz ze bezuelen. D’Zeréckzéien oder d’Deaktivéiere gëtt kee Recht op Remboursement."
+  ],
+  "Approbation du partage": [
+    "Share approval",
+    "Genehmigung der Freigabe",
+    "Geneemegung vun der Deelung"
+  ],
+  "Vérifiez le PDF, le destinataire, les droits et le prix. L’approbation et l’activation sont deux étapes distinctes.": [
+    "Review the PDF, recipient, permissions and price. Approval and activation are separate steps.",
+    "Prüfen Sie PDF, Empfänger, Rechte und Preis. Genehmigung und Aktivierung sind getrennte Schritte.",
+    "Kontrolléiert de PDF, den Empfänger, d’Rechter an de Präis. Geneemegung an Aktivéierung sinn zwou getrennte Schrëtt."
+  ],
+  "J’ai vérifié le document, le destinataire, les droits et le prix.": [
+    "I have reviewed the document, recipient, permissions and price.",
+    "Ich habe Dokument, Empfänger, Rechte und Preis geprüft.",
+    "Ech hunn d’Dokument, den Empfänger, d’Rechter an de Präis kontrolléiert."
+  ],
+  "Approuver ce partage": [
+    "Approve this share",
+    "Diese Freigabe genehmigen",
+    "Dës Deelung geneemegen"
+  ],
+  "Gérer l’accès": [
+    "Manage access",
+    "Zugriff verwalten",
+    "Den Zougang geréieren"
+  ],
+  "La révocation bloque les nouveaux accès. Elle ne supprime ni les fichiers téléchargés ni les copies personnelles déjà remises.": [
+    "Revocation blocks new access. It does not delete downloaded files or personal copies already delivered.",
+    "Ein Widerruf sperrt neue Zugriffe. Heruntergeladene Dateien und bereits übergebene persönliche Kopien werden nicht gelöscht.",
+    "D’Zeréckzéie blockéiert nei Zougrëffer. Et läscht weder erofgeluede Fichieren nach scho iwwerreecht perséinlech Kopien."
+  ],
+  "Révoquer ce partage": [
+    "Revoke this share",
+    "Diese Freigabe widerrufen",
+    "Dës Deelung zeréckzéien"
+  ],
+  "Bloquer les nouveaux accès sans remboursement ?": [
+    "Block new access without a refund?",
+    "Neue Zugriffe ohne Erstattung sperren?",
+    "Nei Zougrëffer ouni Remboursement blockéieren?"
+  ],
+  "Révoquer l’accès": [
+    "Revoke access",
+    "Zugriff widerrufen",
+    "Den Zougang zeréckzéien"
+  ],
+  "Journal de l’atelier": [
+    "Workspace log",
+    "Arbeitsbereichsprotokoll",
+    "Ateliersprotokoll"
+  ],
+  "Un affichage déclaré ne prouve pas la lecture. Une transmission du PDF ne prouve pas son enregistrement sur le disque.": [
+    "A reported display does not prove reading. Transmitting the PDF does not prove that it was saved to disk.",
+    "Eine gemeldete Anzeige beweist keine Lektüre. Die Übertragung des PDFs beweist nicht das Speichern auf einem Datenträger.",
+    "E gemellten Affichage beweist net, datt gelies gouf. Eng PDF-Iwwerdroung beweist net, datt e Fichier gespäichert gouf."
+  ],
+  "Source : déclaration du navigateur": [
+    "Source: browser report",
+    "Quelle: Browsermeldung",
+    "Quell: Meldung vum Browser"
+  ],
+  "Aucun événement disponible.": [
+    "No events available.",
+    "Keine Ereignisse verfügbar.",
+    "Keng Evenementer disponibel."
+  ],
+  "Activer le partage": [
+    "Activate share",
+    "Freigabe aktivieren",
+    "D’Deelung aktivéieren"
+  ],
+  "Cette action active la période payante et prépare l’invitation. Le prix reste dû si vous révoquez ensuite le partage.": [
+    "This activates the paid term and prepares the invitation. The price remains payable if you later revoke the share.",
+    "Dies aktiviert den kostenpflichtigen Zeitraum und bereitet die Einladung vor. Der Preis bleibt bei einem späteren Widerruf zahlbar.",
+    "Dëst aktivéiert déi bezuelten Period a preparéiert d’Invitatioun. De Präis bleift ze bezuelen, wann Dir d’Deelung duerno zeréckzitt."
+  ],
+  "Activer ce partage au prix de {0} HT ?": [
+    "Activate this share for {0} excluding tax?",
+    "Diese Freigabe für {0} zzgl. Steuern aktivieren?",
+    "Dës Deelung fir {0} ouni Steieren aktivéieren?"
+  ],
+  "Confirmer l’activation": [
+    "Confirm activation",
+    "Aktivierung bestätigen",
+    "D’Aktivéierung bestätegen"
+  ],
+  "Le rendu sécurisé est en préparation. Cette page se met à jour pendant le traitement.": [
+    "Secure viewing is being prepared. This page updates during processing.",
+    "Die sichere Anzeige wird vorbereitet. Diese Seite aktualisiert sich während der Verarbeitung.",
+    "Déi sécher Vue gëtt virbereet. Dës Säit aktualiséiert sech wärend der Veraarbechtung."
+  ],
+  "Confirmer le destinataire": [
+    "Confirm recipient",
+    "Empfänger bestätigen",
+    "Den Empfänger bestätegen"
+  ],
+  "Ce compte a demandé l’accès à votre partage. Vérifiez son association au destinataire par un moyen indépendant avant de confirmer.": [
+    "This account requested access to your share. Independently verify that it belongs to the intended recipient before confirming.",
+    "Dieses Konto hat Zugriff auf Ihre Freigabe angefordert. Prüfen Sie unabhängig, ob es dem vorgesehenen Empfänger gehört, bevor Sie bestätigen.",
+    "Dëse Kont huet Zougang zu Ärer Deelung ugefrot. Kontrolléiert onofhängeg, datt e beim virgesinnen Empfänger gehéiert, ier Dir bestätegt."
+  ],
+  "Méthode de vérification": [
+    "Verification method",
+    "Überprüfungsmethode",
+    "Verifikatiounsmethod"
+  ],
+  "Relation déjà connue": [
+    "Known relationship",
+    "Bekannte Beziehung",
+    "Scho bekannte Relatioun"
+  ],
+  "Canal indépendant connu": [
+    "Known independent channel",
+    "Bekannter unabhängiger Kanal",
+    "Bekannten onofhängege Kanal"
+  ],
+  "Identité qualifiée": [
+    "Qualified identity",
+    "Qualifizierte Identität",
+    "Qualifizéiert Identitéit"
+  ],
+  "J’ai vérifié que ce compte appartient au destinataire prévu.": [
+    "I have verified that this account belongs to the intended recipient.",
+    "Ich habe überprüft, dass dieses Konto zum vorgesehenen Empfänger gehört.",
+    "Ech hu kontrolléiert, datt dëse Kont beim virgesinnen Empfänger gehéiert."
+  ],
+  "Confirmer l’association": [
+    "Confirm association",
+    "Zuordnung bestätigen",
+    "D’Zouuerdnung bestätegen"
+  ],
+  "Le destinataire est associé au compte confirmé.": [
+    "The recipient is linked to the confirmed account.",
+    "Der Empfänger ist dem bestätigten Konto zugeordnet.",
+    "Den Empfänger ass mam bestätegte Kont verbonnen."
+  ],
+  "Conservation partagée": [
+    "Shared retention",
+    "Geteilte Aufbewahrung",
+    "Gedeelt Späicherung"
+  ],
+  "Conservation personnelle": [
+    "Personal retention",
+    "Persönliche Aufbewahrung",
+    "Perséinlech Späicherung"
+  ],
+  "Envoi de l’invitation": [
+    "Invitation delivery",
+    "Einladungszustellung",
+    "Liwwerung vun der Invitatioun"
+  ],
+  "Préparation échouée": [
+    "Preparation failed",
+    "Vorbereitung fehlgeschlagen",
+    "Virbereedung feelgeschloen"
+  ],
+  "Le journal s’actualise automatiquement lorsque cette page est visible.": [
+    "The log updates automatically while this page is visible.",
+    "Das Protokoll aktualisiert sich automatisch, solange diese Seite sichtbar ist.",
+    "D’Protokoll aktualiséiert sech automatesch, wann dës Säit siichtbar ass."
+  ],
+  "Document en attente de vérification": [
+    "Document awaiting verification",
+    "Dokument wartet auf Überprüfung",
+    "Dokument waart op Verifikatioun"
+  ],
+  "Afficher les documents suivants": [
+    "Show more documents",
+    "Weitere Dokumente anzeigen",
+    "Weider Dokumenter uweisen"
+  ],
+  "La copie est en préparation. Actualisez le suivi avant de réessayer.": [
+    "The copy is being prepared. Refresh its status before trying again.",
+    "Die Kopie wird vorbereitet. Aktualisieren Sie den Status, bevor Sie es erneut versuchen.",
+    "D’Kopie gëtt virbereet. Aktualiséiert de Suivi, ier Dir nach eng Kéier probéiert."
+  ],
+  "Gérer ma copie personnelle": [
+    "Manage my personal copy",
+    "Meine persönliche Kopie verwalten",
+    "Meng perséinlech Kopie geréieren"
+  ],
+  "La suppression retire votre copie de cet espace. Elle ne supprime pas l’original de l’atelier ni les fichiers déjà téléchargés.": [
+    "Deleting removes your copy from this space. It does not delete the workspace original or files already downloaded.",
+    "Durch das Löschen wird Ihre Kopie aus diesem Bereich entfernt. Das Original im Arbeitsbereich und bereits heruntergeladene Dateien werden nicht gelöscht.",
+    "D’Läsche läscht Är Kopie aus dësem Beräich. Et läscht weder d’Original vum Atelier nach scho erofgeluede Fichieren."
+  ],
+  "Supprimer ma copie": [
+    "Delete my copy",
+    "Meine Kopie löschen",
+    "Meng Kopie läschen"
+  ],
+  "Supprimer cette copie personnelle ?": [
+    "Delete this personal copy?",
+    "Diese persönliche Kopie löschen?",
+    "Dës perséinlech Kopie läschen?"
+  ],
+  "Confirmer la suppression": [
+    "Confirm deletion",
+    "Löschen bestätigen",
+    "D’Läsche bestätegen"
+  ],
+  "Mon historique d’accès": [
+    "My access history",
+    "Mein Zugriffsverlauf",
+    "Meng Zougrëffshistorik"
+  ],
+  "Afficher le texte de la page {0}": [
+    "Show text for page {0}",
+    "Text für Seite {0} anzeigen",
+    "Den Text vun der Säit {0} uweisen"
+  ],
+  "Aperçu du document partagé": [
+    "Shared document preview",
+    "Vorschau des geteilten Dokuments",
+    "Virschau vum gedeelt Dokument"
+  ],
+  "Page {0} sur {1}": [
+    "Page {0} of {1}",
+    "Seite {0} von {1}",
+    "Säit {0} vu(n) {1}"
+  ],
+  "Page {0} du document partagé": [
+    "Page {0} of the shared document",
+    "Seite {0} des geteilten Dokuments",
+    "Säit {0} vum gedeelt Dokument"
+  ],
+  "Texte accessible transmis par le serveur": [
+    "Accessible text delivered by server",
+    "Barrierefreier Text vom Server übertragen",
+    "Zougänglechen Text vum Server iwwerdroen"
+  ],
+  "Copie personnelle reçue": [
+    "Personal copy received",
+    "Persönliche Kopie empfangen",
+    "Perséinlech Kopie empfaangen"
+  ],
+  "Copie personnelle supprimée": [
+    "Personal copy deleted",
+    "Persönliche Kopie gelöscht",
+    "Perséinlech Kopie geläscht"
+  ],
+  "La distribution sécurisée n’est pas activée.": [
+    "Secure distribution is not enabled.",
+    "Die sichere Bereitstellung ist nicht aktiviert.",
+    "Dat séchert Deelen ass net aktivéiert."
+  ],
+  "Le document est temporairement indisponible.": [
+    "The document is temporarily unavailable.",
+    "Das Dokument ist vorübergehend nicht verfügbar.",
+    "D’Dokument ass zäitweileg net disponibel."
+  ],
+  "Le téléchargement du PDF original n’est pas autorisé.": [
+    "Downloading the original PDF is not allowed.",
+    "Das Herunterladen des Original-PDFs ist nicht erlaubt.",
+    "D’Erofluede vum Original-PDF ass net erlaabt."
+  ],
+  "L’atelier n’a pas autorisé de copie personnelle.": [
+    "The workspace has not allowed a personal copy.",
+    "Der Arbeitsbereich hat keine persönliche Kopie erlaubt.",
+    "Den Atelier huet keng perséinlech Kopie erlaabt."
+  ],
+  "La copie n’est plus disponible.": [
+    "The copy is no longer available.",
+    "Die Kopie ist nicht mehr verfügbar.",
+    "D’Kopie ass net méi disponibel."
+  ],
+  "La limite quotidienne de préparation est atteinte ou vos droits ont changé.": [
+    "The daily preparation limit was reached or your permissions have changed.",
+    "Das tägliche Vorbereitungslimit wurde erreicht oder Ihre Rechte haben sich geändert.",
+    "Déi deeglech Virbereedungslimitt ass erreecht oder Är Rechter hu sech geännert."
+  ],
+  "Rechercher dans mes documents": [
+    "Search my documents",
+    "Meine Dokumente durchsuchen",
+    "A menge Dokumenter sichen"
+  ],
+  "Afficher les événements précédents": [
+    "Show earlier events",
+    "Frühere Ereignisse anzeigen",
+    "Vireg Evenementer uweisen"
+  ],
+  "L’option est facturée à l’activation, même si le destinataire ne conserve pas de copie.": [
+    "This option is charged on activation, even if the recipient does not save a copy.",
+    "Diese Option wird bei der Aktivierung berechnet, auch wenn der Empfänger keine Kopie aufbewahrt.",
+    "Dës Optioun gëtt bei der Aktivéierung verrechent, och wann den Empfänger keng Kopie späichert."
+  ],
+  "Tarif par PDF et par destinataire.": [
+    "Price per PDF and per recipient.",
+    "Preis pro PDF und Empfänger.",
+    "Präis pro PDF a pro Empfänger."
+  ],
+  "Le lien individuel et les instructions de connexion seront ajoutés à cette invitation.": [
+    "The individual link and sign-in instructions will be added to this invitation.",
+    "Der individuelle Link und die Anmeldehinweise werden dieser Einladung hinzugefügt.",
+    "Den individuelle Link an d’Alogginstruktioune ginn zu dëser Invitatioun bäigefüügt."
+  ],
+  "Reprendre la préparation de ma copie": [
+    "Resume preparation of my copy",
+    "Vorbereitung meiner Kopie fortsetzen",
+    "D’Virbereedung vu menger Kopie viruféieren"
+  ],
+  "Reprendre cette opération sans créer de nouvelle copie ?": [
+    "Resume this operation without creating another copy?",
+    "Diesen Vorgang fortsetzen, ohne eine weitere Kopie zu erstellen?",
+    "Dës Operatioun viruféieren, ouni eng nei Kopie ze erstellen?"
+  ],
+  "Reprendre la préparation": [
+    "Resume preparation",
+    "Vorbereitung fortsetzen",
+    "D’Virbereedung viruféieren"
+  ],
+  "Document indisponible.": [
+    "Document unavailable.",
+    "Dokument nicht verfügbar.",
+    "Dokument net disponibel."
+  ],
+  "Page indisponible.": [
+    "Page unavailable.",
+    "Seite nicht verfügbar.",
+    "Säit net disponibel."
+  ],
+  "Trop de requêtes. Réessayez dans une minute.": [
+    "Too many requests. Try again in a minute.",
+    "Zu viele Anfragen. Versuchen Sie es in einer Minute erneut.",
+    "Ze vill Ufroen. Probéiert et an enger Minutt nach eng Kéier."
+  ],
+  "Choisissez un PDF analysé de 100 pages et 10 Mio maximum.": [
+    "Choose a scanned PDF with no more than 100 pages and 10 MiB.",
+    "Wählen Sie ein geprüftes PDF mit höchstens 100 Seiten und 10 MiB.",
+    "Wielt en analyséierte PDF mat maximal 100 Säiten an 10 MiB."
+  ],
+  "Votre rôle ne permet pas cette opération.": [
+    "Your role does not allow this operation.",
+    "Ihre Rolle erlaubt diesen Vorgang nicht.",
+    "Är Roll erlaabt dës Operatioun net."
+  ],
+  "Vos accès ont changé.": [
+    "Your access permissions have changed.",
+    "Ihre Zugriffsrechte haben sich geändert.",
+    "Är Zougangsrechter hu sech geännert."
+  ],
+  "La préparation doit être terminée.": [
+    "Preparation must be complete.",
+    "Die Vorbereitung muss abgeschlossen sein.",
+    "D’Virbereedung muss fäerdeg sinn."
+  ],
+  "La préparation n’est pas terminée.": [
+    "Preparation is not complete.",
+    "Die Vorbereitung ist nicht abgeschlossen.",
+    "D’Virbereedung ass net fäerdeg."
+  ],
+  "Le rendu n’est pas disponible.": [
+    "The prepared view is not available.",
+    "Die vorbereitete Ansicht ist nicht verfügbar.",
+    "Déi virbereet Vue ass net disponibel."
+  ],
+  "Vérifiez le document et ses conditions avant approbation.": [
+    "Review the document and its terms before approval.",
+    "Prüfen Sie das Dokument und seine Bedingungen vor der Genehmigung.",
+    "Kontrolléiert d’Dokument a seng Konditioune virun der Geneemegung."
+  ],
+  "Une approbation humaine dans Guteneo est requise.": [
+    "Human approval in Guteneo is required.",
+    "Eine menschliche Genehmigung in Guteneo ist erforderlich.",
+    "Eng mënschlech Geneemegung a Guteneo ass néideg."
+  ],
+  "Le document source n’est plus disponible.": [
+    "The source document is no longer available.",
+    "Das Quelldokument ist nicht mehr verfügbar.",
+    "D’Quelldokument ass net méi disponibel."
+  ],
+  "L’analyse du document doit être qualifiée.": [
+    "The document scan must be qualified.",
+    "Die Dokumentprüfung muss qualifiziert sein.",
+    "D’Analys vum Dokument muss qualifizéiert sinn."
+  ],
+  "Le document source a changé.": [
+    "The source document has changed.",
+    "Das Quelldokument hat sich geändert.",
+    "D’Quelldokument huet sech geännert."
+  ],
+  "Cette clé correspond à une autre distribution.": [
+    "This key belongs to a different distribution.",
+    "Dieser Schlüssel gehört zu einer anderen Bereitstellung.",
+    "Dëse Schlëssel gehéiert zu enger anerer Deelung."
+  ],
+  "Curseur invalide.": [
+    "Invalid pagination cursor.",
+    "Ungültiger Seitencursor.",
+    "Ongëltege Säitecursor."
+  ],
+  "Rechercher": ["Search", "Suchen", "Sichen"],
+  "Un document est disponible dans Guteneo": [
+    "A document is available in Guteneo",
+    "Ein Dokument ist in Guteneo verfügbar",
+    "En Dokument ass a Guteneo disponibel"
+  ],
+  "Un document vous a été adressé dans votre espace Guteneo.": [
+    "A document has been sent to you in your Guteneo space.",
+    "Ein Dokument wurde Ihnen in Ihrem Guteneo-Bereich bereitgestellt.",
+    "En Dokument gouf Iech an Ärem Guteneo-Beräich geschéckt."
+  ],
+  "Accès à la page autorisé": [
+    "Page access authorized",
+    "Seitenzugriff autorisiert",
+    "Zougang zur Säit autoriséiert"
+  ],
+  "Accès au texte accessible autorisé": [
+    "Accessible text access authorized",
+    "Zugriff auf barrierefreien Text autorisiert",
+    "Zougang zum zougänglechen Text autoriséiert"
+  ],
+  "Accès à l’aperçu de page autorisé dans l’atelier": [
+    "Page preview access authorized in the workspace",
+    "Zugriff auf die Seitenvorschau im Arbeitsbereich autorisiert",
+    "Zougang zur Säitevirschau am Atelier autoriséiert"
+  ],
+  "Accès au texte accessible autorisé dans l’atelier": [
+    "Accessible text access authorized in the workspace",
+    "Zugriff auf barrierefreien Text im Arbeitsbereich autorisiert",
+    "Zougang zum zougänglechen Text am Atelier autoriséiert"
+  ],
+  "Ce navigateur ne peut pas conserver le lien pendant la connexion. Connectez-vous, puis rouvrez le lien reçu dans cet onglet.": [
+    "This browser cannot retain the link while you sign in. Sign in, then reopen the received link in this tab.",
+    "Dieser Browser kann den Link während der Anmeldung nicht aufbewahren. Melden Sie sich an und öffnen Sie den empfangenen Link anschließend erneut in diesem Tab.",
+    "Dëse Browser kann de Link net beim Alogge behalen. Mellt Iech un a maacht duerno den empfaangene Link an dësem Tab nees op."
+  ],
+  "Le délai de connexion de cette invitation est dépassé. Rouvrez le lien reçu pour reprendre.": [
+    "The sign-in time limit for this invitation has expired. Reopen the received link to continue.",
+    "Die Anmeldefrist für diese Einladung ist abgelaufen. Öffnen Sie den empfangenen Link erneut, um fortzufahren.",
+    "D’Aloggfrist fir dës Invitatioun ass ofgelaf. Maacht den empfaangene Link nees op, fir virunzefueren."
+  ],
+  "Compte connecté : {0}": [
+    "Signed-in account: {0}",
+    "Angemeldetes Konto: {0}",
+    "Ugemellte Kont: {0}"
+  ],
+  "Les noms désignent des comptes Guteneo, sans certifier l’identité physique de la personne.": [
+    "Names identify Guteneo accounts and do not certify the physical identity of the person.",
+    "Die Namen bezeichnen Guteneo-Konten und bestätigen nicht die persönliche Identität der Person.",
+    "D’Nimm bezeechnen Guteneo-Konten a bestätegen net déi physesch Identitéit vun der Persoun."
+  ],
+  "Les événements d’accès détaillés sont conservés 90 jours. Les reçus d’approbation, de facturation et de remise suivent leur propre durée de conservation.": [
+    "Detailed access events are retained for 90 days. Approval, billing and delivery receipts have their own retention periods.",
+    "Detaillierte Zugriffsereignisse werden 90 Tage aufbewahrt. Freigabe-, Abrechnungs- und Übergabebelege haben eigene Aufbewahrungsfristen.",
+    "Detailléiert Zougrëffsevenementer gi fir 90 Deeg gespäichert. D’Beleeger fir Geneemegung, Rechnung an Iwwergab hunn hir eege Späicherfristen."
+  ],
+  "Message": ["Message", "Nachricht", "Noriicht"],
+  "Révoquez le lien protégé existant avant de préparer une distribution sensible de ce document.": [
+    "Revoke the existing protected link before preparing a secure distribution of this document.",
+    "Widerrufen Sie den bestehenden geschützten Link, bevor Sie eine sichere Bereitstellung dieses Dokuments vorbereiten.",
+    "Zitt den existente geschützte Link zeréck, ier Dir dat séchert Deele vun dësem Dokument virbereet."
+  ],
+  "Ce document possède une préparation postale dérivée. Choisissez un document dédié à la distribution sensible.": [
+    "This document has been used to prepare postal mail. Choose a separate document for secure distribution.",
+    "Für dieses Dokument ist bereits eine Postvorbereitung vorhanden. Wählen Sie ein separates Dokument für die sichere Bereitstellung.",
+    "Fir dëst Dokument besteet schonn eng Virbereedung fir de Postversand. Wielt en eegent Dokument fir dat séchert Deelen."
+  ],
+  "Ce document sensible ne peut pas être utilisé dans ce parcours.": [
+    "This sensitive document cannot be used in this workflow.",
+    "Dieses vertrauliche Dokument kann in diesem Ablauf nicht verwendet werden.",
+    "Dëst sensibelt Dokument kann an dësem Oflaf net benotzt ginn."
+  ],
+  "Ce document est déjà utilisé dans un autre parcours d’envoi. Choisissez un document dédié à la distribution sensible.": [
+    "This document is already used in another sending workflow. Choose a separate document for secure distribution.",
+    "Dieses Dokument wird bereits in einem anderen Versandablauf verwendet. Wählen Sie ein separates Dokument für die sichere Bereitstellung.",
+    "Dëst Dokument gëtt schonn an engem aneren Oflaf fir Envoien benotzt. Wielt en eegent Dokument fir dat séchert Deelen."
+  ]
+}

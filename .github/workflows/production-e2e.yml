@@ -1,0 +1,49 @@
+name: Guteneo public production browser checks
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: guteneo-public-production-browser
+  cancel-in-progress: false
+jobs:
+  public-browser:
+    if: github.repository == 'nclsppr/guteneo' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      E2E_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: node scripts/ci/ubuntu-mirrors.mjs
+      - run: npx --no-install e2e-web install chromium --with-deps
+      - name: Observe fixed anonymous pages and publish sanitized evidence
+        # OIDC exists only in memory, requested after the report has its hash.
+        # No application credential or Cloudflare write secret is provisioned.
+        run: node --import tsx scripts/production-e2e.ts --publish
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: public-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/production-e2e/sanitized-report.json
+          if-no-files-found: error
+          retention-days: 14

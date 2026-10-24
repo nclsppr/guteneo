@@ -21,3 +21,5 @@ Avant tout import, lecture ou préparation, exclure les données de carte de pai
 7. Suivre `get_dispatch_status` pour le même envoi. `accepted` signifie accepté par le prestataire ; `delivered` signifie remis au serveur destinataire, pas document ouvert. `submission_unknown` exige un rapprochement opérateur, sans nouvel envoi ni nouvelle clé. Ne pas réexpédier pour forcer un statut.
 
 Les fichiers de données et les destinataires peuvent être traités par le parcours document-studio uniquement lorsque le serveur l’annonce. Les pièces jointes Excel/autres fichiers et les comptes destinataires restent hors du parcours e-mail. L’installation de ce plugin n’active aucun canal, aucun mandat ni aucune publication dans un annuaire.
+
+Si la personne veut un compte destinataire, des accès auditables et une conservation définie, utiliser le parcours distinct `secure-distribution` lorsque le serveur le propose. Le lien historique à mot de passe décrit ici reste un autre mode ; ne jamais basculer entre ces modes sans le choix explicite de la personne.

@@ -10,6 +10,7 @@ type HostedEntry = {
   authenticated: boolean;
   logoutStatus: number;
   logoutRequests: number;
+  drainStaticProxies: () => Promise<void>;
 };
 
 const hostedSession = {
@@ -27,6 +28,26 @@ const hostedSession = {
 
 const test = base.extend<{ hosted: HostedEntry }>({
   hosted: async ({ page, baseURL }, use) => {
+    const staticProxies = new Set<Promise<void>>();
+    const drainStaticProxies = async () => {
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          (async () => {
+            while (staticProxies.size)
+              await Promise.all([...staticProxies]);
+          })(),
+          new Promise<never>((_, reject) => {
+            deadline = setTimeout(
+              () => reject(new Error("Local static proxy did not drain within 5 seconds.")),
+              5000,
+            );
+          }),
+        ]);
+      } finally {
+        clearTimeout(deadline);
+      }
+    };
     const state: HostedEntry = {
       requestOrigin: origin,
       authRequests: [],
@@ -35,6 +56,7 @@ const test = base.extend<{ hosted: HostedEntry }>({
       authenticated: false,
       logoutStatus: 200,
       logoutRequests: 0,
+      drainStaticProxies,
     };
     const unexpected: string[] = [];
     // A reserved origin exercises the hosted sign-in surface. Every browser
@@ -70,6 +92,18 @@ const test = base.extend<{ hosted: HostedEntry }>({
         await route.fulfill({
           status: 403,
           body: "Blocked by the UI fixture.",
+        });
+      } else if (url.pathname === "/api/personal/session") {
+        // The unified account bootstrap probes personal authority after an
+        // unauthenticated workshop response. This fixture has neither session.
+        await route.fulfill({
+          status: 401,
+          json: {
+            error: {
+              code: "AUTHENTICATION_REQUIRED",
+              message: "Connectez-vous.",
+            },
+          },
         });
       } else if (url.pathname === "/api/session") {
         await route.fulfill(
@@ -132,17 +166,28 @@ const test = base.extend<{ hosted: HostedEntry }>({
           body: "Blocked by the UI fixture.",
         });
       } else {
-        const response = await route.fetch({
-          url: new URL(url.pathname + url.search, baseURL).href,
-          maxRedirects: 0,
-        });
-        await route.fulfill({ response });
+        const proxy = (async () => {
+          const response = await route.fetch({
+            url: new URL(url.pathname + url.search, baseURL).href,
+            maxRedirects: 0,
+            timeout: 5000,
+          });
+          await route.fulfill({ response });
+        })();
+        staticProxies.add(proxy);
+        try {
+          await proxy;
+        } finally {
+          staticProxies.delete(proxy);
+        }
       }
     });
     try {
       await use(state);
     } finally {
-      // Drain local static fetches before disposing Playwright's request context.
+      // Finish fetch + fulfill while the route still exists. Removing handlers
+      // with a proxy in flight can continue its request before fulfill returns.
+      await drainStaticProxies();
       await page.unrouteAll({ behavior: "wait" });
       expect(unexpected).toEqual([]);
     }
@@ -178,12 +223,18 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
 
   hosted.logoutStatus = 200;
   await logout.click();
-  await expect(page).toHaveURL(`${origin}/`);
+  // The explicit English choice survives sign-out. The bare public URL is only
+  // a navigation intermediate before locale initialization canonicalizes it.
+  const publicEnglishUrl = `${origin}/?lang=en`;
+  await expect(page).toHaveURL(publicEnglishUrl);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator(".workspace")).toHaveCount(0);
   expect(hosted.authenticated).toBe(false);
   expect(hosted.logoutRequests).toBe(2);
   expect(hosted.authRequests).toEqual([]);
   await page.reload();
+  await expect(page).toHaveURL(publicEnglishUrl);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator('.site-header a[href^="/auth/login?"]')).toHaveCount(
     2,
   );
@@ -410,6 +461,7 @@ test("sign-in and registration announce the handoff once and recover after a cac
   hosted,
 }) => {
   for (const intent of ["login", "signup"] as const) {
+    await hosted.drainStaticProxies();
     await page.goto(
       `${origin}/?auth=LOGIN_EXCHANGE_FAILED&lang=fr#/app/prepare?entry=direct`,
     );
@@ -465,6 +517,7 @@ test("sign-in and registration announce the handoff once and recover after a cac
     ).toBeVisible();
     await noHorizontalOverflow(page);
     // A cached recovery page stays put until the visitor explicitly retries.
+    await hosted.drainStaticProxies();
     await page.reload();
     await expect(signup).toBeVisible();
     expect(hosted.authRequests).toHaveLength(priorRequests + 1);

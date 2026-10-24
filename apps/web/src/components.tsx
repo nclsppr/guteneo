@@ -270,6 +270,21 @@ export function ErrorNotice({
         {error instanceof ApiError && (
           <small className="mono">{error.code}</small>
         )}
+        {error instanceof ApiError &&
+          [
+            "DOCUMENT_AUTHENTICATION_REQUIRED",
+            "STRONG_AUTHENTICATION_REQUIRED",
+            "STRONG_BROWSER_APPROVAL_REQUIRED",
+            "FRESH_AUTHENTICATION_REQUIRED",
+            "AUTHENTICATION_FRESHNESS_REQUIRED",
+          ].includes(error.code) && (
+            <a
+              className="button primary"
+              href="/auth/login?fresh=1&returnTo=%2F%23%2Fapp%2Fsecure-distributions"
+            >
+              {msg("Vérifier mon accès")}
+            </a>
+          )}
         {retry && (
           <button className="text-button" onClick={retry}>
             {t.retry}
@@ -887,6 +902,43 @@ function generalErrorMessage(code: string): string | undefined {
     FORBIDDEN: msg("Cette action n’est pas autorisée pour votre compte."),
     CSRF_REJECTED: msg(
       "Votre session a changé. Actualisez la page avant de réessayer.",
+    ),
+    STRONG_AUTHENTICATION_REQUIRED: msg(
+      "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+    ),
+    DOCUMENT_AUTHENTICATION_REQUIRED: msg(
+      "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+    ),
+    SECURE_DISTRIBUTION_NOT_CONFIGURED: msg(
+      "La distribution sécurisée n’est pas activée.",
+    ),
+    SECURE_STORAGE_NOT_CONFIGURED: msg(
+      "Le document est temporairement indisponible.",
+    ),
+    SECURE_STORAGE_INTEGRITY: msg(
+      "Le document est temporairement indisponible.",
+    ),
+    ORIGINAL_DOWNLOAD_FORBIDDEN: msg(
+      "Le téléchargement du PDF original n’est pas autorisé.",
+    ),
+    PERSONAL_COPY_FORBIDDEN: msg(
+      "L’atelier n’a pas autorisé de copie personnelle.",
+    ),
+    PERSONAL_COPY_UNAVAILABLE: msg("La copie n’est plus disponible."),
+    SECURE_DISTRIBUTION_LIMIT: msg(
+      "La limite quotidienne de préparation est atteinte ou vos droits ont changé.",
+    ),
+    SECURE_SOURCE_LEGACY_LINK: msg(
+      "Révoquez le lien protégé existant avant de préparer une distribution sensible de ce document.",
+    ),
+    SECURE_SOURCE_LEGACY_DERIVATION: msg(
+      "Ce document possède une préparation postale dérivée. Choisissez un document dédié à la distribution sensible.",
+    ),
+    SECURE_SOURCE_LEGACY_OUTBOUND: msg(
+      "Ce document est déjà utilisé dans un autre parcours d’envoi. Choisissez un document dédié à la distribution sensible.",
+    ),
+    SENSITIVE_SOURCE_LEGACY_FORBIDDEN: msg(
+      "Ce document sensible ne peut pas être utilisé dans ce parcours.",
     ),
   };
   return labels[code] ? msg(labels[code]) : undefined;

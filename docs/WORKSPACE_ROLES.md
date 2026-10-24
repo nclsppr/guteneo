@@ -1,5 +1,90 @@
 # Rôles et droits dans un atelier
 
+## Compte unique et distribution sensible — candidat du 24 octobre 2026
+
+Un compte Guteneo peut n’appartenir à aucun atelier. La réception d’un document
+et sa copie personnelle sont des autorités personnelles, indépendantes des
+quatre rôles ci-dessous. « Destinataire » n’est pas un cinquième rôle humain.
+Le même compte peut consulter ses documents et, volontairement, créer ou choisir
+un atelier pour utiliser les services Guteneo. Il ne rejoint jamais l’atelier
+expéditeur par le seul fait de recevoir son invitation documentaire.
+Après création ou sélection volontaire, le navigateur recharge la destination
+choisie et la session de cet atelier ; les droits courants et le jeton CSRF sont
+relus ensemble avant toute opération métier. La régression navigateur vérifie
+la création administrateur puis la sélection d’un autre atelier comme opérateur,
+avec une modification de profil réelle dans chaque contexte.
+
+La politique documentaire est indépendante du rôle : `strong` par défaut,
+`verified_account` seulement par choix explicite. Le profil live demandé utilise
+un compte et un email vérifiés, une session Auth0 liée à l’identité et récente,
+avec confirmation indépendante du destinataire et revue humaine. Il ne prétend
+pas produire une MFA ou une assurance forte. Lectures, association et approbation
+sont bornées à quinze minutes ; export, dépôt et suppression à cinq minutes.
+La variable `SENSITIVE_DOCUMENT_AUTHENTICATION` doit correspondre à la ligne
+D1 `secure_document_authentication_policy(id=1, mode)` créée par 0059. L’opérateur
+seul change cette ligne ; valeur inconnue ou désaccord : refus. Un reçu d’approbation
+ordinaire ne remplace pas une preuve forte après retour de la politique à `strong`.
+`documentAccessAllowed` et `documentAccessMode` informent l’interface sans donner
+un droit au-delà des contrôles serveur et SQL actuels.
+
+La distribution sensible ajoute la matrice suivante. Les permissions sont
+recontrôlées côté serveur au moment de l’action. Le créateur d’un partage voit
+ses propres préparations ; les approbateurs actuellement habilités peuvent les
+revoir dans leur atelier. Les autres opérateurs, les superviseurs sans option
+d’approbation et les observateurs n’obtiennent pas ce contenu par un droit de
+lecture général.
+
+| Action                                                     | Administrateur                                           | Superviseur                                            | Opérateur                                       | Observateur | Assistant connecté                                                                                            |
+| ---------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
+| Préparer un partage à partir d’un PDF accessible           | Oui                                                      | Oui                                                    | Oui                                             | Non         | Membership + `dispatches:prepare` et autorité courante                                                        |
+| Lire un partage et son journal d’atelier                   | Oui                                                      | Tous si option Approbation ; sinon ses créations       | Ses créations                                   | Non         | Même accès de ressource + `dispatches:read`                                                                   |
+| Consulter les pages de revue finales                       | Navigateur et session documentaire récente                       | Même exigence et option Approbation, ou sa création    | Sa création, navigateur et session documentaire récente | Non         | Aucun accès aux pages de réception ou au principal personnel                                                  |
+| Donner l’approbation sensible                              | Navigateur et session documentaire récente                       | Option Approbation, navigateur et session documentaire récente | Non                                             | Non         | Non ; un mandat expert ne remplace pas cette approbation                                                      |
+| Activer une distribution déjà approuvée                    | Oui, selon preuve courante                               | Option Approbation, selon preuve courante              | Non                                             | Non         | Rôle d’approbateur + `dispatches:send`, preuve navigateur sensible déjà enregistrée et confirmation de l’hôte |
+| Confirmer l’association d’un destinataire à un compte      | Navigateur, contrôle indépendant et session documentaire récente | Même exigence et option Approbation                    | Non                                             | Non         | Non                                                                                                           |
+| Révoquer l’accès partagé sans remboursement                | Oui                                                      | Option Approbation                                     | Non                                             | Non         | Rôle d’approbateur + `dispatches:send` ; ne supprime pas une copie personnelle acquise                        |
+| Lire, exporter ou supprimer une copie personnelle d’autrui | Non                                                      | Non                                                    | Non                                             | Non         | Non                                                                                                           |
+
+Tout propriétaire de compte, avec ou sans rôle atelier, peut consulter ses
+propres documents sous la politique documentaire courante, puis télécharger ou conserver
+seulement ce que le partage autorise. Une copie personnelle acquise conserve
+son propre engagement de durée et d’export ; son atelier d’origine ne peut plus
+la révoquer. Ni un administrateur atelier ni un assistant ne reçoit une vue
+globale sur les documents personnels d’une personne.
+
+Le prix, la durée, le destinataire et les droits sont figés avant l’approbation.
+L’attestation séparée « destinataire ayant demandé cet email et son document »
+n’est pas déduite d’une case générale de revue. L’activation finance le terme
+complet ; la révocation n’ouvre aucun remboursement. Une autorisation de copie
+personnelle finance son terme dès l’activation, même si le destinataire ne
+l’utilise pas. Voir [les parcours](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+Cette isolation concerne le nouveau parcours sensible. Les limitations des
+documents ordinaires, du studio et de la séparation préparateur/approbateur
+restent décrites plus bas. Aucun cloisonnement général par dossier, migration
+rétroactive des anciens liens ou qualification hébergée n’est déduit de ce
+candidat.
+
+Une même source ne peut pas cumuler distribution sensible et anciens parcours
+d’envoi, de lien par mot de passe, de transformation postale, de recadrage ou
+d’analyse. Il s’agit d’une incompatibilité volontaire de cette première version :
+aucun rôle, scope ni mandat ne lève ces restrictions.
+
+| État ou opération sur la même source | Compatibilité avec la distribution sensible |
+| --- | --- |
+| Ancien hébergement `draft` ou `active` non échu | Révoquer le lien avant la première préparation sensible ; les autres incompatibilités restent contrôlées |
+| Préparation postale dérivée, réservée ou générée | Choisir une source dédiée |
+| Ancien envoi, précontrôle postal ou brouillon fournisseur qui référence déjà la source | Choisir une source dédiée, même si l’ancien envoi a échoué ou a été annulé |
+| Nouvelle pièce jointe ordinaire email, fax ou courrier après référencement sensible | Interdite pour tous les rôles |
+| Ancien mot de passe, contenu de lien, traitement postal, recadrage ou analyse après référencement sensible | Interdit, même après échec ou révocation de la distribution sensible |
+| Invitation dédiée de la nouvelle distribution sensible | Autorisée selon les droits courants, sans pièce jointe source (`document_id` nul) |
+
+Des gardes de service et SQL dans les deux directions protègent l’insertion
+sensible et les écritures concurrentes des anciens parcours, dans le même
+atelier et pour la même source. Une ancienne opération déjà engagée ne peut
+pas être requalifiée en distribution sensible pendant un transfert fournisseur.
+Cette exclusion ne rappelle pas les fichiers déjà exportés.
+
 Candidat local du 2 octobre 2026. Ce document décrit le contrat applicatif et sa
 migration ; il ne constitue pas une preuve de publication en production. Le guide
 public destiné aux clients est disponible dans l’application à `/roles/`, avec les
@@ -13,18 +98,18 @@ atelier peut être différent. Quatre rôles suffisent à séparer le travail qu
 la validation et l’administration sans multiplier les profils difficiles à
 comprendre.
 
-| Droit                                                           | Administrateur          | Superviseur            | Opérateur | Observateur |
-| --------------------------------------------------------------- | ----------------------- | ---------------------- | --------- | ----------- |
-| Consulter les documents, destinataires et envois de l’atelier   | Oui                     | Oui                    | Oui       | Oui         |
-| Contrôler à blanc un envoi existant accessible                | Selon accès à l’envoi   | Selon accès à l’envoi  | Selon accès à l’envoi | Selon accès à l’envoi |
-| Importer des documents et préparer des envois ou campagnes      | Oui                     | Oui                    | Oui       | Non         |
-| Approuver, confirmer, refuser ou annuler un envoi admissible    | Oui                     | Option « Approbation » | Non       | Non         |
-| Autoriser le transfert d’un document postal pour sa revue       | Oui                     | Option « Approbation » | Non       | Non         |
-| Consulter les rapports agrégés et la consommation               | Oui                     | Option « Rapports »    | Non       | Non         |
-| Gérer l’atelier, ses membres et leurs droits                    | Oui                     | Non                    | Non       | Non         |
-| Gérer la facturation et la configuration des expéditeurs/canaux | Oui                     | Non                    | Non       | Non         |
-| Activer ou renouveler une délégation à un assistant             | Oui, dans le navigateur | Non                    | Non       | Non         |
-| Régler sa langue et sa version Classique/V2 dans son compte     | Personnel, navigateur  | Personnel, navigateur  | Personnel, navigateur | Personnel, navigateur |
+| Droit                                                           | Administrateur          | Superviseur            | Opérateur             | Observateur           |
+| --------------------------------------------------------------- | ----------------------- | ---------------------- | --------------------- | --------------------- |
+| Consulter les documents, destinataires et envois de l’atelier   | Oui                     | Oui                    | Oui                   | Oui                   |
+| Contrôler à blanc un envoi existant accessible                  | Selon accès à l’envoi   | Selon accès à l’envoi  | Selon accès à l’envoi | Selon accès à l’envoi |
+| Importer des documents et préparer des envois ou campagnes      | Oui                     | Oui                    | Oui                   | Non                   |
+| Approuver, confirmer, refuser ou annuler un envoi admissible    | Oui                     | Option « Approbation » | Non                   | Non                   |
+| Autoriser le transfert d’un document postal pour sa revue       | Oui                     | Option « Approbation » | Non                   | Non                   |
+| Consulter les rapports agrégés et la consommation               | Oui                     | Option « Rapports »    | Non                   | Non                   |
+| Gérer l’atelier, ses membres et leurs droits                    | Oui                     | Non                    | Non                   | Non                   |
+| Gérer la facturation et la configuration des expéditeurs/canaux | Oui                     | Non                    | Non                   | Non                   |
+| Activer ou renouveler une délégation à un assistant             | Oui, dans le navigateur | Non                    | Non                   | Non                   |
+| Régler sa langue et sa version Classique/V2 dans son compte     | Personnel, navigateur   | Personnel, navigateur  | Personnel, navigateur | Personnel, navigateur |
 
 - **Administrateur** : responsable de l’atelier et de ses accès. Il dispose de
   tous les droits applicatifs de l’atelier. Au moins un administrateur doit rester.

@@ -1,5 +1,69 @@
 # Execution plan and handoff
 
+24 October publication decision: the user explicitly selects
+`SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` for the live document
+profile. The default remains `strong`, and unknown values deny access. Migration
+0059 records the approval's authentication mode and creates the D1 policy singleton,
+initially `strong`. The operator must explicitly set `id=1` to `verified_account`
+and publish the matching environment value; mismatch fails closed and the Worker
+never edits this policy. A verified account/email, current identity-linked session,
+signed recent `auth_time`, independent recipient binding and human browser review
+remain mandatory. Freshness stays 15 minutes for reading, association and approval,
+and five minutes for export, deposit and deletion. This does not claim MFA or
+strong authentication. Passkeys remain deferred; the chosen profile requires no
+stronger-authentication subscription. Publication is authorized, but migrations,
+configuration and connected production tests still need their own observed proof.
+Earlier local passes below qualify their recorded source and fixtures, not this
+later policy change. Activation and rollback are in the implementation contract.
+
+24 October policy qualification: local run
+`01a16ef7-4017-783f-80e7-80426686b572` passes both desktop/phone results for
+`verified_account`, using synthetic ordinary sessions with no strong/MFA claim.
+It exercises sharing, human approval, independent association, private copy/export
+and revocation without real Auth0 login or delivery. The targeted backend report
+passes 73 cases, tariff qualification 31 cases and UI rendering 13 cases.
+The 355 Node cases, build/dry run, typecheck and lint passed
+before the final explicit workshop **Vérifier mon accès** recovery link. That
+link requests fresh login and a secret-free return to the distribution list;
+it grants no approval. The final build/dry run, typecheck and 13 UI cases now pass.
+Strict run `01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` passes 14/14 in 105.63 seconds,
+without skips, flaky results or model calls, with a sanitized archive. Exact-head
+CI remains pending; local success does not establish production activation.
+
+24 October reprise: continue secure distribution and **Mes documents** while
+deferring the passkey choice. Workshop source pagination, explicit personal-copy
+export policy, claim-bound association confirmation, inaccessible personal-list
+cleanup and deletion/expiry recovery were checked under the then-current strong
+test fixtures. Local checks pass on that recorded source: 23 service cases, eight UI rendering cases,
+fourteen TesterArmy results on desktop/phone, six navigation cases across three
+browser projects and twelve desktop login-entry cases. The latter fixture drains
+bounded static proxies before removing interception; it does not suppress errors
+or change Auth0. Failed attempts remain preserved. Build/dry run, typecheck,
+lint and the 252-feature developer tree pass. Exact-head GitHub verification is
+recorded on PR 74; production activation remains separate.
+
+24 October 2026 secure distribution candidate: implement the unified personal
+account, sensitive shared reader, explicit independent personal copy, immutable
+retention pricing and shared REST/MCP/plugin distribution service. The requested
+TesterArmy e2e framework runs locally with real browsers, local D1/R2, private
+PDF rendering and deterministic simulated delivery. Its initial complete
+four-page lifecycle grew to fourteen desktop/phone cases. On candidate
+`d942fa9`, the complete local regression passed 119 Vitest files / 2,305 cases
+and 355 Node security cases. Reconciliation with main `ac795d0` preserves its
+public HTTP errors and explicit logout; 148 affected unit cases and twelve
+desktop login-entry browser cases passed. The final isolated TesterArmy run
+and exact-head GitHub checks are recorded in
+[draft PR 74](https://github.com/nclsppr/guteneo/pull/74); older local passes
+do not automatically qualify this reconciled source. Read
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
+[journeys](SECURE_DISTRIBUTION_JOURNEYS.md) and
+[the e2e guide](../tests/distribution-e2e/README.md).
+No production migration, account provisioning, real send, merge or deployment
+is performed by these local checks. Scheduled GitHub production browser reports
+and their status-page ingestion are a separate candidate; authenticated
+production test accounts and the real journey under the selected document policy
+require qualification; public reports cannot qualify either mode.
+
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
 and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a

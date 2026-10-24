@@ -1932,5 +1932,24 @@
       }
     }
   ],
-  "localCandidateVersion": "0.3.4"
+  "localCandidateVersion": "0.3.4",
+  "secureDistributionLocalCandidate": {
+    "preparedOn": "2026-10-24",
+    "sourceScope": "local_candidate",
+    "workflow": "secure-distribution",
+    "tools": [
+      "prepare_secure_distribution",
+      "list_secure_distributions",
+      "get_secure_distribution",
+      "confirm_secure_distribution",
+      "revoke_secure_distribution"
+    ],
+    "recipientAccess": "one_guteneo_account_and_fresh_qualified_authentication",
+    "approval": "recorded_strong_browser_approval_even_for_expert_connections",
+    "retention": "quoted_per_pdf_per_recipient_non_refundable_on_revocation",
+    "personalVaultAccessFromMcp": false,
+    "deployed": false,
+    "portalUpdated": false,
+    "published": false
+  }
 }

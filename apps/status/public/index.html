@@ -11,6 +11,7 @@
     <link rel="icon" href="assets/logo.webp" />
     <link rel="stylesheet" href="style.css" />
     <script src="app.js" defer></script>
+    <script src="production-e2e.js" defer></script>
     <script src="seasonal.js" defer></script>
   </head>
   <body>
@@ -189,6 +190,70 @@
             envoi. Le suivi de vos documents reste disponible dans votre
             atelier.
           </p>
+        </section>
+        <section class="browser-panel" aria-labelledby="browser-title">
+          <div class="panel-heading">
+            <h2 id="browser-title">Parcours publics dans le navigateur</h2>
+            <span id="e2e-state" class="badge historical">En attente</span>
+          </div>
+          <p class="section-note">
+            Pages publiées, interactions publiques et protection des accès, sur
+            ordinateur et dans une vue mobile. Ces exécutions GitHub sont
+            distinctes des mesures de disponibilité ci-dessus.
+          </p>
+          <div class="browser-report-summary" role="status" aria-live="polite">
+            <h3 id="e2e-title">Lecture du dernier rapport…</h3>
+            <p id="e2e-detail">Lecture des résultats du navigateur.</p>
+          </div>
+          <dl class="browser-report-facts">
+            <div>
+              <dt>Dernière exécution</dt>
+              <dd><time id="e2e-completed">En attente</time></dd>
+            </div>
+            <div>
+              <dt>Version testée</dt>
+              <dd id="e2e-tested-release">Inconnue</dd>
+            </div>
+            <div>
+              <dt>Version publique observée</dt>
+              <dd id="e2e-current-release">Inconnue</dd>
+            </div>
+            <div>
+              <dt>Actualité du rapport</dt>
+              <dd id="e2e-freshness">En attente</dd>
+            </div>
+          </dl>
+          <p id="e2e-counts" class="section-note">Aucun résultat reçu.</p>
+          <p id="e2e-run" hidden>
+            <a id="e2e-run-link" rel="noopener noreferrer" target="_blank"
+              >Ouvrir le rapport GitHub</a
+            >
+          </p>
+          <details id="e2e-check-details" class="browser-report-details" hidden>
+            <summary>Voir les contrôles du rapport</summary>
+            <ul id="e2e-checks" class="browser-report-checks"></ul>
+          </details>
+          <div class="browser-authenticated-scope">
+            <div class="panel-heading">
+              <h3>Distribution et réception authentifiées</h3>
+              <span id="e2e-authenticated" class="badge historical"
+                >À qualifier</span
+              >
+            </div>
+            <p id="e2e-authenticated-detail">
+              Le cycle métier attend des comptes de test dédiés et une
+              authentification forte qualifiée. Cette couverture en attente ne
+              constitue pas une panne du service.
+            </p>
+          </div>
+          <details
+            id="e2e-history-details"
+            class="browser-report-details"
+            hidden
+          >
+            <summary>Exécutions précédentes</summary>
+            <ol id="e2e-history" class="browser-report-history"></ol>
+          </details>
         </section>
         <section class="history-panel" aria-labelledby="history-title">
           <div class="panel-heading">
