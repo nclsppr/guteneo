@@ -270,6 +270,21 @@ export function ErrorNotice({
         {error instanceof ApiError && (
           <small className="mono">{error.code}</small>
         )}
+        {error instanceof ApiError &&
+          [
+            "DOCUMENT_AUTHENTICATION_REQUIRED",
+            "STRONG_AUTHENTICATION_REQUIRED",
+            "STRONG_BROWSER_APPROVAL_REQUIRED",
+            "FRESH_AUTHENTICATION_REQUIRED",
+            "AUTHENTICATION_FRESHNESS_REQUIRED",
+          ].includes(error.code) && (
+            <a
+              className="button primary"
+              href="/auth/login?fresh=1&returnTo=%2F%23%2Fapp%2Fsecure-distributions"
+            >
+              {msg("Vérifier mon accès")}
+            </a>
+          )}
         {retry && (
           <button className="text-button" onClick={retry}>
             {t.retry}
@@ -890,6 +905,9 @@ function generalErrorMessage(code: string): string | undefined {
     ),
     STRONG_AUTHENTICATION_REQUIRED: msg(
       "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+    ),
+    DOCUMENT_AUTHENTICATION_REQUIRED: msg(
+      "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
     ),
     SECURE_DISTRIBUTION_NOT_CONFIGURED: msg(
       "La distribution sécurisée n’est pas activée.",

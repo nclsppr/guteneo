@@ -1,3 +1,4 @@
+import { documentAccessMode, documentAccessPolicySql, documentSessionPolicySql } from "../../contracts/src/document-authentication";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -252,7 +253,7 @@ function writable(ctx: ActorContext) {
   if (!actorPermissions(ctx).prepareDispatches)
     throw new DomainError("FORBIDDEN", "Droit de modification requis.", 403);
 }
-function strongBrowserApprovalFence(ctx: ActorContext, mode: Mode) {
+function browserDocumentApprovalFence(ctx: ActorContext, mode: Mode, requiredAuthentication?: string) {
   if (
     ctx.actor !== "browser" ||
     !ctx.documentSessionHash ||
@@ -262,7 +263,8 @@ function strongBrowserApprovalFence(ctx: ActorContext, mode: Mode) {
   return {
     condition: `EXISTS(SELECT 1 FROM personal_sessions secure_personal JOIN browser_sessions secure_browser ON secure_browser.token_hash=secure_personal.token_hash AND secure_browser.user_id=secure_personal.user_id
     WHERE secure_personal.token_hash=? AND secure_browser.organization_id=? AND secure_personal.user_id=?
-    AND secure_personal.strong_authentication=1 AND secure_personal.authentication_policy_version='guteneo-sensitive-v1'
+    AND ${documentSessionPolicySql('secure_personal', documentAccessMode(requiredAuthentication), mode === 'simulation')}
+    AND ${documentAccessPolicySql(documentAccessMode(requiredAuthentication))}
     AND secure_personal.verified_email IS NOT NULL AND length(trim(secure_personal.verified_email))>0
     AND secure_personal.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND secure_browser.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
     AND secure_personal.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5
@@ -281,7 +283,7 @@ function sqlError(error: unknown): never {
   if (message.includes("secure_browser_approval_required"))
     throw new DomainError(
       "STRONG_BROWSER_APPROVAL_REQUIRED",
-      "Une approbation navigateur forte récente est requise pour cette distribution.",
+      "Une approbation navigateur récente autorisée est requise pour cette distribution.",
       403,
     );
   if (message.includes("approval_permission_required"))
@@ -391,6 +393,7 @@ export class DomainService {
     public readonly db: D1Database,
     public readonly config: {
       mode: Mode;
+      sensitiveDocumentAuthentication?: string;
       now?: () => number;
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
@@ -1379,10 +1382,10 @@ export class DomainService {
       if (proof || ctx.actor !== "browser")
         throw new DomainError(
           "STRONG_BROWSER_APPROVAL_REQUIRED",
-          "La distribution sécurisée exige une approbation forte dans le navigateur, même sous mandat expert.",
+          "La distribution sécurisée exige une approbation dans le navigateur, même sous mandat expert.",
           403,
         );
-      const strong = strongBrowserApprovalFence(ctx, row.mode);
+      const strong = browserDocumentApprovalFence(ctx, row.mode, this.config.sensitiveDocumentAuthentication);
       const session = await this.db
         .prepare(
           `SELECT authenticated_at,expires_at,(SELECT expires_at FROM browser_sessions WHERE token_hash=personal_sessions.token_hash) browser_expires_at FROM personal_sessions WHERE token_hash=? AND (${strong.condition})`,
@@ -1396,7 +1399,7 @@ export class DomainService {
       if (!session)
         throw new DomainError(
           "STRONG_BROWSER_APPROVAL_REQUIRED",
-          "Reconnectez-vous avec une authentification forte récente avant d’approuver cette distribution.",
+          "Reconnectez-vous avant d’approuver cette distribution.",
           403,
         );
       secureEvidence = {
@@ -1496,8 +1499,8 @@ export class DomainService {
       statements.push(
         this.db
           .prepare(
-            `INSERT INTO secure_approval_evidence(id,organization_id,dispatch_id,fingerprint,user_id,session_hash,authenticated_at,policy_version,created_at)
-        SELECT ?,?,?,?,?,token_hash,authenticated_at,authentication_policy_version,? FROM personal_sessions WHERE token_hash=? AND user_id=? AND ${authority.condition}`,
+            `INSERT INTO secure_approval_evidence(id,organization_id,dispatch_id,fingerprint,user_id,session_hash,authenticated_at,policy_version,authentication_mode,created_at)
+        SELECT ?,?,?,?,?,token_hash,authenticated_at,'guteneo-sensitive-v1',?,? FROM personal_sessions WHERE token_hash=? AND user_id=? AND ${authority.condition}`,
           )
           .bind(
             secureEvidence.id,
@@ -1505,6 +1508,7 @@ export class DomainService {
             id,
             fingerprint,
             ctx.userId,
+            documentAccessMode(this.config.sensitiveDocumentAuthentication),
             now,
             ctx.documentSessionHash,
             ctx.userId,
@@ -1537,6 +1541,7 @@ export class DomainService {
         id,
         {
           authority: proof ? "delegated" : "browser",
+          ...(secure ? { documentAccessMode: documentAccessMode(this.config.sensitiveDocumentAuthentication) } : {}),
           ...(proof ? { connectionId: proof.connectionId } : {}),
           fingerprint,
           recipientRequested: attestation.recipientRequested === true,
@@ -1734,13 +1739,13 @@ export class DomainService {
     );
     const membership = membershipPermissionFence(ctx, "approveDispatches");
     const validApproval = secure
-      ? `EXISTS(SELECT 1 FROM approvals a JOIN valid_secure_approval_evidence e ON e.id=a.secure_approval_evidence_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.approval_kind='browser' AND a.expert_review_hash IS NULL AND a.expires_at>? AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.fingerprint=a.fingerprint AND e.user_id=a.user_id AND e.created_at=a.created_at)`
+      ? `EXISTS(SELECT 1 FROM approvals a JOIN valid_secure_approval_evidence e ON e.id=a.secure_approval_evidence_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.approval_kind='browser' AND a.expert_review_hash IS NULL AND a.expires_at>? AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.fingerprint=a.fingerprint AND e.user_id=a.user_id AND e.created_at=a.created_at AND (e.authentication_mode='strong' OR ?='verified_account'))`
       : proof
         ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
         : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
-    const approvalFence = `(${membership.condition}) AND (${validApproval}) AND (${acceptanceAuthority?.condition ?? "1=1"})`;
+    const approvalFence = `(${membership.condition}) AND (${validApproval}) AND (${secure ? documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication)) : "1=1"}) AND (${acceptanceAuthority?.condition ?? "1=1"})`;
     const proofValues = secure
-      ? [ctx.organizationId, id, row.fingerprint, now]
+      ? [ctx.organizationId, id, row.fingerprint, now, documentAccessMode(this.config.sensitiveDocumentAuthentication)]
       : proof
         ? [
             ctx.organizationId,
@@ -1840,7 +1845,7 @@ export class DomainService {
         .all(),
       this.db
         .prepare(
-          `SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1)) ${JSON.parse(dispatch.options_json).secureDistribution ? "AND a.approval_kind='browser' AND EXISTS(SELECT 1 FROM valid_secure_approval_evidence e WHERE e.id=a.secure_approval_evidence_id AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.user_id=a.user_id AND e.fingerprint=a.fingerprint AND e.created_at=a.created_at)" : ""}`,
+          `SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1)) ${JSON.parse(dispatch.options_json).secureDistribution ? `AND a.approval_kind='browser' AND EXISTS(SELECT 1 FROM valid_secure_approval_evidence e WHERE e.id=a.secure_approval_evidence_id AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.user_id=a.user_id AND e.fingerprint=a.fingerprint AND e.created_at=a.created_at AND ${documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication))})` : ""}`,
         )
         .bind(ctx.organizationId, id, dispatch.fingerprint, this.time())
         .first<{

@@ -7,9 +7,15 @@ import {
   secureDistributionQuote,
   type SecureDistributionView,
 } from "../../packages/contracts/src/secure-distribution";
-import type { DocumentRecord, Session } from "../../apps/web/src/api";
+import {
+  ApiError,
+  type DocumentRecord,
+  type Session,
+} from "../../apps/web/src/api";
+import { ErrorNotice } from "../../apps/web/src/components";
 import { setLocale, t } from "../../apps/web/src/locale";
 import { msg } from "../../apps/web/src/messages";
+import { PersonalSecurityNotice } from "../../apps/web/src/personal-space";
 
 const resources = vi.hoisted(() => new Map<string, unknown>());
 vi.mock("../../apps/web/src/components", async (importOriginal) => {
@@ -82,11 +88,48 @@ function render(route: string, actor = session) {
   );
 }
 afterEach(() => {
+  vi.unstubAllGlobals();
   resources.clear();
   setLocale("fr", false);
 });
 
 describe("secure distribution browser choices", () => {
+  it("offers an explicit fresh workshop login after document authentication expires", () => {
+    const html = renderToStaticMarkup(
+      createElement(ErrorNotice, {
+        error: new ApiError(
+          "DOCUMENT_AUTHENTICATION_REQUIRED",
+          "Session expired",
+          403,
+        ),
+      }),
+    );
+    expect(html).toContain(
+      "/auth/login?fresh=1&amp;returnTo=%2F%23%2Fapp%2Fsecure-distributions",
+    );
+    expect(html).toContain(msg("Vérifier mon accès"));
+    expect(html).not.toContain(msg("Connexion renforcée nécessaire"));
+  });
+  for (const locale of ["fr", "en", "de", "lb"] as const) {
+    it(`uses the verified-account recovery wording in ${locale} without requiring stronger sign-in`, () => {
+      vi.stubGlobal("window", { location: { hash: "#/app/my-documents" } });
+      setLocale(locale, false);
+      const html = renderToStaticMarkup(
+        createElement(PersonalSecurityNotice, { mode: "verified_account" }),
+      );
+      expect(html).toContain(msg("Vérifiez votre connexion"));
+      expect(html).toContain(
+        msg(
+          "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+        ),
+      );
+      expect(html).not.toContain(msg("Connexion renforcée nécessaire"));
+      if (locale !== "fr")
+        expect(msg("Vérifiez votre connexion")).not.toBe(
+          "Vérifiez votre connexion",
+        );
+    });
+  }
   it("offers explicit pagination when the first document page has no verified PDF", () => {
     resources.set("/secure-distributions/catalog", secureDistributionCatalog());
     resources.set("/documents", {

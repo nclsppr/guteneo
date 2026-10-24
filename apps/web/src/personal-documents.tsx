@@ -157,8 +157,8 @@ function ClaimDocumentInvitation({
             "L’atelier peut devoir confirmer l’association à votre compte avant de vous donner accès au contenu.",
           )}
         </p>
-        {!session.strongAuthentication ? (
-          <PersonalSecurityNotice />
+        {!(session.documentAccessAllowed ?? session.strongAuthentication) ? (
+          <PersonalSecurityNotice mode={session.documentAccessMode} />
         ) : pending ? (
           <p role="status">
             {msg("Votre demande d’accès attend la confirmation de l’atelier.")}
@@ -177,7 +177,7 @@ function ClaimDocumentInvitation({
           </button>
         )}
         {needsAuthentication(action.error) ? (
-          <PersonalSecurityNotice />
+          <PersonalSecurityNotice mode={session.documentAccessMode} />
         ) : (
           <ErrorNotice error={action.error} />
         )}
@@ -326,7 +326,7 @@ function PersonalDocumentList({
             )}
       </p>
       {needsAuthentication(listError) ? (
-        <PersonalSecurityNotice />
+        <PersonalSecurityNotice mode={session.documentAccessMode} />
       ) : (
         <ErrorNotice error={listError} retry={() => setVersion((n) => n + 1)} />
       )}
@@ -537,7 +537,7 @@ function PersonalDocumentReader({
         action={<RefreshButton onClick={() => setVersion((n) => n + 1)} />}
       />
       {needsAuthentication(error) ? (
-        <PersonalSecurityNotice />
+        <PersonalSecurityNotice mode={session.documentAccessMode} />
       ) : (
         <ErrorNotice error={error} retry={() => setVersion((n) => n + 1)} />
       )}
@@ -710,7 +710,7 @@ function PersonalDocumentReader({
                   </section>
                 )}
                 {needsAuthentication(action.error) ? (
-                  <PersonalSecurityNotice />
+                  <PersonalSecurityNotice mode={session.documentAccessMode} />
                 ) : (
                   <ErrorNotice error={action.error} />
                 )}

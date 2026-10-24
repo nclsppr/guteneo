@@ -29,6 +29,7 @@ export interface Env {
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: "verified_email" | "verified_email_and_mfa";
+  SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_MODE?: "test" | "live";

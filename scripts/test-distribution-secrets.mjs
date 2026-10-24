@@ -42,10 +42,17 @@ export async function assertNoInvitationSecrets(state, extraPaths = []) {
       (match) => match[1],
     ),
   );
+  let sessionSecrets = [];
+  try {
+    const ledger = await readFile(new URL(`${state}/normal-session-secrets.jsonl`, `file://${root}`), "utf8");
+    sessionSecrets = ledger.trim().split("\n").flatMap((line) => JSON.parse(line));
+  } catch (error) {
+    if (error.code !== "ENOENT") throw new Error("The normal-session privacy ledger is unavailable.");
+  }
   async function inspect(path) {
     const content = await readFile(path);
-    if (tokens.some((token) => content.includes(token)))
-      throw new Error("An invitation secret appeared in local test artifacts.");
+    if ([...tokens, ...sessionSecrets].some((token) => content.includes(token)))
+      throw new Error("A fictional private credential appeared in local test artifacts.");
   }
   async function directory(path) {
     for (const entry of await readdir(path, { withFileTypes: true })) {

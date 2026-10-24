@@ -343,12 +343,23 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - authentication: strong
+            config: e2e.config.ts
+            expected: 14
+          - authentication: verified_account
+            config: e2e.verified-account.config.ts
+            expected: 2
     env:
       E2E_TELEMETRY_DISABLED: "1"
       DO_NOT_TRACK: "1"
       WRANGLER_SEND_METRICS: "false"
       WRANGLER_WRITE_LOGS: "false"
       GUTENEO_E2E_PREBUILT: "true"
+      EXPECTED_DISTRIBUTION_RESULTS: ${{ matrix.expected }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -379,7 +390,7 @@ jobs:
         run: |
           mkdir -p test-results/ci
           set -o pipefail
-          npm run test:distribution | tee test-results/ci/distribution.log
+          npm run test:distribution -- --config '${{ matrix.config }}' | tee test-results/ci/distribution.log
       - name: Require complete deterministic coverage on both viewports
         run: |
           node --input-type=module <<'JS'
@@ -387,7 +398,7 @@ jobs:
           const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
           const { summary, usage } = run;
           if (run.status !== 'passed' || run.exitCode !== 0 || run.errors.length !== 0 ||
-              summary.discovered < 1 || summary.selected !== summary.discovered ||
+              summary.discovered !== Number(process.env.EXPECTED_DISTRIBUTION_RESULTS) || summary.selected !== summary.discovered ||
               summary.executed !== summary.discovered || summary.passed !== summary.discovered ||
               summary.failed || summary.skipped || summary.flaky || summary.interrupted ||
               run.results.some(result => result.status !== 'passed') ||
@@ -419,7 +430,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always() && steps.distribution-privacy.outputs.verified == 'true'
         with:
-          name: ci-evidence-distribution
+          name: ci-evidence-distribution-${{ matrix.authentication }}
           path: |
             test-results/distribution-e2e/
             test-results/distribution-e2e-server.log

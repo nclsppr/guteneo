@@ -2,7 +2,7 @@ import { z } from "zod";
 import { DomainError, membershipPermissionFence, type ActorContext } from "../../../packages/domain/src/index";
 import { secureClaimSchema, securePageEventSchema } from "../../../packages/contracts/src/secure-distribution";
 import type { Env } from "./env";
-import { authenticatePersonalBrowser, requirePersonalStrongAuthentication } from "./personal-auth";
+import { authenticatePersonalBrowser, requirePersonalDocumentAuthentication } from "./personal-auth";
 import { PersonalDocumentsService } from "./personal-documents";
 import { SecureDistributionService, secureSharedBinding } from "./secure-distributions";
 import { getSecureObject } from "./secure-storage";
@@ -53,7 +53,7 @@ export async function handlePersonalDocumentRoute(request:Request,env:Env):Promi
 export async function secureWorkshopPreview(request:Request,env:Env,service:SecureDistributionService,ctx:ActorContext,id:string,page:number,text=false) {
   if(ctx.actor!=="browser")throw new DomainError("BROWSER_REQUIRED","Ouvrez l’aperçu dans Guteneo.",403);
   const principal=await authenticatePersonalBrowser(request,env);
-  requirePersonalStrongAuthentication(principal);
+  requirePersonalDocumentAuthentication(principal,env);
   if(principal.userId!==ctx.userId)throw new DomainError("FORBIDDEN","Identité incohérente.",403);
   const row=await service.row(ctx,id);
   if(!["prepared","active"].includes(row.status)||(row.status==="prepared"&&row.prepared_expires_at<=new Date().toISOString())||(row.status==="active"&&row.expires_at!<=new Date().toISOString()))throw new DomainError("INVALID_STATE","Le rendu n’est pas disponible.",409);
@@ -63,7 +63,7 @@ export async function secureWorkshopPreview(request:Request,env:Env,service:Secu
   const object=await getSecureObject(env,text?image.text_key:image.image_key,secureSharedBinding(row,`page:${page}:${text?"text":"image"}`),text?image.text_sha256:image.image_sha256);
   // Recheck current workshop authority after the private object read.
   await service.row(ctx,id);
-  const fence=membershipPermissionFence(ctx,"prepareDispatches"),session=personalSessionFence(principal);
+  const fence=membershipPermissionFence(ctx,"prepareDispatches"),session=personalSessionFence(principal,900,env);
   const audited=await env.DB.prepare(`INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,session_hash,type,provenance,page_number,created_at)
     SELECT ?,organization_id,id,?,?,?,'server',?,strftime('%Y-%m-%dT%H:%M:%fZ','now') FROM secure_distributions WHERE organization_id=? AND id=? AND ((status='prepared' AND prepared_expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')) OR (status='active' AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))) AND (created_by=? OR EXISTS(SELECT 1 FROM memberships reviewer WHERE reviewer.organization_id=secure_distributions.organization_id AND reviewer.user_id=? AND (reviewer.role='admin' OR (reviewer.role='supervisor' AND reviewer.supervisor_can_approve=1)))) AND ${fence.condition} AND ${session.condition} RETURNING id`)
     .bind(`sev_${crypto.randomUUID().replaceAll("-","")}`,ctx.userId,principal.tokenHash,text?"workshop_accessible_text_access_authorized":"workshop_page_access_authorized",page,ctx.organizationId,id,ctx.userId,ctx.userId,...fence.values,...session.values).first();

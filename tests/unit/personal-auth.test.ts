@@ -16,9 +16,10 @@ import {
   documentAuthenticationEvidence,
   handleAuthRoute,
   requirePersonalStrongAuthentication,
+  requirePersonalDocumentAuthentication,
   type AuthEnv,
 } from "../../apps/api/src/auth";
-import { handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
+import { publicPersonalSession, handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -166,9 +167,47 @@ beforeAll(async () => {
     }
   }
 });
-afterEach(() => vi.restoreAllMocks());
+afterEach(async () => {
+  vi.restoreAllMocks();
+  await db.prepare("UPDATE secure_document_authentication_policy SET mode='strong' WHERE id=1").run();
+});
 afterAll(async () => {
   await mf?.dispose();
+});
+
+describe("document access policy does not fabricate stronger authentication", () => {
+  it("allows a real signed verified Auth0 session in the explicit normal mode", async () => {
+    const ordinary = await login({ amr: ["pwd"], "https://guteneo.com/document_authentication": null });
+    const normal = { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" };
+    await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
+    expect(ordinary.principal).toMatchObject({ identityVerified: true, verifiedAccount: true, strongAuthentication: false, mfa: false, authenticationPolicyVersion: null });
+    expect(() => requirePersonalDocumentAuthentication(ordinary.principal, normal)).not.toThrow();
+    expect(await publicPersonalSession(normal, ordinary.principal)).toMatchObject({ documentAccessMode: "verified_account", documentAccessAllowed: true, strongAuthentication: false, authenticationPolicyVersion: null, mfa: false, workspaces: [] });
+    expect(await publicPersonalSession(env, ordinary.principal)).toMatchObject({ documentAccessMode: "strong", documentAccessAllowed: false });
+    await db.prepare("UPDATE secure_document_authentication_policy SET mode='strong' WHERE id=1").run();
+    expect((await publicPersonalSession(normal, ordinary.principal)).documentAccessAllowed).toBe(false);
+    expect(() => requirePersonalDocumentAuthentication(ordinary.principal, env)).toThrow();
+    expect(() => requirePersonalDocumentAuthentication(ordinary.principal, { SENSITIVE_DOCUMENT_AUTHENTICATION: "typo" })).toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
+  });
+  it("requires actual verified identity, email and fresh auth_time for normal access", async () => {
+    const ordinary = await login({ amr: ["pwd"], "https://guteneo.com/document_authentication": null });
+    const normal = { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" };
+    await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
+    for (const change of [{ verifiedAccount: false }, { verifiedEmail: false }, { identityVerified: false }, { authenticatedAt: null }, { authenticatedAt: now() - 901 }, { authenticatedAt: now() + 6 }, { development: true, simulation: false }])
+      expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, ...change }, normal)).toThrow();
+    expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, authenticatedAt: now() - 301 }, normal, { maxAgeSeconds: 300 })).toThrow();
+    await db.prepare("DELETE FROM auth_identities WHERE user_id=?").bind(ordinary.principal.userId).run();
+    const revokedIdentity = await authenticatePersonalBrowser(request("/api/personal/session", "GET", undefined, { Cookie: ordinary.cookie }), normal);
+    expect((await publicPersonalSession(normal, revokedIdentity)).documentAccessAllowed).toBe(false);
+  });
+  it("requests fresh identity without forcing an MFA ACR in normal mode", async () => {
+    const result = await handleAuthRoute(request("/auth/login?context=personal"), { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" });
+    const destination = new URL(result!.headers.get("Location")!);
+    expect(destination.searchParams.get("max_age")).toBe("0");
+    expect(destination.searchParams.has("acr_values")).toBe(false);
+    const strict = await handleAuthRoute(request("/auth/login?context=personal"), env);
+    expect(new URL(strict!.headers.get("Location")!).searchParams.get("acr_values")).toContain("multi-factor");
+  });
 });
 
 describe("one personal identity without implicit workshop authority", () => {

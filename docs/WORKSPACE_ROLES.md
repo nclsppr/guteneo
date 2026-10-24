@@ -9,6 +9,19 @@ Le même compte peut consulter ses documents et, volontairement, créer ou chois
 un atelier pour utiliser les services Guteneo. Il ne rejoint jamais l’atelier
 expéditeur par le seul fait de recevoir son invitation documentaire.
 
+La politique documentaire est indépendante du rôle : `strong` par défaut,
+`verified_account` seulement par choix explicite. Le profil live demandé utilise
+un compte et un email vérifiés, une session Auth0 liée à l’identité et récente,
+avec confirmation indépendante du destinataire et revue humaine. Il ne prétend
+pas produire une MFA ou une assurance forte. Lectures, association et approbation
+sont bornées à quinze minutes ; export, dépôt et suppression à cinq minutes.
+La variable `SENSITIVE_DOCUMENT_AUTHENTICATION` doit correspondre à la ligne
+D1 `secure_document_authentication_policy(id=1, mode)` créée par 0059. L’opérateur
+seul change cette ligne ; valeur inconnue ou désaccord : refus. Un reçu d’approbation
+ordinaire ne remplace pas une preuve forte après retour de la politique à `strong`.
+`documentAccessAllowed` et `documentAccessMode` informent l’interface sans donner
+un droit au-delà des contrôles serveur et SQL actuels.
+
 La distribution sensible ajoute la matrice suivante. Les permissions sont
 recontrôlées côté serveur au moment de l’action. Le créateur d’un partage voit
 ses propres préparations ; les approbateurs actuellement habilités peuvent les
@@ -20,15 +33,15 @@ lecture général.
 | ---------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
 | Préparer un partage à partir d’un PDF accessible           | Oui                                                      | Oui                                                    | Oui                                             | Non         | Membership + `dispatches:prepare` et autorité courante                                                        |
 | Lire un partage et son journal d’atelier                   | Oui                                                      | Tous si option Approbation ; sinon ses créations       | Ses créations                                   | Non         | Même accès de ressource + `dispatches:read`                                                                   |
-| Consulter les pages de revue finales                       | Navigateur et preuve forte récente                       | Même exigence et option Approbation, ou sa création    | Sa création, navigateur et preuve forte récente | Non         | Aucun accès aux pages de réception ou au principal personnel                                                  |
-| Donner l’approbation sensible                              | Navigateur et preuve forte récente                       | Option Approbation, navigateur et preuve forte récente | Non                                             | Non         | Non ; un mandat expert ne remplace pas cette approbation                                                      |
+| Consulter les pages de revue finales                       | Navigateur et session documentaire récente                       | Même exigence et option Approbation, ou sa création    | Sa création, navigateur et session documentaire récente | Non         | Aucun accès aux pages de réception ou au principal personnel                                                  |
+| Donner l’approbation sensible                              | Navigateur et session documentaire récente                       | Option Approbation, navigateur et session documentaire récente | Non                                             | Non         | Non ; un mandat expert ne remplace pas cette approbation                                                      |
 | Activer une distribution déjà approuvée                    | Oui, selon preuve courante                               | Option Approbation, selon preuve courante              | Non                                             | Non         | Rôle d’approbateur + `dispatches:send`, preuve navigateur sensible déjà enregistrée et confirmation de l’hôte |
-| Confirmer l’association d’un destinataire à un compte      | Navigateur, contrôle indépendant et preuve forte récente | Même exigence et option Approbation                    | Non                                             | Non         | Non                                                                                                           |
+| Confirmer l’association d’un destinataire à un compte      | Navigateur, contrôle indépendant et session documentaire récente | Même exigence et option Approbation                    | Non                                             | Non         | Non                                                                                                           |
 | Révoquer l’accès partagé sans remboursement                | Oui                                                      | Option Approbation                                     | Non                                             | Non         | Rôle d’approbateur + `dispatches:send` ; ne supprime pas une copie personnelle acquise                        |
 | Lire, exporter ou supprimer une copie personnelle d’autrui | Non                                                      | Non                                                    | Non                                             | Non         | Non                                                                                                           |
 
 Tout propriétaire de compte, avec ou sans rôle atelier, peut consulter ses
-propres documents sous la preuve forte requise, puis télécharger ou conserver
+propres documents sous la politique documentaire courante, puis télécharger ou conserver
 seulement ce que le partage autorise. Une copie personnelle acquise conserve
 son propre engagement de durée et d’export ; son atelier d’origine ne peut plus
 la révoquer. Ni un administrateur atelier ni un assistant ne reçoit une vue

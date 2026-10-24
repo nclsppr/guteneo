@@ -1,8 +1,20 @@
 # Architecture
 
-24 October 2026: migrations 0055–0058 separate personal authority from workshop
-membership, bind immutable secure distributions and paid terms, enforce strong
-browser approval at SQL acceptance, and retain restartable private copy jobs.
+24 October 2026: migrations 0055–0059 separate personal authority from workshop
+membership, bind immutable secure distributions and paid terms, enforce human
+browser approval under the current document policy at SQL acceptance, and retain
+restartable private copy jobs. `SENSITIVE_DOCUMENT_AUTHENTICATION` defaults to
+`strong`; the requested live profile explicitly selects `verified_account`.
+Unknown values fail closed. The selected profile requires a verified account
+and email, an identity-linked Auth0 session and signed primary `auth_time` within
+15 minutes, or five minutes for export, deposit and deletion. It does not create
+MFA evidence. Migration 0059 records `secure_approval_evidence.authentication_mode`
+and creates the singleton `secure_document_authentication_policy(id=1, mode)`,
+defaulting to `strong`. The operator sets its mode explicitly; the Worker never
+writes this policy. Environment/D1 disagreement denies access. SQL acceptance
+rechecks the current D1 policy and identity, including historical receipts;
+an ordinary approval cannot satisfy a policy changed back to `strong`.
+The `guteneo-sensitive-v1` family alone no longer denotes strong assurance.
 Private page images/text and autonomous personal objects use distinct envelope
 contexts and versioned wrapping keys. Final content authorization writes its
 audit event after R2 waits and rechecks current sessions/grants. OAuth
@@ -11,7 +23,11 @@ personal vault. Queue and bounded maintenance recover pending jobs without
 retrying an unknown external communication. Read
 [the secure distribution contract](SECURE_DISTRIBUTION_IMPLEMENTATION.md)
 before changing these invariants. Runtime key ownership, provider configuration
-and actual Auth0 assurance remain separately qualified deployment gates.
+and the hosted account journey remain separately qualified deployment gates.
+The session's `documentAccessMode` and `documentAccessAllowed` describe the current
+15-minute access window for the UI; the server rechecks each action and its
+shorter window. `strongAuthentication` remains factual and may be false while
+the explicitly selected verified-account policy permits access.
 
 23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
 version for application capabilities, MCP server identity and public release

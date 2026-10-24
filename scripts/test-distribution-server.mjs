@@ -10,6 +10,9 @@ const vite = fileURLToPath(
   new URL("../node_modules/vite/bin/vite.js", import.meta.url),
 );
 const state = process.env.GUTENEO_DISTRIBUTION_E2E_STATE;
+const authentication = process.env.GUTENEO_DISTRIBUTION_E2E_AUTHENTICATION ?? "strong";
+if (!["strong", "verified_account"].includes(authentication))
+  throw new Error("Unknown local distribution authentication policy.");
 if (!state || !/^\.wrangler\/distribution-e2e-[a-f0-9-]{36}$/u.test(state))
   throw new Error(
     "Start the isolated local test server through npm run test:distribution.",
@@ -104,6 +107,10 @@ try {
         "MODE:simulation",
         "--var",
         "LIVE_SENDS_ENABLED:false",
+        "--var",
+        `SENSITIVE_DOCUMENT_AUTHENTICATION:${authentication}`,
+        "--var",
+        `AUTH0_AUTH_POLICY:${authentication === "verified_account" ? "verified_email" : "verified_email_and_mfa"}`,
         "--var",
         "APP_ORIGIN:http://localhost:8787",
         "--persist-to",

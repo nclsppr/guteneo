@@ -74,6 +74,9 @@ export function PersonalSignIn({
     STRONG_AUTHENTICATION_REQUIRED: msg(
       "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
     ),
+    DOCUMENT_AUTHENTICATION_REQUIRED: msg(
+      "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+    ),
     IDENTITY_NOT_CONFIGURED: msg(
       "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
     ),
@@ -174,14 +177,26 @@ export function PersonalSignIn({
   );
 }
 
-export function PersonalSecurityNotice() {
+export function PersonalSecurityNotice({
+  mode = "strong",
+}: {
+  mode?: "strong" | "verified_account";
+}) {
   return (
     <section className="secure-document-panel" role="status">
-      <h2>{msg("Connexion renforcée nécessaire")}</h2>
+      <h2>
+        {mode === "verified_account"
+          ? msg("Vérifiez votre connexion")
+          : msg("Connexion renforcée nécessaire")}
+      </h2>
       <p>
-        {msg(
-          "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
-        )}
+        {mode === "verified_account"
+          ? msg(
+              "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+            )
+          : msg(
+              "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+            )}
       </p>
       <a className="button primary" href={authHref("login", true)}>
         <ShieldCheck size={18} aria-hidden="true" />

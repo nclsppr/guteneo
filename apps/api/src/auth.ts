@@ -1,5 +1,6 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
@@ -46,6 +47,7 @@ export interface AuthEnv {
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: string;
+  SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
 }
 export interface AuthContext {
   organizationId: string;
@@ -98,6 +100,8 @@ export interface PersonalPrincipal {
   verifiedEmail: boolean;
   mfa: boolean;
   verifiedAccount: boolean;
+  /** Current persisted Auth0 subject and verified email still match this user. */
+  identityVerified?: boolean;
   authenticatedAt: number | null;
   amr: string[];
   acr: string | null;
@@ -750,7 +754,8 @@ export async function authenticatePersonalBrowser(
     );
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT p.user_id,p.csrf_token,p.verified_email,p.mfa,p.verified_account,p.authenticated_at,p.amr_json,p.acr,p.strong_authentication,p.authentication_policy_version,p.is_development,u.name,u.preferred_locale,u.preferred_dashboard_appearance
+    `SELECT p.user_id,p.csrf_token,p.verified_email,p.mfa,p.verified_account,p.authenticated_at,p.amr_json,p.acr,p.strong_authentication,p.authentication_policy_version,p.is_development,u.name,u.preferred_locale,u.preferred_dashboard_appearance,
+     EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=p.user_id AND ai.issuer=p.identity_issuer AND ai.subject=p.identity_subject AND u.email=p.verified_email) identity_verified
      FROM personal_sessions p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND p.expires_at>?`,
   )
     .bind(tokenHash, nowISO())
@@ -760,6 +765,7 @@ export async function authenticatePersonalBrowser(
       verified_email: string | null;
       mfa: number;
       verified_account: number;
+      identity_verified: number;
       authenticated_at: number | null;
       amr_json: string;
       acr: string | null;
@@ -793,6 +799,7 @@ export async function authenticatePersonalBrowser(
     verifiedEmail: !!row.verified_email,
     mfa: row.mfa === 1,
     verifiedAccount: row.verified_account === 1,
+    identityVerified: row.identity_verified === 1,
     authenticatedAt: row.authenticated_at,
     amr: JSON.parse(row.amr_json),
     acr: row.acr,
@@ -831,6 +838,26 @@ export function requirePersonalStrongAuthentication(
       "Une connexion réelle est nécessaire.",
       403,
     );
+}
+
+/** Document authorization policy never upgrades the observed authentication. */
+export function requirePersonalDocumentAuthentication(
+  principal: PersonalPrincipal,
+  env: Pick<AuthEnv, "SENSITIVE_DOCUMENT_AUTHENTICATION">,
+  options: { maxAgeSeconds?: number } = {},
+): void {
+  if (documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong")
+    return requirePersonalStrongAuthentication(principal, options);
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !principal.verifiedAccount || !principal.verifiedEmail || !principal.email ||
+    !(principal.identityVerified || (principal.development && principal.simulation)) ||
+    !Number.isSafeInteger(principal.authenticatedAt) || principal.authenticatedAt === null ||
+    principal.authenticatedAt <= 0 || principal.authenticatedAt > now + 5 ||
+    now - principal.authenticatedAt > (options.maxAgeSeconds ?? 900)
+  ) throw new AuthError("DOCUMENT_AUTHENTICATION_REQUIRED", "Reconnectez-vous avec votre compte vérifié pour accéder à ce document.", 403);
+  if (principal.development && !principal.simulation)
+    throw new AuthError("DEVELOPMENT_AUTH_FORBIDDEN", "Une connexion réelle est nécessaire.", 403);
 }
 
 /** Rotate the shared cookie without extending the original authenticated
@@ -1392,10 +1419,11 @@ async function handleAuthRouteOperation(
     if (url.pathname === "/auth/signup")
       destination.searchParams.set("screen_hint", "signup");
     if (url.searchParams.get("context") === "personal") {
-      destination.searchParams.set(
-        "acr_values",
-        "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
-      );
+      if (documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong")
+        destination.searchParams.set(
+          "acr_values",
+          "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
+        );
       destination.searchParams.set("max_age", "0");
     }
     // A fresh login allows a newly verified email or MFA enrolment to be reflected

@@ -4,13 +4,20 @@
 account for received documents, a personal copy vault and sending services.
 Receiving creates no workshop membership or sending credit. Shared access is
 revocable; a separately authorized personal copy survives workshop revocation.
-Sensitive access requires fresh actual strong authentication and independent
-recipient binding. The workshop prepays a versioned retention term; revocation
-does not refund it. Browser approval remains human-only on every API/MCP path.
+Sensitive access follows an explicit document policy: `strong` by default,
+or `verified_account` when configured. The requested live profile selects
+`SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account`: a verified account and email,
+a recent identity-linked Auth0 session, independent recipient binding and human
+browser review. This does not claim MFA or strong authentication. Unknown policy
+values, a missing D1 policy or disagreement with it deny access. The workshop
+prepays a versioned retention term; revocation does not refund it. Browser
+approval remains human-only on every API/MCP path.
 See [the implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
 [prices](SECURE_DISTRIBUTION_PRICING.md) and
-[journeys](SECURE_DISTRIBUTION_JOURNEYS.md). This is a local candidate, not an
-activated identity policy or hosted production qualification.
+[journeys](SECURE_DISTRIBUTION_JOURNEYS.md). This remains a local candidate; it
+does not establish hosted production qualification. Migration 0059 and matched environment/D1 policy
+are required before activating the selected profile; connected production journeys
+remain unqualified.
 
 23 October 2026: the [1.0.0 candidate](V1_RELEASE_CANDIDATE.md) adds synchronized
 application/MCP/package identity, bounded MCP input handling, current-authority

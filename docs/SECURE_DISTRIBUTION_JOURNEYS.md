@@ -11,21 +11,36 @@ personnels ne constituent pas un atelier artificiel.
 | Acteur                       | Autorité nécessaire                                                                        | Portée                                                                                                                     |
 | ---------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Préparateur                  | Membership courante, préparation, source accessible et vérifiée                            | Sa préparation, sa source exacte et le devis figé                                                                          |
-| Approbateur                  | Administrateur ou superviseur avec option Approbation ; navigateur et preuve forte récente | Revue, approbation et association des destinataires dans cet atelier                                                       |
-| Destinataire                 | Principal personnel, adresse vérifiée, preuve forte récente et association confirmée       | Ses accès partagés et ses copies personnelles                                                                              |
+| Approbateur                  | Administrateur ou superviseur avec option Approbation ; navigateur et session conforme à la politique courante | Revue, approbation et association des destinataires dans cet atelier                                                       |
+| Destinataire                 | Principal personnel, adresse vérifiée, session récente et association confirmée       | Ses accès partagés et ses copies personnelles                                                                              |
 | Assistant / client API OAuth | Intersection du rôle, des scopes et de la connexion courante                               | Préparation et suivi de l’atelier ; confirmation après preuve navigateur, aucune identité destinataire ni coffre personnel |
 | Opérateur plateforme         | Autorisation distincte de configuration et de publication                                  | Activation des services ; aucun droit tiré d’un rôle atelier                                                               |
 
 Le compte, sa langue et sa connexion sont communs. Recevoir ne crée pas de
 membership chez l’expéditeur ; installer un plugin ou posséder l’adresse d’un
 document ne crée aucun droit. Un email vérifié ne prétend pas établir l’identité
-physique. La preuve forte signée et fraîche est contrôlée par le serveur, pas
-par un champ fourni par le navigateur.
+physique. La politique documentaire est contrôlée par le serveur, pas par un champ fourni
+par le navigateur. `strong` est le défaut ; `verified_account` est le choix live
+explicitement demandé. Il exige compte et email vérifiés, identité Auth0 liée et
+`auth_time` signé récent, sans prétendre à une MFA ou à une identité physique
+certifiée. Une valeur inconnue ou un désaccord entre environnement et politique D1
+ferme le parcours. Les lectures, associations et approbations demandent une
+connexion de quinze minutes au plus ; export, dépôt et suppression : cinq minutes.
 
-Le choix des passkeys est différé à la demande du produit. Le développement
-et les tests locaux de ces parcours continuent sans modifier Auth0 ni retirer
-les conditions d’accès sensible. L’activation connectée reste une qualification
-distincte.
+Le choix des passkeys reste différé à la demande du produit. La configuration
+`verified_account` ne modifie pas Auth0 et ne fabrique aucune preuve forte ; le
+mode `strong` conserve ses conditions de méthode réellement qualifiée. Les
+champs de session `documentAccessMode` et `documentAccessAllowed` expliquent
+l’accès au navigateur ; le serveur recontrôle chaque opération. L’activation
+et le parcours connecté restent des qualifications distinctes.
+
+Dans l’atelier, un refus de politique documentaire, d’authentification forte,
+de fraîcheur ou d’approbation propose **Vérifier mon accès**. Ce lien demande
+une connexion fraîche par `/auth/login?fresh=1`, puis revient à la liste
+**Distribution sécurisée**, sans identifiant de document ou invitation dans le
+retour. L’action est volontaire : aucun renvoi automatique ne recycle une
+ancienne session SSO. Après connexion, retrouver la même préparation et reprendre
+la revue sous les droits courants ; la reconnexion n’approuve ni n’active rien.
 
 ## Préparer, revoir et activer un partage
 
@@ -52,7 +67,7 @@ distincte.
    droits, le message et le prix complet hors taxes. La part de conservation
    et le transport de l’invitation apparaissent séparément. Deux choix explicites
    couvrent la revue et la demande préalable du destinataire.
-6. Approuver dans le navigateur fortement authentifié, puis confirmer
+6. Approuver dans le navigateur sous la politique documentaire courante, puis confirmer
    l’activation. Un assistant peut confirmer une préparation exactement approuvée
    sous ses scopes et les confirmations de l’hôte ; il ne fournit jamais
    l’approbation sensible lui-même, même avec un mandat expert.
@@ -115,7 +130,8 @@ pas une opération déjà exposée aux anciens parcours en source sensible isol�
    explicite demande de rouvrir le lien après connexion. Ni achat ni activation
    d’un atelier ne sont imposés.
 2. La personne se connecte ou crée son unique compte Guteneo. Le contrôle de
-   l’adresse attendue et la preuve forte précèdent la demande d’association.
+   l’adresse attendue et une session récente conforme à la politique documentaire
+   précèdent la demande d’association.
 3. La demande reste en attente tant que l’atelier n’a pas confirmé le lien entre
    ce compte stable et le destinataire prévu. Le titre sensible, les pages et le
    fichier restent indisponibles durant cette attente.
@@ -143,7 +159,7 @@ d’atelier pour lire les documents personnels.
 | Copies conservées | Copie indépendante remise avec autorisation, durée propre, export personnel et suppression par la personne ; le départ ou la révocation de l’atelier ne la retire pas |
 
 **Télécharger le PDF original** est une action séparée, confirmée et soumise à
-une preuve forte de cinq minutes au plus. Le journal distingue demande et
+une authentification de cinq minutes au plus selon la politique courante. Le journal distingue demande et
 transmission lancée. Le succès réseau ne démontre jamais une sauvegarde disque.
 Les ouvertures, copies, captures et impressions après export quittent le champ
 d’observation de Guteneo.
@@ -237,10 +253,18 @@ restent un contrat historique distinct et n’acquièrent pas rétroactivement
 la sécurité du nouveau parcours.
 
 Migrations : `0055_personal_accounts.sql`, `0056_secure_distributions.sql`,
-`0057_secure_approval_evidence.sql`, `0058_secure_copy_jobs.sql`. Production :
-activation dédiée, clé privée valide, renderer privé, politique Auth0 forte
-qualifiée, scanner et fournisseur réels configurés. Le mode déterministe et les
-identités fortes locales sont des instruments de test seulement.
+`0057_secure_approval_evidence.sql`, `0058_secure_copy_jobs.sql`,
+`0059_document_authentication_policy.sql`. Production : activation dédiée, clé
+privée valide, renderer privé, scanner et fournisseur réels configurés. Après
+migration 0059, la ligne D1 `secure_document_authentication_policy(id=1)` vaut
+`strong` par défaut. L’opérateur choisit explicitement `mode='verified_account'`
+et publie `SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` pour le profil
+autorisé ; le Worker ne modifie pas cette ligne. Désaccord ou valeur inconnue :
+refus. Un retour à `strong` coordonne les deux réglages et invalide les reçus
+ordinaires pour les nouvelles confirmations, sans effacer leur historique.
+La confirmation et le SQL recontrôlent la politique et l’identité courantes,
+même pour un ancien reçu fort. Le mode déterministe et ses identités locales
+restent des instruments de test ; aucun parcours connecté n’en est déduit.
 
 Sources : `apps/api/src/auth.ts`, `personal-auth.ts`, `secure-distributions.ts`,
 `personal-documents.ts`, `secure-distribution-routes.ts`, `secure-storage.ts` ;
@@ -251,4 +275,12 @@ contrat partagé `packages/contracts/src/secure-distribution.ts` ; interfaces
 `tests/distribution-e2e/*.e2e.ts`. Les commandes, rapports et limites du framework
 demandé sont décrits dans [le guide e2e](../tests/distribution-e2e/README.md).
 La présence des tests n’affirme pas leur réussite, la CI du commit exact,
-l’activation des services ou la qualification d’un hôte assistant réel.
+l’activation des services ou la qualification d’un hôte assistant réel. Le run
+local `verified_account` du 24 octobre
+`01a16ef7-4017-783f-80e7-80426686b572` passe deux résultats ordinateur/téléphone
+avec des sessions ordinaires synthétiques et sans preuve forte. Il n’effectue
+aucune connexion Auth0 réelle ni communication réelle ; les preuves détaillées
+et leurs limites sont datées dans [l’implémentation](SECURE_DISTRIBUTION_IMPLEMENTATION.md).
+Le profil local `strong` repasse 14/14 dans
+`01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` ; build final et treize tests d’interface
+passent également. La CI exacte et les qualifications distantes restent distinctes.

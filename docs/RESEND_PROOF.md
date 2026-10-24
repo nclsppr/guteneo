@@ -1,5 +1,37 @@
 # Preuves Resend et documents protégés
 
+## Requalification opérateur du 24 octobre 2026
+
+Vers 17 h 39 UTC, l’opérateur a relu dans Safari le compte Resend `nclsppr` :
+offre **Free**, usage **0/3 000 e-mails par mois** et **0/100 par jour**, limite
+**10 requêtes/seconde**, dépassements payants désactivés. Le domaine
+`guteneo.com`, ID `0140c1df-a406-495d-adb7-78a1204607b3`, reste **Verified** en
+`eu-west-1` ; suivi des ouvertures et clics non configuré. Aucun message client
+n’a été lu pour cette qualification.
+
+Le [tarif public Resend](https://resend.com/pricing) et son interface affichent
+toujours la référence commerciale de 0,90 USD/1 000 e-mails supplémentaires.
+`RESEND_RATE` conserve cette référence publique du palier Pro, distincte de
+l’offre Free observée : elle ne représente pas le coût marginal réellement
+facturé au compte gratuit. Le change de **1,1537 USD/EUR**, daté du 16 septembre,
+reste une **référence commerciale fixe historique**, jamais un cours du jour.
+La requalification est bornée au **23 novembre 2026 à 00 h 00 UTC** ; la date
+historique du tarif et celle du change ne sont pas réécrites.
+
+Le candidat de publication choisit `LIVE_SEND_CHANNELS=fax,postal,email`,
+`RESEND_SENDS_ENABLED=true` et `SECURE_DISTRIBUTION_ENABLED=true`. Ces valeurs
+locales ne prouvent ni leur publication ni un envoi. Le webhook Resend et
+`RESEND_WEBHOOK_SECRET` restent à créer/installer et qualifier. La politique
+globale de compte est préparée avec **80 destinataires par 24 h glissantes**,
+**2 400 par mois UTC** et **500 ms minimum** entre soumissions : les deux quotas
+gardent 20 % de marge sur les limites observées ; le rythme est un plafond
+opérationnel conservateur, pas une nouvelle limite fournisseur. Les usages hors
+Guteneo peuvent consommer cette capacité partagée. Son installation D1 demeure
+une opération distincte, après main/CI et sous autorisation opérateur.
+
+Aucune livraison, réception, notification signée ou activation distante n’est
+déduite de cette observation. Les sections datées suivantes restent historiques.
+
 ## Intégration du 2 octobre 2026
 
 Le code Resend et les liens protégés sont réconciliés avec le site français,

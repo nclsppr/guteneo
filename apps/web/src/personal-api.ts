@@ -16,6 +16,8 @@ export type PersonalSession = {
   simulation: boolean;
   mfa: boolean;
   strongAuthentication: boolean;
+  documentAccessAllowed?: boolean;
+  documentAccessMode?: "strong" | "verified_account";
   authenticationPolicyVersion: string | null;
   amr: string[];
   acr: string | null;

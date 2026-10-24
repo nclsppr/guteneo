@@ -111,7 +111,9 @@ function proxyBucket(overrides: Partial<R2Bucket>): R2Bucket {
 async function fixture(
   mode: "simulation" | "production" = "simulation",
   pageCount = 1,
+  accessMode: "strong" | "verified_account" = "strong",
 ) {
+  await db.prepare("UPDATE secure_document_authentication_policy SET mode=? WHERE id=1").bind(accessMode).run();
   const organizationId = id("org"),
     userId = id("usr"),
     recipientId = id("usr");
@@ -202,6 +204,8 @@ async function fixture(
     MODE: mode,
     ENVIRONMENT: mode === "production" ? "production" : "local",
     SECURE_DISTRIBUTION_ENABLED: "true",
+    SENSITIVE_DOCUMENT_AUTHENTICATION: accessMode,
+    ...(accessMode === "verified_account" ? { AUTH0_AUTH_POLICY: "verified_email" } : {}),
     SECURE_DOCUMENTS_KEY: btoa("s".repeat(32)),
     DOCUMENT_RENDERER: { fetch: renderer },
     DISPATCH_QUEUE: { send: queue },
@@ -235,19 +239,20 @@ async function fixture(
       )
       .run();
   }
+  if(accessMode === "verified_account") await db.batch([userId,recipientId].map((accountId)=>db.prepare("INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://fixture.invalid/',?,?,?)").bind(accountId,accountId,createdAt)));
   const authEvidence = {
     verifiedEmail: ownerEmail,
     authenticatedAt: Math.floor(Date.now() / 1000),
-    amr: ["webauthn"],
-    strongAuthentication: true,
-    authenticationPolicyVersion: "guteneo-sensitive-v1",
+    amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
+    strongAuthentication: accessMode === "strong",
+    authenticationPolicyVersion: accessMode === "strong" ? "guteneo-sensitive-v1" : null,
     identityIssuer: "https://fixture.invalid/",
     identitySubject: userId,
   };
   const ownerSession = await createSession(
     env,
     (await memberships(env, userId))[0],
-    true,
+    accessMode === "strong",
     false,
     true,
     authEvidence,
@@ -262,7 +267,7 @@ async function fixture(
     verifiedEmail: email,
     userId: recipientId,
     development: false,
-    mfa: true,
+    mfa: accessMode === "strong",
     verifiedAccount: true,
     identitySubject: recipientId,
   });
@@ -274,6 +279,7 @@ async function fixture(
   );
   const domain = new DomainService(db, {
     mode,
+    sensitiveDocumentAuthentication: accessMode,
     ...(mode === "production"
       ? { liveDeliveryIdentity: { email: identity } }
       : {}),
@@ -737,6 +743,13 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
 });
 
 describe("personal copies — independent ownership and final authorization", () => {
+  it.each(["strong","verified_account"] as const)("closes personal metadata access when %s Worker and database policies drift", async (accessMode) => {
+    const f=await fixture("simulation",1,accessMode);
+    expect((await f.personal.list(f.recipient)).items).toEqual([]);
+    await db.prepare("UPDATE secure_document_authentication_policy SET mode=? WHERE id=1").bind(accessMode==="strong"?"verified_account":"strong").run();
+    await expect(f.personal.list(f.recipient)).rejects.toMatchObject({code:"DOCUMENT_AUTHENTICATION_REQUIRED",status:403});
+  });
+
   it("allows an authorized private deposit even when downloading the shared original is forbidden, then survives workshop revocation", async () => {
     const f = await fixture("simulation", 4),
       p = await bound(f);
@@ -891,10 +904,10 @@ describe("personal copies — independent ownership and final authorization", ()
         .first(),
     ).toEqual({ n: 0 });
   });
-  it.each(["stale", "expired", "revoked"] as const)(
-    "resumes the same paid copy after fresh authentication when a session becomes %s during final R2 awaits",
-    async (failure) => {
-      const f = await fixture(),
+  it.each((["strong","verified_account"] as const).flatMap(accessMode=>(["stale", "expired", "revoked"] as const).map(failure=>({accessMode,failure}))))(
+    "resumes the same paid copy in $accessMode after $failure during final R2 awaits",
+    async ({accessMode,failure}) => {
+      const f = await fixture("simulation",1,accessMode),
         share = await bound(f),
         before = await financials(f, share.view.dispatchId!);
       let changed = false;
@@ -939,7 +952,7 @@ describe("personal copies — independent ownership and final authorization", ()
           DOCUMENTS: racedBucket,
         }).deposit(f.recipient, share.view.id),
       ).rejects.toMatchObject({
-        code: "STRONG_AUTHENTICATION_REQUIRED",
+        code: accessMode === "strong" ? "STRONG_AUTHENTICATION_REQUIRED" : "DOCUMENT_AUTHENTICATION_REQUIRED",
         status: 403,
       });
       expect(changed).toBe(true);
@@ -989,12 +1002,14 @@ describe("personal copies — independent ownership and final authorization", ()
       const signedIn = await createPersonalBrowserSession(f.env, {
         userId: f.recipient.userId,
         verifiedEmail: f.recipient.email,
-        mfa: true,
+        mfa: accessMode === "strong",
         verifiedAccount: true,
         authenticatedAt: Math.floor(Date.now() / 1000),
-        amr: ["webauthn"],
-        strongAuthentication: true,
-        authenticationPolicyVersion: "guteneo-sensitive-v1",
+        amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
+        strongAuthentication: accessMode === "strong",
+        authenticationPolicyVersion: accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+        identityIssuer: "https://fixture.invalid/",
+        identitySubject: f.recipient.userId,
         development: false,
       });
       const cookie = signedIn.cookie.split(";")[0];
@@ -1070,8 +1085,8 @@ describe("personal copies — independent ownership and final authorization", ()
       ).toEqual({ auth_session_hash: signedIn.tokenHash, status: "active" });
     },
   );
-  it("rolls back publication if workshop revocation wins during encrypted copying, and purges unpublished objects", async () => {
-    const f = await fixture(),
+  it.each(["strong","verified_account"] as const)("rolls back and purges unpublished objects on workshop revocation in %s", async (accessMode) => {
+    const f = await fixture("simulation",1,accessMode),
       p = await bound(f);
     let revoked = false;
     const racedBucket = proxyBucket({
@@ -1137,10 +1152,10 @@ describe("personal copies — independent ownership and final authorization", ()
         .first(),
     ).toEqual({ n: 1 });
   });
-  it.each(["expired", "revoked", "stale", "share_revoked"] as const)(
-    "withholds decrypted page bytes when %s wins before final authorization",
-    async (change) => {
-      const f = await fixture(),
+  it.each((["strong","verified_account"] as const).flatMap(accessMode=>(["expired", "revoked", "stale", "share_revoked"] as const).map(change=>({accessMode,change}))))(
+    "withholds decrypted page bytes in $accessMode when $change wins before authorization",
+    async ({accessMode,change}) => {
+      const f = await fixture("simulation",1,accessMode),
         p = await bound(f);
       let changed = false;
       const racedBucket = proxyBucket({
@@ -1193,6 +1208,25 @@ describe("personal copies — independent ownership and final authorization", ()
       ).toEqual({ n: 0 });
     },
   );
+  it("runs the verified-account lifecycle with no invented strong evidence, preserving account boundaries and fees", async () => {
+    const f = await fixture("production",1,"verified_account"), share=await bound(f);
+    expect(f.owner).toMatchObject({identityVerified:true,mfa:false,strongAuthentication:false,authenticationPolicyVersion:null});
+    expect(f.recipient).toMatchObject({identityVerified:true,mfa:false,strongAuthentication:false,authenticationPolicyVersion:null});
+    expect(await db.prepare("SELECT authentication_mode FROM secure_approval_evidence WHERE dispatch_id=?").bind(share.view.dispatchId).first()).toEqual({authentication_mode:"verified_account"});
+    const before=await financials(f,share.view.dispatchId!);
+    expect((await f.personal.page(f.recipient,share.view.id,1)).status).toBe(200);
+    await expect(f.personal.download(f.recipient,share.view.id)).rejects.toMatchObject({code:"ORIGINAL_DOWNLOAD_FORBIDDEN"});
+    const other=await fixture("production",1,"verified_account");
+    await expect(f.personal.get(other.recipient,share.view.id)).rejects.toMatchObject({code:"NOT_FOUND"});
+    const copy=await f.personal.deposit(f.recipient,share.view.id);
+    expect(copy.status).toBe("active");
+    expect((await f.personal.download(f.recipient,copy.id)).status).toBe(200);
+    await f.service.revoke(f.ctx,share.view.id);
+    expect((await f.personal.get(f.recipient,copy.id)).status).toBe("active");
+    await f.personal.remove(f.recipient,copy.id);
+    expect((await f.personal.get(f.recipient,copy.id)).status).toBe("revoked");
+    expect(await financials(f,share.view.dispatchId!)).toEqual(before);
+  });
   it("keeps paid private objects out of general orphan deletion, and erases them after personal removal", async () => {
     const f = await fixture(),
       p = await bound(f),

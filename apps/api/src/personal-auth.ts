@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { supportedLocales } from "../../../packages/contracts/src/locale";
 import { dashboardAppearances } from "../../../packages/contracts/src/dashboard-appearance";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import {
   AuthError,
   authenticatePersonalBrowser,
@@ -10,6 +11,7 @@ import {
   memberships,
   publicSession,
   requireSameOrigin,
+  requirePersonalDocumentAuthentication,
   type AuthEnv,
   type PersonalPrincipal,
 } from "./auth";
@@ -17,6 +19,7 @@ import {
 export {
   authenticatePersonalBrowser,
   requirePersonalStrongAuthentication,
+  requirePersonalDocumentAuthentication,
   type PersonalPrincipal,
 } from "./auth";
 
@@ -72,6 +75,15 @@ export async function publicPersonalSession(
   )
     .bind(principal.tokenHash, principal.userId, now())
     .first<{ organization_id: string }>();
+  const accessMode = documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION);
+  const policy = await env.DB.prepare("SELECT mode FROM secure_document_authentication_policy WHERE id=1").first<{ mode: string }>();
+  let documentAccessAllowed = false;
+  try {
+    requirePersonalDocumentAuthentication(principal, env);
+    documentAccessAllowed = policy?.mode === accessMode;
+  } catch (error) {
+    if (!(error instanceof AuthError)) throw error;
+  }
   return {
     user: {
       id: principal.userId,
@@ -86,6 +98,8 @@ export async function publicPersonalSession(
     verifiedAccount: principal.verifiedAccount,
     authenticatedAt: principal.authenticatedAt,
     strongAuthentication: principal.strongAuthentication,
+    documentAccessMode: accessMode,
+    documentAccessAllowed,
     authenticationPolicyVersion: principal.authenticationPolicyVersion,
     amr: principal.amr,
     acr: principal.acr,

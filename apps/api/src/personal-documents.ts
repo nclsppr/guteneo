@@ -4,10 +4,10 @@ import {
 } from "../../../packages/contracts/src/secure-distribution";
 import { DomainError, canonicalJson } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
-import { requirePersonalStrongAuthentication, type PersonalPrincipal } from "./personal-auth";
+import { requirePersonalDocumentAuthentication, type PersonalPrincipal } from "./personal-auth";
 import { getSecureObject, putSecureObject, secureSha256 } from "./secure-storage";
 import { secureSharedBinding, type SecureDistributionRow, type SecurePageRow } from "./secure-distributions";
-import { personalSessionFence as sessionFence } from "./sensitive-session";
+import { personalSessionFence as sessionFence, sensitiveSessionPolicy } from "./sensitive-session";
 
 type PersonalRow={id:string;user_id:string;source_organization_id:string;source_distribution_id:string;source_sha256:string;source_name:string;sender_name:string;policy_json:string;original_key:string;manifest_sha256:string;status:"active"|"deleted"|"expired";created_at:string;expires_at:string};
 type DepositOperation={id:string;organization_id:string;distribution_id:string;user_id:string;personal_document_id:string;status:string;lease_token:string;lease_expires_at:string;next_page:number;original_ready:number;auth_session_hash:string|null};
@@ -20,18 +20,19 @@ const headers={"Cache-Control":"private, no-store","X-Content-Type-Options":"nos
 export class PersonalDocumentsService {
   constructor(public readonly env:Env) {}
   private async rate(principal:PersonalPrincipal) {
-    requirePersonalStrongAuthentication(principal);
-    const hash=await secureSha256(`personal-documents:${principal.userId}`),window=Math.floor(Date.now()/60000);
-    const count=await this.env.DB.prepare("INSERT INTO secure_document_rate_limits(scope_hash,window,count) VALUES(?,?,1) ON CONFLICT(scope_hash,window) DO UPDATE SET count=count+1 RETURNING count")
-      .bind(hash,window).first<{count:number}>();
-    if(!count || count.count>180)throw new DomainError("RATE_LIMITED","Trop de requêtes. Réessayez dans une minute.",429);
+    requirePersonalDocumentAuthentication(principal,this.env);
+    const hash=await secureSha256(`personal-documents:${principal.userId}`),window=Math.floor(Date.now()/60000),fence=sessionFence(principal,900,this.env);
+    const count=await this.env.DB.prepare(`INSERT INTO secure_document_rate_limits(scope_hash,window,count) SELECT ?,?,1 WHERE ${fence.condition} ON CONFLICT(scope_hash,window) DO UPDATE SET count=count+1 RETURNING count`)
+      .bind(hash,window,...fence.values).first<{count:number}>();
+    if(!count)throw new DomainError("DOCUMENT_AUTHENTICATION_REQUIRED","Reconnectez-vous pour accéder à vos documents.",403);
+    if(count.count>180)throw new DomainError("RATE_LIMITED","Trop de requêtes. Réessayez dans une minute.",429);
   }
   async claim(principal:PersonalPrincipal,token:string) {
     await this.rate(principal);
     const row=await this.env.DB.prepare("SELECT * FROM secure_distributions WHERE token_hash=? AND status='active' AND expires_at>?")
       .bind(await secureSha256(token),now()).first<SecureDistributionRow>();
     if(!row || row.recipient_address!==principal.email?.toLowerCase() || (row.recipient_user_id && row.recipient_user_id!==principal.userId))throw unavailable();
-    const fence=sessionFence(principal);
+    const fence=sessionFence(principal,900,this.env);
     const results=await this.env.DB.batch([this.env.DB.prepare(`UPDATE secure_distributions SET recipient_user_id=?,claimed_at=COALESCE(claimed_at,?)
       WHERE organization_id=? AND id=? AND status='active' AND expires_at>? AND recipient_address=?
       AND (recipient_user_id IS NULL OR recipient_user_id=?) AND ${fence.condition} RETURNING id`)
@@ -85,7 +86,7 @@ export class PersonalDocumentsService {
     return {items:await Promise.all(slice.map((row)=>this.item(principal,row.id))),nextCursor:rows.results.length>limit&&last?btoa(JSON.stringify({createdAt:last.created_at,id:last.id})):null};
   }
   async events(principal:PersonalPrincipal,id:string,query:{cursor?:string;limit?:number}={}) {
-    requirePersonalStrongAuthentication(principal);
+    await this.rate(principal);
     const personal=id.startsWith("pd_"),row=personal?await this.personal(principal,id,true):await this.shared(principal,id,true);
     let after:{createdAt:string;id:string}|null=null;
     if(query.cursor)try{after=JSON.parse(atob(query.cursor));if(!after||typeof after.id!=="string"||typeof after.createdAt!=="string")throw new Error();}catch{throw new DomainError("INVALID_CURSOR","Curseur invalide.");}
@@ -111,8 +112,8 @@ export class PersonalDocumentsService {
   /** The audit insert is the authorization decision and rechecks the session and
    * grant in the same primary write. Decryption alone never authorizes a response. */
   private async authorize(principal:PersonalPrincipal,id:string,type:string,page?:number) {
-    requirePersonalStrongAuthentication(principal);
-    const eventId=uid("sev"),fence=sessionFence(principal,type.startsWith("original_")?300:900);
+    requirePersonalDocumentAuthentication(principal,this.env);
+    const eventId=uid("sev"),fence=sessionFence(principal,type.startsWith("original_")?300:900,this.env);
     const personal=id.startsWith("pd_");
     const sql=personal ? `INSERT INTO secure_document_events(id,personal_document_id,user_id,session_hash,type,provenance,page_number,created_at)
       SELECT ?,d.id,?,?,?,'server',?,? FROM secure_personal_documents d WHERE d.user_id=? AND d.id=? AND d.status='active' AND d.expires_at>? AND ${fence.condition} RETURNING id` :
@@ -138,7 +139,7 @@ export class PersonalDocumentsService {
     await this.rate(principal);
     const personal=id.startsWith("pd_");
     const row=personal?await this.personal(principal,id):await this.shared(principal,id);
-    const fence=sessionFence(principal),eventId=uid("sev");
+    const fence=sessionFence(principal,900,this.env),eventId=uid("sev");
     const authorized=personal ? await this.env.DB.prepare(`INSERT INTO secure_document_events(id,personal_document_id,user_id,session_hash,type,provenance,page_number,created_at)
       SELECT ?,?,?,?,?, 'browser',?,? WHERE EXISTS(SELECT 1 FROM secure_personal_documents d JOIN secure_personal_pages p ON p.user_id=d.user_id AND p.personal_document_id=d.id WHERE d.user_id=? AND d.id=? AND d.status='active' AND d.expires_at>? AND p.page_number=?) AND ${fence.condition} RETURNING id`)
       .bind(eventId,id,principal.userId,principal.tokenHash,"page_displayed",page,now(),principal.userId,id,now(),page,...fence.values).first():
@@ -150,7 +151,7 @@ export class PersonalDocumentsService {
   }
   async download(principal:PersonalPrincipal,id:string) {
     await this.rate(principal);
-    requirePersonalStrongAuthentication(principal,{maxAgeSeconds:300});
+    requirePersonalDocumentAuthentication(principal,this.env,{maxAgeSeconds:300});
     const personal=id.startsWith("pd_"),row=personal?await this.personal(principal,id):await this.shared(principal,id);
     if(!personal && !(JSON.parse(row.policy_json) as SecureDistributionPolicy).allowOriginalDownload)
       throw new DomainError("ORIGINAL_DOWNLOAD_FORBIDDEN","Le téléchargement du PDF original n’est pas autorisé.",403);
@@ -161,7 +162,7 @@ export class PersonalDocumentsService {
   }
   async deposit(principal:PersonalPrincipal,id:string) {
     await this.rate(principal);
-    requirePersonalStrongAuthentication(principal,{maxAgeSeconds:300});
+    requirePersonalDocumentAuthentication(principal,this.env,{maxAgeSeconds:300});
     const row=await this.shared(principal,id),policy:SecureDistributionPolicy=JSON.parse(row.policy_json);
     if(!policy.allowVaultDeposit)throw new DomainError("PERSONAL_COPY_FORBIDDEN","L’atelier n’a pas autorisé de copie personnelle.",403);
     const existing=await this.env.DB.prepare("SELECT id,status,expires_at FROM secure_personal_documents WHERE user_id=? AND source_organization_id=? AND source_distribution_id=?")
@@ -171,7 +172,7 @@ export class PersonalDocumentsService {
         throw new DomainError("PERSONAL_COPY_UNAVAILABLE","La copie n’est plus disponible.",410);
       return {id:existing.id,status:existing.status,expiresAt:existing.expires_at};
     }
-    const operationId=uid("deposit"),personalId=uid("pd"),time=now(),fence=sessionFence(principal,300);
+    const operationId=uid("deposit"),personalId=uid("pd"),time=now(),fence=sessionFence(principal,300,this.env);
     await this.env.DB.prepare(`INSERT INTO secure_deposit_operations(id,organization_id,distribution_id,user_id,personal_document_id,status,created_at,updated_at,lease_token,lease_expires_at,auth_session_hash)
       SELECT ?,?,?,?,?,'preparing',?,?,'',?,? WHERE ${fence.condition} ON CONFLICT(organization_id,distribution_id,user_id) DO NOTHING`)
       .bind(operationId,row.organization_id,id,principal.userId,personalId,time,time,time,principal.tokenHash,...fence.values).run();
@@ -189,10 +190,10 @@ export class PersonalDocumentsService {
       .bind(lease,new Date(Date.now()+60000).toISOString(),time,operationId,time).first<DepositOperation>();
     if(!operation)return;
     // A job resumes from authoritative session evidence, never a serialized token.
-    const session=await this.env.DB.prepare(`SELECT ps.*,u.email FROM personal_sessions ps JOIN users u ON u.id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>? AND ps.strong_authentication=1 AND ps.authentication_policy_version='guteneo-sensitive-v1' AND ps.authenticated_at>=? AND ps.verified_email=u.email`)
-      .bind(operation.auth_session_hash,operation.user_id,time,Math.floor(Date.now()/1000)-300).first<{token_hash:string;user_id:string;email:string;authenticated_at:number;verified_email:string;is_development:number}>();
+    const session=await this.env.DB.prepare(`SELECT ps.*,u.email,EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=ps.user_id AND ai.issuer=ps.identity_issuer AND ai.subject=ps.identity_subject) identity_verified FROM personal_sessions ps JOIN users u ON u.id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-300 AND CAST(strftime('%s','now') AS INTEGER)+5 AND ps.verified_email=u.email`)
+      .bind(operation.auth_session_hash,operation.user_id).first<{token_hash:string;user_id:string;email:string;authenticated_at:number;verified_email:string;is_development:number;identity_verified:number;mfa:number;verified_account:number;amr_json:string;acr:string|null;strong_authentication:number;authentication_policy_version:string|null}>();
     if(!session){await this.env.DB.prepare("UPDATE secure_deposit_operations SET lease_expires_at=? WHERE id=? AND lease_token=?").bind(time,operation.id,lease).run();return;}
-    const principal:PersonalPrincipal={userId:session.user_id,name:"",email:session.email,verifiedEmail:true,mfa:true,verifiedAccount:true,authenticatedAt:session.authenticated_at,amr:[],acr:null,strongAuthentication:true,authenticationPolicyVersion:"guteneo-sensitive-v1",preferredLocale:null,preferredDashboardAppearance:"classic",csrfToken:"",tokenHash:session.token_hash,simulation:this.env.MODE==="simulation",development:Boolean(session.is_development)};
+    const principal:PersonalPrincipal={userId:session.user_id,name:"",email:session.email,verifiedEmail:true,mfa:session.mfa===1,verifiedAccount:session.verified_account===1,identityVerified:session.identity_verified===1,authenticatedAt:session.authenticated_at,amr:JSON.parse(session.amr_json),acr:session.acr,strongAuthentication:session.strong_authentication===1,authenticationPolicyVersion:session.authentication_policy_version,preferredLocale:null,preferredDashboardAppearance:"classic",csrfToken:"",tokenHash:session.token_hash,simulation:this.env.MODE==="simulation",development:Boolean(session.is_development)};
     const row=await this.env.DB.prepare("SELECT * FROM secure_distributions WHERE organization_id=? AND id=? AND recipient_user_id=? AND bound_at IS NOT NULL AND status='active' AND expires_at>?").bind(operation.organization_id,operation.distribution_id,operation.user_id,time).first<SecureDistributionRow>();
     if(!row || !(JSON.parse(row.policy_json) as SecureDistributionPolicy).allowVaultDeposit){await this.env.DB.prepare("UPDATE secure_deposit_operations SET status='aborted',updated_at=? WHERE id=? AND lease_token=?").bind(time,operation.id,lease).run();return;}
     const id=row.id,policy:SecureDistributionPolicy=JSON.parse(row.policy_json);
@@ -216,7 +217,7 @@ export class PersonalDocumentsService {
     if(allPages.results.length!==row.source_pages)throw unavailable();
     const personalPages=allPages.results.map((page)=>({...page,image_key:`${prefix}/${page.page_number}.image`,text_key:`${prefix}/${page.page_number}.text`}));
     const sender=await this.env.DB.prepare("SELECT name FROM organizations WHERE id=?").bind(row.organization_id).first<{name:string}>();
-    const expiresAt=new Date(Date.now()+policy.personalRetentionDays*86400000).toISOString(),fence=sessionFence(principal,300);
+    const expiresAt=new Date(Date.now()+policy.personalRetentionDays*86400000).toISOString(),fence=sessionFence(principal,300,this.env);
     const manifest=await secureSha256(canonicalJson(personalPages.map((page)=>({number:page.page_number,image:page.image_sha256,text:page.text_sha256}))));
     const statements=[this.env.DB.prepare(`INSERT INTO secure_personal_documents(id,user_id,source_organization_id,source_distribution_id,source_sha256,source_name,sender_name,policy_json,original_key,manifest_sha256,status,created_at,expires_at)
       SELECT ?,?,?,?,?,?,?,?,?,?,'active',?,? WHERE EXISTS(SELECT 1 FROM secure_distributions s JOIN secure_distribution_charges c ON c.organization_id=s.organization_id AND c.distribution_id=s.id JOIN secure_deposit_operations op ON op.organization_id=s.organization_id AND op.distribution_id=s.id AND op.user_id=s.recipient_user_id
@@ -237,7 +238,7 @@ export class PersonalDocumentsService {
       if(raced)return {id:raced.id,status:"active",expiresAt:raced.expires_at};
       // A lost session pauses a paid copy; only loss of the shared grant makes
       // it terminal. Drop the credential so a cron job cannot resume this copy
-      // until an explicit POST supplies a newly authenticated strong session.
+      // until an explicit POST supplies a newly authenticated session that meets the configured policy.
       const pending=await this.env.DB.prepare(`UPDATE secure_deposit_operations SET
         status=CASE WHEN EXISTS(SELECT 1 FROM secure_distributions s JOIN secure_distribution_charges c ON c.organization_id=s.organization_id AND c.distribution_id=s.id
           WHERE s.organization_id=secure_deposit_operations.organization_id AND s.id=secure_deposit_operations.distribution_id
@@ -246,21 +247,21 @@ export class PersonalDocumentsService {
           THEN 'preparing' ELSE 'aborted' END,
         auth_session_hash=NULL,lease_token='',lease_expires_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
         WHERE id=? AND lease_token=? AND status='preparing' RETURNING status`).bind(operation.id,lease).first<{status:string}>();
-      if(pending?.status==='preparing')throw new DomainError("STRONG_AUTHENTICATION_REQUIRED","Reconnectez-vous avec une authentification forte récente pour terminer votre copie personnelle.",403);
+      if(pending?.status==='preparing')throw new DomainError(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION==='verified_account'?"DOCUMENT_AUTHENTICATION_REQUIRED":"STRONG_AUTHENTICATION_REQUIRED","Reconnectez-vous pour terminer votre copie personnelle.",403);
       throw unavailable();
     }
     return {id:targetId,status:"active",expiresAt};
   }
   async recoverPending() {
     const rows=await this.env.DB.prepare(`SELECT op.id FROM secure_deposit_operations op JOIN personal_sessions ps ON ps.token_hash=op.auth_session_hash AND ps.user_id=op.user_id JOIN secure_distributions s ON s.organization_id=op.organization_id AND s.id=op.distribution_id
-      WHERE op.status='preparing' AND op.lease_expires_at<? AND s.status='active' AND s.expires_at>? AND ps.expires_at>? AND ps.strong_authentication=1 AND ps.authentication_policy_version='guteneo-sensitive-v1' AND ps.authenticated_at>=? ORDER BY op.created_at LIMIT 10`)
-      .bind(now(),now(),now(),Math.floor(Date.now()/1000)-300).all<{id:string}>();
+      WHERE op.status='preparing' AND op.lease_expires_at<? AND s.status='active' AND s.expires_at>? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-300 AND CAST(strftime('%s','now') AS INTEGER)+5 ORDER BY op.created_at LIMIT 10`)
+      .bind(now(),now()).all<{id:string}>();
     for(const row of rows.results)await this.env.DISPATCH_QUEUE.send({dispatchId:`secure_deposit:${row.id}`});
     await this.env.DB.prepare("UPDATE secure_deposit_operations SET status='aborted',updated_at=? WHERE id IN (SELECT op.id FROM secure_deposit_operations op JOIN secure_distributions s ON s.organization_id=op.organization_id AND s.id=op.distribution_id WHERE op.status='preparing' AND (s.status<>'active' OR s.expires_at<?) LIMIT 100)").bind(now(),now()).run();
   }
   async remove(principal:PersonalPrincipal,id:string) {
-    await this.rate(principal);requirePersonalStrongAuthentication(principal,{maxAgeSeconds:300});
-    const row=await this.personal(principal,id),fence=sessionFence(principal,300);
+    await this.rate(principal);requirePersonalDocumentAuthentication(principal,this.env,{maxAgeSeconds:300});
+    const row=await this.personal(principal,id),fence=sessionFence(principal,300,this.env);
     const results=await this.env.DB.batch([
       this.env.DB.prepare(`UPDATE secure_personal_documents SET status='deleted' WHERE user_id=? AND id=? AND status='active' AND ${fence.condition} RETURNING id`).bind(principal.userId,id,...fence.values),
       this.env.DB.prepare(`INSERT OR IGNORE INTO secure_document_events(id,personal_document_id,user_id,session_hash,type,provenance,created_at) SELECT ?,?,?,?,'personal_copy_deleted','server',? WHERE EXISTS(SELECT 1 FROM secure_personal_documents WHERE user_id=? AND id=? AND status='deleted') AND ${fence.condition}`).bind(`personal_deleted_${row.id}`,row.id,principal.userId,principal.tokenHash,now(),principal.userId,row.id,...fence.values),

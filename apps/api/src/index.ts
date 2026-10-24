@@ -635,6 +635,7 @@ app.use("/api/*", async (c, next) => {
 const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
+    sensitiveDocumentAuthentication: env.SENSITIVE_DOCUMENT_AUTHENTICATION,
     ...createLiveDeliveryQuoteConfig(env),
     ensureEmailSender: (ctx) => ensureEmailSender(env, ctx),
     prepareProtectedDocument: (ctx, input, now) =>

@@ -1,3 +1,4 @@
+import { sensitiveSessionPolicy } from "./sensitive-session";
 import {
   documentAnalysis,
   type DocumentAnalysis,
@@ -1223,8 +1224,8 @@ export class DocumentService {
   private async assertSensitiveSourceSession(ctx:DocumentContext,id:string) {
     const protectedSource=await this.env.DB.prepare("SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=? LIMIT 1").bind(ctx.organizationId,id).first();
     if(!protectedSource)return;
-    const allowed=ctx.actor==="browser" && ctx.documentSessionHash && await this.env.DB.prepare(`SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ps.strong_authentication=1 AND ps.authentication_policy_version='guteneo-sensitive-v1' AND ps.verified_email IS NOT NULL AND ps.authenticated_at>=CAST(strftime('%s','now') AS INTEGER)-900`).bind(ctx.documentSessionHash,ctx.userId,ctx.organizationId).first();
-    if(!allowed)throw new ContentError("STRONG_AUTHENTICATION_REQUIRED","Une authentification forte récente dans Guteneo est requise pour ce document.",403);
+    const allowed=ctx.actor==="browser" && ctx.documentSessionHash && await this.env.DB.prepare(`SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5`).bind(ctx.documentSessionHash,ctx.userId,ctx.organizationId).first();
+    if(!allowed)throw new ContentError(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION==="verified_account"?"DOCUMENT_AUTHENTICATION_REQUIRED":"STRONG_AUTHENTICATION_REQUIRED","Reconnectez-vous dans Guteneo pour accéder à ce document.",403);
   }
   private async readReviewOriginal(
     ctx: DocumentContext,

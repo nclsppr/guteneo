@@ -146,6 +146,7 @@ beforeAll(async () => {
           "0056_secure_distributions.sql",
           "0057_secure_approval_evidence.sql",
           "0058_secure_copy_jobs.sql",
+          "0059_document_authentication_policy.sql",
         ].includes(f),
     )
     .sort())
@@ -284,6 +285,7 @@ beforeAll(async () => {
   const secureBefore = await financialSnapshot();
   await sql(secureMigration.slice(secureFinancialStart));
   await sql(readFileSync(new URL("0058_secure_copy_jobs.sql", dir), "utf8"));
+  await sql(readFileSync(new URL("0059_document_authentication_policy.sql", dir), "utf8"));
   secureUpgradeProof = {
     before: secureBefore,
     after: await financialSnapshot(),

@@ -12,7 +12,7 @@ import {
 } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
 import { putSecureObject, secureSha256, sealSecureSecret, openSecureSecret } from "./secure-storage";
-import { requirePersonalStrongAuthentication, type PersonalPrincipal } from "./personal-auth";
+import { requirePersonalDocumentAuthentication, type PersonalPrincipal } from "./personal-auth";
 import { personalSessionFence } from "./sensitive-session";
 import type { PostalAuthority } from "./postal-authority";
 
@@ -322,7 +322,7 @@ export class SecureDistributionService {
     await this.env.DB.prepare("UPDATE secure_distributions SET status='expired',error_code='PREPARATION_EXPIRED' WHERE id IN (SELECT id FROM secure_distributions WHERE status IN ('preparing','prepared') AND prepared_expires_at<? LIMIT 100)").bind(now()).run();
   }
   async approve(ctx:ActorContext, distributionId:string, principal:PersonalPrincipal, reviewed:boolean, recipientRequested=false) {
-    requirePersonalStrongAuthentication(principal);
+    requirePersonalDocumentAuthentication(principal,this.env);
     if(ctx.actor!=="browser" || principal.userId!==ctx.userId || !reviewed)throw new DomainError("HUMAN_APPROVAL_REQUIRED", "Vérifiez le document et ses conditions avant approbation.",403);
     const row=await this.row(ctx,distributionId);
     if(!row.dispatch_id || row.status!=="prepared")throw new DomainError("INVALID_STATE", "La préparation doit être terminée.",409);
@@ -348,10 +348,10 @@ export class SecureDistributionService {
     return this.get(ctx,distributionId);
   }
   async bind(ctx:ActorContext,distributionId:string,principal:PersonalPrincipal,input:{recipientUserId:string;verificationMethod:string}) {
-    requirePersonalStrongAuthentication(principal);
+    requirePersonalDocumentAuthentication(principal,this.env);
     if(ctx.actor!=="browser" || principal.userId!==ctx.userId)throw new DomainError("HUMAN_APPROVAL_REQUIRED", "La vérification du destinataire exige le navigateur.",403);
     await this.member(ctx,"approveDispatches");
-    const row=await this.row(ctx,distributionId),fence=this.permissionFence(ctx,"approveDispatches"),session=personalSessionFence(principal);
+    const row=await this.row(ctx,distributionId),fence=this.permissionFence(ctx,"approveDispatches"),session=personalSessionFence(principal,900,this.env);
     if(row.recipient_user_id!==input.recipientUserId || !row.claimed_at)throw unavailable();
     await this.env.DB.batch([this.env.DB.prepare(`UPDATE secure_distributions SET bound_at=?,binding_by=?,binding_method=?
       WHERE organization_id=? AND id=? AND recipient_user_id=? AND bound_at IS NULL AND status='active' AND expires_at>? AND ${fence.condition} AND ${session.condition}`)
