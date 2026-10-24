@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T14:18:31.699Z",
+  "tool": "image_gen",
+  "mode": "built-in",
+  "usage": "Decorative browser HTTP error illustration; text and navigation remain HTML",
+  "family": "service",
+  "prompt": "Use case: illustration-story. Asset type: decorative illustration for Guteneo temporary HTTP service errors, not a UI mockup. Create one refined square editorial vignette: a small handsome antique letterpress at rest, with a printer's roller laid neatly beside it and a single blank sheet ready on the work surface. Convey a calm workshop taking a brief pause, no broken mechanism, no damaged documents or exaggerated crisis. Match Guteneo's existing printmaking world: precise cobalt-blue #2450db copperplate engraving, fine crosshatching and stippled halftone on uniform warm ivory #f6f5ef. Central compact still life with generous clear ivory margins, recognizable silhouette at small web size, exceptional craft detail. No text, numbers, lettering, logo, watermark, border, UI, people or birds. No generic 3D, gradients, cartoon clipart, extra brand portrait or illustration of guaranteed delivery. One finished standalone 1024-square image.",
+  "source": {
+    "path": "assets/editorial/source/error-service.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2730620,
+    "sha256": "86f6f3fbfcdd42747e21530b5d2f33ba34b27a9a1b5689760eebe1b01c7199c3"
+  },
+  "exports": [
+    {
+      "path": "apps/web/public/errors/illustration-service-640.webp",
+      "format": "webp",
+      "width": 640,
+      "height": 640,
+      "bytes": 72692,
+      "sha256": "036ec26457659ad96768dbdfbb129c729ea5f364f1a58f96cf45048a6de4802a"
+    },
+    {
+      "path": "apps/web/public/errors/illustration-service.webp",
+      "format": "webp",
+      "width": 960,
+      "height": 960,
+      "bytes": 179882,
+      "sha256": "c4556d50100bd6c492e8db64dcdb70d40d01b5b877700dc213db1a472567457c"
+    }
+  ],
+  "derivation": "Sharp0.35.5 proportional resize + WebP quality82/effort6; no crop, semantic edits or invented wordmark",
+  "officialBrandAssetsChanged": false
+}

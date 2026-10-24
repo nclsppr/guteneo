@@ -34,6 +34,15 @@ test("developer guide is SSR-readable and its download is a self-contained contr
     await expect(page.locator("#authentification")).toContainText(
       "https://guteneo.com/mcp",
     );
+    await expect(page.locator("#authentification")).toContainText(
+      "auth.guteneo.com",
+    );
+    await expect(page.locator("#authentification")).toContainText(
+      "https://pieper.eu.auth0.com/authorize",
+    );
+    await expect(page.locator("#authentification")).toContainText(
+      "https://pieper.eu.auth0.com/oauth/token",
+    );
     await expect(page.locator("#fiabilite")).toContainText(
       "submission_unknown",
     );

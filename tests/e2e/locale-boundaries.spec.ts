@@ -358,6 +358,7 @@ test("the connected account language never replaces the saved anonymous language
       .getByRole("button", { name: "Sign out", exact: true })
       .click();
   }
+  await expect(page).toHaveURL("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),

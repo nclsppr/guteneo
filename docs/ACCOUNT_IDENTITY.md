@@ -48,6 +48,24 @@ peut conserver son propre choix de compte ; l’interface affiche donc toujours
 l’identité réellement revenue du callback, sans promettre un sélecteur universel.
 L’état, le PKCE, la politique de vérification et le retour local restent vérifiés.
 
+## Déconnexion explicite — correctif local du 24 octobre
+
+Après succès de `POST /api/logout`, le navigateur quitte complètement la route
+privée pour l’accueil public. Il ne remonte pas l’entrée de connexion, qui poursuit
+automatiquement vers Auth0 quand une route privée n’a plus de session. Ce départ
+évite qu’un SSO encore valide recrée immédiatement une session après le clic.
+Une erreur serveur conserve la vue et affiche l’échec, sans prétendre que la
+session a été fermée. Le contexte CSRF client est effacé après succès.
+
+Cette action termine la seule session Guteneo courante par le contrat existant ;
+elle ne révoque ni le SSO Auth0 ni les connexions OAuth. Une nouvelle entrée privée
+volontaire garde son passage direct vers Auth0 ; **Changer de compte** conserve
+sa demande explicite de réauthentification. Le correctif ne change aucun client,
+scope, rôle ou réglage fournisseur. Le test navigateur de l’entrée hébergée couvre
+le refus, le succès, le rechargement public et une nouvelle entrée privée sur un
+hôte réservé entièrement intercepté. Ces fixtures restent distinctes de la CI,
+de la publication et d’une déconnexion réellement observée après publication.
+
 ## Apparence personnelle de l’Atelier
 
 Le compte est ancré en bas de la navigation de gauche sur ordinateur, avec nom,

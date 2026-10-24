@@ -7,6 +7,22 @@ type HostedEntry = {
   authRequests: string[];
   registrationEnabled: boolean;
   capabilitiesStatus: number;
+  authenticated: boolean;
+  logoutStatus: number;
+  logoutRequests: number;
+};
+
+const hostedSession = {
+  user: {
+    id: "hosted-entry-user",
+    name: "Hosted account",
+    role: "member",
+    preferredLocale: "en",
+  },
+  organization: { id: "hosted-entry-org", name: "Hosted workshop" },
+  csrfToken: "fixture-csrf",
+  simulation: false,
+  verifiedAccount: true,
 };
 
 const test = base.extend<{ hosted: HostedEntry }>({
@@ -16,6 +32,9 @@ const test = base.extend<{ hosted: HostedEntry }>({
       authRequests: [],
       registrationEnabled: true,
       capabilitiesStatus: 200,
+      authenticated: false,
+      logoutStatus: 200,
+      logoutRequests: 0,
     };
     const unexpected: string[] = [];
     // A reserved origin exercises the hosted sign-in surface. Every browser
@@ -24,21 +43,74 @@ const test = base.extend<{ hosted: HostedEntry }>({
     await page.route("**/*", async (route) => {
       const request = route.request();
       const url = new URL(request.url());
-      if (url.origin !== state.requestOrigin || request.method() !== "GET") {
+      if (
+        url.origin === state.requestOrigin &&
+        url.pathname === "/api/logout" &&
+        request.method() === "POST"
+      ) {
+        state.logoutRequests++;
+        if (state.logoutStatus === 200) state.authenticated = false;
+        await route.fulfill({
+          status: state.logoutStatus,
+          json:
+            state.logoutStatus === 200
+              ? { signedOut: true }
+              : {
+                  error: {
+                    code: "LOGOUT_UNAVAILABLE",
+                    message: "Sign-out unavailable.",
+                  },
+                },
+        });
+      } else if (
+        url.origin !== state.requestOrigin ||
+        request.method() !== "GET"
+      ) {
         unexpected.push(`${request.method()} ${url.origin}${url.pathname}`);
         await route.fulfill({
           status: 403,
           body: "Blocked by the UI fixture.",
         });
       } else if (url.pathname === "/api/session") {
+        await route.fulfill(
+          state.authenticated
+            ? { json: hostedSession }
+            : {
+                status: 401,
+                json: {
+                  error: {
+                    code: "AUTHENTICATION_REQUIRED",
+                    message: "Connectez-vous.",
+                  },
+                },
+              },
+        );
+      } else if (
+        state.authenticated &&
+        url.pathname === "/api/account/workspaces"
+      ) {
         await route.fulfill({
-          status: 401,
           json: {
-            error: {
-              code: "AUTHENTICATION_REQUIRED",
-              message: "Connectez-vous.",
-            },
+            items: [
+              {
+                ...hostedSession.organization,
+                role: hostedSession.user.role,
+                current: true,
+              },
+            ],
           },
+        });
+      } else if (
+        state.authenticated &&
+        ["/api/account/sessions", "/api/account/contacts"].includes(url.pathname)
+      ) {
+        await route.fulfill({ json: { items: [], hasMore: false } });
+      } else if (
+        state.authenticated &&
+        url.pathname === "/api/account/expert-approval"
+      ) {
+        await route.fulfill({
+          json: { connections: [], canManage: false },
         });
       } else if (url.pathname === "/api/capabilities") {
         await route.fulfill({
@@ -75,6 +147,54 @@ const test = base.extend<{ hosted: HostedEntry }>({
       expect(unexpected).toEqual([]);
     }
   },
+});
+
+test("explicit sign-out returns to the public site without reopening SSO and keeps private entry direct", async ({
+  page,
+  hosted,
+}) => {
+  hosted.authenticated = true;
+  hosted.logoutStatus = 503;
+  await page.goto(`${origin}/?lang=en#/app/account`);
+  await expect(page.locator("#account-name")).toHaveValue("Hosted account");
+  const navigation = page.locator(".workspace-navigation");
+  const openNavigation = async () => {
+    const summary = navigation.locator("summary");
+    if (await summary.isVisible()) {
+      await summary.click();
+      return navigation.getByRole("button", { name: "Sign out", exact: true });
+    }
+    return page
+      .locator(".sidebar-footer")
+      .getByRole("button", { name: "Sign out", exact: true });
+  };
+  const logout = await openNavigation();
+  await logout.click();
+  await expect(page.getByRole("alert")).toContainText("Sign-out unavailable.");
+  await expect(page.locator("#account-name")).toHaveValue("Hosted account");
+  expect(hosted.authenticated).toBe(true);
+  expect(hosted.authRequests).toEqual([]);
+  expect(hosted.logoutRequests).toBe(1);
+
+  hosted.logoutStatus = 200;
+  await logout.click();
+  await expect(page).toHaveURL(`${origin}/`);
+  await expect(page.locator(".workspace")).toHaveCount(0);
+  expect(hosted.authenticated).toBe(false);
+  expect(hosted.logoutRequests).toBe(2);
+  expect(hosted.authRequests).toEqual([]);
+  await page.reload();
+  await expect(page.locator('.site-header a[href^="/auth/login?"]')).toHaveCount(
+    2,
+  );
+  expect(hosted.authRequests).toEqual([]);
+
+  await page.goto(`${origin}/#/app/connection/chatgpt`);
+  await expect.poll(() => hosted.authRequests.length).toBe(1);
+  const handoff = new URL(hosted.authRequests[0]);
+  expect(handoff.pathname).toBe("/auth/login");
+  expect(handoff.searchParams.get("returnTo")).toBe("/#/app/connection/chatgpt");
+  await expect(page.locator(".access-panel")).toHaveCount(0);
 });
 
 async function noHorizontalOverflow(page: Page) {

@@ -362,23 +362,30 @@ test("assistants read filtered lists but not the workspace summary", async ({
     expect(["prepared", "draft"]).toContain(item.status);
 });
 
-test("sign-out lives in the navigation menu on small screens", async ({
+test("sign-out returns to the public site from the desktop footer or mobile navigation", async ({
   page,
 }, testInfo) => {
-  test.skip(
-    testInfo.project.name === "chromium",
-    "The desktop sidebar keeps its footer sign-out.",
-  );
   await login(page);
   const topbar = page.locator(".app-topbar");
   await expect(
     topbar.getByRole("button", { name: "Se déconnecter" }),
   ).toHaveCount(0);
-  await page.getByText("Navigation de l’atelier").click();
-  await page.getByRole("button", { name: "Se déconnecter" }).click();
+  if (testInfo.project.name === "chromium") {
+    await page
+      .locator(".sidebar-footer")
+      .getByRole("button", { name: "Se déconnecter", exact: true })
+      .click();
+  } else {
+    await page.getByText("Navigation de l’atelier").click();
+    await page.getByRole("button", { name: "Se déconnecter" }).click();
+  }
+  await expect(page).toHaveURL(`${origin}/`);
+  await expect(page.locator(".landing")).toBeVisible();
+  await expect(page.locator('.site-header a[href="/app"]')).toHaveCount(2);
   await expect(
     page.getByRole("button", { name: "Entrer dans l’Atelier" }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  expect((await page.request.get("/api/session")).status()).toBe(401);
 });
 
 test("dashboard filters, confirmations and expiry copy follow the saved account language", async ({

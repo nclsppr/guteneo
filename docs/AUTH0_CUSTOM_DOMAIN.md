@@ -54,6 +54,15 @@ public OpenAI plugin identity are not migrated or replaced by this change.
 Custom-domain MCP support would require its own reviewed migration and actual
 host qualification.
 
+Public developer documentation labels the canonical endpoints as API/MCP
+endpoints and separately identifies `auth.guteneo.com` for website/iOS browser
+sign-in. The native application already enters through the server-owned
+`/auth/mobile/authorize` path on `guteneo.com`; it embeds no Auth0 hostname.
+Management scripts, canonical identity records, MCP discovery/OpenAPI and
+historical evidence must not undergo a global hostname replacement. Auth0 email
+and phone-notification domain selection is a separate provider setting; it is
+not changed by this browser opt-in.
+
 ## Additive migration and configuration order
 
 Migration `0054_auth_transaction_issuers.sql` adds two nullable fields to

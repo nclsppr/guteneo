@@ -748,8 +748,8 @@ function WorkspaceApplication({
     try {
       await api("/logout", { method: "POST", body: {} });
       setSession(null);
-      updateSession(null);
-      setSessionExpired(false);
+      // Leave the protected route before Login can restart an Auth0 SSO flow.
+      window.location.replace("/");
     } catch (e) {
       setLogoutError(e as Error);
     }

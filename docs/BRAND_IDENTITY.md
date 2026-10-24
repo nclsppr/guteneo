@@ -79,6 +79,17 @@ carrées et les dimensions sont réservées dans le HTML.
 
 ## Sources et optimisation
 
+Les pages d’erreur HTTP publiques réutilisent le portrait et le mot-symbole
+existants et ajoutent trois illustrations décoratives originales : atlas et
+loupe, boîte d’archives, presse au repos. Les masters PNG et les prompts exacts
+de l’outil intégré Imagegen sont conservés dans
+`assets/editorial/source/error-{navigation,access,service}.{png,json}`.
+Les exports WebP carrés 640/960 px sont dans `apps/web/public/errors/`.
+Ils ne contiennent ni signature, texte d’interface ni donnée client. Le titre,
+le court texte de présentation et les liens restent en HTML accessible ; voir
+[le contrat des erreurs publiques](PUBLIC_HTTP_ERRORS.md). Ces illustrations
+ne remplacent aucune source officielle de portrait, timbre ou hirondelle.
+
 Les JPEG originaux des deux timbres restent dans `assets/brand/source/`. Le
 WebP du footer est conservé **octet pour octet** ; SHA-256 :
 `6e04f5f1d744942be176843ef0a0cb41ce7e4c710b1d36c22257a33f3679225f`.

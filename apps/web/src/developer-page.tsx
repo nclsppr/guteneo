@@ -223,6 +223,15 @@ export function DeveloperPage() {
               <p className="developer-kicker">{msg("02 / AUTHENTIFICATION")}</p>
               <h2>{msg("Des permissions précises.")}</h2>
               <p>
+                {msg(
+                  "Pour le site et l’application iOS, ouvrez la connexion depuis Guteneo. Le formulaire d’identité utilise",
+                )}{" "}
+                <code>auth.guteneo.com</code>
+                {msg(
+                  ". Les adresses OAuth ci-dessous concernent les clients API et MCP ; leur domaine canonique reste inchangé pour les connexions existantes.",
+                )}
+              </p>
+              <p>
                 {msg("Les clients utilisent Authorization Code avec PKCE")}{" "}
                 <code>S256</code>
                 {msg(
@@ -235,11 +244,11 @@ export function DeveloperPage() {
                 )}
               </p>
               <dl className="developer-endpoints">
-                <dt>{msg("Autorisation")}</dt>
+                <dt>{msg("Autorisation API / MCP")}</dt>
                 <dd>
                   <code>https://pieper.eu.auth0.com/authorize</code>
                 </dd>
-                <dt>{msg("Échange du code")}</dt>
+                <dt>{msg("Échange du code API / MCP")}</dt>
                 <dd>
                   <code>https://pieper.eu.auth0.com/oauth/token</code>
                 </dd>

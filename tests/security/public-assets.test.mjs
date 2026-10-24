@@ -45,9 +45,13 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
       (locale) => `/videos/guteneo-v5.${locale}.vtt`,
     ),
     ...Object.values(catalog.introduction).flatMap((formats) =>
-      Object.values(formats).flatMap((asset) => asset.captions ? [asset.captions] : []),
+      Object.values(formats).flatMap((asset) =>
+        asset.captions ? [asset.captions] : [],
+      ),
     ),
-    ...Object.values(catalog.roles).flatMap((asset) => asset.captions ? [asset.captions] : []),
+    ...Object.values(catalog.roles).flatMap((asset) =>
+      asset.captions ? [asset.captions] : [],
+    ),
   ])) {
     const content = await readFile(join(root, "apps/web/public", path), "utf8");
     textAssets.set(path, content);
@@ -374,6 +378,122 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     assert.equal(missing.status, 404);
     assert.equal(missing.headers.get("X-Robots-Tag"), "noindex, nofollow");
   }
+  // Match native Safari document navigation against actual empty Static Assets
+  // 404s. Missing files must retain a non-HTML representation even with Accept.
+  const navigationHeaders = {
+    Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "identity",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    // dispatchFetch uses Undici, which overwrites Sec-Fetch-Mode with cors.
+    // Miniflare's entry restores this original header before the real Worker.
+    "MF-Sec-Fetch-Mode": "navigate",
+  };
+  for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
+    for (const locale of site.locales) {
+      const url = `${origin}/does-not-exist/?lang=${locale}`;
+      const missing = await mf.dispatchFetch(url, {
+        headers: navigationHeaders,
+      });
+      assert.equal(missing.status, 404);
+      assert.equal(
+        missing.headers.get("Content-Type"),
+        "text/html; charset=utf-8",
+      );
+      assert.equal(missing.headers.get("Content-Disposition"), null);
+      assert.equal(missing.headers.get("Location"), null);
+      assert.equal(missing.headers.get("X-Robots-Tag"), "noindex, nofollow");
+      assert.equal(missing.headers.get("Cache-Control"), "no-store");
+      assert.equal(missing.headers.get("X-Content-Type-Options"), "nosniff");
+      assert.match(
+        missing.headers.get("Content-Security-Policy"),
+        /frame-ancestors 'none'/,
+      );
+      const html = await missing.text();
+      assert.match(html, /^<!doctype html>/);
+      assert.ok(html.includes(`<html lang="${locale}">`));
+      assert.ok(
+        html.includes(`href="${PUBLIC_ORIGIN}/support/?lang=${locale}"`),
+      );
+      assert.equal(
+        missing.headers.get("Content-Length"),
+        String(Buffer.byteLength(html)),
+      );
+      const head = await mf.dispatchFetch(url, {
+        method: "HEAD",
+        headers: navigationHeaders,
+      });
+      assert.equal(head.status, 404);
+      assert.equal(
+        head.headers.get("Content-Type"),
+        "text/html; charset=utf-8",
+      );
+      assert.equal(
+        head.headers.get("Content-Length"),
+        missing.headers.get("Content-Length"),
+      );
+      assert.equal(await head.text(), "");
+    }
+    for (const path of [
+      "/missing.css",
+      "/assets/missing",
+      "/brand/missing.webp",
+      "/support/?lang=lb",
+    ]) {
+      const missing = await mf.dispatchFetch(origin + path, {
+        headers: navigationHeaders,
+      });
+      assert.equal(missing.status, 404);
+      assert.equal(
+        missing.headers.get("Content-Type"),
+        "text/plain; charset=utf-8",
+      );
+      assert.equal(await missing.text(), "Not found");
+    }
+    for (const headers of [
+      { Accept: "application/json" },
+      { Accept: "text/html", "Sec-Fetch-Dest": "script" },
+    ]) {
+      const missing = await mf.dispatchFetch(`${origin}/does-not-exist/`, {
+        headers,
+      });
+      assert.equal(missing.status, 404);
+      assert.equal(
+        missing.headers.get("Content-Type"),
+        "text/plain; charset=utf-8",
+      );
+      assert.equal(await missing.text(), "Not found");
+    }
+    const missingRange = await mf.dispatchFetch(`${origin}/missing.css`, {
+      headers: { ...navigationHeaders, Range: "bytes=0-1" },
+    });
+    assert.equal(missingRange.status, 404);
+    assert.equal(missingRange.headers.get("Content-Type"), null);
+    assert.equal(await missingRange.text(), "");
+    const malformed = await mf.dispatchFetch(`${origin}/broken/%ZZ`, {
+      headers: navigationHeaders,
+    });
+    assert.equal(malformed.status, 400);
+    assert.equal(
+      malformed.headers.get("Content-Type"),
+      "text/html; charset=utf-8",
+    );
+    assert.match(
+      await malformed.text(),
+      /<h1>Adresse ou demande invalide<\/h1>/,
+    );
+    for (const path of ["/api/%ZZ", "/a%70i/%ZZ"]) {
+      const malformedPrivate = await mf.dispatchFetch(origin + path, {
+        headers: navigationHeaders,
+      });
+      assert.equal(malformedPrivate.status, 400);
+      assert.equal(
+        malformedPrivate.headers.get("Content-Type"),
+        "text/plain; charset=utf-8",
+      );
+      assert.equal(await malformedPrivate.text(), "Invalid path");
+    }
+  }
   const privateQuery = await mf.dispatchFetch(PUBLIC_ORIGIN + "/?code=fixture");
   assert.equal(privateQuery.headers.get("X-Robots-Tag"), "noindex, nofollow");
   assert.equal(privateQuery.headers.get("Cache-Control"), "no-store");
@@ -425,6 +545,7 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   ]) {
     const privateResponse = await mf.dispatchFetch(PUBLIC_ORIGIN + path, {
       method,
+      headers: navigationHeaders,
     });
     assert.equal(privateResponse.status, 503);
     assert.equal(
@@ -443,6 +564,47 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
   assert.equal(signup.headers.get("X-Robots-Tag"), "noindex, nofollow");
   assert.ok(
     signup.headers.get("Location").startsWith(PUBLIC_ORIGIN + "/?auth="),
+  );
+  // A separate deliberately invalid fixture proves production still fails closed
+  // while its public browser error is readable. No provider or real state exists.
+  const unavailable = new Miniflare(
+    convertV4MiniflareOptions({
+      name: "public-error-fixture",
+      modules: true,
+      script: await readFile(join(temp, "compiled/worker.js"), "utf8"),
+      compatibilityDate: "2026-09-16",
+      compatibilityFlags: ["nodejs_compat"],
+      bindings: {
+        ENVIRONMENT: "production",
+        MODE: "simulation",
+        APP_ORIGIN: PUBLIC_ORIGIN,
+      },
+    }),
+  );
+  t.after(() => unavailable.dispose());
+  const publicFailure = await unavailable.dispatchFetch(
+    `${PUBLIC_ORIGIN}/?lang=en`,
+    { headers: navigationHeaders },
+  );
+  assert.equal(publicFailure.status, 503);
+  assert.equal(
+    publicFailure.headers.get("Content-Type"),
+    "text/html; charset=utf-8",
+  );
+  assert.equal(publicFailure.headers.get("Cache-Control"), "no-store");
+  assert.match(
+    await publicFailure.text(),
+    /<h1>Service temporarily unavailable<\/h1>/,
+  );
+  const privateFailure = await unavailable.dispatchFetch(
+    `${PUBLIC_ORIGIN}/api/session`,
+    { headers: navigationHeaders },
+  );
+  assert.equal(privateFailure.status, 503);
+  assert.match(privateFailure.headers.get("Content-Type"), /application\/json/);
+  assert.equal(
+    (await privateFailure.json()).error.code,
+    "CONFIGURATION_INVALID",
   );
 });
 

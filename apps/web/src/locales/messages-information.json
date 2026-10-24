@@ -262,6 +262,26 @@
     "Gezielte Berechtigungen.",
     "Genee Berechtegungen."
   ],
+  "Pour le site et l’application iOS, ouvrez la connexion depuis Guteneo. Le formulaire d’identité utilise": [
+    "For the website and iOS app, start sign-in from Guteneo. The identity form uses",
+    "Starten Sie die Anmeldung für die Website und die iOS-App über Guteneo. Das Identitätsformular verwendet",
+    "Fir d’Websäit an d’iOS-App, start d’Umeldung iwwer Guteneo. Den Identitéitsformular benotzt"
+  ],
+  ". Les adresses OAuth ci-dessous concernent les clients API et MCP ; leur domaine canonique reste inchangé pour les connexions existantes.": [
+    ". The OAuth addresses below are for API and MCP clients; their canonical domain stays unchanged for existing connections.",
+    ". Die folgenden OAuth-Adressen gelten für API- und MCP-Clients. Ihre kanonische Domain bleibt für bestehende Verbindungen unverändert.",
+    ". D’OAuth-Adressen hei drënner si fir API- a MCP-Clienten; hire kanoneschen Domain bleift fir bestoend Verbindungen onverännert."
+  ],
+  "Autorisation API / MCP": [
+    "API / MCP authorisation",
+    "API- / MCP-Autorisierung",
+    "API- / MCP-Autorisatioun"
+  ],
+  "Échange du code API / MCP": [
+    "API / MCP code exchange",
+    "API- / MCP-Code-Austausch",
+    "API- / MCP-Code-Austausch"
+  ],
   "Les clients utilisent Authorization Code avec PKCE": [
     "Clients use Authorization Code with PKCE",
     "Clients verwenden Authorization Code mit PKCE",

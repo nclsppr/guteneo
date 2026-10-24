@@ -144,13 +144,155 @@ describe("production static crawl boundary", () => {
   it("does not replace a missing locale variant with generic HTML", async () => {
     const { env, fetch } = fixture(new Response("Not found", { status: 404 }));
     const response = (await servePublicAssets(
-      new Request(`${site.origin}/?lang=de`),
+      new Request(`${site.origin}/?lang=de`, {
+        headers: { Accept: "text/html" },
+      }),
       env,
     ))!;
     expect(response.status).toBe(404);
     expect(await response.text()).toBe("Not found");
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
     expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it("renders an empty, untyped upstream 404 as a real HTML document for browser navigation", async () => {
+    const { env } = fixture(
+      new Response(null, {
+        status: 404,
+        headers: {
+          "Content-Length": "0",
+          ETag: '"upstream-missing"',
+        },
+      }),
+    );
+    const response = (await servePublicAssets(
+      new Request(`${site.origin}/missing-page`, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+          "Sec-Fetch-Dest": "document",
+          "Sec-Fetch-Mode": "navigate",
+        },
+      }),
+      env,
+    ))!;
+    const body = await response.text();
+    expect(response.status).toBe(404);
+    expect(response.headers.get("Content-Type")).toBe(
+      "text/html; charset=utf-8",
+    );
+    expect(response.headers.get("Content-Disposition")).toBeNull();
+    expect(response.headers.get("ETag")).toBeNull();
+    expect(response.headers.get("Location")).toBeNull();
+    expect(response.headers.get("Content-Length")).toBe(
+      String(new TextEncoder().encode(body).byteLength),
+    );
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(response.headers.get("Content-Security-Policy")).toContain(
+      "frame-ancestors 'none'",
+    );
+    expect(body).toMatch(/^<!doctype html>/);
+    expect(body).toContain("<h1>Page introuvable</h1>");
+    expect(body).toContain(`href="${site.origin}/?lang=fr"`);
+    expect(body).toContain(`href="${site.origin}/support/?lang=fr"`);
+    expect(body).not.toContain("<script");
+  });
+
+  it.each([
+    ["fr", "Page introuvable"],
+    ["en", "Page not found"],
+    ["de", "Seite nicht gefunden"],
+    ["lb", "Säit net fonnt"],
+  ])(
+    "serves the bounded %s 404 document and empty HEAD representation",
+    async (locale, title) => {
+      for (const method of ["GET", "HEAD"]) {
+        const { env } = fixture(new Response(null, { status: 404 }));
+        const response = (await servePublicAssets(
+          new Request(`${site.origin}/unknown/?lang=${locale}`, {
+            method,
+            headers: { Accept: "text/html" },
+          }),
+          env,
+        ))!;
+        expect(response.status).toBe(404);
+        expect(response.headers.get("Content-Type")).toBe(
+          "text/html; charset=utf-8",
+        );
+        expect(response.headers.get("Content-Language")).toBe(locale);
+        const body = await response.text();
+        if (method === "HEAD") {
+          expect(body).toBe("");
+          expect(
+            Number(response.headers.get("Content-Length")),
+          ).toBeGreaterThan(1000);
+        } else {
+          expect(body).toContain(`<html lang="${locale}">`);
+          expect(body).toContain(`<h1>${title}</h1>`);
+          expect(body).toContain(`/support/?lang=${locale}`);
+        }
+      }
+    },
+  );
+
+  it.each([
+    ["/missing.css", { Accept: "text/html" }],
+    ["/missing.JS", { Accept: "text/html" }],
+    ["/missing.svg/", { Accept: "text/html" }],
+    ["/missing.json", { Accept: "text/html" }],
+    ["/assets/missing", { Accept: "text/html" }],
+    ["/brand/missing", { Accept: "text/html" }],
+    ["/videos/missing", { Accept: "text/html" }],
+    ["/.hidden", { Accept: "text/html" }],
+    ["/unknown/", {}],
+    ["/unknown/", { Accept: "*/*" }],
+    ["/unknown/", { Accept: "application/json" }],
+    ["/unknown/", { Accept: "text/html;q=0,*/*;q=1" }],
+    ["/unknown/", { Accept: "text/html;q=invalid" }],
+    ["/unknown/", { Accept: "text/html", "Sec-Fetch-Dest": "script" }],
+    ["/unknown/", { Accept: "text/html", "Sec-Fetch-Dest": "image" }],
+    ["/unknown/", { Accept: "text/html", "Sec-Fetch-Mode": "cors" }],
+  ] as const)(
+    "keeps missing resources and non-document requests as plain 404 (%s, %j)",
+    async (path, headers) => {
+      const { env } = fixture(new Response(null, { status: 404 }));
+      const response = (await servePublicAssets(
+        new Request(site.origin + path, { headers }),
+        env,
+      ))!;
+      expect(response.status).toBe(404);
+      expect(response.headers.get("Content-Type")).toBe(
+        "text/plain; charset=utf-8",
+      );
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(await response.text()).toBe("Not found");
+    },
+  );
+
+  it("never reflects the URL or private query in HTML, and does not infer a language from cookies", async () => {
+    const { env } = fixture(new Response(null, { status: 404 }));
+    const response = (await servePublicAssets(
+      new Request(
+        `${site.origin}/%3Cscript%3Eprivate-path?token=never-reflect&lang=de&lang=en`,
+        {
+          headers: {
+            Accept: "text/html;q=0.8",
+            "Accept-Language": "en",
+            Cookie: "guteneo.locale=en",
+          },
+        },
+      ),
+      env,
+    ))!;
+    const body = await response.text();
+    expect(response.status).toBe(404);
+    expect(body).toContain('<html lang="fr">');
+    expect(body).not.toContain("private-path");
+    expect(body).not.toContain("never-reflect");
+    expect(body).not.toContain("<script>");
+    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
   });
 
   it("preserves localized conditional requests and HEAD framing", async () => {
