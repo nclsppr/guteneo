@@ -33,6 +33,22 @@ les tailles et empreintes attendues/reçues, et un encodage issu d’une liste f
 L’encodage de réponse est distinct des octets décodés observés par Node. Ces
 diagnostics restent hors du corps signé, dont le schéma demeure inchangé.
 
+Cette requête ne peut pas, à elle seule, interdire une transformation Cloudflare.
+La [documentation de compression](https://developers.cloudflare.com/speed/optimization/content/compression/#content-length-header-handling)
+exige `no-transform` dans la **réponse de l’origine**. Le candidat d’application
+l’ajoute donc au `Cache-Control` existant des seuls HTML publics canoniques
+réussis et de leurs réponses conditionnelles 304. Il conserve les autres
+directives, octets, ETag, encodages déjà présents et cadrages de réponse ; les
+API, sessions, requêtes privées, fichiers JS/CSS/images/vidéos et hôtes de repli
+ne gagnent aucune règle de cache. Aucun script n’est retiré avant comparaison.
+La [documentation Web Analytics](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
+précise que `public, no-transform` empêche l’injection automatique de sa balise
+et que le mode excluant l’UE n’injecte pas cette balise aux visiteurs européens.
+Ce garde nécessite la publication de l’application ; un changement du seul
+pilote Node ne suffit pas. Il peut aussi empêcher une recompression CDN de ces
+HTML : bande passante et latence servies restent à observer après publication,
+sans en déduire une facture fixe ou une gratuité.
+
 Le moteur refuse les mutations HTTP, l’authentification, les destinations
 externes et les ressources autres que les pages et fichiers publics fixes.
 Il ne clique aucun bouton métier. Aucun e-mail, fax, courrier, achat, devis,
@@ -63,6 +79,9 @@ GitHub OIDC signée, jamais un secret partagé de Cloudflare. La politique fixe 
 - fichier `.github/workflows/production-e2e.yml` sur `refs/heads/main` ;
 - événement `schedule` ou `workflow_dispatch`, runner hébergé par GitHub ;
 - mêmes SHA de workflow, SHA du runner, run et tentative que dans le rapport ;
+- `job_workflow_ref` et `job_workflow_sha` tous deux absents dans l’ancien
+  format, ou couple exactement égal au workflow canonique ci-dessus sur main
+  et au commit du runner ; aucune autre paire, valeur partielle ou nulle ;
 - JWT récent et observation bornée à dix minutes.
 
 L’audience contient le SHA-256 du corps exact. Elle lie donc aussi le nonce,
@@ -82,6 +101,15 @@ explicitement autorisé ; toute autre réponse devient `UNKNOWN`. Les lectures
 de réponse sont bornées en octets et à cinq secondes. Les erreurs libres,
 URL OIDC, JWT, en-têtes et corps amont ne sont jamais imprimés. La présence de
 l’artefact, écrit avant l’ingestion, ne prouve pas que le statut l’a enregistré.
+
+Après un vrai `401 REPORT_REJECTED` seulement, le pilote peut produire un
+diagnostic OIDC à clés fixes : comparaisons booléennes explicitement **non
+vérifiées**, puis résultat fermé d’une unique exécution du même vérifieur que
+le serveur. Les clés publiques GitHub conservent leur délai de cinq secondes
+et le diagnostic entier expire en six secondes. Il ne demande pas de nouveau
+JWT, ne répète pas le POST et ne change aucune autorité du Worker. Le refus
+initial reste l’échec final, même si la vérification locale réussit. Aucun
+contenu de claim, JWT/JWK, URL, en-tête, corps ou exception libre n’est publié.
 
 ## Première observation hébergée — 24 octobre 2026
 
@@ -106,6 +134,42 @@ Une lecture publique depuis le Mac avec le nouveau transport passe 14/14 HTTP
 sur l’application `4f033e2` ; elle ne constitue ni une nouvelle tentative GitHub
 ni une preuve d’ingestion hébergée. Les tests simulent aussi l’ingestion complète
 d’un rapport `attention` à sept écarts, avec audience liée à son corps exact.
+
+La seconde observation réelle,
+[`40131421762`, tentative 1](https://github.com/nclsppr/guteneo/actions/runs/40131421762),
+utilisait le runner `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` et l’application
+`4f033e2`. Elle a également échoué à **21/28** : les sept HTML reçus en
+`identity` avaient chacun exactement **367 octets supplémentaires**. Le dépôt
+du rapport a ensuite reçu `401 REPORT_REJECTED`. Ce refus d’ingestion est un
+problème distinct de l’écart HTTP. La transformation HTML automatique est une
+hypothèse cohérente avec la documentation et l’écart UE/runner ; la projection
+ne conserve pas le HTML et n’identifie pas à elle seule la balise ajoutée.
+Le nouveau garde d’origine reste à publier puis qualifier depuis le runner.
+Localement, 94 tests du périmètre assets et deux tests réels workerd/Static Assets
+passent ; ils vérifient notamment les quatre langues, GET/HEAD/304, les octets,
+ETag, directives existantes et l’absence d’élargissement des caches privés/API.
+
+Un diagnostic GitHub isolé sur branche, run
+[`40132056947`](https://github.com/nclsppr/guteneo/actions/runs/40132056947), a
+ensuite vérifié la signature et les prédicats bornés d’un JWT de job direct :
+`job_workflow_ref` est présent et égal à `workflow_ref`, et
+`job_workflow_sha` est égal au SHA du job. Aucune requête de production n’a été
+émise par ce diagnostic et aucun JWT n’a été conservé dans sa projection.
+Le garde précédent refusait cette forme dès qu’il voyait `job_workflow_ref`.
+Le correctif du serveur accepte désormais uniquement l’absence des deux champs
+ou le couple exact du workflow de production sur main et du commit attendu ;
+les autres critères de signature, audience liée au corps, dépôt/IDs, branche,
+événement, fraîcheur et anti-rejeu restent obligatoires. Le fichier ou SHA
+étranger, le couple partiel et les valeurs nulles sont refusés. Cette adaptation
+requiert aussi une publication du Worker de statut ; le diagnostic sur branche
+ne prouve aucune ingestion de production. Application et statut doivent donc
+être publiés et qualifiés séparément, puis le rapport doit prouver 28/28 et son
+stockage exact avant tout succès déclaré.
+La qualification ciblée de cette règle et du diagnostic passe **114/114 tests
+locaux** : 52 d’intégration statut, 32 du diagnostic OIDC et 30 du transport/
+projection. Ces JWT RS256 sont synthétiques et vérifiés hors réseau ; ils ne
+constituent pas des comptes, une nouvelle exécution GitHub ou une ingestion
+de production. La CI de la tête finale et les publications restent distinctes.
 
 ## Lecture publique et conservation
 

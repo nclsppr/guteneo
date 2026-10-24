@@ -428,3 +428,12 @@ rôles ni un assistant ne gagne cette autorité par sa membership. Les diagnosti
 du pilote sont bornés aux chemins et empreintes publics ainsi qu’aux codes
 autorisés de publication. Un artefact local ou un échec d’ingestion ne permet
 pas de déclarer le rapport enregistré ni le cycle métier qualifié.
+La protection des octets HTML publics ajoute `no-transform` à la réponse de
+l’application pour les seuls documents canoniques publics ; elle n’accorde
+aucune autorité aux visiteurs, rôles ou assistants et n’élargit aucun cache
+API, session ou privé. Les comparaisons taille/SHA restent intégrales.
+Le format OIDC d’un job direct peut porter les deux champs `job_workflow_ref`
+et `job_workflow_sha` : le serveur n’accepte que leur absence commune ancienne
+ou leur égalité exacte au workflow canonique main et au commit du runner.
+Cette règle n’ajoute aucun autre workflow, branche, rôle ou assistant autorisé ;
+elle requiert la publication du statut et une preuve d’ingestion distincte.

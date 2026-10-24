@@ -83,8 +83,26 @@ Les quatorze contrôles navigateur ont réussi, tandis que sept empreintes de
 pages ont échoué sur la taille reçue. Le candidat de diagnostic demande une
 représentation sans transformation dans le pilote Node, conserve les tailles
 et SHA stricts, et distingue refus OIDC/ingestion sans journaliser de secret.
-Le Worker, ses sondes Cron et son autorité OIDC restent inchangés. Voir
+Dans ce premier correctif Node, le Worker, ses sondes Cron et son autorité OIDC
+restaient inchangés. Voir
 [le détail de cette preuve et ses limites](PRODUCTION_BROWSER_MONITOR.md).
+
+La seconde tentative `40131421762` échoue également à 21/28 : chaque HTML reçoit
+367 octets supplémentaires malgré un encodage `identity`, puis l’ingestion
+répond `401 REPORT_REJECTED`. Le garde proposé ajoute `no-transform` à la réponse
+de l’application pour ses seuls HTML publics canoniques, en conservant les
+empreintes intégrales. Les en-têtes de requête du moniteur ne remplacent pas
+cette règle d’origine. Le garde requiert une publication de l’application et
+une nouvelle preuve ; les deux échecs sont conservés, sans succès déduit.
+
+Le diagnostic signé isolé `40132056947`, sans requête de production, confirme
+qu’un job direct GitHub peut aussi porter `job_workflow_ref` et
+`job_workflow_sha`. Le serveur accepte le format ancien où les deux sont absents,
+ou le seul couple exact du workflow canonique main et du commit du runner.
+Une autre référence, un autre SHA, un champ seul ou nul restent refusés ;
+signature, corps, dépôt, branche et anti-rejeu ne sont pas élargis. Cette
+correction exige une nouvelle publication du statut, en plus de l’application
+pour le garde HTML. Les 28 résultats et l’ingestion exacte restent à qualifier.
 
 ## Historique et lecture
 

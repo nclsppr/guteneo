@@ -212,6 +212,7 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
       path,
     );
     assert.equal(response.headers.get("X-Robots-Tag"), null, path);
+    assert.match(response.headers.get("Cache-Control"), /(?:^|,)\s*no-transform(?:,|$)/);
     assert.match(
       response.headers.get("Content-Security-Policy"),
       /frame-ancestors 'none'/,
@@ -233,6 +234,7 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     });
     assert.equal(conditional.status, 304);
     assert.equal(conditional.headers.get("X-Robots-Tag"), null);
+    assert.match(conditional.headers.get("Cache-Control"), /(?:^|,)\s*no-transform(?:,|$)/);
     assert.equal(
       conditional.headers.get("Strict-Transport-Security"),
       "max-age=31536000",
@@ -251,6 +253,7 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     const fallback = await mf.dispatchFetch(fallbackOrigin + path);
     assert.equal(fallback.status, 200);
     assert.equal(fallback.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    assert.doesNotMatch(fallback.headers.get("Cache-Control") ?? "", /no-transform/);
     assert.equal(await fallback.text(), expected);
     const primaryAgain = await mf.dispatchFetch(PUBLIC_ORIGIN + path);
     assert.equal(primaryAgain.headers.get("X-Robots-Tag"), null);
@@ -306,6 +309,8 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
         assert.equal(response.status, 200);
         assert.equal(await response.text(), expected);
         assert.equal(response.headers.get("X-Robots-Tag"), expectedRobots);
+        const expectedTransformPolicy = origin === PUBLIC_ORIGIN;
+        assert.equal(/(?:^|,)\s*no-transform(?:,|$)/.test(response.headers.get("Cache-Control") ?? ""), expectedTransformPolicy);
         assert.match(
           response.headers.get("Content-Security-Policy"),
           /frame-ancestors 'none'/,
@@ -315,12 +320,14 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
         const head = await mf.dispatchFetch(publicUrl, { method: "HEAD" });
         assert.equal(head.status, 200);
         assert.equal(head.headers.get("ETag"), etag);
+        assert.equal(/(?:^|,)\s*no-transform(?:,|$)/.test(head.headers.get("Cache-Control") ?? ""), expectedTransformPolicy);
         assert.equal(await head.text(), "");
         const conditional = await mf.dispatchFetch(publicUrl, {
           headers: { "If-None-Match": etag },
         });
         assert.equal(conditional.status, 304);
         assert.equal(conditional.headers.get("X-Robots-Tag"), expectedRobots);
+        assert.equal(/(?:^|,)\s*no-transform(?:,|$)/.test(conditional.headers.get("Cache-Control") ?? ""), expectedTransformPolicy);
         const privateVariant = await mf.dispatchFetch(
           `${publicUrl}&code=fixture`,
         );
