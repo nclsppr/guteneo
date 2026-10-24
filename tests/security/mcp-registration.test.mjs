@@ -37,6 +37,7 @@ function fixture() {
     clients: [
       ...STATIC.map((client_id, index) => ({
         client_id,
+        global: false,
         name: `Guteneo ${index}`,
         client_metadata: { guteneo_managed_by: "guteneo-setup-v1" },
         grant_types: index
@@ -48,6 +49,7 @@ function fixture() {
       })),
       {
         client_id: OPENAI_REVIEW_CLIENT_ID,
+        global: false,
         name: "Reviewer",
         client_metadata: { guteneo_managed_by: "guteneo-openai-review-v1" },
         grant_types: ["authorization_code", "refresh_token"],
@@ -56,6 +58,7 @@ function fixture() {
       },
       {
         client_id: "unrelated",
+        global: false,
         callbacks: [PRIVATE],
         grant_types: ["refresh_token"],
         client_secret: PRIVATE,
@@ -238,6 +241,8 @@ test("inspection is inert, fingerprinted and expurgated; no registration or host
   assert.equal(report.proposedNativeSecurityMode, "strict");
   assert.equal(report.observedNativeSecurityMode, null);
   assert.equal(report.currentClientCount, 4);
+  assert.equal(report.currentApplicationCount, 4);
+  assert.equal(report.globalClientCount, 0);
   assert.equal(report.currentFreePlanPolicyLimit, 10);
 });
 
@@ -328,15 +333,69 @@ test("the verified Free-plan application limit blocks open registration with onl
     while (f.state.clients.length < count)
       f.state.clients.push({
         client_id: `unrelated_${f.state.clients.length}`,
+        global: false,
         is_first_party: true,
       });
     const plan = await inspect(f);
     assert.equal(plan.currentClientCount, count);
+    assert.equal(plan.currentApplicationCount, count);
     assert.equal(plan.proposedOpenRegistration, true);
     assert(plan.blockers.includes("capacity_requires_review"));
     await assert.rejects(apply(f, plan.fingerprint), {
       code: "REGISTRATION_BLOCKED",
     });
+    assert.equal(writes(f).length, 0);
+  }
+});
+
+test("capacity counts ordinary Applications using only trusted global flags while retaining all client rows in the fingerprint", async () => {
+  const f = fixture();
+  while (f.state.clients.length < 8)
+    f.state.clients.push({
+      client_id: `ordinary_${f.state.clients.length}`,
+      global: false,
+    });
+  // Names deliberately suggest the opposite classification.
+  f.state.clients[3].name = "All Applications";
+  f.state.clients.push({
+    client_id: "system_fixture",
+    name: "An ordinary named application",
+    global: true,
+  });
+  const plan = await inspect(f);
+  assert.equal(plan.currentClientCount, 9);
+  assert.equal(plan.currentApplicationCount, 8);
+  assert.equal(plan.globalClientCount, 1);
+  assert(!plan.blockers.includes("capacity_requires_review"));
+  assert(
+    f.calls.some(
+      (call) =>
+        call.path.startsWith("clients?") &&
+        new URLSearchParams(call.path.split("?")[1])
+          .get("fields")
+          .split(",")
+          .includes("global"),
+    ),
+  );
+  f.state.clients[8].name = "Another system name";
+  const changed = await inspect(f);
+  assert.notEqual(changed.fingerprint, plan.fingerprint);
+  assert.equal(changed.currentApplicationCount, 8);
+  f.state.clients.push({ client_id: "ordinary_ninth", global: false });
+  const full = await inspect(f);
+  assert.equal(full.currentClientCount, 10);
+  assert.equal(full.currentApplicationCount, 9);
+  assert.equal(full.globalClientCount, 1);
+  assert(full.blockers.includes("capacity_requires_review"));
+  assert.equal(writes(f).length, 0);
+});
+
+test("missing or nonboolean global classification refuses capacity qualification without guessing from names", async () => {
+  for (const global of [undefined, null, "false", 0]) {
+    const f = fixture();
+    f.state.clients[3].global = global;
+    f.state.clients[3].name = "All Applications";
+    await assert.rejects(inspect(f), { code: "REGISTRATION_REQUIRES_REVIEW" });
     assert.equal(writes(f).length, 0);
   }
 });

@@ -108,11 +108,16 @@ token. Those are separate decisions. CIMD can reduce registration growth, but
 this candidate does not enable or advertise CIMD support.
 
 The reviewed controller retains the current Free-plan ceiling of ten
-applications as a conservative deployment policy. Nine or more existing clients
+applications as a conservative deployment policy. Nine or more existing applications
 produce `capacity_requires_review`, before any write. Having two available
 slots is only the controller's minimum headroom, not a production capacity
 guarantee: open registration can still exhaust a finite inventory. A plan change
 does not silently relax the controller; review its policy and evidence first.
+The inventory also includes Auth0's legacy global client. Only an explicit
+provider `global: false` classifies a row as an ordinary application for this
+counter; a missing or non-boolean classification fails closed. The global row
+is still retained in the configuration fingerprint. A display name such as
+"All Applications" is never used to classify or exclude a client.
 Auth0 also counts dynamic CIMD clients toward the ordinary Applications limit,
 in addition to its separate dynamic-CIMD limit. CIMD is therefore not a bypass
 of the Free-plan ceiling. Dynamic CIMD has a separate eligibility/terms gate;
@@ -187,6 +192,7 @@ Verified on 24 October 2026:
 - [Auth0 strict controls and refresh policy](https://auth0.com/docs/get-started/applications/third-party-applications/security-controls)
 - [Auth0 DCR security mode](https://auth0.com/docs/get-started/applications/third-party-applications/permissive-mode#dynamic-client-registration-in-permissive-mode)
 - [Auth0 entity limits](https://auth0.com/docs/troubleshoot/customer-support/operational-policies/entity-limit-policy)
+- [Auth0 legacy global client](https://support.auth0.com/center/s/article/Global-client-ID-and-secret)
 - [Auth0 CIMD and its application-count limit](https://auth0.com/docs/get-started/auth0-overview/create-applications/cimd-overview)
 - [Auth0 post-login event](https://auth0.com/docs/actions/reference/post-login/post-login-event-object)
 - [Claude connector authentication](https://claude.com/docs/connectors/building/authentication)

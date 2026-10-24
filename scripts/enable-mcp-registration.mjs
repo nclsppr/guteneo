@@ -18,7 +18,7 @@ const ACTION_NAMES = [
   "Guteneo - verified identity claims",
 ];
 const CLIENT_FIELDS =
-  "client_id,name,client_metadata,app_type,token_endpoint_auth_method,callbacks,grant_types,refresh_token,jwt_configuration,is_first_party,oidc_conformant,third_party_security_mode";
+  "client_id,name,client_metadata,app_type,token_endpoint_auth_method,callbacks,grant_types,refresh_token,jwt_configuration,is_first_party,oidc_conformant,third_party_security_mode,global";
 const fail = (code, message) => {
   throw new SetupError(code, message);
 };
@@ -226,9 +226,16 @@ async function inspectMcpRegistration(api) {
     `&fields=${CLIENT_FIELDS}&include_fields=true`,
   );
   requireState(
-    clients.every((item) => validId(item.client_id)) &&
-      new Set(clients.map((item) => item.client_id)).size === clients.length,
+    clients.every(
+      (item) => validId(item.client_id) && typeof item.global === "boolean",
+    ) && new Set(clients.map((item) => item.client_id)).size === clients.length,
   );
+  // Auth0 also returns its hidden, legacy tenant-wide Global Client. Count
+  // ordinary Applications only, using the provider field rather than a name.
+  // Keep every row, including system clients, in the reviewed state fingerprint.
+  // https://support.auth0.com/center/s/article/Global-client-ID-and-secret
+  const globalClientCount = clients.filter((item) => item.global).length;
+  const applicationCount = clients.length - globalClientCount;
   const resources = await pages(api, "resource-servers");
   requireState(
     resources.every((item) =>
@@ -312,7 +319,7 @@ async function inspectMcpRegistration(api) {
   // documented Free entity limit is 10 applications. Open registration with
   // only one slot left is not a durable rollout; do not delete apps or upgrade.
   // https://auth0.com/docs/troubleshoot/customer-support/operational-policies/entity-limit-policy
-  if (clients.length >= 9) blockers.push("capacity_requires_review");
+  if (applicationCount >= 9) blockers.push("capacity_requires_review");
   const inventory = await pages(api, "actions/actions", "actions");
   const actions = [];
   const deployedSources = [];
@@ -453,6 +460,8 @@ async function inspectMcpRegistration(api) {
       observedNativeSecurityMode:
         settings.dynamic_client_registration_security_mode ?? null,
       currentClientCount: clients.length,
+      currentApplicationCount: applicationCount,
+      globalClientCount,
       proposedOpenRegistration: true,
       observedOpenRegistration: enabled,
       currentFreePlanPolicyLimit: 10,
