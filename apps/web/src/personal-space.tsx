@@ -430,7 +430,10 @@ function PersonalServices({
             : { name: name.trim() },
         },
       );
-      window.location.assign(`/#${requestedPath}`);
+      // The workshop cookie has rotated. Remount Application so its session,
+      // tenant and CSRF token all come from the new server session.
+      window.history.replaceState(null, "", `/#${requestedPath}`);
+      window.location.reload();
     });
   }
   return (

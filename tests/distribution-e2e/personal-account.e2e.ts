@@ -2,6 +2,7 @@ import {
   expect,
   localApi,
   resetRecipientWorkspaceFixture,
+  setRecipientStudioMembershipFixture,
   test,
 } from "./fixtures";
 
@@ -117,7 +118,7 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
   expect(authenticationRedirects).toBe(0);
 });
 
-test("creating a sending workshop keeps the recipient's Guteneo identity", async ({
+test("creating and selecting a workshop reloads its session without changing the recipient's identity", async ({
   app,
   screen,
   browser,
@@ -139,8 +140,34 @@ test("creating a sending workshop keeps the recipient's Guteneo identity", async
     .getByLabel("Nom de votre atelier")
     .fill("Atelier personnel de test");
   await app.screenshot("personal-workspace-onboarding");
-  await screen.getByRole("button", "Créer mon atelier").tap();
+  const [createdResponse] = await Promise.all([
+    browser.waitForResponse("**/api/personal/workspace"),
+    screen.getByRole("button", "Créer mon atelier").tap(),
+  ]);
+  expect(createdResponse.status).toBe(200);
   await expect(browser).toHaveURL(/#\/app\/prepare/);
+  await expect(screen.getByRole("heading", "Préparer une correspondance.")).toBeVisible();
+  // A real document reload discards the previous POST response body. Inspect
+  // the fresh session instead, without triggering another navigation.
+  const created = await localApi<{
+    user: { id: string; role: string };
+    organization: { id: string };
+  }>(browser, "/api/session");
+  expect(created.status).toBe(200);
+  expect(created.body.user.id).toBe(before.body.user.id);
+  expect(created.body.user.role).toBe("admin");
+
+  // Stay in the mounted document: a fresh server cookie alone does not update
+  // Application's workshop state or the API module's mutation CSRF token.
+  await browser.evaluate(() => { location.hash = "/app/account"; return true; });
+  await expect(screen.getByLabel("Nom de l’atelier")).toHaveValue("Atelier personnel de test");
+  await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après création");
+  const [createdProfile] = await Promise.all([
+    browser.waitForResponse("**/api/account"),
+    screen.getByRole("button", "Enregistrer les modifications").tap(),
+  ]);
+  expect(createdProfile.status).toBe(200);
+  await expect(screen.getByText("Votre profil a été enregistré.")).toBeVisible();
   const after = await localApi<{
     user: { id: string };
     workspaces: { id: string }[];
@@ -148,8 +175,45 @@ test("creating a sending workshop keeps the recipient's Guteneo identity", async
   expect(after.status).toBe(200);
   expect(after.body.user.id).toBe(before.body.user.id);
   expect(after.body.workspaces).toHaveLength(1);
-  await app.open("/#/app/my-documents");
-  await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
+  expect(created.body.organization.id).toBe(after.body.workspaces[0].id);
+
+  await setRecipientStudioMembershipFixture(true);
+  try {
+    await browser.evaluate(() => { location.hash = "/app/my-documents"; return true; });
+    await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
+    await screen.getByRole("link", "Utiliser Guteneo").tap();
+    await screen.getByRole("button", "Nouveau partage").tap();
+    await screen.getByLabel("Atelier actif").selectOption({ value: "org_studio" });
+    const [selectedResponse] = await Promise.all([
+      browser.waitForResponse("**/api/personal/workspace/select"),
+      screen.getByRole("button", "Ouvrir mon atelier").tap(),
+    ]);
+    expect(selectedResponse.status).toBe(200);
+    await expect(browser).toHaveURL("http://localhost:8787/#/app/secure-distributions/new");
+    await expect(screen.getByRole("heading", "Nouveau partage sécurisé")).toBeVisible();
+    const selected = await localApi<{
+      user: { id: string; role: string };
+      organization: { id: string };
+    }>(browser, "/api/session");
+    expect(selected.status).toBe(200);
+    expect(selected.body.user.id).toBe(before.body.user.id);
+    expect(selected.body.organization.id).toBe("org_studio");
+    expect(selected.body.user.role).toBe("member");
+    await browser.evaluate(() => { location.hash = "/app/account"; return true; });
+    await expect(screen.getByLabel("Nom de l’atelier")).toHaveValue("Studio Papier · Simulation");
+    await expect(screen.getByLabel("Nom de l’atelier")).toBeDisabled();
+    await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après sélection");
+    const [selectedProfile] = await Promise.all([
+      browser.waitForResponse("**/api/account"),
+      screen.getByRole("button", "Enregistrer les modifications").tap(),
+    ]);
+    expect(selectedProfile.status).toBe(200);
+    await expect(screen.getByText("Votre profil a été enregistré.")).toBeVisible();
+    await browser.evaluate(() => { location.hash = "/app/my-documents"; return true; });
+    await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
+  } finally {
+    await setRecipientStudioMembershipFixture(false);
+  }
 });
 
 test("personal account authority never grants access to the sending workshop", async ({

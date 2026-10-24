@@ -38,7 +38,9 @@ INSERT OR IGNORE INTO memberships(organization_id,user_id,role,created_at) SELEC
 DELETE FROM browser_sessions WHERE user_id IN ('user_recipient','user_other_recipient') AND organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND name='Atelier personnel de test');
 DELETE FROM personal_http_limits WHERE user_id IN ('user_recipient','user_other_recipient');
 DELETE FROM personal_workspace_creations WHERE user_id IN ('user_recipient','user_other_recipient') AND organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND name='Atelier personnel de test');
-DELETE FROM memberships WHERE user_id IN ('user_recipient','user_other_recipient') AND organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND name='Atelier personnel de test')`,
+DELETE FROM memberships WHERE user_id IN ('user_recipient','user_other_recipient') AND organization_id IN (SELECT id FROM organizations WHERE mode='simulation' AND name='Atelier personnel de test');
+DELETE FROM browser_sessions WHERE user_id='user_recipient' AND organization_id IN (SELECT id FROM organizations WHERE id='org_studio' AND mode='simulation' AND name='Studio Papier · Simulation');
+DELETE FROM memberships WHERE user_id='user_recipient' AND role='member' AND organization_id IN (SELECT id FROM organizations WHERE id='org_studio' AND mode='simulation' AND name='Studio Papier · Simulation')`,
       ],
       {
         cwd: fileURLToPath(new URL("../../", import.meta.url)),
@@ -48,6 +50,33 @@ DELETE FROM memberships WHERE user_id IN ('user_recipient','user_other_recipient
           WRANGLER_SEND_METRICS: "false",
           WRANGLER_WRITE_LOGS: "false",
         },
+      },
+    ),
+  );
+}
+
+/** Grant only this fictional recipient operator membership in the seeded studio. */
+export async function setRecipientStudioMembershipFixture(enabled: boolean) {
+  const state = process.env.GUTENEO_DISTRIBUTION_E2E_STATE;
+  if (!state || !/^\.wrangler\/distribution-e2e-[a-f0-9-]{36}$/u.test(state))
+    throw new Error("The browser fixture requires the isolated test database.");
+  await resetLocalFixtures((timeout) =>
+    run(
+      process.execPath,
+      [
+        fileURLToPath(new URL("../../node_modules/wrangler/bin/wrangler.js", import.meta.url)),
+        "d1", "execute", "guteneo-local", "--local", "--persist-to", state,
+        "--command",
+        enabled
+          ? `INSERT OR IGNORE INTO memberships(organization_id,user_id,role,created_at)
+SELECT id,'user_recipient','member',strftime('%Y-%m-%dT%H:%M:%fZ','now') FROM organizations WHERE id='org_studio' AND mode='simulation' AND name='Studio Papier · Simulation'`
+          : `DELETE FROM browser_sessions WHERE user_id='user_recipient' AND organization_id IN (SELECT id FROM organizations WHERE id='org_studio' AND mode='simulation' AND name='Studio Papier · Simulation');
+DELETE FROM memberships WHERE user_id='user_recipient' AND role='member' AND organization_id IN (SELECT id FROM organizations WHERE id='org_studio' AND mode='simulation' AND name='Studio Papier · Simulation')`,
+      ],
+      {
+        cwd: fileURLToPath(new URL("../../", import.meta.url)),
+        timeout,
+        env: { ...process.env, WRANGLER_SEND_METRICS: "false", WRANGLER_WRITE_LOGS: "false" },
       },
     ),
   );

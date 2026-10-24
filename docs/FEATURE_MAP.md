@@ -129,7 +129,7 @@ Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/a
 - Après vérification exacte des deux jetons, même sujet rattaché au namespace canonique ; aucune liaison par e-mail ni duplication de compte, atelier, crédit ou autorité ; evidence navigateur et restriction prepare_only conservées
 - Compte Guteneo unique sans atelier automatique ; création idempotente et administrateur initial seulement lors d’un usage explicite
 - Principal personnel et session navigateur sans membership, garde séparée de l’API atelier ; nom/langue communs et aucune fusion d’identités par email
-- Mes documents, Utiliser Guteneo et Compte et sécurité partagent la même connexion ; choix ou création d’atelier au premier usage d’envoi
+- Mes documents, Utiliser Guteneo et Compte et sécurité partagent la même connexion ; choix ou création d’atelier au premier usage d’envoi, puis rechargement réel de la destination choisie et bootstrap de la session, des droits et du CSRF courants de cet atelier
 - Politique documentaire strong par défaut ou verified_account explicite : compte/adresse vérifiés et auth_time signé récent, 15 minutes pour lecture/association/approbation et 5 pour export/dépôt/suppression ; aucune MFA inventée, documentAccessAllowed/documentAccessMode distincts de strongAuthentication ; défaut D1 strong et désaccord environnement/D1 fermé
 - Invitation documentaire transférée au plus dix minutes dans le même onglet puis supprimée ; capture avant Auth0 et returnTo sans secret, recherche ni paramètre privé arbitraire
 - Refus documentaire 401 avec reprise explicite sans boucle de bootstrap ; récupération Auth0, langue et identité réconciliées après retour
@@ -830,9 +830,9 @@ Référence : [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md)
 
 **Acteur :** Propriétaire d’un compte Guteneo, avec zéro ou plusieurs memberships. **Branche :** Navigation personnelle vers atelier ; aucune seconde inscription ni compte expéditeur distinct.
 
-Mes documents reste l’entrée centrée sur la réception → ouvrir Utiliser Guteneo volontairement → choisir Préparer un envoi ou Nouveau partage → sélectionner une membership courante ou demander son atelier initial → création idempotente, administrateur initial et canaux fermés → continuer la préparation sous les droits métier normaux, avec le même nom, langue et identité.
+Mes documents reste l’entrée centrée sur la réception → ouvrir Utiliser Guteneo volontairement → choisir Préparer un envoi ou Nouveau partage → sélectionner une membership courante ou demander son atelier initial → création idempotente, administrateur initial et canaux fermés → recharger le document sur la destination choisie et relire session, atelier, droits et CSRF serveur → continuer la préparation sous les droits métier normaux, avec le même nom, langue et identité. Régression locale : création administrateur puis sélection d’un autre atelier comme opérateur, écran réel et modification de profil via UI dans chaque contexte.
 
-**Blocage / reprise :** Recevoir n’autorise jamais à entrer chez l’expéditeur ; un organizationId sans membership est refusé. Aucun achat, abonnement, ciblage selon contenu ou email marketing n’est déduit de l’inscription. L’accès aux documents promis continue sans conversion commerciale.
+**Blocage / reprise :** Recevoir n’autorise jamais à entrer chez l’expéditeur ; un organizationId sans membership est refusé. Échec de création/sélection : erreur visible dans l’espace personnel, sans navigation ni faux changement d’atelier. Après succès, aucune session ou autorité de l’atelier précédent n’est conservée dans Application. Aucun achat, abonnement, ciblage selon contenu ou email marketing n’est déduit de l’inscription. L’accès aux documents promis continue sans conversion commerciale.
 
 Référence : [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md).
 

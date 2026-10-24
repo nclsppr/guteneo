@@ -8,6 +8,11 @@ quatre rôles ci-dessous. « Destinataire » n’est pas un cinquième rôle hum
 Le même compte peut consulter ses documents et, volontairement, créer ou choisir
 un atelier pour utiliser les services Guteneo. Il ne rejoint jamais l’atelier
 expéditeur par le seul fait de recevoir son invitation documentaire.
+Après création ou sélection volontaire, le navigateur recharge la destination
+choisie et la session de cet atelier ; les droits courants et le jeton CSRF sont
+relus ensemble avant toute opération métier. La régression navigateur vérifie
+la création administrateur puis la sélection d’un autre atelier comme opérateur,
+avec une modification de profil réelle dans chaque contexte.
 
 La politique documentaire est indépendante du rôle : `strong` par défaut,
 `verified_account` seulement par choix explicite. Le profil live demandé utilise

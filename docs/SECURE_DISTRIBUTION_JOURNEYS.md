@@ -198,7 +198,11 @@ La langue de compte reste commune au reste de Guteneo.
 préparer un envoi ou partager à son tour, choisir un atelier auquel elle
 appartient ou demander son premier atelier. Le serveur crée alors les
 structures métier nécessaires, en ferme les canaux réels et attribue le rôle
-d’administrateur au créateur. Une tentative de choisir l’atelier expéditeur
+d’administrateur au créateur. Après création ou sélection, l’application recharge
+le document sur la préparation choisie et relit la session atelier : identité,
+droits et jeton CSRF proviennent tous de la nouvelle session serveur, sans
+conserver l’ancien contexte d’atelier. Un échec serveur reste visible dans
+l’espace personnel. Une tentative de choisir l’atelier expéditeur
 sans membership est refusée. Aucun nouvel identifiant de connexion, abonnement
 imposé ou consentement marketing n’est déduit de la réception.
 
