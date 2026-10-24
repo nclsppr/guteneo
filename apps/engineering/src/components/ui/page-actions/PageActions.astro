@@ -22,7 +22,7 @@ const baseBtn =
 const extra = Astro.slots.has("default") ? (await Astro.slots.render("default")).trim() : "";
 
 const formattedDate = lastUpdated
-  ? new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(lastUpdated)
+  ? new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "numeric" }).format(lastUpdated)
   : null;
 ---
 
