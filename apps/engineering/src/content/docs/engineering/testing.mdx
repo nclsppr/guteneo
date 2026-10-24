@@ -97,6 +97,21 @@ and real delivery each need their own observation. Read-only checks cannot prove
 an unperformed send. A build, a package archive or an integration catalog entry
 does not publish or activate a capability.
 
+## Public monitoring separates transport from stored evidence
+
+The scheduled public monitor requests `Accept-Encoding: identity` and
+`Cache-Control: no-transform` only for fixed canonical public paths. Headers are
+requests, not representation proof: the collector still checks received decoded
+byte count and SHA-256 against the release manifest. A failed observation is not
+replaced by automatic retries.
+
+Bounded diagnostics expose only public-path size/hash/encoding or an allowed
+authority, OIDC or ingestion stage, HTTP status and response code. They remain
+outside the signed report and reveal no token, OIDC URL or upstream body. An
+artifact saved before publication does not prove ingestion succeeded. Runner
+revision, observed product revision, actual report storage and authenticated
+business qualification remain separate evidence.
+
 ## Report a result that another engineer can assess
 
 Record the source revision or explicit tested snapshot, environment, suite scope,

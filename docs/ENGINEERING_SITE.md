@@ -25,7 +25,7 @@ pages must not add another H1 or duplicate page introductions in callouts.
 | Site configuration, Nimbus layout and navigation | `apps/engineering/astro.config.ts`, `src/content.config.ts`, `src/layouts/`, `src/styles/` and `src/components.ts` |
 | Publication contract and authored explanations | This document and `apps/engineering/src/content/docs/`, excluding generated `features/` |
 | Technical diagram facts, SVGs and Mermaid sources | `apps/engineering/src/components/diagrams/`, with published assets under `public/illustrations/` |
-| Gutenberg editorial images and reusable notes | `apps/engineering/public/gutenberg/` and `src/components/GutenbergNote.astro` |
+| Gutenberg editorial images and reusable notes | `apps/engineering/public/gutenberg/`, `src/components/GutenbergNote.astro` and route-scoped `src/components/GutenbergScene.astro`; private scene masters/provenance under `assets/engineering/scenes/` |
 | Feature publication | `docs/feature-map.json` and `scripts/build-engineering-content.mjs`; generated pages are not hand-authored |
 | Build and release validation | `scripts/build-engineering.mjs`, `engineering-release.mjs`, `deploy-engineering.mjs`, `verify-engineering.mjs` and the required CI checks |
 
@@ -163,6 +163,24 @@ The homepage links these subjects directly; Architecture and Engineering
 navigation expose the corresponding pages. Repository decision records remain
 internal. They are excluded from the public site at the user's request.
 
+## Character scenes and notes
+
+Retain the small Gutenberg character notes based on the approved video reference
+`videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png`.
+Three additional wide scenes introduce PDF diagnostics (doctor), the diagram
+gallery (architect) and the feature tree (archivist). `GutenbergScene.astro` owns
+only those route placements and responsive 720/1440-pixel exports under
+`public/gutenberg/scenes/`. Private PNG masters and provenance remain in
+`assets/engineering/scenes/`; they are not copied into published documentation.
+
+These character scenes replace the experimental city panoramas and miniature
+blue stamp notes. The approved transparent header portrait, stamp-only white
+paper and ivory dark-mode wordmark remain separate. The authoritative
+[brand contract](BRAND_IDENTITY.md) owns that distinction. Decorative character
+art does not replace technical SVG/Mermaid explanations or readable instructions.
+Rendered phone, dark-mode, Markdown, image and public-output checks must cover the
+final scene placement; earlier artwork acceptance does not qualify these assets.
+
 ## Publication and verification boundaries
 
 The engineering deployment is a static documentation surface with no D1, R2,
@@ -245,6 +263,14 @@ separates main application release from private-service/provider qualification.
 Every affected CI, cloud, service, tariff, design, AI, locale, accessibility or
 video change updates its source contract, feature node and authored engineering
 guide in the same change. The repository standards and CI guard own this rule.
+
+PR 75 is reconciled from main `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef`:
+public monitor identity/no-transform requests retain strict received-byte/SHA
+comparison; bounded publication diagnostics stay outside the unchanged signed
+report. Detailed dated run/Worker IDs remain in repository observation records.
+The authored testing guide explains why a saved artifact cannot prove ingestion.
+The three new character scenes and small original character notes likewise need
+fresh final-output and browser review after their source stabilizes.
 
 **All results below precede this reconciliation.** New source coverage, generated
 views, English review, build, public-output/link/fragment audit, browser behavior,

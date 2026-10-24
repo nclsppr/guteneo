@@ -71,6 +71,14 @@ inconsistent contract and unauthorized link). These are synthetic UI responses.
 Executed hosted workflow, OIDC ingestion, status publication and the first real
 report read remain separate, unestablished evidence.
 
+The first hosted run on 24 October, `40128432279` attempt 1, passed 21/28 checks
+and failed overall; ingestion is unqualified. All fourteen browser checks passed,
+while seven page comparisons failed on received size. The diagnostic candidate
+requests an untransformed representation in Node, preserves strict size/SHA
+checks, and distinguishes OIDC/ingestion refusals without logging secrets. The
+Worker, Cron probes and OIDC authority remain unchanged. See
+[the detailed observation and its limits](PRODUCTION_BROWSER_MONITOR.md).
+
 ## History and interpretation
 
 Service view shows public monitoring, freshness, three check groups and history.

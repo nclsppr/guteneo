@@ -9,6 +9,7 @@ import Icon from "@cloudflare/nimbus-docs/components/Icon.astro";
 import BaseLayout from "./BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import Logo from "@/components/Logo.astro";
+import GutenbergScene from "@/components/GutenbergScene.astro";
 import { config } from "virtual:nimbus/config";
 import { Banner } from "@/components/ui/banner";
 import { Sidebar, SidebarFilter } from "@/components/ui/sidebar";
@@ -250,6 +251,7 @@ const showToc = headings !== false && (hasToc || headings.length > 0);
                     {!description && !markdownUrl && audience !== "human" && <div class="mb-4" />}
                   </Fragment>
                 )}
+                <GutenbergScene />
                 <article class="docs-content max-w-none">
                   <slot />
                 </article>

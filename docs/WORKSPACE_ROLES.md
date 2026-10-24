@@ -301,3 +301,9 @@ document, approval or collector-administration authority and starts no tests fro
 public routes. Its Worker has no business binding and accepts no client identity
 or dispatch ID. Decorative effects are page-local. See [STATUS_SERVICE.md](STATUS_SERVICE.md)
 and atlas journey J20.
+
+Journey J30 adds anonymous browser reports. Only the authorized GitHub main
+workflow can submit its OIDC-bound report; no human role or assistant acquires
+this authority through membership. Driver diagnostics are restricted to public
+paths/hashes and allowed publication codes. A local artifact or failed ingestion
+cannot establish stored-report success or qualified business coverage.

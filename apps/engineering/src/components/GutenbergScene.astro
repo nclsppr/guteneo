@@ -1,0 +1,108 @@
+---
+const scenes: Record<string, { image: string; caption: string }> = {
+  "/workflows/pdf-diagnostics/": {
+    image: "pdf-diagnostics",
+    caption: "Even PDFs deserve a check-up.",
+  },
+  "/architecture/diagrams/": {
+    image: "diagram-workshop",
+    caption: "A good plan saves a lot of paper.",
+  },
+  "/features/": {
+    image: "feature-archive",
+    caption: "A place for every feature. Even that one.",
+  },
+};
+const scene = scenes[Astro.url.pathname];
+---
+
+{scene && (
+  <figure class="gutenberg-scene" data-nb-zoom="off" data-pagefind-ignore aria-hidden="true">
+    <div class="scene-print">
+      <img
+        src={`/gutenberg/scenes/${scene.image}-1440.webp`}
+        srcset={`/gutenberg/scenes/${scene.image}-720.webp 720w, /gutenberg/scenes/${scene.image}-1440.webp 1440w`}
+        sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1279px) 60vw, 720px"
+        width="1440"
+        height="480"
+        alt=""
+        decoding="async"
+      />
+    </div>
+    <figcaption>{scene.caption}</figcaption>
+  </figure>
+)}
+
+<style>
+  .gutenberg-scene {
+    position: relative;
+    margin: 0 0 2rem;
+  }
+
+  .scene-print {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--nb-border);
+    border-radius: var(--nb-radius-sm);
+    background: var(--paper);
+  }
+
+  .scene-print::before,
+  .scene-print::after {
+    position: absolute;
+    z-index: 1;
+    content: "";
+    width: 0.625rem;
+    height: 0.625rem;
+    border-color: var(--cobalt);
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  .scene-print::before {
+    top: 0.5rem;
+    left: 0.5rem;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    color: var(--cobalt);
+  }
+
+  .scene-print::after {
+    right: 0.5rem;
+    bottom: 0.5rem;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    color: var(--cobalt);
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 1;
+    object-fit: cover;
+  }
+
+  figcaption {
+    margin-top: 0.625rem;
+    color: var(--nb-muted-foreground);
+    font-family: var(--nb-font-display);
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.4;
+    text-align: right;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 40rem) {
+    img {
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-position: center;
+    }
+
+    figcaption {
+      text-align: left;
+    }
+  }
+</style>

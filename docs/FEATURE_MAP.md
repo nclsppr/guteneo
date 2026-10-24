@@ -885,14 +885,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Branded footer and bounded seasonal decoration, optional and respecting reduced motion
 - English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports
 - Dedicated release from clean main with source checks, manifest and status-only D1 migrations
-- Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations
+- Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report
 - Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability
-- Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret
+- Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret; failures expose only the allowed stage, HTTP status and response code, never OIDC URLs or free-form upstream errors
 - Authenticated distribution/receipt stays To qualify until dedicated accounts and the real journey under the active document policy are qualified; public journeys establish no delivery or personal coverage
 
 **Contract:** [STATUS_SERVICE.md](STATUS_SERVICE.md) · **Implementation:** [apps/status/worker.ts](../apps/status/worker.ts)
 
-**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts)
+**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts), [tests/unit/production-e2e-runtime.test.ts](../tests/unit/production-e2e-runtime.test.ts)
 
 
 
@@ -901,13 +901,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** public. Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.
 
-**Surfaces:** Public static engineering documentation; no business API or authentication surface.
+**Surfaces:** Public static engineering documentation with responsive 720/1440-pixel character-scene exports and small explanatory notes; no business API or authentication surface.
 
 - Dedicated engineering.guteneo.com reading surface built with Cloudflare Nimbus; customer documentation retains docs.guteneo.com
 - Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes
 - Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
 - Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
-- Approved Gutenberg character identity, restrained printshop details and reduced-motion support; transparent header branding with ink-black lettering in light mode and explicitly approved ivory lettering in dark mode
+- Approved video Gutenberg character identity in small explanatory notes and three wide scenes: doctor for PDF diagnostics, architect for diagrams and archivist for the feature tree; no city panoramas or miniature stamp notes; transparent header branding keeps ink-black light-mode and approved ivory dark-mode lettering, with reduced-motion support
 - Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority
 - Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
 - Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
@@ -1216,9 +1216,9 @@ Start in My documents → voluntarily open Use Guteneo → choose Prepare a disp
 
 **Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership. **Branch:** Public status → browser report → version and freshness.
 
-Scheduled/manual main workflow → twenty-eight fixed public checks without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
+Scheduled/manual main workflow → twenty-eight fixed public checks with Node identity/no-transform requests and strict received-size/SHA comparison, without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
 
-**Failure/recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery.
+**Failure/recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery. Failure diagnostics are bounded to HTTP/OIDC/ingestion stages and allowed codes outside the signed body. No silent retry replaces a failed observation; an artifact written before ingestion does not prove the report was stored.
 
 [Detailed contract](STATUS_SERVICE.md).
 

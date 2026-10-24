@@ -97,6 +97,19 @@ html {
   padding-bottom: 0.25rem;
 }
 
+/* A short printer's rule introduces each page without competing with its title. */
+[data-slot="page-header"]::before {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  margin-bottom: 0.875rem;
+  border-top: 2px solid var(--nb-brand);
+}
+
+[data-nb-sidebar] a[aria-current="page"] {
+  box-shadow: inset 2px 0 0 var(--nb-brand);
+}
+
 [data-slot="page-header"] h1,
 .docs-content :where(h1:not([class]), h2:not([class])) {
   font-family: var(--nb-font-display);

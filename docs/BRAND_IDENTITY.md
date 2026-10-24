@@ -47,6 +47,22 @@ character. Do not require those banners or stamp variants on new pages. Preserve
 the official header/footer assets and the approved film ending; explanatory
 technical diagrams retain their own facts and readable alternatives.
 
+The user additionally requested three wide documentation headers featuring this
+same character: a doctor examining a PDF on `/workflows/pdf-diagnostics/`, an
+architect at the diagram workbench on `/architecture/diagrams/`, and an archivist
+organizing the feature tree on `/features/`. These are character scenes, not city
+panoramas or miniature postage stamps. Retain the original small character notes
+as concise explanatory companions, without repeating an illustration everywhere.
+
+`apps/engineering/src/components/GutenbergScene.astro` owns the three route
+placements. Optimized responsive exports are
+`apps/engineering/public/gutenberg/scenes/{pdf-diagnostics,diagram-workshop,feature-archive}-{720,1440}.webp`.
+PNG masters and generation/reference provenance stay under
+`assets/engineering/scenes/`, outside public output. The images decorate the
+reading experience; technical instructions, diagnoses, diagram facts and feature
+coverage remain readable HTML/Markdown, never facts contained only in pictures.
+Keep source image roles, responsive dimensions and reduced-motion behavior intact.
+
 A standalone promotional card carries **one signature**: `guteneo` or
 `guteneo.com`. Do not combine the wordmark with a second `guteneo.com`.
 Sharing cards use one `guteneo.com` signature with the portrait without text.

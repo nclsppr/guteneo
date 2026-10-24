@@ -245,9 +245,9 @@ Start in My documents → voluntarily open Use Guteneo → choose Prepare a disp
 
 **Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership · **Branch:** Public status → browser report → version and freshness
 
-Scheduled/manual main workflow → twenty-eight fixed public checks without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
+Scheduled/manual main workflow → twenty-eight fixed public checks with Node identity/no-transform requests and strict received-size/SHA comparison, without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
 
-**Failure and recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery.
+**Failure and recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery. Failure diagnostics are bounded to HTTP/OIDC/ingestion stages and allowed codes outside the signed body. No silent retry replaces a failed observation; an artifact written before ingestion does not prove the report was stored.
 
 ## J31: Understand and change a feature
 

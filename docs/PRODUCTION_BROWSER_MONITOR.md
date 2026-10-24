@@ -21,6 +21,15 @@ Each report contains exactly **28 checks**. The driver reads the served version
 before and after the journey. A version change during execution produces an
 unknown result. Missing results never become successes.
 
+For these fixed destinations only, the Node driver requests
+`Accept-Encoding: identity` and `Cache-Control: no-transform`. The collector still
+compares received bytes and SHA-256 with the manifest: ignoring headers,
+transforming a page or serving a variant cannot make a mismatch pass. No automatic
+second attempt replaces a failed observation. On size/hash mismatch, CI logs
+contain only a fixed public path, expected/observed sizes and hashes, and an
+allowlisted encoding label. Response encoding is distinct from the decoded bytes
+observed by Node. Diagnostics remain outside the unchanged signed-report schema.
+
 The engine rejects HTTP mutations, authentication, external destinations, and
 resources outside the fixed public page/asset list. It clicks no business
 button. It triggers no email, fax, postal mail, purchase, quotation, import,
@@ -61,6 +70,40 @@ account name, recipient, content, screenshot, or session state.
 
 Policy reference: [GitHub OpenID Connect reference](https://docs.github.com/en/actions/reference/security/oidc).
 Repository IDs were reread through the GitHub API on 24 October 2026.
+
+A publication refusal remains failure. Diagnostics distinguish authorization
+context, OIDC acquisition and ingestion, with an HTTP status and explicitly
+allowlisted server code; every other response becomes `UNKNOWN`. Response reads
+are byte-bounded and have a five-second deadline. Free-form errors, OIDC URLs,
+JWTs, headers and upstream bodies are never printed. An artifact saved before
+ingestion does not prove status stored the report.
+
+## First hosted observation — 24 October 2026
+
+Status Worker `b0d2ed61-227c-47d3-8f09-57b0545fb568` was published from
+`4f033e2f233ee2960a579eef839191531e6f8b8d`, with twenty public files and header
+configuration verified. GitHub run
+[`40128432279`, attempt 1](https://github.com/nclsppr/guteneo/actions/runs/40128432279)
+failed overall: fourteen browser checks passed and seven HTTP page comparisons
+reported `CONTENT_LENGTH_MISMATCH`, for **21/28 passing checks**. Sanitized report
+SHA-256 was `ee8159896ada1b413a9e37d3c3d31bb511cba8b8da220ec47c2ca0fa167a9daf`.
+Ingestion was not qualified; `latest` was null after that attempt. The exact
+collector and encoding variants later passed on the Mac, which does not prove
+the cause of the GitHub runner mismatch. The transport/diagnostic correction
+requires a new authorized execution after review/CI; no production success is
+inferred.
+
+Local correction qualification: **117 targeted passing cases** (36 ingestion/
+publication, 51 collector/history and 30 transport/privacy/deadlines), nine status
+release-path cases, typecheck, scoped lint and generated atlas. A public Mac read
+using the new transport passes 14/14 HTTP checks against application `4f033e2`;
+it is neither another GitHub attempt nor hosted-ingestion proof. Tests also
+simulate complete ingestion of an `attention` report with seven discrepancies,
+using an audience bound to that exact body.
+
+These observations belong to their recorded source. PR 75's merge into main
+`1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` and its later reconciliation with this
+engineering candidate do not retroactively qualify another run or publication.
 
 ## Public reads and retention
 
