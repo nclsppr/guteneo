@@ -10,6 +10,8 @@ Le rattachement d'identité conserve `(issuer, subject)`. Une égalité d'adress
 
 Le contrôle de contenu exige une preuve signée de méthode réellement utilisée : claim `https://guteneo.com/document_authentication`, politique `guteneo-sensitive-v1`, méthode `webauthn_uv` ou `qualified_federation`, date de la cérémonie réellement réussie comprise entre le `auth_time` primaire et le `iat` signés. La fraîcheur de session est calculée depuis le `auth_time` primaire, ce qui garde une borne conservatrice. La fraîcheur maximale est de quinze minutes, ramenée à cinq minutes pour export original, remise personnelle et suppression personnelle. Un ancien booléen MFA ou une passkey simplement enregistrée ne suffisent pas. L'émetteur et la récupération de cette preuve doivent encore être qualifiés sur le tenant réel ; son absence refuse l'accès.
 
+Reprise du 24 octobre : le développement de la distribution et de **Mes documents** continue ; le choix et l'intégration des passkeys sont explicitement différés. Aucune solution d'authentification supplémentaire n'est sélectionnée ou activée par cette reprise. Les gardes de contenu et d'approbation restent obligatoires ; les parcours locaux utilisent seulement leurs identités fictives dans la simulation isolée.
+
 La revue et l'approbation de distribution sont exclusivement humaines dans le navigateur. La migration 0057 lie l'approbation au document, à son empreinte, à l'approbateur et à sa session forte effective. Les anciennes routes REST/MCP, mandats experts et mises en file passent les mêmes gardes. Un assistant peut préparer et confirmer une préparation déjà approuvée ; il ne peut ni approuver celle-ci ni confirmer l'association d'un destinataire.
 
 Les documents sources employés par cette nouvelle distribution sont réservés à leur créateur et aux approbateurs actuels de l'atelier, avec les restrictions privées existantes. Leur contenu et leur revue passent aussi par la garde de session forte. Cela ne qualifie pas rétroactivement tous les anciens documents du produit. Une source doit être dédiée à ce parcours : les anciens liens protégés encore valides doivent être révoqués ; une source déjà référencée par un envoi ordinaire, une préparation fournisseur, une analyse postale ou une dérivation postale ne peut être classée sensible. Inversement, une source sensible ne retourne plus dans ces anciens parcours. Les gardes applicatives et SQL dans les deux directions ferment aussi les courses de préparation asynchrone. La migration ne retire aucune copie déjà transmise ou téléchargée auparavant.
@@ -58,8 +60,29 @@ Avant production : qualifier les appareils et la récupération Auth0, le corpus
 
 ## Preuves locales du 24 octobre
 
+La reprise d’interface passe 23 tests du service documentaire et huit tests de
+rendu, dont l’explication des droits dans les quatre langues. Le run TesterArmy
+`01a16ebe-ca29-7ebc-a2f1-7d13fc31deea` passe 14/14 en 108,73 secondes, sans
+omission, flaky, appel de modèle ou nouvelle construction concurrente. Les deux
+cibles exercent annulation puis suppression personnelle, refus de page/texte/export,
+confidentialité du journal atelier, engagement inchangé et retrait des métadonnées
+après refus de pagination 401 et 403. Code applicatif et 190 fichiers construits
+restent inchangés ; les contrôles de secrets dans stdout et les artefacts passent.
+Six régressions de navigation passent dans Chromium ordinateur/mobile et WebKit
+iPhone ; douze tests d’entrée de connexion passent sur Chromium ordinateur.
+Le build/dry run, TypeScript, ESLint et l’atlas de 252 fonctionnalités passent.
+
+Le premier run enrichi (13/14) échouait sur un sélecteur de test ambigu entre menu
+et lien de retour ; son rapport et son contrôle de confidentialité sont conservés.
+La première suite de connexion (11/12), puis sa reproduction isolée, échouaient
+pendant le démontage de la fixture avec des proxies statiques encore en vol.
+Le drainage borné corrige ce défaut sans ignorer les erreurs ni retirer les
+assertions ; les runs corrigés restent distincts. Les tests de rendu ne prouvent
+pas l’interaction de remplacement d’un candidat d’association : ce cas n’a pas
+été substitué à la vraie association du cycle complet.
+
 Le candidat `d942fa9` passe la régression complète : 119 fichiers Vitest, 2 305 cas et 355 contrôles Node, sans échec ni omission. Les 24 nouvelles régressions sur les anciens parcours font partie de ce total. Les 58 migrations passent aussi la comparaison locale de schéma transporté, avec contrôle d'intégrité positif et aucune violation de clé étrangère. Le catalogue MCP vérifie ses 72 outils ; build, typecheck et lint passent.
 
 La reprise sur `ac795d0` conserve la correction de déconnexion et les erreurs HTTP publiques : 148 cas unitaires concernés et douze cas navigateur desktop passent. Le journal de [la PR 74](https://github.com/nclsppr/guteneo/pull/74) porte la dernière preuve e2e isolée et les contrôles GitHub du commit exact. Deux relances e2e locales interrompues pendant une reconstruction concurrente des assets restent conservées comme échecs, sans être transformées en succès. La CI utilise un job de distribution isolé.
 
-Une observation anonyme réelle a passé 28 contrôles publics ; elle n'a publié aucun rapport GitHub. Les [comptes de recette](PRODUCTION_TEST_ACCOUNTS.md) et leurs deux Actions Auth0 proposées restent non activés : aucune preuve forte documentaire n'est actuellement émise par les Actions inspectées et la lecture Guardian exige encore le privilège approprié. Une observation publique, une simulation et une connexion forte réellement qualifiée restent trois preuves distinctes.
+Une observation anonyme réelle a passé 28 contrôles publics ; elle n'a publié aucun rapport GitHub. Les [comptes de recette](PRODUCTION_TEST_ACCOUNTS.md) et leurs deux Actions Auth0 proposées restent non activés : aucune preuve forte documentaire n'est actuellement émise par les Actions inspectées. Le choix de la méthode forte et les tests de production connectés restent différés. Une observation publique, une simulation et une connexion forte réellement qualifiée restent trois preuves distinctes.

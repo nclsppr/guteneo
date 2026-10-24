@@ -1,4 +1,9 @@
 {
+  "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.": [
+    "The personal copy can be exported, even when downloading the original PDF is disabled.",
+    "Die persönliche Kopie kann exportiert werden, auch wenn das Herunterladen des Original-PDFs deaktiviert ist.",
+    "Déi perséinlech Kopie kann exportéiert ginn, och wann d’Erofluede vum Original-PDF desaktivéiert ass."
+  ],
   "Mes documents": ["My documents", "Meine Dokumente", "Meng Dokumenter"],
   "Espace personnel": [
     "Personal space",

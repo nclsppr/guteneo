@@ -207,41 +207,65 @@ function PersonalDocumentList({
   const [version, setVersion] = useState(0);
   const [searchInput, setSearchInput] = useState(search);
   const more = useAction();
+  const clearPaginationError = more.clear;
+  const paginationGeneration = useRef(0);
   const params = new URLSearchParams({ kind });
   if (search) params.set("q", search);
   const listPath = `/personal/documents?${params.toString()}`;
   useEffect(() => {
     const controller = new AbortController();
+    paginationGeneration.current += 1;
     setLoading(true);
     setError(undefined);
+    clearPaginationError();
     personalApi<{ items: PersonalDocumentItem[]; nextCursor: string | null }>(
       listPath,
       session,
       { signal: controller.signal },
     )
       .then((response) => {
+        if (controller.signal.aborted) return;
         setItems(response.items);
         setNextCursor(response.nextCursor);
       })
       .catch((cause: unknown) => {
         if (controller.signal.aborted) return;
+        if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
+          setItems(undefined);
+          setNextCursor(null);
+        }
         setError(cause as Error);
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
-    return () => controller.abort();
-  }, [session, version, listPath, onSessionInvalid]);
+    return () => {
+      controller.abort();
+      paginationGeneration.current += 1;
+    };
+  }, [session, version, listPath, onSessionInvalid, clearPaginationError]);
+  const listError = error ?? more.error;
   const visibleItems = items?.filter((item) => item.kind === kind);
   async function loadMore() {
     if (!nextCursor) return;
+    const generation = paginationGeneration.current;
     await more.run(async () => {
-      const next = await personalApi<{
-        items: PersonalDocumentItem[];
-        nextCursor: string | null;
-      }>(`${listPath}&cursor=${encodeURIComponent(nextCursor)}`, session);
-      setItems((previous) => [...(previous ?? []), ...next.items]);
-      setNextCursor(next.nextCursor);
+      try {
+        const next = await personalApi<{
+          items: PersonalDocumentItem[];
+          nextCursor: string | null;
+        }>(`${listPath}&cursor=${encodeURIComponent(nextCursor)}`, session);
+        if (generation !== paginationGeneration.current) return;
+        setItems((previous) => [...(previous ?? []), ...next.items]);
+        setNextCursor(next.nextCursor);
+      } catch (cause) {
+        if (generation !== paginationGeneration.current) return;
+        if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
+          setItems(undefined);
+          setNextCursor(null);
+        }
+        throw cause;
+      }
     });
   }
   return (
@@ -301,12 +325,12 @@ function PersonalDocumentList({
               "Ces copies vous ont été remises pour la durée indiquée. L’atelier ne peut plus les retirer.",
             )}
       </p>
-      {needsAuthentication(error) ? (
+      {needsAuthentication(listError) ? (
         <PersonalSecurityNotice />
       ) : (
-        <ErrorNotice error={error} retry={() => setVersion((n) => n + 1)} />
+        <ErrorNotice error={listError} retry={() => setVersion((n) => n + 1)} />
       )}
-      {error instanceof ApiError && error.status === 401 && (
+      {listError instanceof ApiError && listError.status === 401 && (
         <button className="button" type="button" onClick={onSessionInvalid}>
           {msg("Se connecter à mon compte")}
         </button>
@@ -347,7 +371,7 @@ function PersonalDocumentList({
           ))}
         </ul>
       ) : (
-        !error &&
+        !listError &&
         !loading &&
         !nextCursor && (
           <EmptyState
@@ -380,7 +404,6 @@ function PersonalDocumentList({
             : msg("Afficher les documents suivants")}
         </button>
       )}
-      <ErrorNotice error={more.error} />
     </div>
   );
 }

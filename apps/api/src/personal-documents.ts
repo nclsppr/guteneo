@@ -62,9 +62,9 @@ export class PersonalDocumentsService {
     }
     const row=await this.shared(principal,id,true),policy:SecureDistributionPolicy=JSON.parse(row.policy_json);
     const sender=await this.env.DB.prepare("SELECT name FROM organizations WHERE id=?").bind(row.organization_id).first<{name:string}>();
-    const deposited=await this.env.DB.prepare("SELECT id FROM secure_personal_documents WHERE user_id=? AND source_organization_id=? AND source_distribution_id=? AND status='active'").bind(principal.userId,row.organization_id,row.id).first<{id:string}>();
+    const deposited=await this.env.DB.prepare("SELECT id,status,expires_at FROM secure_personal_documents WHERE user_id=? AND source_organization_id=? AND source_distribution_id=?").bind(principal.userId,row.organization_id,row.id).first<{id:string;status:string;expires_at:string}>();
     const status=row.status==="revoked"?"revoked":!row.expires_at || row.expires_at<=now()?"expired":row.bound_at?"active":"pending";
-    return {id:row.id,kind:"shared",title:row.bound_at?row.source_name:"Document en attente de vérification",sender:sender?.name??"Atelier Guteneo",status,expiresAt:row.expires_at!,createdAt:row.activated_at!,allowOriginalDownload:policy.allowOriginalDownload,allowVaultDeposit:policy.allowVaultDeposit,...(deposited?{depositedDocumentId:deposited.id}:{})};
+    return {id:row.id,kind:"shared",title:row.bound_at?row.source_name:"Document en attente de vérification",sender:sender?.name??"Atelier Guteneo",status,expiresAt:row.expires_at!,createdAt:row.activated_at!,allowOriginalDownload:policy.allowOriginalDownload,allowVaultDeposit:policy.allowVaultDeposit&&!deposited,...(deposited?.status==="active"&&deposited.expires_at>now()?{depositedDocumentId:deposited.id}:{})};
   }
   async list(principal:PersonalPrincipal,query:{cursor?:string;limit?:number;kind?:"shared"|"personal";q?:string}={}) {
     await this.rate(principal);
@@ -166,7 +166,11 @@ export class PersonalDocumentsService {
     if(!policy.allowVaultDeposit)throw new DomainError("PERSONAL_COPY_FORBIDDEN","L’atelier n’a pas autorisé de copie personnelle.",403);
     const existing=await this.env.DB.prepare("SELECT id,status,expires_at FROM secure_personal_documents WHERE user_id=? AND source_organization_id=? AND source_distribution_id=?")
       .bind(principal.userId,row.organization_id,id).first<{id:string;status:string;expires_at:string}>();
-    if(existing)return {id:existing.id,status:existing.status,expiresAt:existing.expires_at};
+    if(existing) {
+      if(existing.status!=="active" || existing.expires_at<=now())
+        throw new DomainError("PERSONAL_COPY_UNAVAILABLE","La copie n’est plus disponible.",410);
+      return {id:existing.id,status:existing.status,expiresAt:existing.expires_at};
+    }
     const operationId=uid("deposit"),personalId=uid("pd"),time=now(),fence=sessionFence(principal,300);
     await this.env.DB.prepare(`INSERT INTO secure_deposit_operations(id,organization_id,distribution_id,user_id,personal_document_id,status,created_at,updated_at,lease_token,lease_expires_at,auth_session_hash)
       SELECT ?,?,?,?,?,'preparing',?,?,'',?,? WHERE ${fence.condition} ON CONFLICT(organization_id,distribution_id,user_id) DO NOTHING`)

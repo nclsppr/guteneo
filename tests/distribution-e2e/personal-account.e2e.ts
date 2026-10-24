@@ -198,39 +198,93 @@ test("an unavailable document session offers recovery without an automatic sign-
   browser,
 }) => {
   let documentReads = 0;
-  // Fault injection only: account authentication and every other API remain real.
+  let failureStatus: 401 | 403 = 401;
+  let authenticationRedirects = 0;
+  const privateTitle = "Document confidentiel du parcours de récupération";
+  const privateSender = "Atelier confidentiel du parcours de récupération";
+  await browser.route(/\/auth\/(?:login|signup)(?:\?|$)/u, async (route) => {
+    authenticationRedirects++;
+    await route.abort();
+  });
+  // List-only fault injection. Authentication and every other API remain real.
+  // A loaded synthetic row and cursor must disappear if the next page loses
+  // authorization; starting with an empty failed list would miss that defect.
   await browser.route(
     /\/api\/personal\/documents(?:\?.*)?$/u,
     async (route) => {
       documentReads++;
-      await route.fulfill({
-        status: 401,
-        json: {
-          error: {
-            code: "SESSION_EXPIRED",
-            message: "Session expirée. Reconnectez-vous.",
+      if (documentReads === 1) {
+        await route.fulfill({
+          json: {
+            items: [{
+              id: `sd_${"a".repeat(32)}`,
+              kind: "shared",
+              title: privateTitle,
+              sender: privateSender,
+              status: "active",
+              expiresAt: "2030-01-01T00:00:00.000Z",
+              createdAt: "2026-01-01T00:00:00.000Z",
+              allowOriginalDownload: false,
+              allowVaultDeposit: false,
+            }],
+            nextCursor: "fictional-recovery-next-page",
           },
-        },
-      });
+        });
+      } else {
+        await route.fulfill({
+          status: failureStatus,
+          json: {
+            error: {
+              code: failureStatus === 401
+                ? "SESSION_EXPIRED"
+                : "STRONG_AUTHENTICATION_REQUIRED",
+              message: "Reconnectez-vous pour accéder à vos documents.",
+            },
+          },
+        });
+      }
     },
   );
   await app.open("/#/app/my-documents");
   await screen
     .getByRole("button", "Ouvrir le compte destinataire fictif")
     .tap();
-  await expect(
-    screen.getByRole("button", "Se connecter à mon compte"),
-  ).toBeVisible();
-  await expect(screen.getByRole("link", "Utiliser Guteneo")).toBeVisible();
-  await app.screenshot("personal-document-session-recovery");
-  // The previous defect re-requested the endpoint several times per second.
-  // Observe a bounded quiet period after the recovery control has appeared.
-  await new Promise((resolve) => setTimeout(resolve, 1_500));
-  expect(documentReads).toBe(1);
-  const session = await localApi<{ user: { id: string } }>(
-    browser,
-    "/api/personal/session",
-  );
-  expect(session.status).toBe(200);
-  expect(session.body.user.id).toBe("user_recipient");
+  for (const status of [401, 403] as const) {
+    if (status === 403) {
+      failureStatus = status;
+      documentReads = 0;
+      await browser.reload();
+    }
+    await expect(screen.getByRole("heading", privateTitle)).toBeVisible();
+    await expect(screen.getByText(privateSender, { exact: false })).toBeVisible();
+    await screen.getByRole("button", "Afficher les documents suivants").tap();
+    if (status === 401) {
+      await expect(
+        screen.getByRole("button", "Se connecter à mon compte"),
+      ).toBeVisible();
+    } else {
+      await expect(
+        screen.getByRole("heading", "Connexion renforcée nécessaire"),
+      ).toBeVisible();
+      await expect(screen.getByRole("link", "Vérifier mon accès")).toBeVisible();
+    }
+    await expect(screen.getByRole("heading", privateTitle)).toHaveCount(0);
+    await expect(screen.getByText(privateSender, { exact: false })).toHaveCount(0);
+    await expect(
+      screen.getByRole("button", "Afficher les documents suivants"),
+    ).toHaveCount(0);
+    await expect(screen.getByRole("link", "Utiliser Guteneo")).toBeVisible();
+    await app.screenshot(`personal-document-session-recovery-${status}`);
+    // Observe a quiet period after the explicit recovery control appears. No
+    // hidden retry or automatic authentication may disclose the row again.
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
+    expect(documentReads).toBe(2);
+    expect(authenticationRedirects).toBe(0);
+    const session = await localApi<{ user: { id: string } }>(
+      browser,
+      "/api/personal/session",
+    );
+    expect(session.status).toBe(200);
+    expect(session.body.user.id).toBe("user_recipient");
+  }
 });

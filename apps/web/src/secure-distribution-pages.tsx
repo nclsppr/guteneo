@@ -287,6 +287,11 @@ function SecureDistributionComposer() {
                   ))}
                 </select>
               </Field>
+              <LoadMore
+                path="/documents"
+                data={documents.data}
+                onLoaded={documents.setData}
+              />
               {!readyDocuments.length && (
                 <p>
                   <a href="#/app/documents">
@@ -377,6 +382,9 @@ function SecureDistributionComposer() {
                   <small>
                     {msg(
                       "Après remise, la copie reste accessible pour sa durée propre, même si vous révoquez le partage.",
+                    )}{" "}
+                    {msg(
+                      "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.",
                     )}{" "}
                     {msg(
                       "L’option est facturée à l’activation, même si le destinataire ne conserve pas de copie.",
@@ -484,12 +492,20 @@ function SecureDistributionDetail({
   const [reviewed, setReviewed] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
   const [auditVersion, setAuditVersion] = useState(0);
-  const [bindingReviewed, setBindingReviewed] = useState(false);
+  const [reviewedClaim, setReviewedClaim] = useState<string | null>(null);
   const [verificationMethod, setVerificationMethod] = useState(
     "independent_channel",
   );
   const permissions = permissionsFor(session);
   const publication = resource.data;
+  const claimKey = publication?.pendingClaim
+    ? JSON.stringify([
+        publication.pendingClaim.recipientUserId,
+        publication.pendingClaim.email,
+        publication.pendingClaim.createdAt,
+      ])
+    : null;
+  const bindingReviewed = claimKey !== null && reviewedClaim === claimKey;
   const refresh = resource.refresh;
   const shouldPoll =
     (publication?.status === "preparing" || publication?.status === "active") &&
@@ -539,7 +555,7 @@ function SecureDistributionDetail({
           verificationMethod,
         },
       });
-      setBindingReviewed(false);
+      setReviewedClaim(null);
       resource.refresh();
     });
   }
@@ -595,12 +611,22 @@ function SecureDistributionDetail({
                     : msg("Téléchargement désactivé")}
                 </Definition>
                 <Definition label={msg("Copie personnelle")}>
-                  {publication.policy.allowVaultDeposit
-                    ? msg(
+                  {publication.policy.allowVaultDeposit ? (
+                    <>
+                      {msg(
                         "Autorisée · {0} jours",
                         publication.policy.personalRetentionDays,
-                      )
-                    : msg("Désactivée")}
+                      )}
+                      <br />
+                      <small>
+                        {msg(
+                          "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.",
+                        )}
+                      </small>
+                    </>
+                  ) : (
+                    msg("Désactivée")
+                  )}
                 </Definition>
                 {publication.expiresAt && (
                   <Definition label={msg("Échéance")}>
@@ -778,7 +804,7 @@ function SecureDistributionDetail({
                       type="checkbox"
                       checked={bindingReviewed}
                       onChange={(event) =>
-                        setBindingReviewed(event.target.checked)
+                        setReviewedClaim(event.target.checked ? claimKey : null)
                       }
                     />
                     <span>

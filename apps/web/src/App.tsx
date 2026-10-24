@@ -390,6 +390,11 @@ const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: Files },
+  {
+    id: "secure-distributions",
+    path: "/app/secure-distributions",
+    Icon: Files,
+  },
   { id: "templates", path: "/app/templates", Icon: FileText },
   { id: "datasets", path: "/app/datasets", Icon: Stack },
   { id: "generations", path: "/app/generations", Icon: SquaresFour },
@@ -786,6 +791,8 @@ function WorkspaceApplication({
       </Admin>
     );
   else content = <Overview session={session} />;
+  const navigationLabel = (id: (typeof navigation)[number]["id"]) =>
+    id === "secure-distributions" ? msg("Distribution sécurisée") : t.nav[id];
   const logout = async () => {
     setLogoutError(undefined);
     try {
@@ -856,19 +863,6 @@ function WorkspaceApplication({
             {msg("Navigation de l’atelier")}
           </summary>
           <nav aria-label={msg("Navigation de l’atelier")}>
-            {!publicPreview && (
-              <a
-                href="#/app/secure-distributions"
-                aria-current={
-                  /^\/app\/secure-distributions?(\/|$)/.test(page)
-                    ? "page"
-                    : undefined
-                }
-              >
-                <Files size={21} aria-hidden="true" />
-                <span>{msg("Distribution sécurisée")}</span>
-              </a>
-            )}
             {appearance === "v2" &&
               permissions.prepareDispatches &&
               !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (
@@ -888,7 +882,12 @@ function WorkspaceApplication({
               .filter(
                 (n) =>
                   !publicPreview ||
-                  !["templates", "datasets", "generations"].includes(n.id),
+                  ![
+                    "secure-distributions",
+                    "templates",
+                    "datasets",
+                    "generations",
+                  ].includes(n.id),
               )
               .map(({ id, path, Icon }) => (
                 <a
@@ -909,6 +908,8 @@ function WorkspaceApplication({
                   }}
                   aria-current={
                     page === path ||
+                    (id === "secure-distributions" &&
+                      /^\/app\/secure-distributions?(\/|$)/.test(page)) ||
                     (id === "templates" && page.startsWith("/app/template/")) ||
                     (id === "datasets" && page.startsWith("/app/dataset/")) ||
                     (id === "generations" &&
@@ -925,7 +926,7 @@ function WorkspaceApplication({
                   }
                 >
                   <Icon size={21} aria-hidden="true" />
-                  <span>{t.nav[id]}</span>
+                  <span>{navigationLabel(id)}</span>
                 </a>
               ))}
           </nav>
@@ -983,13 +984,14 @@ function WorkspaceApplication({
         {appearance !== "v2" && (
           <div className="app-topbar">
             <span>
-              {
-                t.nav[
-                  navigation.find((n) => n.path === page)?.id ??
-                    (page === "/app/prepare" ||
-                    page.startsWith("/app/dispatch/") ||
-                    page.startsWith("/app/postal/")
-                      ? "dispatches"
+              {navigationLabel(
+                navigation.find((n) => n.path === page)?.id ??
+                  (page === "/app/prepare" ||
+                  page.startsWith("/app/dispatch/") ||
+                  page.startsWith("/app/postal/")
+                    ? "dispatches"
+                    : /^\/app\/secure-distributions?(\/|$)/.test(page)
+                      ? "secure-distributions"
                       : page.startsWith("/app/template/")
                         ? "templates"
                         : page.startsWith("/app/dataset/")
@@ -1001,9 +1003,8 @@ function WorkspaceApplication({
                               ? "connection"
                               : page.startsWith("/app/campaign/")
                                 ? "campaigns"
-                                : "overview")
-                ]
-              }
+                                : "overview"),
+              )}
             </span>
             {/* These pages already lead to the preparation form themselves. */}
             {permissions.prepareDispatches &&

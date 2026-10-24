@@ -22,14 +22,24 @@ document ne crée aucun droit. Un email vérifié ne prétend pas établir l’i
 physique. La preuve forte signée et fraîche est contrôlée par le serveur, pas
 par un champ fourni par le navigateur.
 
+Le choix des passkeys est différé à la demande du produit. Le développement
+et les tests locaux de ces parcours continuent sans modifier Auth0 ni retirer
+les conditions d’accès sensible. L’activation connectée reste une qualification
+distincte.
+
 ## Préparer, revoir et activer un partage
 
 1. Ouvrir **Distribution sécurisée → Nouveau partage**, ou utiliser la même
-   opération REST/MCP depuis un client autorisé.
+   opération REST/MCP depuis un client autorisé. Dans la navigation de l’atelier,
+   cette entrée suit **Documents** et conserve **Vue d’ensemble → Assistants**
+   en tête. Les détails du partage restent rattachés à cette entrée active.
 2. Choisir un PDF `ready`, limité à 100 pages et 10 Mio ; désigner une adresse
    individuelle et choisir 7, 30, 90 ou 365 jours d’accès partagé. Le téléchargement
    original est désactivé par défaut. L’option de copie personnelle permet une
-   conservation autonome de 365 ou 1 095 jours.
+   conservation autonome de 365 ou 1 095 jours. Charger explicitement les pages
+   suivantes du sélecteur pour retrouver une source plus ancienne. L’autorisation
+   d’une copie personnelle explique qu’elle sera exportable, même si l’original
+   du partage ne peut pas être téléchargé.
 3. Préparer le sujet et le message d’invitation sans contenu confidentiel.
    La langue de notification est figée dans l’entrée. Le lien individuel et les
    consignes de connexion sont ajoutés par le serveur.
@@ -112,7 +122,9 @@ pas une opération déjà exposée aux anciens parcours en source sensible isol�
 4. L’approbateur retrouve seulement la demande de son propre partage. Il
    vérifie une relation connue, un canal indépendant ou une identité qualifiée,
    puis confirme explicitement l’association ; le nom saisi par la personne
-   n’est pas, à lui seul, une preuve indépendante.
+   n’est pas, à lui seul, une preuve indépendante. Sa case de vérification est
+   liée au compte et à la demande affichés : un autre candidat lors d’un
+   rafraîchissement exige une nouvelle attestation.
 5. La personne consulte les pages préparées, leur texte accessible et la date
    d’échéance. Chaque remise de page recontrôle le droit et la session. Une
    révocation empêche les nouvelles remises et n’efface pas les pixels déjà reçus.
@@ -148,7 +160,12 @@ l’acquisition ; après, la copie reste personnelle.
 
 L’utilisateur peut exporter puis supprimer sa copie. La suppression retire
 l’accès personnel ; elle ne supprime pas la source atelier ni les exports déjà
-reçus. Les lectures privées ultérieures ne remontent pas à l’atelier d’origine.
+effectués. Annuler la confirmation conserve la copie. Une copie supprimée ou
+expirée n’est pas remise une seconde fois depuis la même invitation : la liste
+ne propose plus ce dépôt et un appel direct le refuse, sans attente indéfinie,
+nouvelle copie ou nouveau débit. La suppression ne communique aucun événement
+privé supplémentaire au journal de l’atelier. Les lectures privées ultérieures
+ne remontent pas à l’atelier d’origine.
 L’engagement de durée est borné : aucune conservation éternelle ni certification
 de coffre-fort numérique n’est annoncée.
 
@@ -157,6 +174,8 @@ de coffre-fort numérique n’est annoncée.
 **Mes documents** sépare les deux catégories. Filtre, recherche bornée et
 pagination sont évalués côté serveur sous l’identité propriétaire ; les
 résultats ne sont pas limités aux premières lignes d’un filtre navigateur.
+Un refus 401/403 retire la liste et les curseurs déjà chargés ; une réponse de
+pagination devenue obsolète après rafraîchissement ne les réintroduit pas.
 La langue de compte reste commune au reste de Guteneo.
 
 **Utiliser Guteneo** est disponible dans la même session. La personne peut

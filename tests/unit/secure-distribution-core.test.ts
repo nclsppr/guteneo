@@ -818,6 +818,57 @@ describe("personal copies — independent ownership and final authorization", ()
         .first(),
     ).toEqual({ n: 0 });
   });
+  it.each(["deleted", "expired"] as const)(
+    "does not restart or recharge an acquired personal copy after it becomes %s",
+    async (status) => {
+      const f = await fixture(),
+        p = await bound(f);
+      const copy = await f.personal.deposit(f.recipient, p.view.id);
+      expect(copy.status).toBe("active");
+      expect(await f.personal.get(f.recipient, p.view.id)).toMatchObject({
+        allowVaultDeposit: false,
+        depositedDocumentId: copy.id,
+      });
+      const before = await financials(f, p.view.dispatchId!);
+      if (status === "deleted") await f.personal.remove(f.recipient, copy.id);
+      else
+        await db
+          .prepare(
+            "UPDATE secure_personal_documents SET status='expired' WHERE user_id=? AND id=?",
+          )
+          .bind(f.recipient.userId, copy.id)
+          .run();
+      const view = await f.personal.get(f.recipient, p.view.id);
+      expect(view).toMatchObject({
+        status: "active",
+        allowVaultDeposit: false,
+      });
+      expect(view.depositedDocumentId).toBeUndefined();
+      await expect(
+        f.personal.deposit(f.recipient, p.view.id),
+      ).rejects.toMatchObject({
+        code: "PERSONAL_COPY_UNAVAILABLE",
+        status: 410,
+      });
+      expect(await financials(f, p.view.dispatchId!)).toEqual(before);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE user_id=? AND source_distribution_id=?",
+          )
+          .bind(f.recipient.userId, p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_deposit_operations WHERE user_id=? AND distribution_id=?",
+          )
+          .bind(f.recipient.userId, p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
   it("denies a private copy unless it was authorized and paid in the immutable invitation", async () => {
     const f = await fixture(),
       p = await bound(f, {

@@ -1,5 +1,17 @@
 # Execution plan and handoff
 
+24 October reprise: continue secure distribution and **Mes documents** while
+deferring the passkey choice. Workshop source pagination, explicit personal-copy
+export policy, claim-bound association confirmation, inaccessible personal-list
+cleanup and deletion/expiry recovery are corrected without weakening strong
+authentication. Local checks pass: 23 service cases, eight UI rendering cases,
+fourteen TesterArmy results on desktop/phone, six navigation cases across three
+browser projects and twelve desktop login-entry cases. The latter fixture drains
+bounded static proxies before removing interception; it does not suppress errors
+or change Auth0. Failed attempts remain preserved. Build/dry run, typecheck,
+lint and the 252-feature developer tree pass. Exact-head GitHub verification is
+recorded on PR 74; production activation remains separate.
+
 24 October 2026 secure distribution candidate: implement the unified personal
 account, sensitive shared reader, explicit independent personal copy, immutable
 retention pricing and shared REST/MCP/plugin distribution service. The requested

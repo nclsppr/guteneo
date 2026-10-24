@@ -99,6 +99,12 @@ test(
     let publication = (await localApi<Publication>(browser, path)).body;
     expect(await readSecureCharge(prepared.id)).toEqual([]);
     await browser.reload();
+    await expect(browser.locator(".app-topbar > span")).toHaveText(
+      "Distribution sécurisée",
+    );
+    await expect(
+      browser.locator('.workspace-navigation a[href="#/app/secure-distributions"]'),
+    ).toHaveAttribute("aria-current", "page");
     await expect(
       screen.getByRole("button", "Approuver ce partage"),
     ).toBeDisabled();
@@ -380,5 +386,101 @@ test(
     );
     expect(weak.status).toBe(403);
     expect(weak.body.error.code).toBe("STRONG_AUTHENTICATION_REQUIRED");
+
+    // Re-enter through the owner's category instead of relying on a saved
+    // reader URL. Cancelling must preserve the copy; only confirmation removes
+    // access, and these private actions never extend the workshop's journal.
+    await localIdentity(browser, app, "recipient");
+    await screen.getByRole("link", "Copies conservées").tap();
+    await expect(
+      screen.getByRole("link", "Copies conservées"),
+    ).toHaveAttribute("aria-current", "page");
+    const retainedCopy = browser.locator(
+      `a[href="#/app/my-documents/${copy.id}"]`,
+    );
+    await expect(retainedCopy).toBeVisible();
+    await retainedCopy.tap();
+    await expect(browser).toHaveURL(
+      new RegExp(`#/app/my-documents/${copy.id}$`),
+    );
+    await screen.getByRole("button", "Supprimer ma copie").tap();
+    await expect(
+      screen.getByRole("button", "Confirmer la suppression"),
+    ).toBeVisible();
+    await screen.getByRole("button", "Ne rien changer").tap();
+    await expect(
+      screen.getByRole("button", "Confirmer la suppression"),
+    ).toHaveCount(0);
+    const keptCopy = await localApi<{ status: string; pages: { number: number }[] }>(
+      browser,
+      `/api/personal/documents/${copy.id}`,
+    );
+    expect(keptCopy.status).toBe(200);
+    expect(keptCopy.body.status).toBe("active");
+    expect(keptCopy.body.pages).toHaveLength(4);
+
+    await screen.getByRole("button", "Supprimer ma copie").tap();
+    const [deletedResponse, refreshedCopies] = await Promise.all([
+      browser.waitForResponse(
+        `**/api/personal/documents/${copy.id}/delete`,
+      ),
+      browser.waitForResponse(
+        /\/api\/personal\/documents\?kind=personal(?:&|$)/u,
+      ),
+      screen.getByRole("button", "Confirmer la suppression").tap(),
+    ]);
+    expect(deletedResponse.status).toBe(200);
+    expect(await deletedResponse.json()).toEqual({ deleted: true });
+    expect(refreshedCopies.status).toBe(200);
+    const remainingCopies = await refreshedCopies.json<{ items: { id: string }[] }>();
+    expect(remainingCopies.items.some((item) => item.id === copy.id)).toBe(false);
+    await expect(browser).toHaveURL(/#\/app\/my-documents\?kind=personal$/u);
+    await expect(retainedCopy).toHaveCount(0);
+
+    const inaccessibleCopy = await localApi<{ status: string; pages: { number: number }[] }>(
+      browser,
+      `/api/personal/documents/${copy.id}`,
+    );
+    // Known ownership metadata remains readable; document content does not.
+    expect(inaccessibleCopy.status).toBe(200);
+    expect(inaccessibleCopy.body.status).toBe("revoked");
+    expect(inaccessibleCopy.body.pages).toEqual([]);
+    const deniedCopy = await browser.evaluate(async (id: string) => {
+      const session = await fetch("/api/personal/session");
+      const current = (await session.json()) as { csrfToken: string };
+      const [page, text, download] = await Promise.all([
+        fetch(`/api/personal/documents/${id}/pages/1`),
+        fetch(`/api/personal/documents/${id}/pages/1/text`),
+        fetch(`/api/personal/documents/${id}/download`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": current.csrfToken,
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+          body: "{}",
+        }),
+      ]);
+      return { page: page.status, text: text.status, download: download.status };
+    }, copy.id);
+    expect(deniedCopy).toEqual({ page: 404, text: 404, download: 404 });
+    const [removedReader] = await Promise.all([
+      browser.waitForResponse(`**/api/personal/documents/${copy.id}`),
+      app.open(`/#/app/my-documents/${copy.id}`),
+    ]);
+    expect(removedReader.status).toBe(200);
+    await expect(
+      browser.locator('.secure-document-panel [role="status"]'),
+    ).toHaveText("Accès révoqué");
+    await expect(browser.locator(".secure-document-pages")).toHaveCount(0);
+    await expect(screen.getByRole("button", "Exporter ma copie")).toHaveCount(0);
+    await expect(screen.getByRole("button", "Supprimer ma copie")).toHaveCount(0);
+    await app.screenshot("personal-copy-access-after-deletion");
+
+    await localIdentity(browser, app, "atelier");
+    const unchangedShare = (await localApi<Publication>(browser, path)).body;
+    expect(unchangedShare.status).toBe("revoked");
+    expect(unchangedShare.audit).toEqual(auditAfterRevocation);
+    expect(await readSecureCharge(prepared.id)).toEqual(committedCharge);
   },
 );
