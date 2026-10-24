@@ -1,6 +1,6 @@
 # Guteneo Claude Code distribution candidate
 
-`plugins/guteneo/` is a self-contained Claude Code plugin. Its six workflows are
+`plugins/guteneo/` is a self-contained Claude Code plugin. Its seven workflows are
 adapted from the common Guteneo package, with a Claude-specific host contract and
 without OpenAI agent metadata. Keep domain/approval safeguards aligned when the
 common workflows change; do not copy host-specific file-transfer claims between

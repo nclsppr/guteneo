@@ -80,12 +80,14 @@ import { HomepageFilm } from "./homepage-film";
 import { AssistantsPage } from "./assistants-page";
 import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
+import { clearPendingDocumentInvitation } from "./document-invitation";
 import {
   DashboardAppearanceProvider,
   useDashboardAppearance,
 } from "./dashboard-appearance";
 import "./homepage.css";
 import "./document-studio.css";
+import "./secure-documents.css";
 import {
   Installation,
   WelcomePricing,
@@ -96,6 +98,16 @@ import {
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const DocumentStudio = lazy(() => import("./document-studio"));
+const PersonalArea = lazy(() => import("./personal-area"));
+const SecureDistributionPage = lazy(() =>
+  import("./secure-distribution-pages").then((module) => ({
+    default: module.SecureDistributionPage,
+  })),
+);
+const personalPage = (page: string) =>
+  /^\/app\/(my-documents|services|personal-account)(\/|$)/.test(
+    page.split("?")[0] ?? "",
+  );
 
 export function Landing() {
   // One public read feeds both the offer and FAQ. A new homepage entry gets a
@@ -430,12 +442,31 @@ function Application() {
           updateSession(s);
         }
       })
-      .catch(() => {
+      .catch(async () => {
         // This is still a visitor until a server session is established. Restore
         // their URL/device choice after the guarded private-page bootstrap,
         // without overwriting a language selected while the probe was pending.
         if (alive && languageVersion === getLocaleSelectionVersion())
           initializeLocale();
+        const requested = window.location.hash.slice(1);
+        if (
+          isPublicPreview ||
+          !requested.startsWith("/app") ||
+          personalPage(requested)
+        )
+          return;
+        try {
+          const { personalApi } = await import("./personal-api");
+          await personalApi("/personal/session");
+          if (alive)
+            go(
+              requested === "/app"
+                ? "/app/my-documents"
+                : `/app/services?next=${encodeURIComponent(requested)}`,
+            );
+        } catch {
+          // No personal account is authenticated; the normal sign-in remains.
+        }
       })
       .finally(() => {
         if (alive) setReady(true);
@@ -619,6 +650,12 @@ function WorkspaceApplication({
         <Loading />
       </div>
     );
+  if (personalPage(page) && !publicPreview)
+    return (
+      <Suspense fallback={<Loading />}>
+        <PersonalArea route={route} />
+      </Suspense>
+    );
   if (!session)
     return (
       <Login
@@ -645,7 +682,13 @@ function WorkspaceApplication({
   };
   const permissions = permissionsFor(session);
   let content;
-  if (
+  if (/^\/app\/(secure-distributions|secure-distribution)(\/|$)/.test(page))
+    content = (
+      <Suspense fallback={<Loading />}>
+        <SecureDistributionPage route={route} session={session} />
+      </Suspense>
+    );
+  else if (
     /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
       page,
     )
@@ -747,6 +790,7 @@ function WorkspaceApplication({
     setLogoutError(undefined);
     try {
       await api("/logout", { method: "POST", body: {} });
+      clearPendingDocumentInvitation();
       setSession(null);
       // Leave the protected route before Login can restart an Auth0 SSO flow.
       window.location.replace("/");
@@ -783,6 +827,15 @@ function WorkspaceApplication({
             <small>{msg("L’atelier")}</small>
           </div>
         </div>
+        {!publicPreview && (
+          <a className="personal-context-link" href="#/app/my-documents">
+            <Files size={20} aria-hidden="true" />
+            <span>
+              {msg("Mes documents")}
+              <small className="sub-label">{msg("Espace personnel")}</small>
+            </span>
+          </a>
+        )}
         <details
           className="workspace-navigation"
           open={navigationOpen}
@@ -803,6 +856,19 @@ function WorkspaceApplication({
             {msg("Navigation de l’atelier")}
           </summary>
           <nav aria-label={msg("Navigation de l’atelier")}>
+            {!publicPreview && (
+              <a
+                href="#/app/secure-distributions"
+                aria-current={
+                  /^\/app\/secure-distributions?(\/|$)/.test(page)
+                    ? "page"
+                    : undefined
+                }
+              >
+                <Files size={21} aria-hidden="true" />
+                <span>{msg("Distribution sécurisée")}</span>
+              </a>
+            )}
             {appearance === "v2" &&
               permissions.prepareDispatches &&
               !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (

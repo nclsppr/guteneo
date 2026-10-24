@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 67);
+  assert.equal(operations.length, 73);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -103,6 +103,12 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/recipients/validate",
     "get /api/senders",
     "get /api/usage",
+    "get /api/secure-distributions",
+    "post /api/secure-distributions",
+    "get /api/secure-distributions/catalog",
+    "get /api/secure-distributions/{id}",
+    "post /api/secure-distributions/{id}/confirm",
+    "post /api/secure-distributions/{id}/revoke",
     "post /api/postal/preflights",
     "get /api/postal/preflights/{id}",
     "get /api/postal/preflights/{id}/address.png",
@@ -188,7 +194,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
             ? method === "get"
               ? "documents:read"
               : "documents:write"
-            : /\/(confirm|cancel)$/.test(path)
+            : /\/(confirm|cancel|revoke)$/.test(path)
               ? "dispatches:send"
               : method === "get"
                 ? "dispatches:read"
@@ -215,6 +221,57 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   assert.match(
     spec.paths["/api/dispatches/{id}"].get.description,
     /Ne jamais recréer automatiquement/,
+  );
+});
+
+test("secure distribution documents retention charges and no personal OAuth authority", () => {
+  const { schemas } = spec.components;
+  assert.equal(schemas.SecureDistributionInput.additionalProperties, false);
+  assert.deepEqual(schemas.SecureDistributionInput.required, [
+    "documentId",
+    "recipient",
+  ]);
+  for (const field of [
+    "organizationId",
+    "recipientUserId",
+    "pendingClaim",
+    "approved",
+    "fingerprint",
+  ])
+    assert(!(field in schemas.SecureDistributionInput.properties));
+  for (const field of ["recipientUserId", "recipientBinding", "pendingClaim"])
+    assert(!(field in schemas.SecureDistribution.properties));
+  for (const field of [
+    "sharedMinor",
+    "personalMinor",
+    "transportMinor",
+    "totalMinor",
+  ])
+    assert.equal(
+      schemas.SecureDistribution.properties.quote.properties[field].type,
+      "integer",
+    );
+  assert.deepEqual(
+    schemas.SecureDistribution.properties.quote.properties.nonRefundable.enum,
+    [true],
+  );
+  assert.deepEqual(
+    schemas.SecureDistribution.properties.quote.properties.taxBasis.enum,
+    ["excluding_tax"],
+  );
+  assert.match(
+    spec.paths["/api/secure-distributions/{id}/confirm"].post.description,
+    /navigateur/,
+  );
+  assert.match(
+    spec.paths["/api/secure-distributions/{id}/revoke"].post.description,
+    /sans remboursement/,
+  );
+  assert.equal(spec["x-secure-distribution"].noPersonalOAuthAuthority, true);
+  assert(
+    !Object.keys(spec.paths).some((path) =>
+      /personal|claim|binding|secure-distributions.*approve/.test(path),
+    ),
   );
 });
 
@@ -312,6 +369,8 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "post /api/generation-jobs",
     "post /api/distribution-plans",
     "post /api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
+    "post /api/secure-distributions",
+    "post /api/secure-distributions/{id}/confirm",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(

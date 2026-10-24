@@ -1,0 +1,10 @@
+interface:
+  display_name: "Secure document distribution"
+  short_description: "Prepare account-protected PDFs with defined retention"
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "guteneo"
+      description: "Guteneo workshop distribution and recorded browser approval"
+      transport: "streamable_http"
+      url: "https://guteneo.com/mcp"

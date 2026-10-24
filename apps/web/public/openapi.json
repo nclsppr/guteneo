@@ -51,6 +51,10 @@
     {
       "name": "Studio documentaire",
       "description": "Modèles, données, génération et préparation séparées."
+    },
+    {
+      "name": "Distribution sécurisée",
+      "description": "Partage par compte, durée financée, politique immuable et approbation navigateur forte. Aucun accès au coffre personnel par OAuth."
     }
   ],
   "paths": {
@@ -5238,6 +5242,382 @@
             "$ref": "#/components/parameters/Id"
           }
         ]
+      }
+    },
+    "/api/secure-distributions": {
+      "get": {
+        "operationId": "listSecureDistributions",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Lister les distributions de l’atelier",
+        "description": "Métadonnées et audit de l’atelier autorisé uniquement. Pagination bornée ; aucun document personnel, claim ou association d’identité n’est exposé.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistributionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "post": {
+        "operationId": "prepareSecureDistribution",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Préparer une distribution sécurisée",
+        "description": "Prépare un PDF immuable pour un destinataire et une durée. Le rendu asynchrone peut retourner preparing : consulter le même identifiant sans recréer la commande. Aucun envoi ni approbation. Le devis distingue partage, copie personnelle éventuellement autorisée et notification. L’activation de la durée est non remboursable même si le document est révoqué. Lire /api/capabilities et le catalogue actuel ; les gates de scan, service, notification et compte restent obligatoires.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistribution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecureDistributionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/secure-distributions/catalog": {
+      "get": {
+        "operationId": "getSecureDistributionCatalog",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Lire les durées et tarifs du service",
+        "description": "Catalogue actuel en centimes EUR hors taxes, par PDF et destinataire. Les frais de notification sont ajoutés dans le devis exact. Non remboursable après activation, même en cas de révocation. La lecture du catalogue ne prouve pas l’activation du service.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistributionCatalog"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/secure-distributions/{id}": {
+      "get": {
+        "operationId": "getSecureDistribution",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Suivre une distribution de l’atelier",
+        "description": "Retourne politique, devis, état et événements avec provenance. Affichage navigateur ne signifie pas lecture intégrale ; téléchargement lancé ne signifie pas enregistrement sur disque. Aucune détection fiable de capture d’écran ni suivi de copie personnelle. Ne jamais recréer automatiquement une distribution après résultat incertain.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistribution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/secure-distributions/{id}/confirm": {
+      "post": {
+        "operationId": "confirmSecureDistribution",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Activer après approbation navigateur forte",
+        "description": "Sans corps. Une approbation forte enregistrée dans le navigateur lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:send"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistribution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/secure-distributions/{id}/revoke": {
+      "post": {
+        "operationId": "revokeSecureDistribution",
+        "tags": [
+          "Distribution sécurisée"
+        ],
+        "summary": "Révoquer le partage sans remboursement",
+        "description": "Sans corps. Permission actuelle de l’atelier requise. Bloque les prochains accès au partage, sans remboursement de la conservation financée, sans effacement des copies personnelles déjà remises ni récupération des copies exportées. Les preuves et le PDF source restent soumis à leur conservation propre.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:send"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureDistribution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
       }
     }
   },
@@ -11704,6 +12084,948 @@
         ],
         "additionalProperties": false,
         "description": "Lecture de validations métier existantes. status=partial signifie seulement que les contrôles exécutés passent ; acceptance et provider_delivery restent not_checked. Ce résultat ne permet pas d’envoyer."
+      },
+      "SecureDistributionInput": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string",
+                "maxLength": 320,
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "address"
+            ],
+            "additionalProperties": false
+          },
+          "retentionDays": {
+            "default": 7,
+            "anyOf": [
+              {
+                "type": "number",
+                "enum": [
+                  7
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  30
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  90
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  365
+                ]
+              }
+            ]
+          },
+          "allowOriginalDownload": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowVaultDeposit": {
+            "default": false,
+            "type": "boolean"
+          },
+          "personalRetentionDays": {
+            "default": 365,
+            "anyOf": [
+              {
+                "type": "number",
+                "enum": [
+                  365
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  1095
+                ]
+              }
+            ]
+          },
+          "subject": {
+            "default": "Un document est disponible dans Guteneo",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 250
+          },
+          "message": {
+            "default": "Un document vous a été adressé dans votre espace Guteneo.",
+            "type": "string",
+            "maxLength": 16000
+          },
+          "notificationLocale": {
+            "default": "fr",
+            "type": "string",
+            "enum": [
+              "fr",
+              "en",
+              "de",
+              "lb"
+            ]
+          },
+          "costCeilingMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "documentId",
+          "recipient"
+        ],
+        "additionalProperties": false
+      },
+      "SecureDistributionPolicy": {
+        "type": "object",
+        "properties": {
+          "retentionDays": {
+            "default": 7,
+            "anyOf": [
+              {
+                "type": "number",
+                "enum": [
+                  7
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  30
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  90
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  365
+                ]
+              }
+            ]
+          },
+          "allowOriginalDownload": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowVaultDeposit": {
+            "default": false,
+            "type": "boolean"
+          },
+          "personalRetentionDays": {
+            "default": 365,
+            "anyOf": [
+              {
+                "type": "number",
+                "enum": [
+                  365
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  1095
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "retentionDays",
+          "allowOriginalDownload",
+          "allowVaultDeposit",
+          "personalRetentionDays"
+        ],
+        "additionalProperties": false
+      },
+      "SecureDistribution": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "dispatchId": {
+            "nullable": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "preparing",
+              "prepared",
+              "active",
+              "revoked",
+              "expired",
+              "failed"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "name": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "pages",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "address"
+            ],
+            "additionalProperties": false
+          },
+          "invitation": {
+            "type": "object",
+            "properties": {
+              "subject": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "subject",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "policy": {
+            "type": "object",
+            "properties": {
+              "retentionDays": {
+                "default": 7,
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "enum": [
+                      7
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      30
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      90
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      365
+                    ]
+                  }
+                ]
+              },
+              "allowOriginalDownload": {
+                "default": false,
+                "type": "boolean"
+              },
+              "allowVaultDeposit": {
+                "default": false,
+                "type": "boolean"
+              },
+              "personalRetentionDays": {
+                "default": 365,
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "enum": [
+                      365
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      1095
+                    ]
+                  }
+                ]
+              }
+            },
+            "required": [
+              "retentionDays",
+              "allowOriginalDownload",
+              "allowVaultDeposit",
+              "personalRetentionDays"
+            ],
+            "additionalProperties": false
+          },
+          "quote": {
+            "type": "object",
+            "properties": {
+              "sharedMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "personalMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "transportMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "totalMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "EUR"
+                ]
+              },
+              "priceVersion": {
+                "type": "string"
+              },
+              "nonRefundable": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "taxBasis": {
+                "type": "string",
+                "enum": [
+                  "excluding_tax"
+                ]
+              }
+            },
+            "required": [
+              "sharedMinor",
+              "personalMinor",
+              "transportMinor",
+              "totalMinor",
+              "currency",
+              "priceVersion",
+              "nonRefundable",
+              "taxBasis"
+            ],
+            "additionalProperties": false
+          },
+          "expiresAt": {
+            "nullable": true,
+            "type": "string"
+          },
+          "approvalUrl": {
+            "nullable": true,
+            "type": "string"
+          },
+          "approved": {
+            "type": "boolean"
+          },
+          "approval": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "fingerprint": {
+                "type": "string"
+              },
+              "expiresAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fingerprint",
+              "expiresAt"
+            ],
+            "additionalProperties": false
+          },
+          "audit": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "server",
+                    "browser",
+                    "provider"
+                  ]
+                },
+                "page": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "createdAt",
+                "provenance"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "nextActions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "dispatchId",
+          "status",
+          "title",
+          "source",
+          "recipient",
+          "invitation",
+          "policy",
+          "quote",
+          "expiresAt",
+          "approvalUrl",
+          "approved",
+          "approval",
+          "audit",
+          "nextActions"
+        ],
+        "additionalProperties": false
+      },
+      "SecureDistributionPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "dispatchId": {
+                  "nullable": true,
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "preparing",
+                    "prepared",
+                    "active",
+                    "revoked",
+                    "expired",
+                    "failed"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "pages": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "sha256": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "pages",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                },
+                "recipient": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "address"
+                  ],
+                  "additionalProperties": false
+                },
+                "invitation": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                },
+                "policy": {
+                  "type": "object",
+                  "properties": {
+                    "retentionDays": {
+                      "default": 7,
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "enum": [
+                            7
+                          ]
+                        },
+                        {
+                          "type": "number",
+                          "enum": [
+                            30
+                          ]
+                        },
+                        {
+                          "type": "number",
+                          "enum": [
+                            90
+                          ]
+                        },
+                        {
+                          "type": "number",
+                          "enum": [
+                            365
+                          ]
+                        }
+                      ]
+                    },
+                    "allowOriginalDownload": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "allowVaultDeposit": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "personalRetentionDays": {
+                      "default": 365,
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "enum": [
+                            365
+                          ]
+                        },
+                        {
+                          "type": "number",
+                          "enum": [
+                            1095
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "retentionDays",
+                    "allowOriginalDownload",
+                    "allowVaultDeposit",
+                    "personalRetentionDays"
+                  ],
+                  "additionalProperties": false
+                },
+                "quote": {
+                  "type": "object",
+                  "properties": {
+                    "sharedMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "personalMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "transportMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "totalMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "priceVersion": {
+                      "type": "string"
+                    },
+                    "nonRefundable": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "taxBasis": {
+                      "type": "string",
+                      "enum": [
+                        "excluding_tax"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "sharedMinor",
+                    "personalMinor",
+                    "transportMinor",
+                    "totalMinor",
+                    "currency",
+                    "priceVersion",
+                    "nonRefundable",
+                    "taxBasis"
+                  ],
+                  "additionalProperties": false
+                },
+                "expiresAt": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "approvalUrl": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "approved": {
+                  "type": "boolean"
+                },
+                "approval": {
+                  "nullable": true,
+                  "type": "object",
+                  "properties": {
+                    "fingerprint": {
+                      "type": "string"
+                    },
+                    "expiresAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "fingerprint",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "audit": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      },
+                      "provenance": {
+                        "type": "string",
+                        "enum": [
+                          "server",
+                          "browser",
+                          "provider"
+                        ]
+                      },
+                      "page": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "createdAt",
+                      "provenance"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "nextActions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "dispatchId",
+                "status",
+                "title",
+                "source",
+                "recipient",
+                "invitation",
+                "policy",
+                "quote",
+                "expiresAt",
+                "approvalUrl",
+                "approved",
+                "approval",
+                "audit",
+                "nextActions"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "nextCursor": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "SecureDistributionCatalog": {
+        "type": "object",
+        "properties": {
+          "retention": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "days": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991
+                },
+                "priceMinor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "days",
+                "priceMinor"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "personalRetention": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "days": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991
+                },
+                "priceMinor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "days",
+                "priceMinor"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "priceVersion": {
+            "type": "string"
+          },
+          "nonRefundable": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "taxBasis": {
+            "type": "string",
+            "enum": [
+              "excluding_tax"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "pdf_per_recipient"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "pdfBytes": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991
+              },
+              "pages": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991
+              },
+              "eventsPerMinute": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991
+              },
+              "listLimit": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991
+              },
+              "draftHours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "pdfBytes",
+              "pages",
+              "eventsPerMinute",
+              "listLimit",
+              "draftHours"
+            ],
+            "additionalProperties": false
+          },
+          "authentication": {
+            "type": "string",
+            "enum": [
+              "account_and_fresh_strong_authentication"
+            ]
+          }
+        },
+        "required": [
+          "retention",
+          "personalRetention",
+          "currency",
+          "priceVersion",
+          "nonRefundable",
+          "taxBasis",
+          "unit",
+          "limits",
+          "authentication"
+        ],
+        "additionalProperties": false
       }
     },
     "responses": {
@@ -11923,5 +13245,18 @@
       "POST /api/plan/cancel"
     ],
     "description": "Préparation désactivée par défaut. Routes navigateur avec session, origine/CSRF pour mutations et rôle administrateur courant ; aucun outil OAuth ne souscrit. Facturation Guteneo réservée aux administrateurs des comptes disposant du forfait mensuel. Des rapports historiques restent lisibles sans forfait actif."
+  },
+  "x-secure-distribution": {
+    "sourceScope": "local_candidate",
+    "recipientAccess": "single_guteneo_account_and_fresh_qualified_authentication",
+    "browserOnly": [
+      "recipient_claim",
+      "recipient_binding",
+      "approval",
+      "personal_documents",
+      "personal_copy_deposit"
+    ],
+    "noPersonalOAuthAuthority": true,
+    "nonRefundableAfterActivation": true
   }
 }

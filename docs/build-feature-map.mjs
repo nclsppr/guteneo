@@ -79,6 +79,7 @@ mindmap
   root((Guteneo))
     Accès
       Identité et sessions
+      Documents personnels
       Équipe et droits
     Créer
       Documents sécurisés
@@ -89,6 +90,7 @@ mindmap
       Fax
       Courrier postal
       E-mail et liens protégés
+      Distribution sensible
       Campagnes et lots
     Piloter
       Suivi et rapports

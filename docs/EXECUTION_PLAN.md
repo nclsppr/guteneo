@@ -1,5 +1,26 @@
 # Execution plan and handoff
 
+24 October 2026 secure distribution candidate: implement the unified personal
+account, sensitive shared reader, explicit independent personal copy, immutable
+retention pricing and shared REST/MCP/plugin distribution service. The requested
+TesterArmy e2e framework runs locally with real browsers, local D1/R2, private
+PDF rendering and deterministic simulated delivery. Its initial complete
+four-page lifecycle grew to fourteen desktop/phone cases. On candidate
+`d942fa9`, the complete local regression passed 119 Vitest files / 2,305 cases
+and 355 Node security cases. Reconciliation with main `ac795d0` preserves its
+public HTTP errors and explicit logout; 148 affected unit cases and twelve
+desktop login-entry browser cases passed. The final isolated TesterArmy run
+and exact-head GitHub checks are recorded in
+[draft PR 74](https://github.com/nclsppr/guteneo/pull/74); older local passes
+do not automatically qualify this reconciled source. Read
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
+[journeys](SECURE_DISTRIBUTION_JOURNEYS.md) and
+[the e2e guide](../tests/distribution-e2e/README.md).
+No production migration, account provisioning, real send, merge or deployment
+is performed by these local checks. Scheduled GitHub production browser reports
+and their status-page ingestion are a separate candidate; authenticated
+production test accounts and their actual strong login require qualification.
+
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
 and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a

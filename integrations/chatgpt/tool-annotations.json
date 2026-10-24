@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-20",
+  "reviewedOn": "2026-10-24",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -229,6 +229,35 @@
         {
           "path": "apps/api/src/index.ts",
           "symbol": "afterConfirmation:"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "confirm_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Consumes an existing exact strong browser approval to accept a distribution, commit its non-refundable retention charge and publish its durable notification command. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Activation commits funded retention even if access is later revoked; can cause a real communication and credit consumption. A delegated expert mandate cannot create this browser approval.",
+        "openWorldHint": "Can submit the notification to the configured recipient through the configured delivery provider.",
+        "idempotentHint": "A stable key prevents a second accepted command; lost or unknown outcomes must be inspected instead of retried with a new key. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"confirm_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -912,6 +941,35 @@
       ]
     },
     {
+      "name": "get_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads one authorized workshop distribution, quote and provenance-labelled audit events. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not mutate access, recipient binding, approvals or funded retention.",
+        "openWorldHint": "Limited to one authorized private workshop distribution; excludes personal vault access and invitation capabilities.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "get_template",
       "annotations": {
         "readOnlyHint": false,
@@ -1322,6 +1380,35 @@
       ]
     },
     {
+      "name": "list_secure_distributions",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads bounded workshop metadata, policies and status. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not change access, source documents, approvals or funded retention.",
+        "openWorldHint": "Limited to the authenticated workshop; excludes personal account documents and recipient-claim details.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_secure_distributions\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "list_template_examples",
       "annotations": {
         "readOnlyHint": false,
@@ -1508,6 +1595,35 @@
         {
           "path": "packages/domain/src/index.ts",
           "symbol": "async renewFaxQuote("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an immutable preparation, bounded rendering work and the retention quote; it does not activate access, reserve a final charge or contact the recipient. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Adds a preparation without replacing source bytes, approving or sending.",
+        "openWorldHint": "Uses the authorized workshop PDF and private rendering/storage services; no arbitrary destination or recipient contact.",
+        "idempotentHint": "A stable business key reuses the preparation; retries do not make the complete observed operation effect-free. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1835,6 +1951,35 @@
         {
           "path": "apps/api/src/expert-approval.ts",
           "symbol": "token_hash=excluded.token_hash"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "revoke_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Revokes subsequent access to the shared distribution after current workshop permission checks. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Closes shared access without refunding the committed term; retains already delivered personal copies, source bytes and audit evidence.",
+        "openWorldHint": "Changes only the existing authorized Guteneo share; no arbitrary endpoint and no retrieval of exported copies.",
+        "idempotentHint": "A repeat cannot restore access or refund retention; observed connection activity can still advance. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"revoke_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",

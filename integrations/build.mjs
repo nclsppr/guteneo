@@ -32,6 +32,8 @@ export const packageFiles = [
   "skills/postal-pdf/agents/openai.yaml",
   "skills/document-studio/SKILL.md",
   "skills/document-studio/references/template-authoring.md",
+  "skills/secure-distribution/SKILL.md",
+  "skills/secure-distribution/agents/openai.yaml",
 ];
 const configFiles = [
   "cursor-mcp.json",

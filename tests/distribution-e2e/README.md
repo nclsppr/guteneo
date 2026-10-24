@@ -1,0 +1,26 @@
+# Secure distribution browser tests
+
+This suite uses the requested [TesterArmy e2e framework](https://github.com/tester-army/e2e), with exact locators and assertions. It configures no model, subscription, API key, hosted browser or cloud report store. The wrapper disables telemetry before the CLI starts. The browser fixture blocks requests outside `http://localhost:8787`.
+
+Use Node.js 22.22.3 or newer on the 22 line, or 24.8 or newer. Dependencies are pinned to `e2e@0.21.3` and `@e2e-dev/web@0.15.3`. The framework's transitive Zod version is overridden to the patched 4.6.6 version used by the application.
+
+```sh
+npm ci
+npx --no-install playwright install chromium
+E2E_TELEMETRY_DISABLED=1 npx --no-install e2e-web install chromium
+npm run test:distribution
+```
+
+On Linux CI, install browser operating-system dependencies with `e2e-web install chromium --with-deps`. The local PDF renderer uses the application's existing Playwright Chromium, while the TesterArmy engine uses its own browser revision. Install both as shown above. Existing Playwright tests continue to run through `npm run test:e2e`.
+
+To run one scenario file or viewport:
+
+```sh
+npm run test:distribution -- tests/distribution-e2e/personal-account.e2e.ts --target desktop
+```
+
+The test launcher builds the application, applies migrations and seeds only the fictional local simulation data. It starts the local renderer and Worker on ports 8788 and 8787. Each run receives fresh D1/R2 state under `.wrangler/distribution-e2e-<uuid>`, with its location recorded in `test-results/distribution-e2e-state.json`. An existing server on these ports causes a failure; no external environment may substitute for the local fixture.
+
+Reports, JUnit XML, explicit screenshots, downloads and synthetic PDF inputs remain in the ignored `test-results/` directory. Browser traces are disabled because their raw network payloads could retain an invitation POST body. The engine's public `startAttempt` extension sanitizes incoming-fragment navigation events before they reach a reporter; the event and its outcome remain visible with the invitation masked. The wrapper also buffers console lines across stream chunks and masks 64-character hex values before stdout/stderr reach CI, including error messages; source hashes remain in the checked report. After every finished run, the wrapper independently verifies in memory that none of the generated invitation secrets appear in any report file or the local server log. CI additionally checks its captured stdout before allowing an upload. An interrupted wrapper without a current privacy marker cannot upload artifacts. The fixed fictional recipient account and the explicit strong-authentication simulation fixture are local test instruments; they do not qualify the live identity provider's authentication methods, passkeys, recovery or enrollment. The invitation regression exercises the real local login redirect and same-tab reload, then uses that server fixture solely as the callback stand-in before an explicit claim.
+
+The `phone` target checks a narrow responsive viewport. It does not prove touch input or a physical mobile device. A local simulated invitation is separate from provider delivery, a deployed Cloudflare service, or a real assistant host's OAuth consent and marketplace installation.

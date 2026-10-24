@@ -50,6 +50,12 @@ export interface Env {
   INVITATION_EMAILS_ENABLED?: string;
   INVITATION_EMAIL_FROM?: string;
   PROTECTED_DOCUMENTS_KEY?: string;
+  /** Versioned envelope key for secure distribution and personal objects. */
+  SECURE_DOCUMENTS_KEY?: string;
+  SECURE_DOCUMENTS_KEY_ID?: string;
+  /** Secret JSON key ring; keep retired wrapping keys until all envelopes migrate. */
+  SECURE_DOCUMENTS_KEYS?: string;
+  SECURE_DISTRIBUTION_ENABLED?: string;
   RESEND_WEBHOOK_SECRET?: string;
   RESEND_ACCOUNT_ID?: string;
   RESEND_DOMAIN_ID?: string;

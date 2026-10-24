@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { DomainService } from "../../packages/domain/src/index";
+import { historicalSecureProjection } from "../helpers/historical-secure-projection";
 
 let mf: Miniflare, db: D1Database;
 const snapshot: Record<string, unknown[]> = {};
@@ -209,7 +210,7 @@ describe("0042 roles migration on a populated D1 database", () => {
   });
 
   it("refuses historical member approval for new acceptance without changing already queued work", async () => {
-    const service = new DomainService(db, { mode: "simulation" });
+    const service = new DomainService(historicalSecureProjection(db), { mode: "simulation" });
     const admin = {
       organizationId: "org_atelier",
       userId: "user_atelier",

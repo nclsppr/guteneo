@@ -1,4 +1,81 @@
-# Compte connecté et responsables de l’atelier
+# Compte Guteneo unique et responsables de l’atelier
+
+## Compte unique et documents reçus — candidat du 24 octobre 2026
+
+Le compte Guteneo est personnel et indépendant des ateliers. La même identité
+sert à recevoir des documents, conserver les copies autorisées, explorer les
+services et travailler dans ses ateliers. La réception n’ajoute aucune
+membership chez l’expéditeur. Il n’existe ni « compte destinataire » distinct à
+fusionner ensuite, ni atelier artificiel pour porter les documents personnels.
+
+Les nouvelles inscriptions ordinaires créent une identité sans atelier. Les
+identités et memberships existantes sont conservées. L’espace **Mes documents**
+présente **Partagés avec moi** et **Copies conservées** ; **Utiliser Guteneo**
+donne accès aux services avec le même compte. Le choix ou la création d’un
+atelier intervient lors d’un usage d’envoi explicite. La création initiale est
+idempotente pour cette personne ; l’entrée dans un atelier recontrôle la
+membership et fait tourner la session. Aucun canal réel n’est ouvert par la
+création d’un atelier.
+
+`GET /api/personal/session` expose le principal personnel, ses préférences et
+ses ateliers accessibles. Il ne remplace pas `GET /api/session`, qui garde son
+contrat d’atelier obligatoire. Les routes personnelles utilisent leur propre
+garde, le cookie navigateur et un CSRF lié à leur session ; un jeton Bearer
+d’atelier ne donne pas d’accès au coffre personnel. `POST /api/personal/workspace`
+crée l’atelier demandé ; `/api/personal/workspace/select` entre dans une
+membership courante. Le serveur déduit les droits et n’accepte aucun tenant
+affirmé par le navigateur.
+
+L’identité continue d’être liée par issuer/sujet signés. Une égalité d’adresse
+e-mail ne fusionne jamais deux comptes et ne transfère pas les anciens documents
+à une adresse recyclée. La langue et le nom de profil sont communs aux contextes.
+Le profil personnel utilise `PATCH /api/personal/account` ; l’adresse reste en
+lecture seule. Ses sessions sont consultables et révocables sans disposer d’un
+atelier. La déconnexion personnelle révoque aussi la session d’atelier liée.
+
+Le contenu du nouveau parcours sensible exige une authentification récente
+attestée par le serveur. La preuve signée
+`https://guteneo.com/document_authentication` doit porter la politique
+`guteneo-sensitive-v1`, la méthode qualifiée et la même date `auth_time`.
+Une simple valeur `mfa`, un facteur enregistré ou le contrôle d’une boîte email
+ne suffit pas. Lecture et affichage sont bornés à quinze minutes depuis la
+preuve ; téléchargement original et remise personnelle demandent cinq minutes.
+La qualification de l’Action Auth0, des passkeys avec vérification utilisateur,
+de la fédération et des chemins de récupération demeure un jalon d’activation.
+Les preuves fortes de simulation locale sont explicitement fictives.
+
+L’invitation documentaire revient au parcours attendu après Auth0. Le token est
+retiré du fragment avant toute navigation de connexion : il n’entre jamais dans
+le `returnTo` d’une requête HTTP. Un transfert temporaire de dix minutes dans le
+`sessionStorage` du même onglet permet la reprise après callback. Il est nettoyé
+après rattachement, abandon ou déconnexion. Si ce stockage est indisponible,
+l’interface explique comment se connecter puis rouvrir l’invitation ; le token
+peut rester seulement en mémoire tant que cet onglet n’est pas quitté.
+
+L’invitation ne livre pas le contenu : l’adresse vérifiée doit correspondre,
+puis l’atelier confirme l’association au compte sur une relation connue ou une
+preuve indépendante. L’attente n’affiche ni titre sensible ni pages. Le token
+n’est échangé que dans le corps de la demande de rattachement. Il n’apparaît
+jamais dans un journal d’atelier, une réponse MCP ou une preuve publique.
+
+Une réponse 401 d’un service documentaire ferme son accès et propose une reprise
+explicite ; elle ne relance pas automatiquement le bootstrap de session. La
+coque personnelle garde ses autres entrées. Le retour dans un onglet recontrôle
+la session ; un nouveau principal remonte ses pages sans l’état du précédent.
+Une erreur Auth0 affiche une reprise explicite et ne crée pas de boucle.
+
+La découverte des services reste volontaire. Aucune obligation d’achat, création
+automatique d’atelier, analyse du contenu à des fins commerciales ou inscription
+marketing n’est ajoutée. Les lectures d’une copie personnelle acquise ne sont
+plus communiquées à l’atelier d’origine. Les conditions détaillées et la matrice
+des surfaces figurent dans
+[les parcours de distribution et réception](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+Ce candidat exige les migrations 0055–0058 et ses configurations privées ; il
+n’établit ni activation Auth0, ni migration distante, ni publication, ni
+qualification d’un navigateur humain en production. Les descriptions datées
+ci-dessous conservent la preuve des parcours antérieurs et ne signifient plus
+qu’un compte doit posséder un atelier.
 
 Le candidat 1.0.0 ignore les réponses d’une lecture web annulée, y compris un
 401 reçu pendant le changement de compte ou d’atelier. Elles ne doivent ni

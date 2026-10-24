@@ -22,6 +22,61 @@ panne générale de Cloudflare, qui héberge les deux services.
 Voir [les tests hors ligne](TESTING_OFFLINE.md) et
 [le diagnostic de commande sans consommation](PRODUCTION_DRY_RUN.md).
 
+## Rapports de navigateur en production — candidat du 24 octobre
+
+Le candidat ajoute une preuve distincte aux quatorze lectures du Cron : un
+workflow GitHub sur `main`, prévu toutes les six heures (`production-e2e.yml`)
+ou à la demande. Il observe uniquement des URL publiques fixes du domaine
+canonique. Ses 28 contrôles réunissent quatorze parcours dans Chromium
+(sept pages sur ordinateur et dans une vue mobile simulée) et quatorze contrats
+HTTP publics. Les pages couvrent les quatre langues d’accueil et les guides
+Rôles, Développeur et ChatGPT. Aucun appareil physique n’est qualifié.
+
+La section **Parcours publics dans le navigateur** affiche la dernière
+exécution, le commit du produit testé, le commit actuellement observé, la
+fraîcheur, les contrôles et le lien vers l’exécution GitHub. Le commit du runner
+reste distinct de celui du produit publié. Au-delà de huit heures, après un
+changement de version, ou en l’absence de preuve valide, la présentation reste
+neutre : un ancien succès ne qualifie pas la version actuelle. Un véritable
+écart récent demeure visible dans cette section. Ce rapport ne remplace et ne
+modifie pas le bilan des quatorze contrôles de disponibilité.
+
+Le cycle **Distribution et réception authentifiées** reste explicitement
+**À qualifier** tant que des comptes de test dédiés et une authentification
+forte qualifiée ne sont pas configurés. Il ne reçoit ni succès fictif ni badge
+d’incident. Une réussite locale TesterArmy de la distribution ne constitue pas
+une exécution authentifiée en production. Le workflow public ne crée aucun
+compte, document, devis, achat, message, accès fournisseur ou commande métier.
+
+L’écriture d’un rapport utilise une identité GitHub OIDC vérifiée et liée à
+l’empreinte du corps, au dépôt et au workflow autorisés. Aucun secret Cloudflare
+d’écriture ni identifiant de l’application métier n’est ajouté au runner.
+`GET /api/e2e-status` reste une lecture publique : aucun test n’est lancé par
+l’ouverture du statut. Le document reçu est borné et expurgé ; seuls les
+identifiants fixes de contrôle, codes autorisés, durées, états, commits et
+références publiques GitHub sont présentés. Aucun contenu client, nom de compte,
+capture, journal brut, destinataire, token ou URL privée n’est publié. Les liens
+externes de l’interface sont reconstruits vers le dépôt GitHub attendu.
+
+L’interface lit ce document à l’ouverture, lors d’un rafraîchissement explicite,
+puis toutes les quinze minutes pendant qu’elle est visible ; le retour d’un
+onglet masqué ne relance la lecture qu’après ce délai. Ces lectures supplémentaires
+utilisent les quotas partagés du compte. Les minutes du runner GitHub et le
+stockage des rapports restent soumis aux conditions du dépôt ; aucun plafond
+de facture ou gratuité n’est déduit de la cadence. Le workflow conserve uniquement
+le rapport JSON expurgé en artefact, pendant quatorze jours.
+
+Sources du candidat : `apps/status/production-e2e.ts`,
+`apps/status/public/production-e2e.js`, `scripts/production-e2e.ts`,
+`tests/production-e2e/`, `.github/workflows/production-e2e.yml` et la migration
+statut `0002_production_e2e.sql`. Qualification locale de présentation le
+24 octobre : **37 tests UI statut réussis**, dont dix nouveaux scénarios
+sur ordinateur et aux largeurs 390/320 px (rapport courant, absent, périmé,
+version changée, écart réel, contrôle bloqué, contrat incohérent, lien non autorisé).
+Ces réponses UI sont synthétiques. Le workflow exécuté, le stockage OIDC hébergé,
+la publication du statut et une première lecture de rapport réel restent des
+preuves séparées ; aucune de ces étapes n’est attestée par les tests UI locaux.
+
 ## Historique et lecture
 
 La vue **Service** présente les résultats de la surveillance publique, sa
@@ -75,14 +130,14 @@ identifiants disponibles : aucune facture finale n’est inférée.
 
 Tarifs officiels consultés le 10 octobre 2026 :
 
-| Ressource | Inclus dans le compte Workers Paid | Dépassement |
-| --- | --- | --- |
-| Requêtes Worker | 10 millions/mois | 0,30 USD/million |
-| CPU Worker | 30 millions de ms/mois | 0,02 USD/million de ms |
-| Lectures D1 | 25 milliards de lignes/mois | 0,001 USD/million |
-| Écritures D1 | 50 millions de lignes/mois | 1 USD/million |
-| Stockage D1 | 5 Go | 0,75 USD/Go-mois |
-| Fichiers statiques servis directement | Illimité | Gratuit |
+| Ressource                             | Inclus dans le compte Workers Paid | Dépassement            |
+| ------------------------------------- | ---------------------------------- | ---------------------- |
+| Requêtes Worker                       | 10 millions/mois                   | 0,30 USD/million       |
+| CPU Worker                            | 30 millions de ms/mois             | 0,02 USD/million de ms |
+| Lectures D1                           | 25 milliards de lignes/mois        | 0,001 USD/million      |
+| Écritures D1                          | 50 millions de lignes/mois         | 1 USD/million          |
+| Stockage D1                           | 5 Go                               | 0,75 USD/Go-mois       |
+| Fichiers statiques servis directement | Illimité                           | Gratuit                |
 
 Sources : [Workers](https://developers.cloudflare.com/workers/platform/pricing/)
 et [D1](https://developers.cloudflare.com/d1/platform/pricing/).
@@ -101,10 +156,12 @@ lance ni navigateur hébergé ni container. Ces bornes réduisent les coûts ; e
 ne constituent pas un plafond de facture. Les mesures de build, startup, latence
 et ressources exécutées sont consignées avec la preuve de publication.
 
-Mesure locale sur le schéma final : 11 écritures de lignes pour une première
+Mesure locale historique du 10 octobre, sur le schéma alors qualifié :
+11 écritures de lignes pour une première
 collecte hors purge, et 1 462 lectures pour une année remplie (1 460 agrégats et
-deux métadonnées). Le bundle Worker préparé pèse environ 22 Ko, moins de 8 Ko
-compressé. Le plafond CPU est fixé à 50 ms par invocation ; ce plafond n’est pas
+deux métadonnées). Le bundle Worker de cette qualification pesait environ 22 Ko,
+moins de 8 Ko compressé ; cette mesure ne comprend pas le candidat de rapports
+GitHub du 24 octobre. Le plafond CPU est fixé à 50 ms par invocation ; ce plafond n’est pas
 une mesure de consommation. La mémoire et le CPU hébergés restent à mesurer
 dans les métriques Cloudflare, sans extrapoler les timings locaux.
 

@@ -1220,6 +1220,12 @@ export class DocumentService {
   ): Promise<ExactReviewPdf> {
     return this.readReviewOriginal(ctx, id, REVIEW_PDF_MAX_BYTES, dispatchId);
   }
+  private async assertSensitiveSourceSession(ctx:DocumentContext,id:string) {
+    const protectedSource=await this.env.DB.prepare("SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=? LIMIT 1").bind(ctx.organizationId,id).first();
+    if(!protectedSource)return;
+    const allowed=ctx.actor==="browser" && ctx.documentSessionHash && await this.env.DB.prepare(`SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ps.strong_authentication=1 AND ps.authentication_policy_version='guteneo-sensitive-v1' AND ps.verified_email IS NOT NULL AND ps.authenticated_at>=CAST(strftime('%s','now') AS INTEGER)-900`).bind(ctx.documentSessionHash,ctx.userId,ctx.organizationId).first();
+    if(!allowed)throw new ContentError("STRONG_AUTHENTICATION_REQUIRED","Une authentification forte récente dans Guteneo est requise pour ce document.",403);
+  }
   private async readReviewOriginal(
     ctx: DocumentContext,
     id: string,
@@ -1255,6 +1261,7 @@ export class DocumentService {
     const local =
       this.env.ENVIRONMENT === "local" && this.env.MODE === "simulation";
     const assertProof = async () => {
+      await this.assertSensitiveSourceSession(ctx,id);
       const current = await this.domain.getDocument(ctx, id, dispatchId);
       if (
         current.status !== "ready" ||
@@ -1499,6 +1506,7 @@ export class DocumentService {
       );
     }
     // The caller also fences OAuth authority and the canonical scan proof after rendering.
+    await this.assertSensitiveSourceSession(ctx,id);
     const current = await this.domain.getDocument(ctx, id, dispatchId);
     if (
       current.status !== "ready" ||
@@ -1548,7 +1556,8 @@ export class DocumentService {
         new Date().toISOString(),
       )
       .run();
-    if (dispatchId) await this.domain.getDocument(ctx, id, dispatchId);
+    await this.domain.getDocument(ctx, id, dispatchId);
+    await this.assertSensitiveSourceSession(ctx,id);
     return new Response(object.body, {
       headers: {
         "Content-Type": "application/pdf",

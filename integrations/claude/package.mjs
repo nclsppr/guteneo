@@ -12,6 +12,7 @@ export const claudeSkillNames = [
   "get-started",
   "pdf-accessibility",
   "postal-pdf",
+  "secure-distribution",
 ];
 export const claudePluginFiles = [
   ".claude-plugin/plugin.json",

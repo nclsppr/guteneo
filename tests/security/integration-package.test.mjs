@@ -39,6 +39,51 @@ async function fixture(run) {
 test("validates the synchronized portable and host-specific manifests", () =>
   fixture((directory) => validateIntegrationPackage(directory)));
 
+test("all packaged clients discover the same secure distribution server without granting personal authority", async () => {
+  for (const relative of [
+    "guteneo/mcp.json",
+    "guteneo/.mcp.json",
+    "claude/plugins/guteneo/.mcp.json",
+    "config/cursor-mcp.json",
+    "config/cursor-static-oauth.json",
+    "config/claude-static-oauth.json",
+    "config/copilot-vscode-mcp.json",
+    "config/copilot-cli-mcp.json",
+  ]) {
+    const value = JSON.parse(
+      await readFile(
+        new URL(`../../integrations/${relative}`, import.meta.url),
+        "utf8",
+      ),
+    );
+    const server = (value.mcpServers ?? value.servers).guteneo;
+    assert.equal(server.url, "https://guteneo.com/mcp", relative);
+    if (server.tools)
+      assert(
+        server.tools.includes("*"),
+        "A static allowlist must not hide secure distribution tools",
+      );
+    const scopes =
+      server.oauth?.scopes ??
+      server.auth?.scopes ??
+      server.extensions?.["com.openai"]?.auth?.defaultScopes;
+    if (scopes)
+      for (const scope of [
+        "dispatches:read",
+        "dispatches:prepare",
+        "dispatches:send",
+      ])
+        assert(
+          (Array.isArray(scopes) ? scopes : scopes.split(" ")).includes(scope),
+          `${relative}: ${scope}`,
+        );
+    assert.doesNotMatch(
+      JSON.stringify(server),
+      /personal:|vault:|claim:|binding:/,
+    );
+  }
+});
+
 for (const file of [
   "plugin.json",
   ".claude-plugin/plugin.json",
