@@ -1,49 +1,61 @@
-name: Guteneo public production browser checks
+name: Guteneo isolated OIDC diagnostics
 on:
-  schedule:
-    - cron: "17 */6 * * *"
   workflow_dispatch:
-permissions:
-  contents: read
-concurrency:
-  group: guteneo-public-production-browser
-  cancel-in-progress: false
+permissions: {}
 jobs:
-  public-browser:
-    if: github.repository == 'nclsppr/guteneo' && github.ref == 'refs/heads/main'
+  diagnostic:
+    if: github.repository == 'nclsppr/guteneo' && github.ref == 'refs/heads/codex/production-oidc-diagnostic'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 3
     permissions:
-      contents: read
       id-token: write
-    env:
-      E2E_TELEMETRY_DISABLED: "1"
-      DO_NOT_TRACK: "1"
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /*
-            !/videos/guteneo-gutenberg/archive/
-            !/videos/guteneo-gutenberg/media-parts/
-            !/reports/screenshots/
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          cache: npm
-      - run: npm ci
-      - run: node scripts/ci/ubuntu-mirrors.mjs
-      - run: npx --no-install e2e-web install chromium --with-deps
-      - name: Observe fixed anonymous pages and publish sanitized evidence
-        # OIDC exists only in memory, requested after the report has its hash.
-        # No application credential or Cloudflare write secret is provisioned.
-        run: node --import tsx scripts/production-e2e.ts --publish
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: public-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
-          path: test-results/production-e2e/sanitized-report.json
-          if-no-files-found: error
-          retention-days: 14
+      - name: Compare fixed public context predicates without production access
+        run: |
+          node --input-type=module <<'JS'
+          import { createPublicKey, verify } from "node:crypto";
+          const audience = "https://status.guteneo.com/diagnostic-only";
+          const plain = "nclsppr/guteneo";
+          const immutable = "nclsppr@9432084/guteneo@1373468624";
+          async function boundedJson(response) {
+            if (!response.ok) throw new Error("DIAGNOSTIC_FAILED");
+            const reader = response.body.getReader(); const parts=[]; let count=0;
+            try { for (;;) { const next=await reader.read(); if(next.done) break; count+=next.value.byteLength; if(count>32768) throw new Error("DIAGNOSTIC_FAILED"); parts.push(Buffer.from(next.value)); } }
+            finally { void reader.cancel().catch(()=>{}); }
+            return JSON.parse(Buffer.concat(parts).toString("utf8"));
+          }
+          try {
+            const e=process.env;
+            if(e.GITHUB_REPOSITORY!==plain || e.GITHUB_REF!=="refs/heads/codex/production-oidc-diagnostic" || e.GITHUB_EVENT_NAME!=="workflow_dispatch") throw new Error("DIAGNOSTIC_FAILED");
+            const endpoint=new URL(e.ACTIONS_ID_TOKEN_REQUEST_URL);
+            if(endpoint.protocol!=="https:" || !endpoint.hostname.endsWith(".actions.githubusercontent.com") || endpoint.username || endpoint.password || !e.ACTIONS_ID_TOKEN_REQUEST_TOKEN) throw new Error("DIAGNOSTIC_FAILED");
+            endpoint.searchParams.set("audience",audience);
+            const value=await boundedJson(await fetch(endpoint,{redirect:"error",signal:AbortSignal.timeout(10000),headers:{Authorization:"Bearer "+e.ACTIONS_ID_TOKEN_REQUEST_TOKEN}}));
+            const token=value.value;
+            if(typeof token!=="string" || token.length>16384 || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) throw new Error("DIAGNOSTIC_FAILED");
+            const parts=token.split("."); const h=JSON.parse(Buffer.from(parts[0],"base64url")); const p=JSON.parse(Buffer.from(parts[1],"base64url"));
+            const jwks=await boundedJson(await fetch("https://token.actions.githubusercontent.com/.well-known/jwks",{redirect:"error",signal:AbortSignal.timeout(10000)}));
+            const jwk=jwks.keys.find(k=>k.kid===h.kid && k.kty==="RSA" && k.alg==="RS256");
+            const signatureVerified=!!jwk && h.alg==="RS256" && verify("RSA-SHA256",Buffer.from(parts[0]+"."+parts[1]),createPublicKey({key:jwk,format:"jwk"}),Buffer.from(parts[2],"base64url"));
+            const now=Math.floor(Date.now()/1000); const ref=e.GITHUB_REF;
+            const flags={
+              signatureVerified, issuer:p.iss==="https://token.actions.githubusercontent.com", diagnosticAudience:p.aud===audience,
+              repositoryPlain:p.repository===plain, repositoryImmutable:p.repository===immutable,
+              ownerPlain:p.repository_owner==="nclsppr", ownerImmutable:p.repository_owner==="nclsppr@9432084",
+              repositoryId:p.repository_id==="1373468624", ownerId:p.repository_owner_id==="9432084",
+              ref:p.ref===ref, refType:p.ref_type==="branch",
+              workflowPlain:p.workflow_ref===plain+"/.github/workflows/production-e2e.yml@"+ref,
+              workflowImmutable:p.workflow_ref===immutable+"/.github/workflows/production-e2e.yml@"+ref,
+              workflowSha:p.workflow_sha===e.GITHUB_SHA, sha:p.sha===e.GITHUB_SHA,
+              runId:p.run_id===e.GITHUB_RUN_ID, runAttempt:p.run_attempt===e.GITHUB_RUN_ATTEMPT,
+              event:p.event_name==="workflow_dispatch", githubHosted:p.runner_environment==="github-hosted",
+              subPlain:p.sub==="repo:"+plain+":ref:"+ref, subImmutable:p.sub==="repo:"+immutable+":ref:"+ref,
+              hasHeadRef:!!p.head_ref, hasBaseRef:!!p.base_ref, hasJobWorkflowRef:!!p.job_workflow_ref,
+              jti:typeof p.jti==="string" && /^[A-Za-z0-9_-]{16,200}$/.test(p.jti),
+              exp:Number.isInteger(p.exp) && p.exp>now, nbf:Number.isInteger(p.nbf) && p.nbf<=now+5,
+              iat:Number.isInteger(p.iat) && p.iat<=now+5 && p.iat>=now-300
+            };
+            console.log(JSON.stringify({schema:1,scope:"isolated_branch_oidc_predicates",productionRequests:0,flags}));
+          } catch { console.error('{"code":"OIDC_DIAGNOSTIC_FAILED"}'); process.exitCode=1; }
+          
+          JS
