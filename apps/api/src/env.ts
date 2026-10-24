@@ -23,6 +23,8 @@ export interface Env {
   BELVEDERE_CLOUDFLARE_BILLING_TOKEN?: string;
   BELVEDERE_CLOUDFLARE_SCRIPT_NAME?: string;
   AUTH0_DOMAIN?: string;
+  /** Browser-login alias; AUTH0_DOMAIN remains the canonical identity issuer. */
+  AUTH0_BROWSER_DOMAIN?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;

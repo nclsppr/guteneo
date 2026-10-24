@@ -2374,3 +2374,430 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
     expect(result.response.headers.get("Retry-After")).toBe("60");
   });
 });
+
+describe("browser Auth0 custom domain with a stable identity namespace", () => {
+  const canonical = "https://pieper.eu.auth0.com/";
+  const custom = "https://auth.guteneo.com/";
+  const configured = (browserDomain?: string): AuthEnv => ({
+    ...betaEnv(),
+    AUTH0_DOMAIN: "pieper.eu.auth0.com",
+    ...(browserDomain === undefined
+      ? {}
+      : { AUTH0_BROWSER_DOMAIN: browserDomain }),
+  });
+  async function signedAt(
+    tokenIssuer: string,
+    audience: string,
+    claims: Record<string, unknown>,
+  ) {
+    return new SignJWT(claims)
+      .setProtectedHeader({ alg: "RS256", kid: jwk.kid })
+      .setIssuer(tokenIssuer)
+      .setAudience(audience)
+      .setIssuedAt()
+      .setExpirationTime("5m")
+      .sign(keyPair.privateKey);
+  }
+  async function flow(
+    startEnv = configured("auth.guteneo.com"),
+    options: {
+      subject?: string;
+      email?: string;
+      idIssuer?: string;
+      accessIssuer?: string;
+      idAudience?: string;
+      accessAudience?: string;
+      idChanges?: Record<string, unknown>;
+      accessChanges?: Record<string, unknown>;
+    } = {},
+  ) {
+    const started = await handleAuthRoute(request("/auth/login"), startEnv);
+    const destination = new URL(started!.headers.get("Location")!);
+    const tokenIssuer = `${destination.origin}/`;
+    const sub = options.subject ?? `auth0|alias-${crypto.randomUUID()}`;
+    const tokens = {
+      id_token: await signedAt(
+        options.idIssuer ?? tokenIssuer,
+        options.idAudience ?? "guteneo-browser",
+        {
+          sub,
+          nonce: destination.searchParams.get("nonce"),
+          email: options.email ?? "alias-fixture@example.test",
+          email_verified: true,
+          amr: ["pwd", "mfa"],
+          "https://guteneo.com/verified_account": true,
+          ...options.idChanges,
+        },
+      ),
+      access_token: await signedAt(
+        options.accessIssuer ?? tokenIssuer,
+        options.accessAudience ?? `${origin}/mcp`,
+        {
+          sub,
+          client_id: "guteneo-browser",
+          "https://guteneo.com/verified_account": true,
+          ...options.accessChanges,
+        },
+      ),
+    };
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async (input) => {
+        const target = input instanceof Request ? input.url : String(input);
+        if (target === `${tokenIssuer}oauth/token`)
+          return Response.json(tokens);
+        if (
+          [canonical, custom].some(
+            (base) => target === `${base}.well-known/jwks.json`,
+          )
+        )
+          return Response.json({ keys: [jwk] });
+        throw new Error("Unexpected custom-domain fixture network target");
+      });
+    const state = destination.searchParams.get("state")!;
+    const callback = request(
+      `/auth/callback?state=${state}&code=alias-fixture-code`,
+      "GET",
+      undefined,
+      { Cookie: started!.headers.get("Set-Cookie")!.split(";")[0] },
+    );
+    return {
+      startEnv,
+      sub,
+      state,
+      destination,
+      fetchSpy,
+      complete: (callbackEnv = startEnv) =>
+        handleAuthRoute(callback, callbackEnv),
+    };
+  }
+  async function browserSession(response: Response, currentEnv: AuthEnv) {
+    const cookie = response.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      currentEnv,
+    );
+    return { cookie, session };
+  }
+  it("reuses canonical identities, one welcome grant, preferences, existing sessions and reviewer restrictions", async () => {
+    const before = await flow(configured());
+    const first = await browserSession(
+      (await before.complete())!,
+      before.startEnv,
+    );
+    const userId = first.session.context.userId;
+    await env.DB.batch([
+      env.DB.prepare(
+        "UPDATE users SET preferred_locale='de',name='Saved fixture name' WHERE id=?",
+      ).bind(userId),
+      env.DB.prepare(
+        "INSERT INTO restricted_delivery_identities(issuer,subject) VALUES(?,?)",
+      ).bind(canonical, before.sub),
+    ]);
+    const after = await flow(configured("auth.guteneo.com"), {
+      subject: before.sub,
+    });
+    expect(after.destination.origin).toBe("https://auth.guteneo.com");
+    const bound = await env.DB.prepare(
+      "SELECT authorization_issuer,identity_issuer FROM auth_transactions WHERE state_hash=?",
+    )
+      .bind(await hashSecret(after.state))
+      .first();
+    expect(bound).toEqual({
+      authorization_issuer: custom,
+      identity_issuer: canonical,
+    });
+    const second = await browserSession(
+      (await after.complete())!,
+      after.startEnv,
+    );
+    expect(second.session.context).toEqual(first.session.context);
+    expect(second.session.user).toMatchObject({
+      name: "Saved fixture name",
+      preferredLocale: "de",
+    });
+    expect(
+      (
+        await authenticateBrowser(
+          request("/api/session", "GET", undefined, { Cookie: first.cookie }),
+          after.startEnv,
+        )
+      ).context,
+    ).toEqual(first.session.context);
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(before.sub)
+        .all(),
+    ).toMatchObject({ results: [{ issuer: canonical, user_id: userId }] });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) count FROM welcome_credit_grants g JOIN memberships m ON m.organization_id=g.organization_id WHERE m.user_id=?",
+      )
+        .bind(userId)
+        .first(),
+    ).toEqual({ count: 1 });
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM prepare_only_users WHERE user_id=?",
+      )
+        .bind(userId)
+        .first(),
+    ).toEqual({ user_id: userId });
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,subject FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(second.session.tokenHash)
+        .first(),
+    ).toEqual({ issuer: canonical, subject: before.sub });
+    expect(
+      await env.DB.prepare(
+        "SELECT enabled FROM channel_controls WHERE organization_id=?",
+      )
+        .bind(second.session.context.organizationId)
+        .all(),
+    ).toMatchObject({
+      results: [{ enabled: 0 }, { enabled: 0 }, { enabled: 0 }],
+    });
+  });
+  it("applies a pre-provisioned reviewer restriction on the first custom-domain login and never links by email", async () => {
+    const subject = `auth0|restricted-alias-${crypto.randomUUID()}`;
+    await env.DB.prepare(
+      "INSERT INTO restricted_delivery_identities(issuer,subject) VALUES(?,?)",
+    )
+      .bind(canonical, subject)
+      .run();
+    const first = await flow(configured("auth.guteneo.com"), { subject });
+    const reviewer = await browserSession(
+      (await first.complete())!,
+      first.startEnv,
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM prepare_only_users WHERE user_id=?",
+      )
+        .bind(reviewer.session.context.userId)
+        .first(),
+    ).toEqual({ user_id: reviewer.session.context.userId });
+    const other = await flow(); // Same signed email, different signed subject.
+    const unrelated = await browserSession(
+      (await other.complete())!,
+      other.startEnv,
+    );
+    expect(unrelated.session.context.userId).not.toBe(
+      reviewer.session.context.userId,
+    );
+    expect(unrelated.session.context.organizationId).not.toBe(
+      reviewer.session.context.organizationId,
+    );
+  });
+  it("retains canonical signed identity evidence for the existing Belvédère gate", async () => {
+    const started = await flow(configured("auth.guteneo.com"), {
+      email: "nicolas@pieper.fr",
+    });
+    const signedIn = await browserSession(
+      (await started.complete())!,
+      started.startEnv,
+    );
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${signedIn.cookie}` },
+        ),
+        {
+          ...started.startEnv,
+          ENVIRONMENT: "production",
+          BELVEDERE_SECRET_SLUG:
+            "fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+        } as Env,
+      ),
+    ).toBe(signedIn.session.context.userId);
+  });
+  it.each(["enable", "rollback", "legacy"])(
+    "completes a bound transaction across %s without changing its endpoint",
+    async (transition) => {
+      const canonicalStart = transition !== "rollback";
+      const started = await flow(
+        canonicalStart ? configured() : configured("auth.guteneo.com"),
+      );
+      if (transition === "legacy")
+        await env.DB.prepare(
+          "UPDATE auth_transactions SET authorization_issuer=NULL,identity_issuer=NULL WHERE state_hash=?",
+        )
+          .bind(await hashSecret(started.state))
+          .run();
+      const callbackEnv = canonicalStart
+        ? configured("auth.guteneo.com")
+        : configured();
+      expect((await started.complete(callbackEnv))?.status).toBe(302);
+      const exchanges = started.fetchSpy.mock.calls
+        .map(([input]) => String(input))
+        .filter((url) => url.endsWith("oauth/token"));
+      expect(exchanges).toContain(
+        `${canonicalStart ? canonical : custom}oauth/token`,
+      );
+    },
+  );
+  it("preserves existing canonical MCP connections and discovery while rejecting custom-issued Bearer tokens", async () => {
+    const started = await flow();
+    const member = await browserSession(
+      (await started.complete())!,
+      started.startEnv,
+    );
+    const clientId = `review-client-${crypto.randomUUID()}`;
+    const bearer = await signedAt(canonical, `${origin}/mcp`, {
+      sub: started.sub,
+      client_id: clientId,
+      scope: "documents:read",
+      "https://guteneo.com/verified_account": true,
+    });
+    const mcpRequest = (value: string) =>
+      request("/mcp", "POST", {}, { Authorization: `Bearer ${value}` });
+    const before = await authenticateMcp(mcpRequest(bearer), configured());
+    const after = await authenticateMcp(
+      mcpRequest(bearer),
+      configured("auth.guteneo.com"),
+    );
+    expect(after.context).toEqual(before.context);
+    expect(after.context.userId).toBe(member.session.context.userId);
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,client_id,status FROM authorized_connections WHERE user_id=?",
+      )
+        .bind(member.session.context.userId)
+        .all(),
+    ).toMatchObject({
+      results: [{ issuer: canonical, client_id: clientId, status: "active" }],
+    });
+    expect(
+      await protectedResourceMetadata(started.startEnv).json(),
+    ).toMatchObject({ authorization_servers: [canonical] });
+    const customBearer = await signedAt(custom, `${origin}/mcp`, {
+      sub: started.sub,
+      client_id: clientId,
+      "https://guteneo.com/verified_account": true,
+    });
+    await expect(
+      authenticateMcp(mcpRequest(customBearer), started.startEnv),
+    ).rejects.toMatchObject({ code: "TOKEN_INVALID" });
+  });
+  it.each([
+    { idIssuer: canonical },
+    { accessIssuer: canonical },
+    { idAudience: "other-browser-client" },
+    { accessAudience: "https://other-api.example/mcp" },
+    { idIssuer: "https://untrusted.example/" },
+    { accessChanges: { sub: "auth0|other-subject" } },
+    { idChanges: { nonce: "other-flow" } },
+    { idChanges: { email_verified: false } },
+    { idChanges: { "https://guteneo.com/verified_account": false } },
+    { accessChanges: { "https://guteneo.com/verified_account": false } },
+  ])(
+    "rejects mismatched browser token proofs before creating an identity: %j",
+    async (changes) => {
+      const started = await flow(configured("auth.guteneo.com"), changes);
+      await expect(started.complete()).rejects.toBeInstanceOf(AuthError);
+      expect(
+        await env.DB.prepare(
+          "SELECT user_id FROM auth_identities WHERE subject=?",
+        )
+          .bind(started.sub)
+          .first(),
+      ).toBeNull();
+      expect(
+        started.fetchSpy.mock.calls
+          .map(([input]) => String(input))
+          .every((url) =>
+            [canonical, custom].some(
+              (base) =>
+                url === `${base}oauth/token` ||
+                url === `${base}.well-known/jwks.json`,
+            ),
+          ),
+      ).toBe(true);
+    },
+  );
+  it("retains administrator MFA requirements when using the browser alias", async () => {
+    const started = await flow(
+      {
+        ...configured("auth.guteneo.com"),
+        AUTH0_AUTH_POLICY: "verified_email_and_mfa",
+      },
+      { idChanges: { amr: ["pwd"] } },
+    );
+    await expect(started.complete()).rejects.toMatchObject({
+      code: "MFA_REQUIRED",
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(started.sub)
+        .first(),
+    ).toBeNull();
+  });
+  it.each([
+    { AUTH0_BROWSER_DOMAIN: "untrusted.example" },
+    { AUTH0_BROWSER_DOMAIN: "auth.guteneo.com/path" },
+    { AUTH0_BROWSER_DOMAIN: "auth.guteneo.com?redirect=untrusted" },
+    { AUTH0_BROWSER_DOMAIN: "" },
+    {
+      AUTH0_BROWSER_DOMAIN: "auth.guteneo.com",
+      AUTH0_DOMAIN: "another.auth0.com",
+    },
+  ])(
+    "rejects unsupported browser configuration before network or transaction writes: %j",
+    async (changes) => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+      const count = await env.DB.prepare(
+        "SELECT count(*) count FROM auth_transactions",
+      ).first();
+      await expect(
+        handleAuthRoute(request("/auth/login"), {
+          ...configured(),
+          ...changes,
+        }),
+      ).rejects.toMatchObject({ code: "IDENTITY_CONFIG_INVALID" });
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) count FROM auth_transactions",
+        ).first(),
+      ).toEqual(count);
+    },
+  );
+  it.each([
+    { authorization: "https://untrusted.example/", identity: canonical },
+    { authorization: null, identity: canonical },
+    { authorization: custom, identity: null },
+    { authorization: custom, identity: "https://other.auth0.com/" },
+  ])(
+    "fails closed on an unrecognized or incomplete transaction binding: %j",
+    async ({ authorization, identity }) => {
+      const started = await flow();
+      await env.DB.prepare(
+        "UPDATE auth_transactions SET authorization_issuer=?,identity_issuer=? WHERE state_hash=?",
+      )
+        .bind(authorization, identity, await hashSecret(started.state))
+        .run();
+      await expect(started.complete()).rejects.toMatchObject({
+        code: "IDENTITY_CONFIG_INVALID",
+      });
+      expect(started.fetchSpy).not.toHaveBeenCalled();
+    },
+  );
+  it("rejects a canonical namespace change during an already bound transaction", async () => {
+    const started = await flow();
+    await expect(
+      started.complete({ ...configured(), AUTH0_DOMAIN: "another.auth0.com" }),
+    ).rejects.toMatchObject({ code: "IDENTITY_CONFIG_INVALID" });
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+  });
+});
