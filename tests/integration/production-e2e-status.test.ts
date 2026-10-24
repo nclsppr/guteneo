@@ -9,6 +9,7 @@ import {
 } from "../../apps/status/production-e2e";
 import { handleStatusRequest } from "../../apps/status/worker";
 import { sanitizedBrowserChecks, publishProductionReport } from "../../scripts/production-e2e";
+import { productionMonitorFailure } from "../../scripts/production-e2e-runtime";
 
 const NOW = Date.parse("2026-10-24T16:00:00.000Z"), commit = "a".repeat(40);
 let mf: Miniflare, db: D1Database;
@@ -241,4 +242,63 @@ describe("sanitized production browser evidence", () => {
     expect(requests).toHaveLength(2);
     expect(requests[1].body).not.toMatch(/Bearer|signature|fixture-only/);
   });
+
+  const publicationEnv = { GITHUB_ACTIONS: "true", GITHUB_REPOSITORY: E2E_REPOSITORY,
+    GITHUB_REF: "refs/heads/main", GITHUB_EVENT_NAME: "workflow_dispatch",
+    ACTIONS_ID_TOKEN_REQUEST_URL: "https://fixture.actions.githubusercontent.com/oidc?private=never-print",
+    ACTIONS_ID_TOKEN_REQUEST_TOKEN: "private-request-token" };
+
+  it("publishes an attention report with seven page mismatches through digest-bound OIDC", async () => {
+    const report = fixture();
+    for (const check of report.checks) if (check.id.startsWith("http:") && !check.id.startsWith("http:/api/") &&
+      !["http:/release.json", "http:/mcp"].includes(check.id)) { check.status = "fail"; check.code = "CONTENT_LENGTH_MISMATCH"; }
+    const body = JSON.stringify(report);
+    await release();
+    await publishProductionReport(body, async (input, init) => {
+      if (String(input).startsWith("https://fixture.actions.githubusercontent.com/")) {
+        expect(new URL(String(input)).searchParams.get("audience")).toBe(productionReportAudience(await productionReportDigest(body)));
+        return Response.json({ value: await token(body) });
+      }
+      return ingestProductionReport(new Request(String(input), init), db, NOW, keySet);
+    }, publicationEnv);
+    const result = await latest();
+    expect(result).toMatchObject({ status: "attention", freshness: "fresh", latest: { runId: report.run.id, status: "attention" } });
+    expect(report.checks.filter((check) => check.status === "pass")).toHaveLength(21);
+    expect(await db.prepare("SELECT report_sha256 FROM production_e2e_reports").first()).toEqual({ report_sha256: await productionReportDigest(body) });
+  });
+
+  it.each([
+    [401, "REPORT_REJECTED"], [409, "REPORT_ALREADY_RECORDED"], [503, "REPORT_STORAGE_UNAVAILABLE"],
+    [500, "private-upstream-detail"],
+  ])("diagnoses ingestion HTTP %s with closed codes while retaining failure", async (status, code) => {
+    const body = JSON.stringify(fixture()); let requests = 0;
+    const failure = await publishProductionReport(body, async () => {
+      if (++requests === 1) return Response.json({ value: "private.jwt.signature" });
+      return Response.json({ error: code, token: "private.jwt.signature", detail: "private-upstream-detail" }, { status });
+    }, publicationEnv).then(() => null, (error: unknown) => productionMonitorFailure(error));
+    expect(failure).toEqual({ code: "PUBLICATION_REJECTED", stage: "ingestion", httpStatus: status,
+      responseCode: code === "private-upstream-detail" ? "UNKNOWN" : code });
+    expect(JSON.stringify(failure)).not.toMatch(/private-|signature|never-print/);
+    expect(requests).toBe(2);
+  });
+
+  it.each(["authority", "url", "oidc-network", "oidc-http", "oidc-json", "ingestion-network"])(
+    "attributes %s failures without emitting external error text", async (stage) => {
+      let requests = 0;
+      const failure = await publishProductionReport(JSON.stringify(fixture()), async () => {
+        requests++;
+        if (stage === "oidc-network" || (stage === "ingestion-network" && requests === 2))
+          throw new Error("private-request-token: https://private.example/never-print");
+        if (stage === "oidc-http") return new Response("private detail", { status: 403 });
+        if (stage === "oidc-json") return new Response("not JSON private detail");
+        return Response.json({ value: "private.jwt.signature" });
+      }, { ...publicationEnv,
+        ...(stage === "authority" ? { GITHUB_REF: "refs/pull/1/merge" } : {}),
+        ...(stage === "url" ? { ACTIONS_ID_TOKEN_REQUEST_URL: "not a URL private-request-token" } : {}),
+      }).then(() => null, (error: unknown) => productionMonitorFailure(error));
+      expect(failure?.code).toBe(stage === "authority" ? "PUBLICATION_AUTHORITY_REQUIRED" : stage === "url" ? "OIDC_ENDPOINT_INVALID" :
+        stage === "oidc-json" ? "OIDC_RESPONSE_INVALID" : stage === "ingestion-network" ? "PUBLICATION_UNAVAILABLE" : "OIDC_UNAVAILABLE");
+      expect(JSON.stringify(failure)).not.toMatch(/private-|signature|never-print/);
+      expect(requests).toBe(stage === "authority" || stage === "url" ? 0 : stage === "ingestion-network" ? 2 : 1);
+    });
 });

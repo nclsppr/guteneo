@@ -23,6 +23,16 @@ Chaque rapport contient exactement **28 contrôles**. Le pilote lit la version
 servie avant et après le parcours. Un changement pendant l’exécution reste
 inconnu. Aucun contrôle ne se transforme en succès faute de résultat.
 
+Le pilote Node demande `Accept-Encoding: identity` et `Cache-Control: no-transform`
+sur ces seules destinations fixes. Le collecteur vérifie toujours les octets
+reçus et leur SHA-256 contre le manifeste : ignorer ces en-têtes, transformer
+une page ou servir une variante ne peut pas faire passer un écart. Aucun
+second essai automatique ne remplace une observation échouée. Pour un écart de
+taille ou d’empreinte, le journal CI contient seulement le chemin public fixe,
+les tailles et empreintes attendues/reçues, et un encodage issu d’une liste fermée.
+L’encodage de réponse est distinct des octets décodés observés par Node. Ces
+diagnostics restent hors du corps signé, dont le schéma demeure inchangé.
+
 Le moteur refuse les mutations HTTP, l’authentification, les destinations
 externes et les ressources autres que les pages et fichiers publics fixes.
 Il ne clique aucun bouton métier. Aucun e-mail, fax, courrier, achat, devis,
@@ -65,6 +75,37 @@ destinataire, contenu, capture ou état de session n’est admis dans le rapport
 
 Référence de la politique : [GitHub, OpenID Connect reference](https://docs.github.com/en/actions/reference/security/oidc).
 Les IDs du dépôt ont été relus par l’API GitHub le 24 octobre 2026.
+
+Un refus de publication reste un échec. Son diagnostic distingue contexte
+autorisé, obtention OIDC et ingestion, avec un statut HTTP et un code serveur
+explicitement autorisé ; toute autre réponse devient `UNKNOWN`. Les lectures
+de réponse sont bornées en octets et à cinq secondes. Les erreurs libres,
+URL OIDC, JWT, en-têtes et corps amont ne sont jamais imprimés. La présence de
+l’artefact, écrit avant l’ingestion, ne prouve pas que le statut l’a enregistré.
+
+## Première observation hébergée — 24 octobre 2026
+
+Le Worker de statut `b0d2ed61-227c-47d3-8f09-57b0545fb568` a été publié depuis
+`4f033e2f233ee2960a579eef839191531e6f8b8d`, avec les vingt fichiers publics
+et la configuration d’en-têtes vérifiés. Le run GitHub
+[`40128432279`, tentative 1](https://github.com/nclsppr/guteneo/actions/runs/40128432279)
+a échoué : les quatorze contrôles navigateur ont réussi et sept comparaisons
+HTTP de pages ont signalé `CONTENT_LENGTH_MISMATCH`, soit **21/28 réussis**.
+Le rapport expurgé porte le SHA-256
+`ee8159896ada1b413a9e37d3c3d31bb511cba8b8da220ec47c2ca0fa167a9daf`.
+Son ingestion n’est pas qualifiée ; `latest` était nul après cette tentative.
+Le collecteur exact et les variantes d’encodage passaient ensuite depuis le
+Mac : cela ne prouve pas la cause de l’écart depuis le runner GitHub. Le
+correctif de transport/diagnostic doit encore être qualifié par un nouveau run
+autorisé après revue et CI ; aucun succès de production n’en est déduit.
+
+Qualification locale du correctif : **117 tests ciblés réussis** (36 ingestion/
+publication, 51 collecteur/historique, 30 transport/confidentialité/délais), neuf
+tests du circuit de publication statut, typecheck, lint ciblé et atlas généré.
+Une lecture publique depuis le Mac avec le nouveau transport passe 14/14 HTTP
+sur l’application `4f033e2` ; elle ne constitue ni une nouvelle tentative GitHub
+ni une preuve d’ingestion hébergée. Les tests simulent aussi l’ingestion complète
+d’un rapport `attention` à sept écarts, avec audience liée à son corps exact.
 
 ## Lecture publique et conservation
 
