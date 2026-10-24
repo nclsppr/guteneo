@@ -3,9 +3,11 @@ import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import type { JWTVerifyGetKey } from "jose";
 import { collectPublicSnapshot, type Snapshot } from "../apps/status/worker";
 import { boundedResponseJson, PublicationFailure, productionMonitorFailure, publicationResponseCode,
   publicObservationTransport } from "./production-e2e-runtime";
+import { diagnoseProductionReportRejection, type ProductionOidcDiagnostic } from "./production-e2e-oidc-diagnostics";
 import {
   E2E_AUDIENCE, E2E_CHECK_IDS, E2E_HTTP_PATHS, E2E_PAGES,
   productionE2EReportSchema, productionReportAudience, productionReportDigest,
@@ -60,7 +62,8 @@ function runBrowser(): Promise<void> {
   });
 }
 
-export async function publishProductionReport(body: string, fetcher = fetch, env = process.env) {
+export async function publishProductionReport(body: string, fetcher = fetch, env = process.env,
+  diagnostics: { keySet?: JWTVerifyGetKey; now?: number; write?: (value: ProductionOidcDiagnostic) => void } = {}) {
   if (env.GITHUB_ACTIONS !== "true" || env.GITHUB_REPOSITORY !== "nclsppr/guteneo" ||
     env.GITHUB_REF !== "refs/heads/main" || !["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME ?? ""))
     throw new PublicationFailure("PUBLICATION_AUTHORITY_REQUIRED", "authority");
@@ -87,8 +90,16 @@ export async function publishProductionReport(body: string, fetcher = fetch, env
   try { response = await fetcher(E2E_AUDIENCE, { method: "POST", redirect: "error", cache: "no-store",
     signal: AbortSignal.timeout(10000), headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body }); }
   catch { throw new PublicationFailure("PUBLICATION_UNAVAILABLE", "ingestion"); }
-  if (response.status !== 201) throw new PublicationFailure("PUBLICATION_REJECTED", "ingestion", response.status,
-    await publicationResponseCode(response));
+  if (response.status !== 201) {
+    const responseCode = await publicationResponseCode(response);
+    if (response.status === 401 && responseCode === "REPORT_REJECTED") {
+      try {
+        const diagnostic = await diagnoseProductionReportRejection(token, body, diagnostics.now ?? Date.now(), diagnostics.keySet);
+        (diagnostics.write ?? ((value) => console.error(JSON.stringify(value))))(diagnostic);
+      } catch { /* A diagnostic must never replace the real rejection. */ }
+    }
+    throw new PublicationFailure("PUBLICATION_REJECTED", "ingestion", response.status, responseCode);
+  }
   void response.body?.cancel().catch(() => {});
   // Only fixed diagnostic codes and HTTP status may escape; never token/endpoint/body.
 }

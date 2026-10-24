@@ -8,6 +8,9 @@ import {
 async function login(page: Page, appearance?: "v2") {
   await page.goto(appearance ? "/?appearance=v2#/app" : "/#/app");
   await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  // The sign-in screen already has an h1. Wait for the authenticated shell
+  // before a caller can navigate and cancel the pending login request.
+  await expect(page.locator(".workspace")).toBeVisible();
   await expect(page.locator("#main-content h1")).toBeVisible();
 }
 

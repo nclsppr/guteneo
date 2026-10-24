@@ -30,6 +30,21 @@ contain only a fixed public path, expected/observed sizes and hashes, and an
 allowlisted encoding label. Response encoding is distinct from the decoded bytes
 observed by Node. Diagnostics remain outside the unchanged signed-report schema.
 
+The request alone cannot prevent a Cloudflare transformation. The
+[compression documentation](https://developers.cloudflare.com/speed/optimization/content/compression/#content-length-header-handling)
+requires `no-transform` in the **origin response**. The application candidate
+therefore appends it to the existing `Cache-Control` of successful canonical
+public HTML and its conditional 304 responses. It preserves other directives,
+bytes, ETag, existing encodings and response framing. APIs, sessions, private
+requests, JS/CSS/images/videos and fallback hosts gain no cache rule. No script
+is stripped before comparison. The
+[Web Analytics documentation](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
+states that `public, no-transform` prevents automatic beacon injection and that
+its EU-exclusion mode omits the beacon for European visitors. This guard requires
+application publication; changing only the Node driver is insufficient. It may
+also prevent CDN recompression of these HTML responses. Observe served bandwidth
+and latency after publication rather than inferring a fixed bill or free use.
+
 The engine rejects HTTP mutations, authentication, external destinations, and
 resources outside the fixed public page/asset list. It clicks no business
 button. It triggers no email, fax, postal mail, purchase, quotation, import,
@@ -59,6 +74,9 @@ proof, never a shared Cloudflare secret. Its policy requires:
 - Workflow `.github/workflows/production-e2e.yml` on `refs/heads/main`.
 - Event `schedule` or `workflow_dispatch`, running on a GitHub-hosted runner.
 - Workflow SHA, runner SHA, run identifier, and attempt matching the report.
+- `job_workflow_ref` and `job_workflow_sha` jointly absent in the legacy format,
+  or an exact pair matching the canonical main workflow above and runner commit;
+  foreign, partial, empty or null pairs are denied.
 - A recent JWT and an observation bounded to ten minutes.
 
 The audience includes the exact body's SHA-256, binding its nonce, results,
@@ -77,6 +95,15 @@ allowlisted server code; every other response becomes `UNKNOWN`. Response reads
 are byte-bounded and have a five-second deadline. Free-form errors, OIDC URLs,
 JWTs, headers and upstream bodies are never printed. An artifact saved before
 ingestion does not prove status stored the report.
+
+Only after an actual `401 REPORT_REJECTED` may the driver emit a fixed-key OIDC
+diagnostic: explicitly **unverified** boolean comparisons, followed by a closed
+result from one invocation of the same verifier used by the server. GitHub public
+key reads retain their five-second deadline; the complete diagnostic expires in
+six seconds. It requests no new JWT, repeats no POST and changes no Worker
+authority. The original rejection remains the final failure even when local
+verification accepts. No claim value, JWT/JWK, URL, header, body or free-form
+exception is published.
 
 ## First hosted observation — 24 October 2026
 
@@ -100,6 +127,38 @@ using the new transport passes 14/14 HTTP checks against application `4f033e2`;
 it is neither another GitHub attempt nor hosted-ingestion proof. Tests also
 simulate complete ingestion of an `attention` report with seven discrepancies,
 using an audience bound to that exact body.
+
+The second real observation,
+[`40131421762`, attempt 1](https://github.com/nclsppr/guteneo/actions/runs/40131421762),
+used runner `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` and application `4f033e2`.
+It also failed at **21/28**: each of the seven HTML responses received as
+`identity` contained exactly **367 additional bytes**. Report submission then
+returned `401 REPORT_REJECTED`. Ingestion refusal is separate from the HTTP
+mismatch. Automatic HTML transformation is a hypothesis consistent with the
+documentation and EU/runner difference; the projection retains no HTML and cannot
+identify the injected beacon on its own. The new origin guard still requires
+publication and qualification from the runner. Locally, 94 asset-scope cases and
+two real workerd/Static Assets cases pass, covering four languages, GET/HEAD/304,
+bytes, ETag, existing directives and unchanged private/API cache boundaries.
+
+An isolated branch GitHub diagnostic, run
+[`40132056947`](https://github.com/nclsppr/guteneo/actions/runs/40132056947), then
+verified the signature and bounded direct-job JWT predicates: `job_workflow_ref`
+is present/equal to `workflow_ref`, and `job_workflow_sha` equals the job SHA.
+That diagnostic made no production request and retained no JWT in its projection.
+The previous guard rejected this form merely because `job_workflow_ref` existed.
+The server correction accepts only joint absence or the exact production-main
+workflow/expected-commit pair. Signature, body-bound audience, repository/IDs,
+branch, event, freshness and replay checks remain mandatory. Foreign file/SHA,
+partial pairs and null values are denied. This requires status Worker publication
+too; a branch diagnostic proves no production ingestion. Application and status
+must therefore be published and qualified separately; the report must establish
+28/28 results and exact storage before success is claimed.
+
+Targeted qualification of that rule and diagnostic passes **114/114 local cases**:
+52 status integration, 32 OIDC diagnostic and 30 transport/projection cases.
+These RS256 JWTs are synthetic and verified offline, not accounts, a new GitHub
+execution or production ingestion. Final-head CI and publications remain separate.
 
 These observations belong to their recorded source. PR 75's merge into main
 `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` and its later reconciliation with this

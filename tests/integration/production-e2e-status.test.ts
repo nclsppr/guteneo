@@ -259,6 +259,30 @@ describe("sanitized production browser evidence", () => {
     ).toEqual({ n: 0 });
   });
 
+  it("accepts the verified current GitHub direct-job claim pair bound to the exact canonical workflow and runner commit", async () => {
+    const body = JSON.stringify(fixture());
+    const signed = await token(body, { job_workflow_ref: E2E_WORKFLOW, job_workflow_sha: commit });
+    expect((await ingestProductionReport(request(body, signed), db, NOW, keySet)).status).toBe(201);
+    expect(await db.prepare("SELECT report_sha256 FROM production_e2e_reports").first()).toEqual({ report_sha256: await productionReportDigest(body) });
+  });
+
+  it.each([
+    { job_workflow_ref: E2E_WORKFLOW }, { job_workflow_sha: commit },
+    { job_workflow_ref: null, job_workflow_sha: null }, { job_workflow_ref: "", job_workflow_sha: "" },
+    { job_workflow_ref: E2E_WORKFLOW, job_workflow_sha: null },
+    { job_workflow_ref: null, job_workflow_sha: commit },
+    { job_workflow_ref: E2E_WORKFLOW, job_workflow_sha: "b".repeat(40) },
+    { job_workflow_ref: "nclsppr/guteneo/.github/workflows/other.yml@refs/heads/main", job_workflow_sha: commit },
+    { job_workflow_ref: E2E_WORKFLOW.replace("refs/heads/main", "refs/heads/other"), job_workflow_sha: commit },
+    { job_workflow_ref: "attacker/guteneo/.github/workflows/production-e2e.yml@refs/heads/main", job_workflow_sha: commit },
+    { job_workflow_ref: [E2E_WORKFLOW], job_workflow_sha: commit },
+    { job_workflow_ref: E2E_WORKFLOW, job_workflow_sha: [commit] },
+  ])("rejects partial, empty, foreign or mismatched direct-job claims %j", async (claims) => {
+    const body = JSON.stringify(fixture());
+    expect((await ingestProductionReport(request(body, await token(body, claims)), db, NOW, keySet)).status).toBe(401);
+    expect(await db.prepare("SELECT count(*) n FROM production_e2e_reports").first()).toEqual({ n: 0 });
+  });
+
   it("rejects a different audience, unsigned or tampered JWT and post-signature body changes", async () => {
     const report = fixture(),
       body = JSON.stringify(report),
@@ -629,7 +653,7 @@ describe("sanitized production browser evidence", () => {
     await publishProductionReport(body, async (input, init) => {
       if (String(input).startsWith("https://fixture.actions.githubusercontent.com/")) {
         expect(new URL(String(input)).searchParams.get("audience")).toBe(productionReportAudience(await productionReportDigest(body)));
-        return Response.json({ value: await token(body) });
+        return Response.json({ value: await token(body, { job_workflow_ref: E2E_WORKFLOW, job_workflow_sha: report.runnerCommit }) });
       }
       return ingestProductionReport(new Request(String(input), init), db, NOW, keySet);
     }, publicationEnv);
@@ -644,13 +668,45 @@ describe("sanitized production browser evidence", () => {
     [500, "private-upstream-detail"],
   ])("diagnoses ingestion HTTP %s with closed codes while retaining failure", async (status, code) => {
     const body = JSON.stringify(fixture()); let requests = 0;
+    const write = vi.fn();
     const failure = await publishProductionReport(body, async () => {
       if (++requests === 1) return Response.json({ value: "private.jwt.signature" });
       return Response.json({ error: code, token: "private.jwt.signature", detail: "private-upstream-detail" }, { status });
-    }, publicationEnv).then(() => null, (error: unknown) => productionMonitorFailure(error));
+    }, publicationEnv, { now: NOW, keySet, write }).then(() => null, (error: unknown) => productionMonitorFailure(error));
     expect(failure).toEqual({ code: "PUBLICATION_REJECTED", stage: "ingestion", httpStatus: status,
       responseCode: code === "private-upstream-detail" ? "UNKNOWN" : code });
     expect(JSON.stringify(failure)).not.toMatch(/private-|signature|never-print/);
+    expect(requests).toBe(2);
+    expect(write).toHaveBeenCalledTimes(status === 401 ? 1 : 0);
+  });
+
+  it.each([false, true])("diagnoses an exact rejected signed report without retrying or replacing rejection (invalid authority %s)", async (invalid) => {
+    const body = JSON.stringify(fixture()), bearer = await token(body, invalid ? { workflow_ref: "private-workflow" } : {});
+    let requests = 0;
+    const write = vi.fn();
+    const failure = await publishProductionReport(body, async (input, init) => {
+      if (++requests === 1) return Response.json({ value: bearer });
+      expect(init?.body).toBe(body);
+      return invalid ? ingestProductionReport(new Request(String(input), init), db, NOW, keySet)
+        : Response.json({ error: "REPORT_REJECTED" }, { status: 401 });
+    }, publicationEnv, { now: NOW, keySet, write }).then(() => null, (error: unknown) => productionMonitorFailure(error));
+    expect(failure).toEqual({ code: "PUBLICATION_REJECTED", stage: "ingestion", httpStatus: 401, responseCode: "REPORT_REJECTED" });
+    expect(requests).toBe(2);
+    expect(write).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: "REPORT_REJECTION_DIAGNOSTIC",
+      comparisonsVerified: false, verification: invalid ? "REPORT_AUTHORITY_INVALID" : "ACCEPTED",
+      comparisons: expect.objectContaining({ workflowMatches: !invalid }) }));
+    expect(JSON.stringify(write.mock.calls)).not.toMatch(/private-workflow|eyJ|Bearer|nonce|https:/);
+    expect(await db.prepare("SELECT count(*) n FROM production_e2e_reports").first()).toEqual({ n: 0 });
+  });
+
+  it("keeps rejection if diagnostic output itself fails", async () => {
+    let requests = 0;
+    const failure = await publishProductionReport(JSON.stringify(fixture()), async () => {
+      if (++requests === 1) return Response.json({ value: "private.jwt.signature" });
+      return Response.json({ error: "REPORT_REJECTED" }, { status: 401 });
+    }, publicationEnv, { now: NOW, keySet, write: () => { throw new Error("private-output-detail"); } })
+      .then(() => null, (error: unknown) => productionMonitorFailure(error));
+    expect(failure).toEqual({ code: "PUBLICATION_REJECTED", stage: "ingestion", httpStatus: 401, responseCode: "REPORT_REJECTED" });
     expect(requests).toBe(2);
   });
 

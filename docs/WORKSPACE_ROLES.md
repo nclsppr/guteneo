@@ -307,3 +307,11 @@ workflow can submit its OIDC-bound report; no human role or assistant acquires
 this authority through membership. Driver diagnostics are restricted to public
 paths/hashes and allowed publication codes. A local artifact or failed ingestion
 cannot establish stored-report success or qualified business coverage.
+
+Public HTML integrity adds `no-transform` to application responses for canonical
+public documents only. It grants no visitor, role or assistant authority and
+broadens no API, session or private cache. Size/SHA comparisons remain complete.
+Direct-job OIDC can carry `job_workflow_ref` and `job_workflow_sha`; the server
+accepts only their joint legacy absence or exact equality with the canonical
+main workflow and runner commit. This adds no authorized workflow, branch, role
+or assistant. It requires status publication and separate ingestion evidence.

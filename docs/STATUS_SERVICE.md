@@ -76,8 +76,24 @@ and failed overall; ingestion is unqualified. All fourteen browser checks passed
 while seven page comparisons failed on received size. The diagnostic candidate
 requests an untransformed representation in Node, preserves strict size/SHA
 checks, and distinguishes OIDC/ingestion refusals without logging secrets. The
-Worker, Cron probes and OIDC authority remain unchanged. See
+Worker, Cron probes and OIDC authority were unchanged by that first Node correction. See
 [the detailed observation and its limits](PRODUCTION_BROWSER_MONITOR.md).
+
+The second attempt `40131421762` also failed at 21/28: every HTML response gained
+367 bytes despite `identity` encoding, then ingestion returned
+`401 REPORT_REJECTED`. The proposed origin guard appends `no-transform` only to
+canonical public HTML responses while retaining complete hashes. Monitor request
+headers cannot replace that response rule. Application publication and fresh
+observation are required; both failures remain recorded without inferred success.
+
+Isolated signed diagnostic `40132056947`, without a production request, confirms
+that a direct GitHub job can also carry `job_workflow_ref` and `job_workflow_sha`.
+The server accepts their joint legacy absence or the exact canonical-main
+workflow/runner-commit pair. Foreign reference/SHA, one field alone or null remain
+denied; signature, body, repository, branch and replay authority do not expand.
+This correction needs a new status publication, separately from application
+publication for the HTML guard. All 28 results and exact ingestion remain to be
+qualified.
 
 ## History and interpretation
 

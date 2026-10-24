@@ -148,6 +148,20 @@ export async function productionReportDigest(body: string): Promise<string> {
 }
 export const productionReportAudience = (digest: string) =>
   `${E2E_AUDIENCE}:sha256:${digest}`;
+/** Current GitHub direct jobs include both workflow claims; legacy tokens
+ * omit both. Partial/empty claims and any other workflow or revision deny.
+ */
+export function productionDirectWorkflowClaimsMatch(
+  claims: Record<string, unknown>,
+  commit: string,
+) {
+  return (
+    (claims.job_workflow_ref === undefined &&
+      claims.job_workflow_sha === undefined) ||
+    (claims.job_workflow_ref === E2E_WORKFLOW &&
+      claims.job_workflow_sha === commit)
+  );
+}
 export function productionReportStatus(
   report: ProductionE2EReport,
 ): ResultStatus {
@@ -213,7 +227,7 @@ export async function verifyProductionReport(
     !subjects.includes(payload.sub!) ||
     Boolean(payload.head_ref) ||
     Boolean(payload.base_ref) ||
-    Boolean(payload.job_workflow_ref) ||
+    !productionDirectWorkflowClaimsMatch(payload, report.runnerCommit) ||
     !/^[A-Za-z0-9_-]{16,200}$/.test(payload.jti!) ||
     payload.iat! < completed / 1000 - 30 ||
     payload.iat! > now / 1000 + 5

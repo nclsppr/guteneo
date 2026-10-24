@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { gzipSync } from "node:zlib";
 import { servePublicAssets } from "../../apps/api/src/public-assets";
 import { type Env } from "../../apps/api/src/env";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
@@ -350,7 +351,7 @@ describe("production static crawl boundary", () => {
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
       expect(response.headers.get("ETag")).toBe('"asset-sha"');
       expect(response.headers.get("Cache-Control")).toBe(
-        "public, max-age=0, must-revalidate",
+        "public, max-age=0, must-revalidate, no-transform",
       );
       expect(response.headers.get("Content-Security-Policy")).toContain(
         "frame-ancestors 'none'",
@@ -417,8 +418,55 @@ describe("production static crawl boundary", () => {
       expect(response.status).toBe(304);
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
       expect(response.headers.get("ETag")).toBe('"same"');
+      expect(response.headers.get("Cache-Control")).toBe("no-transform");
       expect(await response.text()).toBe("");
     }
+  });
+  it.each(site.locales)("protects exact public HTML from transformation in %s for GET and HEAD", async (locale) => {
+    for (const method of ["GET", "HEAD"]) {
+      const bytes = new TextEncoder().encode(`<html lang="${locale}"><body>Épreuve €</body></html>`);
+      const { env } = fixture(new Response(bytes, { headers: {
+        "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate",
+        ETag: '"exact-localized"', "Content-Length": String(bytes.byteLength),
+      } }));
+      const response = (await servePublicAssets(new Request(`${site.origin}/?lang=${locale}`, { method }), env))!;
+      expect(response.headers.get("Cache-Control")).toBe("public, max-age=0, must-revalidate, no-transform");
+      expect(response.headers.get("Content-Length")).toBe(String(bytes.byteLength));
+      expect(response.headers.get("ETag")).toBe('"exact-localized"');
+      expect(new Uint8Array(await response.arrayBuffer())).toEqual(method === "HEAD" ? new Uint8Array() : bytes);
+    }
+  });
+  it.each(["no-store", "public, max-age=30, no-transform", "public, NO-TRANSFORM, must-revalidate"])(
+    "retains the existing public HTML cache policy %s without duplicate directives", async (policy) => {
+      const { env } = fixture(new Response("exact", { headers: { "Content-Type": "text/html", "Cache-Control": policy } }));
+      const response = (await servePublicAssets(new Request(site.origin + "/"), env))!;
+      expect(response.headers.get("Cache-Control")).toBe(policy === "no-store" ? "no-store, no-transform" : policy);
+      expect(await response.text()).toBe("exact");
+    },
+  );
+  it("preserves an already compressed public representation and its framing", async () => {
+    const bytes = new Uint8Array(gzipSync('<html lang="fr"><body>Épreuve €</body></html>'));
+    const { env } = fixture(new Response(bytes, { headers: { "Content-Type": "text/html", "Content-Encoding": "gzip",
+      "Content-Length": String(bytes.byteLength), "Cache-Control": "public, max-age=0, must-revalidate", ETag: '"compressed"' } }));
+    const response = (await servePublicAssets(new Request(site.origin + "/"), env))!;
+    expect(response.headers.get("Content-Encoding")).toBe("gzip");
+    expect(response.headers.get("Content-Length")).toBe(String(bytes.byteLength));
+    expect(response.headers.get("ETag")).toBe('"compressed"');
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(bytes);
+  });
+  it.each([
+    [site.origin + "/assets/app.js", "application/javascript"],
+    [site.origin + "/art.svg", "image/svg+xml"],
+    [site.origin + "/videos/fixture.mp4", "video/mp4"],
+    [site.origin + "/other/", "text/html"],
+    ["https://fallback.invalid/", "text/html"],
+    [site.origin + "/", "application/json"],
+  ])("keeps cache/representation unchanged outside public canonical HTML: %s", async (url, type) => {
+    const { env } = fixture(new Response("exact", { headers: { "Content-Type": type, "Cache-Control": "public, max-age=300", ETag: '"same"' } }));
+    const response = (await servePublicAssets(new Request(url), env))!;
+    expect(response.headers.get("Cache-Control")).toBe("public, max-age=300");
+    expect(response.headers.get("ETag")).toBe('"same"');
+    expect(await response.text()).toBe("exact");
   });
   it("keeps unknown HTML, missing assets, JSON and failed public documents noindex", async () => {
     for (const [path, status, type] of [
